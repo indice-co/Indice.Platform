@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IAppLanguagesService, MenuOption } from '@indice/ng-components';
-import { catchError, map, Observable, of, Subject, switchMap, take, takeUntil, tap } from 'rxjs';
+import { catchError, map, Observable, of, Subject, take, tap } from 'rxjs';
 import { AuthService } from '@indice/ng-auth';
-import { HttpClient } from '@angular/common/http';
+import { HttpBackend, HttpClient } from '@angular/common/http';
 import { MESSAGES_API_BASE_URL } from '../../core/services/messages-api.service';
 import { User } from 'oidc-client-ts';
 
@@ -13,15 +13,26 @@ import { User } from 'oidc-client-ts';
 export class AppLanguagesService implements IAppLanguagesService {
 
   private _languages: MenuOption[] = [];
-  public options: Observable<MenuOption[]> | undefined = of([new MenuOption('EN', 'EN', 'English'), new MenuOption('EL', 'EL', 'Ελληνικά')]);
+  public options: Observable<MenuOption[]>;
   public selected?: string | undefined;
   public default?: string | undefined;
   private _destroy$ = new Subject<void>();
-
-  constructor(private translate: TranslateService, private http: HttpClient, @Inject(AuthService) protected _authService: AuthService, @Inject(MESSAGES_API_BASE_URL) protected _apiBaseUrl: string) {
-    this.initializeLanguages();
+  private http: HttpClient
+  constructor(private translate: TranslateService, private httpBackendHandler: HttpBackend, @Inject(AuthService) protected _authService: AuthService, @Inject(MESSAGES_API_BASE_URL) protected _apiBaseUrl: string) {
+    this.http = new HttpClient(this.httpBackendHandler);
+    this.options = of([new MenuOption('EN', 'EN', 'English'), new MenuOption('EL', 'EL', 'Ελληνικά')]);
+    this._languages = [new MenuOption('EN', 'EN', 'English'), new MenuOption('EL', 'EL', 'Ελληνικά')];
+    this.default = this._languages[0]?.value.toLowerCase();
+    this.setSelected('en');
+    this.loadAvailableLanguages();
+    this.setUserLocale();
   }
-  private initializeLanguages(): void {
+  private setUserLocale(): void {
+    this._authService.user$.subscribe((user) =>
+      this.setLocale(user));
+  }
+
+  loadAvailableLanguages(): Observable<MenuOption[]> {
     this.http.get<UiLocale[]>(this._apiBaseUrl + '/languages')
       .pipe(
         take(1),
@@ -36,19 +47,13 @@ export class AppLanguagesService implements IAppLanguagesService {
           ]);
         }),
         tap(languages => {
-          this._languages = languages;
-          if (!languages || languages.length === 0) {
-            this._languages = [new MenuOption('EN', 'EN', 'English')];
+          if (languages && languages.length > 0) {
+            this._languages = languages;
+            this.translate.addLangs(this._languages.map(l => l.value.toLowerCase()));
+            this.options = of(this._languages);
           }
-          this.translate.addLangs(this._languages.map(l => l.value.toLowerCase()));
-          this.default = this._languages[0]?.value.toLowerCase();
-          this.options = of(this._languages);
-        }),
-        switchMap(langs => this._authService.user$),
-        takeUntil(this._destroy$)
-      )
-      .subscribe((user) =>
-        this.setLocale(user));
+        })).subscribe();
+    return of(this._languages);
   }
 
   private setLocale(user: User | null): void {
