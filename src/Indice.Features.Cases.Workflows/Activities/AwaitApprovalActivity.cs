@@ -74,7 +74,10 @@ public class AwaitApprovalActivity(ICasesManager casesManager, WorkflowSharedRes
         await CasesManager.AddApprovalWithComment(
             caseId: CaseId.Value,
             action: Enum.Parse<Approval>(approval.Action.ToString()),
-            reason: sharedResourceService.GetLocalizedHtmlStringWithCulture(approval.Comment!, approval.Actor.CurrentCulture ?? "el"),
+            reason: sharedResourceService.GetLocalizedHtmlStringWithCulture(
+                key: approval.Comment ?? string.Empty,
+                culture: approval.Actor.CurrentCulture ?? CasesWorkflowConstants.DefaultTranslationLanguage
+            ),
             isPrivate: !PublicActions.Contains(approval.Action.ToString()),
             actor: approval.Actor
         );

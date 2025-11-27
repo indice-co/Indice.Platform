@@ -77,6 +77,10 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         @case.Draft = false;
+        // Add the public data Id to the case so the owner can retrieve her data
+        if (@case is { DataId: not null, PublicDataId: null }) {
+            @case.PublicDataId = @case.DataId;
+        }
         await DbContext.SaveChangesAsync();
         // TODO: check mapping for event payload
         await _platformEventService.Publish(new CaseSubmittedEvent(
