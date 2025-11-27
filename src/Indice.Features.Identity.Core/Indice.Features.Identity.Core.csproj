@@ -36,6 +36,14 @@
     <ProjectReference Include="..\Indice.Features.GeoIP\Indice.Features.GeoIP.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Types\regexes.yaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Types\regexes.yaml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="ExtendedIdentityErrorResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
