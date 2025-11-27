@@ -23,13 +23,17 @@ public class UserAgent
         DevicePlatform = DecideDevicePlatform(Os);
         DeviceModel = FormatDeviceInfo(clientInfo?.Device);
     }
-
+    /// <summary>
+    /// Creates and initializes a UAParser <see cref="Parser"/> instance from the embedded <c>regexes.yaml</c> resource.
+    /// Loads the resource from the executing assembly. If the resource cannot be found, falls back to the default parser.
+    /// </summary>
+    /// <returns>A configured <see cref="Parser"/> instance.</returns>
     private static Parser CreateParser() {
         var assembly = Assembly.GetExecutingAssembly();
         const string resourceName = "Indice.Features.Identity.Core.Types.regexes.yaml";
 
         using var stream = assembly.GetManifestResourceStream(resourceName);
-        if(stream is null)
+        if (stream is null)
             return Parser.GetDefault();
 
         using var reader = new StreamReader(stream, Encoding.UTF8);

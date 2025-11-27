@@ -39,9 +39,7 @@
     <None Remove="Types\regexes.yaml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Types\regexes.yaml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Types\regexes.yaml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="ExtendedIdentityErrorResources.Designer.cs">
