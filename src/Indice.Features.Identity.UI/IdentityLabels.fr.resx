@@ -928,10 +928,10 @@
     <value>Enregistrer</value>
   </data>
   <data name="VerifyPhone_PageTitle" xml:space="preserve">
-    <value>Verifier le numero de telephone</value>
+    <value>Vérifier le numéro de téléphone</value>
   </data>
   <data name="VerifyPhone_PageHeader" xml:space="preserve">
-    <value>Verifier le numero de telephone</value>
+    <value>Vérifier le numéro de téléphone</value>
   </data>
   <data name="VerifyPhone_OTP_is_valid_till" xml:space="preserve">
     <value>L'OTP est valide jusqu'a:</value>
