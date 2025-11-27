@@ -1,0 +1,44 @@
+﻿@page "/login/mfa/onboarding/verify-email"
+
+@model BaseMfaOnboardingverifyEmailModel
+
+@inject IWebHostEnvironment HostingEnvironment
+@inject IdentityUILocalizer Localizer
+
+@{
+    var title = ViewBag.Title = Localizer.MfaOnBoardingVerifyEmail_PageTitle;
+    var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingverifyEmailModel.TempDataKey);
+    var displayNext = !string.IsNullOrEmpty(infoMessage?.NextStepUrl) && infoMessage?.Alert?.AlertType == AlertType.Success;
+}
+
+<div class="sign-in m-auto">
+    <vc:page-heading title="@Localizer.MfaOnBoardingVerifyEmail_PageHeader" image-src="" />
+    <partial name="_ValidationSummary" />
+    <partial name="_Alert" model="infoMessage?.Alert" />
+    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
+        <input type="hidden" asp-for="Input.ReturnUrl" />
+        <input type="hidden" asp-for="Input.PhoneNumber" />
+        <div class="mb-3">
+            <label asp-for="Input.Code" class="form-label visually-hidden">@Localizer.MfaOnBoardingVerifyEmail_Code</label>
+            <input class="form-control" type="text" placeholder="@Localizer.MfaOnBoardingVerifyEmail_Code" asp-for="Input.Code" disabled="@displayNext" autofocus autocomplete="off" />
+            <span asp-validation-for="Input.Code" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <div class="row m-0 w-100">
+                <div class="@(displayNext ? "col-sm-6" : String.Empty) col-12 py-1">
+                    <button class="btn btn-info w-100" type="submit" disabled="@displayNext">@Localizer.MfaOnBoardingVerifyEmail_Save</button>
+                </div>
+                @if (displayNext)
+                {
+                    <div class="col-sm-6 col-12 py-1">
+                        <a class="btn btn-info w-100" href="@infoMessage!.NextStepUrl">@Localizer.MfaOnBoardingVerifyEmail_Next</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </form>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+}

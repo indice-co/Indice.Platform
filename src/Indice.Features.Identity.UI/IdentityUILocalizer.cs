@@ -683,6 +683,8 @@ public class IdentityUILocalizer
 
 
 
+
+
     #region MfaOnBoardingVerifyPhone
 
     /// <summary>
@@ -705,7 +707,69 @@ public class IdentityUILocalizer
     /// </summary>
     public virtual HtmlString MfaOnBoardingVerifyPhone_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_PageTitle));
 
+    /// <summary>
+    ///   Gets the localized string for "Verify phone number".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingVerifyEmail_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_PageHeader));
     #endregion
+
+
+
+    #region MfaOnBoardingAddEmail
+
+    /// <summary>
+    ///   Gets the localized string for "MFA onboarding - SMS".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingAddEmail_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_PageTitle));
+
+    /// <summary>
+    ///   Gets the localized string for "Next".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingAddEmail_Next => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_Next));
+
+    /// <summary>
+    ///   Gets the localized string for "Phone number".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingAddEmail_Email => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_PhoneNumber));
+
+    /// <summary>
+    ///   Gets the localized string for "Save".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingAddEmail_Save => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_Save));
+
+    /// <summary>
+    ///   Gets the localized string for "Save".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingAddEmail_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_PageHeader));
+
+    #endregion
+
+
+    #region MfaOnBoardingVerifyEmail
+
+    /// <summary>
+    ///   Gets the localized string for "Code".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingVerifyEmail_Code => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_Code));
+
+    /// <summary>
+    ///   Gets the localized string for "Next".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingVerifyEmail_Next => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_Next));
+
+    /// <summary>
+    ///   Gets the localized string for "Save".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingVerifyEmail_Save => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_Save));
+
+    /// <summary>
+    ///   Gets the localized string for "Verify phone number".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingVerifyEmail_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_PageTitle));
+
+    #endregion
+
+
 
     #region PasswordExpired
 

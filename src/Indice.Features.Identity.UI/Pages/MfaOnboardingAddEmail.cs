@@ -10,10 +10,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Identity.UI.Pages;
 
-/// <summary>Page model for the MFA onboarding add phone screen.</summary>
+/// <summary>Page model for the MFA onboarding add email screen.</summary>
 [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
 [UserActivityRequirementFilter<User>(UserActivityRequirementKind.RequiresMfaOnboarding)]
-[IdentityUI(typeof(BaseMfaOnboardingAddEmailModel))]
+[IdentityUI(typeof(MfaOnboardingAddEmailModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
 public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
@@ -69,7 +69,7 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
                 AddModelErrors(result);
                 return Page();
             }
-            await SendVerificationEmailAsync(user, Input.Email!);
+            await SendVerificationEmailAsync(user, Input.Email!, "mfa");
             return RedirectToPage("/MfaOnboardingVerifyEmail", routeValues: new { Input.ReturnUrl });
         }
         result = await UserManager.SetTwoFactorEnabledAsync(user, true);
@@ -78,12 +78,12 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
             return Page();
         }
         TempData.Put(TempDataKey, AlertModel.Success(UserManager.MessageDescriber.MfaAddPhoneSuccessMessage));
-        View.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
+        View.EmailConfirmed = user.EmailConfirmed;
         return Page();
     }
 }
 
-internal class MfaOnboardingAddEmailModel : BaseMfaOnboardingAddPhoneModel
+internal class MfaOnboardingAddEmailModel : BaseMfaOnboardingAddEmailModel
 {
     public MfaOnboardingAddEmailModel(
         ExtendedUserManager<User> userManager
