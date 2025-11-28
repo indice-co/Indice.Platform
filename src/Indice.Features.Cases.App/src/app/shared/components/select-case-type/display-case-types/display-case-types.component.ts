@@ -2,9 +2,10 @@ import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { CaseTypePartial } from 'src/app/core/services/cases-api.service';
 
 @Component({
-  selector: 'app-display-case-types',
-  templateUrl: './display-case-types.component.html',
-  styleUrls: ['./display-case-types.component.scss']
+    selector: 'app-display-case-types',
+    templateUrl: './display-case-types.component.html',
+    styleUrls: ['./display-case-types.component.scss'],
+    standalone: false
 })
 export class DisplayCaseTypesComponent implements OnInit {
   @Input() public caseTypes: CaseTypePartial[] = [];

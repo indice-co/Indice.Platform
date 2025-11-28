@@ -6,9 +6,10 @@ import { LookupItemResultSet } from "src/app/core/services/cases-api.service";
 import { LookupsService } from "src/app/core/services/lookups.service";
 
 @Component({
-  selector: 'app-lookup-widget',
-  templateUrl: './lookup-widget.component.html',
-  styleUrls: ['./lookup-widget.component.scss']
+    selector: 'app-lookup-widget',
+    templateUrl: './lookup-widget.component.html',
+    styleUrls: ['./lookup-widget.component.scss'],
+    standalone: false
 })
 export class LookupWidgetComponent implements OnInit, OnDestroy {
   formControl: any;

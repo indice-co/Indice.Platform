@@ -3,8 +3,9 @@ import { tap } from 'rxjs/operators';
 import { CasesApiService, TimelineEntry } from 'src/app/core/services/cases-api.service';
 
 @Component({
-  selector: 'app-case-timeline',
-  templateUrl: './case-timeline.component.html'
+    selector: 'app-case-timeline',
+    templateUrl: './case-timeline.component.html',
+    standalone: false
 })
 export class CaseTimelineComponent implements OnInit {
 

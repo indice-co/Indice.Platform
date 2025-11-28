@@ -2,9 +2,10 @@ import { JsonSchemaFormService } from '@ajsf-extended/core';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-href-widget',
-  templateUrl: './href-widget.component.html',
-  styleUrls: ['./href-widget.component.scss']
+    selector: 'app-href-widget',
+    templateUrl: './href-widget.component.html',
+    styleUrls: ['./href-widget.component.scss'],
+    standalone: false
 })
 export class HrefWidgetComponent implements OnInit {
   formControl: any;

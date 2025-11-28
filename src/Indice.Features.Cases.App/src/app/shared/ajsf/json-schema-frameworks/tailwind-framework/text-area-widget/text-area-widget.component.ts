@@ -2,9 +2,10 @@ import { JsonSchemaFormService } from '@ajsf-extended/core';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-text-area-widget',
-  templateUrl: './text-area-widget.component.html',
-  styleUrls: ['./text-area-widget.component.scss']
+    selector: 'app-text-area-widget',
+    templateUrl: './text-area-widget.component.html',
+    styleUrls: ['./text-area-widget.component.scss'],
+    standalone: false
 })
 export class TextAreaWidgetComponent implements OnInit {
   formControl: any;

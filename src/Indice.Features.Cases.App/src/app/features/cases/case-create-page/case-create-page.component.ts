@@ -4,9 +4,10 @@ import { tap } from 'rxjs/operators';
 import { CasesApiService, CreateDraftCaseRequest, Contact, ContactMeta } from 'src/app/core/services/cases-api.service';
 
 @Component({
-  selector: 'app-case-create-page',
-  templateUrl: './case-create-page.component.html',
-  styleUrls: ['./case-create-page.component.scss']
+    selector: 'app-case-create-page',
+    templateUrl: './case-create-page.component.html',
+    styleUrls: ['./case-create-page.component.scss'],
+    standalone: false
 })
 export class CaseCreatePageComponent implements OnInit {
   public contact?: Contact;

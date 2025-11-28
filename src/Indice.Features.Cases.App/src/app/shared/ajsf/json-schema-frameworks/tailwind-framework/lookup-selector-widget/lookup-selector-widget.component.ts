@@ -9,8 +9,9 @@ import { Case, CasesApiService, LookupItemResultSet } from "src/app/core/service
 import { LookupsService } from "src/app/core/services/lookups.service";
 
 @Component({
-  selector: 'app-lookup-selector-widget',
-  templateUrl: './lookup-selector-widget.component.html'
+    selector: 'app-lookup-selector-widget',
+    templateUrl: './lookup-selector-widget.component.html',
+    standalone: false
 })
 export class LookupSelectorWidgetComponent implements OnInit, OnDestroy {
   formControl: any;

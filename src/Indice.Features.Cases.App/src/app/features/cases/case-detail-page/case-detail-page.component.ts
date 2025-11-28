@@ -7,8 +7,9 @@ import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import { CaseActions, Case, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage, CasePartial } from 'src/app/core/services/cases-api.service';
 
 @Component({
-  selector: 'app-case-detail-page',
-  templateUrl: './case-detail-page.component.html'
+    selector: 'app-case-detail-page',
+    templateUrl: './case-detail-page.component.html',
+    standalone: false
 })
 export class CaseDetailPageComponent implements OnInit, OnDestroy {
 

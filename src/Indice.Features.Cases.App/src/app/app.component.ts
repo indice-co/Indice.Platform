@@ -2,11 +2,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-root',
-  template: `
+    selector: 'app-root',
+    template: `
   <ng-progress ngProgressHttp/>
   <lib-shell-layout></lib-shell-layout>
-  `
+  `,
+    standalone: false
 })
 export class AppComponent {
   constructor(translate: TranslateService) {

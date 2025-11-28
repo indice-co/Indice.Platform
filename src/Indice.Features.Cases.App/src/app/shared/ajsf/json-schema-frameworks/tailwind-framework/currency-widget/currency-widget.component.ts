@@ -4,9 +4,10 @@ import { Subject } from 'rxjs';
 import { takeUntil, map, tap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-currency-widget',
-  templateUrl: './currency-widget.component.html',
-  styleUrls: ['./currency-widget.component.scss']
+    selector: 'app-currency-widget',
+    templateUrl: './currency-widget.component.html',
+    styleUrls: ['./currency-widget.component.scss'],
+    standalone: false
 })
 export class CurrencyWidgetComponent implements OnInit {
   formControl: any;

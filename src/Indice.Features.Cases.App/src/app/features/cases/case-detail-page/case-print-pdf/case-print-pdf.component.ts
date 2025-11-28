@@ -3,9 +3,10 @@ import { tap } from 'rxjs/operators';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 
 @Component({
-  selector: 'app-case-print-pdf',
-  templateUrl: './case-print-pdf.component.html',
-  styleUrls: ['./case-print-pdf.component.scss']
+    selector: 'app-case-print-pdf',
+    templateUrl: './case-print-pdf.component.html',
+    styleUrls: ['./case-print-pdf.component.scss'],
+    standalone: false
 })
 export class CasePrintPdfComponent implements OnInit {
 

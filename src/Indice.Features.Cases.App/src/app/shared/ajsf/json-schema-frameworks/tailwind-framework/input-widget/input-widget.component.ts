@@ -2,9 +2,10 @@ import { JsonSchemaFormService } from '@ajsf-extended/core';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-input-widget',
-  templateUrl: './input-widget.component.html',
-  styleUrls: ['./input-widget.component.scss']
+    selector: 'app-input-widget',
+    templateUrl: './input-widget.component.html',
+    styleUrls: ['./input-widget.component.scss'],
+    standalone: false
 })
 export class InputWidgetComponent implements OnInit {
   formControl: any;

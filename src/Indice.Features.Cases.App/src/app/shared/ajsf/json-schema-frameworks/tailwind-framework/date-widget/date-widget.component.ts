@@ -4,9 +4,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import * as  moment from 'moment';
 
 @Component({
-  selector: 'app-date-widget',
-  templateUrl: './date-widget.component.html',
-  styleUrls: ['./date-widget.component.scss']
+    selector: 'app-date-widget',
+    templateUrl: './date-widget.component.html',
+    styleUrls: ['./date-widget.component.scss'],
+    standalone: false
 })
 export class DateWidgetComponent implements OnInit {
   formControl: any;

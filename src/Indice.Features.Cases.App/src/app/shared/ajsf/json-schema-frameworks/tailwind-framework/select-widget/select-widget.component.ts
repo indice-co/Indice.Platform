@@ -2,9 +2,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { buildTitleMap, isArray, JsonSchemaFormService } from '@ajsf-extended/core';
 
 @Component({
-  selector: 'app-select-widget',
-  templateUrl: './select-widget.component.html',
-  styleUrls: ['./select-widget.component.scss']
+    selector: 'app-select-widget',
+    templateUrl: './select-widget.component.html',
+    styleUrls: ['./select-widget.component.scss'],
+    standalone: false
 })
 export class SelectWidgetComponent implements OnInit {
   formControl: any;

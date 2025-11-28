@@ -16,9 +16,10 @@ import { Component, Input, OnInit } from '@angular/core';
  * ```
  */
 @Component({
-  selector: 'app-label-only-widget',
-  templateUrl: './label-only-widget.component.html',
-  styleUrls: ['./label-only-widget.component.scss']
+    selector: 'app-label-only-widget',
+    templateUrl: './label-only-widget.component.html',
+    styleUrls: ['./label-only-widget.component.scss'],
+    standalone: false
 })
 export class LabelOnlyWidgetComponent implements OnInit {
   formControl: any;

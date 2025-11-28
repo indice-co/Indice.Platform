@@ -3,8 +3,9 @@ import { tap } from 'rxjs/operators';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 
 @Component({
-  selector: 'app-case-assignment',
-  templateUrl: './case-assignment.component.html'
+    selector: 'app-case-assignment',
+    templateUrl: './case-assignment.component.html',
+    standalone: false
 })
 export class CaseAssignmentComponent implements OnInit {
 
