@@ -34,7 +34,7 @@ public abstract class BaseMfaOnboardingverifyEmailModel : BasePageModel
     public VerifyEmailInputModel Input { get; set; } = new VerifyEmailInputModel();
 
     /// <summary>Key used for setting and retrieving temp data.</summary>
-    public static string TempDataKey => "mfa_onboarding_verify_phone_alert";
+    public static string TempDataKey => "mfa_onboarding_verify_email_alert";
 
     /// <summary>MFA onboarding verify phone page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
@@ -60,9 +60,9 @@ public abstract class BaseMfaOnboardingverifyEmailModel : BasePageModel
         var result = await UserManager.ChangeEmailAsync(user, user.Email!, Input.Code!);
         if (result.Succeeded) {
             await UserManager.SetTwoFactorEnabledAsync(user, true);
-            tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyEmailSuccessMessage);
+            tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyPhoneSuccessMessage);
         } else {
-            tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail);
+            tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone);
         }
         TempData.Put(TempDataKey, tempDataModel);
         return Page();
