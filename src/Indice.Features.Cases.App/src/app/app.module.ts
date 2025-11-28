@@ -1,6 +1,6 @@
 import { JsonSchemaFormModule } from '@ajsf-extended/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS, HttpClient, withInterceptors, provideHttpClient } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClient, withInterceptors, provideHttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
 import { AppComponent } from './app.component';
@@ -26,19 +26,16 @@ import { CasesModule } from './features/cases/cases.module';
 import { NgProgressbar } from 'ngx-progressbar';
 import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
 
-@NgModule({
-    declarations: [
+@NgModule({ declarations: [
         AppComponent,
         DashboardComponent,
         HomeComponent,
         LogOutComponent,
     ],
-    imports: [
-        AppRoutingModule,
+    bootstrap: [AppComponent], imports: [AppRoutingModule,
         BrowserModule,
         CommonModule,
         FormsModule,
-        HttpClientModule,
         IndiceAuthModule.forRoot(),
         IndiceComponentsModule.forRoot(),
         SharedModule,
@@ -54,9 +51,7 @@ import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
                 useFactory: HttpLoaderFactory,
                 deps: [HttpClient]
             }
-        })
-    ],
-    providers: [
+        })], providers: [
         ModalService,
         AuthService,
         CasesApiService,
@@ -66,10 +61,9 @@ import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
         { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: AcceptLanguageHttpInterceptor, multi: true },
         { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
-        provideHttpClient(withInterceptors([progressInterceptor]))
-    ],
-    bootstrap: [AppComponent]
-})
+        provideHttpClient(withInterceptors([progressInterceptor])),
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule { }
 
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
