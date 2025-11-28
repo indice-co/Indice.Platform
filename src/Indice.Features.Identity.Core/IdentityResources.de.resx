@@ -1,64 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -118,306 +59,306 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DeviceAlreadyTrusted" xml:space="preserve">
-    <value>Il dispositivo è già attendibile.</value>
+    <value>Das Gerät ist bereits vertrauenswürdig.</value>
   </data>
   <data name="DevicePendingTrustActivation" xml:space="preserve">
-    <value>Il dispositivo è in attesa di attivazione di attendibilità.</value>
+    <value>Das Gerät wartet auf Aktivierung des Vertrauens.</value>
   </data>
   <data name="DeviceRegistrationOtpCode" xml:space="preserve">
-    <value>Il codice OTP di registrazione per il dispositivo {0} è {1}.</value>
+    <value>Registrierungs-OTP-Code für Gerät {0} ist {1}.</value>
   </data>
   <data name="EmailAlreadyConfirmed" xml:space="preserve">
-    <value>L'email dell'utente è già confermata.</value>
+    <value>Die E-Mail-Adresse des Benutzers ist bereits bestätigt.</value>
   </data>
   <data name="EmailUpdateMessageBody" xml:space="preserve">
-    <value>Il codice di verifica email è {0}.</value>
+    <value>Der E-Mail-Bestätigungscode ist {0}.</value>
   </data>
   <data name="EmailUpdateMessageSubject" xml:space="preserve">
-    <value>Conferma il tuo account.</value>
+    <value>Bestätigen Sie Ihr Konto.</value>
   </data>
   <data name="ForgotPasswordMessageBody" xml:space="preserve">
-    <value>Segui &lt;a href="{0}"&gt;questo link&lt;/a&gt; per creare la tua nuova password</value>
+    <value>Folgen Sie &lt;a href="{0}" &gt;diesem Link&lt;a&gt;, um Ihr neues Passwort zu erstellen</value>
   </data>
   <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
-    <value>Il codice OTP per un tentativo di accesso sospetto è {0}.</value>
+    <value>Verdächtiger Anmeldeversuch OTP-Code ist {0}.</value>
   </data>
   <data name="ImpossibleTravelOtpSubject" xml:space="preserve">
-    <value>Tentativo di accesso sospetto da una nuova posizione.</value>
+    <value>Verdächtiger Anmeldeversuch von einem neuen Standort.</value>
   </data>
   <data name="InsufficientNumberOfDevices" xml:space="preserve">
-    <value>L'utente deve avere almeno un dispositivo.</value>
+    <value>Der Benutzer muss mindestens 1 Gerät haben.</value>
   </data>
   <data name="InvalidPhoneNumber" xml:space="preserve">
-    <value>Il numero di telefono '{0}' non è valido.</value>
+    <value>Die Telefonnummer ist ungültig '{0}'.</value>
   </data>
   <data name="LargeNumberOfDevices" xml:space="preserve">
-    <value>Impossibile impostare il numero massimo di dispositivi a {0}. Il valore massimo può essere {1}.</value>
+    <value>Die maximale Anzahl von Geräten kann nicht auf {0} festgelegt werden. Der Höchstwert kann {1} sein.</value>
   </data>
   <data name="LargeNumberOfUserDevices" xml:space="preserve">
-    <value>L'utente ha già {0} dispositivi. Impossibile impostare il numero massimo a {1}.</value>
+    <value>Der Benutzer hat bereits {0} Geräte. Die maximale Anzahl kann nicht auf {1} festgelegt werden.</value>
   </data>
   <data name="MaxNumberOfDevices" xml:space="preserve">
-    <value>Hai raggiunto il numero massimo di dispositivi registrati.</value>
+    <value>Sie haben die maximale Anzahl registrierter Geräte erreicht.</value>
   </data>
   <data name="OtpSecuredValidatorOtpBody" xml:space="preserve">
-    <value>Il tuo codice di verifica è '{0}'.</value>
+    <value>Ihr Bestätigungscode ist '{0}'.</value>
   </data>
   <data name="OtpSecuredValidatorOtpSubject" xml:space="preserve">
-    <value>Verifica OTP</value>
+    <value>OTP-Verifizierung</value>
   </data>
   <data name="PhoneNumberAlreadyConfirmed" xml:space="preserve">
-    <value>Il numero di telefono dell'utente è già confermato.</value>
+    <value>Die Telefonnummer des Benutzers ist bereits bestätigt.</value>
   </data>
   <data name="PhoneNumberVerificationMessage" xml:space="preserve">
-    <value>Il codice di verifica SMS è {0}.</value>
+    <value>Der SMS-Bestätigungscode ist {0}.</value>
   </data>
   <data name="RequiresOtpMessage" xml:space="preserve">
-    <value>Il codice OTP è {0}.</value>
+    <value>Der OTP-Code ist {0}.</value>
   </data>
   <data name="TrustedDeviceRequiresOtpMessage" xml:space="preserve">
-    <value>Il codice OTP è {0}.</value>
+    <value>Der OTP-Code ist {0}.</value>
   </data>
   <data name="TrustedDevicesLimitReached" xml:space="preserve">
-    <value>Hai raggiunto il numero massimo di dispositivi attendibili.</value>
+    <value>Sie haben die maximale Anzahl vertrauenswürdiger Geräte erreicht.</value>
   </data>
   <data name="UserAlreadyHasEmail" xml:space="preserve">
-    <value>L'utente ha già l'email '{0}'.</value>
+    <value>Der Benutzer hat bereits die E-Mail-Adresse '{0}'.</value>
   </data>
   <data name="UserAlreadyHasPhoneNumber" xml:space="preserve">
-    <value>L'utente ha già il numero di telefono '{0}'.</value>
+    <value>Der Benutzer hat bereits die Telefonnummer '{0}'.</value>
   </data>
   <data name="ConfirmationEmailSubject" xml:space="preserve">
-    <value>Conferma account</value>
+    <value>Kontobestätigung</value>
   </data>
   <data name="PhoneVerificationSmsSubject" xml:space="preserve">
-    <value>Verifica numero di telefono</value>
+    <value>Telefonnummer verifizieren</value>
   </data>
   <data name="PhoneVerificationSmsBody" xml:space="preserve">
-    <value>CODICE OTP: {0} PER LA VERIFICA DEL NUMERO DI TELEFONO. SARÀ VALIDO PER 2 MINUTI.</value>
+    <value>OTP-CODE: {0} ZUR VERIFIZIERUNG DER TELEFONNUMMER. ER IST 2 MINUTEN GÜLTIG.</value>
   </data>
   <data name="ConfirmationEmailChangeSubject" xml:space="preserve">
-    <value>Modifica conferma email</value>
+    <value>Bestätigung der E-Mail-Änderung</value>
   </data>
   <data name="EmailChangeMessageBody" xml:space="preserve">
-    <value>Il codice di verifica email è {0}.</value>
+    <value>Der E-Mail-Bestätigungscode ist {0}.</value>
   </data>
   <data name="PhoneChangeVerificationSmsSubject" xml:space="preserve">
-    <value>Cambia numero di telefono</value>
+    <value>Telefonnummer ändern</value>
   </data>
   <data name="PhoneChangeVerificationSmsBody" xml:space="preserve">
-    <value>CODICE OTP: {0} PER LA VERIFICA DEL NUMERO DI TELEFONO. SARÀ VALIDO PER 2 MINUTI.</value>
+    <value>OTP-CODE: {0} ZUR VERIFIZIERUNG DER TELEFONNUMMER. ER IST 2 MINUTEN GÜLTIG.</value>
   </data>
   <data name="PhoneNumberChangeVerificationMessage" xml:space="preserve">
-    <value>Il codice di verifica SMS è {0}.</value>
+    <value>Der SMS-Bestätigungscode ist {0}.</value>
   </data>
   <data name="RegisterEmailSubject" xml:space="preserve">
-    <value>Benvenuto su {0}! Conferma la tua email per iniziare.</value>
+    <value>Willkommen bei {0}! Bitte bestätigen Sie Ihre E-Mail-Adresse, um zu beginnen.</value>
   </data>
   <data name="PasswordChangedEventSubject" xml:space="preserve">
-    <value>La tua password è stata modificata</value>
+    <value>Ihr Passwort wurde geändert</value>
   </data>
   <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
-    <value>Notifica di sicurezza {0}</value>
+    <value>Sicherheitsbenachrichtigung {0}</value>
   </data>
   <data name="AddEmailValidationEmailEmpty" xml:space="preserve">
-    <value>Inserisci il tuo indirizzo email così possiamo verificarlo prima di continuare.</value>
+    <value>Bitte geben Sie Ihre E-Mail-Adresse ein, damit wir sie verifizieren können, bevor wir fortfahren.</value>
   </data>
   <data name="AddEmailConfirmationEmailSend" xml:space="preserve">
-    <value>È stata inviata un'email di conferma all'indirizzo sottostante.</value>
+    <value>Eine Bestätigungs-E-Mail wurde an die unten angegebene Adresse gesendet.</value>
   </data>
   <data name="AddPhoneValidationPhoneEmpty" xml:space="preserve">
-    <value>Seleziona il tuo numero di telefono così possiamo verificarlo prima di continuare.</value>
+    <value>Bitte wählen Sie Ihre Telefonnummer aus, damit wir sie verifizieren können, bevor wir fortfahren.</value>
   </data>
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
-    <value>Password dimenticata</value>
+    <value>Passwort vergessen</value>
   </data>
   <data name="ForgotPasswordConfirmationError" xml:space="preserve">
-    <value>Qualcosa è andato storto.</value>
+    <value>Etwas ist schiefgelaufen.</value>
   </data>
   <data name="LoginValidationInvalidCredentials" xml:space="preserve">
-    <value>Controlla le tue credenziali.</value>
+    <value>Bitte überprüfen Sie Ihre Anmeldedaten.</value>
   </data>
   <data name="MfaAddPhoneValidationPhoneEmpty" xml:space="preserve">
-    <value>Seleziona il tuo numero di telefono così possiamo verificarlo prima di continuare.</value>
+    <value>Bitte wählen Sie Ihre Telefonnummer aus, damit wir sie verifizieren können, bevor wir fortfahren.</value>
   </data>
   <data name="MfaAddPhoneSuccessMessage" xml:space="preserve">
-    <value>Hai abilitato con successo l'autenticazione a più fattori per il tuo account. Effettua il login per accedere.</value>
+    <value>Sie haben die MFA für Ihr Konto erfolgreich aktiviert. Melden Sie sich an, um auf Ihr Konto zuzugreifen.</value>
   </data>
   <data name="MfaAddPhoneValidationPhoneAlreadyConfirmed" xml:space="preserve">
-    <value>Il tuo numero di telefono è già confermato. Continua per abilitare l'autenticazione a più fattori.</value>
+    <value>Ihre Telefonnummer ist bereits bestätigt. Fahren Sie fort, um MFA zu aktivieren.</value>
   </data>
   <data name="MfaVerifyPhoneValidationMissingPhone" xml:space="preserve">
-    <value>Inserisci il codice che hai ricevuto sul tuo telefono cellulare.</value>
+    <value>Bitte geben Sie den Code ein, den Sie auf Ihrem Mobiltelefon erhalten haben.</value>
   </data>
   <data name="MfaVerifyPhoneSuccessMessage" xml:space="preserve">
-    <value>Il tuo numero di telefono è stato convalidato con successo. Premi il pulsante 'Avanti' per continuare.</value>
+    <value>Ihre Telefonnummer wurde erfolgreich validiert. Bitte drücken Sie die Schaltfläche 'Weiter', um fortzufahren.</value>
   </data>
   <data name="PasswordChangedSuccessfully" xml:space="preserve">
-    <value>La tua password è stata cambiata con successo. Premi il pulsante 'Avanti' per continuare.</value>
+    <value>Ihr Passwort wurde erfolgreich geändert. Bitte drücken Sie die Schaltfläche 'Weiter', um fortzufahren.</value>
   </data>
   <data name="ProfileExternalLoginAddedSuccessMessage" xml:space="preserve">
-    <value>Il login esterno è stato aggiunto.</value>
+    <value>Die externe Anmeldung wurde hinzugefügt.</value>
   </data>
   <data name="RegisterPhoneConfirmationPrompt" xml:space="preserve">
-    <value>Inserisci il codice che hai ricevuto sul tuo telefono cellulare.</value>
+    <value>Bitte geben Sie den Code ein, den Sie auf Ihrem Mobiltelefon erhalten haben.</value>
   </data>
   <data name="MfaSmsSubject" xml:space="preserve">
-    <value>Login OTP</value>
+    <value>OTP-Anmeldung</value>
   </data>
   <data name="MfaSmsBody" xml:space="preserve">
-    <value>Il tuo codice OTP per il login è: {0}</value>
+    <value>Ihr OTP-Code für die Anmeldung ist: {0}</value>
   </data>
   <data name="MfaValidationError" xml:space="preserve">
-    <value>Il codice OTP non è valido.</value>
+    <value>Der OTP-Code ist ungültig.</value>
   </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
-    <value>Il tuo account è temporaneamente bloccato. Contatta un amministratore di sistema.</value>
+    <value>Ihr Konto ist vorübergehend gesperrt. Bitte kontaktieren Sie einen Systemadministrator.</value>
   </data>
   <data name="PasswordExpiredMessage" xml:space="preserve">
-    <value>La tua password è scaduta. Scegli una nuova password.</value>
+    <value>Ihr Passwort ist abgelaufen. Bitte wählen Sie ein neues Passwort.</value>
   </data>
   <data name="UI_Validator_AddPassword_NewPassword_FieldName" xml:space="preserve">
-    <value>Nuova password</value>
+    <value>Neues Passwort</value>
   </data>
   <data name="UI_Validator_AddPassword_ConfirmPassword_FieldName" xml:space="preserve">
-    <value>Conferma password</value>
+    <value>Passwortbestätigung</value>
   </data>
   <data name="UI_Validator_PasswordExpired_NewPassword_Empty_Error" xml:space="preserve">
-    <value>Il campo 'Nuova password' non può essere vuoto.</value>
+    <value>Das Feld 'Neues Passwort' darf nicht leer sein.</value>
   </data>
   <data name="UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Il campo 'Conferma nuova password' non può essere vuoto.</value>
+    <value>Das Feld 'Bestätigung des neuen Passworts' darf nicht leer sein.</value>
   </data>
   <data name="UI_Validator_PasswordExpired_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>Il campo 'Conferma nuova password' deve avere lo stesso valore di 'Nuova password'.</value>
+    <value>Das Feld 'Bestätigung des neuen Passworts' muss mit 'Neues Passwort' übereinstimmen.</value>
   </data>
   <data name="UI_Validator_AddEmail_Email_FieldName" xml:space="preserve">
-    <value>Email</value>
+    <value>E-Mail</value>
   </data>
   <data name="UI_Validator_AddPhone_CallingCode_FieldName" xml:space="preserve">
-    <value>Prefisso telefonico</value>
+    <value>Vorwahl</value>
   </data>
   <data name="UI_Validator_AddPhone_PhoneNumber_FieldName" xml:space="preserve">
-    <value>Numero di telefono</value>
+    <value>Telefonnummer</value>
   </data>
   <data name="UI_Validator_AddPhone_PhoneNumber_InvalidFormat" xml:space="preserve">
-    <value>Il campo 'Numero di telefono' ha un formato non valido.</value>
+    <value>Das Feld 'Telefonnummer' hat ein ungültiges Format.</value>
   </data>
   <data name="UI_Validator_ChangePassword_OldPassword_FieldName" xml:space="preserve">
-    <value>Password vecchia</value>
+    <value>Altes Passwort</value>
   </data>
   <data name="UI_Validator_ChangePassword_NewPassword_FieldName" xml:space="preserve">
-    <value>Nuova password</value>
+    <value>Neues Passwort</value>
   </data>
   <data name="UI_Validator_EnableMfaSms_PhoneNumber_FieldName" xml:space="preserve">
-    <value>Numero di telefono</value>
+    <value>Telefonnummer</value>
   </data>
   <data name="UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat" xml:space="preserve">
-    <value>Il campo 'Numero di telefono' ha un formato non valido.</value>
+    <value>Das Feld 'Telefonnummer' hat ein ungültiges Format.</value>
   </data>
   <data name="UI_Validator_ForgotPasswordConfirmation_Email_FieldName" xml:space="preserve">
-    <value>Email</value>
+    <value>E-Mail</value>
   </data>
   <data name="UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName" xml:space="preserve">
-    <value>Nuova password</value>
+    <value>Neues Passwort</value>
   </data>
   <data name="UI_Validator_ForgotPasswordConfirmation_Token_FieldName" xml:space="preserve">
     <value>Token</value>
   </data>
   <data name="UI_Validator_ForgotPassword_Email_FieldName" xml:space="preserve">
-    <value>Email</value>
+    <value>E-Mail</value>
   </data>
   <data name="UI_Validator_Login_UserName_FieldName" xml:space="preserve">
-    <value>Nome utente</value>
+    <value>Benutzername</value>
   </data>
   <data name="UI_Validator_Login_Password_FieldName" xml:space="preserve">
-    <value>Password</value>
+    <value>Passwort</value>
   </data>
   <data name="UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_FieldName" xml:space="preserve">
-    <value>Metodo di autenticazione selezionato</value>
+    <value>Ausgewählte Authentifizierungsmethode</value>
   </data>
   <data name="UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_Required" xml:space="preserve">
-    <value>Seleziona uno dei metodi di autenticazione disponibili.</value>
+    <value>Bitte wählen Sie eine der verfügbaren Authentifizierungsmethoden.</value>
   </data>
   <data name="UI_Validator_Profile_UserName_FieldName" xml:space="preserve">
-    <value>Nome utente</value>
+    <value>Benutzername</value>
   </data>
   <data name="UI_Validator_Profile_UserName_InvalidFormat" xml:space="preserve">
-    <value>Il campo 'Nome utente' può contenere cifre, caratteri latini maiuscoli o minuscoli e i simboli -.@+</value>
+    <value>Das Feld 'Benutzername' akzeptiert Ziffern, Groß- oder Kleinbuchstaben und die Symbole -._@+</value>
   </data>
   <data name="UI_Validator_Profile_Email_FieldName" xml:space="preserve">
-    <value>Email</value>
+    <value>E-Mail</value>
   </data>
   <data name="UI_Validator_Profile_CallingCode_FieldName" xml:space="preserve">
-    <value>Prefisso telefonico</value>
+    <value>Vorwahl</value>
   </data>
   <data name="UI_Validator_Profile_PhoneNumber_FieldName" xml:space="preserve">
-    <value>Cellulare</value>
+    <value>Mobiltelefon</value>
   </data>
   <data name="UI_Validator_Profile_PhoneNumber_InvalidFormat" xml:space="preserve">
-    <value>Il campo 'Cellulare' ha un formato non valido.</value>
+    <value>Das Feld 'Mobiltelefon' hat ein ungültiges Format.</value>
   </data>
   <data name="UI_Validator_Profile_Tin_FieldName" xml:space="preserve">
-    <value>Codice fiscale</value>
+    <value>Steuernummer</value>
   </data>
   <data name="UI_Validator_Profile_Tin_InvalidFormat" xml:space="preserve">
-    <value>Codice fiscale non valido.</value>
+    <value>Ungültige Steuernummer.</value>
   </data>
   <data name="UI_Validator_Register_UserName_InvalidFormat" xml:space="preserve">
-    <value>Il campo 'Nome utente' può contenere cifre, caratteri latini maiuscoli o minuscoli e i simboli -.@+</value>
+    <value>Das Feld 'Benutzername' akzeptiert Ziffern, Groß- oder Kleinbuchstaben und die Symbole -._@+</value>
   </data>
   <data name="UI_Validator_Register_UserName_AlreadyExists" xml:space="preserve">
-    <value>Questo nome utente esiste già. Usane un altro.</value>
+    <value>Dieser Benutzername existiert bereits. Bitte verwenden Sie einen anderen.</value>
   </data>
   <data name="UI_Validator_Register_Email_AlreadyExists" xml:space="preserve">
-    <value>Questa email esiste già. Usa un'email diversa.</value>
+    <value>Diese E-Mail-Adresse existiert bereits. Bitte verwenden Sie eine andere E-Mail-Adresse.</value>
   </data>
   <data name="UI_Validator_Register_AcceptTerms_Message" xml:space="preserve">
-    <value>Devi accettare i 'termini di utilizzo' del servizio.</value>
+    <value>Sie müssen die 'Nutzungsbedingungen' des Dienstes akzeptieren.</value>
   </data>
   <data name="UI_Validator_Register_ReadPrivacyPolicy_Message" xml:space="preserve">
-    <value>Devi essere informato sulla politica della privacy.</value>
+    <value>Sie müssen über die Datenschutzrichtlinie informiert werden.</value>
   </data>
   <data name="UI_Validator_Register_PhoneNumber_InvalidFormat" xml:space="preserve">
-    <value>Il campo 'Numero di telefono' ha un formato non valido.</value>
+    <value>Das Feld 'Telefonnummer' hat ein ungültiges Format.</value>
   </data>
   <data name="UI_Validator_Register_FirstName_FieldName" xml:space="preserve">
-    <value>Nome</value>
+    <value>Vorname</value>
   </data>
   <data name="UI_Validator_Register_LastName_FieldName" xml:space="preserve">
-    <value>Cognome</value>
+    <value>Nachname</value>
   </data>
   <data name="UI_Validator_Register_UserName_FieldName" xml:space="preserve">
-    <value>Nome utente</value>
+    <value>Benutzername</value>
   </data>
   <data name="UI_Validator_Register_Password_FieldName" xml:space="preserve">
-    <value>Password</value>
+    <value>Passwort</value>
   </data>
   <data name="UI_Validator_Register_Email_FieldName" xml:space="preserve">
-    <value>Email</value>
+    <value>E-Mail</value>
   </data>
   <data name="UI_Validator_Register_CallingCode_FieldName" xml:space="preserve">
-    <value>Prefisso telefonico</value>
+    <value>Vorwahl</value>
   </data>
   <data name="UI_Validator_VerifyPhone_PhoneNumber_FieldName" xml:space="preserve">
-    <value>Numero di telefono</value>
+    <value>Telefonnummer</value>
   </data>
   <data name="UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat" xml:space="preserve">
-    <value>Il campo 'Numero di telefono' ha un formato non valido.</value>
+    <value>Das Feld 'Telefonnummer' hat ein ungültiges Format.</value>
   </data>
   <data name="UI_Validator_VerifyPhone_Code_FieldName" xml:space="preserve">
-    <value>&#x8;Codice</value>
+    <value>Code</value>
   </data>
   <data name="AccountLockedEventSubject" xml:space="preserve">
-    <value>Il tuo account è stato temporaneamente bloccato</value>
+    <value>Ihr Konto wurde vorübergehend gesperrt</value>
   </data>
   <data name="AccountLockedEventDescription" xml:space="preserve">
-    <value>Il tuo account è stato temporaneamente bloccato a causa di molteplici tentativi di accesso non riusciti. Questo blocco è una misura di sicurezza per proteggere le tue informazioni. Si prega di riprovare più tardi.</value>
+    <value>Ihr Konto wurde aufgrund mehrerer fehlgeschlagener Anmeldeversuche vorübergehend gesperrt. Diese Sperre ist eine Sicherheitsmaßnahme zum Schutz Ihrer Informationen. Bitte versuchen Sie es später erneut.</value>
   </data>
   <data name="PasswordChangedEventDescription" xml:space="preserve">
-    <value>La tua password è stata modificata con successo.</value>
+    <value>Ihr Passwort wurde erfolgreich geändert.</value>
   </data>
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
-    <value>Per favore, scegli la tua nuova password per continuare.</value>
+    <value>Bitte wählen Sie Ihr neues Passwort, um fortzufahren.</value>
   </data>
 </root>
