@@ -33,20 +33,20 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
     /// <summary>MFA onboarding add email view model.</summary>
     public EnableMfaEmailViewModel View { get; set; } = new EnableMfaEmailViewModel();
 
-    /// <summary>The input model that backs the MFA onboarding add phone page.</summary>
+    /// <summary>The input model that backs the MFA onboarding add email page.</summary>
     [BindProperty]
     public EnableMfaEmailInputModel Input { get; set; } = new EnableMfaEmailInputModel();
 
     /// <summary>Key used for setting and retrieving temp data.</summary>
     public static string TempDataKey => "mfa_onboarding_add_email_alert";
 
-    /// <summary>MFA onboarding add phone page GET handler.</summary>
+    /// <summary>MFA onboarding add email page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         var alert = user.EmailConfirmed
-            ? UserManager.MessageDescriber.MfaAddPhoneValidationPhoneAlreadyConfirmed
-            : UserManager.MessageDescriber.MfaAddPhoneValidationPhoneEmpty;
+            ? UserManager.MessageDescriber.MfaAddEmailValidationEmailAlreadyConfirmed
+            : UserManager.MessageDescriber.MfaAddEmailValidationEmailEmpty;
         TempData.Put(TempDataKey, AlertModel.Info(alert));
         Input = View = new EnableMfaEmailViewModel {
             Email = user.Email,
@@ -56,7 +56,7 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
         return Page();
     }
 
-    /// <summary>MFA onboarding add phone page POST handler.</summary>
+    /// <summary>MFA onboarding add email page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         if (!ModelState.IsValid) {
             return Page();
@@ -77,7 +77,7 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
             AddModelErrors(result);
             return Page();
         }
-        TempData.Put(TempDataKey, AlertModel.Success(UserManager.MessageDescriber.MfaAddPhoneSuccessMessage));
+        TempData.Put(TempDataKey, AlertModel.Success(UserManager.MessageDescriber.MfaAddEmailSuccessMessage));
         View.EmailConfirmed = user.EmailConfirmed;
         return Page();
     }

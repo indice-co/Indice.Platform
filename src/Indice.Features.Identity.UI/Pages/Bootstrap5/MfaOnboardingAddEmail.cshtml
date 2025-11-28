@@ -7,7 +7,7 @@
 
 
 @{
-    var title = ViewBag.Title = Localizer.MfaOnBoardingAddEmail_PageTitle;
+    ViewBag.Title = Localizer.MfaOnBoardingAddEmail_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddEmailModel.TempDataKey);
 }
 
@@ -18,9 +18,9 @@
     <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
         <div class="mb-3">
             <input type="hidden" asp-for="Input.ReturnUrl" />
-            <label asp-for="Input.Email" class="form-label visually-hidden">@Localizer.MfaOnBoardingAddPhone_Phone_Number</label>
+            <label asp-for="Input.Email" class="form-label visually-hidden">@Localizer.MfaOnBoardingAddEmail_Email</label>
             <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-            <input class="form-control" type="text" placeholder="@Localizer.MfaOnBoardingAddPhone_Phone_Number" asp-for="Input.Email" readonly="@Model.View.DisableEmailInput" />
+            <input class="form-control" type="text" placeholder="@Localizer.MfaOnBoardingAddEmail_Email" asp-for="Input.Email" readonly="@Model.View.DisableEmailInput" />
             <span asp-validation-for="Input.Email" class="text-danger"></span>
         </div>
         <div class="mb-3">

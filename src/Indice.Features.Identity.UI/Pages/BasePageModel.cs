@@ -178,6 +178,7 @@ public abstract class BasePageModel : PageModel
         var code = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
         var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
+        //todo:mfa email template
         await emailService.SendAsync(user.Email!, identityMessageDescriber.PhoneVerificationSmsSubject, identityMessageDescriber.PhoneVerificationSmsBody(code));
     }
 

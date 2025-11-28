@@ -1035,9 +1035,6 @@
   <data name="SelectLanguage" xml:space="preserve">
     <value>Select Language</value>
   </data>
-  <data name="OrganizationName" xml:space="preserve">
-    <value />
-  </data>
   <data name="RequiredValue" xml:space="preserve">
     <value>required</value>
   </data>
@@ -1064,5 +1061,38 @@
   </data>
   <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
     <value>If an account with that email exists, we'll send password reset instructions. Please check your inbox.</value>
+  </data>
+  <data name="Mfa_CheckYourInbox" xml:space="preserve">
+    <value>We have sent you an email at {0}. Please enter the code to sign in.</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_PageTitle" xml:space="preserve">
+    <value>MFA onboarding - Email</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_PageHeader" xml:space="preserve">
+    <value>MFA onboarding - SMS</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Code" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_PageTitle" xml:space="preserve">
+    <value>Verify email</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_PageHeader" xml:space="preserve">
+    <value>Verify email</value>
   </data>
 </root>

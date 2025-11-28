@@ -147,7 +147,10 @@ public abstract class BaseMfaModel : BasePageModel
             User = user,
             IsExistingBrowser = browserDevice?.MfaSessionActive() ?? false,
             Error = hasError ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null,
-            ResendEnabled = !hasError && (authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms || authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification || authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Email),
+            ResendEnabled = !hasError && 
+                (authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms || 
+                 authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification || 
+                 authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Email),
             HubConnectionUrl = Configuration.GetSection("General").GetValue<string>("HubConnectionUrl")
         };
     }

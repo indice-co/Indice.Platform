@@ -1035,10 +1035,6 @@
   <data name="SelectLanguage" xml:space="preserve">
     <value>Selección de idioma</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="OrganizationName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value />
-  </data>
   <data name="RequiredValue" xml:space="preserve">
     <value>requerido</value>
   </data>
@@ -1065,5 +1061,38 @@
   </data>
   <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
     <value>Si existe una cuenta asociada a ese correo electrónico, te enviaremos instrucciones para restablecer la contraseña. Por favor, revisa tu bandeja de entrada.</value>
+  </data>
+    <data name="Mfa_CheckYourInbox" xml:space="preserve">
+    <value>Le hemos enviado un correo electrónico a {0}. Por favor, ingrese el código para iniciar sesión.</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_PageTitle" xml:space="preserve">
+    <value>Configuración MFA - Email</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_PageHeader" xml:space="preserve">
+    <value>Configuración MFA - Email</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Next" xml:space="preserve">
+    <value>Siguiente</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Save" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Code" xml:space="preserve">
+    <value>Código</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Next" xml:space="preserve">
+    <value>Siguiente</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Save" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_PageTitle" xml:space="preserve">
+    <value>Verificar email</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_PageHeader" xml:space="preserve">
+    <value>Verificar email</value>
   </data>
 </root>

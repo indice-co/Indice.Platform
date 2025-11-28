@@ -420,4 +420,19 @@
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
     <value>Παρακαλώ επιλέξτε το νέο σας κωδικό πρόσβασης για να συνεχίσετε.</value>
   </data>
+  <data name="MfaAddEmailValidationEmailEmpty" xml:space="preserve">
+  <value>Παρακαλώ επιλέξετε το email σας για να το επιβεβαιώσουμε πριν προχωρήσουμε.</value>
+</data>
+  <data name="MfaAddEmailValidationEmailAlreadyConfirmed" xml:space="preserve">
+  <value>Το email σας είναι ήδη επιβεβαιωμένο. Συνεχίστε για να ενεργοποιήσετε το MFA.</value>
+</data>
+  <data name="MfaAddEmailSuccessMessage" xml:space="preserve">
+  <value>Έχετε επιτυχώς ενεργοποιήσει το MFA για το λογαριασμό σας. Συνδεθείτε για να εισέλθετε στο λογαριασμό σας.</value>
+</data>
+  <data name="MfaVerifyEmailValidationMissingEmail" xml:space="preserve">
+  <value>Παρακαλώ εισάγετε τον κωδικό που λάβατε στο email σας.</value>
+</data>
+  <data name="MfaVerifyEmailSuccessMessage" xml:space="preserve">
+  <value>Το email σας επιβεβαιώθηκε επιτυχώς. Παρακαλώ πατήστε το κουμπί 'Επόμενο' για να συνεχίσετε.</value>
+</data>
 </root>

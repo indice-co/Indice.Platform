@@ -297,6 +297,33 @@ namespace Indice.Features.Identity.Core {
         /// <summary>
         ///   Looks up a localized string similar to You have successfully enabled MFA for your account. Login to access your account..
         /// </summary>
+        internal static string MfaAddEmailSuccessMessage {
+            get {
+                return ResourceManager.GetString("MfaAddEmailSuccessMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your email is already confirmed. Continue to enable MFA..
+        /// </summary>
+        internal static string MfaAddEmailValidationEmailAlreadyConfirmed {
+            get {
+                return ResourceManager.GetString("MfaAddEmailValidationEmailAlreadyConfirmed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please select your email so we can verify it before we continue..
+        /// </summary>
+        internal static string MfaAddEmailValidationEmailEmpty {
+            get {
+                return ResourceManager.GetString("MfaAddEmailValidationEmailEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have successfully enabled MFA for your account. Login to access your account..
+        /// </summary>
         internal static string MfaAddPhoneSuccessMessage {
             get {
                 return ResourceManager.GetString("MfaAddPhoneSuccessMessage", resourceCulture);
@@ -345,6 +372,24 @@ namespace Indice.Features.Identity.Core {
         internal static string MfaValidationError {
             get {
                 return ResourceManager.GetString("MfaValidationError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your email was successfully validated. Please press the &apos;Next&apos; button to continue..
+        /// </summary>
+        internal static string MfaVerifyEmailSuccessMessage {
+            get {
+                return ResourceManager.GetString("MfaVerifyEmailSuccessMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please enter the code that you have received at your email..
+        /// </summary>
+        internal static string MfaVerifyEmailValidationMissingEmail {
+            get {
+                return ResourceManager.GetString("MfaVerifyEmailValidationMissingEmail", resourceCulture);
             }
         }
         
@@ -412,20 +457,20 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your password has expired. Please choose a new password..
-        /// </summary>
-        internal static string PasswordExpiredMessage {
-            get {
-                return ResourceManager.GetString("PasswordExpiredMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Please choose your new password to continue..
         /// </summary>
         internal static string PasswordExpiredFirstTimeUserMessage {
             get {
                 return ResourceManager.GetString("PasswordExpiredFirstTimeUserMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your password has expired. Please choose a new password..
+        /// </summary>
+        internal static string PasswordExpiredMessage {
+            get {
+                return ResourceManager.GetString("PasswordExpiredMessage", resourceCulture);
             }
         }
         

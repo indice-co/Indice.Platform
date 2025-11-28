@@ -1708,6 +1708,15 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to We have sent you an email at {0}. Please enter the code to sign in..
+        /// </summary>
+        public static string Mfa_CheckYourInbox {
+            get {
+                return ResourceManager.GetString("Mfa_CheckYourInbox", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to I didn&apos;t receive the notification/Resend..
         /// </summary>
         public static string Mfa_DidnotReceiveNotification {
@@ -1906,6 +1915,51 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Email.
+        /// </summary>
+        public static string MfaOnBoardingAddEmail_Email {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingAddEmail_Email", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Next.
+        /// </summary>
+        public static string MfaOnBoardingAddEmail_Next {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingAddEmail_Next", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MFA onboarding - SMS.
+        /// </summary>
+        public static string MfaOnBoardingAddEmail_PageHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingAddEmail_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MFA onboarding - Email.
+        /// </summary>
+        public static string MfaOnBoardingAddEmail_PageTitle {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingAddEmail_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save.
+        /// </summary>
+        public static string MfaOnBoardingAddEmail_Save {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingAddEmail_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Next.
         /// </summary>
         public static string MfaOnBoardingAddPhone_Next {
@@ -1953,6 +2007,51 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Code.
         /// </summary>
+        public static string MfaOnBoardingVerifyEmail_Code {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingVerifyEmail_Code", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Next.
+        /// </summary>
+        public static string MfaOnBoardingVerifyEmail_Next {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingVerifyEmail_Next", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verify email.
+        /// </summary>
+        public static string MfaOnBoardingVerifyEmail_PageHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingVerifyEmail_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verify email.
+        /// </summary>
+        public static string MfaOnBoardingVerifyEmail_PageTitle {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingVerifyEmail_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save.
+        /// </summary>
+        public static string MfaOnBoardingVerifyEmail_Save {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingVerifyEmail_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Code.
+        /// </summary>
         public static string MfaOnBoardingVerifyPhone_Code {
             get {
                 return ResourceManager.GetString("MfaOnBoardingVerifyPhone_Code", resourceCulture);
@@ -1992,15 +2091,6 @@ namespace Indice.Features.Identity.UI {
         public static string MfaOnBoardingVerifyPhone_Save {
             get {
                 return ResourceManager.GetString("MfaOnBoardingVerifyPhone_Save", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to .
-        /// </summary>
-        public static string OrganizationName {
-            get {
-                return ResourceManager.GetString("OrganizationName", resourceCulture);
             }
         }
         

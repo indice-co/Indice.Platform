@@ -6,7 +6,7 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewBag.Title = Localizer.MfaOnBoardingVerifyEmail_PageTitle;
+    ViewBag.Title = Localizer.MfaOnBoardingVerifyEmail_PageTitle;
     var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingverifyEmailModel.TempDataKey);
     var displayNext = !string.IsNullOrEmpty(infoMessage?.NextStepUrl) && infoMessage?.Alert?.AlertType == AlertType.Success;
 }

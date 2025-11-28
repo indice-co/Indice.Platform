@@ -111,14 +111,28 @@ public class IdentityMessageDescriber
     public virtual string LoginValidationInvalidCredentials => IdentityResources.LoginValidationInvalidCredentials;
     /// <summary>Mfa onboarding AddPhone Validation Phone Empty</summary>
     public virtual string MfaAddPhoneValidationPhoneEmpty => IdentityResources.MfaAddPhoneValidationPhoneEmpty;
+    /// <summary>Mfa onboarding AddEmail Validation Email Already Confirmed</summary>
+    public virtual string MfaAddEmailValidationEmailAlreadyConfirmed => IdentityResources.MfaAddEmailValidationEmailAlreadyConfirmed;
+    /// <summary>Mfa onboarding AddEmail Validation Email Empty</summary>
+    public virtual string MfaAddEmailValidationEmailEmpty => IdentityResources.MfaAddEmailValidationEmailEmpty;
+
+    /// <summary>Mfa onboarding AddPhone Validation success message</summary>
+    public virtual string MfaAddEmailSuccessMessage => IdentityResources.MfaAddEmailSuccessMessage;
     /// <summary>Mfa onboarding AddPhone Validation success message</summary>
     public virtual string MfaAddPhoneSuccessMessage => IdentityResources.MfaAddPhoneSuccessMessage;
     /// <summary>Mfa onboarding AddPhone Validation already confirmed</summary>
     public virtual string MfaAddPhoneValidationPhoneAlreadyConfirmed => IdentityResources.MfaAddPhoneValidationPhoneAlreadyConfirmed; 
     /// <summary>Mfa onboarding AddPhone Validation missing phone</summary>
     public virtual string MfaVerifyPhoneValidationMissingPhone => IdentityResources.MfaVerifyPhoneValidationMissingPhone;
+
+    /// <summary>Mfa onboarding email Validation missing email</summary>
+    public virtual string MfaVerifyEmailValidationMissingEmail => IdentityResources.MfaVerifyEmailValidationMissingEmail;
+    
     /// <summary>Mfa onboarding verfication success message</summary>
     public virtual string MfaVerifyPhoneSuccessMessage => IdentityResources.MfaVerifyPhoneSuccessMessage;
+
+    /// <summary>Mfa onboarding email verification success message</summary>
+    public virtual string MfaVerifyEmailSuccessMessage => IdentityResources.MfaVerifyEmailSuccessMessage;
     /// <summary>Password changed successfully message.</summary>
     public virtual string PasswordChangedSuccessfully => IdentityResources.PasswordChangedSuccessfully;
     /// <summary>Password expired message.</summary>

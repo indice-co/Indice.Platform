@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Identity.UI.Pages;
 
-/// <summary>Page model for the MFA onboarding verify phone screen.</summary>
+/// <summary>Page model for the MFA onboarding verify email screen.</summary>
 [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
 [UserActivityRequirementFilter<User>(UserActivityRequirementKind.RequiresMfaOnboarding)]
 [IdentityUI(typeof(MfaOnboardingverifyEmailModel))]
@@ -18,7 +18,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseMfaOnboardingverifyEmailModel : BasePageModel
 {
-    /// <summary>Creates a new instance of <see cref="BaseMfaOnboardingVerifyPhoneModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="BaseMfaOnboardingverifyEmailModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseMfaOnboardingverifyEmailModel(
@@ -37,12 +37,12 @@ public abstract class BaseMfaOnboardingverifyEmailModel : BasePageModel
     /// <summary>Key used for setting and retrieving temp data.</summary>
     public static string TempDataKey => "mfa_onboarding_verify_email_alert";
 
-    /// <summary>MFA onboarding verify phone page GET handler.</summary>
+    /// <summary>MFA onboarding verify email page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success( UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone),
+            Alert = AlertModel.Success( UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail),
             NextStepUrl = string.Empty
         });
         Input.Email = user.Email;
@@ -50,7 +50,7 @@ public abstract class BaseMfaOnboardingverifyEmailModel : BasePageModel
         return Page();
     }
 
-    /// <summary>MFA onboarding verify phone page POST handler.</summary>
+    /// <summary>MFA onboarding verify email page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         if (!ModelState.IsValid) {
             return Page();
@@ -63,9 +63,9 @@ public abstract class BaseMfaOnboardingverifyEmailModel : BasePageModel
         if (result) {
             user.EmailConfirmed = true;
             await UserManager.SetTwoFactorEnabledAsync(user, true);
-            tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyPhoneSuccessMessage);
+            tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyEmailSuccessMessage);
         } else {
-            tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone);
+            tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail);
         }
         TempData.Put(TempDataKey, tempDataModel);
         return Page();

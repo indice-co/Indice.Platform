@@ -1035,10 +1035,6 @@
   <data name="SelectLanguage" xml:space="preserve">
     <value>Επιλογή γλώσσας</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="OrganizationName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value />
-  </data>
   <data name="RequiredValue" xml:space="preserve">
     <value>υποχρεωτικό</value>
   </data>
@@ -1065,5 +1061,38 @@
   </data>
   <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
     <value>Αν υπάρχει λογαριασμός με αυτό το email, θα σας στείλουμε οδηγίες επαναφοράς κωδικού. Παρακαλούμε ελέγξτε τα εισερχόμενά σας.</value>
+  </data>
+    <data name="Mfa_CheckYourInbox" xml:space="preserve">
+    <value>Σας έχουμε στείλει ένα email στο {0}. Παρακαλώ εισάγετε τον κωδικό για να συνδεθείτε.</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_PageTitle" xml:space="preserve">
+    <value>Εγκατάσταση MFA - Email</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_PageHeader" xml:space="preserve">
+    <value>Εγκατάσταση MFA - Email</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Next" xml:space="preserve">
+    <value>Επόμενο</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Code" xml:space="preserve">
+    <value>Κωδικός</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Next" xml:space="preserve">
+    <value>Επόμενο</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_PageTitle" xml:space="preserve">
+    <value>Επιβεβαίωση email</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_PageHeader" xml:space="preserve">
+    <value>Επιβεβαίωση email</value>
   </data>
 </root>

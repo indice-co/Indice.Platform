@@ -1035,10 +1035,6 @@
   <data name="SelectLanguage" xml:space="preserve">
     <value>言語の選択</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="OrganizationName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value />
-  </data>
   <data name="RequiredValue" xml:space="preserve">
     <value>必須フィールド</value>
   </data>
@@ -1065,5 +1061,38 @@
   </data>
   <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
     <value>そのメールアドレスに関連するアカウントが存在する場合、パスワード再設定の手順をお送りします。受信箱をご確認ください。</value>
+  </data>
+    <data name="Mfa_CheckYourInbox" xml:space="preserve">
+    <value>{0}にメールを送信しました。ログインするためにコードを入力してください。</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_PageTitle" xml:space="preserve">
+    <value>MFA設定 - メール</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_PageHeader" xml:space="preserve">
+    <value>MFA設定 - メール</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Email" xml:space="preserve">
+    <value>メール</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Code" xml:space="preserve">
+    <value>コード</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_PageTitle" xml:space="preserve">
+    <value>メール確認</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_PageHeader" xml:space="preserve">
+    <value>メール確認</value>
   </data>
 </root>
