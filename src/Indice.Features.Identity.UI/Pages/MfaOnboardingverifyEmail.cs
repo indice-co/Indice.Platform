@@ -5,6 +5,7 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -57,8 +58,10 @@ public abstract class BaseMfaOnboardingverifyEmailModel : BasePageModel
         var tempDataModel = new ExtendedValidationTempDataModel();
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         Input.Email = user.Email;
-        var result = await UserManager.ChangeEmailAsync(user, user.Email!, Input.Code!);
-        if (result.Succeeded) {
+        //
+        var result = await UserManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider, Input.Code!.Trim());
+        if (result) {
+            user.EmailConfirmed = true;
             await UserManager.SetTwoFactorEnabledAsync(user, true);
             tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyPhoneSuccessMessage);
         } else {

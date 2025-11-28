@@ -120,6 +120,7 @@ public abstract class BaseMfaModel : BasePageModel
 
     private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(MfaLoginInputModel model) {
         var viewModel = await BuildMfaLoginViewModelAsync(model.ReturnUrl, model.SelectedDeliveryChannel);
+        viewModel.SelectedDeliveryChannel = model.SelectedDeliveryChannel;
         viewModel.OtpCode = null;
         viewModel.RememberClient = model.RememberClient;
         viewModel.RememberMe = model.RememberMe;
@@ -146,7 +147,7 @@ public abstract class BaseMfaModel : BasePageModel
             User = user,
             IsExistingBrowser = browserDevice?.MfaSessionActive() ?? false,
             Error = hasError ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null,
-            ResendEnabled = !hasError && (authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms || authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification),
+            ResendEnabled = !hasError && (authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms || authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification || authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Email),
             HubConnectionUrl = Configuration.GetSection("General").GetValue<string>("HubConnectionUrl")
         };
     }

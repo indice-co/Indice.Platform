@@ -173,13 +173,12 @@ public abstract class BasePageModel : PageModel
 
     /// <summary>Generates a TOTP code and sends it to the email address of the specified user.</summary>
     /// <param name="user">The user instance.</param>
-    /// <param name="emailAddress">The phone number.</param>
-    public virtual async Task SendVerificationEmailAsync(User user, string emailAddress, string purpose) {
+    public virtual async Task SendVerificationEmailAsync(User user) {
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
-        var code = await userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultEmailProvider, purpose);
+        var code = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
         var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
-        await emailService.SendAsync(emailAddress, identityMessageDescriber.PhoneVerificationSmsSubject, identityMessageDescriber.PhoneVerificationSmsBody(code));
+        await emailService.SendAsync(user.Email!, identityMessageDescriber.PhoneVerificationSmsSubject, identityMessageDescriber.PhoneVerificationSmsBody(code));
     }
 
     /// <summary>
