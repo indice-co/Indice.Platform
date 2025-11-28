@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.3804879">
+﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.3804879">
   <PropertyGroup>
     <StartupCommand>npm start</StartupCommand>
     <BuildCommand>npm run build:template</BuildCommand>
@@ -9,13 +9,8 @@
     <!-- Folder where production build objects will be placed -->
     <PublishAssetsDirectory>$(MSBuildProjectDirectory)\dist\risks-app\</PublishAssetsDirectory>
     <!-- Disable tests -->
-    <JavaScriptTestRoot>
-    </JavaScriptTestRoot>
-    <JavaScriptTestFramework>
-    </JavaScriptTestFramework>
+    <JavaScriptTestRoot></JavaScriptTestRoot>
+    <JavaScriptTestFramework></JavaScriptTestFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="dist\" />
-  </ItemGroup>
 </Project>
