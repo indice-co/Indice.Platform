@@ -28,7 +28,7 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
             checkpointTypeName: message.CheckpointTypeName,
             privateComment: message.PrivateComment,
             comment: message.Comment,
-            fileStreamAccessor: new FuncOfStream(),
+            fileStreamAccessor: new StreamFunc(),
             fileName: message.File?.Name,
             data: message.Data,
             file: fileParameter,
