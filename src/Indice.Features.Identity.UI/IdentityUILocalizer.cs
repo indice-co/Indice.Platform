@@ -1206,16 +1206,12 @@ public class IdentityUILocalizer
     /// <summary>Title of the Terms of Service page.</summary>
     public virtual HtmlString Terms_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Terms_PageTitle));
 
-
     /// <summary>Header of the Terms of Service page.</summary>
     public virtual HtmlString Terms_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Terms_PageHeader));
 
-
     /// <summary>Get Organization name.</summary>
     public virtual HtmlString OrganizationName(string organization) {
-        var orgName = string.Format(CultureInfo.CurrentUICulture, IdentityLabels.OrganizationName);
-        if (string.IsNullOrWhiteSpace(orgName)) return new HtmlString(organization);
-        return new HtmlString(orgName);
+        return new HtmlString(organization);
     }
     /// <summary>Get Organization name.</summary>
     public virtual string ApplicationName(string applicationName) {
