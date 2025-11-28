@@ -1,0 +1,37 @@
+﻿@inject IOptions<GeneralSettings> GeneralSettings
+@inject IOptions<IdentityUIOptions> UIOptions
+@inject UserManager<User> UserManager
+@inject IdentityUILocalizer Localizer
+
+@{
+    Layout = "_LayoutEmail.cshtml";
+}
+
+@{
+    var settings = GeneralSettings.Value;
+    var subject = ViewData["Subject"];
+    var body = ViewData["Body"];
+}
+
+@section preheader {
+    @Localizer.Email_Preheader_Verify 
+}
+
+@section subject {
+    <h1 style="font-size: 18px; font-family:'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-weight:normal">@subject</h1>
+}
+
+<p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
+    @Model?.Message
+    
+    @Localizer.Email_Body_Hi,
+    <br />
+    <br />
+    @Localizer.Email_Preheader_Verify 
+    <br />
+    <br />
+    @Localizer.Email_Body_Thanks.
+    <br />
+    <br />
+    @Localizer.Email_Body_Sincerely, @Localizer.OrganizationName(settings.Organization!).
+</p>

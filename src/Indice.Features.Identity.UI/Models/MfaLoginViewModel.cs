@@ -35,19 +35,19 @@ public partial class MfaLoginViewModel<TUser> : MfaLoginInputModel where TUser :
     public bool PhoneNumberAvailable => !string.IsNullOrWhiteSpace(User?.PhoneNumber);
 
     /// <summary>The phone number of the user, masked for security reasons.</summary>
-    public string? EmailMasked => EmailAvailable ? GetMaskEmailRegex().Replace(User.Email!, "*") : null;
+    public string? EmailMasked => EmailAvailable ? GetMaskEmailRegex().Replace(User.Email!, m => new string('*', m.Length)) : null;
     /// <summary>Indicates whether email is available for the user.</summary>
     public bool EmailAvailable => !string.IsNullOrWhiteSpace(User?.Email);
-    
+
     /// <summary>A list of all available authentication methods.</summary>
     public AuthenticationMethod[] AvailableAuthenticationMethods { get; set; } = Array.Empty<AuthenticationMethod>();
 
     [GeneratedRegex(@"\d(?!\d{0,1}$)")]
     public static partial Regex GetMaskPhoneNumberRegex();
 
-    [GeneratedRegex(@"^..(.*)\.[^.]*$")]
+    [GeneratedRegex(@"(?<=^..).*?(?=\.[^.]*$)")]
     public static partial Regex GetMaskEmailRegex();
-    
+
 }
 
 /// <summary>MFA login view model.</summary>

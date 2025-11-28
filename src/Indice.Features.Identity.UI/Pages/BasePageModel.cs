@@ -2,11 +2,14 @@
 using Duende.IdentityModel;
 using Duende.IdentityServer.Services;
 #else
+using System.Net.Http;
 using IdentityModel;
+using IdentityServer4.Configuration;
 using IdentityServer4.Services;
 #endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +17,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -178,8 +182,16 @@ public abstract class BasePageModel : PageModel
         var code = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
         var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
-        //todo:mfa email template
-        await emailService.SendAsync(user.Email!, identityMessageDescriber.PhoneVerificationSmsSubject, identityMessageDescriber.PhoneVerificationSmsBody(code));
+        await emailService.SendAsync(message => {
+            var builder = message
+                .To(user.Email!)
+                .UsingTemplate("EmailMfaOnboarding")
+                .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject)
+                .WithData(new {
+                    Username = user.UserName,
+                    Code = code
+                });
+        });
     }
 
     /// <summary>
@@ -216,6 +228,6 @@ public abstract class BasePageModel : PageModel
             // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
             return Redirect(returnUrl);
         }
-        return IsValidReturnUrl(returnUrl) ? Redirect(returnUrl) : Redirect("/") ;
+        return IsValidReturnUrl(returnUrl) ? Redirect(returnUrl) : Redirect("/");
     }
 }
