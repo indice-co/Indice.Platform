@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DuplicateUserName" xml:space="preserve">
+    <value>Le nom d'utilisateur '{0}' est deja utilise.</value>
+  </data>
+  <data name="PasswordContainsNotAllowedChars" xml:space="preserve">
+    <value>Votre mot de passe contient des caracteres non autorises.</value>
+  </data>
+  <data name="PasswordContainsNotAllowedCharsRequirement" xml:space="preserve">
+    <value>Caracteres non autorises.</value>
+  </data>
+  <data name="PasswordExpiredMessage" xml:space="preserve">
+    <value>Votre mot de passe a expire. Veuillez choisir un nouveau mot de passe.</value>
+  </data>
+  <data name="PasswordHasNonLatinChars" xml:space="preserve">
+    <value>Le mot de passe ne doit pas contenir de caracteres non latins.</value>
+  </data>
+  <data name="PasswordHasNonLatinCharsRequirement" xml:space="preserve">
+    <value>Ne contient pas de caracteres non latins.</value>
+  </data>
+  <data name="PasswordIdenticalToUserName" xml:space="preserve">
+    <value>Votre mot de passe ressemble fortement a votre nom d'utilisateur, ce qui peut entrainer le piratage de votre compte.</value>
+  </data>
+  <data name="PasswordIdenticalToUserNameRequirement" xml:space="preserve">
+    <value>Ne contient aucune partie de votre nom d'utilisateur.</value>
+  </data>
+  <data name="PasswordIsCommon" xml:space="preserve">
+    <value>Le mot de passe est tres facile a deviner, veuillez en choisir un plus complexe.</value>
+  </data>
+  <data name="PasswordIsCommonRequirement" xml:space="preserve">
+    <value>Pas facile a deviner.</value>
+  </data>
+  <data name="PasswordRecentlyUsed" xml:space="preserve">
+    <value>Ce mot de passe a ete utilise recemment. C'est une bonne pratique de ne pas reutiliser votre mot de passe precedent.</value>
+  </data>
+  <data name="PasswordRecentlyUsedRequirement" xml:space="preserve">
+    <value>Pas utilise recemment.</value>
+  </data>
+  <data name="PasswordRequiresDigit" xml:space="preserve">
+    <value>Les mots de passe doivent contenir au moins un chiffre ('0'-'9').</value>
+  </data>
+  <data name="PasswordRequiresDigitRequirement" xml:space="preserve">
+    <value>Un caractere numerique.</value>
+  </data>
+  <data name="PasswordRequiresLower" xml:space="preserve">
+    <value>Les mots de passe doivent contenir au moins une lettre minuscule ('a'-'z').</value>
+  </data>
+  <data name="PasswordRequiresLowerRequirement" xml:space="preserve">
+    <value>Une lettre minuscule.</value>
+  </data>
+  <data name="PasswordRequiresNonAlphanumeric" xml:space="preserve">
+    <value>Les mots de passe doivent contenir au moins un caractere non alphanumerique.</value>
+  </data>
+  <data name="PasswordRequiresNonAlphanumericRequirement" xml:space="preserve">
+    <value>Un caractere non alphanumerique.</value>
+  </data>
+  <data name="PasswordRequiresUniqueChars" xml:space="preserve">
+    <value>Les mots de passe doivent utiliser au moins {0} caracteres differents.</value>
+  </data>
+  <data name="PasswordRequiresUniqueCharsRequirement" xml:space="preserve">
+    <value>{0} caracteres uniques requis.</value>
+  </data>
+  <data name="PasswordRequiresUpper" xml:space="preserve">
+    <value>Les mots de passe doivent contenir au moins une lettre majuscule ('A'-'Z').</value>
+  </data>
+  <data name="PasswordRequiresUpperRequirement" xml:space="preserve">
+    <value>Une lettre majuscule.</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>Les mots de passe doivent contenir au moins {0} caracteres.</value>
+  </data>
+  <data name="PasswordTooShortRequirement" xml:space="preserve">
+    <value>Au moins {0} caracteres.</value>
+  </data>
+</root>

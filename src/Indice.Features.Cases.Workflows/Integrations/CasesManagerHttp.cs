@@ -111,10 +111,10 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
     }
 
     /// <inheritdoc />
-    public Task<CaseApproval?> GetLastApproval(Guid caseId) {
+    public async Task<CaseApproval?> GetLastApproval(Guid caseId) {
         try {
-            return _client.GetLastApprovalAsync(caseId);
-        } catch (ApiException ex) when (ex.StatusCode == (int)System.Net.HttpStatusCode.NotFound) {
+            return await _client.GetLastApprovalAsync(caseId);
+        } catch (ApiException ex) when(ex.StatusCode == (int)System.Net.HttpStatusCode.NotFound) {
             return null!;
         }
     }
