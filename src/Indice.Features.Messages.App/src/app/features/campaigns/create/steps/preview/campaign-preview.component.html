@@ -49,11 +49,11 @@
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
             @if (data.actionLink?.text && data.actionLink?.href) {
               <a target="_blank" class="text-blue-600 hover:text-blue-500" [href]="data.actionLink?.href">
-                {{ data.actionLink?.text }}
+                {{ data.actionLink?.text | translate }}
               </a>
             }
             @if (data.actionLink?.text && !data.actionLink?.href) {
-              <span>{{ data.actionLink?.text }}</span>
+              <span>{{ data.actionLink?.text | translate }}</span>
             }
             @if (!data.actionLink?.text && !data.actionLink?.href) {
               <span>{{ 'Campaigns.EmptyValueIndicator' | translate }}</span>

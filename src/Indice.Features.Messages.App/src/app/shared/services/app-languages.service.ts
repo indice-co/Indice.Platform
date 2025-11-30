@@ -79,6 +79,7 @@ export class AppLanguagesService implements IAppLanguagesService {
   }
 
   public translateKey(key?: string, parameters?: any): Observable<string> {
+    console.log(key);
     return this.translate.stream(key || '', parameters);
   }
 

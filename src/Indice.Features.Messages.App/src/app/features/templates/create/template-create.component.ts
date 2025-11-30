@@ -103,7 +103,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked, OnDest
         }))
       .subscribe(_ => {
         this.saveInProgress = false;
-        this._toaster.show(ToastType.Success, 'Templates.CreateSuccessTitle', 'Templates.CreateSuccessMessage', undefined, { title: name });
+        this._toaster.show(ToastType.Success, 'Templates.CreateSuccessTitle', 'Templates.CreateSuccessMessage', undefined, { title: _.name });
         this._router.navigate(['templates']);
       });
   }
