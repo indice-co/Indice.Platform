@@ -6,10 +6,10 @@ namespace Indice.Features.Cases.Core.Services.Abstractions;
 /// <summary>Interface for Notification Subscriptions domain.</summary>
 public interface INotificationSubscriptionService
 {
-    /// <summary>Get the notification subscriptions for a user.</summary>
-    /// <param name="options"></param>
-    /// <returns></returns>
-    Task<List<NotificationSubscription>> GetSubscriptions(ListOptions<NotificationFilter> options);
+    /// <summary>
+    /// Retrieves a paged list of notification subscribers that match the specified filter and listing options.
+    /// </summary>
+    Task<ResultSet<NotificationSubscription>> GetSubscribers(ListOptions<NotificationFilter> options);
 
     /// <summary>
     /// Create a new notification subscription for a user and a groupId.

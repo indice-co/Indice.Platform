@@ -145,22 +145,22 @@ internal static class IntegrationHandlers
         IAdminCaseMessageService adminCaseMessageService
     ) {
         var file = request.File;
-        
+
         if (!(file?.Length > 0)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(file), "File is empty ."));
         }
-        
+
         if (string.IsNullOrWhiteSpace(request.DataRootKey)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.DataRootKey), "Data root key not provided."));
         }
-        
+
         var attachmentId = await adminCaseMessageService.Send(caseId, request.Actor, new Message {
             FileName = file.FileName,
             FileStreamAccessor = file.OpenReadStream,
             Comment = request.Comment
         });
-        
-        await adminCaseService.PatchCaseData(request.Actor, caseId, new JsonObject{ [request.DataRootKey] = attachmentId.ToString() }, false);
+
+        await adminCaseService.PatchCaseData(request.Actor, caseId, new JsonObject { [request.DataRootKey] = attachmentId.ToString() }, false);
 
         return TypedResults.Ok();
     }
@@ -169,29 +169,51 @@ internal static class IntegrationHandlers
         var attachment = await adminCaseService.GetAttachment(caseId, attachmentId);
         return attachment is null ? TypedResults.NotFound() : TypedResults.Ok(attachment);
     }
-    
+
     /// <summary>Gets all attachments of a case by id.</summary>
     public static async Task<Ok<ResultSet<CaseAttachment>>> GetAttachments(Guid caseId, IAdminCaseService adminCaseService) =>
         TypedResults.Ok(await adminCaseService.GetAttachments(caseId));
 
-    public static async Task<Ok<List<NotificationSubscription>>> GetNotificationSubscriptions(
+    public static async Task<Results<Ok<ResultSet<NotificationSubscription>>, NotFound>> GetCaseSubscribers(
+        Guid caseId,
         [AsParameters] ListOptions options,
-        [AsParameters] NotificationFilter filter,
+        string? groupId,
+        IAdminCaseService adminCaseService,
         INotificationSubscriptionService service
-    ) => TypedResults.Ok(await service.GetSubscriptions(ListOptions.Create(options, filter)));
+    ) {
+        var @case = await adminCaseService.GetCaseById(caseId, fetchPublicData: false, includeAttachmentData: false);
+        if (@case is null) {
+            return TypedResults.NotFound();
+        }
+        var filter = new NotificationFilter {
+            CaseTypeIds = [@case.CaseType.Id]
+        };
+
+        // When groupId query param exists, enforce this subscriber's group.
+        if (groupId is not null) {
+            filter.GroupId = [groupId];
+        }
+
+        // If groupId query is not set and case has groupId, use the case.GroupId for filtering
+        if (groupId is null && @case.GroupId is not null) {
+            filter.GroupId = [@case.GroupId];
+        }
+
+        return TypedResults.Ok(await service.GetSubscribers(ListOptions.Create(options, filter)));
+    }
 
     public class AttachFileRequest
     {
         /// <summary>File data</summary>
         [Required]
         public IFormFile? File { get; set; }
-        
+
         /// <summary>The comment with which to notify the user for the file upload.</summary>
         public string? Comment { get; set; }
-        
+
         /// <summary>The root element of the Case Data that will be added/replaced with the attachmentId.</summary>
         public string? DataRootKey { get; set; }
-        
+
         /// <summary>The Id of the user.</summary>
         public required string ActorId { get; init; }
 
@@ -212,7 +234,7 @@ internal static class IntegrationHandlers
 
         /// <summary>The current culture of the user.</summary>
         public string? ActorCurrentCulture { get; init; }
-        
+
         /// <summary>Actor</summary>
         internal UserActor Actor => new UserActor { Id = ActorId, Reference = ActorReference, GroupId = ActorGroupId, Name = ActorName, Tin = ActorTin, Email = ActorEmail, CurrentCulture = ActorCurrentCulture, IsSystemClient = true, IsAdmin = false };
 
@@ -220,7 +242,7 @@ internal static class IntegrationHandlers
         public static async ValueTask<AttachFileRequest> BindAsync(HttpContext context, ParameterInfo parameter) {
             var form = await context.Request.ReadFormAsync();
             var file = form.Files[nameof(File)];
-            
+
             return new AttachFileRequest {
                 File = file,
                 Comment = form[nameof(Comment)],
@@ -315,7 +337,7 @@ internal static class IntegrationHandlers
         public static async ValueTask<MessageRequest> BindAsync(HttpContext context, ParameterInfo parameter) {
             var form = await context.Request.ReadFormAsync();
             var file = form.Files[nameof(File)];
-            
+
             return new MessageRequest {
                 ReplyToCommentId = Guid.TryParse(form[nameof(ReplyToCommentId)], CultureInfo.InvariantCulture, out var replyToCommentId) ? replyToCommentId : null,
                 CheckpointTypeName = form[nameof(CheckpointTypeName)],

@@ -15,7 +15,7 @@ internal class NotificationSubscriptionService : INotificationSubscriptionServic
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task<List<NotificationSubscription>> GetSubscriptions(ListOptions<NotificationFilter> options) {
+    public async Task<ResultSet<NotificationSubscription>> GetSubscribers(ListOptions<NotificationFilter> options) {
         var filter = options.Filter ?? new NotificationFilter();
         var subscriptions = await _dbContext.NotificationSubscriptions
             .AsQueryable()
@@ -27,7 +27,7 @@ internal class NotificationSubscriptionService : INotificationSubscriptionServic
                 Email = x.Email,
                 GroupId = x.GroupId
             })
-            .ToListAsync();
+            .ToResultSetAsync(options);
         return subscriptions;
     }
 

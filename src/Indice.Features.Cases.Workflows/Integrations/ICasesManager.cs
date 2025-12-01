@@ -1,4 +1,5 @@
 using Indice.Features.Cases.Workflows.Models;
+using Indice.Types;
 
 namespace Indice.Features.Cases.Workflows.Integrations;
 
@@ -55,9 +56,9 @@ public interface ICasesManager
     Task<CaseAttachmentResultSet> GetAttachments(Guid caseId);
 
     /// <summary>
-    /// <inheritdoc cref="CasesManagerHttpClient.GetNotificationSubscriptionsAsync(int?, int?, string, string, IEnumerable{string}, IEnumerable{string}, IEnumerable{Guid})"/>
+    /// <inheritdoc cref="CasesManagerHttpClient.GetCaseSubscribersAsync(Guid, int?, int?, string, string, string)"/>
     /// </summary>
-    Task<ICollection<NotificationSubscription>> GetNotificationSubscriptions(int? page, int? size, string sort, string search, IEnumerable<string> email, IEnumerable<string> groupId, IEnumerable<Guid> caseTypeIds);
+    Task<NotificationSubscriptionResultSet> GetCaseSubscriptions(Guid caseId, int? page, int? size, string sort, string search, string? groupId);
 
     /// <summary>
     /// <inheritdoc cref="CasesManagerHttpClient.AddApprovalAsync(Guid, WorkflowAddApprovalRequest)"/>

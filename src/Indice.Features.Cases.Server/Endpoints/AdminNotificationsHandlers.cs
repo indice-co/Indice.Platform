@@ -14,12 +14,12 @@ internal static class AdminNotificationsHandlers
         var options = new ListOptions<NotificationFilter> {
             Filter = NotificationFilter.FromUser(User, casesOptions.Value.GroupIdClaimType)
         };
-        var result = await service.GetSubscriptions(options);
+        var result = await service.GetSubscribers(options);
         if (result == null) {
             return TypedResults.BadRequest();
         }
         return TypedResults.Ok(new NotificationSubscriptionResponse {
-            NotificationSubscriptions = result
+            NotificationSubscriptions = [.. result.Items],
         });
     }
 

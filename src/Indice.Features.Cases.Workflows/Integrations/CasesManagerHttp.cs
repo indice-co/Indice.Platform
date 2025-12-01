@@ -1,4 +1,5 @@
 using Indice.Features.Cases.Workflows.Models;
+using Indice.Types;
 
 namespace Indice.Features.Cases.Workflows.Integrations;
 
@@ -130,7 +131,6 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
     }
 
     /// <inheritdoc />
-    public async Task<ICollection<NotificationSubscription>> GetNotificationSubscriptions(int? page, int? size, string sort, string search,
-        IEnumerable<string> email, IEnumerable<string> groupId, IEnumerable<Guid> caseTypeIds) =>
-        await _client.GetNotificationSubscriptionsAsync(page, size, sort, search, email, groupId, caseTypeIds);
+    public async Task<NotificationSubscriptionResultSet> GetCaseSubscriptions(Guid caseId, int? page, int? size, string sort, string search, string? groupId) =>
+        await _client.GetCaseSubscribersAsync(caseId, page, size, sort, search, groupId);
 }
