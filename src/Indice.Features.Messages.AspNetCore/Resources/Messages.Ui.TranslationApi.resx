@@ -2165,12 +2165,12 @@ user_code_2</value>
     <value>Folder</value>
   </data>
   <data name="Settings.SortSenderOption" xml:space="preserve">
-  <value>Sender</value>
-</data>
+    <value>Sender</value>
+  </data>
   <data name="Settings.SortNameOption" xml:space="preserve">
-  <value>Name</value>
-</data>
+    <value>Name</value>
+  </data>
   <data name="Settings.SortCreatedAtOption" xml:space="preserve">
-  <value>Created</value>
-</data>
+    <value>Created</value>
+  </data>
 </root>
