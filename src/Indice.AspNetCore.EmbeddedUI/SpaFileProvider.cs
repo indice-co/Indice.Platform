@@ -99,10 +99,7 @@ internal partial class SpaIndexFileInfo : IFileInfo
                     foreach (var item in results) {
                         sb.AppendLine(element.Replace(Path.GetFileName(path), item));
                     }
-                    if (sb.Length != 0) {
-                        return sb.ToString();
-                    }
-                    return element;
+                    return sb.ToString();
                 }));
 
                 return new MemoryStream(Encoding.UTF8.GetBytes(htmlString));

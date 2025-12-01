@@ -1069,7 +1069,7 @@
     <value>MFA onboarding - Email</value>
   </data>
   <data name="MfaOnBoardingAddEmail_PageHeader" xml:space="preserve">
-    <value>MFA onboarding - SMS</value>
+    <value>MFA onboarding - Email</value>
   </data>
   <data name="MfaOnBoardingAddEmail_Next" xml:space="preserve">
     <value>Next</value>
@@ -1099,6 +1099,6 @@
     <value>Your OTP code for login is:</value>
   </data>
   <data name="Email_MfaOnboarding_OtpCode" xml:space="preserve">
-    <value>To complete your Multi factor authentication please the OTP code:</value>
+    <value>To complete your Multi-factor authentication please enter the OTP code:</value>
   </data>
 </root>

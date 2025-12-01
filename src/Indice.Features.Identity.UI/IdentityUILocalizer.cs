@@ -727,7 +727,7 @@ public class IdentityUILocalizer
     #region MfaOnBoardingAddEmail
 
     /// <summary>
-    ///   Gets the localized string for "MFA onboarding - SMS".
+    ///   Gets the localized string for "MFA onboarding - Email".
     /// </summary>
     public virtual HtmlString MfaOnBoardingAddEmail_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddEmail_PageTitle));
 
@@ -737,7 +737,7 @@ public class IdentityUILocalizer
     public virtual HtmlString MfaOnBoardingAddEmail_Next => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddEmail_Next));
 
     /// <summary>
-    ///   Gets the localized string for "Email number".
+    ///   Gets the localized string for "Email address".
     /// </summary>
     public virtual HtmlString MfaOnBoardingAddEmail_Email => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddEmail_Email));
 
@@ -772,7 +772,7 @@ public class IdentityUILocalizer
     public virtual HtmlString MfaOnBoardingVerifyEmail_Save => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyEmail_Save));
 
     /// <summary>
-    ///   Gets the localized string for "Verify Email number".
+    ///   Gets the localized string for "Verify email address".
     /// </summary>
     public virtual HtmlString MfaOnBoardingVerifyEmail_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyEmail_PageTitle));
 
