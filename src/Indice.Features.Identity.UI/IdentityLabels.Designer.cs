@@ -853,6 +853,24 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to To complete your Multi factor authentication please the OTP code:.
+        /// </summary>
+        public static string Email_MfaOnboarding_OtpCode {
+            get {
+                return ResourceManager.GetString("Email_MfaOnboarding_OtpCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your OTP code for login is:.
+        /// </summary>
+        public static string Email_OtpCode {
+            get {
+                return ResourceManager.GetString("Email_OtpCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to here.
         /// </summary>
         public static string Email_Preheader_Here {

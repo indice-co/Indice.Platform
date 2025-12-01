@@ -1062,7 +1062,7 @@
   <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
     <value>Si existe una cuenta asociada a ese correo electrónico, te enviaremos instrucciones para restablecer la contraseña. Por favor, revisa tu bandeja de entrada.</value>
   </data>
-    <data name="Mfa_CheckYourInbox" xml:space="preserve">
+  <data name="Mfa_CheckYourInbox" xml:space="preserve">
     <value>Le hemos enviado un correo electrónico a {0}. Por favor, ingrese el código para iniciar sesión.</value>
   </data>
   <data name="MfaOnBoardingAddEmail_PageTitle" xml:space="preserve">
@@ -1094,5 +1094,11 @@
   </data>
   <data name="MfaOnBoardingVerifyEmail_PageHeader" xml:space="preserve">
     <value>Verificar email</value>
+  </data>
+  <data name="Email_OtpCode" xml:space="preserve">
+    <value>Su código OTP para iniciar sesión es:</value>
+  </data>
+  <data name="Email_MfaOnboarding_OtpCode" xml:space="preserve">
+    <value>Para completar su autenticación multifactor, use el código OTP:</value>
   </data>
 </root>

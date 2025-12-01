@@ -421,18 +421,24 @@
     <value>Bitte wählen Sie Ihr neues Passwort, um fortzufahren.</value>
   </data>
   <data name="MfaAddEmailValidationEmailEmpty" xml:space="preserve">
-  <value>Bitte wählen Sie Ihre E-Mail-Adresse aus, damit wir sie verifizieren können, bevor wir fortfahren.</value>
-</data>
+    <value>Bitte wählen Sie Ihre E-Mail-Adresse aus, damit wir sie verifizieren können, bevor wir fortfahren.</value>
+  </data>
   <data name="MfaAddEmailValidationEmailAlreadyConfirmed" xml:space="preserve">
-  <value>Ihre E-Mail-Adresse ist bereits bestätigt. Fahren Sie fort, um MFA zu aktivieren.</value>
-</data>
+    <value>Ihre E-Mail-Adresse ist bereits bestätigt. Fahren Sie fort, um MFA zu aktivieren.</value>
+  </data>
   <data name="MfaAddEmailSuccessMessage" xml:space="preserve">
-  <value>Sie haben die MFA für Ihr Konto erfolgreich aktiviert. Melden Sie sich an, um auf Ihr Konto zuzugreifen.</value>
-</data>
+    <value>Sie haben die MFA für Ihr Konto erfolgreich aktiviert. Melden Sie sich an, um auf Ihr Konto zuzugreifen.</value>
+  </data>
   <data name="MfaVerifyEmailValidationMissingEmail" xml:space="preserve">
-  <value>Bitte geben Sie den Code ein, den Sie in Ihrer E-Mail erhalten haben.</value>
-</data>
+    <value>Bitte geben Sie den Code ein, den Sie in Ihrer E-Mail erhalten haben.</value>
+  </data>
   <data name="MfaVerifyEmailSuccessMessage" xml:space="preserve">
-  <value>Ihre E-Mail-Adresse wurde erfolgreich validiert. Bitte drücken Sie die Schaltfläche 'Weiter', um fortzufahren.</value>
-</data>
+    <value>Ihre E-Mail-Adresse wurde erfolgreich validiert. Bitte drücken Sie die Schaltfläche 'Weiter', um fortzufahren.</value>
+  </data>
+  <data name="MfaEmailBody" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="MfaEmailSubject" xml:space="preserve">
+    <value>OTP-Anmeldung</value>
+  </data>
 </root>

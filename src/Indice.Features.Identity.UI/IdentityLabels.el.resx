@@ -1062,7 +1062,7 @@
   <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
     <value>Αν υπάρχει λογαριασμός με αυτό το email, θα σας στείλουμε οδηγίες επαναφοράς κωδικού. Παρακαλούμε ελέγξτε τα εισερχόμενά σας.</value>
   </data>
-    <data name="Mfa_CheckYourInbox" xml:space="preserve">
+  <data name="Mfa_CheckYourInbox" xml:space="preserve">
     <value>Σας έχουμε στείλει ένα email στο {0}. Παρακαλώ εισάγετε τον κωδικό για να συνδεθείτε.</value>
   </data>
   <data name="MfaOnBoardingAddEmail_PageTitle" xml:space="preserve">
@@ -1094,5 +1094,11 @@
   </data>
   <data name="MfaOnBoardingVerifyEmail_PageHeader" xml:space="preserve">
     <value>Επιβεβαίωση email</value>
+  </data>
+  <data name="Email_OtpCode" xml:space="preserve">
+    <value>Ο κωδικός OTP για είσοδο είναι:</value>
+  </data>
+  <data name="Email_MfaOnboarding_OtpCode" xml:space="preserve">
+    <value>Για να ολοκληρώσετε την πολυπαραγοντική ταυτοποίησή σας, χρησιμοποιήστε τον κωδικό OTP:</value>
   </data>
 </root>

@@ -1062,7 +1062,7 @@
   <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
     <value>そのメールアドレスに関連するアカウントが存在する場合、パスワード再設定の手順をお送りします。受信箱をご確認ください。</value>
   </data>
-    <data name="Mfa_CheckYourInbox" xml:space="preserve">
+  <data name="Mfa_CheckYourInbox" xml:space="preserve">
     <value>{0}にメールを送信しました。ログインするためにコードを入力してください。</value>
   </data>
   <data name="MfaOnBoardingAddEmail_PageTitle" xml:space="preserve">
@@ -1094,5 +1094,11 @@
   </data>
   <data name="MfaOnBoardingVerifyEmail_PageHeader" xml:space="preserve">
     <value>メール確認</value>
+  </data>
+  <data name="Email_OtpCode" xml:space="preserve">
+    <value>多要素認証を完了するには、OTPコードを使用してください:</value>
+  </data>
+  <data name="Email_MfaOnboarding_OtpCode" xml:space="preserve">
+    <value>ログイン用のOTPコードは:</value>
   </data>
 </root>

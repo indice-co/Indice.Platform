@@ -1095,4 +1095,10 @@
   <data name="MfaOnBoardingVerifyEmail_PageHeader" xml:space="preserve">
     <value>Verify email</value>
   </data>
+  <data name="Email_OtpCode" xml:space="preserve">
+    <value>Your OTP code for login is:</value>
+  </data>
+  <data name="Email_MfaOnboarding_OtpCode" xml:space="preserve">
+    <value>To complete your Multi factor authentication please the OTP code:</value>
+  </data>
 </root>

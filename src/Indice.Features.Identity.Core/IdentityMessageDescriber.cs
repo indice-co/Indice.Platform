@@ -151,6 +151,11 @@ public class IdentityMessageDescriber
     /// <summary>Mfa message subject</summary>
     public virtual string MfaSmsBody => IdentityResources.MfaSmsBody;
 
+    /// <summary>Mfa email subject</summary>
+    public virtual string MfaEmailSubject => IdentityResources.MfaEmailSubject;
+    /// <summary>Mfa email body</summary>
+    public virtual string MfaEmailBody => IdentityResources.MfaEmailBody;
+
     /// <summary>Mfa validation error message</summary>
     public virtual string MfaValidationError => IdentityResources.MfaValidationError;
     /// <summary>Login error message when user is locked out.</summary>

@@ -10,11 +10,10 @@
 @{
     var settings = GeneralSettings.Value;
     var subject = ViewData["Subject"];
-    var body = ViewData["Body"];
 }
 
 @section preheader {
-    @Localizer.Email_Preheader_Verify 
+    @Localizer.Email_Preheader_Otp @Model?.Message.Message
 }
 
 @section subject {
@@ -22,12 +21,13 @@
 }
 
 <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
-    @Model?.Message
-    
     @Localizer.Email_Body_Hi,
     <br />
     <br />
-    @Localizer.Email_Preheader_Verify 
+    @Localizer.Email_OtpCode
+    <br />
+    <br />
+    <h3>@Model?.Message.Message</h3>
     <br />
     <br />
     @Localizer.Email_Body_Thanks.

@@ -212,6 +212,14 @@ public class IdentityUILocalizer
 
     #region Email
 
+    /// <summary>MFA Onboarding OTP Code text.</summary>
+    public virtual HtmlString Email_MfaOnboarding_OtpCode => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_MfaOnboarding_OtpCode));
+    
+    /// <summary>Preheader text prompting the user to verify their email.</summary>
+    public virtual HtmlString Email_Preheader_Otp => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_OtpCode));
+
+    /// <summary>Preheader text prompting the user to verify their email.</summary>
+    public virtual HtmlString Email_OtpCode => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_OtpCode));
     /// <summary>Preheader text prompting the user to verify their email.</summary>
     public virtual HtmlString Email_Preheader_Verify => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Preheader_Verify));
 
@@ -711,7 +719,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Verify phone number".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingVerifyEmail_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_PageHeader));
+    public virtual HtmlString MfaOnBoardingVerifyEmail_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyEmail_PageHeader));
     #endregion
 
 

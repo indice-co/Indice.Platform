@@ -23,12 +23,15 @@
 
 <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
 
-    <h1>@Model?.Code</h1>
+    <h1></h1>
 
-    @Localizer.Email_Body_Hi ,
+    @Localizer.Email_Body_Hi,
     <br />
     <br />
-    @Localizer.Email_Preheader_Verify
+    @Localizer.Email_MfaOnboarding_OtpCode
+    <br />
+    <br />
+    <h3>@Model?.Code</h3>
     <br />
     <br />
     @Localizer.Email_Body_Thanks.

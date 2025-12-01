@@ -162,11 +162,12 @@ public abstract class BaseMfaModel : BasePageModel
         var totpService = TotpServiceFactory.Create<User>();
         if (View.AuthenticationMethod.SupportsDeliveryChannel()) {
             if (View.AuthenticationMethodDeliveryChannel == TotpDeliveryChannel.Email) {
-                return await totpService.SendAsync(message => message.ToUser(View.User)
-                       .WithMessage(UserManager.MessageDescriber.MfaSmsBody)
+                return await totpService.SendAsync(message => 
+                message.ToUser(View.User)
+                       .WithMessage(UserManager.MessageDescriber.MfaEmailBody)
                        .UsingEmail("EmailMfaOtpCode")
                        .UsingTokenProvider(View.AuthenticationMethod?.GetTokenProvider()!)
-                       .WithSubject(UserManager.MessageDescriber.MfaSmsSubject)
+                       .WithSubject(UserManager.MessageDescriber.MfaEmailSubject)
                        .WithPurpose("TwoFactor"));
             }
             return await totpService.SendAsync(message =>

@@ -421,18 +421,24 @@
     <value>Veuillez choisir votre nouveau mot de passe pour continuer.</value>
   </data>
   <data name="MfaAddEmailValidationEmailEmpty" xml:space="preserve">
-  <value>Veuillez sélectionner votre adresse e-mail pour que nous puissions la vérifier avant de continuer.</value>
-</data>
+    <value>Veuillez sélectionner votre adresse e-mail pour que nous puissions la vérifier avant de continuer.</value>
+  </data>
   <data name="MfaAddEmailValidationEmailAlreadyConfirmed" xml:space="preserve">
-  <value>Votre adresse e-mail est déjà confirmée. Continuez pour activer l'AMF.</value>
-</data>
+    <value>Votre adresse e-mail est déjà confirmée. Continuez pour activer l'AMF.</value>
+  </data>
   <data name="MfaAddEmailSuccessMessage" xml:space="preserve">
-  <value>Vous avez activé avec succès l'AMF pour votre compte. Connectez-vous pour accéder à votre compte.</value>
-</data>
+    <value>Vous avez activé avec succès l'AMF pour votre compte. Connectez-vous pour accéder à votre compte.</value>
+  </data>
   <data name="MfaVerifyEmailValidationMissingEmail" xml:space="preserve">
-  <value>Veuillez saisir le code que vous avez reçu dans votre e-mail.</value>
-</data>
+    <value>Veuillez saisir le code que vous avez reçu dans votre e-mail.</value>
+  </data>
   <data name="MfaVerifyEmailSuccessMessage" xml:space="preserve">
-  <value>Votre adresse e-mail a été validée avec succès. Veuillez appuyer sur le bouton 'Suivant' pour continuer.</value>
-</data>
+    <value>Votre adresse e-mail a été validée avec succès. Veuillez appuyer sur le bouton 'Suivant' pour continuer.</value>
+  </data>
+  <data name="MfaEmailBody" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="MfaEmailSubject" xml:space="preserve">
+    <value>Connexion OTP</value>
+  </data>
 </root>

@@ -479,4 +479,10 @@
   <data name="MfaVerifyEmailSuccessMessage" xml:space="preserve">
     <value>Your email was successfully validated. Please press the 'Next' button to continue.</value>
   </data>
+  <data name="MfaEmailBody" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="MfaEmailSubject" xml:space="preserve">
+    <value>OTP login</value>
+  </data>
 </root>

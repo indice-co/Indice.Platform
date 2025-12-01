@@ -181,9 +181,8 @@ public abstract class BasePageModel : PageModel
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var code = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
-        var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
         await emailService.SendAsync(message => {
-            var builder = message
+            message
                 .To(user.Email!)
                 .UsingTemplate("EmailMfaOnboarding")
                 .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject)

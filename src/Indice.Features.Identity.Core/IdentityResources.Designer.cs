@@ -349,6 +349,24 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}.
+        /// </summary>
+        internal static string MfaEmailBody {
+            get {
+                return ResourceManager.GetString("MfaEmailBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OTP login.
+        /// </summary>
+        internal static string MfaEmailSubject {
+            get {
+                return ResourceManager.GetString("MfaEmailSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your OTP code for login is: {0}.
         /// </summary>
         internal static string MfaSmsBody {

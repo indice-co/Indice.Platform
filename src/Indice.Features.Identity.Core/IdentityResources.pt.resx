@@ -421,18 +421,24 @@
     <value>Por favor, escolha a sua nova senha para continuar.</value>
   </data>
   <data name="MfaAddEmailValidationEmailEmpty" xml:space="preserve">
-  <value>Por favor, selecione seu endereço de email para que possamos verificá-lo antes de continuar.</value>
-</data>
+    <value>Por favor, selecione seu endereço de email para que possamos verificá-lo antes de continuar.</value>
+  </data>
   <data name="MfaAddEmailValidationEmailAlreadyConfirmed" xml:space="preserve">
-  <value>Seu endereço de email já está confirmado. Continue para ativar o MFA.</value>
-</data>
+    <value>Seu endereço de email já está confirmado. Continue para ativar o MFA.</value>
+  </data>
   <data name="MfaAddEmailSuccessMessage" xml:space="preserve">
-  <value>Você ativou com sucesso o MFA para sua conta. Faça login para acessar sua conta.</value>
-</data>
+    <value>Você ativou com sucesso o MFA para sua conta. Faça login para acessar sua conta.</value>
+  </data>
   <data name="MfaVerifyEmailValidationMissingEmail" xml:space="preserve">
-  <value>Por favor, digite o código que você recebeu em seu email.</value>
-</data>
+    <value>Por favor, digite o código que você recebeu em seu email.</value>
+  </data>
   <data name="MfaVerifyEmailSuccessMessage" xml:space="preserve">
-  <value>Seu endereço de email foi validado com sucesso. Por favor, pressione o botão 'Próximo' para continuar.</value>
-</data>
+    <value>Seu endereço de email foi validado com sucesso. Por favor, pressione o botão 'Próximo' para continuar.</value>
+  </data>
+  <data name="MfaEmailBody" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="MfaEmailSubject" xml:space="preserve">
+    <value>Login OTP</value>
+  </data>
 </root>
