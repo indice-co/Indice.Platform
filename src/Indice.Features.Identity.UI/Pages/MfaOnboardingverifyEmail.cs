@@ -16,12 +16,12 @@ namespace Indice.Features.Identity.UI.Pages;
 [IdentityUI(typeof(MfaOnboardingverifyEmailModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
-public abstract class BaseMfaOnboardingverifyEmailModel : BasePageModel
+public abstract class BaseMfaOnboardingVerifyEmailModel : BasePageModel
 {
-    /// <summary>Creates a new instance of <see cref="BaseMfaOnboardingverifyEmailModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="BaseMfaOnboardingVerifyEmailModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public BaseMfaOnboardingverifyEmailModel(
+    public BaseMfaOnboardingVerifyEmailModel(
         ExtendedUserManager<User> userManager
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -72,7 +72,7 @@ public abstract class BaseMfaOnboardingverifyEmailModel : BasePageModel
     }
 }
 
-internal class MfaOnboardingverifyEmailModel : BaseMfaOnboardingverifyEmailModel
+internal class MfaOnboardingverifyEmailModel : BaseMfaOnboardingVerifyEmailModel
 {
     public MfaOnboardingverifyEmailModel(
         ExtendedUserManager<User> userManager

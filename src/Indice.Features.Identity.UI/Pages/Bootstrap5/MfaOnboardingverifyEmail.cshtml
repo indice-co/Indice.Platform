@@ -1,13 +1,13 @@
 ﻿@page "/login/mfa/onboarding/verify-email"
 
-@model BaseMfaOnboardingverifyEmailModel
+@model BaseMfaOnboardingVerifyEmailModel
 
 @inject IWebHostEnvironment HostingEnvironment
 @inject IdentityUILocalizer Localizer
 
 @{
     ViewBag.Title = Localizer.MfaOnBoardingVerifyEmail_PageTitle;
-    var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingverifyEmailModel.TempDataKey);
+    var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyEmailModel.TempDataKey);
     var displayNext = !string.IsNullOrEmpty(infoMessage?.NextStepUrl) && infoMessage?.Alert?.AlertType == AlertType.Success;
 }
 

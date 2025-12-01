@@ -121,13 +121,13 @@ public class IdentityMessageDescriber
     /// <summary>Mfa onboarding AddPhone Validation success message</summary>
     public virtual string MfaAddPhoneSuccessMessage => IdentityResources.MfaAddPhoneSuccessMessage;
     /// <summary>Mfa onboarding AddPhone Validation already confirmed</summary>
-    public virtual string MfaAddPhoneValidationPhoneAlreadyConfirmed => IdentityResources.MfaAddPhoneValidationPhoneAlreadyConfirmed; 
+    public virtual string MfaAddPhoneValidationPhoneAlreadyConfirmed => IdentityResources.MfaAddPhoneValidationPhoneAlreadyConfirmed;
     /// <summary>Mfa onboarding AddPhone Validation missing phone</summary>
     public virtual string MfaVerifyPhoneValidationMissingPhone => IdentityResources.MfaVerifyPhoneValidationMissingPhone;
 
     /// <summary>Mfa onboarding email Validation missing email</summary>
     public virtual string MfaVerifyEmailValidationMissingEmail => IdentityResources.MfaVerifyEmailValidationMissingEmail;
-    
+
     /// <summary>Mfa onboarding verfication success message</summary>
     public virtual string MfaVerifyPhoneSuccessMessage => IdentityResources.MfaVerifyPhoneSuccessMessage;
 
@@ -140,7 +140,7 @@ public class IdentityMessageDescriber
 
     /// <summary>Choose Password message for new users.</summary>
     public virtual string PasswordExpiredFirstTimeUserMessage => IdentityResources.PasswordExpiredFirstTimeUserMessage;
-    
+
     /// <summary>Profile external login added success message.</summary>
     public virtual string ProfileExternalLoginAddedSuccessMessage => IdentityResources.ProfileExternalLoginAddedSuccessMessage;
     /// <summary>Registration phone confriamtion message prompt</summary>

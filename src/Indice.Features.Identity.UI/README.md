@@ -272,6 +272,8 @@ Indice.Features.Identity.UI/
 - `/MfaOnboarding` - MFA setup wizard
 - `/MfaOnboardingAddPhone` - Add phone for MFA
 - `/MfaOnboardingVerifyPhone` - Verify phone for MFA
+- `/MfaOnboardingAddEmail` - Add email for MFA
+- `/MfaOnboardingVerifyEmail` - Verify email for MFA
 
 ### Security & Consent
 - `/Consent` - OAuth consent page
