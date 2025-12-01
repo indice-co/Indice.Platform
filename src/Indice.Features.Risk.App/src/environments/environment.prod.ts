@@ -18,5 +18,5 @@ export const environment = {
   },
   culture: 'el-GR',
   isTemplate: false,
-  production: false
+  production: true
 };
