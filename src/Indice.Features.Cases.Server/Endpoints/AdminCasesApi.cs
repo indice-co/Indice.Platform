@@ -47,7 +47,7 @@ internal static class AdminCasesApi
 
         group.MapPost("{caseId}/data/init", AdminCasesHandlers.InitializeCaseData)
             .WithName(nameof(AdminCasesHandlers.InitializeCaseData))
-            .WithSummary("Retrieve the initial data of the case")
+            .WithSummary("Initialize and retrieve the initial data for a draft case")
             .RequireAuthorization(policy => policy.RequireCasesRecordAccess());
 
         group.MapGet("{caseId}/attachments", AdminCasesHandlers.GetCaseAttachments)

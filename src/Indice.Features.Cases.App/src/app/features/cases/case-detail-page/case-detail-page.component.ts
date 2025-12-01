@@ -4,7 +4,7 @@ import { ToasterService, ToastType } from '@indice/ng-components';
 import { iif, Observable, ReplaySubject, of } from 'rxjs';
 import { filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
-import { CaseActions, Case, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage, CasePartial, Contact } from 'src/app/core/services/cases-api.service';
+import { CaseActions, Case, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage, CasePartial } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-detail-page',
