@@ -420,4 +420,25 @@
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
     <value>Per favore, scegli la tua nuova password per continuare.</value>
   </data>
+  <data name="MfaAddEmailValidationEmailEmpty" xml:space="preserve">
+    <value>Si prega di selezionare il proprio indirizzo email in modo da poterlo verificare prima di continuare.</value>
+  </data>
+  <data name="MfaAddEmailValidationEmailAlreadyConfirmed" xml:space="preserve">
+    <value>Il tuo indirizzo email è già confermato. Continua per abilitare l'MFA.</value>
+  </data>
+  <data name="MfaAddEmailSuccessMessage" xml:space="preserve">
+    <value>Hai attivato con successo l'MFA per il tuo account. Accedi per accedere al tuo account.</value>
+  </data>
+  <data name="MfaVerifyEmailValidationMissingEmail" xml:space="preserve">
+    <value>Si prega di inserire il codice ricevuto nella propria email.</value>
+  </data>
+  <data name="MfaVerifyEmailSuccessMessage" xml:space="preserve">
+    <value>Il tuo indirizzo email è stato validato con successo. Si prega di premere il pulsante 'Avanti' per continuare.</value>
+  </data>
+  <data name="MfaEmailBody" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="MfaEmailSubject" xml:space="preserve">
+    <value>Login OTP</value>
+  </data>
 </root>

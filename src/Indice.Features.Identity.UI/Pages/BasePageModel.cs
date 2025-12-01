@@ -171,6 +171,24 @@ public abstract class BasePageModel : PageModel
         await smsService.SendAsync(phoneNumber, identityMessageDescriber.PhoneVerificationSmsSubject, identityMessageDescriber.PhoneVerificationSmsBody(code));
     }
 
+    /// <summary>Generates a TOTP code and sends it to the email address of the specified user.</summary>
+    /// <param name="user">The user instance.</param>
+    public virtual async Task SendVerificationEmailAsync(User user) {
+        var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var code = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
+        var emailService = ServiceProvider.GetRequiredService<IEmailService>();
+        await emailService.SendAsync(message => {
+            message
+                .To(user.Email!)
+                .UsingTemplate("EmailMfaOnboarding")
+                .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject)
+                .WithData(new {
+                    Username = user.UserName,
+                    Code = code
+                });
+        });
+    }
+
     /// <summary>
     /// Attempts to complete the login process and returns an appropriate action result based on the sign-in outcome and
     /// authentication context. 
@@ -205,6 +223,6 @@ public abstract class BasePageModel : PageModel
             // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
             return Redirect(returnUrl);
         }
-        return IsValidReturnUrl(returnUrl) ? Redirect(returnUrl) : Redirect("/") ;
+        return IsValidReturnUrl(returnUrl) ? Redirect(returnUrl) : Redirect("/");
     }
 }

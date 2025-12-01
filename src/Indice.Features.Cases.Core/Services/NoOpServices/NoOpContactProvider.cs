@@ -23,7 +23,7 @@ internal class NoOpContactProvider : IContactProvider
             Task.FromResult(new ResultSet<Contact>([ToContact(user)], 1));
 
 
-    public Task<Contact?> GetByReferenceAsync(UserActor user, string reference, string caseTypeCode) => 
+    public Task<Contact?> GetByReferenceAsync(UserActor user, string reference) => 
         Task.FromResult<Contact?>(ToContact(user));
 
     private Contact ToContact(UserActor workflowActor) => new () {

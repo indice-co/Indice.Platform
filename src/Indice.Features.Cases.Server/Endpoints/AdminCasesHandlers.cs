@@ -286,4 +286,17 @@ internal static class AdminCasesHandlers
     /// <param name="adminCaseService"></param>
     public static async Task PublishCasePrivateData(Guid caseId, IAdminCaseService adminCaseService)
         => await adminCaseService.PublishData(caseId);
+
+    public static async Task<Results<Ok<JsonNode>, NotFound>> InitializeCaseData(
+        Guid caseId, IAdminCaseService adminCaseService, ICaseDataInitializer caseDataInitializer, IOptions<CasesOptions> casesOptions, ClaimsPrincipal currentUser) {
+        var @case = await adminCaseService.GetCaseById(caseId, fetchPublicData: false, includeAttachmentData: false);
+        if (@case is null) {
+            return TypedResults.NotFound();
+        }
+
+        var data = await caseDataInitializer.InitializeAsync(currentUser.UserToActor(casesOptions.Value), @case.CaseType.Code.ToString());
+        return data is null
+            ? TypedResults.Ok(JsonNode.Parse("{}"))
+            : TypedResults.Ok(data);
+    }
 }

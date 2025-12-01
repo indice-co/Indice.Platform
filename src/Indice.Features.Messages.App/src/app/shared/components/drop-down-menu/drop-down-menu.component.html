@@ -2,7 +2,7 @@
   <button type="button" (click)="expanded = !expanded" class="dropdown-button" aria-haspopup="listbox" aria-expanded="true" aria-labelledby="listbox-label">
     <span class="dropdown-selected-text">@if (value?.icon) {
       <i [class]="value?.icon" [class.mr-2]="value?.icon"></i>
-    }{{ value?.text || placeholder }}</span>
+    }{{ value?.text || (placeholder | translate) }}</span>
     <span class="dropdown-button-icon">
       <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path fill-rule="evenodd"

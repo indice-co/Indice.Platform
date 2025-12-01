@@ -1,0 +1,132 @@
+﻿@using Indice.Extensions
+@using Indice.Features.Identity.Core.Models
+@inject IdentityUILocalizer Localizer
+@model BaseMfaModel
+
+<form id="mfa-form"
+      asp-page="/Mfa"
+      asp-route-returnUrl="@Model.Input.ReturnUrl"
+      method="post"
+      class="space-y-6">
+    <input type="hidden" asp-for="Input.ReturnUrl" />
+    <input type="hidden" asp-for="Input.DeviceId" />
+    <div id="panel-main" class="space-y-4">
+        <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mb-4">
+            @Localizer.Mfa_Check_Your_Inbox(Model.View.EmailMasked!)
+        </div>
+        <div>
+            <label asp-for="Input.OtpCode" class="block text-sm font-medium text-gray-700">
+                @Localizer.Mfa_OTP_Code
+            </label>
+            <input asp-for="Input.OtpCode"
+                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm
+                            focus:ring-tenant-500 focus:border-tenant-500"
+                   placeholder="@Localizer.Mfa_OTP_Code"
+                   autofocus autocomplete="off" />
+            <span asp-validation-for="Input.OtpCode" class="text-red-600 text-sm"></span>
+        </div>
+        <div class="flex items-center justify-between">
+            <div indice-if="!Model.View.IsExistingBrowser" class="flex items-center">
+                <input asp-for="Input.RememberClient"
+                       type="checkbox"
+                       class="h-4 w-4 text-tenant-600 border-gray-300 rounded" />
+                <label for="Input_RememberClient" class="text-left ml-2 block text-sm text-gray-900 mr-8">
+                    @Localizer.Mfa_I_Sign_In_Frequently_Here_Remember_This_Browser
+                </label>
+            </div>
+            <button type="submit"
+                    class="py-2 px-4 bg-tenant-800 hover:bg-tenant-900 text-white font-semibold rounded-md">
+                @Localizer.Mfa_Authenticate
+            </button>
+        </div>
+        <div class="@(Model.View.AllowDowngradeAuthenticationMethod ? "flex justify-between" : "flex justify-center")">
+            <!-- Immediate resend -->
+            <button id="otp-resend"
+                    type="submit"
+                    name="Input.ResendOtp"
+                    value="true"
+                    class="text-tenant-600 hover:text-tenant-800 hover:underline font-medium disabled:text-gray-400 disabled:no-underline"
+                    @(Model.View.ResendEnabled ? "" : "disabled")>
+                <span>@Localizer.Mfa_Resend</span>
+                <span class="countdown ml-2 text-sm text-gray-400"></span>
+            </button>
+            <!-- Open channel picker -->
+            @if (Model.View.AllowDowngradeAuthenticationMethod)
+            {
+                <button id="show-channels"
+                        type="button"
+                        class="text-tenant-600 hover:text-tenant-800 hover:underline font-medium">
+                    @Localizer.Mfa_Other_Authentication_Methods
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (Model.View.AllowDowngradeAuthenticationMethod && Model.View.AvailableAuthenticationMethods is { Length: > 0 })
+    {
+        <div id="panel-channels" class="hidden space-y-4">
+            <p class="text-sm font-medium text-gray-700">
+                @Localizer.Mfa_Authenticate_Yourself_Using
+            </p>
+            <ul role="list" class="divide-y divide-gray-200">
+                @foreach (var method in Model.View.AvailableAuthenticationMethods)
+                {
+                    var dc = method.GetDeliveryChannel();
+                    <li>
+                        <button type="submit"
+                                name="Input.SelectedDeliveryChannel"
+                                value="@dc"
+                                class="channel-btn channel-@(method.DisplayName.ToKebabCase())
+                                                                    relative flex justify-between gap-x-6 px-2  py-5 w-full hover:bg-tenant-200 rounded-md
+                                                                    transition-all duration-200 hover:rounded-xl hover:shadow-md">
+                            <div class="flex min-w-0 gap-x-4 items-center">
+                                <div class="flex items-center justify-center w-8">
+                                    <i class="@GetIconFromAuthenticationMethod(method) text-2xl text-tenant-600"></i>
+                                </div>
+                                <div class="min-w-0 flex-auto text-left">
+                                    <p class="mt-1 flex text-sm/6 text-gray-500">
+                                        <span class="absolute inset-x-0 -top-px bottom-0"></span>
+                                        @Localizer.GetGeneric(method.Description)
+                                    </p>
+                                    <p class="text-xs/5 font-semibold text-gray-900">
+                                        @Localizer.GetGeneric(method.DisplayName)
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex shrink-0 items-center gap-x-4">
+                                <svg class="size-5 flex-none text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                    <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </button>
+                    </li>
+                }
+            </ul>
+
+            <div class="flex justify-start mt-2">
+                <button id="go-back"
+                        type="button"
+                        class="py-2 px-4 hover:underline hover:text-black text-gray-700 rounded-md">
+                    ← @Localizer.Mfa_Back
+                </button>
+            </div>
+        </div>
+    }
+    <input type="hidden" name="Input.ResendOtp" value="" />
+</form>
+@functions {
+    public string GetIconFromAuthenticationMethod(AuthenticationMethod method)
+    {
+        return method.DisplayName.ToLowerInvariant() switch
+        {
+            "viber" => "fa-brands fa-viber",
+            "sms" => "fa-regular fa-message",
+            "email" => "fa-regular fa-envelope",
+            "authenticatorapp" => "fa-solid fa-shield-halved",
+            "trusteddevice" => "fa-solid fa-mobile-screen",
+            "fido2" => "fa-solid fa-fingerprint",
+            "code" => "fa-solid fa-square-binary",
+            _ => "fa-regular fa-message"
+        };
+    }
+}
