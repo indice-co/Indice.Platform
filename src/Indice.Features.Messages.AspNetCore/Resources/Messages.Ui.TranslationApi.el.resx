@@ -1,5 +1,64 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -58,849 +117,2059 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-
-  <!-- Contacts -->
-  <data name="Contacts.Title" xml:space="preserve"><value>Στοιχεία επαφής</value></data>
-  <data name="Contacts.Edit" xml:space="preserve"><value>Επεξεργασία</value></data>
-  <data name="Contacts.Resolve" xml:space="preserve"><value>Επίλυση</value></data>
-  <data name="Contacts.Duplicates" xml:space="preserve"><value>Διπλότυπα</value></data>
-  <data name="Contacts.Salutation" xml:space="preserve"><value>Προσφώνηση</value></data>
-  <data name="Contacts.FullName" xml:space="preserve"><value>Όνομα Εμφάνισης</value></data>
-  <data name="Contacts.FirstName" xml:space="preserve"><value>Όνομα</value></data>
-  <data name="Contacts.LastName" xml:space="preserve"><value>Επώνυμο</value></data>
-  <data name="Contacts.Email" xml:space="preserve"><value>Email</value></data>
-  <data name="Contacts.Phone" xml:space="preserve"><value>Τηλέφωνο</value></data>
-  <data name="Contacts.ContactCode" xml:space="preserve"><value>Κωδικός επαφής</value></data>
-  <data name="Contacts.Resolved" xml:space="preserve"><value>Επιλυμένο</value></data>
-  <data name="Contacts.Unknown" xml:space="preserve"><value>Άγνωστο</value></data>
-  <data name="Contacts.UpdatedAt" xml:space="preserve"><value>Ενημερώθηκε στις</value></data>
-  <data name="Contacts.DuplicatesTitle" xml:space="preserve"><value>Εύρεση Διπλοτύπων</value></data>
-  <data name="Contacts.MergeLabel" xml:space="preserve"><value>Συγχώνευση</value></data>
-  <data name="Contacts.CancelLabel" xml:space="preserve"><value>Κλείσιμο</value></data>
-  <data name="Contacts.DuplicatesLoading" xml:space="preserve"><value>Φόρτωση διπλοτύπων...</value></data>
-  <data name="Contacts.NoDuplicatesFound" xml:space="preserve"><value>Δεν βρέθηκαν διπλότυπες επαφές.</value></data>
-  <data name="Contacts.Submit" xml:space="preserve"><value>Υποβολή</value></data>
-  <data name="Contacts.AvatarAlt" xml:space="preserve"><value>Εικόνα προφίλ</value></data>
-  <data name="Contacts.EditContact" xml:space="preserve"><value>Επεξεργασία επαφής</value></data>
-  <data name="Contacts.Save" xml:space="preserve"><value>Αποθήκευση</value></data>
-  <data name="Contacts.SalutationPlaceholder" xml:space="preserve"><value>Προσφώνηση...</value></data>
-  <data name="Contacts.FirstNamePlaceholder" xml:space="preserve"><value>Όνομα...</value></data>
-  <data name="Contacts.LastNamePlaceholder" xml:space="preserve"><value>Επώνυμο...</value></data>
-  <data name="Contacts.FullNamePlaceholder" xml:space="preserve"><value>Όνομα Εμφάνισης...</value></data>
-  <data name="Contacts.EmailPlaceholder" xml:space="preserve"><value>Email...</value></data>
-  <data name="Contacts.PhonePlaceholder" xml:space="preserve"><value>Τηλέφωνο...</value></data>
-  <data name="Contacts.SalutationInfo" xml:space="preserve"><value>Η προσφώνηση (π.χ κύριε ή κ.).</value></data>
-  <data name="Contacts.ContactCodeReadonly" xml:space="preserve"><value>Κωδικός επαφής (μόνο ανάγνωση)</value></data>
-  <data name="Contacts.BasicInformation" xml:space="preserve"><value>Βασικές πληροφορίες</value></data>
-  <data name="Contacts.Campaigns" xml:space="preserve"><value>Καμπάνιες</value></data>
-  <data name="Contacts.CommunicationSettings" xml:space="preserve"><value>Ρυθμίσεις επικοινωνίας</value></data>
-  <data name="Contacts.ListTitle" xml:space="preserve"><value>Επαφές</value></data>
-  <data name="Contacts.Name" xml:space="preserve"><value>Όνομα</value></data>
-  <data name="Contacts.CampaignTitle" xml:space="preserve"><value>Τίτλος</value></data>
-  <data name="Contacts.CampaignDetails" xml:space="preserve"><value>Στοιχεία campaign</value></data>
-  <data name="Contacts.Channels" xml:space="preserve"><value>Κανάλια</value></data>
-  <data name="Contacts.Type" xml:space="preserve"><value>Τύπος</value></data>
-  <data name="Contacts.From" xml:space="preserve"><value>Από</value></data>
-  <data name="Contacts.To" xml:space="preserve"><value>Έως</value></data>
-  <data name="Contacts.CreatedBy" xml:space="preserve"><value>Δημιουργήθηκε από</value></data>
-  <data name="Contacts.CreatedAt" xml:space="preserve"><value>Δημιουργήθηκε στις</value></data>
-  <data name="Contacts.Published" xml:space="preserve"><value>Δημοσιευμένη</value></data>
-  <data name="Contacts.SearchTitle" xml:space="preserve"><value>Αναζήτηση</value></data>
-  <data name="Contacts.Add" xml:space="preserve"><value>Προσθήκη</value></data>
-  
-  <!-- Contacts Preferences -->
-  <data name="Contacts.CommunicationDetailsHeader" xml:space="preserve"><value>Στοιχεία Επικοινωνίας</value></data>
-  <data name="Contacts.CommunicationLanguageLabel" xml:space="preserve"><value>Γλώσσα επικοινωνίας</value></data>
-  <data name="Contacts.CommunicationConsentLabel" xml:space="preserve"><value>Αποδοχή επικοινωνίας</value></data>
-  <data name="Contacts.CommunicationConsentDateLabel" xml:space="preserve"><value>Ημερομηνία αποδοχής επικοινωνίας</value></data>
-  <data name="Contacts.MessageTypesColumn" xml:space="preserve"><value>Τύποι Μηνυμάτων</value></data>
-  <data name="Contacts.ChannelEmail" xml:space="preserve"><value>Email</value></data>
-  <data name="Contacts.ChannelSms" xml:space="preserve"><value>Sms</value></data>
-  <data name="Contacts.ChannelPushNotification" xml:space="preserve"><value>Push Notification</value></data>
-  <data name="Contacts.ChannelInbox" xml:space="preserve"><value>Inbox</value></data>
-  <data name="Contacts.DefaultSettingsRowLabel" xml:space="preserve"><value>Default Settings</value></data>
-  <data name="Contacts.EmptyValueIndicator" xml:space="preserve"><value>-</value></data>
-
-  <!-- Contacts Duplicates Merge -->
-  <data name="Contacts.MergeDuplicatesSuccessTitle" xml:space="preserve"><value>Επιτυχής συγχόνευση</value></data>
-  <data name="Contacts.MergeDuplicatesSuccessMessage" xml:space="preserve"><value>Τα διπλότυπα της επαφής {{name}} συγχονεύτηκαν με επιτυχία.</value></data>
-
-  <!-- Added Contacts sorting option keys -->
-  <data name="Contacts.SortCreatedOnOption" xml:space="preserve"><value>Ημ/νια Δημιουργίας</value></data>
-  <data name="Contacts.SortTitleOption" xml:space="preserve"><value>Τίτλος</value></data>
-  <data name="Contacts.SortActiveFromOption" xml:space="preserve"><value>Ενεργή Από</value></data>
-  <data name="Contacts.SortTypeOption" xml:space="preserve"><value>Τύπος</value></data>
-  <data name="Contacts.SortPublishedOption" xml:space="preserve"><value>Δημοσιευμένη</value></data>
-
-  <!-- Contacts Update (contact edit) -->
-  <data name="Contacts.UpdateSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="Contacts.UpdateSuccessMessage" xml:space="preserve"><value>Η επαφή {{name}} ενημερώθηκε με επιτυχία.</value></data>
-
-  <!-- Ταξινόμηση λίστας επαφών (νέα κλειδιά) -->
-  <data name="Contacts.SortUpdatedAtOption" xml:space="preserve"><value>Τροποποιήθηκε</value></data>
-  <data name="Contacts.SortFullNameOption" xml:space="preserve"><value>Ονοματεπώνυμο</value></data>
-  <data name="Contacts.SortEmailOption" xml:space="preserve"><value>e-mail</value></data>
-  <data name="Contacts.SortPhoneOption" xml:space="preserve"><value>Τηλέφωνο</value></data>
-  <data name="Contacts.SortContactCodeOption" xml:space="preserve"><value>Κωδικός</value></data>
-  <data name="Contacts.SortResolvedOption" xml:space="preserve"><value>Resolved</value></data>
-  <data name="Contacts.SortLastResolutionDateOption" xml:space="preserve"><value>Last Resolution</value></data>
-  
-  
-  <!-- Dashboard -->
-  <data name="DashBoard.Welcome" xml:space="preserve"><value>Καλώς ήλθατε,</value></data>
-  <data name="DashBoard.TodaysCampaigns" xml:space="preserve"><value>Καμπάνιες σήμερα</value></data>
-  <data name="DashBoard.NewLabel" xml:space="preserve"><value>νέα</value></data>
-  <data name="DashBoard.OutOf" xml:space="preserve"><value>από</value></data>
-  <data name="DashBoard.TotalLabel" xml:space="preserve"><value>συνολικά</value></data>
-  <data name="DashBoard.TotalCampaignsToday" xml:space="preserve"><value>συνολικές καμπάνιες σήμερα</value></data>
-  <data name="DashBoard.IncreasedBySr" xml:space="preserve"><value>Αύξηση κατά</value></data>
-  <data name="DashBoard.RegisteredContacts" xml:space="preserve"><value>Εγγεγραμμένες επαφές</value></data>
-  <data name="DashBoard.TotalRecipientReach" xml:space="preserve"><value>Συνολική εμβέλεια παραληπτών</value></data>
-  <data name="DashBoard.AvgReachability" xml:space="preserve"><value>Μέση εμβέλεια</value></data>
-  <data name="DashBoard.ChannelDispatchesLastDays" xml:space="preserve"><value>Αποστολές καναλιών τις τελευταίες {{days}} ημέρες</value></data>
-  <data name="DashBoard.TotalChannelDeliveries" xml:space="preserve"><value>Συνολικές παραδόσεις καναλιών</value></data>
-  <data name="DashBoard.MessageRecipientsToday" xml:space="preserve"><value>Παραλήπτες μηνυμάτων σήμερα</value></data>
-
-  <!-- DistributionLists -->
-  <data name="DistributionLists.CreateTitle" xml:space="preserve"><value>Δημιουργία νέας λίστας</value></data>
-  <data name="DistributionLists.Create" xml:space="preserve"><value>Δημιουργία</value></data>
-  <data name="DistributionLists.CancelLabel" xml:space="preserve"><value>Κλείσιμο</value></data>
-  <data name="DistributionLists.Submit" xml:space="preserve"><value>Υποβολή</value></data>
-  <data name="DistributionLists.NameLabelRequired" xml:space="preserve"><value>Όνομα (*)</value></data>
-  <data name="DistributionLists.NamePlaceholder" xml:space="preserve"><value>Το όνομα της λίστας...</value></data>
-  <data name="DistributionLists.NameRequiredError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα όνομα.</value></data>
-  <data name="DistributionLists.NameMaxLengthError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</value></data>
-  <data name="DistributionLists.NameInfo" xml:space="preserve"><value>Η ονομασία με την οποία θα εμφανίζεται η λίστα διανομής.</value></data>
-  <data name="DistributionLists.AliasLabelRequired" xml:space="preserve"><value>Alias (*)</value></data>
-  <data name="DistributionLists.AliasPlaceholder" xml:space="preserve"><value>Το alias της λίστας...</value></data>
-  <data name="DistributionLists.AliasMaxLengthError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</value></data>
-  <data name="DistributionLists.CsvImportLabel" xml:space="preserve"><value>Μαζική εισαγωγή επαφών στη λίστα διανομής (αρχείο CSV)</value></data>
-  <data name="DistributionLists.SearchTitle" xml:space="preserve"><value>Αναζήτηση</value></data>
-  <data name="DistributionLists.Add" xml:space="preserve"><value>Προσθήκη</value></data>
-  <data name="DistributionLists.EditContactTitle" xml:space="preserve"><value>Επεξεργασία επαφής</value></data>
-  <data name="DistributionLists.Save" xml:space="preserve"><value>Αποθήκευση</value></data>
-  <data name="DistributionLists.Salutation" xml:space="preserve"><value>Προσφώνηση</value></data>
-  <data name="DistributionLists.SalutationPlaceholder" xml:space="preserve"><value>Προσφώνηση...</value></data>
-  <data name="DistributionLists.SalutationInfo" xml:space="preserve"><value>Η προσφώνηση (π.χ κύριε ή κ.).</value></data>
-  <data name="DistributionLists.FirstName" xml:space="preserve"><value>Όνομα</value></data>
-  <data name="DistributionLists.FirstNamePlaceholder" xml:space="preserve"><value>Όνομα...</value></data>
-  <data name="DistributionLists.LastName" xml:space="preserve"><value>Επώνυμο</value></data>
-  <data name="DistributionLists.LastNamePlaceholder" xml:space="preserve"><value>Επώνυμο...</value></data>
-  <data name="DistributionLists.FullName" xml:space="preserve"><value>Όνομα Εμφάνισης</value></data>
-  <data name="DistributionLists.FullNamePlaceholder" xml:space="preserve"><value>Όνομα Εμφάνισης...</value></data>
-  <data name="DistributionLists.Email" xml:space="preserve"><value>Email</value></data>
-  <data name="DistributionLists.EmailPlaceholder" xml:space="preserve"><value>Email...</value></data>
-  <data name="DistributionLists.Phone" xml:space="preserve"><value>Τηλέφωνο</value></data>
-  <data name="DistributionLists.PhonePlaceholder" xml:space="preserve"><value>Τηλέφωνο...</value></data>
-  <data name="DistributionLists.ContactCodeReadonly" xml:space="preserve"><value>Κωδικός επαφής (μόνο ανάγνωση)</value></data>
-  <data name="DistributionLists.Resolved" xml:space="preserve"><value>Επιλυμένο</value></data>
-  <data name="DistributionLists.Unknown" xml:space="preserve"><value>Άγνωστο</value></data>
-  <data name="DistributionLists.ContactsTitle" xml:space="preserve"><value>Επαφές Λίστας</value></data>
-  <data name="DistributionLists.Name" xml:space="preserve"><value>Όνομα</value></data>
-  <data name="DistributionLists.ContactCode" xml:space="preserve"><value>Κωδικός επαφής</value></data>
-  <data name="DistributionLists.Actions" xml:space="preserve"><value>Ενέργειες</value></data>
-  <data name="DistributionLists.BasicInformation" xml:space="preserve"><value>Βασικές πληροφορίες</value></data>
-  <data name="DistributionLists.Contacts" xml:space="preserve"><value>Επαφές</value></data>
-  <data name="DistributionLists.EditList" xml:space="preserve"><value>Επεξεργασία λίστας</value></data>
-  <data name="DistributionLists.ListTitleLabel" xml:space="preserve"><value>Τίτλος (*)</value></data>
-  <data name="DistributionLists.ListNamePlaceholder" xml:space="preserve"><value>Το όνομα της λίστας...</value></data>
-  <data name="DistributionLists.ListNameRequired" xml:space="preserve"><value>Παρακαλώ συμπληρώστε έναν τίτλο.</value></data>
-  <data name="DistributionLists.ListNameMaxLength" xml:space="preserve"><value>Παρακαλώ συμπληρώστε έναν μικρότερο τίτλο.</value></data>
-  <data name="DistributionLists.ListInfo" xml:space="preserve"><value>Η ονομασία με την οποία θα εμφανίζεται η λίστα.</value></data>
-  <data name="DistributionLists.AliasLabel" xml:space="preserve"><value>Alias</value></data>
-  <data name="DistributionLists.AliasMaxLength" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα μικρότερο alias.</value></data>
-  <data name="DistributionLists.BasicInformationDescription" xml:space="preserve"><value>Οι βασικές πληροφορίες της λίστας διανομής.</value></data>
-  <data name="DistributionLists.Delete" xml:space="preserve"><value>Διαγραφή</value></data>
-  <data name="DistributionLists.ListTitle" xml:space="preserve"><value>Τίτλος</value></data>
-  <data name="DistributionLists.Alias" xml:space="preserve"><value>Alias</value></data>
-  <data name="DistributionLists.CreatedBy" xml:space="preserve"><value>Δημιουργήθηκε από</value></data>
-  <data name="DistributionLists.CreatedAt" xml:space="preserve"><value>Δημιουργήθηκε στις</value></data>
-  <data name="DistributionLists.UpdatedBy" xml:space="preserve"><value>Τροποποιήθηκε από</value></data>
-  <data name="DistributionLists.UpdatedAt" xml:space="preserve"><value>Τροποποιήθηκε στις</value></data>
-  <data name="DistributionLists.ImportContactsTitle" xml:space="preserve"><value>Μαζική εισαγωγή επαφών</value></data>
-  <data name="DistributionLists.ImportContacts" xml:space="preserve"><value>Μαζική εισαγωγή</value></data>
-  <data name="DistributionLists.ImportContactsLabel" xml:space="preserve"><value>Μαζική εισαγωγή επαφών από αρχείο CSV (*)</value></data>
-  <data name="DistributionLists.ListsTitle" xml:space="preserve"><value>Λίστες διανομής</value></data>
-  <data name="DistributionLists.Details" xml:space="preserve"><value>Λεπτομέρειες</value></data>
-
-  <!-- DistributionLists create/update toasts -->
-  <data name="DistributionLists.CreateErrorTitle" xml:space="preserve"><value>Αποτυχία δημιουργίας λίστας</value></data>
-  <data name="DistributionLists.CreateErrorMessage" xml:space="preserve"><value>Αποτυχία κατά τη δημιουργία της λίστας επαφών.</value></data>
-  <data name="DistributionLists.ImportContactsErrorTitle" xml:space="preserve"><value>Αποτυχία εισαγωγής επαφών</value></data>
-  <data name="DistributionLists.ImportContactsErrorMessage" xml:space="preserve"><value>Η λίστα δημιουργήθηκε, αλλά απέτυχε η εισαγωγή επαφών.</value></data>
-  <data name="DistributionLists.CreateSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="DistributionLists.CreateSuccessMessage" xml:space="preserve"><value>Η λίστα με όνομα {{name}} δημιουργήθηκε με επιτυχία.</value></data>
-
-  <!-- DistributionLists list (sorting & deletion) -->
-  <data name="DistributionLists.SortNameOption" xml:space="preserve"><value>Όνομα</value></data>
-  <data name="DistributionLists.DeleteConfirmMessage" xml:space="preserve"><value>Είστε σίγουρος ότι θέλετε να διαγράψετε τη λίστα '{{name}}';</value></data>
-  <data name="DistributionLists.DeleteSuccessTitle" xml:space="preserve"><value>Επιτυχής διαγραφή</value></data>
-  <data name="DistributionLists.DeleteSuccessMessage" xml:space="preserve"><value>Η λίστα με όνομα {{name}} διαγράφηκε με επιτυχία.</value></data>
-
-  <!-- DistributionLists edit (right pane update) -->
-  <data name="DistributionLists.UpdateSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="DistributionLists.UpdateSuccessMessage" xml:space="preserve"><value>Η λίστα διανομής με όνομα {{name}} αποθηκεύτηκε με επιτυχία.</value></data>
-
-  <!-- DistributionLists import contacts -->
-  <data name="DistributionLists.EditImportContactsErrorTitle" xml:space="preserve"><value>Σφάλμα εισαγωγής επαφών</value></data>
-  <data name="DistributionLists.EditImportContactsErrorMessage" xml:space="preserve"><value>Παρουσιάστηκε πρόβλημα κατά την εισαγωγή επαφών στην λίστα διανομής.</value></data>
-  <data name="DistributionLists.EditImportContactsSuccessTitle" xml:space="preserve"><value>Επιτυχής εισαγωγή επαφών</value></data>
-  <data name="DistributionLists.EditImportContactsSuccessMessage" xml:space="preserve"><value>Οι επαφές αποθηκεύτηκαν επιτυχώς στην λίστα διανομής.</value></data>
-
-  <!-- DistributionLists edit (title format) -->
-  <data name="DistributionLists.TitleFormat" xml:space="preserve"><value>Λίστα διανομής - {{name}}</value></data>
-
-  <data name="Templates.SortNameOption" xml:space="preserve"><value>Όνομα</value></data>
-
-  <!-- DistributionLists contacts (sorting & actions) -->
-  <data name="DistributionLists.SortFirstNameOption" xml:space="preserve"><value>Όνομα</value></data>
-  <data name="DistributionLists.SortLastNameOption" xml:space="preserve"><value>Επίθετο</value></data>
-  <data name="DistributionLists.SortEmailOption" xml:space="preserve"><value>Email</value></data>
-  <data name="DistributionLists.SortPhoneOption" xml:space="preserve"><value>Τηλέφωνο</value></data>
-  <data name="DistributionLists.SortUpdatedAtOption" xml:space="preserve"><value>Ενημερώθηκε</value></data>
-  <data name="DistributionLists.SortContactCodeOption" xml:space="preserve"><value>Κωδικός επαφής</value></data>
-  <data name="DistributionLists.SortResolvedOption" xml:space="preserve"><value>Επιλυμένη</value></data>
-  <data name="DistributionLists.SortLastResolutionDateOption" xml:space="preserve"><value>Τελευταία ημερομηνία επίλυσης</value></data>
-  <data name="DistributionLists.ExportContactsTooltip" xml:space="preserve"><value>Εξαγωγή επαφών σε αρχείο CSV.</value></data>
-  <data name="DistributionLists.ImportContactsTooltip" xml:space="preserve"><value>Εισαγωγή επαφών από αρχείο CSV.</value></data>
-  <data name="DistributionLists.DeleteContactTitle" xml:space="preserve"><value>Διαγραφή</value></data>
-  <data name="DistributionLists.DeleteContactConfirmMessage" xml:space="preserve"><value>Είστε σίγουρος ότι θέλετε να διαγράψετε την επαφή '{{name}}' από τη λίστα διανομής '{{list}}';</value></data>
-  <data name="DistributionLists.DeleteContactSuccessTitle" xml:space="preserve"><value>Επιτυχής διαγραφή</value></data>
-  <data name="DistributionLists.DeleteContactSuccessMessage" xml:space="preserve"><value>Η επαφή {{name}} αφαιρέθηκε από τη λίστα διανομής.</value></data>
-
-  <!-- Events -->
-  <data name="Events.Title" xml:space="preserve"><value>Συμβάντα μηνυμάτων</value></data>
-  <data name="Events.ItemTitle" xml:space="preserve"><value>Τίτλος</value></data>
-  <data name="Events.Recipient" xml:space="preserve"><value>Παραλήπτης</value></data>
-  <data name="Events.Channel" xml:space="preserve"><value>Κανάλι</value></data>
-  <data name="Events.EventType" xml:space="preserve"><value>Τύπος συμβάντος</value></data>
-  <data name="Events.Success" xml:space="preserve"><value>Επιτυχία</value></data>
-  <data name="Events.Links" xml:space="preserve"><value>Σύνδεσμοι</value></data>
-  <data name="Events.MessageDetails" xml:space="preserve"><value>Λεπτομέρειες μηνύματος</value></data>
-  <data name="Events.ContactDetails" xml:space="preserve"><value>Λεπτομέρειες επαφής</value></data>
-
-  <!-- Events sorting & channels -->
-  <data name="Events.SortCreatedOnOption" xml:space="preserve"><value>Ημ/νια Δημιουργίας</value></data>
-  <data name="Events.SortRecipientOption" xml:space="preserve"><value>Παραλήπτης</value></data>
-
-  <!-- Home -->
-  <data name="Home.Title" xml:space="preserve"><value>Indice Back-Office</value></data>
-  <data name="Home.PleaseWait" xml:space="preserve"><value>παρακαλώ περιμένετε...</value></data>
-
-  <!-- Campaigns -->
-  <data name="Campaigns.Title" xml:space="preserve"><value>Καμπάνιες</value></data>
-  <data name="Campaigns.ItemTitle" xml:space="preserve"><value>ΤΙΤΛΟΣ</value></data>
-  <data name="Campaigns.Channels" xml:space="preserve"><value>Κανάλια</value></data>
-  <data name="Campaigns.Type" xml:space="preserve"><value>Τύποι</value></data>
-  <data name="Campaigns.From" xml:space="preserve"><value>ΑΠΟ</value></data>
-  <data name="Campaigns.To" xml:space="preserve"><value>ΕΩΣ</value></data>
-  <data name="Campaigns.CreatedBy" xml:space="preserve"><value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ</value></data>
-  <data name="Campaigns.CreatedAt" xml:space="preserve"><value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ</value></data>
-  <data name="Campaigns.UpdatedBy" xml:space="preserve"><value>ΤΡΟΠΟΠΟΙΗΘΗΚΕ ΑΠΟ</value></data>
-  <data name="Campaigns.UpdatedAt" xml:space="preserve"><value>ΤΡΟΠΟΠΟΙΗΘΗΚΕ</value></data>
-  <data name="Campaigns.Published" xml:space="preserve"><value>ΔΗΜΟΣΙΕΥΜΕΝΗ</value></data>
-  <data name="Campaigns.Details" xml:space="preserve"><value>Λεπτομέρειες</value></data>
-
-  <!-- Campaigns Create -->
-  <data name="Campaigns.CreateTitle" xml:space="preserve"><value>Δημιουργία Καμπάνιας</value></data>
-  <data name="Campaigns.Previous" xml:space="preserve"><value>Προηγούμενο</value></data>
-  <data name="Campaigns.Next" xml:space="preserve"><value>Επόμενο</value></data>
-  <data name="Campaigns.Save" xml:space="preserve"><value>Αποθήκευση</value></data>
-  <data name="Campaigns.GeneralLabel" xml:space="preserve"><value>Γενικά</value></data>
-  <data name="Campaigns.GeneralInfo" xml:space="preserve"><value>Βασικές πληροφορίες</value></data>
-  <data name="Campaigns.ContentLabel" xml:space="preserve"><value>Περιεχόμενο</value></data>
-  <data name="Campaigns.ContentInfo" xml:space="preserve"><value>Ανά κανάλι επικοινωνίας</value></data>
-  <data name="Campaigns.AttachmentsLabel" xml:space="preserve"><value>Επισυναπτόμενα</value></data>
-  <data name="Campaigns.AttachmentsInfo" xml:space="preserve"><value>Επισυναπτόμενα της καμπάνιας</value></data>
-  <data name="Campaigns.RecipientsLabel" xml:space="preserve"><value>Παραλήπτες</value></data>
-  <data name="Campaigns.RecipientsInfo" xml:space="preserve"><value>Παραλήπτες της καμπάνιας</value></data>
-  <data name="Campaigns.OverviewLabel" xml:space="preserve"><value>Επισκόπηση</value></data>
-  <data name="Campaigns.OverviewInfo" xml:space="preserve"><value>Επισκόπηση στοιχείων</value></data>
-
-  <!-- Campaigns Attachments -->
-  <data name="Campaigns.AttachmentsHeader" xml:space="preserve"><value>Επισυναπτόμενα</value></data>
-  <data name="Campaigns.AttachmentsUsagePrefix" xml:space="preserve"><value>Τα επισυναπτόμενα αρχεία χρησιμοποιούνται μόνο εφόσον</value></data>
-  <data name="Campaigns.ChannelInbox" xml:space="preserve"><value>Inbox</value></data>
-  <data name="Campaigns.AttachmentsUsageConnectorOr" xml:space="preserve"><value>ή</value></data>
-  <data name="Campaigns.ChannelEmail" xml:space="preserve"><value>Email</value></data>
-  <data name="Campaigns.AttachmentsUsageSuffix" xml:space="preserve"><value>επιλεγεί ως κανάλι επικοινωνίας.</value></data>
-
-  <!-- Campaigns Basic Info -->
-  <data name="Campaigns.TitleLabel" xml:space="preserve"><value>Τίτλος</value></data>
-  <data name="Campaigns.TitleLabelRequired" xml:space="preserve"><value>Τίτλος (*)</value></data>
-  <data name="Campaigns.TitlePlaceholder" xml:space="preserve"><value>Ο τίτλος της καμπάνιας...</value></data>
-  <data name="Campaigns.TitleRequiredError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα τίτλο.</value></data>
-  <data name="Campaigns.TitleMaxLengthError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</value></data>
-  <data name="Campaigns.TitleInfo" xml:space="preserve"><value>Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</value></data>
-
-  <data name="Campaigns.TypeLabel" xml:space="preserve"><value>Τύπος</value></data>
-  <data name="Campaigns.TypePlaceholder" xml:space="preserve"><value>Επιλέξτε τύπο...</value></data>
-
-  <data name="Campaigns.DurationLabel" xml:space="preserve"><value>Διάρκεια</value></data>
-  <data name="Campaigns.StartDateLabel" xml:space="preserve"><value>Ημ. Έναρξης</value></data>
-  <data name="Campaigns.StartDateInfo" xml:space="preserve"><value>Η ημέρα και ώρα έναρξης της καμπάνιας</value></data>
-  <data name="Campaigns.EndDateLabel" xml:space="preserve"><value>Ημ. Λήξης</value></data>
-  <data name="Campaigns.EndDateInfo" xml:space="preserve"><value>Η ημέρα και ώρα λήξης της καμπάνιας</value></data>
-
-  <data name="Campaigns.CallToActionSectionLabel" xml:space="preserve"><value>Call to action</value></data>
-  <data name="Campaigns.CallToActionTextLabel" xml:space="preserve"><value>Call-to-action κείμενο</value></data>
-  <data name="Campaigns.CallToActionTextPlaceholder" xml:space="preserve"><value>Πατήστε εδώ για να...</value></data>
-  <data name="Campaigns.CallToActionTextInfo" xml:space="preserve"><value>Κείμενο υπερσυνδέσμου</value></data>
-  <data name="Campaigns.CallToActionLinkLabel" xml:space="preserve"><value>Call-to-action σύνδεσμος</value></data>
-  <data name="Campaigns.CallToActionLinkPlaceholder" xml:space="preserve"><value>https://example.com</value></data>
-  <data name="Campaigns.CallToActionLinkInfo" xml:space="preserve"><value>URL υπερσυνδέσμου</value></data>
-  <data name="Campaigns.CallToActionLinkInvalidError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε έναν έγκυρο σύνδεσμο.</value></data>
-
-  <data name="Campaigns.TemplateUsageLabel" xml:space="preserve"><value>Χρήση template</value></data>
-  <data name="Campaigns.TemplateUsageNoOption" xml:space="preserve"><value>Όχι</value></data>
-  <data name="Campaigns.TemplateUsageYesOption" xml:space="preserve"><value>Ναι</value></data>
-  <data name="Campaigns.TemplateIdLabel" xml:space="preserve"><value>Template id</value></data>
-  <data name="Campaigns.TemplatePlaceholder" xml:space="preserve"><value>Επιλέξτε template...</value></data>
-  <data name="Campaigns.TemplateRequiredError" xml:space="preserve"><value>Παρακαλώ επιλέξτε ένα template.</value></data>
-
-  <data name="Campaigns.ChannelSms" xml:space="preserve"><value>SMS</value></data>
-  <data name="Campaigns.ChannelPushNotification" xml:space="preserve"><value>Push Notification</value></data>
-
-  <!-- Campaigns Content -->
-  <data name="Campaigns.EditTabLabel" xml:space="preserve"><value>Edit</value></data>
-  <data name="Campaigns.EditTabTitle" xml:space="preserve"><value>Επεξεργασία</value></data>
-  <data name="Campaigns.CommunicationChannelsLabelRequired" xml:space="preserve"><value>Κανάλια επικοινωνίας (*)</value></data>
-  <data name="Campaigns.MetadataLabel" xml:space="preserve"><value>Μεταδεδομένα</value></data>
-  <data name="Campaigns.MetadataPlaceholder" xml:space="preserve"><value>Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή</value></data>
-  <data name="Campaigns.MetadataInvalidJsonError" xml:space="preserve"><value>Η μορφή του JSON δεν είναι έγκυρη.</value></data>
-  <data name="Campaigns.MessageDataLabel" xml:space="preserve"><value>Δεδομένα μηνύματος</value></data>
-  <data name="Campaigns.SenderLabelRequired" xml:space="preserve"><value>Αποστολέας (*)</value></data>
-  <data name="Campaigns.SubjectLabelRequired" xml:space="preserve"><value>Θέμα (*)</value></data>
-  <data name="Campaigns.SubjectPlaceholder" xml:space="preserve"><value>Το θέμα του μήνυματος</value></data>
-  <data name="Campaigns.SubjectRequiredError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε το θέμα.</value></data>
-  <data name="Campaigns.PreviewLabel" xml:space="preserve"><value>Προεπισκόπηση</value></data>
-  <data name="Campaigns.BodyLabelRequired" xml:space="preserve"><value>Σώμα (*)</value></data>
-  <data name="Campaigns.BodyPlaceholder" xml:space="preserve"><value>Το σώμα του μηνύματος</value></data>
-  <data name="Campaigns.BodyRequiredError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε το σώμα του μηνύματος.</value></data>
-  <data name="Campaigns.FileLibraryHeader" xml:space="preserve"><value>Βιβλιοθήκη Αρχείων</value></data>
-  <data name="Campaigns.FileLibraryIntroPrefix" xml:space="preserve"><value>Μπορείτε να επιλέξετε ένα υπάρχον αρχείο μέσω της</value></data>
-  <data name="Campaigns.NavigateActionTitle" xml:space="preserve"><value>Μετάβαση</value></data>
-  <data name="Campaigns.Close" xml:space="preserve"><value>Κλείσιμο</value></data>
-  <data name="Campaigns.Add" xml:space="preserve"><value>Προσθήκη</value></data>
-  
-  <!-- Campaigns Preview -->
-  <data name="Campaigns.PublishedLabel" xml:space="preserve"><value>Δημοσιευμένη</value></data>
-  <data name="Campaigns.IgnoreUserPreferencesLabel" xml:space="preserve"><value>Παράβλεψη ρυθμίσεων επικοινωνίας επαφής</value></data>
-  <data name="Campaigns.TemplateLabel" xml:space="preserve"><value>Template</value></data>
-  <data name="Campaigns.DistributionListLabel" xml:space="preserve"><value>Λίστα διανομής</value></data>
-  <data name="Campaigns.EmptyValueIndicator" xml:space="preserve"><value>-</value></data>
-  <data name="Campaigns.InfiniteSymbol" xml:space="preserve"><value>∞</value></data>
-  <data name="Campaigns.Yes" xml:space="preserve"><value>Ναι</value></data>
-  <data name="Campaigns.No" xml:space="preserve"><value>Όχι</value></data>
-
-  <!-- Campaigns Recipients -->
-  <data name="Campaigns.RecipientsSendToLabelRequired" xml:space="preserve"><value>Αποστολή προς</value></data>
-  <data name="Campaigns.RecipientsSendViaDistributionListOption" xml:space="preserve"><value>Λίστα διανομής</value></data>
-  <data name="Campaigns.RecipientsSendViaRecipientIdsOption" xml:space="preserve"><value>Λίστα κωδικών</value></data>
-  <data name="Campaigns.RecipientsSendViaRecipientsOption" xml:space="preserve"><value>Λίστα παραληπτών</value></data>
-  <data name="Campaigns.RecipientsSendViaAllOption" xml:space="preserve"><value>Όλους</value></data>
-  <data name="Campaigns.DistributionListIdLabel" xml:space="preserve"><value>Κωδικός λίστας διανομής</value></data>
-  <data name="Campaigns.RecipientIdsLabel" xml:space="preserve"><value>Κωδικοί παραληπτών</value></data>
-  <data name="Campaigns.RecipientIdsPlaceholder" xml:space="preserve"><value>Η λίστα χρηστών της καμπάνιας...
+  <data name="Contacts.Title" xml:space="preserve">
+    <value>Στοιχεία επαφής</value>
+  </data>
+  <data name="Contacts.Edit" xml:space="preserve">
+    <value>Επεξεργασία</value>
+  </data>
+  <data name="Contacts.Resolve" xml:space="preserve">
+    <value>Επίλυση</value>
+  </data>
+  <data name="Contacts.Duplicates" xml:space="preserve">
+    <value>Διπλότυπα</value>
+  </data>
+  <data name="Contacts.Salutation" xml:space="preserve">
+    <value>Προσφώνηση</value>
+  </data>
+  <data name="Contacts.FullName" xml:space="preserve">
+    <value>Όνομα Εμφάνισης</value>
+  </data>
+  <data name="Contacts.FirstName" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="Contacts.LastName" xml:space="preserve">
+    <value>Επώνυμο</value>
+  </data>
+  <data name="Contacts.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Contacts.Phone" xml:space="preserve">
+    <value>Τηλέφωνο</value>
+  </data>
+  <data name="Contacts.ContactCode" xml:space="preserve">
+    <value>Κωδικός επαφής</value>
+  </data>
+  <data name="Contacts.Resolved" xml:space="preserve">
+    <value>Επιλυμένο</value>
+  </data>
+  <data name="Contacts.Unknown" xml:space="preserve">
+    <value>Άγνωστο</value>
+  </data>
+  <data name="Contacts.UpdatedAt" xml:space="preserve">
+    <value>Ενημερώθηκε στις</value>
+  </data>
+  <data name="Contacts.DuplicatesTitle" xml:space="preserve">
+    <value>Εύρεση Διπλοτύπων</value>
+  </data>
+  <data name="Contacts.MergeLabel" xml:space="preserve">
+    <value>Συγχώνευση</value>
+  </data>
+  <data name="Contacts.CancelLabel" xml:space="preserve">
+    <value>Κλείσιμο</value>
+  </data>
+  <data name="Contacts.DuplicatesLoading" xml:space="preserve">
+    <value>Φόρτωση διπλοτύπων...</value>
+  </data>
+  <data name="Contacts.NoDuplicatesFound" xml:space="preserve">
+    <value>Δεν βρέθηκαν διπλότυπες επαφές.</value>
+  </data>
+  <data name="Contacts.Submit" xml:space="preserve">
+    <value>Υποβολή</value>
+  </data>
+  <data name="Contacts.AvatarAlt" xml:space="preserve">
+    <value>Εικόνα προφίλ</value>
+  </data>
+  <data name="Contacts.EditContact" xml:space="preserve">
+    <value>Επεξεργασία επαφής</value>
+  </data>
+  <data name="Contacts.Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="Contacts.SalutationPlaceholder" xml:space="preserve">
+    <value>Προσφώνηση...</value>
+  </data>
+  <data name="Contacts.FirstNamePlaceholder" xml:space="preserve">
+    <value>Όνομα...</value>
+  </data>
+  <data name="Contacts.LastNamePlaceholder" xml:space="preserve">
+    <value>Επώνυμο...</value>
+  </data>
+  <data name="Contacts.FullNamePlaceholder" xml:space="preserve">
+    <value>Όνομα Εμφάνισης...</value>
+  </data>
+  <data name="Contacts.EmailPlaceholder" xml:space="preserve">
+    <value>Email...</value>
+  </data>
+  <data name="Contacts.PhonePlaceholder" xml:space="preserve">
+    <value>Τηλέφωνο...</value>
+  </data>
+  <data name="Contacts.SalutationInfo" xml:space="preserve">
+    <value>Η προσφώνηση (π.χ κύριε ή κ.).</value>
+  </data>
+  <data name="Contacts.ContactCodeReadonly" xml:space="preserve">
+    <value>Κωδικός επαφής (μόνο ανάγνωση)</value>
+  </data>
+  <data name="Contacts.BasicInformation" xml:space="preserve">
+    <value>Βασικές πληροφορίες</value>
+  </data>
+  <data name="Contacts.CommunicationSettings" xml:space="preserve">
+    <value>Ρυθμίσεις επικοινωνίας</value>
+  </data>
+  <data name="Contacts.ListTitle" xml:space="preserve">
+    <value>Επαφές</value>
+  </data>
+  <data name="Contacts.Name" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="Contacts.Campaigns" xml:space="preserve">
+    <value>Καμπάνιες</value>
+  </data>
+  <data name="Contacts.CampaignTitle" xml:space="preserve">
+    <value>Τίτλος</value>
+  </data>
+  <data name="Contacts.CampaignDetails" xml:space="preserve">
+    <value>Στοιχεία campaign</value>
+  </data>
+  <data name="Contacts.Channels" xml:space="preserve">
+    <value>Κανάλια</value>
+  </data>
+  <data name="Contacts.Type" xml:space="preserve">
+    <value>Τύπος</value>
+  </data>
+  <data name="Contacts.From" xml:space="preserve">
+    <value>Από</value>
+  </data>
+  <data name="Contacts.To" xml:space="preserve">
+    <value>Έως</value>
+  </data>
+  <data name="Contacts.CreatedBy" xml:space="preserve">
+    <value>Δημιουργήθηκε από</value>
+  </data>
+  <data name="Contacts.CreatedAt" xml:space="preserve">
+    <value>Δημιουργήθηκε στις</value>
+  </data>
+  <data name="Contacts.Published" xml:space="preserve">
+    <value>Δημοσιευμένη</value>
+  </data>
+  <data name="Contacts.SearchTitle" xml:space="preserve">
+    <value>Αναζήτηση</value>
+  </data>
+  <data name="Contacts.Add" xml:space="preserve">
+    <value>Προσθήκη</value>
+  </data>
+  <data name="Contacts.CommunicationDetailsHeader" xml:space="preserve">
+    <value>Στοιχεία Επικοινωνίας</value>
+  </data>
+  <data name="Contacts.CommunicationLanguageLabel" xml:space="preserve">
+    <value>Γλώσσα επικοινωνίας</value>
+  </data>
+  <data name="Contacts.CommunicationConsentLabel" xml:space="preserve">
+    <value>Αποδοχή επικοινωνίας</value>
+  </data>
+  <data name="Contacts.CommunicationConsentDateLabel" xml:space="preserve">
+    <value>Ημερομηνία αποδοχής επικοινωνίας</value>
+  </data>
+  <data name="Contacts.MessageTypesColumn" xml:space="preserve">
+    <value>Τύποι Μηνυμάτων</value>
+  </data>
+  <data name="Contacts.ChannelEmail" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Contacts.ChannelSms" xml:space="preserve">
+    <value>Sms</value>
+  </data>
+  <data name="Contacts.ChannelPushNotification" xml:space="preserve">
+    <value>Push Notification</value>
+  </data>
+  <data name="Contacts.ChannelInbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Contacts.DefaultSettingsRowLabel" xml:space="preserve">
+    <value>Default Settings</value>
+  </data>
+  <data name="Contacts.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="Contacts.MergeDuplicatesSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής συγχόνευση</value>
+  </data>
+  <data name="Contacts.MergeDuplicatesSuccessMessage" xml:space="preserve">
+    <value>Τα διπλότυπα της επαφής {{name}} συγχονεύτηκαν με επιτυχία.</value>
+  </data>
+  <data name="Contacts.SortCreatedOnOption" xml:space="preserve">
+    <value>Ημ/νια Δημιουργίας</value>
+  </data>
+  <data name="Contacts.SortTitleOption" xml:space="preserve">
+    <value>Τίτλος</value>
+  </data>
+  <data name="Contacts.SortActiveFromOption" xml:space="preserve">
+    <value>Ενεργή Από</value>
+  </data>
+  <data name="Contacts.SortTypeOption" xml:space="preserve">
+    <value>Τύπος</value>
+  </data>
+  <data name="Contacts.SortPublishedOption" xml:space="preserve">
+    <value>Δημοσιευμένη</value>
+  </data>
+  <data name="Contacts.SortUpdatedAtOption" xml:space="preserve">
+    <value>Τροποποιήθηκε</value>
+  </data>
+  <data name="Contacts.SortFullNameOption" xml:space="preserve">
+    <value>Ονοματεπώνυμο</value>
+  </data>
+  <data name="Contacts.SortEmailOption" xml:space="preserve">
+    <value>e-mail</value>
+  </data>
+  <data name="Contacts.SortPhoneOption" xml:space="preserve">
+    <value>Τηλέφωνο</value>
+  </data>
+  <data name="Contacts.SortContactCodeOption" xml:space="preserve">
+    <value>Κωδικός</value>
+  </data>
+  <data name="Contacts.SortResolvedOption" xml:space="preserve">
+    <value>Resolved</value>
+  </data>
+  <data name="Contacts.SortLastResolutionDateOption" xml:space="preserve">
+    <value>Last Resolution</value>
+  </data>
+  <data name="Contacts.UpdateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="Contacts.UpdateSuccessMessage" xml:space="preserve">
+    <value>Η επαφή {{name}} ενημερώθηκε με επιτυχία.</value>
+  </data>
+  <data name="DashBoard.Welcome" xml:space="preserve">
+    <value>Καλώς ήλθατε,</value>
+  </data>
+  <data name="DashBoard.TodaysCampaigns" xml:space="preserve">
+    <value>Καμπάνιες σήμερα</value>
+  </data>
+  <data name="DashBoard.NewLabel" xml:space="preserve">
+    <value>νέα</value>
+  </data>
+  <data name="DashBoard.OutOf" xml:space="preserve">
+    <value>από</value>
+  </data>
+  <data name="DashBoard.TotalLabel" xml:space="preserve">
+    <value>συνολικά</value>
+  </data>
+  <data name="DashBoard.TotalCampaignsToday" xml:space="preserve">
+    <value>συνολικές καμπάνιες σήμερα</value>
+  </data>
+  <data name="DashBoard.IncreasedBySr" xml:space="preserve">
+    <value>Αύξηση κατά</value>
+  </data>
+  <data name="DashBoard.RegisteredContacts" xml:space="preserve">
+    <value>Εγγεγραμμένες επαφές</value>
+  </data>
+  <data name="DashBoard.TotalRecipientReach" xml:space="preserve">
+    <value>Συνολική εμβέλεια παραληπτών</value>
+  </data>
+  <data name="DashBoard.AvgReachability" xml:space="preserve">
+    <value>Μέση εμβέλεια</value>
+  </data>
+  <data name="DashBoard.ChannelDispatchesLastDays" xml:space="preserve">
+    <value>Αποστολές καναλιών τις τελευταίες {{days}} ημέρες</value>
+  </data>
+  <data name="DashBoard.TotalChannelDeliveries" xml:space="preserve">
+    <value>Συνολικές παραδόσεις καναλιών</value>
+  </data>
+  <data name="DashBoard.MessageRecipientsToday" xml:space="preserve">
+    <value>Παραλήπτες μηνυμάτων σήμερα</value>
+  </data>
+  <data name="DistributionLists.CreateTitle" xml:space="preserve">
+    <value>Δημιουργία νέας λίστας</value>
+  </data>
+  <data name="DistributionLists.Create" xml:space="preserve">
+    <value>Δημιουργία</value>
+  </data>
+  <data name="DistributionLists.NameLabelRequired" xml:space="preserve">
+    <value>Όνομα (*)</value>
+  </data>
+  <data name="DistributionLists.NamePlaceholder" xml:space="preserve">
+    <value>Το όνομα της λίστας...</value>
+  </data>
+  <data name="DistributionLists.NameRequiredError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα όνομα.</value>
+  </data>
+  <data name="DistributionLists.NameMaxLengthError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</value>
+  </data>
+  <data name="DistributionLists.NameInfo" xml:space="preserve">
+    <value>Η ονομασία με την οποία θα εμφανίζεται η λίστα διανομής.</value>
+  </data>
+  <data name="DistributionLists.AliasLabelRequired" xml:space="preserve">
+    <value>Alias (*)</value>
+  </data>
+  <data name="DistributionLists.AliasMaxLengthError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</value>
+  </data>
+  <data name="DistributionLists.CsvImportLabel" xml:space="preserve">
+    <value>Μαζική εισαγωγή επαφών στη λίστα διανομής (αρχείο CSV)</value>
+  </data>
+  <data name="DistributionLists.SearchTitle" xml:space="preserve">
+    <value>Αναζήτηση</value>
+  </data>
+  <data name="DistributionLists.Add" xml:space="preserve">
+    <value>Προσθήκη</value>
+  </data>
+  <data name="DistributionLists.EditContactTitle" xml:space="preserve">
+    <value>Επεξεργασία επαφής</value>
+  </data>
+  <data name="DistributionLists.Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="DistributionLists.Salutation" xml:space="preserve">
+    <value>Προσφώνηση</value>
+  </data>
+  <data name="DistributionLists.SalutationPlaceholder" xml:space="preserve">
+    <value>Προσφώνηση...</value>
+  </data>
+  <data name="DistributionLists.SalutationInfo" xml:space="preserve">
+    <value>Η προσφώνηση (π.χ κύριε ή κ.).</value>
+  </data>
+  <data name="DistributionLists.FirstName" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="DistributionLists.FirstNamePlaceholder" xml:space="preserve">
+    <value>Όνομα...</value>
+  </data>
+  <data name="DistributionLists.LastName" xml:space="preserve">
+    <value>Επώνυμο</value>
+  </data>
+  <data name="DistributionLists.LastNamePlaceholder" xml:space="preserve">
+    <value>Επώνυμο...</value>
+  </data>
+  <data name="DistributionLists.FullName" xml:space="preserve">
+    <value>Όνομα Εμφάνισης</value>
+  </data>
+  <data name="DistributionLists.FullNamePlaceholder" xml:space="preserve">
+    <value>Όνομα Εμφάνισης...</value>
+  </data>
+  <data name="DistributionLists.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="DistributionLists.EmailPlaceholder" xml:space="preserve">
+    <value>Email...</value>
+  </data>
+  <data name="DistributionLists.Phone" xml:space="preserve">
+    <value>Τηλέφωνο</value>
+  </data>
+  <data name="DistributionLists.PhonePlaceholder" xml:space="preserve">
+    <value>Τηλέφωνο...</value>
+  </data>
+  <data name="DistributionLists.ContactCodeReadonly" xml:space="preserve">
+    <value>Κωδικός επαφής (μόνο ανάγνωση)</value>
+  </data>
+  <data name="DistributionLists.Resolved" xml:space="preserve">
+    <value>Επιλυμένο</value>
+  </data>
+  <data name="DistributionLists.Unknown" xml:space="preserve">
+    <value>Άγνωστο</value>
+  </data>
+  <data name="DistributionLists.ContactsTitle" xml:space="preserve">
+    <value>Επαφές Λίστας</value>
+  </data>
+  <data name="DistributionLists.Name" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="DistributionLists.ContactCode" xml:space="preserve">
+    <value>Κωδικός επαφής</value>
+  </data>
+  <data name="DistributionLists.UpdatedAt" xml:space="preserve">
+    <value>Τροποποιήθηκε στις</value>
+  </data>
+  <data name="DistributionLists.Actions" xml:space="preserve">
+    <value>Ενέργειες</value>
+  </data>
+  <data name="DistributionLists.BasicInformation" xml:space="preserve">
+    <value>Βασικές πληροφορίες</value>
+  </data>
+  <data name="DistributionLists.Contacts" xml:space="preserve">
+    <value>Επαφές</value>
+  </data>
+  <data name="DistributionLists.EditList" xml:space="preserve">
+    <value>Επεξεργασία λίστας</value>
+  </data>
+  <data name="DistributionLists.CancelLabel" xml:space="preserve">
+    <value>Κλείσιμο</value>
+  </data>
+  <data name="DistributionLists.ListTitleLabel" xml:space="preserve">
+    <value>Τίτλος (*)</value>
+  </data>
+  <data name="DistributionLists.ListNamePlaceholder" xml:space="preserve">
+    <value>Το όνομα της λίστας...</value>
+  </data>
+  <data name="DistributionLists.ListNameRequired" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε έναν τίτλο.</value>
+  </data>
+  <data name="DistributionLists.ListNameMaxLength" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε έναν μικρότερο τίτλο.</value>
+  </data>
+  <data name="DistributionLists.ListInfo" xml:space="preserve">
+    <value>Η ονομασία με την οποία θα εμφανίζεται η λίστα.</value>
+  </data>
+  <data name="DistributionLists.AliasLabel" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="DistributionLists.AliasPlaceholder" xml:space="preserve">
+    <value>Το alias της λίστας...</value>
+  </data>
+  <data name="DistributionLists.AliasMaxLength" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα μικρότερο alias.</value>
+  </data>
+  <data name="DistributionLists.BasicInformationDescription" xml:space="preserve">
+    <value>Οι βασικές πληροφορίες της λίστας διανομής.</value>
+  </data>
+  <data name="DistributionLists.Delete" xml:space="preserve">
+    <value>Διαγραφή</value>
+  </data>
+  <data name="DistributionLists.ListTitle" xml:space="preserve">
+    <value>Τίτλος</value>
+  </data>
+  <data name="DistributionLists.Alias" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="DistributionLists.CreatedBy" xml:space="preserve">
+    <value>Δημιουργήθηκε από</value>
+  </data>
+  <data name="DistributionLists.CreatedAt" xml:space="preserve">
+    <value>Δημιουργήθηκε στις</value>
+  </data>
+  <data name="DistributionLists.UpdatedBy" xml:space="preserve">
+    <value>Τροποποιήθηκε από</value>
+  </data>
+  <data name="DistributionLists.ImportContactsTitle" xml:space="preserve">
+    <value>Μαζική εισαγωγή επαφών</value>
+  </data>
+  <data name="DistributionLists.ImportContacts" xml:space="preserve">
+    <value>Μαζική εισαγωγή</value>
+  </data>
+  <data name="DistributionLists.ImportContactsLabel" xml:space="preserve">
+    <value>Μαζική εισαγωγή επαφών από αρχείο CSV (*)</value>
+  </data>
+  <data name="DistributionLists.ListsTitle" xml:space="preserve">
+    <value>Λίστες διανομής</value>
+  </data>
+  <data name="DistributionLists.Details" xml:space="preserve">
+    <value>Λεπτομέρειες</value>
+  </data>
+  <data name="DistributionLists.Submit" xml:space="preserve">
+    <value>Υποβολή</value>
+  </data>
+  <data name="DistributionLists.CreateErrorTitle" xml:space="preserve">
+    <value>Αποτυχία δημιουργίας λίστας</value>
+  </data>
+  <data name="DistributionLists.CreateErrorMessage" xml:space="preserve">
+    <value>Αποτυχία κατά τη δημιουργία της λίστας επαφών.</value>
+  </data>
+  <data name="DistributionLists.ImportContactsErrorTitle" xml:space="preserve">
+    <value>Αποτυχία εισαγωγής επαφών</value>
+  </data>
+  <data name="DistributionLists.ImportContactsErrorMessage" xml:space="preserve">
+    <value>Η λίστα δημιουργήθηκε, αλλά απέτυχε η εισαγωγή επαφών.</value>
+  </data>
+  <data name="DistributionLists.CreateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="DistributionLists.CreateSuccessMessage" xml:space="preserve">
+    <value>Η λίστα με όνομα {{name}} δημιουργήθηκε με επιτυχία.</value>
+  </data>
+  <data name="DistributionLists.SortNameOption" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="DistributionLists.DeleteConfirmMessage" xml:space="preserve">
+    <value>Είστε σίγουρος ότι θέλετε να διαγράψετε τη λίστα '{{name}}';</value>
+  </data>
+  <data name="DistributionLists.DeleteSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής διαγραφή</value>
+  </data>
+  <data name="DistributionLists.DeleteSuccessMessage" xml:space="preserve">
+    <value>Η λίστα με όνομα {{name}} διαγράφηκε με επιτυχία.</value>
+  </data>
+  <data name="DistributionLists.UpdateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="DistributionLists.UpdateSuccessMessage" xml:space="preserve">
+    <value>Η λίστα διανομής με όνομα {{name}} αποθηκεύτηκε με επιτυχία.</value>
+  </data>
+  <data name="DistributionLists.EditImportContactsErrorTitle" xml:space="preserve">
+    <value>Σφάλμα εισαγωγής επαφών</value>
+  </data>
+  <data name="DistributionLists.EditImportContactsErrorMessage" xml:space="preserve">
+    <value>Παρουσιάστηκε πρόβλημα κατά την εισαγωγή επαφών στην λίστα διανομής.</value>
+  </data>
+  <data name="DistributionLists.EditImportContactsSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής εισαγωγή επαφών</value>
+  </data>
+  <data name="DistributionLists.EditImportContactsSuccessMessage" xml:space="preserve">
+    <value>Οι επαφές αποθηκεύτηκαν επιτυχώς στην λίστα διανομής.</value>
+  </data>
+  <data name="DistributionLists.TitleFormat" xml:space="preserve">
+    <value>Λίστα διανομής - {{name}}</value>
+  </data>
+  <data name="DistributionLists.SortFirstNameOption" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="DistributionLists.SortLastNameOption" xml:space="preserve">
+    <value>Επίθετο</value>
+  </data>
+  <data name="DistributionLists.SortEmailOption" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="DistributionLists.SortPhoneOption" xml:space="preserve">
+    <value>Τηλέφωνο</value>
+  </data>
+  <data name="DistributionLists.SortUpdatedAtOption" xml:space="preserve">
+    <value>Ενημερώθηκε</value>
+  </data>
+  <data name="DistributionLists.SortContactCodeOption" xml:space="preserve">
+    <value>Κωδικός επαφής</value>
+  </data>
+  <data name="DistributionLists.SortResolvedOption" xml:space="preserve">
+    <value>Επιλυμένη</value>
+  </data>
+  <data name="DistributionLists.SortLastResolutionDateOption" xml:space="preserve">
+    <value>Τελευταία ημερομηνία επίλυσης</value>
+  </data>
+  <data name="DistributionLists.ExportContactsTooltip" xml:space="preserve">
+    <value>Εξαγωγή επαφών σε αρχείο CSV.</value>
+  </data>
+  <data name="DistributionLists.ImportContactsTooltip" xml:space="preserve">
+    <value>Εισαγωγή επαφών από αρχείο CSV.</value>
+  </data>
+  <data name="DistributionLists.DeleteContactTitle" xml:space="preserve">
+    <value>Διαγραφή</value>
+  </data>
+  <data name="DistributionLists.DeleteContactConfirmMessage" xml:space="preserve">
+    <value>Είστε σίγουρος ότι θέλετε να διαγράψετε την επαφή '{{name}}' από τη λίστα διανομής '{{list}}';</value>
+  </data>
+  <data name="DistributionLists.DeleteContactSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής διαγραφή</value>
+  </data>
+  <data name="DistributionLists.DeleteContactSuccessMessage" xml:space="preserve">
+    <value>Η επαφή {{name}} αφαιρέθηκε από τη λίστα διανομής.</value>
+  </data>
+  <data name="Events.Title" xml:space="preserve">
+    <value>Συμβάντα μηνυμάτων</value>
+  </data>
+  <data name="Events.ItemTitle" xml:space="preserve">
+    <value>Τίτλος</value>
+  </data>
+  <data name="Events.Recipient" xml:space="preserve">
+    <value>Παραλήπτης</value>
+  </data>
+  <data name="Events.Channel" xml:space="preserve">
+    <value>Κανάλι</value>
+  </data>
+  <data name="Events.EventType" xml:space="preserve">
+    <value>Τύπος συμβάντος</value>
+  </data>
+  <data name="Events.Success" xml:space="preserve">
+    <value>Επιτυχία</value>
+  </data>
+  <data name="Events.Links" xml:space="preserve">
+    <value>Σύνδεσμοι</value>
+  </data>
+  <data name="Events.MessageDetails" xml:space="preserve">
+    <value>Λεπτομέρειες μηνύματος</value>
+  </data>
+  <data name="Events.ContactDetails" xml:space="preserve">
+    <value>Λεπτομέρειες επαφής</value>
+  </data>
+  <data name="Events.SortCreatedOnOption" xml:space="preserve">
+    <value>Ημ/νια Δημιουργίας</value>
+  </data>
+  <data name="Events.SortRecipientOption" xml:space="preserve">
+    <value>Παραλήπτης</value>
+  </data>
+  <data name="Home.Title" xml:space="preserve">
+    <value>Indice Back-Office</value>
+  </data>
+  <data name="Home.PleaseWait" xml:space="preserve">
+    <value>παρακαλώ περιμένετε...</value>
+  </data>
+  <data name="Campaigns.Title" xml:space="preserve">
+    <value>Καμπάνιες</value>
+  </data>
+  <data name="Campaigns.ItemTitle" xml:space="preserve">
+    <value>ΤΙΤΛΟΣ</value>
+  </data>
+  <data name="Campaigns.Channels" xml:space="preserve">
+    <value>Κανάλια</value>
+  </data>
+  <data name="Campaigns.Type" xml:space="preserve">
+    <value>Τύποι</value>
+  </data>
+  <data name="Campaigns.From" xml:space="preserve">
+    <value>ΑΠΟ</value>
+  </data>
+  <data name="Campaigns.To" xml:space="preserve">
+    <value>ΕΩΣ</value>
+  </data>
+  <data name="Campaigns.CreatedBy" xml:space="preserve">
+    <value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ</value>
+  </data>
+  <data name="Campaigns.CreatedAt" xml:space="preserve">
+    <value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ</value>
+  </data>
+  <data name="Campaigns.UpdatedBy" xml:space="preserve">
+    <value>ΤΡΟΠΟΠΟΙΗΘΗΚΕ ΑΠΟ</value>
+  </data>
+  <data name="Campaigns.UpdatedAt" xml:space="preserve">
+    <value>ΤΡΟΠΟΠΟΙΗΘΗΚΕ</value>
+  </data>
+  <data name="Campaigns.Published" xml:space="preserve">
+    <value>ΔΗΜΟΣΙΕΥΜΕΝΗ</value>
+  </data>
+  <data name="Campaigns.Details" xml:space="preserve">
+    <value>Λεπτομέρειες</value>
+  </data>
+  <data name="Campaigns.CreateTitle" xml:space="preserve">
+    <value>Δημιουργία Καμπάνιας</value>
+  </data>
+  <data name="Campaigns.Previous" xml:space="preserve">
+    <value>Προηγούμενο</value>
+  </data>
+  <data name="Campaigns.Next" xml:space="preserve">
+    <value>Επόμενο</value>
+  </data>
+  <data name="Campaigns.Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="Campaigns.GeneralLabel" xml:space="preserve">
+    <value>Γενικά</value>
+  </data>
+  <data name="Campaigns.GeneralInfo" xml:space="preserve">
+    <value>Βασικές πληροφορίες</value>
+  </data>
+  <data name="Campaigns.ContentLabel" xml:space="preserve">
+    <value>Περιεχόμενο</value>
+  </data>
+  <data name="Campaigns.ContentInfo" xml:space="preserve">
+    <value>Ανά κανάλι επικοινωνίας</value>
+  </data>
+  <data name="Campaigns.AttachmentsLabel" xml:space="preserve">
+    <value>Επισυναπτόμενα</value>
+  </data>
+  <data name="Campaigns.AttachmentsInfo" xml:space="preserve">
+    <value>Επισυναπτόμενα της καμπάνιας</value>
+  </data>
+  <data name="Campaigns.RecipientsLabel" xml:space="preserve">
+    <value>Παραλήπτες</value>
+  </data>
+  <data name="Campaigns.RecipientsInfo" xml:space="preserve">
+    <value>Παραλήπτες της καμπάνιας</value>
+  </data>
+  <data name="Campaigns.OverviewLabel" xml:space="preserve">
+    <value>Επισκόπηση</value>
+  </data>
+  <data name="Campaigns.OverviewInfo" xml:space="preserve">
+    <value>Επισκόπηση στοιχείων</value>
+  </data>
+  <data name="Campaigns.AttachmentsHeader" xml:space="preserve">
+    <value>Επισυναπτόμενα</value>
+  </data>
+  <data name="Campaigns.AttachmentsUsagePrefix" xml:space="preserve">
+    <value>Τα επισυναπτόμενα αρχεία χρησιμοποιούνται μόνο εφόσον</value>
+  </data>
+  <data name="Campaigns.ChannelInbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Campaigns.AttachmentsUsageConnectorOr" xml:space="preserve">
+    <value>ή</value>
+  </data>
+  <data name="Campaigns.ChannelEmail" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Campaigns.AttachmentsUsageSuffix" xml:space="preserve">
+    <value>επιλεγεί ως κανάλι επικοινωνίας.</value>
+  </data>
+  <data name="Campaigns.TitleLabel" xml:space="preserve">
+    <value>Τίτλος</value>
+  </data>
+  <data name="Campaigns.TitleLabelRequired" xml:space="preserve">
+    <value>Τίτλος (*)</value>
+  </data>
+  <data name="Campaigns.TitlePlaceholder" xml:space="preserve">
+    <value>Ο τίτλος της καμπάνιας...</value>
+  </data>
+  <data name="Campaigns.TitleRequiredError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα τίτλο.</value>
+  </data>
+  <data name="Campaigns.TitleMaxLengthError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</value>
+  </data>
+  <data name="Campaigns.TitleInfo" xml:space="preserve">
+    <value>Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</value>
+  </data>
+  <data name="Campaigns.TypeLabel" xml:space="preserve">
+    <value>Τύπος</value>
+  </data>
+  <data name="Campaigns.TypePlaceholder" xml:space="preserve">
+    <value>Επιλέξτε τύπο...</value>
+  </data>
+  <data name="Campaigns.DurationLabel" xml:space="preserve">
+    <value>Διάρκεια</value>
+  </data>
+  <data name="Campaigns.StartDateLabel" xml:space="preserve">
+    <value>Ημ. Έναρξης</value>
+  </data>
+  <data name="Campaigns.StartDateInfo" xml:space="preserve">
+    <value>Η ημέρα και ώρα έναρξης της καμπάνιας</value>
+  </data>
+  <data name="Campaigns.EndDateLabel" xml:space="preserve">
+    <value>Ημ. Λήξης</value>
+  </data>
+  <data name="Campaigns.EndDateInfo" xml:space="preserve">
+    <value>Η ημέρα και ώρα λήξης της καμπάνιας</value>
+  </data>
+  <data name="Campaigns.CallToActionSectionLabel" xml:space="preserve">
+    <value>Call to action</value>
+  </data>
+  <data name="Campaigns.CallToActionTextLabel" xml:space="preserve">
+    <value>Call-to-action κείμενο</value>
+  </data>
+  <data name="Campaigns.CallToActionTextPlaceholder" xml:space="preserve">
+    <value>Πατήστε εδώ για να...</value>
+  </data>
+  <data name="Campaigns.CallToActionTextInfo" xml:space="preserve">
+    <value>Κείμενο υπερσυνδέσμου</value>
+  </data>
+  <data name="Campaigns.CallToActionLinkLabel" xml:space="preserve">
+    <value>Call-to-action σύνδεσμος</value>
+  </data>
+  <data name="Campaigns.CallToActionLinkPlaceholder" xml:space="preserve">
+    <value>https://example.com</value>
+  </data>
+  <data name="Campaigns.CallToActionLinkInfo" xml:space="preserve">
+    <value>URL υπερσυνδέσμου</value>
+  </data>
+  <data name="Campaigns.CallToActionLinkInvalidError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε έναν έγκυρο σύνδεσμο.</value>
+  </data>
+  <data name="Campaigns.TemplateUsageLabel" xml:space="preserve">
+    <value>Χρήση template</value>
+  </data>
+  <data name="Campaigns.TemplateUsageNoOption" xml:space="preserve">
+    <value>Όχι</value>
+  </data>
+  <data name="Campaigns.TemplateUsageYesOption" xml:space="preserve">
+    <value>Ναι</value>
+  </data>
+  <data name="Campaigns.TemplateIdLabel" xml:space="preserve">
+    <value>Template id</value>
+  </data>
+  <data name="Campaigns.TemplatePlaceholder" xml:space="preserve">
+    <value>Επιλέξτε template...</value>
+  </data>
+  <data name="Campaigns.TemplateRequiredError" xml:space="preserve">
+    <value>Παρακαλώ επιλέξτε ένα template.</value>
+  </data>
+  <data name="Campaigns.ChannelSms" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="Campaigns.ChannelPushNotification" xml:space="preserve">
+    <value>Push Notification</value>
+  </data>
+  <data name="Campaigns.EditTabLabel" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Campaigns.EditTabTitle" xml:space="preserve">
+    <value>Επεξεργασία</value>
+  </data>
+  <data name="Campaigns.CommunicationChannelsLabelRequired" xml:space="preserve">
+    <value>Κανάλια επικοινωνίας (*)</value>
+  </data>
+  <data name="Campaigns.MetadataLabel" xml:space="preserve">
+    <value>Μεταδεδομένα</value>
+  </data>
+  <data name="Campaigns.MetadataPlaceholder" xml:space="preserve">
+    <value>Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή</value>
+  </data>
+  <data name="Campaigns.MetadataInvalidJsonError" xml:space="preserve">
+    <value>Η μορφή του JSON δεν είναι έγκυρη.</value>
+  </data>
+  <data name="Campaigns.MessageDataLabel" xml:space="preserve">
+    <value>Δεδομένα μηνύματος</value>
+  </data>
+  <data name="Campaigns.SenderLabelRequired" xml:space="preserve">
+    <value>Αποστολέας (*)</value>
+  </data>
+  <data name="Campaigns.SubjectLabelRequired" xml:space="preserve">
+    <value>Θέμα (*)</value>
+  </data>
+  <data name="Campaigns.SubjectPlaceholder" xml:space="preserve">
+    <value>Το θέμα του μήνυματος</value>
+  </data>
+  <data name="Campaigns.SubjectRequiredError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε το θέμα.</value>
+  </data>
+  <data name="Campaigns.PreviewLabel" xml:space="preserve">
+    <value>Προεπισκόπηση</value>
+  </data>
+  <data name="Campaigns.BodyLabelRequired" xml:space="preserve">
+    <value>Σώμα (*)</value>
+  </data>
+  <data name="Campaigns.BodyPlaceholder" xml:space="preserve">
+    <value>Το σώμα του μηνύματος</value>
+  </data>
+  <data name="Campaigns.BodyRequiredError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε το σώμα του μηνύματος.</value>
+  </data>
+  <data name="Campaigns.FileLibraryHeader" xml:space="preserve">
+    <value>Βιβλιοθήκη Αρχείων</value>
+  </data>
+  <data name="Campaigns.FileLibraryIntroPrefix" xml:space="preserve">
+    <value>Μπορείτε να επιλέξετε ένα υπάρχον αρχείο μέσω της</value>
+  </data>
+  <data name="Campaigns.NavigateActionTitle" xml:space="preserve">
+    <value>Μετάβαση</value>
+  </data>
+  <data name="Campaigns.Close" xml:space="preserve">
+    <value>Κλείσιμο</value>
+  </data>
+  <data name="Campaigns.Add" xml:space="preserve">
+    <value>Προσθήκη</value>
+  </data>
+  <data name="Campaigns.PublishedLabel" xml:space="preserve">
+    <value>Δημοσιευμένη</value>
+  </data>
+  <data name="Campaigns.IgnoreUserPreferencesLabel" xml:space="preserve">
+    <value>Παράβλεψη ρυθμίσεων επικοινωνίας επαφής</value>
+  </data>
+  <data name="Campaigns.TemplateLabel" xml:space="preserve">
+    <value>Template</value>
+  </data>
+  <data name="Campaigns.DistributionListLabel" xml:space="preserve">
+    <value>Λίστα διανομής</value>
+  </data>
+  <data name="Campaigns.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="Campaigns.InfiniteSymbol" xml:space="preserve">
+    <value>∞</value>
+  </data>
+  <data name="Campaigns.Yes" xml:space="preserve">
+    <value>Ναι</value>
+  </data>
+  <data name="Campaigns.No" xml:space="preserve">
+    <value>Όχι</value>
+  </data>
+  <data name="Campaigns.RecipientsSendToLabelRequired" xml:space="preserve">
+    <value>Αποστολή προς</value>
+  </data>
+  <data name="Campaigns.RecipientsSendViaDistributionListOption" xml:space="preserve">
+    <value>Λίστα διανομής</value>
+  </data>
+  <data name="Campaigns.RecipientsSendViaRecipientIdsOption" xml:space="preserve">
+    <value>Λίστα κωδικών</value>
+  </data>
+  <data name="Campaigns.RecipientsSendViaRecipientsOption" xml:space="preserve">
+    <value>Λίστα παραληπτών</value>
+  </data>
+  <data name="Campaigns.RecipientsSendViaAllOption" xml:space="preserve">
+    <value>Όλους</value>
+  </data>
+  <data name="Campaigns.DistributionListIdLabel" xml:space="preserve">
+    <value>Κωδικός λίστας διανομής</value>
+  </data>
+  <data name="Campaigns.RecipientIdsLabel" xml:space="preserve">
+    <value>Κωδικοί παραληπτών</value>
+  </data>
+  <data name="Campaigns.RecipientIdsPlaceholder" xml:space="preserve">
+    <value>Η λίστα χρηστών της καμπάνιας...
 κωδικός_χρήστη_1
-κωδικός_χρήστη_2</value></data>
-  <data name="Campaigns.RecipientsCountSuffix" xml:space="preserve"><value>παραλήπτες</value></data>
-  <data name="Campaigns.NoRecipientsInfo" xml:space="preserve"><value>Δεν έχετε προσθέσει παραλήπτες στη λίστα.</value></data>
-  <data name="Campaigns.AddedRecipientsInfoPrefix" xml:space="preserve"><value>Έχετε προσθέσει</value></data>
-  <data name="Campaigns.DistributionListRequiredError" xml:space="preserve"><value>Παρακαλώ επιλέξτε μία λίστα διανομής.</value></data>
-  <data name="Campaigns.RecipientIdsRequiredError" xml:space="preserve"><value>Παρακαλώ εισάγετε τουλάχιστον ένα κωδικό.</value></data>
-  <data name="Campaigns.RecipientsRequiredError" xml:space="preserve"><value>Παρακαλώ προσθέστε τουλάχιστον έναν παραλήπτη.</value></data>
-
-  <data name="Campaigns.ContentDescription" xml:space="preserve"><value>Περιεχόμενο της καμπάνιας ανά κανάλι επικοινωνίας.</value></data>
-
-  <!-- Campaigns Edit Navigation -->
-  <data name="Campaigns.BasicInformationNav" xml:space="preserve"><value>Βασικές πληροφορίες</value></data>
-  <data name="Campaigns.ContentNav" xml:space="preserve"><value>Περιεχόμενο</value></data>
-  <data name="Campaigns.ReportsNav" xml:space="preserve"><value>Αναφορές</value></data>
-  <data name="Campaigns.RecipientsNav" xml:space="preserve"><value>Παραλήπτες</value></data>
-
-  <!-- Campaigns Reports -->
-  <data name="Campaigns.ReportsHeader" xml:space="preserve"><value>Αναφορές</value></data>
-  <data name="Campaigns.ReportsDescription" xml:space="preserve"><value>Διαγράμματα που αφορούν την καμπάνια.</value></data>
-  <data name="Campaigns.TotalRecipientReachLabel" xml:space="preserve"><value>Συνολική εμβέλεια παραληπτών</value></data>
-  <data name="Campaigns.OutOfConnector" xml:space="preserve"><value>από</value></data>
-  <data name="Campaigns.TotalSuffix" xml:space="preserve"><value>συνολικά</value></data>
-  <data name="Campaigns.AvgReachabilityLabel" xml:space="preserve"><value>Μέση εμβέλεια</value></data>
-  <data name="Campaigns.TotalMessagesSentLabel" xml:space="preserve"><value>Συνολικά απεσταλμένα μηνύματα</value></data>
-
-  <!-- Campaigns Messages -->
-  <data name="Campaigns.RecipientsTitle" xml:space="preserve"><value>Παραλήπτες</value></data>
-  <data name="Campaigns.MessageIdColumn" xml:space="preserve"><value>ID ΜΗΝΥΜΑΤΟΣ</value></data>
-  <data name="Campaigns.DeliveryDetailsTitle" xml:space="preserve"><value>Λεπτομέρειες αποστολών</value></data>
-  <data name="Campaigns.ChannelsColumn" xml:space="preserve"><value>Κανάλια</value></data>
-  <data name="Campaigns.EmailColumn" xml:space="preserve"><value>Email</value></data>
-  <data name="Campaigns.PhoneColumn" xml:space="preserve"><value>Τηλέφωνο</value></data>
-  <data name="Campaigns.RecipientIdColumn" xml:space="preserve"><value>recipientId</value></data>
-  <data name="Campaigns.DateColumn" xml:space="preserve"><value>Ημερομηνία</value></data>
-
-  <!-- Campaigns Timeline -->
-  <data name="Campaigns.ContactInfoHeader" xml:space="preserve"><value>Στοιχεία επαφής</value></data>
-  <data name="Campaigns.SalutationLabel" xml:space="preserve"><value>Προσφώνηση</value></data>
-  <data name="Campaigns.DisplayNameLabel" xml:space="preserve"><value>Όνομα Εμφάνισης</value></data>
-  <data name="Campaigns.FirstNameLabel" xml:space="preserve"><value>Όνομα</value></data>
-  <data name="Campaigns.LastNameLabel" xml:space="preserve"><value>Επώνυμο</value></data>
-  <data name="Campaigns.EmailLabel" xml:space="preserve"><value>Email</value></data>
-  <data name="Campaigns.PhoneLabel" xml:space="preserve"><value>Τηλέφωνο</value></data>
-  <data name="Campaigns.ContactCodeLabel" xml:space="preserve"><value>Κωδικός επαφής</value></data>
-  <data name="Campaigns.PreviewHeader" xml:space="preserve"><value>Προεπισκόπηση</value></data>
-  <data name="Campaigns.HistoryHeader" xml:space="preserve"><value>Ιστορικό</value></data>
-
-  <!-- Campaigns Edit Details -->
-  <data name="Campaigns.BasicInformationHeader" xml:space="preserve"><value>Βασικές Πληροφορίες</value></data>
-  <data name="Campaigns.BasicInformationDescription" xml:space="preserve"><value>Οι βασικές πληροφορίες της καμπάνιας.</value></data>
-  <data name="Campaigns.Delete" xml:space="preserve"><value>Διαγραφή</value></data>
-  <data name="Campaigns.Publish" xml:space="preserve"><value>Δημοσίευση</value></data>
-  <data name="Campaigns.StatusLabel" xml:space="preserve"><value>Κατάσταση</value></data>
-  <data name="Campaigns.StatusPublished" xml:space="preserve"><value>Δημοσιευμένη</value></data>
-  <data name="Campaigns.StatusUnpublished" xml:space="preserve"><value>Μη Δημοσιευμένη</value></data>
-  <data name="Campaigns.FromPrefix" xml:space="preserve"><value>Από</value></data>
-  <data name="Campaigns.ToConnector" xml:space="preserve"><value>έως</value></data>
-  <data name="Campaigns.TargetLabel" xml:space="preserve"><value>Προς</value></data>
-  <data name="Campaigns.TargetDistributionListValue" xml:space="preserve"><value>Λίστα διανομής</value></data>
-  <data name="Campaigns.TargetAllValue" xml:space="preserve"><value>Όλους</value></data>
-  <data name="Campaigns.CommunicationChannelsLabel" xml:space="preserve"><value>Κανάλια επικοινωνίας</value></data>
-  <data name="Campaigns.CreatedByLabel" xml:space="preserve"><value>Δημιουργήθηκε από</value></data>
-  <data name="Campaigns.CreatedAtLabel" xml:space="preserve"><value>Δημιουργήθηκε στις</value></data>
-  <data name="Campaigns.UpdatedByLabel" xml:space="preserve"><value>Τροποποιήθηκε από</value></data>
-  <data name="Campaigns.UpdatedAtLabel" xml:space="preserve"><value>Τροποποιήθηκε στις</value></data>
-  <data name="Campaigns.EmailSenderLabel" xml:space="preserve"><value>Αποστολέας Email</value></data>
-
-  <!-- Campaigns Edit Right Pane -->
-  <data name="Campaigns.EditCampaignTitle" xml:space="preserve"><value>Επεξεργασία καμπάνιας</value></data>
-  <data name="Campaigns.TypeInfo" xml:space="preserve"><value>Ο τύπος στον οποίο ανατίθεται η καμπάνια.</value></data>
-  <data name="Campaigns.SenderLabel" xml:space="preserve"><value>Αποστολέας</value></data>
-  <data name="Campaigns.SenderInfo" xml:space="preserve"><value>Ο αποστολέας της καμπάνιας για το κανάλι Email.</value></data>
-  <data name="Campaigns.DistributionListInfo" xml:space="preserve"><value>Η λίστα διανομής της καμπάνιας.</value></data>
-
-  <!-- Campaigns Edit Attachments -->
-  <data name="Campaigns.EditAttachmentsTitle" xml:space="preserve"><value>Επεξεργασία επισυναπτόμενων</value></data>
-  
-  <!-- Campaigns Create Success Toast -->
-  <data name="Campaigns.CreateSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="Campaigns.CreateSuccessMessage" xml:space="preserve"><value>Η καμπάνια με τίτλο {{title}} δημιουργήθηκε με επιτυχία.</value></data>
-
-  <!-- Campaigns Content Component (additional) -->
-  <data name="Campaigns.ChannelInboxDescription" xml:space="preserve"><value>Ειδοποίηση μέσω πρoσωπικού μήνυμα.</value></data>
-  <data name="Campaigns.ChannelPushNotificationDescription" xml:space="preserve"><value>Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.</value></data>
-  <data name="Campaigns.ChannelEmailDescription" xml:space="preserve"><value>Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου</value></data>
-  <data name="Campaigns.ChannelSmsDescription" xml:space="preserve"><value>Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.</value></data>
-  <data name="Campaigns.ActionLinkDefaultText" xml:space="preserve"><value>Click me!</value></data>
-  <data name="Campaigns.DefaultTitle" xml:space="preserve"><value>Welcome</value></data>
-  <data name="Campaigns.SelectSenderPlaceholder" xml:space="preserve"><value>Παρακαλώ επιλέξτε...</value></data>
-
-  <!-- Campaigns Generic Create Action -->
-  <data name="Campaigns.Create" xml:space="preserve"><value>Δημιουργία</value></data>
-
-  <!-- Campaigns Edit -->
-  <data name="Campaigns.EditTitleFormat" xml:space="preserve"><value>Καμπάνια - {{title}}</value></data>
-  <data name="Campaigns.PublishedAtInfo" xml:space="preserve"><value>Δημοσιεύτηκε στις {{date}}</value></data>
-
-  <!-- Campaigns Edit Details (deletion/publish confirmations) -->
-  <data name="Campaigns.DeleteConfirmMessage" xml:space="preserve"><value>Είστε σίγουρος ότι θέλετε να διαγράψετε την καμπάνια '{{title}}';</value></data>
-  <data name="Campaigns.DeleteSuccessTitle" xml:space="preserve"><value>Επιτυχής διαγραφή</value></data>
-  <data name="Campaigns.DeleteSuccessMessage" xml:space="preserve"><value>Η καμπάνια με τίτλο {{title}} διαγράφηκε με επιτυχία.</value></data>
-  <data name="Campaigns.PublishConfirmMessage" xml:space="preserve"><value>Είστε σίγουρος ότι θέλετε να δημοσιεύσετε την καμπάνια '{{title}}';</value></data>
-  <data name="Campaigns.PublishSuccessTitle" xml:space="preserve"><value>Επιτυχής δημοσίευση</value></data>
-  <data name="Campaigns.PublishSuccessMessage" xml:space="preserve"><value>Η καμπάνια με τίτλο {{title}} δημοσιεύτηκε με επιτυχία.</value></data>
-
-  <!-- Campaigns Edit Right Pane -->
-  <data name="Campaigns.SelectPlaceholder" xml:space="preserve"><value>Παρακαλώ επιλέξτε...</value></data>
-  <data name="Campaigns.UpdateSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="Campaigns.UpdateSuccessMessage" xml:space="preserve"><value>Η καμπάνια με τίτλο {{title}} αποθηκεύτηκε με επιτυχία.</value></data>
-
-  <!-- Campaigns Edit Attachments Right Pane -->
-  <data name="Campaigns.AttachmentUpdateSuccessTitle" xml:space="preserve"><value>Επιτυχής ενημέρωση</value></data>
-  <data name="Campaigns.AttachmentUpdateSuccessMessage" xml:space="preserve"><value>Το επισυναπτόμενο αρχείο ενημερώθηκε με επιτυχία.</value></data>
-  <data name="Campaigns.AttachmentDeleteSuccessMessage" xml:space="preserve"><value>Το επισυναπτόμενο αρχείο διαγράφηκε με επιτυχία.</value></data>
-  <data name="Campaigns.AttachmentUpdateErrorTitle" xml:space="preserve"><value>Σφάλμα ενημέρωσης</value></data>
-  <data name="Campaigns.AttachmentUpdateErrorMessage" xml:space="preserve"><value>Υπήρξε κάποιο πρόβλημα με την ενημέρωση των στοιχείων. Παρακαλώ δοκιμάστε αργότερα.</value></data>
-
-  <!-- Campaigns Recipients Overflow -->
-  <data name="Campaigns.RecipientsOverflowIndicator" xml:space="preserve"><value>...</value></data>
-
-  <!-- Campaigns Create Wizard -->
-  <data name="Campaigns.SaveAndPublish" xml:space="preserve"><value>Αποθήκευση και Δημοσίευση</value></data>
-  <data name="Campaigns.CreateWizardIntro" xml:space="preserve"><value>Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο campaign.</value></data>
-  <!-- Campaigns Content Edit -->
-  <data name="Campaigns.ContentUpdateSuccessTitle" xml:space="preserve"><value>Επιτυχής ενημέρωση</value></data>
-  <data name="Campaigns.ContentUpdateSuccessMessage" xml:space="preserve"><value>Το περιεχόμενο της καμπάνιας με τίτλο {{title}} ενημερώθηκε με επιτυχία.</value></data>
-  <!-- Campaigns (list sorting & actions) -->
-  <data name="Campaigns.SortCreatedOnOption" xml:space="preserve"><value>Ημ/νια Δημιουργίας</value></data>
-  <data name="Campaigns.SortTitleOption" xml:space="preserve"><value>Τίτλος</value></data>
-  <data name="Campaigns.SortActiveFromOption" xml:space="preserve"><value>Ενεργή Από</value></data>
-  <data name="Campaigns.SortTypeOption" xml:space="preserve"><value>Τύπος</value></data>
-  <data name="Campaigns.SortPublishedOption" xml:space="preserve"><value>Δημοσιευμένη</value></data>
-  <data name="Campaigns.CreateCampaignAction" xml:space="preserve"><value>δημιουργία καμπάνιας</value></data>
-  <!-- Media Library -->
-  <data name="MediaLibrary.Title" xml:space="preserve"><value>Αρχεία</value></data>
-  <data name="MediaLibrary.ResultsSuffix" xml:space="preserve"><value>αποτελέσματα</value></data>
-  <data name="MediaLibrary.ViewFolderTitle" xml:space="preserve"><value>Προβολή φακέλων</value></data>
-  <data name="MediaLibrary.ViewListTitle" xml:space="preserve"><value>Προβολή λίστας</value></data>
-  <data name="MediaLibrary.RefreshTitle" xml:space="preserve"><value>ανανέωση στοιχείων</value></data>
-  <data name="MediaLibrary.AddFolderTitle" xml:space="preserve"><value>προσθήκη φακέλου</value></data>
-  <data name="MediaLibrary.AddFileTitle" xml:space="preserve"><value>προσθήκη αρχείου</value></data>
-
-  <data name="MediaLibrary.FilesCountSuffix" xml:space="preserve"><value>αρχεία</value></data>
-
-  <!-- Media Library ReadOnly View -->
-  <data name="MediaLibrary.ParentFolderLabel" xml:space="preserve"><value>...</value></data>
-  <data name="MediaLibrary.OpenInNewTabTitle" xml:space="preserve"><value>Άνοιγμα σε νέα καρτέλα</value></data>
-
-  <!-- Media Library List View -->
-  <data name="MediaLibrary.NameColumn" xml:space="preserve"><value>ΟΝΟΜΑ</value></data>
-  <data name="MediaLibrary.TypeColumn" xml:space="preserve"><value>ΤΥΠΟΣ</value></data>
-  <data name="MediaLibrary.CreatedByColumn" xml:space="preserve"><value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ</value></data>
-  <data name="MediaLibrary.CreatedAtColumn" xml:space="preserve"><value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ</value></data>
-  <data name="MediaLibrary.ActionsColumn" xml:space="preserve"><value>ΕΝΕΡΓΕΙΕΣ</value></data>
-  <data name="MediaLibrary.EditItemTitle" xml:space="preserve"><value>Επεξεργασία στοιχείου</value></data>
-  <data name="MediaLibrary.DeleteItemTitle" xml:space="preserve"><value>Διαγραφή στοιχείου</value></data>
-
-  <!-- Media Library Folder View -->
-  <data name="MediaLibrary.ParentFolderTitle" xml:space="preserve"><value>Προς επάνω</value></data>
-  <data name="MediaLibrary.EditFolderTitle" xml:space="preserve"><value>Επεξεργασία φακέλου</value></data>
-  <data name="MediaLibrary.DeleteFolderTitle" xml:space="preserve"><value>Διαγραφή φακέλου</value></data>
-  <data name="MediaLibrary.DeleteFileTitle" xml:space="preserve"><value>Διαγραφή αρχείου</value></data>
-  <data name="MediaLibrary.EditFileTitle" xml:space="preserve"><value>Επεξεργασία αρχείου</value></data>
-
-  <!-- Media Library Folder Edit -->
-  <data name="MediaLibrary.EditFolderDialogTitle" xml:space="preserve"><value>Επεξεργασία φακέλου</value></data>
-  <data name="MediaLibrary.Save" xml:space="preserve"><value>Αποθήκευση</value></data>
-  <data name="MediaLibrary.Close" xml:space="preserve"><value>Κλείσιμο</value></data>
-  <data name="MediaLibrary.FolderNameLabelRequired" xml:space="preserve"><value>Όνομα (*)</value></data>
-  <data name="MediaLibrary.FolderNamePlaceholder" xml:space="preserve"><value>Το όνομα του φακέλου...</value></data>
-  <data name="MediaLibrary.FolderNameRequiredError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα όνομα.</value></data>
-  <data name="MediaLibrary.FolderNameMaxLengthError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</value></data>
-  <data name="MediaLibrary.FolderNameInfo" xml:space="preserve"><value>Η ονομασία με την οποία θα εμφανίζεται ο φάκελος.</value></data>
-  <data name="MediaLibrary.FolderDescriptionLabel" xml:space="preserve"><value>Περιγραφή</value></data>
-  <data name="MediaLibrary.FolderDescriptionPlaceholder" xml:space="preserve"><value>Η περιγραφή του φακέλου...</value></data>
-  <data name="MediaLibrary.FolderDescriptionInfo" xml:space="preserve"><value>Σύντομη περιγραφή των περιεχομένων του φακέλου.</value></data>
-  <data name="MediaLibrary.ParentFolderSelectLabel" xml:space="preserve"><value>Φάκελος</value></data>
-  <data name="MediaLibrary.ParentFolderInfo" xml:space="preserve"><value>Ο φάκελος που περιέχει τον υποφάκελο.</value></data>
-
-  <!-- Media Library Folder Create -->
-  <data name="MediaLibrary.CreateFolderDialogTitle" xml:space="preserve"><value>Δημιουργία νέου φακέλου</value></data>
-  <data name="MediaLibrary.Create" xml:space="preserve"><value>Δημιουργία</value></data>
-
-  <!-- Media Library Document Upload -->
-  <data name="MediaLibrary.AddFileDialogTitle" xml:space="preserve"><value>Προσθήκη αρχείου</value></data>
-  <data name="MediaLibrary.AddFileIntro" xml:space="preserve"><value>Μπορείτε να προσθέσετε αρχεία τα οποία μπορούν να χρησιμοποιηθούν ως επισυναπτόμενα.</value></data>
-  <data name="MediaLibrary.AttachmentsUsagePrefix" xml:space="preserve"><value>Τα επισυναπτόμενα αρχεία χρησιμοποιούνται μόνο εφόσον</value></data>
-  <data name="MediaLibrary.ChannelInbox" xml:space="preserve"><value>Inbox</value></data>
-  <data name="MediaLibrary.AttachmentsUsageConnectorOr" xml:space="preserve"><value>ή</value></data>
-  <data name="MediaLibrary.ChannelEmail" xml:space="preserve"><value>Email</value></data>
-  <data name="MediaLibrary.AttachmentsUsageSuffix" xml:space="preserve"><value>επιλεγεί ως κανάλι επικοινωνίας.</value></data>
-
-  <!-- Media Library Document Edit -->
-  <data name="MediaLibrary.BasicInformationHeader" xml:space="preserve"><value>Βασικές Πληροφορίες</value></data>
-  <data name="MediaLibrary.BasicInformationDescription" xml:space="preserve"><value>Οι βασικές πληροφορίες του αρχείου.</value></data>
-  <data name="MediaLibrary.Preview" xml:space="preserve"><value>Προεπισκόπηση</value></data>
-  <data name="MediaLibrary.DownloadFile" xml:space="preserve"><value>Λήψη Αρχείου</value></data>
-  <data name="MediaLibrary.TitleLabel" xml:space="preserve"><value>Τίτλος</value></data>
-  <data name="MediaLibrary.LocationLabel" xml:space="preserve"><value>Τοποθεσία</value></data>
-  <data name="MediaLibrary.DescriptionLabel" xml:space="preserve"><value>Περιγραφή</value></data>
-  <data name="MediaLibrary.FolderLabel" xml:space="preserve"><value>Φάκελος</value></data>
-  <data name="MediaLibrary.TypeLabel" xml:space="preserve"><value>Τύπος</value></data>
-  <data name="MediaLibrary.SizeLabel" xml:space="preserve"><value>Μέγεθος</value></data>
-  <data name="MediaLibrary.CreatedByLabel" xml:space="preserve"><value>Δημιουργήθηκε από</value></data>
-  <data name="MediaLibrary.CreatedAtLabel" xml:space="preserve"><value>Δημιουργήθηκε στις</value></data>
-  <data name="MediaLibrary.UpdatedByLabel" xml:space="preserve"><value>Τροποποιήθηκε από</value></data>
-  <data name="MediaLibrary.UpdatedAtLabel" xml:space="preserve"><value>Τροποποιήθηκε στις</value></data>
-  <data name="MediaLibrary.ImageDimensionsPrefix" xml:space="preserve"><value>Διαστάσεις:</value></data>
-  <data name="MediaLibrary.PixelsSuffix" xml:space="preserve"><value>px</value></data>
-  <data name="MediaLibrary.EmptyValueIndicator" xml:space="preserve"><value>-</value></data>
-
-  <!-- Media Library Document Edit Right Pane -->
-  <data name="MediaLibrary.EditFileDialogTitle" xml:space="preserve"><value>Επεξεργασία αρχείου</value></data>
-  <data name="MediaLibrary.FileNameLabelRequired" xml:space="preserve"><value>Όνομα (*)</value></data>
-  <data name="MediaLibrary.FileNamePlaceholder" xml:space="preserve"><value>Το όνομα του αρχείου...</value></data>
-  <data name="MediaLibrary.FileNameRequiredError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα όνομα.</value></data>
-  <data name="MediaLibrary.FileNameMaxLengthError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</value></data>
-  <data name="MediaLibrary.FileNameInfo" xml:space="preserve"><value>Το όνομα με το οποίο θα εμφανίζεται το αρχείο.</value></data>
-  <data name="MediaLibrary.FileDescriptionLabel" xml:space="preserve"><value>Περιγραφή</value></data>
-  <data name="MediaLibrary.FileDescriptionPlaceholder" xml:space="preserve"><value>Η περιγραφή του αρχείου...</value></data>
-  <data name="MediaLibrary.FileDescriptionInfo" xml:space="preserve"><value>Σύντομη περιγραφή του αρχείου.</value></data>
-  <data name="MediaLibrary.FileFolderLabel" xml:space="preserve"><value>Φάκελος</value></data>
-  <data name="MediaLibrary.FileFolderInfo" xml:space="preserve"><value>Ο φάκελος που περιέχει το αρχείο.</value></data>
-
-  <!-- Message Types -->
-  <data name="MessageTypes.Title" xml:space="preserve"><value>Τύποι Μηνυμάτων</value></data>
-  <data name="MessageTypes.NameColumn" xml:space="preserve"><value>ΟΝΟΜΑ</value></data>
-  <data name="MessageTypes.AliasColumn" xml:space="preserve"><value>ALIAS</value></data>
-  <data name="MessageTypes.CategoryColumn" xml:space="preserve"><value>ΚΑΤΗΓΟΡΙΑ</value></data>
-  <data name="MessageTypes.ActionsColumn" xml:space="preserve"><value>ΕΝΕΡΓΕΙΕΣ</value></data>
-  <data name="MessageTypes.EditTypeTitle" xml:space="preserve"><value>Επεξεργασία τύπου</value></data>
-  <data name="MessageTypes.DeleteTypeTitle" xml:space="preserve"><value>Διαγραφή τύπου</value></data>
-  <data name="MessageTypes.EmptyValueIndicator" xml:space="preserve"><value>-</value></data>
-
-  <!-- Message Types Edit -->
-  <data name="MessageTypes.EditDialogTitle" xml:space="preserve"><value>Επεξεργασία τύπου</value></data>
-  <data name="MessageTypes.Save" xml:space="preserve"><value>Αποθήκευση</value></data>
-  <data name="MessageTypes.Close" xml:space="preserve"><value>Κλείσιμο</value></data>
-  <data name="MessageTypes.NameLabelRequired" xml:space="preserve"><value>Όνομα (*)</value></data>
-  <data name="MessageTypes.NamePlaceholder" xml:space="preserve"><value>Το όνομα του τύπου...</value></data>
-  <data name="MessageTypes.NameRequiredError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα όνομα.</value></data>
-  <data name="MessageTypes.NameMaxLengthError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</value></data>
-  <data name="MessageTypes.NameInfo" xml:space="preserve"><value>Η ονομασία η οποία θα εμφανίζεται ο τύπος της καμπάνιας.</value></data>
-  <data name="MessageTypes.AliasLabel" xml:space="preserve"><value>Alias</value></data>
-  <data name="MessageTypes.AliasPlaceholder" xml:space="preserve"><value>Το alias του τύπου...</value></data>
-  <data name="MessageTypes.AliasMaxLengthError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα μικρότερο alias.</value></data>
-  <data name="MessageTypes.ClassificationLabel" xml:space="preserve"><value>Κατηγοριοποίηση</value></data>
-  <data name="MessageTypes.ClassificationRequiredError" xml:space="preserve"><value>Παρακαλώ επιλέξετε μια απο τις τιμές.</value></data>
-
-  <!-- Message Types Create -->
-  <data name="MessageTypes.CreateDialogTitle" xml:space="preserve"><value>Δημιουργία νέου τύπου</value></data>
-  <data name="MessageTypes.Create" xml:space="preserve"><value>Δημιουργία</value></data>
-
-  <!-- Settings -->
-  <data name="Settings.Title" xml:space="preserve"><value>Ρυθμίσεις</value></data>
-
-  <!-- Settings: Media Library -->
-  <data name="Settings.MediaLibraryHeader" xml:space="preserve"><value>Βιβλιοθήκη Αρχείων</value></data>
-  <data name="Settings.MediaLibraryDescription" xml:space="preserve"><value>Οι Ρυθμίσεις της Βιβλιοθήκης Αρχείων.</value></data>
-  <data name="Settings.MediaSettingsKeyColumn" xml:space="preserve"><value>ΚΛΕΙΔΙ</value></data>
-  <data name="Settings.MediaSettingsValueColumn" xml:space="preserve"><value>ΤΙΜΗ</value></data>
-  <data name="Settings.MediaSettingsActionsColumn" xml:space="preserve"><value>ΕΝΕΡΓΕΙΕΣ</value></data>
-  <data name="Settings.EditMediaSettingTitle" xml:space="preserve"><value>Επεξεργασία ρύθμισης</value></data>
-  <data name="Settings.EmptyValueIndicator" xml:space="preserve"><value>-</value></data>
-
-  <!-- Settings Edit Media Setting -->
-  <data name="Settings.EditMediaSettingDialogTitle" xml:space="preserve"><value>Επεξεργασία ρύθμισης</value></data>
-  <data name="Settings.Save" xml:space="preserve"><value>Αποθήκευση</value></data>
-  <data name="Settings.Close" xml:space="preserve"><value>Κλείσιμο</value></data>
-  <data name="Settings.SettingValueLabelRequired" xml:space="preserve"><value>Τιμή (*)</value></data>
-  <data name="Settings.SettingValuePlaceholder" xml:space="preserve"><value>Η τιμή του setting...</value></data>
-  <data name="Settings.SettingValuePatternError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε μία ορθή διεύθυνση.</value></data>
-  <data name="Settings.SettingValueInfo" xml:space="preserve"><value>Η τιμή της συγκεκριμένης ρύθμισης.</value></data>
-
-  <!-- Settings Email Senders -->
-  <data name="Settings.EmailSendersHeader" xml:space="preserve"><value>Αποστολείς Email</value></data>
-  <data name="Settings.EmailSendersDescription" xml:space="preserve"><value>Οι διαθέσιμοι Αποστολείς του καναλιού Email.</value></data>
-  <data name="Settings.Add" xml:space="preserve"><value>Προσθήκη</value></data>
-  <data name="Settings.DefaultSenderInfoPrefix" xml:space="preserve"><value>Ο προκαθορισμένος αποστολέας σε περίπτωση που δεν επιλεγεί κάποιος διαφορετικός για την εκάστοτε καμπάνια είναι ο</value></data>
-  <data name="Settings.DefaultSenderInfoSuffix" xml:space="preserve"><value>.</value></data>
-  <data name="Settings.SenderColumn" xml:space="preserve"><value>ΑΠΟΣΤΟΛΕΑΣ</value></data>
-  <data name="Settings.NameColumn" xml:space="preserve"><value>ΟΝΟΜΑ</value></data>
-  <data name="Settings.CreatedByColumn" xml:space="preserve"><value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ</value></data>
-  <data name="Settings.CreatedAtColumn" xml:space="preserve"><value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ</value></data>
-  <data name="Settings.ActionsColumn" xml:space="preserve"><value>ΕΝΕΡΓΕΙΕΣ</value></data>
-  <data name="Settings.DefaultSenderTooltip" xml:space="preserve"><value>Προκαθορισμένος Αποστολέας</value></data>
-  <data name="Settings.EditSenderTitle" xml:space="preserve"><value>Επεξεργασία αποστολέα</value></data>
-  <data name="Settings.DeleteSenderTitle" xml:space="preserve"><value>Διαγραφή Αποστολέα</value></data>
-
-  <!-- Settings Edit Email Sender -->
-  <data name="Settings.EditSenderDialogTitle" xml:space="preserve"><value>Επεξεργασία αποστολέα</value></data>
-  <data name="Settings.SenderAddressLabelRequired" xml:space="preserve"><value>Αποστολέας (*)</value></data>
-  <data name="Settings.SenderAddressPlaceholder" xml:space="preserve"><value>Το όνομα του αποστολέα...</value></data>
-  <data name="Settings.SenderAddressRequiredError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε μία διεύθυνση.</value></data>
-  <data name="Settings.SenderAddressMaxLengthError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε μία μικρότερη διεύθυνση.</value></data>
-  <data name="Settings.SenderAddressInfo" xml:space="preserve"><value>Η διεύθυνση του αποστολέα του Email.</value></data>
-  <data name="Settings.SenderDisplayNameLabelRequired" xml:space="preserve"><value>Όνομα (*)</value></data>
-  <data name="Settings.SenderDisplayNamePlaceholder" xml:space="preserve"><value>Το όνομα του αποστολέα...</value></data>
-  <data name="Settings.SenderDisplayNameRequiredError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα όνομα.</value></data>
-  <data name="Settings.SenderDisplayNameMaxLengthError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</value></data>
-  <data name="Settings.SenderDisplayNameInfo" xml:space="preserve"><value>Η ονομασία με την οποία θα εμφανίζεται ο αποστολέας του Email.</value></data>
-  <data name="Settings.DefaultSenderCheckboxLabel" xml:space="preserve"><value>Προκαθορισμένος Αποστολέας</value></data>
-  <data name="Settings.DefaultSenderCheckboxInfo" xml:space="preserve"><value>Επιλέξτε εφόσον επιθυμείτε να εμφανίζεται ως ο προκαθορισμένος αποστολέας.</value></data>
-
-  <!-- Settings Create Email Sender -->
-  <data name="Settings.CreateSenderDialogTitle" xml:space="preserve"><value>Δημιουργία νέου αποστολέα</value></data>
-  <data name="Settings.Create" xml:space="preserve"><value>Δημιουργία</value></data>
-
-  <!-- Settings media setting update toast -->
-  <data name="Settings.MediaSettingUpdateSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="Settings.MediaSettingUpdateSuccessMessage" xml:space="preserve"><value>Η ρύθμιση με κλειδί {{key}} ενημερώθηκε με επιτυχία.</value></data>
-
-  <!-- Settings email sender update toast -->
-  <data name="Settings.UpdateSenderSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="Settings.UpdateSenderSuccessMessage" xml:space="preserve"><value>Ο αποστολέας {{sender}} αποθηκεύτηκε με επιτυχία.</value></data>
-
-  <!-- Settings email sender create toast -->
-  <data name="Settings.CreateSenderSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="Settings.CreateSenderSuccessMessage" xml:space="preserve"><value>Ο αποστολέας {{sender}} δημιουργήθηκε με επιτυχία.</value></data>
-
-  <!-- Templates -->
-  <data name="Templates.Title" xml:space="preserve"><value>Πρότυπα</value></data>
-  <data name="Templates.NameColumn" xml:space="preserve"><value>ΟΝΟΜΑ</value></data>
-  <data name="Templates.AliasColumn" xml:space="preserve"><value>ALIAS</value></data>
-  <data name="Templates.ChannelsColumn" xml:space="preserve"><value>Κανάλια</value></data>
-  <data name="Templates.MessageTypeColumn" xml:space="preserve"><value>ΤΥΠΟΣ ΜΥΝΗΜΑΤΟΣ</value></data>
-  <data name="Templates.CreatedAtColumn" xml:space="preserve"><value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ</value></data>
-  <data name="Templates.UpdatedByColumn" xml:space="preserve"><value>ΤΡΟΠΟΠΟΙΗΘΗΚΕ ΑΠΟ</value></data>
-  <data name="Templates.UpdatedAtColumn" xml:space="preserve"><value>ΤΡΟΠΟΠΟΙΗΘΗΚΕ</value></data>
-  <data name="Templates.ActionsColumn" xml:space="preserve"><value>ΕΝΕΡΓΕΙΕΣ</value></data>
-  <data name="Templates.EditTemplateTitle" xml:space="preserve"><value>Επεξεργασία προτύπου</value></data>
-  <data name="Templates.EmptyValueIndicator" xml:space="preserve"><value>-</value></data>
-  <data name="Templates.ChannelEmail" xml:space="preserve"><value>Email</value></data>
-  <data name="Templates.ChannelSms" xml:space="preserve"><value>SMS</value></data>
-  <data name="Templates.ChannelInbox" xml:space="preserve"><value>Inbox</value></data>
-  <data name="Templates.ChannelPushNotification" xml:space="preserve"><value>Push Notification</value></data>
-  
-  <!-- Templates (additional) -->
-  <data name="Templates.DeleteTemplateTitle" xml:space="preserve"><value>Διαγραφή προτύπου</value></data>
-
-  <!-- Templates Edit Navigation -->
-  <data name="Templates.BasicInformationNav" xml:space="preserve"><value>Βασικές πληροφορίες</value></data>
-  <data name="Templates.ContentNav" xml:space="preserve"><value>Περιεχόμενο</value></data>
-
-  <!-- Templates Edit Details -->
-  <data name="Templates.BasicInformationHeader" xml:space="preserve"><value>Βασικές Πληροφορίες</value></data>
-  <data name="Templates.BasicInformationDescription" xml:space="preserve"><value>Οι βασικές πληροφορίες του προτύπου.</value></data>
-  <data name="Templates.Delete" xml:space="preserve"><value>Διαγραφή</value></data>
-  <data name="Templates.TitleLabel" xml:space="preserve"><value>Τιτλος</value></data>
-  <data name="Templates.AliasLabel" xml:space="preserve"><value>Alias</value></data>
-  <data name="Templates.MessageTypeLabel" xml:space="preserve"><value>Τύπος μηνύματος</value></data>
-  <data name="Templates.IgnoreUserPreferencesLabel" xml:space="preserve"><value>Παράβλεψη ρυθμίσεων επικοινωνίας επαφής</value></data>
-  <data name="Templates.CreatedByLabel" xml:space="preserve"><value>Δημιουργήθηκε από</value></data>
-  <data name="Templates.CreatedAtLabel" xml:space="preserve"><value>Δημιουργήθηκε στις</value></data>
-  <data name="Templates.UpdatedByLabel" xml:space="preserve"><value>Τροποποιήθηκε από</value></data>
-  <data name="Templates.UpdatedAtLabel" xml:space="preserve"><value>Τροποποιήθηκε στις</value></data>
-  <data name="Templates.Yes" xml:space="preserve"><value>Ναι</value></data>
-  <data name="Templates.No" xml:space="preserve"><value>Όχι</value></data>
-
-  <!-- Templates Edit Right Pane -->
-  <data name="Templates.EditTemplateDialogTitle" xml:space="preserve"><value>Επεξεργασία προτύπου</value></data>
-  <data name="Templates.Save" xml:space="preserve"><value>Αποθήκευση</value></data>
-  <data name="Templates.Close" xml:space="preserve"><value>Κλείσιμο</value></data>
-  <data name="Templates.TitleLabelRequired" xml:space="preserve"><value>Τίτλος (*)</value></data>
-  <data name="Templates.TitlePlaceholder" xml:space="preserve"><value>Το όνομα του προτύπου...</value></data>
-  <data name="Templates.TitleRequiredError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα τίτλο.</value></data>
-  <data name="Templates.TitleMaxLengthError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</value></data>
-  <data name="Templates.TitleInfo" xml:space="preserve"><value>Η ονομασία η οποία θα εμφανίζεται για το πρότυπο.</value></data>
-  <data name="Templates.AliasPlaceholder" xml:space="preserve"><value>Το alias του προτύπου...</value></data>
-  <data name="Templates.AliasMaxLengthError" xml:space="preserve"><value>Παρακαλώ συμπληρώστε ένα μικρότερο alias.</value></data>
-
-  <!-- Templates Content Edit -->
-  <data name="Templates.ContentLabel" xml:space="preserve"><value>Περιεχόμενο</value></data>
-  <data name="Templates.ContentDescription" xml:space="preserve"><value>Το περιεχόμενο του προτύπου ανά κανάλι επικοινωνίας.</value></data>
-
-  <!-- Templates Create -->
-  <data name="Templates.CreateTemplateDialogTitle" xml:space="preserve"><value>Δημιουργία Προτύπου</value></data>
-  <data name="Templates.Create" xml:space="preserve"><value>Δημιουργία</value></data>
-
-  <!-- Shared List Contact Create -->
-  <data name="Shared.ContactComboboxNameLabelRequired" xml:space="preserve"><value>Όνομα (*)</value></data>
-  <data name="Shared.NoResultsPrefix" xml:space="preserve"><value>Δεν βρέθηκαν αποτελέσματα για</value></data>
-  <data name="Shared.NoResultsActionPrefix" xml:space="preserve"><value>Πατήστε</value></data>
-  <data name="Shared.HereLinkText" xml:space="preserve"><value>εδώ</value></data>
-  <data name="Shared.NoResultsActionSuffix" xml:space="preserve"><value>για να προσθέσετε την επαφή.</value></data>
-  <data name="Shared.CanReceiveInboxTooltip" xml:space="preserve"><value>Μπορεί να λάβει inbox</value></data>
-  <data name="Shared.SalutationLabel" xml:space="preserve"><value>Προσφώνηση</value></data>
-  <data name="Shared.SalutationPlaceholder" xml:space="preserve"><value>Προσφώνηση...</value></data>
-  <data name="Shared.SalutationInfo" xml:space="preserve"><value>Η προσφώνηση (π.χ κύριε ή κ.).</value></data>
-  <data name="Shared.FirstNameLabel" xml:space="preserve"><value>Όνομα</value></data>
-  <data name="Shared.FirstNamePlaceholder" xml:space="preserve"><value>Όνομα...</value></data>
-  <data name="Shared.LastNameLabel" xml:space="preserve"><value>Επώνυμο</value></data>
-  <data name="Shared.LastNamePlaceholder" xml:space="preserve"><value>Επώνυμο...</value></data>
-  <data name="Shared.DisplayNameLabel" xml:space="preserve"><value>Όνομα Εμφάνισης</value></data>
-  <data name="Shared.DisplayNamePlaceholder" xml:space="preserve"><value>Όνομα Εμφάνισης...</value></data>
-  <data name="Shared.EmailLabel" xml:space="preserve"><value>Email</value></data>
-  <data name="Shared.EmailPlaceholder" xml:space="preserve"><value>Email...</value></data>
-  <data name="Shared.PhoneLabel" xml:space="preserve"><value>Τηλέφωνο</value></data>
-  <data name="Shared.PhonePlaceholder" xml:space="preserve"><value>Τηλέφωνο...</value></data>
-  <data name="Shared.ContactCodeLabel" xml:space="preserve"><value>Κωδικός επαφής</value></data>
-  <data name="Shared.ContactCodePlaceholder" xml:space="preserve"><value>Κωδικός επαφής...</value></data>
-  <data name="Shared.RemoveActionLabel" xml:space="preserve"><value>Αφαίρεση</value></data>
-  <data name="Shared.EditActionLabel" xml:space="preserve"><value>Επεξεργασία</value></data>
-  <data name="Shared.SaveActionLabel" xml:space="preserve"><value>Αποθήκευση</value></data>
-  <data name="Shared.EmptyValueIndicator" xml:space="preserve"><value>-</value></data>
-
-  <!-- Shared Generic -->
-  <data name="Shared.SelectPlaceholder" xml:space="preserve"><value>Παρακαλώ επιλέξτε...</value></data>
-  
-  <data name="Shared.Close" xml:space="preserve"><value>Κλείσιμο</value></data>
-
-  <!-- Templates content update toast -->
-  <data name="Templates.ContentUpdateSuccessTitle" xml:space="preserve"><value>Επιτυχής ενημέρωση</value></data>
-  <data name="Templates.ContentUpdateSuccessMessage" xml:space="preserve"><value>Το περιεχόμενο του προτύπου με όνομα {{title}} ενημερώθηκε με επιτυχία.</value></data>
-
-  <!-- Templates create (wizard, placeholder, success toast) -->
-  <data name="Templates.SelectPlaceholder" xml:space="preserve"><value>Παρακαλώ επιλέξτε...</value></data>
-  <data name="Templates.CreateWizardIntro" xml:space="preserve"><value>Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο πρότυπο.</value></data>
-  <data name="Templates.CreateSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="Templates.CreateSuccessMessage" xml:space="preserve"><value>Το πρότυπο με όνομα {{title}} δημιουργήθηκε με επιτυχία.</value></data>
-
-  <!-- Templates deletion (confirm & success) -->
-  <data name="Templates.DeleteConfirmMessage" xml:space="preserve"><value>Είστε σίγουρος ότι θέλετε να διαγράψετε το πρότυπο '{{name}}';</value></data>
-  <data name="Templates.DeleteSuccessTitle" xml:space="preserve"><value>Επιτυχής διαγραφή</value></data>
-  <data name="Templates.DeleteSuccessMessage" xml:space="preserve"><value>Το πρότυπο με όνομα {{name}} διαγράφηκε με επιτυχία.</value></data>
-
-  <!-- Templates right pane update -->
-  <data name="Templates.UpdateSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="Templates.UpdateSuccessMessage" xml:space="preserve"><value>Το πρότυπο με όνομα {{name}} αποθηκεύτηκε με επιτυχία.</value></data>
-
-  <!-- Templates edit -->
-  <data name="Templates.TemplateTitle" xml:space="preserve"><value>Πρότυπο - {{title}}</value></data>
-
-  <!-- Shared Http Status -->
-  <data name="Shared.HttpStatusDefaultTitle" xml:space="preserve"><value>Σφάλμα</value></data>
-  <data name="Shared.HttpStatusDefaultMessage" xml:space="preserve"><value>Προέκυψε ένα απρόσμενο σφάλμα.</value></data>
-  <data name="Shared.CompanyLinkText" xml:space="preserve"><value>Indice</value></data>
-  <data name="Shared.CompanyLinkTitle" xml:space="preserve"><value>Επισκεφθείτε την ιστοσελίδα της Indice</value></data>
-  <data name="Shared.SupportLinkText" xml:space="preserve"><value>Υποστήριξη</value></data>
-  <data name="Shared.SupportLinkTitle" xml:space="preserve"><value>Επικοινωνία με υποστήριξη</value></data>
-
-  <!-- Shared File Upload -->
-  <data name="Shared.NoAttachmentInfo" xml:space="preserve"><value>Δεν έχετε προσθέσει κάποιο επισυναπτόμενο αρχείο.</value></data>
-  <data name="Shared.AddAttachmentButtonTitle" xml:space="preserve"><value>Προσθήκη επισυναπτόμενου αρχείου</value></data>
-  <data name="Shared.FileSizeLimitExceeded" xml:space="preserve"><value>Το μέγεθος του αρχείου είναι μεγαλύτερο από το επιτρεπτό ({size}).</value></data>
-  <data name="Shared.AttachmentTitleLabel" xml:space="preserve"><value>Τίτλος</value></data>
-  <data name="Shared.AttachmentTypeLabel" xml:space="preserve"><value>Τύπος</value></data>
-  <data name="Shared.AttachmentSizeLabel" xml:space="preserve"><value>Μέγεθος</value></data>
-
-  <!-- Logout -->
-  <data name="Logout.Title" xml:space="preserve"><value>Indice Back-Office</value></data>
-  <data name="Logout.PleaseWait" xml:space="preserve"><value>παρακαλώ περιμένετε...</value></data>
-
-  <!-- MessageTypes create success toast -->
-  <data name="MessageTypes.CreateSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="MessageTypes.CreateSuccessMessage" xml:space="preserve"><value>Ο τύπος με όνομα {{name}} δημιουργήθηκε με επιτυχία.</value></data>
-
-  <!-- MessageTypes edit success toast -->
-  <data name="MessageTypes.UpdateSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="MessageTypes.UpdateSuccessMessage" xml:space="preserve"><value>Ο τύπος με όνομα {{name}} αποθηκεύτηκε με επιτυχία.</value></data>
-
-  <!-- MessageTypes list (sorting & deletion) -->
-  <data name="MessageTypes.SortNameOption" xml:space="preserve"><value>Όνομα</value></data>
-  <data name="MessageTypes.DeleteConfirmMessage" xml:space="preserve"><value>Είστε σίγουρος ότι θέλετε να διαγράψετε τον τύπο '{{name}}';</value></data>
-  <data name="MessageTypes.DeleteSuccessTitle" xml:space="preserve"><value>Επιτυχής διαγραφή</value></data>
-  <data name="MessageTypes.DeleteSuccessMessage" xml:space="preserve"><value>Ο τύπος με όνομα {{name}} διαγράφηκε με επιτυχία.</value></data>
-
-
-
-  <data name="MediaLibrary.Delete" xml:space="preserve"><value>Διαγραφή</value></data>
-  <data name="MediaLibrary.DeleteFolderConfirmMessage" xml:space="preserve"><value>Είστε σίγουρος ότι θέλετε να διαγράψετε τον φάκελο '{{name}}';</value></data>
-  <data name="MediaLibrary.DeleteFolderSuccessTitle" xml:space="preserve"><value>Επιτυχής διαγραφή</value></data>
-  <data name="MediaLibrary.DeleteFolderSuccessMessage" xml:space="preserve"><value>Ο φάκελος με τίτλο {{name}} διαγράφηκε με επιτυχία.</value></data>
-  <data name="MediaLibrary.DeleteFileConfirmMessage" xml:space="preserve"><value>Είστε σίγουρος ότι θέλετε να διαγράψετε το αρχείο '{{name}}';</value></data>
-  <data name="MediaLibrary.DeleteFileSuccessTitle" xml:space="preserve"><value>Επιτυχής διαγραφή</value></data>
-  <data name="MediaLibrary.DeleteFileSuccessMessage" xml:space="preserve"><value>Το αρχείο με τίτλο {{name}} διαγράφηκε με επιτυχία.</value></data>
-  <data name="MediaLibrary.CopyLinkTitle" xml:space="preserve"><value>Αντιγραφή συνδέσμου</value></data>
-  <data name="MediaLibrary.CopyLinkSuccessMessage" xml:space="preserve"><value>Ο σύνδεσμος του αρχείου {{name}} αντιγράφηκε με επιτυχία.</value></data>
-  <data name="MediaLibrary.CopyLinkErrorTitle" xml:space="preserve"><value>Αποτυχία αντιγραφής</value></data>
-  <data name="MediaLibrary.CopyLinkErrorMessage" xml:space="preserve"><value>Ο σύνδεσμος του αρχείου δεν μπόρεσε να αντιγραφεί στο πρόχειρο.</value></data>
-
-  <!-- Media Library folder edit νέα κλειδιά -->
-  <data name="MediaLibrary.SelectPlaceholder" xml:space="preserve"><value>Παρακαλώ επιλέξτε...</value></data>
-  <data name="MediaLibrary.UpdateFolderSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="MediaLibrary.UpdateFolderSuccessMessage" xml:space="preserve"><value>Ο φάκελος με όνομα {{name}} ενημερώθηκε με επιτυχία.</value></data>
-
-  <!-- Media Library δημιουργία φακέλου -->
-  <data name="MediaLibrary.CreateFolderSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="MediaLibrary.CreateFolderSuccessMessage" xml:space="preserve"><value>Ο φάκελος με όνομα {{name}} δημιουργήθηκε με επιτυχία.</value></data>
-
-  <!-- Media Library αντιγραφή τοποθεσίας (νέα κλειδιά) -->
-  <data name="MediaLibrary.CopyPathTitle" xml:space="preserve"><value>Αντιγραφή τοποθεσίας</value></data>
-  <data name="MediaLibrary.CopyPathSuccessMessage" xml:space="preserve"><value>Η τοποθεσία {{path}} αντιγράφηκε με επιτυχία.</value></data>
-  <data name="MediaLibrary.CopyPathErrorTitle" xml:space="preserve"><value>Αποτυχία αντιγραφής</value></data>
-  <data name="MediaLibrary.CopyPathErrorMessage" xml:space="preserve"><value>Η τοποθεσία δεν μπόρεσε να αντιγραφεί στο πρόχειρο.</value></data>
-
-  <!-- Media Library επιτυχής ενημέρωση αρχείου -->
-  <data name="MediaLibrary.UpdateFileSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
-  <data name="MediaLibrary.UpdateFileSuccessMessage" xml:space="preserve"><value>Το αρχείο με όνομα {{name}} ενημερώθηκε με επιτυχία.</value></data>
-
+κωδικός_χρήστη_2</value>
+  </data>
+  <data name="Campaigns.RecipientsCountSuffix" xml:space="preserve">
+    <value>παραλήπτες</value>
+  </data>
+  <data name="Campaigns.NoRecipientsInfo" xml:space="preserve">
+    <value>Δεν έχετε προσθέσει παραλήπτες στη λίστα.</value>
+  </data>
+  <data name="Campaigns.AddedRecipientsInfoPrefix" xml:space="preserve">
+    <value>Έχετε προσθέσει</value>
+  </data>
+  <data name="Campaigns.DistributionListRequiredError" xml:space="preserve">
+    <value>Παρακαλώ επιλέξτε μία λίστα διανομής.</value>
+  </data>
+  <data name="Campaigns.RecipientIdsRequiredError" xml:space="preserve">
+    <value>Παρακαλώ εισάγετε τουλάχιστον ένα κωδικό.</value>
+  </data>
+  <data name="Campaigns.RecipientsRequiredError" xml:space="preserve">
+    <value>Παρακαλώ προσθέστε τουλάχιστον έναν παραλήπτη.</value>
+  </data>
+  <data name="Campaigns.ContentDescription" xml:space="preserve">
+    <value>Περιεχόμενο της καμπάνιας ανά κανάλι επικοινωνίας.</value>
+  </data>
+  <data name="Campaigns.BasicInformationNav" xml:space="preserve">
+    <value>Βασικές πληροφορίες</value>
+  </data>
+  <data name="Campaigns.ContentNav" xml:space="preserve">
+    <value>Περιεχόμενο</value>
+  </data>
+  <data name="Campaigns.ReportsNav" xml:space="preserve">
+    <value>Αναφορές</value>
+  </data>
+  <data name="Campaigns.RecipientsNav" xml:space="preserve">
+    <value>Παραλήπτες</value>
+  </data>
+  <data name="Campaigns.ReportsHeader" xml:space="preserve">
+    <value>Αναφορές</value>
+  </data>
+  <data name="Campaigns.ReportsDescription" xml:space="preserve">
+    <value>Διαγράμματα που αφορούν την καμπάνια.</value>
+  </data>
+  <data name="Campaigns.TotalRecipientReachLabel" xml:space="preserve">
+    <value>Συνολική εμβέλεια παραληπτών</value>
+  </data>
+  <data name="Campaigns.OutOfConnector" xml:space="preserve">
+    <value>από</value>
+  </data>
+  <data name="Campaigns.TotalSuffix" xml:space="preserve">
+    <value>συνολικά</value>
+  </data>
+  <data name="Campaigns.AvgReachabilityLabel" xml:space="preserve">
+    <value>Μέση εμβέλεια</value>
+  </data>
+  <data name="Campaigns.TotalMessagesSentLabel" xml:space="preserve">
+    <value>Συνολικά απεσταλμένα μηνύματα</value>
+  </data>
+  <data name="Campaigns.RecipientsTitle" xml:space="preserve">
+    <value>Παραλήπτες</value>
+  </data>
+  <data name="Campaigns.MessageIdColumn" xml:space="preserve">
+    <value>ID ΜΗΝΥΜΑΤΟΣ</value>
+  </data>
+  <data name="Campaigns.DeliveryDetailsTitle" xml:space="preserve">
+    <value>Λεπτομέρειες αποστολών</value>
+  </data>
+  <data name="Campaigns.ChannelsColumn" xml:space="preserve">
+    <value>Κανάλια</value>
+  </data>
+  <data name="Campaigns.EmailColumn" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Campaigns.PhoneColumn" xml:space="preserve">
+    <value>Τηλέφωνο</value>
+  </data>
+  <data name="Campaigns.RecipientIdColumn" xml:space="preserve">
+    <value>recipientId</value>
+  </data>
+  <data name="Campaigns.DateColumn" xml:space="preserve">
+    <value>Ημερομηνία</value>
+  </data>
+  <data name="Campaigns.ContactInfoHeader" xml:space="preserve">
+    <value>Στοιχεία επαφής</value>
+  </data>
+  <data name="Campaigns.SalutationLabel" xml:space="preserve">
+    <value>Προσφώνηση</value>
+  </data>
+  <data name="Campaigns.DisplayNameLabel" xml:space="preserve">
+    <value>Όνομα Εμφάνισης</value>
+  </data>
+  <data name="Campaigns.FirstNameLabel" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="Campaigns.LastNameLabel" xml:space="preserve">
+    <value>Επώνυμο</value>
+  </data>
+  <data name="Campaigns.EmailLabel" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Campaigns.PhoneLabel" xml:space="preserve">
+    <value>Τηλέφωνο</value>
+  </data>
+  <data name="Campaigns.ContactCodeLabel" xml:space="preserve">
+    <value>Κωδικός επαφής</value>
+  </data>
+  <data name="Campaigns.PreviewHeader" xml:space="preserve">
+    <value>Προεπισκόπηση</value>
+  </data>
+  <data name="Campaigns.HistoryHeader" xml:space="preserve">
+    <value>Ιστορικό</value>
+  </data>
+  <data name="Campaigns.BasicInformationHeader" xml:space="preserve">
+    <value>Βασικές Πληροφορίες</value>
+  </data>
+  <data name="Campaigns.BasicInformationDescription" xml:space="preserve">
+    <value>Οι βασικές πληροφορίες της καμπάνιας.</value>
+  </data>
+  <data name="Campaigns.Delete" xml:space="preserve">
+    <value>Διαγραφή</value>
+  </data>
+  <data name="Campaigns.Publish" xml:space="preserve">
+    <value>Δημοσίευση</value>
+  </data>
+  <data name="Campaigns.StatusLabel" xml:space="preserve">
+    <value>Κατάσταση</value>
+  </data>
+  <data name="Campaigns.StatusPublished" xml:space="preserve">
+    <value>Δημοσιευμένη</value>
+  </data>
+  <data name="Campaigns.StatusUnpublished" xml:space="preserve">
+    <value>Μη Δημοσιευμένη</value>
+  </data>
+  <data name="Campaigns.FromPrefix" xml:space="preserve">
+    <value>Από</value>
+  </data>
+  <data name="Campaigns.ToConnector" xml:space="preserve">
+    <value>έως</value>
+  </data>
+  <data name="Campaigns.TargetLabel" xml:space="preserve">
+    <value>Προς</value>
+  </data>
+  <data name="Campaigns.TargetDistributionListValue" xml:space="preserve">
+    <value>Λίστα διανομής</value>
+  </data>
+  <data name="Campaigns.TargetAllValue" xml:space="preserve">
+    <value>Όλους</value>
+  </data>
+  <data name="Campaigns.CommunicationChannelsLabel" xml:space="preserve">
+    <value>Κανάλια επικοινωνίας</value>
+  </data>
+  <data name="Campaigns.CreatedByLabel" xml:space="preserve">
+    <value>Δημιουργήθηκε από</value>
+  </data>
+  <data name="Campaigns.CreatedAtLabel" xml:space="preserve">
+    <value>Δημιουργήθηκε στις</value>
+  </data>
+  <data name="Campaigns.UpdatedByLabel" xml:space="preserve">
+    <value>Τροποποιήθηκε από</value>
+  </data>
+  <data name="Campaigns.UpdatedAtLabel" xml:space="preserve">
+    <value>Τροποποιήθηκε στις</value>
+  </data>
+  <data name="Campaigns.EmailSenderLabel" xml:space="preserve">
+    <value>Αποστολέας Email</value>
+  </data>
+  <data name="Campaigns.EditCampaignTitle" xml:space="preserve">
+    <value>Επεξεργασία καμπάνιας</value>
+  </data>
+  <data name="Campaigns.TypeInfo" xml:space="preserve">
+    <value>Ο τύπος στον οποίο ανατίθεται η καμπάνια.</value>
+  </data>
+  <data name="Campaigns.SenderLabel" xml:space="preserve">
+    <value>Αποστολέας</value>
+  </data>
+  <data name="Campaigns.SenderInfo" xml:space="preserve">
+    <value>Ο αποστολέας της καμπάνιας για το κανάλι Email.</value>
+  </data>
+  <data name="Campaigns.DistributionListInfo" xml:space="preserve">
+    <value>Η λίστα διανομής της καμπάνιας.</value>
+  </data>
+  <data name="Campaigns.EditAttachmentsTitle" xml:space="preserve">
+    <value>Επεξεργασία επισυναπτόμενων</value>
+  </data>
+  <data name="Campaigns.CreateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="Campaigns.CreateSuccessMessage" xml:space="preserve">
+    <value>Η καμπάνια με τίτλο {{title}} δημιουργήθηκε με επιτυχία.</value>
+  </data>
+  <data name="Campaigns.ChannelInboxDescription" xml:space="preserve">
+    <value>Ειδοποίηση μέσω πρoσωπικού μήνυμα.</value>
+  </data>
+  <data name="Campaigns.ChannelPushNotificationDescription" xml:space="preserve">
+    <value>Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.</value>
+  </data>
+  <data name="Campaigns.ChannelEmailDescription" xml:space="preserve">
+    <value>Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου</value>
+  </data>
+  <data name="Campaigns.ChannelSmsDescription" xml:space="preserve">
+    <value>Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.</value>
+  </data>
+  <data name="Campaigns.ActionLinkDefaultText" xml:space="preserve">
+    <value>Click me!</value>
+  </data>
+  <data name="Campaigns.DefaultTitle" xml:space="preserve">
+    <value>Welcome</value>
+  </data>
+  <data name="Campaigns.SelectSenderPlaceholder" xml:space="preserve">
+    <value>Παρακαλώ επιλέξτε...</value>
+  </data>
+  <data name="Campaigns.Create" xml:space="preserve">
+    <value>Δημιουργία</value>
+  </data>
+  <data name="Campaigns.EditTitleFormat" xml:space="preserve">
+    <value>Καμπάνια - {{title}}</value>
+  </data>
+  <data name="Campaigns.PublishedAtInfo" xml:space="preserve">
+    <value>Δημοσιεύτηκε στις {{date}}</value>
+  </data>
+  <data name="Campaigns.DeleteConfirmMessage" xml:space="preserve">
+    <value>Είστε σίγουρος ότι θέλετε να διαγράψετε την καμπάνια '{{title}}';</value>
+  </data>
+  <data name="Campaigns.DeleteSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής διαγραφή</value>
+  </data>
+  <data name="Campaigns.DeleteSuccessMessage" xml:space="preserve">
+    <value>Η καμπάνια με τίτλο {{title}} διαγράφηκε με επιτυχία.</value>
+  </data>
+  <data name="Campaigns.PublishConfirmMessage" xml:space="preserve">
+    <value>Είστε σίγουρος ότι θέλετε να δημοσιεύσετε την καμπάνια '{{title}}';</value>
+  </data>
+  <data name="Campaigns.PublishSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής δημοσίευση</value>
+  </data>
+  <data name="Campaigns.PublishSuccessMessage" xml:space="preserve">
+    <value>Η καμπάνια με τίτλο {{title}} δημοσιεύτηκε με επιτυχία.</value>
+  </data>
+  <data name="Campaigns.SelectPlaceholder" xml:space="preserve">
+    <value>Παρακαλώ επιλέξτε...</value>
+  </data>
+  <data name="Campaigns.UpdateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="Campaigns.UpdateSuccessMessage" xml:space="preserve">
+    <value>Η καμπάνια με τίτλο {{title}} αποθηκεύτηκε με επιτυχία.</value>
+  </data>
+  <data name="Campaigns.AttachmentUpdateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής ενημέρωση</value>
+  </data>
+  <data name="Campaigns.AttachmentUpdateSuccessMessage" xml:space="preserve">
+    <value>Το επισυναπτόμενο αρχείο ενημερώθηκε με επιτυχία.</value>
+  </data>
+  <data name="Campaigns.AttachmentDeleteSuccessMessage" xml:space="preserve">
+    <value>Το επισυναπτόμενο αρχείο διαγράφηκε με επιτυχία.</value>
+  </data>
+  <data name="Campaigns.AttachmentUpdateErrorTitle" xml:space="preserve">
+    <value>Σφάλμα ενημέρωσης</value>
+  </data>
+  <data name="Campaigns.AttachmentUpdateErrorMessage" xml:space="preserve">
+    <value>Υπήρξε κάποιο πρόβλημα με την ενημέρωση των στοιχείων. Παρακαλώ δοκιμάστε αργότερα.</value>
+  </data>
+  <data name="Campaigns.RecipientsOverflowIndicator" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="Campaigns.SaveAndPublish" xml:space="preserve">
+    <value>Αποθήκευση και Δημοσίευση</value>
+  </data>
+  <data name="Campaigns.CreateWizardIntro" xml:space="preserve">
+    <value>Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο campaign.</value>
+  </data>
+  <data name="Campaigns.ContentUpdateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής ενημέρωση</value>
+  </data>
+  <data name="Campaigns.ContentUpdateSuccessMessage" xml:space="preserve">
+    <value>Το περιεχόμενο της καμπάνιας με τίτλο {{title}} ενημερώθηκε με επιτυχία.</value>
+  </data>
+  <data name="Campaigns.SortCreatedOnOption" xml:space="preserve">
+    <value>Ημ/νια Δημιουργίας</value>
+  </data>
+  <data name="Campaigns.SortTitleOption" xml:space="preserve">
+    <value>Τίτλος</value>
+  </data>
+  <data name="Campaigns.SortActiveFromOption" xml:space="preserve">
+    <value>Ενεργή Από</value>
+  </data>
+  <data name="Campaigns.SortTypeOption" xml:space="preserve">
+    <value>Τύπος</value>
+  </data>
+  <data name="Campaigns.SortPublishedOption" xml:space="preserve">
+    <value>Δημοσιευμένη</value>
+  </data>
+  <data name="Campaigns.CreateCampaignAction" xml:space="preserve">
+    <value>δημιουργία καμπάνιας</value>
+  </data>
+  <data name="MediaLibrary.Title" xml:space="preserve">
+    <value>Αρχεία</value>
+  </data>
+  <data name="MediaLibrary.ResultsSuffix" xml:space="preserve">
+    <value>αποτελέσματα</value>
+  </data>
+  <data name="MediaLibrary.ViewFolderTitle" xml:space="preserve">
+    <value>Προβολή φακέλων</value>
+  </data>
+  <data name="MediaLibrary.ViewListTitle" xml:space="preserve">
+    <value>Προβολή λίστας</value>
+  </data>
+  <data name="MediaLibrary.RefreshTitle" xml:space="preserve">
+    <value>ανανέωση στοιχείων</value>
+  </data>
+  <data name="MediaLibrary.AddFolderTitle" xml:space="preserve">
+    <value>προσθήκη φακέλου</value>
+  </data>
+  <data name="MediaLibrary.AddFileTitle" xml:space="preserve">
+    <value>προσθήκη αρχείου</value>
+  </data>
+  <data name="MediaLibrary.FilesCountSuffix" xml:space="preserve">
+    <value>αρχεία</value>
+  </data>
+  <data name="MediaLibrary.ParentFolderLabel" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="MediaLibrary.CopyLinkTitle" xml:space="preserve">
+    <value>Αντιγραφή συνδέσμου</value>
+  </data>
+  <data name="MediaLibrary.OpenInNewTabTitle" xml:space="preserve">
+    <value>Άνοιγμα σε νέα καρτέλα</value>
+  </data>
+  <data name="MediaLibrary.NameColumn" xml:space="preserve">
+    <value>ΟΝΟΜΑ</value>
+  </data>
+  <data name="MediaLibrary.TypeColumn" xml:space="preserve">
+    <value>ΤΥΠΟΣ</value>
+  </data>
+  <data name="MediaLibrary.CreatedByColumn" xml:space="preserve">
+    <value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ</value>
+  </data>
+  <data name="MediaLibrary.CreatedAtColumn" xml:space="preserve">
+    <value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ</value>
+  </data>
+  <data name="MediaLibrary.ActionsColumn" xml:space="preserve">
+    <value>ΕΝΕΡΓΕΙΕΣ</value>
+  </data>
+  <data name="MediaLibrary.EditItemTitle" xml:space="preserve">
+    <value>Επεξεργασία στοιχείου</value>
+  </data>
+  <data name="MediaLibrary.DeleteItemTitle" xml:space="preserve">
+    <value>Διαγραφή στοιχείου</value>
+  </data>
+  <data name="MediaLibrary.ParentFolderTitle" xml:space="preserve">
+    <value>Προς επάνω</value>
+  </data>
+  <data name="MediaLibrary.EditFolderTitle" xml:space="preserve">
+    <value>Επεξεργασία φακέλου</value>
+  </data>
+  <data name="MediaLibrary.DeleteFolderTitle" xml:space="preserve">
+    <value>Διαγραφή φακέλου</value>
+  </data>
+  <data name="MediaLibrary.DeleteFileTitle" xml:space="preserve">
+    <value>Διαγραφή αρχείου</value>
+  </data>
+  <data name="MediaLibrary.EditFileTitle" xml:space="preserve">
+    <value>Επεξεργασία αρχείου</value>
+  </data>
+  <data name="MediaLibrary.EditFolderDialogTitle" xml:space="preserve">
+    <value>Επεξεργασία φακέλου</value>
+  </data>
+  <data name="MediaLibrary.Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="MediaLibrary.Close" xml:space="preserve">
+    <value>Κλείσιμο</value>
+  </data>
+  <data name="MediaLibrary.FolderNameLabelRequired" xml:space="preserve">
+    <value>Όνομα (*)</value>
+  </data>
+  <data name="MediaLibrary.FolderNamePlaceholder" xml:space="preserve">
+    <value>Το όνομα του φακέλου...</value>
+  </data>
+  <data name="MediaLibrary.FolderNameRequiredError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα όνομα.</value>
+  </data>
+  <data name="MediaLibrary.FolderNameMaxLengthError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</value>
+  </data>
+  <data name="MediaLibrary.FolderNameInfo" xml:space="preserve">
+    <value>Η ονομασία με την οποία θα εμφανίζεται ο φάκελος.</value>
+  </data>
+  <data name="MediaLibrary.FolderDescriptionLabel" xml:space="preserve">
+    <value>Περιγραφή</value>
+  </data>
+  <data name="MediaLibrary.FolderDescriptionPlaceholder" xml:space="preserve">
+    <value>Η περιγραφή του φακέλου...</value>
+  </data>
+  <data name="MediaLibrary.FolderDescriptionInfo" xml:space="preserve">
+    <value>Σύντομη περιγραφή των περιεχομένων του φακέλου.</value>
+  </data>
+  <data name="MediaLibrary.ParentFolderSelectLabel" xml:space="preserve">
+    <value>Φάκελος</value>
+  </data>
+  <data name="MediaLibrary.ParentFolderInfo" xml:space="preserve">
+    <value>Ο φάκελος που περιέχει τον υποφάκελο.</value>
+  </data>
+  <data name="MediaLibrary.CreateFolderDialogTitle" xml:space="preserve">
+    <value>Δημιουργία νέου φακέλου</value>
+  </data>
+  <data name="MediaLibrary.Create" xml:space="preserve">
+    <value>Δημιουργία</value>
+  </data>
+  <data name="MediaLibrary.AddFileDialogTitle" xml:space="preserve">
+    <value>Προσθήκη αρχείου</value>
+  </data>
+  <data name="MediaLibrary.AddFileIntro" xml:space="preserve">
+    <value>Μπορείτε να προσθέσετε αρχεία τα οποία μπορούν να χρησιμοποιηθούν ως επισυναπτόμενα.</value>
+  </data>
+  <data name="MediaLibrary.AttachmentsUsagePrefix" xml:space="preserve">
+    <value>Τα επισυναπτόμενα αρχεία χρησιμοποιούνται μόνο εφόσον</value>
+  </data>
+  <data name="MediaLibrary.ChannelInbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="MediaLibrary.AttachmentsUsageConnectorOr" xml:space="preserve">
+    <value>ή</value>
+  </data>
+  <data name="MediaLibrary.ChannelEmail" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="MediaLibrary.AttachmentsUsageSuffix" xml:space="preserve">
+    <value>επιλεγεί ως κανάλι επικοινωνίας.</value>
+  </data>
+  <data name="MediaLibrary.BasicInformationHeader" xml:space="preserve">
+    <value>Βασικές Πληροφορίες</value>
+  </data>
+  <data name="MediaLibrary.BasicInformationDescription" xml:space="preserve">
+    <value>Οι βασικές πληροφορίες του αρχείου.</value>
+  </data>
+  <data name="MediaLibrary.Preview" xml:space="preserve">
+    <value>Προεπισκόπηση</value>
+  </data>
+  <data name="MediaLibrary.DownloadFile" xml:space="preserve">
+    <value>Λήψη Αρχείου</value>
+  </data>
+  <data name="MediaLibrary.TitleLabel" xml:space="preserve">
+    <value>Τίτλος</value>
+  </data>
+  <data name="MediaLibrary.LocationLabel" xml:space="preserve">
+    <value>Τοποθεσία</value>
+  </data>
+  <data name="MediaLibrary.DescriptionLabel" xml:space="preserve">
+    <value>Περιγραφή</value>
+  </data>
+  <data name="MediaLibrary.FolderLabel" xml:space="preserve">
+    <value>Φάκελος</value>
+  </data>
+  <data name="MediaLibrary.TypeLabel" xml:space="preserve">
+    <value>Τύπος</value>
+  </data>
+  <data name="MediaLibrary.SizeLabel" xml:space="preserve">
+    <value>Μέγεθος</value>
+  </data>
+  <data name="MediaLibrary.CreatedByLabel" xml:space="preserve">
+    <value>Δημιουργήθηκε από</value>
+  </data>
+  <data name="MediaLibrary.CreatedAtLabel" xml:space="preserve">
+    <value>Δημιουργήθηκε στις</value>
+  </data>
+  <data name="MediaLibrary.UpdatedByLabel" xml:space="preserve">
+    <value>Τροποποιήθηκε από</value>
+  </data>
+  <data name="MediaLibrary.UpdatedAtLabel" xml:space="preserve">
+    <value>Τροποποιήθηκε στις</value>
+  </data>
+  <data name="MediaLibrary.ImageDimensionsPrefix" xml:space="preserve">
+    <value>Διαστάσεις:</value>
+  </data>
+  <data name="MediaLibrary.PixelsSuffix" xml:space="preserve">
+    <value>px</value>
+  </data>
+  <data name="MediaLibrary.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="MediaLibrary.EditFileDialogTitle" xml:space="preserve">
+    <value>Επεξεργασία αρχείου</value>
+  </data>
+  <data name="MediaLibrary.FileNameLabelRequired" xml:space="preserve">
+    <value>Όνομα (*)</value>
+  </data>
+  <data name="MediaLibrary.FileNamePlaceholder" xml:space="preserve">
+    <value>Το όνομα του αρχείου...</value>
+  </data>
+  <data name="MediaLibrary.FileNameRequiredError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα όνομα.</value>
+  </data>
+  <data name="MediaLibrary.FileNameMaxLengthError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</value>
+  </data>
+  <data name="MediaLibrary.FileNameInfo" xml:space="preserve">
+    <value>Το όνομα με το οποίο θα εμφανίζεται το αρχείο.</value>
+  </data>
+  <data name="MediaLibrary.FileDescriptionLabel" xml:space="preserve">
+    <value>Περιγραφή</value>
+  </data>
+  <data name="MediaLibrary.FileDescriptionPlaceholder" xml:space="preserve">
+    <value>Η περιγραφή του αρχείου...</value>
+  </data>
+  <data name="MediaLibrary.FileDescriptionInfo" xml:space="preserve">
+    <value>Σύντομη περιγραφή του αρχείου.</value>
+  </data>
+  <data name="MediaLibrary.FileFolderLabel" xml:space="preserve">
+    <value>Φάκελος</value>
+  </data>
+  <data name="MediaLibrary.FileFolderInfo" xml:space="preserve">
+    <value>Ο φάκελος που περιέχει το αρχείο.</value>
+  </data>
+  <data name="MessageTypes.Title" xml:space="preserve">
+    <value>Τύποι Μηνυμάτων</value>
+  </data>
+  <data name="MessageTypes.NameColumn" xml:space="preserve">
+    <value>ΟΝΟΜΑ</value>
+  </data>
+  <data name="MessageTypes.AliasColumn" xml:space="preserve">
+    <value>ALIAS</value>
+  </data>
+  <data name="MessageTypes.CategoryColumn" xml:space="preserve">
+    <value>ΚΑΤΗΓΟΡΙΑ</value>
+  </data>
+  <data name="MessageTypes.ActionsColumn" xml:space="preserve">
+    <value>ΕΝΕΡΓΕΙΕΣ</value>
+  </data>
+  <data name="MessageTypes.EditTypeTitle" xml:space="preserve">
+    <value>Επεξεργασία τύπου</value>
+  </data>
+  <data name="MessageTypes.DeleteTypeTitle" xml:space="preserve">
+    <value>Διαγραφή τύπου</value>
+  </data>
+  <data name="MessageTypes.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="MessageTypes.EditDialogTitle" xml:space="preserve">
+    <value>Επεξεργασία τύπου</value>
+  </data>
+  <data name="MessageTypes.Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="MessageTypes.Close" xml:space="preserve">
+    <value>Κλείσιμο</value>
+  </data>
+  <data name="MessageTypes.NameLabelRequired" xml:space="preserve">
+    <value>Όνομα (*)</value>
+  </data>
+  <data name="MessageTypes.NamePlaceholder" xml:space="preserve">
+    <value>Το όνομα του τύπου...</value>
+  </data>
+  <data name="MessageTypes.NameRequiredError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα όνομα.</value>
+  </data>
+  <data name="MessageTypes.NameMaxLengthError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</value>
+  </data>
+  <data name="MessageTypes.NameInfo" xml:space="preserve">
+    <value>Η ονομασία η οποία θα εμφανίζεται ο τύπος της καμπάνιας.</value>
+  </data>
+  <data name="MessageTypes.AliasLabel" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="MessageTypes.AliasPlaceholder" xml:space="preserve">
+    <value>Το alias του τύπου...</value>
+  </data>
+  <data name="MessageTypes.AliasMaxLengthError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα μικρότερο alias.</value>
+  </data>
+  <data name="MessageTypes.ClassificationLabel" xml:space="preserve">
+    <value>Κατηγοριοποίηση</value>
+  </data>
+  <data name="MessageTypes.ClassificationRequiredError" xml:space="preserve">
+    <value>Παρακαλώ επιλέξετε μια απο τις τιμές.</value>
+  </data>
+  <data name="MessageTypes.CreateDialogTitle" xml:space="preserve">
+    <value>Δημιουργία νέου τύπου</value>
+  </data>
+  <data name="MessageTypes.Create" xml:space="preserve">
+    <value>Δημιουργία</value>
+  </data>
+  <data name="Settings.Title" xml:space="preserve">
+    <value>Ρυθμίσεις</value>
+  </data>
+  <data name="Settings.MediaLibraryHeader" xml:space="preserve">
+    <value>Βιβλιοθήκη Αρχείων</value>
+  </data>
+  <data name="Settings.MediaLibraryDescription" xml:space="preserve">
+    <value>Οι Ρυθμίσεις της Βιβλιοθήκης Αρχείων.</value>
+  </data>
+  <data name="Settings.MediaSettingsKeyColumn" xml:space="preserve">
+    <value>ΚΛΕΙΔΙ</value>
+  </data>
+  <data name="Settings.MediaSettingsValueColumn" xml:space="preserve">
+    <value>ΤΙΜΗ</value>
+  </data>
+  <data name="Settings.MediaSettingsActionsColumn" xml:space="preserve">
+    <value>ΕΝΕΡΓΕΙΕΣ</value>
+  </data>
+  <data name="Settings.EditMediaSettingTitle" xml:space="preserve">
+    <value>Επεξεργασία ρύθμισης</value>
+  </data>
+  <data name="Settings.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="Settings.EditMediaSettingDialogTitle" xml:space="preserve">
+    <value>Επεξεργασία ρύθμισης</value>
+  </data>
+  <data name="Settings.Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="Settings.Close" xml:space="preserve">
+    <value>Κλείσιμο</value>
+  </data>
+  <data name="Settings.SettingValueLabelRequired" xml:space="preserve">
+    <value>Τιμή (*)</value>
+  </data>
+  <data name="Settings.SettingValuePlaceholder" xml:space="preserve">
+    <value>Η τιμή του setting...</value>
+  </data>
+  <data name="Settings.SettingValuePatternError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε μία ορθή διεύθυνση.</value>
+  </data>
+  <data name="Settings.SettingValueInfo" xml:space="preserve">
+    <value>Η τιμή της συγκεκριμένης ρύθμισης.</value>
+  </data>
+  <data name="Settings.EmailSendersHeader" xml:space="preserve">
+    <value>Αποστολείς Email</value>
+  </data>
+  <data name="Settings.EmailSendersDescription" xml:space="preserve">
+    <value>Οι διαθέσιμοι Αποστολείς του καναλιού Email.</value>
+  </data>
+  <data name="Settings.Add" xml:space="preserve">
+    <value>Προσθήκη</value>
+  </data>
+  <data name="Settings.DefaultSenderInfoPrefix" xml:space="preserve">
+    <value>Ο προκαθορισμένος αποστολέας σε περίπτωση που δεν επιλεγεί κάποιος διαφορετικός για την εκάστοτε καμπάνια είναι ο</value>
+  </data>
+  <data name="Settings.DefaultSenderInfoSuffix" xml:space="preserve">
+    <value>.</value>
+  </data>
+  <data name="Settings.SenderColumn" xml:space="preserve">
+    <value>ΑΠΟΣΤΟΛΕΑΣ</value>
+  </data>
+  <data name="Settings.NameColumn" xml:space="preserve">
+    <value>ΟΝΟΜΑ</value>
+  </data>
+  <data name="Settings.CreatedByColumn" xml:space="preserve">
+    <value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ</value>
+  </data>
+  <data name="Settings.CreatedAtColumn" xml:space="preserve">
+    <value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ</value>
+  </data>
+  <data name="Settings.ActionsColumn" xml:space="preserve">
+    <value>ΕΝΕΡΓΕΙΕΣ</value>
+  </data>
+  <data name="Settings.DefaultSenderTooltip" xml:space="preserve">
+    <value>Προκαθορισμένος Αποστολέας</value>
+  </data>
+  <data name="Settings.EditSenderTitle" xml:space="preserve">
+    <value>Επεξεργασία αποστολέα</value>
+  </data>
+  <data name="Settings.DeleteSenderTitle" xml:space="preserve">
+    <value>Διαγραφή Αποστολέα</value>
+  </data>
+  <data name="Settings.EditSenderDialogTitle" xml:space="preserve">
+    <value>Επεξεργασία αποστολέα</value>
+  </data>
+  <data name="Settings.SenderAddressLabelRequired" xml:space="preserve">
+    <value>Αποστολέας (*)</value>
+  </data>
+  <data name="Settings.SenderAddressPlaceholder" xml:space="preserve">
+    <value>Το όνομα του αποστολέα...</value>
+  </data>
+  <data name="Settings.SenderAddressRequiredError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε μία διεύθυνση.</value>
+  </data>
+  <data name="Settings.SenderAddressMaxLengthError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε μία μικρότερη διεύθυνση.</value>
+  </data>
+  <data name="Settings.SenderAddressInfo" xml:space="preserve">
+    <value>Η διεύθυνση του αποστολέα του Email.</value>
+  </data>
+  <data name="Settings.SenderDisplayNameLabelRequired" xml:space="preserve">
+    <value>Όνομα (*)</value>
+  </data>
+  <data name="Settings.SenderDisplayNamePlaceholder" xml:space="preserve">
+    <value>Το όνομα του αποστολέα...</value>
+  </data>
+  <data name="Settings.SenderDisplayNameRequiredError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα όνομα.</value>
+  </data>
+  <data name="Settings.SenderDisplayNameMaxLengthError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</value>
+  </data>
+  <data name="Settings.SenderDisplayNameInfo" xml:space="preserve">
+    <value>Η ονομασία με την οποία θα εμφανίζεται ο αποστολέας του Email.</value>
+  </data>
+  <data name="Settings.DefaultSenderCheckboxLabel" xml:space="preserve">
+    <value>Προκαθορισμένος Αποστολέας</value>
+  </data>
+  <data name="Settings.DefaultSenderCheckboxInfo" xml:space="preserve">
+    <value>Επιλέξτε εφόσον επιθυμείτε να εμφανίζεται ως ο προκαθορισμένος αποστολέας.</value>
+  </data>
+  <data name="Settings.CreateSenderDialogTitle" xml:space="preserve">
+    <value>Δημιουργία νέου αποστολέα</value>
+  </data>
+  <data name="Settings.Create" xml:space="preserve">
+    <value>Δημιουργία</value>
+  </data>
+  <data name="Settings.MediaSettingUpdateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="Settings.MediaSettingUpdateSuccessMessage" xml:space="preserve">
+    <value>Η ρύθμιση με κλειδί {{key}} ενημερώθηκε με επιτυχία.</value>
+  </data>
+  <data name="Settings.UpdateSenderSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="Settings.UpdateSenderSuccessMessage" xml:space="preserve">
+    <value>Ο αποστολέας {{sender}} αποθηκεύτηκε με επιτυχία.</value>
+  </data>
+  <data name="Settings.CreateSenderSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="Settings.CreateSenderSuccessMessage" xml:space="preserve">
+    <value>Ο αποστολέας {{sender}} δημιουργήθηκε με επιτυχία.</value>
+  </data>
+  <data name="Templates.Title" xml:space="preserve">
+    <value>Πρότυπα</value>
+  </data>
+  <data name="Templates.NameColumn" xml:space="preserve">
+    <value>ΟΝΟΜΑ</value>
+  </data>
+  <data name="Templates.AliasColumn" xml:space="preserve">
+    <value>ALIAS</value>
+  </data>
+  <data name="Templates.ChannelsColumn" xml:space="preserve">
+    <value>Κανάλια</value>
+  </data>
+  <data name="Templates.MessageTypeColumn" xml:space="preserve">
+    <value>ΤΥΠΟΣ ΜΥΝΗΜΑΤΟΣ</value>
+  </data>
+  <data name="Templates.CreatedAtColumn" xml:space="preserve">
+    <value>ΔΗΜΙΟΥΡΓΗΘΗΚΕ</value>
+  </data>
+  <data name="Templates.UpdatedByColumn" xml:space="preserve">
+    <value>ΤΡΟΠΟΠΟΙΗΘΗΚΕ ΑΠΟ</value>
+  </data>
+  <data name="Templates.UpdatedAtColumn" xml:space="preserve">
+    <value>ΤΡΟΠΟΠΟΙΗΘΗΚΕ</value>
+  </data>
+  <data name="Templates.ActionsColumn" xml:space="preserve">
+    <value>ΕΝΕΡΓΕΙΕΣ</value>
+  </data>
+  <data name="Templates.EditTemplateTitle" xml:space="preserve">
+    <value>Επεξεργασία προτύπου</value>
+  </data>
+  <data name="Templates.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="Templates.ChannelEmail" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Templates.ChannelSms" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="Templates.ChannelInbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Templates.ChannelPushNotification" xml:space="preserve">
+    <value>Push Notification</value>
+  </data>
+  <data name="Templates.DeleteTemplateTitle" xml:space="preserve">
+    <value>Διαγραφή προτύπου</value>
+  </data>
+  <data name="Templates.BasicInformationNav" xml:space="preserve">
+    <value>Βασικές πληροφορίες</value>
+  </data>
+  <data name="Templates.ContentNav" xml:space="preserve">
+    <value>Περιεχόμενο</value>
+  </data>
+  <data name="Templates.BasicInformationHeader" xml:space="preserve">
+    <value>Βασικές Πληροφορίες</value>
+  </data>
+  <data name="Templates.BasicInformationDescription" xml:space="preserve">
+    <value>Οι βασικές πληροφορίες του προτύπου.</value>
+  </data>
+  <data name="Templates.Delete" xml:space="preserve">
+    <value>Διαγραφή</value>
+  </data>
+  <data name="Templates.TitleLabel" xml:space="preserve">
+    <value>Τιτλος</value>
+  </data>
+  <data name="Templates.AliasLabel" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="Templates.MessageTypeLabel" xml:space="preserve">
+    <value>Τύπος μηνύματος</value>
+  </data>
+  <data name="Templates.IgnoreUserPreferencesLabel" xml:space="preserve">
+    <value>Παράβλεψη ρυθμίσεων επικοινωνίας επαφής</value>
+  </data>
+  <data name="Templates.CreatedByLabel" xml:space="preserve">
+    <value>Δημιουργήθηκε από</value>
+  </data>
+  <data name="Templates.CreatedAtLabel" xml:space="preserve">
+    <value>Δημιουργήθηκε στις</value>
+  </data>
+  <data name="Templates.UpdatedByLabel" xml:space="preserve">
+    <value>Τροποποιήθηκε από</value>
+  </data>
+  <data name="Templates.UpdatedAtLabel" xml:space="preserve">
+    <value>Τροποποιήθηκε στις</value>
+  </data>
+  <data name="Templates.Yes" xml:space="preserve">
+    <value>Ναι</value>
+  </data>
+  <data name="Templates.No" xml:space="preserve">
+    <value>Όχι</value>
+  </data>
+  <data name="Templates.EditTemplateDialogTitle" xml:space="preserve">
+    <value>Επεξεργασία προτύπου</value>
+  </data>
+  <data name="Templates.Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="Templates.Close" xml:space="preserve">
+    <value>Κλείσιμο</value>
+  </data>
+  <data name="Templates.TitleLabelRequired" xml:space="preserve">
+    <value>Τίτλος (*)</value>
+  </data>
+  <data name="Templates.TitlePlaceholder" xml:space="preserve">
+    <value>Το όνομα του προτύπου...</value>
+  </data>
+  <data name="Templates.TitleRequiredError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα τίτλο.</value>
+  </data>
+  <data name="Templates.TitleMaxLengthError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</value>
+  </data>
+  <data name="Templates.TitleInfo" xml:space="preserve">
+    <value>Η ονομασία η οποία θα εμφανίζεται για το πρότυπο.</value>
+  </data>
+  <data name="Templates.AliasPlaceholder" xml:space="preserve">
+    <value>Το alias του προτύπου...</value>
+  </data>
+  <data name="Templates.AliasMaxLengthError" xml:space="preserve">
+    <value>Παρακαλώ συμπληρώστε ένα μικρότερο alias.</value>
+  </data>
+  <data name="Templates.ContentLabel" xml:space="preserve">
+    <value>Περιεχόμενο</value>
+  </data>
+  <data name="Templates.ContentDescription" xml:space="preserve">
+    <value>Το περιεχόμενο του προτύπου ανά κανάλι επικοινωνίας.</value>
+  </data>
+  <data name="Templates.CreateTemplateDialogTitle" xml:space="preserve">
+    <value>Δημιουργία Προτύπου</value>
+  </data>
+  <data name="Templates.Create" xml:space="preserve">
+    <value>Δημιουργία</value>
+  </data>
+  <data name="Templates.ContentUpdateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής ενημέρωση</value>
+  </data>
+  <data name="Templates.ContentUpdateSuccessMessage" xml:space="preserve">
+    <value>Το περιεχόμενο του προτύπου με όνομα {{title}} ενημερώθηκε με επιτυχία.</value>
+  </data>
+  <data name="Templates.SelectPlaceholder" xml:space="preserve">
+    <value>Παρακαλώ επιλέξτε...</value>
+  </data>
+  <data name="Templates.CreateWizardIntro" xml:space="preserve">
+    <value>Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο πρότυπο.</value>
+  </data>
+  <data name="Templates.CreateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="Templates.CreateSuccessMessage" xml:space="preserve">
+    <value>Το πρότυπο με όνομα {{title}} δημιουργήθηκε με επιτυχία.</value>
+  </data>
+  <data name="Templates.DeleteConfirmMessage" xml:space="preserve">
+    <value>Είστε σίγουρος ότι θέλετε να διαγράψετε το πρότυπο '{{name}}';</value>
+  </data>
+  <data name="Templates.DeleteSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής διαγραφή</value>
+  </data>
+  <data name="Templates.DeleteSuccessMessage" xml:space="preserve">
+    <value>Το πρότυπο με όνομα {{name}} διαγράφηκε με επιτυχία.</value>
+  </data>
+  <data name="Templates.UpdateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="Templates.UpdateSuccessMessage" xml:space="preserve">
+    <value>Το πρότυπο με όνομα {{name}} αποθηκεύτηκε με επιτυχία.</value>
+  </data>
+  <data name="Templates.TemplateTitle" xml:space="preserve">
+    <value>Πρότυπο - {{title}}</value>
+  </data>
+  <data name="Templates.SortNameOption" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="Shared.ContactComboboxNameLabelRequired" xml:space="preserve">
+    <value>Όνομα (*)</value>
+  </data>
+  <data name="Shared.NoResultsPrefix" xml:space="preserve">
+    <value>Δεν βρέθηκαν αποτελέσματα για</value>
+  </data>
+  <data name="Shared.NoResultsActionPrefix" xml:space="preserve">
+    <value>Πατήστε</value>
+  </data>
+  <data name="Shared.HereLinkText" xml:space="preserve">
+    <value>εδώ</value>
+  </data>
+  <data name="Shared.NoResultsActionSuffix" xml:space="preserve">
+    <value>για να προσθέσετε την επαφή.</value>
+  </data>
+  <data name="Shared.CanReceiveInboxTooltip" xml:space="preserve">
+    <value>Μπορεί να λάβει inbox</value>
+  </data>
+  <data name="Shared.SalutationLabel" xml:space="preserve">
+    <value>Προσφώνηση</value>
+  </data>
+  <data name="Shared.SalutationPlaceholder" xml:space="preserve">
+    <value>Προσφώνηση...</value>
+  </data>
+  <data name="Shared.SalutationInfo" xml:space="preserve">
+    <value>Η προσφώνηση (π.χ κύριε ή κ.).</value>
+  </data>
+  <data name="Shared.FirstNameLabel" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="Shared.FirstNamePlaceholder" xml:space="preserve">
+    <value>Όνομα...</value>
+  </data>
+  <data name="Shared.LastNameLabel" xml:space="preserve">
+    <value>Επώνυμο</value>
+  </data>
+  <data name="Shared.LastNamePlaceholder" xml:space="preserve">
+    <value>Επώνυμο...</value>
+  </data>
+  <data name="Shared.DisplayNameLabel" xml:space="preserve">
+    <value>Όνομα Εμφάνισης</value>
+  </data>
+  <data name="Shared.DisplayNamePlaceholder" xml:space="preserve">
+    <value>Όνομα Εμφάνισης...</value>
+  </data>
+  <data name="Shared.EmailLabel" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Shared.EmailPlaceholder" xml:space="preserve">
+    <value>Email...</value>
+  </data>
+  <data name="Shared.PhoneLabel" xml:space="preserve">
+    <value>Τηλέφωνο</value>
+  </data>
+  <data name="Shared.PhonePlaceholder" xml:space="preserve">
+    <value>Τηλέφωνο...</value>
+  </data>
+  <data name="Shared.ContactCodeLabel" xml:space="preserve">
+    <value>Κωδικός επαφής</value>
+  </data>
+  <data name="Shared.ContactCodePlaceholder" xml:space="preserve">
+    <value>Κωδικός επαφής...</value>
+  </data>
+  <data name="Shared.RemoveActionLabel" xml:space="preserve">
+    <value>Αφαίρεση</value>
+  </data>
+  <data name="Shared.EditActionLabel" xml:space="preserve">
+    <value>Επεξεργασία</value>
+  </data>
+  <data name="Shared.SaveActionLabel" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="Shared.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="Shared.SelectPlaceholder" xml:space="preserve">
+    <value>Παρακαλώ επιλέξτε...</value>
+  </data>
+  <data name="Shared.HttpStatusDefaultTitle" xml:space="preserve">
+    <value>Σφάλμα</value>
+  </data>
+  <data name="Shared.HttpStatusDefaultMessage" xml:space="preserve">
+    <value>Προέκυψε ένα απρόσμενο σφάλμα.</value>
+  </data>
+  <data name="Shared.CompanyLinkText" xml:space="preserve">
+    <value>Indice</value>
+  </data>
+  <data name="Shared.CompanyLinkTitle" xml:space="preserve">
+    <value>Επισκεφθείτε την ιστοσελίδα της Indice</value>
+  </data>
+  <data name="Shared.SupportLinkText" xml:space="preserve">
+    <value>Υποστήριξη</value>
+  </data>
+  <data name="Shared.SupportLinkTitle" xml:space="preserve">
+    <value>Επικοινωνία με υποστήριξη</value>
+  </data>
+  <data name="Shared.NoAttachmentInfo" xml:space="preserve">
+    <value>Δεν έχετε προσθέσει κάποιο επισυναπτόμενο αρχείο.</value>
+  </data>
+  <data name="Shared.AddAttachmentButtonTitle" xml:space="preserve">
+    <value>Προσθήκη επισυναπτόμενου αρχείου</value>
+  </data>
+  <data name="Shared.FileSizeLimitExceeded" xml:space="preserve">
+    <value>Το μέγεθος του αρχείου είναι μεγαλύτερο από το επιτρεπτό ({size}).</value>
+  </data>
+  <data name="Shared.AttachmentTitleLabel" xml:space="preserve">
+    <value>Τίτλος</value>
+  </data>
+  <data name="Shared.AttachmentTypeLabel" xml:space="preserve">
+    <value>Τύπος</value>
+  </data>
+  <data name="Shared.AttachmentSizeLabel" xml:space="preserve">
+    <value>Μέγεθος</value>
+  </data>
+  <data name="Shared.Close" xml:space="preserve">
+    <value>Κλείσιμο</value>
+  </data>
+  <data name="Shared.ListViewEmptyStateTitle" xml:space="preserve">
+    <value>Δεν βρέθηκαν εγγραφές.</value>
+  </data>
+  <data name="Shared.ListViewEmptyStateSubTitle" xml:space="preserve">
+    <value>Παρακαλώ αλλάξτε τα κριτήρια αναζήτησης σας ή ξεκινήστε προσθέτοντας μια νέα εγγραφή</value>
+  </data>
+  <data name="Shared.ListViewEmptyStateNewItemLabel" xml:space="preserve">
+    <value>Νέα εγγραφή</value>
+  </data>
+  <data name="Logout.Title" xml:space="preserve">
+    <value>Indice Back-Office</value>
+  </data>
+  <data name="Logout.PleaseWait" xml:space="preserve">
+    <value>παρακαλώ περιμένετε...</value>
+  </data>
+  <data name="MessageTypes.CreateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="MessageTypes.CreateSuccessMessage" xml:space="preserve">
+    <value>Ο τύπος με όνομα {{name}} δημιουργήθηκε με επιτυχία.</value>
+  </data>
+  <data name="MessageTypes.UpdateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="MessageTypes.UpdateSuccessMessage" xml:space="preserve">
+    <value>Ο τύπος με όνομα {{name}} αποθηκεύτηκε με επιτυχία.</value>
+  </data>
+  <data name="MessageTypes.SortNameOption" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="MessageTypes.DeleteConfirmMessage" xml:space="preserve">
+    <value>Είστε σίγουρος ότι θέλετε να διαγράψετε τον τύπο '{{name}}';</value>
+  </data>
+  <data name="MessageTypes.DeleteSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής διαγραφή</value>
+  </data>
+  <data name="MessageTypes.DeleteSuccessMessage" xml:space="preserve">
+    <value>Ο τύπος με όνομα {{name}} διαγράφηκε με επιτυχία.</value>
+  </data>
+  <data name="MediaLibrary.Delete" xml:space="preserve">
+    <value>Διαγραφή</value>
+  </data>
+  <data name="MediaLibrary.DeleteFolderConfirmMessage" xml:space="preserve">
+    <value>Είστε σίγουρος ότι θέλετε να διαγράψετε τον φάκελο '{{name}}';</value>
+  </data>
+  <data name="MediaLibrary.DeleteFolderSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής διαγραφή</value>
+  </data>
+  <data name="MediaLibrary.DeleteFolderSuccessMessage" xml:space="preserve">
+    <value>Ο φάκελος με τίτλο {{name}} διαγράφηκε με επιτυχία.</value>
+  </data>
+  <data name="MediaLibrary.DeleteFileConfirmMessage" xml:space="preserve">
+    <value>Είστε σίγουρος ότι θέλετε να διαγράψετε το αρχείο '{{name}}';</value>
+  </data>
+  <data name="MediaLibrary.DeleteFileSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής διαγραφή</value>
+  </data>
+  <data name="MediaLibrary.DeleteFileSuccessMessage" xml:space="preserve">
+    <value>Το αρχείο με τίτλο {{name}} διαγράφηκε με επιτυχία.</value>
+  </data>
+  <data name="MediaLibrary.CopyLinkSuccessMessage" xml:space="preserve">
+    <value>Ο σύνδεσμος του αρχείου {{name}} αντιγράφηκε με επιτυχία.</value>
+  </data>
+  <data name="MediaLibrary.CopyLinkErrorTitle" xml:space="preserve">
+    <value>Αποτυχία αντιγραφής</value>
+  </data>
+  <data name="MediaLibrary.CopyLinkErrorMessage" xml:space="preserve">
+    <value>Ο σύνδεσμος του αρχείου δεν μπόρεσε να αντιγραφεί στο πρόχειρο.</value>
+  </data>
+  <data name="MediaLibrary.SelectPlaceholder" xml:space="preserve">
+    <value>Παρακαλώ επιλέξτε...</value>
+  </data>
+  <data name="MediaLibrary.UpdateFolderSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="MediaLibrary.UpdateFolderSuccessMessage" xml:space="preserve">
+    <value>Ο φάκελος με όνομα {{name}} ενημερώθηκε με επιτυχία.</value>
+  </data>
+  <data name="MediaLibrary.CreateFolderSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="MediaLibrary.CreateFolderSuccessMessage" xml:space="preserve">
+    <value>Ο φάκελος με όνομα {{name}} δημιουργήθηκε με επιτυχία.</value>
+  </data>
+  <data name="MediaLibrary.CopyPathTitle" xml:space="preserve">
+    <value>Αντιγραφή τοποθεσίας</value>
+  </data>
+  <data name="MediaLibrary.CopyPathSuccessMessage" xml:space="preserve">
+    <value>Η τοποθεσία {{path}} αντιγράφηκε με επιτυχία.</value>
+  </data>
+  <data name="MediaLibrary.CopyPathErrorTitle" xml:space="preserve">
+    <value>Αποτυχία αντιγραφής</value>
+  </data>
+  <data name="MediaLibrary.CopyPathErrorMessage" xml:space="preserve">
+    <value>Η τοποθεσία δεν μπόρεσε να αντιγραφεί στο πρόχειρο.</value>
+  </data>
+  <data name="MediaLibrary.UpdateFileSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="MediaLibrary.UpdateFileSuccessMessage" xml:space="preserve">
+    <value>Το αρχείο με όνομα {{name}} ενημερώθηκε με επιτυχία.</value>
+  </data>
+  <data name="Shared.Search" xml:space="preserve">
+    <value>αναζήτηση</value>
+  </data>
+
+  <data name="Breadcrumb.Home" xml:space="preserve">
+    <value>Αρχική</value>
+  </data>
+  <data name="Breadcrumb.Campaigns" xml:space="preserve">
+    <value>Καμπάνιες</value>
+  </data>
+  <data name="Breadcrumb.Create" xml:space="preserve">
+    <value>Δημιουργία</value>
+  </data>
+  <data name="Breadcrumb.Edit" xml:space="preserve">
+    <value>Επεξεργασία</value>
+  </data>
+  <data name="Breadcrumb.BasicInformation" xml:space="preserve">
+    <value>Βασικές Πληροφορίες</value>
+  </data>
+  <data name="Breadcrumb.Content" xml:space="preserve">
+    <value>Περιεχόμενο</value>
+  </data>
+  <data name="Breadcrumb.Reports" xml:space="preserve">
+    <value>Αναφορές</value>
+  </data>
+  <data name="Breadcrumb.History" xml:space="preserve">
+    <value>Ιστορικό</value>
+  </data>
+  <data name="Breadcrumb.Timeline" xml:space="preserve">
+    <value>Χρονολόγιο</value>
+  </data>
+  <data name="Breadcrumb.DeliveryInformation" xml:space="preserve">
+    <value>Πληροφορίες Παράδοσης</value>
+  </data>
+  <data name="Breadcrumb.MessageTypes" xml:space="preserve">
+    <value>Τύποι Μηνυμάτων</value>
+  </data>
+  <data name="Breadcrumb.DistributionLists" xml:space="preserve">
+    <value>Λίστες Διανομής</value>
+  </data>
+  <data name="Breadcrumb.Contacts" xml:space="preserve">
+    <value>Επαφές</value>
+  </data>
+  <data name="Breadcrumb.CommunicationDetails" xml:space="preserve">
+    <value>Στοιχεία Επικοινωνίας</value>
+  </data>
+  <data name="Breadcrumb.Templates" xml:space="preserve">
+    <value>Πρότυπα</value>
+  </data>
+  <data name="Breadcrumb.Settings" xml:space="preserve">
+    <value>Ρυθμίσεις</value>
+  </data>
+  <data name="Breadcrumb.MessageEvents" xml:space="preserve">
+    <value>Συμβάντα Μηνυμάτων</value>
+  </data>
+  <data name="Breadcrumb.Files" xml:space="preserve">
+    <value>Αρχεία</value>
+  </data>
+  <data name="Breadcrumb.Folder" xml:space="preserve">
+    <value>Φάκελος</value>
+  </data>
+  <data name="Settings.SortSenderOption" xml:space="preserve">
+    <value>Αποστολέας</value>
+  </data>
+  <data name="Settings.SortNameOption" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="Settings.SortCreatedAtOption" xml:space="preserve">
+    <value>Δημιουργήθηκε</value>
+  </data>
 </root>

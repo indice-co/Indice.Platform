@@ -33,36 +33,36 @@
         <p class="field-info col-span-3">{{ 'Campaigns.TitleInfo' | translate }}</p>
       </fieldset>
       <!-- Τύπος -->
-      <fieldset>
-        <legend class="sr-only">{{ 'Campaigns.TypeLabel' | translate }}</legend>
-        <div class="text-base font-medium text-gray-900"
-          aria-hidden="true">
-          {{ 'Campaigns.TypeLabel' | translate }}
-        </div>
-        <label for="campaignType"
-          class="hidden"
-          aria-hidden="true">
-          {{ 'Campaigns.TypeLabel' | translate }}
-        </label>
-        <div class="mt-1 flex rounded-sm">
-          <lib-enhanced-combobox id="campaignType"
-            class="w-full"
-            [items]="messageTypesForCombobox"
-            [multiple]="false"
-            [itemTemplate]="typeItemTemplate"
-            [selectedItemTemplate]="typeSelectedItemTemplate"
-            [busy]="messageTypesLoading"
-            [displayShowMoreOption]="displayMessageTypesShowMoreOption"
-            (onItemSelected)="onMessageTypeSelectionChanged($event)"
-            (onSearch)="onMessageTypeSearch($event)"
-            (onShowMore)="onMessageTypesShowMore()"
-            [equalityPredicate]="equalityPredicate"
-            [selectedItemsFilter]="messageTypesFilter"
-            [placeholder]="'Campaigns.TypePlaceholder' | translate"
-            #typeCombobox>
-          </lib-enhanced-combobox>
-        </div>
-      </fieldset>
+    <fieldset>
+      <legend class="sr-only">{{ 'Campaigns.TypeLabel' | translate }}</legend>
+      <div class="text-base font-medium text-gray-900"
+           aria-hidden="true">
+        {{ 'Campaigns.TypeLabel' | translate }}
+      </div>
+      <label for="campaignType"
+             class="hidden"
+             aria-hidden="true">
+        {{ 'Campaigns.TypeLabel' | translate }}
+      </label>
+      <div class="mt-1 flex rounded-sm">
+        <lib-enhanced-combobox id="campaignType"
+                               class="w-full"
+                               [items]="messageTypesForCombobox"
+                               [multiple]="false"
+                               [itemTemplate]="typeItemTemplate"
+                               [selectedItemTemplate]="typeSelectedItemTemplate"
+                               [busy]="messageTypesLoading"
+                               [displayShowMoreOption]="displayMessageTypesShowMoreOption"
+                               (onItemSelected)="onMessageTypeSelectionChanged($event)"
+                               (onSearch)="onMessageTypeSearch($event)"
+                               (onShowMore)="onMessageTypesShowMore()"
+                               [equalityPredicate]="equalityPredicate"
+                               [selectedItemsFilter]="messageTypesFilter"
+                               [placeholder]="'Campaigns.TypePlaceholder' | translate"
+                               #typeCombobox>
+        </lib-enhanced-combobox>
+      </div>
+    </fieldset>
       <!-- Διάρκεια -->
       <fieldset>
         <legend class="sr-only">{{ 'Campaigns.DurationLabel' | translate }}</legend>

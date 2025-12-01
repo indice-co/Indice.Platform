@@ -1035,10 +1035,6 @@
   <data name="SelectLanguage" xml:space="preserve">
     <value>Selezione della lingua</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="OrganizationName" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value />
-  </data>
   <data name="RequiredValue" xml:space="preserve">
     <value>obbligatorio</value>
   </data>
@@ -1065,5 +1061,44 @@
   </data>
   <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
     <value>Se esiste un account associato a quella email, ti invieremo le istruzioni per reimpostare la password. Per favore, controlla la tua casella di posta.</value>
+  </data>
+  <data name="Mfa_CheckYourInbox" xml:space="preserve">
+    <value>Ti abbiamo inviato un'email a {0}. Inserisci il codice per accedere.</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_PageTitle" xml:space="preserve">
+    <value>Configurazione MFA - Email</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_PageHeader" xml:space="preserve">
+    <value>Configurazione MFA - Email</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Next" xml:space="preserve">
+    <value>Avanti</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Save" xml:space="preserve">
+    <value>Salva</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Code" xml:space="preserve">
+    <value>Codice</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Next" xml:space="preserve">
+    <value>Avanti</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Save" xml:space="preserve">
+    <value>Salva</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_PageTitle" xml:space="preserve">
+    <value>Verifica email</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_PageHeader" xml:space="preserve">
+    <value>Verifica email</value>
+  </data>
+  <data name="Email_OtpCode" xml:space="preserve">
+    <value>Il tuo codice OTP per l'accesso è:</value>
+  </data>
+  <data name="Email_MfaOnboarding_OtpCode" xml:space="preserve">
+    <value>Per completare la tua autenticazione a più fattori, usa il codice OTP:</value>
   </data>
 </root>
