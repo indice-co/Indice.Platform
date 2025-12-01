@@ -1,30 +1,30 @@
-﻿@page "/login/mfa/onboarding/verify-phone"
+﻿@page "/login/mfa/onboarding/verify-email"
 
-@model BaseMfaOnboardingVerifyPhoneModel
+@model BaseMfaOnboardingVerifyEmailModel
 
 @inject IWebHostEnvironment HostingEnvironment
 @inject IdentityUILocalizer Localizer
 
 @{
-    ViewBag.Title = Localizer.MfaOnBoardingVerifyPhone_PageTitle;
-    var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyPhoneModel.TempDataKey);
+    ViewBag.Title = Localizer.MfaOnBoardingVerifyEmail_PageTitle;
+    var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyEmailModel.TempDataKey);
     var displayNext = !string.IsNullOrEmpty(infoMessage?.NextStepUrl) && infoMessage?.Alert?.AlertType == AlertType.Success;
 }
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@Localizer.MfaOnBoardingVerifyPhone_PageHeader" image-src="" />
+        <vc:page-heading title="@Localizer.MfaOnBoardingVerifyEmail_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
         <partial name="_Alert" model="infoMessage?.Alert" />
 
         <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
             <input type="hidden" asp-for="Input.ReturnUrl" />
-            <input type="hidden" asp-for="Input.PhoneNumber" />
+            <input type="hidden" asp-for="Input.Email" />
 
             <div class="mb-4">
-                <label asp-for="Input.Code" class="sr-only">@Localizer.MfaOnBoardingVerifyPhone_Code</label>
+                <label asp-for="Input.Code" class="sr-only">@Localizer.MfaOnBoardingVerifyEmail_Code</label>
                 <input asp-for="Input.Code"
                        type="text"
-                       placeholder="@Localizer.MfaOnBoardingVerifyPhone_Code"
+                       placeholder="@Localizer.MfaOnBoardingVerifyEmail_Code"
                        disabled="@displayNext"
                        autofocus
                        autocomplete="off"
@@ -42,7 +42,7 @@
                                 class="block w-full py-2 px-4 font-semibold rounded-md
                    bg-blue-500 hover:bg-blue-600 text-white transition
                    disabled:opacity-50 disabled:cursor-not-allowed">
-                            @Localizer.MfaOnBoardingVerifyPhone_Save
+                            @Localizer.MfaOnBoardingVerifyEmail_Save
                         </button>
                     </div>
                     @if (displayNext)
@@ -51,7 +51,7 @@
                             <a href="@infoMessage!.NextStepUrl"
                                class="block w-full py-2 px-4 text-center font-semibold rounded-md
                      bg-blue-500 hover:bg-blue-600 text-white transition">
-                                @Localizer.MfaOnBoardingVerifyPhone_Next
+                                @Localizer.MfaOnBoardingVerifyEmail_Next
                             </a>
                         </div>
                     }

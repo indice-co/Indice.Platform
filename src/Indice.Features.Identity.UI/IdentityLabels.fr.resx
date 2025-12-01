@@ -1035,9 +1035,6 @@
   <data name="SelectLanguage" xml:space="preserve">
     <value>Selectionner la langue</value>
   </data>
-  <data name="OrganizationName" xml:space="preserve">
-    <value />
-  </data>
   <data name="RequiredValue" xml:space="preserve">
     <value>requis</value>
   </data>
@@ -1064,5 +1061,44 @@
   </data>
   <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
     <value>Si un compte existe avec cet e-mail, nous enverrons des instructions pour reinitialiser le mot de passe. Veuillez verifier votre boite de reception.</value>
+  </data>
+  <data name="Mfa_CheckYourInbox" xml:space="preserve">
+    <value>Nous vous avons envoyé un e-mail à {0}. Veuillez entrer le code pour vous connecter.</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_PageTitle" xml:space="preserve">
+    <value>Configuration MFA - E-mail</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_PageHeader" xml:space="preserve">
+    <value>Configuration MFA - E-mail</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Next" xml:space="preserve">
+    <value>Suivant</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="MfaOnBoardingAddEmail_Save" xml:space="preserve">
+    <value>Enregistrer</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Code" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Next" xml:space="preserve">
+    <value>Suivant</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_Save" xml:space="preserve">
+    <value>Enregistrer</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_PageTitle" xml:space="preserve">
+    <value>Vérifier l'e-mail</value>
+  </data>
+  <data name="MfaOnBoardingVerifyEmail_PageHeader" xml:space="preserve">
+    <value>Vérifier l'e-mail</value>
+  </data>
+  <data name="Email_OtpCode" xml:space="preserve">
+    <value>Votre code OTP pour la connexion est :</value>
+  </data>
+  <data name="Email_MfaOnboarding_OtpCode" xml:space="preserve">
+    <value>Pour terminer votre authentification multifacteur, utilisez le code OTP :</value>
   </data>
 </root>
