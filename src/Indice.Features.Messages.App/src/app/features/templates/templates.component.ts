@@ -41,7 +41,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
 
   public override ngOnInit(): void {
     super.ngOnInit();
-    this.actions.push(new RouterViewAction(Icons.Add, 'templates/add-template', null, null));
+    this.actions.push(new RouterViewAction(Icons.Add, 'templates/add-template', null, 'add a new template'));
 
     // Reactive translation of sort option labels.
     const sortKeys = this.sortOptions.map(o => o.text);

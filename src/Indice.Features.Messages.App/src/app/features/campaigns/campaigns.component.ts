@@ -39,8 +39,7 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
     .pipe(
       map((result: MessageTypeResultSet) => (result.items || []).map(x => new MenuOption(x.name!, x.id, undefined, x, `dot dot-${x.classification} mr-2`))),
       map(options => options ?? undefined)
-    );
-
+  );
   public override ngOnInit(): void {
     this._initTranslations();
     super.ngOnInit();

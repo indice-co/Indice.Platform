@@ -64,7 +64,7 @@
 @if (!folderContent || !folderContent.totalCount || folderContent.totalCount <= 0) {
   <div [ngClass]="!folderContent?.id ? 'bg-white shadow sm:rounded-lg' : 'bg-transparent' ">
     <div class="px-4 py-5 sm:px-6">
-      <lib-list-view-empty-state></lib-list-view-empty-state>
+      <lib-list-view-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [sub-title]="'Shared.ListViewEmptyStateSubTitle' | translate" [new-item-label]="'Shared.ListViewEmptyStateNewItemLabel' | translate"></lib-list-view-empty-state>
     </div>
   </div>
 }
