@@ -13,13 +13,11 @@
     <EmbeddedResource Include="GeoLite2\GeoLite2-Country.mmdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="UserAgent\regexes.yaml" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.3.0" />
-    <PackageReference Include="UAParser" Version="3.1.47" />
   </ItemGroup>
 
   <ItemGroup>

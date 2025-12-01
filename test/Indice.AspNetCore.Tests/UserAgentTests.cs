@@ -1,7 +1,8 @@
-using Indice.Features.GeoIP.UserAgent;
+using Indice.AspNetCore;
 using Indice.Types;
+using Xunit;
 
-namespace Indice.Feature.GeoIP.Tests;
+namespace Indice.AspNetCore.Tests;
 
 public class UserAgentTests
 {

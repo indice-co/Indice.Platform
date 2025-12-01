@@ -4,7 +4,7 @@ using Indice.Types;
 using Microsoft.Net.Http.Headers;
 using UAParser;
 
-namespace Indice.Features.GeoIP.UserAgent;
+namespace Indice.AspNetCore;
 
 /// <summary>Models a user agent (browser) type, extracting various useful information.</summary>
 public class UserAgent
@@ -30,7 +30,7 @@ public class UserAgent
     /// <returns>A configured <see cref="Parser"/> instance.</returns>
     private static Parser CreateParser() {
         var assembly = Assembly.GetExecutingAssembly();
-        const string resourceName = "Indice.Features.GeoIP.UserAgent.regexes.yaml";
+        const string resourceName = "Indice.AspNetCore.UserAgent.regexes.yaml";
 
         using var stream = assembly.GetManifestResourceStream(resourceName);
         if (stream is null)

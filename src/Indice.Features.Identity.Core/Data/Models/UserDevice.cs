@@ -1,6 +1,6 @@
 ﻿using Indice.Types;
 using Indice.Features.Identity.Core.Models;
-using Indice.Features.GeoIP.UserAgent;
+using Indice.AspNetCore;
 
 namespace Indice.Features.Identity.Core.Data.Models;
 

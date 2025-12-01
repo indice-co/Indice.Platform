@@ -1,5 +1,5 @@
 ﻿
-using Indice.Features.GeoIP.UserAgent;
+using Indice.AspNetCore;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
 using Microsoft.AspNetCore.Http;
