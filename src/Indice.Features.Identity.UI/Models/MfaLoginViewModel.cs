@@ -45,7 +45,7 @@ public partial class MfaLoginViewModel<TUser> : MfaLoginInputModel where TUser :
     [GeneratedRegex(@"\d(?!\d{0,1}$)")]
     public static partial Regex GetMaskPhoneNumberRegex();
 
-    [GeneratedRegex(@"(?<=^..).*?(?=\.[^.]*$)")]
+    [GeneratedRegex(@"(?<=^..)[^@]+(?=@)")]
     public static partial Regex GetMaskEmailRegex();
 
 }
