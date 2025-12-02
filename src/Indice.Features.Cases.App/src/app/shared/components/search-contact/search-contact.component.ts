@@ -5,7 +5,7 @@ import { CasesApiService, Contact } from 'src/app/core/services/cases-api.servic
 @Component({
     selector: 'app-search-contact',
     templateUrl: './search-contact.component.html',
-    styleUrls: ['./search-contact.component.scss'],
+    styleUrls: ['./search-contact.component.css'],
     standalone: false
 })
 export class SearchContactComponent {

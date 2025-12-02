@@ -4,7 +4,7 @@ import { ICaseTypeRequest } from 'src/app/core/services/cases-api.service';
 @Component({
     selector: 'app-case-type-form',
     templateUrl: './case-type-form.component.html',
-    styleUrls: ['./case-type-form.component.scss'],
+    styleUrls: ['./case-type-form.component.css'],
     standalone: false
 })
 export class CaseTypeFormComponent implements OnInit {

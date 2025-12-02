@@ -10,7 +10,7 @@ import { CaseTypeDeleteModalComponent } from './case-type-delete-modal/case-type
 @Component({
     selector: 'app-case-types',
     templateUrl: './case-types.component.html',
-    styleUrls: ['./case-types.component.scss'],
+    styleUrls: ['./case-types.component.css'],
     standalone: false
 })
 export class CaseTypesComponent extends BaseListComponent<CaseTypePartial> implements OnInit {

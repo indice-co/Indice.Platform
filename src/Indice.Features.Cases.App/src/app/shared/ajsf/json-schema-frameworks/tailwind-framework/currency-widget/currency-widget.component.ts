@@ -6,7 +6,7 @@ import { takeUntil, map, tap } from 'rxjs/operators';
 @Component({
     selector: 'app-currency-widget',
     templateUrl: './currency-widget.component.html',
-    styleUrls: ['./currency-widget.component.scss'],
+    styleUrls: ['./currency-widget.component.css'],
     standalone: false
 })
 export class CurrencyWidgetComponent implements OnInit {

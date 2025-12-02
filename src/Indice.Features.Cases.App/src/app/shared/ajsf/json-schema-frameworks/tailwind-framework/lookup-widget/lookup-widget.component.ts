@@ -8,7 +8,7 @@ import { LookupsService } from "src/app/core/services/lookups.service";
 @Component({
     selector: 'app-lookup-widget',
     templateUrl: './lookup-widget.component.html',
-    styleUrls: ['./lookup-widget.component.scss'],
+    styleUrls: ['./lookup-widget.component.css'],
     standalone: false
 })
 export class LookupWidgetComponent implements OnInit, OnDestroy {

@@ -4,7 +4,7 @@ module.exports = {
   mode: 'jit',
   content: [
     './src/**/*.{html,ts,css}',
-    './node_modules/@indice/ng-components/_styles.css'
+    './node_modules/@indice/ng-components/src/styles.css'
   ],
   theme: {
     extend: {

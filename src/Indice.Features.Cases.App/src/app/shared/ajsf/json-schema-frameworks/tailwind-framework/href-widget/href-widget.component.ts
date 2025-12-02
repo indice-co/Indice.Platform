@@ -4,7 +4,7 @@ import { Component, Input, OnInit } from '@angular/core';
 @Component({
     selector: 'app-href-widget',
     templateUrl: './href-widget.component.html',
-    styleUrls: ['./href-widget.component.scss'],
+    styleUrls: ['./href-widget.component.css'],
     standalone: false
 })
 export class HrefWidgetComponent implements OnInit {

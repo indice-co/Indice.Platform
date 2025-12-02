@@ -6,7 +6,7 @@ import { CasesApiService, CreateDraftCaseRequest, Contact, ContactMeta } from 's
 @Component({
     selector: 'app-case-create-page',
     templateUrl: './case-create-page.component.html',
-    styleUrls: ['./case-create-page.component.scss'],
+    styleUrls: ['./case-create-page.component.css'],
     standalone: false
 })
 export class CaseCreatePageComponent implements OnInit {

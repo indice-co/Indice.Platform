@@ -6,7 +6,7 @@ import moment from 'moment';
 @Component({
     selector: 'app-date-widget',
     templateUrl: './date-widget.component.html',
-    styleUrls: ['./date-widget.component.scss'],
+    styleUrls: ['./date-widget.component.css'],
     standalone: false
 })
 export class DateWidgetComponent implements OnInit {

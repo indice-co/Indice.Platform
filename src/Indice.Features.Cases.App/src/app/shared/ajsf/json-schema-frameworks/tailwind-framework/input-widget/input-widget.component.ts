@@ -4,7 +4,7 @@ import { Component, Input, OnInit } from '@angular/core';
 @Component({
     selector: 'app-input-widget',
     templateUrl: './input-widget.component.html',
-    styleUrls: ['./input-widget.component.scss'],
+    styleUrls: ['./input-widget.component.css'],
     standalone: false
 })
 export class InputWidgetComponent implements OnInit {

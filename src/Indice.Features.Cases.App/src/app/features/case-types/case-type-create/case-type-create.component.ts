@@ -6,7 +6,7 @@ import { CaseTypeRequest } from '../../../core/services/cases-api.service';
 @Component({
     selector: 'app-case-type-create',
     templateUrl: './case-type-create.component.html',
-    styleUrls: ['./case-type-create.component.scss'],
+    styleUrls: ['./case-type-create.component.css'],
     standalone: false
 })
 export class CaseTypeCreateComponent implements OnInit {

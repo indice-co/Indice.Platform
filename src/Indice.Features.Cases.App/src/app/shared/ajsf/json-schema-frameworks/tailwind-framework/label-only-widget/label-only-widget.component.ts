@@ -18,7 +18,7 @@ import { Component, Input, OnInit } from '@angular/core';
 @Component({
     selector: 'app-label-only-widget',
     templateUrl: './label-only-widget.component.html',
-    styleUrls: ['./label-only-widget.component.scss'],
+    styleUrls: ['./label-only-widget.component.css'],
     standalone: false
 })
 export class LabelOnlyWidgetComponent implements OnInit {

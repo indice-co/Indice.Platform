@@ -4,7 +4,7 @@ import { buildTitleMap, isArray, JsonSchemaFormService } from '@ajsf-extended/co
 @Component({
     selector: 'app-select-widget',
     templateUrl: './select-widget.component.html',
-    styleUrls: ['./select-widget.component.scss'],
+    styleUrls: ['./select-widget.component.css'],
     standalone: false
 })
 export class SelectWidgetComponent implements OnInit {

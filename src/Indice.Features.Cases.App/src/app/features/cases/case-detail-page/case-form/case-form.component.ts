@@ -24,7 +24,7 @@ import { LabelOnlyWidgetComponent } from 'src/app/shared/ajsf/json-schema-framew
 @Component({
     selector: 'app-case-form',
     templateUrl: './case-form.component.html',
-    styleUrls: ['./case-form.component.scss'],
+    styleUrls: ['./case-form.component.css'],
     standalone: false
 })
 export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {

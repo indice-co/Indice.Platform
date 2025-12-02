@@ -4,7 +4,7 @@ import { CaseTypePartial } from 'src/app/core/services/cases-api.service';
 @Component({
     selector: 'app-display-case-types',
     templateUrl: './display-case-types.component.html',
-    styleUrls: ['./display-case-types.component.scss'],
+    styleUrls: ['./display-case-types.component.css'],
     standalone: false
 })
 export class DisplayCaseTypesComponent implements OnInit {

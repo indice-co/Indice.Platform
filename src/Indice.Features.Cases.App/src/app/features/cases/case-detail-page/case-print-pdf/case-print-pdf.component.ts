@@ -5,7 +5,7 @@ import { CasesApiService } from 'src/app/core/services/cases-api.service';
 @Component({
     selector: 'app-case-print-pdf',
     templateUrl: './case-print-pdf.component.html',
-    styleUrls: ['./case-print-pdf.component.scss'],
+    styleUrls: ['./case-print-pdf.component.css'],
     standalone: false
 })
 export class CasePrintPdfComponent implements OnInit {

@@ -5,7 +5,7 @@ import { tap } from 'rxjs/operators';
 @Component({
     selector: 'app-case-discard-draft',
     templateUrl: './case-discard-draft.component.html',
-    styleUrls: ['./case-discard-draft.component.scss'],
+    styleUrls: ['./case-discard-draft.component.css'],
     standalone: false
 })
 export class CaseDiscardDraftComponent implements OnInit {

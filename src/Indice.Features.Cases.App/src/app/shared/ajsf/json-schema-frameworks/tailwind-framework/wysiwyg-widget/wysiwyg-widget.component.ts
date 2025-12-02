@@ -4,7 +4,7 @@ import { Component, Input, OnInit } from '@angular/core';
 @Component({
     selector: 'app-wysiwyg-widget',
     templateUrl: './wysiwyg-widget.component.html',
-    styleUrls: ['./wysiwyg-widget.component.scss'],
+    styleUrls: ['./wysiwyg-widget.component.css'],
     standalone: false
 })
 export class WysiwygWidgetComponent implements OnInit {

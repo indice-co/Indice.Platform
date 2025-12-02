@@ -4,7 +4,7 @@ import { Component, Input, OnInit } from '@angular/core';
 @Component({
     selector: 'app-text-area-widget',
     templateUrl: './text-area-widget.component.html',
-    styleUrls: ['./text-area-widget.component.scss'],
+    styleUrls: ['./text-area-widget.component.css'],
     standalone: false
 })
 export class TextAreaWidgetComponent implements OnInit {

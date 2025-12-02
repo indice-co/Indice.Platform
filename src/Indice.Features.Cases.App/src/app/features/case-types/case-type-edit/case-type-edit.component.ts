@@ -7,7 +7,7 @@ import { CasesApiService, CaseTypeRequest } from 'src/app/core/services/cases-ap
 @Component({
     selector: 'app-case-type-edit',
     templateUrl: './case-type-edit.component.html',
-    styleUrls: ['./case-type-edit.component.scss'],
+    styleUrls: ['./case-type-edit.component.css'],
     standalone: false
 })
 export class CaseTypeEditComponent implements OnInit {

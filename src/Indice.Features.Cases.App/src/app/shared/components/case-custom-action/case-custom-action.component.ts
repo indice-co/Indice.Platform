@@ -4,7 +4,7 @@ import { CustomCaseAction, SuccessMessage } from 'src/app/core/services/cases-ap
 @Component({
     selector: 'app-case-custom-action',
     templateUrl: './case-custom-action.component.html',
-    styleUrls: ['./case-custom-action.component.scss'],
+    styleUrls: ['./case-custom-action.component.css'],
     standalone: false
 })
 export class CaseCustomActionComponent implements OnInit {

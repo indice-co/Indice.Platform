@@ -11,7 +11,7 @@ import { CaseTypeService } from '../../core/services/case-type.service';
 @Component({
     selector: 'app-notifications',
     templateUrl: './notifications.component.html',
-    styleUrls: ['./notifications.component.scss'],
+    styleUrls: ['./notifications.component.css'],
     standalone: false
 })
 export class NotificationsComponent implements OnInit {

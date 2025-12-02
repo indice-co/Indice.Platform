@@ -1,4 +1,4 @@
-// https://stackoverflow.com/questions/7372038/is-there-any-way-to-change-input-type-date-format
+/* https://stackoverflow.com/questions/7372038/is-there-any-way-to-change-input-type-date-format */
 input[type="date"]::-webkit-datetime-edit,
 input[type="date"]::-webkit-inner-spin-button,
 input[type="date"]::-webkit-clear-button {
@@ -8,7 +8,7 @@ input[type="date"]::-webkit-clear-button {
 
 input[type="date"]::-webkit-datetime-edit-year-field {
     position: absolute !important;
-    // border-left: 1px solid #8c8c8c;
+    /* border-left: 1px solid #8c8c8c; */
     padding: 2px;
     color: #000;
     left: 52px;
@@ -16,7 +16,7 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 
 input[type="date"]::-webkit-datetime-edit-month-field {
     position: absolute !important;
-    // border-left: 1px solid #8c8c8c;
+    /* border-left: 1px solid #8c8c8c; */
     padding: 2px;
     color: #000;
     left: 28px;

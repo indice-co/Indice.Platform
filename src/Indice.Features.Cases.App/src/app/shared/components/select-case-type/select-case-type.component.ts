@@ -6,7 +6,7 @@ import { CasesApiService, CaseTypePartial } from 'src/app/core/services/cases-ap
 @Component({
     selector: 'app-select-case-type',
     templateUrl: './select-case-type.component.html',
-    styleUrls: ['./select-case-type.component.scss'],
+    styleUrls: ['./select-case-type.component.css'],
     standalone: false
 })
 export class SelectCaseTypeComponent implements OnInit {
