@@ -6,6 +6,14 @@
 @import "quill/dist/quill.bubble.css";
 @import "quill/dist/quill.snow.css";
 
+@theme {
+    /* Custom colors */
+    --color-dark-green: #03292e;
+    --color-darker-green: #124046;
+    --color-dusty-orange: #f27731;
+    --color-dusty-orange-opacity: #f2773199;
+}
+
 :root {
     --ng-progress-color: #ffc107; /* amber */
 }
@@ -20,7 +28,7 @@
     }
 
     .btn-submit {
-        @apply ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 !important;
+        @apply !ml-3 !inline-flex !justify-center !py-2 !px-4 !border !border-transparent !shadow-sm !text-sm !font-medium !rounded-md !text-white !bg-gray-600 hover:!bg-gray-700 focus:!outline-none focus:!ring-2 focus:!ring-offset-2 focus:!ring-gray-500;
     }
     /* extend class that comes from our library in order to add padding for fluid display */
     .shell-content-container-inner-fluid {
@@ -28,35 +36,35 @@
     }
 
     .btn-submit-form {
-        @apply bg-blue-800 hover:bg-blue-700 text-white font-bold p-2 mt-2 inline-flex rounded !important;
+        @apply !bg-blue-800 hover:!bg-blue-700 !text-white !font-bold !p-2 !mt-2 !inline-flex !rounded;
     }
 
     .btn-default {
-        @apply bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded inline-flex items-center !important;
+        @apply !bg-gray-300 hover:!bg-gray-400 !text-gray-800 !font-bold !py-1 !px-2 !rounded !inline-flex !items-center;
     }
 
     .btn-info {
-        @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 !important;
+        @apply !inline-flex !items-center !px-2.5 !py-1.5 !border !border-transparent !text-xs !font-medium !rounded !shadow-sm !text-white !bg-blue-600 hover:!bg-blue-700 focus:!outline-none focus:!ring-1 focus:!ring-offset-1 focus:!ring-blue-500;
     }
 
     .btn-success {
-        @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-green-500 !important;
+        @apply !inline-flex !items-center !px-2.5 !py-1.5 !border !border-transparent !text-xs !font-medium !rounded !shadow-sm !text-white !bg-green-600 hover:!bg-green-700 focus:!outline-none focus:!ring-1 focus:!ring-offset-1 focus:!ring-green-500;
     }
 
     .btn-warning {
-        @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-yellow-500 !important;
+        @apply !inline-flex !items-center !px-2.5 !py-1.5 !border !border-transparent !text-xs !font-medium !rounded !shadow-sm !text-white !bg-yellow-600 hover:!bg-yellow-700 focus:!outline-none focus:!ring-1 focus:!ring-offset-1 focus:!ring-yellow-500;
     }
 
     .btn-error {
-        @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 !important;
+        @apply !inline-flex !items-center !px-2.5 !py-1.5 !border !border-transparent !text-xs !font-medium !rounded !shadow-sm !text-white !bg-red-600 hover:!bg-red-700 focus:!outline-none focus:!ring-1 focus:!ring-offset-1 focus:!ring-red-500;
     }
 
     .btn-delete {
-        @apply w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white  hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm !important;
+        @apply !w-full !inline-flex !justify-center !rounded-md !border !border-transparent !shadow-sm !px-4 !py-2 !bg-red-600 !text-base !font-medium !text-white hover:!bg-red-700 focus:!outline-none focus:!ring-2 focus:!ring-offset-2 focus:!ring-red-500 sm:!ml-3 sm:!w-auto sm:!text-sm;
     }
 
     .btn-return {
-        @apply w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm !important;
+        @apply !w-full !inline-flex !justify-center !rounded-md !border !border-gray-300 !shadow-sm !px-4 !py-2 !bg-white !text-base !font-medium !text-gray-700 hover:!bg-gray-50 focus:!outline-none focus:!ring-2 focus:!ring-offset-2 focus:!ring-indigo-500 sm:!mt-0 sm:!w-auto sm:!text-sm;
     }
 
     .form-container .form-group {
@@ -162,28 +170,28 @@ div.form-container.disableCheckbox input[type="checkbox"] {
 .shell-header-container,
 .side-view-layout-container-inner {
     background-image: unset;
-    background: theme("colors.darker-green");
+    background: var(--color-darker-green);
 }
 
 .nav-link:hover {
-    background-color: theme("colors.dark-green");
+    background-color: var(--color-dark-green);
 }
 
 .nav-link-active {
-    background-color: theme("colors.dark-green");
-    color: theme("colors.white");
+    background-color: var(--color-dark-green);
+    color: white;
 }
 
 .nav-link-active:hover {
-    background-color: theme("colors.dark-green");
+    background-color: var(--color-dark-green);
 }
 
 .avatar-text {
-    color: theme("colors.white");
+    color: white;
 }
 
 .avatar-container {
-    --tw-ring-color: theme("colors.white");
+    --tw-ring-color: white;
 }
 
 .close {
