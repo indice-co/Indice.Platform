@@ -212,6 +212,14 @@ public class IdentityUILocalizer
 
     #region Email
 
+    /// <summary>MFA Onboarding OTP Code text.</summary>
+    public virtual HtmlString Email_MfaOnboarding_OtpCode => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_MfaOnboarding_OtpCode));
+    
+    /// <summary>Preheader text prompting the user to verify their email.</summary>
+    public virtual HtmlString Email_Preheader_Otp => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_OtpCode));
+
+    /// <summary>Preheader text prompting the user to verify their email.</summary>
+    public virtual HtmlString Email_OtpCode => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_OtpCode));
     /// <summary>Preheader text prompting the user to verify their email.</summary>
     public virtual HtmlString Email_Preheader_Verify => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Preheader_Verify));
 
@@ -607,6 +615,11 @@ public class IdentityUILocalizer
     /// </summary>
     public virtual HtmlString Mfa_We_Texted_Your_Phone(string phoneNumber) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_WeTextedYourPhone, phoneNumber));
 
+    /// <summary>
+    ///   Gets the localized string for "We texted your phone {0}. Please enter the code to sign in" with a phone number parameter.
+    /// </summary>
+    public virtual HtmlString Mfa_Check_Your_Inbox(string email) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_CheckYourInbox, email));
+
     #endregion
 
 
@@ -681,8 +694,6 @@ public class IdentityUILocalizer
 
     #endregion
 
-
-
     #region MfaOnBoardingVerifyPhone
 
     /// <summary>
@@ -705,7 +716,69 @@ public class IdentityUILocalizer
     /// </summary>
     public virtual HtmlString MfaOnBoardingVerifyPhone_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_PageTitle));
 
+    /// <summary>
+    ///   Gets the localized string for "Verify phone number".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingVerifyEmail_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyEmail_PageHeader));
     #endregion
+
+
+
+    #region MfaOnBoardingAddEmail
+
+    /// <summary>
+    ///   Gets the localized string for "MFA onboarding - Email".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingAddEmail_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddEmail_PageTitle));
+
+    /// <summary>
+    ///   Gets the localized string for "Next".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingAddEmail_Next => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddEmail_Next));
+
+    /// <summary>
+    ///   Gets the localized string for "Email address".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingAddEmail_Email => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddEmail_Email));
+
+    /// <summary>
+    ///   Gets the localized string for "Save".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingAddEmail_Save => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddEmail_Save));
+
+    /// <summary>
+    ///   Gets the localized string for "Save".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingAddEmail_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddEmail_PageHeader));
+
+    #endregion
+
+
+    #region MfaOnBoardingVerifyEmail
+
+    /// <summary>
+    ///   Gets the localized string for "Code".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingVerifyEmail_Code => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyEmail_Code));
+
+    /// <summary>
+    ///   Gets the localized string for "Next".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingVerifyEmail_Next => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyEmail_Next));
+
+    /// <summary>
+    ///   Gets the localized string for "Save".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingVerifyEmail_Save => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyEmail_Save));
+
+    /// <summary>
+    ///   Gets the localized string for "Verify email address".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingVerifyEmail_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyEmail_PageTitle));
+
+    #endregion
+
+
 
     #region PasswordExpired
 
@@ -1141,16 +1214,12 @@ public class IdentityUILocalizer
     /// <summary>Title of the Terms of Service page.</summary>
     public virtual HtmlString Terms_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Terms_PageTitle));
 
-
     /// <summary>Header of the Terms of Service page.</summary>
     public virtual HtmlString Terms_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Terms_PageHeader));
 
-
     /// <summary>Get Organization name.</summary>
     public virtual HtmlString OrganizationName(string organization) {
-        var orgName = string.Format(CultureInfo.CurrentUICulture, IdentityLabels.OrganizationName);
-        if (string.IsNullOrWhiteSpace(orgName)) return new HtmlString(organization);
-        return new HtmlString(orgName);
+        return new HtmlString(organization);
     }
     /// <summary>Get Organization name.</summary>
     public virtual string ApplicationName(string applicationName) {

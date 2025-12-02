@@ -60,7 +60,7 @@ const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
   { path: 'auth-renew', component: AuthRenewComponent },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent, pathMatch: 'full', data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
+  { path: 'home', component: HomeComponent, pathMatch: 'full', data: { shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'Breadcrumb.Home', isHome: true } } },
   {
     path: 'not-found', component: HttpStatusComponent, data: {
       code: '404',
@@ -80,30 +80,30 @@ const routes: Routes = [
   {
     path: '', canActivate: [AuthGuardService], children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent, data: { breadcrumb: { title: 'Home', isHome: true } } },
+      { path: 'dashboard', component: DashboardComponent, data: { breadcrumb: { title: 'Breadcrumb.Home', isHome: true } } },
       {
         path: 'campaigns',
-        data: { breadcrumb: { title: 'Campaigns' } },
+        data: { breadcrumb: { title: 'Breadcrumb.Campaigns' } },
         children: [
           { path: '', component: CampaignsComponent, pathMatch: 'full' },
-          { path: 'add-campaign', component: CampaignCreateComponent, data: { breadcrumb: { title: 'Create' } } },
+          { path: 'add-campaign', component: CampaignCreateComponent, data: { breadcrumb: { title: 'Breadcrumb.Create' } } },
           {
             path: ':campaignId', component: CampaignEditComponent,
-            data: { breadcrumb: { title: 'Edit' } },
+            data: { breadcrumb: { title: 'Breadcrumb.Edit' } },
             children: [
               { path: '', redirectTo: 'campaign-details', pathMatch: 'full' },
-              { path: 'campaign-details', component: CampaignDetailsEditComponent, data: { breadcrumb: { title: 'Basic Information' } } },
-              { path: 'campaign-content', component: CampaignContentEditComponent, data: { breadcrumb: { title: 'Content' } } },
-              { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'Reports' } } },
-              { path: 'campaign-messages', component: CampaignMessagesComponent, data: { breadcrumb: { title: 'History' } } },
-              // { path: 'campaign-message-timeline/:messageId', component: CampaignMessageTimelineComponent, data: { breadcrumb: { title: 'Timeline' } } }
+              { path: 'campaign-details', component: CampaignDetailsEditComponent, data: { breadcrumb: { title: 'Breadcrumb.BasicInformation' } } },
+              { path: 'campaign-content', component: CampaignContentEditComponent, data: { breadcrumb: { title: 'Breadcrumb.Content' } } },
+              { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'Breadcrumb.Reports' } } },
+              { path: 'campaign-messages', component: CampaignMessagesComponent, data: { breadcrumb: { title: 'Breadcrumb.History' } } },
+              // { path: 'campaign-message-timeline/:messageId', component: CampaignMessageTimelineComponent, data: { breadcrumb: { title: 'Breadcrumb.Timeline' } } }
               {
                 path: 'campaign-message-timeline',
-                data: { breadcrumb: { title: 'Timeline' } },
+                data: { breadcrumb: { title: 'Breadcrumb.Timeline' } },
                 children: [
                   {
                     path: ':contactId',
-                    data: { breadcrumb: { title: 'Delivery Information' } },
+                    data: { breadcrumb: { title: 'Breadcrumb.DeliveryInformation' } },
                     component: CampaignMessageTimelineComponent
                   }
                 ]
@@ -112,78 +112,78 @@ const routes: Routes = [
           },
         ]
       },
-      { path: 'message-types', component: MessageTypesComponent, data: { breadcrumb: { title: 'Message Types' } } },
+      { path: 'message-types', component: MessageTypesComponent, data: { breadcrumb: { title: 'Breadcrumb.MessageTypes' } } },
       {
         path: 'distribution-lists',
-        data: { breadcrumb: { title: 'Distribution Lists' } },
+        data: { breadcrumb: { title: 'Breadcrumb.DistributionLists' } },
         children: [
           { path: '', component: DistributionListsComponent, pathMatch: 'full' },
           {
             path: ':distributionListId', component: DistributionListEditComponent,
-            data: { breadcrumb: { title: 'Edit' } },
+            data: { breadcrumb: { title: 'Breadcrumb.Edit' } },
             children: [
               { path: '', redirectTo: 'distribution-list-details', pathMatch: 'full' },
-              { path: 'distribution-list-details', component: DistributionListDetailsEditComponent, data: { breadcrumb: { title: 'Basic Information' } } },
-              { path: 'distribution-list-contacts', component: DistributionListContactsComponent, data: { breadcrumb: { title: 'Contacts' } } }
+              { path: 'distribution-list-details', component: DistributionListDetailsEditComponent, data: { breadcrumb: { title: 'Breadcrumb.BasicInformation' } } },
+              { path: 'distribution-list-contacts', component: DistributionListContactsComponent, data: { breadcrumb: { title: 'Breadcrumb.Contacts' } } }
             ]
           },
         ]
       }, {
         path: 'contacts',
-        data: { breadcrumb: { title: 'Contacts' } },
+        data: { breadcrumb: { title: 'Breadcrumb.Contacts' } },
         children: [
           { path: '', component: ContactsListComponent, pathMatch: 'full' },
           {
             path: ':contactId', component: ContactComponent,
-            data: { breadcrumb: { title: 'Edit' } },
+            data: { breadcrumb: { title: 'Breadcrumb.Edit' } },
             children: [
               { path: '', redirectTo: 'contact-details', pathMatch: 'full' },
-              { path: 'contact-details', component: ContactDetailsComponent, data: { breadcrumb: { title: 'Basic Information' } } },
-              { path: 'contact-campaigns', component: ContactCampaignsComponent, data: { breadcrumb: { title: 'Campaigns' } } },
-              { path: 'contact-preferences', component: ContactPreferencesComponent, data: { breadcrumb: { title: 'Communication Details' } } }
+              { path: 'contact-details', component: ContactDetailsComponent, data: { breadcrumb: { title: 'Breadcrumb.BasicInformation' } } },
+              { path: 'contact-campaigns', component: ContactCampaignsComponent, data: { breadcrumb: { title: 'Breadcrumb.Campaigns' } } },
+              { path: 'contact-preferences', component: ContactPreferencesComponent, data: { breadcrumb: { title: 'Breadcrumb.CommunicationDetails' } } }
             ]
           },
         ]
       },
       {
         path: 'templates',
-        data: { breadcrumb: { title: 'Templates' } },
+        data: { breadcrumb: { title: 'Breadcrumb.Templates' } },
         children: [
           { path: '', component: TemplatesComponent, pathMatch: 'full' },
-          { path: 'add-template', component: TemplateCreateComponent, data: { breadcrumb: { title: 'Create' } } },
+          { path: 'add-template', component: TemplateCreateComponent, data: { breadcrumb: { title: 'Breadcrumb.Create' } } },
           {
             path: ':templateId', component: TemplateEditComponent,
-            data: { breadcrumb: { title: 'Edit' } },
+            data: { breadcrumb: { title: 'Breadcrumb.Edit' } },
             children: [
               { path: '', redirectTo: 'template-details', pathMatch: 'full' },
-              { path: 'template-details', component: TemplateDetailsEditComponent, data: { breadcrumb: { title: 'Basic Information' } } },
-              { path: 'template-content', component: TemplateContentEditComponent, data: { breadcrumb: { title: 'Content' } } }
+              { path: 'template-details', component: TemplateDetailsEditComponent, data: { breadcrumb: { title: 'Breadcrumb.BasicInformation' } } },
+              { path: 'template-content', component: TemplateContentEditComponent, data: { breadcrumb: { title: 'Breadcrumb.Content' } } }
             ]
           },
         ]
       },
       {
         path: 'settings',
-        data: { breadcrumb: { title: 'Settings' } },
+        data: { breadcrumb: { title: 'Breadcrumb.Settings' } },
         component: SettingsComponent
       }, {
         path: 'message-events',
-        data: { breadcrumb: { title: 'Message Events' } },
+        data: { breadcrumb: { title: 'Breadcrumb.MessageEvents' } },
         component: MessageEventsComponent
       },
       {
         path: 'media',
-        data: { breadcrumb: { title: 'Files' } },
+        data: { breadcrumb: { title: 'Breadcrumb.Files' } },
         children: [
           { path: '', component: MediaLibraryComponent, pathMatch: 'full' },
-          { path: 'root', redirectTo: '', pathMatch: 'full', data: { breadcrumb: { title: 'Files' } } },
+          { path: 'root', redirectTo: '', pathMatch: 'full', data: { breadcrumb: { title: 'Breadcrumb.Files' } } },
           {
             path: ':folderId', component: MediaLibraryComponent,
-            data: { breadcrumb: { title: 'Folder' } }
+            data: { breadcrumb: { title: 'Breadcrumb.Folder' } }
           },
           {
             path: ':folderId/:documentId', component: DocumentEditComponent,
-            data: { breadcrumb: { title: 'Edit' } }
+            data: { breadcrumb: { title: 'Breadcrumb.Edit' } }
           },
         ]
       },

@@ -1,8 +1,5 @@
 import { Component, EventEmitter, forwardRef, Inject, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Subject, combineLatest } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-
 import { APP_LANGUAGES, MenuOption } from '@indice/ng-components';
 import { AppLanguagesService } from '../../services/app-languages.service';
 
@@ -16,11 +13,10 @@ import { AppLanguagesService } from '../../services/app-languages.service';
         }],
     standalone: false
 })
-export class LocalDropDownMenuComponent implements OnInit, ControlValueAccessor {
+export class LocalDropDownMenuComponent implements ControlValueAccessor {
   private _onChange$: any | undefined = undefined;
   private _onTouched$: any | undefined = undefined;
   private _expanded = false;
-  private readonly destroy$ = new Subject<void>();
 
   constructor(@Inject(APP_LANGUAGES) private _lang: AppLanguagesService) { }
 
@@ -36,22 +32,6 @@ export class LocalDropDownMenuComponent implements OnInit, ControlValueAccessor 
 
   public set expanded(value: boolean) {
     this._expanded = value;
-  }
-
-  public ngOnInit(): void {
-    // Dynamically translate placeholder, fallback already set.
-    combineLatest([
-      this._lang.translateKey(this.placeholder)
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([translatedPlaceholder]) => {
-        this.placeholder = translatedPlaceholder || this.placeholder;
-      });
-  }
-
-  public ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   public isSelected(option: MenuOption): boolean {

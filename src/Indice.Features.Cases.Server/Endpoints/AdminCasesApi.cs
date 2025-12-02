@@ -45,10 +45,15 @@ internal static class AdminCasesApi
             .WithName(nameof(AdminCasesHandlers.CreateDraftAdminCase))
             .WithSummary("Create a new case in draft mode.");
 
-        group.MapGet("{caseId}/attachments", AdminCasesHandlers.GetCaseAttachments)
-            .WithName(nameof(AdminCasesHandlers.GetCaseAttachments))
-            .WithSummary("Get a list of Attachments for a CaseId")
+        group.MapPost("{caseId}/data/init", AdminCasesHandlers.InitializeCaseData)
+            .WithName(nameof(AdminCasesHandlers.InitializeCaseData))
+            .WithSummary("Initialize and retrieve the initial data for a draft case")
             .RequireAuthorization(policy => policy.RequireCasesRecordAccess());
+
+        group.MapGet("{caseId}/attachments", AdminCasesHandlers.GetCaseAttachments)
+          .WithName(nameof(AdminCasesHandlers.GetCaseAttachments))
+          .WithSummary("Get a list of Attachments for a CaseId")
+          .RequireAuthorization(policy => policy.RequireCasesRecordAccess());
 
         group.MapPost("{caseId}/attachments", AdminCasesHandlers.UploadAdminCaseAttachment)
             .WithName(nameof(AdminCasesHandlers.UploadAdminCaseAttachment))

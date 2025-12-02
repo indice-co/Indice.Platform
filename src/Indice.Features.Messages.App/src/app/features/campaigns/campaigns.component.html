@@ -1,7 +1,8 @@
-﻿<lib-view-layout [title]="'Campaigns.Title' | translate"
+<lib-view-layout [title]="'Campaigns.Title' | translate"
   [busy]="!items"
   [actions]="actions"
   [meta-items]="metaItems"
+  [search-placeholder] ="'Shared.Search' | translate"
   (onAction)="actionHandler($event)"
   (onSearch)="searchChanged($event)">
   <lib-list-view [items]="items"

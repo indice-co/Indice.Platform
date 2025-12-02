@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Text.Json.Nodes;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
@@ -19,8 +18,8 @@ internal static class AdminContactsHandlers
         return TypedResults.Ok(contacts);
     }
 
-    public static async Task<Results<Ok<Contact>, NotFound>> GetContactData(ClaimsPrincipal currentUser, IOptions<CasesOptions> casesOptions, IContactProvider customerIntegrationService, string reference, string caseTypeCode) {
-        var contactData = await customerIntegrationService.GetByReferenceAsync(currentUser.UserToActor(casesOptions.Value), reference, caseTypeCode);
+    public static async Task<Results<Ok<Contact>, NotFound>> GetContactByReference(ClaimsPrincipal currentUser, IOptions<CasesOptions> casesOptions, IContactProvider customerIntegrationService, string reference) {
+        var contactData = await customerIntegrationService.GetByReferenceAsync(currentUser.UserToActor(casesOptions.Value), reference);
         if (contactData == null) {
             return TypedResults.NotFound();
         }

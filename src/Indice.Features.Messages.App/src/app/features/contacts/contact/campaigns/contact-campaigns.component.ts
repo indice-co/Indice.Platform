@@ -53,6 +53,7 @@ export class ContactCampaignsComponent extends BaseListComponent<Campaign> imple
       .subscribe(translated => {
         this.sortOptions = this.sortOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));
       });
+
   }
 
   public override ngOnDestroy(): void {
