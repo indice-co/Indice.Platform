@@ -80,11 +80,11 @@
     }
 
     .form-container input[type="submit"] {
-        @apply mt-3 btn-info;
+        @apply !mt-3 !inline-flex !items-center !px-2.5 !py-1.5 !border !border-transparent !text-xs !font-medium !rounded !shadow-sm !text-white !bg-blue-600 hover:!bg-blue-700 focus:!outline-none focus:!ring-1 focus:!ring-offset-1 focus:!ring-blue-500;
     }
 
     .form-container input[type="submit"][disabled] {
-        @apply mt-3 btn-info opacity-50 cursor-not-allowed;
+        @apply !mt-3 !inline-flex !items-center !px-2.5 !py-1.5 !border !border-transparent !text-xs !font-medium !rounded !shadow-sm !text-white !bg-blue-600 !opacity-50 !cursor-not-allowed;
     }
 
     .form-container .hideContent {

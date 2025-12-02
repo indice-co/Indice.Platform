@@ -52,7 +52,8 @@
                 {{contact.item.firstName }} {{ contact.item.lastName }}</span>
                 <span id="privacy-setting-0-description"
                   [class]="contact.selected ? 'block text-sm text-gray-700' : 'block text-sm'">
-                  Αριθμός αναφοράς: {{contact.item.reference}} @if (contact.item?.tin) {
+                  Αριθμός αναφοράς: {{contact.item.reference}}
+                @if (contact.item.tin) {
                   <span>, ΑΦΜ: {{contact.item.tin}}</span>
                 }
               </span>

@@ -19,7 +19,7 @@
                 d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
               </svg>
             }
-            @if (entry.comment && !entry.comment?.attachment?.id) {
+            @if (entry.comment && !entry.comment.attachment?.id) {
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-4 w-4"
@@ -32,7 +32,7 @@
                   d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                 </svg>
               }
-              @if (entry.comment && entry.comment?.attachment?.id) {
+              @if (entry.comment && entry.comment.attachment?.id) {
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-4 w-4"
@@ -50,10 +50,10 @@
                 @if (entry.isCheckpoint) {
                   <span>{{entry.checkpoint?.checkpointType?.title ?? entry.checkpoint?.checkpointType?.code}}</span>
                 }
-                @if (entry.comment && !entry.comment?.attachment?.id) {
+                @if (entry.comment && !entry.comment.attachment?.id) {
                   <span>Σχόλιο</span>
                 }
-                @if (entry.comment && entry.comment?.attachment?.id) {
+                @if (entry.comment && entry.comment.attachment?.id) {
                   <span>Επισύναψη Αρχείου</span>
                 }
                 @if (entry.checkpoint?.checkpointType?.private) {
