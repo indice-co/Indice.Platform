@@ -56,9 +56,9 @@ public interface ICasesManager
     Task<CaseAttachmentResultSet> GetAttachments(Guid caseId);
 
     /// <summary>
-    /// <inheritdoc cref="CasesManagerHttpClient.GetCaseSubscribersAsync(Guid, int?, int?, string, string, string)"/>
+    /// <inheritdoc cref="CasesManagerHttpClient.GetCaseTypeSubscribersAsync(string, int?, int?, string, string, IEnumerable{string}, IEnumerable{string}, IEnumerable{Guid})"/>
     /// </summary>
-    Task<NotificationSubscriptionResultSet> GetCaseSubscriptions(Guid caseId, int? page, int? size, string sort, string search, string? groupId);
+    Task<NotificationSubscriptionResultSet> GetCaseTypeSubscribers(string caseTypeCode, int? page, int? size, string sort, string search, string[]? email, string[]? groupId);
 
     /// <summary>
     /// <inheritdoc cref="CasesManagerHttpClient.AddApprovalAsync(Guid, WorkflowAddApprovalRequest)"/>

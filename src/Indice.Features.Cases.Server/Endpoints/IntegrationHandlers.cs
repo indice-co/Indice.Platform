@@ -174,32 +174,25 @@ internal static class IntegrationHandlers
     public static async Task<Ok<ResultSet<CaseAttachment>>> GetAttachments(Guid caseId, IAdminCaseService adminCaseService) =>
         TypedResults.Ok(await adminCaseService.GetAttachments(caseId));
 
-    public static async Task<Results<Ok<ResultSet<NotificationSubscription>>, NotFound>> GetCaseSubscribers(
-        Guid caseId,
+    public static async Task<Results<Ok<ResultSet<NotificationSubscription>>, NotFound>> GetCaseTypeSubscribers(
+        string caseTypeCode,
         [AsParameters] ListOptions options,
-        string? groupId,
-        IAdminCaseService adminCaseService,
+        [AsParameters] NotificationFilter filter,
+        ICaseTypeService caseTypeService,
         INotificationSubscriptionService service
     ) {
-        var @case = await adminCaseService.GetCaseById(caseId, fetchPublicData: false, includeAttachmentData: false);
-        if (@case is null) {
+        var caseType = await caseTypeService.Get(caseTypeCode);
+        if (caseType is null) {
             return TypedResults.NotFound();
         }
-        var filter = new NotificationFilter {
-            CaseTypeIds = [@case.CaseType.Id]
+
+        var internalFilter = new NotificationFilter {
+            CaseTypeIds = [caseType.Id],
+            GroupId = filter.GroupId ?? [],
+            Email = filter.Email ?? []
         };
 
-        // When groupId query param exists, enforce this subscriber's group.
-        if (groupId is not null) {
-            filter.GroupId = [groupId];
-        }
-
-        // If groupId query is not set and case has groupId, use the case.GroupId for filtering
-        if (groupId is null && @case.GroupId is not null) {
-            filter.GroupId = [@case.GroupId];
-        }
-
-        return TypedResults.Ok(await service.GetSubscribers(ListOptions.Create(options, filter)));
+        return TypedResults.Ok(await service.GetSubscribers(ListOptions.Create(options, internalFilter)));
     }
 
     public class AttachFileRequest

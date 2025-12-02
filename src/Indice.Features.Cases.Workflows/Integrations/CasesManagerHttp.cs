@@ -115,7 +115,7 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
     public async Task<CaseApproval?> GetLastApproval(Guid caseId) {
         try {
             return await _client.GetLastApprovalAsync(caseId);
-        } catch (ApiException ex) when(ex.StatusCode == (int)System.Net.HttpStatusCode.NotFound) {
+        } catch (ApiException ex) when (ex.StatusCode == (int)System.Net.HttpStatusCode.NotFound) {
             return null!;
         }
     }
@@ -131,6 +131,15 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
     }
 
     /// <inheritdoc />
-    public async Task<NotificationSubscriptionResultSet> GetCaseSubscriptions(Guid caseId, int? page, int? size, string sort, string search, string? groupId) =>
-        await _client.GetCaseSubscribersAsync(caseId, page, size, sort, search, groupId);
+    public async Task<NotificationSubscriptionResultSet> GetCaseTypeSubscribers(string caseTypeCode, int? page, int? size, string sort, string search, string[]? email, string[]? groupId) =>
+        await _client.GetCaseTypeSubscribersAsync(
+            caseTypeCode: caseTypeCode,
+            page: page,
+            size: size,
+            sort: sort,
+            search: search,
+            email: email ?? [],
+            groupId: groupId ?? [],
+            caseTypeIds: []
+        );
 }

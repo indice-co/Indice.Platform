@@ -1933,7 +1933,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
         }
 
         /// <summary>
-        /// Get case notification subscribers.
+        /// Get case type subscribers.
         /// </summary>
         /// <param name="page">The current page of the list. Default is 1.</param>
         /// <param name="size">The size of the list. Default is 100</param>
@@ -1941,13 +1941,13 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// <param name="search">A search term used to limit the results of the list.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<NotificationSubscriptionResultSet> GetCaseSubscribersAsync(System.Guid caseId, int? page, int? size, string sort, string search, string groupId) {
-            return GetCaseSubscribersAsync(caseId, page, size, sort, search, groupId, System.Threading.CancellationToken.None);
+        public virtual System.Threading.Tasks.Task<NotificationSubscriptionResultSet> GetCaseTypeSubscribersAsync(string caseTypeCode, int? page, int? size, string sort, string search, System.Collections.Generic.IEnumerable<string> email, System.Collections.Generic.IEnumerable<string> groupId, System.Collections.Generic.IEnumerable<System.Guid> caseTypeIds) {
+            return GetCaseTypeSubscribersAsync(caseTypeCode, page, size, sort, search, email, groupId, caseTypeIds, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Get case notification subscribers.
+        /// Get case type subscribers.
         /// </summary>
         /// <param name="page">The current page of the list. Default is 1.</param>
         /// <param name="size">The size of the list. Default is 100</param>
@@ -1955,9 +1955,18 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// <param name="search">A search term used to limit the results of the list.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<NotificationSubscriptionResultSet> GetCaseSubscribersAsync(System.Guid caseId, int? page, int? size, string sort, string search, string groupId, System.Threading.CancellationToken cancellationToken) {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
+        public virtual async System.Threading.Tasks.Task<NotificationSubscriptionResultSet> GetCaseTypeSubscribersAsync(string caseTypeCode, int? page, int? size, string sort, string search, System.Collections.Generic.IEnumerable<string> email, System.Collections.Generic.IEnumerable<string> groupId, System.Collections.Generic.IEnumerable<System.Guid> caseTypeIds, System.Threading.CancellationToken cancellationToken) {
+            if (caseTypeCode == null)
+                throw new System.ArgumentNullException("caseTypeCode");
+
+            if (email == null)
+                throw new System.ArgumentNullException("email");
+
+            if (groupId == null)
+                throw new System.ArgumentNullException("groupId");
+
+            if (caseTypeIds == null)
+                throw new System.ArgumentNullException("caseTypeIds");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -1968,9 +1977,9 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
                     var urlBuilder_ = new System.Text.StringBuilder();
 
-                    // Operation Path: "api/manage/workflow-integration/{caseId}/subscribers"
-                    urlBuilder_.Append("api/manage/workflow-integration/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    // Operation Path: "api/manage/workflow-integration/case-types/{caseTypeCode}/subscribers"
+                    urlBuilder_.Append("api/manage/workflow-integration/case-types/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseTypeCode, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/subscribers");
                     urlBuilder_.Append('?');
                     if (page != null) {
@@ -1985,9 +1994,9 @@ namespace Indice.Features.Cases.Workflows.Integrations
                     if (search != null) {
                         urlBuilder_.Append(System.Uri.EscapeDataString("Search")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(search, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
-                    if (groupId != null) {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("groupId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(groupId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
+                    foreach (var item_ in email) { urlBuilder_.Append(System.Uri.EscapeDataString("Email")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
+                    foreach (var item_ in groupId) { urlBuilder_.Append(System.Uri.EscapeDataString("GroupId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
+                    foreach (var item_ in caseTypeIds) { urlBuilder_.Append(System.Uri.EscapeDataString("CaseTypeIds")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
                     urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
