@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Types;
+﻿
+using Indice.AspNetCore;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
 using Microsoft.AspNetCore.Http;

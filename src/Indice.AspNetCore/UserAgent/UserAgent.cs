@@ -1,15 +1,16 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 using Indice.Types;
 using Microsoft.Net.Http.Headers;
 using UAParser;
 
-namespace Indice.Features.Identity.Core.Types;
+namespace Indice.AspNetCore;
 
 /// <summary>Models a user agent (browser) type, extracting various useful information.</summary>
 public class UserAgent
 {
-    private static readonly Parser Parser = Parser.GetDefault();
-
+    private static readonly Lazy<Parser> LazyParser = new(CreateParser, LazyThreadSafetyMode.ExecutionAndPublication);
+    private static Parser Parser => LazyParser.Value;
     /// <summary>Creates a new instance of <see cref="UserAgent"/> class, accepting the <see cref="HeaderNames.UserAgent"/> header value as parameter.</summary>
     /// <param name="userAgentHeader">The <see cref="HeaderNames.UserAgent"/> header value.</param>
     /// <exception cref="ArgumentNullException"></exception>
@@ -21,6 +22,24 @@ public class UserAgent
         DisplayName = $"{FormatUserAgentInfo(clientInfo?.UA)} on {Os}".Trim();
         DevicePlatform = DecideDevicePlatform(Os);
         DeviceModel = FormatDeviceInfo(clientInfo?.Device);
+    }
+    /// <summary>
+    /// Creates and initializes a UAParser <see cref="Parser"/> instance from the embedded <c>regexes.yaml</c> resource.
+    /// Loads the resource from the executing assembly. If the resource cannot be found, falls back to the default parser.
+    /// </summary>
+    /// <returns>A configured <see cref="Parser"/> instance.</returns>
+    private static Parser CreateParser() {
+        var assembly = Assembly.GetExecutingAssembly();
+        const string resourceName = "Indice.AspNetCore.UserAgent.regexes.yaml";
+
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        if (stream is null)
+            return Parser.GetDefault();
+
+        using var reader = new StreamReader(stream, Encoding.UTF8);
+        var yaml = reader.ReadToEnd();
+
+        return Parser.FromYaml(yaml);
     }
 
     /// <summary>The device model.</summary>
@@ -100,6 +119,9 @@ public class UserAgent
             case string x when x.Contains("iPhone", StringComparison.OrdinalIgnoreCase):
                 devicePlatform = DevicePlatform.iOS;
                 break;
+            case string x when x.Contains("iOS", StringComparison.OrdinalIgnoreCase):
+                devicePlatform = DevicePlatform.iOS;
+                break;
             case string x when x.Contains("Android", StringComparison.OrdinalIgnoreCase):
                 devicePlatform = DevicePlatform.Android;
                 break;
@@ -107,6 +129,9 @@ public class UserAgent
                 devicePlatform = DevicePlatform.Windows;
                 break;
             case string x when x.Contains("Linux", StringComparison.OrdinalIgnoreCase):
+                devicePlatform = DevicePlatform.Linux;
+                break;
+            case string x when x.Contains("Ubuntu", StringComparison.OrdinalIgnoreCase):
                 devicePlatform = DevicePlatform.Linux;
                 break;
             case string x when x.Contains("Mac", StringComparison.OrdinalIgnoreCase):
