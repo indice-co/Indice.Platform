@@ -24,9 +24,7 @@ public class IdentityServerOptionsConfigure(IOptions<IdentityUIOptions> identity
 
     ///<inheritdoc/>
     public void Configure(IdentityServerOptions options) {
-        if (!string.IsNullOrEmpty(_identityUiOptions.OnBoardingPage)) {
-            options.UserInteraction.CreateAccountUrl = _identityUiOptions.OnBoardingPage.ToLowerInvariant();
-        }
+        Configure(null, options);
     }
 }
 #endif
