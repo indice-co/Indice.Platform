@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../node_modules/@indice/ng-components";
 @plugin "@tailwindcss/forms";
 @import "../node_modules/@indice/ng-components/src/styles.css";
 
