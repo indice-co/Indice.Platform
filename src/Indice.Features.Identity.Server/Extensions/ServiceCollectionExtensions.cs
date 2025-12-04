@@ -141,6 +141,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.UserInteraction.ErrorIdParameter = "errorId";
             options.EmitScopesAsSpaceDelimitedStringInJwt = true;
 #if NET9_0_OR_GREATER
+            options.KeyManagement.Enabled = false;
+            options.Endpoints.EnablePushedAuthorizationEndpoint = false;
             var licenseKey = configuration.GetIdentityOption<string?>(ExtendedIdentityServerOptions.Name, "DuendeLicenseKey");
             if (!string.IsNullOrEmpty(licenseKey))
                 options.LicenseKey = licenseKey;

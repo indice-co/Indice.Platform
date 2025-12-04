@@ -65,7 +65,7 @@ public static class IdentityBuilderUIExtensions
             }
         });
 #if NET9_0_OR_GREATER
-        services.AddSingleton<IPostConfigureOptions<IdentityServerOptions>, IdentityServerOptionsPostConfigure>();
+        services.AddSingleton<IConfigureOptions<IdentityServerOptions>, IdentityServerOptionsConfigure>();
 #endif
         services.PostConfigure<AntiforgeryOptions>(options => {
             options.HeaderName = "X-XSRF-TOKEN";
