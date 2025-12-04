@@ -11,7 +11,8 @@ import { QueriesModalComponent } from 'src/app/shared/components/query-modal/que
 
 @Component({
     selector: 'app-general-cases-component',
-    templateUrl: './general-cases.component.html'
+    templateUrl: './general-cases.component.html',
+    standalone: false
 })
 export class GeneralCasesComponent extends BaseListComponent<CasePartial> implements OnInit {
     public newItemLink = 'new-case';

@@ -3,9 +3,10 @@ import { CasesApiService } from 'src/app/core/services/cases-api.service';
 import { tap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-case-discard-draft',
-  templateUrl: './case-discard-draft.component.html',
-  styleUrls: ['./case-discard-draft.component.scss']
+    selector: 'app-case-discard-draft',
+    templateUrl: './case-discard-draft.component.html',
+    styleUrls: ['./case-discard-draft.component.css'],
+    standalone: false
 })
 export class CaseDiscardDraftComponent implements OnInit {
 

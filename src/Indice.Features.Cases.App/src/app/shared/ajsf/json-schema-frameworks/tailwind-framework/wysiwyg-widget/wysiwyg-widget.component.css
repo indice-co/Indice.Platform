@@ -1,3 +1,5 @@
+@reference "../../../../../../styles.css";
+
 ::ng-deep .ql-container {
     min-height: 100px;
 }
@@ -7,10 +9,9 @@
 }
 
 ::ng-deep .ql-container.ql-snow {
-    @apply rounded-b-lg;    
+    @apply rounded-b-lg;
 }
 
 ::ng-deep .ql-readonly .ql-container.ql-snow {
-    @apply rounded-t-lg;    
+    @apply rounded-t-lg;
 }
-

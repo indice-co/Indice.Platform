@@ -6,8 +6,9 @@ import Chart from 'chart.js/auto'
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-canvas-tile',
-  templateUrl: './canvas-tile.component.html'
+    selector: 'app-canvas-tile',
+    templateUrl: './canvas-tile.component.html',
+    standalone: false
 })
 export class CanvasTileComponent implements OnInit {
   @Input() canvasId: ReportTag | undefined;

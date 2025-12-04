@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ApprovalButtonsComponent } from './components/approval-buttons/approval-buttons.component';
 import { PageIllustrationComponent } from './components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './components/radio-buttons-list/radio-buttons-list.component';
@@ -32,80 +32,74 @@ import { QuillModule } from 'ngx-quill';
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
 import { BeautifyBooleanPipe, ValueFromPathPipe, ToReadableDatePipe } from './pipes.services';
 
-@NgModule({
-  declarations: [
-    // components
-    ApprovalButtonsComponent,
-    PageIllustrationComponent,
-    RadioButtonsListComponent,
-    SelectCaseTypeComponent,
-    SearchContactComponent,
-    CaseDetailInfoComponent,
-    CaseCustomActionComponent,
-    CanvasTileComponent,
-    DisplayCaseTypesComponent,
-    DeleteQueryModalComponent,
-    // ajsf
-    FileWidgetComponent,
-    TailwindFrameworkComponent,
-    SelectWidgetComponent,
-    SubmitWidgetComponent,
-    CurrencyWidgetComponent,
-    DateWidgetComponent,
-    LookupWidgetComponent,
-    InputWidgetComponent,
-    TextAreaWidgetComponent,
-    LookupSelectorWidgetComponent,
-    WysiwygWidgetComponent,
-    HrefWidgetComponent,
-    LabelOnlyWidgetComponent,
-    // pipes
-    BeautifyBooleanPipe,
-    ValueFromPathPipe,
-    ToReadableDatePipe
-  ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    JsonSchemaFormModule,
-    IndiceComponentsModule,
-    QuillModule.forRoot({
-      modules: {
-        toolbar: [
-          ['bold', 'italic', 'underline'],
-          [{ 'align': [] }],
-          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-          [{ 'indent': '-1' }, { 'indent': '+1' }],
-          ['clean'],
-        ]
-      }
-    }),
-    TranslateModule,
-    NgxMaskDirective,
-    NgxMaskPipe
-  ],
-  exports: [
-    // components
-    ApprovalButtonsComponent,
-    PageIllustrationComponent,
-    RadioButtonsListComponent,
-    SelectCaseTypeComponent,
-    SearchContactComponent,
-    CaseDetailInfoComponent,
-    CaseCustomActionComponent,
-    CanvasTileComponent,
-    // ajsf
-    TailwindFrameworkComponent,
-    // pipes
-    BeautifyBooleanPipe,
-    TranslateModule,
-    ValueFromPathPipe,
-    ToReadableDatePipe
-  ],
-  providers: [
-    provideNgxMask()
-  ]
-})
+@NgModule({ declarations: [
+        // components
+        ApprovalButtonsComponent,
+        PageIllustrationComponent,
+        RadioButtonsListComponent,
+        SelectCaseTypeComponent,
+        SearchContactComponent,
+        CaseDetailInfoComponent,
+        CaseCustomActionComponent,
+        CanvasTileComponent,
+        DisplayCaseTypesComponent,
+        DeleteQueryModalComponent,
+        // ajsf
+        FileWidgetComponent,
+        TailwindFrameworkComponent,
+        SelectWidgetComponent,
+        SubmitWidgetComponent,
+        CurrencyWidgetComponent,
+        DateWidgetComponent,
+        LookupWidgetComponent,
+        InputWidgetComponent,
+        TextAreaWidgetComponent,
+        LookupSelectorWidgetComponent,
+        WysiwygWidgetComponent,
+        HrefWidgetComponent,
+        LabelOnlyWidgetComponent,
+        // pipes
+        BeautifyBooleanPipe,
+        ValueFromPathPipe,
+        ToReadableDatePipe
+    ],
+    exports: [
+        // components
+        ApprovalButtonsComponent,
+        PageIllustrationComponent,
+        RadioButtonsListComponent,
+        SelectCaseTypeComponent,
+        SearchContactComponent,
+        CaseDetailInfoComponent,
+        CaseCustomActionComponent,
+        CanvasTileComponent,
+        // ajsf
+        TailwindFrameworkComponent,
+        // pipes
+        BeautifyBooleanPipe,
+        TranslateModule,
+        ValueFromPathPipe,
+        ToReadableDatePipe
+    ], imports: [CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        JsonSchemaFormModule,
+        IndiceComponentsModule,
+        QuillModule.forRoot({
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'align': [] }],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    [{ 'indent': '-1' }, { 'indent': '+1' }],
+                    ['clean'],
+                ]
+            }
+        }),
+        TranslateModule,
+        NgxMaskDirective,
+        NgxMaskPipe], providers: [
+        provideNgxMask(),
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class SharedModule { }
