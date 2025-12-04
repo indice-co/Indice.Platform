@@ -40,7 +40,7 @@ export class NotificationsComponent implements OnInit {
                 // create an initial view model that contains all categories and case types (and respects server-side ordering) with no active subs
                 this.displayNotificationSubscriptionsViewModel = this.createEmptyDisplayNotificationSubscriptionsViewModel(caseTypes.items!);
                 // add active subscriptions
-                this.addActiveSubscriptions(mySubscriptions.notificationSubscriptions!);
+                this.addActiveSubscriptions(mySubscriptions.items!);
                 this.loading = false;
             });
     }

@@ -22,9 +22,25 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
             fileParameter = new FileParameter(new MemoryStream(message.File.Data), message.File.Name, message.File.ContentType);
         }
 
-        await _client.SendMessageAsync(caseId, message.ReplyToCommentId, message.CheckpointTypeName, message.PrivateComment, message.Comment, new StreamFunc(), null, message.Data, fileParameter, actor.Id, actor.Reference, actor.GroupId, actor.Name, actor.Tin, actor.Email, actor.CurrentCulture);
+        await _client.SendMessageAsync(
+            caseId: caseId,
+            replyToCommentId: message.ReplyToCommentId,
+            checkpointTypeName: message.CheckpointTypeName,
+            privateComment: message.PrivateComment,
+            comment: message.Comment,            
+            fileName: message.File?.Name,
+            data: message.Data,
+            file: fileParameter,
+            actorId: actor.Id,
+            actorReference: actor.Reference,
+            actorGroupId: actor.GroupId,
+            actorName: actor.Name,
+            actorTin: actor.Tin,
+            actorEmail: actor.Email,
+            actorCurrentCulture: actor.CurrentCulture
+        );
     }
-    
+
     /// <inheritdoc />
     public async Task PatchData(Guid caseId, object data, bool patchPublicData = false) {
         await _client.PatchDataAsync(caseId, new PatchDataRequest {
@@ -41,16 +57,16 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
         });
     }
 
-    public async Task AttachFile(Guid caseId, Actor actor, File file, string? comment, string caseDataRootKey) {
+    public async Task<CasesAttachmentLink> AttachFile(Guid caseId, Actor actor, File file, string? comment, string caseDataRootKey) {
         ArgumentNullException.ThrowIfNull(actor);
         var fileParameter = new FileParameter(new MemoryStream(file.Data), file.Name, file.ContentType);
-        await _client.AttachFileAsync(caseId, fileParameter, comment, caseDataRootKey, actor.Id, actor.Reference, actor.GroupId, actor.Name, actor.Tin, actor.Email, actor.CurrentCulture);
+        return await _client.AttachFileAsync(caseId, fileParameter, comment, caseDataRootKey, actor.Id, actor.Reference, actor.GroupId, actor.Name, actor.Tin, actor.Email, actor.CurrentCulture);
     }
 
     public async Task<CaseAttachment?> GetAttachment(Guid caseId, Guid attachmentId) {
         try {
             return await _client.GetAttachmentAsync(caseId, attachmentId);
-        } catch (ApiException ex) when(ex.StatusCode == (int)System.Net.HttpStatusCode.NotFound) {
+        } catch (ApiException ex) when (ex.StatusCode == (int)System.Net.HttpStatusCode.NotFound) {
             return null!;
         }
     }
@@ -60,9 +76,8 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
     }
 
     /// <inheritdoc />
-    public async Task<bool> PatchMetadata(Guid caseId, IDictionary<string, string> metadata) {
-        return await _client.PatchMetadataAsync(caseId, metadata);
-    }
+    public async Task PatchMetadata(Guid caseId, IDictionary<string, string> metadata) => 
+        await _client.PatchMetadataAsync(caseId, metadata);
 
     /// <inheritdoc />
     public async Task AddApproval(Guid caseId, Approval action, string? reason, Actor actor) {
@@ -97,18 +112,30 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
     public async Task<CaseApproval?> GetLastApproval(Guid caseId) {
         try {
             return await _client.GetLastApprovalAsync(caseId);
-        } catch (ApiException ex) when(ex.StatusCode == (int)System.Net.HttpStatusCode.NotFound) {
+        } catch (ApiException ex) when (ex.StatusCode == (int)System.Net.HttpStatusCode.NotFound) {
             return null!;
         }
     }
-    
+
     /// <inheritdoc />
     public async Task RemoveAssignment(Guid caseId) {
         await _client.RemoveAssignmentAsync(caseId);
     }
-    
+
     /// <inheritdoc />
     public async Task RollbackApproval(Guid caseId) {
         await _client.RollbackApprovalAsync(caseId);
     }
+
+    /// <inheritdoc />
+    public async Task<NotificationSubscriptionResultSet> GetCaseTypeSubscribers(string caseTypeCode, int? page, int? size, string sort, string search, string[]? email, string[]? groupId) =>
+        await _client.GetCaseTypeSubscribersAsync(
+            caseTypeCode: caseTypeCode,
+            page: page,
+            size: size,
+            sort: sort,
+            search: search,
+            emails: email ?? [],
+            groupIds: groupId ?? []
+        );
 }
