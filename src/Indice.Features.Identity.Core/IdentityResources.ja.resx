@@ -420,4 +420,25 @@
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
     <value>続行するには、新しいパスワードを選択してください。</value>
   </data>
+  <data name="MfaAddEmailValidationEmailEmpty" xml:space="preserve">
+    <value>続行する前に確認できるよう、メールアドレスを選択してください。</value>
+  </data>
+  <data name="MfaAddEmailValidationEmailAlreadyConfirmed" xml:space="preserve">
+    <value>あなたのメールアドレスは既に確認済みです。MFAを有効にするために続行してください。</value>
+  </data>
+  <data name="MfaAddEmailSuccessMessage" xml:space="preserve">
+    <value>アカウントのMFAを正常に有効にしました。アカウントにアクセスするためにログインしてください。</value>
+  </data>
+  <data name="MfaVerifyEmailValidationMissingEmail" xml:space="preserve">
+    <value>メールで受信したコードを入力してください。</value>
+  </data>
+  <data name="MfaVerifyEmailSuccessMessage" xml:space="preserve">
+    <value>あなたのメールアドレスは正常に検証されました。続行するために「次へ」ボタンを押してください。</value>
+  </data>
+  <data name="MfaEmailBody" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="MfaEmailSubject" xml:space="preserve">
+    <value>OTPでサインイン</value>
+  </data>
 </root>

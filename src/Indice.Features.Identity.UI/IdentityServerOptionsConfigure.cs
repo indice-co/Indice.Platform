@@ -11,16 +11,20 @@ namespace Indice.Features.Identity.UI;
 /// This runs after the options are bound and allows customizing properties 
 /// such as IssuerUri, endpoints, or URLs based on application state.
 /// </summary>
-public class IdentityServerOptionsPostConfigure(IOptions<IdentityUIOptions> identityUiOptions) : IPostConfigureOptions<IdentityServerOptions>
+public class IdentityServerOptionsConfigure(IOptions<IdentityUIOptions> identityUiOptions) : IConfigureOptions<IdentityServerOptions>
 {
     private readonly IdentityUIOptions _identityUiOptions = identityUiOptions.Value;
 
     ///<inheritdoc/>
-    public void PostConfigure(string? name, IdentityServerOptions options) {
-        options.KeyManagement.Enabled = false;
+    public void Configure(string? name, IdentityServerOptions options) {
         if (!string.IsNullOrEmpty(_identityUiOptions.OnBoardingPage)) {
             options.UserInteraction.CreateAccountUrl = _identityUiOptions.OnBoardingPage.ToLowerInvariant();
         }
+    }
+
+    ///<inheritdoc/>
+    public void Configure(IdentityServerOptions options) {
+        Configure(null, options);
     }
 }
 #endif

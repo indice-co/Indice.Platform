@@ -81,7 +81,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
         switchMap(caseDetails =>
           iif(
             () => caseDetails.draft === true,
-            this.getCustomerData$(caseDetails), // In draft mode we must prefill the form data
+            this.initializeData$(caseDetails), // In draft mode we must prefill the form data          
             of(caseDetails)
           )
         ),
@@ -93,15 +93,14 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
       );
   }
 
-  private getCustomerData$(caseDetails: Case): Observable<Case> {
+  private initializeData$(caseDetails: Case): Observable<Case> {
     return this.api
-      .getContactData(caseDetails.ownerId ?? "", caseDetails.caseType?.code ?? "")
+      .initializeCaseData(caseDetails.id!)
       .pipe(
         map(contactData => {
           caseDetails.data = contactData;
           return caseDetails;
         }));
-
   }
 
   onActionsChanged() {
