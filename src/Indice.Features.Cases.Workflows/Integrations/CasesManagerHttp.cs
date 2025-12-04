@@ -1,5 +1,4 @@
 using Indice.Features.Cases.Workflows.Models;
-using Indice.Types;
 
 namespace Indice.Features.Cases.Workflows.Integrations;
 
@@ -28,8 +27,7 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
             replyToCommentId: message.ReplyToCommentId,
             checkpointTypeName: message.CheckpointTypeName,
             privateComment: message.PrivateComment,
-            comment: message.Comment,
-            fileStreamAccessor: new StreamFunc(),
+            comment: message.Comment,            
             fileName: message.File?.Name,
             data: message.Data,
             file: fileParameter,
@@ -59,10 +57,10 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
         });
     }
 
-    public async Task AttachFile(Guid caseId, Actor actor, File file, string? comment, string caseDataRootKey) {
+    public async Task<CasesAttachmentLink> AttachFile(Guid caseId, Actor actor, File file, string? comment, string caseDataRootKey) {
         ArgumentNullException.ThrowIfNull(actor);
         var fileParameter = new FileParameter(new MemoryStream(file.Data), file.Name, file.ContentType);
-        await _client.AttachFileAsync(caseId, fileParameter, comment, caseDataRootKey, actor.Id, actor.Reference, actor.GroupId, actor.Name, actor.Tin, actor.Email, actor.CurrentCulture);
+        return await _client.AttachFileAsync(caseId, fileParameter, comment, caseDataRootKey, actor.Id, actor.Reference, actor.GroupId, actor.Name, actor.Tin, actor.Email, actor.CurrentCulture);
     }
 
     public async Task<CaseAttachment?> GetAttachment(Guid caseId, Guid attachmentId) {
@@ -78,9 +76,8 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
     }
 
     /// <inheritdoc />
-    public async Task<bool> PatchMetadata(Guid caseId, IDictionary<string, string> metadata) {
-        return await _client.PatchMetadataAsync(caseId, metadata);
-    }
+    public async Task PatchMetadata(Guid caseId, IDictionary<string, string> metadata) => 
+        await _client.PatchMetadataAsync(caseId, metadata);
 
     /// <inheritdoc />
     public async Task AddApproval(Guid caseId, Approval action, string? reason, Actor actor) {
@@ -138,8 +135,7 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
             size: size,
             sort: sort,
             search: search,
-            email: email ?? [],
-            groupId: groupId ?? [],
-            caseTypeIds: []
+            emails: email ?? [],
+            groupIds: groupId ?? []
         );
 }

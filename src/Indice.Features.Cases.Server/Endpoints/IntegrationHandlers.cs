@@ -36,13 +36,16 @@ internal static class IntegrationHandlers
     }
 
     /// <summary>Sends a message as Admin for a case.</summary>
-    public static async Task SendMessage(
+    public static async Task<NoContent> SendMessage(
         Guid caseId,
         MessageRequest request,
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions,
         IAdminCaseMessageService adminCaseMessageService
-    ) => await adminCaseMessageService.Send(caseId, currentUser.UserToActor(casesOptions.Value), request.Message, request.Actor.ToAuditMeta());
+    ) {
+        await adminCaseMessageService.Send(caseId, currentUser.UserToActor(casesOptions.Value), request.Message, request.Actor.ToAuditMeta());
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Assign a Case to an Actor.</summary>
     public static async Task<Ok<AuditMeta>> Assign(Guid caseId, UserActor actor, IAdminCaseService adminCaseService) {
@@ -51,15 +54,18 @@ internal static class IntegrationHandlers
     }
 
     /// <summary>Adds an approval to a case.</summary>
-    public static async Task AddApproval(
+    public static async Task<NoContent> AddApproval(
         Guid caseId,
         WorkflowAddApprovalRequest request,
         IAdminCaseMessageService caseMessageService,
         ICaseApprovalService caseApprovalService
-    ) => await caseApprovalService.AddApproval(caseId, null, request.Action, request.Reason, request.WorkflowActor.ToAuditMeta());
+    ) {
+        await caseApprovalService.AddApproval(caseId, null, request.Action, request.Reason, request.WorkflowActor.ToAuditMeta());
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Adds an approval with comment. To be used when adding an approval </summary>
-    public static async Task AddApprovalWithComment(
+    public static async Task<NoContent> AddApprovalWithComment(
         Guid caseId,
         WorkflowAddApprovalWithCommentRequest request,
         ClaimsPrincipal currentUser,
@@ -75,14 +81,17 @@ internal static class IntegrationHandlers
         }, createdBy);
 
         await caseApprovalService.AddApproval(caseId, null, request.Action, request.Reason, createdBy);
+        return TypedResults.NoContent();
     }
 
     /// <summary>Remove the assignment of a Case.</summary>
-    public static async Task RemoveAssignment(Guid caseId, IAdminCaseService adminCaseService)
-        => await adminCaseService.RemoveAssignment(caseId);
+    public static async Task<NoContent> RemoveAssignment(Guid caseId, IAdminCaseService adminCaseService) {
+        await adminCaseService.RemoveAssignment(caseId);
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Remove assignment for a Case and Send a message for the UI.</summary>
-    public static async Task<Ok> BlockPreviousApprover(
+    public static async Task<NoContent> BlockPreviousApprover(
         Guid caseId,
         UserActor actor,
         ClaimsPrincipal currentUser,
@@ -98,47 +107,60 @@ internal static class IntegrationHandlers
 
         await adminCaseService.RemoveAssignment(caseId);
 
-        return TypedResults.Ok();
+        return TypedResults.NoContent();
     }
 
     /// <summary>Rollback an approval</summary>
     /// <param name="caseId"></param>
     /// <param name="caseApprovalService"></param>
-    public static async Task RollbackApproval(Guid caseId, ICaseApprovalService caseApprovalService)
-        => await caseApprovalService.RollbackApproval(caseId);
+    public static async Task<NoContent> RollbackApproval(Guid caseId, ICaseApprovalService caseApprovalService) {
+        await caseApprovalService.RollbackApproval(caseId);
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Sync private data to public</summary>
     /// <param name="caseId"></param>
     /// <param name="adminCaseService"></param>
-    public static async Task PublishPrivateData(Guid caseId, IAdminCaseService adminCaseService)
-        => await adminCaseService.PublishData(caseId);
+    public static async Task<NoContent> PublishPrivateData(Guid caseId, IAdminCaseService adminCaseService) {
+        await adminCaseService.PublishData(caseId);
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Patch Case Data.</summary>
-    public static async Task PatchData(
+    public static async Task<NoContent> PatchData(
         Guid caseId,
         PatchDataRequest request,
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService
-    ) => await adminCaseService.PatchCaseData(currentUser.UserToActor(casesOptions.Value), caseId, request.CaseData, request.PatchPublicData);
+    ) {
+        await adminCaseService.PatchCaseData(currentUser.UserToActor(casesOptions.Value), caseId, request.CaseData, request.PatchPublicData);
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Patch Case Data.</summary>
-    public static async Task JsonPatchData(
+    public static async Task<NoContent> JsonPatchData(
         Guid caseId,
         JsonPatchDataRequest request,
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService
-    ) => await adminCaseService.PatchCaseData(currentUser.UserToActor(casesOptions.Value), caseId, request.JsonPatch, request.PatchPublicData);
+    ) {
+        await adminCaseService.PatchCaseData(currentUser.UserToActor(casesOptions.Value), caseId, request.JsonPatch, request.PatchPublicData);
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Patch Case Metadata</summary>
-    public static async Task<bool> PatchMetadata(
+    public static async Task<NoContent> PatchMetadata(
         Guid caseId,
         Dictionary<string, string> metadata,
         IAdminCaseService adminCaseService
-    ) => await adminCaseService.PatchCaseMetadata(caseId, metadata);
+    ) {
+        await adminCaseService.PatchCaseMetadata(caseId, metadata);
+        return TypedResults.NoContent();
+    }
 
-    public static async Task<Results<Ok, ValidationProblem>> AttachFile(
+    public static async Task<Results<Ok<CasesAttachmentLink>, ValidationProblem>> AttachFile(
         Guid caseId,
         AttachFileRequest request,
         IAdminCaseService adminCaseService,
@@ -162,7 +184,13 @@ internal static class IntegrationHandlers
 
         await adminCaseService.PatchCaseData(request.Actor, caseId, new JsonObject { [request.DataRootKey] = attachmentId.ToString() }, false);
 
-        return TypedResults.Ok();
+        return TypedResults.Ok(new CasesAttachmentLink {
+            Id = attachmentId.Value,
+            FileGuid = attachmentId.Value,
+            ContentType = file.ContentType,
+            Label = file.FileName,
+            Size = file.Length
+        });
     }
 
     public static async Task<Results<Ok<CaseAttachment>, NotFound>> GetAttachment(Guid caseId, Guid attachmentId, IAdminCaseService adminCaseService) {
@@ -177,7 +205,8 @@ internal static class IntegrationHandlers
     public static async Task<Results<Ok<ResultSet<NotificationSubscription>>, NotFound>> GetCaseTypeSubscribers(
         string caseTypeCode,
         [AsParameters] ListOptions options,
-        [AsParameters] NotificationFilter filter,
+        string[]? groupIds,
+        string[]? emails,
         ICaseTypeService caseTypeService,
         INotificationSubscriptionService service
     ) {
@@ -188,8 +217,8 @@ internal static class IntegrationHandlers
 
         var internalFilter = new NotificationFilter {
             CaseTypeIds = [caseType.Id],
-            GroupId = filter.GroupId ?? [],
-            Email = filter.Email ?? []
+            GroupId = [.. groupIds ?? []],
+            Email = [.. emails ?? []]
         };
 
         return TypedResults.Ok(await service.GetSubscribers(ListOptions.Create(options, internalFilter)));
@@ -345,7 +374,7 @@ internal static class IntegrationHandlers
                 ActorName = form[nameof(ActorName)],
                 ActorTin = form[nameof(ActorTin)],
                 ActorEmail = form[nameof(ActorEmail)],
-                ActorCurrentCulture = form[nameof(ActorCurrentCulture)],
+                ActorCurrentCulture = form[nameof(ActorCurrentCulture)]
             };
         }
     }

@@ -27,7 +27,7 @@ export interface ICasesApiService {
      * @param caseType (optional) 
      * @return OK
      */
-    getAccessRules(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, role?: string | undefined, groupId?: string | undefined, checkpoint?: string | undefined, caseType?: string | undefined): Observable<AccessRuleResultSet>;
+    getAccessRules(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, role?: string | null | undefined, groupId?: string | null | undefined, checkpoint?: string | null | undefined, caseType?: string | null | undefined): Observable<AccessRuleResultSet>;
     /**
      * Add a new Access rule for admin Users.
      * @return No Content
@@ -108,16 +108,16 @@ export interface ICasesApiService {
      */
     createDraftAdminCase(body: CreateDraftCaseRequest): Observable<CreateCaseResponse>;
     /**
-     * Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.
-     * @return No Content
-     */
-    updateAdminCase(caseId: string, body: UpdateCaseRequest): Observable<void>;
-    /**
      * Gets a case with the specified id.
      * @param fetchPublicData (optional) 
      * @return OK
      */
     getCaseById(caseId: string, fetchPublicData?: boolean | undefined): Observable<Case>;
+    /**
+     * Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.
+     * @return No Content
+     */
+    updateAdminCase(caseId: string, body: UpdateCaseRequest): Observable<void>;
     /**
      * Deletes a draft case with the specified id.
      * @return No Content
@@ -188,7 +188,7 @@ export interface ICasesApiService {
      */
     adminAddComment(caseId: string, body: SendCommentRequest): Observable<void>;
     /**
-     * Retrieve the initial data of the case
+     * Initialize and retrieve the initial data for a draft case
      * @return OK
      */
     initializeCaseData(caseId: string): Observable<any>;
@@ -204,6 +204,7 @@ export interface ICasesApiService {
     patchCaseMetadata(caseId: string, body: { [key: string]: string; }): Observable<void>;
     /**
      * Publish private data to public data of a case.
+     * @return OK
      */
     publishCasePrivateData(caseId: string): Observable<void>;
     /**
@@ -266,7 +267,7 @@ export interface ICasesApiService {
      * Get the notification subscriptions for a user.
      * @return OK
      */
-    getMySubscriptions(): Observable<NotificationSubscriptionResponse>;
+    getMySubscriptions(): Observable<NotificationSubscriptionResultSet>;
     /**
      * Store user's subscription settings.
      * @return No Content
@@ -304,7 +305,7 @@ export class CasesApiService implements ICasesApiService {
 
     constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(CASES_API_BASE_URL) baseUrl?: string) {
         this.http = http;
-        this.baseUrl = baseUrl ?? "";
+        this.baseUrl = baseUrl ?? "https://localhost:2001/";
     }
 
     /**
@@ -319,7 +320,7 @@ export class CasesApiService implements ICasesApiService {
      * @param caseType (optional) 
      * @return OK
      */
-    getAccessRules(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, role?: string | undefined, groupId?: string | undefined, checkpoint?: string | undefined, caseType?: string | undefined): Observable<AccessRuleResultSet> {
+    getAccessRules(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, role?: string | null | undefined, groupId?: string | null | undefined, checkpoint?: string | null | undefined, caseType?: string | null | undefined): Observable<AccessRuleResultSet> {
         let url_ = this.baseUrl + "/manage/access-rules?";
         if (page === null)
             throw new globalThis.Error("The parameter 'page' cannot be null.");
@@ -337,21 +338,13 @@ export class CasesApiService implements ICasesApiService {
             throw new globalThis.Error("The parameter 'search' cannot be null.");
         else if (search !== undefined)
             url_ += "Search=" + encodeURIComponent("" + search) + "&";
-        if (role === null)
-            throw new globalThis.Error("The parameter 'role' cannot be null.");
-        else if (role !== undefined)
+        if (role !== undefined && role !== null)
             url_ += "Role=" + encodeURIComponent("" + role) + "&";
-        if (groupId === null)
-            throw new globalThis.Error("The parameter 'groupId' cannot be null.");
-        else if (groupId !== undefined)
+        if (groupId !== undefined && groupId !== null)
             url_ += "GroupId=" + encodeURIComponent("" + groupId) + "&";
-        if (checkpoint === null)
-            throw new globalThis.Error("The parameter 'checkpoint' cannot be null.");
-        else if (checkpoint !== undefined)
+        if (checkpoint !== undefined && checkpoint !== null)
             url_ += "Checkpoint=" + encodeURIComponent("" + checkpoint) + "&";
-        if (caseType === null)
-            throw new globalThis.Error("The parameter 'caseType' cannot be null.");
-        else if (caseType !== undefined)
+        if (caseType !== undefined && caseType !== null)
             url_ += "CaseType=" + encodeURIComponent("" + caseType) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1528,93 +1521,6 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.
-     * @return No Content
-     */
-    updateAdminCase(caseId: string, body: UpdateCaseRequest): Observable<void> {
-        let url_ = this.baseUrl + "/manage/cases/{caseId}";
-        if (caseId === undefined || caseId === null)
-            throw new globalThis.Error("The parameter 'caseId' must be defined.");
-        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdateAdminCase(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processUpdateAdminCase(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processUpdateAdminCase(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = HttpValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("Not Found", status, _responseText, _headers);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
      * Gets a case with the specified id.
      * @param fetchPublicData (optional) 
      * @return OK
@@ -1665,6 +1571,93 @@ export class CasesApiService implements ICasesApiService {
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = Case.fromJS(resultData200);
             return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.
+     * @return No Content
+     */
+    updateAdminCase(caseId: string, body: UpdateCaseRequest): Observable<void> {
+        let url_ = this.baseUrl + "/manage/cases/{caseId}";
+        if (caseId === undefined || caseId === null)
+            throw new globalThis.Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateAdminCase(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateAdminCase(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateAdminCase(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -2892,7 +2885,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Retrieve the initial data of the case
+     * Initialize and retrieve the initial data for a draft case
      * @return OK
      */
     initializeCaseData(caseId: string): Observable<any> {
@@ -3151,6 +3144,7 @@ export class CasesApiService implements ICasesApiService {
 
     /**
      * Publish private data to public data of a case.
+     * @return OK
      */
     publishCasePrivateData(caseId: string): Observable<void> {
         let url_ = this.baseUrl + "/manage/cases/{caseId}/publish-private-data";
@@ -3187,7 +3181,11 @@ export class CasesApiService implements ICasesApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
@@ -4071,7 +4069,7 @@ export class CasesApiService implements ICasesApiService {
      * Get the notification subscriptions for a user.
      * @return OK
      */
-    getMySubscriptions(): Observable<NotificationSubscriptionResponse> {
+    getMySubscriptions(): Observable<NotificationSubscriptionResultSet> {
         let url_ = this.baseUrl + "/manage/my/notifications";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -4090,14 +4088,14 @@ export class CasesApiService implements ICasesApiService {
                 try {
                     return this.processGetMySubscriptions(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<NotificationSubscriptionResponse>;
+                    return _observableThrow(e) as any as Observable<NotificationSubscriptionResultSet>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<NotificationSubscriptionResponse>;
+                return _observableThrow(response_) as any as Observable<NotificationSubscriptionResultSet>;
         }));
     }
 
-    protected processGetMySubscriptions(response: HttpResponseBase): Observable<NotificationSubscriptionResponse> {
+    protected processGetMySubscriptions(response: HttpResponseBase): Observable<NotificationSubscriptionResultSet> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -4108,12 +4106,15 @@ export class CasesApiService implements ICasesApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = NotificationSubscriptionResponse.fromJS(resultData200);
+            result200 = NotificationSubscriptionResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("Bad Request", status, _responseText, _headers);
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -4190,7 +4191,10 @@ export class CasesApiService implements ICasesApiService {
             }));
         } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("Bad Request", status, _responseText, _headers);
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -4564,13 +4568,13 @@ export class CasesApiService implements ICasesApiService {
 }
 
 export class AccessRule implements IAccessRule {
-    id?: string | undefined;
-    ruleCaseId?: string | undefined;
-    ruleCaseTypeId?: string | undefined;
-    ruleCheckpointTypeId?: string | undefined;
-    memberRole?: string | undefined;
-    memberGroupId?: string | undefined;
-    memberUserId?: string | undefined;
+    id?: string;
+    ruleCaseId?: string;
+    ruleCaseTypeId?: string;
+    ruleCheckpointTypeId?: string;
+    memberRole?: string;
+    memberGroupId?: string;
+    memberUserId?: string;
     accessLevel?: number;
 
     constructor(data?: IAccessRule) {
@@ -4617,22 +4621,19 @@ export class AccessRule implements IAccessRule {
 }
 
 export interface IAccessRule {
-    id?: string | undefined;
-    ruleCaseId?: string | undefined;
-    ruleCaseTypeId?: string | undefined;
-    ruleCheckpointTypeId?: string | undefined;
-    memberRole?: string | undefined;
-    memberGroupId?: string | undefined;
-    memberUserId?: string | undefined;
+    id?: string;
+    ruleCaseId?: string;
+    ruleCaseTypeId?: string;
+    ruleCheckpointTypeId?: string;
+    memberRole?: string;
+    memberGroupId?: string;
+    memberUserId?: string;
     accessLevel?: number;
 }
 
-/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class AccessRuleResultSet implements IAccessRuleResultSet {
-    /** Total results count. */
     count?: number;
-    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
-    items?: AccessRule[] | undefined;
+    items?: AccessRule[];
 
     constructor(data?: IAccessRuleResultSet) {
         if (data) {
@@ -4673,17 +4674,14 @@ export class AccessRuleResultSet implements IAccessRuleResultSet {
     }
 }
 
-/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface IAccessRuleResultSet {
-    /** Total results count. */
     count?: number;
-    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
-    items?: AccessRule[] | undefined;
+    items?: AccessRule[];
 }
 
 export class ActionRequest implements IActionRequest {
     id?: string;
-    value?: string | undefined;
+    value?: string;
 
     constructor(data?: IActionRequest) {
         if (data) {
@@ -4718,16 +4716,16 @@ export class ActionRequest implements IActionRequest {
 
 export interface IActionRequest {
     id?: string;
-    value?: string | undefined;
+    value?: string;
 }
 
 export class AddAccessRuleRequest implements IAddAccessRuleRequest {
-    ruleCaseId?: string | undefined;
-    ruleCheckpointTypeId?: string | undefined;
-    ruleCaseTypeId?: string | undefined;
-    memberRole?: string | undefined;
-    memberGroupId?: string | undefined;
-    memberUserId?: string | undefined;
+    ruleCaseId?: string;
+    ruleCheckpointTypeId?: string;
+    ruleCaseTypeId?: string;
+    memberRole?: string;
+    memberGroupId?: string;
+    memberUserId?: string;
     accessLevel?: number;
 
     constructor(data?: IAddAccessRuleRequest) {
@@ -4772,20 +4770,20 @@ export class AddAccessRuleRequest implements IAddAccessRuleRequest {
 }
 
 export interface IAddAccessRuleRequest {
-    ruleCaseId?: string | undefined;
-    ruleCheckpointTypeId?: string | undefined;
-    ruleCaseTypeId?: string | undefined;
-    memberRole?: string | undefined;
-    memberGroupId?: string | undefined;
-    memberUserId?: string | undefined;
+    ruleCaseId?: string;
+    ruleCheckpointTypeId?: string;
+    ruleCaseTypeId?: string;
+    memberRole?: string;
+    memberGroupId?: string;
+    memberUserId?: string;
     accessLevel?: number;
 }
 
 export class AddCaseAccessRuleRequest implements IAddCaseAccessRuleRequest {
-    ruleCheckpointTypeId?: string | undefined;
-    memberRole?: string | undefined;
-    memberGroupId?: string | undefined;
-    memberUserId?: string | undefined;
+    ruleCheckpointTypeId?: string;
+    memberRole?: string;
+    memberGroupId?: string;
+    memberUserId?: string;
     accessLevel?: number;
 
     constructor(data?: IAddCaseAccessRuleRequest) {
@@ -4826,10 +4824,10 @@ export class AddCaseAccessRuleRequest implements IAddCaseAccessRuleRequest {
 }
 
 export interface IAddCaseAccessRuleRequest {
-    ruleCheckpointTypeId?: string | undefined;
-    memberRole?: string | undefined;
-    memberGroupId?: string | undefined;
-    memberUserId?: string | undefined;
+    ruleCheckpointTypeId?: string;
+    memberRole?: string;
+    memberGroupId?: string;
+    memberUserId?: string;
     accessLevel?: number;
 }
 
@@ -4840,7 +4838,7 @@ export enum Approval {
 
 export class ApprovalRequest implements IApprovalRequest {
     action?: Approval;
-    comment?: string | undefined;
+    comment?: string;
 
     constructor(data?: IApprovalRequest) {
         if (data) {
@@ -4875,14 +4873,14 @@ export class ApprovalRequest implements IApprovalRequest {
 
 export interface IApprovalRequest {
     action?: Approval;
-    comment?: string | undefined;
+    comment?: string;
 }
 
 export class AuditMeta implements IAuditMeta {
-    id?: string | undefined;
-    name?: string | undefined;
-    email?: string | undefined;
-    when?: Date | undefined;
+    id?: string;
+    name?: string;
+    email?: string;
+    when?: Date;
 
     constructor(data?: IAuditMeta) {
         if (data) {
@@ -4920,34 +4918,34 @@ export class AuditMeta implements IAuditMeta {
 }
 
 export interface IAuditMeta {
-    id?: string | undefined;
-    name?: string | undefined;
-    email?: string | undefined;
-    when?: Date | undefined;
+    id?: string;
+    name?: string;
+    email?: string;
+    when?: Date;
 }
 
 export class Case implements ICase {
+    attachments?: CaseAttachment[];
+    approvers?: AuditMeta[];
     id?: string;
-    referenceNumber?: number | undefined;
-    ownerId?: string | undefined;
-    ownerName?: string | undefined;
-    ownerTin?: string | undefined;
-    userId?: string | undefined;
-    createdByWhen?: Date | undefined;
-    createdById?: string | undefined;
-    createdByEmail?: string | undefined;
-    createdByName?: string | undefined;
+    referenceNumber?: number;
+    ownerId?: string;
+    ownerName?: string;
+    ownerTin?: string;
+    userId?: string;
+    createdByWhen?: Date;
+    createdById?: string;
+    createdByEmail?: string;
+    createdByName?: string;
     caseType?: CaseTypePartial;
     metadata?: { [key: string]: string; } | undefined;
-    groupId?: string | undefined;
+    groupId?: string;
     checkpointType?: CheckpointType;
-    data?: any | undefined;
-    assignedToName?: string | undefined;
-    channel?: string | undefined;
+    data?: any;
+    assignedToName?: string;
+    channel?: string;
     draft?: boolean;
     accessLevel?: number;
-    attachments?: CaseAttachment[] | undefined;
-    approvers?: AuditMeta[] | undefined;
 
     constructor(data?: ICase) {
         if (data) {
@@ -4960,6 +4958,16 @@ export class Case implements ICase {
 
     init(_data?: any) {
         if (_data) {
+            if (Array.isArray(_data["attachments"])) {
+                this.attachments = [] as any;
+                for (let item of _data["attachments"])
+                    this.attachments!.push(CaseAttachment.fromJS(item));
+            }
+            if (Array.isArray(_data["approvers"])) {
+                this.approvers = [] as any;
+                for (let item of _data["approvers"])
+                    this.approvers!.push(AuditMeta.fromJS(item));
+            }
             this.id = _data["id"];
             this.referenceNumber = _data["referenceNumber"];
             this.ownerId = _data["ownerId"];
@@ -4985,16 +4993,6 @@ export class Case implements ICase {
             this.channel = _data["channel"];
             this.draft = _data["draft"];
             this.accessLevel = _data["accessLevel"];
-            if (Array.isArray(_data["attachments"])) {
-                this.attachments = [] as any;
-                for (let item of _data["attachments"])
-                    this.attachments!.push(CaseAttachment.fromJS(item));
-            }
-            if (Array.isArray(_data["approvers"])) {
-                this.approvers = [] as any;
-                for (let item of _data["approvers"])
-                    this.approvers!.push(AuditMeta.fromJS(item));
-            }
         }
     }
 
@@ -5007,6 +5005,16 @@ export class Case implements ICase {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.attachments)) {
+            data["attachments"] = [];
+            for (let item of this.attachments)
+                data["attachments"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.approvers)) {
+            data["approvers"] = [];
+            for (let item of this.approvers)
+                data["approvers"].push(item ? item.toJSON() : undefined as any);
+        }
         data["id"] = this.id;
         data["referenceNumber"] = this.referenceNumber;
         data["ownerId"] = this.ownerId;
@@ -5032,42 +5040,32 @@ export class Case implements ICase {
         data["channel"] = this.channel;
         data["draft"] = this.draft;
         data["accessLevel"] = this.accessLevel;
-        if (Array.isArray(this.attachments)) {
-            data["attachments"] = [];
-            for (let item of this.attachments)
-                data["attachments"].push(item ? item.toJSON() : undefined as any);
-        }
-        if (Array.isArray(this.approvers)) {
-            data["approvers"] = [];
-            for (let item of this.approvers)
-                data["approvers"].push(item ? item.toJSON() : undefined as any);
-        }
         return data;
     }
 }
 
 export interface ICase {
+    attachments?: CaseAttachment[];
+    approvers?: AuditMeta[];
     id?: string;
-    referenceNumber?: number | undefined;
-    ownerId?: string | undefined;
-    ownerName?: string | undefined;
-    ownerTin?: string | undefined;
-    userId?: string | undefined;
-    createdByWhen?: Date | undefined;
-    createdById?: string | undefined;
-    createdByEmail?: string | undefined;
-    createdByName?: string | undefined;
+    referenceNumber?: number;
+    ownerId?: string;
+    ownerName?: string;
+    ownerTin?: string;
+    userId?: string;
+    createdByWhen?: Date;
+    createdById?: string;
+    createdByEmail?: string;
+    createdByName?: string;
     caseType?: CaseTypePartial;
     metadata?: { [key: string]: string; } | undefined;
-    groupId?: string | undefined;
+    groupId?: string;
     checkpointType?: CheckpointType;
-    data?: any | undefined;
-    assignedToName?: string | undefined;
-    channel?: string | undefined;
+    data?: any;
+    assignedToName?: string;
+    channel?: string;
     draft?: boolean;
     accessLevel?: number;
-    attachments?: CaseAttachment[] | undefined;
-    approvers?: AuditMeta[] | undefined;
 }
 
 export class CaseActions implements ICaseActions {
@@ -5075,7 +5073,7 @@ export class CaseActions implements ICaseActions {
     hasUnassignment?: boolean;
     hasEdit?: boolean;
     hasApproval?: boolean;
-    customActions?: CustomCaseAction[] | undefined;
+    customActions?: CustomCaseAction[];
 
     constructor(data?: ICaseActions) {
         if (data) {
@@ -5127,15 +5125,15 @@ export interface ICaseActions {
     hasUnassignment?: boolean;
     hasEdit?: boolean;
     hasApproval?: boolean;
-    customActions?: CustomCaseAction[] | undefined;
+    customActions?: CustomCaseAction[];
 }
 
 export class CaseAttachment implements ICaseAttachment {
     id?: string;
-    fileName?: string | undefined;
-    contentType?: string | undefined;
-    fileExtension?: string | undefined;
-    data?: string | undefined;
+    fileName?: string;
+    contentType?: string;
+    fileExtension?: string;
+    data?: string;
 
     constructor(data?: ICaseAttachment) {
         if (data) {
@@ -5176,18 +5174,15 @@ export class CaseAttachment implements ICaseAttachment {
 
 export interface ICaseAttachment {
     id?: string;
-    fileName?: string | undefined;
-    contentType?: string | undefined;
-    fileExtension?: string | undefined;
-    data?: string | undefined;
+    fileName?: string;
+    contentType?: string;
+    fileExtension?: string;
+    data?: string;
 }
 
-/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class CaseAttachmentResultSet implements ICaseAttachmentResultSet {
-    /** Total results count. */
     count?: number;
-    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
-    items?: CaseAttachment[] | undefined;
+    items?: CaseAttachment[];
 
     constructor(data?: ICaseAttachmentResultSet) {
         if (data) {
@@ -5228,32 +5223,29 @@ export class CaseAttachmentResultSet implements ICaseAttachmentResultSet {
     }
 }
 
-/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface ICaseAttachmentResultSet {
-    /** Total results count. */
     count?: number;
-    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
-    items?: CaseAttachment[] | undefined;
+    items?: CaseAttachment[];
 }
 
 export class CasePartial implements ICasePartial {
     id?: string;
-    referenceNumber?: number | undefined;
-    ownerId?: string | undefined;
-    ownerName?: string | undefined;
-    ownerTin?: string | undefined;
-    userId?: string | undefined;
-    createdByWhen?: Date | undefined;
-    createdById?: string | undefined;
-    createdByEmail?: string | undefined;
-    createdByName?: string | undefined;
+    referenceNumber?: number;
+    ownerId?: string;
+    ownerName?: string;
+    ownerTin?: string;
+    userId?: string;
+    createdByWhen?: Date;
+    createdById?: string;
+    createdByEmail?: string;
+    createdByName?: string;
     caseType?: CaseTypePartial;
     metadata?: { [key: string]: string; } | undefined;
-    groupId?: string | undefined;
+    groupId?: string;
     checkpointType?: CheckpointType;
-    data?: any | undefined;
-    assignedToName?: string | undefined;
-    channel?: string | undefined;
+    data?: any;
+    assignedToName?: string;
+    channel?: string;
     draft?: boolean;
     accessLevel?: number;
 
@@ -5336,32 +5328,29 @@ export class CasePartial implements ICasePartial {
 
 export interface ICasePartial {
     id?: string;
-    referenceNumber?: number | undefined;
-    ownerId?: string | undefined;
-    ownerName?: string | undefined;
-    ownerTin?: string | undefined;
-    userId?: string | undefined;
-    createdByWhen?: Date | undefined;
-    createdById?: string | undefined;
-    createdByEmail?: string | undefined;
-    createdByName?: string | undefined;
+    referenceNumber?: number;
+    ownerId?: string;
+    ownerName?: string;
+    ownerTin?: string;
+    userId?: string;
+    createdByWhen?: Date;
+    createdById?: string;
+    createdByEmail?: string;
+    createdByName?: string;
     caseType?: CaseTypePartial;
     metadata?: { [key: string]: string; } | undefined;
-    groupId?: string | undefined;
+    groupId?: string;
     checkpointType?: CheckpointType;
-    data?: any | undefined;
-    assignedToName?: string | undefined;
-    channel?: string | undefined;
+    data?: any;
+    assignedToName?: string;
+    channel?: string;
     draft?: boolean;
     accessLevel?: number;
 }
 
-/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class CasePartialResultSet implements ICasePartialResultSet {
-    /** Total results count. */
     count?: number;
-    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
-    items?: CasePartial[] | undefined;
+    items?: CasePartial[];
 
     constructor(data?: ICasePartialResultSet) {
         if (data) {
@@ -5402,12 +5391,69 @@ export class CasePartialResultSet implements ICasePartialResultSet {
     }
 }
 
-/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface ICasePartialResultSet {
-    /** Total results count. */
     count?: number;
-    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
-    items?: CasePartial[] | undefined;
+    items?: CasePartial[];
+}
+
+export class CasesAttachmentLink implements ICasesAttachmentLink {
+    id?: string;
+    fileGuid?: string;
+    permaLink?: string;
+    label?: string;
+    size?: number;
+    sizeText?: string;
+    contentType?: string;
+
+    constructor(data?: ICasesAttachmentLink) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.fileGuid = _data["fileGuid"];
+            this.permaLink = _data["permaLink"];
+            this.label = _data["label"];
+            this.size = _data["size"];
+            this.sizeText = _data["sizeText"];
+            this.contentType = _data["contentType"];
+        }
+    }
+
+    static fromJS(data: any): CasesAttachmentLink {
+        data = typeof data === 'object' ? data : {};
+        let result = new CasesAttachmentLink();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["fileGuid"] = this.fileGuid;
+        data["permaLink"] = this.permaLink;
+        data["label"] = this.label;
+        data["size"] = this.size;
+        data["sizeText"] = this.sizeText;
+        data["contentType"] = this.contentType;
+        return data;
+    }
+}
+
+export interface ICasesAttachmentLink {
+    id?: string;
+    fileGuid?: string;
+    permaLink?: string;
+    label?: string;
+    size?: number;
+    sizeText?: string;
+    contentType?: string;
 }
 
 export enum CaseStatus {
@@ -5419,22 +5465,21 @@ export enum CaseStatus {
 
 export class CaseType implements ICaseType {
     id?: string;
-    code?: string | undefined;
-    title?: string | undefined;
-    description?: string | undefined;
-    dataSchema?: any | undefined;
-    layout?: any | undefined;
-    /** A type that models the translation of an object. */
+    code?: string;
+    title?: string;
+    description?: string;
+    dataSchema?: any;
+    layout?: any;
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
     layoutTranslations?: { [key: string]: string; } | undefined;
-    tags?: string | undefined;
-    config?: any | undefined;
-    canCreateRoles?: string | undefined;
+    tags?: string;
+    config?: any;
+    canCreateRoles?: string;
     isMenuItem?: boolean;
-    gridFilterConfig?: any | undefined;
-    gridColumnConfig?: any | undefined;
-    checkpointTypes?: CheckpointTypeDetails[] | undefined;
-    order?: number | undefined;
+    gridFilterConfig?: any;
+    gridColumnConfig?: any;
+    checkpointTypes?: CheckpointTypeDetails[];
+    order?: number;
 
     constructor(data?: ICaseType) {
         if (data) {
@@ -5529,42 +5574,40 @@ export class CaseType implements ICaseType {
 
 export interface ICaseType {
     id?: string;
-    code?: string | undefined;
-    title?: string | undefined;
-    description?: string | undefined;
-    dataSchema?: any | undefined;
-    layout?: any | undefined;
-    /** A type that models the translation of an object. */
+    code?: string;
+    title?: string;
+    description?: string;
+    dataSchema?: any;
+    layout?: any;
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
     layoutTranslations?: { [key: string]: string; } | undefined;
-    tags?: string | undefined;
-    config?: any | undefined;
-    canCreateRoles?: string | undefined;
+    tags?: string;
+    config?: any;
+    canCreateRoles?: string;
     isMenuItem?: boolean;
-    gridFilterConfig?: any | undefined;
-    gridColumnConfig?: any | undefined;
-    checkpointTypes?: CheckpointTypeDetails[] | undefined;
-    order?: number | undefined;
+    gridFilterConfig?: any;
+    gridColumnConfig?: any;
+    checkpointTypes?: CheckpointTypeDetails[];
+    order?: number;
 }
 
 export class CaseTypePartial implements ICaseTypePartial {
     id?: string;
-    code?: string | undefined;
-    title?: string | undefined;
-    description?: string | undefined;
-    dataSchema?: any | undefined;
-    layout?: any | undefined;
+    code?: string;
+    title?: string;
+    description?: string;
+    dataSchema?: any;
+    layout?: any;
     layoutTranslations?: { [key: string]: string; } | undefined;
-    tags?: string | undefined;
-    config?: any | undefined;
-    order?: number | undefined;
+    tags?: string;
+    config?: any;
+    order?: number;
     canCreateRoles?: string[] | undefined;
     category?: Category;
-    /** A type that models the translation of an object. */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
     isMenuItem?: boolean;
-    gridFilterConfig?: any | undefined;
-    gridColumnConfig?: any | undefined;
+    gridFilterConfig?: any;
+    gridColumnConfig?: any;
 
     constructor(data?: ICaseTypePartial) {
         if (data) {
@@ -5659,30 +5702,26 @@ export class CaseTypePartial implements ICaseTypePartial {
 
 export interface ICaseTypePartial {
     id?: string;
-    code?: string | undefined;
-    title?: string | undefined;
-    description?: string | undefined;
-    dataSchema?: any | undefined;
-    layout?: any | undefined;
+    code?: string;
+    title?: string;
+    description?: string;
+    dataSchema?: any;
+    layout?: any;
     layoutTranslations?: { [key: string]: string; } | undefined;
-    tags?: string | undefined;
-    config?: any | undefined;
-    order?: number | undefined;
+    tags?: string;
+    config?: any;
+    order?: number;
     canCreateRoles?: string[] | undefined;
     category?: Category;
-    /** A type that models the translation of an object. */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
     isMenuItem?: boolean;
-    gridFilterConfig?: any | undefined;
-    gridColumnConfig?: any | undefined;
+    gridFilterConfig?: any;
+    gridColumnConfig?: any;
 }
 
-/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class CaseTypePartialResultSet implements ICaseTypePartialResultSet {
-    /** Total results count. */
     count?: number;
-    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
-    items?: CaseTypePartial[] | undefined;
+    items?: CaseTypePartial[];
 
     constructor(data?: ICaseTypePartialResultSet) {
         if (data) {
@@ -5723,31 +5762,27 @@ export class CaseTypePartialResultSet implements ICaseTypePartialResultSet {
     }
 }
 
-/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface ICaseTypePartialResultSet {
-    /** Total results count. */
     count?: number;
-    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
-    items?: CaseTypePartial[] | undefined;
+    items?: CaseTypePartial[];
 }
 
 export class CaseTypeRequest implements ICaseTypeRequest {
-    id?: string | undefined;
+    id?: string;
     code?: string;
     title?: string;
-    description?: string | undefined;
+    description?: string;
     dataSchema?: any;
-    layout?: any | undefined;
-    /** A type that models the translation of an object. */
+    layout?: any;
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
     layoutTranslations?: { [key: string]: string; } | undefined;
-    tags?: string | undefined;
-    config?: any | undefined;
-    canCreateRoles?: string | undefined;
-    order?: number | undefined;
+    tags?: string;
+    config?: any;
+    canCreateRoles?: string;
+    order?: number;
     isMenuItem?: boolean;
-    gridFilterConfig?: any | undefined;
-    gridColumnConfig?: any | undefined;
+    gridFilterConfig?: any;
+    gridColumnConfig?: any;
 
     constructor(data?: ICaseTypeRequest) {
         if (data) {
@@ -5831,27 +5866,26 @@ export class CaseTypeRequest implements ICaseTypeRequest {
 }
 
 export interface ICaseTypeRequest {
-    id?: string | undefined;
+    id?: string;
     code?: string;
     title?: string;
-    description?: string | undefined;
+    description?: string;
     dataSchema?: any;
-    layout?: any | undefined;
-    /** A type that models the translation of an object. */
+    layout?: any;
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
     layoutTranslations?: { [key: string]: string; } | undefined;
-    tags?: string | undefined;
-    config?: any | undefined;
-    canCreateRoles?: string | undefined;
-    order?: number | undefined;
+    tags?: string;
+    config?: any;
+    canCreateRoles?: string;
+    order?: number;
     isMenuItem?: boolean;
-    gridFilterConfig?: any | undefined;
-    gridColumnConfig?: any | undefined;
+    gridFilterConfig?: any;
+    gridColumnConfig?: any;
 }
 
 export class CaseTypeTranslation implements ICaseTypeTranslation {
-    title?: string | undefined;
-    description?: string | undefined;
+    title?: string;
+    description?: string;
 
     constructor(data?: ICaseTypeTranslation) {
         if (data) {
@@ -5885,76 +5919,15 @@ export class CaseTypeTranslation implements ICaseTypeTranslation {
 }
 
 export interface ICaseTypeTranslation {
-    title?: string | undefined;
-    description?: string | undefined;
-}
-
-export class CasesAttachmentLink implements ICasesAttachmentLink {
-    id?: string;
-    fileGuid?: string;
-    permaLink?: string | undefined;
-    label?: string | undefined;
-    size?: number;
-    readonly sizeText?: string | undefined;
-    contentType?: string | undefined;
-
-    constructor(data?: ICasesAttachmentLink) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.fileGuid = _data["fileGuid"];
-            this.permaLink = _data["permaLink"];
-            this.label = _data["label"];
-            this.size = _data["size"];
-            (this as any).sizeText = _data["sizeText"];
-            this.contentType = _data["contentType"];
-        }
-    }
-
-    static fromJS(data: any): CasesAttachmentLink {
-        data = typeof data === 'object' ? data : {};
-        let result = new CasesAttachmentLink();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["fileGuid"] = this.fileGuid;
-        data["permaLink"] = this.permaLink;
-        data["label"] = this.label;
-        data["size"] = this.size;
-        data["sizeText"] = this.sizeText;
-        data["contentType"] = this.contentType;
-        return data;
-    }
-}
-
-export interface ICasesAttachmentLink {
-    id?: string;
-    fileGuid?: string;
-    permaLink?: string | undefined;
-    label?: string | undefined;
-    size?: number;
-    sizeText?: string | undefined;
-    contentType?: string | undefined;
+    title?: string;
+    description?: string;
 }
 
 export class Category implements ICategory {
     id?: string;
-    name?: string | undefined;
-    description?: string | undefined;
-    order?: number | undefined;
-    /** A type that models the translation of an object. */
+    name?: string;
+    description?: string;
+    order?: number;
     translations?: { [key: string]: CategoryTranslation; } | undefined;
 
     constructor(data?: ICategory) {
@@ -6008,16 +5981,15 @@ export class Category implements ICategory {
 
 export interface ICategory {
     id?: string;
-    name?: string | undefined;
-    description?: string | undefined;
-    order?: number | undefined;
-    /** A type that models the translation of an object. */
+    name?: string;
+    description?: string;
+    order?: number;
     translations?: { [key: string]: CategoryTranslation; } | undefined;
 }
 
 export class CategoryTranslation implements ICategoryTranslation {
-    name?: string | undefined;
-    description?: string | undefined;
+    name?: string;
+    description?: string;
 
     constructor(data?: ICategoryTranslation) {
         if (data) {
@@ -6051,15 +6023,15 @@ export class CategoryTranslation implements ICategoryTranslation {
 }
 
 export interface ICategoryTranslation {
-    name?: string | undefined;
-    description?: string | undefined;
+    name?: string;
+    description?: string;
 }
 
 export class Checkpoint implements ICheckpoint {
     id?: string;
     checkpointType?: CheckpointType;
-    completedDate?: Date | undefined;
-    dueDate?: Date | undefined;
+    completedDate?: Date;
+    dueDate?: Date;
 
     constructor(data?: ICheckpoint) {
         if (data) {
@@ -6099,18 +6071,17 @@ export class Checkpoint implements ICheckpoint {
 export interface ICheckpoint {
     id?: string;
     checkpointType?: CheckpointType;
-    completedDate?: Date | undefined;
-    dueDate?: Date | undefined;
+    completedDate?: Date;
+    dueDate?: Date;
 }
 
 export class CheckpointType implements ICheckpointType {
     id?: string;
-    code?: string | undefined;
-    title?: string | undefined;
-    description?: string | undefined;
+    code?: string;
+    title?: string;
+    description?: string;
     status?: CaseStatus;
-    private?: boolean | undefined;
-    /** A type that models the translation of an object. */
+    private?: boolean;
     translations?: { [key: string]: CheckpointTypeTranslation; } | undefined;
 
     constructor(data?: ICheckpointType) {
@@ -6168,19 +6139,18 @@ export class CheckpointType implements ICheckpointType {
 
 export interface ICheckpointType {
     id?: string;
-    code?: string | undefined;
-    title?: string | undefined;
-    description?: string | undefined;
+    code?: string;
+    title?: string;
+    description?: string;
     status?: CaseStatus;
-    private?: boolean | undefined;
-    /** A type that models the translation of an object. */
+    private?: boolean;
     translations?: { [key: string]: CheckpointTypeTranslation; } | undefined;
 }
 
 export class CheckpointTypeDetails implements ICheckpointTypeDetails {
     id?: string;
-    code?: string | undefined;
-    description?: string | undefined;
+    code?: string;
+    description?: string;
     status?: CaseStatus;
     private?: boolean;
     roles?: string[] | undefined;
@@ -6234,16 +6204,16 @@ export class CheckpointTypeDetails implements ICheckpointTypeDetails {
 
 export interface ICheckpointTypeDetails {
     id?: string;
-    code?: string | undefined;
-    description?: string | undefined;
+    code?: string;
+    description?: string;
     status?: CaseStatus;
     private?: boolean;
     roles?: string[] | undefined;
 }
 
 export class CheckpointTypeTranslation implements ICheckpointTypeTranslation {
-    title?: string | undefined;
-    description?: string | undefined;
+    title?: string;
+    description?: string;
 
     constructor(data?: ICheckpointTypeTranslation) {
         if (data) {
@@ -6277,15 +6247,15 @@ export class CheckpointTypeTranslation implements ICheckpointTypeTranslation {
 }
 
 export interface ICheckpointTypeTranslation {
-    title?: string | undefined;
-    description?: string | undefined;
+    title?: string;
+    description?: string;
 }
 
 export class Comment implements IComment {
     id?: string;
-    text?: string | undefined;
-    isCustomer?: boolean | undefined;
-    private?: boolean | undefined;
+    text?: string;
+    isCustomer?: boolean;
+    private?: boolean;
     attachment?: CasesAttachmentLink;
     replyToComment?: Comment;
 
@@ -6330,24 +6300,24 @@ export class Comment implements IComment {
 
 export interface IComment {
     id?: string;
-    text?: string | undefined;
-    isCustomer?: boolean | undefined;
-    private?: boolean | undefined;
+    text?: string;
+    isCustomer?: boolean;
+    private?: boolean;
     attachment?: CasesAttachmentLink;
     replyToComment?: Comment;
 }
 
 export class Contact implements IContact {
-    userId?: string | undefined;
-    reference?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    groupId?: string | undefined;
-    tin?: string | undefined;
-    metadata?: { [key: string]: string; } | undefined;
-    formData?: any | undefined;
+    userId?: string;
+    reference?: string;
+    email?: string;
+    phoneNumber?: string;
+    firstName?: string;
+    lastName?: string;
+    groupId?: string;
+    tin?: string;
+    metadata?: { [key: string]: string; };
+    formData?: any;
 
     constructor(data?: IContact) {
         if (data) {
@@ -6409,25 +6379,25 @@ export class Contact implements IContact {
 }
 
 export interface IContact {
-    userId?: string | undefined;
-    reference?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    groupId?: string | undefined;
-    tin?: string | undefined;
-    metadata?: { [key: string]: string; } | undefined;
-    formData?: any | undefined;
+    userId?: string;
+    reference?: string;
+    email?: string;
+    phoneNumber?: string;
+    firstName?: string;
+    lastName?: string;
+    groupId?: string;
+    tin?: string;
+    metadata?: { [key: string]: string; };
+    formData?: any;
 }
 
 export class ContactMeta implements IContactMeta {
-    userId?: string | undefined;
-    reference?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    tin?: string | undefined;
-    readonly fullName?: string | undefined;
+    userId?: string;
+    reference?: string;
+    firstName?: string;
+    lastName?: string;
+    tin?: string;
+    fullName?: string;
 
     constructor(data?: IContactMeta) {
         if (data) {
@@ -6445,7 +6415,7 @@ export class ContactMeta implements IContactMeta {
             this.firstName = _data["firstName"];
             this.lastName = _data["lastName"];
             this.tin = _data["tin"];
-            (this as any).fullName = _data["fullName"];
+            this.fullName = _data["fullName"];
         }
     }
 
@@ -6469,20 +6439,17 @@ export class ContactMeta implements IContactMeta {
 }
 
 export interface IContactMeta {
-    userId?: string | undefined;
-    reference?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    tin?: string | undefined;
-    fullName?: string | undefined;
+    userId?: string;
+    reference?: string;
+    firstName?: string;
+    lastName?: string;
+    tin?: string;
+    fullName?: string;
 }
 
-/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class ContactResultSet implements IContactResultSet {
-    /** Total results count. */
     count?: number;
-    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
-    items?: Contact[] | undefined;
+    items?: Contact[];
 
     constructor(data?: IContactResultSet) {
         if (data) {
@@ -6523,12 +6490,9 @@ export class ContactResultSet implements IContactResultSet {
     }
 }
 
-/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface IContactResultSet {
-    /** Total results count. */
     count?: number;
-    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
-    items?: Contact[] | undefined;
+    items?: Contact[];
 }
 
 export class CreateCaseResponse implements ICreateCaseResponse {
@@ -6573,10 +6537,10 @@ export interface ICreateCaseResponse {
 
 export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
     caseTypeCode?: string;
-    groupId?: string | undefined;
+    groupId?: string;
     owner?: ContactMeta;
-    metadata?: { [key: string]: string; } | undefined;
-    channel?: string | undefined;
+    metadata?: { [key: string]: string; };
+    channel?: string;
 
     constructor(data?: ICreateDraftCaseRequest) {
         if (data) {
@@ -6629,22 +6593,22 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
 
 export interface ICreateDraftCaseRequest {
     caseTypeCode?: string;
-    groupId?: string | undefined;
+    groupId?: string;
     owner?: ContactMeta;
-    metadata?: { [key: string]: string; } | undefined;
-    channel?: string | undefined;
+    metadata?: { [key: string]: string; };
+    channel?: string;
 }
 
 export class CustomCaseAction implements ICustomCaseAction {
-    id?: string | undefined;
-    name?: string | undefined;
-    label?: string | undefined;
-    class?: string | undefined;
-    redirectToList?: boolean | undefined;
+    id?: string;
+    name?: string;
+    label?: string;
+    class?: string;
+    redirectToList?: boolean;
     successMessage?: SuccessMessage;
-    description?: string | undefined;
-    defaultValue?: string | undefined;
-    hasInput?: boolean | undefined;
+    description?: string;
+    defaultValue?: string;
+    hasInput?: boolean;
 
     constructor(data?: ICustomCaseAction) {
         if (data) {
@@ -6692,19 +6656,19 @@ export class CustomCaseAction implements ICustomCaseAction {
 }
 
 export interface ICustomCaseAction {
-    id?: string | undefined;
-    name?: string | undefined;
-    label?: string | undefined;
-    class?: string | undefined;
-    redirectToList?: boolean | undefined;
+    id?: string;
+    name?: string;
+    label?: string;
+    class?: string;
+    redirectToList?: boolean;
     successMessage?: SuccessMessage;
-    description?: string | undefined;
-    defaultValue?: string | undefined;
-    hasInput?: boolean | undefined;
+    description?: string;
+    defaultValue?: string;
+    hasInput?: boolean;
 }
 
 export class EditCaseRequest implements IEditCaseRequest {
-    data?: any | undefined;
+    data?: any;
 
     constructor(data?: IEditCaseRequest) {
         if (data) {
@@ -6736,12 +6700,12 @@ export class EditCaseRequest implements IEditCaseRequest {
 }
 
 export interface IEditCaseRequest {
-    data?: any | undefined;
+    data?: any;
 }
 
 export class GroupByReportResult implements IGroupByReportResult {
     count?: number;
-    label?: string | undefined;
+    label?: string;
 
     constructor(data?: IGroupByReportResult) {
         if (data) {
@@ -6776,16 +6740,16 @@ export class GroupByReportResult implements IGroupByReportResult {
 
 export interface IGroupByReportResult {
     count?: number;
-    label?: string | undefined;
+    label?: string;
 }
 
 export class HttpValidationProblemDetails implements IHttpValidationProblemDetails {
-    type?: string | undefined;
-    title?: string | undefined;
-    status?: number | undefined;
-    detail?: string | undefined;
-    instance?: string | undefined;
-    errors?: { [key: string]: string[]; } | undefined;
+    type?: string;
+    title?: string;
+    status?: number;
+    detail?: string;
+    instance?: string;
+    errors?: { [key: string]: string[]; };
 
     [key: string]: any;
 
@@ -6849,19 +6813,19 @@ export class HttpValidationProblemDetails implements IHttpValidationProblemDetai
 }
 
 export interface IHttpValidationProblemDetails {
-    type?: string | undefined;
-    title?: string | undefined;
-    status?: number | undefined;
-    detail?: string | undefined;
-    instance?: string | undefined;
-    errors?: { [key: string]: string[]; } | undefined;
+    type?: string;
+    title?: string;
+    status?: number;
+    detail?: string;
+    instance?: string;
+    errors?: { [key: string]: string[]; };
 
     [key: string]: any;
 }
 
 export class LookupItem implements ILookupItem {
-    name?: string | undefined;
-    value?: string | undefined;
+    name?: string;
+    value?: string;
 
     constructor(data?: ILookupItem) {
         if (data) {
@@ -6895,16 +6859,13 @@ export class LookupItem implements ILookupItem {
 }
 
 export interface ILookupItem {
-    name?: string | undefined;
-    value?: string | undefined;
+    name?: string;
+    value?: string;
 }
 
-/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class LookupItemResultSet implements ILookupItemResultSet {
-    /** Total results count. */
     count?: number;
-    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
-    items?: LookupItem[] | undefined;
+    items?: LookupItem[];
 
     constructor(data?: ILookupItemResultSet) {
         if (data) {
@@ -6945,18 +6906,14 @@ export class LookupItemResultSet implements ILookupItemResultSet {
     }
 }
 
-/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface ILookupItemResultSet {
-    /** Total results count. */
     count?: number;
-    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
-    items?: LookupItem[] | undefined;
+    items?: LookupItem[];
 }
 
 export class NotificationSubscription implements INotificationSubscription {
     caseTypeId?: string;
-    email?: string | undefined;
-    groupId?: string | undefined;
+    subscriber?: Subscriber;
 
     constructor(data?: INotificationSubscription) {
         if (data) {
@@ -6970,8 +6927,7 @@ export class NotificationSubscription implements INotificationSubscription {
     init(_data?: any) {
         if (_data) {
             this.caseTypeId = _data["caseTypeId"];
-            this.email = _data["email"];
-            this.groupId = _data["groupId"];
+            this.subscriber = _data["subscriber"] ? Subscriber.fromJS(_data["subscriber"]) : undefined as any;
         }
     }
 
@@ -6985,16 +6941,14 @@ export class NotificationSubscription implements INotificationSubscription {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["caseTypeId"] = this.caseTypeId;
-        data["email"] = this.email;
-        data["groupId"] = this.groupId;
+        data["subscriber"] = this.subscriber ? this.subscriber.toJSON() : undefined as any;
         return data;
     }
 }
 
 export interface INotificationSubscription {
     caseTypeId?: string;
-    email?: string | undefined;
-    groupId?: string | undefined;
+    subscriber?: Subscriber;
 }
 
 export class NotificationSubscriptionRequest implements INotificationSubscriptionRequest {
@@ -7041,10 +6995,11 @@ export interface INotificationSubscriptionRequest {
     caseTypeIds?: string[] | undefined;
 }
 
-export class NotificationSubscriptionResponse implements INotificationSubscriptionResponse {
-    notificationSubscriptions?: NotificationSubscription[] | undefined;
+export class NotificationSubscriptionResultSet implements INotificationSubscriptionResultSet {
+    count?: number;
+    items?: NotificationSubscription[];
 
-    constructor(data?: INotificationSubscriptionResponse) {
+    constructor(data?: INotificationSubscriptionResultSet) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -7055,42 +7010,45 @@ export class NotificationSubscriptionResponse implements INotificationSubscripti
 
     init(_data?: any) {
         if (_data) {
-            if (Array.isArray(_data["notificationSubscriptions"])) {
-                this.notificationSubscriptions = [] as any;
-                for (let item of _data["notificationSubscriptions"])
-                    this.notificationSubscriptions!.push(NotificationSubscription.fromJS(item));
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(NotificationSubscription.fromJS(item));
             }
         }
     }
 
-    static fromJS(data: any): NotificationSubscriptionResponse {
+    static fromJS(data: any): NotificationSubscriptionResultSet {
         data = typeof data === 'object' ? data : {};
-        let result = new NotificationSubscriptionResponse();
+        let result = new NotificationSubscriptionResultSet();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.notificationSubscriptions)) {
-            data["notificationSubscriptions"] = [];
-            for (let item of this.notificationSubscriptions)
-                data["notificationSubscriptions"].push(item ? item.toJSON() : undefined as any);
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
         }
         return data;
     }
 }
 
-export interface INotificationSubscriptionResponse {
-    notificationSubscriptions?: NotificationSubscription[] | undefined;
+export interface INotificationSubscriptionResultSet {
+    count?: number;
+    items?: NotificationSubscription[];
 }
 
 export class ProblemDetails implements IProblemDetails {
-    type?: string | undefined;
-    title?: string | undefined;
-    status?: number | undefined;
-    detail?: string | undefined;
-    instance?: string | undefined;
+    type?: string;
+    title?: string;
+    status?: number;
+    detail?: string;
+    instance?: string;
 
     [key: string]: any;
 
@@ -7140,19 +7098,19 @@ export class ProblemDetails implements IProblemDetails {
 }
 
 export interface IProblemDetails {
-    type?: string | undefined;
-    title?: string | undefined;
-    status?: number | undefined;
-    detail?: string | undefined;
-    instance?: string | undefined;
+    type?: string;
+    title?: string;
+    status?: number;
+    detail?: string;
+    instance?: string;
 
     [key: string]: any;
 }
 
 export class Query implements IQuery {
     id?: string;
-    friendlyName?: string | undefined;
-    parameters?: string | undefined;
+    friendlyName?: string;
+    parameters?: string;
 
     constructor(data?: IQuery) {
         if (data) {
@@ -7189,13 +7147,13 @@ export class Query implements IQuery {
 
 export interface IQuery {
     id?: string;
-    friendlyName?: string | undefined;
-    parameters?: string | undefined;
+    friendlyName?: string;
+    parameters?: string;
 }
 
 export class RejectReason implements IRejectReason {
-    key?: string | undefined;
-    value?: string | undefined;
+    key?: string;
+    value?: string;
 
     constructor(data?: IRejectReason) {
         if (data) {
@@ -7229,13 +7187,13 @@ export class RejectReason implements IRejectReason {
 }
 
 export interface IRejectReason {
-    key?: string | undefined;
-    value?: string | undefined;
+    key?: string;
+    value?: string;
 }
 
 export class ReplaceCaseAccessRuleUserRequest implements IReplaceCaseAccessRuleUserRequest {
-    existingUserId!: string | undefined;
-    replacementUserId!: string | undefined;
+    existingUserId!: string;
+    replacementUserId!: string;
 
     constructor(data?: IReplaceCaseAccessRuleUserRequest) {
         if (data) {
@@ -7269,8 +7227,8 @@ export class ReplaceCaseAccessRuleUserRequest implements IReplaceCaseAccessRuleU
 }
 
 export interface IReplaceCaseAccessRuleUserRequest {
-    existingUserId: string | undefined;
-    replacementUserId: string | undefined;
+    existingUserId: string;
+    replacementUserId: string;
 }
 
 export enum ReportTag {
@@ -7324,9 +7282,9 @@ export interface ISaveQueryRequest {
 }
 
 export class SendCommentRequest implements ISendCommentRequest {
-    replyToCommentId?: string | undefined;
-    privateComment?: boolean | undefined;
-    comment?: string | undefined;
+    replyToCommentId?: string;
+    privateComment?: boolean;
+    comment?: string;
 
     constructor(data?: ISendCommentRequest) {
         if (data) {
@@ -7362,14 +7320,54 @@ export class SendCommentRequest implements ISendCommentRequest {
 }
 
 export interface ISendCommentRequest {
-    replyToCommentId?: string | undefined;
-    privateComment?: boolean | undefined;
-    comment?: string | undefined;
+    replyToCommentId?: string;
+    privateComment?: boolean;
+    comment?: string;
+}
+
+export class Subscriber implements ISubscriber {
+    email?: string;
+    groupId?: string;
+
+    constructor(data?: ISubscriber) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.email = _data["email"];
+            this.groupId = _data["groupId"];
+        }
+    }
+
+    static fromJS(data: any): Subscriber {
+        data = typeof data === 'object' ? data : {};
+        let result = new Subscriber();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["email"] = this.email;
+        data["groupId"] = this.groupId;
+        return data;
+    }
+}
+
+export interface ISubscriber {
+    email?: string;
+    groupId?: string;
 }
 
 export class SuccessMessage implements ISuccessMessage {
-    title?: string | undefined;
-    body?: string | undefined;
+    title?: string;
+    body?: string;
 
     constructor(data?: ISuccessMessage) {
         if (data) {
@@ -7403,14 +7401,14 @@ export class SuccessMessage implements ISuccessMessage {
 }
 
 export interface ISuccessMessage {
-    title?: string | undefined;
-    body?: string | undefined;
+    title?: string;
+    body?: string;
 }
 
 export class TimelineEntry implements ITimelineEntry {
     timestamp?: Date;
     createdBy?: AuditMeta;
-    readonly isCheckpoint?: boolean;
+    isCheckpoint?: boolean;
     checkpoint?: Checkpoint;
     comment?: Comment;
 
@@ -7427,7 +7425,7 @@ export class TimelineEntry implements ITimelineEntry {
         if (_data) {
             this.timestamp = _data["timestamp"] ? new Date(_data["timestamp"].toString()) : undefined as any;
             this.createdBy = _data["createdBy"] ? AuditMeta.fromJS(_data["createdBy"]) : undefined as any;
-            (this as any).isCheckpoint = _data["isCheckpoint"];
+            this.isCheckpoint = _data["isCheckpoint"];
             this.checkpoint = _data["checkpoint"] ? Checkpoint.fromJS(_data["checkpoint"]) : undefined as any;
             this.comment = _data["comment"] ? Comment.fromJS(_data["comment"]) : undefined as any;
         }
@@ -7460,7 +7458,7 @@ export interface ITimelineEntry {
 }
 
 export class UpdateCaseRequest implements IUpdateCaseRequest {
-    data?: any | undefined;
+    data?: any;
 
     constructor(data?: IUpdateCaseRequest) {
         if (data) {
@@ -7492,7 +7490,7 @@ export class UpdateCaseRequest implements IUpdateCaseRequest {
 }
 
 export interface IUpdateCaseRequest {
-    data?: any | undefined;
+    data?: any;
 }
 
 export interface FileParameter {

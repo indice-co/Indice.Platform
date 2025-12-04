@@ -9,19 +9,8 @@ public class NotificationSubscription
     /// <summary>The notification subscription CaseType Id.</summary>
     public Guid CaseTypeId { get; set; }
 
-    /// <summary>Subscriber email.</summary>
-    public string Email { get; set; } = null!;
-
-    /// <summary>Subscriber group Id.</summary>
-    public string? GroupId { get; set; }
-
-    /// <summary>Construct an instance from ClaimsPrincipal</summary>
-    public static NotificationSubscription FromUser(ClaimsPrincipal user, string groupIdClaimType) {
-        var groupId = user.FindFirstValue(groupIdClaimType);
-        var email = user.FindFirstValue(BasicClaimTypes.Email);
-        return new NotificationSubscription {
-            GroupId = groupId,
-            Email = email!
-        };
-    }
+    /// <summary>
+    /// Gets or sets the subscriber associated with this instance.
+    /// </summary>
+    public Subscriber Subscriber { get; set; } = new();   
 }
