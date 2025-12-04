@@ -27,8 +27,8 @@
               caseListColumns="%(CaseListColumns)"
               caseListFilters="%(CaseListFilters)">
     </app-root>
-    <script src="%(Path)/runtime.js" defer></script>
-    <script src="%(Path)/polyfills.js" defer></script>
-    <script src="%(Path)/main.js" defer></script>
+    <link rel="modulepreload" href="%(Path)/chunk-*.js">
+    <script src="%(Path)/polyfills.js" type="module"></script>
+    <script src="%(Path)/main.js" type="module"></script>
 </body>
 </html>
