@@ -36,13 +36,16 @@ internal static class IntegrationHandlers
     }
 
     /// <summary>Sends a message as Admin for a case.</summary>
-    public static async Task SendMessage(
+    public static async Task<NoContent> SendMessage(
         Guid caseId,
         MessageRequest request,
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions,
         IAdminCaseMessageService adminCaseMessageService
-    ) => await adminCaseMessageService.Send(caseId, currentUser.UserToActor(casesOptions.Value), request.Message, request.Actor.ToAuditMeta());
+    ) {
+        await adminCaseMessageService.Send(caseId, currentUser.UserToActor(casesOptions.Value), request.Message, request.Actor.ToAuditMeta());
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Assign a Case to an Actor.</summary>
     public static async Task<Ok<AuditMeta>> Assign(Guid caseId, UserActor actor, IAdminCaseService adminCaseService) {
@@ -51,15 +54,18 @@ internal static class IntegrationHandlers
     }
 
     /// <summary>Adds an approval to a case.</summary>
-    public static async Task AddApproval(
+    public static async Task<NoContent> AddApproval(
         Guid caseId,
         WorkflowAddApprovalRequest request,
         IAdminCaseMessageService caseMessageService,
         ICaseApprovalService caseApprovalService
-    ) => await caseApprovalService.AddApproval(caseId, null, request.Action, request.Reason, request.WorkflowActor.ToAuditMeta());
+    ) {
+        await caseApprovalService.AddApproval(caseId, null, request.Action, request.Reason, request.WorkflowActor.ToAuditMeta());
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Adds an approval with comment. To be used when adding an approval </summary>
-    public static async Task AddApprovalWithComment(
+    public static async Task<NoContent> AddApprovalWithComment(
         Guid caseId,
         WorkflowAddApprovalWithCommentRequest request,
         ClaimsPrincipal currentUser,
@@ -75,14 +81,17 @@ internal static class IntegrationHandlers
         }, createdBy);
 
         await caseApprovalService.AddApproval(caseId, null, request.Action, request.Reason, createdBy);
+        return TypedResults.NoContent();
     }
 
     /// <summary>Remove the assignment of a Case.</summary>
-    public static async Task RemoveAssignment(Guid caseId, IAdminCaseService adminCaseService)
-        => await adminCaseService.RemoveAssignment(caseId);
+    public static async Task<NoContent> RemoveAssignment(Guid caseId, IAdminCaseService adminCaseService) {
+        await adminCaseService.RemoveAssignment(caseId);
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Remove assignment for a Case and Send a message for the UI.</summary>
-    public static async Task<Ok> BlockPreviousApprover(
+    public static async Task<NoContent> BlockPreviousApprover(
         Guid caseId,
         UserActor actor,
         ClaimsPrincipal currentUser,
@@ -98,94 +107,135 @@ internal static class IntegrationHandlers
 
         await adminCaseService.RemoveAssignment(caseId);
 
-        return TypedResults.Ok();
+        return TypedResults.NoContent();
     }
 
     /// <summary>Rollback an approval</summary>
     /// <param name="caseId"></param>
     /// <param name="caseApprovalService"></param>
-    public static async Task RollbackApproval(Guid caseId, ICaseApprovalService caseApprovalService)
-        => await caseApprovalService.RollbackApproval(caseId);
+    public static async Task<NoContent> RollbackApproval(Guid caseId, ICaseApprovalService caseApprovalService) {
+        await caseApprovalService.RollbackApproval(caseId);
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Sync private data to public</summary>
     /// <param name="caseId"></param>
     /// <param name="adminCaseService"></param>
-    public static async Task PublishPrivateData(Guid caseId, IAdminCaseService adminCaseService)
-        => await adminCaseService.PublishData(caseId);
+    public static async Task<NoContent> PublishPrivateData(Guid caseId, IAdminCaseService adminCaseService) {
+        await adminCaseService.PublishData(caseId);
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Patch Case Data.</summary>
-    public static async Task PatchData(
+    public static async Task<NoContent> PatchData(
         Guid caseId,
         PatchDataRequest request,
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService
-    ) => await adminCaseService.PatchCaseData(currentUser.UserToActor(casesOptions.Value), caseId, request.CaseData, request.PatchPublicData);
+    ) {
+        await adminCaseService.PatchCaseData(currentUser.UserToActor(casesOptions.Value), caseId, request.CaseData, request.PatchPublicData);
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Patch Case Data.</summary>
-    public static async Task JsonPatchData(
+    public static async Task<NoContent> JsonPatchData(
         Guid caseId,
         JsonPatchDataRequest request,
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService
-    ) => await adminCaseService.PatchCaseData(currentUser.UserToActor(casesOptions.Value), caseId, request.JsonPatch, request.PatchPublicData);
+    ) {
+        await adminCaseService.PatchCaseData(currentUser.UserToActor(casesOptions.Value), caseId, request.JsonPatch, request.PatchPublicData);
+        return TypedResults.NoContent();
+    }
 
     /// <summary>Patch Case Metadata</summary>
-    public static async Task<bool> PatchMetadata(
+    public static async Task<NoContent> PatchMetadata(
         Guid caseId,
         Dictionary<string, string> metadata,
         IAdminCaseService adminCaseService
-    ) => await adminCaseService.PatchCaseMetadata(caseId, metadata);
+    ) {
+        await adminCaseService.PatchCaseMetadata(caseId, metadata);
+        return TypedResults.NoContent();
+    }
 
-    public static async Task<Results<Ok, ValidationProblem>> AttachFile(
+    public static async Task<Results<Ok<CasesAttachmentLink>, ValidationProblem>> AttachFile(
         Guid caseId,
         AttachFileRequest request,
         IAdminCaseService adminCaseService,
         IAdminCaseMessageService adminCaseMessageService
     ) {
         var file = request.File;
-        
+
         if (!(file?.Length > 0)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(file), "File is empty ."));
         }
-        
+
         if (string.IsNullOrWhiteSpace(request.DataRootKey)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.DataRootKey), "Data root key not provided."));
         }
-        
+
         var attachmentId = await adminCaseMessageService.Send(caseId, request.Actor, new Message {
             FileName = file.FileName,
             FileStreamAccessor = file.OpenReadStream,
             Comment = request.Comment
         });
-        
-        await adminCaseService.PatchCaseData(request.Actor, caseId, new JsonObject{ [request.DataRootKey] = attachmentId.ToString() }, false);
 
-        return TypedResults.Ok();
+        await adminCaseService.PatchCaseData(request.Actor, caseId, new JsonObject { [request.DataRootKey] = attachmentId.ToString() }, false);
+
+        return TypedResults.Ok(new CasesAttachmentLink {
+            Id = attachmentId.Value,
+            FileGuid = attachmentId.Value,
+            ContentType = file.ContentType,
+            Label = file.FileName,
+            Size = file.Length
+        });
     }
 
     public static async Task<Results<Ok<CaseAttachment>, NotFound>> GetAttachment(Guid caseId, Guid attachmentId, IAdminCaseService adminCaseService) {
         var attachment = await adminCaseService.GetAttachment(caseId, attachmentId);
         return attachment is null ? TypedResults.NotFound() : TypedResults.Ok(attachment);
     }
-    
+
     /// <summary>Gets all attachments of a case by id.</summary>
     public static async Task<Ok<ResultSet<CaseAttachment>>> GetAttachments(Guid caseId, IAdminCaseService adminCaseService) =>
         TypedResults.Ok(await adminCaseService.GetAttachments(caseId));
+
+    public static async Task<Results<Ok<ResultSet<NotificationSubscription>>, NotFound>> GetCaseTypeSubscribers(
+        string caseTypeCode,
+        [AsParameters] ListOptions options,
+        string[]? groupIds,
+        string[]? emails,
+        ICaseTypeService caseTypeService,
+        INotificationSubscriptionService service
+    ) {
+        var caseType = await caseTypeService.Get(caseTypeCode);
+        if (caseType is null) {
+            return TypedResults.NotFound();
+        }
+
+        var internalFilter = new NotificationFilter {
+            CaseTypeIds = [caseType.Id],
+            GroupId = [.. groupIds ?? []],
+            Email = [.. emails ?? []]
+        };
+
+        return TypedResults.Ok(await service.GetSubscribers(ListOptions.Create(options, internalFilter)));
+    }
 
     public class AttachFileRequest
     {
         /// <summary>File data</summary>
         [Required]
         public IFormFile? File { get; set; }
-        
+
         /// <summary>The comment with which to notify the user for the file upload.</summary>
         public string? Comment { get; set; }
-        
+
         /// <summary>The root element of the Case Data that will be added/replaced with the attachmentId.</summary>
         public string? DataRootKey { get; set; }
-        
+
         /// <summary>The Id of the user.</summary>
         public required string ActorId { get; init; }
 
@@ -206,7 +256,7 @@ internal static class IntegrationHandlers
 
         /// <summary>The current culture of the user.</summary>
         public string? ActorCurrentCulture { get; init; }
-        
+
         /// <summary>Actor</summary>
         internal UserActor Actor => new UserActor { Id = ActorId, Reference = ActorReference, GroupId = ActorGroupId, Name = ActorName, Tin = ActorTin, Email = ActorEmail, CurrentCulture = ActorCurrentCulture, IsSystemClient = true, IsAdmin = false };
 
@@ -214,7 +264,7 @@ internal static class IntegrationHandlers
         public static async ValueTask<AttachFileRequest> BindAsync(HttpContext context, ParameterInfo parameter) {
             var form = await context.Request.ReadFormAsync();
             var file = form.Files[nameof(File)];
-            
+
             return new AttachFileRequest {
                 File = file,
                 Comment = form[nameof(Comment)],
@@ -309,7 +359,7 @@ internal static class IntegrationHandlers
         public static async ValueTask<MessageRequest> BindAsync(HttpContext context, ParameterInfo parameter) {
             var form = await context.Request.ReadFormAsync();
             var file = form.Files[nameof(File)];
-            
+
             return new MessageRequest {
                 ReplyToCommentId = Guid.TryParse(form[nameof(ReplyToCommentId)], CultureInfo.InvariantCulture, out var replyToCommentId) ? replyToCommentId : null,
                 CheckpointTypeName = form[nameof(CheckpointTypeName)],
@@ -324,7 +374,7 @@ internal static class IntegrationHandlers
                 ActorName = form[nameof(ActorName)],
                 ActorTin = form[nameof(ActorTin)],
                 ActorEmail = form[nameof(ActorEmail)],
-                ActorCurrentCulture = form[nameof(ActorCurrentCulture)],
+                ActorCurrentCulture = form[nameof(ActorCurrentCulture)]
             };
         }
     }
