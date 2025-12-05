@@ -1,8 +1,7 @@
-﻿using Indice.Security;
+﻿using System.Security.Claims;
+using Indice.AspNetCore.Features.SignalrEnpoint.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.SignalR.Management;
-using System.Security.Claims;
 
 namespace Indice.SignalR.Endpoints
 {
@@ -10,62 +9,52 @@ namespace Indice.SignalR.Endpoints
     {
         public static async Task<Ok<NegotiateResponse>> Negotiate(
             string hub,
-            ServiceManager serviceManager,
             ClaimsPrincipal currentUser,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            ISignalRListenerService signalRListeningService)
         {
-            var hubContext = await serviceManager.CreateHubContextAsync(hub, cancellationToken);
-            var negotiationResponse = await hubContext.NegotiateAsync(new NegotiationOptions
-            {
-                TokenLifetime = TimeSpan.FromHours(1),
-                UserId = currentUser.FindSubjectId()
-            });
-
-            return TypedResults.Ok(new NegotiateResponse(
-                negotiationResponse.Url,
-                negotiationResponse.AccessToken)
-                );
+            var response = await signalRListeningService.Negotiate(hub, currentUser, cancellationToken);
+            return TypedResults.Ok(response);
         }
-
 
         public static async Task<NoContent> BroadcastToUser(
             string hub,
             string userId,
             BroadcastCommand command,
-            ServiceManager serviceManager,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            ISignalRBroadcastingService signalRBroadcastingService)
         {
-
-            var hubContext = await serviceManager.CreateHubContextAsync(hub, cancellationToken);
-            await hubContext
-                .Clients
-                .User(userId)
-                    .SendCoreAsync(
-                        method: "broadcastMessage",
-                        args: ["system", command.Message],
-                        cancellationToken: cancellationToken);
-
+            await signalRBroadcastingService.BroadcastToUser(hub, userId, command, cancellationToken);
             return TypedResults.NoContent();
         }
 
         public static async Task<NoContent> BroadcastToUsers(
            string hub,
            BroadcastCommand command,
-           ServiceManager serviceManager,
+           ISignalRBroadcastingService signalRBroadcastingService,
            CancellationToken cancellationToken)
         {
-            var hubContext = await serviceManager.CreateHubContextAsync(hub, cancellationToken);
-            await hubContext
-                .Clients
-                .All
-                .SendCoreAsync(
-                    method: "broadcastMessage",
-                    args: ["system", command.Message],
-                    cancellationToken: cancellationToken);
+            await signalRBroadcastingService.BroadcastToUsers(hub, command, cancellationToken);
+            return TypedResults.NoContent();
+        }
+
+        public static async Task<NoContent> BroadcastToGroup(
+            string hub,
+            string groupName,
+            BroadcastCommand command,
+            ISignalRBroadcastingService signalRBroadcastingService,
+            CancellationToken cancellationToken) {
+
+            await signalRBroadcastingService.BroadcastToGroup(hub, groupName, command, cancellationToken);
             return TypedResults.NoContent();
         }
     }
 
+    /// <summary>
+    /// The Negotiate response.
+    /// <param name="url"></param>
+    /// <param name="accessToken"> The access token for the request. </param>
+    /// </summary>
     public record NegotiateResponse(string? url, string? accessToken);
 
     /// <summary>A command to broadcast a message.</summary>
