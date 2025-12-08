@@ -58,7 +58,7 @@ internal class ContactProviderIdentityServer : IContactProvider
         return result!.Items.Select(x => x.ToContact(_caseOptions)).ToResultSet(result.Count);
     }
 
-    public async Task<Contact?> GetByReferenceAsync(UserActor user, string reference, string caseTypeCode) {
+    public async Task<Contact?> GetByReferenceAsync(UserActor user, string reference) {
         if (string.IsNullOrWhiteSpace(reference)) {
             return default;
         }

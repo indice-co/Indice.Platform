@@ -5,9 +5,10 @@ import { map, switchMap, tap } from 'rxjs';
 import { CasesApiService, CaseTypeRequest } from 'src/app/core/services/cases-api.service';
 
 @Component({
-  selector: 'app-case-type-edit',
-  templateUrl: './case-type-edit.component.html',
-  styleUrls: ['./case-type-edit.component.scss']
+    selector: 'app-case-type-edit',
+    templateUrl: './case-type-edit.component.html',
+    styleUrls: ['./case-type-edit.component.css'],
+    standalone: false
 })
 export class CaseTypeEditComponent implements OnInit {
 

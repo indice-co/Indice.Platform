@@ -63,6 +63,9 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
                 case AuthenticationMethodType.PhoneNumber when !string.IsNullOrWhiteSpace(await _userManager.GetPhoneNumberAsync(user)) && await _userManager.IsPhoneNumberConfirmedAsync(user):
                     methods.Add(method);
                     break;
+                case AuthenticationMethodType.Email when !string.IsNullOrWhiteSpace(await _userManager.GetEmailAsync(user)) && await _userManager.IsEmailConfirmedAsync(user):
+                    methods.Add(method);
+                    break;
                 default:
                     continue;
             }

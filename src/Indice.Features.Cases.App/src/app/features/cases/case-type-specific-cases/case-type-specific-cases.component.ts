@@ -8,8 +8,9 @@ import { CaseTypeService } from 'src/app/core/services/case-type.service';
 import { map } from 'rxjs';
 
 @Component({
-  selector: 'app-case-type-specific-cases-component',
-  templateUrl: '../general-cases/general-cases.component.html'
+    selector: 'app-case-type-specific-cases-component',
+    templateUrl: '../general-cases/general-cases.component.html',
+    standalone: false
 })
 export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implements OnInit {
   constructor(

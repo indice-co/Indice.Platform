@@ -11,7 +11,8 @@ import { RiskApiService, RiskRuleDto, RiskRuleDtoResultSet } from 'src/app/core/
 
 @Component({
     selector: 'app-rules-list',
-    templateUrl: './rules-list.component.html'
+    templateUrl: './rules-list.component.html',
+    standalone: false
 })
 export class RulesListComponent extends BaseListComponent<RiskRuleDto> implements OnInit {
     newItemLink: string;

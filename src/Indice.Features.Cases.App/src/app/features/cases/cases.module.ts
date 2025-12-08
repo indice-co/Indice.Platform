@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { HttpClientModule } from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { FormsModule } from "@angular/forms";
@@ -23,42 +23,36 @@ import { CaseTypeSpecificCasesComponent } from "./case-type-specific-cases/case-
 import { RelatedCasesComponent } from "./case-detail-page/related-cases/related-cases.component";
 import { ToReadableDatePipe, ValueFromPathPipe } from "src/app/shared/pipes.services";
 
-@NgModule({
-  declarations: [
-    CaseAssignmentComponent,
-    CaseUnassignmentComponent,
-    CaseTimelineComponent,
-    CaseDetailPageComponent,
-    CaseFormComponent,
-    CaseCreatePageComponent,
-    QueriesPageComponent,
-    CaseDiscardDraftComponent,
-    CasePrintPdfComponent,
-    CaseWarningModalComponent,
-    QueriesModalComponent,
-    GeneralCasesComponent,
-    CaseTypeSpecificCasesComponent,
-    RelatedCasesComponent
-  ],
-  imports: [
-    BrowserModule,
-    CommonModule,
-    FormsModule,
-    HttpClientModule,
-    RouterModule,
-    SharedModule,
-    JsonSchemaFormModule,
-    IndiceComponentsModule
-  ],
-  exports: [
-    CaseAssignmentComponent,
-    CaseUnassignmentComponent,
-    CaseTimelineComponent,
-    CaseDetailPageComponent
-  ],
-  providers: [
-    ValueFromPathPipe,
-    ToReadableDatePipe
-  ]
-})
+@NgModule({ declarations: [
+        CaseAssignmentComponent,
+        CaseUnassignmentComponent,
+        CaseTimelineComponent,
+        CaseDetailPageComponent,
+        CaseFormComponent,
+        CaseCreatePageComponent,
+        QueriesPageComponent,
+        CaseDiscardDraftComponent,
+        CasePrintPdfComponent,
+        CaseWarningModalComponent,
+        QueriesModalComponent,
+        GeneralCasesComponent,
+        CaseTypeSpecificCasesComponent,
+        RelatedCasesComponent
+    ],
+    exports: [
+        CaseAssignmentComponent,
+        CaseUnassignmentComponent,
+        CaseTimelineComponent,
+        CaseDetailPageComponent
+    ], imports: [BrowserModule,
+        CommonModule,
+        FormsModule,
+        RouterModule,
+        SharedModule,
+        JsonSchemaFormModule,
+        IndiceComponentsModule], providers: [
+        ValueFromPathPipe,
+        ToReadableDatePipe,
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class CasesModule { }

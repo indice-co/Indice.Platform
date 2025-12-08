@@ -40,9 +40,9 @@ internal static class AdminContactsApi
              .WithName(nameof(AdminContactsHandlers.GetContacts))
              .WithSummary("Search contacts.");
 
-        group.MapGet("contacts/{reference}/data/{caseTypeCode}", AdminContactsHandlers.GetContactData)
-             .WithName(nameof(AdminContactsHandlers.GetContactData))
-             .WithSummary("Fetch contact data by contact.reference number for a specific case type code.");
+        group.MapGet("contacts/{reference}", AdminContactsHandlers.GetContactByReference)
+             .WithName(nameof(AdminContactsHandlers.GetContactByReference))
+             .WithSummary("Fetch contact by contact.reference number.");
 
         return group;
     }

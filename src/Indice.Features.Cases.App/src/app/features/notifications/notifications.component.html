@@ -1,49 +1,59 @@
-<div *ngIf="isAdmin"
-     class="text-white">Δεν μπορείτε να εγγραφείτε σε συνδρομή ειδοποιήσεων</div>
-<lib-view-layout [title]="'Ειδοποιήσεις'"
-                 *ngIf="!isAdmin">
-  <div *ngIf="!loading"
-       class="bg-white shadow-sm rounded-sm">
-    <div class="px-4 py-5 sm:px-6">
-      <h3 class="text-lg leading-6 font-medium text-gray-900">
-        Εγγραφείτε σε συνδρομή ειδοποιήσεων μέσω ηλεκτρονικού ταχυδρομείου
-      </h3>
-      <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        Θα λαμβάνετε e-mail κατά την υποβολή νέων υποθέσεων.
-      </p>
-    </div>
-    <form #notificationsForm="ngForm"
+@if (isAdmin) {
+  <div
+  class="text-white">Δεν μπορείτε να εγγραφείτε σε συνδρομή ειδοποιήσεων</div>
+}
+@if (!isAdmin) {
+  <lib-view-layout [title]="'Ειδοποιήσεις'"
+    >
+    @if (!loading) {
+      <div
+        class="bg-white shadow-sm rounded-sm">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Εγγραφείτε σε συνδρομή ειδοποιήσεων μέσω ηλεκτρονικού ταχυδρομείου
+          </h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Θα λαμβάνετε e-mail κατά την υποβολή νέων υποθέσεων.
+          </p>
+        </div>
+        <form #notificationsForm="ngForm"
           class="border-t border-gray-200 px-4 py-5 sm:p-0"
           (ngSubmit)="onSubmit()">
-      <div class="border-gray-200 pb-5"
-           *ngFor="let category of displayNotificationSubscriptionsViewModel?.categories">
-        <h3 class="text-base m-2 font-semibold leading-6 text-gray-900">{{ category.name }}</h3>
-        <fieldset class="m-4 space-y-5">
-          <div class="relative flex items-start"
-               *ngFor="let model of category.notificationSubscriptions">
-            <div class="flex h-5 items-center">
-              <input id="id-{{model.notificationSubscription?.caseTypeId}}"
-                     name="name-{{model.notificationSubscription?.caseTypeId}}"
-                     type="checkbox"
-                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                     [(ngModel)]="model.subscribed">
-            </div>
-            <div class="ml-3 text-sm">
-              <label for="id-{{model.notificationSubscription?.caseTypeId}}"
-                     class="font-medium uppercase text-gray-700">{{model.title}}</label>
-            </div>
-          </div>
-        </fieldset>
-      </div>
-      <div class="form-actions">
-        <button #submitBtn
+          @for (category of displayNotificationSubscriptionsViewModel?.categories; track category) {
+            <div class="border-gray-200 pb-5"
+              >
+              <h3 class="text-base m-2 font-semibold leading-6 text-gray-900">{{ category.name }}</h3>
+              <fieldset class="m-4 space-y-5">
+                @for (model of category.notificationSubscriptions; track model) {
+                  <div class="relative flex items-start"
+                    >
+                    <div class="flex h-5 items-center">
+                      <input id="id-{{model.notificationSubscription?.caseTypeId}}"
+                        name="name-{{model.notificationSubscription?.caseTypeId}}"
+                        type="checkbox"
+                        class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        [(ngModel)]="model.subscribed">
+                      </div>
+                      <div class="ml-3 text-sm">
+                        <label for="id-{{model.notificationSubscription?.caseTypeId}}"
+                        class="font-medium uppercase text-gray-700">{{model.title}}</label>
+                      </div>
+                    </div>
+                  }
+                </fieldset>
+              </div>
+            }
+            <div class="form-actions">
+              <button #submitBtn
                 type="submit"
                 class="btn-submit-form"
                 [ngClass]="{'opacity-50 cursor-not-allowed': formSubmitting}"
                 [disabled]="formSubmitting">
-          Αποθήκευση
-        </button>
-      </div>
-    </form>
-  </div>
-</lib-view-layout>
+                Αποθήκευση
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+    </lib-view-layout>
+  }

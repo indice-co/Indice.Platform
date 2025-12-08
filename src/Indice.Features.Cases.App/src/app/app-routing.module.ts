@@ -38,8 +38,8 @@ const routes: Routes = [
       {
         path: 'cases/:caseId', pathMatch: 'prefix', data: { title: 'Υπόθεση', breadcrumb: { title: 'Υπόθεση' } },
         children: [
-          { path: '', pathMatch: 'full', redirectTo: 'details', data: { title: 'Λεπτομέριες Υπόθεσης', breadcrumb: { title: 'Λεπτομέριες Υπόθεσης' } } },
-          { path: 'details', component: CaseDetailPageComponent, data: { title: 'Λεπτομέριες Υπόθεσης', animation: 'three', breadcrumb: { title: 'Λεπτομέριες Υπόθεσης' } } }
+          { path: '', pathMatch: 'full', redirectTo: 'details', data: { title: 'Λεπτομέρειες Υπόθεσης', breadcrumb: { title: 'Λεπτομέρειες Υπόθεσης' } } },
+          { path: 'details', component: CaseDetailPageComponent, data: { title: 'Λεπτομέρειες Υπόθεσης', animation: 'three', breadcrumb: { title: 'Λεπτομέρειες Υπόθεσης' } } }
         ]
       },
       {

@@ -6,8 +6,9 @@ import { FilterCachingService } from 'src/app/core/services/filter-caching.servi
 import { DeleteQueryModalComponent } from 'src/app/shared/components/delete-query-modal/delete-query-modal.component';
 
 @Component({
-  selector: 'app-queries-page',
-  templateUrl: './queries-page.component.html'
+    selector: 'app-queries-page',
+    templateUrl: './queries-page.component.html',
+    standalone: false
 })
 export class QueriesPageComponent implements OnInit {
   public queries$ = this._api.getQueries();

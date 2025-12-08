@@ -4,7 +4,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClien
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { APP_LANGUAGES, APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
+import { APP_LANGUAGES, APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG, BREADCRUMB_LABEL_RESOLVER } from '@indice/ng-components';
 import { AuthHttpInterceptor, AUTH_SETTINGS, IndiceAuthModule, TenantHeaderInterceptor, TenantService, TENANT_PREFIX_URL } from '@indice/ng-auth';
 import { AppComponent } from './app.component';
 import { AppLanguagesService } from './shared/services/app-languages.service';
@@ -97,6 +97,7 @@ import { ContactDuplicatesComponent } from './features/contacts/contact/duplicat
 import { MessageEventsComponent } from './features/events/message-events.component';
 import { TranslateModule, provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { AppBreadcrumbTranslateService } from './shared/services/app-breadcrumb-translate-service';
 
 registerLocaleData(localeGreek);
 
@@ -124,7 +125,8 @@ const providers: Provider[] = [
     loader: provideTranslateHttpLoader({ prefix: `${app.settings.api_url}/msg-i18n.`, useHttpBackend: true }),
       fallbackLang: 'en'
     }),
-  { provide: APP_LANGUAGES, useClass: AppLanguagesService }
+  { provide: APP_LANGUAGES, useClass: AppLanguagesService },
+  { provide: BREADCRUMB_LABEL_RESOLVER, useClass: AppBreadcrumbTranslateService }
   
 ]
 

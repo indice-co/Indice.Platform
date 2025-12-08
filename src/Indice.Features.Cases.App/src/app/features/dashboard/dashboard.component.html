@@ -1,28 +1,42 @@
 <lib-view-layout title="Καλώς ήλθατε, {{ user?.profile?.name }}!"
-                 [meta-items]="metaItems">
-    <div class="cards-deck-1 mb-4">
-        <div class="grid grid-cols-3 gap-x-5 gap-y-0">
-            <app-canvas-tile *ngIf="tiles.GroupedByCasetype"
-                             [title]="'dashboard.groupedByCasetype' | translate"
-                             [canvasId]="reportTag.GroupedByCasetype"></app-canvas-tile>
-            <app-canvas-tile *ngIf="tiles.AgentGroupedByCasetype" 
-                             [title]="'dashboard.agentGroupedByCasetype' | translate"
-                             [canvasId]="reportTag.AgentGroupedByCasetype"></app-canvas-tile>
-            <app-canvas-tile *ngIf="tiles.CustomerGroupedByCasetype" 
-                             [title]="'dashboard.customerGroupedByCasetype' | translate"
-                             [canvasId]="reportTag.CustomerGroupedByCasetype"></app-canvas-tile>
-            <app-canvas-tile *ngIf="tiles.GroupedByStatus" 
-                             [title]="'dashboard.groupedByStatus' | translate"
-                             [canvasId]="reportTag.GroupedByStatus"></app-canvas-tile>
-            <app-canvas-tile *ngIf="tiles.AgentGroupedByStatus" 
-                             [title]="'dashboard.agentGroupedByStatus' | translate"
-                             [canvasId]="reportTag.AgentGroupedByStatus"></app-canvas-tile>
-            <app-canvas-tile *ngIf="tiles.CustomerGroupedByStatus" 
-                             [title]="'dashboard.customerGroupedByStatus' | translate"
-                             [canvasId]="reportTag.CustomerGroupedByStatus"></app-canvas-tile>
-            <app-canvas-tile *ngIf="isAdmin && tiles.GroupedByGroupId"
-                             [title]="'dashboard.groupedByGroupId' | translate"
-                             [canvasId]="reportTag.GroupedByGroupId"></app-canvas-tile>
-        </div>
+  [meta-items]="metaItems">
+  <div class="cards-deck-1 mb-4">
+    <div class="grid grid-cols-3 gap-x-5 gap-y-0">
+      @if (tiles.GroupedByCasetype) {
+        <app-canvas-tile
+          [title]="'dashboard.groupedByCasetype' | translate"
+        [canvasId]="reportTag.GroupedByCasetype"></app-canvas-tile>
+      }
+      @if (tiles.AgentGroupedByCasetype) {
+        <app-canvas-tile
+          [title]="'dashboard.agentGroupedByCasetype' | translate"
+        [canvasId]="reportTag.AgentGroupedByCasetype"></app-canvas-tile>
+      }
+      @if (tiles.CustomerGroupedByCasetype) {
+        <app-canvas-tile
+          [title]="'dashboard.customerGroupedByCasetype' | translate"
+        [canvasId]="reportTag.CustomerGroupedByCasetype"></app-canvas-tile>
+      }
+      @if (tiles.GroupedByStatus) {
+        <app-canvas-tile
+          [title]="'dashboard.groupedByStatus' | translate"
+        [canvasId]="reportTag.GroupedByStatus"></app-canvas-tile>
+      }
+      @if (tiles.AgentGroupedByStatus) {
+        <app-canvas-tile
+          [title]="'dashboard.agentGroupedByStatus' | translate"
+        [canvasId]="reportTag.AgentGroupedByStatus"></app-canvas-tile>
+      }
+      @if (tiles.CustomerGroupedByStatus) {
+        <app-canvas-tile
+          [title]="'dashboard.customerGroupedByStatus' | translate"
+        [canvasId]="reportTag.CustomerGroupedByStatus"></app-canvas-tile>
+      }
+      @if (isAdmin && tiles.GroupedByGroupId) {
+        <app-canvas-tile
+          [title]="'dashboard.groupedByGroupId' | translate"
+        [canvasId]="reportTag.GroupedByGroupId"></app-canvas-tile>
+      }
     </div>
+  </div>
 </lib-view-layout>
