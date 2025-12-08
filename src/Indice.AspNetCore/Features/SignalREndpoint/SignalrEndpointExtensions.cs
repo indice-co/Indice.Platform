@@ -1,7 +1,6 @@
 ﻿using Azure.Core.Serialization;
 using Indice.AspNetCore.Features.SignalREndpoint.Interfaces;
 using Indice.Serialization;
-using Indice.Types;
 using Microsoft.Azure.SignalR.Management;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
