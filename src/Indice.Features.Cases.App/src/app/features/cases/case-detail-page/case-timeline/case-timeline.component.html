@@ -5,7 +5,7 @@
       <li
         class="mb-10 ml-6">
         <span
-          class="flex absolute -left-3 justify-center items-center w-6 h-6 bg-blue-200 rounded-full ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
+          class="flex absolute -left-3 justify-center items-center w-6 h-6 bg-blue-200 rounded-full ring-8 ring-white">
           @if (entry.checkpoint) {
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -46,7 +46,7 @@
                   </svg>
                 }
               </span>
-              <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900">
                 @if (entry.isCheckpoint) {
                   <span>{{entry.checkpoint?.checkpointType?.title ?? entry.checkpoint?.checkpointType?.code}}</span>
                 }
@@ -82,7 +82,7 @@
             </time>
             @if (entry.comment?.text && !entry.comment?.attachment?.id) {
               <div
-                class="p-3 text-xs italic font-normal text-gray-500 bg-gray-50 rounded-lg border border-gray-200 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300">
+                class="p-3 text-xs italic font-normal text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
                 {{entry.comment?.text}}
               </div>
             }
@@ -90,7 +90,7 @@
               <div>
                 <div>
                   <button (click)="onAttachmentClick(entry.comment?.attachment?.id!)"
-                    class="inline-flex items-center py-2 px-4 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700"><svg
+                    class="inline-flex items-center py-2 px-4 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700"><svg
                     class="mr-2 w-4 h-4"
                     fill="currentColor"
                     viewBox="0 0 20 20"
