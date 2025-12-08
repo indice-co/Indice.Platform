@@ -34,13 +34,7 @@ internal class NotificationSubscriptionService : INotificationSubscriptionServic
         return subscriptions;
     }
 
-    public async Task Subscribe(Subscriber subscriber, Guid caseTypeId, params Guid[]? otherCaseTypeIds) {
-        if (subscriber is null || subscriber.IsEmpty()) {
-            throw new ArgumentException("Subscriber cannot be null or empty.");
-        }
-
-        List<Guid> caseTypeIds = [caseTypeId, ..otherCaseTypeIds ?? []];
-
+    public async Task Subscribe(Subscriber subscriber, List<Guid>? caseTypeIds) {
         // remove existing subscriptions
         var entitiesToRemove = await _dbContext.NotificationSubscriptions
             .AsQueryable()
@@ -52,16 +46,15 @@ internal class NotificationSubscriptionService : INotificationSubscriptionServic
         }
 
         // add new subscriptions
-        var entitiesToAdd = caseTypeIds.Select(id => new DbNotificationSubscription {
+        var entitiesToAdd = caseTypeIds?.Select(id => new DbNotificationSubscription {
             CaseTypeId = id,
             Subscriber = subscriber.Clone()
         });
 
-        if (entitiesToAdd.Any()) {
-            await _dbContext.AddRangeAsync(entitiesToAdd);
+        if (entitiesToAdd?.Any() ?? false) {
+            _dbContext.AddRange(entitiesToAdd);
         }
 
         await _dbContext.SaveChangesAsync();
     }
-
 }

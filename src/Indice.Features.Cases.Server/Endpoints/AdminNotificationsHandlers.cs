@@ -29,11 +29,8 @@ internal static class AdminNotificationsHandlers
         NotificationSubscriptionRequest request,
         ClaimsPrincipal User,
         IOptions<CaseServerOptions> casesOptions,
-        INotificationSubscriptionService service) {
-
-        if (!(request.CaseTypeIds?.Count > 0)) {
-            return TypedResults.ValidationProblem(ValidationErrors.AddError("CaseTypeIds", "At least one case type id must be provided."));
-        }
+        INotificationSubscriptionService service
+    ) {
         await service.Subscribe(Subscriber.FromUser(User, casesOptions.Value.GroupIdClaimType), request.CaseTypeIds!);
         return TypedResults.NoContent();
     }
