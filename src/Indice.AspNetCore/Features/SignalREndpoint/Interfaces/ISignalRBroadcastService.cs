@@ -1,6 +1,4 @@
-﻿using Indice.SignalR.Endpoints;
-
-namespace Indice.AspNetCore.Features.SignalrEnpoint.Interfaces;
+﻿namespace Indice.AspNetCore.Features.SignalREndpoint.Interfaces;
 
 /// <summary>
 /// An interface for SignalR broadcasting service.

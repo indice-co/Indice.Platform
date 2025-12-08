@@ -1,14 +1,16 @@
-﻿using Indice.AspNetCore.Features.SignalrEnpoint.Interfaces;
-using Indice.SignalR.Endpoints;
+﻿using Indice.AspNetCore.Features.SignalREndpoint.Interfaces;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Azure.SignalR.Management;
 
-namespace Indice.AspNetCore.Features.SignalrEnpoint;
+namespace Indice.AspNetCore.Features.SignalREndpoint;
 
 /// <inheritdoc />
 public class SignalRBroadcastService : ISignalRBroadcastService {
     private readonly HubContextStore _hubContextStore;
 
+    /// <summary>
+    /// Initializes a new instance of the SignalRBroadcastService class using the specified hub context store.
+    /// </summary>
+    /// <param name="hubContextStore"></param>
     public SignalRBroadcastService(HubContextStore hubContextStore) {
         _hubContextStore = hubContextStore;
     }
@@ -20,7 +22,7 @@ public class SignalRBroadcastService : ISignalRBroadcastService {
     BroadcastCommand command,
     CancellationToken cancellationToken) {
 
-        var hubContext = await _hubContextStore.GetHubContextAsync(hub, CancellationToken.None);
+        var hubContext = await _hubContextStore.GetHubContextAsync(hub);
         await hubContext
             .Clients
             .User(userId)
@@ -31,7 +33,7 @@ public class SignalRBroadcastService : ISignalRBroadcastService {
     }
     /// <inheritdoc />
     public async Task BroadcastToUsers(string hub, BroadcastCommand command, CancellationToken cancellationToken) {
-        var hubContext = await _hubContextStore.GetHubContextAsync(hub, CancellationToken.None);
+        var hubContext = await _hubContextStore.GetHubContextAsync(hub);
         await hubContext
             .Clients
             .All
@@ -43,7 +45,7 @@ public class SignalRBroadcastService : ISignalRBroadcastService {
 
     /// <inheritdoc />
     public async Task BroadcastToGroup(string hub, string groupName, BroadcastCommand command, CancellationToken cancellationToken) {
-        var hubContext = await _hubContextStore.GetHubContextAsync(hub, CancellationToken.None);
+        var hubContext = await _hubContextStore.GetHubContextAsync(hub);
         await hubContext.Clients.Groups(groupName).SendCoreAsync(
                 method: "broadcastMessage",
                 args: ["system", command.Message],

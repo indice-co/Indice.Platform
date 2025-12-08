@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
-using Indice.SignalR.Endpoints;
 
-namespace Indice.AspNetCore.Features.SignalrEnpoint.Interfaces;
+namespace Indice.AspNetCore.Features.SignalREndpoint.Interfaces;
 
 /// <summary>
 /// Interface for exposed SignalR methods.

@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Indice.SignalR.Endpoints;
+namespace Indice.AspNetCore.Features.SignalREndpoint;
 
 /// <summary>Endpoint mappings for SignalR.</summary>
-public static class SignalrEndpointApi
+public static class SignalREndpointsApi
 {
 
     /// <summary>Maps SignalR endpoints.</summary>
@@ -17,7 +17,7 @@ public static class SignalrEndpointApi
 
         var options = routes.ServiceProvider.GetRequiredService<IOptions<SignalREndpointsOptions>>().Value;
         var group = routes.MapGroup($"{options.EndpointRoutePattern}");
-        group.WithTags("SignalR");
+        group.WithTags(options.TagName).WithGroupName(options.GroupName);
 
 
         group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(options.AuthenticationScheme)
@@ -50,6 +50,8 @@ public class SignalREndpointsOptions
     public string EndpointRoutePattern { get; set; } = "/api/signalr";
     /// <summary>Optional group name for the endpoints.</summary>
     public string GroupName { get; set; } = "SignalR";
+    /// <summary>Optional tag name for the endpoints.</summary>
+    public string TagName { get; set; } = "SignalR";
     /// <summary>Required scope to access the endpoints.</summary>
     public string RequiredScope { get; set; } = null!;
     /// <summary>
@@ -64,9 +66,4 @@ public class SignalREndpointsOptions
     /// List of allowed Hubs
     /// </summary>
     public List<string> AllowedHubs { get; set; } = new();
-
-    /// <summary>
-    /// A flag to indicate if broadcasting features are enabled.
-    /// </summary>
-    public bool HasBroadcasting { get; set; } = true;
 }

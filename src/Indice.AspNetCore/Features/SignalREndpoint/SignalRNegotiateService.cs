@@ -1,41 +1,41 @@
 ﻿using System.Security.Claims;
-using Indice.AspNetCore.Features.SignalrEnpoint.Interfaces;
-using Indice.SignalR.Endpoints;
+using Indice.AspNetCore.Features.SignalREndpoint.Interfaces;
 using Microsoft.Azure.SignalR.Management;
 using Microsoft.Extensions.Options;
 
-namespace Indice.AspNetCore.Features.SignalrEnpoint;
+namespace Indice.AspNetCore.Features.SignalREndpoint;
 
-/// <inheritdoc></inheritdoc>/>
+/// <inheritdoc/>
 public class SignalRNegotiateService : ISignalRNegotiateService
 {
     private readonly IOptions<SignalREndpointsOptions> _options;
     private readonly HubContextStore _hubContextStore;
 
     /// <summary>
-    /// The signalR service
+    /// Initializes a new instance of the SignalRNegotiateService.
     /// </summary>
-    /// <param name="serviceManager"></param>
-    /// <param name="options"></param>
+    /// <param name="options">The SignalR endpoints configuration options.</param>
+    /// <param name="hubContextStore">The hub context store for managing SignalR hub contexts.</param>
     public SignalRNegotiateService( IOptions<SignalREndpointsOptions> options, HubContextStore hubContextStore)
     {
         _options = options;
         _hubContextStore = hubContextStore;
     }
 
+    /// <inheritdoc/>
     public async Task<NegotiateResponse> Negotiate(
     string hub,
     string userId,
     List<Claim> userClaims,
     CancellationToken cancellationToken) {
 
-        var hubContext = await _hubContextStore.GetHubContextAsync(hub, CancellationToken.None);
+        var hubContext = await _hubContextStore.GetHubContextAsync(hub);
 
         await AddUserToGroups(hubContext, userClaims, userId, cancellationToken);
         var negotiationResponse = await hubContext.NegotiateAsync(new NegotiationOptions {
             TokenLifetime = TimeSpan.FromHours(1),
             UserId = userId
-        });
+        }, cancellationToken);
         return new NegotiateResponse(
                 negotiationResponse.Url,
                 negotiationResponse.AccessToken);
@@ -54,7 +54,7 @@ public class SignalRNegotiateService : ISignalRNegotiateService
             .Select(c => c.Value).ToList();
         if (userGroups.Any()) {
             var groupAddTasks = userGroups.Select(groupName =>
-                        hubContext.UserGroups.AddToGroupAsync(userId, groupName, cancellationToken));
+                        hubContext.UserGroups.AddToGroupAsync(userId, groupName, TimeSpan.FromHours(1), cancellationToken));
             await Task.WhenAll(groupAddTasks);
         }
     }

@@ -1,12 +1,10 @@
 ﻿using System.Collections.Concurrent;
-using Indice.SignalR.Endpoints;
 using Microsoft.Azure.SignalR.Management;
-using Microsoft.Extensions.Options;
 
-namespace Indice.AspNetCore.Features.SignalrEnpoint;
+namespace Indice.AspNetCore.Features.SignalREndpoint;
 
 /// <summary>
-/// Provides access to the SignalR hub contexts. Enhances reuseability.
+/// Provides access to the SignalR hub contexts. Enhances reusability.
 /// </summary>
 public class HubContextStore
 {
@@ -29,14 +27,12 @@ public class HubContextStore
     /// Return a Task that represents the asynchronous operation to get the hub context.
     /// </summary>
     /// <param name="hubName"></param>
-    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public Task<ServiceHubContext> GetHubContextAsync(string hubName, CancellationToken cancellationToken) {
+    public Task<ServiceHubContext> GetHubContextAsync(string hubName) {
 
         var lazy = _contexts.GetOrAdd(hubName, name =>
             new Lazy<Task<ServiceHubContext>>(() =>
-            _serviceManager.CreateHubContextAsync(name, cancellationToken))
-        );
+                _serviceManager.CreateHubContextAsync(name, CancellationToken.None), LazyThreadSafetyMode.ExecutionAndPublication));
         return lazy.Value;
     }
 }
