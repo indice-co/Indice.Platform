@@ -1,14 +1,13 @@
 ﻿using System.Security.Claims;
 using Indice.AspNetCore.Features.SignalrEnpoint.Interfaces;
-using Indice.Security;
 using Indice.SignalR.Endpoints;
 using Microsoft.Azure.SignalR.Management;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.SignalrEnpoint;
 
-public class SignalRListenerService : ISignalRListenerService
+/// <inheritdoc></inheritdoc>/>
+public class SignalRNegotiateService : ISignalRNegotiateService
 {
     private readonly IOptions<SignalREndpointsOptions> _options;
     private readonly HubContextStore _hubContextStore;
@@ -18,7 +17,7 @@ public class SignalRListenerService : ISignalRListenerService
     /// </summary>
     /// <param name="serviceManager"></param>
     /// <param name="options"></param>
-    public SignalRListenerService( IOptions<SignalREndpointsOptions> options, HubContextStore hubContextStore)
+    public SignalRNegotiateService( IOptions<SignalREndpointsOptions> options, HubContextStore hubContextStore)
     {
         _options = options;
         _hubContextStore = hubContextStore;
@@ -26,17 +25,13 @@ public class SignalRListenerService : ISignalRListenerService
 
     public async Task<NegotiateResponse> Negotiate(
     string hub,
-    ClaimsPrincipal currentUser,
+    string userId,
+    List<Claim> userClaims,
     CancellationToken cancellationToken) {
 
         var hubContext = await _hubContextStore.GetHubContextAsync(hub, CancellationToken.None);
-        var userId = currentUser.FindSubjectId();
-        //only for testing purposes
-        var allUserGroups = currentUser.Claims.ToList();
 
-        // Add user to groups based on claims
-        await AddUserToGroups(hubContext, currentUser, userId, cancellationToken);
-
+        await AddUserToGroups(hubContext, userClaims, userId, cancellationToken);
         var negotiationResponse = await hubContext.NegotiateAsync(new NegotiationOptions {
             TokenLifetime = TimeSpan.FromHours(1),
             UserId = userId
@@ -46,18 +41,16 @@ public class SignalRListenerService : ISignalRListenerService
                 negotiationResponse.AccessToken);
     }
 
-
-
     /// <summary>
     /// Add a user to groups based on their claims.
     /// </summary>
     /// <param name="hubContext"></param>
-    /// <param name="currentUser"></param>
     /// <param name="userId"></param>
+    /// <param name="userClaims"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private async Task AddUserToGroups(ServiceHubContext hubContext, ClaimsPrincipal currentUser, string userId, CancellationToken cancellationToken) {
-        var userGroups = currentUser.Claims.Where(userClaim => _options.Value.GroupClaims.Contains(userClaim.Type, StringComparer.OrdinalIgnoreCase))
+    private async Task AddUserToGroups(ServiceHubContext hubContext, List<Claim> userClaims, string userId, CancellationToken cancellationToken) {
+        var userGroups = userClaims.Where(userClaim => _options.Value.GroupClaims.Contains(userClaim.Type, StringComparer.OrdinalIgnoreCase))
             .Select(c => c.Value).ToList();
         if (userGroups.Any()) {
             var groupAddTasks = userGroups.Select(groupName =>
@@ -65,6 +58,4 @@ public class SignalRListenerService : ISignalRListenerService
             await Task.WhenAll(groupAddTasks);
         }
     }
-
-
 }

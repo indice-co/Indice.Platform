@@ -6,10 +6,10 @@ using Microsoft.Azure.SignalR.Management;
 namespace Indice.AspNetCore.Features.SignalrEnpoint;
 
 /// <inheritdoc />
-public class SignalRBroadcastingService : ISignalRBroadcastingService {
+public class SignalRBroadcastService : ISignalRBroadcastService {
     private readonly HubContextStore _hubContextStore;
 
-    public SignalRBroadcastingService(HubContextStore hubContextStore) {
+    public SignalRBroadcastService(HubContextStore hubContextStore) {
         _hubContextStore = hubContextStore;
     }
 

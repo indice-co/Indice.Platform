@@ -1,53 +1,39 @@
 ﻿using System.Security.Claims;
 using Indice.AspNetCore.Features.SignalrEnpoint.Interfaces;
+using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Options;
 
 namespace Indice.SignalR.Endpoints
 {
     internal static class SignalREndpointsHandler
     {
-        public static async Task<Ok<NegotiateResponse>> Negotiate(
+        public static async Task<Results<Ok<NegotiateResponse>, NotFound<string>>> Negotiate(
             string hub,
             ClaimsPrincipal currentUser,
             CancellationToken cancellationToken,
-            ISignalRListenerService signalRListeningService)
+            ISignalRNegotiateService signalRNegotiateService,
+            IOptions<SignalREndpointsOptions> options)
         {
-            var response = await signalRListeningService.Negotiate(hub, currentUser, cancellationToken);
+            if(!options.Value.AllowedHubs.Contains(hub)) {
+                return TypedResults.NotFound($"The hub name is not recognized.");
+            }
+            var userId = currentUser.FindSubjectId();
+            var userClaims = currentUser.Claims.ToList();
+            var response = await signalRNegotiateService.Negotiate(hub, userId, userClaims, cancellationToken);
             return TypedResults.Ok(response);
         }
 
-        public static async Task<NoContent> BroadcastToUser(
-            string hub,
-            string userId,
-            BroadcastCommand command,
-            CancellationToken cancellationToken,
-            ISignalRBroadcastingService signalRBroadcastingService)
-        {
-            await signalRBroadcastingService.BroadcastToUser(hub, userId, command, cancellationToken);
-            return TypedResults.NoContent();
-        }
+        #region Descriptions
+        public static readonly string NEGOTIATE = @"
+Returns the proper credentials to listen to a hub.
 
-        public static async Task<NoContent> BroadcastToUsers(
-           string hub,
-           BroadcastCommand command,
-           ISignalRBroadcastingService signalRBroadcastingService,
-           CancellationToken cancellationToken)
-        {
-            await signalRBroadcastingService.BroadcastToUsers(hub, command, cancellationToken);
-            return TypedResults.NoContent();
-        }
-
-        public static async Task<NoContent> BroadcastToGroup(
-            string hub,
-            string groupName,
-            BroadcastCommand command,
-            ISignalRBroadcastingService signalRBroadcastingService,
-            CancellationToken cancellationToken) {
-
-            await signalRBroadcastingService.BroadcastToGroup(hub, groupName, command, cancellationToken);
-            return TypedResults.NoContent();
-        }
+Parameters:
+- hub: The name of the SignalR hub to connect to.
+- currentUser: The authenticated user's claims principal.
+- cancellationToken: Cancellation token for the async operation.";
+        #endregion
     }
 
     /// <summary>
@@ -59,6 +45,5 @@ namespace Indice.SignalR.Endpoints
 
     /// <summary>A command to broadcast a message.</summary>
     /// <param name="Message">The message to broadcast.</param>
-    public record BroadcastCommand(string Message);
-
+    public record BroadcastCommand(dynamic Message);
 }

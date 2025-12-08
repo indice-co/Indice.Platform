@@ -5,7 +5,7 @@ namespace Indice.AspNetCore.Features.SignalrEnpoint.Interfaces;
 /// <summary>
 /// An interface for SignalR broadcasting service.
 /// </summary>
-public interface ISignalRBroadcastingService
+public interface ISignalRBroadcastService
 {
     /// <summary>
     /// Broadcasts a command to a specific user.
