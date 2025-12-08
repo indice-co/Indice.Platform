@@ -237,6 +237,6 @@ input[type="file"]::file-selector-button:hover {
   background-color: #f3f4f6; /* gray-100 */
 }
 
-button {
+button:not(:disabled) {
     cursor: pointer;
 }
