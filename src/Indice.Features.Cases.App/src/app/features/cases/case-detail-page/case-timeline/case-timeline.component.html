@@ -1,11 +1,11 @@
 <div class="mt-auto pt-1 space-y-1 pl-1">
   <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Ιστορικό</h3>
-  <ol class="relative border-l border-gray-200 dark:border-gray-700">
+  <ol class="relative border-l border-gray-200">
     @for (entry of timelineEntries; track entry) {
       <li
         class="mb-10 ml-6">
         <span
-          class="flex absolute -left-3 justify-center items-center w-6 h-6 bg-blue-200 rounded-full ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
+          class="flex absolute -left-3 justify-center items-center w-6 h-6 bg-blue-200 rounded-full ring-8 ring-white">
           @if (entry.checkpoint) {
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -46,7 +46,7 @@
                   </svg>
                 }
               </span>
-              <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900">
                 @if (entry.isCheckpoint) {
                   <span>{{entry.checkpoint?.checkpointType?.title ?? entry.checkpoint?.checkpointType?.code}}</span>
                 }
@@ -58,23 +58,23 @@
                 }
                 @if (entry.checkpoint?.checkpointType?.private) {
                   <span
-                  class="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">Private</span>
+                  class="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded ml-3">Private</span>
                 }
                 @if (entry.comment?.isCustomer) {
                   <span
-                  class="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">Πελάτης</span>
+                  class="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded ml-3">Πελάτης</span>
                 }
                 <ng-container *ngTemplateOutlet="publicStatus;context:{status: entry.checkpoint?.checkpointType?.status}">
                 </ng-container>
               </h3>
-              <time class="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500"><span
+              <time class="block mb-2 text-sm font-normal leading-none text-gray-400"><span
                 data-tooltip-target="tooltip-user"
                 title=" {{entry.createdBy?.email}}">
               {{entry.createdBy?.name}} </span> &#64; {{entry.timestamp
               | date:'dd/MM/yy, HH:mm'}}
               <div id="tooltip-user"
                 role="tooltip"
-                class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-dark-green rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip dark:bg-gray-700">
+                class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-dark-green rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip">
                 {{entry.createdBy?.email}}
                 <div class="tooltip-arrow"
                 data-popper-arrow></div>
@@ -82,7 +82,7 @@
             </time>
             @if (entry.comment?.text && !entry.comment?.attachment?.id) {
               <div
-                class="p-3 text-xs italic font-normal text-gray-500 bg-gray-50 rounded-lg border border-gray-200 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300">
+                class="p-3 text-xs italic font-normal text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
                 {{entry.comment?.text}}
               </div>
             }
@@ -90,7 +90,7 @@
               <div>
                 <div>
                   <button (click)="onAttachmentClick(entry.comment?.attachment?.id!)"
-                    class="inline-flex items-center py-2 px-4 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700"><svg
+                    class="inline-flex items-center py-2 px-4 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700"><svg
                     class="mr-2 w-4 h-4"
                     fill="currentColor"
                     viewBox="0 0 20 20"
@@ -111,17 +111,17 @@
       let-status="status">
       @if (status !== null && !hideStatuses) {
         <span [ngClass]="{
-            'bg-blue-100 text-blue-800 rounded dark:bg-blue-200 dark:text-blue-800': status === 'Submitted',
-            'bg-yellow-100 text-yellow-800 dark:bg-yellow-200 dark:text-yellow-900': status === 'InProgress',
-            'bg-green-100 text-green-800 dark:bg-green-200 dark:text-green-900': status === 'Completed',
-            'bg-red-100 text-red-800 dark:bg-red-200 dark:text-red-900': status === 'Deleted'
+            'bg-blue-100 text-blue-800 rounded ': status === 'Submitted',
+            'bg-yellow-100 text-yellow-800 ': status === 'InProgress',
+            'bg-green-100 text-green-800 ': status === 'Completed',
+            'bg-red-100 text-red-800 ': status === 'Deleted'
         }"
           class="ml-2 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded"
           data-tooltip-target="tooltip-public-status"
         title="Status Πελάτη">{{status}}</span>
         <div id="tooltip-public status"
           role="tooltip"
-          class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-dark-green rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip dark:bg-gray-700">
+          class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-dark-green rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip ">
           Status πελάτη
           <div class="tooltip-arrow"
           data-popper-arrow></div>
