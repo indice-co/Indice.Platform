@@ -24,6 +24,12 @@ public class Subscriber
     }
 
     /// <summary>
+    /// Determines whether the email address is null, empty, or consists only of white-space characters.
+    /// </summary>
+    /// <returns>true if the email address is null, empty, or contains only white-space characters; otherwise, false.</returns>
+    public bool IsEmpty() => string.IsNullOrWhiteSpace(Email);
+
+    /// <summary>
     /// Creates a new Subscriber instance that is a copy of the current instance.
     /// </summary>
     /// <returns>A new Subscriber object with the same Email and GroupId values as the current instance.</returns>
