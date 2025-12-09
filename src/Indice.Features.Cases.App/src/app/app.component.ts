@@ -18,7 +18,7 @@ import { settings } from './core/models/settings';
 })
 export class AppComponent {
   settings = settings;
-  
+
   constructor(translate: TranslateService) {
     translate.setDefaultLang('el');
   }

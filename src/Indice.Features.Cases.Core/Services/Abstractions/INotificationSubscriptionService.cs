@@ -15,8 +15,8 @@ public interface INotificationSubscriptionService
     /// <summary>
     /// Subscribes the specified subscriber to notifications for one or more case types.
     /// </summary>
-    /// <param name="subscriber">The subscriber to register for case type notifications. Cannot be null.</param>    
-    /// <param name="caseTypeIds">Optional case type identifiers to subscribe to. If not specified, only the primary case type is used.</param>
+    /// <param name="subscriber">The subscriber to register for case type notifications. Cannot be null.</param>
+    /// <param name="caseTypeIds">Optional case type identifiers to subscribe to. If not specified or empty, all existing subscriptions will be removed (the subscriber will be unsubscribed from all case types).</param>
     /// <returns>A task that represents the asynchronous subscription operation.</returns>
     Task Subscribe(Subscriber subscriber, List<Guid>? caseTypeIds);
 }
