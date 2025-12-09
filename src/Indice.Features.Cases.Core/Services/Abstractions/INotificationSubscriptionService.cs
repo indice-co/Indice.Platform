@@ -16,31 +16,7 @@ public interface INotificationSubscriptionService
     /// Subscribes the specified subscriber to notifications for one or more case types.
     /// </summary>
     /// <param name="subscriber">The subscriber to register for case type notifications. Cannot be null.</param>
-    /// <param name="caseTypeId">The identifier of the primary case type to subscribe to.</param>
-    /// <param name="otherCaseTypeIds">Optional additional case type identifiers to subscribe to. If not specified, only the primary case type is used.</param>
+    /// <param name="caseTypeIds">Optional case type identifiers to subscribe to. If not specified or empty, all existing subscriptions will be removed (the subscriber will be unsubscribed from all case types).</param>
     /// <returns>A task that represents the asynchronous subscription operation.</returns>
-    Task Subscribe(Subscriber subscriber, Guid caseTypeId, params Guid[]? otherCaseTypeIds);
-}
-
-/// <summary>
-/// Provides extension methods for the <see cref="INotificationSubscriptionService"/> interface to facilitate
-/// notification subscription operations.
-/// </summary>
-public static class INotificationSubscriptionServiceExtensions
-{
-    /// <summary>
-    /// Subscribes the specified subscriber to notifications for one or more case types.
-    /// </summary>
-    /// <param name="service">The notification subscription service used to register the subscriber.</param>
-    /// <param name="subscriber">The subscriber to be registered for notifications.</param>
-    /// <param name="caseTypeIds">An array of case type identifiers to which the subscriber will be subscribed. Must contain at least one element.</param>
-    /// <returns>A task that represents the asynchronous subscription operation.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="caseTypeIds"/> is null or empty.</exception>
-    public static Task Subscribe(this INotificationSubscriptionService service, Subscriber subscriber, List<Guid> caseTypeIds) {
-        if (caseTypeIds == null || caseTypeIds.Count == 0) {
-            throw new ArgumentOutOfRangeException(nameof(caseTypeIds));
-        }
-
-        return service.Subscribe(subscriber, caseTypeIds[0], [.. caseTypeIds.Skip(1)]);
-    }
+    Task Subscribe(Subscriber subscriber, params List<Guid> caseTypeIds);
 }
