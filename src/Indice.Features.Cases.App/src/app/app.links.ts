@@ -39,9 +39,11 @@ export class AppLinks implements IAppLinks {
                             }
                             if (this.authService.isAdmin()) {
                                 this.headerMenu.push(new NavLink('Διαχείριση Υποθέσεων', '/case-types', true, undefined, Icons.CaseTypes));
-                            } else {
+                            }
+                            if (this.authService.isAdmin() || this.authService.hasRole('CasesManager') || this.authService.hasRole('CasesAdministrator')) {
                                 this.headerMenu.push(new NavLink('Ειδοποιήσεις', '/notifications', true, undefined, Icons.Notifications));
                             }
+
                             return this.headerMenu;
                         })
                     );
