@@ -27,12 +27,12 @@ public class HubContextStore
     /// Return a Task that represents the asynchronous operation to get the hub context.
     /// </summary>
     /// <param name="hubName"></param>
-    /// <returns></returns>
-    public Task<ServiceHubContext> GetHubContextAsync(string hubName) {
+    /// <param name="cancellationToken"></param>
+    public Task<ServiceHubContext> GetHubContextAsync(string hubName, CancellationToken cancellationToken) {
 
         var lazy = _contexts.GetOrAdd(hubName, name =>
             new Lazy<Task<ServiceHubContext>>(() =>
-                _serviceManager.CreateHubContextAsync(name, CancellationToken.None), LazyThreadSafetyMode.ExecutionAndPublication));
+                _serviceManager.CreateHubContextAsync(name, cancellationToken), LazyThreadSafetyMode.ExecutionAndPublication));
         return lazy.Value;
     }
 }

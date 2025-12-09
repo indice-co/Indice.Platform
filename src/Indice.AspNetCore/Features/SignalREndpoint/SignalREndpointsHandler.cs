@@ -44,5 +44,6 @@ Parameters:
 public record NegotiateResponse(string? url, string? accessToken);
 
 /// <summary>A command to broadcast a message.</summary>
+/// <param name="Method">The method name to invoke.</param>
 /// <param name="Message">The message to broadcast.</param>
-public record BroadcastCommand(dynamic Message);
+public record BroadcastCommand(string Method,dynamic Message);

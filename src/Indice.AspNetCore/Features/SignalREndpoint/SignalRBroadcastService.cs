@@ -22,33 +22,33 @@ public class SignalRBroadcastService : ISignalRBroadcastService {
     BroadcastCommand command,
     CancellationToken cancellationToken) {
 
-        var hubContext = await _hubContextStore.GetHubContextAsync(hub);
+        var hubContext = await _hubContextStore.GetHubContextAsync(hub, cancellationToken);
         await hubContext
             .Clients
             .User(userId)
                 .SendCoreAsync(
-                    method: "broadcastMessage",
-                    args: ["system", command.Message],
+                    method: command.Method,
+                    args: [command.Message],
                     cancellationToken: cancellationToken);
     }
     /// <inheritdoc />
     public async Task BroadcastToUsers(string hub, BroadcastCommand command, CancellationToken cancellationToken) {
-        var hubContext = await _hubContextStore.GetHubContextAsync(hub);
+        var hubContext = await _hubContextStore.GetHubContextAsync(hub, cancellationToken);
         await hubContext
             .Clients
             .All
             .SendCoreAsync(
-                method: "broadcastMessage",
-                args: ["system", command.Message],
+                method: command.Method,
+                args: [command.Message],
                 cancellationToken: cancellationToken);
     }
 
     /// <inheritdoc />
     public async Task BroadcastToGroup(string hub, string groupName, BroadcastCommand command, CancellationToken cancellationToken) {
-        var hubContext = await _hubContextStore.GetHubContextAsync(hub);
+        var hubContext = await _hubContextStore.GetHubContextAsync(hub, cancellationToken);
         await hubContext.Clients.Groups(groupName).SendCoreAsync(
-                method: "broadcastMessage",
-                args: ["system", command.Message],
+                method: command.Method,
+                args: [command.Message],
                 cancellationToken: cancellationToken);
     }
 

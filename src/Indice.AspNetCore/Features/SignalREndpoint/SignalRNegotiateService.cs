@@ -29,7 +29,7 @@ public class SignalRNegotiateService : ISignalRNegotiateService
     List<Claim> userClaims,
     CancellationToken cancellationToken) {
 
-        var hubContext = await _hubContextStore.GetHubContextAsync(hub);
+        var hubContext = await _hubContextStore.GetHubContextAsync(hub, cancellationToken);
 
         await AddUserToGroups(hubContext, userClaims, userId, cancellationToken);
         var negotiationResponse = await hubContext.NegotiateAsync(new NegotiationOptions {
