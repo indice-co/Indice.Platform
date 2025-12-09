@@ -29,7 +29,12 @@
              [ngClass]="{ 'text-green-800 bg-green' : (metrics?.campaign?.trend >=0), 'bg-red-100 text-red-800': (metrics?.campaign?.trend < 0) }"
              class="inline-flex items-baseline rounded-full px-2.5 py-0.5 text-sm font-medium md:mt-2 lg:mt-0"
              title="{{metrics?.campaign?.totalToday}} {{ 'DashBoard.TotalCampaignsToday' | translate }}">
-          <svg ...>...</svg>
+          @if(metrics?.campaign?.trend > 0) {
+          <img src="assets/images/arrow-up.svg" title="up trend" style="width: 14px; filter: brightness(0) saturate(100%) invert(22%) sepia(69%) saturate(1569%) hue-rotate(125deg) brightness(98%) contrast(103%);" />
+          }
+          @else if(metrics?.campaign?.trend < 0) {
+          <img src="assets/images/arrow-down.svg" title="down trend" style="width: 14px; filter: brightness(0) saturate(100%) invert(11%) sepia(94%) saturate(5449%) hue-rotate(351deg) brightness(68%) contrast(100%);" />
+          }
           <span class="sr-only">{{ 'DashBoard.IncreasedBySr' | translate }}</span>
           {{ metrics?.campaign?.trend | percent:'1.0-1' }}
         </div>
