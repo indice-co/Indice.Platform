@@ -29,10 +29,12 @@
              [ngClass]="{ 'text-green-800 bg-green' : (metrics?.campaign?.trend >=0), 'bg-red-100 text-red-800': (metrics?.campaign?.trend < 0) }"
              class="inline-flex items-baseline rounded-full px-2.5 py-0.5 text-sm font-medium md:mt-2 lg:mt-0"
              title="{{metrics?.campaign?.totalToday}} {{ 'DashBoard.TotalCampaignsToday' | translate }}">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="mr-0.5 -ml-1 size-5 shrink-0 self-center">
-            <path *ngIf="(metrics?.campaign?.trend >=0)" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clip-rule="evenodd" fill-rule="evenodd"></path>
-            <path *ngIf="(metrics?.campaign?.trend <=0)" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clip-rule="evenodd" fill-rule="evenodd"></path>
-          </svg>
+          @if(metrics?.campaign?.trend > 0) {
+          <img src="assets/images/arrow-up.svg" title="up trend" style="width: 14px; filter: brightness(0) saturate(100%) invert(22%) sepia(69%) saturate(1569%) hue-rotate(125deg) brightness(98%) contrast(103%);" />
+          }
+          @else if(metrics?.campaign?.trend < 0) {
+          <img src="assets/images/arrow-down.svg" title="down trend" style="width: 14px; filter: brightness(0) saturate(100%) invert(11%) sepia(94%) saturate(5449%) hue-rotate(351deg) brightness(68%) contrast(100%);" />
+          }
           <span class="sr-only">{{ 'DashBoard.IncreasedBySr' | translate }}</span>
           {{ metrics?.campaign?.trend | percent:'1.0-1' }}
         </div>
