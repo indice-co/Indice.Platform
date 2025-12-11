@@ -6,7 +6,7 @@ namespace Indice.Features.Cases.Core.Services.NoOpServices;
 
 internal class NoOpCaseDataInitializer : ICaseDataInitializer
 {
-    public Task<JsonNode?> InitializeAsync(Contact contact, string caseTypeCode) =>
+    public Task<JsonNode?> InitializeAsync(Contact owner, string caseTypeCode) =>
         Task.FromResult(
             caseTypeCode is "SampleAddress"
             ? JsonNode.Parse("""
