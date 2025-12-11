@@ -33,8 +33,4 @@ public class Contact
     /// <summary>Any extra metadata with consumer/integrator business logic.</summary>
     /// <remarks>Used to initialize a new case instance <strong>MetaData</strong> when this contact is selected as the owner/customer</remarks>
     public Dictionary<string, string> Metadata { get; set; } = [];
-
-    /// <summary>Theis is a dynamic object that is polulated accordingly in order to populate case forms from the owner contact.</summary>
-    /// <remarks>used to initialize a new case instance <strong>Data</strong> when this contact is selected as the owner/customer</remarks>
-    public object? FormData { get; set; } // TODO: This can be removed, since we have `ICaseDataInitializer` service 
 }
