@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Numerics;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Models;
 using Indice.Security;
@@ -89,6 +88,4 @@ public static class CasesClaimsPrincipalExtensions
             Tin = user.FindFirstValue(options.TinClaimType)
         };
     }
-
-
 }
