@@ -1,7 +1,6 @@
 ﻿using Indice.Hosting.Data.Models;
 using Indice.Hosting.Services;
 using Microsoft.EntityFrameworkCore;
-using Polly;
 
 namespace Indice.Hosting.Data;
 
