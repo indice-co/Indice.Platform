@@ -299,7 +299,7 @@ internal static class AdminCasesHandlers
             Reference = @case.OwnerId,
             Tin = @case.OwnerTin,
             GroupId = @case.GroupId,
-            FirstName = @case.OwnerName?.Trim()?.Split(" ", StringSplitOptions.RemoveEmptyEntries)?.FirstOrDefault(),
+            FirstName = @case.OwnerName?.Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries)?.FirstOrDefault(),
             LastName = @case.OwnerName is not null
                 ? string.Join(' ', @case.OwnerName.Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries).Skip(1))
                 : null
