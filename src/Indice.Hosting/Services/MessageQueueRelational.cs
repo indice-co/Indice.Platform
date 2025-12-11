@@ -172,7 +172,7 @@ internal static class SqlServerMessageQueueQueries
                 ORDER BY [Date] ASC
             )
             DELETE FROM cte 
-            OUTPUT [deleted].*;";
+            OUTPUT [deleted].[Id], [deleted].[QueueName], [deleted].[Payload], [deleted].[Date], [deleted].[RowVersion], [deleted].[DequeueCount], [deleted].[State];";
     public const string Enqueue = @"
             INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) 
             VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);";
@@ -203,7 +203,13 @@ internal static class PostgreSqlMessageQueueQueries
                 FOR UPDATE SKIP LOCKED
             ) q
             WHERE q.""Id"" = ""work"".""QMessage"".""Id"" AND q.""Date"" <= CURRENT_TIMESTAMP
-            RETURNING ""work"".""QMessage"".*;
+            RETURNING ""work"".""QMessage"".""Id"",
+                      ""work"".""QMessage"".""QueueName"",
+                      ""work"".""QMessage"".""Payload"",
+                      ""work"".""QMessage"".""Date"",
+                      ""work"".""QMessage"".""RowVersion"",
+                      ""work"".""QMessage"".""DequeueCount"",
+                      ""work"".""QMessage"".""State"";
         ";
     public const string Enqueue = @"
             INSERT INTO ""work"".""QMessage"" (""Id"", ""QueueName"", ""Payload"", ""Date"", ""DequeueCount"", ""State"")

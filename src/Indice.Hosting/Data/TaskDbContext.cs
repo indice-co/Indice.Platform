@@ -1,6 +1,7 @@
 ﻿using Indice.Hosting.Data.Models;
 using Indice.Hosting.Services;
 using Microsoft.EntityFrameworkCore;
+using Polly;
 
 namespace Indice.Hosting.Data;
 
@@ -26,6 +27,9 @@ public class TaskDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
         builder.ApplyConfiguration(new DbQMessageMap());
+        if (Database.ProviderName == "Npgsql.EntityFrameworkCore.PostgreSQL") {
+            builder.ApplyConfiguration(new DbQMessagePostgreSQLMap());
+        }
         builder.ApplyConfiguration(new DbScheduledTaskMap());
         builder.ApplyConfiguration(new DbLockMap());
     }
