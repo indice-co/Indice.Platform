@@ -35,6 +35,7 @@ public sealed class DbQMessagePostgreSQLMap : IEntityTypeConfiguration<DbQMessag
            .HasColumnType("bytea")
            .IsConcurrencyToken()
            .ValueGeneratedOnAddOrUpdate()
-           .HasDefaultValueSql("gen_random_bytes(8)");
+           .HasDefaultValueSql("encode(('x' || lpad(extract(epoch from now())::bigint::text, 16, '0'))::text::bytea, 'hex')::bytea");
+
     }
 }
