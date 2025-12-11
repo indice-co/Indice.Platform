@@ -294,7 +294,12 @@ internal static class AdminCasesHandlers
             return TypedResults.NotFound();
         }
 
-        var data = await caseDataInitializer.InitializeAsync(currentUser.UserToActor(casesOptions.Value), @case.CaseType.Code.ToString());
+        var owner = new Contact() {
+            Reference = @case.OwnerId,
+            Tin = @case.OwnerTin
+        };
+
+        var data = await caseDataInitializer.InitializeAsync(currentUser.UserToActor(casesOptions.Value), @case.CaseType.Code.ToString(), owner);
         return data is null
             ? TypedResults.Ok(JsonNode.Parse("{}"))
             : TypedResults.Ok(data);
