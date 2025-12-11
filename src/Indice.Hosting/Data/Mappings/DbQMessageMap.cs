@@ -19,3 +19,23 @@ public sealed class DbQMessageMap : IEntityTypeConfiguration<DbQMessage>
         builder.Property(x => x.RowVersion).IsRowVersion();
     }
 }
+
+/// <summary>
+/// EF Core configuration for <see cref="DbQMessage"/> entity specific to PostgreSQL.
+/// This configuration provides PostgreSQL-specific mappings for the <c>RowVersion</c> property,
+/// including the use of the <c>bytea</c> column type and custom default value generation,
+/// to ensure proper concurrency control in PostgreSQL environments.
+/// </summary>
+public sealed class DbQMessagePostgreSQLMap : IEntityTypeConfiguration<DbQMessage>
+{
+    /// <inheritdoc />
+    public void Configure(EntityTypeBuilder<DbQMessage> builder) {
+        builder.Property(x => x.RowVersion)
+           .HasColumnName("RowVersion")
+           .HasColumnType("bytea")
+           .IsConcurrencyToken()
+           .ValueGeneratedOnAddOrUpdate()
+           .HasDefaultValueSql("encode(('x' || lpad(extract(epoch from now())::bigint::text, 16, '0'))::text::bytea, 'hex')::bytea");
+
+    }
+}
