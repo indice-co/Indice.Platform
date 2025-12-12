@@ -11,4 +11,5 @@ public class CreateMessageRequest
     public MessageContentDictionary Content { get; set; } = [];
     /// <summary>The unique identifier of the campaign.</summary>
     public Guid CampaignId { get; set; }
+    public Guid? TypeId { get; set; }
 }

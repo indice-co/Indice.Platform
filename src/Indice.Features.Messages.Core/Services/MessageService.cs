@@ -164,6 +164,8 @@ public class MessageService : IMessageService
             RecipientId = recipientId,
             Content = GetMessageContent(dbCampaign, contact),
             ContactId = contact?.Id,
+            CreatedAt = DateTimeOffset.UtcNow,
+            TypeId = dbCampaign.TypeId
         };
         return dbMessage;
     }
@@ -202,7 +204,9 @@ public class MessageService : IMessageService
             ContactId = request.ContactId,
             Content = request.Content,
             Id = Guid.NewGuid(),
-            RecipientId = request.RecipientId
+            RecipientId = request.RecipientId,
+            CreatedAt = DateTimeOffset.UtcNow,
+            TypeId = request.TypeId
         };
         DbContext.Messages.Add(dbMessage);
         await DbContext.SaveChangesAsync();
@@ -210,6 +214,7 @@ public class MessageService : IMessageService
         return dbMessage.Id;
     }
 
+    //make some changes here for when retrieving
     private IQueryable<Message> GetUserMessagesQuery(string recipientId, MessagesFilter? filter = null, string? searchTerm = null) {
         var query = DbContext
             .Campaigns
@@ -217,7 +222,7 @@ public class MessageService : IMessageService
             .Include(x => x.Attachment)
             .Include(x => x.Type)
             .SelectMany(
-                collectionSelector: campaign => DbContext.Messages.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.RecipientId == recipientId).DefaultIfEmpty(),
+                collectionSelector: campaign => DbContext.Messages.Include(x => x.Type).AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.RecipientId == recipientId).DefaultIfEmpty(),
                 resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }
             )
             .Where(x => x.Campaign.Published
@@ -274,16 +279,16 @@ public class MessageService : IMessageService
             Content = x.Message != null && x.Message.Content.ContainsKey(channelKindKey)
                 ? x.Message.Content[channelKindKey].Body
                 : x.Campaign != null && x.Campaign.Content.ContainsKey(channelKindKey) ? x.Campaign.Content[channelKindKey].Body : string.Empty,
-            CreatedAt = x.Campaign!.CreatedAt,
+            CreatedAt = x.Message!.CreatedAt,
             RequiresSubstitutions = x.Message == null,
             CampaignData = x.Campaign.Data,
             Id = x.Campaign.Id,
             IsRead = x.Message != null && x.Message.IsRead,
-            Type = x.Campaign.Type != null ? new MessageType {
-                Id = x.Campaign.Type.Id,
-                Name = x.Campaign.Type.Name,
-                Alias = x.Campaign.Type.Alias,
-                Classification = x.Campaign.Type.Classification,
+            Type = x.Message.Type != null ? new MessageType {
+                Id = x.Message.Type.Id,
+                Name = x.Message.Type.Name,
+                Alias = x.Message.Type.Alias,
+                Classification = x.Message.Type.Classification,
             } : null
         });
     }

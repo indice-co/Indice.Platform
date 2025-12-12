@@ -25,6 +25,13 @@ public class DbMessage
     public Guid CampaignId { get; set; }
     /// <summary>Navigation property pointing to the campaign.</summary>
     public virtual DbCampaign Campaign { get; set; } = null!;
+    /// <summary>Specifies when an entity was created.</summary>
+    public DateTimeOffset CreatedAt { get; set; }
+    /// <summary>Foreign key to the <see cref="DbMessageType"/>.</summary>
+    public Guid? TypeId { get; set; }
+    /// <summary>The type details of the campaign.</summary>
+    public virtual DbMessageType Type { get; set; } = null!;
+
 
     /// <summary>
     /// Returns the content for the specified channel kind.

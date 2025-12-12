@@ -138,7 +138,10 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             CampaignId = campaign.Id,
             ContactId = contact!.Id,
             Content = campaign.Content,
-            RecipientId = contact.RecipientId
+            RecipientId = contact.RecipientId,
+            //We have to get hold of this information at this point
+            TypeId = campaign.Type?.Id
+            
         });
         var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
         var contactChannels = contact.GetAvailableChannels(campaign.MessageChannelKind, campaign.Type, campaign.IgnoreUserPreferences);

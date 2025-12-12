@@ -27,5 +27,6 @@ public class DbMessageMap : IEntityTypeConfiguration<DbMessage>
         builder.Property(x => x.RecipientId).IsRequired(false);
         // Configure indexes.
         builder.HasIndex(x => x.RecipientId).IsUnique(false);
+        builder.HasOne(x => x.Type).WithMany().HasForeignKey(x => x.TypeId);
     }
 }
