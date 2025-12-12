@@ -139,7 +139,6 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             ContactId = contact!.Id,
             Content = campaign.Content,
             RecipientId = contact.RecipientId,
-            //We have to get hold of this information at this point
             TypeId = campaign.Type?.Id
             
         });

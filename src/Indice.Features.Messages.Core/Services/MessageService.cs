@@ -214,7 +214,6 @@ public class MessageService : IMessageService
         return dbMessage.Id;
     }
 
-    //make some changes here for when retrieving
     private IQueryable<Message> GetUserMessagesQuery(string recipientId, MessagesFilter? filter = null, string? searchTerm = null) {
         var query = DbContext
             .Campaigns
@@ -222,7 +221,7 @@ public class MessageService : IMessageService
             .Include(x => x.Attachment)
             .Include(x => x.Type)
             .SelectMany(
-                collectionSelector: campaign => DbContext.Messages.Include(x => x.Type).AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.RecipientId == recipientId).DefaultIfEmpty(),
+                collectionSelector: campaign => DbContext.Messages.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.RecipientId == recipientId).DefaultIfEmpty(),
                 resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }
             )
             .Where(x => x.Campaign.Published
@@ -284,11 +283,11 @@ public class MessageService : IMessageService
             CampaignData = x.Campaign.Data,
             Id = x.Campaign.Id,
             IsRead = x.Message != null && x.Message.IsRead,
-            Type = x.Message.Type != null ? new MessageType {
-                Id = x.Message.Type.Id,
-                Name = x.Message.Type.Name,
-                Alias = x.Message.Type.Alias,
-                Classification = x.Message.Type.Classification,
+            Type = x.Campaign!.Type != null ? new MessageType {
+                Id = x.Campaign.Type.Id,
+                Name = x.Campaign.Type.Name,
+                Alias = x.Campaign.Type.Alias,
+                Classification = x.Campaign.Type.Classification,
             } : null
         });
     }
