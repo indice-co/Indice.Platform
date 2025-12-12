@@ -66,8 +66,15 @@ internal static class ObjectMapping
         };
     }
 
-    // Optimized bulk conversion method
-    public static IEnumerable<DbSignInLogEntry> ToDbSignInLogEntries(this IEnumerable<SignInLogEntry> logEntries) {
-        return logEntries.Select(ToDbSignInLogEntry);
+    public static List<DbSignInLogEntry> ToDbSignInLogEntries(this IEnumerable<SignInLogEntry> logEntries) {
+        if (logEntries is ICollection<SignInLogEntry> collection) {
+            var result = new List<DbSignInLogEntry>(collection.Count);
+            foreach (var entry in collection) {
+                result.Add(entry.ToDbSignInLogEntry());
+            }
+            return result;
+        }
+        // Fallback for unknown count
+        return logEntries.Select(ToDbSignInLogEntry).ToList();
     }
 }
