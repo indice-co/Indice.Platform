@@ -140,11 +140,11 @@ public abstract class BaseRegisterModel : BasePageModel
                 UserName = context.LoginHint,
             };
             if (!local) {
-                viewModel.ExternalProviders = new[] {
+                viewModel.ExternalProviders = [
                     new ExternalProviderModel {
                         AuthenticationScheme = context.IdP
                     }
-                };
+                ];
             }
             return viewModel;
         }
@@ -162,7 +162,7 @@ public abstract class BaseRegisterModel : BasePageModel
             if (client is not null) {
                 enableLocalLogin = client.EnableLocalLogin;
                 if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
-                    providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme!)).ToList();
+                    providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme!)).ToList();
                 }
             }
         }
