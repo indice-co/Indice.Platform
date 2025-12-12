@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Linq;
+using System.Security.Claims;
 #if NET9_0_OR_GREATER
 using Duende.IdentityModel;
 #else
@@ -203,13 +204,17 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <inheritdoc/>
     public override async Task SignInWithClaimsAsync(TUser user, AuthenticationProperties? authenticationProperties, IEnumerable<Claim> additionalClaims) {
         user.LastSignInDate = DateTimeOffset.UtcNow;
+
+        var amr = additionalClaims.Where(claim => claim.Type == JwtClaimTypes.AuthenticationMethod).Select(claim => claim.Value).ToArray();
+        var federatedLoginProvider = amr.Where(x => !new[] { "pwd", "mfa" }.Contains(x)).Select(x => new Claim(JwtClaimTypes.IdentityProvider, x)).FirstOrDefault();
+        additionalClaims = federatedLoginProvider != null ? [federatedLoginProvider, ..additionalClaims] : additionalClaims;
         await ExtendedUserManager.UpdateAsync(user);
         await base.SignInWithClaimsAsync(user, authenticationProperties, additionalClaims);
         var result = await _signInGuard.IsSuspiciousLogin(Context, user);
         await _eventService.Publish(UserLoginEvent.Success(
             UserEventContext.InitializeFromUser(user),
             result.Warning,
-            additionalClaims.Where(claim => claim.Type == JwtClaimTypes.AuthenticationMethod).Select(claim => claim.Value).ToArray()
+            amr
         ));
     }
 

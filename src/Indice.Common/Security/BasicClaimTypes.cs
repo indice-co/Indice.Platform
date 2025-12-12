@@ -13,6 +13,10 @@ public static class BasicClaimTypes
     public const string TenantId = "tenantId";
     /// <summary>Alternate key for the current tenant.</summary>
     public const string TenantAlias = "tenantAlias";
+    /// <summary>
+    /// The identity provider
+    /// </summary>
+    public const string IdentityProvider = "idp";
     /// <summary>User id.</summary>
     public const string Subject = "sub";
     /// <summary> User email.</summary>
