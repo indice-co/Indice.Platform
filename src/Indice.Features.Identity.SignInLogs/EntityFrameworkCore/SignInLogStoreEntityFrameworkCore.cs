@@ -38,14 +38,8 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
 
     /// <inheritdoc />
     public async Task CreateManyAsync(IEnumerable<SignInLogEntry> logEntries, CancellationToken cancellationToken = default) {
-        _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
-        try {
-            _dbContext.SignInLogs.AddRange(logEntries.ToDbSignInLogEntries());
-            await _dbContext.SaveChangesAsync(cancellationToken);
-            _dbContext.ChangeTracker.Clear();
-        } finally {
-            _dbContext.ChangeTracker.AutoDetectChangesEnabled = true;
-        }
+        _dbContext.SignInLogs.AddRange(logEntries.ToDbSignInLogEntries());
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <inheritdoc />

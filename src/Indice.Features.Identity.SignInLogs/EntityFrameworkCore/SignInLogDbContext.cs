@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Options;
+using Polly;
 
 namespace Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 
@@ -11,7 +12,7 @@ internal class SignInLogDbContext : DbContext
     /// <summary>Constructs the <see cref="SignInLogDbContext"/> passing the configured options.</summary>
     /// <param name="options">The options to be used by a <see cref="SignInLogDbContext"/>.</param>
     public SignInLogDbContext(DbContextOptions<SignInLogDbContext> options) : base(options) {
-        
+
     }
 
     /// <summary>Stores all sign log entries.</summary>
@@ -23,5 +24,6 @@ internal class SignInLogDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         var schemaName = Database.GetService<IOptions<SignInLogOptions>>().Value.DatabaseSchema;
         modelBuilder.ApplyConfiguration(new DbSignInLogEntryMap(schemaName));
+        ChangeTracker.AutoDetectChangesEnabled = false;
     }
 }
