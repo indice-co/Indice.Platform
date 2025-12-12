@@ -294,7 +294,18 @@ internal static class AdminCasesHandlers
             return TypedResults.NotFound();
         }
 
-        var data = await caseDataInitializer.InitializeAsync(currentUser.UserToActor(casesOptions.Value), @case.CaseType.Code.ToString());
+        var owner = new Contact() {
+            UserId = @case.UserId,
+            Reference = @case.OwnerId,
+            Tin = @case.OwnerTin,
+            GroupId = @case.GroupId,
+            FirstName = @case.OwnerName?.Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries)?.FirstOrDefault(),
+            LastName = @case.OwnerName is not null
+                ? string.Join(' ', @case.OwnerName.Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries).Skip(1))
+                : null
+        };
+
+        var data = await caseDataInitializer.InitializeAsync(owner, @case.CaseType.Code.ToString());
         return data is null
             ? TypedResults.Ok(JsonNode.Parse("{}"))
             : TypedResults.Ok(data);

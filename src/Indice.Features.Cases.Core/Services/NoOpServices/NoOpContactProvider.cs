@@ -23,7 +23,7 @@ internal class NoOpContactProvider : IContactProvider
             Task.FromResult(new ResultSet<Contact>([ToContact(user)], 1));
 
 
-    public Task<Contact?> GetByReferenceAsync(UserActor user, string reference) => 
+    public Task<Contact?> GetByReferenceAsync(UserActor user, string reference) =>
         Task.FromResult<Contact?>(ToContact(user));
 
     private Contact ToContact(UserActor workflowActor) => new () {
@@ -49,15 +49,6 @@ internal class NoOpContactProvider : IContactProvider
         Metadata = new () {
             [options.TinClaimType] = "999999999",
             [options.GroupIdClaimType] = "010",
-        },
-        // used to initialize an new case instance the SampleAddress caseType from the selected contact as Owner.
-        FormData = new {
-            postOfficeBox = "123",
-            streetAddress = "456 Main St",
-            locality = "Cityville",
-            region = "State",
-            postalCode = "12345",
-            countryName = "Country"
-        }    
+        }
     };
 }
