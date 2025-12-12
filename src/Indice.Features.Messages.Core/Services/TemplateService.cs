@@ -108,8 +108,9 @@ public class TemplateService : ITemplateService
             query = options.Filter.IncludeItemsWithoutMessageTypeId == true
                 ? query.Where(x => x.MessageTypeId == options.Filter.MessageTypeId || x.MessageTypeId == null)
                 : query.Where(x => x.MessageTypeId == options.Filter.MessageTypeId);
-        } else if (options.Filter?.IncludeItemsWithoutMessageTypeId == true) {
-            query = query.Where(x => x.MessageTypeId == null);
+        } 
+        if (options.Filter?.IncludeItemsWithoutMessageTypeId == false) {
+            query = query.Where(x => x.MessageTypeId != null);
         }
 
         var result = await query.ToResultSetAsync(options);
