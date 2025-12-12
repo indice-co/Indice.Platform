@@ -164,7 +164,7 @@ public class MessageService : IMessageService
             RecipientId = recipientId,
             Content = GetMessageContent(dbCampaign, contact),
             ContactId = contact?.Id,
-            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedAt = dbCampaign.CreatedAt,
             TypeId = dbCampaign.TypeId
         };
         return dbMessage;
@@ -278,7 +278,7 @@ public class MessageService : IMessageService
             Content = x.Message != null && x.Message.Content.ContainsKey(channelKindKey)
                 ? x.Message.Content[channelKindKey].Body
                 : x.Campaign != null && x.Campaign.Content.ContainsKey(channelKindKey) ? x.Campaign.Content[channelKindKey].Body : string.Empty,
-            CreatedAt = x.Message!.CreatedAt,
+            CreatedAt = x.Message != null ? x.Message.CreatedAt : x.Campaign!.CreatedAt,
             RequiresSubstitutions = x.Message == null,
             CampaignData = x.Campaign.Data,
             Id = x.Campaign.Id,
