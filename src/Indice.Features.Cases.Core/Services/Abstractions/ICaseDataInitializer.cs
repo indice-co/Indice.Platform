@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Nodes;
-using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 
 namespace Indice.Features.Cases.Core.Services.Abstractions;
@@ -10,12 +9,11 @@ namespace Indice.Features.Cases.Core.Services.Abstractions;
 public interface ICaseDataInitializer
 {
     /// <summary>
-    /// Initializes a new case asynchronously for the specified user and case type.
+    /// Initializes a new case for the specified contact and case type asynchronously.
     /// </summary>
-    /// <param name="user">The user on whose behalf the case is being initialized. Cannot be null.</param>
-    /// <param name="caseTypeCode">The code that identifies the type of case to initialize. Cannot be null or empty.</param>
-    /// <param name="owner">An optional contact to associate data initialization.</param>
+    /// <param name="owner">The contact for whom the case is being initialized. Cannot be null.</param>
+    /// <param name="caseTypeCode">The code representing the type of case to initialize. Cannot be null or empty.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a JsonNode with the initialized case
     /// data, or null if initialization fails.</returns>
-    Task<JsonNode?> InitializeAsync(UserActor user, string caseTypeCode, Contact? owner = null);
+    Task<JsonNode?> InitializeAsync(Contact owner, string caseTypeCode);
 }
