@@ -1,7 +1,4 @@
 ﻿#if NET9_0_OR_GREATER
-using System;
-using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Text.Json.Nodes;
@@ -9,8 +6,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -82,7 +77,11 @@ public class OpenApiTests : IAsyncLifetime
         Assert.NotEmpty(openApi);
         var json = JsonNode.Parse(openApi);
         var menuItemSchema = json!["components"]!["schemas"]!["MenuItem"];
+        var expectedMenuItemSchema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"},\"children\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/MenuItem\"}}},\"additionalProperties\":false}";
+        Assert.Equal(menuItemSchema!.ToJsonString(), expectedMenuItemSchema);
         var uploadRequestSchema = json!["components"]!["schemas"]!["UploadFileRequest"];
+        var expectedUploadRequestSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"type\":\"string\",\"format\":\"binary\"},\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"}},\"additionalProperties\":false}";
+        Assert.Equal(uploadRequestSchema!.ToJsonString(), expectedUploadRequestSchema);
     }
 }
 
@@ -98,16 +97,13 @@ public class OpenApiTestsModels
     public class UploadFileRequest
     {
         public IFormFile? File { get; set; }
-
         public string Name { get; set; } = null!;
-
         public string? Description { get; set; }
 
     }
     public class AttachmentLink
     {
         public Guid AttachmentId { get; set; }
-
     }
 }
 
