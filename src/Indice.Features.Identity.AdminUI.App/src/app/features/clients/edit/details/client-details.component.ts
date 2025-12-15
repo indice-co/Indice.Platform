@@ -46,7 +46,7 @@ export class ClientDetailsComponent implements OnInit, OnDestroy {
         this._getDataSubscription = forkJoin([getClient$, getExternalProviders$]).subscribe((result: [SingleClientInfo, ExternalProviderResultSet]) => {
             this.client = result[0];
             this.externalProviders = result[1].items.map((provider: ExternalProvider) =>
-                new SelectableExternalProvider(this.client.identityProviderRestrictions.indexOf(provider.authenticationScheme) > -1 ? false : true, provider.displayName, provider.authenticationScheme));
+                new SelectableExternalProvider(this.client.identityProviderRestrictions.indexOf(provider.authenticationScheme) > -1, provider.displayName, provider.authenticationScheme));
             if (!this.client.translations) {
                 this.client.translations = {} as { [key: string]: ClientTranslation; };
                 return;

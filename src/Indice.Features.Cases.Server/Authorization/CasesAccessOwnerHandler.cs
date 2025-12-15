@@ -14,8 +14,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Server.Authorization;
 
 /// <summary>This authorization requirement specifies that an endpoint must be accessible only to case Owners.</summary>
-public class CasesAccessOwnerHandler : AuthorizationHandler<CasesOwnerAccessRequirement>, IAuthorizationRequirement
-{
+public class CasesAccessOwnerHandler : AuthorizationHandler<CasesOwnerAccessRequirement>, IAuthorizationRequirement {
     private readonly IDistributedCache _cache;
     private readonly CasesDbContext dbContext;
     private readonly ILogger<CasesAccessOwnerHandler> _logger;
@@ -79,7 +78,7 @@ public class CasesAccessOwnerHandler : AuthorizationHandler<CasesOwnerAccessRequ
             bool.TryParse(value, out isOwner);
             return isOwner;
         }
-        isOwner = await dbContext.Cases.AnyAsync(c => c.Id == caseId && c.Owner.UserId == actor.Id);
+        isOwner = await dbContext.Cases.AnyAsync(c => c.Id == caseId && (c.Owner.UserId == actor.Id || c.CreatedBy.Id == actor.Id));
         // Add to cache. 
         var cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(60));
         await _cache.SetStringAsync(cacheKey, $"{isOwner}", cacheEntryOptions);

@@ -1,4 +1,5 @@
 #if NET9_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Any;
 using System.Text.Json.Serialization.Metadata;
@@ -73,7 +74,7 @@ public static class NullableTransformer
                     if (schema.Required?.Contains(jsonProperty.Name) == true) {
                         property!.Nullable = false;
                     }
-                    if (property!.Annotations?.Any() == true) {
+                    if (property!.Annotations?.Values.FilterOutNulls().Any() == true) {
                         property.Nullable = false;
                     }
                     // Also need to remove `null` from enum values if present

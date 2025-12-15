@@ -26,6 +26,9 @@ public class TaskDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
         builder.ApplyConfiguration(new DbQMessageMap());
+        if (Database.ProviderName == "Npgsql.EntityFrameworkCore.PostgreSQL") {
+            builder.ApplyConfiguration(new DbQMessagePostgreSQLMap());
+        }
         builder.ApplyConfiguration(new DbScheduledTaskMap());
         builder.ApplyConfiguration(new DbLockMap());
     }

@@ -13,6 +13,15 @@ public static class BasicClaimTypes
     public const string TenantId = "tenantId";
     /// <summary>Alternate key for the current tenant.</summary>
     public const string TenantAlias = "tenantAlias";
+    /// <summary>
+    /// Represents the authentication scheme or identity provider used to authenticate the user, especially in scenarios involving external or federated logins.
+    /// </summary>
+    /// <remarks>
+    /// This claim is typically used to indicate the source of authentication, such as an external identity provider (e.g., Google, Azure AD, etc.) or a local login.
+    /// Example value: <c>"google"</c>, <c>"aad"</c>, <c>"local"</c>.
+    /// This is analogous to <c>JwtClaimTypes.IdentityProvider</c> in IdentityModel.
+    /// </remarks>
+    public const string IdentityProvider = "idp";
     /// <summary>User id.</summary>
     public const string Subject = "sub";
     /// <summary> User email.</summary>
