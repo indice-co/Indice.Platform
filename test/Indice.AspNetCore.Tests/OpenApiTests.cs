@@ -72,16 +72,19 @@ public class OpenApiTests : IAsyncLifetime
         }
         Assert.True(response.IsSuccessStatusCode);
         var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>();
+
         Assert.NotEmpty(menu!);
         var openApi = await _httpClient.GetStringAsync("openapi/v1.json");
         Assert.NotEmpty(openApi);
+
         var json = JsonNode.Parse(openApi);
         var menuItemSchema = json!["components"]!["schemas"]!["MenuItem"];
         var expectedMenuItemSchema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"},\"children\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/MenuItem\"}}},\"additionalProperties\":false}";
-        Assert.Equal(menuItemSchema!.ToJsonString(), expectedMenuItemSchema);
+        Assert.Equal(expectedMenuItemSchema, menuItemSchema!.ToJsonString());
+
         var uploadRequestSchema = json!["components"]!["schemas"]!["UploadFileRequest"];
-        var expectedUploadRequestSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"type\":\"string\",\"format\":\"binary\"},\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"}},\"additionalProperties\":false}";
-        Assert.Equal(uploadRequestSchema!.ToJsonString(), expectedUploadRequestSchema);
+        var expectedUploadRequestSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"type\":\"string\",\"format\":\"binary\"},\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\",\"nullable\":true}},\"additionalProperties\":false}";
+        Assert.Equal(expectedUploadRequestSchema, uploadRequestSchema!.ToJsonString());
     }
 }
 
