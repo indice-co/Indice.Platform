@@ -24,6 +24,5 @@ internal class SignInLogDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         var schemaName = Database.GetService<IOptions<SignInLogOptions>>().Value.DatabaseSchema;
         modelBuilder.ApplyConfiguration(new DbSignInLogEntryMap(schemaName));
-        //ChangeTracker.AutoDetectChangesEnabled = false;
     }
 }
