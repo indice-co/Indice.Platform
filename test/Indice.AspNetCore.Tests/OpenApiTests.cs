@@ -1,8 +1,10 @@
 ﻿#if NET9_0_OR_GREATER
 using System;
+using System.Net;
 using System.Net.Http;
-using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
+using System.Net.Mime;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,12 +13,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 using static Indice.AspNetCore.Tests.OpenApiTestsModels;
-using System.Net;
-using System.Text.Json.Nodes;
 
 namespace Indice.AspNetCore.Tests;
 
@@ -41,7 +42,7 @@ public class OpenApiTests : IAsyncLifetime
         });
         builder.ConfigureServices((context, services) => {
             services.AddRouting();
-            services.AddOpenApi(options => options.AddArrayTransformer());
+            services.AddOpenApi(options => options.AddDocumentInfo());
             services.AddEndpointsApiExplorer();
         });
         builder.Configure(app => {
@@ -79,6 +80,9 @@ public class OpenApiTests : IAsyncLifetime
         Assert.NotEmpty(menu!);
         var openApi = await _httpClient.GetStringAsync("openapi/v1.json");
         Assert.NotEmpty(openApi);
+        var json = JsonNode.Parse(openApi);
+        var menuItemSchema = json!["components"]!["schemas"]!["MenuItem"];
+        var uploadRequestSchema = json!["components"]!["schemas"]!["UploadFileRequest"];
     }
 }
 
@@ -90,6 +94,21 @@ public class OpenApiTestsModels
         public string Description { get; set; } = string.Empty;
         public List<MenuItem> Children { get; set; } = [];
     }
+
+    public class UploadFileRequest
+    {
+        public IFormFile? File { get; set; }
+
+        public string Name { get; set; } = null!;
+
+        public string? Description { get; set; }
+
+    }
+    public class AttachmentLink
+    {
+        public Guid AttachmentId { get; set; }
+
+    }
 }
 
 public static class OpenApiTestsEndpoints
@@ -99,6 +118,9 @@ public static class OpenApiTestsEndpoints
         group.WithTags("Tests");
         group.MapGet("menu", GetMenuItems)
              .WithName(nameof(GetMenuItems));
+        group.MapPost("upload", UploadAttachment)
+             .WithName(nameof(UploadAttachment))
+             .Accepts<UploadFileRequest>(MediaTypeNames.Multipart.FormData);
 
         return routes;
     }
@@ -122,6 +144,12 @@ public static class OpenApiTestsEndpoints
                 }
             };
         return TypedResults.Ok(items);
+    }
+
+    public static Ok<AttachmentLink> UploadAttachment(UploadFileRequest uploadFileRequest) {
+        return TypedResults.Ok(new AttachmentLink {
+            AttachmentId = Guid.Parse("1b62a5f3-f2d2-43be-81f9-572e97862b60")
+        });
     }
 }
 
