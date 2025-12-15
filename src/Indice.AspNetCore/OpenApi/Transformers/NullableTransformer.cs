@@ -74,7 +74,7 @@ public static class NullableTransformer
                     if (schema.Required?.Contains(jsonProperty.Name) == true) {
                         property!.Nullable = false;
                     }
-                    if (property!.Annotations?.FilterOutNulls().Any() == true) {
+                    if (property!.Annotations?.Values.FilterOutNulls().Any() == true) {
                         property.Nullable = false;
                     }
                     // Also need to remove `null` from enum values if present
