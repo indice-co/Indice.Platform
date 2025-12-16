@@ -34,6 +34,18 @@ export class ClientStore {
                 client.translations[key] = new ClientTranslation(client.translations[key]);
             }
         }
+        // Calculate identityProviderRestrictions based on provider selection
+        // If all providers are selected, save null (no restrictions)
+        // If some providers are selected, save only those (restricted to those providers)
+        // If no providers are provided, keep as null
+        let identityProviderRestrictions: string[] | null = null;
+        if (providers && providers.length > 0) {
+            const selectedProviders = providers.filter(x => x.selected);
+            // Only set restrictions if not all providers are selected
+            if (selectedProviders.length < providers.length) {
+                identityProviderRestrictions = selectedProviders.map(x => x.authenticationScheme);
+            }
+        }
         return this._api.updateClient(client.clientId, new UpdateClientRequest({
             accessTokenLifetime: client.accessTokenLifetime,
             absoluteRefreshTokenLifetime: client.absoluteRefreshTokenLifetime,
@@ -70,7 +82,7 @@ export class ClientStore {
             enabled: client.enabled,
             slidingRefreshTokenLifetime: client.slidingRefreshTokenLifetime,
             enableLocalLogin: client.enableLocalLogin,
-            identityProviderRestrictions: providers?.filter(x => x.selected).map(x => x.authenticationScheme) || null
+            identityProviderRestrictions: identityProviderRestrictions
         } as IUpdateClientRequest)).pipe(map(_ => {
             this._client.next(client);
             this._client.complete();
