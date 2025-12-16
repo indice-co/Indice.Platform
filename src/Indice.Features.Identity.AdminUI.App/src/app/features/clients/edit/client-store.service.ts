@@ -70,7 +70,7 @@ export class ClientStore {
             enabled: client.enabled,
             slidingRefreshTokenLifetime: client.slidingRefreshTokenLifetime,
             enableLocalLogin: client.enableLocalLogin,
-            identityProviderRestrictions: providers?.filter(x => !x.selected).map(x => x.authenticationScheme) || null
+            identityProviderRestrictions: providers?.filter(x => x.selected).map(x => x.authenticationScheme) || null
         } as IUpdateClientRequest)).pipe(map(_ => {
             this._client.next(client);
             this._client.complete();

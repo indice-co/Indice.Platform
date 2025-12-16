@@ -538,7 +538,9 @@ namespace Indice.Features.Cases.Workflows.Integrations
                         content_.Add(new System.Net.Http.StringContent(ConvertToString(dataRootKey, System.Globalization.CultureInfo.InvariantCulture)), "dataRootKey");
                     }
 
-                    if (actorId != null) {
+                    if (actorId == null)
+                        throw new System.ArgumentNullException("actorId");
+                    else {
                         content_.Add(new System.Net.Http.StringContent(ConvertToString(actorId, System.Globalization.CultureInfo.InvariantCulture)), "actorId");
                     }
 
@@ -1790,40 +1792,18 @@ namespace Indice.Features.Cases.Workflows.Integrations
                     content_.Headers.Remove("Content-Type");
                     content_.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary_);
 
-                    if (replyToCommentId != null) {
-                        content_.Add(new System.Net.Http.StringContent(ConvertToString(replyToCommentId, System.Globalization.CultureInfo.InvariantCulture)), "replyToCommentId");
-                    }
-
-                    if (checkpointTypeName != null) {
-                        content_.Add(new System.Net.Http.StringContent(ConvertToString(checkpointTypeName, System.Globalization.CultureInfo.InvariantCulture)), "checkpointTypeName");
-                    }
-
-                    if (privateComment != null) {
-                        content_.Add(new System.Net.Http.StringContent(ConvertToString(privateComment, System.Globalization.CultureInfo.InvariantCulture)), "privateComment");
-                    }
-
-                    if (comment != null) {
-                        content_.Add(new System.Net.Http.StringContent(ConvertToString(comment, System.Globalization.CultureInfo.InvariantCulture)), "comment");
-                    }
-
-                   
-                    if (fileName != null) {
-                        content_.Add(new System.Net.Http.StringContent(ConvertToString(fileName, System.Globalization.CultureInfo.InvariantCulture)), "fileName");
-                    }
-
-                    if (data != null) {
-                        var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(data, JsonSerializerSettings);
-                        content_.Add(new System.Net.Http.ByteArrayContent(json_), "data");
-                    }
-
-                    if (file != null) {
+                    if (file == null)
+                        throw new System.ArgumentNullException("file");
+                    else {
                         var content_file_ = new System.Net.Http.StreamContent(file.Data);
                         if (!string.IsNullOrEmpty(file.ContentType))
                             content_file_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(file.ContentType);
                         content_.Add(content_file_, "file", file.FileName ?? "file");
                     }
 
-                    if (actorId != null) {
+                    if (actorId == null)
+                        throw new System.ArgumentNullException("actorId");
+                    else {
                         content_.Add(new System.Net.Http.StringContent(ConvertToString(actorId, System.Globalization.CultureInfo.InvariantCulture)), "actorId");
                     }
 
@@ -1849,6 +1829,33 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
                     if (actorCurrentCulture != null) {
                         content_.Add(new System.Net.Http.StringContent(ConvertToString(actorCurrentCulture, System.Globalization.CultureInfo.InvariantCulture)), "actorCurrentCulture");
+                    }
+
+                    if (replyToCommentId != null) {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(replyToCommentId, System.Globalization.CultureInfo.InvariantCulture)), "replyToCommentId");
+                    }
+
+                    if (checkpointTypeName != null) {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(checkpointTypeName, System.Globalization.CultureInfo.InvariantCulture)), "checkpointTypeName");
+                    }
+
+                    if (privateComment != null) {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(privateComment, System.Globalization.CultureInfo.InvariantCulture)), "privateComment");
+                    }
+
+                    if (comment != null) {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(comment, System.Globalization.CultureInfo.InvariantCulture)), "comment");
+                    }
+
+                    if (fileName != null) {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(fileName, System.Globalization.CultureInfo.InvariantCulture)), "fileName");
+                    }
+
+                    if (data == null)
+                        throw new System.ArgumentNullException("data");
+                    else {
+                        var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(data, JsonSerializerSettings);
+                        content_.Add(new System.Net.Http.ByteArrayContent(json_), "data");
                     }
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
@@ -2224,7 +2231,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
         public string Email { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("when")]
-        public System.DateTimeOffset When { get; set; }
+        public System.DateTimeOffset? When { get; set; }
 
     }
 
@@ -2242,7 +2249,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
         public System.Guid Id { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("referenceNumber")]
-        public int ReferenceNumber { get; set; }
+        public int? ReferenceNumber { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("ownerId")]
         public string OwnerId { get; set; }
@@ -2257,7 +2264,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
         public string UserId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("createdByWhen")]
-        public System.DateTimeOffset CreatedByWhen { get; set; }
+        public System.DateTimeOffset? CreatedByWhen { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("createdById")]
         public string CreatedById { get; set; }
@@ -2429,7 +2436,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
         public object Config { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("order")]
-        public int Order { get; set; }
+        public int? Order { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("canCreateRoles")]
         public System.Collections.Generic.ICollection<string> CanCreateRoles { get; set; }
@@ -2477,7 +2484,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
         public string Description { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("order")]
-        public int Order { get; set; }
+        public int? Order { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("translations")]
         public System.Collections.Generic.IDictionary<string, CategoryTranslation> Translations { get; set; }
@@ -2517,7 +2524,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
         public CaseStatus Status { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("private")]
-        public bool Private { get; set; }
+        public bool? Private { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("translations")]
         public System.Collections.Generic.IDictionary<string, CheckpointTypeTranslation> Translations { get; set; }
@@ -2547,7 +2554,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
         public string Title { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public int Status { get; set; }
+        public int? Status { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("detail")]
         public string Detail { get; set; }
@@ -2610,13 +2617,13 @@ namespace Indice.Features.Cases.Workflows.Integrations
         public string ActorCurrentCulture { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("replyToCommentId")]
-        public System.Guid ReplyToCommentId { get; set; }
+        public System.Guid? ReplyToCommentId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("checkpointTypeName")]
         public string CheckpointTypeName { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("privateComment")]
-        public bool PrivateComment { get; set; }
+        public bool? PrivateComment { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("comment")]
         public string Comment { get; set; }
@@ -2722,7 +2729,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
         public string Title { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public int Status { get; set; }
+        public int? Status { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("detail")]
         public string Detail { get; set; }
