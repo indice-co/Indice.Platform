@@ -22,9 +22,9 @@ public class DbMessage
     /// <summary>Defines when the inbox message was deleted.</summary>
     public DateTimeOffset? DeleteDate { get; set; }
     /// <summary>Foreign key to the campaign.</summary>
-    public Guid CampaignId { get; set; }
+    public Guid? CampaignId { get; set; }
     /// <summary>Navigation property pointing to the campaign.</summary>
-    public virtual DbCampaign Campaign { get; set; } = null!;
+    public virtual DbCampaign? Campaign { get; set; } = null!;
     /// <summary>Specifies when an entity was created.</summary>
     public DateTimeOffset CreatedAt { get; set; }
     /// <summary>Foreign key to the <see cref="DbMessageType"/>.</summary>

@@ -1,4 +1,5 @@
 ﻿using System.Dynamic;
+using System.IO;
 using System.Text.Json;
 using HandlebarsDotNet;
 using Indice.EntityFrameworkCore.Functions;
@@ -82,7 +83,7 @@ public class MessageService : IMessageService
                 inboxTitle = contentValue.Title ?? "";
             }
             await MessageEventQueue.EnqueueAsync(new MessageEvent() {
-                CampaignId = message.CampaignId,
+                CampaignId = message.CampaignId!.Value,
                 ContactId = message.ContactId.Value,
                 MessageId = message.Id,
                 Type = MessageEventType.Deleted.ToString(),
@@ -118,7 +119,7 @@ public class MessageService : IMessageService
         }
         if (message.ContactId.HasValue) {
             await MessageEventQueue.EnqueueAsync(new MessageEvent() {
-                CampaignId = message.CampaignId,
+                CampaignId = message.CampaignId!.Value,
                 ContactId = message.ContactId.Value,
                 MessageId = message.Id,
                 Type = MessageEventType.Read.ToString(),
@@ -183,7 +184,7 @@ public class MessageService : IMessageService
             message.ReadDate = null;
             if (message.ContactId.HasValue) {
                 await MessageEventQueue.EnqueueAsync(new MessageEvent() {
-                    CampaignId = message.CampaignId,
+                    CampaignId = message.CampaignId!.Value,
                     ContactId = message.ContactId.Value,
                     MessageId = message.Id,
                     Type = MessageEventType.UnRead.ToString(),
@@ -214,19 +215,56 @@ public class MessageService : IMessageService
         return dbMessage.Id;
     }
 
+    private IQueryable<DbIntermediateObject> GetNonGlobalUserMessagesQuery(string recipientId, MessagesFilter? filter = null, string? searchTerm = null) {
+        var query = DbContext.Messages.AsNoTracking().Where(x => x.RecipientId == recipientId).
+                                       Select(x => new DbIntermediateObject { Campaign = x.Campaign, Message = x });
+        var messageChannelKind = MessageChannelKind.Inbox;
+
+        if (filter is not null) {
+            if (filter.TypeId?.Length > 0) {
+                query = query.Where(x => x.Message.TypeId != null && filter.TypeId.Contains(x.Message.TypeId.Value));
+            }
+            if (filter.ActiveFrom.HasValue) {
+                query = query.Where(x => (x.Message.CreatedAt) > filter.ActiveFrom.Value);
+            }
+            if (filter.ActiveTo.HasValue) {
+                query = query.Where(x => x.Message.CreatedAt < filter.ActiveTo.Value);
+            }
+            if (filter.IsRead.HasValue) {
+                query = query.Where(x => (x.Message.IsRead == filter.IsRead));
+            }
+            if (filter.MessageChannelKind.HasValue && filter.MessageChannelKind != MessageChannelKind.None) {
+                messageChannelKind = filter.MessageChannelKind.Value;
+            }
+        }
+        var channelKindKey = messageChannelKind.ToString();
+        //debatable
+        if (DbContext.Database.IsSqlServer()) {
+            query = query.Where(x => JsonFunctions.JsonValue(x.Message.Content, $"$.{channelKindKey.ToLower()}.title") != null);
+        }
+        //Free text Search
+        searchTerm = searchTerm?.Trim();
+        if (searchTerm?.Length > 2 && DbContext.Database.IsSqlServer()) {
+            query = query.Where(x => JsonFunctions.JsonValue(x.Message.Content, $"$.{channelKindKey.ToLower()}.title").Contains(searchTerm));
+        }
+        return query;
+    }
+
+
     private IQueryable<Message> GetUserMessagesQuery(string recipientId, MessagesFilter? filter = null, string? searchTerm = null) {
-        var query = DbContext
+        //tha parameinei gia global kabanies kai tha varesoume ena union me to
+        IQueryable<DbIntermediateObject> query = DbContext
             .Campaigns
             .AsNoTracking()
             .Include(x => x.Attachment)
             .Include(x => x.Type)
             .SelectMany(
                 collectionSelector: campaign => DbContext.Messages.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.RecipientId == recipientId).DefaultIfEmpty(),
-                resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }
+                resultSelector: (campaign, message) => new DbIntermediateObject { Campaign = campaign, Message = message }
             )
             .Where(x => x.Campaign.Published
-                && (x.Message == null || !x.Message.IsDeleted)
-                && (x.Campaign.IsGlobal || x.Message != null && x.Message.RecipientId == recipientId)
+                && (x.Message == null)
+                && (x.Campaign.IsGlobal)
             );
         var messageChannelKind = MessageChannelKind.Inbox;
         if (filter is not null) {
@@ -257,18 +295,20 @@ public class MessageService : IMessageService
         if (searchTerm?.Length > 2) {
             query = DbContext.Database.IsSqlServer() ?
              query.Where(x => JsonFunctions.JsonValue(x.Message!.Content, $"$.{channelKindKey.ToLower()}.title").Contains(searchTerm)) :
+             //remember to ask here
              query.Where(x => x.Campaign.Title.Contains(searchTerm));
         }
-
-        return query.Select(x => new Message {
-            ActionLink = x.Campaign.ActionLink != null ? new Hyperlink {
+        var nonGlobalQuery = GetNonGlobalUserMessagesQuery(recipientId, filter, searchTerm);
+        var resultQuery = query.Union(nonGlobalQuery);
+        return resultQuery.Select(x => new Message {
+            ActionLink = x.Campaign != null && x.Campaign.ActionLink != null ? new Hyperlink {
                 Text = x.Campaign.ActionLink.Text,
                 Href = !string.IsNullOrEmpty(x.Campaign.ActionLink.Href)
                     ? $"_tracking/messages/cta/{(Base64Id)x.Campaign.Id}"
                     : null
             } : null,
-            ActivePeriod = x.Campaign.ActivePeriod,
-            AttachmentUrl = x.Campaign.Attachment != null
+            ActivePeriod = x.Message != null ? new Period { From = x.Message.CreatedAt } : x.Campaign.ActivePeriod,
+            AttachmentUrl = x.Campaign != null && x.Campaign.Attachment != null
                 ? $"{CampaignInboxOptions.PathPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name)!.TrimStart('.')}"
                 : null,
             // TODO: Fix substitution when message is null.
@@ -281,9 +321,14 @@ public class MessageService : IMessageService
             CreatedAt = x.Message != null ? x.Message.CreatedAt : x.Campaign!.CreatedAt,
             RequiresSubstitutions = x.Message == null,
             CampaignData = x.Campaign.Data,
-            Id = x.Campaign.Id,
+            Id = x.Message != null ? x.Message.Id : x.Campaign != null ? x.Campaign.Id : Guid.Empty,
             IsRead = x.Message != null && x.Message.IsRead,
-            Type = x.Campaign!.Type != null ? new MessageType {
+            Type = x.Message != null && x.Message.Type != null ? new MessageType {
+                Id = x.Campaign.Type.Id,
+                Name = x.Campaign.Type.Name,
+                Alias = x.Campaign.Type.Alias,
+                Classification = x.Campaign.Type.Classification,
+            } : x.Campaign != null && x.Campaign.Type != null ? new MessageType {
                 Id = x.Campaign.Type.Id,
                 Name = x.Campaign.Type.Name,
                 Alias = x.Campaign.Type.Alias,
