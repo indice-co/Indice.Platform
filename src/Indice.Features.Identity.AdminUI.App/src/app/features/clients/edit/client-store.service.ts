@@ -37,12 +37,13 @@ export class ClientStore {
         // Calculate identityProviderRestrictions based on provider selection
         // If all providers are selected, save null (no restrictions)
         // If some providers are selected, save only those (restricted to those providers)
+        // If no providers are selected, save null (will show all providers as selected on next load)
         // If no providers are provided, keep as null
         let identityProviderRestrictions: string[] | null = null;
         if (providers && providers.length > 0) {
             const selectedProviders = providers.filter(x => x.selected);
-            // Only set restrictions if not all providers are selected
-            if (selectedProviders.length < providers.length) {
+            // Only set restrictions if some (but not all or none) providers are selected
+            if (selectedProviders.length > 0 && selectedProviders.length < providers.length) {
                 identityProviderRestrictions = selectedProviders.map(x => x.authenticationScheme);
             }
         }
