@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text.Json;
 using HandlebarsDotNet;
+using HandlebarsDotNet.Runtime;
 using Indice.EntityFrameworkCore.Functions;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
@@ -14,6 +15,7 @@ using Indice.Serialization;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Indice.Features.Messages.Core.Services;
 
@@ -229,6 +231,82 @@ public class MessageService : IMessageService
         return projection;
     }
 
+    private IQueryable<CampaignMessagesDto> GetNonGlobalUserMessagesQuery(string recipientId, MessagesFilter? filter, string? searchTerm, MessageChannelKind messageChannelKind) {
+        var query = DbContext.Messages.AsNoTracking().Where(x => x.RecipientId == recipientId).
+                                       Select(x => new CampaignMessagesDto { Campaign = x.Campaign, Message = x });
+        if (filter is not null) {
+            if (filter.TypeId?.Length > 0) {
+                query = query.Where(x => x.Message.TypeId != null && filter.TypeId.Contains(x.Message.TypeId.Value));
+            }
+            if (filter.ActiveFrom.HasValue) {
+                query = query.Where(x => (x.Message.CreatedAt) > filter.ActiveFrom.Value);
+            }
+            if (filter.ActiveTo.HasValue) {
+                query = query.Where(x => x.Message.CreatedAt < filter.ActiveTo.Value);
+            }
+            if (filter.IsRead.HasValue) {
+                query = query.Where(x => (x.Message.IsRead == filter.IsRead));
+            }
+        }
+        query = query.Where(x => x.Campaign != null && x.Campaign.MessageChannelKind.HasFlag(messageChannelKind));
+        searchTerm = searchTerm?.Trim();
+        if (searchTerm?.Length > 2) {
+            query =
+            DbContext.Database.IsSqlServer() ?
+                query.Where(x => JsonFunctions.JsonValue(x.Message.Content, $"$.{messageChannelKind.ToString().ToLower()}.title").Contains(searchTerm))
+            : query.Where(x => EF.Functions.Contains(x.Message.Content, searchTerm));
+        }
+        return query;
+    }
+
+
+    private IQueryable<CampaignMessagesDto> GetGlobalCampaignsQuery(string recipientId, MessagesFilter? filter, string? searchTerm, MessageChannelKind messageChannelKind) {
+        var query = DbContext
+                    .Campaigns
+                    .AsNoTracking()
+                    .Include(x => x.Attachment)
+                    .Include(x => x.Type)
+                    .SelectMany(
+                        collectionSelector: campaign => DbContext.Messages.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.RecipientId == recipientId).DefaultIfEmpty(),
+                        resultSelector: (campaign, message) => new CampaignMessagesDto { Campaign = campaign, Message = message }
+                    )
+                    .Where(x => x.Campaign.Published
+                        && (x.Message == null)
+                        && (x.Campaign.IsGlobal)
+                    );
+        if (filter is not null) {
+            if (filter.ShowExpired.HasValue) {
+                query = query.Where(x => !x.Campaign.ActivePeriod!.To.HasValue || x.Campaign.ActivePeriod.To.Value >= DateTime.UtcNow);
+            }
+            if (filter.TypeId?.Length > 0) {
+                query = query.Where(x => x.Campaign.Type != null && filter.TypeId.Contains(x.Campaign.Type.Id));
+            }
+            if (filter.ActiveFrom.HasValue) {
+                query = query.Where(x => (x.Campaign.ActivePeriod!.From ?? DateTimeOffset.MaxValue) > filter.ActiveFrom.Value);
+            }
+            if (filter.ActiveTo.HasValue) {
+                query = query.Where(x => (x.Campaign.ActivePeriod!.To ?? DateTimeOffset.MinValue) < filter.ActiveTo.Value);
+            }
+            if (filter.IsRead.HasValue) {
+                query = query.Where(x => ((bool?)x.Message!.IsRead ?? false) == filter.IsRead);
+            }
+        }
+        query = query.Where(x => x.Campaign.MessageChannelKind.HasFlag(messageChannelKind));
+        //Free text Search
+        if (searchTerm?.Length > 2) {
+            query = DbContext.Database.IsSqlServer() ?
+             query.Where(x => JsonFunctions.JsonValue(x.Campaign!.Content, $"$.{messageChannelKind.ToString().ToLower()}.title").Contains(searchTerm)) :
+             //remember to ask here
+             query.Where(x => x.Campaign.Title.Contains(searchTerm));
+        }
+        return query;
+    }
+    private static MessageChannelKind GetMessageChannelKind(MessagesFilter? filter) {
+        return filter?.MessageChannelKind.HasValue == true && filter.MessageChannelKind != MessageChannelKind.None
+            ? filter.MessageChannelKind.Value
+            : MessageChannelKind.Inbox;
+    }
+
     private static Message ProjectToMessage(CampaignMessagesDto x, string pathPrefix, string channelKindKey) {
         return new Message {
             ActionLink = x.Campaign != null && x.Campaign.ActionLink != null ? new Hyperlink {
@@ -291,87 +369,6 @@ public class MessageService : IMessageService
                 Classification = x.Campaign.Type.Classification,
             };
         return null;
-    }
-    private static MessageChannelKind GetMessageChannelKind(MessagesFilter? filter) {
-        return filter?.MessageChannelKind.HasValue == true && filter.MessageChannelKind != MessageChannelKind.None
-            ? filter.MessageChannelKind.Value
-            : MessageChannelKind.Inbox;
-    }
-    private IQueryable<CampaignMessagesDto> GetNonGlobalUserMessagesQuery(string recipientId, MessagesFilter? filter, string? searchTerm, MessageChannelKind messageChannelKind) {
-        var query = DbContext.Messages.AsNoTracking().Where(x => x.RecipientId == recipientId).
-                                       Select(x => new CampaignMessagesDto { Campaign = x.Campaign, Message = x });
-        if (filter is not null) {
-            if (filter.TypeId?.Length > 0) {
-                query = query.Where(x => x.Message.TypeId != null && filter.TypeId.Contains(x.Message.TypeId.Value));
-            }
-            if (filter.ActiveFrom.HasValue) {
-                query = query.Where(x => (x.Message.CreatedAt) > filter.ActiveFrom.Value);
-            }
-            if (filter.ActiveTo.HasValue) {
-                query = query.Where(x => x.Message.CreatedAt < filter.ActiveTo.Value);
-            }
-            if (filter.IsRead.HasValue) {
-                query = query.Where(x => (x.Message.IsRead == filter.IsRead));
-            }
-        }
-
-        searchTerm = searchTerm?.Trim();
-        if (DbContext.Database.IsSqlServer()) {
-            query = query.Where(x => JsonFunctions.JsonValue(x.Message.Content, $"$.{messageChannelKind.ToString().ToLower()}.title") != null);
-            if (searchTerm?.Length > 2) {
-                query = query.Where(x => JsonFunctions.JsonValue(x.Message.Content, $"$.{messageChannelKind.ToString().ToLower()}.title").Contains(searchTerm));
-            }
-        } else {
-
-            query = query.Where(x => x.Message.Content.ToString().Contains(messageChannelKind.ToString()));
-            if (searchTerm?.Length > 2) {
-                query = query.Where(x => x.Message.Content.ToString().Contains(searchTerm));
-            }
-        }
-        return query;
-    }
-
-
-    private IQueryable<CampaignMessagesDto> GetGlobalCampaignsQuery(string recipientId, MessagesFilter? filter, string? searchTerm, MessageChannelKind messageChannelKind) {
-        var query = DbContext
-                    .Campaigns
-                    .AsNoTracking()
-                    .Include(x => x.Attachment)
-                    .Include(x => x.Type)
-                    .SelectMany(
-                        collectionSelector: campaign => DbContext.Messages.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.RecipientId == recipientId).DefaultIfEmpty(),
-                        resultSelector: (campaign, message) => new CampaignMessagesDto { Campaign = campaign, Message = message }
-                    )
-                    .Where(x => x.Campaign.Published
-                        && (x.Message == null)
-                        && (x.Campaign.IsGlobal)
-                    );
-        if (filter is not null) {
-            if (filter.ShowExpired.HasValue) {
-                query = query.Where(x => !x.Campaign.ActivePeriod!.To.HasValue || x.Campaign.ActivePeriod.To.Value >= DateTime.UtcNow);
-            }
-            if (filter.TypeId?.Length > 0) {
-                query = query.Where(x => x.Campaign.Type != null && filter.TypeId.Contains(x.Campaign.Type.Id));
-            }
-            if (filter.ActiveFrom.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod!.From ?? DateTimeOffset.MaxValue) > filter.ActiveFrom.Value);
-            }
-            if (filter.ActiveTo.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod!.To ?? DateTimeOffset.MinValue) < filter.ActiveTo.Value);
-            }
-            if (filter.IsRead.HasValue) {
-                query = query.Where(x => ((bool?)x.Message!.IsRead ?? false) == filter.IsRead);
-            }
-        }
-        query = query.Where(x => x.Campaign.MessageChannelKind.HasFlag(messageChannelKind));
-        //Free text Search
-        if (searchTerm?.Length > 2) {
-            query = DbContext.Database.IsSqlServer() ?
-             query.Where(x => JsonFunctions.JsonValue(x.Campaign!.Content, $"$.{messageChannelKind.ToString().ToLower()}.title").Contains(searchTerm)) :
-             //remember to ask here
-             query.Where(x => x.Campaign.Title.Contains(searchTerm));
-        }
-        return query;
     }
 
     private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, ResultSet<Message> userMessages) {
