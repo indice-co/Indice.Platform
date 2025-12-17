@@ -72,8 +72,11 @@
                         <td>
                             <a *ngIf="!selectedLogEntry?.coordinates">-</a>
                             <a *ngIf="selectedLogEntry?.coordinates" target="_blank"
-                                [href]="'https://www.google.com/maps/search/?api=1&query=' + selectedLogEntry.coordinates">{{
-                                selectedLogEntry.coordinates }}</a>
+                               [href]="'https://www.google.com/maps/search/?api=1&query=' + selectedLogEntry.coordinates">
+                                {{
+                                selectedLogEntry.coordinates
+                                }}
+                            </a>
                         </td>
                     </tr>
                     <tr>
@@ -100,7 +103,7 @@
                         <th scope="row">Metadata</th>
                         <td>
                             <textarea class="code-editor" cols="100"
-                                rows="25">{{ selectedLogEntry?.extraData | json }}</textarea>
+                                      rows="25">{{ selectedLogEntry?.extraData | json }}</textarea>
                         </td>
                     </tr>
                 </tbody>
@@ -166,7 +169,7 @@
                 From Date
             </label>
             <app-dynamic-input id="date-from-filter" name="date-from-filter" [(ngModel)]="filter.dateFrom" [modelType]="'DateTime'"
-                [placeholder]="'From Date'" required #value="ngModel">
+                               [placeholder]="'From Date'" required #value="ngModel">
             </app-dynamic-input>
         </div>
         <div class="col">
@@ -174,7 +177,7 @@
                 To Date
             </label>
             <app-dynamic-input id="date-to-filter" name="date-to-filter" [(ngModel)]="filter.dateTo" [modelType]="'DateTime'"
-                [placeholder]="'To Date'" required #value="ngModel">
+                               [placeholder]="'To Date'" required #value="ngModel">
             </app-dynamic-input>
         </div>
         <div class="col">
@@ -182,7 +185,7 @@
                 Subject
             </label>
             <app-dynamic-input id="subject-filter" name="subject-filter" [(ngModel)]="filter.subject" [modelType]="'String'"
-                [placeholder]="'Subject'" required #value="ngModel">
+                               [placeholder]="'Subject'" required #value="ngModel">
             </app-dynamic-input>
         </div>
     </div>
@@ -198,8 +201,8 @@
 <div class="row">
     <div class="col-12">
         <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="defaultPageSize"
-            [defaultSortField]="defaultSortField" [defaultSortDirection]="defaultSortDirection" [filter]="filter" (search)="getLogs($event)"
-            #signInLogsList></app-list-view>
+                       [defaultSortField]="defaultSortField" [defaultSortDirection]="defaultSortDirection" [filter]="filter" (search)="getLogs($event)"
+                       #signInLogsList></app-list-view>
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #optionalTemplate>
@@ -214,6 +217,15 @@
         <span *ngIf="value.succeeded" class="badge text-success border boder-success bg-light m-r-10" [title]="'Succeeded Attempt'">Succeeded</span>
         <span *ngIf="!value.succeeded" class="badge text-danger border boder-danger bg-light m-r-10" [title]="'Failed Attempt'">Failed</span>
         <span *ngIf="value.review" class="badge text-warning border boder-warning bg-light" [title]="'Marked for Review'">Review</span>
+    </div>
+    <span *ngIf="!value"> - </span>
+</ng-template>
+<ng-template let-row="row" let-value="value" #ipCellTemplate>
+    <div *ngIf="value">
+        <span class="badge text-muted border boder-primary bg-light m-1" [title]="value">
+            <i class="flag:{{row.countryIsoCode}}" [title]="row.countryIsoCode"></i>
+            {{ value }}
+        </span>
     </div>
     <span *ngIf="!value"> - </span>
 </ng-template>
