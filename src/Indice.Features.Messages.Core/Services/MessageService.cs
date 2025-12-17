@@ -315,21 +315,30 @@ public class MessageService : IMessageService
                             ? $"_tracking/messages/cta/{(Base64Id)x.Campaign.Id}"
                             : null
             } : null,
-            ActivePeriod = x.Message != null ? new Period { From = x.Message.CreatedAt } : x.Campaign.ActivePeriod,
+            ActivePeriod = x.Message != null ? new Period { From = x.Message.CreatedAt } : x.Campaign!.ActivePeriod,
             AttachmentUrl = x.Campaign != null && x.Campaign.Attachment != null
                         ? $"{pathPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name)!.TrimStart('.')}"
                         : null,
             Title = GetMessageTitle(x, channelKindKey),
             Content = GetMessageContent(x, channelKindKey),
             RequiresSubstitutions = x.Message == null,
-            CampaignData = x.Campaign.Data,
-            Id = x.Message != null ? x.Message.Id : x.Campaign != null ? x.Campaign.Id : Guid.Empty,
+            CampaignData = x.Campaign?.Data,
+            Id = GetMessageId(x),
             IsRead = x.Message != null && x.Message.IsRead,
             Type = CreateMessageType(x)
         };
     }
+    private static Guid GetMessageId(CampaignMessagesDto x) {
+        if( x.Message is not null) {
+            return x.Message.Id;
+        } 
+        else if(x.Campaign is not null){
+            return x.Campaign.Id;
+        }
+        return Guid.Empty;
+    }
 
-    private static string GetMessageTitle(CampaignMessagesDto x, string channelKindKey) {
+    private static string? GetMessageTitle(CampaignMessagesDto x, string channelKindKey) {
         if (x.Message?.Content.ContainsKey(channelKindKey) == true) {
             return x.Message.Content[channelKindKey].Title;
         }
@@ -341,7 +350,7 @@ public class MessageService : IMessageService
         return string.Empty;
     }
 
-    private static string GetMessageContent(CampaignMessagesDto x, string channelKindKey) {
+    private static string? GetMessageContent(CampaignMessagesDto x, string channelKindKey) {
         if (x.Message?.Content.ContainsKey(channelKindKey) == true) {
             return x.Message.Content[channelKindKey].Body;
         }
