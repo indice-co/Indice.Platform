@@ -53,10 +53,9 @@ public class DatabaseCleanupService : IDatabaseCleanUpService
         var distributionListsToDelete = await DbContext.DistributionLists.Where(x => x.CreatedBy == "system" && distributionListIds.Contains(x.Id)).Select(x => x.Id).ToListAsync();
 
         //
-        await DbContext.MessageEvents.Where(x => campaignIds.Contains(x.CampaignId)).ExecuteDeleteAsync();
-        //
-        await query.ExecuteDeleteAsync();
-        await DbContext.DistributionLists.Where(x => distributionListsToDelete.Contains(x.Id)).ExecuteDeleteAsync();
+        //await DbContext.MessageEvents.Where(x => campaignIds.Contains(x.CampaignId)).ExecuteDeleteAsync();
+        //await query.ExecuteDeleteAsync();
+        //await DbContext.DistributionLists.Where(x => distributionListsToDelete.Contains(x.Id)).ExecuteDeleteAsync();
 
     }
 
@@ -66,6 +65,30 @@ public class DatabaseCleanupService : IDatabaseCleanUpService
     /// </summary>
     /// <returns></returns>
     public async Task CleanUpCampaignsWithoutInboxAsync() {
-        throw new NotImplementedException();
+
+        bool hasMoreRecords = true;
+        while (hasMoreRecords) {
+            var cutOffDate = DateTimeOffset.UtcNow.AddDays(-_options.CampaignsWithoutInboxRetentionPeriodInDays);
+            var query = DbContext.Campaigns.Where(x => !x.MessageChannelKind.HasFlag(MessageChannelKind.Inbox));
+            query = query.Where(x => x.CreatedAt <= cutOffDate &&
+            (!(x.ActivePeriod != null && x.ActivePeriod.From != null) || x.ActivePeriod.From <= cutOffDate)).OrderBy(x => x.CreatedAt).Take(_options.DeletionBatchSize);
+
+            //unfortunately - I think that I have to materialize this
+            var campaignDLIdss = await query.Select(x => new CampaignDLId { CampaignId = x.Id, DistributionListId = x.DistributionListId }).ToListAsync();
+            if (campaignDLIdss.Count == 0) {
+                break;
+            }
+            using (var transaction = await DbContext.Database.BeginTransactionAsync()) {
+                try {
+                    await DbContext.MessageEvents.Where(x => campaignDLIdss.Select(x => x.CampaignId).Contains(x.CampaignId)).ExecuteDeleteAsync();
+                    await query.ExecuteDeleteAsync();
+                    await DbContext.DistributionLists.Where(x => x.CreatedBy == "system" && campaignDLIdss.Select(x => x.DistributionListId)
+                                                                                                          .Contains(x.Id)).ExecuteDeleteAsync();
+                } 
+                catch (Exception ex) {
+
+                }
+            }
+        }
     }
 }

@@ -14,4 +14,9 @@ public class DatabaseCleanUpOptions
     /// Gets or sets the retention period for campaigns without inbox (in days).
     /// </summary>
     public int CampaignsWithoutInboxRetentionPeriodInDays { get; set; } = 30;
+
+    /// <summary>
+    /// The batch size for deletions.
+    /// </summary>
+    public int DeletionBatchSize { get; set; } = 10;
 }
