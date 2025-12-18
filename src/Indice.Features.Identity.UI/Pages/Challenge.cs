@@ -48,6 +48,7 @@ public abstract class BaseChallengeModel : BasePageModel
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         Events = events ?? throw new ArgumentNullException(nameof(events));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        SchemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
     }
 
     /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
@@ -59,7 +60,7 @@ public abstract class BaseChallengeModel : BasePageModel
     /// <summary>Interface for the event service.</summary>
     protected IEventService Events { get; }
     /// <summary>Represents a type used to perform logging.</summary>
-    private ILogger<BaseChallengeModel> Logger;
+    protected ILogger<BaseChallengeModel> Logger;
     /// <summary>Responsible for managing what authentication schemes are supported.</summary>
     protected IAuthenticationSchemeProvider SchemeProvider { get; }
 
@@ -68,9 +69,9 @@ public abstract class BaseChallengeModel : BasePageModel
         if (string.IsNullOrEmpty(returnUrl)) {
             returnUrl = "/";
         }
-        if(string.IsNullOrEmpty(provider)) {
+        if (string.IsNullOrEmpty(provider)) {
             Logger.LogError("No external provider specified for authentication.");
-            return await RedirectToErrorPageAsync(HttpContext, "No external provider specified for authentication.", "No external provider specified for authentication.");
+            return await RedirectToErrorPageAsync(HttpContext, "No provider", "No external provider specified for authentication.");
         }
         var schemes = await SchemeProvider.GetAllSchemesAsync();
         var providers = schemes
@@ -82,11 +83,11 @@ public abstract class BaseChallengeModel : BasePageModel
            .ToList();
         if (!providers.Any(x => x.AuthenticationScheme == provider)) {
             Logger.LogError("Invalid provider specified for authentication.");
-            return await RedirectToErrorPageAsync(HttpContext, "Invalid provider specified for authentication.", "Invalid provider specified for authentication.");
+            return await RedirectToErrorPageAsync(HttpContext, "Invalid provider", "Invalid provider specified for authentication.");
         }
         if (Url.IsLocalUrl(returnUrl) == false && Interaction.IsValidReturnUrl(returnUrl) == false) {
             Logger.LogError("Invalid return URL while federating to external provider.");
-            return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", $"Invalid return URL while federating to external provider");
+            return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", "Invalid return URL while federating to external provider");
         }
         var authenticationProperties = SignInManager.ConfigureExternalAuthenticationProperties(provider, Url.PageLink("/Challenge", "Callback", new { returnUrl }));
         authenticationProperties.Items.Add(nameof(returnUrl), returnUrl);
@@ -103,7 +104,7 @@ public abstract class BaseChallengeModel : BasePageModel
         }
         if (!Url.IsLocalUrl(returnUrl) && !Interaction.IsValidReturnUrl(returnUrl)) {
             Logger.LogError("Invalid return URL while federating to external provider.");
-            return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", $"Invalid return URL while federating to external provider");
+            return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", "Invalid return URL while federating to external provider");
         }
         var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync() ?? throw new Exception($"Cannot read external login information from external provider.");
         var user = await UserManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
@@ -162,6 +163,7 @@ internal class ChallengeModel : BaseChallengeModel
         ExtendedSignInManager<User> signInManager,
         ExtendedUserManager<User> userManager,
         IEventService events,
+        IAuthenticationSchemeProvider schemeProvider,
         ILogger<ChallengeModel> logger
-    ) : base(interaction, signInManager, userManager, events, logger) { }
+    ) : base(interaction, signInManager, userManager, events, schemeProvider, logger) { }
 }

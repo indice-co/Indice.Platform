@@ -108,7 +108,7 @@ public abstract class BaseMfaModel : BasePageModel
                 return Redirect(Input.ReturnUrl);
             } else {
                 Logger.LogError("Invalid return URL while federating to external provider.");
-                return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", $"Invalid return URL while federating to external provider");
+                return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", "Invalid return URL while federating to external provider");
             }
         }
         if (signInResult.RequiresValidation()) {

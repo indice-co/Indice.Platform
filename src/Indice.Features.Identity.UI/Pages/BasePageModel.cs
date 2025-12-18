@@ -4,14 +4,12 @@ using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Configuration;
 using Duende.IdentityServer.Stores;
-using Duende.IdentityServer.Extensions;
 #else
 using IdentityModel;
 using IdentityServer4.Configuration;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using IdentityServer4.Extensions;
 #endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
@@ -244,7 +242,6 @@ public abstract class BasePageModel : PageModel
     [NonAction]
     protected async Task<IActionResult> RedirectToErrorPageAsync(HttpContext context, string error, string? errorDescription, AuthorizationRequest? authorizationRequest = null) {
 
-        var configuration = context.RequestServices.GetRequiredService<IConfiguration>();
         var options = context.RequestServices.GetRequiredService<IdentityServerOptions>();
         var errorMessageStore = context.RequestServices.GetRequiredService<IMessageStore<ErrorMessage>>();
 

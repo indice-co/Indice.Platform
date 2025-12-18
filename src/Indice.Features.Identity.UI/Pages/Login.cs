@@ -165,7 +165,7 @@ public abstract class BaseLoginModel : BasePageModel
             } else {
                 // User might have clicked on a malicious link - should be logged.
                 Logger.LogError("User '{UserName}' might have clicked a malicious link during login: {ReturnUrl}.", Input.UserName!, Input.ReturnUrl);
-                return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", $"Invalid return URL while federating to external provider");
+                return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", $"User '{Input.UserName}' might have clicked a malicious link during login: {Input.ReturnUrl}.");
             }
         }
         else if (result.IsLockedOut) {
