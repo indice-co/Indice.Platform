@@ -15,7 +15,7 @@
             @if (Model is { Message: { Length: > 0 } })
             {
                 <strong>
-                    <em>: @Model.Message</em>
+                    @Model.Title <em>: @Model.Message</em>
                 </strong>
             }
             @if (Model is { RequestId: { Length: > 0 } })

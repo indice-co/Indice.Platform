@@ -16,6 +16,9 @@ using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authentication;
+
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -29,17 +32,23 @@ public abstract class BaseChallengeModel : BasePageModel
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="events">Interface for the event service.</param>
+    /// <param name="schemeProvider">Provides access to authentication schemes.</param>
+    /// <param name="logger">A generic interface for logging</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseChallengeModel(
         IIdentityServerInteractionService interaction,
         ExtendedSignInManager<User> signInManager,
         ExtendedUserManager<User> userManager,
-        IEventService events
+        IEventService events,
+        IAuthenticationSchemeProvider schemeProvider,
+        ILogger<BaseChallengeModel> logger
     ) : base() {
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         Events = events ?? throw new ArgumentNullException(nameof(events));
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        SchemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
     }
 
     /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
@@ -50,14 +59,35 @@ public abstract class BaseChallengeModel : BasePageModel
     protected ExtendedUserManager<User> UserManager { get; }
     /// <summary>Interface for the event service.</summary>
     protected IEventService Events { get; }
+    /// <summary>Represents a type used to perform logging.</summary>
+    protected ILogger<BaseChallengeModel> Logger;
+    /// <summary>Responsible for managing what authentication schemes are supported.</summary>
+    protected IAuthenticationSchemeProvider SchemeProvider { get; }
 
     /// <summary>Challenge page GET handler.</summary>
-    public IActionResult OnGet(string provider, string returnUrl, string prompt) {
+    public async Task<IActionResult> OnGet(string provider, string returnUrl, string prompt) {
         if (string.IsNullOrEmpty(returnUrl)) {
             returnUrl = "/";
         }
+        if (string.IsNullOrEmpty(provider)) {
+            Logger.LogError("Missing external provider. Federated authentication stopped.");
+            return await RedirectToErrorPageAsync(HttpContext, "Missing provider", "Missing external provider. Federated authentication stopped.");
+        }
+        var schemes = await SchemeProvider.GetAllSchemesAsync();
+        var providers = schemes
+           .Where(x => x.DisplayName is not null)
+           .Select(x => new ExternalProviderModel {
+               DisplayName = x.DisplayName ?? x.Name,
+               AuthenticationScheme = x.Name
+           })
+           .ToList();
+        if (!providers.Any(x => x.AuthenticationScheme == provider)) {
+            Logger.LogError("Invalid provider specified for authentication.");
+            return await RedirectToErrorPageAsync(HttpContext, "Invalid provider", "Invalid provider specified for authentication. Federated authentication stopped.");
+        }
         if (Url.IsLocalUrl(returnUrl) == false && Interaction.IsValidReturnUrl(returnUrl) == false) {
-            throw new Exception("Invalid return URL.");
+            Logger.LogError("Invalid return URL while federating to external provider.");
+            return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", "Invalid return URL while federating to external provider");
         }
         var authenticationProperties = SignInManager.ConfigureExternalAuthenticationProperties(provider, Url.PageLink("/Challenge", "Callback", new { returnUrl }));
         authenticationProperties.Items.Add(nameof(returnUrl), returnUrl);
@@ -71,9 +101,10 @@ public abstract class BaseChallengeModel : BasePageModel
     public async Task<IActionResult> OnGetCallbackAsync(string returnUrl) {
         if (string.IsNullOrEmpty(returnUrl)) {
             returnUrl = "/";
-        };
+        }
         if (!Url.IsLocalUrl(returnUrl) && !Interaction.IsValidReturnUrl(returnUrl)) {
-            throw new Exception("Invalid return URL.");
+            Logger.LogError("Invalid return URL while federating to external provider.");
+            return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", "Invalid return URL while federating to external provider");
         }
         var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync() ?? throw new Exception($"Cannot read external login information from external provider.");
         var user = await UserManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
@@ -131,6 +162,8 @@ internal class ChallengeModel : BaseChallengeModel
         IIdentityServerInteractionService interaction,
         ExtendedSignInManager<User> signInManager,
         ExtendedUserManager<User> userManager,
-        IEventService events
-    ) : base(interaction, signInManager, userManager, events) { }
+        IEventService events,
+        IAuthenticationSchemeProvider schemeProvider,
+        ILogger<ChallengeModel> logger
+    ) : base(interaction, signInManager, userManager, events, schemeProvider, logger) { }
 }
