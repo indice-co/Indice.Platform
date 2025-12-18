@@ -84,7 +84,8 @@
         @for (event of campaignTimeline?.events; track event) {
           <li class="mb-10 ms-8">
             <span
-              class="absolute flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full -start-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
+              class="absolute flex items-center justify-center w-8 h-8 rounded-full -start-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900"
+              [ngClass]="event.success ? 'bg-blue-100' : 'bg-red-100'">
               @if (event.channel === 'Inbox') {
                 <i class="ms-Icon ms-Icon--Accounts"></i>
               }
@@ -100,6 +101,9 @@
             </span>
             <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white">
               {{event.channel}} - {{event.type}}
+              @if(!event.success) {
+                <span class="ml-2 badge badge-error">failed</span>
+              }
             </h3>
             <time class="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
             {{(event.createdOn | date: 'medium')}}</time>
