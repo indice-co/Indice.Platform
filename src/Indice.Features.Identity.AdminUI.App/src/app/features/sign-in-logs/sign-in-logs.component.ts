@@ -29,7 +29,7 @@ export class SignInLogsComponent implements OnInit {
     @ViewChild('statusTemplate', { static: true }) private _statusTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('signInLogsList', { static: true }) public signInLogsList: ListViewComponent;
-    @ViewChild('actionsTemplate', { static: true }) public actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('ipCellTemplate', { static: true }) private _ipCellTemplate: TemplateRef<CellContext<any>>;
     public count = 0;
     public rows: SignInLogEntry[] = [];
     public columns: TableColumn[] = [];
@@ -52,16 +52,16 @@ export class SignInLogsComponent implements OnInit {
     public ngOnInit(): void {
         this.columns = [
             { prop: 'createdAt', name: 'Created At', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._actionsTemplate, width: 200 },
-            { prop: 'actionName', name: 'Action', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
+            { prop: 'actionName', name: 'Action', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this.signInLogsList.keyTemplate },
             { prop: 'applicationName', name: 'App Name', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate },
             { prop: 'subjectName', name: 'Subject', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
             { name: 'Status', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this._statusTemplate },
-            { prop: 'ipAddress', name: 'IP Address', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this.signInLogsList.keyTemplate },
+            { prop: 'extraData.device.displayName', name: 'Device', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this.signInLogsList.keyTemplate },
+            { prop: 'ipAddress', name: 'IP Address', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._ipCellTemplate },
             { prop: 'location', name: 'Location', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
             { prop: 'sessionId', name: 'Session Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
-            { prop: 'resourceId', name: 'Endpoint', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
-            { prop: 'extraData.device.displayName', name: 'Device', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this.signInLogsList.keyTemplate },
             { prop: 'signInType', name: 'Sign in Type', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this.signInLogsList.keyTemplate }
+            //{ prop: 'resourceId', name: 'Endpoint', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
         ];
     }
 
