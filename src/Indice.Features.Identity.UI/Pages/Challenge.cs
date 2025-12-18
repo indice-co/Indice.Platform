@@ -70,8 +70,8 @@ public abstract class BaseChallengeModel : BasePageModel
             returnUrl = "/";
         }
         if (string.IsNullOrEmpty(provider)) {
-            Logger.LogError("No external provider specified for authentication.");
-            return await RedirectToErrorPageAsync(HttpContext, "No provider", "No external provider specified for authentication.");
+            Logger.LogError("Missing external provider. Federated authentication stopped.");
+            return await RedirectToErrorPageAsync(HttpContext, "Missing provider", "Missing external provider. Federated authentication stopped.");
         }
         var schemes = await SchemeProvider.GetAllSchemesAsync();
         var providers = schemes
@@ -83,7 +83,7 @@ public abstract class BaseChallengeModel : BasePageModel
            .ToList();
         if (!providers.Any(x => x.AuthenticationScheme == provider)) {
             Logger.LogError("Invalid provider specified for authentication.");
-            return await RedirectToErrorPageAsync(HttpContext, "Invalid provider", "Invalid provider specified for authentication.");
+            return await RedirectToErrorPageAsync(HttpContext, "Invalid provider", "Invalid provider specified for authentication. Federated authentication stopped.");
         }
         if (Url.IsLocalUrl(returnUrl) == false && Interaction.IsValidReturnUrl(returnUrl) == false) {
             Logger.LogError("Invalid return URL while federating to external provider.");
