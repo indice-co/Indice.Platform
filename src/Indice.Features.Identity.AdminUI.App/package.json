@@ -29,6 +29,7 @@
     "@swimlane/ngx-charts": "23.0.1",
     "@swimlane/ngx-datatable": "22.0.0",
     "bootstrap": "5.3.8",
+    "country-flag-icons": "^1.6.4",
     "file-saver": "2.0.5",
     "material-design-icons": "3.0.1",
     "ngx-progressbar": "14.0.0",
