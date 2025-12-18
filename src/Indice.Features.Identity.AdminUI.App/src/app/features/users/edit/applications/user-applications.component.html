@@ -35,12 +35,12 @@
             <hr />
             <p class="text-muted font-14">Grant types:</p>
             <h6 *ngFor="let grant_type of selectedUserClient?.types" class="d-inline-block mt-0">
-                <span class="badge text-info border boder-info bg-light m-r-10">{{ grant_type }}</span>
+                <span class="badge text-info border bg-light m-r-10">{{ grant_type }}</span>
             </h6>
             <hr />
             <p class="text-muted font-14">Resources & scopes accessible by client:</p>
             <h6 *ngFor="let scope of selectedUserClient?.scopes" class="d-inline-block mt-0">
-                <span class="badge text-info border boder-info bg-light m-r-10">{{ scope }}</span>
+                <span class="badge text-info border bg-light m-r-10">{{ scope }}</span>
             </h6>
         </div>
     </div>
@@ -64,7 +64,7 @@
 <ng-template let-row="row"
              let-value="value"
              #userAppKeyTemplate>
-    <span class="badge text-muted border boder-primary bg-light m-1" [title]="value">
+    <span class="badge text-muted border bg-light m-1" [title]="value">
         {{ value }} <b class="text-success" *ngIf="row.types.includes('reference_token')" title="active">⦿</b>
     </span>
 </ng-template>
