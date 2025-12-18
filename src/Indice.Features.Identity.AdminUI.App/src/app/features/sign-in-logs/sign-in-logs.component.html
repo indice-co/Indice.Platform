@@ -65,7 +65,8 @@
                     </tr>
                     <tr>
                         <th scope="row">Country Code</th>
-                        <td>{{ selectedLogEntry?.countryIsoCode || '-' }}</td>
+                        <td><i class="flag:{{selectedLogEntry?.countryIsoCode}}" [title]="selectedLogEntry?.countryIsoCode"></i>
+                            <span class="m-2">{{ selectedLogEntry?.countryIsoCode || '-' }}</span></td>
                     </tr>
                     <tr>
                         <th scope="row">Coordinates</th>
