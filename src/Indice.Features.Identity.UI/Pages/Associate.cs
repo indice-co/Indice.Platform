@@ -55,7 +55,7 @@ public abstract class BaseAssociateModel : BasePageModel
         }
         Input = View = associateViewModel;
         var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync();
-        if (UiOptions.AutoProvisionExternalUsers || UiOptions.AutoProvisionExtrenalUsersFor.Contains(externalLoginInfo?.LoginProvider ?? string.Empty)) {
+        if (UiOptions.AutoProvisionExternalUsers || UiOptions.AutoProvisionExternalUsersFor.Contains(externalLoginInfo?.LoginProvider ?? string.Empty)) {
             return await OnPostAsync();
         }
         return Page();
