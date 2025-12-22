@@ -1,9 +1,15 @@
 ﻿#if NET9_0_OR_GREATER
 using Duende.IdentityModel;
+using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Configuration;
+using Duende.IdentityServer.Stores;
 #else
 using IdentityModel;
+using IdentityServer4.Configuration;
+using IdentityServer4.Models;
 using IdentityServer4.Services;
+using IdentityServer4.Stores;
 #endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
@@ -18,6 +24,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text.Encodings.Web;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -224,5 +231,38 @@ public abstract class BasePageModel : PageModel
             return Redirect(returnUrl);
         }
         return IsValidReturnUrl(returnUrl) ? Redirect(returnUrl) : Redirect("/");
+    }
+
+    /// <summary>Redirects the user to the error page with the specified error details.</summary>
+    /// <param name="context">The HTTP context.</param>
+    /// <param name="error">The error code.</param>
+    /// <param name="errorDescription">The error description.</param>
+    /// <param name="authorizationRequest">The authorization request.</param>
+    [NonAction]
+    protected async Task<IActionResult> RedirectToErrorPageAsync(HttpContext context, string error, string? errorDescription, AuthorizationRequest? authorizationRequest = null) {
+
+        var options = context.RequestServices.GetRequiredService<IdentityServerOptions>();
+        var errorMessageStore = context.RequestServices.GetRequiredService<IMessageStore<ErrorMessage>>();
+
+        var errorModel = new ErrorMessage() {
+#if NET9_0_OR_GREATER
+            ActivityId = System.Diagnostics.Activity.Current?.Id,
+#endif
+            RequestId = context.TraceIdentifier,
+            Error = error,
+            ErrorDescription = errorDescription,
+            UiLocales = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName,
+            //DisplayMode = response.Request?.DisplayMode,
+            ClientId = authorizationRequest?.Client.ClientId
+        };
+
+
+        var message = new Message<ErrorMessage>(errorModel, DateTime.UtcNow);
+        var id = await errorMessageStore.WriteAsync(message);
+
+        string errorUrl = options.UserInteraction.ErrorUrl ?? "/error";
+        var url = errorUrl + "?" + options.UserInteraction.ErrorIdParameter + "=" + UrlEncoder.Default.Encode(id);
+
+        return Redirect(url);
     }
 }

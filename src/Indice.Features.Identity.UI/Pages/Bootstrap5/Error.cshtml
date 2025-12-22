@@ -16,7 +16,7 @@
             @if (Model?.Message is not null)
             {
                 <strong>
-                    <em>: @Model.Message</em>
+                    @Model.Title <em>: @Model.Message</em>
                 </strong>
             }
             @if (Model?.RequestId is not null)
