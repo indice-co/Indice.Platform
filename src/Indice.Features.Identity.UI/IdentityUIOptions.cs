@@ -42,6 +42,9 @@ public class IdentityUIOptions
     public bool HasCustomOnBoarding => !"/Register".Equals(OnBoardingPage);
     /// <summary>Controls whether an external Identity user will go through the associate screen or not.</summary>
     public bool AutoProvisionExternalUsers { get; set; } = true;
+    /// <summary>Controls which external login providers should be auto provisioned.</summary>
+    /// <remarks>use scheme names like Microsoft, Apple, Google etc </remarks>
+    public List<string> AutoProvisionExtrenalUsersFor { get; set; } = [];
     /// <summary>Controls whether an external identity user be associated to an existing one using the email account.</summary>
     public bool AutoAssociateExternalUsers { get; set; } = true;
     /// <summary>Controls whether The self service /register page is accessible.</summary>
