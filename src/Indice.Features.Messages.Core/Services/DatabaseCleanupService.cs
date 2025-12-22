@@ -1,27 +1,29 @@
-﻿
-using System.Linq;
-using Indice.Features.Messages.Core.Data;
+﻿using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.Core.Services;
 
 /// <inheritdoc/>
-public class DatabaseCleanupService : IDatabaseCleanUpService
+public class DatabaseCleanUpService : IDatabaseCleanUpService
 {
     private readonly DatabaseCleanUpOptions _options;
     private CampaignsDbContext DbContext { get; }
+    private readonly IFileService FileService;
 
     /// <summary>
     /// Constructs the service.
     /// </summary>
     /// <param name="options">Retention policies for database cleanup.</param>
     /// <param name="dbContext">Database context for accessing campaign data.</param>
-    public DatabaseCleanupService(IOptions<DatabaseCleanUpOptions> options, CampaignsDbContext dbContext) {
+    public DatabaseCleanUpService(IOptions<DatabaseCleanUpOptions> options, CampaignsDbContext dbContext, IFileServiceFactory fileServiceFactory) {
         _options = options.Value;
         DbContext = dbContext;
+        //FileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory), $"Service {KeyedServiceNames.FileServiceKey} was not registered");
     }
 
     /// <summary>
@@ -29,66 +31,65 @@ public class DatabaseCleanupService : IDatabaseCleanUpService
     /// </summary>
     /// <returns></returns>
     public async Task CleanUpCampaignsWithInboxAsync() {
-
-        //Get all the campaigns with an inbox
-        //That are older than the retention period - Max of Created, From
-        //Find all the related non cascade fields and delete them
-        //Execute delete async on campaigns.
-
-        //Lets mark the affected table/rows
-        //Campaigns -> Also deletes Messages by Cascade
-        //DLs and their DLContacts -> IF their creator is system aka the campaign
-        //The message Events
-
-        //Order of deletion -> Probably DLContacts, DLs, MessageEvents, Campaigns (Messages are cascade deleted)
-        //Actually DLContacts also has cascade delete on DLs so we can just delete DLs
-        var cutOffDate = DateTimeOffset.UtcNow.AddDays(-_options.CampaignsWithInboxRetentionPeriodInDays);
-        var query = DbContext.Campaigns.Where(x => x.MessageChannelKind.HasFlag(MessageChannelKind.Inbox));
-        query = query.Where(x => x.CreatedAt <= cutOffDate && 
-        (!(x.ActivePeriod != null && x.ActivePeriod.From != null) || x.ActivePeriod.From <= cutOffDate));
-        var campaignIds = query.Select(x => x.Id);
-        var distributionListIds = query.Select(x => x.DistributionListId);
-
-        //unfortunately - I think that I have to materialize this
-        var distributionListsToDelete = await DbContext.DistributionLists.Where(x => x.CreatedBy == "system" && distributionListIds.Contains(x.Id)).Select(x => x.Id).ToListAsync();
-
-        //
-        //await DbContext.MessageEvents.Where(x => campaignIds.Contains(x.CampaignId)).ExecuteDeleteAsync();
-        //await query.ExecuteDeleteAsync();
-        //await DbContext.DistributionLists.Where(x => distributionListsToDelete.Contains(x.Id)).ExecuteDeleteAsync();
-
+        await CleanUpDataAsync(true);
     }
-
 
     /// <summary>
     /// Cleans up campaigns without an inbox and their related Data.
     /// </summary>
     /// <returns></returns>
     public async Task CleanUpCampaignsWithoutInboxAsync() {
+        await CleanUpDataAsync(false);
+    }
 
+    private async Task CleanUpDataAsync(bool hasInbox) {
         bool hasMoreRecords = true;
         while (hasMoreRecords) {
             var cutOffDate = DateTimeOffset.UtcNow.AddDays(-_options.CampaignsWithoutInboxRetentionPeriodInDays);
-            var query = DbContext.Campaigns.Where(x => !x.MessageChannelKind.HasFlag(MessageChannelKind.Inbox));
-            query = query.Where(x => x.CreatedAt <= cutOffDate &&
+            //has Inbox
+            var query = DbContext.Campaigns.AsNoTracking().Where(x => hasInbox ? x.MessageChannelKind.HasFlag(MessageChannelKind.Inbox) : !x.MessageChannelKind.HasFlag(MessageChannelKind.Inbox));
+            query = query.Where(x => x.CreatedAt <= cutOffDate && x.Published &&
             (!(x.ActivePeriod != null && x.ActivePeriod.From != null) || x.ActivePeriod.From <= cutOffDate)).OrderBy(x => x.CreatedAt).Take(_options.DeletionBatchSize);
 
             //unfortunately - I think that I have to materialize this
-            var campaignDLIdss = await query.Select(x => new CampaignDLId { CampaignId = x.Id, DistributionListId = x.DistributionListId }).ToListAsync();
-            if (campaignDLIdss.Count == 0) {
+            var deletionCampaignData = await query.Select(x => new DbCampaign { Id = x.Id, AttachmentId = x.AttachmentId, DistributionListId = x.DistributionListId!.Value }).ToListAsync();
+
+            if (deletionCampaignData.Count == 0) {
                 break;
             }
             using (var transaction = await DbContext.Database.BeginTransactionAsync()) {
                 try {
-                    await DbContext.MessageEvents.Where(x => campaignDLIdss.Select(x => x.CampaignId).Contains(x.CampaignId)).ExecuteDeleteAsync();
-                    await query.ExecuteDeleteAsync();
-                    await DbContext.DistributionLists.Where(x => x.CreatedBy == "system" && campaignDLIdss.Select(x => x.DistributionListId)
-                                                                                                          .Contains(x.Id)).ExecuteDeleteAsync();
-                } 
-                catch (Exception ex) {
-
+                    //Delete the campaigns and messages
+                    await DbContext.Campaigns.Where(x => deletionCampaignData.Select(c => c.Id).Contains(x.Id)).ExecuteDeleteAsync();
+                    //Delete the autogenerated distribution lists
+                    await DbContext.DistributionLists.Where(x => x.CreatedBy!.ToLower().Trim() == "system" && deletionCampaignData.Select(c => c.DistributionListId).Contains(x.Id)).ExecuteDeleteAsync();
+                    await DbContext.MessageEvents.Where(x => deletionCampaignData.Select(c => c.Id).Contains(x.CampaignId)).ExecuteDeleteAsync();
+                    await transaction.CommitAsync();
+                } catch (Exception ex) {
+                    await transaction.RollbackAsync();
+                    throw;
                 }
             }
+            var attachmentIds = deletionCampaignData.Select(x => x.AttachmentId);
+            await DeleteAttachments(attachmentIds);
+            break;
+        }
+    }
+
+    private async Task DeleteAttachments(IEnumerable<Guid?> attachmentIds) {
+        // bring the attatchments? -> should I bring them from the start?
+        var dbAttachments = await DbContext.Attachments.Where(x => attachmentIds.Contains(x.Id)).ToListAsync();
+        if (dbAttachments.Any()) {
+            //here I will call the delete of the file service - so that I can delete the files from blob storage as well
+            foreach (var dbAttachment in dbAttachments) {
+                var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension?.TrimStart('.')}";
+                try {
+                    await FileService.DeleteAsync(path);
+                } catch {
+                    // catching any exception here to avoid breaking the cleanup process due to file deletion issues
+                }
+            }
+            await DbContext.Attachments.Where(x => attachmentIds.Contains(x.Id)).ExecuteDeleteAsync();
         }
     }
 }

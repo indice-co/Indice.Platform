@@ -90,6 +90,7 @@ public static class WorkerHostBuilderExtensions
         services.TryAddTransient<ICampaignJobHandler<SendPushNotificationEvent>, SendPushNotificationHandler>();
         services.TryAddTransient<ICampaignJobHandler<SendEmailEvent>, SendEmailHandler>();
         services.TryAddTransient<ICampaignJobHandler<SendSmsEvent>, SendSmsHandler>();
+        services.TryAddTransient<ICampaignJobHandler<DatabaseCleanUpTimerEvent>, DatabaseCleanUpHandler>();
         services.AddTransient<MessageJobHandlerFactory>();
     }
 

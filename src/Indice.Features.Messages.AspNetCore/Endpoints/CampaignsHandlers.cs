@@ -9,6 +9,7 @@ using Indice.Features.Messages.Core.Manager;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Kpis;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Services;
 using Indice.Types;
@@ -139,6 +140,11 @@ internal static class CampaignsHandlers
     public static async Task<Ok<RecipientMessageEvents>> GetCampaignMessageDetails(ICampaignService campaignService, Guid campaignId, Guid messageId) {
         var campaigns = await campaignService.GetCampaignRecipientDetails(campaignId, messageId);
         return TypedResults.Ok(campaigns);
+    }
+
+    public static async Task<Ok<string>> CampaignDatabaseCleanUp(DatabaseCleanUpService databaseCleanupService) {
+        await databaseCleanupService.CleanUpCampaignsWithInboxAsync();
+        return TypedResults.Ok("Done");
     }
 
     #region Descriptions

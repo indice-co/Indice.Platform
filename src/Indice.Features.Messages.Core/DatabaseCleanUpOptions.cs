@@ -16,7 +16,7 @@ public class DatabaseCleanUpOptions
     public int CampaignsWithoutInboxRetentionPeriodInDays { get; set; } = 30;
 
     /// <summary>
-    /// The batch size for deletions.
+    /// Gets or sets the number of records to remove at a time. Defaults to 100.
     /// </summary>
     public int DeletionBatchSize { get; set; } = 10;
 }
