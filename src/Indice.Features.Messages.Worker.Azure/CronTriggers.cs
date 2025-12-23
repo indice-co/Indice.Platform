@@ -35,7 +35,7 @@ public class CronTriggers
     /// <param name="handler"></param>
     /// <returns></returns>
     [Function("DatabaseCleanUp")]
-    public async Task RunDatabaseCleanUp([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, DatabaseCleanUpHandler handler) {
+    public async Task RunDatabaseCleanUp([TimerTrigger("%Messages:DatabaseCleanUpOptions:CronExpression%")] TimerInfo myTimer, DatabaseCleanUpHandler handler) {
         var payload = new DatabaseCleanUpTimerEvent();
         await CleanUpJobHandlerFactory.CreateFor<DatabaseCleanUpTimerEvent>().Process(payload);
     }

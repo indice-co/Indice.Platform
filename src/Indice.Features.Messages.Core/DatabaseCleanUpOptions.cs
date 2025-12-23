@@ -19,4 +19,9 @@ public class DatabaseCleanUpOptions
     /// Gets or sets the number of records to remove at a time. Defaults to 100.
     /// </summary>
     public int DeletionBatchSize { get; set; } = 10;
+
+    /// <summary>
+    /// The cron expression that defines the schedule for the cleanup task.
+    /// </summary>
+    public string CronExpression { get; set; } = "0 0 2 * * *"; 
 }

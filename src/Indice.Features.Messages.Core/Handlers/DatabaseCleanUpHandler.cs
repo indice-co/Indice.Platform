@@ -24,10 +24,6 @@ public sealed class DatabaseCleanUpHandler : ICampaignJobHandler<DatabaseCleanUp
     /// <param name="event"></param>
     /// <returns></returns>
     public async Task Process(DatabaseCleanUpTimerEvent @event) {
-        Console.WriteLine("We are cleaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiing");
-        Console.WriteLine("We are cleaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiing");
-        Console.WriteLine("We are cleaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiing");
-        Console.WriteLine("We are cleaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiing");
         await _cleanUpService.CleanUpCampaignsWithInboxAsync();
         await _cleanUpService.CleanUpCampaignsWithoutInboxAsync();
     }

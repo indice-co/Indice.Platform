@@ -52,6 +52,8 @@ public static class WorkerHostBuilderExtensions
 
     private static void AddJobHandlers(this WorkerHostBuilder workerHostBuilder, MessageJobsOptions messageOptions) {
         var random = new Random();
+        var serviceProvider = workerHostBuilder.Services.BuildServiceProvider();
+        var cleanUpOptions = serviceProvider.GetRequiredService<IOptions<DatabaseCleanUpOptions>>().Value;
         workerHostBuilder.AddJob<CampaignPublishedJobHandler>().WithQueueTrigger<CampaignCreatedEvent>(options => {
             options.QueueName = EventNames.CampaignCreated;
             options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
@@ -81,7 +83,13 @@ public static class WorkerHostBuilderExtensions
             options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
             options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
             options.InstanceCount = 1;
+        })
+        .AddJob<DatabaseCleanUpJobHandler>().WithScheduleTrigger(cleanUpOptions.CronExpression, options => {
+            options.Singleton = true;
+            options.Name = nameof(DatabaseCleanUpJobHandler);
+            options.Group = nameof(DatabaseCleanUpJobHandler);
         });
+
     }
 
     private static void AddJobHandlerServices(this IServiceCollection services) {
@@ -119,6 +127,7 @@ public static class WorkerHostBuilderExtensions
         services.TryAddTransient<NotificationsManager>();
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
+        services.Configure<DatabaseCleanUpOptions>(configuration.GetSection("DatabaseCleanUp"));
     }
 
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
