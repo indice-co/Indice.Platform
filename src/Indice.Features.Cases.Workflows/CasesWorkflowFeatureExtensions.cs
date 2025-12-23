@@ -150,7 +150,10 @@ public static class CasesWorkflowFeatureExtensions
             options.Scope = builder.Configuration.GetApiResourceName();
         });
         builder.Services.AddHttpClient<CasesManagerHttpClient>((serviceProvider, httpClient) => {
-                httpClient.BaseAddress = serviceProvider.GetServerLoopbackUri();
+                var loopbackUri = builder.Configuration.TryGetEndpoint("ServerLoopbackUri");
+                httpClient.BaseAddress = string.IsNullOrWhiteSpace(loopbackUri) ?
+                                            serviceProvider.GetServerLoopbackUri() :
+                                            new(loopbackUri);
             })
             .AddClientCredentialsTokenHandler("workflow")
             .ClearResilienceHandlers();
