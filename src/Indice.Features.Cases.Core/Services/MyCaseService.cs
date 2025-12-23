@@ -99,7 +99,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
     public async Task<Case?> GetCaseById(Guid caseId) {
         var query =
-            from c in GetCasesInternal(true, includeAttachmentData: true, SchemaSelector)
+            from c in GetCasesInternal(fetchPublicData: true, includeAttachmentData: true, SchemaSelector)
             where c.Id == caseId 
             select c;
 
