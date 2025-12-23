@@ -41,7 +41,11 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
             .AddTransient(serviceProvider => new DatabaseSchemaNameResolver("cmp"))
             .AddTransient<IUserNameAccessor, UserNameAccessorNoOp>()
             .AddTransient<UserNameAccessorAggregate>()
-            .AddTransient<IFileServiceFactory, DefaultFileServiceFactory>()
+            .AddSingleton<IFileServiceFactory, DefaultFileServiceFactory>()
+            //.AddSingleton<IFileService, FileServiceNoop>()
+            //.AddSingleton<IFileService, FileServiceInMemory>()
+            .AddKeyedSingleton<IFileService, FileServiceInMemory>("Messages:FileServiceKey")
+            //.AddSingleton<IFileService,FileServiceAzureStorage>()
             .AddTransient<IDatabaseCleanUpService, DatabaseCleanUpService>()
             .AddOptions()
             .Configure<MessageManagementOptions>(configuration);

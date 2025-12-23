@@ -23,7 +23,7 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
     public DatabaseCleanUpService(IOptions<DatabaseCleanUpOptions> options, CampaignsDbContext dbContext, IFileServiceFactory fileServiceFactory) {
         _options = options.Value;
         DbContext = dbContext;
-        //FileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory), $"Service {KeyedServiceNames.FileServiceKey} was not registered");
+        FileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory), $"Service {KeyedServiceNames.FileServiceKey} was not registered");
     }
 
     /// <summary>
@@ -65,7 +65,8 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
                     await DbContext.DistributionLists.Where(x => x.CreatedBy!.ToLower().Trim() == "system" && deletionCampaignData.Select(c => c.DistributionListId).Contains(x.Id)).ExecuteDeleteAsync();
                     await DbContext.MessageEvents.Where(x => deletionCampaignData.Select(c => c.Id).Contains(x.CampaignId)).ExecuteDeleteAsync();
                     await transaction.CommitAsync();
-                } catch (Exception ex) {
+                } 
+                catch (Exception) {
                     await transaction.RollbackAsync();
                     throw;
                 }
@@ -85,7 +86,8 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
                 var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension?.TrimStart('.')}";
                 try {
                     await FileService.DeleteAsync(path);
-                } catch {
+                } 
+                catch {
                     // catching any exception here to avoid breaking the cleanup process due to file deletion issues
                 }
             }
