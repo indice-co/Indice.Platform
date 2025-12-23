@@ -148,6 +148,9 @@ textarea.code-editor {
   @apply inline-flex items-center gap-x-1.5 rounded-md px-2 py-0.5 text-xs font-medium text-gray-900 border border-gray-500;
   @apply inset-ring inset-ring-gray-200;
 }
+.badge-error {
+  @apply text-red-700 bg-red-50 border-red-600;
+}
 
   .badge.alias {
     border-color: transparent;
