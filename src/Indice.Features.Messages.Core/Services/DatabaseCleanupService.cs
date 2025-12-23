@@ -45,13 +45,14 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
     private async Task CleanUpDataAsync(bool hasInbox) {
         bool hasMoreRecords = true;
         while (hasMoreRecords) {
-            var cutOffDate = DateTimeOffset.UtcNow.AddDays(-_options.CampaignsWithoutInboxRetentionPeriodInDays);
-            //has Inbox
+
+            var cutOffDate = hasInbox ? DateTimeOffset.UtcNow.AddDays(-_options.CampaignsWithInboxRetentionPeriodInDays) : DateTimeOffset.UtcNow.AddDays(-_options.CampaignsWithoutInboxRetentionPeriodInDays);
+            // whether the campaigns have Inbox
             var query = DbContext.Campaigns.AsNoTracking().Where(x => hasInbox ? x.MessageChannelKind.HasFlag(MessageChannelKind.Inbox) : !x.MessageChannelKind.HasFlag(MessageChannelKind.Inbox));
+            // old and published
             query = query.Where(x => x.CreatedAt <= cutOffDate && x.Published &&
             (!(x.ActivePeriod != null && x.ActivePeriod.From != null) || x.ActivePeriod.From <= cutOffDate)).OrderBy(x => x.CreatedAt).Take(_options.DeletionBatchSize);
 
-            //unfortunately - I think that I have to materialize this
             var deletionCampaignData = await query.Select(x => new DbCampaign { Id = x.Id, AttachmentId = x.AttachmentId, DistributionListId = x.DistributionListId!.Value }).ToListAsync();
 
             if (deletionCampaignData.Count == 0) {
@@ -78,11 +79,10 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
     }
 
     private async Task DeleteAttachments(IEnumerable<Guid?> attachmentIds) {
-        // bring the attatchments? -> should I bring them from the start?
         var dbAttachments = await DbContext.Attachments.Where(x => attachmentIds.Contains(x.Id)).ToListAsync();
         if (dbAttachments.Any()) {
-            //here I will call the delete of the file service - so that I can delete the files from blob storage as well
             foreach (var dbAttachment in dbAttachments) {
+                // the path where the data is stored
                 var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension?.TrimStart('.')}";
                 try {
                     await FileService.DeleteAsync(path);
