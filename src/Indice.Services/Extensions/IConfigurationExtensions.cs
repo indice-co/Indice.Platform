@@ -50,13 +50,13 @@ public static class IConfigurationExtensions
     /// <returns>The endpoint under the specified key. Endpoints are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
     /// <remarks>Checks for the <strong>General:Endpoints</strong> option in appsettings.json file.</remarks>
     /// <exception cref="KeyNotFoundException">Throws a <see cref="KeyNotFoundException"/> if the specified key is not found.</exception>
-    public static string GetEndpoint(this IConfiguration configuration, string key) => GetEndpoints(configuration)![key];
+    public static string GetEndpoint(this IConfiguration configuration, string key) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Endpoints)}").GetValue<string>(key) ?? throw new KeyNotFoundException($"Endpoint '{key}' not found.");
 
     /// <summary>Tries to get the endpoint value using the specified key.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="key">The key to search for.</param>
     /// <returns>The endpoint under the specified key if the key exists, otherwise null. Endpoints are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
-    public static string? TryGetEndpoint(this IConfiguration configuration, string key) => GetEndpoints(configuration)!.TryGetValue(key, out var endpoint) ? endpoint : default;
+    public static string? TryGetEndpoint(this IConfiguration configuration, string key) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Endpoints)}").GetValue<string>(key);
 
     /// <summary>Indicates whether to enable HSTS (HTTP Strict Transport Security).</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>

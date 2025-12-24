@@ -110,7 +110,6 @@ public static class GovGrExtensions
             options.SaveTokens = true;
             options.CallbackPath = govGrOptions.CallbackPath ?? new PathString("/signin-govgr");
             options.SignInScheme = govGrOptions.SignInScheme ?? CookieAuthenticationDefaults.AuthenticationScheme;
-            options.SaveTokens = true;
             options.Scope.Clear();
             foreach (var scope in govGrOptions.Scopes) {
                 options.Scope.Add(scope);
@@ -118,7 +117,9 @@ public static class GovGrExtensions
             options.ClientId = govGrOptions.ClientId;
             options.ClientSecret = govGrOptions.ClientSecret;
             options.UsePkce = false;
-
+            options.BackchannelTimeout = govGrOptions.BackchannelTimeout;
+            options.Backchannel = govGrOptions.Backchannel;
+            options.BackchannelHttpHandler = govGrOptions.BackchannelHttpHandler;
             options.Events.OnCreatingTicket = async (context) => {
                 var accessToken = context.Properties.GetTokenValue("access_token");
                 var http = context.Request.HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient(authenticationScheme);
