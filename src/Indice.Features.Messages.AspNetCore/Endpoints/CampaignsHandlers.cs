@@ -142,11 +142,6 @@ internal static class CampaignsHandlers
         return TypedResults.Ok(campaigns);
     }
 
-    public static async Task<Ok<string>> CampaignDatabaseCleanUp(DatabaseCleanUpService databaseCleanupService) {
-        await databaseCleanupService.CleanUpCampaignsWithInboxAsync();
-        return TypedResults.Ok("Done");
-    }
-
     #region Descriptions
     public static readonly string GET_CAMPAIGNS_DESCRIPTION = @"
 Retrieves the list of all campaigns based on the provided ListOptions.

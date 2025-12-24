@@ -111,12 +111,6 @@ internal static class CampaignsApi
              .WithSummary("Gets information about the message of this campaign.")
              .WithDescription(CampaignsHandlers.GET_CAMPAIGN_MESSAGE_DETAILS);
 
-        group.MapPost("cleanUp", CampaignsHandlers.CampaignDatabaseCleanUp)
-             .WithName(nameof(CampaignsHandlers.CampaignDatabaseCleanUp))
-             .WithSummary("Gets information about the message of this campaign.")
-             .WithDescription(CampaignsHandlers.GET_CAMPAIGN_MESSAGE_DETAILS);
-
-
         return group;
     }
 
