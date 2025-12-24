@@ -22,4 +22,10 @@ public class MessageJobsOptions : MessageWorkerOptions
     public double QueuePollingInterval { get; set; } = 300;
     /// <summary>Specifies the maximum time interval between two attempts to dequeue new items. Used as a back-off strategy threshold. Defaults to 5000 milliseconds.</summary>
     public double QueueMaxPollingInterval { get; set; } = 5000;
+
+    /// <summary>
+    /// The cron expression that defines the schedule for the cleanup task.
+    /// </summary>
+    public string DatabaseCleanUpCronExpression { get; set; } = "0 0 2 * * *";
+
 }

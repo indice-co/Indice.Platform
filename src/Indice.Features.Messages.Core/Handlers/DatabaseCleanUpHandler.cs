@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Services;
+using Indice.Features.Messages.Core.Services.Abstractions;
 
 namespace Indice.Features.Messages.Core.Handlers;
 
@@ -8,13 +9,13 @@ namespace Indice.Features.Messages.Core.Handlers;
 /// </summary>
 public sealed class DatabaseCleanUpHandler : ICampaignJobHandler<DatabaseCleanUpTimerEvent>
 {
-    private readonly DatabaseCleanUpService _cleanUpService;
+    private readonly IDatabaseCleanUpService _cleanUpService;
 
     /// <summary>
     /// The contructor for our handler.
     /// </summary>
     /// <param name="cleanUpService"></param>
-    public DatabaseCleanUpHandler(DatabaseCleanUpService cleanUpService) {
+    public DatabaseCleanUpHandler(IDatabaseCleanUpService cleanUpService) {
         _cleanUpService = cleanUpService ?? throw new ArgumentNullException(nameof(cleanUpService));
     }
 

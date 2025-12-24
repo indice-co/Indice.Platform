@@ -34,7 +34,6 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
                 ContentRootFileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\"))
             })
             .AddDbContext<CampaignsDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb")))
-            .AddDbContext<TestCampaignsDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb")))
             .AddSingleton(configuration)
             .AddTransient<ICampaignService, CampaignService>()
             .AddTransient<IContactService, ContactService>()
@@ -42,39 +41,20 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
             .AddTransient<IUserNameAccessor, UserNameAccessorNoOp>()
             .AddTransient<UserNameAccessorAggregate>()
             .AddSingleton<IFileServiceFactory, DefaultFileServiceFactory>()
-            //.AddSingleton<IFileService, FileServiceNoop>()
-            //.AddSingleton<IFileService, FileServiceInMemory>()
             .AddKeyedSingleton<IFileService, FileServiceInMemory>("Messages:FileServiceKey")
-            //.AddSingleton<IFileService,FileServiceAzureStorage>()
             .AddTransient<IDatabaseCleanUpService, DatabaseCleanUpService>()
             .AddOptions()
             .Configure<MessageManagementOptions>(configuration);
         ServiceProvider = services.BuildServiceProvider();
     }
-    public class TestCampaignsDbContext : CampaignsDbContext
-    {
-        public TestCampaignsDbContext(
-            DbContextOptions<CampaignsDbContext> options)
-            : base(options) {
-        }
 
-        /// <summary>
-        /// Override SaveChangesAsync to bypass the OnBeforeSaving() method in CampaignsDbContext.
-        /// This allows us to set custom CreatedAt/UpdatedAt dates for testing purposes.
-        /// </summary>
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default) {
-            return Task.Run(() => base.SaveChanges(acceptAllChangesOnSuccess));
-        }
-    }
-
-
-        public async Task InitializeAsync() {
-        var db = ServiceProvider.GetRequiredService<TestCampaignsDbContext>();
+    public async Task InitializeAsync() {
+        var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureCreatedAsync();
     }
 
     public async Task DisposeAsync() {
-        var db = ServiceProvider.GetRequiredService<TestCampaignsDbContext>();
+        var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();
     }
@@ -82,7 +62,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
     [Fact]
     public async Task CleanUpCampaignsWithInboxAsync_DeletesOldCampaigns() {
         // Arrange
-        var db = ServiceProvider.GetRequiredService<TestCampaignsDbContext>();
+        var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         var cleanupService = ServiceProvider.GetRequiredService<IDatabaseCleanUpService>();
 
         // Create distribution list
@@ -115,7 +95,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
             Recipient = "user1"
         });
 
-        await db.SaveChangesAsync();
+        db.SaveChanges();
         await cleanupService.CleanUpCampaignsWithInboxAsync();
         var remainingCampaigns = await db.Campaigns.ToListAsync();
         Assert.Equal(2, remainingCampaigns.Count); // Only recent and unpublished should remain
@@ -132,7 +112,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
     [Fact]
     public async Task CleanUpCampaignsWithoutInboxAsync_DeletesOldCampaigns() {
         // Arrange
-        var db = ServiceProvider.GetRequiredService<TestCampaignsDbContext>();
+        var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         var cleanupService = ServiceProvider.GetRequiredService<IDatabaseCleanUpService>();
 
         // Create distribution list
@@ -165,7 +145,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
             Recipient = "user1"
         });
 
-        await db.SaveChangesAsync();
+        db.SaveChanges();
         await cleanupService.CleanUpCampaignsWithoutInboxAsync();
         var remainingCampaigns = await db.Campaigns.ToListAsync();
         Assert.Equal(2, remainingCampaigns.Count); // Only recent and unpublished should remain
@@ -179,7 +159,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
 
     [Fact]
     public async Task CleanUpCampaigns_HandlesEmptyDatabase() {
-        var db = ServiceProvider.GetRequiredService<TestCampaignsDbContext>();
+        var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         var cleanupService = ServiceProvider.GetRequiredService<IDatabaseCleanUpService>();
 
         await cleanupService.CleanUpCampaignsWithInboxAsync();
@@ -191,7 +171,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
 
     [Fact]
     public async Task CleanUpCampaigns_RespectsActivePeriod() {
-        var db = ServiceProvider.GetRequiredService<TestCampaignsDbContext>();
+        var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         var cleanupService = ServiceProvider.GetRequiredService<IDatabaseCleanUpService>();
 
         var distributionList = new DbDistributionList {
@@ -208,7 +188,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         };
 
         db.Campaigns.Add(campaignWithActivePeriod);
-        await db.SaveChangesAsync();
+        db.SaveChanges();
 
         await cleanupService.CleanUpCampaignsWithoutInboxAsync();
         var remainingCampaigns = await db.Campaigns.ToListAsync();

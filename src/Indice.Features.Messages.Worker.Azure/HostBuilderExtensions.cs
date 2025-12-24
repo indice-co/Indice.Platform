@@ -73,8 +73,8 @@ public static class HostBuilderExtensions
                 messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
             });
             services.Configure<DatabaseCleanUpOptions>(dbCleanUpOptions => {
-                dbCleanUpOptions.CampaignsWithoutInboxRetentionPeriodInDays = options.DatabaseCleanUpOptions.CampaignsWithoutInboxRetentionPeriodInDays;
-                dbCleanUpOptions.CampaignsWithInboxRetentionPeriodInDays = options.DatabaseCleanUpOptions.CampaignsWithInboxRetentionPeriodInDays;
+                dbCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
+                dbCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
                 dbCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
             });
             services.AddHostedService<StartupSeedHostedService>();
@@ -103,7 +103,7 @@ public static class HostBuilderExtensions
         services.TryAddTransient<CreateCampaignRequestValidator>();
         services.TryAddTransient<CreateMessageTypeRequestValidator>();
         services.TryAddTransient<NotificationsManager>();
-        services.TryAddTransient<DatabaseCleanUpService>();
+        services.TryAddTransient<IDatabaseCleanUpService, DatabaseCleanUpService>();
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         services.TryAddScoped<UserNameAccessorAggregate>();
