@@ -1,0 +1,46 @@
+<lib-view-layout [title]="'Contacts.ListTitle' | translate"
+  [busy]="!items"
+  [actions]="actions"
+  [meta-items]="metaItems"
+  [search-placeholder] ="'Shared.Search' | translate"
+  (onAction)="actionHandler($event)"
+  (onSearch)="searchChanged($event)">
+
+  <lib-list-view [items]="items"
+    [page]="page"
+    [page-size]="pageSize"
+    [count]="count"
+    [sort-options]="sortOptions"
+    [sort]="sort"
+    [sort-dir]="sortdir"
+    [busy]="!items"
+    (pageChanged)="pageChanged($event)"
+    (pageSizeChanged)="pageSizeChanged($event)"
+    (sortChanged)="sortChanged($event)"
+    (sortdirChanged)="sortdirChanged($event)">
+    <lib-list-column title="{{ 'Contacts.Name' | translate }}">
+      <ng-template let-item>
+        <a href="#"
+           [routerLink]="[item.id]"
+           class="text-blue-600">
+          {{ item.fullName?.trim() ? item.fullName: '-' }}
+        </a>
+      </ng-template>
+    </lib-list-column>
+    <lib-list-column title="{{ 'Contacts.Email' | translate }}">
+      <ng-template let-item>{{ item.email }}</ng-template>
+    </lib-list-column>
+    <lib-list-column title="{{ 'Contacts.Phone' | translate }}">
+      <ng-template let-item>{{ item.phoneNumber }}</ng-template>
+    </lib-list-column>
+    <lib-list-column title="{{ 'Contacts.ContactCode' | translate }}">
+      <ng-template let-item>@if (item.recipientId) {
+        <span class="badge alias">{{ item.recipientId }} <span title="{{item.resolved ? ('Contacts.Resolved' | translate) : ('Contacts.Unknown' | translate) }}" class="small" [innerHtml]="item.resolved | beautifyBoolean"></span></span>
+      }</ng-template>
+    </lib-list-column>
+    <lib-list-column title="{{ 'Contacts.UpdatedAt' | translate }}"
+      [full-width]="true">
+      <ng-template let-item>{{ !item.updatedAt ? '-' : (item.updatedAt | date: 'medium') }}</ng-template>
+    </lib-list-column>
+  </lib-list-view>
+</lib-view-layout>

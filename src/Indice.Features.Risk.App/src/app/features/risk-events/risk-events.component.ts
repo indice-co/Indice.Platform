@@ -1,18 +1,18 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ViewAction } from '@indice/ng-components';
-import { FilterClause, SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
+import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ToasterService, ViewAction, FilterClause, SearchOption } from '@indice/ng-components';
 import { User } from 'oidc-client-ts';
 import { Observable, Subscription } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import { ParamsService } from 'src/app/core/services/params.service';
 import { RiskApiService, RiskEvent, RiskEventResultSet } from 'src/app/core/services/risk-api.service';
 import { DataService } from 'src/app/core/services/data.service';
 
 @Component({
     selector: 'app-risk-events',
-    templateUrl: './risk-events.component.html'
+    templateUrl: './risk-events.component.html',
+    standalone: false
 })
 export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements OnInit {
     newItemLink: string;
@@ -29,8 +29,8 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
         private _router: Router,
         private _api: RiskApiService,
         private _paramsService: ParamsService,
-        private dataService: DataService) 
-    {
+        private toasterService: ToasterService,
+        private dataService: DataService) {
         super(_route, _router);
         this.view = ListViewType.Table;
         this.pageSize = 50;
@@ -70,15 +70,19 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
                 field: 'id',
                 name: 'ΚΩΔΙΚΟΣ ΣΥΜΒΑΝΤΟΣ',
                 dataType: 'string'
+            },
+            {
+                field: 'countryIsoCode',
+                name: 'ΚΩΔΙΚΟΣ ΧΩΡΑΣ',
+                dataType: 'string'
+            },
+            {
+                field: 'sessionId',
+                name: 'ΚΩΔΙΚΟΣ ΣΥΝΕΔΡΙΑΣ (Session Id)',
+                dataType: 'string'
             }
         ];
         this.searchOptions.push(...extraSearchOptions);
-    }
-
-    openRiskDetailsPane(extraData: any): void {
-        const dataJson = JSON.parse(JSON.stringify(extraData));
-        this.dataService.setInputData(dataJson);
-        this._router.navigateByUrl('/risk-events(rightpane:details)', {skipLocationChange: true});
     }
 
     ngOnInit(): void {
@@ -97,8 +101,7 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
     }
 
     loadItems(): Observable<IResultSet<RiskEvent>> {
-        let extraFilters: string[] = []
-
+        let extraFilters: string[] = [];
         this.filters?.forEach(x => extraFilters.push(this.stringifyFilterClause(x)));
 
         this._paramsService.setParams({
@@ -117,12 +120,19 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
                 this.pageSize,
                 this.sortdir === 'asc' ? this.sort! : this.sort + '-',
                 this.search || undefined
-          
+
             )
             .pipe(
                 take(1),
+                tap((result: RiskEventResultSet) => {
+                  this.count = result.count;
+                }),
                 map((result: RiskEventResultSet) => (result as IResultSet<RiskEvent>))
             );
+    }
+
+    openDetailsPane(item: RiskEvent): void {
+        this._router.navigateByUrl(`/risk-events(rightpane:details/${item.id})`, { skipLocationChange: true });
     }
 
     private stringifyFilterClause(filter: FilterClause): string {

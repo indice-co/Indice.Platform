@@ -100,6 +100,32 @@ internal class QueueTriggers
         await CampaignJobHandlerFactory.CreateFor<SendSmsEvent>().Process(payload!);
     }
 
+
+    [Function(EventNames.MarkAllAsRead)]
+    public async Task MarkAllAsReadHandler(
+        [QueueTrigger("%ENVIRONMENT%-" + EventNames.MarkAllAsRead, Connection = "StorageConnection")] byte[] message,
+        FunctionContext functionContext
+    ) {
+        LogExecution(functionContext, EventNames.MarkAllAsRead);
+        var originalMessage = await CompressionUtils.Decompress(message);
+        var envelope = JsonSerializer.Deserialize<Envelope<MarkMessagesReadEvent>>(originalMessage, JsonSerializerOptions)!;
+        var payload = envelope.Payload;
+        await CampaignJobHandlerFactory.CreateFor<MarkMessagesReadEvent>().Process(payload!);
+    }
+
+
+    [Function(EventNames.MarkAllAsUnread)]
+    public async Task MarkAllAsUnreadHandler(
+        [QueueTrigger("%ENVIRONMENT%-" + EventNames.MarkAllAsUnread, Connection = "StorageConnection")] byte[] message,
+        FunctionContext functionContext
+    ) {
+        LogExecution(functionContext, EventNames.MarkAllAsUnread);
+        var originalMessage = await CompressionUtils.Decompress(message);
+        var envelope = JsonSerializer.Deserialize<Envelope<MarkMessagesUnreadEvent>>(originalMessage, JsonSerializerOptions)!;
+        var payload = envelope.Payload;
+        await CampaignJobHandlerFactory.CreateFor<MarkMessagesUnreadEvent>().Process(payload!);
+    }
+
     private static void LogExecution(FunctionContext functionContext, string eventName) {
         var logger = functionContext.GetLogger(eventName);
         logger.LogInformation("Function '{FunctionName}' was triggered.", eventName);

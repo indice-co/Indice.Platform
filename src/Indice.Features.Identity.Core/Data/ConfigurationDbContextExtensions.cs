@@ -1,8 +1,14 @@
-﻿using IdentityServer4.EntityFramework.DbContexts;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityServer.EntityFramework.DbContexts;
+using Duende.IdentityServer.EntityFramework.Mappers;
+using Duende.IdentityServer.Models;
+#else
+using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.Models;
+using Indice.IdentityServer.EntityFramework.Storage.Mappers;
+#endif
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Indice.IdentityServer.EntityFramework.Storage.Mappers;
 
 namespace Indice.Features.Identity.Core.Data;
 

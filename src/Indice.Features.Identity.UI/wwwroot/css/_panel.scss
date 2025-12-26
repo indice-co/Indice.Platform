@@ -251,6 +251,7 @@ li.idp {
             color: #ffffff;
             background-color: #4285F4;
             border-color: #4285F4;
+            position: relative;
 
             &:hover {
                 background-color: #4285F4CC;
@@ -273,7 +274,7 @@ li.idp {
                 background-repeat: no-repeat;
                 background-position: 10px center;
                 background-size: 24px;
-                margin-bottom: 5px;
+                margin-left: 0 !important;
             }
         }
     }
@@ -381,6 +382,51 @@ li.idp {
 
             &:hover {
                 background-color: rgb(0, 51, 117, 0.8);
+            }
+        }
+    }
+}
+
+.idp-piraeus {
+    background-color: #ffd900;
+
+    a {
+        background-image: url(../img/idps/Piraeus.svg);
+        background-repeat: no-repeat;
+        background-position: 12px center;
+        padding-left: 36px;
+        width: 100%;
+
+        &:active {
+            background-image: url(../img/idps/Piraeus.svg);
+        }
+
+        &:not([disabled]) {
+            &:not(.disabled) {
+                &:active {
+                    background-image: url(../img/idps/Piraeus.svg);
+                }
+            }
+        }
+
+        &.btn-outline-piraeus {
+            color: $microsoft-gray;
+            background-color: transparent;
+            border-color: $microsoft-gray;
+
+            &:hover {
+                color: #fff;
+                background-color: $microsoft-gray;
+            }
+        }
+
+        &.btn-piraeus {
+            color: #fff;
+            background-color: #ffd900;
+
+
+            &:hover {
+                background-color: rgba(255, 217, 0, 0.6);
             }
         }
     }

@@ -1,13 +1,15 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ToasterService, ToastType } from '@indice/ng-components';
+import { ToastType } from '@indice/ng-components';
 import { catchError, EMPTY, Subscription } from 'rxjs';
 import { MessagesApiClient, MessageType, MessageTypeClassification, UpdateMessageTypeRequest } from 'src/app/core/services/messages-api.service';
+import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-message-type-edit',
-  templateUrl: './message-type-edit.component.html'
+    selector: 'app-message-type-edit',
+    templateUrl: './message-type-edit.component.html',
+    standalone: false
 })
 export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestroy {
   private _getTypeSubscription!: Subscription;
@@ -19,7 +21,7 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
     private _api: MessagesApiClient,
     private _router: Router,
     private _activatedRoute: ActivatedRoute,
-    @Inject(ToasterService) private _toaster: ToasterService
+    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
   ) { }
 
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
@@ -54,14 +56,13 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
       .pipe(
         catchError((error: any) => {
           this.submitInProgress = false;
-          // Optionally, re-throw the error or return a default value
           return EMPTY;
         })
       )
       .subscribe({
         next: () => {
           this.submitInProgress = false;
-          this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${this.model.name}' αποθηκεύτηκε με επιτυχία.`);
+          this._toaster.show(ToastType.Success, 'MessageTypes.UpdateSuccessTitle', 'MessageTypes.UpdateSuccessMessage', undefined, { name: this.model.name });
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
         }
       });

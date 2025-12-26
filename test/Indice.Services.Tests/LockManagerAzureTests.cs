@@ -11,7 +11,7 @@ public class LockManagerAzureTests
     private readonly ILockManager _LockManager;
     private readonly IFileService _FileService;
     public LockManagerAzureTests() {
-        if (_connectionString.StartsWith("UseDevelopmentStorage=true;")) { 
+        if (_connectionString.StartsWith("UseDevelopmentStorage=true;")) {
             StorageEmulator.Start();
         }
         _LockManager = new LockManagerAzure(new LockManagerAzureOptions {
@@ -20,8 +20,9 @@ public class LockManagerAzureTests
         });
         _FileService = new FileServiceAzureStorage(_connectionString, "test");
     }
+
     [Fact(Skip = "Should integrate azurite on build yaml")]
-    public async Task AquireLockTest() {   
+    public async Task AquireLockTest() {
         var duration = TimeSpan.FromSeconds(15);
         var name = "constantinos"; // using a random name :)
         var @lock = await _LockManager.AcquireLock(name, duration);
@@ -33,13 +34,22 @@ public class LockManagerAzureTests
             await Task.Delay(TimeSpan.FromSeconds(0.5));
         }
         var result = await _LockManager.TryAcquireLock(name);
-        if (result.Ok) { 
+        if (result.Ok) {
             await using (result.Lock) {
                 await Task.Delay(TimeSpan.FromSeconds(0.5));
             }
         }
     }
 
+    [Fact(Skip = "Should integrate azurite on build yaml")]
+    public async Task AcquireLock_Should_ThrowException_OnInvalidDurationValues() {
+        var durationLessThanMin = TimeSpan.FromSeconds(10);
+        var durationGreaterThanMax = TimeSpan.FromSeconds(100);
+        var name = "constantinos"; // using a random name :)
+
+        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(name, durationLessThanMin));
+        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(name, durationGreaterThanMax));
+    }
 
     [Fact(Skip = "Only for debug purposes")]
     public async Task FunctionLockingTestMaster() {
@@ -56,5 +66,37 @@ public class LockManagerAzureTests
         var message = JsonSerializer.Deserialize<(string LeaseId, string Name)>(Encoding.UTF8.GetString(bytes), JsonSerializerOptionDefaults.GetDefaultSettings());
         var @lock = await _LockManager.Renew(message.Name, message.LeaseId);
         await Task.Delay(TimeSpan.FromSeconds(10));
+    }
+
+    [Fact(Skip = "Only for debug purposes")]
+    public async Task FunctionLockingExclusiveRunTest() {
+        var operation = "MasterProductImportExclusive"; // using a random name :)
+        await _LockManager.ExclusiveRun(operation, async (token) => {
+            await Task.Delay(TimeSpan.FromSeconds(10), token);
+            Console.WriteLine("operation run...");
+        }, cancellationToken: default, new ExclusiveRunOptions {
+            LockDuration = 30,
+            RetryIntervalInSeconds = null
+        });
+    }
+
+    [Fact(Skip = "Only for debug purposes")]
+    public async Task FunctionLockingExclusiveRun_WillNotEnter_NeverEndingLoop_Test() {
+        var operation = "MasterProductImportExclusive"; // using a random name :)
+
+        var source = new CancellationTokenSource();
+        source.CancelAfter(TimeSpan.FromSeconds(2));
+
+        using var lock1 = await _LockManager.AcquireLock(operation, TimeSpan.FromSeconds(59));
+
+        var exclusiveRunTask = _LockManager.ExclusiveRun(operation, async (token) => {
+            await Task.Delay(TimeSpan.FromSeconds(1), token);
+            Console.WriteLine("operation run...");
+        }, cancellationToken: source.Token, new ExclusiveRunOptions {
+            LockDuration = 30,
+            RetryIntervalInSeconds = 1
+        });
+
+        await Assert.ThrowsAsync<TaskCanceledException>(async () => await exclusiveRunTask);
     }
 }

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Click" xml:space="preserve">
+    <value>クリック</value>
+  </data>
+  <data name="Email Confirmation" xml:space="preserve">
+    <value>メール確認</value>
+  </data>
+  <data name="Email verification link has expired." xml:space="preserve">
+    <value>メール確認リンクの有効期限が切れています。</value>
+  </data>
+  <data name="here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="If you feel you got this error by mistake, simply click" xml:space="preserve">
+    <value>このエラーが誤りだと思われる場合は、単にクリックしてください</value>
+  </data>
+  <data name="No action was taken." xml:space="preserve">
+    <value>操作は行われませんでした。</value>
+  </data>
+  <data name="Please log in and resend the link" xml:space="preserve">
+    <value>ログインしてリンクを再送信してください。</value>
+  </data>
+  <data name="This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+    <value>少々お待ちください。下記のリンクをクリックしてメールアドレスを確認してください。</value>
+  </data>
+  <data name="to sign in or go back." xml:space="preserve">
+    <value>サインインまたは戻るには。</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="Verifying your email." xml:space="preserve">
+    <value>メールを確認しています。</value>
+  </data>
+  <data name="You can now close this browse window." xml:space="preserve">
+    <value>このウィンドウを閉じても構いません。</value>
+  </data>
+  <data name="Your email has been successfully confirmed." xml:space="preserve">
+    <value>メールが正常に確認されました。</value>
+  </data>
+  <data name="Your email is already verified. Thank you" xml:space="preserve">
+    <value>メールはすでに確認済みです。ありがとうございます。</value>
+  </data>
+</root>

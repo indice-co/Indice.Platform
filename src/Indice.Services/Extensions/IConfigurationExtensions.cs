@@ -18,6 +18,14 @@ public static class IConfigurationExtensions
     /// <remarks>Checks for the <strong>General:UseHttpsRedirection</strong> option in appsettings.json file. When true you can register HttpsPolicyBuilderExtensions.UseHttpsRedirection(IApplicationBuilder) middleware.</remarks>
     public static bool UseHttpsRedirection(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.UseHttpsRedirection));
 
+    /// <summary>
+    /// Determines whether client certificate forwarding is enabled based on the configuration settings. 
+    /// </summary>
+    /// <remarks>Checks for the <strong>General:UseCertificateForwarding</strong> option in appsettings.json file. This allows client certificates to be loaded behind a reverse proxy, such as Nginx or Apache, which is useful in scenarios where the application is hosted behind a load balancer or reverse proxy that handles SSL termination.</remarks>
+    /// <param name="configuration">The configuration instance to retrieve the setting from.</param>
+    /// <returns><see langword="true"/> if certificate forwarding is enabled; otherwise, <see langword="false"/>.</returns>
+    public static bool UseCertificateForwarding(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.UseCertificateForwarding));
+
     /// <summary>A flag that indicates whether to redirect the setting that is defined in <see cref="GeneralSettings.Host"/>.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>True if specified flag is set to true, otherwise false.</returns>
@@ -42,13 +50,13 @@ public static class IConfigurationExtensions
     /// <returns>The endpoint under the specified key. Endpoints are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
     /// <remarks>Checks for the <strong>General:Endpoints</strong> option in appsettings.json file.</remarks>
     /// <exception cref="KeyNotFoundException">Throws a <see cref="KeyNotFoundException"/> if the specified key is not found.</exception>
-    public static string GetEndpoint(this IConfiguration configuration, string key) => GetEndpoints(configuration)![key];
+    public static string GetEndpoint(this IConfiguration configuration, string key) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Endpoints)}").GetValue<string>(key) ?? throw new KeyNotFoundException($"Endpoint '{key}' not found.");
 
     /// <summary>Tries to get the endpoint value using the specified key.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="key">The key to search for.</param>
     /// <returns>The endpoint under the specified key if the key exists, otherwise null. Endpoints are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
-    public static string? TryGetEndpoint(this IConfiguration configuration, string key) => GetEndpoints(configuration)!.TryGetValue(key, out var endpoint) ? endpoint : default;
+    public static string? TryGetEndpoint(this IConfiguration configuration, string key) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Endpoints)}").GetValue<string>(key);
 
     /// <summary>Indicates whether to enable HSTS (HTTP Strict Transport Security).</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -66,7 +74,33 @@ public static class IConfigurationExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The proxy's IP address.</returns>
     /// <remarks>Checks for the <strong>Proxy:Ip</strong> option in appsettings.json file.</remarks>
+    [Obsolete("Use GetProxyKnownProxies() and GetProxyKnownNetworks() instead to retrieve the list of known proxies.")]
     public static string? GetProxyIp(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.Ip));
+
+    /// <summary>Gets the known proxies IP addresses.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>The known proxies IP addresses.</returns>
+    /// <remarks>Checks for the <strong>Proxy:KnownProxies</strong> option in appsettings.json file. Should be a comma delimited string of valid IP addresses</remarks>
+    public static string[] GetProxyKnownProxies(this IConfiguration configuration) {
+        var knownProxies = configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.KnownProxies)) ?? 
+                           configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.Ip));
+
+        return knownProxies?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+    }
+
+    /// <summary>Gets the proxy known networks.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>The proxy known networks.</returns>
+    /// <remarks>Checks for the <strong>Proxy:KnownNetworks</strong> option in appsettings.json file. Should be a comma delimited string of valid CIDR ranges</remarks>
+    public static string[] GetProxyKnownNetworks(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name)
+                                                                                                    .GetValue<string>(nameof(ProxyOptions.KnownNetworks))?
+                                                                                                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+
+    /// <summary>Gets the proxy's forward limit option.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>The proxy's forward limit option.</returns>
+    /// <remarks>Checks for the <strong>Proxy:ForwardLimit</strong> option in appsettings.json file. Should be integer defaults to <c>1</c></remarks>
+    public static int GetProxyForwardLimit(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetValue(nameof(ProxyOptions.ForwardLimit), defaultValue: 1);
 
     /// <summary>Indicates whether to stop the worker host, running the background tasks.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -112,6 +146,7 @@ public static class IConfigurationExtensions
     /// <remarks>Checks either the <strong>General:AuthorityInternal</strong> or <strong>General:Authority</strong> option in appsettings.json file. Depends up on the <paramref name="tryInternal"/> parameter.</remarks>
     public static string GetAuthorityMetadata(this IConfiguration configuration, bool tryInternal = false) => $"{GetAuthority(configuration, tryInternal)}/.well-known/openid-configuration";
 
+
     /// <summary>Get an object class that represents all the configuration for an Api.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns><see cref="ApiSettings"/></returns>
@@ -123,6 +158,12 @@ public static class IConfigurationExtensions
     /// <returns>A snapshot of the current <see cref="GeneralSettings"/></returns>
     /// <remarks>Checks for the <strong>General</strong> option in appsettings.json file and binds it to the <see cref="GeneralSettings"/> class.</remarks>
     public static GeneralSettings? GetGeneralSettings(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}").Get<GeneralSettings>();
+    
+    /// <summary>A string that represents the running application short name.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>The application name.</returns>
+    /// <remarks>Checks for the <strong>General:ApplicationName</strong> option in appsettings.json file.</remarks>
+    public static string? GetApplicationName(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}").GetValue<string>(nameof(GeneralSettings.ApplicationName));
     
     /// <summary>A string that represents the api resource scope.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>

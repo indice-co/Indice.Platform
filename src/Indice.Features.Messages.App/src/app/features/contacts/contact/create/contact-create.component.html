@@ -1,0 +1,11 @@
+<lib-side-view-layout title="{{ 'Contacts.SearchTitle' | translate }}"
+                      [ok-close-dialog]="false"
+                      [ok-label]="'Contacts.Add' | translate"
+                      [cancel-label]="'Contacts.CancelLabel' | translate"
+                      (ok)="contactCreateComponent.submit()"
+                      [disabled]="submitInProgress"
+                      #sideViewLayout>
+  <div class="mt-4">
+    <app-list-contact-create #contactCreateComponent (onSubmit)="onSubmit($event)"></app-list-contact-create>
+  </div>
+</lib-side-view-layout>

@@ -11,7 +11,7 @@ public class EventDispatcherAzureTests
     private const string CONNECTION_STRING = "UseDevelopmentStorage=true;";
 
     public EventDispatcherAzureTests() {
-        EventDispatcher = new EventDispatcherAzure(CONNECTION_STRING, "Development", enabled: true, useCompression: true, QueueMessageEncoding.Base64, () => ClaimsPrincipal.Current, null);
+        EventDispatcher = new EventDispatcherAzure(CONNECTION_STRING, "Development", enabled: true, useCompression: true, QueueMessageEncoding.Base64, () => ClaimsPrincipal.Current!, null);
     }
 
     public EventDispatcherAzure EventDispatcher { get; set; }

@@ -17,10 +17,9 @@ public class ContactRequestBase
     public string? Email { get; set; }
     /// <summary>The phone number.</summary>
     public string? PhoneNumber { get; set; }
-    /// <summary>Contact's locale.</summary>
-    public string? Locale { get; set; }
-    /// <summary>The preferred delivery channels to receive messages.</summary>
-    public ContactChannelKind CommunicationPreferences { get; set; }
-    /// <summary>Indicates if user accepted conset to receive email.</summary>
-    public bool ConsentCommercial { get; set; }
+    /// <summary>Marks the contact has been retrieved by an external source.</summary>
+    public bool Resolved { get; set; }
+    /// <summary>Indicates the last time the contact was resolved using the contact resolver service.</summary>
+    public DateTimeOffset? LastResolutionDate { get; set; }
+
 }

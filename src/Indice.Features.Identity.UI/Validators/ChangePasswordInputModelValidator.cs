@@ -1,20 +1,17 @@
 ﻿using FluentValidation;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.UI.Models;
-using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.UI.Validators;
 
 /// <summary>Validator for <see cref="ChangePasswordInputModel"/> class.</summary>
 public class ChangePasswordInputModelValidator : AbstractValidator<ChangePasswordInputModel>
 {
-    private readonly IStringLocalizer<ChangePasswordInputModelValidator> _localizer;
-
     /// <summary>Creates a new instance of <see cref="ChangePasswordInputModelValidator"/> class.</summary>
-    /// <param name="localizer">Represents a service that provides localized strings.</param>
+    /// <param name="describer">The <see cref="IdentityMessageDescriber"/> used to provide localized error messages.</param>"
     /// <exception cref="ArgumentNullException"></exception>
-    public ChangePasswordInputModelValidator(IStringLocalizer<ChangePasswordInputModelValidator> localizer) {
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-        RuleFor(x => x.OldPassword).NotEmpty().WithName(_localizer["Old Password"]);
-        RuleFor(x => x.NewPassword).NotEmpty().WithName(_localizer["New Password"]);
+    public ChangePasswordInputModelValidator(IdentityMessageDescriber describer) {
+        RuleFor(x => x.OldPassword).NotEmpty().WithName(describer.UI_Validator_ChangePassword_OldPassword_FieldName);
+        RuleFor(x => x.NewPassword).NotEmpty().WithName(describer.UI_Validator_ChangePassword_NewPassword_FieldName);
     }
 }

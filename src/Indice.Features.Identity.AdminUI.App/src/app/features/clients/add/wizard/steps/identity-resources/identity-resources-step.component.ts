@@ -8,7 +8,8 @@ import { ClientWizardModel } from '../../models/client-wizard-model';
 
 @Component({
     selector: 'app-identity-resources-step',
-    templateUrl: './identity-resources-step.component.html'
+    templateUrl: './identity-resources-step.component.html',
+    standalone: false
 })
 export class IdentityResourcesStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
     private _selectedResourcesControl: AbstractControl;

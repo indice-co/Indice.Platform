@@ -1,5 +1,9 @@
-﻿@using IdentityModel
-@using IdentityServer4.Extensions
+﻿@using Duende.IdentityModel
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Extensions;
+#else
+using IdentityServer4.Extensions;
+#endif
 @using Indice.AspNetCore.Extensions
 @using Indice.Configuration
 @using Indice.Features.Identity.Core

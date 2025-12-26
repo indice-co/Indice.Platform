@@ -3,9 +3,9 @@
       <Copyright>Copyright (c) Indice</Copyright>
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
-      <Nullable>disable</Nullable>
-      <TargetFrameworks></TargetFrameworks>
-      <TargetFramework>net8.0</TargetFramework>
+      <Nullable>enable</Nullable>
+      <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+      <!--<TargetFramework></TargetFramework>-->
       <IsTestProject>true</IsTestProject>
     </PropertyGroup>
     <PropertyGroup Label="Package Common">

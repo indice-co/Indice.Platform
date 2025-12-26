@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -6,6 +7,7 @@ using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
@@ -13,7 +15,7 @@ namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
 internal static class MyMessagesHandlers
 {
-    
+
     public static async Task<Ok<ResultSet<Message>>> GetMessages(
         [AsParameters] ListOptions options,
         [AsParameters] MessagesFilter filter,
@@ -24,7 +26,7 @@ internal static class MyMessagesHandlers
         var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
         var messages = await messageService.GetList(userCode, ListOptions.Create(options, filter));
 
-        return TypedResults.Ok(messages); 
+        return TypedResults.Ok(messages);
     }
 
     public static async Task<Ok<ResultSet<MessageType>>> GetInboxMessageTypes(
@@ -62,6 +64,45 @@ internal static class MyMessagesHandlers
         return TypedResults.NoContent();
     }
 
+    public static async Task<NoContent> MarkAllAsRead(
+        MarkAsReadRequest request,
+        IEventDispatcherFactory eventDispatcherFactory,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        ClaimsPrincipal currentUser
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        var eventDispatcher = eventDispatcherFactory.Create(Core.KeyedServiceNames.EventDispatcherServiceKey);
+        await eventDispatcher.RaiseEventAsync(
+            new MarkMessagesReadEvent {
+                UserCode = userCode,
+                SearchTerm = request.Search,
+                Filter = request
+            },
+            builder => builder.WrapInEnvelope().WithQueueName(EventNames.MarkAllAsRead)
+        );
+        return TypedResults.NoContent();
+    }
+
+    public static async Task<NoContent> MarkAllAsUnRead(
+        MarkAsReadRequest request,
+        IEventDispatcherFactory eventDispatcherFactory,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        ClaimsPrincipal currentUser
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        var eventDispatcher = eventDispatcherFactory.Create(Core.KeyedServiceNames.EventDispatcherServiceKey);
+        await eventDispatcher.RaiseEventAsync(
+            new MarkMessagesUnreadEvent {
+                UserCode = userCode,
+                SearchTerm = request.Search,
+                Filter = request
+            },
+            builder => builder.WrapInEnvelope().WithQueueName(EventNames.MarkAllAsUnread)
+        );
+        return TypedResults.NoContent();
+    }
+
+
     public static async Task<NoContent> MarkMessageAsUnread(
         IMessageService messageService,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
@@ -91,6 +132,25 @@ internal static class MyMessagesHandlers
         var fileResult = await CampaignsHandlers.GetFile(fileServiceFactory, "campaigns", fileGuid, format);
         return fileResult;
     }
+    public static async Task<Ok<ContactPreference>> GetMyCommunicationPreferences(
+        IContactService contactService,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        ClaimsPrincipal currentUser
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        var preferences = await contactService.GetContactPreference(userCode);
+        return TypedResults.Ok(preferences);
+    }
+    public static async Task<NoContent> UpdateMyCommunicationPreferences(
+        IContactService contactService,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        ClaimsPrincipal currentUser,
+        UpdatePreferenceRequest request
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        await contactService.UpdatePreference(userCode, request);
+        return TypedResults.NoContent();
+    }
 
     #region Descriptions
     public static readonly string GET_MESSAGES_DESCRIPTION = @"
@@ -100,14 +160,14 @@ Parameters:
 - options: List parameters used to navigate through collections, including sort, search, page number, and page size.
 ";
 
-public static readonly string GET_INBOX_MESSAGE_TYPES_DESCRIPTION = @"
+    public static readonly string GET_INBOX_MESSAGE_TYPES_DESCRIPTION = @"
 Gets the list of available campaign types.
 
 Parameters:
 - options: List parameters used to navigate through collections, including sort, search, page number, and page size.
 ";
 
-public static readonly string GET_MESSAGE_BY_ID_DESCRIPTION = @"
+    public static readonly string GET_MESSAGE_BY_ID_DESCRIPTION = @"
 Gets the message with the specified ID.
 
 Parameters:
@@ -115,14 +175,21 @@ Parameters:
 - channel: The channel of the message.
 ";
 
-public static readonly string MARK_MESSAGE_AS_READ_DESCRIPTION = @"
+    public static readonly string MARK_MESSAGE_AS_READ_DESCRIPTION = @"
 Marks the specified message as read.
 
 Parameters:
 - messageId: The ID of the message.
 ";
+    public static readonly string MARK_ALL_MESSAGE_AS_READ_DESCRIPTION = @"
+Marks all user messages as read.
+";
 
-public static readonly string MARK_MESSAGE_AS_UNREAD_DESCRIPTION = @"
+    public static readonly string MARK_ALL_MESSAGE_AS_UNREAD_DESCRIPTION = @"
+Marks all user messages as unread.
+";
+
+    public static readonly string MARK_MESSAGE_AS_UNREAD_DESCRIPTION = @"
 Marks the specified message as unread.
 
 Parameters:
@@ -136,13 +203,21 @@ Parameters:
 - messageId: The ID of the message.
 ";
 
-public static readonly string GET_MESSAGE_ATTACHMENT_DESCRIPTION = @"
+    public static readonly string GET_MESSAGE_ATTACHMENT_DESCRIPTION = @"
 Gets the attachment associated with a campaign.
 
 Parameters:
 - fileGuid: Contains the photo's ID.
 - format: Contains the format of the uploaded attachment extension.
 ";
+
+    public static readonly string GET_COMMUNICATION_PREFERENCES_DESCRIPTION = @"Gets all user communication preferences.";
+
+    public static readonly string UPDATE_COMMUNICATION_PREFERENCES_DESCRIPTION = @"
+Updates user's communucation preferences.
+
+Parameters:
+- contactId: The unique ID of the contact to update.";
 
     #endregion
 

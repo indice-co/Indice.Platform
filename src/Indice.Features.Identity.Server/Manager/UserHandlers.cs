@@ -1,7 +1,18 @@
 ﻿using System.Security.Claims;
-using IdentityModel;
+using Duende.IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Events;
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Stores.Serialization;
+#else
+using IdentityServer4.Events;
+using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using IdentityServer4.Stores.Serialization;
+#endif
 using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -17,6 +28,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
+using System.Text;
+using Indice.Security;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -64,7 +79,7 @@ internal static class UserHandlers
                 LastSignInDate = user.LastSignInDate,
                 PasswordExpirationDate = user.PasswordExpirationDate
             };
-        if (expandClaims?.Length > 3) {
+        if (expandClaims?.Length > 4) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(expandClaims), "Cannot expand more than three claim types"));
         }
         foreach (var claimType in expandClaims ?? []) {
@@ -97,12 +112,7 @@ internal static class UserHandlers
                     AccessFailedCount = user.AccessFailedCount,
                     LastSignInDate = user.LastSignInDate,
                     PasswordExpirationDate = user.PasswordExpirationDate,
-                    Claims = ct == null ? user.Claims : user.Claims.Concat(new List<BasicClaimInfo> {
-                        new() {
-                            Type = claimType,
-                            Value = ct.ClaimValue
-                        }
-                    }).ToList()
+                    Claims = UserInfo.MergeClaims(user.Claims, claimType, ct.ClaimValue)
                 };
         }
 
@@ -207,15 +217,15 @@ internal static class UserHandlers
         }
 
         // handle claims addition
-        var claims = request.Claims?.Count > 0 ? request.Claims.Where(x => x.Type != JwtClaimTypes.GivenName &&
-                                                                           x.Type != JwtClaimTypes.FamilyName)
+        var claims = request.Claims?.Count > 0 ? request.Claims.Where(x => x.Type != BasicClaimTypes.GivenName &&
+                                                                           x.Type != BasicClaimTypes.FamilyName)
                                                                .Select(x => new Claim(x.Type!, x.Value!))
                                                                .ToList() : [];
         if (!string.IsNullOrEmpty(request.FirstName)) {
-            claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
+            claims.Add(new Claim(BasicClaimTypes.GivenName, request.FirstName));
         }
         if (!string.IsNullOrEmpty(request.LastName)) {
-            claims.Add(new Claim(JwtClaimTypes.FamilyName, request.LastName));
+            claims.Add(new Claim(BasicClaimTypes.FamilyName, request.LastName));
         }
         if (claims.Any()) {
             claims.ForEach(c => user.Claims.Add(new() { ClaimType = c.Type, ClaimValue = c.Value, UserId = user.Id }));
@@ -368,7 +378,7 @@ internal static class UserHandlers
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
         if (role.IsManagementRole()) {
-            var clientId = currentUser.FindFirst(JwtClaimTypes.ClientId);
+            var clientId = currentUser.FindFirst(BasicClaimTypes.ClientId);
             await persistedGrantService.RemoveAllGrantsAsync(userId, clientId?.Value);
         }
         return TypedResults.NoContent();
@@ -477,30 +487,44 @@ internal static class UserHandlers
 
     internal static async Task<Ok<ResultSet<UserClientInfo>>> GetUserApplications(
         IPersistedGrantService persistedGrantService,
+        IPersistedGrantStore grants,
+        IPersistentGrantSerializer serializer,
         IClientStore clientStore,
         string userId
     ) {
-        var userGrants = await persistedGrantService.GetAllGrantsAsync(userId);
-        var clients = new List<UserClientInfo>();
-        foreach (var grant in userGrants) {
-            var client = await clientStore.FindClientByIdAsync(grant.ClientId);
+        var userClients = await grants.GetAllGroupedByClientAsync(serializer, userId);
+        foreach (var grantGroup in userClients) {
+            var client = await clientStore.FindClientByIdAsync(grantGroup.ClientId!);
             if (client != null) {
-                clients.Add(new UserClientInfo {
-                    ClientId = client.ClientId,
-                    ClientName = client.ClientName,
-                    ClientUri = client.ClientUri,
-                    Description = client.Description,
-                    LogoUri = client.LogoUri,
-                    RequireConsent = client.RequireConsent,
-                    AllowRememberConsent = client.AllowRememberConsent,
-                    Enabled = client.Enabled,
-                    CreatedAt = grant.CreationTime,
-                    ExpiresAt = grant.Expiration,
-                    Scopes = grant.Scopes
-                });
+                grantGroup.ClientId = client.ClientId;
+                grantGroup.ClientName = client.ClientName;
+                grantGroup.ClientUri = client.ClientUri;
+                grantGroup.Description = client.Description;
+                grantGroup.LogoUri = client.LogoUri;
             }
         }
-        return TypedResults.Ok(clients.ToResultSet());
+        return TypedResults.Ok(userClients.ToResultSet());
+    }
+
+    internal static async Task<Results<NoContent, NotFound>> RevokeUserApplicationAccess(
+        ExtendedUserManager<User> userManager,
+        IPersistedGrantService grants,
+        IEventService events,
+        string userId,
+        string clientId) {
+        await grants.RemoveAllGrantsAsync(userId, clientId);
+        await events.RaiseAsync(new GrantsRevokedEvent(userId, clientId));
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound>> RevokeAllUserApplicationAccess(
+        ExtendedUserManager<User> userManager,
+        IPersistedGrantService grants,
+        IEventService events,
+        string userId) {
+        await grants.RemoveAllGrantsAsync(userId);
+        await events.RaiseAsync(new GrantsRevokedEvent(userId, null));
+        return TypedResults.NoContent();
     }
 
     internal static async Task<Ok<ResultSet<DeviceInfo>>> GetUserDevices(
@@ -525,7 +549,8 @@ internal static class UserHandlers
             OsVersion = device.OsVersion,
             Platform = device.Platform,
             SupportsFingerprintLogin = device.SupportsFingerprintLogin,
-            SupportsPinLogin = device.SupportsPinLogin
+            SupportsPinLogin = device.SupportsPinLogin,
+            PublicKeyId = device.PublicKeyId
         })
         .ToResultSet();
         return TypedResults.Ok(response);
@@ -643,5 +668,46 @@ internal static class UserHandlers
             await userManager.SetPasswordExpiredAsync(user, true);
         }
         return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<Ok<List<JsonWebKey>>, NotFound>> GetUserDeviceSecrets(
+        ExtendedUserManager<User> userManager,
+        string userId,
+        string deviceId,
+        CancellationToken cancellationToken
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null) {
+            return TypedResults.NotFound();
+        }
+
+        var device = await userManager.GetDeviceByIdAsync(user, deviceId, cancellationToken);
+        if (device is null) {
+            return TypedResults.NotFound();
+        }
+
+        var keys = new List<JsonWebKey>();
+        var symmetricKey = JsonWebKeyConverter.ConvertFromSymmetricSecurityKey(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(device.Id.ToString())) {
+            KeyId = string.IsNullOrWhiteSpace(device.PublicKeyId)
+            ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex).ToLowerInvariant()
+            : $"{device.PublicKeyId} symmetric"
+        });
+
+        keys.Add(symmetricKey);
+
+        if (device.PublicKey is not null) {
+            using var rsa = RSA.Create();
+            rsa.ImportFromPem(device.PublicKey.ToCharArray());
+
+            var asymmetricKey = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa) {
+                KeyId = string.IsNullOrWhiteSpace(device.PublicKeyId)
+                    ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex).ToLowerInvariant()
+                    : device.PublicKeyId
+            });
+
+            keys.Add(asymmetricKey);
+        }
+
+        return TypedResults.Ok(keys);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
-using Indice.Features.Identity.SignInLogs.Services;
+using Indice.Features.GeoIP;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
@@ -29,7 +29,7 @@ public sealed class LocationEnricher : ISignInLogEntryEnricher
         if (!isValidIp) {
             return ValueTask.CompletedTask;
         }
-        var location = _ipAddressLocator.GetLocationMetadata(ipAddress);
+        var location = _ipAddressLocator.GetLocationMetadata(ipAddress!);
         logEntry.CountryIsoCode = location.CountryIsoCode;
         logEntry.Location = location.ToString();
         logEntry.Coordinates = location.Coordinates;

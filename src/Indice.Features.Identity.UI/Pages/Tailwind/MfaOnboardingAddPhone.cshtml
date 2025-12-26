@@ -2,41 +2,62 @@
 
 @model BaseMfaOnboardingAddPhoneModel
 
-@inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment HostingEnvironment
+@inject IdentityUILocalizer Localizer
+
 
 @{
-    var title = ViewBag.Title = Localizer["MFA onboarding - SMS"].Value;
+    ViewBag.Title = Localizer.MfaOnBoardingAddPhone_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddPhoneModel.TempDataKey);
 }
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <vc:page-heading title="@Localizer.MfaOnBoardingAddPhone_PageHeader" image-src="" />
+        <partial name="_ValidationSummary" />
+        <partial name="_Alert" model="alert" />
 
-<div class="sign-in m-auto">
-    <vc:page-heading title="@title" image-src="" />
-    <partial name="_ValidationSummary" />
-    <partial name="_Alert" model="alert" />
-    <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
-        <div class="mb-3">
-            <input type="hidden" asp-for="Input.ReturnUrl" />
-            <label asp-for="Input.PhoneNumber" class="form-label visually-hidden">@Localizer["Phone number"]</label>
-            <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-            <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" readonly="@Model.View.DisablePhoneNumberInput" />
-            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <div class="row m-0 w-100">
-                <div class="col-12 py-1">
+        <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
+            <div class="mb-4">
+                <input type="hidden" asp-for="Input.ReturnUrl" />
+                <label asp-for="Input.PhoneNumber" class="sr-only">
+                    @Localizer.MfaOnBoardingAddPhone_Phone_Number
+                </label>
+                <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
+
+                <input asp-for="Input.PhoneNumber"
+                       type="text"
+                       placeholder="@Localizer.MfaOnBoardingAddPhone_Phone_Number"
+                       readonly="@Model.View.DisablePhoneNumberInput"
+                       class="block w-full px-3 py-2 border border-gray-300 rounded-md
+                   placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+                   focus:border-transparent disabled:bg-gray-100 readonly:bg-gray-100" />
+
+                <span asp-validation-for="Input.PhoneNumber"
+                      class="block mt-1 text-sm text-red-600"></span>
+            </div>
+
+            <div class="mb-4">
+                <div class="w-full">
                     @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
                     {
-                        <a class="btn btn-info w-100" href="@Model.View.NextStepUrl">@Localizer["Next"]</a>
+                        <a href="@Model.View.NextStepUrl"
+                           class="block w-full py-2 px-4 text-center font-semibold rounded-md
+                       bg-blue-500 hover:bg-blue-600 text-white transition">
+                            @Localizer.MfaOnBoardingAddPhone_Next
+                        </a>
                     }
                     else
                     {
-                        <button class="btn btn-info w-100" type="submit">@Localizer["Save"]</button>
+                        <button type="submit"
+                                class="block w-full py-2 px-4 font-semibold rounded-md
+                       bg-blue-500 hover:bg-blue-600 text-white transition">
+                            @Localizer.MfaOnBoardingAddPhone_Save
+                        </button>
                     }
                 </div>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 
 @section scripts {

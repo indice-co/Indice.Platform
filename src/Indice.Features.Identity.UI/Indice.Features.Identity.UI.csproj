@@ -2,6 +2,7 @@
   <PropertyGroup Label="Package">
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentityUI</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <VersionPrefix>$(VersionPrefixIdentityUI)</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup>
@@ -10,8 +11,12 @@
     <StaticWebAssetsDisableProjectBuildPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildPropsFileGeneration>
     <StaticWebAssetsDisableProjectBuildMultiTargetingPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildMultiTargetingPropsFileGeneration>
     <StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>true</StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>
+    <StaticWebAssetFingerprintingEnabled>true</StaticWebAssetFingerprintingEnabled>
+    <StaticWebAssetsFingerprintContent>true</StaticWebAssetsFingerprintContent>
   </PropertyGroup>
-  
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
   <ItemGroup>
     <None Include="build\*" Pack="true" PackagePath="build\" />
     <None Include="buildMultiTargeting\*" Pack="true" PackagePath="buildMultiTargeting\" />
@@ -20,12 +25,18 @@
  
   <ItemGroup>
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)-*" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.3" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="IdentityLabels.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>IdentityLabels.resx</DependentUpon>
+    </Compile>
     <Compile Update="Telemetry\TelemetryJavascriptResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -33,6 +44,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="IdentityLabels.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>IdentityLabels.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="Telemetry\TelemetryJavascriptResources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>TelemetryJavascriptResources.Designer.cs</LastGenOutput>
@@ -45,12 +60,12 @@
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
   </Target>
-  <Target Name="CopyLibs" BeforeTargets="PreBuildEvent">
+  <Target Name="CopyLibs" AfterTargets="NpmInstall">
     <Exec Command="npm run gulp -- copy:libs" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
   </Target>
-  <Target Name="Sass" BeforeTargets="PreBuildEvent">
+  <Target Name="Sass" AfterTargets="NpmInstall">
     <Exec Command="npm run gulp -- sass" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>

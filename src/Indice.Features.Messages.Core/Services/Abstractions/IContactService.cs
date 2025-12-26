@@ -12,12 +12,17 @@ public interface IContactService
     Task<ResultSet<Contact>> GetList(ListOptions<ContactListFilter> options);
     /// <summary>Gets a contact by it's unique id.</summary>
     /// <param name="id">The id of the contact.</param>
-    Task<Contact?> GetById(Guid id);
+    /// <param name="expandPreferences">Expands user preferences</param>
+    Task<Contact?> GetById(Guid id, bool expandPreferences = false);
     /// <summary>Adds a contact to an existing distribution list.</summary>
     /// <param name="id">The id of the distribution list.</param>
     /// <param name="request">The data for the contact to add.</param>
     /// <remarks>This method will also create the contact if the a contact with the given id is not found or the id is null</remarks>
     Task AddToDistributionList(Guid id, CreateDistributionListContactRequest request);
+    /// <summary>Bulk imports contacts to an existing distribution list.</summary>
+    /// <param name="id"></param>
+    /// <param name="requestList"></param>
+    Task<ContactsImportResult> BulkAddToDistributionList(Guid id, IEnumerable<CreateDistributionListContactRequest> requestList);
     /// <summary>Creates a new contact.</summary>
     /// <param name="request">The data for the contact to create.</param>
     Task<Contact> Create(CreateContactRequest request);
@@ -32,6 +37,30 @@ public interface IContactService
     /// <param name="id">The id of the distribution list.</param>
     /// <param name="contactId">The unique id of the contact.</param>
     Task RemoveFromDistributionList(Guid id, Guid contactId);
+
+    /// <summary>Gets a contact by it's recipient id.</summary>
+    /// <param name="recipientId">The id of the recipient.</param>
+    Task<Contact?> GetByRecipientId(string? recipientId);
+
+    /// <summary>Gets recipient preferences.</summary>
+    /// <param name="recipientId">The id of the recipient.</param>
+    Task<ContactPreference> GetContactPreference(string recipientId);
+    /// <summary>Updates an existing campaign.</summary>
+    /// <param name="recipientId">The id of the recipient.</param>
+    /// <param name="request">The data for the communication preferences.</param>
+    Task UpdatePreference(string recipientId, UpdatePreferenceRequest request);
+    /// <summary>Updates an existing campaign.</summary>
+    /// <param name="recipientId">The id of the recipient.</param>
+    /// <param name="preference">The data for the communication preferences.</param>
+    Task UpdateContactPreferences(string recipientId, ContactPreference preference);
+    /// <summary>Retrieves potential duplicate contacts .</summary>
+    /// <param name="mainContact">The contact for which we need to look for duplicates.</param>
+    /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    Task<ResultSet<Contact>> GetDuplicates(Contact mainContact, ListOptions options);
+    /// <summary>Replaces the given Contact Id List with the Id of the main contact to all the appropriate tables</summary>
+    /// <param name="mainContact">The main-resolved contactId.</param>
+    /// <param name="duplicateContactsIds">The duplicate contact Ids.</param>
+    Task MergeContacts(Contact mainContact, List<Guid> duplicateContactsIds);
 }
 
 /// <summary>Extensions on the <see cref="IContactService"/></summary>

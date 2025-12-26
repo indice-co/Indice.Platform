@@ -1,5 +1,9 @@
 using System.Diagnostics;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Services;
+#else
 using IdentityServer4.Services;
+#endif
 using Indice.AspNetCore.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -41,12 +45,16 @@ public abstract class BaseErrorModel : PageModel
     public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     /// <summary>The error message.</summary>
     public string? Message { get; set; }
+    /// <summary>The error title </summary>
+    public string? Title { get; set; }
 
     /// <summary>Error page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync(string errorId) {
         RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
         if (!string.IsNullOrEmpty(errorId)) {
-            Message = (await Interaction.GetErrorContextAsync(errorId))?.ErrorDescription;
+            var error = await Interaction.GetErrorContextAsync(errorId);
+            Title = error.Error;
+            Message = error.ErrorDescription;
         }
         return Page();
     }

@@ -1,5 +1,6 @@
 ﻿using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Http;
+using Polly;
 
 namespace Indice.Features.Identity.Server.Options;
 
@@ -29,5 +30,21 @@ public class RateLimiterEndpointRule
     public TimeSpan? Window { get; set; } = TimeSpan.FromSeconds(1);
 
     /// <summary>Default configuration for <see cref="RateLimiterEndpointRule"/>.</summary>
-    public static RateLimiterEndpointRule Default() => new();
+    public static RateLimiterEndpointRule Default(string? policyName = null) => policyName switch {
+        "secure-page" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
+        "forgot-password" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
+        "login" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
+        "register" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
+        _ => new()
+    };
+
+    /// <summary>The Http method of the endpoint to apply the rate limiter. Optional.</summary>
+    public string? HttpMethod { get; set; }
+
+    /// <summary>Determines whether <see cref="HttpMethod"/> has a value.</summary>
+    public bool HasHttpMehtod => !string.IsNullOrWhiteSpace(HttpMethod);
+
+    /// <summary>Determines whether the rate limiter can be applied based on the http method.</summary>
+    public bool CanLimitHttpMethod(string? httpMethod) =>
+        !HasHttpMehtod || string.Equals(HttpMethod, httpMethod, StringComparison.OrdinalIgnoreCase);
 }

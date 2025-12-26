@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Numerics;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Models;
 using Indice.Security;
@@ -59,7 +58,7 @@ public static class CasesClaimsPrincipalExtensions
     public static UserActor UserToActor(this ClaimsPrincipal user, CasesOptions options) {
         var subject = user.FindFirstValue(BasicClaimTypes.Subject);
         return new UserActor {
-            Id = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : subject,
+            Id = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId)! : subject,
             Reference = user.FindFirstValue(options.ReferenceIdClaimType),
             GroupId = user.FindFirstValue(options.GroupIdClaimType),
             Email = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : user.FindFirstValue(BasicClaimTypes.Email),
@@ -72,5 +71,21 @@ public static class CasesClaimsPrincipalExtensions
         };
     }
 
-
+    /// <summary>
+    /// Get <see cref="ContactMeta"/> from a ClaimsPrincipal.
+    /// </summary>
+    /// <param name="user">The claims principal.</param>
+    /// <param name="options">Case options settings</param>
+    /// <returns></returns>
+    /// <summary>Creates a http <see cref="UserActor"/> model from the current user.</summary>
+    public static ContactMeta UserToContactMeta(this ClaimsPrincipal user, CasesOptions options) {
+        var subject = user.FindFirstValue(BasicClaimTypes.Subject);
+        return new ContactMeta {
+            UserId = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId)! : subject,
+            Reference = user.FindFirstValue(options.ReferenceIdClaimType),
+            FirstName = string.IsNullOrWhiteSpace(subject) ? CasesCoreConstants.SystemUserName : $"{user.FindFirstValue(BasicClaimTypes.GivenName)}".Trim(),
+            LastName = string.IsNullOrWhiteSpace(subject) ? "" : $"{user.FindFirstValue(BasicClaimTypes.FamilyName)}".Trim(),
+            Tin = user.FindFirstValue(options.TinClaimType)
+        };
+    }
 }

@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using FluentValidation.AspNetCore;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
@@ -67,17 +66,19 @@ public static class CaseServerFeatureExtensions
             options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
             options.Scope = serverOptions.RequiredScope;
         });
-        builder.Services.AddHttpClient<WorkflowHttpClient>(httpClient => {
-                httpClient.BaseAddress = new Uri(builder.Configuration.GetHost()!);
+        builder.Services.AddHttpClient<WorkflowHttpClient>((serviceProvider, httpClient) => {
+                var loopbackUri = builder.Configuration.TryGetEndpoint("ServerLoopbackUri");
+                httpClient.BaseAddress = string.IsNullOrWhiteSpace(loopbackUri) ?
+                                            serviceProvider.GetServerLoopbackUri() :
+                                            new (loopbackUri);
             })
             .ClearResilienceHandlers()
             .AddClientCredentialsTokenHandler("cases");
         builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
         builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessMemberHandler>();
-        builder.Services.AddFluentValidationAutoValidation()
-                       .AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>()
-                       .AddFluentValidationClientsideAdapters();
+        builder.Services.AddTransient<IAuthorizationHandler, CasesAccessOwnerHandler>();
+        builder.Services.AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>();
         
         return builder;
     }

@@ -1,10 +1,9 @@
 ﻿using System.Net.Mime;
-using Indice.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.OpenApi.Any;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 namespace Microsoft.AspNetCore.Builder;
@@ -12,6 +11,54 @@ namespace Microsoft.AspNetCore.Builder;
 /// <summary>Endpoint conventions regarding Open API.</summary>
 public static class OpenApiExtensions
 {
+    /// <summary>
+    /// Adds an OpenAPI security requirement to the endpoint, specifying the security scheme and required scopes.
+    /// </summary>
+    /// <remarks>This method is typically used to define security requirements for endpoints in an OpenAPI
+    /// specification. The specified security scheme and scopes will be included in the generated OpenAPI
+    /// documentation.</remarks>
+    /// <param name="builder">The <see cref="IEndpointConventionBuilder"/> to which the security requirement is applied.</param>
+    /// <param name="securitySchemeId">The identifier of the security scheme to use. Defaults to <see langword="oauth2"/>.</param>
+    /// <param name="requiredScopes">The scopes required for the security scheme. If no scopes are specified, the security requirement will be added
+    /// without any specific scopes.</param>
+    /// <returns>The <see cref="IEndpointConventionBuilder"/> instance with the applied OpenAPI security requirement.</returns>
+    public static IEndpointConventionBuilder WithOpenApiSecurityRequirement(this IEndpointConventionBuilder builder, string securitySchemeId = "oauth2", params string[] requiredScopes) {
+        var scheme = new OpenApiSecurityScheme() {
+            Type = SecuritySchemeType.Http,
+            Name = securitySchemeId,
+            Scheme = securitySchemeId,
+            Reference = new() {
+                Type = ReferenceType.SecurityScheme,
+                Id = securitySchemeId
+            }
+        };
+        builder.WithMetadata(new OpenApiSecurityRequirement() {
+            [scheme] = requiredScopes.ToList() ?? []
+        });
+        return builder;
+    }
+    /// <summary>Adds the ApiKey security scheme to the Open API description.</summary>
+    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
+    /// <param name="schemeName"></param>
+    /// <returns>The <see cref="IEndpointConventionBuilder"/>.</returns>
+    public static IEndpointConventionBuilder WithApiKeySecurityRequirement(this IEndpointConventionBuilder builder, string schemeName = "ApiKey") {
+        var scheme = new OpenApiSecurityScheme {
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = schemeName,
+            Description = "Enter the api key to get access",
+            Name = "X-Api-Key",
+            Reference = new OpenApiReference {
+                Type = ReferenceType.SecurityScheme,
+                Id = "ApiKey"
+            },
+            In = ParameterLocation.Header
+        };
+        builder.WithMetadata(new OpenApiSecurityRequirement() {
+            [scheme] = []
+        });
+        return builder;
+    }
+
     /// <summary>Adds the JWT security scheme to the Open API description.</summary>
     /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
     /// <param name="securityScheme">The security scheme to use.</param>
@@ -30,7 +77,7 @@ public static class OpenApiExtensions
         return builder.WithOpenApi(operation => new(operation) {
             Security = {
                 new() {
-                    [scheme] = requiredScopes.ToList() ?? new List<string>()
+                    [scheme] = requiredScopes.ToList() ?? []
                 }
             },
         });
@@ -55,37 +102,28 @@ public static class OpenApiExtensions
         return builder.WithOpenApi(operation => new(operation) {
             Security = {
                 new() {
-                    [scheme] = new List<string>()
+                    [scheme] = []
                 }
             }
         });
     }
 
-    /// <summary>Adds enum support if needed to a query parameter. Experimental</summary>
-    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
-    /// <param name="paramName">The parameter name to fix</param>
-    /// <returns>The <see cref="IEndpointConventionBuilder"/>.</returns>
-    public static IEndpointConventionBuilder WithOpenApiEnum<TEnum>(this IEndpointConventionBuilder builder, string paramName) {
-        return builder.WithOpenApi(operation => {
-            var op = new OpenApiOperation(operation);
-            var enumType = typeof(TEnum);
-            var isNullable = (enumType.IsValueType && Nullable.GetUnderlyingType(enumType) != null) || true;
-            var paramSchemaType = enumType.IsFlagsEnum() ? "array" : "string";
-            var param = op.Parameters.Where(x => paramName.Equals(x.Name, StringComparison.OrdinalIgnoreCase)).First();
+    /// <summary>
+    /// Adds an OpenAPI example to the endpoint metadata for the specified request body type.
+    /// </summary>
+    /// <remarks>Use this method to enhance OpenAPI documentation by providing concrete example responses for
+    /// endpoints. This can improve client generation and API discoverability.</remarks>
+    /// <typeparam name="T">The type of the example object to associate with the endpoint response.</typeparam>
+    /// <param name="builder">The endpoint convention builder to which the example metadata will be added.</param>
+    /// <param name="example">An object representing the example response to include in the OpenAPI documentation. Cannot be null.</param>
+    /// <param name="summary">An optional short summary describing the example. If null, no summary is included.</param>
+    /// <param name="description">An optional detailed description of the example. If null, no description is included.</param>
+    /// <param name="contentType">The media type of the example content. Defaults to "application/json".</param>
+    /// <returns>The original endpoint convention builder with the example metadata added.</returns>
+    public static IEndpointConventionBuilder WithExampleRequestBody<T>(this IEndpointConventionBuilder builder, T example, string? summary = null, string? description = null, string contentType = MediaTypeNames.Application.Json) where T : class 
+        => builder.WithMetadata(new EndpointBodyExampleMetadata(nameof(T), example.ToOpenApiAny(), Summary: summary, Description: description, ContentType: contentType));
+    
 
-            param.Schema = new OpenApiSchema() {
-                Type = "array",
-                Format = null,
-                Nullable = isNullable,
-                Enum = null,
-                Items = new OpenApiSchema() {
-                    Type = "string",
-                    Enum = Enum.GetNames(enumType).Select(name => (IOpenApiAny)new OpenApiString(name)).ToList()
-                }
-            };
-            return op;
-        });
-    }
     /// <summary>
     /// Adds an <see cref="IProducesResponseTypeMetadata"/> with a <see cref="ProblemDetails"/> type
     /// to <see cref="EndpointBuilder.Metadata"/> for all endpoints produced by <paramref name="builder"/>.

@@ -2,20 +2,20 @@
 
   <PropertyGroup Label="Package">
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
-    <SpaProjectName>risks-app</SpaProjectName>
+    <SpaProjectName>browser</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Risk.App</SpaSourceFolder>
-    <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
+    <SpaDistFolder>$(SpaSourceFolder)\dist\risks-app</SpaDistFolder>
     <VersionPrefix>$(VersionPrefixRisk)</VersionPrefix>
   </PropertyGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html" />
-    <EmbeddedResource Include="$(SpaProjectName)\index.html" />
-  </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixMajor).*-*" />
+    <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html;$(SpaDistFolder)\**\3rdpartylicenses.txt;$(SpaDistFolder)\**\prerendered-routes.json" />
+    <EmbeddedResource Include="$(SpaProjectName)\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixCore)-*" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
@@ -23,5 +23,4 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
-
 </Project>

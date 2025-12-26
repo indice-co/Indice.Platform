@@ -1,17 +1,18 @@
 import { Component, ViewChild, TemplateRef, OnInit } from '@angular/core';
 
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { IdentityResourceInfo, IdentityApiService, IdentityResourceInfoResultSet } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
 
 @Component({
     selector: 'app-identity-resources',
-    templateUrl: './identity-resources.component.html'
+    templateUrl: './identity-resources.component.html',
+    standalone: false
 })
 export class IdentityResourcesComponent implements OnInit {
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('nameTemplate', { static: true }) public _nameTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('nameTemplate', { static: true }) public _nameTemplate: TemplateRef<CellContext<any>>;
 
     constructor(
         private _api: IdentityApiService,

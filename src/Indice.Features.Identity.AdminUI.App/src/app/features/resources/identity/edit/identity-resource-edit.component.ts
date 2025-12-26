@@ -5,7 +5,8 @@ import { IdentityResourceStore } from './identity-resource-store.service';
 @Component({
     selector: 'app-identity-resource-edit',
     templateUrl: './identity-resource-edit.component.html',
-    providers: [IdentityResourceStore]
+    providers: [IdentityResourceStore],
+    standalone: false
 })
 export class IdentityResourceEditComponent implements OnInit {
     constructor() { }

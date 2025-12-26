@@ -1,6 +1,5 @@
 ﻿using Indice.Features.Messages.Core.Services;
 using Indice.Security;
-using Org.BouncyCastle.Asn1.Crmf;
 
 namespace Indice.Features.Messages.Core;
 
@@ -17,4 +16,6 @@ public class ContactResolverIdentityOptions
     public string UserClaimType { get; set; } = BasicClaimTypes.Subject;
     /// <summary>Indicates that the recipient id is not based on the default claim type used to identify the contact.</summary>
     public bool HasCustomRecipientId => UserClaimType != BasicClaimTypes.Subject;
+    /// <summary>The claim type to request from identify for the user. Defaults to <i>Locale, ConsentCommercial, ConsentCommercialDate</i>.</summary>
+    public string[] ClaimsToResolve { get; set; } = [BasicClaimTypes.ConsentCommercialDate, BasicClaimTypes.ConsentCommercial, BasicClaimTypes.Locale];
 }

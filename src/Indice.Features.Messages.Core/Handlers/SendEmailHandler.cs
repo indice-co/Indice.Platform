@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Services;
 using Indice.Types;
@@ -13,16 +14,20 @@ public class SendEmailHandler : ICampaignJobHandler<SendEmailEvent>
     /// <param name="emailService">Push notification service abstraction in order to support different providers.</param>
     /// <param name="campaignAttachmentService">A service that contains campaign attachments related operations.</param>
     /// <param name="messageSenderService">A service that contains message sender related operations.</param>
+    /// <param name="messageEventQueue">Campaign event queue abstraction.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public SendEmailHandler(IEmailService emailService, ICampaignAttachmentService campaignAttachmentService, IMessageSenderService messageSenderService) {
+    public SendEmailHandler(IEmailService emailService, ICampaignAttachmentService campaignAttachmentService,
+        IMessageSenderService messageSenderService, MessageEventQueue messageEventQueue) {
         EmailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         CampaignAttachmentService = campaignAttachmentService ?? throw new ArgumentNullException(nameof(campaignAttachmentService));
         MessageSenderService = messageSenderService ?? throw new ArgumentNullException(nameof(messageSenderService));
+        MessageEventQueue = messageEventQueue;
     }
 
     private ICampaignAttachmentService CampaignAttachmentService { get; }
     private IMessageSenderService MessageSenderService { get; }
     private IEmailService EmailService { get; }
+    private MessageEventQueue MessageEventQueue { get; }
 
     /// <summary>Sends an email to a single user.</summary>
     /// <param name="event">The event model used when sending an email.</param>
@@ -35,16 +40,22 @@ public class SendEmailHandler : ICampaignJobHandler<SendEmailEvent>
             });
             sender = defaultSenderResult?.Items?.FirstOrDefault();
         }
-        await EmailService.SendAsync(builder => {
-            if (sender is not null && !sender.IsEmpty) {
-                builder.From(sender.Sender!, sender.DisplayName);
-            }
-            builder.To(@event.RecipientEmail!)
-                   .WithSubject(@event.Title!)
-                   .WithBody(@event.Body!);
-            if (attachment is not null) {
-                builder.WithAttachments(new EmailAttachment(attachment.Name!, attachment.Data!));
-            }
-        });
+        try {
+            _ = await EmailService.SendAsync(builder => {
+                if (sender is not null && !sender.IsEmpty) {
+                    builder.From(sender.Sender!, sender.DisplayName);
+                }
+                builder.To(@event.RecipientEmail!)
+                       .WithSubject(@event.Title!)
+                       .WithBody(@event.Body!);
+                if (attachment is not null) {
+                    builder.WithAttachments(new EmailAttachment(attachment.Name!, attachment.Data!));
+                }
+            });
+            await MessageEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString(), true));
+        } catch {
+            await MessageEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString(), false));
+            throw;
+        }
     }
 }

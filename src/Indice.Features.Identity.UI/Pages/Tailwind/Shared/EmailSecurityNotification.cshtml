@@ -1,0 +1,45 @@
+﻿@inject IOptions<GeneralSettings> GeneralSettings
+@inject IOptions<IdentityUIOptions> UIOptions
+@inject IdentityUILocalizer Localizer
+@model Indice.Features.Identity.Core.Models.SecurityNotificationModel
+@{
+    Layout = "_LayoutEmail.cshtml";
+    var settings = GeneralSettings.Value;
+}
+
+@section preheader {
+    @Localizer.EmailSecurity_Preheader
+}
+
+@section subject {
+    <h1 style="font-size: 18px; font-family:'Century Gothic', Arial, sans-serif, Helvetica, Arial, sans-serif; font-weight:normal">
+		@(Model.Subject ?? Localizer.EmailSecurity_Subject.Value)
+    </h1>
+}
+<p style="font-family: 'Century Gothic', Arial, sans-serif, Helvetica, Arial, sans-serif; font-size: 12px;">
+    @Localizer.EmailSecurity_Body_Hi @(Model.DisplayName ?? Model.UserName ?? string.Empty),
+    <br /><br />
+    @Localizer.EmailSecurity_Body_EventOccurred<br /><br />
+    <strong>@Localizer.EmailSecurity_Body_EventDetails</strong><br />
+    <ul>
+        <li>@Localizer.EmailSecurity_Body_EventTime: @Model.TimeStamp.LocalDateTime.ToString("f")</li>
+        <li>@Localizer.EmailSecurity_Body_Username: @Model.UserName</li>
+        <li>@Localizer.Email: @Model.User?.Email</li>
+        @if (Model.Device != null)
+        {
+            <li>@Localizer.EmailSecurity_Body_Device: @Model.Device.Name (@Model.Device.ClientType)</li>
+        }
+        @if (Model.Client != null)
+        {
+            <li>@Localizer.EmailSecurity_Body_Client: @Model.Client.ClientName (@Model.Client.ClientId)</li>
+        }
+        @if (Model.Location != null)
+        {
+            <li>@Localizer.EmailSecurity_Body_Location: @Model.Location.CityName, @Model.Location.CountryName (@Model.Location.IPAddress) @Localizer.EmailSecurity_Body_LocationNotice</li>
+        }
+    </ul>
+</p>
+<p style="font-family: 'Century Gothic', Arial, sans-serif, Helvetica, Arial, sans-serif; font-size: 12px;">
+    @Localizer.EmailSecurity_Body_ContactSupport<br /><br />
+    @Localizer.Email_Body_Sincerely, @Localizer.Email_Body_Organization(settings.Organization!)
+</p>

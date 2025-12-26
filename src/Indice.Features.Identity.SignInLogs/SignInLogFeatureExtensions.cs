@@ -1,15 +1,16 @@
 ﻿using System.Reflection;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.SignInLogs;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Enrichers;
 using Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
-using Indice.Features.Identity.SignInLogs.GeoLite2;
+using Indice.Features.Identity.SignInLogs.EventHandlers;
 using Indice.Features.Identity.SignInLogs.Hosting;
 using Indice.Features.Identity.SignInLogs.ImpossibleTravel;
-using Indice.Features.Identity.SignInLogs.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -72,9 +73,7 @@ public static class SignInLogFeatureExtensions
         services.AddDefaultFilters();
         services.AddTransient<SignInLogEntryEnricherAggregator>();
         services.AddSingleton<SignInLogEntryQueue>();
-        services.AddSingleton<CityDatabaseReader>();
-        services.AddSingleton<CountryDatabaseReader>();
-        services.AddScoped<IPAddressLocator>();
+        services.AddGeoIPResolver();
         // Enable feature management for this module.
         services.AddFeatureManagement(configuration.GetSection(IdentityServerFeatures.Section));
         // Add a default implementation in case one is not specified. Avoids DI errors.
@@ -92,6 +91,8 @@ public static class SignInLogFeatureExtensions
             }
             builder.Services.TryAddScoped<ISignInGuard<TUser>, SignInGuard<TUser>>();
         }
+        services.AddPlatformEventHandler<PasswordChangedEvent, UserPasswordChangedEventHandler>();
+        services.AddPlatformEventHandler<AccountLockedEvent, AccountLockedEventHandler>();
         return builder;
     }
 
@@ -146,5 +147,21 @@ public static class SignInLogFeatureExtensions
             services.AddTransient(typeof(ISignInLogEntryFilter), filter);
         }
         return services;
+    }
+
+    
+    /// <summary>
+    /// Configures the sign-in store by ensuring the associated database is created.
+    /// </summary>
+    /// <remarks>This method ensures that the database for storing sign-in logs is created if it does not
+    /// already exist. It uses a scoped service to access the <see cref="SignInLogDbContext"/> and calls EnsureCreated.</remarks>
+    /// <param name="app">The <see cref="IApplicationBuilder"/> instance used to configure the application.</param>
+    /// <returns>The same <see cref="IApplicationBuilder"/> instance passed as the <paramref name="app"/> parameter, allowing for
+    /// method chaining.</returns>
+    public static IApplicationBuilder SignInStoreSetup(this IApplicationBuilder app) {
+        using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        var dbContext = serviceScope.ServiceProvider.GetService<SignInLogDbContext>();
+        dbContext?.Database.EnsureCreated();
+        return app;
     }
 }

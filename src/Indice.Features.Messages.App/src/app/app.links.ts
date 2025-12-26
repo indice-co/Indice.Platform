@@ -3,33 +3,35 @@ import { Observable, of } from 'rxjs';
 import { settings } from './core/models/settings';
 
 export class AppLinks implements IAppLinks {
-    constructor() { }
+  constructor() { }
 
-    public public: Observable<NavLink[]> = of([]);
-    public profileActions: Observable<NavLink[]> = of([]);
+  public public: Observable<NavLink[]> = of([]);
+  public profileActions: Observable<NavLink[]> = of([]);
 
-    private _mainLInks = [
-        new NavLink('Αρχική', 'dashboard', false, false, Icons.Dashboard),
-        new NavLink('Καμπάνιες', '/campaigns', false, false, Icons.Messages),
-        new NavLink('Τύποι Μηνυμάτων', '/message-types', false, false, Icons.Details),
-        new NavLink('Λίστες Διανομής', '/distribution-lists', false, false, Icons.TilesView),
-        new NavLink('Πρότυπα', '/templates', false, false, Icons.SendEmail),
-        new NavLink('Αρχεία', '/media', false, false, 'ms-Icon ms-Icon--Folder'),
-        new NavLink('Ρυθμίσεις', '/settings', false, false, 'ms-Icon ms-Icon--Settings')
-    ];
-    public main: Observable<NavLink[]> = of(settings.enableMediaLibrary ? this._mainLInks : this._mainLInks.filter((l) => l.path !== '/media'));
+  private _mainLInks = [
+    new NavLink('Home', 'dashboard', false, false, 'ms-Icon ms-Icon--BIDashboard'),
+    new NavLink('Campaigns', '/campaigns', false, false, 'ms-Icon ms-Icon--Communications'),
+    new NavLink('Message Types', '/message-types', false, false, 'ms-Icon ms-Icon--SingleBookmark'),
+    new NavLink('Distribution Lists', '/distribution-lists', false, false, 'ms-Icon ms-Icon--ContactList'),
+    new NavLink('Contacts', '/contacts', false, false, 'ms-Icon ms-Icon--Contact'),
+    new NavLink('Templates', '/templates', false, false, 'ms-Icon ms-Icon--CampaignTemplate'),
+    new NavLink('Media', '/media', false, false, 'ms-Icon ms-Icon--PhotoVideoMedia'),
+    new NavLink('Events', '/message-events', false, false, 'ms-Icon ms-Icon--SetAction'),
+    new NavLink('Settings', '/settings', false, false, 'ms-Icon ms-Icon--Settings')
+  ];
+  public main: Observable<NavLink[]> = of(settings.enableMediaLibrary ? this._mainLInks : this._mainLInks.filter((l) => l.path !== '/media'));
 
-    public profile: Observable<NavLink[]> = of([
-        new NavLink('Αποσύνδεση', '/logout', false)
-    ]);
+  public profile: Observable<NavLink[]> = of([
+    new NavLink('Logout', '/logout', false)
+  ]);
 
-    public legal: Observable<NavLink[]> = of([
-        new ExternalNavLink('Ιδιωτικό Απόρρητο', '/privacy'),
-        new ExternalNavLink('Όροι χρήσης', '/terms'),
-        new ExternalNavLink('Επικοινωνία', '/contact')
-    ]);
+  public legal: Observable<NavLink[]> = of([
+    new ExternalNavLink('Privacy Policy', '/privacy'),
+    new ExternalNavLink('Terms of Use', '/terms'),
+    new ExternalNavLink('Contact', '/contact')
+  ]);
 
-    public brand: Observable<NavLink[]> = of([
-        new ExternalNavLink('Indice', 'https://www.indice.gr')
-    ]);
+  public brand: Observable<NavLink[]> = of([
+    new ExternalNavLink('Indice', 'https://www.indice.gr')
+  ]);
 }

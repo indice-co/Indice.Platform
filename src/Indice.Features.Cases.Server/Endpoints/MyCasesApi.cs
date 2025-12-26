@@ -1,8 +1,8 @@
 ﻿using System.Net.Mime;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Server;
-using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
+using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -26,29 +26,28 @@ internal static class MyCasesApi
         group.WithTags("MyCases");
         group.WithGroupName("my");
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
 
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
+            .RequireClaim(BasicClaimTypes.Subject)
         ).WithHandledException<BusinessException>();
 
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         group.MapGet(string.Empty, MyCasesHandlers.GetMyCases)
             .WithName(nameof(MyCasesHandlers.GetMyCases))
-            .WithSummary("Get the list of the customer's cases.")
-            .RequireAuthorization(policy => policy.RequireCasesAccess());
+            .WithSummary("Get the list of the customer's cases.");
 
         group.MapPost(string.Empty, MyCasesHandlers.CreateDraftCase)
             .WithName(nameof(MyCasesHandlers.CreateDraftCase))
             .WithSummary("Create a new draft case.")
-            .WithParameterValidation<CreateDraftCaseRequest>()
-            .RequireAuthorization(policy => policy.RequireCasesAccess());
+            .WithParameterValidation<CreateDraftCaseRequest>();
 
         group.MapGet("{caseId}", MyCasesHandlers.GetMyCaseById)
             .WithName(nameof(MyCasesHandlers.GetMyCaseById))

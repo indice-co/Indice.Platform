@@ -29,6 +29,8 @@ public class DeviceInfo
     public bool SupportsPinLogin { get; set; }
     /// <summary>Flag for fingerprint support.</summary>
     public bool SupportsFingerprintLogin { get; set; }
+    /// <summary>The public key Id of the device.</summary>
+    public string? PublicKeyId { get; set; }
     /// <summary>Indicates whether the device is blocked.</summary>
     public bool RequiresPassword { get; set; }
     /// <summary>The date that the device can be activated for trust.</summary>

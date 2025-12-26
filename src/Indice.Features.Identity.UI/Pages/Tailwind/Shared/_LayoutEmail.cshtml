@@ -1,5 +1,5 @@
 ﻿@inject IOptions<GeneralSettings> SettingsWrapper
-
+@inject IdentityUILocalizer Localizer
 @{
     var Settings = SettingsWrapper.Value;
 }
@@ -22,6 +22,10 @@
                     <br />
                     <br />
                     <br />
+                </p>
+                <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
+                    @Localizer.ConfirmEmail_DoNotReply
+                    @Localizer.ConfirmEmail_ServiceEmailInfo
                 </p>
             </td>
         </tr>

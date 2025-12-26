@@ -8,22 +8,17 @@ namespace Indice.Features.Identity.Core.PasswordValidation;
 public class UserNameAsPasswordValidator : UserNameAsPasswordValidator<User>
 {
     /// <inheritdoc/>
-    public UserNameAsPasswordValidator(IConfiguration configuration, IdentityMessageDescriber messageDescriber) : base(configuration, messageDescriber) { }
+    public UserNameAsPasswordValidator(IConfiguration configuration) : base(configuration) { }
 }
 
 /// <summary>A validator that checks if the username is identical to the password for a given number of characters.</summary>
 /// <typeparam name="TUser">The type of user instance.</typeparam>
 public class UserNameAsPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
 {
-    private readonly IdentityMessageDescriber _messageDescriber;
-    /// <summary>The code used when describing the <see cref="IdentityError"/>.</summary>
-    public const string ErrorDescriber = "PasswordContainsUserName";
-
+    
     /// <summary>Creates a new instance of <see cref="UserNameAsPasswordValidator"/>.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
-    public UserNameAsPasswordValidator(IConfiguration configuration, IdentityMessageDescriber messageDescriber) {
-        _messageDescriber = messageDescriber;
+    public UserNameAsPasswordValidator(IConfiguration configuration) {
         MaxAllowedUserNameSubset = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<int?>(nameof(MaxAllowedUserNameSubset)) ??
                                    configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(MaxAllowedUserNameSubset));
     }
@@ -46,10 +41,7 @@ public class UserNameAsPasswordValidator<TUser> : IPasswordValidator<TUser> wher
         }
         // If username is exactly the same with the password, then this is an error independently of the MaxAllowedUsernameSubset property.
         if (user.UserName!.Equals(password!, StringComparison.InvariantCultureIgnoreCase)) {
-            result = IdentityResult.Failed(new IdentityError {
-                Code = ErrorDescriber,
-                Description = _messageDescriber.PasswordIdenticalToUserName
-            });
+            result = IdentityResult.Failed((manager?.ErrorDescriber ?? new ExtendedIdentityErrorDescriber()).PasswordIdenticalToUserName());
             return Task.FromResult(result);
         }
         if (MaxAllowedUserNameSubset > password.Length) {
@@ -62,10 +54,7 @@ public class UserNameAsPasswordValidator<TUser> : IPasswordValidator<TUser> wher
             characterIndex++;
         }
         if (userNameSubstrings.Any(userNameSubstring => password.Contains(userNameSubstring, StringComparison.OrdinalIgnoreCase))) {
-            result = IdentityResult.Failed(new IdentityError {
-                Code = ErrorDescriber,
-                Description = _messageDescriber.PasswordIdenticalToUserName
-            });
+            result = IdentityResult.Failed((manager?.ErrorDescriber ?? new ExtendedIdentityErrorDescriber()).PasswordIdenticalToUserName());
         }
         return Task.FromResult(result);
     }

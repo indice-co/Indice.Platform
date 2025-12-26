@@ -165,13 +165,20 @@ public class NotificationsManager(
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var isNewDistributionList = false;
         // If a distribution list id is not set, then we create a new list.
-        if (!request.RecipientListId.HasValue && !request.IsGlobal) {
+        if (!request.RecipientListId.HasValue) {
             var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
                 Name = $"{request.Title} - {timestamp}",
                 IsSystemGenerated = true
             }, request.GetIncludedContacts());
             request.RecipientListId = createdList.Id;
             isNewDistributionList = true;
+        } else {
+            // If a distribution list id is set, then we check if it exists.
+            var distributionList = await DistributionListService.GetById(request.RecipientListId.Value);
+            if (distributionList is null) {
+                return CreateCampaignResult.Fail($"The specified Distribution List with Id:({request.RecipientListId}) does not exist");
+            }
+            request.RecipientListId = distributionList.Id;
         }
         // create the attachemtns
         if (request.Attachments.Any()) {
@@ -198,14 +205,19 @@ public class NotificationsManager(
             }
             request.Data ??= template.Data;
             var content = template.Content;
-            if (request.MessageTemplateChannels.HasValue && request.MessageTemplateChannels != MessageChannelKind.None) {
-                var channels = request.MessageTemplateChannels.Value.GetFlagValues().Select(f => f.ToString());
-                content = new (template.Content.Where(cnt => channels.Contains(cnt.Key)));
+            if (request.MessageTemplateChannels?.Count > 0) {
+                var channels = request.MessageTemplateChannels
+                                    .Select(f => f.ToString())
+                                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                content = new(template.Content.Where(cnt => channels.Contains(cnt.Key)));
                 if (content.Count == 0) {
                     return CreateCampaignResult.Fail($"Content was empty after applying the messageTemplateChannels to the selected Template with Id:({request.MessageTemplateId})");
                 }
             }
             request.Content = content;
+            if (template.MessageType is not null) {
+                request.TypeId = template.MessageType.Id;
+            }
         }
         if (request.TypeId.HasValue) {
             var messageType = await MessageTypeService.GetById(request.TypeId.Value);
@@ -256,6 +268,7 @@ public class NotificationsManager(
 
     /// <summary>Gets a list of all available templates.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    /// <param name="filter">Filter parameters</param>
     /// <returns></returns>
-    public Task<ResultSet<TemplateListItem>> GetTemplates(ListOptions options) => TemplateService.GetList(options);
+    public Task<ResultSet<TemplateListItem>> GetTemplates(ListOptions options, TemplateListFilter filter) => TemplateService.GetList(ListOptions.Create(options, filter));
 }

@@ -1,28 +1,32 @@
 import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { Subscription } from 'rxjs';
 import { DeviceInfo } from 'src/app/core/services/identity-api.service';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
 import { UserStore } from '../user-store.service';
+import { AuthService } from "src/app/core/services/auth.service";
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 
 @Component({
     selector: 'app-user-devices',
-    templateUrl: './user-devices.component.html'
+    templateUrl: './user-devices.component.html',
+    standalone: false
 })
 export class UserDevicesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription | undefined;
     private _deviceToDelete: DeviceInfo;
     private _userId: string;
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
+    public canEditUser: boolean;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('userDeviceList', { static: true }) public _userDeviceList: ListViewComponent;
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
 
     constructor(
         private _userStore: UserStore,
+        private _authService: AuthService,
         private _route: ActivatedRoute,
         private _toast: ToastService
     ) { }
@@ -31,6 +35,7 @@ export class UserDevicesComponent implements OnInit, OnDestroy {
     public rows: DeviceInfo[] = [];
 
     public ngOnInit(): void { 
+        this.canEditUser = this._authService.isAdminUIUsersWriter();
         this.columns = [
             { prop: 'deviceId', name: 'Device Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._userDeviceList.keyTemplate },
             { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },

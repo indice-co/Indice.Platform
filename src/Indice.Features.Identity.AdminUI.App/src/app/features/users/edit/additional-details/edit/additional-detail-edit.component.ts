@@ -14,7 +14,8 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 @Component({
     selector: 'app-additional-detail-edit',
     templateUrl: './additional-detail-edit.component.html',
-    providers: [NgbDateCustomParserFormatter]
+    providers: [NgbDateCustomParserFormatter],
+    standalone: false
 })
 export class AdditionalDetailEditComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

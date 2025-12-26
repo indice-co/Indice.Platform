@@ -1,4 +1,11 @@
 ﻿namespace Indice.Features.Cases.Workflows;
+/// <summary>
+/// Provides a collection of constants used in the Cases Workflow API, including default values,  channel identifiers,
+/// workflow variables, and validation error keys.
+/// </summary>
+/// <remarks>This class is designed to centralize constants for use across the Cases Workflow API,  ensuring
+/// consistency and reducing hardcoded values in the application. It includes nested  classes to organize constants by
+/// category, such as channels, workflow variables, and validation errors.</remarks>
 public static class CasesWorkflowConstants
 {
 

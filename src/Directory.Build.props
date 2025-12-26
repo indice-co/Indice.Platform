@@ -1,12 +1,11 @@
 <Project>
     <PropertyGroup Label="Assembly Common">
       <Copyright>Copyright (c) 2018 Indice</Copyright>
-      <TargetFrameworks></TargetFrameworks>
-      <TargetFramework>net8.0</TargetFramework>
-      
+      <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+      <!--<TargetFramework></TargetFramework>-->
       <VersionPrefixMajor>8</VersionPrefixMajor>
-      <VersionPrefixBase>$(VersionPrefixMajor).0</VersionPrefixBase>
-      
+      <VersionPrefixBase>$(VersionPrefixMajor).31</VersionPrefixBase>
+
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
@@ -15,11 +14,12 @@
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
+      <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
       <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
-      
-      <VersionSuffix>rc27</VersionSuffix>
+
+      <!--<VersionSuffix>rc04</VersionSuffix>-->
       <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <LangVersion>Latest</LangVersion>

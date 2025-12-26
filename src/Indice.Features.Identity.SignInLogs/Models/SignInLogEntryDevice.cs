@@ -6,13 +6,13 @@ namespace Indice.Features.Identity.SignInLogs.Models;
 public class SignInLogEntryDevice
 {
     /// <summary>The device model.</summary>
-    public string Model { get; set; }
+    public string? Model { get; set; }
     /// <summary>The device platform.</summary>
     public DevicePlatform Platform { get; set; }
     /// <summary>The raw value of the 'UserAgent' header.</summary>
-    public string UserAgent { get; set; }
+    public string UserAgent { get; set; } = null!;
     /// <summary>Browser display name.</summary>
-    public string DisplayName { get; set; }
+    public string DisplayName { get; set; } = null!;
     /// <summary>The operating system name.</summary>
-    public string Os { get; set; }
+    public string? Os { get; set; }
 }

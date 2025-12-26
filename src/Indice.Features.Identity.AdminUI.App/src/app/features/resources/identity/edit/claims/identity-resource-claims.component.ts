@@ -10,7 +10,8 @@ import { IdentityResourceStore } from '../identity-resource-store.service';
 
 @Component({
     selector: 'app-identity-resource-claims',
-    templateUrl: './identity-resource-claims.component.html'
+    templateUrl: './identity-resource-claims.component.html',
+    standalone: false
 })
 export class IdentityResourceClaimsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

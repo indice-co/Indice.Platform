@@ -1,47 +1,75 @@
-<lib-side-view-layout title="Επεξεργασία λίστας"
-                      [ok-close-dialog]="false"
-                      [ok-label]="'Αποθήκευση'"
-                      [cancel-label]="'Κλείσιμο'"
-                      (ok)="submitButton.nativeElement.click()"
-                      [disabled]="!editCampaignForm.valid || submitInProgress"
-                      #sideViewLayout>
-    <div class="mt-4">
-        <form #editCampaignForm="ngForm"
-              (ngSubmit)="onSubmit()">
-            <div class="px-4 space-y-2 pb-4">
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="col-span-4">
-                        <ng-container [ngTemplateOutlet]="templateOutlet"></ng-container>
-                    </div>
-                </div>
-            </div>
-            <button type="submit"
-                    [style.visibility]="'hidden'"
-                    #submitBtn>
-                Submit
-            </button>
-        </form>
-    </div>
+<lib-side-view-layout title="{{ 'DistributionLists.EditList' | translate }}"
+  [ok-close-dialog]="false"
+  [ok-label]="'DistributionLists.Save' | translate"
+  [cancel-label]="'DistributionLists.CancelLabel' | translate"
+  (ok)="submitButton.nativeElement.click()"
+  [disabled]="!editCampaignForm.valid || submitInProgress"
+  #sideViewLayout>
+  <div class="mt-4">
+    <form #editCampaignForm="ngForm"
+      (ngSubmit)="onSubmit()">
+      <div class="px-4 space-y-2 pb-4">
+        <div class="grid grid-cols-4 gap-4">
+          <div class="col-span-4">
+            <ng-container [ngTemplateOutlet]="templateOutlet"></ng-container>
+          </div>
+        </div>
+      </div>
+      <button type="submit"
+        [style.visibility]="'hidden'"
+        #submitBtn>
+        {{ 'DistributionLists.Submit' | translate }}
+      </button>
+    </form>
+  </div>
 </lib-side-view-layout>
 <ng-template #editNameTemplate>
-    <label for="listName"
-           class="field-label">
-        Τίτλος (*)
+  <label for="listName"
+    class="field-label">
+    {{ 'DistributionLists.ListTitleLabel' | translate }}
+  </label>
+  <div class="mt-1 flex rounded-sm">
+    <input class="w-full"
+      type="text"
+      name="listName"
+      id="listName"
+      [(ngModel)]="model.name"
+      placeholder="{{ 'DistributionLists.ListNamePlaceholder' | translate }}"
+      required
+      #listName="ngModel">
+    </div>
+    @if (listName.invalid && (listName.dirty || listName.touched)) {
+      <p
+        class="mt-2 text-sm text-red-600">
+        @if (listName.errors!['required']) {
+          <span>{{ 'DistributionLists.ListNameRequired' | translate }}</span>
+        }
+        @if (listName.errors!['maxlength']) {
+          <span>{{ 'DistributionLists.ListNameMaxLength' | translate }}</span>
+        }
+      </p>
+    }
+    <p class="field-info col-span-3">{{ 'DistributionLists.ListInfo' | translate }}</p>
+    <label for="listAlias"
+      class="field-label">
+      {{ 'DistributionLists.AliasLabel' | translate }}
     </label>
     <div class="mt-1 flex rounded-sm">
-        <input class="w-full"
-               type="text"
-               name="listName"
-               id="listName"
-               [(ngModel)]="model.name"
-               placeholder="Το όνομα της λίστας..."
-               required
-               #listName="ngModel">
-    </div>
-    <p *ngIf="listName.invalid && (listName.dirty || listName.touched)"
-       class="mt-2 text-sm text-red-600">
-        <span *ngIf="listName.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
-        <span *ngIf="listName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
-    </p>
-    <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται η λίστα.</p>
-</ng-template>
+      <input class="w-full"
+        type="text"
+        name="listAlias"
+        id="listAlias"
+        [(ngModel)]="model.alias"
+        placeholder="{{ 'DistributionLists.AliasPlaceholder' | translate }}"
+        required
+        #listAlias="ngModel">
+      </div>
+      @if (listAlias.invalid && (listAlias.dirty || listAlias.touched)) {
+        <p
+          class="mt-2 text-sm text-red-600">
+          @if (listAlias.errors!['maxlength']) {
+            <span>{{ 'DistributionLists.AliasMaxLength' | translate }}</span>
+          }
+        </p>
+      }
+    </ng-template>

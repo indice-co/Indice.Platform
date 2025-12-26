@@ -24,7 +24,7 @@ internal static class AdminAttachmentsApi
 
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
@@ -32,7 +32,7 @@ internal static class AdminAttachmentsApi
             .RequireCasesAccess(CasesAccessLevel.Manage) // equivalent to BeCasesManager
         ).WithHandledException<BusinessException>();
 
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);

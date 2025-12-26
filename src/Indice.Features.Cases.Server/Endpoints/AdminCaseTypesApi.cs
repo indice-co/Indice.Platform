@@ -24,7 +24,7 @@ internal static class AdminCaseTypesApi
         group.WithTags("AdminCaseTypes");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
 
         group.RequireAuthorization(pb => pb
             .RequireAuthenticatedUser()
@@ -33,7 +33,7 @@ internal static class AdminCaseTypesApi
             .RequireCasesAccess(CasesAccessLevel.Manage)
             ).WithHandledException<BusinessException>();
         
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)

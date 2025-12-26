@@ -1,42 +1,90 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-
-import { ToasterService, ToastType } from '@indice/ng-components';
-import { CreateDistributionListRequest, MessagesApiClient, MessageType } from 'src/app/core/services/messages-api.service';
+import { ToastType } from '@indice/ng-components';
+import { FileParameter, CreateDistributionListRequest, MessagesApiClient, MessageType } from 'src/app/core/services/messages-api.service';
+import { IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { catchError, EMPTY, finalize, map, of, switchMap } from 'rxjs';
+import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
     selector: 'app-distribution-list-create',
-    templateUrl: './distribution-list-create.component.html'
+    templateUrl: './distribution-list-create.component.html',
+    standalone: false
 })
 export class DistributionListCreateComponent implements OnInit, AfterViewInit {
-    @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
+  @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
 
-    constructor(
-        private _changeDetector: ChangeDetectorRef,
-        private _api: MessagesApiClient,
-        private _router: Router,
-        @Inject(ToasterService) private _toaster: ToasterService
-    ) { }
+  constructor(
+    private _changeDetector: ChangeDetectorRef,
+    private _api: MessagesApiClient,
+    private _router: Router,
+    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
+  ) { }
 
-    public submitInProgress = false;
-    public model = new CreateDistributionListRequest({ name: '' });
+  public form!: UntypedFormGroup;
+  public get attachment(): AbstractControl { return this.form.get('attachment')!; }
 
-    public ngOnInit(): void { }
+  public submitInProgress = false;
+  public model = new CreateDistributionListRequest({ name: '' });
 
-    public ngAfterViewInit(): void {
-        this._changeDetector.detectChanges();
+  public ngOnInit(): void {
+    this.form = new UntypedFormGroup({
+      attachment: new UntypedFormControl(false)
+    });
+  }
+
+  public ngAfterViewInit(): void {
+    this._changeDetector.detectChanges();
+  }
+
+  public onFileChange(file: IAttachment | undefined) {
+    if (!file) {
+      this.attachment.setValue(null)
+      return;
     }
+    this.attachment.setValue(<FileParameter>{
+      fileName: file.title,
+      data: file.data
+    });
+  }
 
-    public onSubmit(): void {
-        this.submitInProgress = true;
-        this._api
-            .createDistributionList(this.model)
-            .subscribe({
-                next: (messageType: MessageType) => {
-                    this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η λίστα με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
-                }
-            });
-    }
+  public onSubmit(): void {
+    // first, try to create the distribution list
+    // if creation succeeds, proceed with optionally importing the contacts from CSV
+    this.submitInProgress = true;
+    this._api
+      .createDistributionList(this.model)
+      .pipe(
+        catchError(err => {
+          this._toaster.show(ToastType.Error, 'DistributionLists.CreateErrorTitle', 'DistributionLists.CreateErrorMessage');
+          console.error('Failed to create distribution list:', err);
+          this.submitInProgress = false;
+          return EMPTY;
+        }),
+        switchMap((messageType: MessageType) => {
+          const fileAttachment: FileParameter = this.attachment.value as FileParameter;
+          if (!fileAttachment) {
+            return of(messageType)
+          }
+          return this._api
+            .bulkImportContactsToDistributionList(messageType.id as string, fileAttachment)
+            .pipe(
+              catchError(err => {
+                this._toaster.show(ToastType.Warning, 'DistributionLists.ImportContactsErrorTitle', 'DistributionLists.ImportContactsErrorMessage');
+                console.error('Import contacts error:', err);
+                return of(messageType);
+              }),
+              map(() => messageType)
+            )
+        }),
+        finalize(() => {
+          this.submitInProgress = false;
+        })
+      )
+      .subscribe((messageType: MessageType) => {
+        this._toaster.show(ToastType.Success, 'DistributionLists.CreateSuccessTitle', 'DistributionLists.CreateSuccessMessage', undefined, { name: messageType.name });
+        this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
+      });
+  }
 }

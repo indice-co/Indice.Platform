@@ -136,10 +136,7 @@
     <value>Confirm your account.</value>
   </data>
   <data name="ForgotPasswordMessageBody" xml:space="preserve">
-    <value>Follow this link to verify your email is &lt;a href="{0}" &gt;{1}&lt;a&gt;</value>
-  </data>
-  <data name="ForgotPasswordMessageSubject" xml:space="preserve">
-    <value>Forgot password</value>
+    <value>Follow &lt;a href="{0}" &gt;this link&lt;a&gt;to create your new password</value>
   </data>
   <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
     <value>Suspicious login attempt OTP code is {0}.</value>
@@ -167,54 +164,6 @@
   </data>
   <data name="OtpSecuredValidatorOtpSubject" xml:space="preserve">
     <value>OTP Verification</value>
-  </data>
-  <data name="PasswordContainsNotAllowedChars" xml:space="preserve">
-    <value>Your password contains not allowed characters.</value>
-  </data>
-  <data name="PasswordContainsNotAllowedCharsRequirement" xml:space="preserve">
-    <value>Not allowed characters.</value>
-  </data>
-  <data name="PasswordHasNonLatinChars" xml:space="preserve">
-    <value>Password cannot contain non-Latin characters.</value>
-  </data>
-  <data name="PasswordHasNonLatinCharsRequirement" xml:space="preserve">
-    <value>Does not contain non-Latin characters.</value>
-  </data>
-  <data name="PasswordIdenticalToUserName" xml:space="preserve">
-    <value>Your password looks a lot like your username which can lead to your account been hacked.</value>
-  </data>
-  <data name="PasswordIdenticalToUserNameRequirement" xml:space="preserve">
-    <value>Does not contain part of your username.</value>
-  </data>
-  <data name="PasswordIsCommon" xml:space="preserve">
-    <value>Password is very easy to guess, please choose a more complex one.</value>
-  </data>
-  <data name="PasswordIsCommonRequirement" xml:space="preserve">
-    <value>Not easy to guess.</value>
-  </data>
-  <data name="PasswordRecentlyUsed" xml:space="preserve">
-    <value>This password has been used recently. It is a good practice not to re-use your previous password.</value>
-  </data>
-  <data name="PasswordRecentlyUsedRequirement" xml:space="preserve">
-    <value>Not recently used.</value>
-  </data>
-  <data name="PasswordRequiresDigitRequirement" xml:space="preserve">
-    <value>A numeric character.</value>
-  </data>
-  <data name="PasswordRequiresLowerRequirement" xml:space="preserve">
-    <value>A lower case letter.</value>
-  </data>
-  <data name="PasswordRequiresNonAlphanumericRequirement" xml:space="preserve">
-    <value>A non-alphanumeric character.</value>
-  </data>
-  <data name="PasswordRequiresUniqueCharsRequirement" xml:space="preserve">
-    <value>{0} unique chars required.</value>
-  </data>
-  <data name="PasswordRequiresUpperRequirement" xml:space="preserve">
-    <value>An upper case letter.</value>
-  </data>
-  <data name="PasswordTooShortRequirement" xml:space="preserve">
-    <value>At least {0} characters long.</value>
   </data>
   <data name="PhoneNumberAlreadyConfirmed" xml:space="preserve">
     <value>User's phone number is already confirmed.</value>
@@ -245,5 +194,295 @@
   </data>
   <data name="PhoneVerificationSmsBody" xml:space="preserve">
     <value>OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES.</value>
+  </data>
+  <data name="ConfirmationEmailChangeSubject" xml:space="preserve">
+    <value>Change email confirmation</value>
+  </data>
+  <data name="EmailChangeMessageBody" xml:space="preserve">
+    <value>Email verification code is {0}.</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsSubject" xml:space="preserve">
+    <value>Change phone number</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsBody" xml:space="preserve">
+    <value>OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES.</value>
+  </data>
+  <data name="PhoneNumberChangeVerificationMessage" xml:space="preserve">
+    <value>SMS verification code is {0}.</value>
+  </data>
+  <data name="RegisterEmailSubject" xml:space="preserve">
+    <value>Welcome to {0}! Please confirm your email to get started.</value>
+  </data>
+  <data name="PasswordChangedEventSubject" xml:space="preserve">
+    <value>Your Password has been Changed</value>
+  </data>
+  <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
+    <value>Security Notification {0}</value>
+  </data>
+  <data name="AddEmailValidationEmailEmpty" xml:space="preserve">
+    <value>Please enter your email address so we can verify it before we continue.</value>
+  </data>
+  <data name="AddEmailConfirmationEmailSend" xml:space="preserve">
+    <value>A confirmation email has been sent to the address below.</value>
+  </data>
+  <data name="AddPhoneValidationPhoneEmpty" xml:space="preserve">
+    <value>Please select your phone number so we can verify it before we continue.</value>
+  </data>
+  <data name="ForgotPasswordMessageSubject" xml:space="preserve">
+    <value>Forgot password</value>
+  </data>
+  <data name="ForgotPasswordConfirmationError" xml:space="preserve">
+    <value>Something went wrong.</value>
+  </data>
+  <data name="LoginValidationInvalidCredentials" xml:space="preserve">
+    <value>Please check your credentials.</value>
+  </data>
+  <data name="MfaAddPhoneValidationPhoneEmpty" xml:space="preserve">
+    <value>Please select your phone number so we can verify it before we continue.</value>
+  </data>
+  <data name="MfaAddPhoneSuccessMessage" xml:space="preserve">
+    <value>You have successfully enabled MFA for your account. Login to access your account.</value>
+  </data>
+  <data name="MfaAddPhoneValidationPhoneAlreadyConfirmed" xml:space="preserve">
+    <value>Your phone number is already confirmed. Continue to enable MFA.</value>
+  </data>
+  <data name="MfaVerifyPhoneValidationMissingPhone" xml:space="preserve">
+    <value>Please enter the code that you have received at your mobile phone.</value>
+  </data>
+  <data name="MfaVerifyPhoneSuccessMessage" xml:space="preserve">
+    <value>Your phone number was successfully validated. Please press the 'Next' button to continue.</value>
+  </data>
+  <data name="PasswordChangedSuccessfully" xml:space="preserve">
+    <value>Your password has been changed successfully. Please press the 'Next' button to continue.</value>
+  </data>
+  <data name="ProfileExternalLoginAddedSuccessMessage" xml:space="preserve">
+    <value>The external login was added.</value>
+  </data>
+  <data name="RegisterPhoneConfirmationPrompt" xml:space="preserve">
+    <value>Please enter the code that you have received at your mobile phone.</value>
+  </data>
+  <data name="MfaSmsSubject" xml:space="preserve">
+    <value>OTP login</value>
+  </data>
+  <data name="MfaSmsBody" xml:space="preserve">
+    <value>Your OTP code for login is: {0}</value>
+  </data>
+  <data name="MfaValidationError" xml:space="preserve">
+    <value>The OTP code is not valid.</value>
+  </data>
+  <data name="LoginErrorLockedMessage" xml:space="preserve">
+    <value>Your account is temporarily locked. Please contact a system administrator.</value>
+  </data>
+  <data name="PasswordExpiredMessage" xml:space="preserve">
+    <value>Your password has expired. Please choose a new password.</value>
+  </data>
+  <data name="UI_Validator_AddPassword_NewPassword_FieldName" xml:space="preserve">
+    <value>New Password</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_AddPassword_ConfirmPassword_FieldName" xml:space="preserve">
+    <value>Password Confirmation</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPassword_Empty_Error" xml:space="preserve">
+    <value>Field 'New Password' should not be empty.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Field 'New Password Confirmation' should not be empty.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Field 'New Password Confirmation' should value a value equal to 'New Password'.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_AddEmail_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_AddPhone_CallingCode_FieldName" xml:space="preserve">
+    <value>Calling Code</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_AddPhone_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Phone Number</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_AddPhone_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>The field 'Phone Number' has invalid format.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_ChangePassword_OldPassword_FieldName" xml:space="preserve">
+    <value>Old Password</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPassword_FieldName" xml:space="preserve">
+    <value>New Password</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_EnableMfaSms_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Phone Number</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>The field 'Phone Number' has invalid format.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName" xml:space="preserve">
+    <value>New Password</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_Token_FieldName" xml:space="preserve">
+    <value>Token</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_ForgotPassword_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Login_UserName_FieldName" xml:space="preserve">
+    <value>User Name</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Login_Password_FieldName" xml:space="preserve">
+    <value>Password</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_FieldName" xml:space="preserve">
+    <value>Selected Authentication Method</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_Required" xml:space="preserve">
+    <value>Please select one of the available authentication methods.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Profile_UserName_FieldName" xml:space="preserve">
+    <value>Username</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Profile_UserName_InvalidFormat" xml:space="preserve">
+    <value>Field 'Username' can accept digits, uppercase or lowercase latin characters and the symbols -._@+</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Profile_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Profile_CallingCode_FieldName" xml:space="preserve">
+    <value>Calling Code</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Profile_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Mobile phone</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Profile_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>The field 'Mobile phone' has invalid format.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Profile_Tin_FieldName" xml:space="preserve">
+    <value>Tin</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Profile_Tin_InvalidFormat" xml:space="preserve">
+    <value>Invalid Tax Code.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_UserName_InvalidFormat" xml:space="preserve">
+    <value>Field 'Username' can accept digits, uppercase or lowercase latin characters and the symbols -._@+</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_UserName_AlreadyExists" xml:space="preserve">
+    <value>This username already exists. Please use a different one.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_Email_AlreadyExists" xml:space="preserve">
+    <value>This email already exists. Please use a different email.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_AcceptTerms_Message" xml:space="preserve">
+    <value>You must accept the service 'terms of use'.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_ReadPrivacyPolicy_Message" xml:space="preserve">
+    <value>You must be informed about privacy policy.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>The field 'Phone Number' has invalid format.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_FirstName_FieldName" xml:space="preserve">
+    <value>First name</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_LastName_FieldName" xml:space="preserve">
+    <value>Last name</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_UserName_FieldName" xml:space="preserve">
+    <value>Username</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_Password_FieldName" xml:space="preserve">
+    <value>Password</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_CallingCode_FieldName" xml:space="preserve">
+    <value>Calling Code</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_VerifyPhone_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Phone Number</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>The field 'Phone Number' has invalid format.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_VerifyPhone_Code_FieldName" xml:space="preserve">
+    <value>Code</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="AccountLockedEventSubject" xml:space="preserve">
+    <value>Your account has been temporarily locked</value>
+  </data>
+  <data name="AccountLockedEventDescription" xml:space="preserve">
+    <value>Your account has been temporarily locked due to multiple unsuccessful login attempts. This lock is a security measure to protect your information. Please try again later.</value>
+  </data>
+  <data name="PasswordChangedEventDescription" xml:space="preserve">
+    <value>Your password has been successfully changed.</value>
+  </data>
+  <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
+    <value>Please choose your new password to continue.</value>
+  </data>
+  <data name="MfaAddEmailValidationEmailEmpty" xml:space="preserve">
+    <value>Please select your email so we can verify it before we continue.</value>
+  </data>
+  <data name="MfaAddEmailValidationEmailAlreadyConfirmed" xml:space="preserve">
+    <value>Your email is already confirmed. Continue to enable MFA.</value>
+  </data>
+  <data name="MfaAddEmailSuccessMessage" xml:space="preserve">
+    <value>You have successfully enabled MFA for your account. Login to access your account.</value>
+  </data>
+  <data name="MfaVerifyEmailValidationMissingEmail" xml:space="preserve">
+    <value>Please enter the code that you have received at your email.</value>
+  </data>
+  <data name="MfaVerifyEmailSuccessMessage" xml:space="preserve">
+    <value>Your email was successfully validated. Please press the 'Next' button to continue.</value>
+  </data>
+  <data name="MfaEmailBody" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="MfaEmailSubject" xml:space="preserve">
+    <value>OTP login</value>
   </data>
 </root>

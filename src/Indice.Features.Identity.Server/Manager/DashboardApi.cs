@@ -1,13 +1,8 @@
-﻿using Azure.Core.GeoJson;
-using IdentityModel;
-using Indice.AspNetCore.Http.Filters;
-using Indice.Features.Identity.Server;
+﻿using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Security;
-using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Routing;
@@ -24,7 +19,7 @@ public static class DashboardApi
         group.WithTags("Dashboard");
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.Clients }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.Clients }.FilterOutNulls().ToArray();
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
@@ -51,7 +46,7 @@ public static class DashboardApi
              .CacheOutput(policy => policy.SetAuthorized(ctx => ctx.User.FindSubjectId()!)
                                           .Expire(TimeSpan.FromMinutes(5))
                                           .Tag(CacheTagPrefix))
-             .WithCacheTag(CacheTagPrefix, [], [JwtClaimTypes.Subject]);
+             .WithCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject]);
 
         group.MapGet("ui", DashboardHandlers.GetUiFeatures)
              .WithName(nameof(DashboardHandlers.GetUiFeatures))

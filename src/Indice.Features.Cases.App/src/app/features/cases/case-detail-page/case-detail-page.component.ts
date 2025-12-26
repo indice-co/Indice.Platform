@@ -7,8 +7,9 @@ import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import { CaseActions, Case, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage, CasePartial } from 'src/app/core/services/cases-api.service';
 
 @Component({
-  selector: 'app-case-detail-page',
-  templateUrl: './case-detail-page.component.html'
+    selector: 'app-case-detail-page',
+    templateUrl: './case-detail-page.component.html',
+    standalone: false
 })
 export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
@@ -80,7 +81,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
         switchMap(caseDetails =>
           iif(
             () => caseDetails.draft === true,
-            this.getCustomerData$(caseDetails), // In draft mode we must prefill the form data
+            this.initializeData$(caseDetails), // In draft mode we must prefill the form data          
             of(caseDetails)
           )
         ),
@@ -92,15 +93,14 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
       );
   }
 
-  private getCustomerData$(caseDetails: Case): Observable<Case> {
+  private initializeData$(caseDetails: Case): Observable<Case> {
     return this.api
-      .getContactData(caseDetails.ownerId ?? "", caseDetails.caseType?.code ?? "")
+      .initializeCaseData(caseDetails.id!)
       .pipe(
         map(contactData => {
           caseDetails.data = contactData;
           return caseDetails;
         }));
-
   }
 
   onActionsChanged() {

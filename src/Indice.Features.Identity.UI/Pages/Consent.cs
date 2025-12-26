@@ -1,16 +1,24 @@
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Events;
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
+#endif
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core.Scopes;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -22,22 +30,17 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseConsentModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseConsentModel> _localizer;
-    
     /// <summary>Creates a new instance of <see cref="BaseConsentModel"/> class.</summary>
     /// <param name="logger">A generic interface for logging.</param>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseConsentModel"/>.</param>
     /// <param name="eventService">Interface for the event service.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseConsentModel(
         ILogger<BaseConsentModel> logger,
-        IStringLocalizer<BaseConsentModel> localizer,
         IEventService eventService,
         IIdentityServerInteractionService interaction
     ) {
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
     }
@@ -246,10 +249,9 @@ internal class ConsentModel : BaseConsentModel
 {
     public ConsentModel(
         ILogger<ConsentModel> logger,
-        IStringLocalizer<ConsentModel> localizer,
         IEventService eventService,
         IIdentityServerInteractionService interaction
-    ) : base(logger, localizer, eventService, interaction) { }
+    ) : base(logger, eventService, interaction) { }
 }
 
 /// <summary>Represents a consent result object.</summary>

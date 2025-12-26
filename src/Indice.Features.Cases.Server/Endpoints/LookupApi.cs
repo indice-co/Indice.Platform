@@ -22,7 +22,7 @@ internal static class LookupApi
         group.WithTags("Lookup");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
 
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
@@ -31,7 +31,7 @@ internal static class LookupApi
             .RequireCasesAccess(CasesAccessLevel.Manage)
         ).WithHandledException<BusinessException>();
         
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)

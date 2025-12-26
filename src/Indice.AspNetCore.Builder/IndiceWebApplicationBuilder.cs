@@ -41,6 +41,9 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
 
     /// <inheritdoc/>
     public IServiceCollection Services => InnerBuilder.Services;
+    
+    /// <inheritdoc/>
+    public ConfigureWebHostBuilder WebHost => InnerBuilder.WebHost;
 
     /// <inheritdoc/>
     void IHostApplicationBuilder.ConfigureContainer<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory, Action<TContainerBuilder>? configure) =>
@@ -59,6 +62,9 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
     public WebApplication Build() {
         var app = InnerBuilder.Build();
 
+        if (app.Configuration.UseCertificateForwarding()) {
+            app.UseCertificateForwarding();
+        }
         if (app.Configuration.ProxyEnabled()) {
             app.UseForwardedHeaders();
             app.UseHttpMethodOverride();
@@ -74,6 +80,7 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
         if (app.Configuration.HstsEnabled()) {
             app.UseHsts();
         }
+
         app.UseCors();
         app.UseExceptionHandler();
         app.UseStatusCodePages();

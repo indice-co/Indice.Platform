@@ -54,7 +54,9 @@ public static class MediaLibraryFeatureExtensions
         services.AddPlatformEventHandler<FolderRenameCommand, FolderRenameCommandHandler>();
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
         // Register application DbContext.
-        services.AddDbContext<MediaDbContext>(apiOptions.ConfigureDbContext ?? ((serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MediaLibraryDbConnection"))));
+        services.AddDbContext<MediaDbContext>(apiOptions.ConfigureDbContext ??
+             new Action<IServiceProvider, DbContextOptionsBuilder>((serviceProvider, builder) =>
+                builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MediaLibraryDbConnection"))));
 
         services.AddDistributedMemoryCache();
         // Register Default Policy Provider.

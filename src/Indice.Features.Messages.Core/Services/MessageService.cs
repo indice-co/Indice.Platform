@@ -4,6 +4,7 @@ using HandlebarsDotNet;
 using Indice.EntityFrameworkCore.Functions;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
@@ -21,17 +22,27 @@ public class MessageService : IMessageService
     /// <summary>Creates a new instance of <see cref="MessageService"/>.</summary>
     /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
     /// <param name="campaignInboxOptions">Options used to configure the Campaigns inbox API feature.</param>
-    /// <param name="contactResolver"></param>
+    /// <param name="contactResolver">Contact resolver service</param>
+    /// <param name="contactService"></param>
+    /// <param name="messageEventQueue">Event queue</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public MessageService(CampaignsDbContext dbContext, IOptions<MessageInboxOptions> campaignInboxOptions, IContactResolver contactResolver) {
+    public MessageService(CampaignsDbContext dbContext,
+        IOptions<MessageInboxOptions> campaignInboxOptions,
+        IContactResolver contactResolver,
+        IContactService contactService,
+        MessageEventQueue messageEventQueue) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
+        ContactService = contactService;
         CampaignInboxOptions = campaignInboxOptions?.Value ?? throw new ArgumentNullException(nameof(campaignInboxOptions));
+        MessageEventQueue = messageEventQueue;
     }
 
     private CampaignsDbContext DbContext { get; }
     private MessageInboxOptions CampaignInboxOptions { get; }
     private IContactResolver ContactResolver { get; }
+    private IContactService ContactService { get; }
+    private MessageEventQueue MessageEventQueue { get; }
 
     /// <inheritdoc />
     public async Task<ResultSet<Message>?> GetList(string recipientId, ListOptions<MessagesFilter>? options) {
@@ -62,18 +73,34 @@ public class MessageService : IMessageService
             message.IsDeleted = true;
             message.DeleteDate = DateTime.UtcNow;
         } else {
-            var dbCampaign = await DbContext.Campaigns.FirstOrDefaultAsync(c => c.Id == id) ?? throw MessageExceptions.MessageNotFound(id);
-            var dbMessage = new DbMessage {
-                CampaignId = id,
-                DeleteDate = DateTime.UtcNow,
-                Id = Guid.NewGuid(),
-                IsDeleted = true,
-                RecipientId = recipientId,
-                Content = await GetMessageContent(recipientId, dbCampaign)
-            };
-            DbContext.Messages.Add(dbMessage);
+            message = await CreateMessageAndMarkAsDeleted(id, recipientId);
+        }
+
+        if (message.ContactId.HasValue) {
+            var inboxTitle = string.Empty;
+            if (message.Content.TryGetValue(MessageChannelKind.Inbox.ToString(), out var contentValue)) {
+                inboxTitle = contentValue.Title ?? "";
+            }
+            await MessageEventQueue.EnqueueAsync(new MessageEvent() {
+                CampaignId = message.CampaignId,
+                ContactId = message.ContactId.Value,
+                MessageId = message.Id,
+                Type = MessageEventType.Deleted.ToString(),
+                Channel = MessageChannelKind.Inbox.ToString(),
+                Recipient = recipientId,
+                Title = inboxTitle,
+                Success = true
+            });
         }
         await DbContext.SaveChangesAsync();
+    }
+
+    private async Task<DbMessage> CreateMessageAndMarkAsDeleted(Guid id, string recipientId) {
+        var dbMessage = await CreateMessage(id, recipientId);
+        dbMessage.DeleteDate = DateTime.UtcNow;
+        dbMessage.IsDeleted = true;
+        DbContext.Messages.Add(dbMessage);
+        return dbMessage;
     }
 
     /// <inheritdoc />
@@ -87,19 +114,60 @@ public class MessageService : IMessageService
             message.IsRead = true;
             message.ReadDate = DateTime.UtcNow;
         } else {
-            var dbCampaign = await DbContext.Campaigns.FirstOrDefaultAsync(c => c.Id == id) ?? throw MessageExceptions.MessageNotFound(id);
-            var dbMessage = new DbMessage {
-                CampaignId = id,
-                Id = Guid.NewGuid(),
-                IsRead = true,
-                ReadDate = DateTime.UtcNow,
-                RecipientId = recipientId,
-                Content = await GetMessageContent(recipientId, dbCampaign)
-            };
-            DbContext.Messages.Add(dbMessage);
+            message = await CreateMessageAndMarkAsRead(id, recipientId);
+        }
+        if (message.ContactId.HasValue) {
+            await MessageEventQueue.EnqueueAsync(new MessageEvent() {
+                CampaignId = message.CampaignId,
+                ContactId = message.ContactId.Value,
+                MessageId = message.Id,
+                Type = MessageEventType.Read.ToString(),
+                Channel = MessageChannelKind.Inbox.ToString(),
+                Recipient = recipientId,
+                Title = message.GetContentTitle(MessageChannelKind.Inbox),
+                Success = true
+            });
         }
         await DbContext.SaveChangesAsync();
     }
+
+    private async Task<DbMessage> CreateMessageAndMarkAsRead(Guid id, string recipientId) {
+        var dbMessage = await CreateMessage(id, recipientId);
+        dbMessage.IsRead = true;
+        dbMessage.ReadDate = DateTime.UtcNow;
+        DbContext.Messages.Add(dbMessage);
+        return dbMessage;
+    }
+
+    private async Task<DbMessage> CreateMessage(Guid id, string recipientId) {
+        var dbCampaign = await DbContext.Campaigns
+                                .Include(x => x.DistributionList)
+                                .FirstOrDefaultAsync(c => c.Id == id)
+            ?? throw MessageExceptions.MessageNotFound(id);
+
+        var contact = await ContactService.GetByRecipientId(recipientId);
+        if (dbCampaign.DistributionListId.HasValue) {
+            if (contact is null) {
+                var resolvedContact = await ContactResolver.Resolve(recipientId) ??
+                    throw MessageExceptions.ContantResolverNotFound(recipientId);
+                contact = await ContactService.Create(Mapper.ToCreateContactRequest(resolvedContact));
+            }
+            dbCampaign.DistributionList.ContactDistributionLists.Add(new DbDistributionListContact {
+                DistributionListId = dbCampaign.DistributionListId!.Value,
+                ContactId = contact.Id!.Value
+            });
+        }
+
+        var dbMessage = new DbMessage {
+            CampaignId = id,
+            Id = Guid.NewGuid(),
+            RecipientId = recipientId,
+            Content = GetMessageContent(dbCampaign, contact),
+            ContactId = contact?.Id,
+        };
+        return dbMessage;
+    }
+
 
     /// <inheritdoc />
     public async Task MarkAsUnread(Guid id, string recipientId) {
@@ -111,6 +179,18 @@ public class MessageService : IMessageService
             }
             message.IsRead = false;
             message.ReadDate = null;
+            if (message.ContactId.HasValue) {
+                await MessageEventQueue.EnqueueAsync(new MessageEvent() {
+                    CampaignId = message.CampaignId,
+                    ContactId = message.ContactId.Value,
+                    MessageId = message.Id,
+                    Type = MessageEventType.UnRead.ToString(),
+                    Channel = MessageChannelKind.Inbox.ToString(),
+                    Recipient = recipientId,
+                    Title = message.GetContentTitle(MessageChannelKind.Inbox),
+                    Success = true
+                });
+            }
             await DbContext.SaveChangesAsync();
         }
     }
@@ -172,7 +252,7 @@ public class MessageService : IMessageService
 
         if (searchTerm?.Length > 2) {
             query = DbContext.Database.IsSqlServer() ?
-             query.Where(x => JsonFunctions.JsonValue(x.Message.Content, $"$.{channelKindKey.ToLower()}.title").Contains(searchTerm)) :
+             query.Where(x => JsonFunctions.JsonValue(x.Message!.Content, $"$.{channelKindKey.ToLower()}.title").Contains(searchTerm)) :
              query.Where(x => x.Campaign.Title.Contains(searchTerm));
         }
 
@@ -202,6 +282,7 @@ public class MessageService : IMessageService
             Type = x.Campaign.Type != null ? new MessageType {
                 Id = x.Campaign.Type.Id,
                 Name = x.Campaign.Type.Name,
+                Alias = x.Campaign.Type.Alias,
                 Classification = x.Campaign.Type.Classification,
             } : null
         });
@@ -242,11 +323,10 @@ public class MessageService : IMessageService
         userMessage.Content = handlebars.Compile(userMessage.Content)(templateData);
     }
 
-    private async Task<MessageContentDictionary> GetMessageContent(string userIdentitfier, DbCampaign dbCampaign) {
+    private MessageContentDictionary GetMessageContent(DbCampaign dbCampaign, Contact? contact) {
         if (dbCampaign.MessageChannelKind.HasFlag(MessageChannelKind.Inbox) && dbCampaign.Content.ContainsKey(MessageChannelKind.Inbox.ToString())) {
             var handlebars = Handlebars.Create();
             handlebars.Configuration.TextEncoder = new HtmlEncoder();
-            var contact = await ContactResolver.Resolve(userIdentitfier);
             dynamic templateData = new {
                 contact = contact is not null
                             ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())

@@ -6,19 +6,27 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using IdentityModel;
-using IdentityModel.Client;
+using Duende.IdentityModel;
+using Duende.IdentityModel.Client;
+
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.ResponseHandling;
+using Duende.IdentityServer.Services;
+#else
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
+using Indice.Features.Identity.Core.TokenCreation;
+#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.ResponseHandling;
-using Indice.Features.Identity.Core.TokenCreation;
 using Indice.Features.Identity.Tests.Models;
 using Indice.Security;
 using Indice.Serialization;
@@ -35,7 +43,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
 using Xunit.Abstractions;
-using TokenResponse = IdentityModel.Client.TokenResponse;
+using TokenResponse = Duende.IdentityModel.Client.TokenResponse;
 
 namespace Indice.Features.Identity.Tests;
 
@@ -215,7 +223,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         _output = output;
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string> {
+            builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices"] = "20",
                 ["IdentityOptions:User:Devices:MaxAllowedRegisteredDevices"] = "40",
                 ["IdentityOptions:User:Devices:RequirePasswordAfterUserUpdate"] = "true",
@@ -259,7 +267,9 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 options.ImpossibleTravel.FlowType = ImpossibleTravelFlowType.PromptMfa;
             });
             services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
+#if !NET9_0_OR_GREATER
             services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
+#endif
         });
         builder.Configure(app => {
             app.UseForwardedHeaders(new() {
@@ -276,7 +286,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         };
     }
 
-    public User TestUser { get; set; }
+    public User TestUser { get; set; } = null!;
 
     public async Task InitializeAsync() {
         TestUser = await InitTestUserAsync();
@@ -295,7 +305,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         }
         var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
         Assert.True(response.IsSuccessStatusCode);
-        Assert.IsType<Guid>(responseDto.RegistrationId);
+        Assert.IsType<Guid>(responseDto?.RegistrationId);
     }
 
     [Fact]
@@ -360,7 +370,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 hasAnyError = true;
                 var responseJson = await response.Content.ReadAsStringAsync();
                 _output.WriteLine(responseJson);
-                var validation = JsonSerializer.Deserialize<ValidationProblemDetails>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
+                var validation = JsonSerializer.Deserialize<ValidationProblemDetails>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!;
                 Assert.Collection(validation.Errors.Keys, errorCode => errorCode.Contains("MaxNumberOfDevices"));
                 break;
             }
@@ -379,10 +389,13 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         if (!response.IsSuccessStatusCode) {
             Assert.Fail("Device could not be created.");
         }
+        var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        await dbContext.Entry(TestUser).ReloadAsync();
         // 3. Change username. 
         var result = await userManager.SetUserNameAsync(TestUser, "someone_new@indice.gr");
         if (!result.Succeeded) {
-            Assert.Fail("Failed to set new username.");
+            var error = result.Errors.FirstOrDefault();
+            Assert.Fail($"Failed to set new username. ErrorCode: {error?.Code}, ErrorDescription: {error?.Description}");
         }
         var device = await userManager.GetDeviceByIdAsync(TestUser, deviceId);
         if (device is null) {
@@ -392,7 +405,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         Assert.True(device.RequiresPassword);
         var responseJson = await response.Content.ReadAsStringAsync();
         var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
-        Assert.IsType<Guid>(responseDto.RegistrationId);
+        Assert.IsType<Guid>(responseDto?.RegistrationId);
 
         async Task<TokenResponse> LoginWithFingerprint(Guid registrationId) {
             var codeVerifier = GenerateCodeVerifier();
@@ -532,6 +545,10 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             }
         });
         Assert.False(tokenResponse.IsError);
+        var access_token_base64 = tokenResponse.AccessToken;
+        var access_token = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(access_token_base64);
+        var iat = access_token.IssuedAt;
+        Assert.NotEqual(default(DateTime), iat);
     }
 
     [Fact]
@@ -628,7 +645,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             await Task.Delay(TimeSpan.FromSeconds(1));
             // Each login from an impossible location should result in a bad request.
             var tokenResponse = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx", deviceId, "67.168.97.200");
-            Assert.True(tokenResponse.HttpStatusCode == HttpStatusCode.BadRequest);
+            Assert.Equal(HttpStatusCode.BadRequest, tokenResponse.HttpStatusCode);
             Assert.True(tokenResponse.AccessToken is null);
         }
     }
@@ -663,25 +680,25 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var tokenResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         var codeVerifier = GenerateCodeVerifier();
         var deviceId = Guid.NewGuid().ToString();
-        var challenge = await InitiateDeviceRegistrationUsingBiometric(tokenResponse.AccessToken, codeVerifier, deviceId);
-        var response = await CompleteDeviceRegistrationUsingBiometric(tokenResponse.AccessToken, codeVerifier, deviceId, challenge);
+        var challenge = await InitiateDeviceRegistrationUsingBiometric(tokenResponse.AccessToken!, codeVerifier, deviceId);
+        var response = await CompleteDeviceRegistrationUsingBiometric(tokenResponse.AccessToken!, codeVerifier, deviceId, challenge);
         var responseJson = await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode) {
             _output.WriteLine(responseJson);
         }
         var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
         Assert.True(response.IsSuccessStatusCode);
-        Assert.IsType<Guid>(responseDto.RegistrationId);
+        Assert.IsType<Guid>(responseDto?.RegistrationId);
         codeVerifier = GenerateCodeVerifier();
-        challenge = await InitiateDeviceRegistrationUsingPin(tokenResponse.AccessToken, codeVerifier, deviceId);
-        response = await CompleteDeviceRegistrationUsingPin(tokenResponse.AccessToken, codeVerifier, deviceId, challenge);
+        challenge = await InitiateDeviceRegistrationUsingPin(tokenResponse.AccessToken!, codeVerifier, deviceId);
+        response = await CompleteDeviceRegistrationUsingPin(tokenResponse.AccessToken!, codeVerifier, deviceId, challenge);
         responseJson = await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode) {
             _output.WriteLine(responseJson);
         }
         responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
         Assert.True(response.IsSuccessStatusCode);
-        Assert.IsType<Guid>(responseDto.RegistrationId);
+        Assert.IsType<Guid>(responseDto?.RegistrationId);
         responseDto.DeviceId = deviceId;
         return responseDto;
     }
@@ -690,8 +707,8 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var tokenResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         var codeVerifier = GenerateCodeVerifier();
         var deviceId = Guid.NewGuid().ToString();
-        var challenge = await InitiateDeviceRegistrationUsingPin(tokenResponse.AccessToken, codeVerifier, deviceId);
-        var response = await CompleteDeviceRegistrationUsingPin(tokenResponse.AccessToken, codeVerifier, deviceId, challenge);
+        var challenge = await InitiateDeviceRegistrationUsingPin(tokenResponse.AccessToken!, codeVerifier, deviceId);
+        var response = await CompleteDeviceRegistrationUsingPin(tokenResponse.AccessToken!, codeVerifier, deviceId, challenge);
         if (!response.IsSuccessStatusCode) {
             var responseJson = await response.Content.ReadAsStringAsync();
             _output.WriteLine(responseJson);
@@ -704,26 +721,26 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var tokenResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         var codeVerifier = GenerateCodeVerifier();
         var deviceId = Guid.NewGuid().ToString();
-        var challenge = await InitiateDeviceRegistrationUsingPin(tokenResponse.AccessToken, codeVerifier, deviceId);
-        var response = await CompleteDeviceRegistrationUsingPin(tokenResponse.AccessToken, codeVerifier, deviceId, challenge);
+        var challenge = await InitiateDeviceRegistrationUsingPin(tokenResponse.AccessToken!, codeVerifier, deviceId);
+        var response = await CompleteDeviceRegistrationUsingPin(tokenResponse.AccessToken!, codeVerifier, deviceId, challenge);
         var responseJson = await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode) {
             _output.WriteLine(responseJson);
         }
         var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
         Assert.True(response.IsSuccessStatusCode);
-        Assert.IsType<Guid>(responseDto.RegistrationId);
+        Assert.IsType<Guid>(responseDto?.RegistrationId);
         var pinRegistrationId = responseDto.RegistrationId;
         codeVerifier = GenerateCodeVerifier();
-        challenge = await InitiateDeviceRegistrationUsingBiometric(tokenResponse.AccessToken, codeVerifier, deviceId);
-        response = await CompleteDeviceRegistrationUsingBiometric(tokenResponse.AccessToken, codeVerifier, deviceId, challenge);
+        challenge = await InitiateDeviceRegistrationUsingBiometric(tokenResponse.AccessToken!, codeVerifier, deviceId);
+        response = await CompleteDeviceRegistrationUsingBiometric(tokenResponse.AccessToken!, codeVerifier, deviceId, challenge);
         responseJson = await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode) {
             _output.WriteLine(responseJson);
         }
         responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
         Assert.True(response.IsSuccessStatusCode);
-        Assert.IsType<Guid>(responseDto.RegistrationId);
+        Assert.IsType<Guid>(responseDto?.RegistrationId);
         var fingerprintRegistrationId = responseDto.RegistrationId;
         Assert.Equal(pinRegistrationId, fingerprintRegistrationId);
         responseDto.DeviceId = deviceId;
@@ -733,18 +750,18 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
     private async Task<HttpResponseMessage> RegisterDeviceUsingBiometric(string deviceId, string userName = "someone@indice.gr") {
         var tokenResponse = await LoginWithPasswordGrant(userName, password: "xxxxxxx");
         var codeVerifier = GenerateCodeVerifier();
-        var challenge = await InitiateDeviceRegistrationUsingBiometric(tokenResponse.AccessToken, codeVerifier, deviceId);
-        var response = await CompleteDeviceRegistrationUsingBiometric(tokenResponse.AccessToken, codeVerifier, deviceId, challenge);
+        var challenge = await InitiateDeviceRegistrationUsingBiometric(tokenResponse.AccessToken!, codeVerifier, deviceId);
+        var response = await CompleteDeviceRegistrationUsingBiometric(tokenResponse.AccessToken!, codeVerifier, deviceId, challenge);
         return response;
     }
 
     private async Task<string> InitiateDeviceAuthenticationUsingFingerprint(string codeVerifier, Guid registrationId) {
         var codeChallenge = GenerateCodeChallenge(codeVerifier);
         var data = new Dictionary<string, string> {
-            { "client_id", CLIENT_ID },
-            { "code_challenge", codeChallenge },
-            { "registration_id", registrationId.ToString() },
-            { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+            ["client_id"] = CLIENT_ID,
+            ["code_challenge"] = codeChallenge,
+            ["registration_id"] = registrationId.ToString(),
+            ["scope"] = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1"
         };
         var form = new FormUrlEncodedContent(data);
         var response = await _httpClient.PostAsync(DEVICE_AUTHORIZATION_URL, form);
@@ -753,11 +770,11 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             _output.WriteLine(responseJson);
             throw new HttpRequestException();
         }
-        var result = JsonSerializer.Deserialize<TrustedDeviceAuthorizationResultDto>(responseJson);
+        var result = JsonSerializer.Deserialize<TrustedDeviceAuthorizationResultDto>(responseJson)!;
         return result.Challenge;
     }
 
-    private async Task<TokenResponse> LoginWithPasswordGrant(string userName, string password, string deviceId = null, string ipAddress = null) {
+    private async Task<TokenResponse> LoginWithPasswordGrant(string userName, string password, string? deviceId = null, string? ipAddress = null) {
         var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
         var request = new PasswordTokenRequest {
             Address = discoveryDocument.TokenEndpoint,
@@ -796,7 +813,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             _output.WriteLine(responseJson);
             throw new HttpRequestException();
         }
-        var result = JsonSerializer.Deserialize<TrustedDeviceAuthorizationResultDto>(responseJson);
+        var result = JsonSerializer.Deserialize<TrustedDeviceAuthorizationResultDto>(responseJson)!;
         return result.Challenge;
     }
 
@@ -808,13 +825,13 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var x509SigningCredentials = GetX509SigningCredentials();
         var signature = SignMessage(challenge, x509SigningCredentials);
         var data = new Dictionary<string, string> {
-            { "code", challenge },
-            { "code_signature", signature },
-            { "code_verifier", codeVerifier },
-            { "device_id", deviceId },
-            { "device_name", "George OnePlus 7 Pro" },
-            { "device_platform", $"{DevicePlatform.Android}" },
-            { "otp", "123456" }
+            ["code"] = challenge,
+            ["code_signature"] = signature,
+            ["code_verifier"] = codeVerifier,
+            ["device_id"] = deviceId,
+            ["device_name"] = "George OnePlus 7 Pro",
+            ["device_platform"] = $"{DevicePlatform.Android}",
+            ["otp"] = "123456"
         };
         if (mode == "fingerprint") {
             data.Add("public_key", RSA_PUBLIC_KEY);
@@ -873,7 +890,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var byteConverter = new ASCIIEncoding();
         // Create byte arrays to hold original, encrypted, and decrypted data.
         var originalData = byteConverter.GetBytes(message);
-        byte[] signedData;
+        byte[]? signedData;
         // Create a new instance of the RSACryptoServiceProvider class and automatically create a new key-pair.
         using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider()) {
             rsaCryptoServiceProvider.ImportRSAPrivateKey(Convert.FromBase64String(PRIVATE_KEY.Replace("-----BEGIN RSA PRIVATE KEY-----", string.Empty).Replace("-----END RSA PRIVATE KEY-----", string.Empty)), out _);
@@ -881,11 +898,11 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             var rsaParameters = rsaCryptoServiceProvider.ExportParameters(true);
             // Hash and sign the data.
             signedData = HashAndSignBytes(originalData, rsaParameters, HashAlgorithmName.SHA256);
-            return Convert.ToBase64String(signedData);
+            return Convert.ToBase64String(signedData!);
         }
     }
 
-    private static byte[] HashAndSignBytes(byte[] dataToSign, RSAParameters rsaParameters, HashAlgorithmName hashAlgorithm) {
+    private static byte[]? HashAndSignBytes(byte[] dataToSign, RSAParameters rsaParameters, HashAlgorithmName hashAlgorithm) {
         // Create a new instance of RSACryptoServiceProvider using the key from RSAParameters.  
         using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider()) {
             try {
@@ -969,7 +986,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
     #region Helper Classes
     public class TrustedDeviceCompleteRegistrationResultDto
     {
-        public string DeviceId { get; set; }
+        public string DeviceId { get; set; } = null!;
         [JsonPropertyName("registrationId")]
         public Guid RegistrationId { get; set; }
     }

@@ -77,13 +77,17 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         @case.Draft = false;
+        // Add the public data Id to the case so the owner can retrieve her data
+        if (@case is { DataId: not null, PublicDataId: null }) {
+            @case.PublicDataId = @case.DataId;
+        }
         await DbContext.SaveChangesAsync();
         // TODO: check mapping for event payload
         await _platformEventService.Publish(new CaseSubmittedEvent(
             new Case { Id = @case.Id },
             @case.CaseType.Code,
             new UserActor {
-                Id = @case.CreatedBy.Id,
+                Id = @case.CreatedBy.Id!,
                 Reference = @case.Owner.Reference,
                 GroupId = user.GroupId,
                 Name = @case.CreatedBy.Name,
@@ -95,7 +99,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
     public async Task<Case?> GetCaseById(Guid caseId) {
         var query =
-            from c in GetCasesInternal(true, includeAttachmentData: true, SchemaSelector)
+            from c in GetCasesInternal(fetchPublicData: true, includeAttachmentData: true, SchemaSelector)
             where c.Id == caseId 
             select c;
 
@@ -310,7 +314,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
     private CaseTypePartial TranslateCaseType(CaseTypePartial caseTypePartial, string culture, bool includeTranslations) {
         var caseType = caseTypePartial.Translate(culture, includeTranslations);
         caseType.Layout = _jsonTranslationService.Translate(caseType.Layout, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
-        caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
+        caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName)!;
         return caseType;
     }
 }

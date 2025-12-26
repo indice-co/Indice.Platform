@@ -90,7 +90,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
 
     public async Task<int> MemberAccess(UserActor user, Guid caseId) {
         ArgumentNullException.ThrowIfNull(user);
-        ArgumentNullException.ThrowIfNull(caseId);
+        ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
 
         var dbcase = await _dbContext.Cases
                 .AsNoTracking()

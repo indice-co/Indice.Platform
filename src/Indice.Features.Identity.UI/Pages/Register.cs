@@ -1,12 +1,18 @@
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+using Duende.IdentityServer;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+#else
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+#endif
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
-using Indice.Globalization;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -25,6 +31,7 @@ public abstract class BaseRegisterModel : BasePageModel
 {
     /// <summary>Creates a new instance of <see cref="BaseRegisterModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
+    /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="schemeProvider">Responsible for managing what authentication schemes are supported.</param>
     /// <param name="clientStore">Retrieval of client configuration.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
@@ -33,6 +40,7 @@ public abstract class BaseRegisterModel : BasePageModel
     /// <exception cref="ArgumentNullException"></exception>
     public BaseRegisterModel(
         ExtendedUserManager<User> userManager,
+        ExtendedSignInManager<User> signInManager,
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
@@ -40,6 +48,7 @@ public abstract class BaseRegisterModel : BasePageModel
         IOptions<IdentityUIOptions> identityUiOptions
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         SchemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
         ClientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
@@ -49,6 +58,9 @@ public abstract class BaseRegisterModel : BasePageModel
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
+    /// <summary>Provides the APIs for user sign in.</summary>
+    protected ExtendedSignInManager<User> SignInManager { get; }
+
     /// <summary>Responsible for managing what authentication schemes are supported.</summary>
     protected IAuthenticationSchemeProvider SchemeProvider { get; }
     /// <summary>Retrieval of client configuration.</summary>
@@ -99,8 +111,13 @@ public abstract class BaseRegisterModel : BasePageModel
             AddModelErrors(result);
             return Page();
         }
-        await SendConfirmationEmail(user, Input.ReturnUrl);
+        await SendRegistrationEmail(user, Input.ReturnUrl);
         Logger.LogInformation(3, "User created a new account with password.");
+        if (UiOptions.AutomaticSigninAfterRegister) {
+            var signinResult = await SignInManager.PasswordSignInAsync(user, Input.Password, isPersistent: false, lockoutOnFailure: true);
+            TempData.Clear();
+            return await TryLogin(signinResult, Input.ReturnUrl!);
+        }
         if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
             return RedirectToPage("/Login", new { returnUrl = Input.ReturnUrl });
         }
@@ -123,11 +140,11 @@ public abstract class BaseRegisterModel : BasePageModel
                 UserName = context.LoginHint,
             };
             if (!local) {
-                viewModel.ExternalProviders = new[] {
+                viewModel.ExternalProviders = [
                     new ExternalProviderModel {
                         AuthenticationScheme = context.IdP
                     }
-                };
+                ];
             }
             return viewModel;
         }
@@ -145,7 +162,7 @@ public abstract class BaseRegisterModel : BasePageModel
             if (client is not null) {
                 enableLocalLogin = client.EnableLocalLogin;
                 if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
-                    providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
+                    providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme!)).ToList();
                 }
             }
         }
@@ -187,13 +204,13 @@ public abstract class BaseRegisterModel : BasePageModel
             });
         }
         user.Claims.Add(new() {
-            ClaimType = BasicClaimTypes.ConsentCommercial,
-            ClaimValue = input.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+            ClaimType = JwtClaimTypes.Locale,
+            ClaimValue = RequestCulture.Culture.TwoLetterISOLanguageName,
             UserId = user.Id
         });
         user.Claims.Add(new() {
             ClaimType = BasicClaimTypes.ConsentTerms,
-            ClaimValue = input.HasReadPrivacyPolicy ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+            ClaimValue = input.HasAcceptedTerms && input.HasReadPrivacyPolicy ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
             UserId = user.Id
         });
         user.Claims.Add(new() {
@@ -201,11 +218,18 @@ public abstract class BaseRegisterModel : BasePageModel
             ClaimValue = $"{DateTime.UtcNow:O}",
             UserId = user.Id
         });
-        user.Claims.Add(new() {
-            ClaimType = BasicClaimTypes.ConsentCommercialDate,
-            ClaimValue = $"{DateTime.UtcNow:O}",
-            UserId = user.Id
-        });
+        if (input.HasConsentedToCommercialCommunications) {
+            user.Claims.Add(new() {
+                ClaimType = BasicClaimTypes.ConsentCommercial,
+                ClaimValue = input.HasConsentedToCommercialCommunications ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+                UserId = user.Id
+            });
+            user.Claims.Add(new() {
+                ClaimType = BasicClaimTypes.ConsentCommercialDate,
+                ClaimValue = $"{DateTime.UtcNow:O}",
+                UserId = user.Id
+            });
+        }
         foreach (var attribute in Input.Claims) {
             if (string.IsNullOrWhiteSpace(attribute.Value)) {
                 continue;
@@ -216,6 +240,7 @@ public abstract class BaseRegisterModel : BasePageModel
                 UserId = user.Id
             });
         }
+        UiOptions.Events.OnUserRegistering?.Invoke(new UIPageRegisteringUserContext(HttpContext, user, input));
         return user;
     }
 }
@@ -224,10 +249,11 @@ internal class RegisterModel : BaseRegisterModel
 {
     public RegisterModel(
         ExtendedUserManager<User> userManager,
+        ExtendedSignInManager<User> signInManager,
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
         ILogger<RegisterModel> logger,
         IOptions<IdentityUIOptions> identityUiOptions
-    ) : base(userManager, schemeProvider, clientStore, interaction, logger, identityUiOptions) { }
+    ) : base(userManager, signInManager, schemeProvider, clientStore, interaction, logger, identityUiOptions) { }
 }

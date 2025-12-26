@@ -1,12 +1,19 @@
 ﻿using System;
+#if NET9_0_OR_GREATER
+using IdSrvModels = Duende.IdentityServer.Models;
+using Duende.IdentityServer.EntityFramework.Entities;
+using Duende.IdentityServer.EntityFramework.Options;
+using Duende.IdentityServer.Services;
+#else
+using IdSrvModels = IdentityServer4.Models;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Options;
-using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
+#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Grants;
-using Indice.Features.Identity.Core.ResponseHandling;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
@@ -34,6 +41,15 @@ public static class IdentityServerBuilderExtensions
     /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
     public static IIdentityServerBuilder AddOtpAuthenticateGrantValidator(this IIdentityServerBuilder builder) {
         builder.AddExtensionGrantValidator<OtpAuthenticateExtensionGrantValidator>();
+        return builder;
+    }
+
+    /// <summary>Adds a custom event handler to invalidate the client store cache when a client is created, updated or deleted.</summary>
+    /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
+    /// <returns>The builder for further configuration.</returns>
+    public static IIdentityServerBuilder AddClientStoreCacheInvalidation(this IIdentityServerBuilder builder) {
+        builder.Services.AddPlatformEventHandler<ClientUpdatedEvent, ClientCacheInvalidationEventHandler>();
+        builder.Services.AddPlatformEventHandler<ClientDeletedEvent, ClientCacheInvalidationEventHandler>();
         return builder;
     }
 
@@ -96,6 +112,9 @@ public static class IdentityServerBuilderExtensions
         options.IdentityResource = new TableConfiguration(nameof(IdentityResource));
         options.IdentityResourceClaim = new TableConfiguration(nameof(IdentityResourceClaim));
         options.IdentityResourceProperty = new TableConfiguration(nameof(IdentityResourceProperty));
+#if NET9_0_OR_GREATER
+        options.IdentityProvider = new TableConfiguration(nameof(IdentityProvider));
+#endif
     }
 
     /// <summary>Setup operational store.</summary>
@@ -103,6 +122,11 @@ public static class IdentityServerBuilderExtensions
     public static void SetupTables(this OperationalStoreOptions options) {
         options.DefaultSchema = "auth";
         options.PersistedGrants = new TableConfiguration(nameof(PersistedGrant));
-        options.DeviceFlowCodes = new TableConfiguration(nameof(IdentityServer4.Models.DeviceCode));
+        options.DeviceFlowCodes = new TableConfiguration(nameof(IdSrvModels.DeviceCode));
+#if NET9_0_OR_GREATER
+        options.ServerSideSessions = new TableConfiguration(nameof(IdSrvModels.ServerSideSession));
+        options.Keys = new TableConfiguration(nameof(Key));
+        options.PushedAuthorizationRequests = new TableConfiguration(nameof(PushedAuthorizationRequest));
+#endif
     }
 }

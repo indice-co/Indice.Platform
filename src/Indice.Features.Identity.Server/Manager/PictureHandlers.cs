@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using IdentityModel;
+using Duende.IdentityModel;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -170,6 +170,11 @@ internal static partial class PictureHandlers
         }
         if (stream is null) {
             if (fallbackUrl is not null && fallbackUrl.StartsWith("/avatar/")) {
+                var parts = fallbackUrl.Replace("/avatar/", "").Split('/');
+                if (parts.Length > 0) {
+                    parts[0] = parts[0].Replace('?', '_').Trim('_');
+                    fallbackUrl = $"/avatar/{string.Join('/', parts)}";
+                }
                 return TypedResults.LocalRedirect(UriHelper.Encode(new Uri(fallbackUrl, UriKind.RelativeOrAbsolute)));
             }
             return TypedResults.NotFound();

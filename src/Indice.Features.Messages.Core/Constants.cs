@@ -9,7 +9,9 @@ public static class MessagesApi
     /// <summary>Authentication scheme name used by Messages API.</summary>
     public const string AuthenticationScheme = "Bearer";
     /// <summary>Messages API scope.</summary>
-    public const string Scope = "messages";
+    public const string Scope = "messages";    
+    /// <summary>Send API scope.</summary>
+    public const string SendScope = "messages:send";
     /// <summary>Default database schema.</summary>
     public const string DatabaseSchema = "cmp";
 
@@ -36,6 +38,10 @@ public static class EventNames
     public const string SendEmail = "campaign-send-email";
     /// <summary>Name for the queue that stores events for delivering SMS.</summary>
     public const string SendSms = "campaign-send-sms";
+    /// <summary>Name for the event that is raised when user trigger mark all as read.</summary>
+    public const string MarkAllAsRead = "my-messages-mark-all-read";
+    /// <summary>Name for the event that is raised when user trigger mark all as unread.</summary>
+    public const string MarkAllAsUnread = "my-messages-mark-all-unread";
 }
 
 /// <summary>Placeholder for prefixing Messages API endpoints.</summary>

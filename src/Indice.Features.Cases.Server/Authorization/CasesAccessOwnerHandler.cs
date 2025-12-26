@@ -3,7 +3,6 @@ using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Services.Abstractions;
-using Indice.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -14,17 +13,14 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Authorization;
 
-
-
 /// <summary>This authorization requirement specifies that an endpoint must be accessible only to case Owners.</summary>
-public class CasesAccessOwnerHandler: AuthorizationHandler<CasesOwnerAccessRequirement>, IAuthorizationRequirement
-{
-
+public class CasesAccessOwnerHandler : AuthorizationHandler<CasesOwnerAccessRequirement>, IAuthorizationRequirement {
     private readonly IDistributedCache _cache;
     private readonly CasesDbContext dbContext;
     private readonly ILogger<CasesAccessOwnerHandler> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly CasesOptions _casesOptions;
+
     /// <summary>
     /// Creates a new instance of <see cref="CasesAccessOwnerHandler"/>.
     /// </summary>
@@ -73,7 +69,6 @@ public class CasesAccessOwnerHandler: AuthorizationHandler<CasesOwnerAccessRequi
         }
     }
 
-
     private async Task<bool> CheckOwnershipAsync(UserActor actor, Guid caseId) {
         var isOwner = false;
         var cacheKey = $"owner:{actor.Id}-caseId:{caseId}";
@@ -83,12 +78,10 @@ public class CasesAccessOwnerHandler: AuthorizationHandler<CasesOwnerAccessRequi
             bool.TryParse(value, out isOwner);
             return isOwner;
         }
-        isOwner = await dbContext.Cases.AnyAsync(c => c.Id == caseId && c.Owner.UserId == actor.Id);
+        isOwner = await dbContext.Cases.AnyAsync(c => c.Id == caseId && (c.Owner.UserId == actor.Id || c.CreatedBy.Id == actor.Id));
         // Add to cache. 
         var cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(60));
         await _cache.SetStringAsync(cacheKey, $"{isOwner}", cacheEntryOptions);
         return isOwner;
     }
 }
-
-

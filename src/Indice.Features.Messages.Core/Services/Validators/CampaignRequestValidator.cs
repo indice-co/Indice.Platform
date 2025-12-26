@@ -57,14 +57,15 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
             .WithMessage($"Campaign action text cannot exceed {TextSizePresets.M128} characters.");
         RuleFor(campaign => campaign.ActionLink!.Href)
             .MaximumLength(TextSizePresets.L1024)
-            .Matches(@"^https?:\/\/\w+(\.\w+)*(:[0-9]+)?(\/.*)?$")
+            .Must(href => Uri.IsWellFormedUriString(href, UriKind.Absolute) && 
+                (href!.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || href.StartsWith("https://", StringComparison.OrdinalIgnoreCase)))
             .When(x => !string.IsNullOrWhiteSpace(x.ActionLink?.Href))
             .WithMessage($"Campaign action URL is not valid.");
     }
 
     private bool BeExistingTypeId(GuidOrAlias? id) => _messageTypeService.GetById(id).Result is not null;
 
-    private bool BeExistingDistributionListId(Guid? id) => _distributionListService.GetById(id).Result is not null;
+    private bool BeExistingDistributionListId(GuidOrAlias? id) => _distributionListService.GetById(id).Result is not null;
 
     private bool BeExistingTemplateId(GuidOrAlias? id) => _templateService.GetById(id).Result is not null;
 }

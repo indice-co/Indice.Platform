@@ -4,7 +4,7 @@ using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Data;
 using Indice.Features.Identity.SignInLogs.Models;
-using Indice.Features.Identity.SignInLogs.Services;
+using Indice.Features.GeoIP;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -15,8 +15,8 @@ namespace Indice.Features.Identity.SignInLogs.ImpossibleTravel;
 /// <typeparam name="TUser"></typeparam>
 public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> where TUser : User
 {
-    private readonly IPAddressLocator _ipAddressLocator;
-    private readonly ISignInLogStore _signInLogStore;
+    private readonly IPAddressLocator? _ipAddressLocator;
+    private readonly ISignInLogStore? _signInLogStore;
     private readonly SignInLogOptions _signInLogOptions;
 
     /// <summary></summary>
@@ -26,8 +26,8 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
     /// <exception cref="ArgumentNullException"></exception>
     public ImpossibleTravelDetector(
         IOptions<SignInLogOptions> options,
-        IPAddressLocator ipAddressLocator = null,
-        ISignInLogStore signInLogStore = null) {
+        IPAddressLocator? ipAddressLocator = null,
+        ISignInLogStore? signInLogStore = null) {
         _signInLogOptions = options.Value ?? throw new ArgumentNullException(nameof(options));
         _ipAddressLocator = ipAddressLocator;
         _signInLogStore = signInLogStore;
@@ -37,7 +37,7 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
     public ImpossibleTravelFlowType FlowType => _signInLogOptions.ImpossibleTravel.FlowType;
 
     /// <inheritdoc />
-    public async Task<bool> IsImpossibleTravelLogin(HttpContext httpContext, TUser user) {
+    public async Task<bool> IsImpossibleTravelLogin(HttpContext? httpContext, TUser? user) {
         if (_ipAddressLocator is null || _signInLogStore is null || httpContext is null || user is null) {
             return false;
         }
@@ -51,6 +51,7 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
                 SignInType = SignInType.Interactive,
                 Subject = user.Id,
                 To = DateTimeOffset.UtcNow,
+                From = DateTimeOffset.UtcNow.AddDays(-_signInLogOptions.ImpossibleTravel.LookBackPeriodInDays),
                 ActionName = "User Login Success"
             }
         ))
@@ -68,8 +69,7 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
         if (currentLoginCoordinates is null || previousLoginCoordinates is null) {
             return false;
         }
-        var distanceBetweenLogins = currentLoginCoordinates.Distance(previousLoginCoordinates);
-        var travelSpeed = distanceBetweenLogins / (DateTimeOffset.UtcNow - previousLogin.CreatedAt).TotalHours;
+        var travelSpeed = currentLoginCoordinates.TravelSpeed(previousLoginCoordinates, previousLogin.CreatedAt, DateTimeOffset.UtcNow);
         return travelSpeed > _signInLogOptions.ImpossibleTravel.AcceptableSpeed;
     }
 }

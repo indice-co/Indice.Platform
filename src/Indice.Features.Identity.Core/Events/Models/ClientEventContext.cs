@@ -1,4 +1,10 @@
-﻿using IdentityServer4.Models;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Models;
+using IdSrvEF = Duende.IdentityServer.EntityFramework.Entities;
+#else
+using IdentityServer4.Models;
+using IdSrvEF = IdentityServer4.EntityFramework.Entities;
+#endif
 
 namespace Indice.Features.Identity.Core.Events.Models;
 
@@ -108,9 +114,9 @@ public class ClientEventContext
     /// <summary>Gets or sets the custom properties for the client.</summary>
     public IDictionary<string, string> Properties { get; private set; } = new Dictionary<string, string>();
 
-    /// <summary>Creates a new <see cref="ClientEventContext"/> instance given a <see cref="Client"/> entity.</summary>
+    /// <summary>Creates a new <see cref="ClientEventContext"/> instance given a <see cref="IdSrvEF.Client"/> entity.</summary>
     /// <param name="client">The client entity.</param>
-    public static ClientEventContext InitializeFromClient(IdentityServer4.EntityFramework.Entities.Client client) => new() {
+    public static ClientEventContext InitializeFromClient(IdSrvEF.Client client) => new() {
         AbsoluteRefreshTokenLifetime = client.AbsoluteRefreshTokenLifetime,
         AccessTokenLifetime = client.AccessTokenLifetime,
         AccessTokenType = (AccessTokenType)client.AccessTokenType,
@@ -158,6 +164,18 @@ public class ClientEventContext
         UpdateAccessTokenClaimsOnRefresh = client.UpdateAccessTokenClaimsOnRefresh,
         UserCodeType = client.UserCodeType,
         UserSsoLifetime = client.UserSsoLifetime
+    };
+    
+    /// <summary>Creates a new <see cref="ClientEventContext"/> instance given a <see cref="Client"/> entity.</summary>
+    /// <param name="client">The client entity.</param>
+    public static ClientEventContext InitializeFromClient(Client client) => new() {
+        Claims = client.Claims?.Select(claim => new ClientClaimEventContext(claim.Type, claim.Value)).ToList() ?? [],
+        ClientId = client.ClientId,
+        ClientName = client.ClientName,
+        ClientUri = client.ClientUri,
+        Description = client.Description,
+        Enabled = client.Enabled,
+        LogoUri = client.LogoUri
     };
 }
 

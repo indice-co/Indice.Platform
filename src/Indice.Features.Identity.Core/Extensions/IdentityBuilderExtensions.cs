@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core;
+﻿using System.Diagnostics.CodeAnalysis;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -12,6 +13,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+
+#if NET9_0_OR_GREATER
+using Indice.Features.Identity.Core.TokenCleanup;
+using Duende.IdentityServer.EntityFramework;
+using Duende.IdentityServer.Services;
+#endif
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -222,8 +229,8 @@ public static class IdentityBuilderExtensions
 
     /// <summary>Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.</summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
-    /// <remarks>The <see cref="LocalizedIdentityMessageDescriber"/> is registered.</remarks>
-    public static IdentityBuilder AddIdentityMessageDescriber(this IdentityBuilder builder) => builder.AddIdentityMessageDescriber<LocalizedIdentityMessageDescriber>();
+    /// <remarks>The <see cref="IdentityMessageDescriber"/> is registered to defaults.</remarks>
+    public static IdentityBuilder AddIdentityMessageDescriber(this IdentityBuilder builder) => builder.AddIdentityMessageDescriber<IdentityMessageDescriber>();
 
     /// <summary>Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.</summary>
     /// <typeparam name="TDescriber">The type of message describer.</typeparam>
@@ -233,8 +240,47 @@ public static class IdentityBuilderExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Adds an <see cref="ExtendedIdentityErrorDescriber"/>.
+    /// </summary>
+    /// <typeparam name="TDescriber">The type of the error describer.</typeparam>
+    /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
+    public static IdentityBuilder AddExtendedErrorDescriber<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TDescriber>(this IdentityBuilder builder) where TDescriber : ExtendedIdentityErrorDescriber {
+        builder.Services.AddScoped<IdentityErrorDescriber, TDescriber>();
+        builder.Services.AddScoped<ExtendedIdentityErrorDescriber, TDescriber>();
+        return builder;
+    }
+
     /// <summary>Adds an <see cref="IdentityErrorDescriber"/>.</summary>
     /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
-    /// <remarks>The <see cref="LocalizedIdentityErrorDescriber"/> is registered.</remarks>
-    public static IdentityBuilder AddErrorDescriber(this IdentityBuilder builder) => builder.AddErrorDescriber<LocalizedIdentityErrorDescriber>();
+    /// <remarks>The <see cref="ExtendedIdentityErrorDescriber"/> is registered.</remarks>
+    public static IdentityBuilder AddExtendedErrorDescriber(this IdentityBuilder builder) {
+        builder.AddExtendedErrorDescriber<ExtendedIdentityErrorDescriber>();
+        return builder;
+    }
+
+#if NET9_0_OR_GREATER
+    /// <summary>
+    /// Registers an alternative implementation of <see cref="TokenCleanupService"/>   
+    /// that user an alternative way to delete records and removes events. 
+    /// </summary>
+    /// <param name="builder">instance</param>
+    /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
+    public static IdentityBuilder AddFastCleanUpService(this IdentityBuilder builder) {
+        builder.Services.AddTransient<ITokenCleanupService, FastTokenCleanupService>();
+        return builder;
+    }
+
+    /// <summary>
+    /// Registers an alternative implementation of <see cref="ICache{T}"/> using <c>HybridCache</c>
+    /// </summary>
+    /// <param name="builder">instance</param>
+    /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
+    public static IdentityBuilder AddHybridCache(this IdentityBuilder builder) {
+        // Add HybridCache service
+        builder.Services.AddHybridCache();
+        builder.Services.AddTransient(typeof(ICache<>), typeof(DuendeHybridCache<>));
+        return builder;
+    }
+#endif
 }

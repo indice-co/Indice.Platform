@@ -1,8 +1,18 @@
 ﻿using System.Collections.Specialized;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
+#endif
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;

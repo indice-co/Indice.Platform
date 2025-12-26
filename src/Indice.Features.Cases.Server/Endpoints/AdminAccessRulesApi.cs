@@ -27,7 +27,7 @@ internal static class AdminAccessRulesApi
         var group = routes.MapGroup($"{options.PathPrefix.Value!.Trim('/')}/manage");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
         group.RequireAuthorization(pb => pb
                 .RequireAuthenticatedUser()
                 .AddAuthenticationSchemes("Bearer")
@@ -35,7 +35,7 @@ internal static class AdminAccessRulesApi
                 .RequireCasesAccess(CasesAccessLevel.Manage))
             .WithHandledException<BusinessException>(); // equivalent to BeCasesManager
 
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)

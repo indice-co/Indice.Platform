@@ -4,7 +4,6 @@ using Elsa.Attributes;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Features.Cases.Workflows.Integrations;
-using CaseApproval = Indice.Features.Cases.Workflows.Integrations.CaseApproval;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -19,18 +18,14 @@ internal class BlockPreviousApproverActivity(ICasesManager casesManager) : BaseC
 {
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        
+
         var lastApproval = await CasesManager.GetLastApproval(CaseId.Value);
-        if (lastApproval == null) {
-            return Outcome(OutcomeNames.False);
-        }
-        
-        if (context.TryGetLastActor().Id != lastApproval.CreatedBy.Id) {
+        if (lastApproval == null || context.TryGetLastActor().Id != lastApproval.CreatedBy.Id) {
             return Outcome(OutcomeNames.False);
         }
 
         await CasesManager.BlockPreviousApprover(CaseId.Value, context.TryGetLastActor());
-        
+
         return Outcome(OutcomeNames.True);
     }
 }

@@ -1,11 +1,14 @@
-﻿using System.Text;
+﻿using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using Indice.AspNetCore.Authorization;
 using Indice.Extensions;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Tests.Mocks;
 using Indice.Features.Messages.Tests.Security;
 using Indice.Serialization;
@@ -30,19 +33,19 @@ public class MessagesIntegrationTests : IAsyncLifetime
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
-    private ServiceProvider _serviceProvider;
+    private ServiceProvider _serviceProvider = null!;
 
     public MessagesIntegrationTests(ITestOutputHelper output) {
         _output = output;
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string> {
+            builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
                 ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true"
             });
         });
         builder.ConfigureServices(services => {
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+            var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
             services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
             services.AddRouting();
             services.AddMessaging(options => {
@@ -58,7 +61,6 @@ public class MessagesIntegrationTests : IAsyncLifetime
                         options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
                     })
                     .AddMock(() => DummyPrincipals.IndiceUser);
-            _serviceProvider = services.BuildServiceProvider();
         });
         builder.Configure(app => {
             app.UseAuthentication();
@@ -71,6 +73,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
+        _serviceProvider = (ServiceProvider)server.Services;
     }
 
     [Fact]
@@ -114,7 +117,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         }
 
         //assert
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
         var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
         if (!getCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(getCampaignResponseJson);
@@ -132,7 +135,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         var expectedContentMessageKinds = createTemplateRequest.Content.Select(cnt => cnt.Key);
         Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
         Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
-        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.GetFlagValues().Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.Count());
     }
 
     [Fact]
@@ -167,7 +170,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Published = false,
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
             MessageTemplateId = new GuidOrAlias(templateAlias),
-            MessageTemplateChannels = MessageChannelKind.Email | MessageChannelKind.PushNotification
+            MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.PushNotification]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
@@ -177,7 +180,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         }
 
         //assert
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
         var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
         if (!getCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(getCampaignResponseJson);
@@ -192,10 +195,10 @@ public class MessagesIntegrationTests : IAsyncLifetime
 
         Assert.NotNull(campaignDetails);
         var actualContentMessageKinds = campaignDetails.Content.Select(cnt => cnt.Key);
-        var expectedContentMessageKinds = createCampaignRequest.MessageTemplateChannels.Value.GetFlagValues().Select(v => v.ToString());
+        var expectedContentMessageKinds = createCampaignRequest.MessageTemplateChannels.Select(v => v.ToString());
         Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
         Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
-        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.GetFlagValues().Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.Count());
     }
 
     [Fact]
@@ -230,7 +233,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Published = false,
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
             MessageTemplateId = new GuidOrAlias(templateAlias),
-            MessageTemplateChannels = MessageChannelKind.Email | MessageChannelKind.Inbox
+            MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.Inbox]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
@@ -240,7 +243,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         }
 
         //assert
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
         var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
         if (!getCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(getCampaignResponseJson);
@@ -258,7 +261,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         var expectedContentMessageKinds = new string[] { MessageChannelKind.Email.ToString() };
         Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
         Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
-        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.GetFlagValues().Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.Count());
     }
 
     [Fact]
@@ -292,7 +295,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Published = false,
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
             MessageTemplateId = new GuidOrAlias(templateAlias),
-            MessageTemplateChannels = MessageChannelKind.Inbox | MessageChannelKind.SMS
+            MessageTemplateChannels = [MessageChannelKind.Inbox, MessageChannelKind.SMS]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
@@ -331,7 +334,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         }
 
         //Retrieve the Created Campaign
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
         var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
         if (!getCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(getCampaignResponseJson);
@@ -361,6 +364,132 @@ public class MessagesIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task BulkAddToDistributionList_ExistingContactByRecipientId_AddsIfNotExists() {
+        //Create distribution list
+        var createDistributionListRequest = new CreateDistributionListRequest {
+            Name = "Test-Distribution-List"
+        };
+        var createDistributionListPayload = JsonSerializer.Serialize(createDistributionListRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json"));
+        var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync();
+        if (!createDistributionListResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createDistributionListResponseJson);
+        }
+
+        var distributionListLocation = createDistributionListResponse.Headers.Location;
+        var distributionListId = Guid.Parse(distributionListLocation!.Segments.Last());
+
+        // Generate import request
+        var csvLines = new[]
+        {
+            "RecipientId,Salutation,FirstName,LastName,FullName,Email,PhoneNumber,Locale",
+            "ABC123,Mr,John,Doe,John Doe,test@example.com,1234567890,en-US"
+        };
+        var csvContent = string.Join("\n", csvLines);
+        var csvBytes = Encoding.UTF8.GetBytes(csvContent);
+        var byteArrayContent = new ByteArrayContent(csvBytes);
+        byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+
+        var form = new MultipartFormDataContent {
+            { byteArrayContent, "File", "contacts.csv" }
+        };
+
+        var response = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/import", form);
+
+        var context = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        var contactInDb = await context.Contacts.FirstOrDefaultAsync(c => c.RecipientId == "ABC123");
+        Assert.NotNull(contactInDb);
+        Assert.Equal("test@example.com", contactInDb!.Email);
+
+        var link = await context.ContactDistributionLists
+            .FirstOrDefaultAsync(x => x.DistributionListId == distributionListId && x.ContactId == contactInDb.Id);
+
+        Assert.NotNull(link);
+    }
+
+    [Fact]
+    public async Task BulkAddToDistributionList_ExistingContactByEmailWithoutRecipientId_UpdatesContact() {
+        var context = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        var list = new DbDistributionList { Id = Guid.NewGuid(), Name = "test-list", CreatedBy = "user1" };
+        var contact = new DbContact {
+            Email = "match@example.com",
+            FirstName = "Old",
+            LastName = "Name",
+            RecipientId = null
+        };
+        context.DistributionLists.Add(list);
+        context.Contacts.Add(contact);
+        await context.SaveChangesAsync();
+
+        var link = new DbDistributionListContact {
+            ContactId = contact.Id,
+            DistributionListId = list.Id
+        };
+        context.ContactDistributionLists.Add(link);
+        await context.SaveChangesAsync();
+
+        var requests = new List<CreateDistributionListContactRequest>
+        {
+            new()
+            {
+                RecipientId = null,
+                Email = "match@example.com",
+                FirstName = "Updated",
+                LastName = "Name",
+                PhoneNumber = "1234567890"
+            }
+        };
+
+        var service = _serviceProvider.GetRequiredService<IContactService>();
+        await service.BulkAddToDistributionList(list.Id, requests);
+
+        var updated = await context.Contacts.FirstOrDefaultAsync(c => c.Email == "match@example.com");
+        Assert.NotNull(updated);
+        Assert.Equal("Updated", updated!.FirstName);
+        Assert.Equal("1234567890", updated.PhoneNumber);
+    }
+
+    [Fact]
+    public async Task BulkAddToDistributionList_ExistingContactByRecipientId_AlreadyLinked_SkipsAdd() {
+        var context = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        var list = new DbDistributionList { Id = Guid.NewGuid(), Name = "test-list2", CreatedBy = "user1" };
+        var contact = new DbContact {
+            RecipientId = "EXIST123",
+            Email = "exist@example.com",
+            FirstName = "Already",
+            LastName = "There"
+        };
+        context.DistributionLists.Add(list);
+        context.Contacts.Add(contact);
+        await context.SaveChangesAsync();
+
+        var link = new DbDistributionListContact {
+            ContactId = contact.Id,
+            DistributionListId = list.Id
+        };
+        context.ContactDistributionLists.Add(link);
+        await context.SaveChangesAsync();
+
+        var requests = new List<CreateDistributionListContactRequest>
+        {
+            new()
+            {
+                RecipientId = "EXIST123",
+                Email = "exist@example.com",
+                FirstName = "Should",
+                LastName = "BeIgnored"
+            }
+        };
+
+        var service = _serviceProvider.GetRequiredService<IContactService>();
+        await service.BulkAddToDistributionList(list.Id, requests);
+
+        var duplicates = await context.ContactDistributionLists
+            .CountAsync(x => x.ContactId == contact.Id && x.DistributionListId == list.Id);
+        Assert.Equal(1, duplicates);
+    }
+
+    [Fact]
     public async Task Create_Distribution_List_And_Add_Contacts_With_Comminication_Preferences_Success() {
         //Create Distribution List
         var createDistributionListRequest = new CreateDistributionListRequest {
@@ -381,10 +510,10 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Email = "test@email.gr",
             PhoneNumber = "1234567890",
             Salutation = "Mr",
-            CommunicationPreferences = ContactChannelKind.Any | ContactChannelKind.Email
+            //CommunicationPreferences = ContactChannelKind.Any | ContactChannelKind.Email
         };
         var addContactPayload = JsonSerializer.Serialize(addContactRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));
+        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));
         var addContactResponseJson = await addContactResponse.Content.ReadAsStringAsync();
         if (!addContactResponse.IsSuccessStatusCode) {
             _output.WriteLine(addContactResponseJson);
@@ -394,12 +523,12 @@ public class MessagesIntegrationTests : IAsyncLifetime
 
         var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
-        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/contacts");
+        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts");
         var getDistributionListResponseJson = await getDistributionListResponse.Content.ReadAsStringAsync();
         if (!getDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(getDistributionListResponseJson);
         }
-        var distributionListContacts = JsonSerializer.Deserialize<ResultSet<Contact>>(getDistributionListResponseJson, serializationOptions);
+        var distributionListContacts = JsonSerializer.Deserialize<ResultSet<Contact>>(getDistributionListResponseJson, serializationOptions)!;
 
         Assert.True(createDistributionListResponse.IsSuccessStatusCode);
         Assert.True(addContactResponse.IsSuccessStatusCode);
@@ -430,7 +559,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Salutation = "Mr"
         };
         var addContactPayload = JsonSerializer.Serialize(addContactRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));
+        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));
         var addContactResponseJson = await addContactResponse.Content.ReadAsStringAsync();
         if (!addContactResponse.IsSuccessStatusCode) {
             _output.WriteLine(addContactResponseJson);
@@ -440,12 +569,12 @@ public class MessagesIntegrationTests : IAsyncLifetime
 
         var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
-        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/contacts");
+        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts");
         var getDistributionListResponseJson = await getDistributionListResponse.Content.ReadAsStringAsync();
         if (!getDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(getDistributionListResponseJson);
         }
-        var distributionListContacts = JsonSerializer.Deserialize<ResultSet<Contact>>(getDistributionListResponseJson, serializationOptions);
+        var distributionListContacts = JsonSerializer.Deserialize<ResultSet<Contact>>(getDistributionListResponseJson, serializationOptions)!;
 
         Assert.True(createDistributionListResponse.IsSuccessStatusCode);
         Assert.True(addContactResponse.IsSuccessStatusCode);
@@ -477,7 +606,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         }
 
         //Retrieve the Created Campaign
-        var getTemplateResponse = await _httpClient.GetAsync(createTemplateResponse.Headers.Location.PathAndQuery);
+        var getTemplateResponse = await _httpClient.GetAsync(createTemplateResponse.Headers.Location?.PathAndQuery);
         var getTemplateResponseJson = await getTemplateResponse.Content.ReadAsStringAsync();
         if (!getTemplateResponse.IsSuccessStatusCode) {
             _output.WriteLine(getTemplateResponseJson);

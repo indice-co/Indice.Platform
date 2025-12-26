@@ -9,8 +9,6 @@ public class SignInLogOptions
 {
     /// <summary>Default value for <see cref="Enable"/> property.</summary>
     public const bool DEFAULT_ENABLE = true;
-    internal static string GEO_LITE2_CITY_FILE_NAME = "GeoLite2-City.mmdb";
-    internal static string GEO_LITE2_COUNTRY_FILE_NAME = "GeoLite2-Country.mmdb";
     private string _apiPrefix = "/api";
 
     /// <summary>Creates a new instance of <see cref="SignInLogOptions"/> class.</summary>
@@ -24,9 +22,9 @@ public class SignInLogOptions
         Configuration = configuration;
     }
 
-    internal IServiceCollection Services { get; }
-    internal IConfiguration Configuration { get; }
-    internal List<Type> ExcludedEnrichers { get; } = new List<Type>();
+    internal IServiceCollection Services { get; } = null!;
+    internal IConfiguration Configuration { get; } = null!;
+    internal List<Type> ExcludedEnrichers { get; } = [];
     /// <summary>Determines whether personal data (i.e. IP Address) are anonymized when persisted in the database. Defaults to <i>false</i>.</summary>
     public bool AnonymizePersonalData { get; set; }
     /// <summary>API default resource scope. Defaults to <i>identity</i>.</summary>

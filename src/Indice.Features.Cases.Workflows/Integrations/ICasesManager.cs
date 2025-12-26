@@ -23,7 +23,7 @@ public interface ICasesManager
     /// <br/>Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
     /// <br/>This should return a boolean response indicating if the Metadata was actually updated.
     /// </remarks>
-    Task<bool> PatchMetadata(Guid caseId, IDictionary<string, string> metadata);
+    Task PatchMetadata(Guid caseId, IDictionary<string, string> metadata);
     
     /// <summary>
     /// <inheritdoc cref="CasesManagerHttpClient.PatchDataAsync(Guid, PatchDataRequest)"/>
@@ -42,7 +42,7 @@ public interface ICasesManager
     Task JsonPatchData(Guid caseId, List<PatchJsonPathRequest> patches, bool patchPublicData = false);
 
     /// <summary>Add attachment to a case and update the relative root element of the case data.</summary>
-    Task AttachFile(Guid caseId, Actor actor, File file, string? comment, string caseDataRootKey);
+    Task<CasesAttachmentLink> AttachFile(Guid caseId, Actor actor, File file, string? comment, string caseDataRootKey);
 
     /// <summary>
     /// <inheritdoc cref="CasesManagerHttpClient.GetAttachmentAsync(Guid, Guid)"/>
@@ -53,6 +53,11 @@ public interface ICasesManager
     /// <inheritdoc cref="CasesManagerHttpClient.GetAttachmentsAsync(Guid)"/>
     /// </summary>
     Task<CaseAttachmentResultSet> GetAttachments(Guid caseId);
+
+    /// <summary>
+    /// <inheritdoc cref="CasesManagerHttpClient.GetCaseTypeSubscribersAsync(string, int?, int?, string, string, IEnumerable{string}, IEnumerable{string})"/>
+    /// </summary>
+    Task<NotificationSubscriptionResultSet> GetCaseTypeSubscribers(string caseTypeCode, int? page, int? size, string sort, string search, string[]? email, string[]? groupId);
 
     /// <summary>
     /// <inheritdoc cref="CasesManagerHttpClient.AddApprovalAsync(Guid, WorkflowAddApprovalRequest)"/>
@@ -116,13 +121,13 @@ public class Message
 public class File
 {
     /// <summary>Name of the file</summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     
     /// <summary>Content of the file.</summary>
-    public byte[] Data { get; set; }
+    public byte[] Data { get; set; } = null!;
     
     /// <summary>Content type of the file.</summary>
-    public string ContentType { get; set; }
+    public string ContentType { get; set; } = null!;
     
     /// <summary>File Constructor.</summary>
     public File() {}

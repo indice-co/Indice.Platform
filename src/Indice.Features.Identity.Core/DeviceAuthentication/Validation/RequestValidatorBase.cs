@@ -1,8 +1,18 @@
 ﻿using System.Collections.Specialized;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
+#endif
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 
@@ -30,7 +40,7 @@ internal abstract class RequestValidatorBase<TValidationResult> : RequestChallen
     }
 
     protected Task<Client?> LoadClient(TokenValidationResult tokenValidationResult) {
-        var clientId = tokenValidationResult.Claims.Single(x => x.Type == JwtClaimTypes.ClientId).Value;
+        var clientId = tokenValidationResult.Claims?.Single(x => x.Type == JwtClaimTypes.ClientId).Value;
         return LoadClient(clientId);
     }
 

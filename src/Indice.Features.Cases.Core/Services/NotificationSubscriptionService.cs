@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
+using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Types;
@@ -15,44 +16,49 @@ internal class NotificationSubscriptionService : INotificationSubscriptionServic
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task<List<NotificationSubscription>> GetSubscriptions(ListOptions<NotificationFilter> options) {
+    public async Task<ResultSet<NotificationSubscription>> GetSubscribers(ListOptions<NotificationFilter> options) {
         var filter = options.Filter ?? new NotificationFilter();
         var subscriptions = await _dbContext.NotificationSubscriptions
             .AsQueryable()
-            .Where(x => (filter.Email.Length == 0 || filter.Email.Contains(x.Email)) &&
-                        (filter.GroupId.Length == 0 || filter.GroupId.Contains(x.GroupId)) &&
-                        (filter.CaseTypeIds.Length == 0 || filter.CaseTypeIds.Contains(x.CaseTypeId)))
+            .Where(x => (filter.Email.Count == 0 || filter.Email.Contains(x.Subscriber.Email)) &&
+                        (filter.GroupId.Count == 0 || (x.Subscriber.GroupId != null && filter.GroupId.Contains(x.Subscriber.GroupId))) &&
+                        (filter.CaseTypeIds.Count == 0 || filter.CaseTypeIds.Contains(x.CaseTypeId)))
             .Select(x => new NotificationSubscription {
                 CaseTypeId = x.CaseTypeId,
-                Email = x.Email,
-                GroupId = x.GroupId
+                Subscriber = new Subscriber {
+                    Email = x.Subscriber.Email,
+                    GroupId = x.Subscriber.GroupId
+                }
             })
-            .ToListAsync();
+            .ToResultSetAsync(options);
         return subscriptions;
     }
 
-    public async Task Subscribe(List<Guid> caseTypeIds, NotificationSubscription subscriber) {
-        if (string.IsNullOrEmpty(subscriber.GroupId)) throw new ArgumentException($"No Group found for subscriber: \"{subscriber.Email}\".");
-        if (string.IsNullOrEmpty(subscriber.Email)) throw new ArgumentException($"Subscriber email cannot be null or empty.");
-        // remove existing subscriptions
+    public async Task Subscribe(Subscriber subscriber, params List<Guid> caseTypeIds) {
+        if (subscriber is null || subscriber.IsEmpty()) {
+            throw new ArgumentException("Subscriber cannot be null or empty.");
+        }
+
+        // Remove existing subscriptions
         var entitiesToRemove = await _dbContext.NotificationSubscriptions
             .AsQueryable()
-            .Where(u => u.Email == subscriber.Email)
+            .Where(u => u.Subscriber.Email == subscriber.Email)
             .ToListAsync();
+
         if (entitiesToRemove.Any()) {
             _dbContext.RemoveRange(entitiesToRemove);
         }
-        // add new subscriptions
-        var entitiesToAdd = caseTypeIds.Select(id => new DbNotificationSubscription {
+
+        // Add new subscriptions
+        var entitiesToAdd = caseTypeIds?.Select(id => new DbNotificationSubscription {
             CaseTypeId = id,
-            GroupId = subscriber.GroupId,
-            Email = subscriber.Email
+            Subscriber = subscriber.Clone()
         });
 
-        if (entitiesToAdd.Any()) {
-            await _dbContext.AddRangeAsync(entitiesToAdd);
+        if (entitiesToAdd?.Any() ?? false) {
+            _dbContext.AddRange(entitiesToAdd);
         }
+
         await _dbContext.SaveChangesAsync();
     }
-
 }

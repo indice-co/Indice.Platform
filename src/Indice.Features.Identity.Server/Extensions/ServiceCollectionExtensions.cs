@@ -4,17 +4,23 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using FluentValidation;
-using IdentityModel;
+using Duende.IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.ResponseHandling;
+using Duende.IdentityServer.Stores;
+#else
 using IdentityServer4.EntityFramework.Services;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
+using IndiceStores = Indice.IdentityServer.EntityFramework.Storage.Stores;
+using Indice.Features.Identity.Core.TokenCreation;
+#endif
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.ResponseHandling;
-using Indice.Features.Identity.Core.TokenCreation;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Options;
 using Indice.Features.Identity.Server.Totp.Models;
@@ -30,16 +36,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
-using IndiceStores = Indice.IdentityServer.EntityFramework.Storage.Stores;
 using Indice.Features.Identity.Core.IdentityValidation;
-using SixLabors.ImageSharp;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -90,6 +93,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.Configure<CookieTempDataProviderOptions>(options => {
             options.Cookie.Expiration = TimeSpan.FromMinutes(30);
             options.Cookie.Name = ExtendedIdentityConstants.TempDataCookieName;
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         });
         services.TryAddScoped<IdentityMessageDescriber>();
         services.TryAddScoped<CallingCodesProvider>();
@@ -107,7 +112,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                        .AddClaimsPrincipalFactory<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                        .AddDefaultTokenProviders()
                        .AddExtendedPhoneNumberTokenProvider(configuration)
-                       .AddExtendedEmailTokenProvider(configuration);
+                       .AddExtendedEmailTokenProvider(configuration)
+                       .AddExtendedErrorDescriber()
+                       .AddIdentityMessageDescriber();
     }
 
     private static IIdentityServerBuilder AddIdentityServerDefaults(
@@ -118,7 +125,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext
     ) {
         services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
+#if !NET9_0_OR_GREATER
         services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
+#endif
+
         var identityServerBuilder = services.AddIdentityServer(options => {
             options.IssuerUri = configuration.GetHost();
             options.Events.RaiseErrorEvents = true;
@@ -130,6 +140,14 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.UserInteraction.ErrorUrl = "/error";
             options.UserInteraction.ErrorIdParameter = "errorId";
             options.EmitScopesAsSpaceDelimitedStringInJwt = true;
+#if NET9_0_OR_GREATER
+            options.KeyManagement.Enabled = false;
+            options.Endpoints.EnablePushedAuthorizationEndpoint = false;
+            var licenseKey = configuration.GetIdentityOption<string?>(ExtendedIdentityServerOptions.Name, "DuendeLicenseKey");
+            if (!string.IsNullOrEmpty(licenseKey))
+                options.LicenseKey = licenseKey;
+#endif
+
         })
         .AddConfigurationStore<ExtendedConfigurationDbContext>(options => {
             options.SetupTables();
@@ -149,17 +167,28 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         .AddDelegationGrantValidator()
         .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
         .AddExtendedResourceOwnerPasswordValidator()
+#if NET9_0_OR_GREATER
+        .AddConfigurationStoreCache()
+#else
         .AddDotnet7CompatibleStores()
         // Add store decorators for caching after calling AddDotnet7CompatibleStores.
         .AddInMemoryCaching()
         .AddClientStoreCache<IndiceStores.ClientStore>()
+        .AddClientStoreCacheInvalidation()
         .AddResourceStoreCache<IndiceStores.ResourceStore>()
-        .AddCorsPolicyCache<CorsPolicyService>();
+        .AddCorsPolicyCache<CorsPolicyService>()
+#endif
+        ;
         if (webHostEnvironment.IsDevelopment()) {
             IdentityModelEventSource.ShowPII = true;
             identityServerBuilder.AddDeveloperSigningCredential();
         } else {
+#if NET9_0_OR_GREATER
+
+            var certificate = X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
+#else
             var certificate = new X509Certificate2(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
+#endif
             identityServerBuilder.AddSigningCredential(certificate);
         }
 
@@ -180,7 +209,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.ConfigureApplicationCookie(AuthCookie(ExtendedIdentityConstants.ApplicationCookieName));
         services.ConfigureExtendedValidationCookie(AuthCookie(ExtendedIdentityConstants.ExtendedValidationCookieName));
         services.ConfigureExternalCookie(AuthCookie(ExtendedIdentityConstants.ExternalCookieName));
-        
+
         services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, options => {
             options.Cookie.Name = ExtendedIdentityConstants.TwoFactorCookieName;
             options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
@@ -305,6 +334,11 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                       .RequireAuthenticatedUser()
                       .RequireAssertion(context => context.User.HasScope(IdentityEndpoints.Scope) && (context.User.HasClaim(JwtClaimTypes.AuthenticationMethod, CustomGrantTypes.DeviceAuthentication) || context.User.IsAdmin()));
             });
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeUserDeviceSecretReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.UserDeviceSecret) || (x.User.HasScope(IdentityEndpoints.SubScopes.Users) && x.User.CanReadUsers()));
+            });
         });
         // Register the authentication handler, using a custom scheme name, for local APIs.
         builder.Services
@@ -341,7 +375,24 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         builder.Services.AddTransient<IValidator<TotpRequest>, TotpRequestValidator>();
         return builder;
     }
-
+#if NET9_0_OR_GREATER
+    /// <summary>Adds the certificate using for IIS and Windows were the new registration failes.</summary>
+    /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
+    /// <remarks>This is a polyfill for running under IIS on .NET 9 on windows where the new registration fails.</remarks>
+    public static IExtendedIdentityServerBuilder AddCertificateIIS(this IExtendedIdentityServerBuilder builder) {
+        builder.Services.Remove<ISigningCredentialStore>();
+        builder.Services.Remove<IValidationKeysStore>();
+        //suppression happens becauese this method is polyfill for running under IIS on .NET 9 on windows where the new registration fails.
+#pragma warning disable SYSLIB0057 // Type or member is obsolete 
+        var cert = new X509Certificate2(
+            Path.Combine(builder.Environment.ContentRootPath, builder.Configuration["IdentityServer:SigningPfxFile"] ?? string.Empty),
+            builder.Configuration["IdentityServer:SigningPfxPass"],
+            X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+#pragma warning restore SYSLIB0057 // Type or member is obsolete
+        builder.AddSigningCredential(cert);
+        return builder;
+    }
+#endif
     /// <summary>Adds all required services for <b>Database Settings</b> feature.</summary>
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction">Configuration used for <b>Database Settings</b> feature.</param>
@@ -362,13 +413,20 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         var identityRateLimiterOptions = new IdentityRateLimiterOptions();
         configuration.GetSection(IdentityRateLimiterOptions.SectionName).Bind(identityRateLimiterOptions);
         services.AddRateLimiter(rateLimiterOptions => {
-            foreach (var endpoint in IdentityEndpoints.RateLimiter.Endpoints) {
-                var endpointOptions = identityRateLimiterOptions.Rules.FirstOrDefault(rule => rule.Endpoint == endpoint) ?? RateLimiterEndpointRule.Default();
-                rateLimiterOptions.AddFixedWindowLimiter(endpoint, fixedWindowOptions => {
-                    fixedWindowOptions.PermitLimit = endpointOptions.PermitLimit.GetValueOrDefault();
-                    fixedWindowOptions.QueueLimit = endpointOptions.QueueLimit.GetValueOrDefault();
-                    fixedWindowOptions.QueueProcessingOrder = endpointOptions.QueueProcessingOrder.GetValueOrDefault();
-                    fixedWindowOptions.Window = endpointOptions.Window.GetValueOrDefault();
+            foreach (var endpoint in RateLimiterPolicies.All) {
+                var endpointOptions = identityRateLimiterOptions.Rules.FirstOrDefault(rule => rule.Endpoint == endpoint) ?? RateLimiterEndpointRule.Default(endpoint);
+                rateLimiterOptions.AddPolicy(endpoint, context => {
+                    if (!endpointOptions.CanLimitHttpMethod(context.Request.Method)) {
+                        return RateLimitPartition.GetNoLimiter("NoRateLimiting");
+                    }
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: context.User.FindSubjectId() ?? context.Connection.RemoteIpAddress?.ToString() ?? context.Request.Headers.Host.ToString(),
+                        factory: _ => new FixedWindowRateLimiterOptions {
+                            PermitLimit = endpointOptions.PermitLimit.GetValueOrDefault(),
+                            QueueLimit = endpointOptions.QueueLimit.GetValueOrDefault(),
+                            QueueProcessingOrder = endpointOptions.QueueProcessingOrder.GetValueOrDefault(),
+                            Window = endpointOptions.Window.GetValueOrDefault()
+                        });
                 });
             }
             rateLimiterOptions.RejectionStatusCode = identityRateLimiterOptions.RejectionStatusCode.GetValueOrDefault();

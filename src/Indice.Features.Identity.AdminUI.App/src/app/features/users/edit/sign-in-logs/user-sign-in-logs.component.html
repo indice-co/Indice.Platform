@@ -65,15 +65,21 @@
                     </tr>
                     <tr>
                         <th scope="row">Country Code</th>
-                        <td>{{ selectedLogEntry?.countryIsoCode || '-' }}</td>
+                        <td>
+                            <i class="flag:{{selectedLogEntry?.countryIsoCode}}" [title]="selectedLogEntry?.countryIsoCode"></i>
+                            <span class="m-2">{{ selectedLogEntry?.countryIsoCode || '-' }}</span>
+                        </td>
                     </tr>
                     <tr>
                         <th scope="row">Coordinates</th>
                         <td>
                             <a *ngIf="!selectedLogEntry?.coordinates">-</a>
                             <a *ngIf="selectedLogEntry?.coordinates" target="_blank"
-                                [href]="'https://www.google.com/maps/search/?api=1&query=' + selectedLogEntry.coordinates">{{
-                                selectedLogEntry.coordinates }}</a>
+                               [href]="'https://www.google.com/maps/search/?api=1&query=' + selectedLogEntry.coordinates">
+                                {{
+                                selectedLogEntry.coordinates
+                                }}
+                            </a>
                         </td>
                     </tr>
                     <tr>
@@ -100,7 +106,7 @@
                         <th scope="row">Metadata</th>
                         <td>
                             <textarea class="code-editor" cols="100"
-                                rows="25">{{ selectedLogEntry?.extraData | json }}</textarea>
+                                      rows="25">{{ selectedLogEntry?.extraData | json }}</textarea>
                         </td>
                     </tr>
                 </tbody>
@@ -126,9 +132,9 @@
 <div class="row">
     <div class="col-12">
         <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count"
-            [rowsPerPage]="defaultPageSize" [defaultSortField]="defaultSortField"
-            [defaultSortDirection]="defaultSortDirection" (search)="getUserSignInLogs($event)"
-            #signInLogsList></app-list-view>
+                       [rowsPerPage]="defaultPageSize" [defaultSortField]="defaultSortField"
+                       [defaultSortDirection]="defaultSortDirection" (search)="getUserSignInLogs($event)"
+                       #signInLogsList></app-list-view>
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #optionalTemplate>
@@ -140,9 +146,18 @@
 </ng-template>
 <ng-template let-row="row" let-value="row" #statusTemplate>
     <div *ngIf="value">
-        <span *ngIf="value.succeeded" class="badge text-success border boder-success bg-light m-r-10" [title]="'Succeeded Attempt'">Succeeded</span>
-        <span *ngIf="!value.succeeded" class="badge text-danger border boder-danger bg-light m-r-10" [title]="'Failed Attempt'">Failed</span>
-        <span *ngIf="value.review" class="badge text-warning border boder-warning bg-light" [title]="'Marked for Review'">Review</span>
+        <span *ngIf="value.succeeded" class="badge text-success border bg-light m-r-10" [title]="'Succeeded Attempt'">Succeeded</span>
+        <span *ngIf="!value.succeeded" class="badge text-danger border bg-light m-r-10" [title]="'Failed Attempt'">Failed</span>
+        <span *ngIf="value.review" class="badge text-warning border bg-light" [title]="'Marked for Review'">Review</span>
+    </div>
+    <span *ngIf="!value"> - </span>
+</ng-template>
+<ng-template let-row="row" let-value="value" #ipCellTemplate>
+    <div *ngIf="value">
+        <span class="badge text-muted border bg-light m-1" [title]="value">
+            <i class="flag:{{row.countryIsoCode}}" [title]="row.countryIsoCode"></i>
+            {{ value }}
+        </span>
     </div>
     <span *ngIf="!value"> - </span>
 </ng-template>

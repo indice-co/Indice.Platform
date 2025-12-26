@@ -6,11 +6,12 @@ import { Contact, CreateDistributionListContactRequest, MessagesApiClient } from
 import { ListContactCreateComponent } from 'src/app/shared/components/list-contact-create/list-contact-create.component';
 
 @Component({
-  selector: 'app-distribution-list-contact-create',
-  templateUrl: './distribution-list-contact-create.component.html'
+    selector: 'app-distribution-list-contact-create',
+    templateUrl: './distribution-list-contact-create.component.html',
+    standalone: false
 })
 export class DistributionListContactCreateComponent implements OnInit, AfterViewInit {
-  @ViewChild('contactCreateComponent', { static: false }) public contactCreateComponent!: ListContactCreateComponent;
+  @ViewChild('distributionListContactCreateComponent', { static: false }) public distributionListContactCreateComponent!: ListContactCreateComponent;
 
   private _distributionListId: string = '';
 
@@ -43,9 +44,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
         phoneNumber: contact.phoneNumber,
         recipientId: contact.recipientId,
         salutation: contact.salutation,
-        communicationPreferences: contact.communicationPreferences,
-        consentCommercial: contact.consentCommercial,
-        locale: contact.locale
+        communicationPreference: contact.preference
       });
       return this._api.addContactToDistributionList(this._distributionListId, body);
     });

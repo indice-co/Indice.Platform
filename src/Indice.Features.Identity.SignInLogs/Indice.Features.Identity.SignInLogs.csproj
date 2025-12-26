@@ -3,26 +3,19 @@
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentity;SignInLogs;</PackageTags>
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
-    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)-*" />
-    <PackageReference Include="MaxMind.GeoIP2" Version="5.2.0" />
-    <PackageReference Include="Open.ChannelExtensions" Version="9.0.0" />
+    <PackageReference Include="Open.ChannelExtensions" Version="9.1.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="9.0.11" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="9.0.11" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
     <InternalsVisibleTo Include="Indice.Features.Identity.Server" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="GeoLite2\GeoLite2-City.mmdb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="GeoLite2\GeoLite2-Country.mmdb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
 </Project>

@@ -6,7 +6,6 @@ using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -18,19 +17,15 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BasePasswordExpiredModel : BasePageModel
 {
-    private readonly IStringLocalizer<BasePasswordExpiredModel> _localizer;
 
     /// <summary>Creates a new instance of <see cref="BasePasswordExpiredModel"/> class.</summary>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BasePasswordExpiredModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public BasePasswordExpiredModel(
-        IStringLocalizer<BasePasswordExpiredModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager
     ) : base() {
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
     }
@@ -50,9 +45,12 @@ public abstract class BasePasswordExpiredModel : BasePageModel
     /// <summary>Extended validation password expired page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
-        await Task.CompletedTask;
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var message = user.LastSignInDate is null ?
+            UserManager.MessageDescriber.PasswordExpiredFirstTimeUserMessage :
+            UserManager.MessageDescriber.PasswordExpiredMessage;
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Info(_localizer["Your password has expired. Please choose a new password."])
+            Alert = AlertModel.Info(message)
         });
         Input.ReturnUrl = returnUrl;
         return Page();
@@ -71,7 +69,7 @@ public abstract class BasePasswordExpiredModel : BasePageModel
         }
         await UserManager.SetPasswordExpiredAsync(user, false);
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success(_localizer["Your password has been changed successfully. Please press the 'Next' button to continue."]),
+            Alert = AlertModel.Success(UserManager.MessageDescriber.PasswordChangedSuccessfully),
             DisableForm = true,
             NextStepUrl = Url.Page("/PasswordExpired", new { returnUrl })
         });
@@ -82,8 +80,7 @@ public abstract class BasePasswordExpiredModel : BasePageModel
 internal class PasswordExpiredModel : BasePasswordExpiredModel
 {
     public PasswordExpiredModel(
-        IStringLocalizer<PasswordExpiredModel> localizer, 
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager
-    ) : base(localizer, userManager, signInManager) { }
+    ) : base(userManager, signInManager) { }
 }

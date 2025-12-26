@@ -22,12 +22,12 @@ public static class ResourcesApi
         group.WithTags("Resources");
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Clients }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Clients }.FilterOutNulls().ToArray();
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
                                            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme));
 
 
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
 
@@ -35,6 +35,13 @@ public static class ResourcesApi
              .WithName(nameof(ResourceHandlers.GetIdentityResources))
              .WithSummary("Returns a list of IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided ListOptions.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsReader);
+
+
+        group.MapPost("identity", ResourceHandlers.CreateIdentityResource)
+             .WithName(nameof(ResourceHandlers.CreateIdentityResource))
+             .WithSummary("Creates a new identity resource.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
+             .WithParameterValidation<CreateResourceRequest>();
 
         group.MapGet("identity/{resourceId:int}", ResourceHandlers.GetIdentityResource)
              .WithName(nameof(ResourceHandlers.GetIdentityResource))
@@ -45,12 +52,6 @@ public static class ResourcesApi
                                           .SetAuthorized()
                                           .SetVaryByRouteValue(["resourceId"]))
              .WithCacheTag(CacheTagPrefix, ["resourceId"]);
-
-        group.MapPost("identity/{resourceId:int}", ResourceHandlers.CreateIdentityResource)
-             .WithName(nameof(ResourceHandlers.CreateIdentityResource))
-             .WithSummary("Creates a new identity resource.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .WithParameterValidation<CreateResourceRequest>();
 
         group.MapPut("identity/{resourceId:int}", ResourceHandlers.UpdateIdentityResource)
              .WithName(nameof(ResourceHandlers.UpdateIdentityResource))

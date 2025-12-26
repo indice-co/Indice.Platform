@@ -3,7 +3,7 @@
   <Target Name="RemoveIdentityDuplicateAssets">
     <ItemGroup>
       <_DuplicateAssetCandidate Include="@(StaticWebAsset)" Condition="%(SourceId) == 'Indice.Features.Identity.UI'">
-        <_RelativePath>$([System.String]::new('%(RelativePath)').Replace('#[.{fingerprint}]?', ''))</_RelativePath>
+        <_RelativePath>$([System.Text.RegularExpressions.Regex]::Replace('%(RelativePath)', '(#\[.+\]\?)(\.[a-zA-Z]+)+(?=\.gz|\.br)(\.gz|\.br)|(#\[.+\]\?)(\.[a-zA-Z]+)+', '$2$5'))</_RelativePath>
         <Path>$([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)/wwwroot%(BasePath)%(_DuplicateAssetCandidate._RelativePath)))</Path>
       </_DuplicateAssetCandidate>
       <DuplicateAsset Include="@(_DuplicateAssetCandidate)" Condition="Exists(%(Path))"></DuplicateAsset>
@@ -11,6 +11,7 @@
     <ItemGroup>
       <StaticWebAsset Remove="@(DuplicateAsset)" />
     </ItemGroup>
+    
   </Target>
   <Target Name="IdentityUIScssImportsGeneration" BeforeTargets="PreBuildEvent"  Condition="$(IdentityUIScssImportsEnable) == 'true'">
     <ItemGroup>

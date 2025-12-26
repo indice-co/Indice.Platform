@@ -1,6 +1,7 @@
-@import '../node_modules/bootstrap/scss/bootstrap.scss';
-@import '../node_modules/material-design-icons/iconfont/material-icons.css';
-@import '../node_modules/@swimlane/ngx-datatable/index.css';
-@import '../node_modules/@swimlane/ngx-datatable/themes/material.css';
-@import '../node_modules/@swimlane/ngx-datatable/assets/icons.css';
-@import 'assets/scss/style.scss';
+@use '../node_modules/bootstrap/scss/bootstrap.scss';
+@use '../node_modules/material-design-icons/iconfont/material-icons.css';
+@use '../node_modules/@swimlane/ngx-datatable/index.css';
+@use '../node_modules/@swimlane/ngx-datatable/themes/material.css';
+@use '../node_modules/@swimlane/ngx-datatable/assets/icons.css';
+@use '../node_modules/country-flag-icons/3x2/flags.css';
+@use 'assets/scss/style.scss';

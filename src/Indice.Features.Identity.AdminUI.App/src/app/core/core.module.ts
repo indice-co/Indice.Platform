@@ -1,12 +1,18 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NgModule, LOCALE_ID } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import localeGreek from '@angular/common/locales/el';
+import localeSpanish from '@angular/common/locales/es';
+import localeItaly from '@angular/common/locales/it';
+import localeJapanese from '@angular/common/locales/ja';
 import localeEn from '@angular/common/locales/en-GB';
 registerLocaleData(localeGreek);
+registerLocaleData(localeSpanish);
+registerLocaleData(localeItaly);
+registerLocaleData(localeJapanese);
 registerLocaleData(localeEn);
 
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
@@ -19,29 +25,23 @@ import { IDENTITY_API_BASE_URL } from './services/identity-api.service';
 import { LayoutModule } from '../layout/layout.module';
 import * as app from './models/settings';
 
-@NgModule({
-    declarations: [
+@NgModule({ declarations: [
         AuthCallbackComponent,
         AuthRenewComponent,
         ErrorComponent
     ],
-    imports: [
-        HttpClientModule,
-        CommonModule,
+    exports: [
+        CoreRoutingModule
+    ], imports: [CommonModule,
         BrowserModule,
         FormsModule,
         CoreRoutingModule,
         LayoutModule,
         SweetAlert2Module.forRoot(),
-        BrowserAnimationsModule
-    ],
-    exports: [
-        CoreRoutingModule
-    ],
-    providers: [
+        BrowserAnimationsModule], providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
         { provide: IDENTITY_API_BASE_URL, useFactory: () => app.settings.api_url },
-        { provide: LOCALE_ID, useValue: app.settings.culture }
-    ]
-})
+        { provide: LOCALE_ID, useValue: app.settings.culture },
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class CoreModule { }

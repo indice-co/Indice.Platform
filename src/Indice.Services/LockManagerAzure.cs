@@ -8,6 +8,16 @@ namespace Indice.Services;
 /// <summary><see cref="ILockManager"/> implementation with Azure Blob Storage as the backing store.</summary>
 public class LockManagerAzure : ILockManager
 {
+    /// <summary>
+    /// Azure minimum duration a lock lease can be acquired for
+    /// </summary>
+    private const int MIN_LOCK_DURATION_SECONDS = 15;
+
+    /// <summary>
+    /// Azure maximum duration a lock lease can be acquired for
+    /// </summary>
+    private const int MAX_LOCK_DURATION_SECONDS = 59;
+
     /// <summary>The default name of the storage connection string.</summary>
     public const string CONNECTION_STRING_NAME = "StorageConnection";
 
@@ -32,6 +42,18 @@ public class LockManagerAzure : ILockManager
 
     /// <inheritdoc />
     public async Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null, CancellationToken cancellationToken = default) {
+        if (duration is not null) {
+            if (duration.Value.Seconds < MIN_LOCK_DURATION_SECONDS && duration.Value.Seconds != -1) {
+                var innerException = new ArgumentOutOfRangeException(nameof(duration), duration.Value.Seconds, $"Duration is less than minimum duration of {MIN_LOCK_DURATION_SECONDS} seconds");
+                throw new LockManagerException(name, innerException);
+            }
+
+            if (duration.Value.Seconds > MAX_LOCK_DURATION_SECONDS) {
+                var innerException = new ArgumentOutOfRangeException(nameof(duration), duration.Value.Seconds, $"Duration exceeds the maximum duration of {MAX_LOCK_DURATION_SECONDS} seconds");
+                throw new LockManagerException(name, innerException);
+            }
+        }
+
         await BlobContainer.CreateIfNotExistsAsync();
         var lockFileBlob = BlobContainer.GetBlobClient($"locks/{name}.lock");
         try {

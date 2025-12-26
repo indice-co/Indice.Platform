@@ -30,6 +30,9 @@ public class TypeConverterJsonAdapter<T> : JsonConverter<T>
         }
         return true;
     }
+#if NET9_0_OR_GREATER
+    
+#endif
 }
 
 /// <inheritdoc />

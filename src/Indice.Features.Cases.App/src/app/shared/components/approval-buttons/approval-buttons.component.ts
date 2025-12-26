@@ -7,8 +7,9 @@ import { Approval, ApprovalRequest, CasesApiService, RejectReason } from 'src/ap
 import { CaseWarningModalComponent } from 'src/app/shared/components/case-warning-modal/case-warning-modal.component';
 
 @Component({
-  selector: 'app-approval-buttons',
-  templateUrl: './approval-buttons.component.html'
+    selector: 'app-approval-buttons',
+    templateUrl: './approval-buttons.component.html',
+    standalone: false
 })
 export class ApprovalButtonsComponent implements OnInit {
   @Input() formUnSavedChanges: boolean = false;

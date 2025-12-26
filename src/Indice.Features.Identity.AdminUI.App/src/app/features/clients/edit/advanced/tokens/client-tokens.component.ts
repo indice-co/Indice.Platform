@@ -10,7 +10,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-client-tokens',
-    templateUrl: './client-tokens.component.html'
+    templateUrl: './client-tokens.component.html',
+    standalone: false
 })
 export class ClientTokensComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

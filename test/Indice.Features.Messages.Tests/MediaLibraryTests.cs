@@ -2,7 +2,6 @@
 using System.Text;
 using System.Text.Json;
 using Indice.AspNetCore.Authorization;
-using Indice.Features.Media.AspNetCore;
 using Indice.Features.Media.AspNetCore.Endpoints;
 using Indice.Features.Media.AspNetCore.Models;
 using Indice.Features.Media.AspNetCore.Models.Requests;
@@ -35,7 +34,7 @@ public class MediaLibraryTests : IAsyncLifetime
         _output = output;
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string> {
+            builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
                 ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true",
                 ["General:Host"] = "https://server"
@@ -56,7 +55,6 @@ public class MediaLibraryTests : IAsyncLifetime
                         options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
                     })
                     .AddMock(() => DummyPrincipals.IndiceUser);
-            _serviceProvider = services.BuildServiceProvider();
         });
         builder.Configure(app => {
             app.UseAuthentication();
@@ -71,6 +69,7 @@ public class MediaLibraryTests : IAsyncLifetime
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
+        _serviceProvider = (ServiceProvider)server.Services;
     }
 
     [Fact]
@@ -149,7 +148,7 @@ public class MediaLibraryTests : IAsyncLifetime
         }
 
         Assert.True(response.IsSuccessStatusCode);
-        return JsonSerializer.Deserialize<FolderTreeStructure>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
+        return JsonSerializer.Deserialize<FolderTreeStructure>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!;
     }
     private async Task<FolderContent> GetFolderContent(Guid? folderId) {
         var response = await _httpClient.GetAsync($"media/folders/content?folderId={folderId}");
@@ -159,7 +158,7 @@ public class MediaLibraryTests : IAsyncLifetime
         }
 
         Assert.True(response.IsSuccessStatusCode);
-        return JsonSerializer.Deserialize<FolderContent>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
+        return JsonSerializer.Deserialize<FolderContent>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!;
     }
     private async Task UpdateFolderAction(Guid folderId, string newName) {
         var response = await _httpClient.PutAsync($"media/folders/{folderId}", new StringContent(JsonSerializer.Serialize(new UpdateFolderRequest {
@@ -185,10 +184,10 @@ public class MediaLibraryTests : IAsyncLifetime
         }
 
         Assert.True(response.IsSuccessStatusCode);
-        return JsonSerializer.Deserialize<CreateFolderResponse>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings()).FolderId;
+        return JsonSerializer.Deserialize<CreateFolderResponse>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!.FolderId;
     }
 
-    private async Task<TResponse> PostFileAsync<TResponse>(HttpMethod method, string requestUri, byte[] fileContent, string fileName, NameValueCollection formData = null, CancellationToken cancellationToken = default) {
+    private async Task<TResponse?> PostFileAsync<TResponse>(HttpMethod method, string requestUri, byte[] fileContent, string fileName, NameValueCollection? formData = null, CancellationToken cancellationToken = default) {
         using var formDataContent = new MultipartFormDataContent("upload-" + Guid.NewGuid().ToString().ToLower());
         if (fileContent != null) {
             var streamContent = new ByteArrayContent(fileContent);
@@ -197,9 +196,9 @@ public class MediaLibraryTests : IAsyncLifetime
             formDataContent.Add(streamContent, "file", fileName);
         }
         if (formData?.Count > 0) {
-            var items = formData.AllKeys.SelectMany(formData.GetValues, (k, v) => new { key = k, value = v });
+            var items = formData!.AllKeys.SelectMany(formData.GetValues!, (k, v) => new { key = k, value = v });
             foreach (var item in items) {
-                formDataContent.Add(new StringContent(item.value), item.key);
+                formDataContent.Add(new StringContent(item.value), item!.key!);
             }
         }
         var httpRequest = new HttpRequestMessage(method, requestUri);

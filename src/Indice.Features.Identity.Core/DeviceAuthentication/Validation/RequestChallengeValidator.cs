@@ -1,9 +1,18 @@
 ﻿using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
+#endif
 using Indice.Features.Identity.Core.DeviceAuthentication.Extensions;
 using Indice.Features.Identity.Core.DeviceAuthentication.Models;
 using Microsoft.IdentityModel.Tokens;
@@ -23,7 +32,11 @@ internal class RequestChallengeValidator
         }
         SecurityKey securityKey;
         if (publicKey.IsCertificate()) {
+#if NET9_0_OR_GREATER
+            var certificate = X509CertificateLoader.LoadCertificate(Convert.FromBase64String(publicKey.TrimPublicKeyHeaders()));
+#else
             var certificate = new X509Certificate2(Convert.FromBase64String(publicKey.TrimPublicKeyHeaders()));
+#endif
             securityKey = new X509SecurityKey(certificate);
         } else {
             var rsa = RSA.Create();

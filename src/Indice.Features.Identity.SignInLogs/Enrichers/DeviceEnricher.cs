@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Types;
+﻿
+using Indice.AspNetCore;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
 using Microsoft.AspNetCore.Http;
@@ -25,11 +26,12 @@ public sealed class DeviceEnricher : ISignInLogEntryEnricher
 
     /// <inheritdoc />
     public ValueTask EnrichAsync(SignInLogEntry logEntry) {
-        var userAgentHeader = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent];
+        var userAgentHeader = _httpContextAccessor.HttpContext!.Request.Headers[HeaderNames.UserAgent];
         if (string.IsNullOrWhiteSpace(userAgentHeader)) {
             return ValueTask.CompletedTask;
         }
-        var userAgent = new UserAgent(userAgentHeader);
+        var userAgent = new UserAgent(userAgentHeader!);
+        logEntry.ExtraData ??= new ();
         logEntry.ExtraData.Device = new SignInLogEntryDevice {
             Model = userAgent.DeviceModel,
             Platform = userAgent.DevicePlatform,

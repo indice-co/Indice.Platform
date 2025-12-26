@@ -27,6 +27,7 @@ internal class UserDeviceMap<TUser> : IEntityTypeConfiguration<UserDevice> where
         builder.Property(x => x.Data).HasJsonConversion();
         builder.Property(x => x.Tags).HasStringArrayConversion();
         builder.Property(x => x.PnsHandle).HasMaxLength(TextSizePresets.M512);
+        builder.Property(x => x.PublicKeyId).HasMaxLength(TextSizePresets.S32);
         // Configure relationships.
         builder.HasOne(x => x.User).WithMany(x => x.Devices).HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
     }

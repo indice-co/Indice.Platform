@@ -1,5 +1,8 @@
-using System.Net.Http;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Extensions;
@@ -10,13 +13,12 @@ using Indice.Globalization;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -31,20 +33,20 @@ public abstract class BaseProfileModel : BasePageModel
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="localizer">The source of translations for this model class</param>
     /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
+    /// <param name="localizationOptions">The request localization options</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseProfileModel(
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         IConfiguration configuration,
-        IStringLocalizer localizer,
-        IOptions<IdentityUIOptions> identityUiOptions
+        IOptions<IdentityUIOptions> identityUiOptions,
+        IOptions<RequestLocalizationOptions> localizationOptions
     ) : base() {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+        LocalizationOptions = localizationOptions.Value;
         IdentityUIOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
     }
 
@@ -54,8 +56,12 @@ public abstract class BaseProfileModel : BasePageModel
     protected ExtendedSignInManager<User> SignInManager { get; }
     /// <summary>Represents a set of key/value application configuration properties.</summary>
     protected IConfiguration Configuration { get; }
-    /// <summary>The source of translations for this model class.</summary>
-    protected IStringLocalizer Localizer { get; }
+
+    /// <summary>
+    /// Gets the localization options used to configure request localization settings.
+    /// </summary>
+    protected RequestLocalizationOptions LocalizationOptions { get; }
+
     /// <summary>Configuration options for Identity UI.</summary>
     protected IdentityUIOptions IdentityUIOptions { get; set; }
 
@@ -70,7 +76,9 @@ public abstract class BaseProfileModel : BasePageModel
     [BindProperty]
     public LoginLinkInputModel InputLoginLink { get; set; } = new LoginLinkInputModel();
 
-
+    /// <summary>Request input model for the manage profile page.</summary>
+    [BindProperty]
+    public ProfileLanguagePreferenceInputModel InputLanguagePreference { get; set; } = new ProfileLanguagePreferenceInputModel();
     /// <summary></summary>
     [ViewData]
     public bool ProfileSuccessfullyChanged { get; set; }
@@ -91,10 +99,11 @@ public abstract class BaseProfileModel : BasePageModel
             View = await BuildProfileViewModelAsync(Input);
             return Page();
         }
+
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName!);
+        var result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName ?? string.Empty);
         AddModelErrors(result);
-        result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.FamilyName, Input.LastName!);
+        result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.FamilyName, Input.LastName ?? string.Empty);
         AddModelErrors(result);
         result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.Tin, Input.Tin ?? string.Empty);
         AddModelErrors(result);
@@ -110,8 +119,6 @@ public abstract class BaseProfileModel : BasePageModel
         }
         if (user.NormalizedEmail != Input.Email?.Trim().ToUpper()) {
             EmailChangeRequested = true;
-            user.EmailConfirmed = false;
-            await UserManager.SetEmailAsync(user, Input.Email);
             if (!string.IsNullOrWhiteSpace(Input.Email)) {
                 await SendChangeEmailConfirmationEmail(user, Input.Email);
             }
@@ -147,6 +154,22 @@ public abstract class BaseProfileModel : BasePageModel
         return RedirectToPage("/Profile");
     }
 
+    /// <summary>Profile page remove external login POST handler.</summary>
+    public virtual async Task<IActionResult> OnPostUpdateLanguagePreferenceAsync() {
+        var user = await UserManager.GetUserAsync(User);
+        if (user == null) {
+            TempData.Put("Alert", AlertModel.Error($"Unable to load user with ID '{UserManager.GetUserId(User)}'."));
+            return RedirectToPage("/Profile");
+        }
+        var result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, InputLanguagePreference.Locale ?? string.Empty);
+        if (!result.Succeeded) {
+            TempData.Put("Alert", AlertModel.Error(string.Join(", ", result.Errors.Select(x => x.Description))));
+            return RedirectToPage("/Profile");
+        }
+        await SignInManager.RefreshSignInAsync(user);
+        return RedirectToPage("/Profile");
+    }
+
 
     /// <summary>Profile page remove external login POST handler.</summary>
     public virtual async Task<IActionResult> OnPostUploadPictureAsync(IFormFile file) {
@@ -172,7 +195,7 @@ public abstract class BaseProfileModel : BasePageModel
         if (cacheStore is not null) {
             await cacheStore.EvictByTagAsync($"Picture|sub:{user.Id}", default);
             await cacheStore.EvictByTagAsync($"Picture|userId:{user.Id}", default);
-        } 
+        }
         return RedirectToPage("/Profile");
     }
 
@@ -203,7 +226,7 @@ public abstract class BaseProfileModel : BasePageModel
             return RedirectToPage("/Profile");
         }
         await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-        TempData.Put("AlertProviders", AlertModel.Success(Localizer["The external login was added."]));
+        TempData.Put("AlertProviders", AlertModel.Success(UserManager.MessageDescriber.ProfileExternalLoginAddedSuccessMessage));
         return RedirectToPage("/Profile");
     }
 
@@ -239,10 +262,12 @@ public abstract class BaseProfileModel : BasePageModel
             HasDeveloperTotp = Configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
             LastName = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value,
             OtherLogins = otherLogins,
+            SupportedCultures = LocalizationOptions.SupportedCultures ?? [],
             PhoneNumber = phoneNumber.Number,
             Tin = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.Tin)?.Value,
             UserName = user.UserName ?? string.Empty,
             ZoneInfo = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.ZoneInfo)?.Value,
+            Locale = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.Locale)?.Value,
             CallingCode = phoneNumber.CallingCode
         };
     }
@@ -262,14 +287,17 @@ public abstract class BaseProfileModel : BasePageModel
             CurrentLogins = currentLogins,
             DeveloperTotp = model.DeveloperTotp,
             Email = model.Email,
-            EmailChangePending = !await UserManager.IsEmailConfirmedAsync(user),
+            EmailChangePending = !await UserManager.IsEmailConfirmedAsync(user) || EmailChangeRequested,
             FirstName = model.FirstName,
             HasDeveloperTotp = Configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
             LastName = model.LastName,
             OtherLogins = otherLogins,
+            SupportedCultures = LocalizationOptions.SupportedCultures ?? [],
             PhoneNumber = IdentityUIOptions.EnablePhoneNumberCallingCodes ? model.PhoneNumberWithCallingCode : model.PhoneNumber,
             Tin = model.Tin,
-            UserName = model.UserName
+            UserName = model.UserName,
+            ZoneInfo = model.ZoneInfo ?? user.Claims.SingleOrDefault(x => x.ClaimType == JwtClaimTypes.ZoneInfo)?.ClaimValue,
+            Locale = model.Locale ?? user.Claims.SingleOrDefault(x => x.ClaimType == JwtClaimTypes.Locale)?.ClaimValue,
         };
     }
 }
@@ -280,7 +308,7 @@ internal class ProfileModel : BaseProfileModel
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         IConfiguration configuration,
-        IStringLocalizer<ProfileModel> localizer,
-        IOptions<IdentityUIOptions> identityUiOptions
-    ) : base(userManager, signInManager, configuration, localizer, identityUiOptions) { }
+        IOptions<IdentityUIOptions> identityUiOptions,
+        IOptions<RequestLocalizationOptions> localizationOptions
+    ) : base(userManager, signInManager, configuration, identityUiOptions, localizationOptions) { }
 }

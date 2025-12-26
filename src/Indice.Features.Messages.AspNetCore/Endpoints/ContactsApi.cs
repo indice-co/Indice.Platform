@@ -31,7 +31,7 @@ internal static class ContactsApi
                                            .RequireCampaignsManagement()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.WithHandledException<BusinessException>()
              .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -60,11 +60,28 @@ internal static class ContactsApi
              .WithDescription(ContactsHandlers.UPDATE_CONTACT_DESCRIPTION)
              .WithParameterValidation<UpdateContactRequest>();
 
-        group.MapPost("{recipientId}/refresh", ContactsHandlers.RefreshContact)
-             .WithName(nameof(ContactsHandlers.RefreshContact))
-             .WithSummary("Add or Updates a contact that matches the recepientId.")
-             .WithDescription(ContactsHandlers.REFRESH_CONTACT_DESCRIPTION)
+        group.MapPost("{recipientId}/resolve", ContactsHandlers.ResolveContact)
+             .WithName(nameof(ContactsHandlers.ResolveContact))
+             .WithSummary("Add or Updates a contact that matches the recipientId.")
+             .WithDescription(ContactsHandlers.RESOLVE_CONTACT_DESCRIPTION)
              .ProducesProblem(StatusCodes.Status400BadRequest);
+
+
+        group.MapGet("{contactId}/preferences", ContactsHandlers.GetPreferences)
+             .WithName(nameof(ContactsHandlers.GetPreferences))
+             .WithSummary("Get contact communication preferences.")
+             .WithDescription(ContactsHandlers.GET_CONTACT_COMMUNICATION_PREFERENCES);
+
+        group.MapGet("{contactId}/duplicates", ContactsHandlers.GetDuplicateContacts)
+             .WithName(nameof(ContactsHandlers.GetDuplicateContacts))
+             .WithSummary("Get potential duplicate contacts.")
+             .WithDescription(ContactsHandlers.GET_CONTACT_DUPLICATES);
+
+        group.MapPost("{contactId}/merge", ContactsHandlers.MergeContacts)
+             .WithName(nameof(ContactsHandlers.MergeContacts))
+             .WithSummary("Merge given contacts.")
+             .WithDescription(ContactsHandlers.MERGE_CONTACTS);
+
         return group;
     }
 }

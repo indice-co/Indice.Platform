@@ -9,6 +9,9 @@ namespace Indice.Features.Identity.SignInLogs;
 
 internal static class ObjectMapping
 {
+    // Cache the geometry factory to avoid creating new instances repeatedly
+    private static readonly GeometryFactory _geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+
     public static Expression<Func<DbSignInLogEntry, SignInLogEntry>> ToSignInLogEntry = (logEntry) => new() {
         ActionName = logEntry.ActionName,
         EventType = logEntry.EventType,
@@ -36,13 +39,12 @@ internal static class ObjectMapping
     };
 
     public static DbSignInLogEntry ToDbSignInLogEntry(this SignInLogEntry logEntry) {
-        var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(4326);
         return new() {
             ActionName = logEntry.ActionName,
             EventType = logEntry.EventType,
             ApplicationId = logEntry.ApplicationId,
             ApplicationName = logEntry.ApplicationName,
-            Coordinates = logEntry.Coordinates is not null ? geometryFactory.CreatePoint(new Coordinate(logEntry.Coordinates.Longitude, logEntry.Coordinates.Latitude)) : default,
+            Coordinates = logEntry.Coordinates is not null ? _geometryFactory.CreatePoint(new Coordinate(logEntry.Coordinates.Longitude, logEntry.Coordinates.Latitude)) : default,
             CountryIsoCode = logEntry.CountryIsoCode,
             CreatedAt = logEntry.CreatedAt,
             Description = logEntry.Description,
@@ -62,5 +64,17 @@ internal static class ObjectMapping
             SubjectName = logEntry.SubjectName,
             Succeeded = logEntry.Succeeded
         };
+    }
+
+    public static List<DbSignInLogEntry> ToDbSignInLogEntries(this IEnumerable<SignInLogEntry> logEntries) {
+        if (logEntries is ICollection<SignInLogEntry> collection) {
+            var result = new List<DbSignInLogEntry>(collection.Count);
+            foreach (var entry in collection) {
+                result.Add(entry.ToDbSignInLogEntry());
+            }
+            return result;
+        }
+        // Fallback for unknown count
+        return logEntries.Select(ToDbSignInLogEntry).ToList();
     }
 }

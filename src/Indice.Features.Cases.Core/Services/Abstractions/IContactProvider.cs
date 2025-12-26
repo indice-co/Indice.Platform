@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using System.Text.Json.Nodes;
-using Indice.Features.Cases.Core.Models;
+﻿using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Types;
 
@@ -14,10 +12,10 @@ public interface IContactProvider
     /// <param name="listOptions">The list options for search and pagination</param>
     /// <returns></returns>
     Task<ResultSet<Contact>> GetListAsync(UserActor user, ListOptions<ContactFilter> listOptions);
+
     /// <summary>Get Customer Data for a specific case type.</summary>
     /// <param name="user">The current user</param>
-    /// <param name="reference">The correlation Id to the external system. Can be the customer id or user id etc..</param>
-    /// <param name="caseTypeCode">The case type code.</param>
+    /// <param name="reference">The correlation Id to the external system. Can be the customer id or user id etc..</param>    
     /// <returns>The contact data in json form or null if not found</returns>
-    Task<Contact?> GetByReferenceAsync(UserActor user, string reference, string caseTypeCode);
+    Task<Contact?> GetByReferenceAsync(UserActor user, string reference);
 }

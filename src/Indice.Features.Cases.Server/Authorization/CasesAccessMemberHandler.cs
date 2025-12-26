@@ -1,30 +1,26 @@
-﻿using System.Runtime.InteropServices;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Indice.Features.Cases.Core;
-using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Authorization;
 
-
-
 /// <summary>This authorization requirement specifies that an endpoint must be accessible only to Admins, Users with admin role and user that can view a case based on Access Rules.</summary>
-public class CasesAccessMemberHandler : AuthorizationHandler<CasesRecordsAccessLevelRequirement>, IAuthorizationRequirement {
-
+public class CasesAccessMemberHandler : AuthorizationHandler<CasesRecordsAccessLevelRequirement>, IAuthorizationRequirement
+{
     private readonly IDistributedCache _cache;
     private readonly ILogger<CasesAccessMemberHandler> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly CasesOptions _casesOptions;
     private readonly ICaseAuthorizationProvider _memberAuthorizationProvider;
+
     /// <summary>
     /// Creates a new instance of <see cref="CasesAccessOwnerHandler"/>.
     /// </summary>
@@ -82,12 +78,12 @@ public class CasesAccessMemberHandler : AuthorizationHandler<CasesRecordsAccessL
     }
 
     private async Task<bool> CheckMembershipAsync(UserActor actor, Guid caseId, CasesRecordsAccessLevelRequirement requirement) {
-        
+
         var cacheKey = $"member:{actor.Id}-caseId:{caseId}-level:{requirement.MinimumAccessLevel}";
         var value = await _cache.GetStringAsync(cacheKey);
         var entryExists = value != null;
         if (entryExists && int.TryParse(value, out var accessLevel)) {
-            
+
             return accessLevel >= (int)requirement.MinimumAccessLevel;
         }
         accessLevel = await _memberAuthorizationProvider.MemberAccess(actor, caseId);
@@ -96,7 +92,4 @@ public class CasesAccessMemberHandler : AuthorizationHandler<CasesRecordsAccessL
         await _cache.SetStringAsync(cacheKey, $"{accessLevel}", cacheEntryOptions);
         return accessLevel >= (int)requirement.MinimumAccessLevel;
     }
-
 }
-
-

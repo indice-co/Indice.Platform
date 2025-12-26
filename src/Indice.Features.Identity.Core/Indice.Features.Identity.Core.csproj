@@ -8,27 +8,38 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Bogus" Version="35.6.1" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefixCore)-*" />
-    <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.0.0" />
-    <PackageReference Include="UAParser" Version="3.1.47" />
+    <PackageReference Include="Indice.Features.GeoIP" Version="$(VersionPrefixGeoIP)-*" />
+    <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.3.0" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="9.0.11" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
     <PackageReference Include="AutoMapper" Version="12.0.0">
       <NoWarn>NU1608</NoWarn>
     </PackageReference>
-    <PackageReference Include="Indice.IdentityServer4" Version="4.1.6" />
-    <PackageReference Include="Indice.IdentityServer4.EntityFramework.Storage" Version="4.1.6" />
+    <PackageReference Include="IdentityModel" Version="7.0.0" />
+    <PackageReference Include="Indice.IdentityServer4" Version="4.1.7" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="9.0.0" />
+    <PackageReference Include="Indice.IdentityServer4.EntityFramework.Storage" Version="4.1.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.22" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+    <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.2.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="9.9.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
+    <ProjectReference Include="..\Indice.Features.GeoIP\Indice.Features.GeoIP.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="ExtendedIdentityErrorResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ExtendedIdentityErrorResources.resx</DependentUpon>
+    </Compile>
     <Compile Update="IdentityResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -36,6 +47,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="ExtendedIdentityErrorResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ExtendedIdentityErrorResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="IdentityResources.resx">
       <CustomToolNamespace>Indice.Features.Identity.Core</CustomToolNamespace>
       <LastGenOutput>IdentityResources.Designer.cs</LastGenOutput>

@@ -1,15 +1,10 @@
-﻿using IdentityModel;
-using Indice.AspNetCore.Http.Filters;
-using Indice.Features.Identity.Server;
+﻿using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Security;
-using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.DependencyInjection;
-using Polly;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -27,16 +22,14 @@ public static class RolesApi
         group.WithTags("Roles");
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users }.FilterOutNulls().ToArray();
         group.RequireAuthorization(policy => policy
              .RequireAuthenticatedUser()
              .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
              .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
 
-
-
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
 

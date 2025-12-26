@@ -1,9 +1,20 @@
 ﻿using System.Collections.Specialized;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
+#endif
 using Indice.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
@@ -53,7 +64,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         // The access token needs to be valid and have at least the OpenID scope.
         var tokenValidationResult = await TokenValidator.ValidateAccessTokenAsync(accessToken, IdentityServerConstants.StandardScopes.OpenId);
         if (tokenValidationResult.IsError) {
-            return Error(tokenValidationResult.Error, "Provided access token is not valid.");
+            return Error(tokenValidationResult.Error!, "Provided access token is not valid.");
         }
         // The access token must have at lease a 'sub' and 'client_id' claim.
         var claimsToValidate = new[] {
@@ -61,7 +72,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
             JwtClaimTypes.ClientId
         };
         foreach (var claim in claimsToValidate) {
-            var claimValue = tokenValidationResult.Claims.SingleOrDefault(x => x.Type == claim)?.Value;
+            var claimValue = tokenValidationResult.Claims!.SingleOrDefault(x => x.Type == claim)?.Value;
             if (string.IsNullOrWhiteSpace(claimValue)) {
                 return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, $"Access token must contain the '{claim}' claim.");
             }
@@ -88,7 +99,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         if (authorizationCode.InteractionMode == InteractionMode.Pin) {
             parametersToValidate.Add(RegistrationRequestParameters.Pin);
         }
-        var amrClaim = tokenValidationResult.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.AuthenticationMethod);
+        var amrClaim = tokenValidationResult.Claims!.FirstOrDefault(x => x.Type == JwtClaimTypes.AuthenticationMethod);
         var mfaPassed = amrClaim is not null && amrClaim.Value == CustomGrantTypes.Mfa;
         if (DeviceAuthenticationOptions.AlwaysSendOtp || !mfaPassed) {
             parametersToValidate.Add(RegistrationRequestParameters.OtpCode);
@@ -116,7 +127,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         var deviceId = parameters.Get(RegistrationRequestParameters.DeviceId)!;
         var authorizationCodeValidationResult = await ValidateAuthorizationCode(code, authorizationCode, codeVerifier, deviceId, client);
         if (authorizationCodeValidationResult.IsError) {
-            return Error(authorizationCodeValidationResult.Error, authorizationCodeValidationResult.ErrorDescription);
+            return Error(authorizationCodeValidationResult.Error!, authorizationCodeValidationResult.ErrorDescription);
         }
         // Validate given public key against signature for fingerprint.
         string? publicKey = null;
@@ -125,15 +136,15 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
             var codeSignature = parameters.Get(RegistrationRequestParameters.CodeSignature)!;
             var publicKeyValidationResult = ValidateSignature(publicKey!, code, codeSignature);
             if (publicKeyValidationResult.IsError) {
-                return Error(publicKeyValidationResult.Error, publicKeyValidationResult.ErrorDescription);
+                return Error(publicKeyValidationResult.Error!, publicKeyValidationResult.ErrorDescription);
             }
         }
         // Find requested scopes.
-        var requestedScopes = tokenValidationResult.Claims.Where(claim => claim.Type == JwtClaimTypes.Scope).Select(claim => claim.Value).ToList();
+        var requestedScopes = tokenValidationResult.Claims!.Where(claim => claim.Type == JwtClaimTypes.Scope).Select(claim => claim.Value).ToList();
         // Create principal from incoming access token excluding protocol claims.
-        var claims = tokenValidationResult.Claims.Where(x => !Constants.ProtocolClaimsFilter.Contains(x.Type));
+        var claims = tokenValidationResult.Claims!.Where(x => !Constants.ProtocolClaimsFilter.Contains(x.Type));
         var principal = Principal.Create("TrustedDevice", claims.ToArray());
-        var userId = tokenValidationResult.Claims.Single(x => x.Type == JwtClaimTypes.Subject).Value;
+        var userId = tokenValidationResult.Claims!.Single(x => x.Type == JwtClaimTypes.Subject).Value;
         var user = await UserManager.FindByIdAsync(userId);
         if (user is null) {
             return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "User does not exists.");
@@ -186,7 +197,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         }
         var proofKeyParametersValidationResult = ValidateAuthorizationCodeWithProofKeyParameters(codeVerifier, authorizationCode);
         if (proofKeyParametersValidationResult.IsError) {
-            return Error(proofKeyParametersValidationResult.Error, proofKeyParametersValidationResult.ErrorDescription);
+            return Error(proofKeyParametersValidationResult.Error!, proofKeyParametersValidationResult.ErrorDescription);
         }
         return Success();
     }

@@ -1,7 +1,10 @@
 ﻿using System.Security.Claims;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
 using Indice.Events;
-using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
@@ -10,7 +13,6 @@ using Indice.Features.Identity.Core.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -20,7 +22,6 @@ namespace Indice.Features.Identity.Core;
 /// <typeparam name="TUser"></typeparam>
 public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 {
-    private readonly IServiceProvider _serviceProvider;
     private readonly IPlatformEventService _eventService;
 
     /// <summary>Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.</summary>
@@ -51,7 +52,6 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         IConfiguration configuration
     ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, serviceProvider, logger) {
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
-        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         MessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
         DefaultAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(DefaultAllowedRegisteredDevices));
         MaxAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(MaxAllowedRegisteredDevices));
@@ -63,7 +63,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         EmailAsUserName = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.User)}", nameof(EmailAsUserName)) ?? false;
         RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) ?? false;
         RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) ?? false;
-        
+
     }
 
     /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
@@ -109,6 +109,15 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             user.UserName = user.Email;
         }
         return base.UpdateAsync(user);
+    }
+
+    /// <inheritdoc />
+    public override async Task<IdentityResult> DeleteAsync(TUser user) {
+        var result = await base.DeleteAsync(user);
+        if (result.Succeeded) {
+            await _eventService.Publish(new UserDeletedEvent(UserEventContext.InitializeFromUser(user)));
+        }
+        return result;
     }
 
     /// <inheritdoc />
@@ -164,7 +173,12 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
                 return result;
             }
         }
-        return await base.SetEmailAsync(user, email);
+        var previousValue = user.Email;
+        var emailresult = await base.SetEmailAsync(user, email);
+        if (emailresult.Succeeded) {
+            await _eventService.Publish(new UserEmailChangedEvent(UserEventContext.InitializeFromUser(user), previousValue!));
+        }
+        return emailresult;
     }
 
     /// <inheritdoc />
@@ -172,7 +186,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
         if (result.Succeeded) {
             await _eventService.Publish(new PhoneNumberConfirmedEvent(UserEventContext.InitializeFromUser(user)));
-            
+
         }
         return result;
     }
@@ -191,6 +205,28 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         var result = await base.SetTwoFactorEnabledAsync(user, enabled);
         return result;
     }
+
+
+    /// <inheritdoc/>
+    public override async Task<IdentityResult> ChangeEmailAsync(TUser user, string newEmail, string token) {
+        ArgumentNullException.ThrowIfNull(user);
+        var previousValue = user.Email;
+        // do the default behavior that will update the email verify the new email and create a new security stamp.
+        var result = await base.ChangeEmailAsync(user, newEmail, token);
+        if (result.Succeeded) {
+            // publish the event that the email has changed.
+            await _eventService.Publish(new UserEmailChangedEvent(UserEventContext.InitializeFromUser(user), previousValue!));
+            if (EmailAsUserName) {
+                // change the username first if possible to match the new email so that unique constraints are enforced on the userstore before going forward.
+                result = await SetUserNameAsync(user, newEmail);
+                if (!result.Succeeded) {
+                    return result;
+                }
+            }
+        }
+        return result;
+    }
+
     #endregion
 
     #region Custom Methods
@@ -370,6 +406,11 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             }
         }
         device.UserId = user.Id;
+
+        if (!string.IsNullOrEmpty(device.PublicKey) && string.IsNullOrEmpty(device.PublicKeyId)) {
+            device.PublicKeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex);
+        }
+        
         var result = await deviceStore!.CreateDeviceAsync(user, device, cancellationToken);
         if (result.Succeeded) {
             await _eventService.Publish(new DeviceCreatedEvent(UserDeviceEventContext.InitializeFromUserDevice(device), UserEventContext.InitializeFromUser(user)));
@@ -455,7 +496,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         return await ReplaceClaimAsync(user, BasicClaimTypes.MaxDevicesCount, maxDevicesCount.ToString());
     }
 
-    /// <summary>Get the devices registered by the specified user.</summary>
+    /// <summary>Get a device registered by the specified user using the specified deviceId.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="deviceId">The id of the device to look for.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
@@ -640,6 +681,15 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public async Task<(Stream? Stream, string ContentType, bool Exists)> FindPictureByKeyAsync(string pictureKey, string? contentType = null, int? size = null) {
         var pictureStore = GetPictureStore();
         return await pictureStore!.FindUserPictureByKeyAsync(pictureKey, contentType, size);
+    }
+
+
+    /// <summary>
+    /// The <see cref="IdentityErrorDescriber"/> used to generate error messages.
+    /// </summary>
+    public new ExtendedIdentityErrorDescriber ErrorDescriber {
+        get => (ExtendedIdentityErrorDescriber)base.ErrorDescriber;
+        set => base.ErrorDescriber = value;
     }
 
     #region Helper Methods

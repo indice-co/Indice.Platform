@@ -52,6 +52,7 @@ public static class CasesFeatureExtensions
         services.AddLookupService<NoOpLookupService>(nameof(NoOpLookupService)); // needed for factory instantiation
         services.TryAddTransient<IContactProvider, NoOpContactProvider>();
         services.TryAddTransient<ICasePdfService, NoOpCasePdfService>();
+        services.TryAddTransient<ICaseDataInitializer, NoOpCaseDataInitializer>();
         services.AddHtmlRenderingEngineNoop(); // used by the CasesTemplate service
 
         // Register LookupService Factory

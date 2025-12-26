@@ -1,39 +1,88 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { forkJoin } from 'rxjs';
+import { map, tap, shareReplay, startWith } from 'rxjs';
 import { HeaderMetaItem, Icons } from '@indice/ng-components';
-import { CampaignResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { OverviewMetrics, MessagesApiClient, SeriesTimeFrame } from 'src/app/core/services/messages-api.service';
+import { LineChartData } from '../../shared/components/line-chart/line-chart.component';
 
 @Component({
     selector: 'app-dashboard',
-    templateUrl: './dashboard.component.html'
+    templateUrl: './dashboard.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class DashboardComponent implements OnInit {
-    constructor(
-        private _router: Router,
-        private _api: MessagesApiClient
-    ) { }
+  constructor(
+    private _router: Router,
+    private _api: MessagesApiClient,
+    private _cdr: ChangeDetectorRef
+  ) { }
 
-    public metaItems: HeaderMetaItem[] | null = [];
-    public loaded = false;
-    public campaignsCount = 0;
-    public activeCampaignsCount = 0;
+  public metaItems: HeaderMetaItem[] | null = [];
+  public loaded = false;
+  public gaugeChannels: { name: string; value: number; color: string; }[] = [];
 
-    public ngOnInit(): void {
-        this.metaItems = [
-            { key: 'NG-LIB version :', icon: Icons.DateTime, text: new Date().toLocaleTimeString() }
-        ];
-      const campaigns$ = this._api.getCampaigns(1, 0, undefined, undefined, undefined, undefined);
-      const activeCampaigns$ = this._api.getCampaigns(1, 0, undefined, undefined, undefined, true);
-        forkJoin([campaigns$, activeCampaigns$]).subscribe((results: [CampaignResultSet, CampaignResultSet]) => {
-            this.campaignsCount = results[0].count || 0;
-            this.activeCampaignsCount = results[1].count || 0;
-            this.loaded = true;
-        });
-    }
 
-    public navigate(path: string): void {
-        this._router.navigateByUrl(path);
-    }
+  public eventSeries$ = this._api.getEventsSeriesList(undefined, undefined, SeriesTimeFrame.Last30Days)
+                                 .pipe(shareReplay(1));
+
+  public eventSeriesData$ = this.eventSeries$.pipe(
+    map(series => {
+      return {
+        labels: series.items?.map(s => {
+          const date = new Date(s.label!);
+          const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date);
+          const dayOfWeek = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+          const day = date.getDate();
+          return `${day} ${month}`;
+        }) || [],
+        datasets: [{
+          label: 'Events',
+          data: series.items?.map(s => s.events) || [],
+          borderColor: '#4bbbce',
+          backgroundColor: '#4bbbce'
+        }]
+      } as LineChartData;
+    })
+  );
+
+  public metrics$ = this._api.getOverview()
+                             .pipe(
+                               startWith(new OverviewMetrics()),
+                               tap(() => this.loaded = true),
+                               shareReplay(1)
+                             );
+  public channelMetrics$ = this.metrics$
+                               .pipe(
+                                 map(this.buildGaugeChannels),
+                                 tap(() => this._cdr.markForCheck())
+                               );
+
+
+
+  public ngOnInit(): void {
+    this.metaItems = [
+      { key: 'NG-LIB version :', icon: Icons.DateTime, text: new Date().toLocaleTimeString() }
+    ];
+  }
+
+  public navigate(path: string): void {
+    this._router.navigateByUrl(path);
+  }
+
+  private buildGaugeChannels(metrics: OverviewMetrics) {
+    if (!metrics?.perChannel) return [];
+    return metrics.perChannel.map(x => {
+      return {
+        name: x.kind!,
+        value: x.total || 0,
+        color: (x.kind === 'Email' ? '#5985ee' :
+                x.kind === 'SMS' ? '#46cd93' :
+                x.kind === 'PushNotification' ? '#fdba45' :
+               '#4bbbce')
+      };
+    }).filter(x => x.value > 0);
+  }
+
 }

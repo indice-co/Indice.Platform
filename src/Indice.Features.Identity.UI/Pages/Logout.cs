@@ -1,8 +1,16 @@
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+using Duende.IdentityServer;
+using Duende.IdentityServer.Events;
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Services;
+#else
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
+#endif
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
@@ -85,7 +93,7 @@ public abstract class BaseLogoutModel : BasePageModel
         TempData.Clear();
         if (User?.Identity?.IsAuthenticated == true) {
             // If there's no current logout context, we need to create one this captures necessary info from the current logged in user. This can still return null if there is no context needed.
-            LogoutId ??= await Interaction.CreateLogoutContextAsync();
+            LogoutId ??= (await Interaction.CreateLogoutContextAsync())!;
             // Delete local authentication cookie.
             await SignInManager.SignOutAsync();
             // Raise the logout event.

@@ -1,16 +1,17 @@
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Services;
+#else
 using IdentityServer4.Services;
+#endif
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Features.Identity.UI.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -22,11 +23,8 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseMfaModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseMfaModel> _localizer;
-
     /// <summary>Creates a new instance of <see cref="BaseMfaModel"/> class.</summary>
     /// <param name="logger">The logger instance for this page.</param>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseMfaModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="totpServiceFactory">A factory service that contains methods to create various TOTP services, based on <see cref="TotpServiceBase"/>.</param>
@@ -36,7 +34,6 @@ public abstract class BaseMfaModel : BasePageModel
     /// <exception cref="ArgumentNullException"></exception>
     public BaseMfaModel(
         ILogger<BaseMfaModel> logger,
-        IStringLocalizer<BaseMfaModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         TotpServiceFactory totpServiceFactory,
@@ -45,7 +42,6 @@ public abstract class BaseMfaModel : BasePageModel
         IAuthenticationMethodProvider authenticationMethodProvider
     ) {
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         TotpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
@@ -78,25 +74,14 @@ public abstract class BaseMfaModel : BasePageModel
 
     /// <summary>MFA page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
-    /// <param name="downgradeChannel">Allows the user to select a channel with lower security.</param>
-    public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl, [FromQuery(Name = "dc")] bool? downgradeChannel) {
-        Input = View = await BuildMfaLoginViewModelAsync(returnUrl, downgradeChannel);
+    public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
+        Input = View = await BuildMfaLoginViewModelAsync(returnUrl);
         if (View.HasError) {
-            ModelState.AddModelError(string.Empty, _localizer[View.Error!]);
+            ModelState.AddModelError(string.Empty, View.Error!);
             return Page();
         }
 
-        var totpService = TotpServiceFactory.Create<User>();
-        if (View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms) {
-            await totpService.SendAsync(message =>
-                message.ToUser(View.User)
-                       .WithMessage(_localizer["Your OTP code for login is: {0}"])
-                       .UsingSms()
-                       .UsingTokenProvider(View.AuthenticationMethod?.GetTokenProvider()!)
-                       .WithSubject(_localizer["OTP login"])
-                       .WithPurpose("TwoFactor")
-            );
-        }
+        await SendOtpAsync();
         return Page();
     }
 
@@ -105,7 +90,14 @@ public abstract class BaseMfaModel : BasePageModel
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         View = await BuildMfaLoginViewModelAsync(Input);
         if (View.HasError) {
-            ModelState.AddModelError(string.Empty, _localizer[View.Error!]);
+            ModelState.AddModelError(string.Empty, View.Error!);
+            return Page();
+        }
+        if (Input.ResendOtp) {
+            var otpResult = await SendOtpAsync();
+            if (!otpResult.Success) {
+                ModelState.AddModelError(string.Empty, otpResult.Error!);
+            }
             return Page();
         }
         var signInResult = await SignInManager.TwoFactorSignInAsync(View.AuthenticationMethod?.GetTokenProvider()!, Input.OtpCode!, Input.RememberMe, Input.RememberClient);
@@ -115,30 +107,31 @@ public abstract class BaseMfaModel : BasePageModel
             } else if (IsValidReturnUrl(Input.ReturnUrl)) {
                 return Redirect(Input.ReturnUrl);
             } else {
-                throw new Exception("Invalid return URL.");
+                Logger.LogError("Invalid return URL while federating to external provider.");
+                return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", "Invalid return URL while federating to external provider");
             }
         }
-        if (signInResult.RequiresValidation()) { 
+        if (signInResult.RequiresValidation()) {
             return RedirectToPage("/AddEmail", new { returnUrl });
-            
+
         }
-        ModelState.AddModelError(string.Empty, _localizer["The OTP code is not valid."]);
+        ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.MfaValidationError);
         return Page();
     }
 
     private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(MfaLoginInputModel model) {
-        var viewModel = await BuildMfaLoginViewModelAsync(model.ReturnUrl);
+        var viewModel = await BuildMfaLoginViewModelAsync(model.ReturnUrl, model.SelectedDeliveryChannel);
+        viewModel.SelectedDeliveryChannel = model.SelectedDeliveryChannel;
         viewModel.OtpCode = null;
         viewModel.RememberClient = model.RememberClient;
         viewModel.RememberMe = model.RememberMe;
         return viewModel;
     }
 
-    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, bool? tryDowngradeAuthenticationMethod = false) {
+    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, TotpDeliveryChannel? selectedTotpChannel = null) {
         var user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ?? throw new InvalidOperationException("User cannot be null");
-        var authenticationMethod = await AuthenticationMethodProvider.GetRequiredAuthenticationMethod(user, tryDowngradeAuthenticationMethod);
-        var allowDowngradeAuthenticationMethod = Configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
-        var deviceIdentifier = HttpContext.ResolveDeviceId();
+        var authenticationMethod = await AuthenticationMethodProvider.FindMethodForUserOrDefaultAsync(user, selectedTotpChannel);
+        var deviceIdentifier = await SignInManager.GetMfaDeviceIdentifierAsync(user);
         UserDevice? browserDevice = null;
         if (!string.IsNullOrWhiteSpace(deviceIdentifier.Value)) {
             browserDevice = await UserManager.GetDeviceByIdAsync(user, deviceIdentifier.Value);
@@ -146,15 +139,47 @@ public abstract class BaseMfaModel : BasePageModel
         if (authenticationMethod is null) {
             Logger.LogError("MFA must be applied but no suitable authentication method was found.");
         }
-
+        var hasError = authenticationMethod == null;
         return new MfaLoginViewModel {
             AuthenticationMethod = authenticationMethod,
-            AllowDowngradeAuthenticationMethod = allowDowngradeAuthenticationMethod,
+            AvailableAuthenticationMethods = await AuthenticationMethodProvider.GetAllMethodsForUserAsync(user),
+            AllowDowngradeAuthenticationMethod = AuthenticationMethodProvider.AllowMfaChannelDowngrade,
             ReturnUrl = returnUrl,
             User = user,
-            IsExistingBrowser = browserDevice?.MfaSessionActive ?? false,
-            Error = authenticationMethod == null ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null
+            IsExistingBrowser = browserDevice?.MfaSessionActive() ?? false,
+            Error = hasError ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null,
+            ResendEnabled = !hasError &&
+                (authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms ||
+                 authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification ||
+                 authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Email),
+            HubConnectionUrl = Configuration.GetSection("General").GetValue<string>("HubConnectionUrl")
         };
+    }
+
+    private async Task<TotpResult> SendOtpAsync() {
+        if (View.AuthenticationMethod is null) {
+            return TotpResult.ErrorResult("MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator.");
+        }
+        var totpService = TotpServiceFactory.Create<User>();
+        if (View.AuthenticationMethod.SupportsDeliveryChannel()) {
+            if (View.AuthenticationMethodDeliveryChannel == TotpDeliveryChannel.Email) {
+                return await totpService.SendAsync(message =>
+                message.ToUser(View.User)
+                       .WithMessage(UserManager.MessageDescriber.MfaEmailBody)
+                       .UsingEmail("EmailMfaOtpCode")
+                       .UsingTokenProvider(View.AuthenticationMethod?.GetTokenProvider()!)
+                       .WithSubject(UserManager.MessageDescriber.MfaEmailSubject)
+                       .WithPurpose("TwoFactor"));
+            }
+            return await totpService.SendAsync(message =>
+                message.ToUser(View.User)
+                   .WithMessage(UserManager.MessageDescriber.MfaSmsBody)
+                   .UsingDeliveryChannel(View.AuthenticationMethodDeliveryChannel!.Value)
+                   .UsingTokenProvider(View.AuthenticationMethod?.GetTokenProvider()!)
+                   .WithSubject(UserManager.MessageDescriber.MfaSmsSubject)
+                   .WithPurpose("TwoFactor"));
+        }
+        return TotpResult.SuccessResult;
     }
 }
 
@@ -162,12 +187,11 @@ internal class MfaModel : BaseMfaModel
 {
     public MfaModel(
         ILogger<BaseMfaModel> logger,
-        IStringLocalizer<MfaModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         TotpServiceFactory totpServiceFactory,
         IConfiguration configuration,
         IIdentityServerInteractionService interaction,
         IAuthenticationMethodProvider authenticationMethodProvider
-    ) : base(logger, localizer, userManager, signInManager, totpServiceFactory, configuration, interaction, authenticationMethodProvider) { }
+    ) : base(logger, userManager, signInManager, totpServiceFactory, configuration, interaction, authenticationMethodProvider) { }
 }

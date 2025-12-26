@@ -26,7 +26,7 @@ internal class RiskResultStoreEntityFrameworkCore : IRiskResultStore
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetList(ListOptions<AdminRiskFilterRequest> options) {
+    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetList(ListOptions<AdminRiskResultFilterRequest> options) {
         var query = _dbContext.RiskResults.AsNoTracking().AsQueryable();
         query = ApplyFilters(query, options.Filter.Filter);
         return await query.ToResultSetAsync(options);
@@ -36,6 +36,17 @@ internal class RiskResultStoreEntityFrameworkCore : IRiskResultStore
         foreach (var clause in filter) {
             if (string.IsNullOrWhiteSpace(clause.Member)) {
                 continue;
+            }
+
+            if (clause.Member.Equals(nameof(DbAggregateRuleExecutionResult.Id), StringComparison.OrdinalIgnoreCase) && Guid.TryParse(clause.Value, out var id)) {
+                switch (clause.Operator) {
+                    case FilterOperator.Eq:
+                        query = query.Where(x => x.Id == id);
+                        break;
+                    case FilterOperator.Neq:
+                        query = query.Where(x => x.Id != id);
+                        break;
+                }
             }
 
             if (clause.Member.ToLower() == "from" && DateTimeOffset.TryParse(clause.Value, out var dateFrom)) {

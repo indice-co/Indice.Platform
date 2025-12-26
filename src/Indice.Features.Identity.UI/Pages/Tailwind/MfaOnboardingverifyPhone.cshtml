@@ -2,41 +2,63 @@
 
 @model BaseMfaOnboardingVerifyPhoneModel
 
-@inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment HostingEnvironment
+@inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewBag.Title = Localizer["Verify phone number"].Value;
+    ViewBag.Title = Localizer.MfaOnBoardingVerifyPhone_PageTitle;
     var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyPhoneModel.TempDataKey);
     var displayNext = !string.IsNullOrEmpty(infoMessage?.NextStepUrl) && infoMessage?.Alert?.AlertType == AlertType.Success;
 }
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <vc:page-heading title="@Localizer.MfaOnBoardingVerifyPhone_PageHeader" image-src="" />
+        <partial name="_ValidationSummary" />
+        <partial name="_Alert" model="infoMessage?.Alert" />
 
-<div class="sign-in m-auto">
-    <vc:page-heading title="@title" image-src="" />
-    <partial name="_ValidationSummary" />
-    <partial name="_Alert" model="infoMessage?.Alert" />
-    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
-        <input type="hidden" asp-for="Input.ReturnUrl" />
-        <input type="hidden" asp-for="Input.PhoneNumber" />
-        <div class="mb-3">
-            <label asp-for="Input.Code" class="form-label visually-hidden">@Localizer["Code"]</label>
-            <input class="form-control" type="text" placeholder="@Localizer["Code"]" asp-for="Input.Code" disabled="@displayNext" />
-            <span asp-validation-for="Input.Code" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <div class="row m-0 w-100">
-                <div class="@(displayNext ? "col-sm-6" : String.Empty) col-12 py-1">
-                    <button class="btn btn-info w-100" type="submit" disabled="@displayNext">@Localizer["Save"]</button>
-                </div>
-                @if (displayNext)
-                {
-                    <div class="col-sm-6 col-12 py-1">
-                        <a class="btn btn-info w-100" href="@infoMessage!.NextStepUrl">@Localizer["Next"]</a>
-                    </div>
-                }
+        <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
+            <input type="hidden" asp-for="Input.ReturnUrl" />
+            <input type="hidden" asp-for="Input.PhoneNumber" />
+
+            <div class="mb-4">
+                <label asp-for="Input.Code" class="sr-only">@Localizer.MfaOnBoardingVerifyPhone_Code</label>
+                <input asp-for="Input.Code"
+                       type="text"
+                       placeholder="@Localizer.MfaOnBoardingVerifyPhone_Code"
+                       disabled="@displayNext"
+                       autofocus
+                       autocomplete="off"
+                       class="block w-full px-3 py-2 border border-gray-300 rounded-md
+               placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+               focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed" />
+                <span asp-validation-for="Input.Code" class="block mt-1 text-sm text-red-600"></span>
             </div>
-        </div>
-    </form>
+
+            <div class="mb-4">
+                <div class="flex flex-wrap -mx-1">
+                    <div class="w-full sm:w-1/2 px-1 py-1">
+                        <button type="submit"
+                                disabled="@displayNext"
+                                class="block w-full py-2 px-4 font-semibold rounded-md
+                   bg-blue-500 hover:bg-blue-600 text-white transition
+                   disabled:opacity-50 disabled:cursor-not-allowed">
+                            @Localizer.MfaOnBoardingVerifyPhone_Save
+                        </button>
+                    </div>
+                    @if (displayNext)
+                    {
+                        <div class="w-full sm:w-1/2 px-1 py-1">
+                            <a href="@infoMessage!.NextStepUrl"
+                               class="block w-full py-2 px-4 text-center font-semibold rounded-md
+                     bg-blue-500 hover:bg-blue-600 text-white transition">
+                                @Localizer.MfaOnBoardingVerifyPhone_Next
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section scripts {

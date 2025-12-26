@@ -1,6 +1,10 @@
 using System.Security.Claims;
 using System.Text;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
@@ -42,7 +46,7 @@ public abstract class BaseAssociateModel : BasePageModel
     public AssociateInputModel Input { get; set; } = new AssociateInputModel();
 
     /// <summary>Associate page GET handler.</summary>
-    public async Task<IActionResult> OnGet() {
+    public virtual async Task<IActionResult> OnGet() {
         // if i got here then there was an external login for a new user not present in the database.
         // This following view will help to review the data coming in before proceeding with the user provisioning.
         var associateViewModel = TempData.Peek<AssociateViewModel>("UserDetails");
@@ -50,7 +54,8 @@ public abstract class BaseAssociateModel : BasePageModel
             return RedirectToPage("/Login");
         }
         Input = View = associateViewModel;
-        if (UiOptions.AutoProvisionExternalUsers) {
+        var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync();
+        if (UiOptions.AutoProvisionExternalUsers || UiOptions.AutoProvisionExternalUsersFor.Contains(externalLoginInfo?.LoginProvider ?? string.Empty)) {
             return await OnPostAsync();
         }
         return Page();
@@ -103,8 +108,6 @@ public abstract class BaseAssociateModel : BasePageModel
         if (phoneClaim is not null) {
             claims.Remove(phoneClaim);
         }
-        var givenNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName);
-        var familyNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName);
         var email = emailClaim?.Value;
         if (!string.IsNullOrWhiteSpace(email)) {
             // Try find existing user.
@@ -132,6 +135,7 @@ public abstract class BaseAssociateModel : BasePageModel
                 UserId = userId
             });
         }
+        UiOptions.Events.OnUserRegistering?.Invoke(new UIPageRegisteringUserContext(HttpContext, newUser, Input));
         var result = await UserManager.CreateAsync(newUser);
         if (!result.Succeeded) {
             var errors = new StringBuilder();

@@ -1,0 +1,38 @@
+﻿@inject IOptions<GeneralSettings> GeneralSettings
+@inject IOptions<IdentityUIOptions> UIOptions
+@inject UserManager<User> UserManager
+@inject IdentityUILocalizer Localizer
+
+
+@{
+    Layout = "_LayoutEmail.cshtml";
+}
+
+@{
+    var settings = GeneralSettings.Value;
+    var subject = ViewData["Subject"];
+    var userName = Model?.UserName ?? UserManager.GetUserName(User);
+    //var newEmail = (string?)Model?.NewEmail;
+    var confirmationLink = Model?.Url ?? throw new InvalidOperationException("Confirmation link cannot be null.");
+}
+
+@section preheader {
+    @Localizer.Email_Preheader_Verify <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a> @Localizer.Email_Preheader_ToGetVerified!
+}
+
+@section subject {
+    <h1 style="font-size: 18px; font-family:'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-weight:normal">@subject</h1>
+}
+
+<p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
+    @Localizer.Email_Body_Hi @(userName ?? string.Empty),
+    <br />
+    <br />
+    @Localizer.Email_Preheader_Verify <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a> @Localizer.Email_Preheader_ToGetVerified
+    <br />
+    <br />
+    @Localizer.Email_Body_Thanks.
+    <br />
+    <br />
+    @Localizer.Email_Body_Sincerely, @Localizer.OrganizationName(settings.Organization!).
+</p>

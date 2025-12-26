@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Services;
 
 /// <summary>SMS service implementation using the Yuboto SMS service gateway.</summary>
+[Obsolete("This SMS service provider is obsolete. Please consider using another provider or the SmsServiceYubotoOmni instead.", false)]
 public class SmsServiceYuboto : ISmsService, IDisposable
 {
     private bool _disposed = false;

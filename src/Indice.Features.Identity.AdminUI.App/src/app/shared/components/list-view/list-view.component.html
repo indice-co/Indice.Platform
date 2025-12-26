@@ -1,7 +1,7 @@
 <div class="col-sm-12 col-md-4 m-auto" [hidden]="!canFilter">
     <input class="search mt-0" type="text" [placeholder]="'Type at least ' + minimumSearchCharacters + ' characters to filter results...'" [(ngModel)]="searchTerm" #filterInput />
 </div>
-<ngx-datatable class="material expandable" trackByProp="id" [rows]="rows" [columns]="columns" [columnMode]="'force'" [scrollbarH]="true" [count]="count" [rowHeight]="rowHeight" [headerHeight]="50" [footerHeight]="50" [limit]="rowsPerPage" reorderable="false"
+<ngx-datatable class="material expandable" [trackByProp]="trackByProp" [rows]="rows" [columns]="columns" [columnMode]="'force'" [scrollbarH]="true" [count]="count" [rowHeight]="rowHeight" [headerHeight]="50" [footerHeight]="50" [limit]="rowsPerPage" reorderable="false"
                [externalPaging]="!clientSide" [externalSorting]="!clientSide" [loadingIndicator]="isLoading" (page)="setPage($event)" (sort)="setSort($event)" #dataTable>
 </ngx-datatable>
 <ng-template let-row="row" let-value="value" #usernameTemplate>
@@ -51,7 +51,7 @@
 <ng-template let-row="row"
              let-value="value"
              #keyTemplate>
-    <span class="badge text-muted border boder-primary bg-light m-1" [title]="value">
-        {{ value }}
+    <span class="badge text-muted border bg-light m-1" [title]="value">
+        {{ value }} <b class="text-success" *ngIf="row.isActive">⦿</b>
     </span>
 </ng-template>

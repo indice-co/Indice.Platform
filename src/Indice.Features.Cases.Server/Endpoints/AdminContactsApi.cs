@@ -22,7 +22,7 @@ internal static class AdminContactsApi
         group.WithTags("AdminIntegration");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
         group.RequireAuthorization(pb => pb
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
@@ -30,7 +30,7 @@ internal static class AdminContactsApi
             .RequireCasesAccess(CasesAccessLevel.Manage)
         ).WithHandledException<BusinessException>();
         
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -40,9 +40,9 @@ internal static class AdminContactsApi
              .WithName(nameof(AdminContactsHandlers.GetContacts))
              .WithSummary("Search contacts.");
 
-        group.MapGet("contacts/{reference}/data/{caseTypeCode}", AdminContactsHandlers.GetContactData)
-             .WithName(nameof(AdminContactsHandlers.GetContactData))
-             .WithSummary("Fetch contact data by contact.reference number for a specific case type code.");
+        group.MapGet("contacts/{reference}", AdminContactsHandlers.GetContactByReference)
+             .WithName(nameof(AdminContactsHandlers.GetContactByReference))
+             .WithSummary("Fetch contact by contact.reference number.");
 
         return group;
     }

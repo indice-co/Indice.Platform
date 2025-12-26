@@ -1,7 +1,14 @@
-﻿using IdentityServer4.Extensions;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Stores.Serialization;
+#else
+using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
+#endif
 using Indice.Features.Identity.Core.DeviceAuthentication.Models;
 using Microsoft.Extensions.Logging;
 

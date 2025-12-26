@@ -23,7 +23,7 @@ public sealed class RequestIdEnricher : ISignInLogEntryEnricher
 
     /// <inheritdoc />
     public ValueTask EnrichAsync(SignInLogEntry logEntry) {
-        logEntry.RequestId = _httpContextAccessor.HttpContext.TraceIdentifier;
+        logEntry.RequestId = _httpContextAccessor.HttpContext!.TraceIdentifier;
         return ValueTask.CompletedTask;
     }
 }

@@ -13,6 +13,6 @@ public class UserNameChangedEvent(
 {
     /// <summary>The user entity.</summary>
     public UserEventContext User { get; } = user;
-    /// <summary>The previous state of the user.</summary>
+    /// <summary>The previous state of the user name.</summary>
     public string PreviousValue { get; } = previousValue;
 }

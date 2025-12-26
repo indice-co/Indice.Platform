@@ -1,16 +1,12 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Xml.Linq;
-using IdentityModel;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Indice.AspNetCore.Authentication.GovGr;
 
@@ -114,7 +110,6 @@ public static class GovGrExtensions
             options.SaveTokens = true;
             options.CallbackPath = govGrOptions.CallbackPath ?? new PathString("/signin-govgr");
             options.SignInScheme = govGrOptions.SignInScheme ?? CookieAuthenticationDefaults.AuthenticationScheme;
-            options.SaveTokens = true;
             options.Scope.Clear();
             foreach (var scope in govGrOptions.Scopes) {
                 options.Scope.Add(scope);
@@ -122,7 +117,9 @@ public static class GovGrExtensions
             options.ClientId = govGrOptions.ClientId;
             options.ClientSecret = govGrOptions.ClientSecret;
             options.UsePkce = false;
-
+            options.BackchannelTimeout = govGrOptions.BackchannelTimeout;
+            options.Backchannel = govGrOptions.Backchannel;
+            options.BackchannelHttpHandler = govGrOptions.BackchannelHttpHandler;
             options.Events.OnCreatingTicket = async (context) => {
                 var accessToken = context.Properties.GetTokenValue("access_token");
                 var http = context.Request.HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient(authenticationScheme);
@@ -139,13 +136,13 @@ public static class GovGrExtensions
                 context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, context.Scheme.Name, BasicClaimTypes.Name, BasicClaimTypes.Role));
             };
 
-            options.Events.OnTicketReceived = async (context) => {
+            //options.Events.OnTicketReceived = async (context) => {
                 // call http userInfoendpoint and populate the principal with extra claims.
-                var accessToken = context.Properties.GetTokenValue("access_token");
+                //var accessToken = context.Properties.GetTokenValue("access_token");
                 //var http = context.Request.HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient(authenticationScheme);
                 //http.PostAsync(options.UserInformationEndpoint)
 
-            };
+            //};
         });
 
     private static readonly Dictionary<string, string> GovGrClaimMap = new() {
