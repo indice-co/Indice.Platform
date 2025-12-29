@@ -42,6 +42,9 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
             .AddTransient<UserNameAccessorAggregate>()
             .AddSingleton<IFileServiceFactory, DefaultFileServiceFactory>()
             .AddKeyedSingleton<IFileService, FileServiceInMemory>("Messages:FileServiceKey")
+            .Configure<DatabaseCleanUpOptions>(options => {
+                options.Enabled = true;
+            })
             .AddTransient<IDatabaseCleanUpService, DatabaseCleanUpService>()
             .AddOptions()
             .Configure<MessageManagementOptions>(configuration);
@@ -77,12 +80,12 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         }
         db.DistributionLists.AddRange(distributionLists);
 
-        var oldCampaign1 = CreateCampaign(MessageChannelKind.Inbox, 135, true, distributionLists[0].Id);
-        var oldCampaign2 = CreateCampaign(MessageChannelKind.Inbox, 140, true, distributionLists[1].Id);
-        var oldCampaign3 = CreateCampaign(MessageChannelKind.Inbox | MessageChannelKind.Email, 145, true, distributionLists[2].Id);
+        var oldCampaign1 = CreateCampaign(MessageChannelKind.Inbox, 185, true, distributionLists[0].Id);
+        var oldCampaign2 = CreateCampaign(MessageChannelKind.Inbox, 190, true, distributionLists[1].Id);
+        var oldCampaign3 = CreateCampaign(MessageChannelKind.Inbox | MessageChannelKind.Email, 200, true, distributionLists[2].Id);
 
         var recentCampaign = CreateCampaign(MessageChannelKind.Inbox, 10, true, distributionLists[3].Id);
-        var unpublishedCampaign = CreateCampaign(MessageChannelKind.Inbox, 135, false, distributionLists[4].Id);
+        var unpublishedCampaign = CreateCampaign(MessageChannelKind.Inbox, 200, false, distributionLists[4].Id);
 
         db.Campaigns.AddRange(oldCampaign1, oldCampaign2, oldCampaign3, recentCampaign, unpublishedCampaign);
 
@@ -127,12 +130,12 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         }
         db.DistributionLists.AddRange(distributionLists);
 
-        var oldCampaign1 = CreateCampaign(MessageChannelKind.Email, 32, true, distributionLists[0].Id);
-        var oldCampaign2 = CreateCampaign(MessageChannelKind.Email, 31, true, distributionLists[1].Id);
-        var oldCampaign3 = CreateCampaign(MessageChannelKind.Email, 123, true, distributionLists[2].Id);
+        var oldCampaign1 = CreateCampaign(MessageChannelKind.Email, 124, true, distributionLists[0].Id);
+        var oldCampaign2 = CreateCampaign(MessageChannelKind.Email, 170, true, distributionLists[1].Id);
+        var oldCampaign3 = CreateCampaign(MessageChannelKind.Email, 129, true, distributionLists[2].Id);
 
         var recentCampaign = CreateCampaign(MessageChannelKind.Email, 10, true, distributionLists[3].Id);
-        var unpublishedCampaign = CreateCampaign(MessageChannelKind.Email, 35, false, distributionLists[4].Id);
+        var unpublishedCampaign = CreateCampaign(MessageChannelKind.Email, 135, false, distributionLists[4].Id);
 
         db.Campaigns.AddRange(oldCampaign1, oldCampaign2, oldCampaign3, recentCampaign, unpublishedCampaign);
 
@@ -181,7 +184,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         };
         db.DistributionLists.Add(distributionList);
 
-        var campaignWithActivePeriod = CreateCampaign(MessageChannelKind.Email, 35, true, distributionList.Id);
+        var campaignWithActivePeriod = CreateCampaign(MessageChannelKind.Email, 135, true, distributionList.Id);
         campaignWithActivePeriod.ActivePeriod = new Types.Period {
             From = DateTimeOffset.UtcNow.AddDays(-10), // Active period started 10 days ago
             To = DateTimeOffset.UtcNow.AddDays(10)

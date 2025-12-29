@@ -8,12 +8,12 @@ public class DatabaseCleanUpOptions
     /// <summary>
     /// Gets or sets the retention period for campaigns with inbox (in days).
     /// </summary>
-    public int RetentionDaysForInbox { get; set; } = 120;
+    public int RetentionDaysForInbox { get; set; } = 180;
 
     /// <summary>
     /// Gets or sets the retention period for campaigns without inbox (in days).
     /// </summary>
-    public int RetentionDaysForOther { get; set; } = 30;
+    public int RetentionDaysForOther { get; set; } = 120;
 
     /// <summary>
     /// Gets or sets the number of records to remove at a time. Defaults to 100.
@@ -23,5 +23,5 @@ public class DatabaseCleanUpOptions
     /// <summary>
     /// Flag indicating whether the database cleanup task is enabled.
     /// </summary>
-    public bool Enabled { get; set; } = true;
+    public bool Enabled { get; set; } = false;
 }
