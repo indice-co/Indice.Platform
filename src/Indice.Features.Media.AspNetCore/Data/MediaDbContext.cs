@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net.Mail;
-using System.Reflection.Emit;
-using Indice.Features.Media.AspNetCore.Data.Mappings;
+﻿using Indice.Features.Media.AspNetCore.Data.Mappings;
 using Indice.Features.Media.AspNetCore.Data.Models;
 using Indice.Features.Media.AspNetCore.Services;
 using Microsoft.EntityFrameworkCore;
@@ -35,12 +32,12 @@ public class MediaDbContext : DbContext
         if (Database.IsSqlServer()) {
             builder.Entity<DbMediaFile>().Property(x => x.Data).HasColumnType("image");
 
-        } else if (IsNpgSql()) {
+        } else if (IsNpgsql()) {
             builder.Entity<DbMediaFile>().Property(x => x.Data).HasColumnType("bytea");
         }
     }
 
-    internal bool IsNpgSql() => "Npgsql.EntityFrameworkCore.PostgreSQL".Equals(Database.ProviderName, StringComparison.OrdinalIgnoreCase);
+    internal bool IsNpgsql() => "Npgsql.EntityFrameworkCore.PostgreSQL".Equals(Database.ProviderName, StringComparison.OrdinalIgnoreCase);
     internal bool IsSqlServer() => "Microsoft.EntityFrameworkCore.SqlServer".Equals(Database.ProviderName, StringComparison.OrdinalIgnoreCase);
 
     /// <inheritdoc />

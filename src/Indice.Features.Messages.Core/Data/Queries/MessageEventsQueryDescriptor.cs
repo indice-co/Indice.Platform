@@ -22,25 +22,25 @@ internal class MessageEventsQueryDescriptor
                 _RollUp = SqlServerMessageEventsQueries.RollUp;
                 break;
         }
-        _scemaName = context.Database.GetService<DatabaseSchemaNameResolver>().GetSchemaName();
+        _schemaName = context.Database.GetService<DatabaseSchemaNameResolver>().GetSchemaName();
     }
     private readonly bool _isNpgSql;
 
-    private readonly string _scemaName;
+    private readonly string _schemaName;
     private readonly string _RollUp;
     public FormattableString RollUp(string type, MessageChannelKind? channelKind = null, DateTimeOffset? rangeStart = null, DateTimeOffset? rangeEnd = null) {
         var Channel = channelKind?.ToString(); 
         var RangeStart = rangeStart?.ToUniversalTime();
         var RangeEnd = rangeEnd?.ToUniversalTime();
         var Type = type;
-        var sql = string.Format(_RollUp, _scemaName)
+        var sql = string.Format(_RollUp, _schemaName)
             .Replace($"@{nameof(Type)}", "{0}")
             .Replace($"@{nameof(Channel)}", "{1}")
             .Replace($"@{nameof(RangeStart)}", "{2}")
             .Replace($"@{nameof(RangeEnd)}", "{3}");
         return FormattableStringFactory.Create(sql, Type, Channel, RangeStart, RangeEnd);
     }
-    public string RollUpRawSql => string.Format(_RollUp, _scemaName);
+    public string RollUpRawSql => string.Format(_RollUp, _schemaName);
     public DbParameter[] RollUpParameters(string type, MessageChannelKind? channelKind = null, DateTimeOffset? rangeStart = null, DateTimeOffset? rangeEnd = null) {
         var Channel = channelKind?.ToString();
         var RangeStart = rangeStart?.ToUniversalTime();
@@ -49,14 +49,14 @@ internal class MessageEventsQueryDescriptor
         if (_isNpgSql) { 
             return [
                 new NpgsqlParameter($"@{nameof(Type)}", Type),
-                new NpgsqlParameter($"@{nameof(Channel)}", (object?)Channel?? DBNull.Value) { NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar, IsNullable = true },
+                new NpgsqlParameter($"@{nameof(Channel)}", (object?)Channel ?? DBNull.Value) { NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar, IsNullable = true },
                 new NpgsqlParameter($"@{nameof(RangeStart)}", (object?)RangeStart ?? DBNull.Value) {  NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.TimestampTz, IsNullable = true },
                 new NpgsqlParameter($"@{nameof(RangeEnd)}", (object?)RangeEnd ?? DBNull.Value) { NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.TimestampTz, IsNullable = true }
             ];
         }
         return [
             new SqlParameter($"@{nameof(Type)}", Type),
-            new SqlParameter($"@{nameof(Channel)}", (object?)Channel?? DBNull.Value),
+            new SqlParameter($"@{nameof(Channel)}", (object?)Channel ?? DBNull.Value),
             new SqlParameter($"@{nameof(RangeStart)}", (object?)RangeStart ?? DBNull.Value),
             new SqlParameter($"@{nameof(RangeEnd)}", (object?)RangeEnd ?? DBNull.Value)
         ];
