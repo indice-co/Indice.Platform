@@ -1,8 +1,11 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Data.Common;
+using System.Runtime.CompilerServices;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Npgsql;
 
 namespace Indice.Features.Messages.Core.Data.Queries;
 
@@ -12,6 +15,7 @@ internal class MessageEventsQueryDescriptor
         switch (context.Database.ProviderName) {
             case "Npgsql.EntityFrameworkCore.PostgreSQL":
                 _RollUp = PostgreSqlMessageEventsQueries.RollUp;
+                _isNpgSql = true;
                 break;
             case "Microsoft.EntityFrameworkCore.SqlServer":
             default:
@@ -20,12 +24,14 @@ internal class MessageEventsQueryDescriptor
         }
         _scemaName = context.Database.GetService<DatabaseSchemaNameResolver>().GetSchemaName();
     }
+    private readonly bool _isNpgSql;
+
     private readonly string _scemaName;
     private readonly string _RollUp;
     public FormattableString RollUp(string type, MessageChannelKind? channelKind = null, DateTimeOffset? rangeStart = null, DateTimeOffset? rangeEnd = null) {
         var Channel = channelKind?.ToString(); 
-        var RangeStart = rangeStart;
-        var RangeEnd = rangeEnd;
+        var RangeStart = rangeStart?.ToUniversalTime();
+        var RangeEnd = rangeEnd?.ToUniversalTime();
         var Type = type;
         var sql = string.Format(_RollUp, _scemaName)
             .Replace($"@{nameof(Type)}", "{0}")
@@ -34,6 +40,28 @@ internal class MessageEventsQueryDescriptor
             .Replace($"@{nameof(RangeEnd)}", "{3}");
         return FormattableStringFactory.Create(sql, Type, Channel, RangeStart, RangeEnd);
     }
+    public string RollUpRawSql => string.Format(_RollUp, _scemaName);
+    public DbParameter[] RollUpParameters(string type, MessageChannelKind? channelKind = null, DateTimeOffset? rangeStart = null, DateTimeOffset? rangeEnd = null) {
+        var Channel = channelKind?.ToString();
+        var RangeStart = rangeStart?.ToUniversalTime();
+        var RangeEnd = rangeEnd?.ToUniversalTime();
+        var Type = type;
+        if (_isNpgSql) { 
+            return [
+                new NpgsqlParameter($"@{nameof(Type)}", Type),
+                new NpgsqlParameter($"@{nameof(Channel)}", (object?)Channel?? DBNull.Value) { NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar, IsNullable = true },
+                new NpgsqlParameter($"@{nameof(RangeStart)}", (object?)RangeStart ?? DBNull.Value) {  NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.TimestampTz, IsNullable = true },
+                new NpgsqlParameter($"@{nameof(RangeEnd)}", (object?)RangeEnd ?? DBNull.Value) { NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.TimestampTz, IsNullable = true }
+            ];
+        }
+        return [
+            new SqlParameter($"@{nameof(Type)}", Type),
+            new SqlParameter($"@{nameof(Channel)}", (object?)Channel?? DBNull.Value),
+            new SqlParameter($"@{nameof(RangeStart)}", (object?)RangeStart ?? DBNull.Value),
+            new SqlParameter($"@{nameof(RangeEnd)}", (object?)RangeEnd ?? DBNull.Value)
+        ];
+    }
+
 }
 
 internal static class SqlServerMessageEventsQueries

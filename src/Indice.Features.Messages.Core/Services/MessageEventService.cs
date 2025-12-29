@@ -89,7 +89,7 @@ public class MessageEventService : IMessageEventService
 
         var descriptor = new MessageEventsQueryDescriptor(DbContext);
         var query = DbContext.Database
-                             .SqlQuery<MessageEventSeries>(descriptor.RollUp(
+                             .SqlQueryRaw<MessageEventSeries>(descriptor.RollUpRawSql, descriptor.RollUpParameters(
                                  type: filter.EventType ?? "Created",
                                  channelKind: filter.Channel,
                                  rangeStart: rangeStart));
