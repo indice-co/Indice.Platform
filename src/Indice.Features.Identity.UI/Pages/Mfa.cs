@@ -107,7 +107,8 @@ public abstract class BaseMfaModel : BasePageModel
             } else if (IsValidReturnUrl(Input.ReturnUrl)) {
                 return Redirect(Input.ReturnUrl);
             } else {
-                throw new Exception("Invalid return URL.");
+                Logger.LogError("Invalid return URL while federating to external provider.");
+                return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", "Invalid return URL while federating to external provider");
             }
         }
         if (signInResult.RequiresValidation()) {

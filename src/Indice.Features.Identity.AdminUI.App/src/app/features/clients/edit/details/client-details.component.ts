@@ -45,8 +45,13 @@ export class ClientDetailsComponent implements OnInit, OnDestroy {
         const getExternalProviders$ = this._identityApi.getExternalProviders();
         this._getDataSubscription = forkJoin([getClient$, getExternalProviders$]).subscribe((result: [SingleClientInfo, ExternalProviderResultSet]) => {
             this.client = result[0];
-            this.externalProviders = result[1].items.map((provider: ExternalProvider) =>
-                new SelectableExternalProvider(this.client.identityProviderRestrictions.indexOf(provider.authenticationScheme) > -1, provider.displayName, provider.authenticationScheme));
+            const hasRestrictions = this.client.identityProviderRestrictions && this.client.identityProviderRestrictions.length > 0;
+            this.externalProviders = result[1].items.map((provider: ExternalProvider) => {
+                // If no restrictions, select all providers
+                // If restrictions exist, only select providers in the restrictions list
+                const isSelected = !hasRestrictions || (this.client.identityProviderRestrictions?.indexOf(provider.authenticationScheme) ?? -1) > -1;
+                return new SelectableExternalProvider(isSelected, provider.displayName, provider.authenticationScheme);
+            });
             if (!this.client.translations) {
                 this.client.translations = {} as { [key: string]: ClientTranslation; };
                 return;
