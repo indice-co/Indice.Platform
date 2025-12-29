@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
+﻿using Duende.IdentityModel;
 using Indice.Features.GovGr;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Authentication.GovGr;
 
@@ -88,4 +89,21 @@ public class GovGrOptions
     public string TokenEndpoint => $"{Authority}/oauth/token";
     /// <summary>The OAuth endpoint used to exchange access tokens.</summary>
     public string UserInfoEndpoint => $"{Authority}/userinfo?format=xml";
+
+    /// <summary>
+    /// Gets or sets timeout value in milliseconds for back channel communications with
+    /// the remote identity provider.
+    /// </summary>
+    public TimeSpan BackchannelTimeout { get; set; } = TimeSpan.FromSeconds(60);
+
+    /// <summary>
+    /// Gets or sets the HttpMessageHandler used to communicate with remote identity provider. This 
+    /// cannot be set at the same time as BackchannelCertificateValidator unless the
+    /// value can be downcast to a WebRequestHandler.
+    /// </summary>
+    public HttpMessageHandler? BackchannelHttpHandler { get; set; }
+    /// <summary>
+    /// Used to communicate with the remote identity provider. 
+    /// </summary>
+    public HttpClient Backchannel { get; set; } = null!;
 }
