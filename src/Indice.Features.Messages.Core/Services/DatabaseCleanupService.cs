@@ -53,14 +53,14 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
     }
 
     private async Task CleanUpDataAsync(IQueryable<DbCampaign> query, DateTimeOffset cutOffDate) {
-        bool hasMoreRecords = true;
-        while (hasMoreRecords) {
+        var baseQuery = query;
+        while (true) {
             // old and published
-            query = query.Where(x => x.CreatedAt <= cutOffDate && x.Published &&
+            var batchQuery = baseQuery.Where(x => x.CreatedAt <= cutOffDate && x.Published &&
             (!(x.ActivePeriod != null && x.ActivePeriod.From != null) || x.ActivePeriod.From <= cutOffDate))
                 .OrderBy(x => x.CreatedAt)
                 .Take(_options.DeletionBatchSize);
-            var deletionCampaignData = await query.Select(x => new DbCampaign { Id = x.Id, AttachmentId = x.AttachmentId, DistributionListId = x.DistributionListId!.Value }).ToListAsync();
+            var deletionCampaignData = await batchQuery.Select(x => new DbCampaign { Id = x.Id, AttachmentId = x.AttachmentId, DistributionListId = x.DistributionListId!.Value }).ToListAsync();
             //nothing left to delete...
             if (deletionCampaignData.Count == 0) {
                 break;

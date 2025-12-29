@@ -70,7 +70,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
 
         // Create distribution list
         var distributionLists = new List<DbDistributionList>();
-        for(int i=0; i<5; i++) {
+        for (int i = 0; i < 5; i++) {
             distributionLists.Add(new DbDistributionList {
                 Id = Guid.NewGuid(),
                 Name = $"Test List {i}",

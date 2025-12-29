@@ -1,9 +1,6 @@
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Handlers;
-using Indice.Features.Messages.Core.Services.Abstractions;
-using Indice.Services;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Messages.Worker.Azure;
 
@@ -18,24 +15,21 @@ public class CronTriggers
     /// Initializes a new instance of the <see cref="CronTriggers"/> class.
     /// </summary>
     /// <param name="cleanUpJobHandlerFactory"></param>
-    /// <param name="eventDispatcherFactory"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public CronTriggers(
-        MessageJobHandlerFactory cleanUpJobHandlerFactory,
-        IEventDispatcherFactory eventDispatcherFactory
-    ) {
+        MessageJobHandlerFactory cleanUpJobHandlerFactory) {
         CleanUpJobHandlerFactory = cleanUpJobHandlerFactory ?? throw new ArgumentNullException(nameof(cleanUpJobHandlerFactory));
     }
 
 
     /// <summary>
-    /// Deletes the data of campaigns that do not have inbox.
+    /// Performs database cleanup for all campaigns based on their respective retention policies.
     /// </summary>
-    /// <param name="myTimer"></param>
-    /// <param name="handler"></param>
-    /// <returns></returns>
+    /// <param name="myTimer">The timer trigger that schedules the database cleanup job.</param>
+    /// <param name="handler">The handler responsible for executing the database cleanup logic.</param>
+    /// <returns>A task that represents the asynchronous database cleanup operation.</returns>
     [Function("DatabaseCleanUp")]
-    public async Task RunDatabaseCleanUp([TimerTrigger("%Messages:DatabaseCleanUpOptions:CronExpression%")] TimerInfo myTimer, DatabaseCleanUpHandler handler) {
+    public async Task RunDatabaseCleanUp([TimerTrigger("%MessageJobsOptions:DatabaseCleanUpCronExpression%")] TimerInfo myTimer, DatabaseCleanUpHandler handler) {
         var payload = new DatabaseCleanUpTimerEvent();
         await CleanUpJobHandlerFactory.CreateFor<DatabaseCleanUpTimerEvent>().Process(payload);
     }

@@ -5,14 +5,14 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 namespace Indice.Features.Messages.Core.Handlers;
 
 /// <summary>
-/// 
+/// Handles database cleanup timer events by triggering the cleanup of old campaign data.
 /// </summary>
 public sealed class DatabaseCleanUpHandler : ICampaignJobHandler<DatabaseCleanUpTimerEvent>
 {
     private readonly IDatabaseCleanUpService _cleanUpService;
 
     /// <summary>
-    /// The contructor for our handler.
+    /// The constructor for our handler.
     /// </summary>
     /// <param name="cleanUpService"></param>
     public DatabaseCleanUpHandler(IDatabaseCleanUpService cleanUpService) {

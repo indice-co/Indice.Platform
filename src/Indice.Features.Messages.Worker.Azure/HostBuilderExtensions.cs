@@ -76,6 +76,7 @@ public static class HostBuilderExtensions
                 dbCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
                 dbCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
                 dbCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
+                dbCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
             });
             services.AddHostedService<StartupSeedHostedService>();
             services.TryAddSingleton(options.FunctionDisablePredicate);

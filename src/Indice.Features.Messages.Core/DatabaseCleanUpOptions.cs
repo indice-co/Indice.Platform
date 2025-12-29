@@ -16,7 +16,7 @@ public class DatabaseCleanUpOptions
     public int RetentionDaysForOther { get; set; } = 120;
 
     /// <summary>
-    /// Gets or sets the number of records to remove at a time. Defaults to 100.
+    /// Gets or sets the number of records to remove at a time. Defaults to 10.
     /// </summary>
     public int DeletionBatchSize { get; set; } = 10;
 
