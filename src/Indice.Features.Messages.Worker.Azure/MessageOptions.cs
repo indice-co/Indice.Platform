@@ -23,6 +23,4 @@ public class MessageOptions : MessageWorkerOptions
     /// <summary>Configuration for campaign statistics feature.</summary>
     public AnalyticsOptions CampaignStatisticOptions { get; set; } = new AnalyticsOptions();
 
-    /// <summary>Configuration for database clean up jobs.</summary>
-    public DatabaseCleanUpOptions DatabaseCleanUpOptions { get; set; } = new DatabaseCleanUpOptions();
 }

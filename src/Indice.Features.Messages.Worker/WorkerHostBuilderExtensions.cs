@@ -46,6 +46,12 @@ public static class WorkerHostBuilderExtensions
         workerHostBuilder.Services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
             messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
         });
+        workerHostBuilder.Services.Configure<DatabaseCleanUpOptions>(dbCleanUpOptions => {
+            dbCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
+            dbCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
+            dbCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
+            dbCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
+        });
         workerHostBuilder.Services.AddHostedService<StartupSeedHostedService>();
         return workerHostBuilder;
     }
