@@ -65,7 +65,7 @@ public abstract class BaseChallengeModel : BasePageModel
     protected IAuthenticationSchemeProvider SchemeProvider { get; }
 
     /// <summary>Challenge page GET handler.</summary>
-    public async Task<IActionResult> OnGet(string provider, string returnUrl, string prompt) {
+    public virtual async Task<IActionResult> OnGet(string provider, string returnUrl, string prompt) {
         if (string.IsNullOrEmpty(returnUrl)) {
             returnUrl = "/";
         }
