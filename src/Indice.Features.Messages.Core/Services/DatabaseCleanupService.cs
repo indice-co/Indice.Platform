@@ -20,6 +20,7 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
     /// </summary>
     /// <param name="options">Retention policies for database cleanup.</param>
     /// <param name="dbContext">Database context for accessing campaign data.</param>
+    /// <param name="fileServiceFactory">Factory for creating file services.</param>
     public DatabaseCleanUpService(IOptions<DatabaseCleanUpOptions> options, CampaignsDbContext dbContext, IFileServiceFactory fileServiceFactory) {
         _options = options.Value;
         DbContext = dbContext;
@@ -101,8 +102,7 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
         var dbAttachments = await DbContext.Attachments.Where(x => attachmentIds.Contains(x.Id)).ToListAsync();
         if (dbAttachments.Any()) {
             foreach (var dbAttachment in dbAttachments) {
-                // the path where the data is stored - this could become a configuration option if needed
-                var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension?.TrimStart('.')}";
+                var path = dbAttachment.GetPath();
                 try {
                     await FileService.DeleteAsync(path);
                 } 

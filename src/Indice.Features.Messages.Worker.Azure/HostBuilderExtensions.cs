@@ -6,7 +6,6 @@ using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Handlers;
 using Indice.Features.Messages.Core.Hosting;
 using Indice.Features.Messages.Core.Manager;
-using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
@@ -18,7 +17,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.Hosting;
 

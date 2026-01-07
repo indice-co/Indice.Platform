@@ -1,5 +1,4 @@
 ﻿using Indice.Features.Messages.Core.Events;
-using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 
 namespace Indice.Features.Messages.Core.Handlers;
