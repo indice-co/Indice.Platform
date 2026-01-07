@@ -1,6 +1,4 @@
-﻿using Org.BouncyCastle.Bcpg;
-
-namespace Indice.Features.Messages.Core.Data.Models;
+﻿namespace Indice.Features.Messages.Core.Data.Models;
 
 /// <summary>Campaign attachment entity.</summary>
 public class DbAttachment
