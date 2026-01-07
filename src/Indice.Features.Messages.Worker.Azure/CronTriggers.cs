@@ -26,10 +26,9 @@ public class CronTriggers
     /// Performs database cleanup for all campaigns based on their respective retention policies.
     /// </summary>
     /// <param name="myTimer">The timer trigger that schedules the database cleanup job.</param>
-    /// <param name="handler">The handler responsible for executing the database cleanup logic.</param>
     /// <returns>A task that represents the asynchronous database cleanup operation.</returns>
     [Function("DatabaseCleanUp")]
-    public async Task RunDatabaseCleanUp([TimerTrigger("%MessageJobsOptions:DatabaseCleanUpCronExpression%")] TimerInfo myTimer, DatabaseCleanUpHandler handler) {
+    public async Task RunDatabaseCleanUp([TimerTrigger("%MessageJobsOptions:DatabaseCleanUpCronExpression%")] TimerInfo myTimer) {
         var payload = new DatabaseCleanUpTimerEvent();
         await CleanUpJobHandlerFactory.CreateFor<DatabaseCleanUpTimerEvent>().Process(payload);
     }
