@@ -4,6 +4,7 @@ using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.Core.Services;
@@ -14,6 +15,7 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
     private readonly DatabaseCleanUpOptions _options;
     private CampaignsDbContext DbContext { get; }
     private readonly IFileService FileService;
+    private readonly ILogger<DatabaseCleanUpService> _logger;
 
     /// <summary>
     /// Constructs the service.
@@ -21,10 +23,12 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
     /// <param name="options">Retention policies for database cleanup.</param>
     /// <param name="dbContext">Database context for accessing campaign data.</param>
     /// <param name="fileServiceFactory">Factory for creating file services.</param>
-    public DatabaseCleanUpService(IOptions<DatabaseCleanUpOptions> options, CampaignsDbContext dbContext, IFileServiceFactory fileServiceFactory) {
+    /// <param name="logger">Logger for logging events.</param>
+    public DatabaseCleanUpService(IOptions<DatabaseCleanUpOptions> options, CampaignsDbContext dbContext, IFileServiceFactory fileServiceFactory, ILogger<DatabaseCleanUpService> logger) {
         _options = options.Value;
         DbContext = dbContext;
         FileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory), $"Service {KeyedServiceNames.FileServiceKey} was not registered");
+        _logger = logger;
     }
 
     /// <summary>
@@ -32,11 +36,11 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
     /// </summary>
     /// <returns></returns>
     public async Task CleanUpCampaignsWithInboxAsync() {
-        if(!_options.Enabled) {
+        if (!_options.Enabled) {
             return;
         }
-        var cutOffDate =  DateTimeOffset.UtcNow.AddDays(-_options.RetentionDaysForInbox);
-        var query = DbContext.Campaigns.AsNoTracking().Where(x =>  x.MessageChannelKind.HasFlag(MessageChannelKind.Inbox));
+        var cutOffDate = DateTimeOffset.UtcNow.AddDays(-_options.RetentionDaysForInbox);
+        var query = DbContext.Campaigns.AsNoTracking().Where(x => x.MessageChannelKind.HasFlag(MessageChannelKind.Inbox));
         await CleanUpDataAsync(query, cutOffDate);
     }
 
@@ -84,7 +88,8 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
                 await DbContext.DistributionLists.Where(x => x.CreatedBy!.ToLower().Trim() == "system" && deletionCampaignData.Select(c => c.DistributionListId).Contains(x.Id)).ExecuteDeleteAsync();
                 await DbContext.MessageEvents.Where(x => deletionCampaignData.Select(c => c.Id).Contains(x.CampaignId)).ExecuteDeleteAsync();
                 await transaction.CommitAsync();
-            } catch (Exception) {
+            } catch (Exception ex) {
+                _logger.LogError(ex, "Error occurred while deleting campaign batch.");
                 await transaction.RollbackAsync();
                 throw;
             }
@@ -105,9 +110,8 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
                 var path = dbAttachment.GetPath();
                 try {
                     await FileService.DeleteAsync(path);
-                } 
-                catch {
-                    // catching any exception here to avoid breaking the cleanup process due to file deletion issues
+                } catch (Exception ex) {
+                    _logger.LogError(ex, "Error occurred while deleting attachment file at path: {Path}", path);
                 }
             }
             await DbContext.Attachments.Where(x => attachmentIds.Contains(x.Id)).ExecuteDeleteAsync();
