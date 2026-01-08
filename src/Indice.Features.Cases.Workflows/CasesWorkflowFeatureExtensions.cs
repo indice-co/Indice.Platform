@@ -14,11 +14,13 @@ using Indice.Features.Cases.Workflows;
 using Indice.Features.Cases.Workflows.Bookmarks;
 using Indice.Features.Cases.Workflows.Data;
 using Indice.Features.Cases.Workflows.Extensions;
+using Indice.Features.Cases.Workflows.Handlers;
 using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Localization;
 using Indice.Features.Cases.Workflows.Serialization;
 using Indice.Features.Cases.Workflows.Services;
 using Indice.Features.Cases.Workflows.Services.Abstractions;
+using Indice.Features.Cases.Workflows.Store;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -84,6 +86,10 @@ public static class CasesWorkflowFeatureExtensions
         
         builder.Services.AddHostedService<CasesWorkflowDbInitializerHostedService>();
         builder.Services.AddDbContextFactory<ElsaContext>(configureDatabase);
+        builder.Services.AddTransient<DecisionStore>();
+        builder.Services.AddMediatR(cfg => {
+            cfg.RegisterServicesFromAssemblyContaining<WorkflowPublishedHandler>();
+        });
 
         builder.Services.AddElsa(elsa => {
             elsa.UseEntityFrameworkPersistence(configureDatabase, autoRunMigrations: false)

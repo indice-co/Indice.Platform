@@ -20,6 +20,16 @@ public static class WorkflowManagerApi
 
         group.RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy);
 
+        group.MapPost("set-decision-rules", WorkflowManagerHandler.SetDecisionRules)
+            .WithName(nameof(WorkflowManagerHandler.SetDecisionRules))
+            .WithSummary("SetDecisionRules")
+            .AllowAnonymous();
+        
+        group.MapGet("get-decision-definitions", WorkflowManagerHandler.GetDecisionDefinitions)
+            .WithName(nameof(WorkflowManagerHandler.GetDecisionDefinitions))
+            .WithSummary("GetDecisionDefinitions")
+            .AllowAnonymous();
+
         group.MapPost("start-workflow", WorkflowManagerHandler.StartWorkflow)
             .WithName(nameof(WorkflowManagerHandler.StartWorkflow))
             .WithSummary("Start a workflow for a case id.");

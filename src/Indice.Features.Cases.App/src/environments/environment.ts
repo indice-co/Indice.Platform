@@ -3,7 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 const title = document.title;
-const api = 'https://localhost:2001/api';
+const api = 'https://localhost:2001';
 const authority = 'https://my.indice.gr';
 const self = 'http://localhost:4300';
 export const environment = {

@@ -4,6 +4,8 @@
 // </auto-generated>
 //----------------------
 
+using System.Reflection;
+
 #pragma warning disable 108 // Disable "CS0108 '{derivedDto}.ToJson()' hides inherited member '{dtoBase}.ToJson()'. Use the new keyword if hiding was intended."
 #pragma warning disable 114 // Disable "CS0114 '{derivedDto}.RaisePropertyChanged(String)' hides inherited member 'dtoBase.RaisePropertyChanged(String)'. To make the current member override that implementation, add the override keyword. Otherwise add the new keyword."
 #pragma warning disable 472 // Disable "CS0472 The result of the expression is always 'false' since a value of type 'Int32' is never equal to 'null' of type 'Int32?'
@@ -1792,14 +1794,14 @@ namespace Indice.Features.Cases.Workflows.Integrations
                     content_.Headers.Remove("Content-Type");
                     content_.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary_);
 
-                    if (file == null)
-                        throw new System.ArgumentNullException("file");
-                    else {
-                        var content_file_ = new System.Net.Http.StreamContent(file.Data);
-                        if (!string.IsNullOrEmpty(file.ContentType))
-                            content_file_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(file.ContentType);
-                        content_.Add(content_file_, "file", file.FileName ?? "file");
-                    }
+                    // if (file == null)
+                    //     throw new System.ArgumentNullException("file");
+                    // else {
+                    //     var content_file_ = new System.Net.Http.StreamContent(file.Data);
+                    //     if (!string.IsNullOrEmpty(file.ContentType))
+                    //         content_file_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(file.ContentType);
+                    //     content_.Add(content_file_, "file", file.FileName ?? "file");
+                    // }
 
                     if (actorId == null)
                         throw new System.ArgumentNullException("actorId");
@@ -1851,12 +1853,12 @@ namespace Indice.Features.Cases.Workflows.Integrations
                         content_.Add(new System.Net.Http.StringContent(ConvertToString(fileName, System.Globalization.CultureInfo.InvariantCulture)), "fileName");
                     }
 
-                    if (data == null)
-                        throw new System.ArgumentNullException("data");
-                    else {
-                        var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(data, JsonSerializerSettings);
-                        content_.Add(new System.Net.Http.ByteArrayContent(json_), "data");
-                    }
+                    // if (data == null)
+                    //     throw new System.ArgumentNullException("data");
+                    // else {
+                    //     var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(data, JsonSerializerSettings);
+                    //     content_.Add(new System.Net.Http.ByteArrayContent(json_), "data");
+                    // }
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
 
@@ -3183,13 +3185,8 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record NotificationSubscription
     {
-
-        [System.Text.Json.Serialization.JsonPropertyName("caseTypeId")]
-        public System.Guid CaseTypeId { get; set; }
-
         [System.Text.Json.Serialization.JsonPropertyName("subscriber")]
         public Subscriber Subscriber { get; set; }
 

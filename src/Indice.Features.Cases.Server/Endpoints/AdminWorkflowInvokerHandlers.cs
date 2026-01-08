@@ -16,6 +16,25 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminWorkflowInvokerHandlers
 {
+
+    public static async Task<Results<NoContent, ProblemHttpResult>> SetRules(
+        string caseTypeCode,
+        DecisionTable decisionTable,
+        WorkflowHttpServiceClient workflowHttpServiceClient
+    ) {
+        
+        var result = await workflowHttpServiceClient.SetDecisionRules(caseTypeCode, decisionTable);
+        
+        return result.Success ? TypedResults.NoContent() : TypedResults.Problem(detail: result.Message);
+    }
+
+    public static async Task<DecisionsResponse> GetDecisions(
+        string caseTypeCode,
+        WorkflowHttpServiceClient workflowHttpServiceClient
+    ) {
+        return await workflowHttpServiceClient.GetDecisionDefinitions(caseTypeCode);
+    }
+    
     public static async Task<Results<NoContent, ProblemHttpResult>> SubmitApproval(
         Guid caseId,
         ApprovalRequest request,

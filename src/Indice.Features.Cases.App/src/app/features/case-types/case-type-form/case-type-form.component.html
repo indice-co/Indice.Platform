@@ -241,6 +241,125 @@
                     </div>
                 </div>
             </section>
+
+            <section *ngIf="(dmnWhenColumns?.length ?? 0) > 0" class="form-flex-row flex flex-wrap">
+                <div class="form-flex-item flex-auto">
+                    <div class="form-group my-4 px-2">
+                        <label class="legend px-2 font-bold">DMN Decision Table</label>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full border border-gray-300 text-sm">
+                                <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="border px-2 py-1">#</th>
+
+                                    <!-- WHEN columns -->
+                                    <th *ngFor="let col of dmnWhenColumns" class="border px-2 py-1">
+                                        <div class="flex flex-col gap-1">
+                                            <span>{{ col.name }}</span>
+                                            <small *ngIf="col.allowedValues && col.allowedValues.length > 0"
+                                                   class="text-xs text-gray-500">
+                                                {{ col.type }} ({{ col.allowedValues.join(', ') }})
+                                            </small>
+                                            <!-- Otherwise just show type -->
+                                            <small *ngIf="!col.allowedValues || col.allowedValues.length === 0"
+                                                   class="text-xs text-gray-500">
+                                                {{ col.type }}
+                                            </small>
+                                        </div>
+                                    </th>
+
+                                    <!-- THEN columns -->
+                                    <th *ngFor="let col of dmnThenColumns" class="border px-2 py-1">
+                                        <div class="flex flex-col gap-1">
+                                            <span>{{ col.name }}</span>
+                                        </div>
+                                    </th>
+
+                                    <th class="border px-2 py-1">Actions</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                <tr *ngFor="let rule of decisionTable.rules; let i = index">
+                                    <td class="border px-2 py-1 text-center">{{ i + 1 }}</td>
+
+                                    <!-- WHEN values -->
+                                    <ng-container *ngIf="rule.conditions as conditions">
+
+                                        <td *ngFor="let col of dmnWhenColumns; let j = index" class="border px-2 py-1">
+                                            <div class="flex gap-1 items-center">
+                                                <!-- operator -->
+                                                <select
+                                                    class="form-control text-xs w-20"
+                                                    [(ngModel)]="conditions[j].operator"
+                                                    name="op-{{i}}-{{col.name}}">
+                                                    <option *ngFor="let op of (col.type === 'string' ? stringOperators : intOperators)" [value]="op">
+                                                        {{ op }}
+                                                    </option>
+                                                </select>
+
+                                                <!-- value -->
+                                                <input
+                                                    class="form-control flex-1"
+                                                    [type]="'text'"
+                                                    [(ngModel)]="conditions[j].value"
+                                                    name="when-{{i}}-{{col.name}}">
+                                            </div>
+                                        </td>
+
+                                    </ng-container>
+
+                                    <!-- THEN values -->
+                                    <td *ngFor="let col of dmnThenColumns" class="border px-2 py-1">
+                                        <input
+                                            class="form-control"
+                                            type="text"
+                                            [(ngModel)]="rule.successEvent"
+                                            name="then-{{i}}-{{col.name}}">
+                                    </td>
+
+                                    <td class="border px-2 py-1 text-center">
+                                        <button
+                                            type="button"
+                                            class="text-red-600"
+                                            (click)="removeDmnRule(i)">
+                                            ✕
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mt-2">
+                            <button
+                                type="button"
+                                class="btn-submit-form"
+                                (click)="addDmnRule()">
+                                + Add Rule
+                            </button>
+                        </div>
+
+                        <div class="mt-4">
+                            <button
+                                type="button"
+                                class="btn-submit-form"
+                                (click)="saveDecisionTable()">
+                                Save Decision Table
+                            </button>
+                        </div>
+                        <div *ngIf="saveErrorMessage" class="mt-2 p-2 border border-red-400 bg-red-100 text-red-800 rounded" style="white-space: pre-wrap">
+                            <strong>Error:</strong> {{ saveErrorMessage }}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+
+
             <div class="flex-auto">
                 <div>
                     <button class="btn-submit-form" type="submit" [disabled]="!caseTypeForm.valid">

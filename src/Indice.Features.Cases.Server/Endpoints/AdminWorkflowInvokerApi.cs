@@ -36,6 +36,16 @@ internal static class AdminWorkflowInvokerApi
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);
 
+        group.MapPost("cases/{caseTypeCode}/set-rules", AdminWorkflowInvokerHandlers.SetRules)
+            .WithName(nameof(AdminWorkflowInvokerHandlers.SetRules))
+            .WithSummary("SetDecisionRules")
+            .AllowAnonymous();
+        
+        group.MapGet("cases/{caseTypeCode}/get-decisions", AdminWorkflowInvokerHandlers.GetDecisions)
+            .WithName(nameof(AdminWorkflowInvokerHandlers.GetDecisions))
+            .WithSummary("GetDecisions")
+            .AllowAnonymous();
+
         group.MapPost("cases/{caseId}/approve", AdminWorkflowInvokerHandlers.SubmitApproval)
             .WithName(nameof(AdminWorkflowInvokerHandlers.SubmitApproval))
             .WithSummary("Invoke the approval activity to approve or reject the case.");

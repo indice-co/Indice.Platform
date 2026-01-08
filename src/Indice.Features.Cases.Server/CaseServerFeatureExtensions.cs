@@ -75,6 +75,7 @@ public static class CaseServerFeatureExtensions
             .ClearResilienceHandlers()
             .AddClientCredentialsTokenHandler("cases");
         builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
+        builder.Services.AddTransient<WorkflowHttpServiceClient>();
         builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessMemberHandler>();
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessOwnerHandler>();

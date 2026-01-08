@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Elsa;
 using Elsa.Models;
 using Elsa.Persistence;
@@ -5,16 +6,99 @@ using Elsa.Persistence.Specifications;
 using Elsa.Services;
 using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks;
+using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Features.Cases.Workflows.Models;
+using Indice.Features.Cases.Workflows.Models.Decision;
+using Indice.Features.Cases.Workflows.Services;
 using Indice.Features.Cases.Workflows.Services.Abstractions;
 using Indice.Features.Cases.Workflows.Specifications;
+using Indice.Features.Cases.Workflows.Store;
+using Indice.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Rule = RulesEngine.Models.Rule;
 
 namespace Indice.Features.Cases.Workflows.Endpoints;
 
 internal static class WorkflowManagerHandler
 {
+    public static async Task<Results<NoContent, ValidationProblem>> SetDecisionRules(
+        string caseTypeCode,
+        DecisionTable decisionTable,
+        DecisionStore store,
+        IWorkflowDefinitionStore workflowDefinitionStore
+    ) {
+        var workflowDefinitionTagSpecification = new WorkflowDefinitionTagCsvSpecification(caseTypeCode);
+        var workflowDefinition = await workflowDefinitionStore.FindAsync(workflowDefinitionTagSpecification);
+        if (workflowDefinition == null) {
+            return TypedResults.ValidationProblem(errors: new Dictionary<string, string[]>(), detail: $"SetDecisionRules failed. There is no workflow definition with the tag: {caseTypeCode}.");
+        }
+        
+        var definitions = GetDecisionDefinitionsInternal(workflowDefinition);
+        if (definitions.Count == 0) {
+            return TypedResults.ValidationProblem(errors: new Dictionary<string, string[]>(), detail: $"SetDecisionRules failed. There are no decision definitions with the tag: {caseTypeCode}.");
+        }
+        
+        var rulesList = decisionTable.Rules.Select(x => new Rule {
+            RuleName = x.RuleName,
+            SuccessEvent = x.SuccessEvent,
+            ErrorMessage = x.ErrorMessage,
+            Expression = x.Conditions.BuildExpression()
+        }).ToArray();
+
+        var validationResult = new Z3Validator().Validate(definitions.First(), rulesList); // todo: correctly handle multiple decisions in casetype
+        if (!validationResult.Success) {
+            return TypedResults.ValidationProblem(errors: new Dictionary<string, string[]>(), detail: validationResult.Error);
+        }
+        
+        await store.CreateRules(caseTypeCode, decisionTable, rulesList);
+
+        return TypedResults.NoContent();
+    }
+
+    public static async Task<Results<Ok<DecisionsResponse>, ValidationProblem>> GetDecisionDefinitions(
+        string caseTypeCode,
+        DecisionStore store,
+        IWorkflowDefinitionStore workflowDefinitionStore
+    ) {
+        var workflowDefinitionTagSpecification = new WorkflowDefinitionTagCsvSpecification(caseTypeCode);
+        var workflowDefinition = await workflowDefinitionStore.FindAsync(workflowDefinitionTagSpecification);
+        if (workflowDefinition == null) {
+            return TypedResults.ValidationProblem(errors: new Dictionary<string, string[]>(), detail: $"GetDecisionDefinitions failed. There is no workflow definition with the tag: {caseTypeCode}.");
+        }
+        
+        var decisionDefinitions = GetDecisionDefinitionsInternal(workflowDefinition);
+        var decisionTable = await store.GetDecisionTable(caseTypeCode, decisionDefinitions.FirstOrDefault()!.Name);
+        return TypedResults.Ok(new DecisionsResponse {
+            DecisionDefinitions = decisionDefinitions,
+            DecisionTable = decisionTable
+        });
+    }
+
+    public class DecisionsResponse
+    {
+        public IList<DecisionDefinition> DecisionDefinitions { get; set; }
+        public DecisionTable? DecisionTable { get; set; }
+    }
+    
+    private static IList<DecisionDefinition> GetDecisionDefinitionsInternal(WorkflowDefinition workflowDefinition) {
+        IList<DecisionDefinition> definitions = new List<DecisionDefinition>();
+        
+        var decisionActivities = workflowDefinition.Activities.Where(a => a.Type == nameof(DecisionActivity));
+        foreach (var activity in decisionActivities) {
+            var decisionName = activity.GetProperty(nameof(DecisionActivity.DecisionName));
+            var decisionVariables = activity.GetProperty(nameof(DecisionActivity.DecisionVariables));
+            var variables = JsonSerializer.Deserialize<List<DecisionVariableDefinition>>(decisionVariables!, JsonSerializerOptionDefaults.GetDefaultSettings());
+            
+            definitions.Add(new DecisionDefinition {
+                Name = decisionName!,
+                Variables = variables!,
+            });
+        }
+
+        return definitions;
+    }
+    
     public static async Task<Results<NoContent, ValidationProblem>> StartWorkflow(
         Guid caseId,
         string caseTypeCode,
