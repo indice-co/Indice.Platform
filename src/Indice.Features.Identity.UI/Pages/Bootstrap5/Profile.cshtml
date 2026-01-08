@@ -85,7 +85,7 @@
                         @Localizer.Email
                         <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" style="font-size: x-small;">(@Localizer.Profile_Confirmation →)</a>
                     </label>
-                    <input class="form-control" type="text" placeholder="@Localizer.Email" asp-for="Input.Email" readonly="@(identityUiOptions.Value.DisableEmailEdit)" />
+                    <input class="form-control" type="text" placeholder="@Localizer.Email" asp-for="Input.Email" readonly="@identityUiOptions.Value.DisableEmailEdit" />
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
             </div>
@@ -107,7 +107,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label asp-for="Input.PhoneNumber" class="form-label">@Localizer.Profile_Phone_Number</label>
-                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Phone_Number" asp-for="Input.PhoneNumber" readonly="@(identityUiOptions.Value.DisablePhoneEdit)" />
+                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Phone_Number" asp-for="Input.PhoneNumber" readonly="@identityUiOptions.Value.DisablePhoneEdit" />
                     <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
             </div>
@@ -116,7 +116,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label asp-for="Input.Tin" class="form-label">@Localizer.Profile_Tax_Identification</label>
-                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Tax_Identification" asp-for="Input.Tin" />
+                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Tax_Identification" readonly="@Model.View.DisableEditTin" asp-for="Input.Tin" />
                     <span asp-validation-for="Input.Tin" class="text-danger"></span>
                 </div>
             </div>
