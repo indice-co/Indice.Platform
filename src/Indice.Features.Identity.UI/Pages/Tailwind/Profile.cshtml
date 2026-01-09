@@ -30,13 +30,13 @@
         var message = Localizer.Profile_Your_Profile_Was_Updated_Successfully.Value!;
         if (Model.EmailChangeRequested)
         {
-			message += (Localizer.ForgotPasswordConfirmation_LoginLink(Url.PageLink("/Login")!)).Value;
+            message += (Localizer.ForgotPasswordConfirmation_LoginLink(Url.PageLink("/Login")!)).Value;
         }
         <partial name="_Alert" model="@AlertModel.Success(message)" />
     }
     @if (Model.View.EmailChangePending && !Model.ProfileSuccessfullyChanged)
     {
-		<partial name="_Alert" model="@AlertModel.Warn(Localizer.Profile_Your_New_Email_Verification_Is_Still_Pending)" />
+        <partial name="_Alert" model="@AlertModel.Warn(Localizer.Profile_Your_New_Email_Verification_Is_Still_Pending)" />
     }
     <partial name="_Alert" model="alert" />
     <partial name="_ValidationSummary" />
@@ -89,22 +89,22 @@
             else
             {
                 <div class="input-group">
-                    <input class="peer" type="text" placeholder="@Localizer.Profile_Phone_Number]" asp-for="Input.PhoneNumber" />
+                    <input class="peer" type="text" placeholder="@Localizer.Profile_Phone_Number" asp-for="Input.PhoneNumber" readonly="@identityUiOptions.Value.DisablePhoneEdit" />
                     <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.PhoneNumber">@Localizer.Profile_Phone_Number</label>
                     <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
-                <div class="input-group">
-                    <select class="peer" asp-for="Input.ZoneInfo" required>
-                        <option value="" selected>@Localizer.Profile_Choose</option>
-                        @foreach (var timezone in zoneInfoProvider.GetTimeZones())
-                        {
-                            <option value="@timezone.Id">@timezone.DisplayName</option>
-                        }
-                    </select>
-                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer.Profile_Timezone</label>
-                    <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
-                </div>
             }
+            <div class="input-group">
+                <select class="peer" asp-for="Input.ZoneInfo" required>
+                    <option value="" selected>@Localizer.Profile_Choose</option>
+                    @foreach (var timezone in zoneInfoProvider.GetTimeZones())
+                    {
+                        <option value="@timezone.Id">@timezone.DisplayName</option>
+                    }
+                </select>
+                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer.Profile_Timezone</label>
+                <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
+            </div>
         </div>
         <div class="row">
             <div class="input-group">

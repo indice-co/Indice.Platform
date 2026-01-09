@@ -53,8 +53,8 @@ public abstract class BaseErrorModel : PageModel
         RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
         if (!string.IsNullOrEmpty(errorId)) {
             var error = await Interaction.GetErrorContextAsync(errorId);
-            Title = error.Error;
-            Message = error.ErrorDescription;
+            Title = error?.Error;
+            Message = error?.ErrorDescription;
         }
         return Page();
     }

@@ -134,7 +134,7 @@ public abstract class BaseProfileModel : BasePageModel
             AddModelErrors(result);
         }
         _ = PhoneNumber.TryParse(Input!.PhoneNumberWithCallingCode!, out var phoneNumber);
-        user.PhoneNumber = IdentityUIOptions.EnablePhoneNumberCallingCodes ? phoneNumber : phoneNumber.Number;
+        user.PhoneNumber = phoneNumber;
         result = await UserManager.UpdateAsync(user);
         AddModelErrors(result);
         ProfileSuccessfullyChanged = ModelState.ErrorCount == 0;

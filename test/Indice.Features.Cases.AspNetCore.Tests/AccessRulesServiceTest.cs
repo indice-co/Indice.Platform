@@ -96,6 +96,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
+        Assert.NotNull(@case);
         await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 0,
@@ -119,6 +120,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
+        Assert.NotNull(@case);
         await caseMembersService.BatchCreate(Admin().UserToActor(options.Value), [
                 new () {
                     AccessLevel = 110,
@@ -241,6 +243,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
+        Assert.NotNull(@case);
         try {
             await caseMembersService.Create(NonAdmin().UserToActor(options.Value),
                 new() {
@@ -262,6 +265,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
+        Assert.NotNull(@case);
         var initialUser = Guid.NewGuid().ToString();
         var replacementUser = Guid.NewGuid().ToString();
         await caseMembersService.Create(Admin().UserToActor(options.Value),
@@ -289,6 +293,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
+        Assert.NotNull(@case);
         var initialUser = Guid.NewGuid().ToString();
         var replacementUser = Guid.NewGuid().ToString();
         await caseMembersService.Create(Admin().UserToActor(options.Value),

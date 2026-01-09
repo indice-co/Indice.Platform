@@ -1,4 +1,4 @@
-﻿@import 'variables';
+﻿@use 'variables';
 
 .article-content-wrapper {
     @apply flex flex-row justify-center h-full lg:h-[95%] pt-[90px] w-full lg:px-16 lg:pb-[70px] bg-clip-padding bg-no-repeat bg-transparent lg:bg-[#ffffff63] lg:backdrop-blur-3xl rounded-[50px] opacity-100;
