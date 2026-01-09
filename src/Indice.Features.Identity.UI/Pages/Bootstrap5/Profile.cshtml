@@ -98,7 +98,7 @@
                         <option value="" selected>@Localizer.Profile_Choose</option>
                         @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
                         {
-                            <option value="@callingCode">@callingCode.DisplayName</option>
+                            <option value="@callingCode" selected="@(callingCode.Code == Model.Input.CallingCode)">@callingCode.DisplayName</option>
                         }
                     </select>
                     <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
