@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace Indice.Features.Cases.Core.Models;
 
@@ -28,5 +29,5 @@ public class Message
     public string? FileName { get; set; }
 
     /// <summary>The data related with the message.</summary>
-    public dynamic? Data { get; set; }
+    public JsonNode? Data { get; set; }
 }

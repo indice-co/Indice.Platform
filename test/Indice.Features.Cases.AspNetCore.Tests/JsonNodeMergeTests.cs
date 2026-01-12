@@ -19,7 +19,7 @@ public class JsonNodeMergeTests
 
         var request = new PatchJsonPathRequest { Op = OperationType.Add, Path = "/baz", Value = "qux" };
         var patch = new JsonPatch(request.ToPatchOperation()).Apply(caseData);
-        
+        Assert.NotNull(patch.Result);
         Assert.Equal(
             """{"foo": "bar", "baz": "qux"}""".ThroughDb(),
             patch.Result.ToDb());
@@ -44,6 +44,7 @@ public class JsonNodeMergeTests
         var request = new PatchJsonPathRequest { Op = OperationType.Add, Path = "/foo/1", Value = "qux" };
         var patch = new JsonPatch(request.ToPatchOperation()).Apply(caseData);
 
+        Assert.NotNull(patch.Result);
         Assert.Equal(
             """{ "foo": [ "bar", "qux", "baz" ] }""".ThroughDb(),
             patch.Result.ToDb());
@@ -76,6 +77,7 @@ public class JsonNodeMergeTests
         var request = new PatchJsonPathRequest { Op = OperationType.Remove, Path = "/baz" };
         var patch = new JsonPatch(request.ToPatchOperation()).Apply(caseData);
 
+        Assert.NotNull(patch.Result);
         Assert.Equal(
             """{ "foo": "bar" }""".ThroughDb(),
             patch.Result.ToDb());
@@ -91,8 +93,8 @@ public class JsonNodeMergeTests
             """
             .FromDb();
         
-        caseData.Merge(new { baz = (object)null! }.ThroughHttp()); 
-        
+        caseData.Merge(new { baz = (object)null! }.ThroughHttp());
+
         Assert.Equal(
             """{ "foo": "bar" }""".ThroughDb(),
             caseData.ToDb());
@@ -107,6 +109,7 @@ public class JsonNodeMergeTests
         var request = new PatchJsonPathRequest { Op = OperationType.Remove, Path = "/foo/1" };
         var patch = new JsonPatch(request.ToPatchOperation()).Apply(caseData);
 
+        Assert.NotNull(patch.Result);
         Assert.Equal(
             """{ "foo": [ "bar", "baz" ] }""".ThroughDb(),
             patch.Result.ToDb());
@@ -125,6 +128,7 @@ public class JsonNodeMergeTests
         var request = new PatchJsonPathRequest { Op = OperationType.Replace, Path = "/baz", Value = "boo" };
         var patch = new JsonPatch(request.ToPatchOperation()).Apply(caseData);
 
+        Assert.NotNull(patch.Result);
         Assert.Equal(
             """
                 {
@@ -145,7 +149,7 @@ public class JsonNodeMergeTests
                        """.FromDb();
         
         caseData.Merge(new { baz = "boo" }.ThroughHttp());
-        
+
         Assert.Equal(
             """
                 {
@@ -174,6 +178,7 @@ public class JsonNodeMergeTests
         var request = new PatchJsonPathRequest { Op = OperationType.Move, From = "/foo/waldo", Path = "/qux/thud" };
         var patch = new JsonPatch(request.ToPatchOperation()).Apply(caseData);
 
+        Assert.NotNull(patch.Result);
         Assert.Equal(
             """
                 {
@@ -229,6 +234,7 @@ public class JsonNodeMergeTests
         var request = new PatchJsonPathRequest { Op = OperationType.Move, From = "/foo/1", Path = "/foo/3" };
         var patch = new JsonPatch(request.ToPatchOperation()).Apply(caseData);
 
+        Assert.NotNull(patch.Result);
         Assert.Equal(
             """{ "foo": [ "all", "cows", "eat", "grass" ] }""".ThroughDb(),
             patch.Result.ToDb());
@@ -279,6 +285,7 @@ public class JsonNodeMergeTests
         };
         var patch = new JsonPatch(request.ToPatchOperation()).Apply(caseData);
 
+        Assert.NotNull(patch.Result);
         Assert.Equal(
             """
                 {
@@ -355,6 +362,7 @@ public class JsonNodeMergeTests
         var request = new PatchJsonPathRequest { Op = OperationType.Add, Path = "/~01", Value = 20 };
         var patch = new JsonPatch(request.ToPatchOperation()).Apply(caseData);
 
+        Assert.NotNull(patch.Result);
         Assert.Equal(
             """
                 {
@@ -374,6 +382,7 @@ public class JsonNodeMergeTests
         var request = new PatchJsonPathRequest { Op = OperationType.Add, Path = "/foo/-", Value = new List<string> { "abc", "def"} };
         var patch = new JsonPatch(request.ToPatchOperation()).Apply(caseData);
 
+        Assert.NotNull(patch.Result);
         Assert.Equal(
             """{ "foo": ["bar", ["abc", "def"]] }""".ThroughDb(),
             patch.Result.ToDb());
@@ -457,10 +466,10 @@ public class JsonNodeMergeTests
     [Fact]
     public void StringNullWhitespaceEmptyTest() {
         var caseData = """{"name": "John", "surname": "Doe", "middle": "M."}""".ThroughHttp();
-        caseData.Merge(JsonNode.Parse("""{"name": null}""")).ThroughHttp();
+        caseData.Merge(JsonNode.Parse("""{"name": null}""")!.ThroughHttp());
         caseData.Merge(new { surname = string.Empty }.ThroughHttp());
         caseData.Merge(new { middle = ' ' }.ThroughHttp());
-        caseData.Merge(JsonNode.Parse("""{"father": null}""")).ThroughHttp();
+        caseData.Merge(JsonNode.Parse("""{"father": null}""")!.ThroughHttp());
         caseData.Merge(new { mother = string.Empty }.ThroughHttp());
         caseData.Merge(new { grandpapa = ' ' }.ThroughHttp());
     
@@ -638,6 +647,7 @@ public class JsonNodeMergeTests
         var operations = request.Select(op => op.ToPatchOperation()).ToList();
         var patch = new JsonPatch(operations).Apply(caseData);
         
+        Assert.NotNull(patch.Result);
         Assert.Equal("""
                      {
                        "Name": "John Rambo",
@@ -750,7 +760,7 @@ public class JsonNodeMergeTests
         };
         var operations = request.Select(op => op.ToPatchOperation()).ToList();
         var patch = new JsonPatch(operations).Apply(caseData);
-        
+        Assert.NotNull(patch.Result);
         Assert.Equal(
             """
                 {

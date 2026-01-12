@@ -1,5 +1,7 @@
 #if NET9_0_OR_GREATER
 using Duende.IdentityModel;
+using Duende.IdentityServer.EntityFramework.DbContexts;
+
 #else
 using IdentityModel;
 #endif
@@ -7,6 +9,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Extensions;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
 using Indice.Globalization;
@@ -17,6 +20,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -95,8 +99,8 @@ public abstract class BaseProfileModel : BasePageModel
 
     /// <summary>Profile page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync() {
+        View = await BuildProfileViewModelAsync(Input);
         if (!ModelState.IsValid) {
-            View = await BuildProfileViewModelAsync(Input);
             return Page();
         }
 
@@ -105,8 +109,10 @@ public abstract class BaseProfileModel : BasePageModel
         AddModelErrors(result);
         result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.FamilyName, Input.LastName ?? string.Empty);
         AddModelErrors(result);
-        result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.Tin, Input.Tin ?? string.Empty);
-        AddModelErrors(result);
+        if (!View.DisableEditTin) { 
+            result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.Tin, Input.Tin ?? string.Empty);
+            AddModelErrors(result);
+        }
         result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.BirthDate, Input.BirthDate.HasValue ? $"{Input.BirthDate:yyyy-MM-dd}" : string.Empty);
         AddModelErrors(result);
         result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommercial, Input.ConsentCommercial ? bool.TrueString.ToLower() : bool.FalseString.ToLower());
@@ -128,11 +134,10 @@ public abstract class BaseProfileModel : BasePageModel
             AddModelErrors(result);
         }
         _ = PhoneNumber.TryParse(Input!.PhoneNumberWithCallingCode!, out var phoneNumber);
-        user.PhoneNumber = IdentityUIOptions.EnablePhoneNumberCallingCodes ? phoneNumber : phoneNumber.Number;
+        user.PhoneNumber = phoneNumber;
         result = await UserManager.UpdateAsync(user);
         AddModelErrors(result);
         ProfileSuccessfullyChanged = ModelState.ErrorCount == 0;
-        View = await BuildProfileViewModelAsync(Input);
         return Page();
     }
 
@@ -239,6 +244,7 @@ public abstract class BaseProfileModel : BasePageModel
         if (birthDateText != null && DateTime.TryParse(birthDateText, out var date)) {
             birthDate = date;
         }
+
         var currentLogins = await UserManager.GetLoginsAsync(user);
         var otherLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync())
             .Where(scheme => currentLogins.All(loginInfo => scheme.Name != loginInfo.LoginProvider))
@@ -249,9 +255,13 @@ public abstract class BaseProfileModel : BasePageModel
             consentDate = date;
         }
         _ = PhoneNumber.TryParse(user.PhoneNumber!, out var phoneNumber);
+
+        var configurationDb = ServiceProvider.GetRequiredService<ExtendedConfigurationDbContext>();
+        var canEditTin = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.Tin).Select(x => (bool?)x.UserEditable).FirstOrDefaultAsync() ?? false;
         return new ProfileViewModel {
             BirthDate = birthDate,
             CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
+            DisableEditTin = !canEditTin,
             ConsentCommercial = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.ConsentCommercial)?.Value == bool.TrueString.ToLower(),
             ConsentCommercialDate = consentDate,
             CurrentLogins = currentLogins,
@@ -278,10 +288,13 @@ public abstract class BaseProfileModel : BasePageModel
         var currentLogins = await UserManager.GetLoginsAsync(user);
         var otherLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync())
             .Where(scheme => currentLogins.All(loginInfo => scheme.Name != loginInfo.LoginProvider))
-            .ToList();
+            .ToList(); 
+        var configurationDb = ServiceProvider.GetRequiredService<ExtendedConfigurationDbContext>();
+        var canEditTin = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.Tin).Select(x => (bool?)x.UserEditable).FirstOrDefaultAsync() ?? false;
         return new ProfileViewModel {
             BirthDate = model.BirthDate,
             CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
+            DisableEditTin = !canEditTin,
             ConsentCommercial = model.ConsentCommercial,
             ConsentCommercialDate = model.ConsentCommercialDate,
             CurrentLogins = currentLogins,

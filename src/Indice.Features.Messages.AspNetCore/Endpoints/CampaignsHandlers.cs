@@ -1,5 +1,4 @@
 ﻿using System.Net.Mime;
-using System.Threading.Channels;
 using Indice.Extensions;
 using Indice.Features.Media.AspNetCore;
 using Indice.Features.Messages.AspNetCore.Extensions;

@@ -207,8 +207,8 @@ export class UserStore {
     return this._userExternalLogins;
   }
 
-  public deleteUserExternalLogin(userId: string, provider: string): Observable<void> {
-    return this._api.deleteUserExternalLogin(userId, provider);
+   public deleteUserExternalLogin(userId: string, provider: string, providerKey: string): Observable<void> {
+        return this._api.deleteUserExternalLogin(userId, provider, providerKey);
   }
 
   public getAllRoles(): Observable<RoleInfo[]> {

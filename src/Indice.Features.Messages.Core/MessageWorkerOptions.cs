@@ -7,4 +7,7 @@ public class MessageWorkerOptions
 {
     /// <summary> The period in days until a contact is updated with latest values from <see cref="IContactResolver"/></summary>
     public int ContactRetainPeriodInDays { get; set; } = 1;
+
+    /// <summary>Configuration for database clean up jobs.</summary>
+    public DatabaseCleanUpOptions DatabaseCleanUpOptions { get; set; } = new DatabaseCleanUpOptions();
 }

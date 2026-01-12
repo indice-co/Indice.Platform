@@ -26,7 +26,9 @@ var webroot = './wwwroot/',
 
 task('sass-bootstrap', function () {
     return src([webroot + 'css/**/*.scss', '!' + webroot + 'css/identity.tw.scss'])
-        .pipe(sass().on('error', sass.logError))
+        .pipe(sass({
+            silenceDeprecations: ['legacy-js-api', 'mixed-decls', 'color-functions', 'global-builtin', 'import']
+        }).on('error', sass.logError))
         .pipe(cssbeautify())
         .pipe(dest(webroot + 'css/'));
 });
