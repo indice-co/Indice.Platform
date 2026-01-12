@@ -521,9 +521,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
                     content_.Headers.Remove("Content-Type");
                     content_.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary_);
 
-                    if (file == null)
-                        throw new System.ArgumentNullException("file");
-                    else {
+                    if (file != null) {
                         var content_file_ = new System.Net.Http.StreamContent(file.Data);
                         if (!string.IsNullOrEmpty(file.ContentType))
                             content_file_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(file.ContentType);
@@ -1792,9 +1790,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
                     content_.Headers.Remove("Content-Type");
                     content_.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary_);
 
-                    if (file == null)
-                        throw new System.ArgumentNullException("file");
-                    else {
+                    if (file != null) {
                         var content_file_ = new System.Net.Http.StreamContent(file.Data);
                         if (!string.IsNullOrEmpty(file.ContentType))
                             content_file_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(file.ContentType);
@@ -1851,9 +1847,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
                         content_.Add(new System.Net.Http.StringContent(ConvertToString(fileName, System.Globalization.CultureInfo.InvariantCulture)), "fileName");
                     }
 
-                    if (data == null)
-                        throw new System.ArgumentNullException("data");
-                    else {
+                    if (data != null) {
                         var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(data, JsonSerializerSettings);
                         content_.Add(new System.Net.Http.ByteArrayContent(json_), "data");
                     }
@@ -2184,7 +2178,6 @@ namespace Indice.Features.Cases.Workflows.Integrations
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("file")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public byte[] File { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("comment")]
