@@ -10,7 +10,7 @@ jobs:
   run-codeql-javascript:
     permissions:
       security-events: write
-    runs-on: windows-latest
+    runs-on: windows-2025
     steps:
 
     - name: Harden Runner
