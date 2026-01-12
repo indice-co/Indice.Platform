@@ -6,7 +6,7 @@ permissions:
 on:
   pull_request:
   push:
-    branches: [ develop ]
+    branches: [develop]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -14,19 +14,11 @@ concurrency:
 
 jobs:
   run-build:
-    name: .NET Build
+    name: .NET build and test
     if: always()
     uses: ./.github/workflows/build.template.yml
     secrets:
       NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
-    permissions:
-      contents: read
-
-  run-dotnet-tests:
-    needs: [run-build]
-    if: always()
-    name: .NET Tests
-    uses: ./.github/workflows/test.template.yml
     permissions:
       contents: read
       actions: read
@@ -34,7 +26,6 @@ jobs:
 
   run-codeql-csharp:
     if: always()
-    needs: [run-build]
     name: CodeQL (C#)
     uses: ./.github/workflows/codeql-cs.template.yml
     secrets:
@@ -45,7 +36,6 @@ jobs:
     
   run-codeql-javascript:
     if: always()
-    needs: [run-build]
     name: CodeQL (JavaScript)
     uses: ./.github/workflows/codeql-js.template.yml
     permissions:
