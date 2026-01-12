@@ -56,13 +56,17 @@ public static class MappedTypeTransformer
     /// <returns>The configured <see cref="OpenApiOptions"/> instance.</returns>
     public static OpenApiOptions AddMappedTypeTransformer(this OpenApiOptions options) {
         options.MapType<object>(new() { Type = "object" });
+        options.MapType<object?>(new() { Type = "object", Nullable = true });
         options.MapType<JsonNode>(new() { Type = "object" });
+        options.MapType<JsonNode?>(new() { Type = "object", Nullable = true });
         options.MapType<JsonElement>(new() { Type = "object" });
         options.MapType<JsonElement?>(new() { Type = "object", Nullable = true });
         options.MapType<Stream>(new() { Type = "string", Format = "binary" });
         options.MapType<IFormFile>(new() { Type = "string", Format = "binary" });
+        options.MapType<IFormFile?>(new() { Type = "string", Format = "binary", Nullable = true });
         options.MapType<IFormFileCollection>(new() { Type = "array", Items = new() { Type = "string", Format = "binary" } });
         options.MapType<GeoPoint>(new() { Type = "string" });
+        options.MapType<GeoPoint?>(new() { Type = "string", Nullable = true });
         options.MapType<FilterClause>(new() { Type = "string" });
         options.MapType<Base64Id>(new() { Type = "string" });
         options.MapType<GuidOrAlias>(new() { Type = "string" });
