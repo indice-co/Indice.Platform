@@ -20,9 +20,23 @@ internal static class SignalREndpointsHandler
             return TypedResults.NotFound($"The hub '{hub}' is not recognized.");
         }
         var userId = currentUser.FindSubjectId();
-        var userClaims = currentUser.Claims.ToList();
-        var response = await signalRNegotiateService.Negotiate(hub, userId!, userClaims, cancellationToken);
+        var claimsList = new List<Claim>();
+        var response = await signalRNegotiateService.Negotiate(hub, userId!, claimsList, cancellationToken);
         return TypedResults.Ok(response);
+    }
+
+    public static async Task<Results<Ok<string>, NotFound<string>>> BroadcastToUser(
+        string hub,
+        string userId,
+        string message,
+        CancellationToken cancellationToken,
+        ISignalRBroadcastService signalBroadcastService,
+        IOptions<SignalREndpointsOptions> options) {
+        if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
+            return TypedResults.NotFound($"The hub '{hub}' is not recognized.");
+        }
+        await signalBroadcastService.BroadcastToUser(hub, userId, new BroadcastCommand("broadcast", message), cancellationToken);
+        return TypedResults.Ok("sent");
     }
 
     #region Descriptions
@@ -32,6 +46,15 @@ Returns the proper credentials to listen to a hub.
 Parameters:
 - hub: The name of the SignalR hub to connect to.
 - currentUser: The authenticated user's claims principal.
+- cancellationToken: Cancellation token for the async operation.";
+
+    public static readonly string BROADCASTTOUSER = @"
+Broadcasts message to specified user.
+
+Parameters:
+- hub: The name of the SignalR hub to connect to.
+- userId: The ID of the user to broadcast the message to.
+- message: The message to broadcast.
 - cancellationToken: Cancellation token for the async operation.";
     #endregion
 }

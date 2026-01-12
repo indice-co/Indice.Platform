@@ -12,24 +12,28 @@ public static class SignalREndpointsApi
 
     /// <summary>Maps SignalR endpoints.</summary>
     /// <param name="routes">The endpoint route builder.</param>
-    public static RouteGroupBuilder MapSignalrEndpoints(this IEndpointRouteBuilder routes)
+    public static RouteGroupBuilder MapSignalRProxy(this IEndpointRouteBuilder routes)
     {
 
         var options = routes.ServiceProvider.GetRequiredService<IOptions<SignalREndpointsOptions>>().Value;
         var group = routes.MapGroup($"{options.EndpointRoutePattern}");
-        group.WithTags(options.TagName).WithGroupName(options.GroupName);
+        group.WithTags(options.TagName);
 
-
-        group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(options.AuthenticationScheme)
-                                           .RequireAuthenticatedUser()); 
+        var authenticationScheme = options.AuthenticationSchemes.Count > 0 ? options.AuthenticationSchemes[0] : "Bearer";
+        group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(authenticationScheme)
+                                           .RequireAuthenticatedUser());
 
         if (options.ExcludeFromDescription)
         {
-            group.ExcludeFromDescription();
+            //group.ExcludeFromDescription();
         }
+
         group.MapPost("/{hub}/negotiate", SignalREndpointsHandler.Negotiate)
             .WithDescription(SignalREndpointsHandler.NEGOTIATE)
             .WithName(nameof(SignalREndpointsHandler.Negotiate));
+        group.MapPost("/{hub}/broadcastToUser", SignalREndpointsHandler.BroadcastToUser)
+            .WithDescription(SignalREndpointsHandler.BROADCASTTOUSER)
+            .WithName(nameof(SignalREndpointsHandler.BroadcastToUser));
         return group;
     }
 }
@@ -43,7 +47,7 @@ public class SignalREndpointsOptions
     /// <summary>
     /// The authentication scheme used to secure the endpoints.
     /// </summary>
-    public string AuthenticationScheme { get; set; } = "Bearer";
+    public List<string> AuthenticationSchemes { get; set; } = new();
     /// <summary>
     /// The endpoint route pattern for the SignalR endpoints.
     /// </summary>

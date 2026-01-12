@@ -18,7 +18,7 @@ public static class SignalREndpointExtensions
     /// </summary>
     /// <param name="builder"></param>
     /// <param name="configureAction"></param>
-    public static IHostApplicationBuilder AddSignalREndpoints(this IHostApplicationBuilder builder, Action<SignalREndpointsOptions>? configureAction = null) {
+    public static IHostApplicationBuilder AddSignalRProxy(this IHostApplicationBuilder builder, Action<SignalREndpointsOptions>? configureAction = null) {
         // Use SignalR SDK to create a new HubContext and a negotiation response
         var connectionString = builder.Configuration["AzureSignalRConnectionString"];
         if (string.IsNullOrEmpty(connectionString)) {
