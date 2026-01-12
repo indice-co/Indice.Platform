@@ -156,7 +156,7 @@ public abstract class BasePageModel : PageModel
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
         var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
         await emailService.SendAsync(message =>
-            message.To(user.Email!)
+            message.To(newEmail!)
                    .WithSubject(identityMessageDescriber.ConfirmationEmailChangeSubject)
                    .UsingTemplate("EmailConfirmEmailChange")
                    .WithData(new {
