@@ -1,9 +1,9 @@
 {
   "dependencies": {
-    "@fingerprintjs/fingerprintjs": "4.6.1",
+    "@fingerprintjs/fingerprintjs": "4.6.2",
     "@microsoft/signalr": "8.0.7",
-    "bootstrap": "5.3.6",
-    "bootstrap.native": "5.1.2",
+    "bootstrap": "5.3.8",
+    "bootstrap.native": "5.1.6",
     "font-awesome": "4.7.0",
     "@fortawesome/fontawesome-free": "6.7.2",
     "jquery": "3.7.1",
@@ -16,8 +16,8 @@
     "flowbite": "3.1.2"
   },
   "devDependencies": {
-    "del": "8.0.0",
-    "gulp": "5.0.0",
+    "del": "8.0.1",
+    "gulp": "5.0.1",
     "gulp-clean-css": "4.3.0",
     "gulp-concat": "2.6.1",
     "gulp-cssbeautify": "3.0.1",

@@ -63,7 +63,6 @@
                     <label class="checkbox">
                         <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
                         @Localizer.Register_I_Consent_To_Registration()
-                        <a style="font-weight:bold" asp-page="/Privacy" target="_blank">@Localizer.Register_Here.</a>.
                     </label>
                     <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
                 </div>

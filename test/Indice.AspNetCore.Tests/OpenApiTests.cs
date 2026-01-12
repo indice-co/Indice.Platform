@@ -83,7 +83,7 @@ public class OpenApiTests : IAsyncLifetime
         Assert.Equal(expectedMenuItemSchema, menuItemSchema!.ToJsonString());
 
         var uploadRequestSchema = json!["components"]!["schemas"]!["UploadFileRequest"];
-        var expectedUploadRequestSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"type\":\"string\",\"format\":\"binary\"},\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\",\"nullable\":true}},\"additionalProperties\":false}";
+        var expectedUploadRequestSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"type\":\"string\",\"format\":\"binary\",\"nullable\":true},\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\",\"nullable\":true}},\"additionalProperties\":false}";
         Assert.Equal(expectedUploadRequestSchema, uploadRequestSchema!.ToJsonString());
     }
 }

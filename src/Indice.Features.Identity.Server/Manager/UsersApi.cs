@@ -128,7 +128,7 @@ public static class UsersApi
              .WithSummary("Gets a list of the external login providers for the specified user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
-        group.MapDelete("{userId}/external-logins/{provider}", UserHandlers.DeleteUserExternalLogin)
+        group.MapDelete("{userId}/external-logins/{provider}/{providerKey}", UserHandlers.DeleteUserExternalLogin)
              .WithName(nameof(UserHandlers.DeleteUserExternalLogin))
              .WithSummary("Permanently deletes a specified login provider association from a user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);

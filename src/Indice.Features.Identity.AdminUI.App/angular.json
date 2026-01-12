@@ -30,8 +30,14 @@
               "src/favicon.ico"
             ],
             "styles": [
-              "src/styles.scss"
+                "src/styles.scss"
             ],
+            "stylePreprocessorOptions": {
+              "sass": {
+                "silenceDeprecations": ["color-functions", "global-builtin", "import", "mixed-decls"]
+              }
+            },
+            "allowedCommonJsDependencies": [ "lodash", "file-saver", "ajv", "ajv-formats", "fuzzysort", "extend", "sweetalert2" ],
             "scripts": [],
             "extractLicenses": false,
             "sourceMap": true,

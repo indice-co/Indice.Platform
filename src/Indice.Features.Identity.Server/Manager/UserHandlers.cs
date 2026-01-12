@@ -593,14 +593,15 @@ internal static class UserHandlers
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteUserExternalLogin(
         ExtendedUserManager<User> userManager,
         string userId,
-        string provider
+        string provider,
+        string providerKey
     ) {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
             return TypedResults.NotFound();
         }
         var externalLogins = await userManager.GetLoginsAsync(user);
-        var externalLogin = externalLogins.SingleOrDefault(x => x.LoginProvider == provider);
+        var externalLogin = externalLogins.SingleOrDefault(x => x.LoginProvider == provider && x.ProviderKey == providerKey);
         if (externalLogin == null) {
             return TypedResults.NotFound();
         }
