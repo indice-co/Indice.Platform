@@ -34,6 +34,7 @@ public static class SignalREndpointsApi
         group.MapPost("/{hub}/broadcastToUser", SignalREndpointsHandler.BroadcastToUser)
             .WithDescription(SignalREndpointsHandler.BROADCASTTOUSER)
             .WithName(nameof(SignalREndpointsHandler.BroadcastToUser));
+        group.MapPost("/{hub}/addGroups", SignalREndpointsHandler.AddUserToGroups);
         return group;
     }
 }

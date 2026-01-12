@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Indice.AspNetCore.Features.SignalREndpoint.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Azure.SignalR.Management;
 using Microsoft.Extensions.Options;
 
@@ -31,7 +32,7 @@ public class SignalRNegotiateService : ISignalRNegotiateService
 
         var hubContext = await _hubContextStore.GetHubContextAsync(hub, cancellationToken);
 
-        await AddUserToGroups(hubContext, userClaims, userId, cancellationToken);
+        await AddUserToClaimGroups(hubContext, userClaims, userId, cancellationToken);
         var negotiationResponse = await hubContext.NegotiateAsync(new NegotiationOptions {
             TokenLifetime = TimeSpan.FromHours(1),
             UserId = userId
@@ -49,7 +50,7 @@ public class SignalRNegotiateService : ISignalRNegotiateService
     /// <param name="userClaims"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private async Task AddUserToGroups(ServiceHubContext hubContext, List<Claim> userClaims, string userId, CancellationToken cancellationToken) {
+    private async Task AddUserToClaimGroups(ServiceHubContext hubContext, List<Claim> userClaims, string userId, CancellationToken cancellationToken) {
         var userGroups = userClaims.Where(userClaim => _options.Value.GroupClaims.Contains(userClaim.Type, StringComparer.OrdinalIgnoreCase))
             .Select(c => c.Value).ToList();
         if (userGroups.Any()) {
@@ -58,4 +59,15 @@ public class SignalRNegotiateService : ISignalRNegotiateService
             await Task.WhenAll(groupAddTasks);
         }
     }
+
+    ///<inheritdoc/>
+    public async Task AddUserToGroups(string hubName, List<string> userGroups, string userId, CancellationToken cancellationToken) {
+        var hubContext = await _hubContextStore.GetHubContextAsync(hubName, cancellationToken);
+
+        var groupAddTasks = userGroups.Select(groupName =>
+                    hubContext.UserGroups.AddToGroupAsync(userId, groupName, TimeSpan.FromHours(1), cancellationToken));
+        await Task.WhenAll(groupAddTasks);
+    }
+
+
 }

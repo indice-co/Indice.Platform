@@ -25,17 +25,32 @@ internal static class SignalREndpointsHandler
         return TypedResults.Ok(response);
     }
 
+    public static async Task<Results<Ok, NotFound<string>>> AddUserToGroups(
+    string hub,
+    ClaimsPrincipal currentUser,
+    List<string> groups,
+    CancellationToken cancellationToken,
+    ISignalRNegotiateService signalRNegotiateService,
+    IOptions<SignalREndpointsOptions> options) {
+        if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
+            return TypedResults.NotFound($"The hub '{hub}' is not recognized.");
+        }
+        var userId = currentUser.FindSubjectId();
+        await signalRNegotiateService.AddUserToGroups(hub, groups, userId!, cancellationToken);
+        return TypedResults.Ok();
+    }
+
     public static async Task<Results<Ok<string>, NotFound<string>>> BroadcastToUser(
         string hub,
         string userId,
-        string message,
+        BroadcastCommand command,
         CancellationToken cancellationToken,
         ISignalRBroadcastService signalBroadcastService,
         IOptions<SignalREndpointsOptions> options) {
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             return TypedResults.NotFound($"The hub '{hub}' is not recognized.");
         }
-        await signalBroadcastService.BroadcastToUser(hub, userId, new BroadcastCommand("broadcast", message), cancellationToken);
+        await signalBroadcastService.BroadcastToUser(hub, userId, command, cancellationToken);
         return TypedResults.Ok("sent");
     }
 
@@ -54,7 +69,7 @@ Broadcasts message to specified user.
 Parameters:
 - hub: The name of the SignalR hub to connect to.
 - userId: The ID of the user to broadcast the message to.
-- message: The message to broadcast.
+- command: The method and message sent.
 - cancellationToken: Cancellation token for the async operation.";
     #endregion
 }

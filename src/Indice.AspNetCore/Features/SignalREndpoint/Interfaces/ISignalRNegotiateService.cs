@@ -19,4 +19,13 @@ public interface ISignalRNegotiateService
         string userId,
         List<Claim> userClaims,
         CancellationToken cancellationToken);
+    /// <summary>
+    /// Add user to specified groups
+    /// </summary>
+    /// <param name="hubName"></param>
+    /// <param name="userGroups"></param>
+    /// <param name="userId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task AddUserToGroups(string hubName, List<string> userGroups, string userId, CancellationToken cancellationToken);
 }
