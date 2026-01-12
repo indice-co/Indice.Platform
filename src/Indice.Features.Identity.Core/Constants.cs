@@ -150,7 +150,7 @@ public static partial class RateLimiterPolicies
     public static readonly string LoginPage = "login";
     /// <summary>Rate limiting policy for add email page.</summary>
     public static readonly string LoginAddEmailPage = "login/add-email";
-    /// <summary>Rate limiting policy for add email page.</summary>
+    /// <summary>Rate limiting policy for MFA onboarding add email page.</summary>
     public static readonly string MfaAddEmailPage = "login/mfa/onboarding/add-email";
 
     /// <summary>All rate limiting policies.</summary>
