@@ -1,12 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.Azure.SignalR.Management;
 
-namespace Indice.AspNetCore.Features.SignalREndpoint;
+namespace Indice.Services;
 
 /// <summary>
 /// Provides access to the SignalR hub contexts. Enhances reusability.
 /// </summary>
-public class HubContextStore
+public class SignalRProxyHubContextStore
 {
 
     /// <summary>
@@ -19,7 +19,7 @@ public class HubContextStore
     /// HubContext constructor.
     /// </summary>
     /// <param name="serviceManager"></param>
-    public HubContextStore(ServiceManager serviceManager) {
+    public SignalRProxyHubContextStore(ServiceManager serviceManager) {
         _serviceManager = serviceManager;
     }
 
