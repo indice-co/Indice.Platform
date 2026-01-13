@@ -5,8 +5,10 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Duende.AspNetCore.Authentication.OAuth2Introspection;
+using Duende.AspNetCore.Authentication.OAuth2Introspection.Infrastructure;
 using Duende.IdentityModel;
 using Duende.IdentityModel.Client;
+using Indice.AspNetCore.Features.SignalRProxy;
 using Indice.Security;
 using Indice.Serialization;
 using Microsoft.AspNetCore.Authentication;
@@ -85,19 +87,15 @@ public static class WebApplicationBuilderExtensions
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
         // JWT tokens (default scheme).
-        .AddJwtBearer(options => {
-            options.Authority = builder.Configuration.GetAuthority();
-            options.MetadataAddress = builder.Configuration.GetAuthorityMetadata(tryInternal: true);
-            options.Audience = builder.Configuration.GetApiResourceName() ?? "api1";
-            options.TokenValidationParameters.RoleClaimType = JwtClaimTypes.Role;
-            options.TokenValidationParameters.NameClaimType = JwtClaimTypes.Name;
-            options.RequireHttpsMetadata = false;
-            options.MapInboundClaims = false;
-            // if token does not contain a dot, it is a reference token.
-            options.ForwardDefaultSelector = BearerSelector.ForwardReferenceToken("Introspection");
-        })
+        .AddJwtBearer(ConfigureJwtBearer(builder))
         // Reference tokens.
-        .AddOAuth2Introspection("Introspection", options => {
+        .AddOAuth2Introspection("Introspection", ConfigureIntrospection(builder));
+        builder.Services.AddScopeTransformation();
+        return authBuilder;
+    }
+
+    private static Action<OAuth2IntrospectionOptions> ConfigureIntrospection(WebApplicationBuilder builder) {
+        return options => {
             // Base address of the Identity Server.
             options.Authority = builder.Configuration.GetAuthority(tryInternal: true);
             options.DiscoveryPolicy = new DiscoveryPolicy() {
@@ -117,8 +115,58 @@ public static class WebApplicationBuilderExtensions
             // Add cache key to avoid caching the same token for different api hosts
             options.CacheKeyPrefix = $"{options.ClientId}_";
             options.CacheDuration = TimeSpan.FromMinutes(5); // 5 minutes is the default. Should potentially go back up to defaults.
+        };
+    }
+
+    private static Action<JwtBearerOptions> ConfigureJwtBearer(WebApplicationBuilder builder) {
+        return options => {
+            options.Authority = builder.Configuration.GetAuthority();
+            options.MetadataAddress = builder.Configuration.GetAuthorityMetadata(tryInternal: true);
+            options.Audience = builder.Configuration.GetApiResourceName() ?? "api1";
+            options.TokenValidationParameters.RoleClaimType = JwtClaimTypes.Role;
+            options.TokenValidationParameters.NameClaimType = JwtClaimTypes.Name;
+            options.RequireHttpsMetadata = false;
+            options.MapInboundClaims = false;
+            // if token does not contain a dot, it is a reference token.
+            options.ForwardDefaultSelector = BearerSelector.ForwardReferenceToken("Introspection");
+        };
+    }
+
+    /// <summary>
+    /// Adds SignalR proxy authentication using both JWT bearer and OAuth2 introspection schemes to the application's
+    /// authentication pipeline.
+    /// </summary>
+    /// <remarks>This method configures authentication for SignalR negotiation endpoints, supporting both JWT
+    /// and reference tokens. It sets up token retrieval from custom headers and adds the necessary authentication
+    /// schemes for SignalR proxy scenarios. Only suitable when <strong>application clients make use of legacy signalR SDKs.</strong></remarks>
+    /// <param name="builder">The <see cref="WebApplicationBuilder"/> to configure with SignalR proxy authentication.</param>
+    /// <returns>An <see cref="AuthenticationBuilder"/> that can be used to further configure authentication services.</returns>
+    public static AuthenticationBuilder AddSignalRProxyLagacyAuthentication(this WebApplicationBuilder builder) {
+        var authBuilder = builder.Services.AddAuthentication()
+        .AddJwtBearer(SignalRProxyAuthentication.SignalRNegotiationAuthenticationScheme, options => {
+            ConfigureJwtBearer(builder)(options);
+            // if token does not contain a dot, it is a reference token.
+            options.ForwardDefaultSelector = BearerSelector.ForwardReferenceToken(SignalRProxyAuthentication.SignalRNegotiationAuthenticationScheme + ".Introspection");
+            options.Events ??= new JwtBearerEvents();
+            options.Events.OnMessageReceived = (context) => {
+                var fromCustomHeaderOrDefault = SignalRProxyAuthentication.SignalRNegotiateTokenRetriever(
+                    defaultTokenRetriever: TokenRetrieval.FromAuthorizationHeader()
+                );
+                context.Token = fromCustomHeaderOrDefault(context.Request);
+                return Task.CompletedTask;
+            };
+        })
+        // Reference tokens.
+        .AddOAuth2Introspection(SignalRProxyAuthentication.SignalRNegotiationAuthenticationScheme + ".Introspection", options => { 
+            ConfigureIntrospection(builder)(options);
+            options.TokenRetriever = SignalRProxyAuthentication.SignalRNegotiateTokenRetriever(
+                   defaultTokenRetriever: TokenRetrieval.FromAuthorizationHeader()
+               );
         });
-        builder.Services.AddScopeTransformation();
+
+        builder.Services.Configure<SignalRProxyOptions>(options => {
+            options.NegotiateAuthenticationSchemes.Add(SignalRProxyAuthentication.SignalRNegotiationAuthenticationScheme);
+        });
         return authBuilder;
     }
 

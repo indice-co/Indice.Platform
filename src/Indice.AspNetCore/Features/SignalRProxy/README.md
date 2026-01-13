@@ -13,7 +13,6 @@ it instead makes use of the same value used while negotiating.
 To overcome this issue you can set the following option to true:
 ```csharp
         // Configure options.
-        builder.Services.AddAuthentication().AddSignalRProxyAuthentication(JwtBearerDefaults.AuthenticationScheme);
         builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options => {
             options.Events ??= new JwtBearerEvents();
             options.Events.OnMessageReceived = (context) => {

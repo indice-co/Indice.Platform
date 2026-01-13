@@ -33,22 +33,4 @@ public static class SignalRProxyAuthentication
             return defaultTokenRetriever?.Invoke(request);
         };
     }
-
-    /// <summary>
-    /// Adds SignalR Proxy authentication using a policy scheme that forwards authentication and challenge to the specified scheme.
-    /// </summary>
-    /// <param name="builder">The authentication builder.</param>
-    /// <param name="forwardAuthenticate">The authentication scheme to forward to.</param>
-    /// <returns></returns>
-    public static AuthenticationBuilder AddSignalRProxyAuthentication(this AuthenticationBuilder builder, string forwardAuthenticate = "Bearer") {
-        builder.AddPolicyScheme(SignalRNegotiationAuthenticationScheme, "SignalR Negotiate Policy",
-                options => {
-                    options.ForwardAuthenticate = forwardAuthenticate;
-                    options.ForwardChallenge = forwardAuthenticate;
-                });
-        builder.Services.Configure<SignalRProxyOptions>(options => {
-            options.NegotiateAuthenticationSchemes.Add(SignalRNegotiationAuthenticationScheme);
-        });
-        return builder;
-    }
 }
