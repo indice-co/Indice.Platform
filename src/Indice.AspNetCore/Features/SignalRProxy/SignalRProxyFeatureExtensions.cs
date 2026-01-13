@@ -1,13 +1,10 @@
-﻿using Azure.Core.Serialization;
-using Indice.Serialization;
-using Indice.Services;
-using Microsoft.Azure.SignalR.Management;
+﻿using Indice.AspNetCore.Features.SignalRProxy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 
-namespace Indice.AspNetCore.Features.SignalRProxy;
+
+using Microsoft.Extensions.Hosting;
 
 /// <summary>
 /// Service registration extensions for SignalR endpoints.
@@ -29,5 +26,4 @@ public static class SignalRProxyFeatureExtensions
         }
         return builder;
     }
-
 }

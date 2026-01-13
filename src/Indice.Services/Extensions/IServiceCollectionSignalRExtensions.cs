@@ -32,7 +32,7 @@ public static class IServiceCollectionSignalRExtensions
             .BuildServiceManager();
         services.AddSingleton(serviceManager);
         services.TryAddSingleton<SignalRProxyHubContextStore>();
-        services.TryAddTransient<ISignalRProxyNegotiateService, SignalRProxyNegotiateService>();
+        services.TryAddTransient<ISignalRProxyNegotiatiationService, SignalRProxyNegotiatiationService>();
         services.TryAddTransient<ISignalRProxyBroadcastService, SignalRProxyBroadcastService>();
 
         return services;

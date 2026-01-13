@@ -13,7 +13,7 @@ internal static class SignalRProxyHandlers
     public static async Task<Results<Ok<SignalRNegotiationResponse>, ValidationProblem>> Negotiate(
         string hub,
         ClaimsPrincipal currentUser,
-        ISignalRProxyNegotiateService signalRNegotiateService,
+        ISignalRProxyNegotiatiationService signalRNegotiateService,
         IOptions<SignalRProxyOptions> options,
         CancellationToken cancellationToken) {
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
@@ -34,7 +34,7 @@ internal static class SignalRProxyHandlers
     string hub,
     string groupName,
     ClaimsPrincipal currentUser,
-    ISignalRProxyNegotiateService signalRNegotiateService,
+    ISignalRProxyNegotiatiationService signalRNegotiateService,
     IOptions<SignalRProxyOptions> options,
     CancellationToken cancellationToken) {
         var errors = ValidationErrors.Create();
@@ -61,7 +61,7 @@ internal static class SignalRProxyHandlers
     string hub,
     string groupName,
     string userId,
-    ISignalRProxyNegotiateService signalRNegotiateService,
+    ISignalRProxyNegotiatiationService signalRNegotiateService,
     IOptions<SignalRProxyOptions> options,
     CancellationToken cancellationToken
     ) {

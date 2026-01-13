@@ -3,7 +3,7 @@
 /// <summary>
 /// Interface for exposed SignalR methods.
 /// </summary>
-public interface ISignalRProxyNegotiateService
+public interface ISignalRProxyNegotiatiationService
 {
     /// <summary>
     /// A way to negotiate a SignalR connection.
@@ -25,7 +25,7 @@ public interface ISignalRProxyNegotiateService
 }
 
 /// <summary>
-/// The Negotiate response.
+/// The Negotiation response.
 /// <param name="Url"></param>
 /// <param name="AccessToken"> The access token for the request. </param>
 /// </summary>
@@ -33,7 +33,7 @@ public record SignalRNegotiationResponse(string? Url, string? AccessToken);
 
 
 /// <inheritdoc/>
-public class SignalRProxyNegotiateService : ISignalRProxyNegotiateService
+public class SignalRProxyNegotiatiationService : ISignalRProxyNegotiatiationService
 {
     private static readonly TimeSpan DefaultTokenLifetime = TimeSpan.FromHours(1);  
     private readonly SignalRProxyHubContextStore _hubContextStore;
@@ -42,7 +42,7 @@ public class SignalRProxyNegotiateService : ISignalRProxyNegotiateService
     /// Initializes a new instance of the SignalRNegotiateService.
     /// </summary>
     /// <param name="hubContextStore">The hub context store for managing SignalR hub contexts.</param>
-    public SignalRProxyNegotiateService(SignalRProxyHubContextStore hubContextStore) {
+    public SignalRProxyNegotiatiationService(SignalRProxyHubContextStore hubContextStore) {
         _hubContextStore = hubContextStore;
     }
 
