@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Features.SignalRProxy;
 
@@ -45,6 +46,9 @@ public static class SignalRProxyAuthentication
                     options.ForwardAuthenticate = forwardAuthenticate;
                     options.ForwardChallenge = forwardAuthenticate;
                 });
+        builder.Services.Configure<SignalRProxyOptions>(options => {
+            options.NegotiateAuthenticationSchemes.Add(SignalRNegotiationAuthenticationScheme);
+        });
         return builder;
     }
 }
