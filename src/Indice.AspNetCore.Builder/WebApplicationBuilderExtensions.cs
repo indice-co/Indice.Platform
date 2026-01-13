@@ -13,10 +13,13 @@ using Indice.Security;
 using Indice.Serialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 
 namespace Microsoft.AspNetCore.Builder;
@@ -94,7 +97,7 @@ public static class WebApplicationBuilderExtensions
         return authBuilder;
     }
 
-    private static Action<OAuth2IntrospectionOptions> ConfigureIntrospection(WebApplicationBuilder builder) {
+    private static Action<OAuth2IntrospectionOptions> ConfigureIntrospection(IHostApplicationBuilder builder) {
         return options => {
             // Base address of the Identity Server.
             options.Authority = builder.Configuration.GetAuthority(tryInternal: true);
@@ -118,7 +121,7 @@ public static class WebApplicationBuilderExtensions
         };
     }
 
-    private static Action<JwtBearerOptions> ConfigureJwtBearer(WebApplicationBuilder builder) {
+    private static Action<JwtBearerOptions> ConfigureJwtBearer(IHostApplicationBuilder builder) {
         return options => {
             options.Authority = builder.Configuration.GetAuthority();
             options.MetadataAddress = builder.Configuration.GetAuthorityMetadata(tryInternal: true);
@@ -141,7 +144,7 @@ public static class WebApplicationBuilderExtensions
     /// schemes for SignalR proxy scenarios. Only suitable when <strong>application clients make use of legacy signalR SDKs.</strong></remarks>
     /// <param name="builder">The <see cref="WebApplicationBuilder"/> to configure with SignalR proxy authentication.</param>
     /// <returns>An <see cref="AuthenticationBuilder"/> that can be used to further configure authentication services.</returns>
-    public static AuthenticationBuilder AddSignalRProxyLagacyAuthentication(this WebApplicationBuilder builder) {
+    public static AuthenticationBuilder AddSignalRProxyLagacyAuthentication(this IHostApplicationBuilder builder) {
         var authBuilder = builder.Services.AddAuthentication()
         .AddJwtBearer(SignalRProxyAuthentication.SignalRNegotiationAuthenticationScheme, options => {
             ConfigureJwtBearer(builder)(options);
