@@ -179,7 +179,7 @@ public static class ServiceDefaultsExtensions
             // All health checks must pass for app to be considered ready to accept traffic after starting
             app.MapHealthChecks("/health");
             app.MapHealthChecks("/health/details", new HealthCheckOptions {
-                ResponseWriter = WriteResponse
+                ResponseWriter = (context, healthReport) => WriteResponse(context, healthReport, includeException: true)
             });
             // Only health checks tagged with the "live" tag must pass for app to be considered alive
             app.MapHealthChecks("/alive", new HealthCheckOptions {
@@ -196,7 +196,7 @@ public static class ServiceDefaultsExtensions
             // considered ready to accept traffic after starting
             healthChecks.MapHealthChecks("/health");
             healthChecks.MapHealthChecks("/health/details", new HealthCheckOptions {
-                ResponseWriter = WriteResponse
+                ResponseWriter = (context, healthReport) => WriteResponse(context, healthReport)
             });
             // Only health checks tagged with the "live" tag
             // must pass for app to be considered alive
@@ -208,8 +208,27 @@ public static class ServiceDefaultsExtensions
         return app;
     }
 
-    private static Task WriteResponse(HttpContext context, HealthReport healthReport) {
-        var responseJson = JsonSerializer.Serialize(healthReport, _jsonSerializerOptions.Value);
+    private static Task WriteResponse(HttpContext context, HealthReport healthReport, bool includeException = false) {
+        var report = new {
+            status = healthReport.Status.ToString(),
+            totalDuration = healthReport.TotalDuration,
+            entries = healthReport.Entries.ToDictionary(
+                e => e.Key,
+                e => new {
+                    status = e.Value.Status.ToString(),
+                    duration = e.Value.Duration,
+                    description = e.Value.Description,
+                    data = e.Value.Data,
+                    tags = e.Value.Tags,
+                    exception = includeException && e.Value.Exception is not null ? new {
+                        type = e.Value.Exception.GetType().Name,
+                        message = e.Value.Exception.Message
+                    } : null
+                }
+            )
+        };
+
+        var responseJson = JsonSerializer.Serialize(report, _jsonSerializerOptions.Value);
         context.Response.ContentType = "application/json; charset=utf-8";
         return context.Response.WriteAsync(responseJson);
     }
