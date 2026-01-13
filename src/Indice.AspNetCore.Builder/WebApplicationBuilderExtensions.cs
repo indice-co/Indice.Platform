@@ -144,7 +144,7 @@ public static class WebApplicationBuilderExtensions
     /// schemes for SignalR proxy scenarios. Only suitable when <strong>application clients make use of legacy signalR SDKs.</strong></remarks>
     /// <param name="builder">The <see cref="WebApplicationBuilder"/> to configure with SignalR proxy authentication.</param>
     /// <returns>An <see cref="AuthenticationBuilder"/> that can be used to further configure authentication services.</returns>
-    public static AuthenticationBuilder AddSignalRProxyLagacyAuthentication(this IHostApplicationBuilder builder) {
+    public static AuthenticationBuilder AddSignalRProxyLegacyAuthentication(this IHostApplicationBuilder builder) {
         var authBuilder = builder.Services.AddAuthentication()
         .AddJwtBearer(SignalRProxyAuthentication.SignalRNegotiationAuthenticationScheme, options => {
             ConfigureJwtBearer(builder)(options);
