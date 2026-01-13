@@ -36,17 +36,19 @@ public static class SignalRProxyApi
         // my endpoints
         var negotiateEndpoint = group.MapPost("{hub}/negotiate", SignalRProxyHandlers.Negotiate)
             .WithDescription(SignalRProxyHandlers.NEGOTIATE)
-            .WithSummary("SignalR negotiation endpoint.")
+            .WithSummary("Negotiate a SignalR connection for the authenticated user.")
             .WithName(nameof(SignalRProxyHandlers.Negotiate));
         if (options.NegotiateAuthenticationSchemes.Any()) {
             negotiateEndpoint.RequireAuthorization(pb => pb.RequireAuthenticatedUser().AddAuthenticationSchemes(options.NegotiateAuthenticationSchemes.ToArray()));
         }
         group.MapPost("{hub}/groups/{groupName}/join/me", SignalRProxyHandlers.JoinGroup)
-            .WithSummary("Join current user to a SignalR group.")
+            .WithDescription(SignalRProxyHandlers.JOINGROUP)
+            .WithSummary("Join the current user to a SignalR group")
             .WithName(nameof(SignalRProxyHandlers.JoinGroup));
 
         // management endpoints
         group.MapPost("{hub}/groups/{groupName}/join/{userId}", SignalRProxyHandlers.AddUserToGroup)
+            .WithDescription(SignalRProxyHandlers.ADDUSERTOGROUP)
             .WithSummary("Add a user to a SignalR group.")
             .WithName(nameof(SignalRProxyHandlers.AddUserToGroup))
             .RequireAuthorization(x => x.RequireAssertion(ctx => ctx.User.IsSystemClient() || ctx.User.IsAdmin()));
@@ -54,11 +56,12 @@ public static class SignalRProxyApi
 
         group.MapPost("{hub}/users/{userId}/broadcast", SignalRProxyHandlers.BroadcastToUser)
             .WithDescription(SignalRProxyHandlers.BROADCASTTOUSER)
-            .WithSummary("Broadcast a message to a SignalR user.")
+            .WithSummary("Broadcast a message to a specific user.")
             .WithName(nameof(SignalRProxyHandlers.BroadcastToUser))
             .RequireAuthorization(x => x.RequireAssertion(ctx => ctx.User.IsSystemClient() || ctx.User.IsAdmin()));
 
         group.MapPost("{hub}/groups/{groupName}/broadcast", SignalRProxyHandlers.BroadcastToGroup)
+            .WithDescription(SignalRProxyHandlers.BROADCASTTOGROUP)
             .WithSummary("Broadcast a message to a SignalR group.")
             .WithName(nameof(SignalRProxyHandlers.BroadcastToGroup))
             .RequireAuthorization(x => x.RequireAssertion(ctx => ctx.User.IsSystemClient() || ctx.User.IsAdmin()));

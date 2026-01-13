@@ -112,20 +112,47 @@ internal static class SignalRProxyHandlers
 
     #region Descriptions
     public static readonly string NEGOTIATE = @"
-Returns the proper credentials to listen to a hub.
+Initiates a SignalR connection negotiation for the authenticated user and returns connection credentials.
 
 Parameters:
 - hub: The name of the SignalR hub to connect to.
 - currentUser: The authenticated user's claims principal.
 - cancellationToken: Cancellation token for the async operation.";
 
-    public static readonly string BROADCASTTOUSER = @"
-Broadcasts message to specified user.
+    public static readonly string JOINGROUP = @"
+Adds the current authenticated user to a specific SignalR group.
 
 Parameters:
-- hub: The name of the SignalR hub to connect to.
+- hub: The name of the SignalR hub.
+- groupName: The name of the group to join.
+- currentUser: The authenticated user's claims principal.
+- cancellationToken: Cancellation token for the async operation.";
+
+    public static readonly string ADDUSERTOGROUP = @"
+Adds a specified user to a SignalR group (admin/system only).
+
+Parameters:
+- hub: The name of the SignalR hub.
+- groupName: The name of the group to add the user to.
+- userId: The ID of the user to add to the group.
+- cancellationToken: Cancellation token for the async operation.";
+
+    public static readonly string BROADCASTTOUSER = @"
+Broadcasts a message to a specific user across all their active SignalR connections (admin/system only).
+
+Parameters:
+- hub: The name of the SignalR hub to broadcast through.
 - userId: The ID of the user to broadcast the message to.
-- command: The method and message sent.
+- command: The SignalRBroadcastCommand containing the method name and arguments.
+- cancellationToken: Cancellation token for the async operation.";
+
+    public static readonly string BROADCASTTOGROUP = @"
+Broadcasts a message to all users in a specific SignalR group (admin/system only).
+
+Parameters:
+- hub: The name of the SignalR hub to broadcast through.
+- groupName: The name of the group to broadcast to.
+- command: The SignalRBroadcastCommand containing the method name and arguments.
 - cancellationToken: Cancellation token for the async operation.";
     #endregion
 }
