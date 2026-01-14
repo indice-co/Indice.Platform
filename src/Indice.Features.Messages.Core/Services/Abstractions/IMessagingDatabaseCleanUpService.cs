@@ -3,7 +3,7 @@
 /// <summary>
 /// Interface for database cleanup services.
 /// </summary>
-public interface IDatabaseCleanUpService
+public interface IMessagingDatabaseCleanUpService
 {
     /// <summary>
     /// Cleans up the campaigns with inbox and their related data from the database.

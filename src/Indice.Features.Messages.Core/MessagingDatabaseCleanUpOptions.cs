@@ -3,7 +3,7 @@
 /// <summary>
 /// Options for database cleanup operations.
 /// </summary>
-public class DatabaseCleanUpOptions
+public class MessagingDatabaseCleanUpOptions
 {
     /// <summary>
     /// Gets or sets the retention period for campaigns with inbox (in days). Defaults to <i>180</i>.

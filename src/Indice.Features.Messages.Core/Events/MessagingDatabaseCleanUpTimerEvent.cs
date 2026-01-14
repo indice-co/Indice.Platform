@@ -3,6 +3,6 @@
 /// <summary>
 /// An event used to trigger database clean up operations.
 /// </summary>
-public class DatabaseCleanUpTimerEvent
+public class MessagingDatabaseCleanUpTimerEvent
 {
 }

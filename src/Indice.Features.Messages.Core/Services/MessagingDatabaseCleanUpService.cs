@@ -10,12 +10,12 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Messages.Core.Services;
 
 /// <inheritdoc/>
-public class DatabaseCleanUpService : IDatabaseCleanUpService
+public class MessagingDatabaseCleanUpService : IMessagingDatabaseCleanUpService
 {
-    private readonly DatabaseCleanUpOptions _options;
+    private readonly MessagingDatabaseCleanUpOptions _options;
     private CampaignsDbContext DbContext { get; }
     private readonly IFileService FileService;
-    private readonly ILogger<DatabaseCleanUpService> _logger;
+    private readonly ILogger<MessagingDatabaseCleanUpService> _logger;
 
     /// <summary>
     /// Constructs the service.
@@ -24,7 +24,7 @@ public class DatabaseCleanUpService : IDatabaseCleanUpService
     /// <param name="dbContext">Database context for accessing campaign data.</param>
     /// <param name="fileServiceFactory">Factory for creating file services.</param>
     /// <param name="logger">Logger for logging events.</param>
-    public DatabaseCleanUpService(IOptions<DatabaseCleanUpOptions> options, CampaignsDbContext dbContext, IFileServiceFactory fileServiceFactory, ILogger<DatabaseCleanUpService> logger) {
+    public MessagingDatabaseCleanUpService(IOptions<MessagingDatabaseCleanUpOptions> options, CampaignsDbContext dbContext, IFileServiceFactory fileServiceFactory, ILogger<MessagingDatabaseCleanUpService> logger) {
         _options = options.Value;
         DbContext = dbContext;
         FileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory), $"Service {KeyedServiceNames.FileServiceKey} was not registered");
