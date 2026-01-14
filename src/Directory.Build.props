@@ -4,16 +4,16 @@
       <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
       <!--<TargetFramework></TargetFramework>-->
       <VersionPrefixMajor>8</VersionPrefixMajor>
-      <VersionPrefixBase>$(VersionPrefixMajor).31</VersionPrefixBase>
+      <VersionPrefixBase>$(VersionPrefixMajor).32</VersionPrefixBase>
 
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).2</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).2</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).1</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).2</VersionPrefixMessages>
+      <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
+      <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
+      <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
-      <VersionPrefixMedia>$(VersionPrefixBase).1</VersionPrefixMedia>
+      <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
       <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
       <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
