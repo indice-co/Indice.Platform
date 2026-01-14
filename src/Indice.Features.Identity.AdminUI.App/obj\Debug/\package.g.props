@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <PackageJsonName Condition="$(PackageJsonName) == ''">adminui-app</PackageJsonName>
+    <PackageJsonVersion Condition="$(PackageJsonVersion) == ''">1.0.0</PackageJsonVersion>
+    <PackageJsonScriptsBuildTemplate Condition="$(PackageJsonScriptsBuildTemplate) == ''">ng build --optimization --output-hashing none --configuration template</PackageJsonScriptsBuildTemplate>
+    <PackageJsonScriptsBuild Condition="$(PackageJsonScriptsBuild) == ''">ng build --configuration production --optimization</PackageJsonScriptsBuild>
+    <PackageJsonScriptsE2e Condition="$(PackageJsonScriptsE2e) == ''">ng e2e</PackageJsonScriptsE2e>
+    <PackageJsonScriptsLint Condition="$(PackageJsonScriptsLint) == ''">ng lint</PackageJsonScriptsLint>
+    <PackageJsonScriptsNg Condition="$(PackageJsonScriptsNg) == ''">ng</PackageJsonScriptsNg>
+    <PackageJsonScriptsStart Condition="$(PackageJsonScriptsStart) == ''">ng serve</PackageJsonScriptsStart>
+    <PackageJsonPrivate Condition="$(PackageJsonPrivate) == ''">true</PackageJsonPrivate>
+    <PackageJsonDependenciesAngularAnimations Condition="$(PackageJsonDependenciesAngularAnimations) == ''">20.3.16</PackageJsonDependenciesAngularAnimations>
+    <PackageJsonDependenciesAngularCdk Condition="$(PackageJsonDependenciesAngularCdk) == ''">20.2.14</PackageJsonDependenciesAngularCdk>
+    <PackageJsonDependenciesAngularCommon Condition="$(PackageJsonDependenciesAngularCommon) == ''">20.3.16</PackageJsonDependenciesAngularCommon>
+    <PackageJsonDependenciesAngularCompiler Condition="$(PackageJsonDependenciesAngularCompiler) == ''">20.3.16</PackageJsonDependenciesAngularCompiler>
+    <PackageJsonDependenciesAngularCore Condition="$(PackageJsonDependenciesAngularCore) == ''">20.3.16</PackageJsonDependenciesAngularCore>
+    <PackageJsonDependenciesAngularForms Condition="$(PackageJsonDependenciesAngularForms) == ''">20.3.16</PackageJsonDependenciesAngularForms>
+    <PackageJsonDependenciesAngularLocalize Condition="$(PackageJsonDependenciesAngularLocalize) == ''">20.3.16</PackageJsonDependenciesAngularLocalize>
+    <PackageJsonDependenciesAngularPlatformBrowser Condition="$(PackageJsonDependenciesAngularPlatformBrowser) == ''">20.3.16</PackageJsonDependenciesAngularPlatformBrowser>
+    <PackageJsonDependenciesAngularPlatformBrowserDynamic Condition="$(PackageJsonDependenciesAngularPlatformBrowserDynamic) == ''">20.3.16</PackageJsonDependenciesAngularPlatformBrowserDynamic>
+    <PackageJsonDependenciesAngularRouter Condition="$(PackageJsonDependenciesAngularRouter) == ''">20.3.16</PackageJsonDependenciesAngularRouter>
+    <PackageJsonDependenciesCkeditorCkeditor5Angular Condition="$(PackageJsonDependenciesCkeditorCkeditor5Angular) == ''">10.0.0</PackageJsonDependenciesCkeditorCkeditor5Angular>
+    <PackageJsonDependenciesJsonformsAngular Condition="$(PackageJsonDependenciesJsonformsAngular) == ''">3.7.0</PackageJsonDependenciesJsonformsAngular>
+    <PackageJsonDependenciesJsonformsCore Condition="$(PackageJsonDependenciesJsonformsCore) == ''">3.7.0</PackageJsonDependenciesJsonformsCore>
+    <PackageJsonDependenciesNgBootstrapNgBootstrap Condition="$(PackageJsonDependenciesNgBootstrapNgBootstrap) == ''">19.0.1</PackageJsonDependenciesNgBootstrapNgBootstrap>
+    <PackageJsonDependenciesSweetalert2NgxSweetalert2 Condition="$(PackageJsonDependenciesSweetalert2NgxSweetalert2) == ''">14.1.1</PackageJsonDependenciesSweetalert2NgxSweetalert2>
+    <PackageJsonDependenciesSwimlaneNgxCharts Condition="$(PackageJsonDependenciesSwimlaneNgxCharts) == ''">23.0.1</PackageJsonDependenciesSwimlaneNgxCharts>
+    <PackageJsonDependenciesSwimlaneNgxDatatable Condition="$(PackageJsonDependenciesSwimlaneNgxDatatable) == ''">22.0.0</PackageJsonDependenciesSwimlaneNgxDatatable>
+    <PackageJsonDependenciesBootstrap Condition="$(PackageJsonDependenciesBootstrap) == ''">5.3.8</PackageJsonDependenciesBootstrap>
+    <PackageJsonDependenciesCountryFlagIcons Condition="$(PackageJsonDependenciesCountryFlagIcons) == ''">^1.6.4</PackageJsonDependenciesCountryFlagIcons>
+    <PackageJsonDependenciesFileSaver Condition="$(PackageJsonDependenciesFileSaver) == ''">2.0.5</PackageJsonDependenciesFileSaver>
+    <PackageJsonDependenciesMaterialDesignIcons Condition="$(PackageJsonDependenciesMaterialDesignIcons) == ''">3.0.1</PackageJsonDependenciesMaterialDesignIcons>
+    <PackageJsonDependenciesNgxProgressbar Condition="$(PackageJsonDependenciesNgxProgressbar) == ''">14.0.0</PackageJsonDependenciesNgxProgressbar>
+    <PackageJsonDependenciesOidcClientTs Condition="$(PackageJsonDependenciesOidcClientTs) == ''">3.3.0</PackageJsonDependenciesOidcClientTs>
+    <PackageJsonDependenciesRxjs Condition="$(PackageJsonDependenciesRxjs) == ''">7.8.2</PackageJsonDependenciesRxjs>
+    <PackageJsonDependenciesSweetalert2 Condition="$(PackageJsonDependenciesSweetalert2) == ''">11.26.17</PackageJsonDependenciesSweetalert2>
+    <PackageJsonDependenciesTslib Condition="$(PackageJsonDependenciesTslib) == ''">2.8.1</PackageJsonDependenciesTslib>
+    <PackageJsonDependenciesZoneJs Condition="$(PackageJsonDependenciesZoneJs) == ''">0.15.1</PackageJsonDependenciesZoneJs>
+    <PackageJsonDevdependenciesAngularDevkitBuildAngular Condition="$(PackageJsonDevdependenciesAngularDevkitBuildAngular) == ''">20.3.14</PackageJsonDevdependenciesAngularDevkitBuildAngular>
+    <PackageJsonDevdependenciesAngularCli Condition="$(PackageJsonDevdependenciesAngularCli) == ''">20.3.14</PackageJsonDevdependenciesAngularCli>
+    <PackageJsonDevdependenciesAngularCompilerCli Condition="$(PackageJsonDevdependenciesAngularCompilerCli) == ''">20.3.16</PackageJsonDevdependenciesAngularCompilerCli>
+    <PackageJsonDevdependenciesAngularLanguageService Condition="$(PackageJsonDevdependenciesAngularLanguageService) == ''">20.3.16</PackageJsonDevdependenciesAngularLanguageService>
+    <PackageJsonDevdependenciesTypesJasmine Condition="$(PackageJsonDevdependenciesTypesJasmine) == ''">~3.6.0</PackageJsonDevdependenciesTypesJasmine>
+    <PackageJsonDevdependenciesTypesJasminewd2 Condition="$(PackageJsonDevdependenciesTypesJasminewd2) == ''">2.0.13</PackageJsonDevdependenciesTypesJasminewd2>
+    <PackageJsonDevdependenciesEslint Condition="$(PackageJsonDevdependenciesEslint) == ''">9.35.0</PackageJsonDevdependenciesEslint>
+    <PackageJsonDevdependenciesJasmineCore Condition="$(PackageJsonDevdependenciesJasmineCore) == ''">~5.1.0</PackageJsonDevdependenciesJasmineCore>
+    <PackageJsonDevdependenciesKarma Condition="$(PackageJsonDevdependenciesKarma) == ''">~6.4.0</PackageJsonDevdependenciesKarma>
+    <PackageJsonDevdependenciesKarmaChromeLauncher Condition="$(PackageJsonDevdependenciesKarmaChromeLauncher) == ''">~3.2.0</PackageJsonDevdependenciesKarmaChromeLauncher>
+    <PackageJsonDevdependenciesKarmaCoverage Condition="$(PackageJsonDevdependenciesKarmaCoverage) == ''">~2.2.0</PackageJsonDevdependenciesKarmaCoverage>
+    <PackageJsonDevdependenciesKarmaJasmine Condition="$(PackageJsonDevdependenciesKarmaJasmine) == ''">~5.1.0</PackageJsonDevdependenciesKarmaJasmine>
+    <PackageJsonDevdependenciesKarmaJasmineHtmlReporter Condition="$(PackageJsonDevdependenciesKarmaJasmineHtmlReporter) == ''">~2.1.0</PackageJsonDevdependenciesKarmaJasmineHtmlReporter>
+    <PackageJsonDevdependenciesTsNode Condition="$(PackageJsonDevdependenciesTsNode) == ''">10.9.2</PackageJsonDevdependenciesTsNode>
+    <PackageJsonDevdependenciesTypescript Condition="$(PackageJsonDevdependenciesTypescript) == ''">5.9.2</PackageJsonDevdependenciesTypescript>
+  </PropertyGroup>
+</Project>
