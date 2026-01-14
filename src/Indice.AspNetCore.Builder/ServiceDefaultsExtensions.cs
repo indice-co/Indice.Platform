@@ -26,8 +26,7 @@ public static class ServiceDefaultsExtensions
     /// <summary>
     /// Options to control JSON serialization behavior for health check responses.
     /// </summary>
-    public sealed class HealthCheckJsonOptions
-    {
+    public sealed class HealthCheckJsonOptions {
         /// <summary>
         /// When true, exceptions included in health check results will serialize their stack trace.
         /// Defaults to <c>false</c> to avoid leaking sensitive information in production.
@@ -249,8 +248,7 @@ public static class ServiceDefaultsExtensions
         return options;
     }
 
-    private class ExceptionConverter(bool IncludeStackTrace) : JsonConverter<Exception>
-    {
+    private class ExceptionConverter(bool IncludeStackTrace) : JsonConverter<Exception> {
         public override Exception? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
             throw new NotImplementedException("Deserialization is not supported.");
 
