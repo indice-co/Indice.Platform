@@ -7,11 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.31.0] - 2025-01-07
 ### Added Messaging Database Cleanup Job
-The following configuration should be added in the appsettings.json to determine the frequency of the clean up job:
+The following configuration should be added in the appsettings.json and local.settings.json to determine the frequency of the clean up job:
 ``` json
-  "MessageJobsOptions": {
-    "DatabaseCleanUpCronExpression": "0 0 2 * * *"
-  }
+"MessageJobsOptions:DatabaseCleanUpCronExpression": "0 0 2 * * *"
 ```
 **Note:** This configuration is required for Azure Worker deployments. For self-hosted workers, 
 this value is used as the default if not specified.
