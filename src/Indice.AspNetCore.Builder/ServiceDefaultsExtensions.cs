@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Indice.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
@@ -26,12 +27,23 @@ public static class ServiceDefaultsExtensions
     /// <summary>
     /// Options to control JSON serialization behavior for health check responses.
     /// </summary>
-    public sealed class HealthCheckJsonOptions {
+    public sealed class HealthCheckJsonOptions
+    {
         /// <summary>
-        /// When true, exceptions included in health check results will serialize their stack trace.
-        /// Defaults to <c>false</c> to avoid leaking sensitive information in production.
+        /// Determines whether exceptions in health check results include their stack trace when serialized.
+        /// <para>
+        /// Defaults to <c>false</c> to prevent leaking potentially sensitive information in production environments.
+        /// </para>
         /// </summary>
-        public bool IncludeExceptionStackTrace { get; set; } = false;
+        public bool IncludeStackTrace { get; set; } = false;
+
+        /// <summary>
+        /// Determines whether inner exceptions are included when serializing exceptions in health check results.
+        /// <para>
+        /// Defaults to <c>true</c> to provide detailed context about the cause of a failure.
+        /// </para>
+        /// </summary>
+        public bool IncludeInnerExceptions { get; set; } = true;
     }
 
     /// <summary>
@@ -244,22 +256,7 @@ public static class ServiceDefaultsExtensions
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
         options.Converters.Add(new JsonStringEnumConverter());
-        options.Converters.Add(new ExceptionConverter(healthOptions.IncludeExceptionStackTrace));
+        options.Converters.Add(new ExceptionJsonConverter(healthOptions.IncludeStackTrace, healthOptions.IncludeInnerExceptions));
         return options;
-    }
-
-    private class ExceptionConverter(bool IncludeStackTrace) : JsonConverter<Exception> {
-        public override Exception? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-            throw new NotImplementedException("Deserialization is not supported.");
-
-        public override void Write(Utf8JsonWriter writer, Exception value, JsonSerializerOptions options) {
-            writer.WriteStartObject();
-            writer.WriteString("type", value.GetType().FullName);
-            writer.WriteString("message", value.Message);
-            if (IncludeStackTrace) {
-                writer.WriteString("stackTrace", value.StackTrace);
-            }
-            writer.WriteEndObject();
-        }
     }
 }
