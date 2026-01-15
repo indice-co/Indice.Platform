@@ -9,5 +9,5 @@ public class MessageWorkerOptions
     public int ContactRetainPeriodInDays { get; set; } = 1;
 
     /// <summary>Configuration for database clean up jobs.</summary>
-    public DatabaseCleanUpOptions DatabaseCleanUpOptions { get; set; } = new DatabaseCleanUpOptions();
+    public MessagingDatabaseCleanUpOptions DatabaseCleanUpOptions { get; set; } = new MessagingDatabaseCleanUpOptions();
 }

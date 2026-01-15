@@ -42,10 +42,10 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
             .AddTransient<UserNameAccessorAggregate>()
             .AddSingleton<IFileServiceFactory, DefaultFileServiceFactory>()
             .AddKeyedSingleton<IFileService, FileServiceInMemory>("Messages:FileServiceKey")
-            .Configure<DatabaseCleanUpOptions>(options => {
+            .Configure<MessagingDatabaseCleanUpOptions>(options => {
                 options.Enabled = true;
             })
-            .AddTransient<IDatabaseCleanUpService, DatabaseCleanUpService>()
+            .AddTransient<IMessagingDatabaseCleanUpService, MessagingDatabaseCleanUpService>()
             .AddOptions()
             .Configure<MessageManagementOptions>(configuration);
         ServiceProvider = services.BuildServiceProvider();
@@ -66,7 +66,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
     public async Task CleanUpCampaignsWithInboxAsync_DeletesOldCampaigns() {
         // Arrange
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
-        var cleanupService = ServiceProvider.GetRequiredService<IDatabaseCleanUpService>();
+        var cleanupService = ServiceProvider.GetRequiredService<IMessagingDatabaseCleanUpService>();
 
         // Create distribution list
         var distributionLists = new List<DbDistributionList>();
@@ -116,7 +116,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
     public async Task CleanUpCampaignsWithoutInboxAsync_DeletesOldCampaigns() {
         // Arrange
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
-        var cleanupService = ServiceProvider.GetRequiredService<IDatabaseCleanUpService>();
+        var cleanupService = ServiceProvider.GetRequiredService<IMessagingDatabaseCleanUpService>();
 
         // Create distribution list
         var distributionLists = new List<DbDistributionList>();
@@ -163,7 +163,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
     [Fact]
     public async Task CleanUpCampaigns_HandlesEmptyDatabase() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
-        var cleanupService = ServiceProvider.GetRequiredService<IDatabaseCleanUpService>();
+        var cleanupService = ServiceProvider.GetRequiredService<IMessagingDatabaseCleanUpService>();
 
         await cleanupService.CleanUpCampaignsWithInboxAsync();
         await cleanupService.CleanUpCampaignsWithoutInboxAsync();
@@ -175,7 +175,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
     [Fact]
     public async Task CleanUpCampaigns_RespectsActivePeriod() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
-        var cleanupService = ServiceProvider.GetRequiredService<IDatabaseCleanUpService>();
+        var cleanupService = ServiceProvider.GetRequiredService<IMessagingDatabaseCleanUpService>();
 
         var distributionList = new DbDistributionList {
             Id = Guid.NewGuid(),

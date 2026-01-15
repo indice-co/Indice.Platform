@@ -70,7 +70,7 @@ public static class HostBuilderExtensions
             services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
                 messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
             });
-            services.Configure<DatabaseCleanUpOptions>(dbCleanUpOptions => {
+            services.Configure<MessagingDatabaseCleanUpOptions>(dbCleanUpOptions => {
                 dbCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
                 dbCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
                 dbCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
@@ -102,7 +102,7 @@ public static class HostBuilderExtensions
         services.TryAddTransient<CreateCampaignRequestValidator>();
         services.TryAddTransient<CreateMessageTypeRequestValidator>();
         services.TryAddTransient<NotificationsManager>();
-        services.TryAddTransient<IDatabaseCleanUpService, DatabaseCleanUpService>();
+        services.TryAddTransient<IMessagingDatabaseCleanUpService, MessagingDatabaseCleanUpService>();
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         services.TryAddScoped<UserNameAccessorAggregate>();
@@ -123,7 +123,7 @@ public static class HostBuilderExtensions
         services.TryAddTransient<ICampaignJobHandler<SendSmsEvent>, SendSmsHandler>();
         services.TryAddTransient<ICampaignJobHandler<MarkMessagesReadEvent>, MarkReadEventHandler>();
         services.TryAddTransient<ICampaignJobHandler<MarkMessagesUnreadEvent>, MarkUnreadEventHandler>();
-        services.TryAddTransient<ICampaignJobHandler<DatabaseCleanUpTimerEvent>, DatabaseCleanUpHandler>();
+        services.TryAddTransient<ICampaignJobHandler<MessagingDatabaseCleanUpTimerEvent>, MessagingDatabaseCleanUpHandler>();
         services.AddTransient<MessageJobHandlerFactory>();
         return services;
     }
