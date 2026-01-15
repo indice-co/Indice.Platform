@@ -359,7 +359,7 @@ public class JsonNodeMergeTests
                        }
                        """.FromDb();
         
-        var request = new PatchJsonPathRequest { Op = OperationType.Add, Path = "/~01", Value = 20 };
+        var request = new PatchJsonPathRequest { Op = OperationType.Add, Path = "/~1", Value = 20 };
         var patch = new JsonPatch(request.ToPatchOperation()).Apply(caseData);
 
         Assert.NotNull(patch.Result);

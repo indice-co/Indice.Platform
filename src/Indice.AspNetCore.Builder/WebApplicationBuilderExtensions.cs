@@ -111,8 +111,6 @@ public static class WebApplicationBuilderExtensions
             options.ClientId = builder.Configuration.GetApiResourceName() ?? "api1";
             // Since the introspection endpoint requires authentication, we need to supply the configured API secret.
             options.ClientSecret = builder.Configuration.GetApiSecret("Introspection");
-            // Enable caching so we avoid perform a round-trip to the introspection endpoint for each incoming request. 
-            options.EnableCaching = true;
             // Having multiple instances of the same application with distributed cache configured (Redis, Sql) is not an issue.
             // Having same distributed cache configuration for difference applications, regardless of instance count, is a problem.
             // Add cache key to avoid caching the same token for different api hosts
