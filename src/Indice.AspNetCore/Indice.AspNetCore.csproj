@@ -3,7 +3,6 @@
     <PackageTags>AspNetCore;WebUtilities</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
     <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
-    <UserSecretsId>9df0c054-26cb-45a6-a3fa-f702799adf50</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
