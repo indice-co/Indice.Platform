@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.31.0] - 2025-01-07
+### Added Messaging Database Cleanup Job
+The following configuration should be added in the appsettings.json and local.settings.json to determine the frequency of the clean up job:
+``` json
+"MessageJobsOptions:DatabaseCleanUpCronExpression": "0 0 2 * * *"
+```
+**Note:** This configuration is required for Azure Worker deployments. For self-hosted workers, 
+this value is used as the default if not specified.
 
 ## [8.21.0] - 2025-10-27
 ### Added New column Recipient in MessageEvent table

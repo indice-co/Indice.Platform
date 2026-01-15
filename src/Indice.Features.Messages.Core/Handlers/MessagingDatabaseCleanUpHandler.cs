@@ -6,15 +6,15 @@ namespace Indice.Features.Messages.Core.Handlers;
 /// <summary>
 /// Handles database cleanup timer events by triggering the cleanup of old campaign data.
 /// </summary>
-public sealed class DatabaseCleanUpHandler : ICampaignJobHandler<DatabaseCleanUpTimerEvent>
+public sealed class MessagingDatabaseCleanUpHandler : ICampaignJobHandler<MessagingDatabaseCleanUpTimerEvent>
 {
-    private readonly IDatabaseCleanUpService _cleanUpService;
+    private readonly IMessagingDatabaseCleanUpService _cleanUpService;
 
     /// <summary>
     /// The constructor for our handler.
     /// </summary>
     /// <param name="cleanUpService"></param>
-    public DatabaseCleanUpHandler(IDatabaseCleanUpService cleanUpService) {
+    public MessagingDatabaseCleanUpHandler(IMessagingDatabaseCleanUpService cleanUpService) {
         _cleanUpService = cleanUpService ?? throw new ArgumentNullException(nameof(cleanUpService));
     }
 
@@ -23,7 +23,7 @@ public sealed class DatabaseCleanUpHandler : ICampaignJobHandler<DatabaseCleanUp
     /// </summary>
     /// <param name="event"></param>
     /// <returns></returns>
-    public async Task Process(DatabaseCleanUpTimerEvent @event) {
+    public async Task Process(MessagingDatabaseCleanUpTimerEvent @event) {
         await _cleanUpService.CleanUpCampaignsWithInboxAsync();
         await _cleanUpService.CleanUpCampaignsWithoutInboxAsync();
     }

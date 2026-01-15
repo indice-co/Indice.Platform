@@ -46,7 +46,7 @@ public static class WorkerHostBuilderExtensions
         workerHostBuilder.Services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
             messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
         });
-        workerHostBuilder.Services.Configure<DatabaseCleanUpOptions>(dbCleanUpOptions => {
+        workerHostBuilder.Services.Configure<MessagingDatabaseCleanUpOptions>(dbCleanUpOptions => {
             dbCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
             dbCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
             dbCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
@@ -88,10 +88,10 @@ public static class WorkerHostBuilderExtensions
             options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
             options.InstanceCount = 1;
         })
-        .AddJob<DatabaseCleanUpJobHandler>().WithScheduleTrigger(messageOptions.DatabaseCleanUpCronExpression, options => {
+        .AddJob<MessagingDatabaseCleanUpJobHandler>().WithScheduleTrigger(messageOptions.DatabaseCleanUpCronExpression, options => {
             options.Singleton = true;
-            options.Name = nameof(DatabaseCleanUpJobHandler);
-            options.Group = nameof(DatabaseCleanUpJobHandler);
+            options.Name = nameof(MessagingDatabaseCleanUpJobHandler);
+            options.Group = nameof(MessagingDatabaseCleanUpJobHandler);
         });
 
     }
@@ -102,7 +102,7 @@ public static class WorkerHostBuilderExtensions
         services.TryAddTransient<ICampaignJobHandler<SendPushNotificationEvent>, SendPushNotificationHandler>();
         services.TryAddTransient<ICampaignJobHandler<SendEmailEvent>, SendEmailHandler>();
         services.TryAddTransient<ICampaignJobHandler<SendSmsEvent>, SendSmsHandler>();
-        services.TryAddTransient<ICampaignJobHandler<DatabaseCleanUpTimerEvent>, DatabaseCleanUpHandler>();
+        services.TryAddTransient<ICampaignJobHandler<MessagingDatabaseCleanUpTimerEvent>, MessagingDatabaseCleanUpHandler>();
         services.AddTransient<MessageJobHandlerFactory>();
     }
 
