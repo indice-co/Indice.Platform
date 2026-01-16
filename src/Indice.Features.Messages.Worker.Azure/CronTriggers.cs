@@ -27,10 +27,10 @@ public class CronTriggers
     /// </summary>
     /// <param name="myTimer">The timer trigger that schedules the database cleanup job.</param>
     /// <returns>A task that represents the asynchronous database cleanup operation.</returns>
-    [Function("DatabaseCleanUp")]
-    public async Task RunDatabaseCleanUp([TimerTrigger("%MessageJobsOptions:DatabaseCleanUpCronExpression%")] TimerInfo myTimer) {
-        var payload = new DatabaseCleanUpTimerEvent();
-        await CleanUpJobHandlerFactory.CreateFor<DatabaseCleanUpTimerEvent>().Process(payload);
+    [Function("MessagingDatabaseCleanUp")]
+    public async Task RunMessagingDatabaseCleanUp([TimerTrigger("%MessageJobsOptions:DatabaseCleanUpCronExpression%")] TimerInfo myTimer) {
+        var payload = new MessagingDatabaseCleanUpTimerEvent();
+        await CleanUpJobHandlerFactory.CreateFor<MessagingDatabaseCleanUpTimerEvent>().Process(payload);
     }
 
 }
