@@ -22,6 +22,17 @@ public interface ISignalRProxyNegotiatiationService
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task AddUserToGroupsAsync(string hubName, string userId, List<string> userGroups, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Add user to specified groups
+    /// </summary>
+    /// <param name="hubName"></param>
+    /// <param name="userId"></param>
+    /// <param name="userGroups"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task RemoveUserFromGroupsAsync(string hubName, string userId, List<string> userGroups, CancellationToken cancellationToken = default);
+
 }
 
 /// <summary>
@@ -50,7 +61,7 @@ public class SignalRProxyNegotiatiationService : ISignalRProxyNegotiatiationServ
     public async Task<SignalRNegotiationResponse> NegotiateAsync(string hub, string userId, List<string> groupNamesToJoin, CancellationToken cancellationToken = default) {
         var hubContext = await _hubContextStore.GetHubContextAsync(hub, cancellationToken);
         var negotiationResponse = await hubContext.NegotiateAsync(new () { TokenLifetime = DefaultTokenLifetime, UserId = userId }, cancellationToken);
-        await AddUserToGroupsAsync(hub, userId, groupNamesToJoin, cancellationToken);
+        await AddUserToGroupsAsync(hubName: hub, userId, userGroups: groupNamesToJoin, cancellationToken: cancellationToken);
 
         return new (negotiationResponse.Url, negotiationResponse.AccessToken);
     }
@@ -59,7 +70,16 @@ public class SignalRProxyNegotiatiationService : ISignalRProxyNegotiatiationServ
     public async Task AddUserToGroupsAsync(string hubName, string userId, List<string> userGroups, CancellationToken cancellationToken = default) {
         var hubContext = await _hubContextStore.GetHubContextAsync(hubName, cancellationToken);
         var groupAddTasks = userGroups.Select(groupName => hubContext.UserGroups.AddToGroupAsync(userId, groupName, DefaultTokenLifetime, cancellationToken));
-        
+
         await Task.WhenAll(groupAddTasks);
+    }
+
+    ///<inheritdoc/>
+    public async Task RemoveUserFromGroupsAsync(string hubName, string userId, List<string> userGroups, CancellationToken cancellationToken = default) {
+        var hubContext = await _hubContextStore.GetHubContextAsync(hubName, cancellationToken);
+        var groupRemoveTasks = userGroups.Select(groupName => hubContext.UserGroups.RemoveFromGroupAsync(userId, groupName, cancellationToken));
+
+        await Task.WhenAll(groupRemoveTasks);
+
     }
 }
