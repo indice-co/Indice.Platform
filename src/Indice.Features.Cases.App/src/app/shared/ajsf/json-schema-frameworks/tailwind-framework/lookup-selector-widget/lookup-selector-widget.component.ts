@@ -159,7 +159,7 @@ export class LookupSelectorWidgetComponent implements OnInit, OnDestroy {
     // Do we have parameters passed from layout configuration?
     if (this.options['lookup-filter-terms']) {
       // Deep clone the array (we don't want the options to be changed)
-      lookupFilterTerms = _.cloneDeep(this.options['lookup-filter-terms']);
+      lookupFilterTerms = _.cloneDeep(this.options['lookup-filter-terms']).map((ft: any) => new FilterClause(ft.key, ft.value));
     }
     // Notice that we always send a customerId.
     // Not really a problem: it can be ignored server-side if not needed.
