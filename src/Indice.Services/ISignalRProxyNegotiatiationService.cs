@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using Indice.Events;
 
 namespace Indice.Services;
 
@@ -71,13 +72,16 @@ public class SignalRProxyNegotiatiationService : ISignalRProxyNegotiatiationServ
 {
     private static readonly TimeSpan DefaultTokenLifetime = TimeSpan.FromHours(1);  
     private readonly SignalRProxyHubContextStore _hubContextStore;
+    private readonly IPlatformEventService _platformEventService;
 
     /// <summary>
     /// Initializes a new instance of the SignalRNegotiateService.
     /// </summary>
     /// <param name="hubContextStore">The hub context store for managing SignalR hub contexts.</param>
-    public SignalRProxyNegotiatiationService(SignalRProxyHubContextStore hubContextStore) {
-        _hubContextStore = hubContextStore;
+    /// <param name="platformEventService"></param>
+    public SignalRProxyNegotiatiationService(SignalRProxyHubContextStore hubContextStore, IPlatformEventService platformEventService) {
+        _hubContextStore = hubContextStore ?? throw new ArgumentNullException(nameof(hubContextStore));
+        _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
     }
 
     /// <inheritdoc/>
@@ -96,6 +100,7 @@ public class SignalRProxyNegotiatiationService : ISignalRProxyNegotiatiationServ
         var hubContext = await _hubContextStore.GetHubContextAsync(hubName, cancellationToken);
         var groupAddTasks = userGroups.Select(groupName => hubContext.UserGroups.AddToGroupAsync(userId, groupName, DefaultTokenLifetime, cancellationToken));
         await Task.WhenAll(groupAddTasks);
+        await _platformEventService.Publish(new SignalRProxyEvents.UserJoinedGroupsEvent(hubName, userId, userGroups));
     }
 
     ///<inheritdoc/>
@@ -104,6 +109,7 @@ public class SignalRProxyNegotiatiationService : ISignalRProxyNegotiatiationServ
         var hubContext = await _hubContextStore.GetHubContextAsync(hubName, cancellationToken);
         var groupRemoveTasks = userGroups.Select(groupName => hubContext.UserGroups.RemoveFromGroupAsync(userId, groupName, cancellationToken));
         await Task.WhenAll(groupRemoveTasks);
+        await _platformEventService.Publish(new SignalRProxyEvents.UserLeftGroupsEvent(hubName, userId, userGroups));
     }
 
     ///<inheritdoc/>
@@ -112,6 +118,7 @@ public class SignalRProxyNegotiatiationService : ISignalRProxyNegotiatiationServ
         var hubContext = await _hubContextStore.GetHubContextAsync(hubName, cancellationToken);
         var groupAddTasks = userGroups.Select(groupName => hubContext.Groups.AddToGroupAsync(connectionId, groupName, cancellationToken));
         await Task.WhenAll(groupAddTasks);
+        await _platformEventService.Publish(new SignalRProxyEvents.ConnectionJoinedGroupsEvent(hubName, connectionId, userGroups));
     }
 
     ///<inheritdoc/>
@@ -121,5 +128,44 @@ public class SignalRProxyNegotiatiationService : ISignalRProxyNegotiatiationServ
         var hubContext = await _hubContextStore.GetHubContextAsync(hubName, cancellationToken);
         var groupRemoveTasks = userGroups.Select(groupName => hubContext.Groups.RemoveFromGroupAsync(connectionId, groupName, cancellationToken));
         await Task.WhenAll(groupRemoveTasks);
+        await _platformEventService.Publish(new SignalRProxyEvents.ConnectionLeftGroupsEvent(hubName, connectionId, userGroups));
     }
+}
+
+/// <summary>
+/// Contains event records for SignalR proxy group membership changes.
+/// </summary>
+public static class SignalRProxyEvents 
+{
+    /// <summary>
+    /// Event raised when a user joins one or more SignalR groups.
+    /// </summary>
+    /// <param name="HubName">The name of the SignalR hub.</param>
+    /// <param name="UserId">The unique identifier of the user joining the groups.</param>
+    /// <param name="Groups">The list of group names that the user joined.</param>
+    public record UserJoinedGroupsEvent(string HubName, string UserId, params List<string> Groups) : IPlatformEvent;
+    
+    /// <summary>
+    /// Event raised when a connection joins one or more SignalR groups.
+    /// </summary>
+    /// <param name="HubName">The name of the SignalR hub.</param>
+    /// <param name="ConnectionId">The unique identifier of the connection joining the groups.</param>
+    /// <param name="Groups">The list of group names that the connection joined.</param>
+    public record ConnectionJoinedGroupsEvent(string HubName, string ConnectionId, params List<string> Groups) : IPlatformEvent;
+    
+    /// <summary>
+    /// Event raised when a user leaves one or more SignalR groups.
+    /// </summary>
+    /// <param name="HubName">The name of the SignalR hub.</param>
+    /// <param name="UserId">The unique identifier of the user leaving the groups.</param>
+    /// <param name="Groups">The list of group names that the user left.</param>
+    public record UserLeftGroupsEvent(string HubName, string UserId, params List<string> Groups) : IPlatformEvent;
+    
+    /// <summary>
+    /// Event raised when a connection leaves one or more SignalR groups.
+    /// </summary>
+    /// <param name="HubName">The name of the SignalR hub.</param>
+    /// <param name="ConnectionId">The unique identifier of the connection leaving the groups.</param>
+    /// <param name="Groups">The list of group names that the connection left.</param>
+    public record ConnectionLeftGroupsEvent(string HubName, string ConnectionId, params List<string> Groups) : IPlatformEvent;
 }
