@@ -24,9 +24,6 @@ internal static class SignalRProxyHandlers
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(hub), $"The hub '{hub}' is not recognized."));
         }
         var userId = currentUser.FindSubjectId();
-        if (string.IsNullOrWhiteSpace(userId)) {
-            userId = Guid.NewGuid().ToString();
-        }
         var groupNames = currentUser.Claims.Where(x => x.Type is not null && !string.IsNullOrWhiteSpace(x.Value))
                                            .Where(x => options.Value.ClaimTypesForAutoGroups.Contains(x.Type))
                                            .Select(x => options.Value.ClaimTypeToGroupName(x))
@@ -34,32 +31,59 @@ internal static class SignalRProxyHandlers
         if (gps is not null && gps.Any()) {
             groupNames.AddRange(gps);
         }
-        var response = await signalRNegotiateService.NegotiateAsync(hub, userId!, groupNames, cancellationToken);
+        var response = await signalRNegotiateService.NegotiateAsync(hub, groupNames, userId, cancellationToken);
         return TypedResults.Ok(response);
     }
 
-    public static async Task<Results<NoContent, ValidationProblem>> JoinGroup(
-    string hub,
-    string groupName,
-    ClaimsPrincipal currentUser,
-    ISignalRProxyNegotiatiationService signalRNegotiateService,
-    IOptions<SignalRProxyOptions> options,
-    CancellationToken cancellationToken) {
+    public static async Task<Results<NoContent, ValidationProblem>> JoinGroups(string hub, string[] gps, [FromHeader(Name = "X-Connection-ID")] string? connectionId,
+    ClaimsPrincipal currentUser, ISignalRProxyNegotiatiationService signalRNegotiateService, IOptions<SignalRProxyOptions> options, CancellationToken cancellationToken) {
+
         var errors = ValidationErrors.Create();
         var userId = currentUser.FindSubjectId();
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             errors.AddError(nameof(hub), $"The hub '{hub}' is not recognized.");
         }
-        if (string.IsNullOrWhiteSpace(groupName)) {
-            errors.AddError(nameof(groupName), "The groupName cannot be null or empty.");
+        if (gps is null || gps.Length == 0) {
+            errors.AddError(nameof(gps), "The group names cannot be null or empty.");
         }
-        if (string.IsNullOrWhiteSpace(userId)) {
-            errors.AddError(nameof(userId), "The userId cannot be null or empty.");
+        if (string.IsNullOrWhiteSpace(userId) && string.IsNullOrWhiteSpace(connectionId)) {
+            errors.AddError(nameof(connectionId), "Provide either a valid connection id or a valid authentication token.");
         }
         if (errors.Count > 0) {
             return TypedResults.ValidationProblem(errors);
         }
-        await signalRNegotiateService.AddUserToGroupsAsync(hub, userId!, [groupName], cancellationToken);
+        if (!string.IsNullOrEmpty(connectionId)) {
+            await signalRNegotiateService.AddConnectionToGroupsAsync(hub, connectionId!, gps.ToList(), cancellationToken);
+        }
+        else {
+            await signalRNegotiateService.AddUserToGroupsAsync(hub, userId!, gps.ToList(), cancellationToken);
+        }
+        return TypedResults.NoContent();
+    }
+
+    public static async Task<Results<NoContent, ValidationProblem>> LeaveGroups(string hub, string[] gps, [FromHeader(Name = "X-Connection-ID")] string? connectionId,
+    ClaimsPrincipal currentUser, ISignalRProxyNegotiatiationService signalRNegotiateService, IOptions<SignalRProxyOptions> options, CancellationToken cancellationToken) {
+
+        var errors = ValidationErrors.Create();
+        var userId = currentUser.FindSubjectId();
+        if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
+            errors.AddError(nameof(hub), $"The hub '{hub}' is not recognized.");
+        }
+        if (gps is null || gps.Length == 0) {
+            errors.AddError(nameof(gps), "The group names cannot be null or empty.");
+        }
+        if (string.IsNullOrWhiteSpace(userId) && string.IsNullOrWhiteSpace(connectionId)) {
+            errors.AddError(nameof(connectionId), "Provide either a valid connection id or a valid authentication token.");
+        }
+        if (errors.Count > 0) {
+            return TypedResults.ValidationProblem(errors);
+        }
+        if (!string.IsNullOrEmpty(connectionId)) {
+            await signalRNegotiateService.RemoveConnectionFromGroupsAsync(hub, connectionId!, gps!.ToList(), cancellationToken);
+        }
+        else {
+            await signalRNegotiateService.RemoveUserFromGroupsAsync(hub, userId!, gps!.ToList(), cancellationToken);
+        }
         return TypedResults.NoContent();
     }
 
@@ -118,27 +142,6 @@ internal static class SignalRProxyHandlers
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, ValidationProblem>> LeaveGroup(string hub, string groupName, ClaimsPrincipal currentUser,
-        ISignalRProxyNegotiatiationService signalRNegotiateService, IOptions<SignalRProxyOptions> options, CancellationToken cancellationToken) {
-
-        var errors = ValidationErrors.Create();
-        if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
-            errors.AddError(nameof(hub), $"The hub '{hub}' is not recognized.");
-        }
-        if (string.IsNullOrWhiteSpace(groupName)) {
-            errors.AddError(nameof(groupName), "The groupName cannot be null or empty.");
-        }
-        var userId = currentUser.FindSubjectId();
-
-        if (string.IsNullOrEmpty(userId)) {
-            errors.AddError(nameof(userId), "The userId cannot be null or empty.");
-        }
-        if (errors.Count > 0) {
-            return TypedResults.ValidationProblem(errors);
-        }
-        await signalRNegotiateService.RemoveUserFromGroupsAsync(hub, userId!,[groupName], cancellationToken);
-        return TypedResults.NoContent();
-    }
 
     public static async Task<Results<NoContent, ValidationProblem>> RemoveUserFromGroup(string hub, string groupName, string userId,
     ISignalRProxyNegotiatiationService signalRNegotiateService, IOptions<SignalRProxyOptions> options, CancellationToken cancellationToken) {
@@ -170,12 +173,20 @@ Parameters:
 - currentUser: The authenticated user's claims principal.
 - cancellationToken: Cancellation token for the async operation.";
 
-    public static readonly string JOINGROUP = @"
+    public static readonly string JOINGROUPS = @"
 Adds the current authenticated user to a specific SignalR group.
 
 Parameters:
 - hub: The name of the SignalR hub.
 - groupName: The name of the group to join.
+- currentUser: The authenticated user's claims principal.
+- cancellationToken: Cancellation token for the async operation.";
+
+    public static readonly string LEAVEGROUPS = @"
+Removes the current authenticated user from a specific SignalR group.
+Parameters:
+- hub: The name of the SignalR hub.
+- groupName: The name of the group to leave.
 - currentUser: The authenticated user's claims principal.
 - cancellationToken: Cancellation token for the async operation.";
 
@@ -204,14 +215,6 @@ Parameters:
 - hub: The name of the SignalR hub to broadcast through.
 - groupName: The name of the group to broadcast to.
 - command: The SignalRBroadcastCommand containing the method name and arguments.
-- cancellationToken: Cancellation token for the async operation.";
-
-    public static readonly string LEAVEGROUP = @"
-Removes the current authenticated user from a specific SignalR group.
-Parameters:
-- hub: The name of the SignalR hub.
-- groupName: The name of the group to leave.
-- currentUser: The authenticated user's claims principal.
 - cancellationToken: Cancellation token for the async operation.";
 
     public static readonly string REMOVEUSERFROMGROUP = @"
