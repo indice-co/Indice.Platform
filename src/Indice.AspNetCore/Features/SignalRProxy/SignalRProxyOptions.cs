@@ -13,7 +13,7 @@ public class SignalRProxyOptions
     /// <summary>The authentication scheme used to secure the endpoints.</summary>
     public List<string> NegotiateAuthenticationSchemes { get; set; } = [];
     /// <summary>The endpoint route pattern for the SignalR endpoints.</summary>
-    public string EndpointRoutePattern { get; set; } = "/api/signalr";
+    public string EndpointRoutePattern { get; set; } = "/";
     /// <summary>Optional group name for the endpoints.</summary>
     /// <remarks>If provided, the endpoints will be grouped under this name in Swagger/OpenAPI documentation.</remarks>
     public string? GroupName { get; set; } = "signalr";
