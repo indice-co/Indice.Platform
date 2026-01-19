@@ -144,8 +144,6 @@ internal static class SignalRProxyHandlers
         return TypedResults.NoContent();
     }
 
-    //private const
-
     #region Descriptions
     public static readonly string NEGOTIATE = @"
 Initiates a SignalR connection negotiation for the authenticated user and returns connection credentials.
