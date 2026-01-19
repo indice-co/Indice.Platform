@@ -21,8 +21,6 @@ public class SignalRProxyOptions
     public string RequiredScope { get; set; } = null!;
     /// <summary>Decides whether to enable swagger/openapi documentation for the endpoint</summary>
     public bool ExcludeFromDescription { get; set; }
-    /// <summary>List of Groups that anonymous users can join directly</summary>
-    public List<string> AnonymousAllowedGroups { get; set; } = [];
     /// <summary>List of Claims types to auto-populate Groups if available on the current claim principal</summary>
     public List<string> ClaimTypesForAutoGroups { get; set; } = [];
 

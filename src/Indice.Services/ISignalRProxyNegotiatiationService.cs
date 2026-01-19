@@ -26,7 +26,7 @@ public interface ISignalRProxyNegotiatiationService
     Task AddUserToGroupsAsync(string hubName, string userId, List<string> userGroups, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Add user to specified groups
+    /// Removes user from specified groups
     /// </summary>
     /// <param name="hubName"> The hub name </param>
     /// <param name="userId"> The user ID </param>
@@ -100,6 +100,7 @@ public class SignalRProxyNegotiatiationService : ISignalRProxyNegotiatiationServ
 
     ///<inheritdoc/>
     public async Task RemoveUserFromGroupsAsync(string hubName, string userId, List<string> userGroups, CancellationToken cancellationToken = default) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userId);
         var hubContext = await _hubContextStore.GetHubContextAsync(hubName, cancellationToken);
         var groupRemoveTasks = userGroups.Select(groupName => hubContext.UserGroups.RemoveFromGroupAsync(userId, groupName, cancellationToken));
         await Task.WhenAll(groupRemoveTasks);
@@ -116,6 +117,7 @@ public class SignalRProxyNegotiatiationService : ISignalRProxyNegotiatiationServ
     ///<inheritdoc/>
 
     public async Task RemoveConnectionFromGroupsAsync(string hubName, string connectionId, List<string> userGroups, CancellationToken cancellationToken = default) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionId);
         var hubContext = await _hubContextStore.GetHubContextAsync(hubName, cancellationToken);
         var groupRemoveTasks = userGroups.Select(groupName => hubContext.Groups.RemoveFromGroupAsync(connectionId, groupName, cancellationToken));
         await Task.WhenAll(groupRemoveTasks);
