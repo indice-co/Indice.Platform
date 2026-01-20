@@ -34,7 +34,7 @@ public static class IServiceCollectionSignalRExtensions
         services.TryAddSingleton<SignalRProxyHubContextStore>();
         services.TryAddTransient<ISignalRProxyNegotiatiationService, SignalRProxyNegotiatiationService>();
         services.TryAddTransient<ISignalRProxyBroadcastService, SignalRProxyBroadcastService>();
-
+        services.AddDefaultPlatformEventService();
         return services;
     }
 }

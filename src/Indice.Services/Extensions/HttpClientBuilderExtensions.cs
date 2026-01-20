@@ -1,7 +1,6 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 
-namespace Indice.Features.Cases.Workflows.Extensions;
+namespace Microsoft.Extensions.DependencyInjection;
 
 // TODO: Platform team will move this to Builder, also remove Microsoft.Extensions.Http.Resilience dependency, merged in 9 https://github.com/dotnet/extensions/pull/5801/files
 /// <summary>Provider extension methods to <see cref="IHttpClientBuilder"/></summary>

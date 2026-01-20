@@ -34,38 +34,50 @@ public static class SignalRProxyApi
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         // my endpoints
-        var negotiateEndpoint = group.MapPost("{hub}/negotiate", SignalRProxyHandlers.Negotiate)
+        var negotiateEndpoint = group.MapPost("hubs/{hub}/negotiate", SignalRProxyHandlers.Negotiate)
             .WithDescription(SignalRProxyHandlers.NEGOTIATE)
             .WithSummary("Negotiate a SignalR connection for the authenticated user.")
-            .WithName(nameof(SignalRProxyHandlers.Negotiate));
+            .WithName(nameof(SignalRProxyHandlers.Negotiate)).AllowAnonymous();
         if (options.NegotiateAuthenticationSchemes.Any()) {
             negotiateEndpoint.RequireAuthorization(pb => pb.RequireAuthenticatedUser().AddAuthenticationSchemes(options.NegotiateAuthenticationSchemes.ToArray()));
         }
-        group.MapPost("{hub}/groups/{groupName}/join/me", SignalRProxyHandlers.JoinGroup)
-            .WithDescription(SignalRProxyHandlers.JOINGROUP)
+        group.MapPost("hubs/{hub}/groups/join/me", SignalRProxyHandlers.JoinGroups)
+            .WithDescription(SignalRProxyHandlers.JOINGROUPS)
             .WithSummary("Join the current user to a SignalR group")
-            .WithName(nameof(SignalRProxyHandlers.JoinGroup));
+            .WithName(nameof(SignalRProxyHandlers.JoinGroups)).AllowAnonymous();
+
+        group.MapPost("hubs/{hub}/groups/leave/me", SignalRProxyHandlers.LeaveGroups)
+            .WithDescription(SignalRProxyHandlers.LEAVEGROUPS)
+            .WithSummary("Remove the current user from a SignalR group")
+            .WithName(nameof(SignalRProxyHandlers.LeaveGroups)).AllowAnonymous();
 
         // management endpoints
-        group.MapPost("{hub}/groups/{groupName}/join/{userId}", SignalRProxyHandlers.AddUserToGroup)
+        group.MapPost("hubs/{hub}/groups/{groupName}/join/{userId}", SignalRProxyHandlers.AddUserToGroup)
             .WithDescription(SignalRProxyHandlers.ADDUSERTOGROUP)
             .WithSummary("Add a user to a SignalR group.")
             .WithName(nameof(SignalRProxyHandlers.AddUserToGroup))
             .RequireAuthorization(x => x.RequireAssertion(ctx => ctx.User.IsSystemClient() || ctx.User.IsAdmin()));
 
-
-        group.MapPost("{hub}/users/{userId}/broadcast", SignalRProxyHandlers.BroadcastToUser)
-            .WithDescription(SignalRProxyHandlers.BROADCASTTOUSER)
-            .WithSummary("Broadcast a message to a specific user.")
-            .WithName(nameof(SignalRProxyHandlers.BroadcastToUser))
+        group.MapPost("hubs/{hub}/groups/{groupName}/leave/{userId}", SignalRProxyHandlers.RemoveUserFromGroup)
+            .WithDescription(SignalRProxyHandlers.REMOVEUSERFROMGROUP)
+            .WithSummary("Remove a user from a SignalR group.")
+            .WithName(nameof(SignalRProxyHandlers.RemoveUserFromGroup))
             .RequireAuthorization(x => x.RequireAssertion(ctx => ctx.User.IsSystemClient() || ctx.User.IsAdmin()));
 
-        group.MapPost("{hub}/groups/{groupName}/broadcast", SignalRProxyHandlers.BroadcastToGroup)
+
+        group.MapPost("hubs/{hub}/users/{userId}/broadcast", SignalRProxyHandlers.BroadcastToUser)
+            .WithDescription(SignalRProxyHandlers.BROADCASTTOUSER)
+            .WithSummary("Broadcast a message to a specific user.")
+            .WithName(nameof(SignalRProxyHandlers.BroadcastToUser)).WithExampleRequestBody( new { Method = "broadcast", Message = "Hello!" })
+            .RequireAuthorization(x => x.RequireAssertion(ctx => ctx.User.IsSystemClient() || ctx.User.IsAdmin()));
+
+        group.MapPost("hubs/{hub}/groups/{groupName}/broadcast", SignalRProxyHandlers.BroadcastToGroup)
             .WithDescription(SignalRProxyHandlers.BROADCASTTOGROUP)
             .WithSummary("Broadcast a message to a SignalR group.")
-            .WithName(nameof(SignalRProxyHandlers.BroadcastToGroup))
+            .WithName(nameof(SignalRProxyHandlers.BroadcastToGroup)).WithExampleRequestBody(new { Method = "broadcast", Message = "Hello!" })
             .RequireAuthorization(x => x.RequireAssertion(ctx => ctx.User.IsSystemClient() || ctx.User.IsAdmin()));
 
         return group;
     }
+    
 }

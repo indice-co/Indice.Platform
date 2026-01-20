@@ -359,18 +359,13 @@ public class JsonNodeMergeTests
                        }
                        """.FromDb();
         
-        var request = new PatchJsonPathRequest { Op = OperationType.Add, Path = "/~01", Value = 20 };
+        var request = new PatchJsonPathRequest { Op = OperationType.Test, Path = "/~01", Value = 20 };
         var patch = new JsonPatch(request.ToPatchOperation()).Apply(caseData);
+        Assert.False(patch.IsSuccess);
 
-        Assert.NotNull(patch.Result);
-        Assert.Equal(
-            """
-                {
-                  "/": 9,
-                  "~1": 20
-                }
-                """.ThroughDb(),
-            patch.Result.ToDb());
+        var request2 = new PatchJsonPathRequest { Op = OperationType.Test, Path = "/~01", Value = 10 };
+        patch = new JsonPatch(request2.ToPatchOperation()).Apply(caseData);
+        Assert.True(patch.IsSuccess);
     }
     
     // ------------------------ A.16.  Adding an Array Value ----------------------------//

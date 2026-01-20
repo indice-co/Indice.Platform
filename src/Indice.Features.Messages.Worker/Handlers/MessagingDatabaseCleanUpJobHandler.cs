@@ -4,21 +4,21 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Messages.Worker.Handlers;
 
-internal class DatabaseCleanUpJobHandler
+internal class MessagingDatabaseCleanUpJobHandler
 {
-    public DatabaseCleanUpJobHandler(
-        ILogger<DatabaseCleanUpJobHandler> logger,
+    public MessagingDatabaseCleanUpJobHandler(
+        ILogger<MessagingDatabaseCleanUpJobHandler> logger,
         MessageJobHandlerFactory messageJobHandlerFactory
     ) {
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         MessageJobHandlerFactory = messageJobHandlerFactory;
     }
 
-    public ILogger<DatabaseCleanUpJobHandler> Logger { get; }
+    public ILogger<MessagingDatabaseCleanUpJobHandler> Logger { get; }
     public MessageJobHandlerFactory MessageJobHandlerFactory { get; }
 
-    public async Task Process(DatabaseCleanUpTimerEvent @event) {
-        var handler = MessageJobHandlerFactory.CreateFor<DatabaseCleanUpTimerEvent>();
+    public async Task Process(MessagingDatabaseCleanUpTimerEvent @event) {
+        var handler = MessageJobHandlerFactory.CreateFor<MessagingDatabaseCleanUpTimerEvent>();
         await handler.Process(@event);
     }
 }

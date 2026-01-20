@@ -23,7 +23,7 @@ public static class SignalRProxyAuthentication
     /// <returns>Returns a function that retrieves the token from the SignalR negotiate request.</returns>
     public static Func<HttpRequest, string?> SignalRNegotiateTokenRetriever(
         string authorizationHeaderName = SignalRNegotiateAuthorizationHeader,
-        Func<HttpRequest, string>? defaultTokenRetriever = null) {
+        Func<HttpRequest, string?>? defaultTokenRetriever = null) {
         return request => {
             if (request.Headers[authorizationHeaderName] is { Count: > 0 } authorizationHeader) {
                 // this is the same as Substring("Bearer".Length + 1).Trim()";
