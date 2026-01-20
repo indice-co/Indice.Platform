@@ -3,6 +3,37 @@
 In case this is used in an ASP.NET Core application, this feature forwards offloads SignalR socket connections to an external SignalR server.
 Also this enables the use of management endpoints to broadcast messages to specific users or to specific groups.
 
+## Usage
+
+### Custom User ID Resolution and Group Validation
+
+You can customize how user IDs are resolved and validate group names by implementing the respective interfaces:
+
+```csharp
+builder.AddSignalRProxy(options => {
+    options.AddUserIdResolver<CustomUserIdResolver>();
+    options.AddGroupNameValidator<TenantGroupValidator>();
+});
+
+public class TenantGroupValidator : ISignalRProxyGroupNameValidator
+{
+    public Task<bool> ValidateAsync(string groupName)
+    {
+        if (!IsValidTenantGroup(groupName))
+            return Task.FromResult(false);
+        return Task.FromResult(true);
+    }
+
+    // Example placeholder implementation for tenant group validation.
+    // Replace this logic with your application's specific rules
+    // (e.g. checking allowed tenant IDs, naming conventions, etc.).
+    private static bool IsValidTenantGroup(string groupName)
+    {
+        return !string.IsNullOrWhiteSpace(groupName);
+    }
+}
+```
+
 ## Authentication (optional)
 
 In case the api clients make use of an old SignalR SDK then there is a known issue with the authentication handshake. 
