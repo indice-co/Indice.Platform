@@ -23,6 +23,14 @@ public class TenantGroupValidator : ISignalRProxyGroupNameValidator
             return Task.FromResult(false);
         return Task.FromResult(true);
     }
+
+    // Example placeholder implementation for tenant group validation.
+    // Replace this logic with your application's specific rules
+    // (e.g. checking allowed tenant IDs, naming conventions, etc.).
+    private static bool IsValidTenantGroup(string groupName)
+    {
+        return !string.IsNullOrWhiteSpace(groupName);
+    }
 }
 ```
 
