@@ -9,6 +9,8 @@ namespace Indice.AspNetCore.Features.SignalRProxy;
 /// </summary>
 public class SignalRProxyOptions
 {
+    private IServiceCollection? _services;
+
     /// <summary>The configuration section name for SignalR proxy options.</summary>
     public const string SectionName = "SignalRProxy";
     /// <summary>The authentication scheme used to secure the endpoints.</summary>
@@ -32,7 +34,12 @@ public class SignalRProxyOptions
     public List<string> AllowedHubs { get; set; } = [];
 
     /// <summary>Gets or sets the service collection for dependency injection.</summary>
-    internal IServiceCollection Services { get; set; } = null!;
+    /// <remarks>This property is set during service registration and should not be modified directly.</remarks>
+    internal IServiceCollection Services
+    {
+        get => _services ?? throw new InvalidOperationException("Services property has not been initialized. Ensure AddSignalRProxy() has been called.");
+        set => _services = value;
+    }
 
     /// <summary>
     /// Registers a custom user ID resolver implementation.

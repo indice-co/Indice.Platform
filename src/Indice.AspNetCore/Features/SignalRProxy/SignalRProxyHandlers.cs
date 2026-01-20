@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Indice.Security;
 using Indice.Services;
@@ -39,11 +40,9 @@ internal static class SignalRProxyHandlers
         }
 
         // Validate group names if validator is registered
-        var groupValidator = httpContext.RequestServices.GetService<ISignalRProxyGroupNameValidator>();
-        if (groupValidator is not null) {
-            foreach (var groupName in autoGroupNames) {
-                await groupValidator.ValidateAsync(groupName);
-            }
+        var validationError = await ValidateGroupNamesAsync(httpContext, autoGroupNames);
+        if (validationError is not null) {
+            return validationError;
         }
 
         var response = await signalRNegotiateService.NegotiateAsync(hub, autoGroupNames, userId, cancellationToken);
@@ -78,11 +77,9 @@ internal static class SignalRProxyHandlers
         }
 
         // Validate group names if validator is registered
-        var groupValidator = httpContext.RequestServices.GetService<ISignalRProxyGroupNameValidator>();
-        if (groupValidator is not null) {
-            foreach (var groupName in groupNames) {
-                await groupValidator.ValidateAsync(groupName);
-            }
+        var validationError = await ValidateGroupNamesAsync(httpContext, groupNames);
+        if (validationError is not null) {
+            return validationError;
         }
 
         if (!string.IsNullOrWhiteSpace(connectionId)) {
@@ -155,9 +152,9 @@ internal static class SignalRProxyHandlers
         }
 
         // Validate group name if validator is registered
-        var groupValidator = httpContext.RequestServices.GetService<ISignalRProxyGroupNameValidator>();
-        if (groupValidator is not null) {
-            await groupValidator.ValidateAsync(groupName);
+        var validationError = await ValidateGroupNameAsync(httpContext, groupName);
+        if (validationError is not null) {
+            return validationError;
         }
 
         await signalRNegotiateService.AddUserToGroupsAsync(hub, userId!, [groupName], cancellationToken);
@@ -193,9 +190,9 @@ internal static class SignalRProxyHandlers
         }
 
         // Validate group name if validator is registered
-        var groupValidator = httpContext.RequestServices.GetService<ISignalRProxyGroupNameValidator>();
-        if (groupValidator is not null) {
-            await groupValidator.ValidateAsync(groupName);
+        var validationError = await ValidateGroupNameAsync(httpContext, groupName);
+        if (validationError is not null) {
+            return validationError;
         }
 
         await signalBroadcastService.BroadcastToGroupAsync(hub, groupName, command, cancellationToken);
@@ -243,6 +240,56 @@ internal static class SignalRProxyHandlers
         await signalRNegotiateService.RemoveUserFromGroupsAsync(hub, userId!, [groupName], cancellationToken);
         return TypedResults.NoContent();
     }
+
+    #region Helper Methods
+    /// <summary>
+    /// Validates a single group name using the registered validator if available.
+    /// </summary>
+    /// <param name="httpContext">The HTTP context.</param>
+    /// <param name="groupName">The group name to validate.</param>
+    /// <returns>A ValidationProblem result if validation fails, otherwise null.</returns>
+    private static async Task<ValidationProblem?> ValidateGroupNameAsync(HttpContext httpContext, string groupName)
+    {
+        var groupValidator = httpContext.RequestServices.GetService<ISignalRProxyGroupNameValidator>();
+        if (groupValidator is not null) {
+            try {
+                await groupValidator.ValidateAsync(groupName);
+            } catch (System.ComponentModel.DataAnnotations.ValidationException ex) {
+                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(groupName), ex.Message));
+            } catch (Exception ex) {
+                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(groupName), $"Group validation failed: {ex.Message}"));
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Validates multiple group names using the registered validator if available.
+    /// </summary>
+    /// <param name="httpContext">The HTTP context.</param>
+    /// <param name="groupNames">The group names to validate.</param>
+    /// <returns>A ValidationProblem result if validation fails, otherwise null.</returns>
+    private static async Task<ValidationProblem?> ValidateGroupNamesAsync(HttpContext httpContext, IEnumerable<string> groupNames)
+    {
+        var groupValidator = httpContext.RequestServices.GetService<ISignalRProxyGroupNameValidator>();
+        if (groupValidator is not null) {
+            var errors = ValidationErrors.Create();
+            foreach (var groupName in groupNames) {
+                try {
+                    await groupValidator.ValidateAsync(groupName);
+                } catch (System.ComponentModel.DataAnnotations.ValidationException ex) {
+                    errors.AddError(nameof(groupNames), $"Group '{groupName}': {ex.Message}");
+                } catch (Exception ex) {
+                    errors.AddError(nameof(groupNames), $"Group '{groupName}' validation failed: {ex.Message}");
+                }
+            }
+            if (errors.Count > 0) {
+                return TypedResults.ValidationProblem(errors);
+            }
+        }
+        return null;
+    }
+    #endregion
 
     #region Descriptions
     public static readonly string NEGOTIATE = @"
