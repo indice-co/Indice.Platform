@@ -10,8 +10,5 @@ namespace Indice.AspNetCore.Features.SignalRProxy;
 public class DefaultSignalRProxyUserIdResolver : ISignalRProxyUserIdResolver
 {
     /// <inheritdoc />
-    public string? Resolve(HttpContext httpContext, ClaimsPrincipal user)
-    {
-        return user.FindSubjectId();
-    }
+    public string? Resolve(HttpContext httpContext, ClaimsPrincipal user) => user.FindSubjectId();
 }
