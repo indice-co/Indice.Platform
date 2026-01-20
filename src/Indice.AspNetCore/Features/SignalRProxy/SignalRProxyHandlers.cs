@@ -254,7 +254,7 @@ internal static class SignalRProxyHandlers
         if (groupValidator is not null) {
             try {
                 await groupValidator.ValidateAsync(groupName);
-            } catch (System.ComponentModel.DataAnnotations.ValidationException ex) {
+            } catch (ValidationException ex) {
                 return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(groupName), ex.Message));
             } catch (Exception ex) {
                 return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(groupName), $"Group validation failed: {ex.Message}"));
@@ -277,7 +277,7 @@ internal static class SignalRProxyHandlers
             foreach (var groupName in groupNames) {
                 try {
                     await groupValidator.ValidateAsync(groupName);
-                } catch (System.ComponentModel.DataAnnotations.ValidationException ex) {
+                } catch (ValidationException ex) {
                     errors.AddError(nameof(groupNames), $"Group '{groupName}': {ex.Message}");
                 } catch (Exception ex) {
                     errors.AddError(nameof(groupNames), $"Group '{groupName}' validation failed: {ex.Message}");
