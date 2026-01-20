@@ -100,6 +100,7 @@ internal static class SignalRProxyHandlers
         ISignalRProxyNegotiatiationService signalRNegotiateService,
         IOptions<SignalRProxyOptions> options,
         ISignalRProxyUserIdResolver userIdResolver,
+        ISignalRProxyGroupNameValidator groupNameValidator,
         CancellationToken cancellationToken)
     {
 
@@ -117,6 +118,13 @@ internal static class SignalRProxyHandlers
         if (errors.Count > 0) {
             return TypedResults.ValidationProblem(errors);
         }
+
+        // Validate group names
+        var validationError = await ValidateGroupNamesAsync(groupNameValidator, groupNames);
+        if (validationError is not null) {
+            return validationError;
+        }
+
         if (!string.IsNullOrWhiteSpace(connectionId)) {
             await signalRNegotiateService.RemoveConnectionFromGroupsAsync(hub, connectionId!, groupNames.ToList(), cancellationToken);
         }
