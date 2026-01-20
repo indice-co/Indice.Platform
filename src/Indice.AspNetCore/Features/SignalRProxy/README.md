@@ -17,11 +17,11 @@ builder.AddSignalRProxy(options => {
 
 public class TenantGroupValidator : ISignalRProxyGroupNameValidator
 {
-    public Task ValidateAsync(string groupName)
+    public Task<bool> ValidateAsync(string groupName)
     {
         if (!IsValidTenantGroup(groupName))
-            throw new ValidationException($"Invalid tenant group: {groupName}");
-        return Task.CompletedTask;
+            return Task.FromResult(false);
+        return Task.FromResult(true);
     }
 }
 ```

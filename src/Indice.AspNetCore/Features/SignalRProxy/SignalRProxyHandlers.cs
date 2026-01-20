@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Indice.Security;
 using Indice.Services;
@@ -252,12 +251,9 @@ internal static class SignalRProxyHandlers
     {
         var groupValidator = httpContext.RequestServices.GetService<ISignalRProxyGroupNameValidator>();
         if (groupValidator is not null) {
-            try {
-                await groupValidator.ValidateAsync(groupName);
-            } catch (ValidationException ex) {
-                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(groupName), ex.Message));
-            } catch (Exception ex) {
-                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(groupName), $"Group validation failed: {ex.Message}"));
+            var isValid = await groupValidator.ValidateAsync(groupName);
+            if (!isValid) {
+                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(groupName), $"The group name '{groupName}' is not valid."));
             }
         }
         return null;
@@ -275,12 +271,9 @@ internal static class SignalRProxyHandlers
         if (groupValidator is not null) {
             var errors = ValidationErrors.Create();
             foreach (var groupName in groupNames) {
-                try {
-                    await groupValidator.ValidateAsync(groupName);
-                } catch (ValidationException ex) {
-                    errors.AddError(nameof(groupNames), $"Group '{groupName}': {ex.Message}");
-                } catch (Exception ex) {
-                    errors.AddError(nameof(groupNames), $"Group '{groupName}' validation failed: {ex.Message}");
+                var isValid = await groupValidator.ValidateAsync(groupName);
+                if (!isValid) {
+                    errors.AddError(nameof(groupNames), $"The group name '{groupName}' is not valid.");
                 }
             }
             if (errors.Count > 0) {

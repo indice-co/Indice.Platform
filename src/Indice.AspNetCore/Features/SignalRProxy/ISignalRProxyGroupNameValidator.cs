@@ -9,7 +9,6 @@ public interface ISignalRProxyGroupNameValidator
     /// Validates the specified group name.
     /// </summary>
     /// <param name="groupName">The group name to validate.</param>
-    /// <returns>A task representing the asynchronous validation operation.</returns>
-    /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">Thrown when the group name is invalid.</exception>
-    Task ValidateAsync(string groupName);
+    /// <returns>A task that represents the asynchronous validation operation. The task result contains true if the group name is valid; otherwise, false.</returns>
+    Task<bool> ValidateAsync(string groupName);
 }

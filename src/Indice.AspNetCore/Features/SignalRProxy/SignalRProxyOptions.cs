@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Indice.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Indice.AspNetCore.Features.SignalRProxy;
 
@@ -48,7 +49,7 @@ public class SignalRProxyOptions
     /// <returns>The current <see cref="SignalRProxyOptions"/> instance for method chaining.</returns>
     public SignalRProxyOptions AddUserIdResolver<TResolver>() where TResolver : class, ISignalRProxyUserIdResolver
     {
-        Services.AddSingleton<ISignalRProxyUserIdResolver, TResolver>();
+        Services.Replace(ServiceDescriptor.Singleton<ISignalRProxyUserIdResolver, TResolver>());
         return this;
     }
 
