@@ -24,6 +24,9 @@ public static class SignalRProxyFeatureExtensions
         // Register default user ID resolver
         builder.Services.AddSingleton<ISignalRProxyUserIdResolver, DefaultSignalRProxyUserIdResolver>();
         
+        // Register default group name validator (no-op)
+        builder.Services.AddSingleton<ISignalRProxyGroupNameValidator, NoOpGroupNameValidator>();
+        
         builder.Services.Configure<SignalRProxyOptions>(builder.Configuration.GetSection(SignalRProxyOptions.SectionName));
         builder.Services.Configure<SignalRProxyOptions>(options => {
             options.Services = builder.Services;

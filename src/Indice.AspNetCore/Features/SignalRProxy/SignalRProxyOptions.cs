@@ -60,7 +60,7 @@ public class SignalRProxyOptions
     /// <returns>The current <see cref="SignalRProxyOptions"/> instance for method chaining.</returns>
     public SignalRProxyOptions AddGroupNameValidator<TValidator>() where TValidator : class, ISignalRProxyGroupNameValidator
     {
-        Services.AddSingleton<ISignalRProxyGroupNameValidator, TValidator>();
+        Services.Replace(ServiceDescriptor.Singleton<ISignalRProxyGroupNameValidator, TValidator>());
         return this;
     }
 }
