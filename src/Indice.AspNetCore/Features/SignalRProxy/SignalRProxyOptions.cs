@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using Indice.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Indice.AspNetCore.Features.SignalRProxy;
 
@@ -8,6 +10,8 @@ namespace Indice.AspNetCore.Features.SignalRProxy;
 /// </summary>
 public class SignalRProxyOptions
 {
+    private IServiceCollection? _services;
+
     /// <summary>The configuration section name for SignalR proxy options.</summary>
     public const string SectionName = "SignalRProxy";
     /// <summary>The authentication scheme used to secure the endpoints.</summary>
@@ -29,6 +33,36 @@ public class SignalRProxyOptions
     public SignalRClaimTypeToGroupNameTransformer ClaimTypeToGroupName { get; set; } = x => $"{x.Type}|{x.Value}";
     /// <summary>List of allowed Hubs</summary>
     public List<string> AllowedHubs { get; set; } = [];
+
+    /// <summary>Gets or sets the service collection for dependency injection.</summary>
+    /// <remarks>This property is set during service registration and should not be modified directly.</remarks>
+    internal IServiceCollection Services
+    {
+        get => _services ?? throw new InvalidOperationException("Services property has not been initialized. Ensure AddSignalRProxy() has been called.");
+        set => _services = value;
+    }
+
+    /// <summary>
+    /// Registers a custom user ID resolver implementation.
+    /// </summary>
+    /// <typeparam name="TResolver">The type of the user ID resolver implementation.</typeparam>
+    /// <returns>The current <see cref="SignalRProxyOptions"/> instance for method chaining.</returns>
+    public SignalRProxyOptions AddUserIdResolver<TResolver>() where TResolver : class, ISignalRProxyUserIdResolver
+    {
+        Services.Replace(ServiceDescriptor.Singleton<ISignalRProxyUserIdResolver, TResolver>());
+        return this;
+    }
+
+    /// <summary>
+    /// Registers a custom group name validator implementation.
+    /// </summary>
+    /// <typeparam name="TValidator">The type of the group name validator implementation.</typeparam>
+    /// <returns>The current <see cref="SignalRProxyOptions"/> instance for method chaining.</returns>
+    public SignalRProxyOptions AddGroupNameValidator<TValidator>() where TValidator : class, ISignalRProxyGroupNameValidator
+    {
+        Services.Replace(ServiceDescriptor.Singleton<ISignalRProxyGroupNameValidator, TValidator>());
+        return this;
+    }
 }
 
 /// <summary>

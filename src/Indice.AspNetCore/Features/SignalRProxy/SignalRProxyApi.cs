@@ -71,6 +71,12 @@ public static class SignalRProxyApi
             .WithName(nameof(SignalRProxyHandlers.BroadcastToUser)).WithExampleRequestBody( new { Method = "broadcast", Message = "Hello!" })
             .RequireAuthorization(x => x.RequireAssertion(ctx => ctx.User.IsSystemClient() || ctx.User.IsAdmin()));
 
+        group.MapPost("hubs/{hub}/connections/{connectionId}/broadcast", SignalRProxyHandlers.BroadcastToConnection)
+            .WithDescription(SignalRProxyHandlers.BROADCASTTOCONNECTION)
+            .WithSummary("Broadcast a message to a specific connection.")
+            .WithName(nameof(SignalRProxyHandlers.BroadcastToConnection)).WithExampleRequestBody(new { Method = "broadcast", Message = "Hello!" })
+            .RequireAuthorization(x => x.RequireAssertion(ctx => ctx.User.IsSystemClient() || ctx.User.IsAdmin()));
+
         group.MapPost("hubs/{hub}/groups/{groupName}/broadcast", SignalRProxyHandlers.BroadcastToGroup)
             .WithDescription(SignalRProxyHandlers.BROADCASTTOGROUP)
             .WithSummary("Broadcast a message to a SignalR group.")
