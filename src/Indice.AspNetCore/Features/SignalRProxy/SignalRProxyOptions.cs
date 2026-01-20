@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Indice.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Features.SignalRProxy;
 
@@ -29,6 +30,31 @@ public class SignalRProxyOptions
     public SignalRClaimTypeToGroupNameTransformer ClaimTypeToGroupName { get; set; } = x => $"{x.Type}|{x.Value}";
     /// <summary>List of allowed Hubs</summary>
     public List<string> AllowedHubs { get; set; } = [];
+
+    /// <summary>Gets or sets the service collection for dependency injection.</summary>
+    internal IServiceCollection Services { get; set; } = null!;
+
+    /// <summary>
+    /// Registers a custom user ID resolver implementation.
+    /// </summary>
+    /// <typeparam name="TResolver">The type of the user ID resolver implementation.</typeparam>
+    /// <returns>The current <see cref="SignalRProxyOptions"/> instance for method chaining.</returns>
+    public SignalRProxyOptions AddUserIdResolver<TResolver>() where TResolver : class, ISignalRProxyUserIdResolver
+    {
+        Services.AddSingleton<ISignalRProxyUserIdResolver, TResolver>();
+        return this;
+    }
+
+    /// <summary>
+    /// Registers a custom group name validator implementation.
+    /// </summary>
+    /// <typeparam name="TValidator">The type of the group name validator implementation.</typeparam>
+    /// <returns>The current <see cref="SignalRProxyOptions"/> instance for method chaining.</returns>
+    public SignalRProxyOptions AddGroupNameValidator<TValidator>() where TValidator : class, ISignalRProxyGroupNameValidator
+    {
+        Services.AddSingleton<ISignalRProxyGroupNameValidator, TValidator>();
+        return this;
+    }
 }
 
 /// <summary>

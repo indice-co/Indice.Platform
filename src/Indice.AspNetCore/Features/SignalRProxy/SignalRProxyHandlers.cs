@@ -5,6 +5,7 @@ using Indice.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 namespace Indice.AspNetCore.Features.SignalRProxy;
 
@@ -14,13 +15,21 @@ internal static class SignalRProxyHandlers
 
     //here I want to add a from query parameters groups to join automatically
     //the groupNames below are different types of groups that the user belongs to based on claims
-    public static async Task<Results<Ok<SignalRNegotiationResponse>, ValidationProblem>> Negotiate( string hub, [FromQuery(Name ="gps")] string[]? groupNames, ClaimsPrincipal currentUser,
-        ISignalRProxyNegotiatiationService signalRNegotiateService, IOptions<SignalRProxyOptions> options, CancellationToken cancellationToken) {
+    public static async Task<Results<Ok<SignalRNegotiationResponse>, ValidationProblem>> Negotiate(
+        [Description("The name of the SignalR hub to connect to.")] string hub,
+        [FromQuery(Name = "gps")] [Description("Optional array of group names to join upon connection.")] string[]? groupNames,
+        ClaimsPrincipal currentUser,
+        HttpContext httpContext,
+        ISignalRProxyNegotiatiationService signalRNegotiateService,
+        IOptions<SignalRProxyOptions> options,
+        ISignalRProxyUserIdResolver userIdResolver,
+        CancellationToken cancellationToken)
+    {
 
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(hub), $"The hub '{hub}' is not recognized."));
         }
-        var userId = currentUser.FindSubjectId();
+        var userId = userIdResolver.Resolve(httpContext, currentUser);
         var autoGroupNames = currentUser.Claims.Where(x => x.Type is not null && !string.IsNullOrWhiteSpace(x.Value))
                                            .Where(x => options.Value.ClaimTypesForAutoGroups.Contains(x.Type))
                                            .Select(x => options.Value.ClaimTypeToGroupName(x))
@@ -28,15 +37,33 @@ internal static class SignalRProxyHandlers
         if (groupNames is not null && groupNames.Any()) {
             autoGroupNames.AddRange(groupNames);
         }
+
+        // Validate group names if validator is registered
+        var groupValidator = httpContext.RequestServices.GetService<ISignalRProxyGroupNameValidator>();
+        if (groupValidator is not null) {
+            foreach (var groupName in autoGroupNames) {
+                await groupValidator.ValidateAsync(groupName);
+            }
+        }
+
         var response = await signalRNegotiateService.NegotiateAsync(hub, autoGroupNames, userId, cancellationToken);
         return TypedResults.Ok(response);
     }
 
-    public static async Task<Results<NoContent, ValidationProblem>> JoinGroups(string hub,[FromQuery(Name = "gps")] string[] groupNames, [FromHeader(Name = "X-Connection-ID")] [Description("The connection ID of the SignalR client.")] string? connectionId,
-    ClaimsPrincipal currentUser, ISignalRProxyNegotiatiationService signalRNegotiateService, IOptions<SignalRProxyOptions> options, CancellationToken cancellationToken) {
+    public static async Task<Results<NoContent, ValidationProblem>> JoinGroups(
+        [Description("The name of the SignalR hub.")] string hub,
+        [FromQuery(Name = "gps")] [Description("Array of group names to join.")] string[] groupNames,
+        [FromHeader(Name = "X-Connection-ID")] [Description("The connection ID of the SignalR client.")] string? connectionId,
+        ClaimsPrincipal currentUser,
+        HttpContext httpContext,
+        ISignalRProxyNegotiatiationService signalRNegotiateService,
+        IOptions<SignalRProxyOptions> options,
+        ISignalRProxyUserIdResolver userIdResolver,
+        CancellationToken cancellationToken)
+    {
 
         var errors = ValidationErrors.Create();
-        var userId = currentUser.FindSubjectId();
+        var userId = userIdResolver.Resolve(httpContext, currentUser);
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             errors.AddError(nameof(hub), $"The hub '{hub}' is not recognized.");
         }
@@ -49,6 +76,15 @@ internal static class SignalRProxyHandlers
         if (errors.Count > 0) {
             return TypedResults.ValidationProblem(errors);
         }
+
+        // Validate group names if validator is registered
+        var groupValidator = httpContext.RequestServices.GetService<ISignalRProxyGroupNameValidator>();
+        if (groupValidator is not null) {
+            foreach (var groupName in groupNames) {
+                await groupValidator.ValidateAsync(groupName);
+            }
+        }
+
         if (!string.IsNullOrWhiteSpace(connectionId)) {
             await signalRNegotiateService.AddConnectionToGroupsAsync(hub, connectionId!, groupNames.ToList(), cancellationToken);
         }
@@ -58,11 +94,20 @@ internal static class SignalRProxyHandlers
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, ValidationProblem>> LeaveGroups(string hub, [FromQuery(Name = "gps")] string[] groupNames, [FromHeader(Name = "X-Connection-ID")] string? connectionId,
-    ClaimsPrincipal currentUser, ISignalRProxyNegotiatiationService signalRNegotiateService, IOptions<SignalRProxyOptions> options, CancellationToken cancellationToken) {
+    public static async Task<Results<NoContent, ValidationProblem>> LeaveGroups(
+        [Description("The name of the SignalR hub.")] string hub,
+        [FromQuery(Name = "gps")] [Description("Array of group names to leave.")] string[] groupNames,
+        [FromHeader(Name = "X-Connection-ID")] [Description("The connection ID of the SignalR client.")] string? connectionId,
+        ClaimsPrincipal currentUser,
+        HttpContext httpContext,
+        ISignalRProxyNegotiatiationService signalRNegotiateService,
+        IOptions<SignalRProxyOptions> options,
+        ISignalRProxyUserIdResolver userIdResolver,
+        CancellationToken cancellationToken)
+    {
 
         var errors = ValidationErrors.Create();
-        var userId = currentUser.FindSubjectId();
+        var userId = userIdResolver.Resolve(httpContext, currentUser);
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             errors.AddError(nameof(hub), $"The hub '{hub}' is not recognized.");
         }
@@ -86,8 +131,15 @@ internal static class SignalRProxyHandlers
 
     // these methods are meant to be used for administering purposes only. For example, adding a user to groups based on external events.
 
-    public static async Task<Results<NoContent, ValidationProblem>> AddUserToGroup(string hub, string groupName, string userId, ISignalRProxyNegotiatiationService signalRNegotiateService,
-    IOptions<SignalRProxyOptions> options, CancellationToken cancellationToken) {
+    public static async Task<Results<NoContent, ValidationProblem>> AddUserToGroup(
+        [Description("The name of the SignalR hub.")] string hub,
+        [Description("The name of the group to add the user to.")] string groupName,
+        [Description("The ID of the user to add to the group.")] string userId,
+        HttpContext httpContext,
+        ISignalRProxyNegotiatiationService signalRNegotiateService,
+        IOptions<SignalRProxyOptions> options,
+        CancellationToken cancellationToken)
+    {
         var errors = ValidationErrors.Create();
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             errors.AddError(nameof(hub), $"The hub '{hub}' is not recognized.");
@@ -101,12 +153,25 @@ internal static class SignalRProxyHandlers
         if (errors.Count > 0) {
             return TypedResults.ValidationProblem(errors);
         }
+
+        // Validate group name if validator is registered
+        var groupValidator = httpContext.RequestServices.GetService<ISignalRProxyGroupNameValidator>();
+        if (groupValidator is not null) {
+            await groupValidator.ValidateAsync(groupName);
+        }
+
         await signalRNegotiateService.AddUserToGroupsAsync(hub, userId!, [groupName], cancellationToken);
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, ValidationProblem>> BroadcastToUser(string hub, string userId, SignalRBroadcastCommand command,
-        CancellationToken cancellationToken, ISignalRProxyBroadcastService signalBroadcastService, IOptions<SignalRProxyOptions> options) {
+    public static async Task<Results<NoContent, ValidationProblem>> BroadcastToUser(
+        [Description("The name of the SignalR hub to broadcast through.")] string hub,
+        [Description("The ID of the user to broadcast the message to.")] string userId,
+        [Description("The SignalR broadcast command containing the method name and message.")] SignalRBroadcastCommand command,
+        CancellationToken cancellationToken,
+        ISignalRProxyBroadcastService signalBroadcastService,
+        IOptions<SignalRProxyOptions> options)
+    {
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(hub), $"The hub '{hub}' is not recognized."));
         }
@@ -114,18 +179,53 @@ internal static class SignalRProxyHandlers
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, ValidationProblem>> BroadcastToGroup(string hub, string groupName, SignalRBroadcastCommand command,
-        CancellationToken cancellationToken, ISignalRProxyBroadcastService signalBroadcastService, IOptions<SignalRProxyOptions> options) {
+    public static async Task<Results<NoContent, ValidationProblem>> BroadcastToGroup(
+        [Description("The name of the SignalR hub to broadcast through.")] string hub,
+        [Description("The name of the group to broadcast to.")] string groupName,
+        [Description("The SignalR broadcast command containing the method name and message.")] SignalRBroadcastCommand command,
+        HttpContext httpContext,
+        CancellationToken cancellationToken,
+        ISignalRProxyBroadcastService signalBroadcastService,
+        IOptions<SignalRProxyOptions> options)
+    {
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(hub), $"The hub '{hub}' is not recognized."));
         }
+
+        // Validate group name if validator is registered
+        var groupValidator = httpContext.RequestServices.GetService<ISignalRProxyGroupNameValidator>();
+        if (groupValidator is not null) {
+            await groupValidator.ValidateAsync(groupName);
+        }
+
         await signalBroadcastService.BroadcastToGroupAsync(hub, groupName, command, cancellationToken);
         return TypedResults.NoContent();
     }
 
+    public static async Task<Results<NoContent, ValidationProblem>> BroadcastToConnection(
+        [Description("The name of the SignalR hub to broadcast through.")] string hub,
+        [Description("The connection ID to broadcast the message to.")] string connectionId,
+        [Description("The SignalR broadcast command containing the method name and message.")] SignalRBroadcastCommand command,
+        CancellationToken cancellationToken,
+        ISignalRProxyBroadcastService signalBroadcastService,
+        IOptions<SignalRProxyOptions> options)
+    {
+        if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(hub), $"The hub '{hub}' is not recognized."));
+        }
+        await signalBroadcastService.BroadcastToConnectionAsync(hub, connectionId, command, cancellationToken);
+        return TypedResults.NoContent();
+    }
 
-    public static async Task<Results<NoContent, ValidationProblem>> RemoveUserFromGroup(string hub, string groupName, string userId,
-    ISignalRProxyNegotiatiationService signalRNegotiateService, IOptions<SignalRProxyOptions> options, CancellationToken cancellationToken) {
+
+    public static async Task<Results<NoContent, ValidationProblem>> RemoveUserFromGroup(
+        [Description("The name of the SignalR hub.")] string hub,
+        [Description("The name of the group to remove the user from.")] string groupName,
+        [Description("The ID of the user to remove from the group.")] string userId,
+        ISignalRProxyNegotiatiationService signalRNegotiateService,
+        IOptions<SignalRProxyOptions> options,
+        CancellationToken cancellationToken)
+    {
 
         var errors = ValidationErrors.Create();
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
@@ -195,6 +295,15 @@ Broadcasts a message to all users in a specific SignalR group (admin/system only
 Parameters:
 - hub: The name of the SignalR hub to broadcast through.
 - groupName: The name of the group to broadcast to.
+- command: The SignalRBroadcastCommand containing the method name and arguments.
+- cancellationToken: Cancellation token for the async operation.";
+
+    public static readonly string BROADCASTTOCONNECTION = @"
+Broadcasts a message to a specific connection (admin/system only).
+
+Parameters:
+- hub: The name of the SignalR hub to broadcast through.
+- connectionId: The connection ID to broadcast the message to.
 - command: The SignalRBroadcastCommand containing the method name and arguments.
 - cancellationToken: Cancellation token for the async operation.";
 

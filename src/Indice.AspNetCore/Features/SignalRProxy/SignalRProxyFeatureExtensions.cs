@@ -20,7 +20,15 @@ public static class SignalRProxyFeatureExtensions
         builder.Services.AddSignalRProxyCoreServices(options => {
             options.ConnectionString = builder.Configuration.GetConnectionString("SignalR");
         });
+        
+        // Register default user ID resolver
+        builder.Services.AddSingleton<ISignalRProxyUserIdResolver, DefaultSignalRProxyUserIdResolver>();
+        
         builder.Services.Configure<SignalRProxyOptions>(builder.Configuration.GetSection(SignalRProxyOptions.SectionName));
+        builder.Services.Configure<SignalRProxyOptions>(options => {
+            options.Services = builder.Services;
+        });
+        
         if(configureAction is not null) {
             builder.Services.PostConfigure(configureAction);
         }
