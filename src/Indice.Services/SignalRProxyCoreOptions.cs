@@ -24,7 +24,13 @@ public class SignalRProxyCoreOptions
     /// Gets or sets the name of the current hosting environment.
     /// </summary>
     public string EnvironmentName { get; set; } = null!;
-    
+
+    /// <summary>
+    /// Gets or sets the name of the current application name.
+    /// </summary>
+    /// <remarks>Will be used as a prefix for all SignalR hub names.</remarks>
+    public string? ApplicationName { get; set; }
+
     /// <summary>
     /// Gets or sets a value indicating whether hub names should be automatically prefixed with the environment name.
     /// </summary>

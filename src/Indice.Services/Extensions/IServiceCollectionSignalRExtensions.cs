@@ -24,6 +24,7 @@ public static class IServiceCollectionSignalRExtensions
             .WithOptions(serviceManagerOptions => {
                 var options = serviceProvider.GetRequiredService<IOptions<SignalRProxyCoreOptions>>().Value;
                 serviceManagerOptions.ConnectionString = options.ConnectionString;
+                serviceManagerOptions.ApplicationName = options.ApplicationName;
                 if (options.AutoPrefixWithEnvironmentName) {
                     serviceManagerOptions.ApplicationName = 
                         string.IsNullOrWhiteSpace(serviceManagerOptions.ApplicationName) ? options.EnvironmentName : 

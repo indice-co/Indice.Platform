@@ -1,4 +1,5 @@
 using Indice.Services;
+using Microsoft.Azure.SignalR.Management;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -37,6 +38,11 @@ public class SignalRProxyOptions
     public bool UseEnvironmentNameAsHubPrefix { get; set; }
     /// <summary>Gets or sets the ApplicationName which will be prefixed to each hub name</summary>
     public string? ApplicationName { get; set; }
+
+    /// <summary>
+    /// Gets or sets an optional action to configure the <see cref="ServiceManagerOptions"/> for the SignalR service manager.
+    /// </summary>
+    public Action<ServiceManagerOptions>? ConfigureServiceManager { get; set; }
 
     /// <summary>Gets or sets the service collection for dependency injection.</summary>
     /// <remarks>This property is set during service registration and should not be modified directly.</remarks>
@@ -102,5 +108,7 @@ internal class PostConfigureSignalRProxyCoreOptions : IPostConfigureOptions<Sign
     /// </remarks>
     public void PostConfigure(string? name, SignalRProxyCoreOptions options) {
         options.AutoPrefixWithEnvironmentName = ApiOptions.Value.UseEnvironmentNameAsHubPrefix;
+        options.ApplicationName = ApiOptions.Value.ApplicationName;
+        options.ConfigureServiceManager = ApiOptions.Value.ConfigureServiceManager;
     }
 }
