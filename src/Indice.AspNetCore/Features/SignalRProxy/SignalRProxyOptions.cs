@@ -37,7 +37,7 @@ public class SignalRProxyOptions
     /// <summary>Optional prefix for Hub names.</summary>
     public string? HubPrefix { get; set; } = null;
 
-    /// <summary>Delimeter for the optional prefix.</summary>
+    /// <summary>Delimiter for the optional prefix.</summary>
     public char HubPrefixDelimiter { get; set; } = '_';
 
     /// <summary>
