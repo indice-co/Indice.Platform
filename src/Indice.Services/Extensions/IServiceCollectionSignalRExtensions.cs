@@ -3,6 +3,7 @@ using Indice.Serialization;
 using Indice.Services;
 using Microsoft.Azure.SignalR.Management;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -18,19 +19,29 @@ public static class IServiceCollectionSignalRExtensions
     /// <param name="configureAction">An optional action to configure the SignalR service manager options.</param>
     /// <returns>The updated service collection.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the Azure SignalR connection string is not configured.</exception>
-    public static IServiceCollection AddSignalRProxyCoreServices(this IServiceCollection services, Action<ServiceManagerOptions>? configureAction = null) {
-        var serviceManager = new ServiceManagerBuilder()
+    public static IServiceCollection AddSignalRProxyCoreServices(this IServiceCollection services, Action<SignalRProxyCoreOptions>? configureAction = null) {
+        services.AddSingleton((serviceProvider) => new ServiceManagerBuilder()
             .WithOptions(serviceManagerOptions => {
-                configureAction?.Invoke(serviceManagerOptions);
-                 if (string.IsNullOrEmpty(serviceManagerOptions.ConnectionString)) {
-                     throw new InvalidOperationException("SignalR ConnectionString is not configured.");
+                var options = serviceProvider.GetRequiredService<IOptions<SignalRProxyCoreOptions>>().Value;
+                serviceManagerOptions.ConnectionString = options.ConnectionString;
+                if (options.AutoPrefixWithEnvironmentName) {
+                    serviceManagerOptions.ApplicationName = 
+                        string.IsNullOrWhiteSpace(serviceManagerOptions.ApplicationName) ? options.EnvironmentName : 
+                                                                                           $"{options.EnvironmentName}_{serviceManagerOptions.ApplicationName}";
+                }
+                options.ConfigureServiceManager?.Invoke(serviceManagerOptions);
+                
+                if (string.IsNullOrEmpty(serviceManagerOptions.ConnectionString)) {
+                    throw new InvalidOperationException("SignalR ConnectionString is not configured.");
                 }
                 serviceManagerOptions.ServiceTransportType = ServiceTransportType.Transient;
-                serviceManagerOptions.UseJsonObjectSerializer(
-                    new JsonObjectSerializer(JsonSerializerOptionDefaults.GetDefaultSettings()));
+                serviceManagerOptions.UseJsonObjectSerializer(new JsonObjectSerializer(JsonSerializerOptionDefaults.GetDefaultSettings()));
             })
-            .BuildServiceManager();
-        services.AddSingleton(serviceManager);
+            .BuildServiceManager());
+        services.ConfigureOptions<SignalRProxyCoreConfigureOptions>();
+        if (configureAction != null) {
+            services.PostConfigure(configureAction);
+        }
         services.TryAddSingleton<SignalRProxyHubContextStore>();
         services.TryAddTransient<ISignalRProxyNegotiatiationService, SignalRProxyNegotiatiationService>();
         services.TryAddTransient<ISignalRProxyBroadcastService, SignalRProxyBroadcastService>();
