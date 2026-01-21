@@ -17,7 +17,7 @@ public static class CasesExtensions
     /// <summary>
     /// Convert the CaseWorkflowData (object) to TData.
     /// </summary>    
-    public static TData CaseWorkflowDataAs<TData>(this Integrations.Case @case) {
+    public static TData? CaseWorkflowDataAs<TData>(this Integrations.Case @case) {
         if (@case.Data is TData typedData) {
             return typedData;
         }
@@ -30,14 +30,14 @@ public static class CasesExtensions
                 return (TData)(object)jsonElement.GetRawText();
             }
 
-            return jsonElement.Deserialize<TData>(options)!;
+            return jsonElement.Deserialize<TData>(options);
         }
 
         var json = JsonSerializer.Serialize(@case.Data, options);
         if (typeof(TData) == typeof(string)) {
             return (TData)(object)json;
         }
-        return JsonSerializer.Deserialize<TData>(json, options)!;
+        return JsonSerializer.Deserialize<TData>(json, options);
     }
 
     /// <summary>
