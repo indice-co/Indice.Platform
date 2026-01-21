@@ -32,9 +32,13 @@ public class SignalRProxyOptions
     /// <remarks>Defaults to <c>x => $"{x.Type}|{x.Value}"</c></remarks>
     public SignalRClaimTypeToGroupNameTransformer ClaimTypeToGroupName { get; set; } = x => $"{x.Type}|{x.Value}";
     /// <summary>List of allowed Hubs</summary>
+    /// <remarks> If empty, all hubs are allowed.
+    /// Populate the list without using the optional prefix <see cref="HubPrefix"/>
+    /// </remarks>
     public List<string> AllowedHubs { get; set; } = [];
 
     /// <summary>Optional prefix for Hub names.</summary>
+    /// <remarks> Hub prefix must follow SignalR Hub naming conventions.</remarks>
     public string? HubPrefix { get; set; } = null;
 
     /// <summary>Delimiter for the optional prefix.</summary>

@@ -28,6 +28,7 @@ public static class IServiceCollectionSignalRExtensions
                 serviceManagerOptions.ServiceTransportType = ServiceTransportType.Transient;
                 serviceManagerOptions.UseJsonObjectSerializer(
                     new JsonObjectSerializer(JsonSerializerOptionDefaults.GetDefaultSettings()));
+                
             })
             .BuildServiceManager();
         services.AddSingleton(serviceManager);
