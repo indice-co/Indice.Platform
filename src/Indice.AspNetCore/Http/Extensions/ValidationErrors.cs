@@ -21,6 +21,9 @@ public static class ValidationErrors
     /// <param name="key">The error category key.</param>
     /// <param name="messages">A range of error messages.</param>
     public static IDictionary<string, string[]> AddErrors(this IDictionary<string, string[]> errors, string key, IEnumerable<string> messages) {
+        if (!messages.Any()) { 
+            return errors;
+        }
         if (errors.TryGetValue(key, out var array)) {
             errors[key] = [.. array, .. messages];
         } else {

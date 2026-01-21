@@ -1,7 +1,8 @@
-using System.Security.Claims;
-using Indice.Extensions;
+using Indice.Services;
+using Microsoft.Azure.SignalR.Management;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.SignalRProxy;
 
@@ -25,14 +26,23 @@ public class SignalRProxyOptions
     public string RequiredScope { get; set; } = null!;
     /// <summary>Decides whether to enable swagger/openapi documentation for the endpoint</summary>
     public bool ExcludeFromDescription { get; set; }
-    /// <summary>List of Claims types to auto-populate Groups if available on the current claim principal</summary>
-    public List<string> ClaimTypesForAutoGroups { get; set; } = [];
-
-    /// <summary>List of Claims types to auto-populate Groups if available on the current claim principal</summary>
-    /// <remarks>Defaults to <c>x => $"{x.Type}|{x.Value}"</c></remarks>
-    public SignalRClaimTypeToGroupNameTransformer ClaimTypeToGroupName { get; set; } = x => $"{x.Type}|{x.Value}";
     /// <summary>List of allowed Hubs</summary>
+    /// <remarks>If empty, all hubs are allowed.</remarks>
     public List<string> AllowedHubs { get; set; } = [];
+    /// <summary>
+    /// Gets or sets a value indicating whether the environment name should be used as a prefix for SignalR hub names.
+    /// </summary>
+    /// <remarks>When enabled, the environment name (such as Development, Staging, or Production) is prepended
+    /// to the hub name. This can help isolate SignalR traffic between different deployment environments and prevent
+    /// cross-environment communication issues.</remarks>
+    public bool UseEnvironmentNameAsHubPrefix { get; set; }
+    /// <summary>Gets or sets the ApplicationName which will be prefixed to each hub name</summary>
+    public string? ApplicationName { get; set; }
+
+    /// <summary>
+    /// Gets or sets an optional action to configure the <see cref="ServiceManagerOptions"/> for the SignalR service manager.
+    /// </summary>
+    public Action<ServiceManagerOptions>? ConfigureServiceManager { get; set; }
 
     /// <summary>Gets or sets the service collection for dependency injection.</summary>
     /// <remarks>This property is set during service registration and should not be modified directly.</remarks>
@@ -66,8 +76,39 @@ public class SignalRProxyOptions
 }
 
 /// <summary>
-/// A delegate to transform a Claim to a SignalR Group Name
+/// Post-configures <see cref="SignalRProxyCoreOptions"/> by synchronizing configuration values from <see cref="SignalRProxyOptions"/>.
 /// </summary>
-/// <param name="claim">The claim to transform.</param>
-/// <returns>The transformed group name.</returns>
-public delegate string SignalRClaimTypeToGroupNameTransformer(Claim claim);
+/// <remarks>
+/// This class is part of the options pattern and is executed after the initial configuration to ensure that
+/// core options are properly aligned with the proxy options, specifically transferring the environment name prefix setting.
+/// </remarks>
+internal class PostConfigureSignalRProxyCoreOptions : IPostConfigureOptions<SignalRProxyCoreOptions>
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PostConfigureSignalRProxyCoreOptions"/> class.
+    /// </summary>
+    /// <param name="apiOptions">The SignalR proxy options containing the configuration values to transfer.</param>
+    public PostConfigureSignalRProxyCoreOptions(IOptions<SignalRProxyOptions> apiOptions) {
+        ApiOptions = apiOptions;
+    }
+
+    /// <summary>
+    /// Gets the SignalR proxy options used for post-configuration.
+    /// </summary>
+    public IOptions<SignalRProxyOptions> ApiOptions { get; }
+
+    /// <summary>
+    /// Post-configures the SignalR proxy core options by transferring configuration values.
+    /// </summary>
+    /// <param name="name">The name of the options instance being configured.</param>
+    /// <param name="options">The options instance to configure.</param>
+    /// <remarks>
+    /// This method synchronizes the <see cref="SignalRProxyOptions.UseEnvironmentNameAsHubPrefix"/> value
+    /// to the <see cref="SignalRProxyCoreOptions.AutoPrefixWithEnvironmentName"/> property.
+    /// </remarks>
+    public void PostConfigure(string? name, SignalRProxyCoreOptions options) {
+        options.AutoPrefixWithEnvironmentName = ApiOptions.Value.UseEnvironmentNameAsHubPrefix;
+        options.ApplicationName = ApiOptions.Value.ApplicationName;
+        options.ConfigureServiceManager = ApiOptions.Value.ConfigureServiceManager;
+    }
+}
