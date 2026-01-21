@@ -22,11 +22,22 @@ public static class CasesExtensions
             return typedData;
         }
 
-        var json = JsonSerializer.Serialize(@case.Data, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var options = JsonSerializerOptionDefaults.GetDefaultSettings();
+
+        if (@case.Data is JsonElement jsonElement) {
+            if (typeof(TData) == typeof(string)) {
+                // When the requested type is string, return the raw JSON text.
+                return (TData)(object)jsonElement.GetRawText();
+            }
+
+            return jsonElement.Deserialize<TData>(options)!;
+        }
+
+        var json = JsonSerializer.Serialize(@case.Data, options);
         if (typeof(TData) == typeof(string)) {
             return (TData)(object)json;
         }
-        return JsonSerializer.Deserialize<TData>(json, JsonSerializerOptionDefaults.GetDefaultSettings())!;
+        return JsonSerializer.Deserialize<TData>(json, options)!;
     }
 
     /// <summary>
