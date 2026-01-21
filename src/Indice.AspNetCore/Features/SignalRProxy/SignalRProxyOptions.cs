@@ -43,7 +43,7 @@ public class SignalRProxyOptions
     /// <summary>
     /// Gets the full Hub name, by adding the optional prefix and delimiter if it is set.
     /// </summary>
-    /// <param name="hubName"></param>
+    /// <param name="hubName">The name of the Hub.</param>
     /// <returns></returns>
     public string GetHubName(string hubName) => string.IsNullOrWhiteSpace(HubPrefix) ? hubName : $"{HubPrefix}{HubPrefixDelimiter}{hubName}";
 
