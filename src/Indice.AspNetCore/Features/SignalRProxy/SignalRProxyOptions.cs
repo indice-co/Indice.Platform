@@ -34,6 +34,19 @@ public class SignalRProxyOptions
     /// <summary>List of allowed Hubs</summary>
     public List<string> AllowedHubs { get; set; } = [];
 
+    /// <summary>Optional prefix for Hub names.</summary>
+    public string? HubPrefix { get; set; } = null;
+
+    /// <summary>Delimeter for the optional prefix.</summary>
+    public char HubPrefixDelimiter { get; set; } = '_';
+
+    /// <summary>
+    /// Gets the full Hub name, by adding the optional prefix and delimiter if it is set.
+    /// </summary>
+    /// <param name="hubName"></param>
+    /// <returns></returns>
+    public string GetHubName(string hubName) => string.IsNullOrWhiteSpace(HubPrefix) ? hubName : $"{HubPrefix}{HubPrefixDelimiter}{hubName}";
+
     /// <summary>Gets or sets the service collection for dependency injection.</summary>
     /// <remarks>This property is set during service registration and should not be modified directly.</remarks>
     internal IServiceCollection Services

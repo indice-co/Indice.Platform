@@ -25,7 +25,7 @@ internal static class SignalRProxyHandlers
         ISignalRProxyGroupNameValidator groupNameValidator,
         CancellationToken cancellationToken)
     {
-
+        var hubName = options.Value.GetHubName(hub);
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(hub), $"The hub '{hub}' is not recognized."));
         }
@@ -44,7 +44,7 @@ internal static class SignalRProxyHandlers
             return validationError;
         }
 
-        var response = await signalRNegotiateService.NegotiateAsync(hub, autoGroupNames, userId, cancellationToken);
+        var response = await signalRNegotiateService.NegotiateAsync(hubName, autoGroupNames, userId, cancellationToken);
         return TypedResults.Ok(response);
     }
 
@@ -61,6 +61,7 @@ internal static class SignalRProxyHandlers
         CancellationToken cancellationToken)
     {
 
+        var hubName = options.Value.GetHubName(hub);
         var errors = ValidationErrors.Create();
         var userId = userIdResolver.Resolve(httpContext, currentUser);
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
@@ -83,10 +84,10 @@ internal static class SignalRProxyHandlers
         }
 
         if (!string.IsNullOrWhiteSpace(connectionId)) {
-            await signalRNegotiateService.AddConnectionToGroupsAsync(hub, connectionId!, groupNames.ToList(), cancellationToken);
+            await signalRNegotiateService.AddConnectionToGroupsAsync(hubName, connectionId!, groupNames.ToList(), cancellationToken);
         }
         else {
-            await signalRNegotiateService.AddUserToGroupsAsync(hub, userId!, groupNames.ToList(), cancellationToken);
+            await signalRNegotiateService.AddUserToGroupsAsync(hubName, userId!, groupNames.ToList(), cancellationToken);
         }
         return TypedResults.NoContent();
     }
@@ -103,7 +104,7 @@ internal static class SignalRProxyHandlers
         ISignalRProxyGroupNameValidator groupNameValidator,
         CancellationToken cancellationToken)
     {
-
+        var hubName = options.Value.GetHubName(hub);
         var errors = ValidationErrors.Create();
         var userId = userIdResolver.Resolve(httpContext, currentUser);
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
@@ -126,10 +127,10 @@ internal static class SignalRProxyHandlers
         }
 
         if (!string.IsNullOrWhiteSpace(connectionId)) {
-            await signalRNegotiateService.RemoveConnectionFromGroupsAsync(hub, connectionId!, groupNames.ToList(), cancellationToken);
+            await signalRNegotiateService.RemoveConnectionFromGroupsAsync(hubName, connectionId!, groupNames.ToList(), cancellationToken);
         }
         else {
-            await signalRNegotiateService.RemoveUserFromGroupsAsync(hub, userId!, groupNames.ToList(), cancellationToken);
+            await signalRNegotiateService.RemoveUserFromGroupsAsync(hubName, userId!, groupNames.ToList(), cancellationToken);
         }
         return TypedResults.NoContent();
     }
@@ -145,6 +146,7 @@ internal static class SignalRProxyHandlers
         ISignalRProxyGroupNameValidator groupNameValidator,
         CancellationToken cancellationToken)
     {
+        var hubName = options.Value.GetHubName(hub);
         var errors = ValidationErrors.Create();
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             errors.AddError(nameof(hub), $"The hub '{hub}' is not recognized.");
@@ -165,7 +167,7 @@ internal static class SignalRProxyHandlers
             return validationError;
         }
 
-        await signalRNegotiateService.AddUserToGroupsAsync(hub, userId!, [groupName], cancellationToken);
+        await signalRNegotiateService.AddUserToGroupsAsync(hubName, userId!, [groupName], cancellationToken);
         return TypedResults.NoContent();
     }
 
@@ -177,10 +179,11 @@ internal static class SignalRProxyHandlers
         ISignalRProxyBroadcastService signalBroadcastService,
         IOptions<SignalRProxyOptions> options)
     {
+        var hubName = options.Value.GetHubName(hub);
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(hub), $"The hub '{hub}' is not recognized."));
         }
-        await signalBroadcastService.BroadcastToUserAsync(hub, userId, command, cancellationToken);
+        await signalBroadcastService.BroadcastToUserAsync(hubName, userId, command, cancellationToken);
         return TypedResults.NoContent();
     }
 
@@ -193,6 +196,7 @@ internal static class SignalRProxyHandlers
         IOptions<SignalRProxyOptions> options,
         ISignalRProxyGroupNameValidator groupNameValidator)
     {
+        var hubName = options.Value.GetHubName(hub);
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(hub), $"The hub '{hub}' is not recognized."));
         }
@@ -202,8 +206,7 @@ internal static class SignalRProxyHandlers
         if (validationError is not null) {
             return validationError;
         }
-
-        await signalBroadcastService.BroadcastToGroupAsync(hub, groupName, command, cancellationToken);
+        await signalBroadcastService.BroadcastToGroupAsync(hubName, groupName, command, cancellationToken);
         return TypedResults.NoContent();
     }
 
@@ -215,10 +218,11 @@ internal static class SignalRProxyHandlers
         ISignalRProxyBroadcastService signalBroadcastService,
         IOptions<SignalRProxyOptions> options)
     {
+        var hubName = options.Value.GetHubName(hub);
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(hub), $"The hub '{hub}' is not recognized."));
         }
-        await signalBroadcastService.BroadcastToConnectionAsync(hub, connectionId, command, cancellationToken);
+        await signalBroadcastService.BroadcastToConnectionAsync(hubName, connectionId, command, cancellationToken);
         return TypedResults.NoContent();
     }
 
@@ -231,7 +235,7 @@ internal static class SignalRProxyHandlers
         IOptions<SignalRProxyOptions> options,
         CancellationToken cancellationToken)
     {
-
+        var hubName = options.Value.GetHubName(hub);
         var errors = ValidationErrors.Create();
         if (options.Value.AllowedHubs is null || !options.Value.AllowedHubs.Contains(hub)) {
             errors.AddError(nameof(hub), $"The hub '{hub}' is not recognized.");
@@ -245,7 +249,7 @@ internal static class SignalRProxyHandlers
         if (errors.Count > 0) {
             return TypedResults.ValidationProblem(errors);
         }
-        await signalRNegotiateService.RemoveUserFromGroupsAsync(hub, userId!, [groupName], cancellationToken);
+        await signalRNegotiateService.RemoveUserFromGroupsAsync(hubName, userId!, [groupName], cancellationToken);
         return TypedResults.NoContent();
     }
 
