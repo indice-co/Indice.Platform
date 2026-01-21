@@ -26,6 +26,7 @@ public class SignalRProxyOptions
     /// <summary>Decides whether to enable swagger/openapi documentation for the endpoint</summary>
     public bool ExcludeFromDescription { get; set; }
     /// <summary>List of allowed Hubs</summary>
+    /// <remarks>If empty, all hubs are allowed.</remarks>
     public List<string> AllowedHubs { get; set; } = [];
     /// <summary>
     /// Gets or sets a value indicating whether the environment name should be used as a prefix for SignalR hub names.
