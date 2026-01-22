@@ -493,7 +493,7 @@
     <value>Ο κωδικός άλλαξε</value>
   </data>
   <data name="ForgotPasswordConfirmation_LoginLink" xml:space="preserve">
-    <value>Παρακαλώ &lt;a href="{0}"&gt;συνδεθείτε&lt;/a&gt; χρησιμοποιόντας το νέο σας συνθηματικό.</value>
+    <value>Παρακαλώ &lt;a href="{0}"&gt;συνδεθείτε&lt;/a&gt; χρησιμοποιώντας το νέο σας συνθηματικό.</value>
   </data>
   <data name="ForgotPasswordConfirmation_FillNewPassword_FieldLabel" xml:space="preserve">
     <value>Παρακαλώ εισάγετε τον νέο σας κωδικό</value>
