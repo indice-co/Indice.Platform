@@ -166,7 +166,7 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
                         query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.ToLower() != clause.Value.ToLower());
                         break;
                     case FilterOperator.Contains:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.Contains(clause.Value.ToLower()));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.Contains(clause.Value));
                         break;
                 }
             }
@@ -180,7 +180,7 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
                         query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.ToLower() != clause.Value.ToLower());
                         break;
                     case FilterOperator.Contains:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.Contains(clause.Value.ToLower()));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.Contains(clause.Value));
                         break;
                 }
             }
@@ -196,7 +196,7 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
                     case FilterOperator.Contains:
                         // Contains is translated by EF Core to SQL LIKE which is case-insensitive for SQL Server by default. This is not true for example PostgreSQL.
                         // If you are using PostgreSQL you might need to adjust this to use ILIKE or similar.
-                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.Contains(clause.Value.ToLower()));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.Contains(clause.Value));
                         break;
                 }
             }
