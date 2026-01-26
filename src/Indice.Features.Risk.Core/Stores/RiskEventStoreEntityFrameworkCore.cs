@@ -160,13 +160,13 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
             if (clause.Member.Equals(nameof(DbRiskEvent.CountryIsoCode), StringComparison.OrdinalIgnoreCase)) {
                 switch (clause.Operator) {
                     case FilterOperator.Eq:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.Equals(clause.Value));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.ToLower() == clause.Value.ToLower());
                         break;
                     case FilterOperator.Neq:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && !x.CountryIsoCode.Equals(clause.Value));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.ToLower() != clause.Value.ToLower());
                         break;
                     case FilterOperator.Contains:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.Contains(clause.Value));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.ToLower().Contains(clause.Value.ToLower()));
                         break;
                 }
             }
@@ -174,13 +174,13 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
             if (clause.Member.Equals(nameof(DbRiskEvent.Location), StringComparison.OrdinalIgnoreCase)) {
                 switch (clause.Operator) {
                     case FilterOperator.Eq:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.Equals(clause.Value));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.ToLower() == clause.Value.ToLower());
                         break;
                     case FilterOperator.Neq:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && !x.Location.Equals(clause.Value));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.ToLower() != clause.Value.ToLower());
                         break;
                     case FilterOperator.Contains:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.Contains(clause.Value));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.ToLower().Contains(clause.Value.ToLower()));
                         break;
                 }
             }
@@ -188,13 +188,13 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
             if (clause.Member.Equals(nameof(DbRiskEvent.SourceTransId), StringComparison.OrdinalIgnoreCase)) {
                 switch (clause.Operator) {
                     case FilterOperator.Eq:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.Equals(clause.Value));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.ToLower() == clause.Value.ToLower());
                         break;
                     case FilterOperator.Neq:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && !x.SourceTransId.Equals(clause.Value));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.ToLower() != clause.Value.ToLower());
                         break;
                     case FilterOperator.Contains:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.Contains(clause.Value));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.ToLower().Contains(clause.Value.ToLower()));
                         break;
                 }
             }
