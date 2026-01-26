@@ -62,6 +62,11 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
                 dataType: 'string'
             },
             {
+                field: 'sourceTransId',
+                name: 'ΚΩΔΙΚΟΣ ΣΥΣΧΕΤΙΣΗΣ',
+                dataType: 'string'
+            },
+            {
                 field: 'daterange',
                 name: 'ΗΜ. ΔΗΜΙΟΥΡΓΙΑΣ',
                 dataType: 'daterange'

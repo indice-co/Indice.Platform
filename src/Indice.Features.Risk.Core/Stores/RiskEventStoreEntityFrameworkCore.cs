@@ -184,6 +184,20 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
                         break;
                 }
             }
+
+            if (clause.Member.Equals(nameof(DbRiskEvent.SourceTransId), StringComparison.OrdinalIgnoreCase)) {
+                switch (clause.Operator) {
+                    case FilterOperator.Eq:
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.Equals(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        break;
+                    case FilterOperator.Neq:
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && !x.SourceTransId.Equals(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        break;
+                    case FilterOperator.Contains:
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.Contains(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        break;
+                }
+            }
         }
         return query;
     }
