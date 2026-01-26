@@ -160,13 +160,13 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
             if (clause.Member.Equals(nameof(DbRiskEvent.CountryIsoCode), StringComparison.OrdinalIgnoreCase)) {
                 switch (clause.Operator) {
                     case FilterOperator.Eq:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.Equals(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.Equals(clause.Value));
                         break;
                     case FilterOperator.Neq:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && !x.CountryIsoCode.Equals(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && !x.CountryIsoCode.Equals(clause.Value));
                         break;
                     case FilterOperator.Contains:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.Contains(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.Contains(clause.Value));
                         break;
                 }
             }
@@ -174,13 +174,13 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
             if (clause.Member.Equals(nameof(DbRiskEvent.Location), StringComparison.OrdinalIgnoreCase)) {
                 switch (clause.Operator) {
                     case FilterOperator.Eq:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.Equals(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.Equals(clause.Value));
                         break;
                     case FilterOperator.Neq:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && !x.Location.Equals(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && !x.Location.Equals(clause.Value));
                         break;
                     case FilterOperator.Contains:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.Contains(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.Contains(clause.Value));
                         break;
                 }
             }
