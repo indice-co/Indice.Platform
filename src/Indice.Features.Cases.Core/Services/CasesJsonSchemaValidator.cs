@@ -17,9 +17,7 @@ public class CasesJsonSchemaValidator : ISchemaValidator
         ArgumentException.ThrowIfNullOrEmpty(schema);
         ArgumentNullException.ThrowIfNull(data);
         
-        var mySchema = JsonSchema.FromText(schema, new BuildOptions {
-            Dialect = Dialect.Draft07
-        });
+        var mySchema = JsonSchema.FromText(schema);
 
         var jsonNode = (data, data.GetType().Name) switch {
             (JsonElement element, _) => element.AsNode(),

@@ -100,6 +100,7 @@ public class SchemaValidatorTests
     public void IsValid_PropertyEnumWithNames_True() {
         var schema = """
             {
+              "$schema": "http://json-schema.org/draft-07/schema#",
               "title": "My schema",
               "description": "My description",
               "type": "object",
