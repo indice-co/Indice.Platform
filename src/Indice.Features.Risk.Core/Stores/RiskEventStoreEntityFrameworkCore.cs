@@ -188,13 +188,13 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
             if (clause.Member.Equals(nameof(DbRiskEvent.SourceTransId), StringComparison.OrdinalIgnoreCase)) {
                 switch (clause.Operator) {
                     case FilterOperator.Eq:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.Equals(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.Equals(clause.Value));
                         break;
                     case FilterOperator.Neq:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && !x.SourceTransId.Equals(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && !x.SourceTransId.Equals(clause.Value));
                         break;
                     case FilterOperator.Contains:
-                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.Contains(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SourceTransId) && x.SourceTransId.Contains(clause.Value));
                         break;
                 }
             }
