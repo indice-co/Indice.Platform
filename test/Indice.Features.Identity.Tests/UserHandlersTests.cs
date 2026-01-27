@@ -182,7 +182,8 @@ public class UserHandlersTests : IAsyncLifetime
         var result = await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
             UserName = "test.user@indice.gr",
             Email = "test.user@indice.gr",
-            PhoneNumber = null
+            PhoneNumber = null,
+            PhoneNumberConfirmed = false
         });
 
         // Verify phone number was cleared
@@ -215,7 +216,8 @@ public class UserHandlersTests : IAsyncLifetime
         var result = await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
             UserName = "test.user2@indice.gr",
             Email = "test.user2@indice.gr",
-            PhoneNumber = "   "
+            PhoneNumber = "   ",
+            PhoneNumberConfirmed = false
         });
 
         // Verify phone number was cleared
