@@ -53,7 +53,9 @@
                 </div>
               }
               @if (relatedCases$ | async; as relatedCases) {
-                <app-case-related class="bg-white shadow rounded-sm mt-2 px-4 py-1 flow-root" [relatedCases]="relatedCases"></app-case-related>
+                @if (relatedCases.length) {
+                  <app-case-related class="bg-white shadow rounded-sm mt-2 px-4 py-1 flow-root" [relatedCases]="relatedCases"></app-case-related>
+                }
               }
               <div class="bg-white shadow rounded-sm">
                 @if (timelineEntries$ | async; as timelineEntries) {
