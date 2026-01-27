@@ -268,11 +268,16 @@ internal static class UserHandlers
             var errors = ValidationErrors.AddError(nameof(request.PhoneNumber), "The provided phone number is not valid.");
             return TypedResults.ValidationProblem(errors);
         }
+        if(string.IsNullOrWhiteSpace(trimmedPhoneNumber) && request.PhoneNumberConfirmed) {
+            var errors = ValidationErrors.AddError(nameof(request.PhoneNumberConfirmed), "The phone number cannot be confirmed as it is not a valid phone number.");
+            return TypedResults.ValidationProblem(errors);
+        }
         user.UserName = request.UserName?.Trim();
         user.Email = request.Email?.Trim();
-        if (!string.IsNullOrWhiteSpace(trimmedPhoneNumber)) {
-            user.PhoneNumber = phoneNumber.ToString();
-        }
+        user.PhoneNumber = trimmedPhoneNumber switch {
+            { Length: > 0 } => phoneNumber.ToString(),
+            _ => null
+        };
         user.TwoFactorEnabled = request.TwoFactorEnabled;
         user.TwoFactorPolicy = request.TwoFactorPolicy;
         user.PasswordExpirationPolicy = request.PasswordExpirationPolicy;
