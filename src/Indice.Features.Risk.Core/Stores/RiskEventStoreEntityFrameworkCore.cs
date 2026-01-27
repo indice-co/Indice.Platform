@@ -168,6 +168,7 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
 
             if (clause.Member.Equals(nameof(DbRiskEvent.CountryIsoCode), StringComparison.OrdinalIgnoreCase)) {
                 switch (clause.Operator) {
+                    // Country ISO codes are stored in uppercase.
                     case FilterOperator.Eq:
                         query = query.Where(x => clause.Value.ToUpper() == x.CountryIsoCode);
                         break;
@@ -183,10 +184,10 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
             if (clause.Member.Equals(nameof(DbRiskEvent.Location), StringComparison.OrdinalIgnoreCase)) {
                 switch (clause.Operator) {
                     case FilterOperator.Eq:
-                        query = query.Where(x => x.Location == clause.Value.ToUpper());
+                        query = query.Where(x => clause.Value == x.Location);
                         break;
                     case FilterOperator.Neq:
-                        query = query.Where(x => x.Location != clause.Value.ToUpper());
+                        query = query.Where(x => clause.Value != x.Location);
                         break;
                     case FilterOperator.Contains:
                         query = query.Where(x => x.Location!.Contains(clause.Value));
