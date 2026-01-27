@@ -159,7 +159,7 @@ public class UserHandlersTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task UpdateUser_WithNullPhoneNumber_ShouldNotUpdatePhoneNumber() {
+    public async Task UpdateUser_WithNullPhoneNumber_ShouldClearPhoneNumber() {
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
 
@@ -176,7 +176,7 @@ public class UserHandlersTests : IAsyncLifetime
 
         var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user@indice.gr");
         Assert.NotNull(createdUser);
-        var originalPhoneNumber = createdUser.PhoneNumber;
+        Assert.NotNull(createdUser.PhoneNumber); // Ensure it starts with a phone number
 
         // Update user with null phone number
         var result = await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
@@ -185,14 +185,14 @@ public class UserHandlersTests : IAsyncLifetime
             PhoneNumber = null
         });
 
-        // Verify phone number was not changed
+        // Verify phone number was cleared
         var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
         Assert.NotNull(updatedUser);
-        Assert.Equal(originalPhoneNumber, updatedUser.PhoneNumber);
+        Assert.Null(updatedUser.PhoneNumber);
     }
 
     [Fact]
-    public async Task UpdateUser_WithWhitespaceOnlyPhoneNumber_ShouldNotUpdatePhoneNumber() {
+    public async Task UpdateUser_WithWhitespaceOnlyPhoneNumber_ShouldClearPhoneNumber() {
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
 
@@ -209,7 +209,7 @@ public class UserHandlersTests : IAsyncLifetime
 
         var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user2@indice.gr");
         Assert.NotNull(createdUser);
-        var originalPhoneNumber = createdUser.PhoneNumber;
+        Assert.NotNull(createdUser.PhoneNumber); // Ensure it starts with a phone number
 
         // Update user with whitespace-only phone number
         var result = await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
@@ -218,10 +218,10 @@ public class UserHandlersTests : IAsyncLifetime
             PhoneNumber = "   "
         });
 
-        // Verify phone number was not changed
+        // Verify phone number was cleared
         var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
         Assert.NotNull(updatedUser);
-        Assert.Equal(originalPhoneNumber, updatedUser.PhoneNumber);
+        Assert.Null(updatedUser.PhoneNumber);
     }
 
     [Fact]
