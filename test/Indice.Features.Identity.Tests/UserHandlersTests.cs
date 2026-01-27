@@ -164,7 +164,7 @@ public class UserHandlersTests : IAsyncLifetime
         var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
 
         // Create a user first
-        var createResult = await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
+        await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
             UserName = "test.user@indice.gr",
             Email = "test.user@indice.gr",
             Password = "password",
@@ -197,7 +197,7 @@ public class UserHandlersTests : IAsyncLifetime
         var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
 
         // Create a user first
-        var createResult = await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
+        await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
             UserName = "test.user2@indice.gr",
             Email = "test.user2@indice.gr",
             Password = "password",
@@ -230,7 +230,7 @@ public class UserHandlersTests : IAsyncLifetime
         var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
 
         // Create a user first
-        var createResult = await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
+        await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
             UserName = "test.user3@indice.gr",
             Email = "test.user3@indice.gr",
             Password = "password",
@@ -249,9 +249,7 @@ public class UserHandlersTests : IAsyncLifetime
             PhoneNumber = "invalid-phone"
         });
 
-        // Verify validation error - the result is a union type, check that it's not Ok or NotFound
-        Assert.NotNull(result);
-        // If it was successful, result would be Ok<SingleUserInfo>, but validation problems are also Results
+        // Verify validation error
         var validationProblem = result.Result as Microsoft.AspNetCore.Http.HttpResults.ValidationProblem;
         Assert.NotNull(validationProblem);
     }
@@ -262,7 +260,7 @@ public class UserHandlersTests : IAsyncLifetime
         var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
 
         // Create a user first
-        var createResult = await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
+        await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
             UserName = "test.user4@indice.gr",
             Email = "test.user4@indice.gr",
             Password = "password",
