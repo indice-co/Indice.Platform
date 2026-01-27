@@ -9,6 +9,7 @@ using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
+using Indice.Globalization;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -171,7 +172,11 @@ public class UserHandlersTests : IAsyncLifetime
             BypassPasswordValidation = true,
             FirstName = "Test",
             LastName = "User",
-            PhoneNumber = "+306912345678"
+            PhoneNumber = "+306912345678",
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ],
         });
 
         var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user@indice.gr");
@@ -183,7 +188,11 @@ public class UserHandlersTests : IAsyncLifetime
             UserName = "test.user@indice.gr",
             Email = "test.user@indice.gr",
             PhoneNumber = null,
-            PhoneNumberConfirmed = false
+            PhoneNumberConfirmed = false,
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ],
         });
 
         // Verify phone number was cleared
@@ -205,7 +214,11 @@ public class UserHandlersTests : IAsyncLifetime
             BypassPasswordValidation = true,
             FirstName = "Test",
             LastName = "User",
-            PhoneNumber = "+306912345678"
+            PhoneNumber = "+306912345678",
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ],
         });
 
         var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user2@indice.gr");
@@ -238,7 +251,11 @@ public class UserHandlersTests : IAsyncLifetime
             Password = "password",
             BypassPasswordValidation = true,
             FirstName = "Test",
-            LastName = "User"
+            LastName = "User",
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ],
         });
 
         var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user3@indice.gr");
@@ -268,7 +285,11 @@ public class UserHandlersTests : IAsyncLifetime
             Password = "password",
             BypassPasswordValidation = true,
             FirstName = "Test",
-            LastName = "User"
+            LastName = "User",
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ],
         });
 
         var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user4@indice.gr");
@@ -285,7 +306,7 @@ public class UserHandlersTests : IAsyncLifetime
         var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
         Assert.NotNull(updatedUser);
         Assert.NotNull(updatedUser.PhoneNumber);
-        Assert.DoesNotContain(" ", updatedUser.PhoneNumber); // Should be trimmed/formatted
+        Assert.Equal(PhoneNumber.Parse("+306912345678").ToString(), updatedUser.PhoneNumber); // Should be trimmed/formatted
         Assert.StartsWith("+", updatedUser.PhoneNumber); // Should be a valid formatted phone number
     }
 
