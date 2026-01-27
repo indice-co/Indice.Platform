@@ -263,13 +263,14 @@ internal static class UserHandlers
             var errors = ValidationErrors.AddError(nameof(request.UserName), "EmailAsUserName policy is applied to the identity system. Email and UserName properties should have the same value. User is not updated.");
             return TypedResults.ValidationProblem(errors);
         }
-        if (!PhoneNumber.TryParse(request.PhoneNumber!.Trim(), out var phoneNumber) && !string.IsNullOrWhiteSpace(request.PhoneNumber)) {
+        var trimmedPhoneNumber = request.PhoneNumber?.Trim();
+        if (!PhoneNumber.TryParse(trimmedPhoneNumber ?? string.Empty, out var phoneNumber) && !string.IsNullOrWhiteSpace(trimmedPhoneNumber)) {
             var errors = ValidationErrors.AddError(nameof(request.PhoneNumber), "The provided phone number is not valid.");
             return TypedResults.ValidationProblem(errors);
         }
-        user.UserName = request.UserName;
-        user.Email = request.Email;
-        if (!string.IsNullOrWhiteSpace(request.PhoneNumber)) {
+        user.UserName = request.UserName?.Trim();
+        user.Email = request.Email?.Trim();
+        if (!string.IsNullOrWhiteSpace(trimmedPhoneNumber)) {
             user.PhoneNumber = phoneNumber.ToString();
         }
         user.TwoFactorEnabled = request.TwoFactorEnabled;
