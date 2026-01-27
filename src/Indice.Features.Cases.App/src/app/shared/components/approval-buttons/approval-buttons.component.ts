@@ -38,7 +38,7 @@ export class ApprovalButtonsComponent implements OnInit {
     this.rejectionOptions$ = this._api.getCaseRejectReasons(this.caseId!)
       .pipe(
         map((response: RejectReason[]) => response.map(item => new MenuOption(item.value!, item.key!))),
-        tap((reasons: MenuOption[]) => this.selectedRejectReason = reasons[0].value)
+        tap((reasons: MenuOption[]) => this.selectedRejectReason = reasons[0]?.value)
       );
   }
 
