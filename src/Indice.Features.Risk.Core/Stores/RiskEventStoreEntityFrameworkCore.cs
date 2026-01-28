@@ -77,16 +77,14 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
                 switch (clause.Operator) {
                     case FilterOperator.Eq:
                         if (Guid.TryParse(clause.Value, out var clauseIdValue)) {
-                            // Create a local copy to capture the current value.
-                            var currentId = clauseIdValue;
-                            query = query.Where(x => currentId == x.Id);
+                            // ReSharper disable once AccessToModifiedClosure
+                            query = query.Where(x => clauseIdValue == x.Id);
                         }
                         break;
                     case FilterOperator.Neq:
                         if (Guid.TryParse(clause.Value, out var notEqualsClauseIdValue)) {
-                            // Create a local copy to capture the current value.
-                            var currentId = notEqualsClauseIdValue;
-                            query = query.Where(x => currentId != x.Id);
+                            // ReSharper disable once AccessToModifiedClosure
+                            query = query.Where(x => notEqualsClauseIdValue != x.Id);
                         }
                         break;
                     case FilterOperator.Contains:
