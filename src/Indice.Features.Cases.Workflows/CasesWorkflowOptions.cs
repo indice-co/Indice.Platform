@@ -56,15 +56,19 @@ public class CasesWorkflowOptions
 
     /// <summary>
     /// The base path used for Elsa HTTP activities from the Elsa HttpMiddleware. Defaults to <c>/http-activities</c>.
-    /// <remarks>Elsa Middleware: <see cref="Elsa.Activities.Http.Middleware.HttpEndpointMiddleware"/></remarks>
-    /// <remarks>Elsa Http Activity: <see cref="Elsa.Activities.Http.HttpEndpoint"/></remarks>
+    /// <remarks>
+    /// Elsa Middleware: <see cref="Elsa.Activities.Http.Middleware.HttpEndpointMiddleware"/>.
+    /// Elsa Http Activity: <see cref="Elsa.Activities.Http.HttpEndpoint"/>.
+    /// </remarks>
     /// </summary>
     public string? HttpActivitiesBasePath { get; set; } = "/http-activities";
 
     /// <summary>
     /// The base URL used for Elsa HTTP activities from the Elsa HttpMiddleware.
-    /// <remarks>Elsa Middleware: <see cref="Elsa.Activities.Http.Middleware.HttpEndpointMiddleware"/></remarks>
-    /// <remarks>Elsa Http Activity: <see cref="Elsa.Activities.Http.HttpEndpoint"/></remarks>
+    /// <remarks>
+    /// Elsa Middleware: <see cref="Elsa.Activities.Http.Middleware.HttpEndpointMiddleware"/>.
+    /// Elsa Http Activity: <see cref="Elsa.Activities.Http.HttpEndpoint"/>.
+    /// </remarks>
     /// </summary>
     public string? HttpActivitiesBaseUrl { get; set; }
 
