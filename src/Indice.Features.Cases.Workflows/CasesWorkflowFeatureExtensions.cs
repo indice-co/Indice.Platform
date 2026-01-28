@@ -13,7 +13,6 @@ using Duende.IdentityModel;
 using Indice.Features.Cases.Workflows;
 using Indice.Features.Cases.Workflows.Bookmarks;
 using Indice.Features.Cases.Workflows.Data;
-using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Localization;
 using Indice.Features.Cases.Workflows.Serialization;
@@ -62,7 +61,8 @@ public static class CasesWorkflowFeatureExtensions
             options.RetentionServicesEnabled = workflowOptions.RetentionServicesEnabled;
             options.RetentionSpecificationFilter = workflowOptions.RetentionSpecificationFilter;
             options.ServerBasePath = workflowOptions.ServerBasePath;
-            options.ServerBaseUrl = workflowOptions.ServerBaseUrl;
+            options.HttpActivitiesBasePath = workflowOptions.HttpActivitiesBasePath;
+            options.HttpActivitiesBaseUrl = workflowOptions.HttpActivitiesBaseUrl;
             options.RegisterControllers = workflowOptions.RegisterControllers;
             options.RegisterStaticFiles = workflowOptions.RegisterStaticFiles;
             options.RegisterAuthentication = workflowOptions.RegisterAuthentication;
@@ -90,10 +90,10 @@ public static class CasesWorkflowFeatureExtensions
             .AddQuartzTemporalActivities()
             .AddHttpActivities(http => {
                 http.HttpEndpointAuthorizationHandlerFactory = ActivatorUtilities.GetServiceOrCreateInstance<AuthenticationBasedHttpEndpointAuthorizationHandler>;
-                if (casesWorkflowOptions.ServerBaseUrl is { } baseUrl) {
+                if (casesWorkflowOptions.HttpActivitiesBaseUrl is { } baseUrl) {
                     http.BaseUrl = new Uri(baseUrl);
                 }
-                if (casesWorkflowOptions.ServerBasePath is { } basePath) {
+                if (casesWorkflowOptions.HttpActivitiesBasePath is { } basePath) {
                     http.BasePath = basePath;
                 }
             })

@@ -51,10 +51,22 @@ public class CasesWorkflowOptions
     /// </summary>
     public IRetentionSpecificationFilter? RetentionSpecificationFilter { get; set; }
 
-    /// <summary>Elsa server base path</summary>
+    /// <summary>Workflow Api path</summary>
     public string? ServerBasePath { get; set; } = "/workflow-actions";
-    /// <summary>Elsa server base Uri</summary>
-    public string? ServerBaseUrl { get; set; }
+
+    /// <summary>
+    /// The base path used for Elsa HTTP activities from the Elsa HttpMiddleware. Defaults to <c>/http-activities</c>.
+    /// <remarks>Elsa Middleware: <see cref="Elsa.Activities.Http.Middleware.HttpEndpointMiddleware"/></remarks>
+    /// <remarks>Elsa Http Activity: <see cref="Elsa.Activities.Http.HttpEndpoint"/></remarks>
+    /// </summary>
+    public string? HttpActivitiesBasePath { get; set; } = "/http-activities";
+
+    /// <summary>
+    /// The base URL used for Elsa HTTP activities from the Elsa HttpMiddleware.
+    /// <remarks>Elsa Middleware: <see cref="Elsa.Activities.Http.Middleware.HttpEndpointMiddleware"/></remarks>
+    /// <remarks>Elsa Http Activity: <see cref="Elsa.Activities.Http.HttpEndpoint"/></remarks>
+    /// </summary>
+    public string? HttpActivitiesBaseUrl { get; set; }
 
     /// <summary>Register static file middleware. Used for Disigner ui assets comming from staticweb assets dll to work</summary>
     /// <remarks>Set to false if already registered in host assembly so that <strong>UseStaticFiles</strong> is not called twice.</remarks>
