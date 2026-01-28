@@ -4,7 +4,7 @@
       <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
       <!--<TargetFramework></TargetFramework>-->
       <VersionPrefixMajor>8</VersionPrefixMajor>
-      <VersionPrefixBase>$(VersionPrefixMajor).35</VersionPrefixBase>
+      <VersionPrefixBase>$(VersionPrefixMajor).36</VersionPrefixBase>
 
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
@@ -12,7 +12,7 @@
       <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
       <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
-      <VersionPrefixRisk>$(VersionPrefixBase).1</VersionPrefixRisk>
+      <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
       <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
       <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
