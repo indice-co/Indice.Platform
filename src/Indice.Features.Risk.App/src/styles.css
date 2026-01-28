@@ -1,5 +1,15 @@
 @import "tailwindcss";
 @import "../node_modules/@indice/ng-components/src/styles.css";
+@plugin '@tailwindcss/typography';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/aspect-ratio';
+
+@theme inline {
+  --color-dusty-orange: #f27731;
+  --color-dusty-orange-opacity: #f2773199;
+  --color-dark-green: #03292e;
+  --color-darker-green: #124046;
+}
 
 @layer components {
   .kpi-chart-container {
