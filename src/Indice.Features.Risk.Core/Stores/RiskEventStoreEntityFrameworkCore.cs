@@ -61,7 +61,7 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
 
     private IQueryable<DbRiskEvent> ApplyFilter(IQueryable<DbRiskEvent> query, AdminRiskEventFilterRequest filters) {
         foreach (var clause in filters.Filter) {
-            if (string.IsNullOrWhiteSpace(clause.Member)) {
+            if (string.IsNullOrWhiteSpace(clause.Member) || string.IsNullOrWhiteSpace(clause.Value)) {
                 continue;
             }
 
@@ -76,14 +76,14 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
             if (clause.Member.Equals(nameof(DbRiskEvent.Id), StringComparison.OrdinalIgnoreCase)) {
                 switch (clause.Operator) {
                     case FilterOperator.Eq:
-                        if (Guid.TryParse(clause.Value, out var clauseIdValue) && clauseIdValue != Guid.Empty) {
+                        if (Guid.TryParse(clause.Value, out var clauseIdValue)) {
                             // Create a local copy to capture the current value.
                             var currentId = clauseIdValue;
                             query = query.Where(x => currentId == x.Id);
                         }
                         break;
                     case FilterOperator.Neq:
-                        if (Guid.TryParse(clause.Value, out var notEqualsClauseIdValue) && notEqualsClauseIdValue != Guid.Empty) {
+                        if (Guid.TryParse(clause.Value, out var notEqualsClauseIdValue)) {
                             // Create a local copy to capture the current value.
                             var currentId = notEqualsClauseIdValue;
                             query = query.Where(x => currentId != x.Id);
