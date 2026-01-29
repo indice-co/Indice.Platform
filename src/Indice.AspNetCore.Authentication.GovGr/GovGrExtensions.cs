@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Linq;
+using System.Security.Claims;
 using System.Xml.Linq;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
@@ -106,10 +107,61 @@ public static class GovGrExtensions
         });
 
         return builder.AddOAuth(authenticationScheme, displayName, (options) => {
-            
+            var govGrOptions = new GovGrOptions();
+            configureOptions.Invoke(govGrOptions);
+            if (string.IsNullOrWhiteSpace(govGrOptions.ClientId)) {
+                throw new ArgumentOutOfRangeException(nameof(govGrOptions.ClientId), "GovGr Id. The '{0}' option must be provided.");
+            }
+            if (string.IsNullOrWhiteSpace(govGrOptions.ClientSecret)) {
+                throw new ArgumentOutOfRangeException(nameof(govGrOptions.ClientSecret), "GovGr Id. The '{0}' option must be provided.");
+            }
+            // Manually set these two endpoint since there is not a well known configuration endpoint.
+            options.TokenEndpoint = govGrOptions.TokenEndpoint;
+            options.AuthorizationEndpoint = govGrOptions.AuthorizationEndpoint;
+            options.UserInformationEndpoint = govGrOptions.UserInfoEndpoint;
+            options.SaveTokens = true;
+            options.CallbackPath = govGrOptions.CallbackPath ?? new PathString("/signin-govgr");
+            options.SignInScheme = govGrOptions.SignInScheme ?? CookieAuthenticationDefaults.AuthenticationScheme;
+            options.Scope.Clear();
+            foreach (var scope in govGrOptions.Scopes) {
+                options.Scope.Add(scope);
+            }
+            options.ClientId = govGrOptions.ClientId;
+            options.ClientSecret = govGrOptions.ClientSecret;
+            options.UsePkce = false;
+            options.BackchannelTimeout = govGrOptions.BackchannelTimeout;
+            options.Backchannel = govGrOptions.Backchannel;
+            options.BackchannelHttpHandler = govGrOptions.BackchannelHttpHandler;
+            options.Events.OnCreatingTicket = async (context) => {
+                var accessToken = context.Properties.GetTokenValue("access_token");
+                var httpClient = context.Backchannel;
+                var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.SendAsync(request);
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var xml = XDocument.Parse(responseBody);
+                var claims = xml.Descendants("userinfo")
+                                .SelectMany(x => x.Attributes()
+                                                  .Select(attr => new Claim(GovGrClaimMap.GetValueOrDefault(attr.Name.LocalName, attr.Name.LocalName), attr.Value.Trim())))
+                                .Where(x => !GovGrClaimNullLiteral.Equals(x.Value, StringComparison.OrdinalIgnoreCase))
+                                .ToList();
+                // add another claim for subject since this is not available.
+                claims.Add(new Claim(BasicClaimTypes.Subject, claims.Find(x => x.Type == BasicClaimTypes.Name)!.Value));
+                context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, context.Scheme.Name, BasicClaimTypes.Name, BasicClaimTypes.Role));
+            };
         });
     }
 
+    internal static readonly string GovGrClaimNullLiteral = "null";
+    internal static readonly Dictionary<string, string> GovGrClaimMap = new() {
+        ["userid"] = BasicClaimTypes.Name,
+        ["firstname"] = BasicClaimTypes.GivenName,
+        ["lastname"] = BasicClaimTypes.FamilyName,
+        ["fathername"] = "father_name",
+        ["mothername"] = "mother_name",
+        ["birthyear"] = BasicClaimTypes.BirthDate,
+        ["taxid"] = BasicClaimTypes.Tin,
+    };
 }
 
 /// <summary>
@@ -175,8 +227,8 @@ public class ConfigureGovGrOptions : IConfigureNamedOptions<OAuthOptions>
             var xml = XDocument.Parse(responseBody);
             var claims = xml.Descendants("userinfo")
                             .SelectMany(x => x.Attributes()
-                                              .Select(attr => new Claim(GovGrClaimMap.GetValueOrDefault(attr.Name.LocalName, attr.Name.LocalName), attr.Value.Trim())))
-                            .Where(x => GovGrClaimNullLiteral.Equals(x.Value, StringComparison.OrdinalIgnoreCase))
+                                              .Select(attr => new Claim(GovGrExtensions.GovGrClaimMap.GetValueOrDefault(attr.Name.LocalName, attr.Name.LocalName), attr.Value.Trim())))
+                            .Where(x => GovGrExtensions.GovGrClaimNullLiteral.Equals(x.Value, StringComparison.OrdinalIgnoreCase))
                             .ToList();
             // add another claim for subject since this is not available.
             claims.Add(new Claim(BasicClaimTypes.Subject, claims.Find(x => x.Type == BasicClaimTypes.Name)!.Value));
@@ -189,14 +241,4 @@ public class ConfigureGovGrOptions : IConfigureNamedOptions<OAuthOptions>
         Configure(GovGrDefaults.AuthenticationScheme, options);
     }
 
-    private static readonly string GovGrClaimNullLiteral = "null";
-    private static readonly Dictionary<string, string> GovGrClaimMap = new() {
-        ["userid"] = BasicClaimTypes.Name,
-        ["firstname"] = BasicClaimTypes.GivenName,
-        ["lastname"] = BasicClaimTypes.FamilyName,
-        ["fathername"] = "father_name",
-        ["mothername"] = "mother_name",
-        ["birthyear"] = BasicClaimTypes.BirthDate,
-        ["taxid"] = BasicClaimTypes.Tin,
-    };
 }
