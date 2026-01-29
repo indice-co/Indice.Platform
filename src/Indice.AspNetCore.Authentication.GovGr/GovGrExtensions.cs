@@ -1,12 +1,19 @@
-﻿using System.Security.Claims;
+﻿using System.Linq;
+using System.Security.Claims;
 using System.Xml.Linq;
+using Indice.Features.GovGr.Configuration;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using static Duende.IdentityModel.ClaimComparer;
 
 namespace Indice.AspNetCore.Authentication.GovGr;
 
@@ -93,58 +100,100 @@ public static class GovGrExtensions
     /// <param name="displayName">A display name for the authentication handler.</param>
     /// <param name="configureOptions">A delegate to configure <see cref="OpenIdConnectOptions"/>.</param>
     /// <returns>A reference to <paramref name="builder"/> after the operation has completed.</returns>
-    public static AuthenticationBuilder AddGovGr(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<GovGrOptions> configureOptions)
-        => builder.AddOAuth(authenticationScheme, displayName, (options) => {
-            var govGrOptions = new GovGrOptions();
-            configureOptions?.Invoke(govGrOptions);
-            if (string.IsNullOrWhiteSpace(govGrOptions.ClientId)) {
-                throw new ArgumentOutOfRangeException(nameof(govGrOptions.ClientId), "GovGr Id. The '{0}' option must be provided.");
-            }
-            if (string.IsNullOrWhiteSpace(govGrOptions.ClientSecret)) {
-                throw new ArgumentOutOfRangeException(nameof(govGrOptions.ClientSecret), "GovGr Id. The '{0}' option must be provided.");
-            }
-            // Manually set these two endpoint since there is not a well known configuration endpoint.
-            options.TokenEndpoint = govGrOptions.TokenEndpoint;
-            options.AuthorizationEndpoint = govGrOptions.AuthorizationEndpoint;
-            options.UserInformationEndpoint = govGrOptions.UserInfoEndpoint;
-            options.SaveTokens = true;
-            options.CallbackPath = govGrOptions.CallbackPath ?? new PathString("/signin-govgr");
-            options.SignInScheme = govGrOptions.SignInScheme ?? CookieAuthenticationDefaults.AuthenticationScheme;
-            options.Scope.Clear();
-            foreach (var scope in govGrOptions.Scopes) {
-                options.Scope.Add(scope);
-            }
-            options.ClientId = govGrOptions.ClientId;
-            options.ClientSecret = govGrOptions.ClientSecret;
-            options.UsePkce = false;
-            options.BackchannelTimeout = govGrOptions.BackchannelTimeout;
-            options.Backchannel = govGrOptions.Backchannel;
-            options.BackchannelHttpHandler = govGrOptions.BackchannelHttpHandler;
-            options.Events.OnCreatingTicket = async (context) => {
-                var accessToken = context.Properties.GetTokenValue("access_token");
-                var http = context.Request.HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient(authenticationScheme);
-                http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", accessToken);
-                var response = await http.GetAsync(context.Options.UserInformationEndpoint);
-                var responseBody = await response.Content.ReadAsStringAsync();
-                var xml = XDocument.Parse(responseBody);
-                var claims = xml.Descendants("userinfo")
-                                .SelectMany(x => x.Attributes()
-                                                  .Select(attr => new Claim(GovGrClaimMap.GetValueOrDefault(attr.Name.LocalName, attr.Name.LocalName), attr.Value.Trim())))
-                                .ToList();
-                // add another claim for subject since this is not available.
-                claims.Add(new Claim (BasicClaimTypes.Subject, claims.Find(x => x.Type == BasicClaimTypes.Name)!.Value));
-                context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, context.Scheme.Name, BasicClaimTypes.Name, BasicClaimTypes.Role));
-            };
-
-            //options.Events.OnTicketReceived = async (context) => {
-                // call http userInfoendpoint and populate the principal with extra claims.
-                //var accessToken = context.Properties.GetTokenValue("access_token");
-                //var http = context.Request.HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient(authenticationScheme);
-                //http.PostAsync(options.UserInformationEndpoint)
-
-            //};
+    public static AuthenticationBuilder AddGovGr(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<GovGrOptions> configureOptions) {
+        builder.Services.Configure(authenticationScheme, configureOptions);
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureNamedOptions<OAuthOptions>, ConfigureGovGrOptions>());
+        builder.Services.AddHttpClient(authenticationScheme, (sp, httpClient) => {
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Microsoft ASP.NET Core OAuth handler");
+            httpClient.Timeout = sp.GetRequiredService<IOptions<GovGrOptions>>().Value.BackchannelTimeout;
+            httpClient.MaxResponseContentBufferSize = 1024 * 1024 * 10; // 10 MB
         });
 
+        return builder.AddOAuth(authenticationScheme, displayName, (options) => {
+            
+        });
+    }
+
+}
+
+/// <summary>
+/// Configures OAuth authentication options for integration with the GovGr identity provider.
+/// </summary>
+/// <remarks>This class is typically used to bind GovGr-specific settings to an instance of <see
+/// cref="OAuthOptions"/> for use with ASP.NET Core authentication. It ensures that required GovGr endpoints and
+/// credentials are set and maps user information claims according to GovGr's schema. This class is intended for use
+/// with dependency injection and is not thread-safe for direct use across multiple authentication schemes.</remarks>
+public class ConfigureGovGrOptions : IConfigureNamedOptions<OAuthOptions>
+{
+    private readonly IHttpClientFactory _httpClientFactory;
+    /// <summary>
+    /// Initializes a new instance of the ConfigureGovGrOptions class using the specified options factory.
+    /// </summary>
+    /// <param name="httpClientFactory"> The factory used to create HTTP client instances for back-channel OAuth communication. Cannot be null.</param>
+    /// <param name="govGrOptionsFactory">The factory used to create instances of GovGrOptions. Cannot be null.</param>
+    public ConfigureGovGrOptions(IHttpClientFactory httpClientFactory, IOptionsFactory<GovGrOptions> govGrOptionsFactory) {
+        _httpClientFactory = httpClientFactory;
+        GovGrOptionsFactory = govGrOptionsFactory;
+    }
+
+    /// <summary>
+    /// Gets the factory used to create configured instances of <see cref="GovGrOptions"/>.
+    /// </summary>
+    public IOptionsFactory<GovGrOptions> GovGrOptionsFactory { get; }
+
+    /// <inheritdoc />
+    public void Configure(string? name, OAuthOptions options) {
+        options.Backchannel = _httpClientFactory.CreateClient(name!);
+        options.BackchannelHttpHandler = null;
+        var govGrOptions = GovGrOptionsFactory.Create(name!);
+        if (string.IsNullOrWhiteSpace(govGrOptions.ClientId)) {
+            throw new ArgumentOutOfRangeException(nameof(govGrOptions.ClientId), "GovGr Id. The '{0}' option must be provided.");
+        }
+        if (string.IsNullOrWhiteSpace(govGrOptions.ClientSecret)) {
+            throw new ArgumentOutOfRangeException(nameof(govGrOptions.ClientSecret), "GovGr Id. The '{0}' option must be provided.");
+        }
+        // Manually set these two endpoint since there is not a well known configuration endpoint.
+        options.TokenEndpoint = govGrOptions.TokenEndpoint;
+        options.AuthorizationEndpoint = govGrOptions.AuthorizationEndpoint;
+        options.UserInformationEndpoint = govGrOptions.UserInfoEndpoint;
+        options.SaveTokens = true;
+        options.CallbackPath = govGrOptions.CallbackPath ?? new PathString("/signin-govgr");
+        options.SignInScheme = govGrOptions.SignInScheme ?? CookieAuthenticationDefaults.AuthenticationScheme;
+        options.Scope.Clear();
+        foreach (var scope in govGrOptions.Scopes) {
+            options.Scope.Add(scope);
+        }
+        options.ClientId = govGrOptions.ClientId;
+        options.ClientSecret = govGrOptions.ClientSecret;
+        options.UsePkce = false;
+        options.BackchannelTimeout = govGrOptions.BackchannelTimeout;
+        options.Backchannel = govGrOptions.Backchannel;
+        options.BackchannelHttpHandler = govGrOptions.BackchannelHttpHandler;
+        options.Events.OnCreatingTicket = async (context) => {
+            var accessToken = context.Properties.GetTokenValue("access_token");
+            var httpClient = context.Backchannel;
+            var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.SendAsync(request);
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var xml = XDocument.Parse(responseBody);
+            var claims = xml.Descendants("userinfo")
+                            .SelectMany(x => x.Attributes()
+                                              .Select(attr => new Claim(GovGrClaimMap.GetValueOrDefault(attr.Name.LocalName, attr.Name.LocalName), attr.Value.Trim())))
+                            .Where(x => GovGrClaimNullLiteral.Equals(x.Value, StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+            // add another claim for subject since this is not available.
+            claims.Add(new Claim(BasicClaimTypes.Subject, claims.Find(x => x.Type == BasicClaimTypes.Name)!.Value));
+            context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, context.Scheme.Name, BasicClaimTypes.Name, BasicClaimTypes.Role));
+        };
+    }
+
+    /// <inheritdoc />
+    public void Configure(OAuthOptions options) {
+        Configure(GovGrDefaults.AuthenticationScheme, options);
+    }
+
+    private static readonly string GovGrClaimNullLiteral = "null";
     private static readonly Dictionary<string, string> GovGrClaimMap = new() {
         ["userid"] = BasicClaimTypes.Name,
         ["firstname"] = BasicClaimTypes.GivenName,
