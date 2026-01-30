@@ -51,7 +51,9 @@ public static class CasesWorkflowFeatureExtensions
     public static IHostApplicationBuilder AddCasesWorkflow(this IHostApplicationBuilder builder, Action<CasesWorkflowOptions>? configureAction = null) {
 
         // Configure options given by the consumer.
-        var workflowOptions = new CasesWorkflowOptions(builder.Services);
+        var workflowOptions = new CasesWorkflowOptions(builder.Services) {
+            ServerBaseUrl = builder.Configuration.GetHost()
+        };
         configureAction?.Invoke(workflowOptions);
         builder.Services.Configure<CasesWorkflowOptions>(options => {
             options.ConfigureDbContext = workflowOptions.ConfigureDbContext;
@@ -61,8 +63,8 @@ public static class CasesWorkflowFeatureExtensions
             options.RetentionServicesEnabled = workflowOptions.RetentionServicesEnabled;
             options.RetentionSpecificationFilter = workflowOptions.RetentionSpecificationFilter;
             options.ServerBasePath = workflowOptions.ServerBasePath;
-            options.HttpActivitiesBasePath = workflowOptions.HttpActivitiesBasePath;
-            options.HttpActivitiesBaseUrl = workflowOptions.HttpActivitiesBaseUrl;
+            options.ServerBaseUrl = workflowOptions.ServerBaseUrl;
+            options.ServerHttpActivitiesBasePath = workflowOptions.ServerHttpActivitiesBasePath;
             options.RegisterControllers = workflowOptions.RegisterControllers;
             options.RegisterStaticFiles = workflowOptions.RegisterStaticFiles;
             options.RegisterAuthentication = workflowOptions.RegisterAuthentication;
@@ -90,10 +92,10 @@ public static class CasesWorkflowFeatureExtensions
             .AddQuartzTemporalActivities()
             .AddHttpActivities(http => {
                 http.HttpEndpointAuthorizationHandlerFactory = ActivatorUtilities.GetServiceOrCreateInstance<AuthenticationBasedHttpEndpointAuthorizationHandler>;
-                if (casesWorkflowOptions.HttpActivitiesBaseUrl is { } baseUrl) {
+                if (casesWorkflowOptions.ServerBaseUrl is { } baseUrl) {
                     http.BaseUrl = new Uri(baseUrl);
                 }
-                if (casesWorkflowOptions.HttpActivitiesBasePath is { } basePath) {
+                if (casesWorkflowOptions.ServerHttpActivitiesBasePath is { } basePath) {
                     http.BasePath = basePath;
                 }
             })
