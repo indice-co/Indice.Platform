@@ -120,6 +120,7 @@ public static class WorkerHostBuilderExtensions
         services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
         services.TryAddTransient<IDistributionListService, DistributionListService>();
         services.TryAddTransient<IMessageService, MessageService>();
+        services.TryAddTransient<IMessageEventService, MessageEventService>();
         services.TryAddTransient<IContactService, ContactService>();
         services.TryAddTransient<ICampaignService, CampaignService>();
         services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
@@ -129,8 +130,16 @@ public static class WorkerHostBuilderExtensions
         services.TryAddTransient<CreateCampaignRequestValidator>();
         services.TryAddTransient<CreateMessageTypeRequestValidator>();
         services.TryAddTransient<NotificationsManager>();
+        services.TryAddTransient<IMessagingDatabaseCleanUpService, MessagingDatabaseCleanUpService>();
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
+        services.TryAddScoped<UserNameAccessorAggregate>();
+
+        services.Configure<AnalyticsOptions>(opt => {
+            opt.Enabled = options.Analytics.Enabled;
+        });
+        services.AddSingleton<MessageEventQueue>();
+        services.AddSingleton<IHostedService, MessageEventHostedServcie>();
     }
 
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
