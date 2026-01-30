@@ -117,7 +117,8 @@ public class MessageManagerTests : IAsyncLifetime
             templates: new Dictionary<MessageChannelKind, MessageContent> {
                 [MessageChannelKind.Inbox] = new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company."),
                 [MessageChannelKind.PushNotification] = new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.")
-            }
+            },
+            mediaBaseHref: new ("https://media.test")
         );
         Assert.True(result.Succeeded);
         Assert.NotEqual(default, result.CampaignId);
@@ -130,7 +131,8 @@ public class MessageManagerTests : IAsyncLifetime
             recipientId: Guid.NewGuid().ToString(),
             title: "Welcome",
             channels: MessageChannelKind.Inbox | MessageChannelKind.PushNotification,
-            template: new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.")
+            template: new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company."),
+            mediaBaseHref: new("https://media.test")
         );
         Assert.True(result.Succeeded);
         Assert.NotEqual(default, result.CampaignId);
