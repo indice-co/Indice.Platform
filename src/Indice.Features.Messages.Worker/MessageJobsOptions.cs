@@ -27,4 +27,7 @@ public class MessageJobsOptions : MessageWorkerOptions
     /// </summary>
     public string DatabaseCleanUpCronExpression { get; set; } = "0 0 2 * * *";
 
+    /// <summary>Gets or sets the configuration options for analytics features.</summary>
+    public AnalyticsOptions Analytics { get; set; } = new();
+
 }
