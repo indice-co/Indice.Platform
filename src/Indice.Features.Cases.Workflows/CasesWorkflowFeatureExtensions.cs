@@ -62,7 +62,6 @@ public static class CasesWorkflowFeatureExtensions
             options.GetWorkflowAssembly = workflowOptions.GetWorkflowAssembly;
             options.RetentionServicesEnabled = workflowOptions.RetentionServicesEnabled;
             options.RetentionSpecificationFilter = workflowOptions.RetentionSpecificationFilter;
-            options.ServerBasePath = workflowOptions.ServerBasePath;
             options.ServerBaseUrl = workflowOptions.ServerBaseUrl;
             options.ServerHttpActivitiesBasePath = workflowOptions.ServerHttpActivitiesBasePath;
             options.RegisterControllers = workflowOptions.RegisterControllers;
