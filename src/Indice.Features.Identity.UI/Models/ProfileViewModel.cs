@@ -19,6 +19,8 @@ public class ProfileViewModel : ProfileInputModel
     public bool CanRemoveProvider { get; set; }
     /// <summary>Indicates whether the user can edit their Tax Identification Number. This changes via the admin ui by marking a the well known claim type <c>tin</c> as UserEditable <c>false</c> </summary>
     public bool DisableEditTin { get; set; }
+    /// <summary>Indicates whether to show concatenated Given name and last name as Fullname with disabled edit. This changes via the admin ui by marking both well known claim type <c>given_name</c> and <c>family_name</c>  as UserEditable <c>false</c> </summary>
+    public bool DisableEditNameSurname { get; set; }
     /// <summary>Indicates whether the user has enabled Developer TOTP.</summary>
     public bool HasDeveloperTotp { get; set; }
 }

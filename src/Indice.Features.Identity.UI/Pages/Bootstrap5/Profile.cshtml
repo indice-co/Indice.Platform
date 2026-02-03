@@ -50,26 +50,40 @@
     }
     @if (Model.View.EmailChangePending && !Model.ProfileSuccessfullyChanged)
     {
-		<partial name="_Alert" model="@AlertModel.Warn(Localizer.Profile_Your_New_Email_Verification_Is_Still_Pending.ToString())" />
+        <partial name="_Alert" model="@AlertModel.Warn(Localizer.Profile_Your_New_Email_Verification_Is_Still_Pending.ToString())" />
     }
     <partial name="_Alert" model="alert" />
     <partial name="_ValidationSummary" />
     <form method="post">
         <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label asp-for="Input.FirstName" class="form-label">@Localizer.Profile_First_Name</label>
-                    <input class="form-control" type="text" placeholder="@Localizer.Profile_First_Name" asp-for="Input.FirstName" />
-                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+            @if (Model.View.DisableEditNameSurname)
+            {
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer.Profile_FullName</label>
+                        <input class="form-control" type="text" placeholder="@Localizer.Profile_FullName" value="@Model.Input.LastName @Model.Input.FirstName" readonly="readonly" />
+                        <input class="form-control" type="hidden" asp-for="Input.FirstName" />
+                        <input class="form-control" type="hidden" asp-for="Input.LastName" />
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label asp-for="Input.LastName" class="form-label">@Localizer.Profile_Last_Name</label>
-                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Last_Name" asp-for="Input.LastName" />
-                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
+            }
+            else
+            {
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Input.FirstName" class="form-label">@Localizer.Profile_First_Name</label>
+                        <input class="form-control" type="text" placeholder="@Localizer.Profile_First_Name" asp-for="Input.FirstName" />
+                        <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Input.LastName" class="form-label">@Localizer.Profile_Last_Name</label>
+                        <input class="form-control" type="text" placeholder="@Localizer.Profile_Last_Name" asp-for="Input.LastName" />
+                        <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                    </div>
+                </div>
+            }
         </div>
         <div class="row">
             <div class="col-md-6">
@@ -163,9 +177,9 @@
     <h4>
         <span class="header-text text-center">@Localizer.Profile_Preferences</span>
     </h4>
-    
+
     <form id="userPreferenceForm" method="post" asp-page-handler="UpdateLanguagePreference">
-        
+
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
@@ -201,7 +215,8 @@
                 <div class="row idp-@provider.LoginProvider.ToLower()">
                     <div class="col-sm-9">
                         <a class="btn btn-@provider.LoginProvider.ToLower() btn-hover btn-md inline-block cursor-pointer">
-                            @Localizer.GetGeneric(string.IsNullOrEmpty(provider.ProviderDisplayName) ? provider.LoginProvider : provider.ProviderDisplayName)</a>
+                            @Localizer.GetGeneric(string.IsNullOrEmpty(provider.ProviderDisplayName) ? provider.LoginProvider : provider.ProviderDisplayName)
+                        </a>
                     </div>
                     <div class="col-sm-3">
                         <form asp-page-handler="RemoveLogin" method="post" class="inline">
