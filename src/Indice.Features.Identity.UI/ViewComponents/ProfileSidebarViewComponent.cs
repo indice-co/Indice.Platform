@@ -4,11 +4,15 @@ using Duende.IdentityModel;
 using IdentityModel;
 #endif
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using SixLabors.ImageSharp;
 
 namespace Indice.Features.Identity.UI.ViewComponents;
 
@@ -20,20 +24,24 @@ public class ProfileSidebarViewComponent : ViewComponent
     private readonly ExtendedUserManager<User> userManager;
     private readonly ExtendedSignInManager<User> signInManager;
     private readonly IConfiguration configuration;
+    private readonly ExtendedConfigurationDbContext configurationDb;
 
     /// <summary>
     /// Constructs the sidebar view component
     /// </summary>
     /// <param name="userManager"></param>
     /// <param name="signInManager"></param>
+    /// <param name="configurationDb"></param>
     /// <param name="configuration"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public ProfileSidebarViewComponent(ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
+        ExtendedConfigurationDbContext configurationDb,
         IConfiguration configuration) {
         this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         this.signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        this.configurationDb = configurationDb ?? throw new ArgumentNullException(nameof(configuration));
     }
 
     /// <inheritdoc/>
@@ -58,8 +66,10 @@ public class ProfileSidebarViewComponent : ViewComponent
         if (consentDateText != null && DateTime.TryParse(consentDateText, out date)) {
             consentDate = date;
         }
+        var cannotEditNameSurname = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.FamilyName || x.Name == BasicClaimTypes.GivenName).Select(x => (bool?)x.UserEditable).AllAsync(x => x == false);
         return View(new ProfileViewModel {
             BirthDate = birthDate,
+            DisableEditNameSurname = cannotEditNameSurname,
             CanRemoveProvider = await userManager.HasPasswordAsync(user) || currentLogins.Count > 1,
             ConsentCommercial = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.ConsentCommercial)?.Value == bool.TrueString.ToLower(),
             ConsentCommercialDate = consentDate,
