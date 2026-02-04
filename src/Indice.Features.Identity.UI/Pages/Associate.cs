@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using SixLabors.ImageSharp;
 
 namespace Indice.Features.Identity.UI.Pages;
 
