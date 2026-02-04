@@ -45,8 +45,8 @@
         @if (Model.View.DisableEditNameSurname)
         {
             <div class="input-group">
-                    <label class="form-label">@Localizer.Profile_FullName</label>
-                    <input class="form-control" type="text" placeholder="@Localizer.Profile_FullName" value="@Model.Input.LastName @Model.Input.FirstName" readonly="readonly" />
+                    <input class="peer" type="text" placeholder="@Localizer.Profile_FullName" value="@Model.Input.LastName @Model.Input.FirstName" readonly="readonly" />
+                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.Profile_FullName</label>
                     <input class="form-control" type="hidden" asp-for="Input.FirstName" />
                     <input class="form-control" type="hidden" asp-for="Input.LastName" />
             </div>
