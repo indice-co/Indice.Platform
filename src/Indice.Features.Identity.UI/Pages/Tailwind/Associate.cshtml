@@ -15,6 +15,19 @@
         <input type="hidden" asp-for="Input.ReturnUrl" />
         <input type="hidden" asp-for="Input.UserName" />
         <div class="row">
+            @if (Model.View.DisableEditNameSurname)
+            {
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer.Profile_FullName</label>
+                        <input class="form-control" type="text" placeholder="@Localizer.Profile_FullName" value="@Model.Input.LastName @Model.Input.FirstName" readonly="readonly" />
+                        <input class="form-control" type="hidden" asp-for="Input.FirstName" />
+                        <input class="form-control" type="hidden" asp-for="Input.LastName" />
+                    </div>
+                </div>
+            }
+            else
+            {
             <div class="col-md-6">
                 <div class="form-group">
                     <label asp-for="Input.FirstName">@Localizer.Profile_First_Name</label>
@@ -29,6 +42,7 @@
                     <span asp-validation-for="Input.LastName" class="text-danger"></span>
                 </div>
             </div>
+            }
         </div>
         <div class="row">
             <div class="col-md-6">

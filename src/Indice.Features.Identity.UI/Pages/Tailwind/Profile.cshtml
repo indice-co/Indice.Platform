@@ -42,6 +42,17 @@
     <partial name="_ValidationSummary" />
     <form method="post" class="md:max-h-[60vh] overflow-y-scroll pr-8">
         <div class="row">
+        @if (Model.View.DisableEditNameSurname)
+        {
+            <div class="input-group">
+                    <label class="form-label">@Localizer.Profile_FullName</label>
+                    <input class="form-control" type="text" placeholder="@Localizer.Profile_FullName" value="@Model.Input.LastName @Model.Input.FirstName" readonly="readonly" />
+                    <input class="form-control" type="hidden" asp-for="Input.FirstName" />
+                    <input class="form-control" type="hidden" asp-for="Input.LastName" />
+            </div>
+        }
+        else
+        {
             <div class="input-group">
                 <input class="peer" type="text" placeholder="@Localizer.Profile_First_Name" asp-for="Input.FirstName" />
                 <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.FirstName">@Localizer.Profile_First_Name</label>
@@ -52,6 +63,7 @@
                 <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.LastName">@Localizer.Profile_Last_Name</label>
                 <span asp-validation-for="Input.LastName" class="text-danger"></span>
             </div>
+        }
         </div>
         <div class="row">
             <div class="input-group">
