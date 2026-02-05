@@ -53,7 +53,7 @@ task('copy:libs', async function () {
         return;
     }
     return src(npmDist(), { base: './node_modules', encoding: false })
-        .pipe(gulpif(file => file.extname === '.js' && file.basename.includes('.min.js'), stripComments({ trim: true })))
+        .pipe(gulpif(file => file.extname === '.js' && file.basename.endsWith('.min.js'), stripComments({ trim: true })))
         .pipe(dest(lib));
 });
 
