@@ -179,6 +179,7 @@ public class ConfigureGovGrOptions : IConfigureNamedOptions<OAuthOptions>, IConf
             using var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
             var xml = XDocument.Parse(responseBody);
             var claims = xml.Descendants("userinfo")
