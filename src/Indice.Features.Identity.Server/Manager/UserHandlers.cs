@@ -679,6 +679,21 @@ internal static class UserHandlers
         return TypedResults.NoContent();
     }
 
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> RemovePassword(
+        ExtendedUserManager<User> userManager,
+        string userId
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var result = await userManager.RemovePasswordAsync(user);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        return TypedResults.NoContent();
+    }
+
     internal static async Task<Results<Ok<List<JsonWebKey>>, NotFound>> GetUserDeviceSecrets(
         ExtendedUserManager<User> userManager,
         string userId,

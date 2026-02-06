@@ -150,6 +150,11 @@ public static class UsersApi
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
              .WithParameterValidation<SetPasswordRequest>();
 
+        group.MapDelete("{userId}/password", UserHandlers.RemovePassword)
+             .WithName(nameof(UserHandlers.RemovePassword))
+             .WithSummary("Removes the last password for the given user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
         group.MapPut("{userId}/picture", PictureHandlers.SaveUserPicture)
              .WithName(nameof(PictureHandlers.SaveUserPicture))
              .WithSummary("Create or update profile picture of the given user.")
