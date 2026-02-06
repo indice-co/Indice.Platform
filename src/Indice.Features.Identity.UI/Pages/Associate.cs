@@ -77,8 +77,8 @@ public abstract class BaseAssociateModel : BasePageModel
 
     /// <summary>Associate page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync() {
+        await UpdateModelSettings(View);
         if (!ModelState.IsValid) {
-            await UpdateModelSettings(View);
             return Page();
         }
         var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync();
