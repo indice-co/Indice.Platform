@@ -11,8 +11,6 @@ using Indice.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using SixLabors.ImageSharp;
 
 namespace Indice.Features.Identity.UI.ViewComponents;
 
