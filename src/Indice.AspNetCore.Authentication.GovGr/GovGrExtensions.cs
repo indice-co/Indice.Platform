@@ -102,7 +102,7 @@ public static class GovGrExtensions
         builder.Services.ConfigureOptions<ConfigureGovGrOptions>();
         builder.Services.AddHttpClient(authenticationScheme, (sp, httpClient) => {
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Microsoft ASP.NET Core OAuth handler");
-            httpClient.Timeout = sp.GetRequiredService<IOptions<GovGrOptions>>().Value.BackchannelTimeout;
+            httpClient.Timeout = sp.GetRequiredService<IOptionsMonitor<GovGrOptions>>().Get(authenticationScheme).BackchannelTimeout;
             httpClient.MaxResponseContentBufferSize = 1024 * 1024 * 10; // 10 MB
         });
 
