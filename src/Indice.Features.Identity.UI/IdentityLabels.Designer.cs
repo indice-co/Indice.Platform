@@ -853,7 +853,7 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to To complete your Multi factor authentication please use the OTP code:.
+        ///   Looks up a localized string similar to To complete your Multi-factor authentication please enter the OTP code:.
         /// </summary>
         public static string Email_MfaOnboarding_OtpCode {
             get {
@@ -1949,7 +1949,7 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("MfaOnBoardingAddEmail_Next", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to MFA onboarding - Email.
         /// </summary>
@@ -2298,6 +2298,15 @@ namespace Indice.Features.Identity.UI {
         public static string Profile_FirstName {
             get {
                 return ResourceManager.GetString("Profile_FirstName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Full name.
+        /// </summary>
+        public static string Profile_FullName {
+            get {
+                return ResourceManager.GetString("Profile_FullName", resourceCulture);
             }
         }
         

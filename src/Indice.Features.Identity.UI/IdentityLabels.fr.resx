@@ -1101,4 +1101,7 @@
   <data name="Email_MfaOnboarding_OtpCode" xml:space="preserve">
     <value>Pour terminer votre authentification multifacteur, utilisez le code OTP :</value>
   </data>
+  <data name="Profile_FullName" xml:space="preserve">
+    <value>Nom complet</value>
+  </data>
 </root>

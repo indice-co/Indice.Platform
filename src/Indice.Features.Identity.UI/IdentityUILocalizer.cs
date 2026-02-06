@@ -913,6 +913,12 @@ public class IdentityUILocalizer
     public virtual HtmlString Profile_Last_Name => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Lastname));
 
     /// <summary>
+    ///   Gets the localized string for "full name".
+    /// </summary>
+    public virtual HtmlString Profile_FullName => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_FullName));
+    
+
+    /// <summary>
     ///   Gets the localized string for "Phone number".
     /// </summary>
     public virtual HtmlString Profile_Phone_Number => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_PhoneNumber));

@@ -8,11 +8,14 @@ using IdentityModel;
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -54,6 +57,8 @@ public abstract class BaseAssociateModel : BasePageModel
             return RedirectToPage("/Login");
         }
         Input = View = associateViewModel;
+
+        await UpdateModelSettings(View);
         var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync();
         if (UiOptions.AutoProvisionExternalUsers || UiOptions.AutoProvisionExternalUsersFor.Contains(externalLoginInfo?.LoginProvider ?? string.Empty)) {
             return await OnPostAsync();
@@ -61,8 +66,18 @@ public abstract class BaseAssociateModel : BasePageModel
         return Page();
     }
 
+    private async Task UpdateModelSettings(AssociateViewModel viewModel) {
+        var configurationDb = ServiceProvider.GetRequiredService<ExtendedConfigurationDbContext>();
+        var claimsList = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.FamilyName || x.Name == BasicClaimTypes.GivenName).ToListAsync();
+        var canEditFamilyName = claimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.FamilyName)?.UserEditable ?? false;
+        var canEditGivenName = claimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.GivenName)?.UserEditable ?? false;
+        viewModel.DisableEditFamilyName = !canEditFamilyName;
+        viewModel.DisableEditGivenName = !canEditGivenName;
+    }
+
     /// <summary>Associate page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync() {
+        await UpdateModelSettings(View);
         if (!ModelState.IsValid) {
             return Page();
         }
@@ -114,7 +129,7 @@ public abstract class BaseAssociateModel : BasePageModel
             var user = await UserManager.FindByEmailAsync(email);
             if (user is not null) {
                 if (!user.EmailConfirmed) {
-                    await SendConfirmationEmail(user);
+                    await SendRegistrationEmail(user);
                     throw new Exception("User exists as a local account but the email is not yet confirmed. If you are the owner please confirm your email first so that the accounts can be merged.");
                 }
                 return user;
