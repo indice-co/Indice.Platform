@@ -41,7 +41,7 @@ public class ProfileSidebarViewComponent : ViewComponent
         this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         this.signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        this.configurationDb = configurationDb ?? throw new ArgumentNullException(nameof(configuration));
+        this.configurationDb = configurationDb ?? throw new ArgumentNullException(nameof(configurationDb));
     }
 
     /// <inheritdoc/>
