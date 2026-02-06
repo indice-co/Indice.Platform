@@ -135,7 +135,7 @@ public static class GovGrExtensions
             options.Events.OnCreatingTicket = async (context) => {
                 var accessToken = context.Properties.GetTokenValue("access_token");
                 var httpClient = context.Backchannel;
-                var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+                using var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
                 request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
                 var response = await httpClient.SendAsync(request);
                 var responseBody = await response.Content.ReadAsStringAsync();
