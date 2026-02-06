@@ -58,7 +58,7 @@ public abstract class BaseAssociateModel : BasePageModel
         }
         Input = View = associateViewModel;
 
-        await UpdateModelSettings(Input);
+        await UpdateModelSettings(View);
         var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync();
         if (UiOptions.AutoProvisionExternalUsers || UiOptions.AutoProvisionExternalUsersFor.Contains(externalLoginInfo?.LoginProvider ?? string.Empty)) {
             return await OnPostAsync();
@@ -66,16 +66,19 @@ public abstract class BaseAssociateModel : BasePageModel
         return Page();
     }
 
-    private async Task UpdateModelSettings(AssociateInputModel inputModel) {
+    private async Task UpdateModelSettings(AssociateViewModel viewModel) {
         var configurationDb = ServiceProvider.GetRequiredService<ExtendedConfigurationDbContext>();
-        var cannotEditNameSurname = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.FamilyName || x.Name == BasicClaimTypes.GivenName).Select(x => (bool?)x.UserEditable).AllAsync(x => x == false);
-        inputModel.DisableEditNameSurname = cannotEditNameSurname;
+        var claimsList = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.FamilyName || x.Name == BasicClaimTypes.GivenName).ToListAsync();
+        var canEditFamilyName = claimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.FamilyName)?.UserEditable ?? false;
+        var canEditGivenName = claimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.GivenName)?.UserEditable ?? false;
+        viewModel.DisableEditFamilyName = !canEditFamilyName;
+        viewModel.DisableEditGivenName = !canEditGivenName;
     }
 
     /// <summary>Associate page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync() {
         if (!ModelState.IsValid) {
-            await UpdateModelSettings(Input);
+            await UpdateModelSettings(View);
             return Page();
         }
         var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync();

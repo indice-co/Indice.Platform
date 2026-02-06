@@ -17,9 +17,9 @@
 		<partial name="_Alert" model="alert" />
 		<partial name="_ValidationSummary" />
 		<div class="row">
-        @if (Model.DisableEditNameSurname)
+        @if (Model.ShowFullName)
         {
-                <div class="input-group flex flex-col mb-3">
+                <div class="input-group-w-full flex flex-col mb-3">
                     <span>@Model.LastName @Model.FirstName</span>
                     <label>@Localizer.Profile_FullName</label>
                 </div>

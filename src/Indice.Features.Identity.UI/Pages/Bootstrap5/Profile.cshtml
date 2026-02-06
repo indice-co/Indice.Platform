@@ -56,7 +56,7 @@
     <partial name="_ValidationSummary" />
     <form method="post">
         <div class="row">
-            @if (Model.View.DisableEditNameSurname)
+            @if (Model.View.ShowFullName)
             {
                 <div class="col-md-12">
                     <div class="mb-3">
@@ -72,14 +72,14 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label asp-for="Input.FirstName" class="form-label">@Localizer.Profile_First_Name</label>
-                        <input class="form-control" type="text" placeholder="@Localizer.Profile_First_Name" asp-for="Input.FirstName" />
+                        <input class="form-control" type="text" placeholder="@Localizer.Profile_First_Name" asp-for="Input.FirstName" readonly="@Model.View.DisableEditGivenName" />
                         <span asp-validation-for="Input.FirstName" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label asp-for="Input.LastName" class="form-label">@Localizer.Profile_Last_Name</label>
-                        <input class="form-control" type="text" placeholder="@Localizer.Profile_Last_Name" asp-for="Input.LastName" />
+                        <input class="form-control" type="text" placeholder="@Localizer.Profile_Last_Name" asp-for="Input.LastName" readonly="@Model.View.DisableEditFamilyName" />
                         <span asp-validation-for="Input.LastName" class="text-danger"></span>
                     </div>
                 </div>

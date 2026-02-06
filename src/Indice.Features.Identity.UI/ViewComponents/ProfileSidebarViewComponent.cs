@@ -66,10 +66,15 @@ public class ProfileSidebarViewComponent : ViewComponent
         if (consentDateText != null && DateTime.TryParse(consentDateText, out date)) {
             consentDate = date;
         }
-        var cannotEditNameSurname = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.FamilyName || x.Name == BasicClaimTypes.GivenName).Select(x => (bool?)x.UserEditable).AllAsync(x => x == false);
+        var porfileEditableClaimsList = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.FamilyName || x.Name == BasicClaimTypes.GivenName || x.Name == BasicClaimTypes.Tin).ToListAsync();
+        var canEditTin = porfileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.Tin)?.UserEditable ?? false;
+        var canEditFamilyName = porfileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.FamilyName)?.UserEditable ?? false;
+        var canEditGivenName = porfileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.GivenName)?.UserEditable ?? false;
         return View(new ProfileViewModel {
             BirthDate = birthDate,
-            DisableEditNameSurname = cannotEditNameSurname,
+            DisableEditTin = !canEditTin,
+            DisableEditFamilyName = !canEditFamilyName,
+            DisableEditGivenName = !canEditGivenName,
             CanRemoveProvider = await userManager.HasPasswordAsync(user) || currentLogins.Count > 1,
             ConsentCommercial = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.ConsentCommercial)?.Value == bool.TrueString.ToLower(),
             ConsentCommercialDate = consentDate,

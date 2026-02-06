@@ -15,7 +15,7 @@
         <input type="hidden" asp-for="Input.ReturnUrl" />
         <input type="hidden" asp-for="Input.UserName" />
         <div class="row">
-            @if (Model.View.DisableEditNameSurname)
+            @if (Model.View.ShowFullName)
             {
                 <div class="col-md-12">
                     <div class="mb-3">
@@ -31,14 +31,14 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label asp-for="Input.FirstName" class="form-label">@Localizer.Profile_First_Name</label>
-                        <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Localizer.Profile_First_Name" autofocus />
+                        <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Localizer.Profile_First_Name" autofocus readonly="@Model.View.DisableEditGivenName" />
                         <span asp-validation-for="Input.FirstName" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label asp-for="Input.LastName" class="form-label">@Localizer.Profile_Last_Name</label>
-                        <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Localizer.Profile_Last_Name" />
+                        <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Localizer.Profile_Last_Name" readonly="@Model.View.DisableEditFamilyName" />
                         <span asp-validation-for="Input.LastName" class="text-danger"></span>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.LastName" class="form-label">@Localizer.Profile_Phone_Number</label>
+                    <label asp-for="Input.PhoneNumber" class="form-label">@Localizer.Profile_Phone_Number</label>
                     <input class="form-control" type="tel" asp-for="Input.PhoneNumber" placeholder="@Localizer.Profile_Phone_Number" />
                     <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
                 </div>
