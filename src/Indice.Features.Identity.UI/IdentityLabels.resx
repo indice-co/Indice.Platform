@@ -1101,4 +1101,7 @@
   <data name="Email_MfaOnboarding_OtpCode" xml:space="preserve">
     <value>To complete your Multi-factor authentication please enter the OTP code:</value>
   </data>
+  <data name="Profile_FullName" xml:space="preserve">
+    <value>Full name</value>
+  </data>
 </root>

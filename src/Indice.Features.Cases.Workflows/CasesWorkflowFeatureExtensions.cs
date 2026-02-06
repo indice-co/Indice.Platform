@@ -13,7 +13,6 @@ using Duende.IdentityModel;
 using Indice.Features.Cases.Workflows;
 using Indice.Features.Cases.Workflows.Bookmarks;
 using Indice.Features.Cases.Workflows.Data;
-using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Localization;
 using Indice.Features.Cases.Workflows.Serialization;
@@ -52,7 +51,9 @@ public static class CasesWorkflowFeatureExtensions
     public static IHostApplicationBuilder AddCasesWorkflow(this IHostApplicationBuilder builder, Action<CasesWorkflowOptions>? configureAction = null) {
 
         // Configure options given by the consumer.
-        var workflowOptions = new CasesWorkflowOptions(builder.Services);
+        var workflowOptions = new CasesWorkflowOptions(builder.Services) {
+            ServerBaseUrl = builder.Configuration.GetHost()
+        };
         configureAction?.Invoke(workflowOptions);
         builder.Services.Configure<CasesWorkflowOptions>(options => {
             options.ConfigureDbContext = workflowOptions.ConfigureDbContext;
@@ -61,8 +62,8 @@ public static class CasesWorkflowFeatureExtensions
             options.GetWorkflowAssembly = workflowOptions.GetWorkflowAssembly;
             options.RetentionServicesEnabled = workflowOptions.RetentionServicesEnabled;
             options.RetentionSpecificationFilter = workflowOptions.RetentionSpecificationFilter;
-            options.ServerBasePath = workflowOptions.ServerBasePath;
             options.ServerBaseUrl = workflowOptions.ServerBaseUrl;
+            options.ServerHttpActivitiesBasePath = workflowOptions.ServerHttpActivitiesBasePath;
             options.RegisterControllers = workflowOptions.RegisterControllers;
             options.RegisterStaticFiles = workflowOptions.RegisterStaticFiles;
             options.RegisterAuthentication = workflowOptions.RegisterAuthentication;
@@ -93,7 +94,7 @@ public static class CasesWorkflowFeatureExtensions
                 if (casesWorkflowOptions.ServerBaseUrl is { } baseUrl) {
                     http.BaseUrl = new Uri(baseUrl);
                 }
-                if (casesWorkflowOptions.ServerBasePath is { } basePath) {
+                if (casesWorkflowOptions.ServerHttpActivitiesBasePath is { } basePath) {
                     http.BasePath = basePath;
                 }
             })

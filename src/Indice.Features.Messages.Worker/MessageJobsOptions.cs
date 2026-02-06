@@ -25,6 +25,9 @@ public class MessageJobsOptions : MessageWorkerOptions
     /// <summary>
     /// The cron expression that defines the schedule for the cleanup task. Defaults to <i>"0 0 2 * * *" (every day at 2 AM)</i>
     /// </summary>
-    public string DatabaseCleanUpCronExpression { get; set; } = "0 0 2 * * *";
+    public string DatabaseCleanUpCronExpression { get; set; } = "0 0 2 * * ?";
+
+    /// <summary>Gets or sets the configuration options for analytics features.</summary>
+    public AnalyticsOptions Analytics { get; set; } = new();
 
 }

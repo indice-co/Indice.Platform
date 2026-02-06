@@ -1101,4 +1101,7 @@
   <data name="Email_MfaOnboarding_OtpCode" xml:space="preserve">
     <value>Για να ολοκληρώσετε την πολυπαραγοντική ταυτοποίησή σας, χρησιμοποιήστε τον κωδικό OTP:</value>
   </data>
+  <data name="Profile_FullName" xml:space="preserve">
+    <value>Ονοματεπώνυμο</value>
+  </data>
 </root>

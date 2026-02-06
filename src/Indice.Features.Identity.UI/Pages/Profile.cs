@@ -105,11 +105,16 @@ public abstract class BaseProfileModel : BasePageModel
         }
 
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName ?? string.Empty);
-        AddModelErrors(result);
-        result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.FamilyName, Input.LastName ?? string.Empty);
-        AddModelErrors(result);
-        if (!View.DisableEditTin) { 
+        IdentityResult result;
+        if (!View.DisableEditGivenName) {
+            result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName ?? string.Empty);
+            AddModelErrors(result);
+        }
+        if (!View.DisableEditFamilyName) {
+            result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.FamilyName, Input.LastName ?? string.Empty);
+            AddModelErrors(result);
+        }
+        if (!View.DisableEditTin) {
             result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.Tin, Input.Tin ?? string.Empty);
             AddModelErrors(result);
         }
@@ -257,11 +262,16 @@ public abstract class BaseProfileModel : BasePageModel
         _ = PhoneNumber.TryParse(user.PhoneNumber!, out var phoneNumber);
 
         var configurationDb = ServiceProvider.GetRequiredService<ExtendedConfigurationDbContext>();
-        var canEditTin = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.Tin).Select(x => (bool?)x.UserEditable).FirstOrDefaultAsync() ?? false;
+        var profileEditableClaimsList = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.FamilyName || x.Name == BasicClaimTypes.GivenName || x.Name == BasicClaimTypes.Tin).ToListAsync();
+        var canEditTin = profileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.Tin)?.UserEditable ?? false;
+        var canEditFamilyName = profileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.FamilyName)?.UserEditable ?? false;
+        var canEditGivenName = profileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.GivenName)?.UserEditable ?? false;
         return new ProfileViewModel {
             BirthDate = birthDate,
             CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
             DisableEditTin = !canEditTin,
+            DisableEditFamilyName = !canEditFamilyName,
+            DisableEditGivenName = !canEditGivenName,
             ConsentCommercial = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.ConsentCommercial)?.Value == bool.TrueString.ToLower(),
             ConsentCommercialDate = consentDate,
             CurrentLogins = currentLogins,
@@ -288,13 +298,18 @@ public abstract class BaseProfileModel : BasePageModel
         var currentLogins = await UserManager.GetLoginsAsync(user);
         var otherLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync())
             .Where(scheme => currentLogins.All(loginInfo => scheme.Name != loginInfo.LoginProvider))
-            .ToList(); 
+            .ToList();
         var configurationDb = ServiceProvider.GetRequiredService<ExtendedConfigurationDbContext>();
-        var canEditTin = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.Tin).Select(x => (bool?)x.UserEditable).FirstOrDefaultAsync() ?? false;
+        var porfileEditableClaimsList = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.FamilyName || x.Name == BasicClaimTypes.GivenName || x.Name == BasicClaimTypes.Tin).ToListAsync();
+        var canEditTin = porfileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.Tin)?.UserEditable ?? false;
+        var canEditFamilyName = porfileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.FamilyName)?.UserEditable ?? false;
+        var canEditGivenName = porfileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.GivenName)?.UserEditable ?? false;
         return new ProfileViewModel {
             BirthDate = model.BirthDate,
             CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
             DisableEditTin = !canEditTin,
+            DisableEditFamilyName = !canEditFamilyName,
+            DisableEditGivenName = !canEditGivenName,
             ConsentCommercial = model.ConsentCommercial,
             ConsentCommercialDate = model.ConsentCommercialDate,
             CurrentLogins = currentLogins,
