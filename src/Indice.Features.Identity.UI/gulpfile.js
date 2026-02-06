@@ -5,6 +5,8 @@ import gulpSass from 'gulp-sass';
 import { deleteAsync } from 'del';
 import cssbeautify from "gulp-cssbeautify";
 import npmDist from "gulp-npm-dist";
+import gulpif from 'gulp-if';
+import stripComments from 'gulp-strip-comments';
 
 import cleanCSS from "gulp-clean-css";
 import stripCssComments from "gulp-strip-css-comments";
@@ -51,6 +53,7 @@ task('copy:libs', async function () {
         return;
     }
     return src(npmDist(), { base: './node_modules', encoding: false })
+        .pipe(gulpif(file => file.extname === '.js' && file.basename.endsWith('.min.js'), stripComments({ trim: true })))
         .pipe(dest(lib));
 });
 
