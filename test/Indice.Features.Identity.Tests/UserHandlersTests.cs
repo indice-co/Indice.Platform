@@ -330,7 +330,7 @@ public class UserHandlersTests : IAsyncLifetime
             ],
         });
 
-        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user4@indice.gr");
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user5@indice.gr");
         Assert.NotNull(createdUser);
 
         // Remove users password via the api
