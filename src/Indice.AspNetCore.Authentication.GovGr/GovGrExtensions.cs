@@ -172,7 +172,9 @@ public class ConfigureGovGrOptions : IConfigureNamedOptions<OAuthOptions>, IConf
         options.BackchannelTimeout = govGrOptions.BackchannelTimeout;
         options.Backchannel = _httpClientFactory.CreateClient(name!);
         options.BackchannelHttpHandler = null;
-
+        if (govGrOptions.Events?.OnRemoteFailure is not null) { 
+            options.Events.OnRemoteFailure = govGrOptions.Events.OnRemoteFailure;
+        }
         options.Events.OnCreatingTicket = async (context) => {
             var accessToken = context.Properties.GetTokenValue("access_token");
             var httpClient = context.Backchannel;
