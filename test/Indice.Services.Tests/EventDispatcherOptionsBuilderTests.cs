@@ -26,7 +26,7 @@ public class EventDispatcherOptionsBuilderTests
     }
 
     [Fact]
-    public void CanBuildEventDispatcherOptionsWithSessionId() {
+    public void CanBuildEventDispatcherRaiseOptionsWithSessionId() {
         var builder = new EventDispatcherRaiseOptionsBuilder();
         var options = builder.UsingPrincipal(new ClaimsPrincipal(
                                  new ClaimsIdentity(
