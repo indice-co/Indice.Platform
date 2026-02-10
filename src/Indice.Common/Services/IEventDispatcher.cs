@@ -14,7 +14,7 @@ public interface IEventDispatcher
     /// <param name="wrap">Wrap around an envelope object. Defaults to true.</param>
     /// <param name="queueName">The name of the queue. If not specified, the name of <typeparamref name="TEvent"/> in kebab case is used.</param>
     /// <param name="prependEnvironmentInQueueName">When set to true, it prepends the queue name with the environment name. For example <b>production-my-queue-name</b>. Defaults to true.</param>
-    /// <param name="sessionId">The session identifier for the message. Used in Azure Service Bus to preserve message ordering.</param>
+    /// <param name="sessionId">The session identifier for the message. When supported by the underlying implementation, this can be used to partition messages and preserve ordering within a session.</param>
     Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal? actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string? queueName = null, bool prependEnvironmentInQueueName = true, string? sessionId = null) where TEvent : class;
 }
 
@@ -47,7 +47,7 @@ public class EventDispatcherRaiseOptions
     public string? QueueName { get; set; }
     /// <summary>When set to true, it prepends the queue name with the environment name. For example <b>production-my-queue-name</b>. Defaults to true.</summary>
     public bool PrependEnvironmentInQueueName { get; set; } = true;
-    /// <summary>The session identifier for the message. Used in Azure Service Bus to preserve message ordering.</summary>
+    /// <summary>The session identifier for the message. When supported by the underlying implementation, this can be used to partition messages and preserve ordering within a session.</summary>
     public string? SessionId { get; set; }
 }
 
@@ -78,7 +78,7 @@ public interface IEventDispatcherRaiseOptionsBuilder
     /// <param name="prepend">Prepend.</param>
     /// <returns>The builder to construct the <see cref="EventDispatcherRaiseOptions"/> instance.</returns>
     IEventDispatcherRaiseOptionsBuilder PrependEnvironmentInQueueName(bool prepend = true);
-    /// <summary>Defines the session identifier for the message. Used in Azure Service Bus to preserve message ordering.</summary>
+    /// <summary>Defines the session identifier for the message. When supported by the underlying implementation, this can be used to partition messages and preserve ordering within a session.</summary>
     /// <param name="sessionId">The session identifier.</param>
     /// <returns>The builder to construct the <see cref="EventDispatcherRaiseOptions"/> instance.</returns>
     IEventDispatcherRaiseOptionsBuilder WithSessionId(string sessionId);
