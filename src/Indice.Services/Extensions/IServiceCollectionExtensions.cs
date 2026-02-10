@@ -373,7 +373,7 @@ public static class IndiceServicesServiceCollectionExtensions
             options.QueueMessageEncoding,
             options.ClaimsPrincipalSelector,
             options.TenantIdSelector!,
-            serviceProvider.GetService<ILogger<EventDispatcherAzure>>()
+            serviceProvider.GetService<ILogger<EventDispatcherAzure>>() ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<EventDispatcherAzure>.Instance
         );
     };
 
