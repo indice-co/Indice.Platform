@@ -64,6 +64,7 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
         try {
             await _workflowApiClient.EditAsync(new InvokeEditRequest {
                 CaseId = caseId,
+                Comment = comment,
                 Data = request.Data,
                 Actor = user.ToActor(),
             });
