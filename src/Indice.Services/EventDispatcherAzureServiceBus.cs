@@ -53,7 +53,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
     }
 
     /// <inheritdoc/>
-    public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal? actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string? queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class {
+    public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal? actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string? queueName = null, bool prependEnvironmentInQueueName = true, string? sessionId = null) where TEvent : class {
         if (!_enabled) {
             return;
         }
@@ -97,6 +97,9 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
                                                      : new ServiceBusMessage(new BinaryData(payloadBytes));
         message.ScheduledEnqueueTime = DateTimeOffset.UtcNow.Add(visibilityTimeout ?? TimeSpan.Zero);
         message.ContentType = contentType;
+        if (!string.IsNullOrWhiteSpace(sessionId)) {
+            message.SessionId = sessionId;
+        }
         await sender.SendMessageAsync(message);
     }
 
