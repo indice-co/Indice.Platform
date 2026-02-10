@@ -134,6 +134,9 @@ public class EventDispatcherRaiseOptionsBuilder : IEventDispatcherRaiseOptionsBu
 
     /// <inheritdoc />
     public IEventDispatcherRaiseOptionsBuilder WithSessionId(string sessionId) {
+        if (string.IsNullOrWhiteSpace(sessionId)) {
+            throw new ArgumentException("SessionId cannot be null or whitespace.", nameof(sessionId));
+        }
         Options.SessionId = sessionId;
         return this;
     }

@@ -46,4 +46,22 @@ public class EventDispatcherOptionsBuilderTests
         Assert.True(options.PrependEnvironmentInQueueName);
         Assert.Equal("session-123", options.SessionId);
     }
+
+    [Fact]
+    public void WithSessionId_ThrowsArgumentException_WhenSessionIdIsNull() {
+        var builder = new EventDispatcherRaiseOptionsBuilder();
+        Assert.Throws<ArgumentException>(() => builder.WithSessionId(null!));
+    }
+
+    [Fact]
+    public void WithSessionId_ThrowsArgumentException_WhenSessionIdIsEmpty() {
+        var builder = new EventDispatcherRaiseOptionsBuilder();
+        Assert.Throws<ArgumentException>(() => builder.WithSessionId(string.Empty));
+    }
+
+    [Fact]
+    public void WithSessionId_ThrowsArgumentException_WhenSessionIdIsWhitespace() {
+        var builder = new EventDispatcherRaiseOptionsBuilder();
+        Assert.Throws<ArgumentException>(() => builder.WithSessionId("   "));
+    }
 }
