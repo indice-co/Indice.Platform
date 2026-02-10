@@ -111,7 +111,7 @@ public class GovGrOptions
     /// <summary>
     /// Gets or sets the event handlers used to process OAuth authentication events.
     /// </summary>
-    /// <remarks>Assign a custom <see cref="OAuthEvents"/> instance to handle specific authentication events,
-    /// such as OnCreatingTicket or OnRemoteFailure. If not set, default event handlers are used.</remarks>
+    /// <remarks>Assign a custom <see cref="OAuthEvents"/> instance to handle specific authentication events.
+    /// Currently, it will only configure the handler of OnRemoteFailure. If not set, default event handlers are used.</remarks>
     public OAuthEvents Events { get; set; } = new OAuthEvents();
 }
