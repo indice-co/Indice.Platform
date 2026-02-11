@@ -62,6 +62,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
 
   ngOnDestroy(): void {
+    this.componentDestroy$.next();
     this.componentDestroy$.complete();
   }
 
