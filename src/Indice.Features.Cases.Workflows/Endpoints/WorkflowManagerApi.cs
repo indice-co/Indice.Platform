@@ -14,7 +14,7 @@ public static class WorkflowManagerApi
     public static IEndpointRouteBuilder MapWorkflowManager(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowOptions>>().Value;
 
-        var group = routes.MapGroup($"api{options.ServerBasePath}");
+        var group = routes.MapGroup($"api/workflow-actions");
         group.WithGroupName("workflow");
         group.WithTags("Workflow");
 

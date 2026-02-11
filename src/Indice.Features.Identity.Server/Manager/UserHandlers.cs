@@ -263,13 +263,21 @@ internal static class UserHandlers
             var errors = ValidationErrors.AddError(nameof(request.UserName), "EmailAsUserName policy is applied to the identity system. Email and UserName properties should have the same value. User is not updated.");
             return TypedResults.ValidationProblem(errors);
         }
-        if (!PhoneNumber.TryParse(request.PhoneNumber!, out var phoneNumber)) {
+        var trimmedPhoneNumber = request.PhoneNumber?.Trim();
+        if (!PhoneNumber.TryParse(trimmedPhoneNumber ?? string.Empty, out var phoneNumber) && !string.IsNullOrWhiteSpace(trimmedPhoneNumber)) {
             var errors = ValidationErrors.AddError(nameof(request.PhoneNumber), "The provided phone number is not valid.");
             return TypedResults.ValidationProblem(errors);
         }
-        user.UserName = request.UserName;
-        user.Email = request.Email;
-        user.PhoneNumber = request.PhoneNumber;
+        if(string.IsNullOrWhiteSpace(trimmedPhoneNumber) && request.PhoneNumberConfirmed) {
+            var errors = ValidationErrors.AddError(nameof(request.PhoneNumberConfirmed), "The phone number cannot be confirmed as it is not a valid phone number.");
+            return TypedResults.ValidationProblem(errors);
+        }
+        user.UserName = request.UserName?.Trim();
+        user.Email = request.Email?.Trim();
+        user.PhoneNumber = trimmedPhoneNumber switch {
+            { Length: > 0 } => phoneNumber.ToString(),
+            _ => null
+        };
         user.TwoFactorEnabled = request.TwoFactorEnabled;
         user.TwoFactorPolicy = request.TwoFactorPolicy;
         user.PasswordExpirationPolicy = request.PasswordExpirationPolicy;
@@ -667,6 +675,21 @@ internal static class UserHandlers
         }
         if (request.ChangePasswordAfterFirstSignIn == true) {
             await userManager.SetPasswordExpiredAsync(user, true);
+        }
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> RemovePassword(
+        ExtendedUserManager<User> userManager,
+        string userId
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var result = await userManager.RemovePasswordAsync(user);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
         return TypedResults.NoContent();
     }

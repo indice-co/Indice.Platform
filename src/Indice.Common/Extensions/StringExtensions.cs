@@ -102,5 +102,21 @@ public static partial class StringExtensions
     /// <returns>A hash</returns>
     public static string ToSha256Hex(this byte[] input) => string.Join("", SHA256.HashData(input).Select(x => $"{x:x2}"));
 
+    /// <summary>
+    /// Truncates the input string to the specified maximum number of characters, appending an ellipsis character ('…')
+    /// if truncation occurs.
+    /// </summary>
+    /// <remarks>If input is null or empty, the method returns input unchanged. If input is longer than
+    /// maxChars, the result will be exactly maxChars characters from input followed by a single ellipsis character
+    /// ('…').</remarks>
+    /// <param name="input">The string to truncate. Can be null.</param>
+    /// <param name="maxChars">The maximum number of characters to retain from the input string. Must be non-negative.</param>
+    /// <returns>A string truncated to at most maxChars characters, with an appended ellipsis if truncation occurs; or the
+    /// original string if it is null, empty, or shorter than maxChars.</returns>
+    public static string? Truncate(this string? input, int maxChars) =>
+        string.IsNullOrEmpty(input) ? input :
+        input.Length <= maxChars ? input :
+        input[..maxChars] + '…';
+
 }
 #nullable disable

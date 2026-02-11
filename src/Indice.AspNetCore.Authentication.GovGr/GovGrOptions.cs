@@ -1,6 +1,7 @@
 ﻿using Duende.IdentityModel;
 using Indice.Features.GovGr;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Authentication.GovGr;
@@ -106,4 +107,11 @@ public class GovGrOptions
     /// Used to communicate with the remote identity provider. 
     /// </summary>
     public HttpClient Backchannel { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the event handlers used to process OAuth authentication events.
+    /// </summary>
+    /// <remarks>Assign a custom <see cref="OAuthEvents"/> instance to handle specific authentication events.
+    /// Currently, it will only configure the handler of OnRemoteFailure. If not set, default event handlers are used.</remarks>
+    public OAuthEvents Events { get; set; } = new OAuthEvents();
 }

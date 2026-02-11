@@ -17,6 +17,15 @@
 		<partial name="_Alert" model="alert" />
 		<partial name="_ValidationSummary" />
 		<div class="row">
+        @if (Model.ShowFullName)
+        {
+                <div class="input-group-w-full flex flex-col mb-3">
+                    <span>@Model.LastName @Model.FirstName</span>
+                    <label>@Localizer.Profile_FullName</label>
+                </div>
+        }
+        else
+        {
 			<div class="input-group flex flex-col mb-3">
 				<span>@Model.FirstName</span>
 				<label>@Localizer.Profile_First_Name</label>
@@ -25,6 +34,7 @@
 				<span>@Model.LastName</span>
 				<label>@Localizer.Profile_Last_Name</label>
 			</div>
+        }
 		</div>
 		<div class="row">
 			<div class="input-group flex flex-col mb-3">

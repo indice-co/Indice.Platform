@@ -1,6 +1,5 @@
 ﻿using Indice.AspNetCore.Features.SignalRProxy;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+using Indice.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 
@@ -14,13 +13,10 @@ public static class SignalRProxyFeatureExtensions
     /// <summary>
     /// Adds SignalR endpoint services to the application.
     /// </summary>
-    /// <param name="builder"></param>
-    /// <param name="configureAction"></param>
+    /// <param name="builder">The application builder.</param>
+    /// <param name="configureAction">An optional action to configure the SignalR proxy options.</param>
     public static IHostApplicationBuilder AddSignalRProxy(this IHostApplicationBuilder builder, Action<SignalRProxyOptions>? configureAction = null) {
-        builder.Services.AddSignalRProxyCoreServices(options => {
-            options.ConnectionString = builder.Configuration.GetConnectionString("SignalR");
-        });
-        
+        builder.Services.AddSignalRProxyCoreServices();
         // Register default user ID resolver
         builder.Services.AddSingleton<ISignalRProxyUserIdResolver, DefaultSignalRProxyUserIdResolver>();
         
@@ -33,8 +29,10 @@ public static class SignalRProxyFeatureExtensions
         });
         
         if(configureAction is not null) {
-            builder.Services.PostConfigure(configureAction);
+            builder.Services.Configure(configureAction);
         }
+        builder.Services.ConfigureOptions<PostConfigureSignalRProxyCoreOptions>();
+
         return builder;
     }
 }

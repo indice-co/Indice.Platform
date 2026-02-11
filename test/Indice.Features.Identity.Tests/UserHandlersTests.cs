@@ -9,7 +9,9 @@ using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
+using Indice.Globalization;
 using Indice.Types;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -156,6 +158,196 @@ public class UserHandlersTests : IAsyncLifetime
         var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
         await dbContext.Database.EnsureDeletedAsync();
         await _serviceProvider.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task UpdateUser_WithNullPhoneNumber_ShouldClearPhoneNumber() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+
+        // Create a user first
+        await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
+            UserName = "test.user@indice.gr",
+            Email = "test.user@indice.gr",
+            Password = "password",
+            BypassPasswordValidation = true,
+            FirstName = "Test",
+            LastName = "User",
+            PhoneNumber = "+306912345678",
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ],
+        });
+
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user@indice.gr");
+        Assert.NotNull(createdUser);
+        Assert.NotNull(createdUser.PhoneNumber); // Ensure it starts with a phone number
+
+        // Update user with null phone number
+        var result = await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
+            UserName = "test.user@indice.gr",
+            Email = "test.user@indice.gr",
+            PhoneNumber = null,
+            PhoneNumberConfirmed = false,
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ],
+        });
+
+        // Verify phone number was cleared
+        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
+        Assert.NotNull(updatedUser);
+        Assert.Null(updatedUser.PhoneNumber);
+    }
+
+    [Fact]
+    public async Task UpdateUser_WithWhitespaceOnlyPhoneNumber_ShouldClearPhoneNumber() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+
+        // Create a user first
+        await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
+            UserName = "test.user2@indice.gr",
+            Email = "test.user2@indice.gr",
+            Password = "password",
+            BypassPasswordValidation = true,
+            FirstName = "Test",
+            LastName = "User",
+            PhoneNumber = "+306912345678",
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ],
+        });
+
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user2@indice.gr");
+        Assert.NotNull(createdUser);
+        Assert.NotNull(createdUser.PhoneNumber); // Ensure it starts with a phone number
+
+        // Update user with whitespace-only phone number
+        var result = await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
+            UserName = "test.user2@indice.gr",
+            Email = "test.user2@indice.gr",
+            PhoneNumber = "   ",
+            PhoneNumberConfirmed = false
+        });
+
+        // Verify phone number was cleared
+        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
+        Assert.NotNull(updatedUser);
+        Assert.Null(updatedUser.PhoneNumber);
+    }
+
+    [Fact]
+    public async Task UpdateUser_WithInvalidPhoneNumber_ShouldReturnValidationProblem() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+
+        // Create a user first
+        await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
+            UserName = "test.user3@indice.gr",
+            Email = "test.user3@indice.gr",
+            Password = "password",
+            BypassPasswordValidation = true,
+            FirstName = "Test",
+            LastName = "User",
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ],
+        });
+
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user3@indice.gr");
+        Assert.NotNull(createdUser);
+
+        // Update user with invalid phone number
+        var result = await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
+            UserName = "test.user3@indice.gr",
+            Email = "test.user3@indice.gr",
+            PhoneNumber = "invalid-phone"
+        });
+
+        // Verify validation error
+        var validationProblem = result.Result as Microsoft.AspNetCore.Http.HttpResults.ValidationProblem;
+        Assert.NotNull(validationProblem);
+    }
+
+    [Fact]
+    public async Task UpdateUser_WithValidPhoneNumberAndWhitespace_ShouldPersistFormattedValue() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+
+        // Create a user first
+        await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
+            UserName = "test.user4@indice.gr",
+            Email = "test.user4@indice.gr",
+            Password = "password",
+            BypassPasswordValidation = true,
+            FirstName = "Test",
+            LastName = "User",
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ],
+        });
+
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user4@indice.gr");
+        Assert.NotNull(createdUser);
+
+        // Update user with valid phone number that has surrounding whitespace
+        var result = await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
+            UserName = "test.user4@indice.gr",
+            Email = "test.user4@indice.gr",
+            PhoneNumber = "  +306912345678  "
+        });
+
+        // Verify phone number was formatted and stored
+        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
+        Assert.NotNull(updatedUser);
+        Assert.NotNull(updatedUser.PhoneNumber);
+        Assert.Equal(PhoneNumber.Parse("+306912345678").ToString(), updatedUser.PhoneNumber); // Should be trimmed/formatted
+        Assert.StartsWith("+", updatedUser.PhoneNumber); // Should be a valid formatted phone number
+    }
+
+    [Fact]
+    public async Task RemoveTempUserPassword() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+
+        // Create a user first
+        await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
+            UserName = "test.user5@indice.gr",
+            Email = "test.user5@indice.gr",
+            Password = "password",
+            BypassPasswordValidation = true,
+            FirstName = "Test",
+            LastName = "User",
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ],
+        });
+
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user5@indice.gr");
+        Assert.NotNull(createdUser);
+
+        // Remove users password via the api
+        var result = await UserHandlers.RemovePassword(userManager, createdUser.Id);
+
+        // Verify the user has null password hash stored in database
+        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
+        Assert.NotNull(updatedUser);
+        Assert.Null(updatedUser.PasswordHash);
+
+        // Verify user cannot login with an empty/null passord and he is essentially passwordless
+        var validPassword = await userManager.CheckPasswordAsync(updatedUser, null!);
+        Assert.False(validPassword);
+
+        // Verify that trying to remove password again does not cause any issues and returns no content
+        var removeSeccondTimeResult = await UserHandlers.RemovePassword(userManager, updatedUser.Id);
+        Assert.IsType<NoContent>(removeSeccondTimeResult.Result);
     }
 
     public class UserCreatedAssetionHanbdler : IPlatformEventHandler<UserCreatedEvent>

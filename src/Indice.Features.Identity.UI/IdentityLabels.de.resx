@@ -1101,4 +1101,7 @@
   <data name="Email_MfaOnboarding_OtpCode" xml:space="preserve">
     <value>Ihr OTP-Code für die Anmeldung ist:</value>
   </data>
+  <data name="Profile_FullName" xml:space="preserve">
+    <value>Vollständiger Name</value>
+  </data>
 </root>
