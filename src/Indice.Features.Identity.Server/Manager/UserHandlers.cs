@@ -685,7 +685,7 @@ internal static class UserHandlers
         string userId
     ) {
         var currentUserId = currentUser.FindSubjectId();
-        if (!string.IsNullOrWhiteSpace(currentUserId) && currentUserId.Equals(userId)) {
+        if (!string.IsNullOrWhiteSpace(currentUserId) && currentUserId.Equals(userId, StringComparison.OrdinalIgnoreCase)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(userId), "Cannot remove the password for the current logon user"));
         }
         var user = await userManager.FindByIdAsync(userId);
