@@ -352,8 +352,8 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.False(validPassword);
 
         // Verify that trying to remove password again does not cause any issues and returns no content
-        var removeSeccondTimeResult = await UserHandlers.RemovePassword(userManager, currentUser, updatedUser.Id);
-        Assert.IsType<NoContent>(removeSeccondTimeResult.Result);
+        var removeSecondTimeResult = await UserHandlers.RemovePassword(userManager, currentUser, updatedUser.Id);
+        Assert.IsType<NoContent>(removeSecondTimeResult.Result);
 
         var self = new ClaimsPrincipal(new ClaimsIdentity(
             [
