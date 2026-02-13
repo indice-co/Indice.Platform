@@ -65,7 +65,10 @@
                 }
                 @if (Model.View.VisibleExternalProviders.Any())
                 {
-                    <div class="hr-sect"><span>@Localizer.Login_OR</span></div>
+                    @if (Model.View.EnableLocalLogin)
+                    {
+                        <div class="hr-sect"><span>@Localizer.Login_OR</span></div>
+                    }
                     <div class="flex justify-center mb-2.5">
                         <span class="text-gray-400">@Localizer.Register_login_with</span>
                     </div>
@@ -84,7 +87,10 @@
                             </div>
                         }
                     </div>
-                    <hr />
+                    @if (Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding)
+                    {
+                        <hr />
+                    }
                 }
             </div>
             @if (Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding)
