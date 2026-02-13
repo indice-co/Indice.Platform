@@ -87,7 +87,7 @@
                             </div>
                         }
                     </div>
-                    @if (Model.View.EnableLocalLogin)
+                    @if (Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding)
                     {
                         <hr />
                     }
