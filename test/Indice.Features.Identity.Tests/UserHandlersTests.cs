@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Duende.IdentityModel;
 using Indice.Events;
@@ -26,6 +27,7 @@ public class UserHandlersTests : IAsyncLifetime
     public UserHandlersTests() {
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> {
             ["ConnectionStrings:TestDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.FilterClause.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
+            ["IdentityOptions:Password:PasswordHistoryLimit"] = "1",
         }).Build();
         var services = new ServiceCollection();
         // configure dependencies
@@ -315,7 +317,13 @@ public class UserHandlersTests : IAsyncLifetime
     public async Task RemoveTempUserPassword() {
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
-
+        var configuration = _serviceProvider.GetRequiredService<IConfiguration>();
+        var currentUser = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new ("sub", Guid.NewGuid().ToString()), 
+                new ("client_id", "test-client-id"),
+                new ("admin", "true")
+            ], "TestAuthentication"));
         // Create a user first
         await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
             UserName = "test.user5@indice.gr",
@@ -329,25 +337,42 @@ public class UserHandlersTests : IAsyncLifetime
                 new() { Type = "locale", Value = "el" }
             ],
         });
-
         var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user5@indice.gr");
+        var orgiginalPasswordHash = createdUser?.PasswordHash;
         Assert.NotNull(createdUser);
 
         // Remove users password via the api
-        var result = await UserHandlers.RemovePassword(userManager, createdUser.Id);
+        var result = await UserHandlers.RemovePassword(userManager, currentUser, createdUser.Id);
+        Assert.IsType<NoContent>(result.Result);
 
         // Verify the user has null password hash stored in database
         var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
         Assert.NotNull(updatedUser);
         Assert.Null(updatedUser.PasswordHash);
 
-        // Verify user cannot login with an empty/null passord and he is essentially passwordless
+        // check password history after removal
+        if (configuration.GetIdentityOption<int?>("Password", "PasswordHistoryLimit").GetValueOrDefault() > 0) {
+            bool isOriginalPasswordInHistory = await identityDbContext.UserPasswordHistory.AnyAsync(u => u.UserId == createdUser.Id && u.PasswordHash == orgiginalPasswordHash);
+            Assert.True(isOriginalPasswordInHistory, "Password removed should be in userPassword history");
+        }
+
+        // Verify user cannot login with an empty/null password and he is essentially passwordless
         var validPassword = await userManager.CheckPasswordAsync(updatedUser, null!);
         Assert.False(validPassword);
 
         // Verify that trying to remove password again does not cause any issues and returns no content
-        var removeSeccondTimeResult = await UserHandlers.RemovePassword(userManager, updatedUser.Id);
-        Assert.IsType<NoContent>(removeSeccondTimeResult.Result);
+        var removeSecondTimeResult = await UserHandlers.RemovePassword(userManager, currentUser, updatedUser.Id);
+        Assert.IsType<NoContent>(removeSecondTimeResult.Result);
+
+        var self = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new ("sub", createdUser.Id),
+                new ("client_id", "test-client-id"),
+            ], "TestAuthentication"));
+
+        // Verify that trying to remove password for self returns bad request since user cannot remove his own password.
+        var selfRemovePasswordResult = await UserHandlers.RemovePassword(userManager, self, updatedUser.Id);
+        Assert.IsType<ValidationProblem>(selfRemovePasswordResult.Result);
     }
 
     public class UserCreatedAssetionHanbdler : IPlatformEventHandler<UserCreatedEvent>
