@@ -6,7 +6,7 @@ public class AssociateInputModel
     /// <summary>The username.</summary>
     public string? UserName { get; set; }
     /// <summary>The email.</summary>
-    public string? Email { get; set; } = string.Empty;
+    public string? Email { get; set; }
     /// <summary>The first name.</summary>
     public string FirstName { get; set; } = string.Empty;
     /// <summary>The last name.</summary>
