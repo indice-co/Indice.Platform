@@ -1,6 +1,12 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.Json;
 using HandlebarsDotNet;
 using HandlebarsDotNet.Extension.Json;
+using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Rendering;
+using Indice.Serialization;
+using Indice.Types;
 using Xunit;
 
 namespace Indice.Features.Messages.Tests;
@@ -35,4 +41,32 @@ public class HandlebarParsingTests
         Assert.Equal(expected, output);
     }
 
+
+    [InlineData(
+    "{\"inbox\":{\"title\":\"Test sms encoding\",\"body\":\"Placeholder for real value\"},\"sms\":{\"title\":\"Test sms encoding\",\"body\":\"Hellooo\\n\\n&\\n\\nGoodbye\"}}",
+    "SMS: {{data.sms.body}}",
+    "SMS",
+    "SMS: Hellooo\n\n&\n\nGoodbye")]
+
+    [InlineData(
+    "{\"inbox\":{\"title\":\"Test sms encoding\",\"body\":\"Placeholder for real value\"},\"sms\":{\"title\":\"Test sms encoding\",\"body\":\"Hellooo\\n\\n&\\n\\nGoodbye\"},\"email\":{\"title\":\"Test email encoding\",\"body\":\"Hellooo\\n\\n&\\n\\nGoodbye\"}}",
+    "Email: {{data.email.body}}",
+    "Email",
+    "Email: Hellooo\n\n&amp;\n\nGoodbye")]
+
+    [Theory]
+    private static void TestHandlebarsTextEncoder(string data, string template, string channel, string expected) {
+        var handlebars = Handlebars.Create();
+        handlebars.Configuration.UseJson();
+        handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(channel);
+        dynamic templateData = new {
+            title = "Welcome",
+            data = data is not null && (data is not string || !string.IsNullOrWhiteSpace(data))
+                    ? JsonDocument.Parse(data)
+                    : null
+        };
+        var output = handlebars.Compile(template)(templateData);
+        Assert.Equal(expected, output);
+    }
 }
+
