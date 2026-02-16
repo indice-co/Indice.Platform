@@ -30,9 +30,11 @@ public static class HandlebarsTextEncoderFactory
     public static ITextEncoder Create(string channelKind) {
         if (Enum.TryParse<MessageChannelKind>(channelKind.Trim(), ignoreCase: true, out var parsedKind)) {
             return Create(parsedKind);
-        }
-        return new HtmlEncoder();
+        } 
+        else {
+            return Create(MessageChannelKind.None);
         }
     }
+}
 
 
