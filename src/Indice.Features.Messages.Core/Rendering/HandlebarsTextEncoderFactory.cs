@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HandlebarsDotNet;
+﻿using HandlebarsDotNet;
 using Indice.Features.Messages.Core.Models;
 
 namespace Indice.Features.Messages.Core.Rendering;
@@ -32,7 +27,12 @@ public static class HandlebarsTextEncoderFactory
     /// </summary>
     /// <param name="channelKind">The channel kind as a string.</param>
     /// <returns>A new instance of the <see cref="ITextEncoder"/> class.</returns>
-    public static ITextEncoder Create(string channelKind) => Create(Enum.Parse<MessageChannelKind>(channelKind));
-}
+    public static ITextEncoder Create(string channelKind) {
+        if (Enum.TryParse<MessageChannelKind>(channelKind.Trim(), ignoreCase: true, out var parsedKind)) {
+            return Create(parsedKind);
+        }
+        return new HtmlEncoder();
+        }
+    }
 
 

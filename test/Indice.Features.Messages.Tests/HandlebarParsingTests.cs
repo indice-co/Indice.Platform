@@ -1,12 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using HandlebarsDotNet;
 using HandlebarsDotNet.Extension.Json;
-using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Rendering;
-using Indice.Serialization;
-using Indice.Types;
 using Xunit;
 
 namespace Indice.Features.Messages.Tests;
@@ -55,7 +50,7 @@ public class HandlebarParsingTests
     "Email: Hellooo\n\n&amp;\n\nGoodbye")]
 
     [Theory]
-    private static void TestHandlebarsTextEncoder(string data, string template, string channel, string expected) {
+    public static void TestHandlebarsTextEncoder(string data, string template, string channel, string expected) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.UseJson();
         handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(channel);
