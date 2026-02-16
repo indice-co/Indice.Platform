@@ -27,14 +27,10 @@ public static class HandlebarsTextEncoderFactory
     /// </summary>
     /// <param name="channelKind">The channel kind as a string.</param>
     /// <returns>A new instance of the <see cref="ITextEncoder"/> class.</returns>
-    public static ITextEncoder Create(string channelKind) {
-        if (Enum.TryParse<MessageChannelKind>(channelKind.Trim(), ignoreCase: true, out var parsedKind)) {
-            return Create(parsedKind);
-        } 
-        else {
-            return Create(MessageChannelKind.None);
-        }
-    }
+    public static ITextEncoder Create(string channelKind) =>
+        Enum.TryParse<MessageChannelKind>(channelKind.Trim(), ignoreCase: true, out var parsedKind) ? 
+            Create(parsedKind) : 
+            Create(MessageChannelKind.None);
 }
 
 
