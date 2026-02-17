@@ -48,7 +48,7 @@
     <comment>validation error</comment>
   </data>
   <data name="PasswordIsCommonRequirement" xml:space="preserve">
-    <value>No es fácil de adivinar.</value>
+    <value>No es una contraseña conocida.</value>
     <comment>hint</comment>
   </data>
   <data name="PasswordRecentlyUsed" xml:space="preserve">
