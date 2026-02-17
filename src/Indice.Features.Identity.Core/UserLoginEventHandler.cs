@@ -46,9 +46,11 @@ public sealed class UserLoginEventHandler : IPlatformEventHandler<UserLoginEvent
                 @event.User.UserName, 
                 @event.User.Id, 
                 @event.User.UserName, 
+                provider: @event.Provider,
                 clientId: clientId, 
                 clientName: client?.ClientName, 
                 warning: @event.Warning, 
+                sessionId: @event.SessionId,
                 authenticationMethods: @event.AuthenticationMethods
             ));
         }
