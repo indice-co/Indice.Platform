@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Text.Json;
 using HandlebarsDotNet;
 using HandlebarsDotNet.Extension.Json;
 using Indice.Features.Messages.Core.Data;
@@ -10,6 +8,7 @@ using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Kpis;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Serialization;
 using Indice.Types;
@@ -355,6 +354,7 @@ public class CampaignService : ICampaignService
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
         handlebars.Configuration.UseJson();
         foreach (var content in campaign!.Content) {
+            handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(content.Key);
             dynamic templateData = new {
                 id = campaign.Id,
                 title = campaign.Title,
