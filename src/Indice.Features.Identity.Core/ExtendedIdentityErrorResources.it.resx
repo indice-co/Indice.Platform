@@ -145,7 +145,8 @@
     <value>La password è molto facile da indovinare, per favore scegline una più complessa.</value>
   </data>
   <data name="PasswordIsCommonRequirement" xml:space="preserve">
-    <value>Non facile da indovinare</value>
+    <value>Non una password conosciuta.</value>
+    <comment>hint</comment>
   </data>
   <data name="PasswordRecentlyUsed" xml:space="preserve">
     <value>Questa password è stata usata di recente. È buona pratica non riutilizzare la password precedente.</value>
