@@ -30,7 +30,7 @@ public class IdentityUILocalizer
     public virtual HtmlString AcceptTerms_ReadAndAcceptTerms => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_ReadAndAcceptTerms));
     /// <summary>Message indicating the last update date of the terms and conditions.</summary>
     public virtual HtmlString AcceptTerms_LastUpdated => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_LastUpdated));
-    
+
     #endregion
 
     #region AddEmail

@@ -14,6 +14,6 @@
     <md path="@Model.View.MarkdownPath" class="markdown-body"></md>
     @if (Model.LastUpdateDate.HasValue)
     {
-        <p class="terms-last-update">@Localizer.AcceptTerms_LastUpdated  <span>@Model.LastUpdateDate?.ToString("dd MMMM, yyyy")</span></p>
+        <p class="terms-last-update">@Localizer.AcceptTerms_LastUpdated <span>@Model.LastUpdateDate?.ToString("dd MMMM, yyyy")</span></p>
     }
 </article>
