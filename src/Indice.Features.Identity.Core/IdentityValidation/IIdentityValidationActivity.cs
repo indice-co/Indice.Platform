@@ -169,7 +169,7 @@ public class RequiresTermsAcceptanceActivity : IdentityValidationActivityBase
 
         if (requirePostSignInAcceptedTerms &&
             (!hasAcceptedTerms ||
-            (hasAcceptedTerms && latestTermsReleaseDate > DateTime.MinValue && acceptedTermsDate < latestTermsReleaseDate))) {
+            (latestTermsReleaseDate > DateTime.MinValue && acceptedTermsDate < latestTermsReleaseDate))) {
             return new UserValidationRequirement(UserActivityRequirementKind.RequiresAcceptanceOfTerms, "/AcceptTerms");
         }
         return null;
