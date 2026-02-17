@@ -158,7 +158,14 @@ public class RequiresTermsAcceptanceActivity : IdentityValidationActivityBase
             DateTime.TryParseExact(latestTermsRelease, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out latestTermsReleaseDate);
 
         var hasAcceptedTerms = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTerms).Select(x => bool.TrueString.Equals(x.ClaimValue, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-        var acceptedTermsDate = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTermsDate).Select(x => string.IsNullOrEmpty(x.ClaimValue) ? DateTime.MinValue : DateTime.ParseExact(x.ClaimValue, "O", CultureInfo.InvariantCulture, DateTimeStyles.None)).FirstOrDefault();
+        var acceptedTermsDate = activityContext.User.Claims
+            .Where(x => x.ClaimType == BasicClaimTypes.ConsentTermsDate)
+            .Select(x => string.IsNullOrEmpty(x.ClaimValue)
+                ? DateTime.MinValue
+                : (DateTime.TryParseExact(x.ClaimValue, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate)
+                    ? parsedDate
+                    : DateTime.MinValue))
+            .FirstOrDefault();
 
         if (requirePostSignInAcceptedTerms &&
             (!hasAcceptedTerms ||
