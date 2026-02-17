@@ -237,7 +237,7 @@
         <span class="badge text-muted border bg-light m-1" [title]="value">
             {{ value }}
         </span>
-        <img *ngIf="row.extraData.provider" class="m-1" height="14" alt="{{row.extraData.provider}} logo" title="{{row.extraData.provider}}" src="assets/img/idps/{{row.extraData.provider}}.svg" />
+        <img *ngIf="row.extraData.provider && row.extraData.provider !== 'local'" class="m-1" height="14" alt="{{row.extraData.provider}} logo" title="{{row.extraData.provider}}" src="assets/img/idps/{{row.extraData.provider}}.svg" />
     </div>
     <span *ngIf="!value"> - </span>
 </ng-template>
