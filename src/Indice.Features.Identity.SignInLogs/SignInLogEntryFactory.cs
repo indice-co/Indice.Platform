@@ -73,6 +73,7 @@ internal class SignInLogEntryFactory
             SignInType = SignInType.Interactive,
             SubjectId = @event.SubjectId,
             SubjectName = @event.DisplayName,
+            SessionId = @event.SessionId,
             Succeeded = true,
             ExtraData = new SignInLogEntryExtraData()
         };
