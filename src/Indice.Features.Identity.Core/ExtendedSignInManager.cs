@@ -99,6 +99,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     public bool RequirePostSignInConfirmedPhoneNumber { get; }
     /// <summary>Enables the feature post login terms acceptance.</summary>
     public bool RequirePostSignInAcceptedTerms { get; }
+    /// <summary>Gets the date when the new terms were released.</summary>
+    public DateTime? LatestTermsReleaseDate { get; }
     /// <summary>If enabled then users with blacklisted passwords will be forced to change their password upon sign-in instead of waiting for the next time they need to change it.</summary>
     public bool ExpireBlacklistedPasswordsOnSignIn { get; }
     /// <summary>Decides whether a trusted browser should be stored in the <see cref="UserDevice"/> table.</summary>
