@@ -2,13 +2,12 @@
 using System.Security.Claims;
 #if NET9_0_OR_GREATER
 using Duende.IdentityModel;
+using Duende.IdentityServer;
+using Duende.IdentityServer.Extensions;
 #else
 using IdentityModel;
-#endif
-#if NET9_0_OR_GREATER
-using Duende.IdentityServer;
-#else
 using IdentityServer4;
+using IdentityServer4.Extensions;
 #endif
 using Indice.Events;
 using Indice.Features.Identity.Core.Configuration;
@@ -213,7 +212,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var result = await _signInGuard.IsSuspiciousLogin(Context, user);
         await _eventService.Publish(UserLoginEvent.Success(
             UserEventContext.InitializeFromUser(user),
+            authenticationProperties.GetSessionId(),
             result.Warning,
+            federatedLoginProvider?.Value,
             amr
         ));
     }

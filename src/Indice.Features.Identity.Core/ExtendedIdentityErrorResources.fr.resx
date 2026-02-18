@@ -86,7 +86,8 @@
     <value>Le mot de passe est tres facile a deviner, veuillez en choisir un plus complexe.</value>
   </data>
   <data name="PasswordIsCommonRequirement" xml:space="preserve">
-    <value>Pas facile a deviner.</value>
+    <value>Pas un mot de passe connu.</value>
+    <comment>hint</comment>
   </data>
   <data name="PasswordRecentlyUsed" xml:space="preserve">
     <value>Ce mot de passe a ete utilise recemment. C'est une bonne pratique de ne pas reutiliser votre mot de passe precedent.</value>

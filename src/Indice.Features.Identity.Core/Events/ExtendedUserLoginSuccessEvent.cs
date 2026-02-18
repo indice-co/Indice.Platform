@@ -29,25 +29,31 @@ public class ExtendedUserLoginSuccessEvent : UserLoginSuccessEvent
 
     /// <summary>Creates a new instance of <see cref="ExtendedUserLoginSuccessEvent"/>.</summary>
     /// <param name="username">The username.</param>
-    /// <param name="subjectId">The subject identifier.</param>
+    /// <param name="subjectId">The subject identifier. Populate if external authentication happened</param>
     /// <param name="name">The name.</param>
+    /// <param name="provider">The idp provider.</param>
     /// <param name="interactive">if set to <c>true</c> [interactive].</param>
     /// <param name="clientId">The client id.</param>
     /// <param name="clientName">The client name.</param>
     /// <param name="warning">Describes a warning that may occur during a sign in event.</param>
+    /// <param name="sessionId">User's session id</param>
     /// <param name="authenticationMethods">List of authentication methods used.</param>
     public ExtendedUserLoginSuccessEvent(
         string username,
         string subjectId,
         string name,
+        string? provider = null,
         bool interactive = true,
         string? clientId = null,
         string? clientName = null,
         SignInWarning? warning = null,
+        string? sessionId = null,
         string[]? authenticationMethods = null
     ) : base(username, subjectId, name, interactive, clientId) {
+        Provider = provider;
         ClientName = clientName;
         Warning = warning;
+        SessionId = sessionId;
         AuthenticationMethods = authenticationMethods ?? [];
     }
 
@@ -55,6 +61,8 @@ public class ExtendedUserLoginSuccessEvent : UserLoginSuccessEvent
     public SignInWarning? Warning { get; }
     /// <summary>The client name.</summary>
     public string? ClientName { get; }
+    /// <summary>User's session id.</summary>
+    public string? SessionId { get; set; }
     /// <summary>List of authentication methods used.</summary>
     public string[] AuthenticationMethods { get; } = [];
 }
