@@ -2,6 +2,7 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -30,21 +31,25 @@ public class GovGrHandler : OAuthHandler<GovGrOAuthOptions>, IAuthenticationSign
     public async Task SignOutAsync(AuthenticationProperties? properties) {
 
         var postLogoutRedirectUri = properties?.RedirectUri;
-        if (string.IsNullOrWhiteSpace(postLogoutRedirectUri)) {
+        if (string.IsNullOrWhiteSpace(postLogoutRedirectUri) || !IsLocalUrl(postLogoutRedirectUri)) {
             postLogoutRedirectUri = "/";
         }
         if (!Options.EnableFederatedLogout || string.IsNullOrWhiteSpace(Options.LogoutEndpoint)) {
             Context.Response.Redirect(postLogoutRedirectUri);
             return;
         }
-        if (!postLogoutRedirectUri.StartsWith("http", StringComparison.OrdinalIgnoreCase)) {
-            postLogoutRedirectUri = UriHelper.BuildAbsolute(Context.Request.Scheme, Context.Request.Host, path: postLogoutRedirectUri);
-        }
+        postLogoutRedirectUri = UriHelper.BuildAbsolute(Context.Request.Scheme, Context.Request.Host, path: postLogoutRedirectUri);
         var logoutEndpoint = Options.LogoutEndpoint;
         var clientId = Options.ClientId;
         var logoutUrl = $"{logoutEndpoint}/{clientId}/?url={Uri.EscapeDataString(postLogoutRedirectUri)}";
         Context.Response.Redirect(logoutUrl);
 
         await Task.CompletedTask;
+    }
+
+    private bool IsLocalUrl(string url) {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+        return (url[0] == '/' && (url.Length == 1 || (url[1] != '/' && url[1] != '\\')))
+               || (url.Length > 1 && url[0] == '~' && url[1] == '/');
     }
 }
