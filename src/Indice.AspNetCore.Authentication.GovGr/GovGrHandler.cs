@@ -30,10 +30,10 @@ public class GovGrHandler : OAuthHandler<GovGrOAuthOptions>, IAuthenticationSign
     public async Task SignOutAsync(AuthenticationProperties? properties) {
 
         var postLogoutRedirectUri = properties?.RedirectUri;
-        if (string.IsNullOrEmpty(postLogoutRedirectUri)) {
+        if (string.IsNullOrWhiteSpace(postLogoutRedirectUri)) {
             postLogoutRedirectUri = "/";
         }
-        if (!Options.EnableFederatedLogout) {
+        if (!Options.EnableFederatedLogout || string.IsNullOrWhiteSpace(Options.LogoutEndpoint)) {
             Context.Response.Redirect(postLogoutRedirectUri);
             return;
         }
@@ -41,14 +41,9 @@ public class GovGrHandler : OAuthHandler<GovGrOAuthOptions>, IAuthenticationSign
             postLogoutRedirectUri = UriHelper.BuildAbsolute(Context.Request.Scheme, Context.Request.Host, path: postLogoutRedirectUri);
         }
         var logoutEndpoint = Options.LogoutEndpoint;
-        if (!string.IsNullOrEmpty(logoutEndpoint)) {
-            var clientId = Options.ClientId;
-            var logoutUrl = $"{logoutEndpoint}/{clientId}/?url={Uri.EscapeDataString(postLogoutRedirectUri)}";
-            Context.Response.Redirect(logoutUrl);
-        } 
-        else {
-            Context.Response.Redirect(postLogoutRedirectUri);
-        }
+        var clientId = Options.ClientId;
+        var logoutUrl = $"{logoutEndpoint}/{clientId}/?url={Uri.EscapeDataString(postLogoutRedirectUri)}";
+        Context.Response.Redirect(logoutUrl);
 
         await Task.CompletedTask;
     }
