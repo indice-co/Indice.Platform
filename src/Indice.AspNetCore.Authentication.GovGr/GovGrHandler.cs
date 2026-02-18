@@ -1,0 +1,55 @@
+using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+namespace Indice.AspNetCore.Authentication.GovGr;
+
+/// <summary>
+/// Custom authentication handler for GovGr that supports federated sign-out.
+/// </summary>
+public class GovGrHandler : OAuthHandler<GovGrOAuthOptions>, IAuthenticationSignOutHandler
+{
+    /// <summary>
+    /// Initializes a new instance of <see cref="GovGrHandler"/>.
+    /// </summary>
+    public GovGrHandler(
+        IOptionsMonitor<GovGrOAuthOptions> options,
+        ILoggerFactory logger,
+        UrlEncoder encoder) 
+        : base(options, logger, encoder)
+    {
+    }
+
+    /// <summary>
+    /// Handles federated sign-out by redirecting to GovGr's logout endpoint.
+    /// </summary>
+    /// <param name="properties">Authentication properties that may contain redirect information.</param>
+    public async Task SignOutAsync(AuthenticationProperties? properties) {
+
+        var postLogoutRedirectUri = properties?.RedirectUri;
+        if (string.IsNullOrEmpty(postLogoutRedirectUri)) {
+            postLogoutRedirectUri = "/";
+        }
+        if (Options.EnableFederatedLogout == false) {
+            Context.Response.Redirect(postLogoutRedirectUri);
+            return;
+        }
+        if (!postLogoutRedirectUri.StartsWith("http", StringComparison.OrdinalIgnoreCase)) {
+            postLogoutRedirectUri = UriHelper.BuildAbsolute(Context.Request.Scheme, Context.Request.Host, path: postLogoutRedirectUri);
+        }
+        var logoutEndpoint = Options.LogoutEndpoint;
+        if (!string.IsNullOrEmpty(logoutEndpoint)) {
+            var clientId = Options.ClientId;
+            var logoutUrl = $"{logoutEndpoint}/{clientId}/?url={Uri.EscapeDataString(postLogoutRedirectUri)}";
+            Context.Response.Redirect(logoutUrl);
+        } 
+        else {
+            Context.Response.Redirect(postLogoutRedirectUri);
+        }
+
+        await Task.CompletedTask;
+    }
+}

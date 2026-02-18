@@ -81,6 +81,9 @@ public class GovGrOptions
     /// <summary>Check if in staging/stage</summary>
     public bool IsStaging => "Staging".Equals(Environment, StringComparison.OrdinalIgnoreCase) || "Stage".Equals(Environment, StringComparison.OrdinalIgnoreCase) || "test".Equals(Environment, StringComparison.OrdinalIgnoreCase);
 
+    /// <summary> Indicates whether federated logout is enabled.</summary>
+    public bool EnableFederatedLogout { get; set; } = true;
+
     internal string BaseDomain => IsStaging ? FQDN_STAGE : FQDN_PROD;
     /// <summary>The authority.</summary>
     public string Authority => $"https://{BaseDomain}/oauth2server";
@@ -90,6 +93,8 @@ public class GovGrOptions
     public string TokenEndpoint => $"{Authority}/oauth/token";
     /// <summary>The OAuth endpoint used to exchange access tokens.</summary>
     public string UserInfoEndpoint => $"{Authority}/userinfo?format=xml";
+    /// <summary>The OAuth endpoint used to exchange access tokens.</summary>
+    public string LogoutEndpoint => $"{Authority}/logout";
 
     /// <summary>
     /// Gets or sets timeout value in milliseconds for back channel communications with

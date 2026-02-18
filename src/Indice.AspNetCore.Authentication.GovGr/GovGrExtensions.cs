@@ -106,7 +106,7 @@ public static class GovGrExtensions
             httpClient.MaxResponseContentBufferSize = 1024 * 1024 * 10; // 10 MB
         });
 
-        return builder.AddOAuth(authenticationScheme, displayName, (options) => { });
+        return builder.AddOAuth<GovGrOAuthOptions,GovGrHandler>(authenticationScheme, displayName, (options) => { });
     }
 
     internal static readonly string GovGrClaimNullLiteral = "null";
@@ -125,10 +125,10 @@ public static class GovGrExtensions
 /// Configures OAuth authentication options for integration with the GovGr identity provider.
 /// </summary>
 /// <remarks>This class is typically used to bind GovGr-specific settings to an instance of <see
-/// cref="OAuthOptions"/> for use with ASP.NET Core authentication. It ensures that required GovGr endpoints and
+/// cref="GovGrOAuthOptions"/> for use with ASP.NET Core authentication. It ensures that required GovGr endpoints and
 /// credentials are set and maps user information claims according to GovGr's schema. This class is intended for use
 /// with dependency injection and is not thread-safe for direct use across multiple authentication schemes.</remarks>
-public class ConfigureGovGrOptions : IConfigureNamedOptions<OAuthOptions>, IConfigureOptions<OAuthOptions>
+public class ConfigureGovGrOptions : IConfigureNamedOptions<GovGrOAuthOptions>, IConfigureOptions<GovGrOAuthOptions>
 {
     private readonly IHttpClientFactory _httpClientFactory;
     /// <summary>
@@ -147,7 +147,7 @@ public class ConfigureGovGrOptions : IConfigureNamedOptions<OAuthOptions>, IConf
     public IOptionsFactory<GovGrOptions> GovGrOptionsFactory { get; }
 
     /// <inheritdoc />
-    public void Configure(string? name, OAuthOptions options) {
+    public void Configure(string? name, GovGrOAuthOptions options) {
         var govGrOptions = GovGrOptionsFactory.Create(name!);
         if (string.IsNullOrWhiteSpace(govGrOptions.ClientId)) {
             throw new ArgumentOutOfRangeException(nameof(govGrOptions.ClientId), "GovGr Id. The '{0}' option must be provided.");
@@ -159,6 +159,7 @@ public class ConfigureGovGrOptions : IConfigureNamedOptions<OAuthOptions>, IConf
         options.TokenEndpoint = govGrOptions.TokenEndpoint;
         options.AuthorizationEndpoint = govGrOptions.AuthorizationEndpoint;
         options.UserInformationEndpoint = govGrOptions.UserInfoEndpoint;
+        options.LogoutEndpoint = govGrOptions.LogoutEndpoint;
         options.SaveTokens = true;
         options.CallbackPath = govGrOptions.CallbackPath ?? new PathString("/signin-govgr");
         options.SignInScheme = govGrOptions.SignInScheme ?? CookieAuthenticationDefaults.AuthenticationScheme;
@@ -172,6 +173,7 @@ public class ConfigureGovGrOptions : IConfigureNamedOptions<OAuthOptions>, IConf
         options.BackchannelTimeout = govGrOptions.BackchannelTimeout;
         options.Backchannel = _httpClientFactory.CreateClient(name!);
         options.BackchannelHttpHandler = null;
+        options.EnableFederatedLogout = govGrOptions.EnableFederatedLogout;
         if (govGrOptions.Events?.OnRemoteFailure is not null) { 
             options.Events.OnRemoteFailure = govGrOptions.Events.OnRemoteFailure;
         }
@@ -196,7 +198,7 @@ public class ConfigureGovGrOptions : IConfigureNamedOptions<OAuthOptions>, IConf
     }
 
     /// <inheritdoc />
-    public void Configure(OAuthOptions options) {
+    public void Configure(GovGrOAuthOptions options) {
         Configure(GovGrDefaults.AuthenticationScheme, options);
     }
 
