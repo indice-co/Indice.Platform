@@ -33,7 +33,7 @@ public class GovGrHandler : OAuthHandler<GovGrOAuthOptions>, IAuthenticationSign
         if (string.IsNullOrEmpty(postLogoutRedirectUri)) {
             postLogoutRedirectUri = "/";
         }
-        if (Options.EnableFederatedLogout == false) {
+        if (!Options.EnableFederatedLogout) {
             Context.Response.Redirect(postLogoutRedirectUri);
             return;
         }

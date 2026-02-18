@@ -93,7 +93,7 @@ public class GovGrOptions
     public string TokenEndpoint => $"{Authority}/oauth/token";
     /// <summary>The OAuth endpoint used to exchange access tokens.</summary>
     public string UserInfoEndpoint => $"{Authority}/userinfo?format=xml";
-    /// <summary>The OAuth endpoint used to exchange access tokens.</summary>
+    /// <summary>The endpoint used to perform federated logout on the GovGr identity provider.</summary>
     public string LogoutEndpoint => $"{Authority}/logout";
 
     /// <summary>
