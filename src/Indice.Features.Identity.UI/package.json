@@ -12,7 +12,7 @@
     "knockout": "3.5.1",
     "knockout-secure-binding": "0.5.5",
     "@popperjs/core": "2.11.8",
-    "swiper": "9.4.1",
+    "swiper": "12.1.2",
     "flowbite": "3.1.2"
   },
   "devDependencies": {
