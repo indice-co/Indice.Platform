@@ -11,13 +11,13 @@ namespace Indice.AspNetCore.Authentication.GovGr;
 /// <summary>
 /// Custom authentication handler for GovGr that supports federated sign-out.
 /// </summary>
-public class GovGrHandler : OAuthHandler<GovGrOAuthOptions>, IAuthenticationSignOutHandler
+public class GovGrHandler : OAuthHandler<GovGrOptions>, IAuthenticationSignOutHandler
 {
     /// <summary>
     /// Initializes a new instance of <see cref="GovGrHandler"/>.
     /// </summary>
     public GovGrHandler(
-        IOptionsMonitor<GovGrOAuthOptions> options,
+        IOptionsMonitor<GovGrOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder) 
         : base(options, logger, encoder)
