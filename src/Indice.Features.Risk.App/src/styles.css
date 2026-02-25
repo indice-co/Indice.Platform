@@ -13,10 +13,10 @@
 
 @layer components {
   .h-5 {
-    @apply h-5;
+    height: 1.25rem;
   }
   .w-5 {
-    @apply w-5;
+    width: 1.25rem;
   }
   .kpi-chart-container {
     @apply h-full w-full;
