@@ -55,9 +55,7 @@ public class GovGrOptionsKyc
 }
 /// <summary>Configuration options for GovGr OpenID Connect.</summary>
 public class GovGrOptions : OAuthOptions {
-    public GovGrOptions() : base()  {
 
-    }
     private const string FQDN_STAGE = "test.gsis.gr";
     private const string FQDN_PROD = "oauth2.gsis.gr";
     /// <summary>Represents the environment. Valid options are <em>production</em>, <em>staging</em>, <em>development</em> &amp; <em>mock</em>. Defaults to <b>production</b>. </summary>

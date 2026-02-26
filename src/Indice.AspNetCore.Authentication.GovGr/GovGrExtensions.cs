@@ -1,13 +1,14 @@
 ﻿using System.Linq;
 using System.Security.Claims;
 using System.Xml.Linq;
-using Indice.Features.GovGr.Configuration;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -101,7 +102,7 @@ public static class GovGrExtensions
     public static AuthenticationBuilder AddGovGr(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<GovGrOptions> configureOptions) {
 
         builder.AddOAuth<GovGrOptions, GovGrHandler>(authenticationScheme, displayName, (options) => {
-            ApplyGovGrDefaults(options, authenticationScheme, builder.Services.BuildServiceProvider().GetRequiredService<IHttpClientFactory>());
+            ApplyGovGrDefaults(options, authenticationScheme);
             configureOptions?.Invoke(options);
             SetGovGrEndpoints(options);
         });
@@ -124,7 +125,7 @@ public static class GovGrExtensions
         ["taxid"] = BasicClaimTypes.Tin,
     };
 
-    private static void ApplyGovGrDefaults(GovGrOptions options, string authenticationScheme, IHttpClientFactory httpClientFactory) {
+    private static void ApplyGovGrDefaults(GovGrOptions options, string authenticationScheme) {
         options.SaveTokens = true;
         options.CallbackPath = new PathString("/signin-govgr");
         options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
