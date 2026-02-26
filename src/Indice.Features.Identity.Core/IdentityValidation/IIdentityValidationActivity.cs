@@ -158,18 +158,16 @@ public class RequiresTermsAcceptanceActivity : IdentityValidationActivityBase
             DateTime.TryParseExact(latestTermsRelease, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out latestTermsReleaseDate);
 
         var hasAcceptedTerms = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTerms).Select(x => bool.TrueString.Equals(x.ClaimValue, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-        var acceptedTermsDate = activityContext.User.Claims
-            .Where(x => x.ClaimType == BasicClaimTypes.ConsentTermsDate)
-            .Select(x => string.IsNullOrEmpty(x.ClaimValue)
-                ? DateTime.MinValue
-                : (DateTime.TryParseExact(x.ClaimValue, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate)
-                    ? parsedDate
-                    : DateTime.MinValue))
-            .FirstOrDefault();
+        var acceptedTermsDateValue = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTermsDate).Select(x => x.ClaimValue).FirstOrDefault();
+        DateTime? acceptedTermsDate = null;
+        if (!string.IsNullOrEmpty(acceptedTermsDateValue) && DateTime.TryParseExact(acceptedTermsDateValue, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var termsDate)) {
+            acceptedTermsDate = termsDate;
+        }
+
 
         if (requirePostSignInAcceptedTerms &&
-            (!hasAcceptedTerms ||
-            (latestTermsReleaseDate > DateTime.MinValue && acceptedTermsDate < latestTermsReleaseDate))) {
+            (!hasAcceptedTerms || !acceptedTermsDate.HasValue ||
+            (acceptedTermsDate.HasValue && latestTermsReleaseDate > DateTime.MinValue && acceptedTermsDate < latestTermsReleaseDate))) {
             return new UserValidationRequirement(UserActivityRequirementKind.RequiresAcceptanceOfTerms, "/AcceptTerms");
         }
         return null;

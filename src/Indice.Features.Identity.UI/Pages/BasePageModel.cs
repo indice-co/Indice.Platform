@@ -217,6 +217,7 @@ public abstract class BasePageModel : PageModel
             var redirectUrl = Url.PageLink("/Mfa", values: new { returnUrl });
             return Redirect(redirectUrl!);
         }
+
         if (signInResult.RequiresValidation()) {
             return RedirectToPage("/AddEmail", new { returnUrl });
         }
