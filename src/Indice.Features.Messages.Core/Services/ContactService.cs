@@ -395,9 +395,13 @@ public class ContactService : IContactService
                         UpdatedAt = DateTimeOffset.UtcNow
                     }).ToList()
             };
+            try {
+                await DbContext.ContactPreferences.AddAsync(recipientPreferences);
+                await DbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException) {
 
-            await DbContext.ContactPreferences.AddAsync(recipientPreferences);
-            await DbContext.SaveChangesAsync();
+            }
             return;
         }
 
@@ -436,12 +440,15 @@ public class ContactService : IContactService
                 DefaultChannels = preference.DefaultChannels != null ? ContactChannelOption.ToContactChannelKind(preference.DefaultChannels) : null,
                 UpdatedAt = DateTimeOffset.UtcNow
             };
+            try {
+                await DbContext.ContactPreferences.AddAsync(recipientPreferences);
+                await DbContext.SaveChangesAsync();
+            } 
+            catch (DbUpdateException) {
 
-            await DbContext.ContactPreferences.AddAsync(recipientPreferences);
-            await DbContext.SaveChangesAsync();
+            }
             return;
         }
-
         recipientPreferences.Locale = preference.Locale;
         recipientPreferences.ConsentCommercial = preference.ConsentCommercial;
         recipientPreferences.ConsentCommercialDate = preference.ConsentCommercialDate;
