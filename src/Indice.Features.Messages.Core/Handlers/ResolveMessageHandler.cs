@@ -4,6 +4,7 @@ using HandlebarsDotNet.Extension.Json;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Serialization;
@@ -105,9 +106,9 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
 
     private static void GenerateMessageContent(CampaignCreatedEvent campaign, Contact? contact) {
         var handlebars = Handlebars.Create();
-        handlebars.Configuration.TextEncoder = new HtmlEncoder();
         handlebars.Configuration.UseJson();
         foreach (var content in campaign!.Content) {
+            handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(content.Key);
             dynamic templateData = new {
                 id = campaign.Id,
                 title = campaign.Title,
