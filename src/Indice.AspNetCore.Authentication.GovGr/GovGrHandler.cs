@@ -83,7 +83,14 @@ public class GovGrHandler : OAuthHandler<GovGrOptions>, IAuthenticationSignOutHa
 
     private bool IsLocalUrl(string url) {
         if (string.IsNullOrWhiteSpace(url)) return false;
-        return (url[0] == '/' && (url.Length == 1 || (url[1] != '/' && url[1] != '\\')))
-               || (url.Length > 1 && url[0] == '~' && url[1] == '/');
+
+        bool isAbsolutePath = url[0] == '/' &&
+                              (url.Length == 1 || (url[1] != '/' && url[1] != '\\'));
+
+        bool isAppRelativePath = url.Length > 1 &&
+                                 url[0] == '~' &&
+                                 url[1] == '/';
+
+        return isAbsolutePath || isAppRelativePath;
     }
 }
