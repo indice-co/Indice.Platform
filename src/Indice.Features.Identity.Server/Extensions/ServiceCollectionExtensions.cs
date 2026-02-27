@@ -2,7 +2,6 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.RateLimiting;
 using FluentValidation;
 using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
@@ -31,7 +30,6 @@ using Indice.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -410,31 +408,17 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     }
 
     private static IServiceCollection AddIdentityRateLimiter(this IServiceCollection services, IConfiguration configuration) {
-        var identityRateLimiterOptions = new IdentityRateLimiterOptions();
-        configuration.GetSection(IdentityRateLimiterOptions.SectionName).Bind(identityRateLimiterOptions);
-        services.AddRateLimiter(rateLimiterOptions => {
-            foreach (var endpoint in RateLimiterPolicies.All) {
-                var endpointOptions = identityRateLimiterOptions.Rules.FirstOrDefault(rule => rule.Endpoint == endpoint) ?? RateLimiterEndpointRule.Default(endpoint);
-                rateLimiterOptions.AddPolicy(endpoint, context => {
-                    if (!endpointOptions.CanLimitHttpMethod(context.Request.Method)) {
-                        return RateLimitPartition.GetNoLimiter("NoRateLimiting");
-                    }
-                    return RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: context.User.FindSubjectId() ?? context.Connection.RemoteIpAddress?.ToString() ?? context.Request.Headers.Host.ToString(),
-                        factory: _ => new FixedWindowRateLimiterOptions {
-                            PermitLimit = endpointOptions.PermitLimit.GetValueOrDefault(),
-                            QueueLimit = endpointOptions.QueueLimit.GetValueOrDefault(),
-                            QueueProcessingOrder = endpointOptions.QueueProcessingOrder.GetValueOrDefault(),
-                            Window = endpointOptions.Window.GetValueOrDefault()
-                        });
-                });
-            }
-            rateLimiterOptions.RejectionStatusCode = identityRateLimiterOptions.RejectionStatusCode.GetValueOrDefault();
-            rateLimiterOptions.OnRejected = (context, cancellationToken) => {
-                if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter)) {
-                    context.HttpContext.Items.Add("retry-after", retryAfter.TotalSeconds);
-                }
-                return ValueTask.CompletedTask;
+        services.AddRateLimiting(configuration, options => {
+            options.SectionName = "IdentityServer:RateLimiter";
+            options.AllRateLimiterPolicies = RateLimiterPolicies.All;
+            options.CustomPolicyFactory = (policyName) => policyName switch {
+                "secure-page" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
+                "forgot-password" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
+                "login" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
+                "register" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
+                "login/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                "login/mfa/onboarding/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                _ => new()
             };
         });
         return services;
