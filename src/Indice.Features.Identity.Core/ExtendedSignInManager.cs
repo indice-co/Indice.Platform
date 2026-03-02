@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Linq;
+﻿using System.Linq;
 using System.Security.Claims;
 #if NET9_0_OR_GREATER
 using Duende.IdentityModel;
@@ -90,7 +89,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         RememberExpirationType = configuration.GetIdentityOption<MfaExpirationType>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberExpirationType));
         RequireMfaWhenUserHasTrustedBrowserButExpiredPassword = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa:RequireWhen", "UserHasTrustedBrowserButExpiredPassword") ?? true;
         MfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Optional;
-        TermsLastModifiedDate = configuration.GetIdentityOption<DateTimeOffset?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.TermsLastModifiedDate));
+        TermsLastModifiedDate = configuration.GetIdentityOption<DateTimeOffset?>(nameof(IdentityOptions.SignIn), nameof(TermsLastModifiedDate));
     }
 
     private ExtendedUserManager<TUser> ExtendedUserManager => (ExtendedUserManager<TUser>)UserManager;
