@@ -4,16 +4,16 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Configuration;
 
-/// <summary>Rate limiter options for Identity Server API.</summary>
+/// <summary>Rate limiter options for Server API.</summary>
 public class RateLimiterOptions
 {
     /// <summary>Section name.</summary>
-    public string SectionName = "RateLimiter";
+    public const string SectionName = "RateLimiter";
     /// <summary>User identifier claim type.</summary>
-    public string UserIdentifierClaimType = BasicClaimTypes.Subject;
+    public string UserIdentifierClaimType { get; set; } = BasicClaimTypes.Subject;
     /// <summary>The default status code to set on the response when a request is rejected.</summary>
     public int? RejectionStatusCode { get; set; } = StatusCodes.Status429TooManyRequests;
-    /// <summary>Rate limiter fixed window options for Identity Server API.</summary>
+    /// <summary>Rate limiter fixed window options for Server API.</summary>
     public RateLimiterEndpointRule[] Rules { get; set; } = Array.Empty<RateLimiterEndpointRule>();
     /// <summary>List of all rate limiter policies. This is used to ensure that all policies are registered in the rate limiter middleware.</summary>
     public IReadOnlyList<string> AllRateLimiterPolicies { get; set; } = Array.Empty<string>();
@@ -27,7 +27,7 @@ public class RateLimiterOptions
         CustomPolicyFactory?.Invoke(policyName) ?? new();
 }
 
-/// <summary>Rate limiter fixed window options for Identity Server API.</summary>
+/// <summary>Rate limiter fixed window options for Server API.</summary>
 public class RateLimiterEndpointRule
 {
     /// <summary>The endpoint name.</summary>

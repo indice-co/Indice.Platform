@@ -41,6 +41,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
 using Indice.Features.Identity.Core.IdentityValidation;
+using Indice.AspNetCore.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -409,7 +410,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
 
     private static IServiceCollection AddIdentityRateLimiter(this IServiceCollection services, IConfiguration configuration) {
         services.AddRateLimiting(configuration, options => {
-            options.SectionName = "IdentityServer:RateLimiter";
+
             options.AllRateLimiterPolicies = RateLimiterPolicies.All;
             options.CustomPolicyFactory = (policyName) => policyName switch {
                 "secure-page" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
@@ -418,9 +419,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                 "register" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
                 "login/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
                 "login/mfa/onboarding/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
-                _ => new()
+                _ => new RateLimiterEndpointRule()
             };
-        });
+        }, "IdentityServer:RateLimiter");
         return services;
     }
 }
