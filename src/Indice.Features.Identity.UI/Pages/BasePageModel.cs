@@ -272,7 +272,7 @@ public abstract class BasePageModel : PageModel
     }
 
 
-    /// <summary>>Gets the page to redirect based on the <see cref="UserValidationRequirement"/>.</summary>
+    /// <summary>Gets the page to redirect based on the <see cref="UserValidationRequirement"/>.</summary>
     /// <param name="requirement">The current user validation requirement.</param>
     /// <param name="returnUrl">The return URL.</param>
     protected string? GetRedirectUrl(UserValidationRequirement requirement, string? returnUrl = null) => requirement.Kind switch {
