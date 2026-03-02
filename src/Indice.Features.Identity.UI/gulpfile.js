@@ -7,6 +7,7 @@ import cssbeautify from "gulp-cssbeautify";
 import npmDist from "gulp-npm-dist";
 import gulpif from 'gulp-if';
 import stripComments from 'gulp-strip-comments';
+import replace from 'gulp-replace';
 
 import cleanCSS from "gulp-clean-css";
 import stripCssComments from "gulp-strip-css-comments";
@@ -29,7 +30,8 @@ var webroot = './wwwroot/',
 task('sass-bootstrap', function () {
     return src([webroot + 'css/**/*.scss', '!' + webroot + 'css/identity.tw.scss'])
         .pipe(sass({
-            silenceDeprecations: ['legacy-js-api', 'mixed-decls', 'color-functions', 'global-builtin', 'import']
+            silenceDeprecations: ['legacy-js-api', 'mixed-decls', 'color-functions', 'global-builtin', 'import'],
+            quietDeps: true
         }).on('error', sass.logError))
         .pipe(cssbeautify())
         .pipe(dest(webroot + 'css/'));
@@ -54,6 +56,8 @@ task('copy:libs', async function () {
     }
     return src(npmDist(), { base: './node_modules', encoding: false })
         .pipe(gulpif(file => file.extname === '.js' && file.basename.endsWith('.min.js'), stripComments({ trim: true })))
+        // Replace deprecated $.parseJSON with native JSON.parse for jQuery v4 compatibility (jquery-validation-unobtrusive)
+        .pipe(gulpif(file => file.extname === '.js' && file.path.includes('jquery-validation-unobtrusive'), replace(/(\w|\$)\.parseJSON/g, 'JSON.parse')))
         .pipe(dest(lib));
 });
 
