@@ -375,7 +375,7 @@
   <data name="Email_Body_Sincerely" xml:space="preserve">
     <value>Cordiali saluti</value>
   </data>
-  <data name="Email_Body_Organization" xml:space="preserve">
+  <data name="Email_Body_Organization_Signature" xml:space="preserve">
     <value>{0}</value>
   </data>
   <data name="Email_Reset_Password_FieldLabel" xml:space="preserve">

@@ -1,21 +1,33 @@
 ﻿using System.Threading.RateLimiting;
+using Indice.Security;
 using Microsoft.AspNetCore.Http;
-using Polly;
 
-namespace Indice.Features.Identity.Server.Options;
+namespace Indice.AspNetCore.Configuration;
 
-/// <summary>Rate limiter options for Identity Server API.</summary>
-public class IdentityRateLimiterOptions
+/// <summary>Rate limiter options for Server API.</summary>
+public class RateLimiterOptions
 {
     /// <summary>Section name.</summary>
-    public const string SectionName = "IdentityServer:RateLimiter";
+    public const string SectionName = "RateLimiter";
+    /// <summary>User identifier claim type.</summary>
+    public string UserIdentifierClaimType { get; set; } = BasicClaimTypes.Subject;
     /// <summary>The default status code to set on the response when a request is rejected.</summary>
     public int? RejectionStatusCode { get; set; } = StatusCodes.Status429TooManyRequests;
-    /// <summary>Rate limiter fixed window options for Identity Server API.</summary>
+    /// <summary>Rate limiter fixed window options for Server API.</summary>
     public RateLimiterEndpointRule[] Rules { get; set; } = Array.Empty<RateLimiterEndpointRule>();
+    /// <summary>List of all rate limiter policies. This is used to ensure that all policies are registered in the rate limiter middleware.</summary>
+    public IReadOnlyList<string> AllRateLimiterPolicies { get; set; } = Array.Empty<string>();
+
+    /// <summary>Custom factory function for creating policy-specific rate limiter rules. Set this to provide custom configurations based on policy names.</summary>
+    public Func<string, RateLimiterEndpointRule>? CustomPolicyFactory { get; set; }
+
+    /// <summary>Default configuration for <see cref="RateLimiterEndpointRule"/>. Returns custom rule if <see cref="CustomPolicyFactory"/> is set, otherwise returns a default rule.</summary>
+    /// <param name="policyName">The policy name to get the configuration for.</param>
+    public RateLimiterEndpointRule GetPolicySettings(string policyName) =>
+        CustomPolicyFactory?.Invoke(policyName) ?? new();
 }
 
-/// <summary>Rate limiter fixed window options for Identity Server API.</summary>
+/// <summary>Rate limiter fixed window options for Server API.</summary>
 public class RateLimiterEndpointRule
 {
     /// <summary>The endpoint name.</summary>
@@ -29,16 +41,6 @@ public class RateLimiterEndpointRule
     /// <summary>Specifies the time window that takes in the requests. Defaults to 1s.</summary>
     public TimeSpan? Window { get; set; } = TimeSpan.FromSeconds(1);
 
-    /// <summary>Default configuration for <see cref="RateLimiterEndpointRule"/>.</summary>
-    public static RateLimiterEndpointRule Default(string? policyName = null) => policyName switch {
-        "secure-page" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
-        "forgot-password" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
-        "login" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
-        "register" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
-        "login/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
-        "login/mfa/onboarding/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
-        _ => new()
-    };
 
     /// <summary>The Http method of the endpoint to apply the rate limiter. Optional.</summary>
     public string? HttpMethod { get; set; }
