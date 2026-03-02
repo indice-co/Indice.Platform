@@ -99,10 +99,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.TryAddScoped<IdentityMessageDescriber>();
         services.TryAddScoped<CallingCodesProvider>();
         services.TryAddScoped<IUserRequirementProvider<User>, DefaultUserRequirementProvider<User>>();
+        services.AddScoped<IIdentityValidationActivity, RequiresTermsAcceptanceActivity>();
         services.AddScoped<IIdentityValidationActivity, RequiresMfaOnboardingActivity>();
         services.AddScoped<IIdentityValidationActivity, RequiresEmailVerificationActivity>();
         services.AddScoped<IIdentityValidationActivity, RequiresPhoneNumberVerificationActivity>();
-        services.AddScoped<IIdentityValidationActivity, RequiresTermsAcceptanceActivity>();
         services.AddScoped<IIdentityValidationActivity, RequiresPasswordChangeActivity>();
         return services.AddIdentity<User, Role>()
                        .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()

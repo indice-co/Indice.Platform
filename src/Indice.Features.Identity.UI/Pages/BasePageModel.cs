@@ -205,11 +205,12 @@ public abstract class BasePageModel : PageModel
     /// native clients in an OpenID Connect context, a loading page is returned to improve user experience.</remarks>
     /// <param name="signInResult">The result of the sign-in attempt, indicating the status of the user's authentication and any required
     /// additional steps.</param>
+    /// <param name="user">The logged in user</param>
     /// <param name="returnUrl">The URL to redirect the user to after a successful login or required authentication step. Must not be null or
     /// empty.</param>
     /// <returns>An <see cref="IActionResult"/> that redirects the user to the next step in the authentication flow, such as
     /// multi-factor authentication, email validation, or the specified return URL.</returns>
-    protected async Task<IActionResult> TryLogin(Microsoft.AspNetCore.Identity.SignInResult signInResult, string returnUrl) {
+    protected async Task<IActionResult> TryLogin(Microsoft.AspNetCore.Identity.SignInResult signInResult, User user, string returnUrl) {
         if (string.IsNullOrEmpty(returnUrl)) {
             returnUrl = "/";
         }
@@ -219,7 +220,10 @@ public abstract class BasePageModel : PageModel
         }
 
         if (signInResult.RequiresValidation()) {
-            return RedirectToPage("/AddEmail", new { returnUrl });
+            var userStateProvider = HttpContext.RequestServices.GetRequiredService<IUserRequirementProvider<User>>();
+            var requirement = await userStateProvider.GetNextAsync(HttpContext, user);
+            var redirectUrl = GetRedirectUrl(requirement, returnUrl);
+            return Redirect(redirectUrl!);
         }
         // Check if external login is in the context of an OIDC request.
         var context = await InteractionService.GetAuthorizationContextAsync(returnUrl);
@@ -266,4 +270,13 @@ public abstract class BasePageModel : PageModel
 
         return Redirect(url);
     }
+
+
+    /// <summary>>Gets the page to redirect based on the <see cref="UserValidationRequirement"/>.</summary>
+    /// <param name="requirement">The current user validation requirement.</param>
+    /// <param name="returnUrl">The return URL.</param>
+    protected string? GetRedirectUrl(UserValidationRequirement requirement, string? returnUrl = null) => requirement.Kind switch {
+        UserActivityRequirementKind.None => IsValidReturnUrl(returnUrl) ? returnUrl : "/",
+        _ => Url.PageLink(requirement.PageName, values: new { returnUrl })
+    };
 }
