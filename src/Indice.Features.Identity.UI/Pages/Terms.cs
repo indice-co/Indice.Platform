@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Indice.AspNetCore.Filters;
+﻿using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.AspNetCore.Identity;
@@ -19,7 +18,7 @@ public abstract class BaseTermsModel : BaseArticlePageModel
     public bool? Raw { get; set; }
 
     /// <summary>Last update date of the terms and conditions.</summary>
-    public DateTime? LastUpdateDate { get; set; }
+    public DateTimeOffset? LastUpdateDate { get; set; }
 
     /// <summary>Terms and conditions page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
@@ -27,10 +26,10 @@ public abstract class BaseTermsModel : BaseArticlePageModel
             return await ExternalArticle(UiOptions.TermsUrl, Raw);
         }
         var configuration = HttpContext.RequestServices.GetRequiredService<IConfiguration>();
-        var latestTermsReleaseDate = configuration.GetIdentityOption<string?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.LatestTermsReleaseDate));
-        if (!string.IsNullOrEmpty(latestTermsReleaseDate) && DateTime.TryParseExact(latestTermsReleaseDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var releaseDate)) {
-            LastUpdateDate = releaseDate;
-            Response.Headers["terms-release-date"] = releaseDate.ToString("o"); // ISO 8601 format
+        var latestTermsReleaseDate = configuration.GetIdentityOption<DateTimeOffset?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.TermsLastModifiedDate));
+        if (latestTermsReleaseDate.HasValue) {
+            LastUpdateDate = latestTermsReleaseDate;
+            Response.Headers["terms-release-date"] = latestTermsReleaseDate.Value.ToString("o"); // ISO 8601 format
         }
         return await Article("Terms of Service", "~/legal/terms-of-service.md", Raw);
     }
