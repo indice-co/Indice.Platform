@@ -49,6 +49,12 @@ public class HandlebarParsingTests
     "Email",
     "Email: Hellooo\n\n&amp;\n\nGoodbye")]
 
+    [InlineData(
+    "{\"sms\":{\"title\":\"incharge - Ολοκλήρωση Φόρτισης\",\"body\":\"Η φόρτιση στον σταθμο 50 €.\"},\"email\":{\"title\":\"Test email encoding\",\"body\":\"Hellooo\\n\\n&\\n\\nGoodbye\"}}",
+    "sms: {{data.sms.body}}",
+    "sms",
+    "sms: Η φόρτιση στον σταθμο 50 €.")]
+
     [Theory]
     public static void TestHandlebarsTextEncoder(string data, string template, string channel, string expected) {
         var handlebars = Handlebars.Create();
