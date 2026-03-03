@@ -129,18 +129,16 @@ public static class GovGrExtensions
         options.SaveTokens = true;
         options.CallbackPath = new PathString("/signin-govgr");
         options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.UserInformationEndpoint = options.UserInfoEndpoint;
+        //options.UserInformationEndpoint = options.UserInfoEndpoint;
         options.UsePkce = false;
         options.EnableFederatedLogout = true;
-    }
-    private static void SetGovGrEndpoints(GovGrOptions options) {
-        var baseOptions = (OAuthOptions)options;
         options.Scope.Clear();
-        foreach (var scope in options.Scopes) {
-            options.Scope.Add(scope);
-        }
-        baseOptions.AuthorizationEndpoint = options.AuthorizationEndpoint;
-        baseOptions.TokenEndpoint = options.TokenEndpoint;
-        baseOptions.UserInformationEndpoint = options.UserInfoEndpoint;
+        options.Scope.Add(GovGrScope.Read);
+    }
+
+    private static void SetGovGrEndpoints(GovGrOptions options) {
+        options.AuthorizationEndpoint = $"{options.Authority}/oauth/authorize";
+        options.TokenEndpoint = $"{options.Authority}/oauth/token";
+        options.UserInformationEndpoint = $"{options.Authority}/userinfo?format=xml";
     }
 }

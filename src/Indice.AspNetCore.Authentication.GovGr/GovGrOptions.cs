@@ -60,26 +60,15 @@ public class GovGrOptions : OAuthOptions {
     private const string FQDN_PROD = "oauth2.gsis.gr";
     /// <summary>Represents the environment. Valid options are <em>production</em>, <em>staging</em>, <em>development</em> &amp; <em>mock</em>. Defaults to <b>production</b>. </summary>
     public string? Environment { get; set; }
-
-    /// <summary>Default list of scopes needed to access the kyc data. <see cref="GovGrKycScopes"/></summary>
-    public List<string> Scopes { get; } = [GovGrScope.Read];
-
     /// <summary>Check if in production</summary>
     public bool IsProduction => string.IsNullOrWhiteSpace(Environment) || "Production".Equals(Environment, StringComparison.OrdinalIgnoreCase);
     /// <summary>Check if in staging/stage</summary>
     public bool IsStaging => "Staging".Equals(Environment, StringComparison.OrdinalIgnoreCase) || "Stage".Equals(Environment, StringComparison.OrdinalIgnoreCase) || "test".Equals(Environment, StringComparison.OrdinalIgnoreCase);
-
     /// <summary> Indicates whether federated logout is enabled.</summary>
     public bool EnableFederatedLogout { get; set; } = true;
     internal string BaseDomain => IsStaging ? FQDN_STAGE : FQDN_PROD;
     /// <summary>The authority.</summary>
     public string Authority => $"https://{BaseDomain}/oauth2server";
-    /// <summary>The default endpoint used to perform gov.gr authentication.</summary>
-    public new string AuthorizationEndpoint => $"{Authority}/oauth/authorize";
-    /// <summary>The OAuth endpoint used to exchange access tokens.</summary>
-    public new string TokenEndpoint => $"{Authority}/oauth/token";
-    /// <summary>The OAuth endpoint used to retrieve user information.</summary>
-    public string UserInfoEndpoint => $"{Authority}/userinfo?format=xml";
     /// <summary>The endpoint used to perform federated logout on the GovGr identity provider.</summary>
     public string LogoutEndpoint => $"{Authority}/logout";
 }
