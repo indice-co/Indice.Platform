@@ -163,9 +163,9 @@
 </ng-template>
 <ng-template let-row="row" let-value="value" #eventTypeCellTemplate>
     <div *ngIf="value">
-        <span *ngIf="row.succeeded" class="badge border text-muted bg-light m-r-10" [title]="'Succeeded Attempt'"> <i class="dot bg-success"></i> {{ value }}</span>
-        <span *ngIf="!row.succeeded" class="badge border text-muted bg-light m-r-10" [title]="'Failed Attempt'"><i class="dot bg-danger"></i>{{ value }}</span>
-        <span *ngIf="row.review" class="badge border text-muted bg-light" [title]="'Marked for Review'"><i class="dot bg-warning"></i>{{ value }}</span>
+        <span *ngIf="row.succeeded && !row.review" class="badge border text-muted bg-light m-r-10" [title]="'Succeeded Attempt'"> <i class="dot bg-success"></i> {{ value }}</span>
+        <span *ngIf="!row.succeeded && !row.review" class="badge border text-muted bg-light m-r-10" [title]="'Failed Attempt'"><i class="dot bg-danger"></i>{{ value }}</span>
+        <span *ngIf="row.succeeded && row.review" class="badge border text-muted bg-light" [title]="'Marked for Review'"><i class="dot bg-warning"></i>{{ value }}</span>
         <img *ngIf="row.extraData.provider && row.extraData.provider !== 'local'" class="m-1" height="14" alt="{{row.extraData.provider}} logo" title="{{row.extraData.provider}}" src="assets/img/idps/{{row.extraData.provider}}.svg" />
     </div>
     <span *ngIf="!value"> - </span>
