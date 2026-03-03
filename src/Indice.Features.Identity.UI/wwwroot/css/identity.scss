@@ -206,6 +206,9 @@ main {
 a{
     font-weight: bold;
 }
+.terms-last-update {
+    text-align:right;
+}
 
 @import 'consent';
 @import 'error40X';

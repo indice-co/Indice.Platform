@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using System.Globalization;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -33,7 +34,7 @@ public interface IIdentityValidationActivity
 /// <summary>
 /// The request context for the filter chain of Validation activities. <seealso cref="IIdentityValidationActivity"/>.
 /// </summary>
-public class UserValidationActivityContext(User user, HttpContext httpContext) 
+public class UserValidationActivityContext(User user, HttpContext httpContext)
 {
     /// <summary>The user to validate</summary>
     public User User { get; } = user;
@@ -132,7 +133,7 @@ public class RequiresPhoneNumberVerificationActivity : IdentityValidationActivit
         await ValueTask.CompletedTask;
         var configuration = activityContext.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         var requirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber));
-        
+
         if (activityContext.User.PhoneNumberConfirmed == false && requirePostSignInConfirmedPhoneNumber) {
             return new UserValidationRequirement(UserActivityRequirementKind.RequiresPhoneNumberVerification, "/AddPhone");
         }
@@ -147,12 +148,23 @@ public class RequiresTermsAcceptanceActivity : IdentityValidationActivityBase
 {
     /// <inheritdoc/>
     protected override async ValueTask<UserValidationRequirement?> GetResultAsync(UserValidationActivityContext activityContext) {
-        await ValueTask.CompletedTask; 
-        
+        await ValueTask.CompletedTask;
+
         var configuration = activityContext.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         var requirePostSignInAcceptedTerms = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInAcceptedTerms));
+
+        var termsLastModifiedDate = configuration.GetIdentityOption<DateTimeOffset?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.TermsLastModifiedDate));
+
         var hasAcceptedTerms = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTerms).Select(x => bool.TrueString.Equals(x.ClaimValue, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-        if (!hasAcceptedTerms && requirePostSignInAcceptedTerms) {
+        var acceptedTermsDateValue = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTermsDate).Select(x => x.ClaimValue).FirstOrDefault();
+        DateTimeOffset? acceptedTermsDate = null;
+        if (!string.IsNullOrEmpty(acceptedTermsDateValue) && DateTimeOffset.TryParseExact(acceptedTermsDateValue, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var termsDate)) {
+            acceptedTermsDate = termsDate;
+        }
+
+        if (requirePostSignInAcceptedTerms &&
+            (!hasAcceptedTerms || !acceptedTermsDate.HasValue ||
+            (termsLastModifiedDate.HasValue && acceptedTermsDate.Value < termsLastModifiedDate.Value))) {
             return new UserValidationRequirement(UserActivityRequirementKind.RequiresAcceptanceOfTerms, "/AcceptTerms");
         }
         return null;

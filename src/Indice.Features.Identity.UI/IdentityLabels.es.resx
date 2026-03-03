@@ -1104,4 +1104,7 @@
   <data name="Profile_FullName" xml:space="preserve">
     <value>Nombre completo</value>
   </data>
+  <data name="AcceptTerms_LastUpdated" xml:space="preserve">
+    <value>Última actualización</value>
+  </data>
 </root>

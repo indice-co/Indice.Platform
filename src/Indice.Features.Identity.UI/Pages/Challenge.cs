@@ -122,7 +122,7 @@ public abstract class BaseChallengeModel : BasePageModel
         if (localeClaim is null) {
             await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
         }
-        return await TryLogin(result, returnUrl);
+        return await TryLogin(result, user, returnUrl);
     }
 
     /// <summary>This is called whenever a user is not found by an associated external identity provider.</summary>
