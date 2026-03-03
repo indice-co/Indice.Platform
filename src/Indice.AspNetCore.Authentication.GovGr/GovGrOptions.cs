@@ -56,10 +56,26 @@ public class GovGrOptionsKyc
 /// <summary>Configuration options for GovGr OpenID Connect.</summary>
 public class GovGrOptions : OAuthOptions {
 
+    /// <summary>
+    /// Constructs a new instance of GovGrOptions.
+    /// </summary>
+    public GovGrOptions() {
+        Environment = "Production";
+    }
+
     private const string FQDN_STAGE = "test.gsis.gr";
     private const string FQDN_PROD = "oauth2.gsis.gr";
+    
+    /// <summary>Represents the environment.</summary>
+    private string? _environment;
     /// <summary>Represents the environment. Valid options are <em>production</em>, <em>staging</em>, <em>development</em> &amp; <em>mock</em>. Defaults to <b>production</b>. </summary>
-    public string? Environment { get; set; }
+    public string? Environment {
+        get => _environment;
+        set {
+            _environment = value;
+            UpdateEndpoints();
+        }
+    }
     /// <summary>Check if in production</summary>
     public bool IsProduction => string.IsNullOrWhiteSpace(Environment) || "Production".Equals(Environment, StringComparison.OrdinalIgnoreCase);
     /// <summary>Check if in staging/stage</summary>
@@ -71,4 +87,9 @@ public class GovGrOptions : OAuthOptions {
     public string Authority => $"https://{BaseDomain}/oauth2server";
     /// <summary>The endpoint used to perform federated logout on the GovGr identity provider.</summary>
     public string LogoutEndpoint => $"{Authority}/logout";
+    private void UpdateEndpoints() {
+        AuthorizationEndpoint = $"{Authority}/oauth/authorize";
+        TokenEndpoint = $"{Authority}/oauth/token";
+        UserInformationEndpoint = $"{Authority}/userinfo?format=xml";
+    }
 }

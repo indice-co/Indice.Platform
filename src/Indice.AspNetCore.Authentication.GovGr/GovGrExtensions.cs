@@ -104,7 +104,6 @@ public static class GovGrExtensions
         builder.AddOAuth<GovGrOptions, GovGrHandler>(authenticationScheme, displayName, (options) => {
             ApplyGovGrDefaults(options, authenticationScheme);
             configureOptions?.Invoke(options);
-            SetGovGrEndpoints(options);
         });
         builder.Services.AddHttpClient(authenticationScheme, (sp, httpClient) => {
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Microsoft ASP.NET Core OAuth handler");
@@ -129,7 +128,6 @@ public static class GovGrExtensions
         options.SaveTokens = true;
         options.CallbackPath = new PathString("/signin-govgr");
         options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        //options.UserInformationEndpoint = options.UserInfoEndpoint;
         options.UsePkce = false;
         options.EnableFederatedLogout = true;
         options.Scope.Clear();
