@@ -74,3 +74,13 @@
 input-widget>div>input {
     margin-bottom: 10px;
 }
+
+
+.dot {
+    margin: auto 4px auto 0;
+    height: 6px;
+    width: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    content: "";
+}
