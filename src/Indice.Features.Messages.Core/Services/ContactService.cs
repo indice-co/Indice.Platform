@@ -398,11 +398,15 @@ public class ContactService : IContactService
             try {
                 await DbContext.ContactPreferences.AddAsync(recipientPreferences);
                 await DbContext.SaveChangesAsync();
+                return;
+            } catch (DbUpdateException ex) when (ex.InnerException != null && ex.InnerException.Message.Contains("Cannot insert duplicate key row")) {
+                recipientPreferences = await DbContext.ContactPreferences
+                                           .Include(x => x.CommunicationOptions)
+                                           .ThenInclude(up => up.MessageType)
+                                           .SingleAsync(x => x.RecipientId == recipientId);
+            } catch {
+                throw;
             }
-            catch (DbUpdateException) {
-
-            }
-            return;
         }
 
         recipientPreferences.Locale = request.Locale;
@@ -443,8 +447,7 @@ public class ContactService : IContactService
             try {
                 await DbContext.ContactPreferences.AddAsync(recipientPreferences);
                 await DbContext.SaveChangesAsync();
-            } 
-            catch (DbUpdateException) {
+            } catch (DbUpdateException) {
 
             }
             return;
