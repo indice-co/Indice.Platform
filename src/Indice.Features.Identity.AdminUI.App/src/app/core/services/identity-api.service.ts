@@ -151,7 +151,7 @@ export interface IIdentityApiService {
      * @param password (optional) 
      * @return OK
      */
-    uploadCertificate(clientId: string, file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfo>;
+    uploadCertificate(clientId: string, file?: FileParameter | null | undefined, password?: string | null | undefined): Observable<SecretInfo>;
     /**
      * Downloads a client secret if it is a certificate.
      * @return OK
@@ -218,7 +218,7 @@ export interface IIdentityApiService {
      * @param password (optional) 
      * @return OK
      */
-    getCertificateMetadata(file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfoBase>;
+    getCertificateMetadata(file?: FileParameter | null | undefined, password?: string | null | undefined): Observable<SecretInfoBase>;
     /**
      * Displays blog posts from the official IdentityServer blog.
      * @param page (optional) 
@@ -306,7 +306,7 @@ export interface IIdentityApiService {
      * @param clientId (optional) 
      * @return OK
      */
-    getConsents(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, consentType?: UserConsentType | undefined, clientId?: string | undefined): Observable<UserClientInfoResultSet>;
+    getConsents(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, consentType?: ConsentType | undefined, clientId?: string | undefined): Observable<UserClientInfoResultSet>;
     /**
      * Revokes all a user's consents and grants for all clients.
      * @return No Content
@@ -367,7 +367,7 @@ export interface IIdentityApiService {
      * @param viewPort (optional) 
      * @return No Content
      */
-    saveMyPicture(file?: FileParameter | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void>;
+    saveMyPicture(file?: FileParameter | null | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void>;
     /**
      * Clear profile picture from the current user.
      * @return No Content
@@ -741,6 +741,11 @@ export interface IIdentityApiService {
      */
     deleteUserExternalLogin(userId: string, provider: string, providerKey: string): Observable<void>;
     /**
+     * Removes the last password for the given user.
+     * @return No Content
+     */
+    removePassword(userId: string): Observable<void>;
+    /**
      * Get user's profile picture.
      * @param size (optional) 
      * @param d (optional) 
@@ -755,7 +760,7 @@ export interface IIdentityApiService {
      * @param viewPort (optional) 
      * @return No Content
      */
-    saveUserPicture(userId: string, file?: FileParameter | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void>;
+    saveUserPicture(userId: string, file?: FileParameter | null | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void>;
     /**
      * Clear profile picture from the given user.
      * @return No Content
@@ -2614,7 +2619,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param password (optional) 
      * @return OK
      */
-    uploadCertificate(clientId: string, file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfo> {
+    uploadCertificate(clientId: string, file?: FileParameter | null | undefined, password?: string | null | undefined): Observable<SecretInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/certificates";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -2622,9 +2627,7 @@ export class IdentityApiService implements IIdentityApiService {
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file === null || file === undefined)
-            throw new globalThis.Error("The parameter 'file' cannot be null.");
-        else
+        if (file !== null && file !== undefined)
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
         if (password !== null && password !== undefined)
             content_.append("password", password.toString());
@@ -3672,14 +3675,12 @@ export class IdentityApiService implements IIdentityApiService {
      * @param password (optional) 
      * @return OK
      */
-    getCertificateMetadata(file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfoBase> {
+    getCertificateMetadata(file?: FileParameter | null | undefined, password?: string | null | undefined): Observable<SecretInfoBase> {
         let url_ = this.baseUrl + "/api/clients/certificates";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file === null || file === undefined)
-            throw new globalThis.Error("The parameter 'file' cannot be null.");
-        else
+        if (file !== null && file !== undefined)
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
         if (password !== null && password !== undefined)
             content_.append("password", password.toString());
@@ -4892,7 +4893,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param clientId (optional) 
      * @return OK
      */
-    getConsents(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, consentType?: UserConsentType | undefined, clientId?: string | undefined): Observable<UserClientInfoResultSet> {
+    getConsents(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, consentType?: ConsentType | undefined, clientId?: string | undefined): Observable<UserClientInfoResultSet> {
         let url_ = this.baseUrl + "/api/my/account/grants?";
         if (page === null)
             throw new globalThis.Error("The parameter 'page' cannot be null.");
@@ -5729,14 +5730,12 @@ export class IdentityApiService implements IIdentityApiService {
      * @param viewPort (optional) 
      * @return No Content
      */
-    saveMyPicture(file?: FileParameter | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void> {
+    saveMyPicture(file?: FileParameter | null | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/my/account/picture";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file === null || file === undefined)
-            throw new globalThis.Error("The parameter 'file' cannot be null.");
-        else
+        if (file !== null && file !== undefined)
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
         if (scale !== null && scale !== undefined)
             content_.append("scale", scale.toString());
@@ -10972,6 +10971,89 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Removes the last password for the given user.
+     * @return No Content
+     */
+    removePassword(userId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/users/{userId}/password";
+        if (userId === undefined || userId === null)
+            throw new globalThis.Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRemovePassword(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRemovePassword(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRemovePassword(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Get user's profile picture.
      * @param size (optional) 
      * @param d (optional) 
@@ -11068,7 +11150,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param viewPort (optional) 
      * @return No Content
      */
-    saveUserPicture(userId: string, file?: FileParameter | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void> {
+    saveUserPicture(userId: string, file?: FileParameter | null | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/picture";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11076,9 +11158,7 @@ export class IdentityApiService implements IIdentityApiService {
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file === null || file === undefined)
-            throw new globalThis.Error("The parameter 'file' cannot be null.");
-        else
+        if (file !== null && file !== undefined)
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
         if (scale !== null && scale !== undefined)
             content_.append("scale", scale.toString());
@@ -12504,7 +12584,7 @@ export interface ICallingCode {
 }
 
 export class CertificateUploadRequest implements ICertificateUploadRequest {
-    file!: string;
+    file!: string | undefined;
     password?: string | undefined;
 
     constructor(data?: ICertificateUploadRequest) {
@@ -12539,7 +12619,7 @@ export class CertificateUploadRequest implements ICertificateUploadRequest {
 }
 
 export interface ICertificateUploadRequest {
-    file: string;
+    file: string | undefined;
     password?: string | undefined;
 }
 
@@ -13111,7 +13191,7 @@ export interface IClientThemeConfigRequest {
 }
 
 export class ClientThemeConfigResponse implements IClientThemeConfigResponse {
-    schema?: any;
+    schema?: any | undefined;
     data?: DefaultClientThemeConfig;
 
     constructor(data?: IClientThemeConfigResponse) {
@@ -13146,7 +13226,7 @@ export class ClientThemeConfigResponse implements IClientThemeConfigResponse {
 }
 
 export interface IClientThemeConfigResponse {
-    schema?: any;
+    schema?: any | undefined;
     data?: DefaultClientThemeConfig;
 }
 
@@ -14081,7 +14161,7 @@ export class DeviceInfo implements IDeviceInfo {
     trustActivationDate?: Date | undefined;
     isTrusted?: boolean;
     canActivateDeviceTrust?: boolean;
-    data?: any;
+    data?: any | undefined;
     clientType?: DeviceClientType;
     mfaSessionExpirationDate?: Date | undefined;
     blocked?: boolean;
@@ -14181,7 +14261,7 @@ export interface IDeviceInfo {
     trustActivationDate?: Date | undefined;
     isTrusted?: boolean;
     canActivateDeviceTrust?: boolean;
-    data?: any;
+    data?: any | undefined;
     clientType?: DeviceClientType;
     mfaSessionExpirationDate?: Date | undefined;
     blocked?: boolean;
@@ -14674,7 +14754,7 @@ export interface IIdentityResourceInfoResultSet {
 }
 
 export class ImageUploadRequest implements IImageUploadRequest {
-    file!: string;
+    file!: string | undefined;
     scale?: number | undefined;
     translateX?: number | undefined;
     translateY?: number | undefined;
@@ -14718,7 +14798,7 @@ export class ImageUploadRequest implements IImageUploadRequest {
 }
 
 export interface IImageUploadRequest {
-    file: string;
+    file: string | undefined;
     scale?: number | undefined;
     translateX?: number | undefined;
     translateY?: number | undefined;
@@ -15085,7 +15165,7 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
     model?: string | undefined;
     osVersion?: string | undefined;
     clientType?: DeviceClientType;
-    data?: any;
+    data?: any | undefined;
 
     constructor(data?: IRegisterDeviceRequest) {
         if (data) {
@@ -15149,7 +15229,7 @@ export interface IRegisterDeviceRequest {
     model?: string | undefined;
     osVersion?: string | undefined;
     clientType?: DeviceClientType;
-    data?: any;
+    data?: any | undefined;
 }
 
 export class RegisterRequest implements IRegisterRequest {
@@ -15602,7 +15682,7 @@ export class SignInLogEntry implements ISignInLogEntry {
     countryIsoCode?: string | undefined;
     deviceId?: string | undefined;
     grantType?: string | undefined;
-    coordinates?: string;
+    coordinates?: string | undefined;
     extraData?: SignInLogEntryExtraData;
 
     constructor(data?: ISignInLogEntry) {
@@ -15700,7 +15780,7 @@ export interface ISignInLogEntry {
     countryIsoCode?: string | undefined;
     deviceId?: string | undefined;
     grantType?: string | undefined;
-    coordinates?: string;
+    coordinates?: string | undefined;
     extraData?: SignInLogEntryExtraData;
 }
 
@@ -15710,6 +15790,7 @@ export class SignInLogEntryDevice implements ISignInLogEntryDevice {
     userAgent?: string;
     displayName?: string;
     os?: string | undefined;
+    uaFamily?: string;
 
     constructor(data?: ISignInLogEntryDevice) {
         if (data) {
@@ -15727,6 +15808,7 @@ export class SignInLogEntryDevice implements ISignInLogEntryDevice {
             this.userAgent = _data["userAgent"];
             this.displayName = _data["displayName"];
             this.os = _data["os"];
+            this.uaFamily = _data["uaFamily"];
         }
     }
 
@@ -15744,6 +15826,7 @@ export class SignInLogEntryDevice implements ISignInLogEntryDevice {
         data["userAgent"] = this.userAgent;
         data["displayName"] = this.displayName;
         data["os"] = this.os;
+        data["uaFamily"] = this.uaFamily;
         return data;
     }
 }
@@ -15754,6 +15837,7 @@ export interface ISignInLogEntryDevice {
     userAgent?: string;
     displayName?: string;
     os?: string | undefined;
+    uaFamily?: string;
 }
 
 export class SignInLogEntryExtraData implements ISignInLogEntryExtraData {
@@ -15991,7 +16075,7 @@ export class SignInLogEntryUserDevice implements ISignInLogEntryUserDevice {
     isPushNotificationsEnabled?: boolean;
     supportsPinLogin?: boolean;
     supportsFingerprintLogin?: boolean;
-    data?: any;
+    data?: any | undefined;
     tags?: string[] | undefined;
     requiresPassword?: boolean;
     isTrusted?: boolean;
@@ -16085,7 +16169,7 @@ export interface ISignInLogEntryUserDevice {
     isPushNotificationsEnabled?: boolean;
     supportsPinLogin?: boolean;
     supportsFingerprintLogin?: boolean;
-    data?: any;
+    data?: any | undefined;
     tags?: string[] | undefined;
     requiresPassword?: boolean;
     isTrusted?: boolean;
@@ -16663,7 +16747,7 @@ export class TotpRequest implements ITotpRequest {
     channel?: TotpDeliveryChannel;
     purpose?: string | undefined;
     message?: string | undefined;
-    data?: any;
+    data?: any | undefined;
     classification?: string | undefined;
     subject?: string | undefined;
     authenticationMethod?: string | undefined;
@@ -16716,7 +16800,7 @@ export interface ITotpRequest {
     channel?: TotpDeliveryChannel;
     purpose?: string | undefined;
     message?: string | undefined;
-    data?: any;
+    data?: any | undefined;
     classification?: string | undefined;
     subject?: string | undefined;
     authenticationMethod?: string | undefined;
@@ -17321,7 +17405,7 @@ export class UpdateDeviceRequest implements IUpdateDeviceRequest {
     pnsHandle?: string | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
-    data?: any;
+    data?: any | undefined;
 
     constructor(data?: IUpdateDeviceRequest) {
         if (data) {
@@ -17376,7 +17460,7 @@ export interface IUpdateDeviceRequest {
     pnsHandle?: string | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
-    data?: any;
+    data?: any | undefined;
 }
 
 export class UpdateIdentityResourceRequest implements IUpdateIdentityResourceRequest {
@@ -17923,15 +18007,6 @@ export interface IUserClientInfoResultSet {
     items?: UserClientInfo[];
 }
 
-export enum UserConsentType {
-    AuthorizationCode = "AuthorizationCode",
-    ReferenceToken = "ReferenceToken",
-    RefreshToken = "RefreshToken",
-    UserConsent = "UserConsent",
-    DeviceCode = "DeviceCode",
-    UserCode = "UserCode",
-}
-
 export class UserGrantInfo implements IUserGrantInfo {
     sessionId?: string | undefined;
     type?: string;
@@ -18422,6 +18497,15 @@ export class ValidateUserNameRequest implements IValidateUserNameRequest {
 
 export interface IValidateUserNameRequest {
     userName: string;
+}
+
+export enum ConsentType {
+    AuthorizationCode = "AuthorizationCode",
+    ReferenceToken = "ReferenceToken",
+    RefreshToken = "RefreshToken",
+    UserConsent = "UserConsent",
+    DeviceCode = "DeviceCode",
+    UserCode = "UserCode",
 }
 
 export interface FileResponse {

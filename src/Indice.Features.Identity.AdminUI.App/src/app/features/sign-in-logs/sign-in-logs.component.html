@@ -241,5 +241,27 @@
     </div>
     <span *ngIf="!value"> - </span>
 </ng-template>
-
+<ng-template let-row="row"
+             let-value="value"
+             let-uaFamily="row.extraData.device.uaFamily?.toLowerCase()"
+             let-platform="row.extraData.device.platform?.toLowerCase()"
+             #deviceTemplate>
+    <span class="badge text-muted border bg-light m-1" [title]="value">
+        <i class="fa-brands"
+           [class.fa-firefox-browser]="uaFamily === 'firefox'"
+           [class.fa-safari]="uaFamily === 'safari'"
+           [class.fa-edge]="uaFamily === 'edge'"
+           [class.fa-chrome]="uaFamily === 'chrome'"
+           [class.fa-brave]="uaFamily === 'brave'"
+           [class.fa-opera]="uaFamily === 'opera'"
+           [class.fa-tor-browser]="uaFamily === 'tor'"></i>
+        <i class="fa-brands"
+           [class.fa-linux]="platform === 'linux'"
+           [class.fa-ubuntu]="platform === 'ubuntu'"
+           [class.fa-windows]="platform === 'windows'"
+           [class.fa-apple]="uaFamily === 'ios' || uaFamily === 'macos'"
+           [class.fa-android]="uaFamily === 'android'"></i>
+        {{ value }}
+    </span>
+</ng-template>
 

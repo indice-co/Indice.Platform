@@ -22,6 +22,7 @@ public class UserAgent
         DisplayName = $"{FormatUserAgentInfo(clientInfo?.UA)} on {Os}".Trim();
         DevicePlatform = DecideDevicePlatform(Os);
         DeviceModel = FormatDeviceInfo(clientInfo?.Device);
+        UaFamily = clientInfo?.UA.Family ?? "Unknown";
     }
     /// <summary>
     /// Creates and initializes a UAParser <see cref="Parser"/> instance from the embedded <c>regexes.yaml</c> resource.
@@ -50,6 +51,8 @@ public class UserAgent
     public string DisplayName { get; }
     /// <summary>The operating system name.</summary>
     public string? Os { get; }
+    /// <summary>The httpclient used to serve this request. Can be a browser app or a custom native application</summary>
+    public string UaFamily { get; set; } = null!;
     /// <summary>The raw value of the header.</summary>
     public string HeaderValue { get; }
 
