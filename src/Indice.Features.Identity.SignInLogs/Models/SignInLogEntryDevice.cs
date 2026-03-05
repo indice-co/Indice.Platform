@@ -16,5 +16,5 @@ public class SignInLogEntryDevice
     /// <summary>The operating system name.</summary>
     public string? Os { get; set; }
     /// <summary>The httpclient used to serve this request. Can be a browser app or a custom native application</summary>
-    public string UaFamily { get; set; } = null!;
+    public string UserAgentFamily { get; set; } = null!;
 }

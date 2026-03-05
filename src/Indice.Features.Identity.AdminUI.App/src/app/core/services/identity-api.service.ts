@@ -14149,6 +14149,7 @@ export class DeviceInfo implements IDeviceInfo {
     deviceId?: string | undefined;
     platform?: DevicePlatform;
     name?: string | undefined;
+    userAgentFamily?: string | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
     dateCreated?: Date;
@@ -14182,6 +14183,7 @@ export class DeviceInfo implements IDeviceInfo {
             this.deviceId = _data["deviceId"];
             this.platform = _data["platform"];
             this.name = _data["name"];
+            this.userAgentFamily = _data["userAgentFamily"];
             this.model = _data["model"];
             this.osVersion = _data["osVersion"];
             this.dateCreated = _data["dateCreated"] ? new Date(_data["dateCreated"].toString()) : undefined as any;
@@ -14219,6 +14221,7 @@ export class DeviceInfo implements IDeviceInfo {
         data["deviceId"] = this.deviceId;
         data["platform"] = this.platform;
         data["name"] = this.name;
+        data["userAgentFamily"] = this.userAgentFamily;
         data["model"] = this.model;
         data["osVersion"] = this.osVersion;
         data["dateCreated"] = this.dateCreated ? this.dateCreated.toISOString() : undefined as any;
@@ -14249,6 +14252,7 @@ export interface IDeviceInfo {
     deviceId?: string | undefined;
     platform?: DevicePlatform;
     name?: string | undefined;
+    userAgentFamily?: string | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
     dateCreated?: Date;
@@ -15160,6 +15164,7 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
     deviceId!: string;
     pnsHandle?: string | undefined;
     name?: string | undefined;
+    userAgentFamily?: string | undefined;
     platform!: DevicePlatform;
     tags?: string[] | undefined;
     model?: string | undefined;
@@ -15181,6 +15186,7 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
             this.deviceId = _data["deviceId"];
             this.pnsHandle = _data["pnsHandle"];
             this.name = _data["name"];
+            this.userAgentFamily = _data["userAgentFamily"];
             this.platform = _data["platform"];
             if (Array.isArray(_data["tags"])) {
                 this.tags = [] as any;
@@ -15206,6 +15212,7 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
         data["deviceId"] = this.deviceId;
         data["pnsHandle"] = this.pnsHandle;
         data["name"] = this.name;
+        data["userAgentFamily"] = this.userAgentFamily;
         data["platform"] = this.platform;
         if (Array.isArray(this.tags)) {
             data["tags"] = [];
@@ -15224,6 +15231,7 @@ export interface IRegisterDeviceRequest {
     deviceId: string;
     pnsHandle?: string | undefined;
     name?: string | undefined;
+    userAgentFamily?: string | undefined;
     platform: DevicePlatform;
     tags?: string[] | undefined;
     model?: string | undefined;
@@ -15790,7 +15798,7 @@ export class SignInLogEntryDevice implements ISignInLogEntryDevice {
     userAgent?: string;
     displayName?: string;
     os?: string | undefined;
-    uaFamily?: string;
+    userAgentFamily?: string;
 
     constructor(data?: ISignInLogEntryDevice) {
         if (data) {
@@ -15808,7 +15816,7 @@ export class SignInLogEntryDevice implements ISignInLogEntryDevice {
             this.userAgent = _data["userAgent"];
             this.displayName = _data["displayName"];
             this.os = _data["os"];
-            this.uaFamily = _data["uaFamily"];
+            this.userAgentFamily = _data["userAgentFamily"];
         }
     }
 
@@ -15826,7 +15834,7 @@ export class SignInLogEntryDevice implements ISignInLogEntryDevice {
         data["userAgent"] = this.userAgent;
         data["displayName"] = this.displayName;
         data["os"] = this.os;
-        data["uaFamily"] = this.uaFamily;
+        data["userAgentFamily"] = this.userAgentFamily;
         return data;
     }
 }
@@ -15837,7 +15845,7 @@ export interface ISignInLogEntryDevice {
     userAgent?: string;
     displayName?: string;
     os?: string | undefined;
-    uaFamily?: string;
+    userAgentFamily?: string;
 }
 
 export class SignInLogEntryExtraData implements ISignInLogEntryExtraData {

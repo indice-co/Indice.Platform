@@ -243,24 +243,26 @@
 </ng-template>
 <ng-template let-row="row"
              let-value="value"
-             let-uaFamily="row.extraData.device.uaFamily?.toLowerCase()"
+             let-userAgentFamily="row.extraData.device.userAgentFamily?.toLowerCase()"
              let-platform="row.extraData.device.platform?.toLowerCase()"
              #deviceTemplate>
     <span class="badge text-muted border bg-light m-1" [title]="value">
-        <i class="fa-brands"
-           [class.fa-firefox-browser]="uaFamily === 'firefox'"
-           [class.fa-safari]="uaFamily === 'safari'"
-           [class.fa-edge]="uaFamily === 'edge'"
-           [class.fa-chrome]="uaFamily === 'chrome'"
-           [class.fa-brave]="uaFamily === 'brave'"
-           [class.fa-opera]="uaFamily === 'opera'"
-           [class.fa-tor-browser]="uaFamily === 'tor'"></i>
-        <i class="icon-os"
-           [class.icon-os-linux]="platform === 'linux' || platform === 'ubuntu'"
-           [class.icon-os-windows]="platform === 'windows'"
-           [class.icon-os-ios]="platform === 'ios'"
-           [class.icon-os-macos]="platform === 'macos'"
-           [class.icon-os-android]="platform === 'android'"></i>
+        <i class="device-icon" style="margin-right:2px"
+           [class.device-icon-ua-firefox]="userAgentFamily === 'firefox'"
+           [class.device-icon-ua-safari]="userAgentFamily === 'safari'"
+           [class.device-icon-ua-edge]="userAgentFamily === 'edge'"
+           [class.device-icon-ua-chrome]="userAgentFamily === 'chrome'"
+           [class.device-icon-ua-brave]="userAgentFamily === 'brave'"
+           [class.device-icon-ua-opera]="userAgentFamily === 'opera'"
+           [class.device-icon-ua-tor]="userAgentFamily === 'tor'"
+           [class.device-icon-ua-ie]="userAgentFamily === 'ie'"
+           [class.device-icon-ua-samsung-internet]="userAgentFamily === 'samsung-internet'"></i>
+        <i class="device-icon"
+           [class.device-icon-os-linux]="platform === 'linux' || platform === 'ubuntu'"
+           [class.device-icon-os-windows]="platform === 'windows'"
+           [class.device-icon-os-ios]="platform === 'ios'"
+           [class.device-icon-os-macos]="platform === 'macos'"
+           [class.device-icon-os-android]="platform === 'android'"></i>
         {{ value }}
     </span>
 </ng-template>

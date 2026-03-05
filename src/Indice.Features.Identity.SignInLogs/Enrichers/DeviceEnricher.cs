@@ -38,7 +38,7 @@ public sealed class DeviceEnricher : ISignInLogEntryEnricher
             UserAgent = userAgent.HeaderValue,
             DisplayName = userAgent.DisplayName,
             Os = userAgent.Os,
-            UaFamily = userAgent.UaFamily
+            UserAgentFamily = userAgent.UserAgentFamily
         };
         return ValueTask.CompletedTask;
     }

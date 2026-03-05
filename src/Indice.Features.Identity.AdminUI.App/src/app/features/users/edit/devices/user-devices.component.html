@@ -18,3 +18,32 @@
         <i class="material-icons align-middle text-danger">delete</i>
     </a>
 </ng-template>
+
+<ng-template let-row="row"
+             let-value="value"
+             let-userAgentFamily="row.userAgentFamily?.toLowerCase()"
+             #clientTypeTemplate>
+    <i class="device-icon device-icon-ua-{{userAgentFamily || value}}" style="margin-right:2px"
+       [class.device-icon-ua-firefox]="userAgentFamily === 'firefox'"
+       [class.device-icon-ua-safari]="userAgentFamily === 'safari'"
+       [class.device-icon-ua-edge]="userAgentFamily === 'edge'"
+       [class.device-icon-ua-chrome]="userAgentFamily === 'chrome'"
+       [class.device-icon-ua-brave]="userAgentFamily === 'brave'"
+       [class.device-icon-ua-opera]="userAgentFamily === 'opera'"
+       [class.device-icon-ua-tor]="userAgentFamily === 'tor'"
+       [class.device-icon-ua-ie]="userAgentFamily === 'ie'"
+       [class.device-icon-ua-samsung-internet]="userAgentFamily === 'samsung-internet'"></i>
+    {{ row.userAgentFamily || value }}
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             let-platform="value?.toLowerCase()"
+             #platformTemplate>
+    <i class="device-icon"
+       [class.device-icon-os-linux]="platform === 'linux' || platform === 'ubuntu'"
+       [class.device-icon-os-windows]="platform === 'windows'"
+       [class.device-icon-os-ios]="platform === 'ios'"
+       [class.device-icon-os-macos]="platform === 'macos'"
+       [class.device-icon-os-android]="platform === 'android'"></i>
+    {{ value }}
+</ng-template>

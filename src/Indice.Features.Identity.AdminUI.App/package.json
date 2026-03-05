@@ -22,7 +22,6 @@
     "@angular/platform-browser-dynamic": "20.3.17",
     "@angular/router": "20.3.17",
     "@ckeditor/ckeditor5-angular": "10.0.0",
-    "@fortawesome/fontawesome-free": "7.2.0",
     "@jsonforms/angular": "3.7.0",
     "@jsonforms/core": "3.7.0",
     "@ng-bootstrap/ng-bootstrap": "19.0.1",
