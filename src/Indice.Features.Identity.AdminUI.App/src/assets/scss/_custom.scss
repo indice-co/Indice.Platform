@@ -84,3 +84,41 @@ input-widget>div>input {
     display: inline-block;
     content: "";
 }
+
+.icon-os {
+    line-height: 1;
+    text-align: center;
+    text-rendering: auto;
+    vertical-align: middle;
+}
+
+.icon-os::before {
+    aspect-ratio: 1 / 1;
+    width: inherit;
+    width: inherit;
+    background-size: contain;
+    background-repeat: no-repeat;
+    border: none;
+    display: inline-block;
+    content: " ";
+    width: calc(1em);
+    line-height: 1;
+    text-align: center;
+    text-rendering: auto;
+}
+
+.icon-os-windows::before {
+    background-image: url('../img/os/windows.svg');
+}
+.icon-os-ios::before {
+    background-image: url('../img/os/ios.svg');
+}
+.icon-os-android::before {
+    background-image: url('../img/os/android.svg');
+}
+.icon-os-linux::before {
+    background-image: url('../img/os/linux.svg');
+}
+.icon-os-macos::before {
+    background-image: url('../img/os/macos.svg');
+}
