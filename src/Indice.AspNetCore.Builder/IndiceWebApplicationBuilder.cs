@@ -62,6 +62,8 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
     public WebApplication Build() {
         var app = InnerBuilder.Build();
 
+        LogStartupBanner();
+
         if (app.Configuration.UseCertificateForwarding()) {
             app.UseCertificateForwarding();
         }
@@ -100,4 +102,26 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
     /// <returns>The <see cref="WebApplication"/>.</returns>
     public static IndiceWebApplicationBuilder CreateBuilder(string[] args) =>
         new(WebApplication.CreateBuilder(args).AddMinimalApiDefaults());
+
+    private static void LogStartupBanner() {
+        const string banner = """
+
+                              ╔══════════════════════════════════════════════╗
+                              ║                                              ║
+                              ║   ██╗███╗   ██╗██████╗ ██╗ ██████╗███████╗   ║
+                              ║   ██║████╗  ██║██╔══██╗██║██╔════╝██╔════╝   ║
+                              ║   ██║██╔██╗ ██║██║  ██║██║██║     █████╗     ║
+                              ║   ██║██║╚██╗██║██║  ██║██║██║     ██╔══╝     ║
+                              ║   ██║██║ ╚████║██████╔╝██║╚██████╗███████║   ║
+                              ║   ╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝ ╚═════╝╚══════╝   ║
+                              ║                                              ║
+                              ║      >>> Indice Server Starting <<<          ║
+                              ║                                              ║
+                              ╚══════════════════════════════════════════════╝
+
+                              """;
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine(banner);
+        Console.ResetColor();
+    }
 }
