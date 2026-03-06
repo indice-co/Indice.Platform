@@ -15,4 +15,6 @@ public class SignInLogEntryDevice
     public string DisplayName { get; set; } = null!;
     /// <summary>The operating system name.</summary>
     public string? Os { get; set; }
+    /// <summary>The httpclient used to serve this request. Can be a browser app or a custom native application</summary>
+    public string UserAgentFamily { get; set; } = "Unknown";
 }
