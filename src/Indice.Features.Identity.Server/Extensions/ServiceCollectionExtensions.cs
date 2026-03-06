@@ -7,6 +7,7 @@ using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Stores;
+using Indice.Features.Identity.Core.Events;
 #else
 using IdentityServer4.EntityFramework.Services;
 using IdentityServer4.ResponseHandling;
@@ -42,6 +43,8 @@ using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
 using Indice.Features.Identity.Core.IdentityValidation;
 using Indice.AspNetCore.Configuration;
+
+
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -190,6 +193,19 @@ public static class IdentityServerEndpointServiceCollectionExtensions
 #endif
             identityServerBuilder.AddSigningCredential(certificate);
         }
+
+#if NET9_0_OR_GREATER
+        // Conditionally add server-side sessions
+        var extendedOptions = services.BuildServiceProvider().GetRequiredService<ExtendedIdentityServerOptions>();
+        if (extendedOptions.EnableServerSideSessions) {
+            identityServerBuilder.AddServerSideSessions();
+
+            // Register single-session coordinator if enabled
+            if (extendedOptions.EnforceSingleActiveSession) {
+                services.AddTransient<IPlatformEventHandler<UserLoginEvent>, SingleSessionLoginEventHandler>();
+            }
+        }
+#endif
 
         return identityServerBuilder;
     }

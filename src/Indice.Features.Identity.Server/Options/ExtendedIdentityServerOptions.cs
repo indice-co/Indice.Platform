@@ -29,4 +29,8 @@ public class ExtendedIdentityServerOptions
     public IEnumerable<Role> CustomRoles { get; set; } = new List<Role>();
     /// <summary>A list of custom claim types to be inserted in the database on startup. Works only when environment is 'Development'.</summary>
     public IEnumerable<ClaimType> CustomClaims { get; set; } = new List<ClaimType>();
+    /// <summary> A flag that enables server side sessions.</summary>
+    public bool EnableServerSideSessions {  get; set; } = false;
+    /// <summary> A flag that enforces a single active session per user.</summary>
+    public bool EnforceSingleActiveSession { get; set; } = false;
 }
