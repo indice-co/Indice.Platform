@@ -155,7 +155,7 @@ public class RequiresTermsAcceptanceActivity : IdentityValidationActivityBase
         // Load claims - handle both IdentityUserClaim and Claim types
         if (!activityContext.User.Claims.Any()) {
             var userManager = activityContext.HttpContext.RequestServices.GetRequiredService<ExtendedUserManager<User>>();
-            var userClaims = await userManager.GetClaimsAsync(activityContext.User);
+            _ = await userManager.GetClaimsAsync(activityContext.User);
         }
         var hasAcceptedTerms = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTerms).Select(x => bool.TrueString.Equals(x.ClaimValue, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
         var acceptedTermsDateValue = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTermsDate).Select(x => x.ClaimValue).FirstOrDefault();
