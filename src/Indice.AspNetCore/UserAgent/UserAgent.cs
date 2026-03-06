@@ -44,15 +44,15 @@ public class UserAgent
     }
 
     /// <summary>The device model.</summary>
-    public string? DeviceModel { get; set; }
+    public string? DeviceModel { get; }
     /// <summary>The device platform.</summary>
-    public DevicePlatform DevicePlatform { get; set; }
+    public DevicePlatform DevicePlatform { get; }
     /// <summary>Browser display name.</summary>
     public string DisplayName { get; }
     /// <summary>The operating system name.</summary>
     public string? Os { get; }
     /// <summary>The httpclient used to serve this request. Can be a browser app or a custom native application</summary>
-    public string UserAgentFamily { get; set; } = null!;
+    public string UserAgentFamily { get; }
     /// <summary>The raw value of the header.</summary>
     public string HeaderValue { get; }
 

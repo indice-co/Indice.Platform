@@ -68,12 +68,12 @@ public static class MappedTypeTransformer
         options.MapType<GeoPoint>(new() { Type = "string" });
         options.MapType<GeoPoint?>(new() { Type = "string", Nullable = true });
         options.MapType<FilterClause>(new() { Type = "string" });
-        options.MapType<Base64Id>(new() { Type = "string" });
-        options.MapType<GuidOrAlias>(new() { Type = "string" });
-        options.MapType<Base64Host>(new() { Type = "string" });
         options.MapType<FilterClause?>(new() { Type = "string", Nullable = true });
+        options.MapType<Base64Id>(new() { Type = "string" });
         options.MapType<Base64Id?>(new() { Type = "string", Nullable = true });
-        options.MapType<GuidOrAlias?>(new() { Type = "string", Nullable = true });
+        options.MapType<GuidOrAlias>(new() { Type = "string" });
+        options.MapType<GuidOrAlias?>(new() { Type = "string", Nullable = true }); ;
+        options.MapType<Base64Host>(new() { Type = "string" });
         options.MapType<Base64Host?>(new() { Type = "string", Nullable = true });
         // Register the type transformer
 
@@ -86,7 +86,7 @@ public static class MappedTypeTransformer
     internal static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
         // If transforms contains the schema's type, set the schema type and format from the transform schema
         if (transforms.ContainsKey(context.JsonTypeInfo.Type)) {
-            TransformSchema(schema, context.JsonTypeInfo.Type);
+            TransformSchema(schema, context.JsonTypeInfo.Type, nullable: null);
         }
         if (schema.Properties is not null) {
             foreach (var jsonProperty in context.JsonTypeInfo.Properties) {
@@ -95,41 +95,41 @@ public static class MappedTypeTransformer
                 }
                 // If transforms contains the property type, set the property schema type and format from the transform schema
                 if (transforms.ContainsKey(jsonProperty.PropertyType)) {
-                    TransformSchema(property, jsonProperty.PropertyType);
+                    TransformSchema(property, jsonProperty.PropertyType, jsonProperty.IsSetNullable);
                     continue;
                 }
                 if (property.Type == "array" && jsonProperty.PropertyType.TryGetAnyElementType(out var elementType) && transforms.ContainsKey(elementType!)) {
                     schema.Items ??= new OpenApiSchema();
-                    TransformSchema(property.Items, elementType!);
+                    TransformSchema(property.Items, elementType!, nullable: null);
                     continue;
                 }
             }
         }
         if (context.ParameterDescription is not null && 
             transforms.ContainsKey(context.ParameterDescription.Type)) {
-            TransformSchema(schema, context.ParameterDescription.Type);
+            TransformSchema(schema, context.ParameterDescription.Type, nullable: null);
             return Task.CompletedTask;
         }
         if (context.ParameterDescription is not null && schema.Type == "array" && 
             context.ParameterDescription.Type.TryGetAnyElementType(out var parameterElementType) && 
             transforms.ContainsKey(parameterElementType!)) {
             schema.Items ??= new OpenApiSchema();
-            TransformSchema(schema.Items, parameterElementType!);
+            TransformSchema(schema.Items, parameterElementType!, nullable: null);
             return Task.CompletedTask;
         }
         if (context.JsonPropertyInfo is not null && transforms.ContainsKey(context.JsonPropertyInfo.PropertyType)) {
-            TransformSchema(schema, context.JsonPropertyInfo.PropertyType);
+            TransformSchema(schema, context.JsonPropertyInfo.PropertyType, context.JsonPropertyInfo.IsSetNullable);
         }
         return Task.CompletedTask;
     }
 
-    private static void TransformSchema(OpenApiSchema schema, Type type) {
+    private static void TransformSchema(OpenApiSchema schema, Type type, bool? nullable) {
         OpenApiSchema transformedSchema = transforms[type];
         schema.Type = transformedSchema.Type;
         schema.Format = transformedSchema.Format;
         schema.Annotations?.Clear();
         //schema.Reference = null;
-        schema.Nullable = transformedSchema.Nullable;
+        schema.Nullable = nullable ?? transformedSchema.Nullable;
     }
 }
 #endif

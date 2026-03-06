@@ -151,7 +151,7 @@ export interface IIdentityApiService {
      * @param password (optional) 
      * @return OK
      */
-    uploadCertificate(clientId: string, file?: FileParameter | null | undefined, password?: string | null | undefined): Observable<SecretInfo>;
+    uploadCertificate(clientId: string, file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfo>;
     /**
      * Downloads a client secret if it is a certificate.
      * @return OK
@@ -218,7 +218,7 @@ export interface IIdentityApiService {
      * @param password (optional) 
      * @return OK
      */
-    getCertificateMetadata(file?: FileParameter | null | undefined, password?: string | null | undefined): Observable<SecretInfoBase>;
+    getCertificateMetadata(file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfoBase>;
     /**
      * Displays blog posts from the official IdentityServer blog.
      * @param page (optional) 
@@ -367,7 +367,7 @@ export interface IIdentityApiService {
      * @param viewPort (optional) 
      * @return No Content
      */
-    saveMyPicture(file?: FileParameter | null | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void>;
+    saveMyPicture(file?: FileParameter | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void>;
     /**
      * Clear profile picture from the current user.
      * @return No Content
@@ -760,7 +760,7 @@ export interface IIdentityApiService {
      * @param viewPort (optional) 
      * @return No Content
      */
-    saveUserPicture(userId: string, file?: FileParameter | null | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void>;
+    saveUserPicture(userId: string, file?: FileParameter | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void>;
     /**
      * Clear profile picture from the given user.
      * @return No Content
@@ -2619,7 +2619,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param password (optional) 
      * @return OK
      */
-    uploadCertificate(clientId: string, file?: FileParameter | null | undefined, password?: string | null | undefined): Observable<SecretInfo> {
+    uploadCertificate(clientId: string, file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/certificates";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -2627,7 +2627,9 @@ export class IdentityApiService implements IIdentityApiService {
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file !== null && file !== undefined)
+        if (file === null || file === undefined)
+            throw new globalThis.Error("The parameter 'file' cannot be null.");
+        else
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
         if (password !== null && password !== undefined)
             content_.append("password", password.toString());
@@ -3675,12 +3677,14 @@ export class IdentityApiService implements IIdentityApiService {
      * @param password (optional) 
      * @return OK
      */
-    getCertificateMetadata(file?: FileParameter | null | undefined, password?: string | null | undefined): Observable<SecretInfoBase> {
+    getCertificateMetadata(file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfoBase> {
         let url_ = this.baseUrl + "/api/clients/certificates";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file !== null && file !== undefined)
+        if (file === null || file === undefined)
+            throw new globalThis.Error("The parameter 'file' cannot be null.");
+        else
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
         if (password !== null && password !== undefined)
             content_.append("password", password.toString());
@@ -5730,12 +5734,14 @@ export class IdentityApiService implements IIdentityApiService {
      * @param viewPort (optional) 
      * @return No Content
      */
-    saveMyPicture(file?: FileParameter | null | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void> {
+    saveMyPicture(file?: FileParameter | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/my/account/picture";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file !== null && file !== undefined)
+        if (file === null || file === undefined)
+            throw new globalThis.Error("The parameter 'file' cannot be null.");
+        else
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
         if (scale !== null && scale !== undefined)
             content_.append("scale", scale.toString());
@@ -11150,7 +11156,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param viewPort (optional) 
      * @return No Content
      */
-    saveUserPicture(userId: string, file?: FileParameter | null | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void> {
+    saveUserPicture(userId: string, file?: FileParameter | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/picture";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11158,7 +11164,9 @@ export class IdentityApiService implements IIdentityApiService {
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file !== null && file !== undefined)
+        if (file === null || file === undefined)
+            throw new globalThis.Error("The parameter 'file' cannot be null.");
+        else
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
         if (scale !== null && scale !== undefined)
             content_.append("scale", scale.toString());
@@ -12584,7 +12592,7 @@ export interface ICallingCode {
 }
 
 export class CertificateUploadRequest implements ICertificateUploadRequest {
-    file!: string | undefined;
+    file!: string;
     password?: string | undefined;
 
     constructor(data?: ICertificateUploadRequest) {
@@ -12619,7 +12627,7 @@ export class CertificateUploadRequest implements ICertificateUploadRequest {
 }
 
 export interface ICertificateUploadRequest {
-    file: string | undefined;
+    file: string;
     password?: string | undefined;
 }
 
@@ -14758,7 +14766,7 @@ export interface IIdentityResourceInfoResultSet {
 }
 
 export class ImageUploadRequest implements IImageUploadRequest {
-    file!: string | undefined;
+    file!: string;
     scale?: number | undefined;
     translateX?: number | undefined;
     translateY?: number | undefined;
@@ -14802,7 +14810,7 @@ export class ImageUploadRequest implements IImageUploadRequest {
 }
 
 export interface IImageUploadRequest {
-    file: string | undefined;
+    file: string;
     scale?: number | undefined;
     translateX?: number | undefined;
     translateY?: number | undefined;
