@@ -243,8 +243,8 @@
 </ng-template>
 <ng-template let-row="row"
              let-value="value"
-             let-userAgentFamily="row.extraData.device.userAgentFamily?.toLowerCase()"
-             let-platform="row.extraData.device.platform?.toLowerCase()"
+             let-userAgentFamily="row.extraData?.device?.userAgentFamily?.toLowerCase()"
+             let-platform="row.extraData?.device?.platform?.toLowerCase()"
              #deviceTemplate>
     <span class="badge text-muted border bg-light m-1" [title]="value">
         <i class="device-icon" style="margin-right:2px"

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.40.0]
 ### Added
-- Add the UserAgentFamily column to store the public key for a client
+- Add the UserAgentFamily column to store the user-agent family (e.g. browser/client name) for a device
 
 Run this Migration script to update the database
 ```sql
@@ -25,8 +25,19 @@ END
 
 GO
 
-UPDATE [auth].[SignInLog] set ExtraData = JSON_MODIFY(ExtraData, '$.device.userAgentFamily', LEFT(JSON_VALUE(ExtraData, '$.device.displayName'), CHARINDEX(' ', JSON_VALUE(ExtraData, '$.device.displayName')) - 1))
-
+UPDATE [auth].[SignInLog]
+SET ExtraData = JSON_MODIFY(
+    ExtraData,
+    '$.device.userAgentFamily',
+    CASE
+        WHEN CHARINDEX(' ', JSON_VALUE(ExtraData, '$.device.displayName')) > 0 THEN
+            LEFT(
+                JSON_VALUE(ExtraData, '$.device.displayName'),
+                CHARINDEX(' ', JSON_VALUE(ExtraData, '$.device.displayName')) - 1
+            )
+        ELSE JSON_VALUE(ExtraData, '$.device.displayName')
+    END
+)
 GO
 
 ## [8.18.0]
