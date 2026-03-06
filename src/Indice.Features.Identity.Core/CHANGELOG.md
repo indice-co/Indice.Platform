@@ -39,6 +39,7 @@ SET ExtraData = JSON_MODIFY(
     END
 )
 GO
+```
 
 ## [8.18.0]
 ### Added
