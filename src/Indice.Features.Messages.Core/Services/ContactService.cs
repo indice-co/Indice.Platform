@@ -1,4 +1,5 @@
-﻿using Indice.Features.Messages.Core.Data;
+﻿using System.Data.Common;
+using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
@@ -395,10 +396,18 @@ public class ContactService : IContactService
                         UpdatedAt = DateTimeOffset.UtcNow
                     }).ToList()
             };
-
-            await DbContext.ContactPreferences.AddAsync(recipientPreferences);
-            await DbContext.SaveChangesAsync();
-            return;
+            try {
+                await DbContext.ContactPreferences.AddAsync(recipientPreferences);
+                await DbContext.SaveChangesAsync();
+                return;
+            } 
+            catch (DbUpdateException ex) when (IsDuplicateKeyViolation(ex)) {
+                DbContext.ChangeTracker.Clear();
+                recipientPreferences = await DbContext.ContactPreferences
+                                           .Include(x => x.CommunicationOptions)
+                                           .ThenInclude(up => up.MessageType)
+                                           .SingleAsync(x => x.RecipientId == recipientId);
+            }
         }
 
         recipientPreferences.Locale = request.Locale;
@@ -436,17 +445,28 @@ public class ContactService : IContactService
                 DefaultChannels = preference.DefaultChannels != null ? ContactChannelOption.ToContactChannelKind(preference.DefaultChannels) : null,
                 UpdatedAt = DateTimeOffset.UtcNow
             };
-
-            await DbContext.ContactPreferences.AddAsync(recipientPreferences);
-            await DbContext.SaveChangesAsync();
-            return;
+            try {
+                await DbContext.ContactPreferences.AddAsync(recipientPreferences);
+                await DbContext.SaveChangesAsync();
+                return;
+            } 
+            catch (DbUpdateException ex) when(IsDuplicateKeyViolation(ex)) {
+                DbContext.ChangeTracker.Clear();
+                recipientPreferences = await DbContext.ContactPreferences
+                                             .Include(x => x.CommunicationOptions)
+                                             .ThenInclude(up => up.MessageType)
+                                             .SingleAsync(x => x.RecipientId == recipientId);
+            }
         }
-
         recipientPreferences.Locale = preference.Locale;
         recipientPreferences.ConsentCommercial = preference.ConsentCommercial;
         recipientPreferences.ConsentCommercialDate = preference.ConsentCommercialDate;
         recipientPreferences.DefaultChannels = preference.DefaultChannels != null ? ContactChannelOption.ToContactChannelKind(preference.DefaultChannels) : null;
         await DbContext.SaveChangesAsync();
+    }
+
+    private bool IsDuplicateKeyViolation(DbUpdateException ex) {
+        return ex.InnerException != null && ex.InnerException.Message.Contains("Cannot insert duplicate key row");
     }
 
     ///<inheritdoc/>

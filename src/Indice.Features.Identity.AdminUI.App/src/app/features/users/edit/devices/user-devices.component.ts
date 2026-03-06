@@ -21,6 +21,8 @@ export class UserDevicesComponent implements OnInit, OnDestroy {
     private _userId: string;
     public canEditUser: boolean;
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('clientTypeTemplate', { static: true }) private _clientTypeTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('platformTemplate', { static: true }) private _platformTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('userDeviceList', { static: true }) public _userDeviceList: ListViewComponent;
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
 
@@ -41,8 +43,8 @@ export class UserDevicesComponent implements OnInit, OnDestroy {
             { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'model', name: 'Model', draggable: false, canAutoResize: false, sortable: true, resizeable: false },
             { prop: 'osVersion', name: 'OS Version', draggable: false, canAutoResize: false, sortable: true, resizeable: false },
-            { prop: 'clientType', name: 'Client Type', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._userDeviceList.keyTemplate },
-            { prop: 'platform', name: 'Platform', draggable: false, canAutoResize: false, sortable: true, resizeable: false },
+            { prop: 'clientType', name: 'Client Type', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._clientTypeTemplate },
+            { prop: 'platform', name: 'Platform', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._platformTemplate },
             { prop: 'dateCreated', name: 'Created At', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._userDeviceList.dateTimeTemplate },
             { prop: 'lastSignInDate', name: 'Last Sign In', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._userDeviceList.dateTimeTemplate },
             { prop: 'isPushNotificationsEnabled', name: 'Push Enabled', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._userDeviceList.booleanTemplate },

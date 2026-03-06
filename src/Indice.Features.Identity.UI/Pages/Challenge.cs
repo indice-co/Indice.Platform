@@ -111,7 +111,6 @@ public abstract class BaseChallengeModel : BasePageModel
         if (user is null) {
             return await UserNotFound(externalLoginInfo, returnUrl);
         }
-        await Events.RaiseAsync(new ExtendedUserLoginSuccessEvent(externalLoginInfo.LoginProvider, externalLoginInfo.Principal.GetSubjectId(), user.Id, user.UserName!));
         // Save user tokes retrieved from external provider.
         await SignInManager.UpdateExternalAuthenticationTokensAsync(externalLoginInfo);
         var result = await SignInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, isPersistent: true);
@@ -123,7 +122,7 @@ public abstract class BaseChallengeModel : BasePageModel
         if (localeClaim is null) {
             await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
         }
-        return await TryLogin(result, returnUrl);
+        return await TryLogin(result, user, returnUrl);
     }
 
     /// <summary>This is called whenever a user is not found by an associated external identity provider.</summary>

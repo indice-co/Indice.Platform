@@ -28,6 +28,9 @@ public class IdentityUILocalizer
 
     /// <summary>Instruction message prompting the user to read and accept the terms and conditions.</summary>
     public virtual HtmlString AcceptTerms_ReadAndAcceptTerms => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_ReadAndAcceptTerms));
+    /// <summary>Message indicating the last update date of the terms and conditions.</summary>
+    public virtual HtmlString AcceptTerms_LastUpdated => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_LastUpdated));
+
     #endregion
 
     #region AddEmail
@@ -239,7 +242,7 @@ public class IdentityUILocalizer
     public virtual HtmlString Email_Body_Sincerely => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Body_Sincerely));
 
     /// <summary>Organization name placeholder in email body.</summary>
-    public virtual HtmlString Email_Body_Organization(string organization) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Body_Organization, organization));
+    public virtual HtmlString Email_Body_Organization_Signature(string organization) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Body_Organization_Signature, organization));
     /// <summary>
     /// Label for the Reset password action.
     /// </summary>

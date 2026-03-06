@@ -22,6 +22,7 @@ internal class UserDeviceMap<TUser> : IEntityTypeConfiguration<UserDevice> where
         builder.HasIndex(x => x.DeviceId);
         // Configure properties.
         builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
+        builder.Property(x => x.UserAgentFamily).HasMaxLength(TextSizePresets.M256);
         builder.Property(x => x.UserId).IsRequired();
         builder.Property(x => x.DeviceId).IsRequired();
         builder.Property(x => x.Data).HasJsonConversion();

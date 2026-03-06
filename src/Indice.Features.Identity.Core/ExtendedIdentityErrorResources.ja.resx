@@ -40,7 +40,8 @@
     <value>選択したパスワードは弱いです。より複雑なパスワードを入力してください。</value>
   </data>
   <data name="PasswordIsCommonRequirement" xml:space="preserve">
-    <value>選択したパスワードは強力です。</value>
+    <value>よく知られたパスワードではありません。</value>
+    <comment>hint</comment>
   </data>
   <data name="PasswordRecentlyUsed" xml:space="preserve">
     <value>このパスワードは最近使用されました。以前のパスワードを再利用しないことをお勧めします。</value>

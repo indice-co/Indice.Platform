@@ -1,6 +1,9 @@
 ﻿@page "/terms"
 
+@inject IdentityUILocalizer Localizer
+
 @model BaseTermsModel
+
 
 @{
     ViewData["Title"] = Model.View.Title;
@@ -19,5 +22,9 @@
         </div>
         <h1>@ViewData["Title"]</h1>
         <md path="@Model.View.MarkdownPath" class="markdown-body "></md>
+        @if (Model.LastUpdateDate.HasValue)
+        {
+            <p class="terms-last-update">@Localizer.AcceptTerms_LastUpdated <span>@Model.LastUpdateDate?.ToString("dd MMMM, yyyy")</span></p>
+        }
     </div>
 </div>

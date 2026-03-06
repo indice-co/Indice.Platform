@@ -193,13 +193,6 @@ public abstract class BaseLoginModel : BasePageModel
 
     }
 
-    /// <summary>>Gets the page to redirect based on the <see cref="UserValidationRequirement"/>.</summary>
-    /// <param name="requirement">The current user validation requirement.</param>
-    /// <param name="returnUrl">The return URL.</param>
-    private string? GetRedirectUrl(UserValidationRequirement requirement, string? returnUrl = null) => requirement.Kind switch {
-        UserActivityRequirementKind.None => IsValidReturnUrl(returnUrl) ? returnUrl : "/",
-        _ => Url.PageLink(requirement.PageName, values: new { returnUrl })
-    };
 
     private async Task<LoginViewModel> BuildLoginViewModelAsync(string? returnUrl) {
         var context = await Interaction.GetAuthorizationContextAsync(returnUrl);

@@ -554,6 +554,7 @@ internal static class UserHandlers
             LastSignInDate = device.LastSignInDate,
             Model = device.Model,
             Name = device.Name,
+            UserAgentFamily = device.UserAgentFamily,
             OsVersion = device.OsVersion,
             Platform = device.Platform,
             SupportsFingerprintLogin = device.SupportsFingerprintLogin,
@@ -681,8 +682,13 @@ internal static class UserHandlers
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> RemovePassword(
         ExtendedUserManager<User> userManager,
+        ClaimsPrincipal currentUser,
         string userId
     ) {
+        var currentUserId = currentUser.FindSubjectId();
+        if (!string.IsNullOrWhiteSpace(currentUserId) && currentUserId.Equals(userId, StringComparison.OrdinalIgnoreCase)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(userId), "Cannot remove the password for the current logon user"));
+        }
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
             return TypedResults.NotFound();

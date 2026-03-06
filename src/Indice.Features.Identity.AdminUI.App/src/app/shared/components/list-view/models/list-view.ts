@@ -41,6 +41,6 @@ export class ListView {
 }
 
 export enum SortDirection {
-    Asc = 'Asc',
-    Desc = 'Desc'
+    Asc = 'asc',
+    Desc = 'desc'
 }

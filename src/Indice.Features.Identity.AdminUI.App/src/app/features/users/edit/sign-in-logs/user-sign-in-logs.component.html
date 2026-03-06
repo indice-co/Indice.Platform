@@ -131,7 +131,8 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count"
+        <app-list-view [trackByProp]="'id'"
+                       [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count"
                        [rowsPerPage]="defaultPageSize" [defaultSortField]="defaultSortField"
                        [defaultSortDirection]="defaultSortDirection" (search)="getUserSignInLogs($event)"
                        #signInLogsList></app-list-view>
@@ -160,4 +161,39 @@
         </span>
     </div>
     <span *ngIf="!value"> - </span>
+</ng-template>
+<ng-template let-row="row" let-value="value" #eventTypeCellTemplate>
+    <div *ngIf="value">
+        <span *ngIf="row.succeeded && !row.review" class="badge border text-muted bg-light m-r-10" [title]="'Succeeded Attempt'"> <i class="dot bg-success"></i> {{ value }}</span>
+        <span *ngIf="!row.succeeded && !row.review" class="badge border text-muted bg-light m-r-10" [title]="'Failed Attempt'"><i class="dot bg-danger"></i>{{ value }}</span>
+        <span *ngIf="row.succeeded && row.review" class="badge border text-muted bg-light" [title]="'Marked for Review'"><i class="dot bg-warning"></i>{{ value }}</span>
+        <img *ngIf="row.extraData.provider && row.extraData.provider !== 'local'" class="m-1" height="14" alt="{{row.extraData.provider}} logo" title="{{row.extraData.provider}}" src="assets/img/idps/{{row.extraData.provider}}.svg" />
+    </div>
+    <span *ngIf="!value"> - </span>
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             let-userAgentFamily="row.extraData?.device?.userAgentFamily?.toLowerCase()"
+             let-platform="row.extraData?.device?.platform?.toLowerCase()"
+             #deviceTemplate>
+    <span class="badge text-muted border bg-light m-1" [title]="value">
+        <i class="device-icon" style="margin-right:2px"
+           [class.device-icon-ua-firefox]="userAgentFamily?.includes('firefox')"
+           [class.device-icon-ua-safari]="userAgentFamily?.includes('safari')"
+           [class.device-icon-ua-edge]="userAgentFamily?.includes('edge')"
+           [class.device-icon-ua-chrome]="userAgentFamily?.includes('chrome')"
+           [class.device-icon-ua-brave]="userAgentFamily?.includes('brave')"
+           [class.device-icon-ua-opera]="userAgentFamily?.includes('opera')"
+           [class.device-icon-ua-tor]="userAgentFamily?.includes('tor')"
+           [class.device-icon-ua-ie]="userAgentFamily === 'ie'"
+           [class.device-icon-ua-samsung-internet]="userAgentFamily?.includes('samsung') && userAgentFamily?.includes('internet')"
+           [class.device-icon-ua-generic]="!userAgentFamily"></i>
+        <i class="device-icon"
+           [class.device-icon-os-linux]="platform === 'linux' || platform === 'ubuntu'"
+           [class.device-icon-os-windows]="platform === 'windows'"
+           [class.device-icon-os-ios]="platform === 'ios'"
+           [class.device-icon-os-macos]="platform === 'macos'"
+           [class.device-icon-os-android]="platform === 'android'"></i>
+        {{ value }}
+    </span>
 </ng-template>

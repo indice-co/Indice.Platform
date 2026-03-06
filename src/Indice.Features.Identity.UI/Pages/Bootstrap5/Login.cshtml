@@ -27,9 +27,12 @@
                 }
             </ul>
         </div>
+        @if (Model.View.EnableLocalLogin)
+        {
         <div class="hr-sect">@Localizer.Login_OR</div>
+        }
     }
-    @if (Model.UiOptions.EnableLocalLogin)
+    @if (Model.View.EnableLocalLogin)
     {
         <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post">
             <input type="hidden" asp-for="Input.ReturnUrl" />
@@ -77,7 +80,7 @@
             </div>
         </form>
     }
-    @if (!Model.UiOptions.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
+    @if (!Model.View.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
     {
         <div class="alert alert-warning">
             <strong>@Localizer.Login_Invalid_Login_Request</strong>

@@ -2,11 +2,49 @@
 </swal>
 <div class="row mt-3">
     <div class="col-12">
-        <app-list-view [clientSide]="true" [rowsPerPage]="10" [canFilter]="false" [columns]="columns" [rows]="rows" [defaultSortField]="'createdAt'" [defaultSortDirection]="'Asc'" #userDeviceList></app-list-view>
+        <app-list-view [trackByProp]="'deviceId'"
+                       [clientSide]="true"
+                       [rowsPerPage]="10"
+                       [canFilter]="false"
+                       [columns]="columns"
+                       [rows]="rows"
+                       [defaultSortField]="'lastSignInDate'"
+                       [defaultSortDirection]="'desc'"
+                       #userDeviceList></app-list-view>
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
     <a class="icon-link text-primary" role="button" *ngIf="value && canEditUser" (click)="showDeleteAlert(value)" title="Delete">
         <i class="material-icons align-middle text-danger">delete</i>
     </a>
+</ng-template>
+
+<ng-template let-row="row"
+             let-value="value"
+             let-userAgentFamily="row.userAgentFamily?.toLowerCase()?.replaceAll(' ', '-')"
+             #clientTypeTemplate>
+    <i class="device-icon device-icon-ua-{{userAgentFamily || value}}" style="margin-right:2px"
+       [class.device-icon-ua-firefox]="userAgentFamily?.includes('firefox')"
+       [class.device-icon-ua-safari]="userAgentFamily?.includes('safari')"
+       [class.device-icon-ua-edge]="userAgentFamily?.includes('edge')"
+       [class.device-icon-ua-chrome]="userAgentFamily?.includes('chrome')"
+       [class.device-icon-ua-brave]="userAgentFamily?.includes('brave')"
+       [class.device-icon-ua-opera]="userAgentFamily?.includes('opera')"
+       [class.device-icon-ua-tor]="userAgentFamily?.includes('tor')"
+       [class.device-icon-ua-ie]="userAgentFamily === 'ie'"
+       [class.device-icon-ua-samsung-internet]="userAgentFamily?.includes('samsung') && userAgentFamily?.includes('internet')"
+       [class.device-icon-ua-generic]="!userAgentFamily"></i>
+    {{ row.userAgentFamily || value }}
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             let-platform="value?.toLowerCase()"
+             #platformTemplate>
+    <i class="device-icon"
+       [class.device-icon-os-linux]="platform === 'linux' || platform === 'ubuntu'"
+       [class.device-icon-os-windows]="platform === 'windows'"
+       [class.device-icon-os-ios]="platform === 'ios'"
+       [class.device-icon-os-macos]="platform === 'macos'"
+       [class.device-icon-os-android]="platform === 'android'"></i>
+    {{ value }}
 </ng-template>

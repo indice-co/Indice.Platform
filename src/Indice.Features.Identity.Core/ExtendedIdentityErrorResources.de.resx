@@ -86,7 +86,8 @@
     <value>Das Passwort ist sehr leicht zu erraten, bitte wählen Sie ein komplexeres.</value>
   </data>
   <data name="PasswordIsCommonRequirement" xml:space="preserve">
-    <value>Nicht leicht zu erraten.</value>
+    <value>Kein bekanntes Passwort.</value>
+    <comment>hint</comment>
   </data>
   <data name="PasswordRecentlyUsed" xml:space="preserve">
     <value>Dieses Passwort wurde kürzlich verwendet. Es ist eine gute Praxis, Ihr vorheriges Passwort nicht wiederzuverwenden.</value>

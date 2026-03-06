@@ -49,7 +49,14 @@
 </swal>
 <div class="row mt-3">
     <div class="col-12">
-        <app-list-view [clientSide]="true" [rowsPerPage]="10" [canFilter]="false" [columns]="columns" [rows]="rows" [defaultSortField]="'clientId'" [defaultSortDirection]="'Asc'" #userApplicationsList></app-list-view>
+        <app-list-view [clientSide]="true"
+                       [rowsPerPage]="10"
+                       [canFilter]="false"
+                       [columns]="columns"
+                       [rows]="rows"
+                       [defaultSortField]="'clientId'"
+                       [defaultSortDirection]="'asc'"
+                       #userApplicationsList></app-list-view>
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #actionsTemplate>

@@ -15,7 +15,7 @@
     <div class="card-wrapper">
         <vc:page-heading title="@Localizer.Login_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
-        @if (Model.UiOptions.EnableLocalLogin)
+        @if (Model.View.EnableLocalLogin)
         {
             <form asp-route-returnUrl="@Model.View.ReturnUrl" method="POST" class="form">
                 <input type="hidden" asp-for="Input.ReturnUrl" />
@@ -56,7 +56,7 @@
         }
         <div class="px-8">
             <div class="my-10">
-                @if (!Model.UiOptions.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
+                @if (!Model.View.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
                 {
                     <div class="alert alert-warning">
                         <strong>@Localizer.Login_Invalid_Login_Request</strong>
@@ -65,7 +65,10 @@
                 }
                 @if (Model.View.VisibleExternalProviders.Any())
                 {
-                    <div class="hr-sect"><span>@Localizer.Login_OR</span></div>
+                    @if (Model.View.EnableLocalLogin)
+                    {
+                        <div class="hr-sect"><span>@Localizer.Login_OR</span></div>
+                    }
                     <div class="flex justify-center mb-2.5">
                         <span class="text-gray-400">@Localizer.Register_login_with</span>
                     </div>
@@ -84,7 +87,10 @@
                             </div>
                         }
                     </div>
-                    <hr />
+                    @if (Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding)
+                    {
+                        <hr />
+                    }
                 }
             </div>
             @if (Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding)
