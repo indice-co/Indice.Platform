@@ -6,13 +6,11 @@
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.23" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.23" />
-    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="9.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.12" />
-    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="7.4.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.Features.Identity.Server\Indice.Features.Identity.Server.csproj" />
