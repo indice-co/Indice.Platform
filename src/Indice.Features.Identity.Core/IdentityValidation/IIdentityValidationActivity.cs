@@ -148,23 +148,24 @@ public class RequiresTermsAcceptanceActivity : IdentityValidationActivityBase
 {
     /// <inheritdoc/>
     protected override async ValueTask<UserValidationRequirement?> GetResultAsync(UserValidationActivityContext activityContext) {
-        await ValueTask.CompletedTask;
-
         var configuration = activityContext.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         var requirePostSignInAcceptedTerms = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInAcceptedTerms));
 
         var termsLastModifiedDate = configuration.GetIdentityOption<DateTimeOffset?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.TermsLastModifiedDate));
-
+        // Load claims - handle both IdentityUserClaim and Claim types
+        if (!activityContext.User.Claims.Any()) {
+            var userManager = activityContext.HttpContext.RequestServices.GetRequiredService<ExtendedUserManager<User>>();
+            var userClaims = await userManager.GetClaimsAsync(activityContext.User);
+        }
         var hasAcceptedTerms = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTerms).Select(x => bool.TrueString.Equals(x.ClaimValue, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
         var acceptedTermsDateValue = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTermsDate).Select(x => x.ClaimValue).FirstOrDefault();
         DateTimeOffset? acceptedTermsDate = null;
         if (!string.IsNullOrEmpty(acceptedTermsDateValue) && DateTimeOffset.TryParseExact(acceptedTermsDateValue, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var termsDate)) {
             acceptedTermsDate = termsDate;
         }
-
         if (requirePostSignInAcceptedTerms &&
             (!hasAcceptedTerms || !acceptedTermsDate.HasValue ||
-            (termsLastModifiedDate.HasValue && acceptedTermsDate.Value < termsLastModifiedDate.Value))) {
+            (termsLastModifiedDate.HasValue && termsLastModifiedDate.Value < DateTimeOffset.Now && acceptedTermsDate.Value < termsLastModifiedDate.Value))) {
             return new UserValidationRequirement(UserActivityRequirementKind.RequiresAcceptanceOfTerms, "/AcceptTerms");
         }
         return null;
