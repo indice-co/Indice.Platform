@@ -9,9 +9,13 @@
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
 @inject IdentityUILocalizer Localizer
+@inject Indice.Features.Identity.UI.Services.IRecaptchaService RecaptchaService
 
 @{
     ViewData["Title"] = Localizer.Register_PageTitle;
+    var recaptchaSiteKey = RecaptchaService.SiteKey;
+    var recaptchaSiteKeyV2 = RecaptchaService.SiteKeyV2;
+    var isRecaptchaEnabled = RecaptchaService.IsEnabled;
 }
 
 <div class="content-wrapper">
@@ -19,8 +23,13 @@
         <vc:page-heading title="@Localizer.Register_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
         <p class="px-8">@Localizer.Register_Form_Instructions</p>
-        <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate class="form">
+        <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate class="form" id="registerForm">
             <input type="hidden" asp-for="Input.ReturnUrl" />
+            @if (isRecaptchaEnabled)
+            {
+                <input type="hidden" id="recaptchaToken" name="Input.RecaptchaToken" />
+                <input type="hidden" id="recaptchaVersion" name="Input.RecaptchaVersion" value="v3" />
+            }
             <div class="row">
                 <div class="input-group">
                     <input type="text" class="peer" asp-for="Input.FirstName" placeholder="@Localizer.Register_First_Name" autofocus />
@@ -227,9 +236,17 @@
                 </div>
                 <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
             </div>
+            @if (isRecaptchaEnabled)
+            {
+                <!-- reCAPTCHA v2 fallback container (hidden by default) -->
+                <div id="recaptchaV2Container" class="my-4" style="display: none;">
+                    <div id="recaptchaV2" class="g-recaptcha"></div>
+                    <span id="recaptchaV2Error" class="text-danger"></span>
+                </div>
+            }
             <div class="row content-center place-items-center text-center mt-8">
                 <div class="col-span-12">
-                    <button class="btn btn-primary btn-block" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer.Register_Join_Us</button>
+                    <button class="btn btn-primary btn-block" id="submitButton" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer.Register_Join_Us</button>
                 </div>
             </div>
             <div class="row content-center place-items-center text-center mt-8">
@@ -289,4 +306,126 @@
             };
         });
     </script>
+    @if (isRecaptchaEnabled)
+    {
+
+        <script src="https://www.google.com/recaptcha/api.js?render=@recaptchaSiteKey" csp-nonce></script>
+        <script csp-nonce="true">
+            (function() {
+                const siteKey = '@recaptchaSiteKey';
+                const siteKeyV2 = '@recaptchaSiteKeyV2';
+                const form = document.getElementById('registerForm');
+                const submitButton = document.getElementById('submitButton');
+                const recaptchaTokenInput = document.getElementById('recaptchaToken');
+                const recaptchaVersionInput = document.getElementById('recaptchaVersion');
+                const recaptchaV2Container = document.getElementById('recaptchaV2Container');
+                const recaptchaV2Error = document.getElementById('recaptchaV2Error');
+                let v2WidgetId = null;
+                let isSubmitting = false;
+
+                if (!form || !submitButton) return;
+
+                async function executeRecaptchaV3() {
+                    try {
+                        const token = await grecaptcha.execute(siteKey, { action: 'register' });
+                        return token;
+                    } catch (error) {
+                        console.error('reCAPTCHA v3 error:', error);
+                        return null;
+                    }
+                }
+
+                function showRecaptchaV2(v2Key) {
+                    recaptchaV2Container.style.display = 'block';
+                    recaptchaVersionInput.value = 'v2';
+                    const effectiveV2Key = v2Key || siteKeyV2 || siteKey;
+
+                    if (v2WidgetId === null) {
+                        v2WidgetId = grecaptcha.render('recaptchaV2', {
+                            'sitekey': effectiveV2Key,
+                            'callback': function(token) {
+                                recaptchaTokenInput.value = token;
+                                recaptchaV2Error.textContent = '';
+                            },
+                            'expired-callback': function() {
+                                recaptchaTokenInput.value = '';
+                                recaptchaV2Error.textContent = 'reCAPTCHA expired. Please verify again.';
+                            },
+                            'error-callback': function() {
+                                recaptchaV2Error.textContent = 'reCAPTCHA error. Please try again.';
+                            }
+                        });
+                    }
+                }
+
+                async function validateRecaptchaV3Token(token) {
+                    try {
+                        const response = await fetch('/RecaptchaValidate', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ token: token })
+                        });
+
+                        if (!response.ok) {
+                            console.error('reCAPTCHA validation endpoint error:', response.status);
+                            return { success: false, requiresV2: false };
+                        }
+
+                        return await response.json();
+                    } catch (error) {
+                        console.error('reCAPTCHA validation error:', error);
+                        return { success: false, requiresV2: false };
+                    }
+                }
+
+                form.addEventListener('submit', async function(e) {
+                    if (isSubmitting) {
+                        return;
+                    }
+
+                    e.preventDefault();
+                    submitButton.disabled = true;
+
+                    if (recaptchaV2Container.style.display !== 'none') {
+                        if (!recaptchaTokenInput.value) {
+                            recaptchaV2Error.textContent = 'Please complete the reCAPTCHA verification.';
+                            submitButton.disabled = false;
+                            return;
+                        }
+                        isSubmitting = true;
+                        form.submit();
+                        return;
+                    }
+
+                    const token = await executeRecaptchaV3();
+                    if (!token) {
+                        alert('reCAPTCHA verification failed. Please try again.');
+                        submitButton.disabled = false;
+                        return;
+                    }
+
+                    const validationResult = await validateRecaptchaV3Token(token);
+
+                    if (!validationResult.success) {
+                        alert('reCAPTCHA validation failed. Please try again.');
+                        submitButton.disabled = false;
+                        return;
+                    }
+
+                    if (validationResult.requiresV2) {
+                        recaptchaTokenInput.value = '';
+                        showRecaptchaV2(validationResult.siteKeyV2);
+                        submitButton.disabled = false;
+                        return;
+                    }
+
+                    recaptchaTokenInput.value = token;
+                    isSubmitting = true;
+                    form.submit();
+                });
+            })();
+        </script>
+    }
 }

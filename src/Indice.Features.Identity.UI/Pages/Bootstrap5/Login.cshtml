@@ -5,9 +5,13 @@
 
 @inject ExtendedUserManager<User> userManager
 @inject IdentityUILocalizer Localizer
+@inject Indice.Features.Identity.UI.Services.IRecaptchaService RecaptchaService
 
 @{
     ViewData["Title"] = Localizer.Login_PageTitle;
+    var recaptchaSiteKey = RecaptchaService.SiteKey;
+    var recaptchaSiteKeyV2 = RecaptchaService.SiteKeyV2;
+    var isRecaptchaEnabled = RecaptchaService.IsEnabled;
 }
 
 <section class="sign-in m-auto">
@@ -29,17 +33,17 @@
         </div>
         @if (Model.View.EnableLocalLogin)
         {
-        <div class="hr-sect">@Localizer.Login_OR</div>
+            <div class="hr-sect">@Localizer.Login_OR</div>
         }
     }
     @if (Model.View.EnableLocalLogin)
     {
-        <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post">
+        <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" id="loginForm">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <input type="hidden" asp-for="Input.DeviceId" />
             <div class="mb-3">
-				<label asp-for="Input.UserName" class="form-label">@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)</label>
-				<input class="form-control" type="text" placeholder="@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)" asp-for="Input.UserName" />
+                <label asp-for="Input.UserName" class="form-label">@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)</label>
+                <input class="form-control" type="text" placeholder="@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)" asp-for="Input.UserName" />
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
             </div>
             <div class="mb-3">
@@ -63,6 +67,16 @@
                     <a class="btn btn-link p-0 text-md float-end text-blue" asp-page="/ForgotPassword">@Localizer.Login_Forgot_Password</a>
                 }
             </div>
+            @if (isRecaptchaEnabled)
+            {
+                <input type="hidden" id="recaptchaToken" name="Input.RecaptchaToken" />
+                <input type="hidden" id="recaptchaVersion" name="Input.RecaptchaVersion" value="v3" />
+                <!-- reCAPTCHA v2 fallback container (hidden by default) -->
+                <div id="recaptchaV2Container" class="mb-3" style="display: none;">
+                    <div id="recaptchaV2" class="g-recaptcha"></div>
+                    <span id="recaptchaV2Error" class="text-danger"></span>
+                </div>
+            }
             <div class="mb-3">
                 <div class="row align-items-center">
                     @if (Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding)
@@ -74,7 +88,7 @@
                         </div>
                     }
                     <div class="@(Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding ? "col-sm-6" : string.Empty) col-12 py-1">
-                        <button class="btn btn-primary w-100" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>
+                        <button class="btn btn-primary w-100" id="loginButton" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>
                     </div>
                 </div>
             </div>
@@ -100,6 +114,155 @@
             };
         });
     </script>
+    @if (isRecaptchaEnabled)
+    {
+        <script src="https://www.google.com/recaptcha/api.js?render=@recaptchaSiteKey" csp-nonce></script>
+        <script csp-nonce="true">
+            (function() {
+                const siteKey = '@Html.Raw(recaptchaSiteKey)';
+                const siteKeyV2 = '@Html.Raw(recaptchaSiteKeyV2)';
+                const form = document.getElementById('loginForm');
+                const loginButton = document.getElementById('loginButton');
+                const recaptchaTokenInput = document.getElementById('recaptchaToken');
+                const recaptchaVersionInput = document.getElementById('recaptchaVersion');
+                const recaptchaV2Container = document.getElementById('recaptchaV2Container');
+                const recaptchaV2Error = document.getElementById('recaptchaV2Error');
+                let v2WidgetId = null;
+                let isSubmitting = false;
+
+                // Execute reCAPTCHA v3 (invisible, runs in background)
+                async function executeRecaptchaV3() {
+                    try {
+                        const token = await grecaptcha.execute(siteKey, { action: 'login' });
+                        return token;
+                    } catch (error) {
+                        console.error('reCAPTCHA v3 error:', error);
+                        return null;
+                    }
+                }
+
+                // Show reCAPTCHA v2 fallback checkbox (when v3 score < threshold)
+                function showRecaptchaV2(v2Key) {
+                    recaptchaV2Container.style.display = 'block';
+                    recaptchaVersionInput.value = 'v2';
+                    const effectiveV2Key = v2Key || siteKeyV2 || siteKey;
+
+                    if (v2WidgetId === null) {
+                        v2WidgetId = grecaptcha.render('recaptchaV2', {
+                            'sitekey': effectiveV2Key,
+                            'callback': function(token) {
+                                recaptchaTokenInput.value = token;
+                                recaptchaV2Error.textContent = '';
+                            },
+                            'expired-callback': function() {
+                                recaptchaTokenInput.value = '';
+                                recaptchaV2Error.textContent = 'reCAPTCHA expired. Please verify again.';
+                            },
+                            'error-callback': function() {
+                                recaptchaV2Error.textContent = 'reCAPTCHA error. Please try again.';
+                            }
+                        });
+                    }
+                }
+
+                // Validate reCAPTCHA v3 token via dedicated endpoint (score check without submitting credentials)
+                async function validateRecaptchaV3Token(token) {
+                    try {
+                        const response = await fetch('/RecaptchaValidate', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ token: token })
+                        });
+
+                        if (!response.ok) {
+                            console.error('reCAPTCHA validation endpoint error:', response.status);
+                            return { success: false, requiresV2: false };
+                        }
+
+                        return await response.json();
+                    } catch (error) {
+                        console.error('reCAPTCHA validation error:', error);
+                        return { success: false, requiresV2: false };
+                    }
+                }
+
+                // Handle form submission with reCAPTCHA flow
+                form.addEventListener('submit', async function(e) {
+                    if (isSubmitting) {
+                        return;
+                    }
+
+                    e.preventDefault();
+                    loginButton.disabled = true;
+
+                    // PATH 1: v2 is visible (score was below threshold)
+                    // Just submit the form - v2 token will be validated server-side in OnPostAsync
+                    if (recaptchaV2Container.style.display !== 'none') {
+                        if (!recaptchaTokenInput.value) {
+                            recaptchaV2Error.textContent = 'Please complete the reCAPTCHA verification.';
+                            loginButton.disabled = false;
+                            return;
+                        }
+                        // Submit with v2 token - add button value
+                        isSubmitting = true;
+                        addButtonValueToForm();
+                        form.submit(); // → Server validates v2 token with Google
+                        return;
+                    }
+
+                    // PATH 2: Initial submit with v3 (invisible)
+                    // Execute v3 first (invisible background check)
+                    const token = await executeRecaptchaV3();
+                    if (!token) {
+                        alert('reCAPTCHA verification failed. Please try again.');
+                        loginButton.disabled = false;
+                        return;
+                    }
+
+                    // Validate v3 token to check score (lightweight call, no credentials sent)
+                    // This calls /RecaptchaValidate which validates with Google and returns { requiresV2: true/false }
+                    const validationResult = await validateRecaptchaV3Token(token);
+
+                    if (!validationResult.success) {
+                        alert('reCAPTCHA validation failed. Please try again.');
+                        loginButton.disabled = false;
+                        return;
+                    }
+
+                    if (validationResult.requiresV2) {
+                        // Score below threshold, show v2 checkbox challenge
+                        // User must complete v2, then re-submit (goes to PATH 1 above)
+                        recaptchaTokenInput.value = '';
+                        showRecaptchaV2(validationResult.siteKeyV2);
+                        loginButton.disabled = false;
+                        return; // Wait for user to complete v2 and re-submit
+                    }
+
+                    // Score passed threshold, set v3 token and submit form
+                    // Server will re-validate v3 token in OnPostAsync (security best practice)
+                    recaptchaTokenInput.value = token;
+                    isSubmitting = true;
+                    addButtonValueToForm();
+                    form.submit(); // → Server re-validates v3 token with Google
+                });
+
+                // Helper function to ensure button=login is submitted with form.submit()
+                function addButtonValueToForm() {
+                    // Check if button input already exists
+                    let buttonInput = form.querySelector('input[name="button"]');
+                    if (!buttonInput) {
+                        buttonInput = document.createElement('input');
+                        buttonInput.type = 'hidden';
+                        buttonInput.name = 'button';
+                        buttonInput.value = 'login';
+                        form.appendChild(buttonInput);
+                    }
+                }
+            })();
+        </script>
+    }
     @if (Model.View.GenerateDeviceId)
     {
         <script type="text/javascript" src="/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
