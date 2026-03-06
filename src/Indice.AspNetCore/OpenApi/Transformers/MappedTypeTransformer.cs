@@ -72,7 +72,7 @@ public static class MappedTypeTransformer
         options.MapType<Base64Id>(new() { Type = "string" });
         options.MapType<Base64Id?>(new() { Type = "string", Nullable = true });
         options.MapType<GuidOrAlias>(new() { Type = "string" });
-        options.MapType<GuidOrAlias?>(new() { Type = "string", Nullable = true }); ;
+        options.MapType<GuidOrAlias?>(new() { Type = "string", Nullable = true });
         options.MapType<Base64Host>(new() { Type = "string" });
         options.MapType<Base64Host?>(new() { Type = "string", Nullable = true });
         // Register the type transformer
