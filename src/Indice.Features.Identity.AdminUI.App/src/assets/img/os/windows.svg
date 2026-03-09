@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <rect x="1.333" y="1.336" width="6" height="6" style="fill:url(#_Linear1);fill-rule:nonzero;"/>
+    <path d="M14.667,7.336L8.667,7.336L8.667,1.336L14.666,1.336L14.666,7.336L14.667,7.336Z" style="fill:url(#_Linear2);fill-rule:nonzero;"/>
+    <rect x="1.333" y="8.664" width="6" height="6" style="fill:url(#_Linear3);fill-rule:nonzero;"/>
+    <path d="M14.667,14.664L8.667,14.664L8.667,8.664L14.666,8.664L14.666,14.664L14.667,14.664Z" style="fill:url(#_Linear4);fill-rule:nonzero;"/>
+    <defs>
+        <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(6,0,0,6,1.33301,4.33594)"><stop offset="0" style="stop-color:rgb(75,209,255);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(33,165,231);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(6.00001,0,0,6,8.66699,4.33594)"><stop offset="0" style="stop-color:rgb(15,172,234);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(8,136,220);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(6,0,0,6.00004,1.33301,11.6641)"><stop offset="0" style="stop-color:rgb(35,162,236);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(2,121,212);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_Linear4" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(6.00001,0,0,6.00004,8.66699,11.6641)"><stop offset="0" style="stop-color:rgb(13,137,220);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(3,120,212);stop-opacity:1"/></linearGradient>
+    </defs>
+</svg>

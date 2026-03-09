@@ -84,3 +84,82 @@ input-widget>div>input {
     display: inline-block;
     content: "";
 }
+
+.device-icon {
+    line-height: 1;
+    text-align: center;
+    text-rendering: auto;
+    vertical-align: middle;
+}
+
+.device-icon::before {
+    aspect-ratio: 1 / 1;
+    background-size: contain;
+    background-repeat: no-repeat;
+    border: none;
+    display: inline-block;
+    content: " ";
+    width: calc(1em);
+    line-height: 1;
+    text-align: center;
+    text-rendering: auto;
+}
+
+
+.device-icon-os-windows::before {
+    background-image: url('../img/os/windows.svg');
+}
+.device-icon-os-ios::before {
+    background-image: url('../img/os/ios.svg');
+}
+.device-icon-os-android::before {
+    background-image: url('../img/os/android.svg');
+}
+.device-icon-os-linux::before {
+    background-image: url('../img/os/linux.svg');
+}
+.device-icon-os-macos::before {
+    background-image: url('../img/os/macos.svg');
+}
+
+
+[class*="device-icon-ua-"]::before {
+    background-image: url('../img/user-agent/generic-phone.svg');
+}
+.device-icon-ua-Native::before {
+    background-image: url('../img/user-agent/generic-phone.svg');
+}
+.device-icon-ua-Browser::before {
+    background-image: url('../img/user-agent/generic-browser.svg');
+}
+.device-icon-ua-brave::before {
+    background-image: url('../img/user-agent/brave.svg');
+}
+.device-icon-ua-chrome::before {
+    background-image: url('../img/user-agent/chrome.svg');
+}
+.device-icon-ua-edge::before {
+    background-image: url('../img/user-agent/edge.svg');
+}
+.device-icon-ua-firefox::before {
+    background-image: url('../img/user-agent/firefox.svg');
+}
+.device-icon-ua-ie::before {
+    background-image: url('../img/user-agent/ie.svg');
+}
+.device-icon-ua-opera::before {
+    background-image: url('../img/user-agent/opera.svg');
+}
+.device-icon-ua-safari::before {
+    background-image: url('../img/user-agent/safari.svg');
+}
+.device-icon-ua-samsung-internet::before {
+    background-image: url('../img/user-agent/samsung-internet.svg');
+}
+.device-icon-ua-tor::before {
+    background-image: url('../img/user-agent/tor.svg');
+}
+
+
+
+
