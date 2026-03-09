@@ -85,6 +85,7 @@ internal static class DeviceHandlers
             Name = request.Name,
             OsVersion = request.OsVersion,
             Platform = request.Platform,
+            UserAgentFamily = request.UserAgentFamily,
             PnsHandle = request.PnsHandle,
             Tags = request.Tags?.ToArray(),
             ClientType = request.ClientType ?? DeviceClientType.Native
