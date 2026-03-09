@@ -25,7 +25,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.23" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
-    <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.2.4" />
+    <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.4.6" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.12" />
     <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="9.9.0" />
   </ItemGroup>

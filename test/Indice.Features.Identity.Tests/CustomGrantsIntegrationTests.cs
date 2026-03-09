@@ -850,7 +850,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         string codeChallenge;
         using (var sha256 = SHA256.Create()) {
             var challengeBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
-            codeChallenge = Base64Url.Encode(challengeBytes);
+            codeChallenge = Base64UrlEncoder.Encode(challengeBytes);
         }
         return codeChallenge;
     }

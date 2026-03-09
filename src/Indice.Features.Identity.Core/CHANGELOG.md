@@ -30,15 +30,26 @@ SET ExtraData = JSON_MODIFY(
     ExtraData,
     '$.device.userAgentFamily',
     CASE
-        WHEN CHARINDEX(' ', JSON_VALUE(ExtraData, '$.device.displayName')) > 0 THEN
+        WHEN PATINDEX('% [0-9]%', JSON_VALUE(ExtraData, '$.device.displayName')) > 0 THEN
             LEFT(
                 JSON_VALUE(ExtraData, '$.device.displayName'),
-                CHARINDEX(' ', JSON_VALUE(ExtraData, '$.device.displayName')) - 1
+                PATINDEX('% [0-9]%', JSON_VALUE(ExtraData, '$.device.displayName')) - 1
             )
         ELSE JSON_VALUE(ExtraData, '$.device.displayName')
     END
 )
 GO
+
+UPDATE [auth].UserDevice SET UserAgentFamily = (CASE
+        WHEN PATINDEX('% [0-9]%', [Name]) > 0 THEN
+            LEFT(
+                [Name],
+                PATINDEX('% [0-9]%',  [Name]) - 1
+            )
+        ELSE [Name]
+    END)
+GO
+```
 
 ## [8.18.0]
 ### Added
