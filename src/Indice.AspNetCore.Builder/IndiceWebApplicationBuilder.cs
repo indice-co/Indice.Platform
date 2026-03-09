@@ -120,8 +120,17 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
                               ╚══════════════════════════════════════════════╝
 
                               """;
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine(banner);
-        Console.ResetColor();
+        if (Console.IsOutputRedirected) {
+            Console.WriteLine(banner);
+            return;
+        }
+
+        var originalColor = Console.ForegroundColor;
+        try {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(banner);
+        } finally {
+            Console.ForegroundColor = originalColor;
+        }
     }
 }
