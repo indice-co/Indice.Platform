@@ -44,8 +44,6 @@ using Microsoft.IdentityModel.Logging;
 using Indice.Features.Identity.Core.IdentityValidation;
 using Indice.AspNetCore.Configuration;
 
-
-
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Extensions on the <see cref="IServiceCollection"/> that help setup Indice Identity system.</summary>
@@ -78,7 +76,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         });
         services.AddTotpServiceFactory(configuration);
         var identityBuilder = services.AddIdentityDefaults(configuration);
-        var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext);
+        var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext,
+                                                                       options.EnableServerSideSessions, options.EnforceSingleActiveSession);
         services.AddAuthenticationDefaults(configuration);
         options.ConfigureIdentityDbContext ??= dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
         services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options.ConfigureIdentityDbContext);
@@ -124,7 +123,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         IConfiguration configuration,
         IWebHostEnvironment webHostEnvironment,
         Action<DbContextOptionsBuilder>? configureConfigurationDbContext,
-        Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext
+        Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext,
+        bool enableServerSideSessions,
+        bool enforceSingleActiveSession
     ) {
         services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
 #if !NET9_0_OR_GREATER
@@ -195,18 +196,13 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         }
 
 #if NET9_0_OR_GREATER
-        // Conditionally add server-side sessions
-        var extendedOptions = services.BuildServiceProvider().GetRequiredService<ExtendedIdentityServerOptions>();
-        if (extendedOptions.EnableServerSideSessions) {
+        if (enableServerSideSessions) {
             identityServerBuilder.AddServerSideSessions();
-
-            // Register single-session coordinator if enabled
-            if (extendedOptions.EnforceSingleActiveSession) {
-                services.AddTransient<IPlatformEventHandler<UserLoginEvent>, SingleSessionLoginEventHandler>();
+            if (enforceSingleActiveSession) {
+                services.AddPlatformEventHandler<UserLoginEvent, SingleSessionLoginEventHandler>();
             }
         }
 #endif
-
         return identityServerBuilder;
     }
 
