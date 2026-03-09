@@ -43,7 +43,7 @@ public class SingleSessionLoginEventHandler : IPlatformEventHandler<UserLoginEve
             CancellationToken.None);
 
         var sessionsToRevoke = sessions
-            .Where(s => currentSessionId is null || s.SessionId != currentSessionId)
+            .Where(s => s.SessionId != currentSessionId)
             .ToList();
 
         if (sessionsToRevoke.Count == 0) {
@@ -53,11 +53,10 @@ public class SingleSessionLoginEventHandler : IPlatformEventHandler<UserLoginEve
             _logger.LogInformation(
                 "Revoking session {SessionId} for user {SubjectId} due to single-session enforcement.",
                 session.SessionId, subjectId);
-
-            // Create the context for removing this specific session
             var context = new RemoveSessionsContext {
                 SubjectId = subjectId,
                 SessionId = session.SessionId,
+                RevokeTokens = true,
             };
             await _sessionManagement.RemoveSessionsAsync(context);
         }
