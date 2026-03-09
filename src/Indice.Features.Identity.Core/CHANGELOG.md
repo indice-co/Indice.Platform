@@ -39,6 +39,16 @@ SET ExtraData = JSON_MODIFY(
     END
 )
 GO
+
+UPDATE [auth].UserDevice SET UserAgentFamily = (CASE
+        WHEN PATINDEX('% [0-9]%', [Name]) > 0 THEN
+            LEFT(
+                [Name],
+                PATINDEX('% [0-9]%',  [Name]) - 1
+            )
+        ELSE [Name]
+    END)
+GO
 ```
 
 ## [8.18.0]
