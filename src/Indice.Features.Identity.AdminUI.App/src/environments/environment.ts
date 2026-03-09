@@ -2,7 +2,7 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-const authority = 'https://my.indice.gr'; // 'https://localhost:2000';
+const authority = 'https://localhost:2000'; // '';https://my.indice.gr
 export const environment = {
     api_url: authority,
     api_docs: `${authority}/docs/index.html`,

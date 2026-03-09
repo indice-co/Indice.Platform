@@ -7,6 +7,7 @@ import { UserAdditionalDetailsComponent } from './edit/additional-details/user-a
 import { UserApplicationsComponent } from './edit/applications/user-applications.component';
 import { UserDetailsComponent } from './edit/details/user-details.component';
 import { UserDevicesComponent } from './edit/devices/user-devices.component';
+import { UserSessionsComponent } from './edit/sessions/user-sessions.component';
 import { UserEditComponent } from './edit/user-edit.component';
 import { UserLoginsComponent } from './edit/logins/user-logins.component';
 import { UserRolesComponent } from './edit/roles/user-roles.component';
@@ -28,6 +29,7 @@ const routes: Routes = [
       { path: 'applications', component: UserApplicationsComponent },
       { path: 'external-logins', component: UserLoginsComponent },
       { path: 'devices', component: UserDevicesComponent },
+      { path: 'sessions', component: UserSessionsComponent },
       { path: 'sign-in-logs', component: UserSignInLogsComponent, canActivate: [UiFeaturesGuardService], data: { feature: Features.SignInLogs } }
     ]
   }
