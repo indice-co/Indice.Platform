@@ -4,7 +4,9 @@ import { Observable, AsyncSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
   IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, ClaimInfo, CreateClaimRequest, BasicClaimInfo,
-  UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, SetPasswordRequest, SetUserBlockRequest, UserLoginProviderInfo, DeviceInfo, DeviceInfoResultSet, UserLoginProviderInfoResultSet
+  UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, SetPasswordRequest, SetUserBlockRequest, UserLoginProviderInfo, DeviceInfo, DeviceInfoResultSet, UserLoginProviderInfoResultSet,
+  ServerSideSessionInfoResultSet,
+  ServerSideSessionInfo
 } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './details/models/claim-type.model';
 
@@ -14,6 +16,7 @@ export class UserStore {
   private _allRoles: AsyncSubject<RoleInfo[]>;
   private _allClaims: AsyncSubject<ClaimTypeInfo[]>;
   private _userApplications: AsyncSubject<UserClientInfo[]>;
+  private _userSessions: AsyncSubject<ServerSideSessionInfo[]>;
   private _userDevices: AsyncSubject<DeviceInfo[]>;
   private _userExternalLogins: AsyncSubject<UserLoginProviderInfo[]>;
 
@@ -179,6 +182,21 @@ export class UserStore {
 
   public revokeUserApplicationAccess(userId: string, clientId: string): Observable<void> {
     return this._api.revokeUserApplicationAccess(userId, clientId);
+  }
+  
+  public getUserSessions(userId: string): Observable<ServerSideSessionInfo[]> {
+      if (!this._userApplications) {
+          this._userApplications = new AsyncSubject<ServerSideSessionInfo[]>();
+          this._api.getUserSessions(userId).subscribe((response: ServerSideSessionInfoResultSet) => {
+              this._userSessions.next(response.items);
+              this._userSessions.complete();
+          });
+      }
+      return this._userSessions;
+  }
+
+  public removeUserSession(userId: string, sessionId: string): Observable<void> {
+      return this._api.removeUserSession(userId, sessionId);
   }
 
   public getUserDevices(userId: string): Observable<DeviceInfo[]> {
