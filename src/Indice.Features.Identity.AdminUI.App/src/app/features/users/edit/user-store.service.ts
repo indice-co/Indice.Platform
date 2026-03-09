@@ -185,8 +185,8 @@ export class UserStore {
   }
   
   public getUserSessions(userId: string): Observable<ServerSideSessionInfo[]> {
-      if (!this._userApplications) {
-          this._userApplications = new AsyncSubject<ServerSideSessionInfo[]>();
+      if (!this._userSessions) {
+          this._userSessions = new AsyncSubject<ServerSideSessionInfo[]>();
           this._api.getUserSessions(userId).subscribe((response: ServerSideSessionInfoResultSet) => {
               this._userSessions.next(response.items);
               this._userSessions.complete();

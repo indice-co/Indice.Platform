@@ -44,7 +44,7 @@
                        [rows]="rows"
                        [defaultSortField]="'created'"
                        [defaultSortDirection]="'asc'"
-                       #userApplicationsList></app-list-view>
+                       #userSessionsList></app-list-view>
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
@@ -56,10 +56,3 @@
     </a>
 </ng-template>
 
-<ng-template let-row="row"
-             let-value="value"
-             #userAppKeyTemplate>
-    <span class="badge text-muted border bg-light m-1" [title]="value">
-        {{ value }} <b class="text-success" *ngIf="row.types.includes('reference_token')" title="active">⦿</b>
-    </span>
-</ng-template>
