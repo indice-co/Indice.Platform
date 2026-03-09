@@ -103,8 +103,23 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
     public static IndiceWebApplicationBuilder CreateBuilder(string[] args) =>
         new(WebApplication.CreateBuilder(args).AddMinimalApiDefaults());
 
-    private static void LogStartupBanner() {
-        const string banner = """
+    private readonly string[] Catchphrases = [
+        "Platform Tools, Built to Scale",
+        "Indice Platform: Libraries in Motion",
+        "Platform Team: Build Once, Ship Everywhere",
+        "Indice Platform — Tools That Power Teams"
+        ];
+
+    private void LogStartupBanner() {
+        if (!Configuration.GetValue<bool?>("General:StartupBannerEnabled") ?? Environment.IsProduction()) {
+            return;
+        }
+
+        const int bannerInnerWidth = 46;
+        var catchphrase = Catchphrases[Random.Shared.Next(Catchphrases.Length)];
+        var centeredCatchphrase = CenterText(catchphrase, bannerInnerWidth);
+
+        var banner = $"""
 
                               ╔══════════════════════════════════════════════╗
                               ║                                              ║
@@ -115,7 +130,7 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
                               ║   ██║██║ ╚████║██████╔╝██║╚██████╗███████║   ║
                               ║   ╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝ ╚═════╝╚══════╝   ║
                               ║                                              ║
-                              ║      >>> Indice Server Starting <<<          ║
+                              ║{centeredCatchphrase}║
                               ║                                              ║
                               ╚══════════════════════════════════════════════╝
 
@@ -131,6 +146,21 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
             Console.WriteLine(banner);
         } finally {
             Console.ForegroundColor = originalColor;
+        }
+
+        static string CenterText(string text, int width) {
+            if (string.IsNullOrWhiteSpace(text)) {
+                return new string(' ', width);
+            }
+
+            if (text.Length >= width) {
+                return text[..width];
+            }
+
+            var padding = width - text.Length;
+            var left = padding / 2;
+            var right = padding - left;
+            return string.Concat(new string(' ', left), text, new string(' ', right));
         }
     }
 }
