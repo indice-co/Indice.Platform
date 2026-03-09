@@ -38,7 +38,7 @@ export class UserLoginsComponent implements OnInit, OnDestroy {
     public ngOnInit(): void {
         this.canEditUser = this._authService.isAdminUIUsersWriter();
         this.columns = [
-            { prop: 'name', name: 'Provider', draggable: false, canAutoResize: true, sortable: false, resizeable: true, cellTemplate: this._providerNameTemplate, width: 50 },
+            { prop: 'name', name: 'Provider', draggable: false, canAutoResize: true, sortable: true, resizeable: true, cellTemplate: this._providerNameTemplate, width: 50 },
             { prop: 'displayName', name: 'Display name', draggable: false, canAutoResize: true, sortable: false, resizeable: true },
             { prop: 'key', name: 'Provider Key', draggable: false, canAutoResize: true, sortable: false, resizeable: false }
         ];

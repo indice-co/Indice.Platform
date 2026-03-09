@@ -1031,6 +1031,10 @@ a {
     font-weight: bold;
 }
 
+.terms-last-update {
+    text-align: right;
+}
+
 /*1 rem = 16px;*/
 /* Grayscale. */
 body.consent .container {

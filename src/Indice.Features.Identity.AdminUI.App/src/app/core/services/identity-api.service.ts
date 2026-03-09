@@ -306,7 +306,7 @@ export interface IIdentityApiService {
      * @param clientId (optional) 
      * @return OK
      */
-    getConsents(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, consentType?: UserConsentType | undefined, clientId?: string | undefined): Observable<UserClientInfoResultSet>;
+    getConsents(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, consentType?: ConsentType | undefined, clientId?: string | undefined): Observable<UserClientInfoResultSet>;
     /**
      * Revokes all a user's consents and grants for all clients.
      * @return No Content
@@ -740,6 +740,11 @@ export interface IIdentityApiService {
      * @return No Content
      */
     deleteUserExternalLogin(userId: string, provider: string, providerKey: string): Observable<void>;
+    /**
+     * Removes the last password for the given user.
+     * @return No Content
+     */
+    removePassword(userId: string): Observable<void>;
     /**
      * Get user's profile picture.
      * @param size (optional) 
@@ -4892,7 +4897,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param clientId (optional) 
      * @return OK
      */
-    getConsents(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, consentType?: UserConsentType | undefined, clientId?: string | undefined): Observable<UserClientInfoResultSet> {
+    getConsents(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, consentType?: ConsentType | undefined, clientId?: string | undefined): Observable<UserClientInfoResultSet> {
         let url_ = this.baseUrl + "/api/my/account/grants?";
         if (page === null)
             throw new globalThis.Error("The parameter 'page' cannot be null.");
@@ -10972,6 +10977,89 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Removes the last password for the given user.
+     * @return No Content
+     */
+    removePassword(userId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/users/{userId}/password";
+        if (userId === undefined || userId === null)
+            throw new globalThis.Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRemovePassword(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRemovePassword(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRemovePassword(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Get user's profile picture.
      * @param size (optional) 
      * @param d (optional) 
@@ -13111,7 +13199,7 @@ export interface IClientThemeConfigRequest {
 }
 
 export class ClientThemeConfigResponse implements IClientThemeConfigResponse {
-    schema?: any;
+    schema?: any | undefined;
     data?: DefaultClientThemeConfig;
 
     constructor(data?: IClientThemeConfigResponse) {
@@ -13146,7 +13234,7 @@ export class ClientThemeConfigResponse implements IClientThemeConfigResponse {
 }
 
 export interface IClientThemeConfigResponse {
-    schema?: any;
+    schema?: any | undefined;
     data?: DefaultClientThemeConfig;
 }
 
@@ -14069,6 +14157,7 @@ export class DeviceInfo implements IDeviceInfo {
     deviceId?: string | undefined;
     platform?: DevicePlatform;
     name?: string | undefined;
+    userAgentFamily?: string | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
     dateCreated?: Date;
@@ -14081,7 +14170,7 @@ export class DeviceInfo implements IDeviceInfo {
     trustActivationDate?: Date | undefined;
     isTrusted?: boolean;
     canActivateDeviceTrust?: boolean;
-    data?: any;
+    data?: any | undefined;
     clientType?: DeviceClientType;
     mfaSessionExpirationDate?: Date | undefined;
     blocked?: boolean;
@@ -14102,6 +14191,7 @@ export class DeviceInfo implements IDeviceInfo {
             this.deviceId = _data["deviceId"];
             this.platform = _data["platform"];
             this.name = _data["name"];
+            this.userAgentFamily = _data["userAgentFamily"];
             this.model = _data["model"];
             this.osVersion = _data["osVersion"];
             this.dateCreated = _data["dateCreated"] ? new Date(_data["dateCreated"].toString()) : undefined as any;
@@ -14139,6 +14229,7 @@ export class DeviceInfo implements IDeviceInfo {
         data["deviceId"] = this.deviceId;
         data["platform"] = this.platform;
         data["name"] = this.name;
+        data["userAgentFamily"] = this.userAgentFamily;
         data["model"] = this.model;
         data["osVersion"] = this.osVersion;
         data["dateCreated"] = this.dateCreated ? this.dateCreated.toISOString() : undefined as any;
@@ -14169,6 +14260,7 @@ export interface IDeviceInfo {
     deviceId?: string | undefined;
     platform?: DevicePlatform;
     name?: string | undefined;
+    userAgentFamily?: string | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
     dateCreated?: Date;
@@ -14181,7 +14273,7 @@ export interface IDeviceInfo {
     trustActivationDate?: Date | undefined;
     isTrusted?: boolean;
     canActivateDeviceTrust?: boolean;
-    data?: any;
+    data?: any | undefined;
     clientType?: DeviceClientType;
     mfaSessionExpirationDate?: Date | undefined;
     blocked?: boolean;
@@ -15080,12 +15172,13 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
     deviceId!: string;
     pnsHandle?: string | undefined;
     name?: string | undefined;
+    userAgentFamily?: string | undefined;
     platform!: DevicePlatform;
     tags?: string[] | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
     clientType?: DeviceClientType;
-    data?: any;
+    data?: any | undefined;
 
     constructor(data?: IRegisterDeviceRequest) {
         if (data) {
@@ -15101,6 +15194,7 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
             this.deviceId = _data["deviceId"];
             this.pnsHandle = _data["pnsHandle"];
             this.name = _data["name"];
+            this.userAgentFamily = _data["userAgentFamily"];
             this.platform = _data["platform"];
             if (Array.isArray(_data["tags"])) {
                 this.tags = [] as any;
@@ -15126,6 +15220,7 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
         data["deviceId"] = this.deviceId;
         data["pnsHandle"] = this.pnsHandle;
         data["name"] = this.name;
+        data["userAgentFamily"] = this.userAgentFamily;
         data["platform"] = this.platform;
         if (Array.isArray(this.tags)) {
             data["tags"] = [];
@@ -15144,12 +15239,13 @@ export interface IRegisterDeviceRequest {
     deviceId: string;
     pnsHandle?: string | undefined;
     name?: string | undefined;
+    userAgentFamily?: string | undefined;
     platform: DevicePlatform;
     tags?: string[] | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
     clientType?: DeviceClientType;
-    data?: any;
+    data?: any | undefined;
 }
 
 export class RegisterRequest implements IRegisterRequest {
@@ -15602,7 +15698,7 @@ export class SignInLogEntry implements ISignInLogEntry {
     countryIsoCode?: string | undefined;
     deviceId?: string | undefined;
     grantType?: string | undefined;
-    coordinates?: string;
+    coordinates?: string | undefined;
     extraData?: SignInLogEntryExtraData;
 
     constructor(data?: ISignInLogEntry) {
@@ -15700,7 +15796,7 @@ export interface ISignInLogEntry {
     countryIsoCode?: string | undefined;
     deviceId?: string | undefined;
     grantType?: string | undefined;
-    coordinates?: string;
+    coordinates?: string | undefined;
     extraData?: SignInLogEntryExtraData;
 }
 
@@ -15710,6 +15806,7 @@ export class SignInLogEntryDevice implements ISignInLogEntryDevice {
     userAgent?: string;
     displayName?: string;
     os?: string | undefined;
+    userAgentFamily?: string;
 
     constructor(data?: ISignInLogEntryDevice) {
         if (data) {
@@ -15727,6 +15824,7 @@ export class SignInLogEntryDevice implements ISignInLogEntryDevice {
             this.userAgent = _data["userAgent"];
             this.displayName = _data["displayName"];
             this.os = _data["os"];
+            this.userAgentFamily = _data["userAgentFamily"];
         }
     }
 
@@ -15744,6 +15842,7 @@ export class SignInLogEntryDevice implements ISignInLogEntryDevice {
         data["userAgent"] = this.userAgent;
         data["displayName"] = this.displayName;
         data["os"] = this.os;
+        data["userAgentFamily"] = this.userAgentFamily;
         return data;
     }
 }
@@ -15754,6 +15853,7 @@ export interface ISignInLogEntryDevice {
     userAgent?: string;
     displayName?: string;
     os?: string | undefined;
+    userAgentFamily?: string;
 }
 
 export class SignInLogEntryExtraData implements ISignInLogEntryExtraData {
@@ -15991,7 +16091,7 @@ export class SignInLogEntryUserDevice implements ISignInLogEntryUserDevice {
     isPushNotificationsEnabled?: boolean;
     supportsPinLogin?: boolean;
     supportsFingerprintLogin?: boolean;
-    data?: any;
+    data?: any | undefined;
     tags?: string[] | undefined;
     requiresPassword?: boolean;
     isTrusted?: boolean;
@@ -16085,7 +16185,7 @@ export interface ISignInLogEntryUserDevice {
     isPushNotificationsEnabled?: boolean;
     supportsPinLogin?: boolean;
     supportsFingerprintLogin?: boolean;
-    data?: any;
+    data?: any | undefined;
     tags?: string[] | undefined;
     requiresPassword?: boolean;
     isTrusted?: boolean;
@@ -16663,7 +16763,7 @@ export class TotpRequest implements ITotpRequest {
     channel?: TotpDeliveryChannel;
     purpose?: string | undefined;
     message?: string | undefined;
-    data?: any;
+    data?: any | undefined;
     classification?: string | undefined;
     subject?: string | undefined;
     authenticationMethod?: string | undefined;
@@ -16716,7 +16816,7 @@ export interface ITotpRequest {
     channel?: TotpDeliveryChannel;
     purpose?: string | undefined;
     message?: string | undefined;
-    data?: any;
+    data?: any | undefined;
     classification?: string | undefined;
     subject?: string | undefined;
     authenticationMethod?: string | undefined;
@@ -17321,7 +17421,7 @@ export class UpdateDeviceRequest implements IUpdateDeviceRequest {
     pnsHandle?: string | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
-    data?: any;
+    data?: any | undefined;
 
     constructor(data?: IUpdateDeviceRequest) {
         if (data) {
@@ -17376,7 +17476,7 @@ export interface IUpdateDeviceRequest {
     pnsHandle?: string | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
-    data?: any;
+    data?: any | undefined;
 }
 
 export class UpdateIdentityResourceRequest implements IUpdateIdentityResourceRequest {
@@ -17923,15 +18023,6 @@ export interface IUserClientInfoResultSet {
     items?: UserClientInfo[];
 }
 
-export enum UserConsentType {
-    AuthorizationCode = "AuthorizationCode",
-    ReferenceToken = "ReferenceToken",
-    RefreshToken = "RefreshToken",
-    UserConsent = "UserConsent",
-    DeviceCode = "DeviceCode",
-    UserCode = "UserCode",
-}
-
 export class UserGrantInfo implements IUserGrantInfo {
     sessionId?: string | undefined;
     type?: string;
@@ -18422,6 +18513,15 @@ export class ValidateUserNameRequest implements IValidateUserNameRequest {
 
 export interface IValidateUserNameRequest {
     userName: string;
+}
+
+export enum ConsentType {
+    AuthorizationCode = "AuthorizationCode",
+    ReferenceToken = "ReferenceToken",
+    RefreshToken = "RefreshToken",
+    UserConsent = "UserConsent",
+    DeviceCode = "DeviceCode",
+    UserCode = "UserCode",
 }
 
 export interface FileResponse {

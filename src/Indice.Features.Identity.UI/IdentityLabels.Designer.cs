@@ -70,6 +70,15 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Last updated on.
+        /// </summary>
+        public static string AcceptTerms_LastUpdated {
+            get {
+                return ResourceManager.GetString("AcceptTerms_LastUpdated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Terms &amp; conditions acceptance.
         /// </summary>
         public static string AcceptTerms_PageHeader {
@@ -828,9 +837,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to {0}.
         /// </summary>
-        public static string Email_Body_Organization {
+        public static string Email_Body_Organization_Signature {
             get {
-                return ResourceManager.GetString("Email_Body_Organization", resourceCulture);
+                return ResourceManager.GetString("Email_Body_Organization_Signature", resourceCulture);
             }
         }
         

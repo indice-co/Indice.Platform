@@ -554,6 +554,7 @@ internal static class UserHandlers
             LastSignInDate = device.LastSignInDate,
             Model = device.Model,
             Name = device.Name,
+            UserAgentFamily = device.UserAgentFamily,
             OsVersion = device.OsVersion,
             Platform = device.Platform,
             SupportsFingerprintLogin = device.SupportsFingerprintLogin,

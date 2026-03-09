@@ -116,7 +116,7 @@ public abstract class BaseRegisterModel : BasePageModel
         if (UiOptions.AutomaticSigninAfterRegister) {
             var signinResult = await SignInManager.PasswordSignInAsync(user, Input.Password, isPersistent: false, lockoutOnFailure: true);
             TempData.Clear();
-            return await TryLogin(signinResult, Input.ReturnUrl!);
+            return await TryLogin(signinResult, user, Input.ReturnUrl!);
         }
         if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
             return RedirectToPage("/Login", new { returnUrl = Input.ReturnUrl });

@@ -9,7 +9,7 @@ public class ImageUploadRequest
 {
     /// <summary>File data</summary>
     [Required]
-    public IFormFile? File { get; set; }
+    public IFormFile File { get; set; } = null!;
     /// <summary>Zoom level. Defaults to 1.0</summary>
     public double? Scale { get; set; }
     /// <summary>offset X axis. Defaults to 0.</summary>
@@ -35,7 +35,7 @@ public class ImageUploadRequest
         var form = await context.Request.ReadFormAsync();
         var file = form.Files[nameof(File)];
         return new ImageUploadRequest {
-            File = file,
+            File = file!,
             Scale = double.TryParse(form[nameof(Scale)], CultureInfo.InvariantCulture, out var scale) ? scale : null,
             TranslateX = int.TryParse(form[nameof(TranslateX)], CultureInfo.InvariantCulture, out var translateX) ? translateX : null,
             TranslateY = int.TryParse(form[nameof(TranslateY)], CultureInfo.InvariantCulture, out var translateY) ? translateY : null,

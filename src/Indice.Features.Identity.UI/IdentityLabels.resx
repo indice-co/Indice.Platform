@@ -375,7 +375,7 @@
   <data name="Email_Body_Sincerely" xml:space="preserve">
     <value>Sincerely</value>
   </data>
-  <data name="Email_Body_Organization" xml:space="preserve">
+  <data name="Email_Body_Organization_Signature" xml:space="preserve">
     <value>{0}</value>
   </data>
   <data name="Email_Reset_Password_FieldLabel" xml:space="preserve">
@@ -1103,5 +1103,8 @@
   </data>
   <data name="Profile_FullName" xml:space="preserve">
     <value>Full name</value>
+  </data>
+  <data name="AcceptTerms_LastUpdated" xml:space="preserve">
+    <value>Last updated on</value>
   </data>
 </root>
