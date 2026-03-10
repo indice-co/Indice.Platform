@@ -24,7 +24,11 @@ public sealed class SubjectNameEnricher : ISignInLogEntryEnricher
 
     /// <inheritdoc />
     public async ValueTask EnrichAsync(SignInLogEntry logEntry) {
-        logEntry.User ??= (!string.IsNullOrWhiteSpace(logEntry.SubjectId) ? await _userManager.FindByIdAsync(logEntry.SubjectId) : default);
-        logEntry.SubjectName = logEntry?.User?.UserName;
+        if (!string.IsNullOrWhiteSpace(logEntry.SubjectId)) {
+            logEntry.User ??= await _userManager.FindByIdAsync(logEntry.SubjectId);
+        }
+        if (!string.IsNullOrWhiteSpace(logEntry.User?.UserName)) {
+            logEntry.SubjectName = logEntry.User.UserName;
+        }
     }
 }
