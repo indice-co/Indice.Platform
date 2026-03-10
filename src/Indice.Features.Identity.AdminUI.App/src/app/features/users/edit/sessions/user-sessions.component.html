@@ -52,7 +52,7 @@
         </div>
     </div>
 </ng-template>
-<swal title="Delete?" text="This session will be deleted. If the user is actively using this session, they will get logged out" type="warning" [showCancelButton]="true" (confirm)="delete()" #deleteAlert>
+<swal title="Delete?" text="This session will be deleted. If the user is actively using this session, they will be logged out." type="warning" [showCancelButton]="true" (confirm)="delete()" #deleteAlert>
 </swal>
 <div class="row mt-3">
     <div class="col-12">
@@ -77,5 +77,5 @@
 </ng-template>
 
 <ng-template let-row="row" let-value="value" #dateTemplate>
-    {{ value | date: 'dd/MM/yyyy HH:mm:ss' }}
+    {{ value ? (value | date: 'dd/MM/yyyy HH:mm:ss') : '-' }}
 </ng-template>
