@@ -22,8 +22,6 @@ internal class DbSignInLogEntry
     public string? SubjectId { get; set; }
     /// <summary>The display name of the subject.</summary>
     public string? SubjectName { get; set; }
-    /// <summary>The display name of the subject.</summary>
-    public bool SubjectUnknown { get; set; }
     /// <summary>The unique identifier of the resource.</summary>
     public string? ResourceId { get; set; }
     /// <summary>The name of the resource.</summary>
