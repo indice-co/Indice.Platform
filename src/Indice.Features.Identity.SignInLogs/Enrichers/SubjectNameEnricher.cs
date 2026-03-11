@@ -29,6 +29,9 @@ public sealed class SubjectNameEnricher : ISignInLogEntryEnricher
         }
         if (!string.IsNullOrWhiteSpace(logEntry.User?.UserName)) {
             logEntry.SubjectName = logEntry.User.UserName;
+        } 
+        else {
+            logEntry.SubjectUnknown = true;
         }
     }
 }

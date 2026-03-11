@@ -40,6 +40,10 @@
                         <td>{{ selectedLogEntry?.subjectName || '-' }}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Subject Exists</th>
+                        <td>{{ selectedLogEntry?.subjectUnknown || '-' }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Endpoint</th>
                         <td>{{ selectedLogEntry?.resourceId || '-' }}</td>
                     </tr>
@@ -271,3 +275,8 @@
     </span>
 </ng-template>
 
+<ng-template let-row="row" let-value="value" #subjectNameTemplate>
+    <span *ngIf="value && !row.subjectUnknown" [title]="value">{{ value }}</span>
+    <span *ngIf="value && row.subjectUnknown" class="text-danger" [title]="value">{{ value }}</span>
+    <span *ngIf="!value"> - </span>
+</ng-template>
