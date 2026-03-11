@@ -46,10 +46,6 @@
                 </tbody>
             </table>
         </div>
-        <div class="mt-3" *ngIf="selectedSession?.ticket">
-            <label class="form-label fw-bold">Ticket (Serialized Authentication Data)</label>
-            <textarea class="form-control font-monospace" rows="8" readonly>{{ selectedSession?.ticket }}</textarea>
-        </div>
     </div>
 </ng-template>
 <swal title="Delete?" text="This session will be deleted. If the user is actively using this session, they will be logged out." type="warning" [showCancelButton]="true" (confirm)="delete()" #deleteAlert>
