@@ -118,8 +118,14 @@ input-widget>div>input {
 .device-icon-os-linux::before {
     background-image: url('../img/os/linux.svg');
 }
+.device-icon-os-ubuntu::before {
+    background-image: url('../img/os/ubuntu.svg');
+}
 .device-icon-os-macos::before {
     background-image: url('../img/os/macos.svg');
+}
+.device-icon-os-none::before {
+    background-image: url('../img/os/none.svg');
 }
 
 
@@ -158,6 +164,9 @@ input-widget>div>input {
 }
 .device-icon-ua-tor::before {
     background-image: url('../img/user-agent/tor.svg');
+}
+.device-icon-ua-postman::before {
+    background-image: url('../img/user-agent/postman.svg');
 }
 
 

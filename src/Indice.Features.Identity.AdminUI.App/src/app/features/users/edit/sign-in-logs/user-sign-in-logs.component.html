@@ -181,7 +181,7 @@
              let-platform="row.extraData?.device?.platform?.toLowerCase()"
              #deviceTemplate>
     <span class="badge text-muted border bg-light m-1" [title]="value">
-        <i class="device-icon" style="margin-right:2px"
+        <i class="device-icon device-icon-ua" style="margin-right:2px"
            [class.device-icon-ua-firefox]="userAgentFamily?.includes('firefox')"
            [class.device-icon-ua-safari]="userAgentFamily?.includes('safari')"
            [class.device-icon-ua-edge]="userAgentFamily?.includes('edge')"
@@ -191,13 +191,16 @@
            [class.device-icon-ua-tor]="userAgentFamily?.includes('tor')"
            [class.device-icon-ua-ie]="userAgentFamily === 'ie'"
            [class.device-icon-ua-samsung-internet]="userAgentFamily?.includes('samsung') && userAgentFamily?.includes('internet')"
+           [class.device-icon-ua-postman]="userAgentFamily?.includes('postman')"
            [class.device-icon-ua-generic]="!userAgentFamily"></i>
         <i class="device-icon"
-           [class.device-icon-os-linux]="platform === 'linux' || platform === 'ubuntu'"
+           [class.device-icon-os-linux]="platform === 'linux'"
+           [class.device-icon-os-ubuntu]="platform === 'ubuntu'"
            [class.device-icon-os-windows]="platform === 'windows'"
            [class.device-icon-os-ios]="platform === 'ios'"
            [class.device-icon-os-macos]="platform === 'macos'"
-           [class.device-icon-os-android]="platform === 'android'"></i>
+           [class.device-icon-os-android]="platform === 'android'"
+           [class.device-icon-os-none]="platform === 'none' || !platform"></i>
         {{ value }}
     </span>
 </ng-template>
