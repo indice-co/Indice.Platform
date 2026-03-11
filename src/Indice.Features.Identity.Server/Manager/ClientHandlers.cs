@@ -366,6 +366,12 @@ internal static class ClientHandlers
             ClientId = client.Id
         };
         client.AllowedGrantTypes = [grantTypeToAdd];
+#if NET9_0_OR_GREATER
+        if (IdSrvModels.GrantType.ClientCredentials.Equals(grantTypeToAdd.GrantType, StringComparison.OrdinalIgnoreCase)) {
+            // ensure that client has secret if client credentials grant type is added
+            client.RequireClientSecret = true;
+        }
+#endif
         await configurationDbContext.SaveChangesAsync();
         await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.Ok(new GrantTypeInfo {
