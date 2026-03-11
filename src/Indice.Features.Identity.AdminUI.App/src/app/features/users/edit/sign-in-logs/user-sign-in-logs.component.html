@@ -40,6 +40,10 @@
                         <td>{{ selectedLogEntry?.subjectName || '-' }}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Subject Exists</th>
+                        <td>{{ selectedLogEntry?.subjectUnknown || '-' }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Endpoint</th>
                         <td>{{ selectedLogEntry?.resourceId || '-' }}</td>
                     </tr>
