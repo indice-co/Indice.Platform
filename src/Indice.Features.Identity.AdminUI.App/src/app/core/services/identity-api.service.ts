@@ -15973,6 +15973,7 @@ export class SignInLogEntry implements ISignInLogEntry {
     applicationName?: string | undefined;
     subjectId?: string | undefined;
     subjectName?: string | undefined;
+    subjectUnknown?: boolean;
     resourceId?: string | undefined;
     resourceType?: string | undefined;
     description?: string | undefined;
@@ -16008,6 +16009,7 @@ export class SignInLogEntry implements ISignInLogEntry {
             this.applicationName = _data["applicationName"];
             this.subjectId = _data["subjectId"];
             this.subjectName = _data["subjectName"];
+            this.subjectUnknown = _data["subjectUnknown"];
             this.resourceId = _data["resourceId"];
             this.resourceType = _data["resourceType"];
             this.description = _data["description"];
@@ -16043,6 +16045,7 @@ export class SignInLogEntry implements ISignInLogEntry {
         data["applicationName"] = this.applicationName;
         data["subjectId"] = this.subjectId;
         data["subjectName"] = this.subjectName;
+        data["subjectUnknown"] = this.subjectUnknown;
         data["resourceId"] = this.resourceId;
         data["resourceType"] = this.resourceType;
         data["description"] = this.description;
@@ -16071,6 +16074,7 @@ export interface ISignInLogEntry {
     applicationName?: string | undefined;
     subjectId?: string | undefined;
     subjectName?: string | undefined;
+    subjectUnknown?: boolean;
     resourceId?: string | undefined;
     resourceType?: string | undefined;
     description?: string | undefined;

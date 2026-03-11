@@ -1,7 +1,7 @@
 <ng-template let-modal #content>
     <div class="modal-header">
         <h4 class="modal-title" id="modal-basic-title">
-            {{ selectedSession?.displayName }}
+            Session Details
         </h4>
         <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
     </div>
@@ -10,16 +10,32 @@
             <table class="table table-striped mb-0">
                 <tbody>
                     <tr>
+                        <th scope="row">Key</th>
+                        <td>{{ selectedSession?.key }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Session Id</th>
                         <td>{{ selectedSession?.sessionId }}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Subject Id</th>
+                        <td>{{ selectedSession?.subjectId }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Scheme</th>
+                        <td>{{ selectedSession?.scheme }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Display Name</th>
-                        <td>{{ selectedSession?.displayName }}</td>
+                        <td>{{ selectedSession?.displayName || '-' }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Created</th>
                         <td>{{ selectedSession?.created | date:'medium' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Renewed</th>
+                        <td>{{ selectedSession?.renewed | date:'medium' }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Expires</th>
@@ -32,7 +48,7 @@
         </div>
     </div>
 </ng-template>
-<swal title="Delete?" text="All user grants for this application will be deleted permanently. This action cannot be reversed." type="warning" [showCancelButton]="true" (confirm)="delete()" #deleteAlert>
+<swal title="Delete?" text="This session will be deleted. If the user is actively using this session, they will be logged out." type="warning" [showCancelButton]="true" (confirm)="delete()" #deleteAlert>
 </swal>
 <div class="row mt-3">
     <div class="col-12">
@@ -56,3 +72,6 @@
     </a>
 </ng-template>
 
+<ng-template let-row="row" let-value="value" #dateTemplate>
+    {{ value ? (value | date: 'dd/MM/yyyy HH:mm:ss') : '-' }}
+</ng-template>

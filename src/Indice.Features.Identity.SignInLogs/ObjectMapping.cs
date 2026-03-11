@@ -35,6 +35,7 @@ internal static class ObjectMapping
         SignInType = logEntry.SignInType,
         SubjectId = logEntry.SubjectId,
         SubjectName = logEntry.SubjectName,
+        SubjectUnknown = logEntry.SubjectId == null,
         Succeeded = logEntry.Succeeded
     };
 

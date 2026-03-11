@@ -65,6 +65,11 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
         if (user is null) {
             LogError(extendedContext);
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.NotFound);
+            await _eventService.RaiseAsync(new ExtendedUserLoginFailureEvent(
+                context.UserName,
+                "Password login failure.",
+                clientId: context.Request.ClientId,
+                clientName: context?.Request?.Client?.ClientName));
             return;
         }
         var deviceId = context.Request.Raw[RegistrationRequestParameters.DeviceId];
@@ -94,11 +99,13 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
                 authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
             ));
         await _userManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
-        } else {
+        } 
+        else {
             await _eventService.RaiseAsync(new ExtendedUserLoginFailureEvent(
                 user.UserName!,
                 "Password login failure.",
                 clientId: context.Request.ClientId,
+                clientName: context?.Request?.Client?.ClientName,
                 subjectId: user.Id
             ));
         }

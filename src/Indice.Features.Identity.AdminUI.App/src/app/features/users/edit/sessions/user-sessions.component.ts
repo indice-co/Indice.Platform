@@ -20,6 +20,8 @@ export class UserSessionsComponent implements OnInit, OnDestroy {
     @ViewChild('userSessionsList', { static: true }) public _userSessionsList: ListViewComponent;
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
+    @ViewChild('dateTemplate', { static: true }) private _dateTemplate: TemplateRef<CellContext<any>>;
+
     private _getDataSubscription: Subscription;
     private _userId: string;
     public canEditUser: boolean;
@@ -40,8 +42,8 @@ export class UserSessionsComponent implements OnInit, OnDestroy {
         this.canEditUser = this._authService.isAdminUIUsersWriter();
         this.columns = [
             { prop: 'sessionId', name: 'Session Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._userSessionsList.keyTemplate },
-            { prop: 'displayName', name: 'Description', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
-            { prop: 'created', name: 'Created At', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
+            { prop: 'created', name: 'Created At', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._dateTemplate },
+            { prop: 'expires', name: 'Expires At', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._dateTemplate },
             { prop: 'key', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
         this._userId = this._route.parent.snapshot.params['id'];
