@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageTags>AspNetCore;ActivityLogs;</PackageTags>
+    <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)-*" />
+    <PackageReference Include="Open.ChannelExtensions" Version="9.1.1" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="9.0.12" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="9.0.12" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
+    <InternalsVisibleTo Include="Indice.Features.Identity.Server" />
+  </ItemGroup>
+</Project>

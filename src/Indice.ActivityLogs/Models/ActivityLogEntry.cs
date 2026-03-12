@@ -1,0 +1,69 @@
+﻿using Indice.Features.Identity.Core.Data.Models;
+using Indice.Types;
+
+namespace Indice.Features.ActivityLogs.Models;
+
+/// <summary>A model representing a user's activity log entry.</summary>
+public class ActivityLogEntry
+{
+    /// <summary>Creates a new instance of <see cref="ActivityLogEntry"/> class, given the <paramref name="id"/> and <paramref name="createdAt"/> values.</summary>
+    /// <param name="id">The unique id of the user activity log entry.</param>
+    /// <param name="createdAt">A timestamp that indicates when the user activity log entry occurred.</param>
+    public ActivityLogEntry(Guid id, DateTimeOffset createdAt) {
+        Id = id;
+        CreatedAt = createdAt;
+    }
+
+    /// <summary>Creates a new instance of <see cref="ActivityLogEntry"/> class.</summary>
+    public ActivityLogEntry() : this(Guid.NewGuid(), DateTimeOffset.UtcNow) { }
+
+    internal User? User { get; set; }
+    /// <summary>The unique id of the user's activity log entry.</summary>
+    public Guid Id { get; set; }
+    /// <summary>A timestamp that indicates when the user's activity log entry occurred.</summary>
+    public DateTimeOffset CreatedAt { get; set; }
+    /// <summary>The name of the action.</summary>
+    public string? ActionName { get; set; }
+    /// <summary>The type of event for activity log.</summary>
+    public ActivityLogEventType EventType { get; set; }
+    /// <summary>The unique identifier of the application.</summary>
+    public string? ApplicationId { get; set; }
+    /// <summary>The display name of the application.</summary>
+    public string? ApplicationName { get; set; }
+    /// <summary>The unique identifier of the subject.</summary>
+    public string? SubjectId { get; set; }
+    /// <summary>The display name of the subject.</summary>
+    public string? SubjectName { get; set; }
+    /// <summary>Indicates whether the user associated with the log entry exists in the system.</summary>
+    public bool SubjectUnknown { get; set; }
+    /// <summary>The unique identifier of the resource.</summary>
+    public string? ResourceId { get; set; } = null!;
+    /// <summary>The name of the resource.</summary>
+    public string? ResourceType { get; set; }
+    /// <summary>A friendly text describing the log entry.</summary>
+    public string? Description { get; set; }
+    /// <summary>Indicates whether the operation that caused the user's activity log entry was successful or not.</summary>
+    public bool Succeeded { get; set; }
+    /// <summary>The IP address of the client.</summary>
+    public string? IpAddress { get; set; }
+    /// <summary>The unique identifier of the current request.</summary>
+    public string? RequestId { get; set; }
+    /// <summary>The estimated client location based on the <see cref="IpAddress"/>.</summary>
+    public string? Location { get; set; }
+    /// <summary>User's session id.</summary>
+    public string? SessionId { get; set; }
+    /// <summary>Describes the user activity type in terms of user presence.</summary>
+    public ActivityType? ActivityType { get; set; }
+    /// <summary>Indicates whether the specified log entry is marked for review.</summary>
+    public bool Review { get; set; }
+    /// <summary>Two letter ISO code for the country.</summary>
+    public string? CountryIsoCode { get; set; }
+    /// <summary>The device id.</summary>
+    public string? DeviceId { get; set; }
+    /// <summary>The grant type used for the login.</summary>
+    public string? GrantType { get; set; }
+    /// <summary>The approximate location of the operation.</summary>
+    public GeoPoint? Coordinates { get; set; }
+    /// <summary>Additional information about the user's activity log entry.</summary>
+    public ActivityLogEntryExtraData? ExtraData { get; set; }
+}

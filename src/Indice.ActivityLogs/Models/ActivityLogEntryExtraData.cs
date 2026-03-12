@@ -1,0 +1,32 @@
+﻿using Indice.Features.Identity.Core;
+
+namespace Indice.Features.ActivityLogs.Models;
+
+/// <summary>Additional information about the user's activity log entry.</summary>
+public class ActivityLogEntryExtraData
+{
+    /// <summary>Gets the server process identifier.</summary>
+    public int ProcessId { get; set; }
+    /// <summary>Gets the redirect URI.</summary>
+    public string? RedirectUri { get; set; }
+    /// <summary>Gets the requested scopes.</summary>
+    public string? Scope { get; set; }
+    /// <summary>Gets the tokens.</summary>
+    public IEnumerable<ActivityLogEntryToken>? Tokens { get; set; }
+    /// <summary>Gets the error.</summary>
+    public string? Error { get; set; }
+    /// <summary>Gets the error description.</summary>
+    public string? ErrorDescription { get; set; }
+    /// <summary>Gets the provider.</summary>
+    public string? Provider { get; set; }
+    /// <summary></summary>
+    public ActivityLogEntryDevice? Device { get; set; }
+    /// <summary>User devices representation.</summary>
+    public ActivityLogEntryUserDevice? UserDevice { get; set; }
+    /// <summary>Describes a warning that may occur during a activity event.</summary>
+    public ActivityWarning? Warning { get; set; }
+    /// <summary>The name of the original event occurred.</summary>
+    public string OriginalEventType { get; set; } = null!;
+    /// <summary>List of authentication methods used.</summary>
+    public string[] AuthenticationMethods { get; set; } = [];
+}
