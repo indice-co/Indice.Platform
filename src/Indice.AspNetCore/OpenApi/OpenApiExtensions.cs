@@ -1,7 +1,5 @@
 ﻿using Microsoft.OpenApi.Any;
 using System.Net.Mime;
-using Microsoft.AspNetCore.Mvc.Controllers;
-
 
 #if NET9_0_OR_GREATER
 using System.Collections.Immutable;
@@ -10,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
+using Humanizer;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -112,12 +111,12 @@ public static class OpenApiExtensions
     /// OpenAPI documents.</remarks>
     /// <param name="options">The OpenApiOptions instance to configure. Cannot be null.</param>
     /// <returns>The same OpenApiOptions instance, enabling method chaining.</returns>
-    public static OpenApiOptions MvcActionAsOperationId(this OpenApiOptions options) =>
+    public static OpenApiOptions ControllerActionAsOperationId(this OpenApiOptions options) =>
         options.AddOperationTransformer((operation, context, cancellationToken) => {
             var actionDescriptor = context.Description.ActionDescriptor;
-            if (actionDescriptor is ControllerActionDescriptor controllerAction && string.IsNullOrWhiteSpace(operation.OperationId)) {
+            if (actionDescriptor is Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor controllerAction && string.IsNullOrWhiteSpace(operation.OperationId)) {
                 operation.OperationId = controllerAction.ActionName;
-                operation.Summary ??= controllerAction.DisplayName ?? controllerAction.ActionName;
+                operation.Summary ??= controllerAction.ActionName.Humanize();
             }
             return Task.CompletedTask;
         });
