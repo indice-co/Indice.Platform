@@ -1,5 +1,7 @@
 ﻿using Microsoft.OpenApi.Any;
 using System.Net.Mime;
+using Microsoft.AspNetCore.Mvc.Controllers;
+
 
 #if NET9_0_OR_GREATER
 using System.Collections.Immutable;
@@ -96,6 +98,26 @@ public static class OpenApiExtensions
             document.Paths.Clear();
             foreach (var item in paths) {
                 document.Paths.Add(item.Key, item.Value);
+            }
+            return Task.CompletedTask;
+        });
+
+
+    /// <summary>
+    /// Configures the OpenAPI generator to use the ASP.NET Core MVC action name as the operation ID for each API
+    /// operation.
+    /// </summary>
+    /// <remarks>If an operation does not already have an operation ID, this method sets it to the
+    /// corresponding MVC action name. This can help ensure consistent and predictable operation IDs in generated
+    /// OpenAPI documents.</remarks>
+    /// <param name="options">The OpenApiOptions instance to configure. Cannot be null.</param>
+    /// <returns>The same OpenApiOptions instance, enabling method chaining.</returns>
+    public static OpenApiOptions MvcActionAsOperationId(this OpenApiOptions options) =>
+        options.AddOperationTransformer((operation, context, cancellationToken) => {
+            var actionDescriptor = context.Description.ActionDescriptor;
+            if (actionDescriptor is ControllerActionDescriptor controllerAction && string.IsNullOrWhiteSpace(operation.OperationId)) {
+                operation.OperationId = controllerAction.ActionName;
+                operation.Summary ??= controllerAction.DisplayName ?? controllerAction.ActionName;
             }
             return Task.CompletedTask;
         });
