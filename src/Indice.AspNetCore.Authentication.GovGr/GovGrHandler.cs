@@ -75,10 +75,12 @@ public class GovGrHandler : OAuthHandler<GovGrOptions>, IAuthenticationSignOutHa
             Context.Response.Redirect(postLogoutRedirectUri);
             return;
         }
-        postLogoutRedirectUri = UriHelper.BuildAbsolute(Context.Request.Scheme, Context.Request.Host, path: postLogoutRedirectUri);
+        var request = Context.Request;
+        var baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}";
+        var absoluteReturnUrl = baseUrl + postLogoutRedirectUri;
         var logoutEndpoint = Options.LogoutEndpoint;
         var clientId = Options.ClientId;
-        var logoutUrl = $"{logoutEndpoint}/{clientId}/?url={Uri.EscapeDataString(postLogoutRedirectUri)}";
+        var logoutUrl = $"{logoutEndpoint}/{clientId}/?url={Uri.EscapeDataString(absoluteReturnUrl)}";
         Context.Response.Redirect(logoutUrl);
     }
 
