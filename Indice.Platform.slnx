@@ -26,6 +26,7 @@
     <Project Path="src/Indice.Common/Indice.Common.csproj" />
     <Project Path="src/Indice.EntityFrameworkCore/Indice.EntityFrameworkCore.csproj" />
     <Project Path="src/Indice.Extensions.Configuration.Database/Indice.Extensions.Configuration.Database.csproj" />
+    <Project Path="src/Indice.Features.ActivityLogs/Indice.Features.ActivityLogs.csproj" />
     <Project Path="src/Indice.Features.Cases.App/Indice.Features.Cases.App.esproj">
       <Build />
       <Deploy />
