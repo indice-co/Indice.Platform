@@ -115,7 +115,7 @@ public static class OpenApiExtensions
         options.AddOperationTransformer((operation, context, cancellationToken) => {
             var actionDescriptor = context.Description.ActionDescriptor;
             if (actionDescriptor is Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor controllerAction && string.IsNullOrWhiteSpace(operation.OperationId)) {
-                operation.OperationId = controllerAction.ActionName;
+                operation.OperationId = $"{controllerAction.ControllerName}_{controllerAction.ActionName}";
                 operation.Summary ??= controllerAction.ActionName.Humanize();
             }
             return Task.CompletedTask;
