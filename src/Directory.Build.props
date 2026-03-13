@@ -15,7 +15,7 @@
       <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
       <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
-      <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
+      <VersionPrefixGovGr>$(VersionPrefixBase).1</VersionPrefixGovGr>
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 

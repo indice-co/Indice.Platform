@@ -2,7 +2,7 @@
   <PropertyGroup Label="Package">
     <PackageTags>AspNetCore;Authentication;OpenID;GovGr</PackageTags>
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
-    <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
+    <VersionPrefix>$(VersionPrefixGovGr)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
