@@ -24,7 +24,7 @@ public class ActivityLogEntryExtraData
     /// <summary>User devices representation.</summary>
     public ActivityLogEntryUserDevice? UserDevice { get; set; }
     /// <summary>Describes a warning that may occur during a activity event.</summary>
-    public ActivityWarning? Warning { get; set; }
+    public SignInWarning? Warning { get; set; }
     /// <summary>The name of the original event occurred.</summary>
     public string OriginalEventType { get; set; } = null!;
     /// <summary>List of authentication methods used.</summary>

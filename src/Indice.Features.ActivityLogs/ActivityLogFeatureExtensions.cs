@@ -89,9 +89,7 @@ public static class ActivityLogFeatureExtensions
             if (serviceDescriptor is not null) {
                 builder.Services.Remove(serviceDescriptor);
             }
-            builder.Services.TryAddScoped<IActivityGuard<TUser>, ActivityGuard<TUser>>();
         }
-        services.AddPlatformEventHandler<PasswordChangedEvent, UserPasswordChangedEventHandler>();
         services.AddPlatformEventHandler<AccountLockedEvent, AccountLockedEventHandler>();
         return builder;
     }

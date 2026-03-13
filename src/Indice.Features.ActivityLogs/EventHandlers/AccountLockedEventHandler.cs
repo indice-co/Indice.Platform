@@ -25,7 +25,7 @@ namespace Indice.Features.ActivityLogs.EventHandlers;
 public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLockedEvent>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ExtendedActivityManager<User> _ActivityManager;
+    private readonly ExtendedSignInManager<User> _SignInManager;
     private readonly IClientStore _clientStore;
     private readonly IPAddressLocator _ipAddressLocator;
     private readonly IPlatformEventService _platformEvents;
@@ -40,12 +40,12 @@ public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLoc
     public AccountLockedEventHandler(
         IEventService eventService,
         IHttpContextAccessor httpContextAccessor,
-        ExtendedActivityManager<User> ActivityManager,
+        ExtendedSignInManager<User> SignInManager,
         IClientStore clientStore,
         IPAddressLocator ipAddressLocator,
         IPlatformEventService platformEvents) {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        _ActivityManager = ActivityManager ?? throw new ArgumentNullException(nameof(ActivityManager));
+        _SignInManager = SignInManager ?? throw new ArgumentNullException(nameof(SignInManager));
         _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
         _ipAddressLocator = ipAddressLocator ?? throw new ArgumentNullException(nameof(ipAddressLocator));
         _platformEvents = platformEvents ?? throw new ArgumentNullException(nameof(platformEvents));
@@ -53,34 +53,6 @@ public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLoc
 
     /// <inheritdoc />
     public async Task Handle(AccountLockedEvent @event, PlatformEventArgs args) {
-        var clientId = _httpContextAccessor?.HttpContext?.GetClientIdFromReturnUrl() ?? _httpContextAccessor?.HttpContext?.User.FindFirstValue(BasicClaimTypes.ClientId);
-        var userManager = (ExtendedUserManager<User>)_ActivityManager.UserManager;
-        var user = await _ActivityManager.UserManager.FindByIdAsync(@event.User.Id);
-        var deviceId = await _ActivityManager.GetMfaDeviceIdentifierAsync(user!);
-        var ipLocation = _ipAddressLocator.GetLocationMetadata(_httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress!);
-        var claims = await userManager.GetClaimsAsync(user!);
-        var userLocale = claims.FirstOrDefault(c => c.Type == BasicClaimTypes.Locale)?.Value;
 
-        UserDevice? device = null;
-        if (!deviceId.IsEmpty) {
-            // If the device id is available populate data.
-            device = await userManager.GetDeviceByIdAsync(user!, deviceId.Value!);
-        }
-        if (device is null) {
-            var userAgentHeader = _httpContextAccessor?.HttpContext?.Request.Headers[HeaderNames.UserAgent];
-            if (!string.IsNullOrWhiteSpace(userAgentHeader)) {
-                device = UserDevice.FromUserAgent(userAgentHeader!, deviceId, @event.User.Id, 0);
-            }
-        }
-        Client? client = null;
-        if (!string.IsNullOrWhiteSpace(clientId)) {
-            client = await _clientStore.FindClientByIdAsync(clientId);
-        }
-        await _platformEvents.Publish(new SecurityNotificationEvent(nameof(AccountLockedEvent), UserEventContext.InitializeFromUser(user!), ipLocation) {
-            Device = device is not null ? UserDeviceEventContext.InitializeFromUserDevice(device) : null,
-            Client = client is not null ? ClientEventContext.InitializeFromClient(client) : null,
-            TimeStamp = DateTimeOffset.UtcNow,
-            Locale = userLocale
-        });
     }
 }

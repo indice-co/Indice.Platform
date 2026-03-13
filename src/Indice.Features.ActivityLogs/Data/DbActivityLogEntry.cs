@@ -48,8 +48,6 @@ internal class DbActivityLogEntry
     public string? DeviceId { get; set; }
     /// <summary>The approximate location of the operation.</summary>
     public Point? Coordinates { get; set; }
-    /// <summary>The grant type used for the login.</summary>
-    public string? GrantType { get; set; }
     /// <summary>Additional information about the user's activity log entry.</summary>
     public ActivityLogEntryExtraData? ExtraData { get; set; }
 }
