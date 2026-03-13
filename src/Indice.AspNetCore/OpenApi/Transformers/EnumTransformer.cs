@@ -77,7 +77,7 @@ public static class EnumTransformer
     /// <param name="context">The context containing information about the schema transformation, including the JSON type information and parameter description.</param>
     /// <param name="type">The type to check for being an enum and to extract enum values, names, and descriptions from.</param>
     /// <returns></returns>
-    public static bool TryTransformEnumAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, Type type) {
+    public static bool TryTransformEnum(OpenApiSchema schema, OpenApiSchemaTransformerContext context, Type type) {
         
         var enumType = Nullable.GetUnderlyingType(type) ?? type;
         if (!enumType.IsEnum || schema.Extensions.Count > 0) {
