@@ -1,6 +1,6 @@
 ﻿using Indice.AspNetCore.Features.Recaptcha;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -8,19 +8,18 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class RecaptchaFeatureExtensions {
 
     /// <summary>
-    /// Adds SignalR endpoint services to the application.
+    /// Adds reCAPTCHA services to the application.
     /// </summary>
-    /// <param name="builder">The application builder.</param>
-    /// <param name="configureAction">An optional action to configure the SignalR proxy options.</param>
-    public static IHostApplicationBuilder AddRecaptcha(this IHostApplicationBuilder builder, Action<RecaptchaOptions>? configureAction = null) {
-        builder.Services.Configure<RecaptchaOptions>(builder.Configuration.GetSection(RecaptchaOptions.SectionName));
-        
+    /// <param name="services">The application services.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <param name="configureAction">An optional action to configure the reCAPTCHA options.</param>
+    public static IServiceCollection AddRecaptcha(this IServiceCollection services, IConfiguration configuration, Action<RecaptchaOptions>? configureAction = null) {
+        services.Configure<RecaptchaOptions>(configuration.GetSection(RecaptchaOptions.SectionName));
         if (configureAction is not null) {
-            builder.Services.Configure(configureAction);
+            services.Configure(configureAction);
         }
-
-        builder.Services.TryAddScoped<IRecaptchaService, RecaptchaService>();
-        builder.Services.AddHttpClient();
-        return builder;
+        services.TryAddScoped<IRecaptchaService, RecaptchaService>();
+        services.AddHttpClient();
+        return services;
     }
 }

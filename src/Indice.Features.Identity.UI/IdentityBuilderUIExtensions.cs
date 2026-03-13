@@ -113,12 +113,8 @@ public static class IdentityBuilderUIExtensions
 
         services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
         services.TryAddScoped<IdentityUILocalizer>();
-
         // Add reCAPTCHA service with options pattern
-        services.Configure<RecaptchaOptions>(configuration.GetSection(RecaptchaOptions.SectionName));
-        services.TryAddScoped<IRecaptchaService, RecaptchaService>();
-        services.AddHttpClient();
-
+        services.AddRecaptcha(configuration);
         return services;
     }
 

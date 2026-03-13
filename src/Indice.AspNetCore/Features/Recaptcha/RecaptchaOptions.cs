@@ -29,4 +29,7 @@ public class RecaptchaOptions
 
     /// <summary>Gets the effective v2 secret key.</summary>
     public string? EffectiveSecretKeyV2 => string.IsNullOrWhiteSpace(SecretKeyV2) ? SecretKey : SecretKeyV2;
+
+    //TODO: 
+    public bool ShowInLoginPage { get; set; }
 }

@@ -54,7 +54,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Endpoint\" />
     <Folder Include="Services\" />
   </ItemGroup>
   
