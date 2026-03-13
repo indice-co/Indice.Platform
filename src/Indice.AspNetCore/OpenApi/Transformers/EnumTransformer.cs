@@ -52,8 +52,9 @@ public static class EnumTransformer
             return Task.CompletedTask;
         }
 
-        if (TryFindMvcQueryParameterEnumType(schema, context.ParameterDescription, out var modelType) {
-            TryTransformEnumAsync(schema, context, modelType!);
+        if (TryFindMvcQueryParameterEnumType(schema, context.ParameterDescription, out var modelType) && TryTransformEnumAsync(schema, context, modelType!)) {
+            schema.Annotations ??= new Dictionary<string, object>();
+            schema.Annotations["x-schema-id"] = (Nullable.GetUnderlyingType(modelType!) ?? modelType!).Name;
         }
         return Task.CompletedTask;
     }
@@ -77,6 +78,7 @@ public static class EnumTransformer
     /// <param name="type">The type to check for being an enum and to extract enum values, names, and descriptions from.</param>
     /// <returns></returns>
     public static bool TryTransformEnumAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, Type type) {
+        
         var enumType = Nullable.GetUnderlyingType(type) ?? type;
         if (!enumType.IsEnum || schema.Extensions.Count > 0) {
             return false;
