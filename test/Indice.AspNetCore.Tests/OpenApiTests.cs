@@ -93,8 +93,12 @@ public class OpenApiTests : IAsyncLifetime
         Assert.Equal(expectedUploadRequestSchema, uploadRequestSchema!.ToJsonString());
 
         var sampleEnumSchema = json!["components"]!["schemas"]!["SampleEnum"];
-        var parameterEnumSchema = json!["paths"]!["/mvc/menu"]!["get"]!["parameters"]![0]!["schema"];
         Assert.Null(sampleEnumSchema);
+
+        var mvcOperationId = json!["paths"]!["/mvc/menu"]!["get"]!["operationId"];
+        Assert.Equal("OpenApiTests_GetMenuItems", mvcOperationId);
+
+        var parameterEnumSchema = json!["paths"]!["/mvc/menu"]!["get"]!["parameters"]![0]!["schema"];
         var expectedSampleEnumSchema = "{\"enum\":[1,2,3],\"type\":\"integer\",\"x-enum-varnames\":[\"Value1\",\"Value2\",\"Value3\"]}";
         Assert.Equal(expectedSampleEnumSchema, parameterEnumSchema!.ToJsonString());
     }

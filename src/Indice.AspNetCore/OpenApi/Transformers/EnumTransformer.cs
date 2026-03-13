@@ -48,11 +48,11 @@ public static class EnumTransformer
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns></returns>
     public static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
-        if (TryTransformEnumAsync(schema, context, context.JsonTypeInfo.Type)) {
+        if (TryTransformEnum(schema, context, context.JsonTypeInfo.Type)) {
             return Task.CompletedTask;
         }
 
-        if (TryFindMvcQueryParameterEnumType(schema, context.ParameterDescription, out var modelType) && TryTransformEnumAsync(schema, context, modelType!)) {
+        if (TryFindMvcQueryParameterEnumType(schema, context.ParameterDescription, out var modelType) && TryTransformEnum(schema, context, modelType!)) {
             schema.Annotations ??= new Dictionary<string, object>();
             schema.Annotations["x-schema-id"] = (Nullable.GetUnderlyingType(modelType!) ?? modelType!).Name;
         }
@@ -76,7 +76,7 @@ public static class EnumTransformer
     /// <param name="schema">The OpenAPI schema to transform.</param>
     /// <param name="context">The context containing information about the schema transformation, including the JSON type information and parameter description.</param>
     /// <param name="type">The type to check for being an enum and to extract enum values, names, and descriptions from.</param>
-    /// <returns></returns>
+    /// <returns>true if transformed</returns>
     public static bool TryTransformEnum(OpenApiSchema schema, OpenApiSchemaTransformerContext context, Type type) {
         
         var enumType = Nullable.GetUnderlyingType(type) ?? type;
