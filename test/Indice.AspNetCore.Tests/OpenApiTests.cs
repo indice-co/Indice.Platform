@@ -1,11 +1,15 @@
 ﻿#if NET9_0_OR_GREATER
 using System.Net.Http.Json;
 using System.Net.Mime;
+using System.Reflection;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -37,13 +41,15 @@ public class OpenApiTests : IAsyncLifetime
         });
         builder.ConfigureServices((context, services) => {
             services.AddRouting();
-            services.AddOpenApi(options => options.AddDocumentInfo());
+            services.AddOpenApi(options => options.AddDocumentInfo().ControllerActionAsOperationId());
             services.AddEndpointsApiExplorer();
+            services.AddControllers().ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new OpenApiTestFeatureProvider()));
         });
         builder.Configure(app => {
             app.UseRouting();
             app.UseEndpoints(e => {
                 e.MapTestEndpoints();
+                e.MapControllers();
                 e.MapOpenApi();
             });
         });
@@ -79,12 +85,22 @@ public class OpenApiTests : IAsyncLifetime
 
         var json = JsonNode.Parse(openApi);
         var menuItemSchema = json!["components"]!["schemas"]!["MenuItem"];
-        var expectedMenuItemSchema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"},\"children\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/MenuItem\"}}},\"additionalProperties\":false}";
+        var expectedMenuItemSchema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"},\"type\":{\"$ref\":\"#/components/schemas/MenuType\"},\"children\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/MenuItem\"}}},\"additionalProperties\":false}";
         Assert.Equal(expectedMenuItemSchema, menuItemSchema!.ToJsonString());
 
         var uploadRequestSchema = json!["components"]!["schemas"]!["UploadFileRequest"];
         var expectedUploadRequestSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"type\":\"string\",\"format\":\"binary\",\"nullable\":true},\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\",\"nullable\":true}},\"additionalProperties\":false}";
         Assert.Equal(expectedUploadRequestSchema, uploadRequestSchema!.ToJsonString());
+
+        var sampleEnumSchema = json!["components"]!["schemas"]!["SampleEnum"];
+        Assert.Null(sampleEnumSchema);
+
+        var mvcOperationId = json!["paths"]!["/mvc/menu"]!["get"]!["operationId"]!.ToString();
+        Assert.Equal("OpenApiTests_GetMenuItems", mvcOperationId!);
+
+        var parameterEnumSchema = json!["paths"]!["/mvc/menu"]!["get"]!["parameters"]![0]!["schema"];
+        var expectedSampleEnumSchema = "{\"enum\":[1,2,3],\"type\":\"integer\",\"x-enum-varnames\":[\"Value1\",\"Value2\",\"Value3\"]}";
+        Assert.Equal(expectedSampleEnumSchema, parameterEnumSchema!.ToJsonString());
     }
 }
 
@@ -94,6 +110,7 @@ public class OpenApiTestsModels
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public MenuType Type { get; set; } = MenuType.Link;
         public List<MenuItem> Children { get; set; } = [];
     }
 
@@ -107,6 +124,62 @@ public class OpenApiTestsModels
     public class AttachmentLink
     {
         public Guid AttachmentId { get; set; }
+    }
+
+    public enum SampleEnum
+    {
+        Value1 = 1,
+        Value2 = 2,
+        Value3 = 3
+    }
+    public enum MenuType
+    {
+        Link = 1,
+        Category = 2,
+    }
+
+    public class SampleFilterRequest
+    {
+        public SampleEnum? EnumValue { get; set; }
+    }
+}
+
+[ApiController]
+public class OpenApiTestsController
+{
+    [HttpGet("/mvc/menu")]
+    public IActionResult GetMenuItems([FromQuery]SampleFilterRequest filter) {
+        var items = new List<MenuItem>
+        {
+                new()
+                {
+                    Name = "Home",
+                    Description = "Go to home page",
+                    Children = [
+                        new() { Name = "Sub Home 1", Description = "Sub Home 1 Description" },
+                        new() { Name = "Sub Home 2", Description = "Sub Home 2 Description" }
+                    ]
+                },
+                new()
+                {
+                    Name = "About",
+                    Description = "Learn more about us"
+                }
+            };
+        return new OkObjectResult(items);
+    }
+}
+
+public class OpenApiTestFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
+{
+    /// <summary>Populates the feature for the current ASP.NET app.</summary>
+    /// <param name="parts">The list of <see cref="ApplicationPart"/> instances in the application.</param>
+    /// <param name="feature">The feature instance to populate.</param>
+    public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) {
+        var type = typeof(OpenApiTestsController).GetTypeInfo();
+        if (!feature.Controllers.Any(x => x == type)) {
+            feature.Controllers.Add(type);
+        }
     }
 }
 

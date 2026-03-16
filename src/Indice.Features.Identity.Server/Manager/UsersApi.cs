@@ -133,6 +133,16 @@ public static class UsersApi
              .WithSummary("Permanently deletes a specified login provider association from a user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
+        group.MapGet("{userId}/sessions", UserHandlers.GetUserSessions)
+             .WithName(nameof(UserHandlers.GetUserSessions))
+             .WithSummary("Gets a list of server side sessions for the specified user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        group.MapDelete("{userId}/sessions/{sessionId}", UserHandlers.RemoveUserSession)
+             .WithName(nameof(UserHandlers.RemoveUserSession))
+             .WithSummary("Permanently removes an active session.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
         group.MapPut("{userId}/block", UserHandlers.SetUserBlock)
              .WithName(nameof(UserHandlers.SetUserBlock))
              .WithSummary("Toggles user block state.")

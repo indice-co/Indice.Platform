@@ -22,6 +22,7 @@ import { UserClaimsStepComponent } from "./add/wizard/steps/claims/user-claims-s
 import { UserRolesStepComponent } from "./add/wizard/steps/roles/user-roles-step.component";
 import { UserProfilePictureComponent } from "./edit/profile-picture/profile-picture.component";
 import { ImgUserPictureDirective } from "src/app/shared/directives/user-picture.directive";
+import { UserSessionsComponent } from "./edit/sessions/user-sessions.component";
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { ImgUserPictureDirective } from "src/app/shared/directives/user-picture.
     UserApplicationsComponent,
     UserDetailsComponent,
     UserDevicesComponent,
+    UserSessionsComponent,
     UserEditComponent,
     UserLoginsComponent,
     UserRolesComponent,

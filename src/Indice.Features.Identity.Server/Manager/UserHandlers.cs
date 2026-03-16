@@ -32,6 +32,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
 using Indice.Security;
+using Microsoft.AspNetCore.Session;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -554,6 +556,7 @@ internal static class UserHandlers
             LastSignInDate = device.LastSignInDate,
             Model = device.Model,
             Name = device.Name,
+            UserAgentFamily = device.UserAgentFamily,
             OsVersion = device.OsVersion,
             Platform = device.Platform,
             SupportsFingerprintLogin = device.SupportsFingerprintLogin,
@@ -618,6 +621,59 @@ internal static class UserHandlers
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
         return TypedResults.NoContent();
+    }
+
+    internal static async Task<Ok<ResultSet<ServerSideSessionInfo>>> GetUserSessions(
+#if NET9_0_OR_GREATER
+        [FromServices]IServerSideSessionStore? sessionStore,
+#endif
+        string userId,
+        CancellationToken cancellationToken) {
+#if !NET9_0_OR_GREATER
+        return TypedResults.Ok(new ResultSet<ServerSideSessionInfo>());
+#else
+        if (string.IsNullOrWhiteSpace(userId) || sessionStore is null) {
+            return TypedResults.Ok(new ResultSet<ServerSideSessionInfo>());
+        }
+        var sessions = await sessionStore.GetSessionsAsync(new SessionFilter { SubjectId = userId }, cancellationToken);
+        return TypedResults.Ok(sessions.Select(x => new ServerSideSessionInfo {
+            Key = x.Key,
+            SessionId = x.SessionId,
+            SubjectId = x.SubjectId,
+            Scheme = x.Scheme,
+            DisplayName = x.DisplayName,
+            Created = x.Created,
+            Renewed = x.Renewed,
+            Expires = x.Expires,
+            Ticket = x.Ticket
+        }).ToResultSet());
+#endif
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> RemoveUserSession(
+#if NET9_0_OR_GREATER
+        [FromServices]ISessionManagementService? sessionManagement,
+        [FromServices]ExtendedUserManager<User> userManager,
+#endif
+        string userId,
+        string sessionId,
+        CancellationToken cancellationToken) {
+#if !NET9_0_OR_GREATER
+        return TypedResults.ValidationProblem(ValidationErrors.Create(), detail:"Not supported");
+#else
+        if (sessionManagement is null) {
+            return TypedResults.ValidationProblem(ValidationErrors.Create(), detail: "Not supported");
+        }
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        await sessionManagement.RemoveSessionsAsync(new RemoveSessionsContext {
+            SessionId = sessionId,
+            SubjectId = userId
+        }, cancellationToken);
+        return TypedResults.NoContent();
+#endif
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SetUserBlock(

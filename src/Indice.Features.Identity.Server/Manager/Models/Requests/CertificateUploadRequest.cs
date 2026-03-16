@@ -9,7 +9,7 @@ public class CertificateUploadRequest
 {
     /// <summary>File data</summary>
     [Required]
-    public IFormFile? File { get; set; }
+    public IFormFile File { get; set; } = null!;
 
     /// <summary>
     /// Optional password in case this is a application/x-pkcs12
@@ -28,7 +28,7 @@ public class CertificateUploadRequest
         var file = form.Files[nameof(File)];
         var password = form[nameof(Password)];
         return new CertificateUploadRequest {
-            File = file,
+            File = file!,
             Password = password,
         };
     }
