@@ -50,11 +50,7 @@
                     }
                 </div>
                 <div class="row">
-                    <partial name="_Recaptcha" view-data='new ViewDataDictionary(ViewData) {
-                                                                                                  { "FormId", "loginForm" },
-                                                                                                  { "ButtonId", "loginButton" },
-                                                                                                  { "Action", "login" }
-                                                                                                                                            }' />
+                    <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "loginForm", ButtonId = "loginButton", Action = "login", IsLoginForm = true }' />
                 </div>
                 <div class="flex justify-center items-center mt-8">
                     <button class="btn btn-primary" id="loginButton" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>

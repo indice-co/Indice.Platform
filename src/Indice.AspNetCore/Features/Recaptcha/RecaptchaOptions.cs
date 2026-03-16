@@ -19,10 +19,7 @@ public class RecaptchaOptions
     public string? SecretKeyV2 { get; set; }
 
     /// <summary>The minimum score threshold for v3 (0.0 to 1.0). Default is 0.4.</summary>
-    public decimal ScoreThreshold { get; set; } = 0.4m;
-
-    /// <summary>The expected action name for v3 validation.</summary>
-    public string ExpectedAction { get; set; } = "login";
+    public decimal ScoreThreshold { get; set; } = 0.5m;
 
     /// <summary>Gets the effective v2 site key.</summary>
     public string? EffectiveSiteKeyV2 => string.IsNullOrWhiteSpace(SiteKeyV2) ? SiteKey : SiteKeyV2;
@@ -30,6 +27,6 @@ public class RecaptchaOptions
     /// <summary>Gets the effective v2 secret key.</summary>
     public string? EffectiveSecretKeyV2 => string.IsNullOrWhiteSpace(SecretKeyV2) ? SecretKey : SecretKeyV2;
 
-    //TODO: 
-    public bool ShowInLoginPage { get; set; }
+    /// <summary>Whether to show the reCAPTCHA widget on the login page. Default is true.</summary>
+    public bool EnabledInLoginPage { get; set; } = true;
 }

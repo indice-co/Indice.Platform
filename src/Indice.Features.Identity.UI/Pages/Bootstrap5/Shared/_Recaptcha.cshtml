@@ -1,14 +1,12 @@
 ﻿@inject Indice.AspNetCore.Features.Recaptcha.IRecaptchaService RecaptchaService
-
+@model RecaptchaViewModel
 @{
     var isRecaptchaEnabled = RecaptchaService.IsEnabled;
     var recaptchaSiteKey = RecaptchaService.SiteKey;
     var recaptchaSiteKeyV2 = RecaptchaService.SiteKeyV2;
-    var formId = ViewData["FormId"]?.ToString() ?? "form";
-    var buttonId = ViewData["ButtonId"]?.ToString() ?? "submitButton";
-    var action = ViewData["Action"]?.ToString() ?? "submit";
+    var showInForm = (Model.IsLoginForm && RecaptchaService.IsEnabledInLogin) || !Model.IsLoginForm;
 }
-@if (isRecaptchaEnabled)
+@if (isRecaptchaEnabled && showInForm)
 {
 
     <input type="hidden" id="recaptchaToken" name="Input.RecaptchaToken" />
@@ -25,25 +23,20 @@
         const siteKey = '@Html.Raw(recaptchaSiteKey)';
         const siteKeyV2 = '@Html.Raw(recaptchaSiteKeyV2)';
 
-        const form = document.getElementById('@Html.Raw(formId)');
-        const submitButton = document.getElementById('@Html.Raw(buttonId)');
+        const form = document.getElementById('@Html.Raw(Model.FormId)');
+        const submitButton = document.getElementById('@Html.Raw(Model.ButtonId)');
         const recaptchaTokenInput = document.getElementById('recaptchaToken');
         const recaptchaVersionInput = document.getElementById('recaptchaVersion');
         const recaptchaV2Container = document.getElementById('recaptchaV2Container');
         const recaptchaV2Error = document.getElementById('recaptchaV2Error');
         let v2WidgetId = null;
         let isSubmitting = false;
-        console.log('Log1');
-        console.log(form);
-        console.log(!form);
-        console.log(submitButton);
-        console.log(!submitButton);
         
         // Execute reCAPTCHA v3 (invisible, runs in background)
         async function executeRecaptchaV3() {
             console.log('executeRecaptchaV3');
             try {
-                const token = await grecaptcha.execute(siteKey, { action: '@action'});
+                const token = await grecaptcha.execute(siteKey, { action: '@Html.Raw(Model.Action)'});
                 return token;
             } catch (error) {
             console.error('reCAPTCHA v3 error:', error);

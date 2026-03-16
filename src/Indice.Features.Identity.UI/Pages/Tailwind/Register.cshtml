@@ -230,7 +230,7 @@
             
             <div class="row">
                 <div class="col-span-12">
-                    <partial name="_Recaptcha" view-data='new ViewDataDictionary(ViewData) { { "FormId", "registerForm" }, { "ButtonId", "submitButton" }, { "Action", "register" } }' />
+                    <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "registerForm", ButtonId = "submitButton", Action = "register" }' />
                 </div>
             </div>
             <div class="row content-center place-items-center text-center mt-8">

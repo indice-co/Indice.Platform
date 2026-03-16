@@ -63,11 +63,7 @@
                     <a class="btn btn-link p-0 text-md float-end text-blue" asp-page="/ForgotPassword">@Localizer.Login_Forgot_Password</a>
                 }
             </div>
-            <partial name="_Recaptcha" view-data='new ViewDataDictionary(ViewData) {
-                                                    { "FormId", "loginForm" },
-                                                    { "ButtonId", "loginButton" },
-                                                    { "Action", "login" }
-                                                }' />
+            <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "loginForm", ButtonId = "loginButton", Action = "login", IsLoginForm = true }' />
             <div class="mb-3">
                 <div class="row align-items-center">
                     @if (Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding)

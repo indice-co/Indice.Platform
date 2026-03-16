@@ -25,6 +25,8 @@ public interface IRecaptchaService
 
     /// <summary>Checks if reCAPTCHA is enabled.</summary>
     bool IsEnabled { get; }
+    /// <summary>Checks if reCAPTCHA is enabled in login form.</summary>
+    bool IsEnabledInLogin { get; }
 
     /// <summary>Gets the configured score threshold.</summary>
     decimal ScoreThreshold { get; }
@@ -62,7 +64,8 @@ public class RecaptchaService : IRecaptchaService
 
     /// <inheritdoc/>
     public bool IsEnabled => !string.IsNullOrWhiteSpace(_options.SiteKey) && !string.IsNullOrWhiteSpace(_options.SecretKey);
-
+    /// <inheritdoc/>
+    public bool IsEnabledInLogin => _options.EnabledInLoginPage;
     /// <inheritdoc/>
     public decimal ScoreThreshold => _options.ScoreThreshold;
 
@@ -130,17 +133,6 @@ public class RecaptchaService : IRecaptchaService
 
             // v3 requires v2 fallback if score is below configured threshold
             var requiresV2Fallback = !isV2 && result.Success && score < _options.ScoreThreshold;
-
-            // Validate action for v3 (optional security check)
-            if (!isV2 && result.Success && !string.IsNullOrEmpty(_options.ExpectedAction))
-            {
-                if (!string.Equals(result.Action, _options.ExpectedAction, StringComparison.OrdinalIgnoreCase))
-                {
-                    _logger.LogWarning("reCAPTCHA action mismatch. Expected: {Expected}, Actual: {Actual}", 
-                        _options.ExpectedAction, result.Action);
-                    // Don't fail, but log the mismatch
-                }
-            }
 
             if (!result.Success)
             {
