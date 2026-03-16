@@ -741,6 +741,11 @@ export interface IIdentityApiService {
      */
     deleteUserExternalLogin(userId: string, provider: string, providerKey: string): Observable<void>;
     /**
+     * Removes the last password for the given user.
+     * @return No Content
+     */
+    removePassword(userId: string): Observable<void>;
+    /**
      * Get user's profile picture.
      * @param size (optional) 
      * @param d (optional) 
@@ -787,6 +792,16 @@ export interface IIdentityApiService {
      * @return No Content
      */
     deleteUserRole(userId: string, roleId: string): Observable<void>;
+    /**
+     * Gets a list of server side sessions for the specified user.
+     * @return OK
+     */
+    getUserSessions(userId: string): Observable<ServerSideSessionInfoResultSet>;
+    /**
+     * Permanently removes an active session.
+     * @return No Content
+     */
+    removeUserSession(userId: string, sessionId: string): Observable<void>;
     /**
      * Sets the password for a given user.
      * @return No Content
@@ -10972,6 +10987,89 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Removes the last password for the given user.
+     * @return No Content
+     */
+    removePassword(userId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/users/{userId}/password";
+        if (userId === undefined || userId === null)
+            throw new globalThis.Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRemovePassword(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRemovePassword(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRemovePassword(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Get user's profile picture.
      * @param size (optional) 
      * @param d (optional) 
@@ -11633,6 +11731,168 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     protected processDeleteUserRole(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets a list of server side sessions for the specified user.
+     * @return OK
+     */
+    getUserSessions(userId: string): Observable<ServerSideSessionInfoResultSet> {
+        let url_ = this.baseUrl + "/api/users/{userId}/sessions";
+        if (userId === undefined || userId === null)
+            throw new globalThis.Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetUserSessions(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetUserSessions(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServerSideSessionInfoResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServerSideSessionInfoResultSet>;
+        }));
+    }
+
+    protected processGetUserSessions(response: HttpResponseBase): Observable<ServerSideSessionInfoResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServerSideSessionInfoResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Permanently removes an active session.
+     * @return No Content
+     */
+    removeUserSession(userId: string, sessionId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/users/{userId}/sessions/{sessionId}";
+        if (userId === undefined || userId === null)
+            throw new globalThis.Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        if (sessionId === undefined || sessionId === null)
+            throw new globalThis.Error("The parameter 'sessionId' must be defined.");
+        url_ = url_.replace("{sessionId}", encodeURIComponent("" + sessionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRemoveUserSession(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRemoveUserSession(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRemoveUserSession(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -13111,7 +13371,7 @@ export interface IClientThemeConfigRequest {
 }
 
 export class ClientThemeConfigResponse implements IClientThemeConfigResponse {
-    schema?: any;
+    schema?: any | undefined;
     data?: DefaultClientThemeConfig;
 
     constructor(data?: IClientThemeConfigResponse) {
@@ -13146,7 +13406,7 @@ export class ClientThemeConfigResponse implements IClientThemeConfigResponse {
 }
 
 export interface IClientThemeConfigResponse {
-    schema?: any;
+    schema?: any | undefined;
     data?: DefaultClientThemeConfig;
 }
 
@@ -14069,6 +14329,7 @@ export class DeviceInfo implements IDeviceInfo {
     deviceId?: string | undefined;
     platform?: DevicePlatform;
     name?: string | undefined;
+    userAgentFamily?: string | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
     dateCreated?: Date;
@@ -14081,7 +14342,7 @@ export class DeviceInfo implements IDeviceInfo {
     trustActivationDate?: Date | undefined;
     isTrusted?: boolean;
     canActivateDeviceTrust?: boolean;
-    data?: any;
+    data?: any | undefined;
     clientType?: DeviceClientType;
     mfaSessionExpirationDate?: Date | undefined;
     blocked?: boolean;
@@ -14102,6 +14363,7 @@ export class DeviceInfo implements IDeviceInfo {
             this.deviceId = _data["deviceId"];
             this.platform = _data["platform"];
             this.name = _data["name"];
+            this.userAgentFamily = _data["userAgentFamily"];
             this.model = _data["model"];
             this.osVersion = _data["osVersion"];
             this.dateCreated = _data["dateCreated"] ? new Date(_data["dateCreated"].toString()) : undefined as any;
@@ -14139,6 +14401,7 @@ export class DeviceInfo implements IDeviceInfo {
         data["deviceId"] = this.deviceId;
         data["platform"] = this.platform;
         data["name"] = this.name;
+        data["userAgentFamily"] = this.userAgentFamily;
         data["model"] = this.model;
         data["osVersion"] = this.osVersion;
         data["dateCreated"] = this.dateCreated ? this.dateCreated.toISOString() : undefined as any;
@@ -14169,6 +14432,7 @@ export interface IDeviceInfo {
     deviceId?: string | undefined;
     platform?: DevicePlatform;
     name?: string | undefined;
+    userAgentFamily?: string | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
     dateCreated?: Date;
@@ -14181,7 +14445,7 @@ export interface IDeviceInfo {
     trustActivationDate?: Date | undefined;
     isTrusted?: boolean;
     canActivateDeviceTrust?: boolean;
-    data?: any;
+    data?: any | undefined;
     clientType?: DeviceClientType;
     mfaSessionExpirationDate?: Date | undefined;
     blocked?: boolean;
@@ -15080,12 +15344,13 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
     deviceId!: string;
     pnsHandle?: string | undefined;
     name?: string | undefined;
+    userAgentFamily?: string | undefined;
     platform!: DevicePlatform;
     tags?: string[] | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
     clientType?: DeviceClientType;
-    data?: any;
+    data?: any | undefined;
 
     constructor(data?: IRegisterDeviceRequest) {
         if (data) {
@@ -15101,6 +15366,7 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
             this.deviceId = _data["deviceId"];
             this.pnsHandle = _data["pnsHandle"];
             this.name = _data["name"];
+            this.userAgentFamily = _data["userAgentFamily"];
             this.platform = _data["platform"];
             if (Array.isArray(_data["tags"])) {
                 this.tags = [] as any;
@@ -15126,6 +15392,7 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
         data["deviceId"] = this.deviceId;
         data["pnsHandle"] = this.pnsHandle;
         data["name"] = this.name;
+        data["userAgentFamily"] = this.userAgentFamily;
         data["platform"] = this.platform;
         if (Array.isArray(this.tags)) {
             data["tags"] = [];
@@ -15144,12 +15411,13 @@ export interface IRegisterDeviceRequest {
     deviceId: string;
     pnsHandle?: string | undefined;
     name?: string | undefined;
+    userAgentFamily?: string | undefined;
     platform: DevicePlatform;
     tags?: string[] | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
     clientType?: DeviceClientType;
-    data?: any;
+    data?: any | undefined;
 }
 
 export class RegisterRequest implements IRegisterRequest {
@@ -15500,6 +15768,122 @@ export interface ISendPushNotificationRequest {
     classification?: string | undefined;
 }
 
+export class ServerSideSessionInfo implements IServerSideSessionInfo {
+    key?: string;
+    scheme?: string;
+    subjectId?: string;
+    sessionId?: string;
+    displayName?: string | undefined;
+    created?: Date;
+    renewed?: Date;
+    expires?: Date | undefined;
+    ticket?: string;
+
+    constructor(data?: IServerSideSessionInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.key = _data["key"];
+            this.scheme = _data["scheme"];
+            this.subjectId = _data["subjectId"];
+            this.sessionId = _data["sessionId"];
+            this.displayName = _data["displayName"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : undefined as any;
+            this.renewed = _data["renewed"] ? new Date(_data["renewed"].toString()) : undefined as any;
+            this.expires = _data["expires"] ? new Date(_data["expires"].toString()) : undefined as any;
+            this.ticket = _data["ticket"];
+        }
+    }
+
+    static fromJS(data: any): ServerSideSessionInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new ServerSideSessionInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["key"] = this.key;
+        data["scheme"] = this.scheme;
+        data["subjectId"] = this.subjectId;
+        data["sessionId"] = this.sessionId;
+        data["displayName"] = this.displayName;
+        data["created"] = this.created ? this.created.toISOString() : undefined as any;
+        data["renewed"] = this.renewed ? this.renewed.toISOString() : undefined as any;
+        data["expires"] = this.expires ? this.expires.toISOString() : undefined as any;
+        data["ticket"] = this.ticket;
+        return data;
+    }
+}
+
+export interface IServerSideSessionInfo {
+    key?: string;
+    scheme?: string;
+    subjectId?: string;
+    sessionId?: string;
+    displayName?: string | undefined;
+    created?: Date;
+    renewed?: Date;
+    expires?: Date | undefined;
+    ticket?: string;
+}
+
+export class ServerSideSessionInfoResultSet implements IServerSideSessionInfoResultSet {
+    count?: number;
+    items?: ServerSideSessionInfo[];
+
+    constructor(data?: IServerSideSessionInfoResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ServerSideSessionInfo.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ServerSideSessionInfoResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new ServerSideSessionInfoResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IServerSideSessionInfoResultSet {
+    count?: number;
+    items?: ServerSideSessionInfo[];
+}
+
 export class SetPasswordRequest implements ISetPasswordRequest {
     password!: string;
     changePasswordAfterFirstSignIn?: boolean | undefined;
@@ -15589,6 +15973,7 @@ export class SignInLogEntry implements ISignInLogEntry {
     applicationName?: string | undefined;
     subjectId?: string | undefined;
     subjectName?: string | undefined;
+    subjectUnknown?: boolean;
     resourceId?: string | undefined;
     resourceType?: string | undefined;
     description?: string | undefined;
@@ -15602,7 +15987,7 @@ export class SignInLogEntry implements ISignInLogEntry {
     countryIsoCode?: string | undefined;
     deviceId?: string | undefined;
     grantType?: string | undefined;
-    coordinates?: string;
+    coordinates?: string | undefined;
     extraData?: SignInLogEntryExtraData;
 
     constructor(data?: ISignInLogEntry) {
@@ -15624,6 +16009,7 @@ export class SignInLogEntry implements ISignInLogEntry {
             this.applicationName = _data["applicationName"];
             this.subjectId = _data["subjectId"];
             this.subjectName = _data["subjectName"];
+            this.subjectUnknown = _data["subjectUnknown"];
             this.resourceId = _data["resourceId"];
             this.resourceType = _data["resourceType"];
             this.description = _data["description"];
@@ -15659,6 +16045,7 @@ export class SignInLogEntry implements ISignInLogEntry {
         data["applicationName"] = this.applicationName;
         data["subjectId"] = this.subjectId;
         data["subjectName"] = this.subjectName;
+        data["subjectUnknown"] = this.subjectUnknown;
         data["resourceId"] = this.resourceId;
         data["resourceType"] = this.resourceType;
         data["description"] = this.description;
@@ -15687,6 +16074,7 @@ export interface ISignInLogEntry {
     applicationName?: string | undefined;
     subjectId?: string | undefined;
     subjectName?: string | undefined;
+    subjectUnknown?: boolean;
     resourceId?: string | undefined;
     resourceType?: string | undefined;
     description?: string | undefined;
@@ -15700,7 +16088,7 @@ export interface ISignInLogEntry {
     countryIsoCode?: string | undefined;
     deviceId?: string | undefined;
     grantType?: string | undefined;
-    coordinates?: string;
+    coordinates?: string | undefined;
     extraData?: SignInLogEntryExtraData;
 }
 
@@ -15710,6 +16098,7 @@ export class SignInLogEntryDevice implements ISignInLogEntryDevice {
     userAgent?: string;
     displayName?: string;
     os?: string | undefined;
+    userAgentFamily?: string;
 
     constructor(data?: ISignInLogEntryDevice) {
         if (data) {
@@ -15727,6 +16116,7 @@ export class SignInLogEntryDevice implements ISignInLogEntryDevice {
             this.userAgent = _data["userAgent"];
             this.displayName = _data["displayName"];
             this.os = _data["os"];
+            this.userAgentFamily = _data["userAgentFamily"];
         }
     }
 
@@ -15744,6 +16134,7 @@ export class SignInLogEntryDevice implements ISignInLogEntryDevice {
         data["userAgent"] = this.userAgent;
         data["displayName"] = this.displayName;
         data["os"] = this.os;
+        data["userAgentFamily"] = this.userAgentFamily;
         return data;
     }
 }
@@ -15754,6 +16145,7 @@ export interface ISignInLogEntryDevice {
     userAgent?: string;
     displayName?: string;
     os?: string | undefined;
+    userAgentFamily?: string;
 }
 
 export class SignInLogEntryExtraData implements ISignInLogEntryExtraData {
@@ -15991,7 +16383,7 @@ export class SignInLogEntryUserDevice implements ISignInLogEntryUserDevice {
     isPushNotificationsEnabled?: boolean;
     supportsPinLogin?: boolean;
     supportsFingerprintLogin?: boolean;
-    data?: any;
+    data?: any | undefined;
     tags?: string[] | undefined;
     requiresPassword?: boolean;
     isTrusted?: boolean;
@@ -16085,7 +16477,7 @@ export interface ISignInLogEntryUserDevice {
     isPushNotificationsEnabled?: boolean;
     supportsPinLogin?: boolean;
     supportsFingerprintLogin?: boolean;
-    data?: any;
+    data?: any | undefined;
     tags?: string[] | undefined;
     requiresPassword?: boolean;
     isTrusted?: boolean;
@@ -16663,7 +17055,7 @@ export class TotpRequest implements ITotpRequest {
     channel?: TotpDeliveryChannel;
     purpose?: string | undefined;
     message?: string | undefined;
-    data?: any;
+    data?: any | undefined;
     classification?: string | undefined;
     subject?: string | undefined;
     authenticationMethod?: string | undefined;
@@ -16716,7 +17108,7 @@ export interface ITotpRequest {
     channel?: TotpDeliveryChannel;
     purpose?: string | undefined;
     message?: string | undefined;
-    data?: any;
+    data?: any | undefined;
     classification?: string | undefined;
     subject?: string | undefined;
     authenticationMethod?: string | undefined;
@@ -17321,7 +17713,7 @@ export class UpdateDeviceRequest implements IUpdateDeviceRequest {
     pnsHandle?: string | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
-    data?: any;
+    data?: any | undefined;
 
     constructor(data?: IUpdateDeviceRequest) {
         if (data) {
@@ -17376,7 +17768,7 @@ export interface IUpdateDeviceRequest {
     pnsHandle?: string | undefined;
     model?: string | undefined;
     osVersion?: string | undefined;
-    data?: any;
+    data?: any | undefined;
 }
 
 export class UpdateIdentityResourceRequest implements IUpdateIdentityResourceRequest {

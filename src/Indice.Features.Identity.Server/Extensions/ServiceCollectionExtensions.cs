@@ -7,6 +7,7 @@ using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Stores;
+using Indice.Features.Identity.Core.Events;
 #else
 using IdentityServer4.EntityFramework.Services;
 using IdentityServer4.ResponseHandling;
@@ -75,7 +76,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         });
         services.AddTotpServiceFactory(configuration);
         var identityBuilder = services.AddIdentityDefaults(configuration);
-        var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext);
+        var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext,
+                                                                       options.EnableServerSideSessions, options.EnforceSingleActiveSession);
         services.AddAuthenticationDefaults(configuration);
         options.ConfigureIdentityDbContext ??= dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
         services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options.ConfigureIdentityDbContext);
@@ -121,7 +123,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         IConfiguration configuration,
         IWebHostEnvironment webHostEnvironment,
         Action<DbContextOptionsBuilder>? configureConfigurationDbContext,
-        Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext
+        Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext,
+        bool enableServerSideSessions,
+        bool enforceSingleActiveSession
     ) {
         services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
 #if !NET9_0_OR_GREATER
@@ -191,6 +195,14 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             identityServerBuilder.AddSigningCredential(certificate);
         }
 
+#if NET9_0_OR_GREATER
+        if (enableServerSideSessions) {
+            identityServerBuilder.AddServerSideSessions();
+            if (enforceSingleActiveSession) {
+                services.AddPlatformEventHandler<UserLoginEvent, SingleSessionLoginEventHandler>();
+            }
+        }
+#endif
         return identityServerBuilder;
     }
 

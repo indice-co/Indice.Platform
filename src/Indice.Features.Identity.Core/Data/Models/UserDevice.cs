@@ -24,6 +24,8 @@ public class UserDevice
     public DevicePlatform Platform { get; set; }
     /// <summary>Device name.</summary>
     public string? Name { get; set; }
+    /// <summary>The httpclient used to serve this request. Can be a browser app or a custom native application.</summary>
+    public string? UserAgentFamily { get; set; }
     /// <summary>Device model.</summary>
     public string? Model { get; set; }
     /// <summary>Device OS version.</summary>
@@ -116,6 +118,7 @@ public class UserDevice
             MfaSessionExpirationDate = asOfDate.Value.AddDays(mfaRememberDurationInDays),
             Model = userAgent.DeviceModel,
             Name = userAgent.DisplayName,
+            UserAgentFamily = userAgent.UserAgentFamily,
             OsVersion = userAgent.Os,
             Platform = userAgent.DevicePlatform,
             TrustActivationDate = asOfDate,
