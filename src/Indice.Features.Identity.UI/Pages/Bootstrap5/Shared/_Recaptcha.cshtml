@@ -118,7 +118,6 @@
             // Execute v3 first (invisible background check)
             const token = await executeRecaptchaV3();
             if (!token) {
-                alert('reCAPTCHA verification failed. Please try again.');
                 submitButton.disabled = false;
                 return;
             }
@@ -128,7 +127,6 @@
             const validationResult = await validateRecaptchaV3Token(token);
 
             if (!validationResult.success) {
-                alert('reCAPTCHA validation failed. Please try again.');
                 submitButton.disabled = false;
                 return;
             }

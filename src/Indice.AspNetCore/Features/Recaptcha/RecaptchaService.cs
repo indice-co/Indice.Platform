@@ -104,7 +104,7 @@ public class RecaptchaService : IRecaptchaService
             if (!string.IsNullOrWhiteSpace(remoteIp)) {
                 formData["remoteip"] = remoteIp;
             }
-            var content = new FormUrlEncodedContent(formData);
+            using var content = new FormUrlEncodedContent(formData);
             var response = await httpClient.PostAsync(
                 "https://www.google.com/recaptcha/api/siteverify",
                 content,

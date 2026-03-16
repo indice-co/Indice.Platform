@@ -17,7 +17,7 @@ public static class RecaptchaApi
              .WithName(nameof(RecaptchaHandlers.ValidateRecaptcha))
              .WithSummary("Validates a recaptcha response.")
              .AllowAnonymous()
-             .RequireRateLimiting("recaptcha");
+             .RequireRateLimiting("recaptchavalidate");
         return group;
     }
 }
