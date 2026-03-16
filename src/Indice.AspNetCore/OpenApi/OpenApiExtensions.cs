@@ -254,10 +254,12 @@ public static class OpenApiExtensions
     public static OpenApiOptions AddBasicAuthentication(this OpenApiOptions options, string schemeId = "basic") {
         ArgumentNullException.ThrowIfNull(options);
         options.AddDocumentTransformer((document, context, cancellationToken) => {
+            document.Components ??= new OpenApiComponents();
+            
             if (document.Components.SecuritySchemes.TryGetValue(schemeId, out var basicAuth)) {
                 return Task.CompletedTask;
             }
-            document.Components ??= new OpenApiComponents();
+            
             document.Components.SecuritySchemes.Add(schemeId, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.Http,
                 Scheme = "basic",
@@ -328,10 +330,12 @@ public static class OpenApiExtensions
     public static OpenApiOptions AddJwt(this OpenApiOptions options, string schemeId = "jwt") {
         ArgumentNullException.ThrowIfNull(options);
         options.AddDocumentTransformer((document, context, cancellationToken) => {
+            document.Components ??= new OpenApiComponents();
+            
             if (document.Components.SecuritySchemes.TryGetValue(schemeId, out var jwt)) {
                 return Task.CompletedTask;
             }
-            document.Components ??= new OpenApiComponents();
+            
             document.Components.SecuritySchemes.Add(schemeId, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.Http,
                 Scheme = "bearer",
@@ -358,10 +362,12 @@ public static class OpenApiExtensions
     public static OpenApiOptions AddApiKey(this OpenApiOptions options, string schemeId = "ApiKey", string schemeName = "Token") {
         ArgumentNullException.ThrowIfNull(options);
         options.AddDocumentTransformer((document, context, cancellationToken) => {
+            document.Components ??= new OpenApiComponents();
+            
             if (document.Components.SecuritySchemes.TryGetValue(schemeId, out var apiKey)) {
                 return Task.CompletedTask;
             }
-            document.Components ??= new OpenApiComponents();
+           
             document.Components.SecuritySchemes.Add(schemeId, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.ApiKey,
                 Scheme = schemeName,
