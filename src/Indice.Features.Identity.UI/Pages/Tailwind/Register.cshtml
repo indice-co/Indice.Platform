@@ -19,7 +19,7 @@
         <vc:page-heading title="@Localizer.Register_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
         <p class="px-8">@Localizer.Register_Form_Instructions</p>
-        <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate class="form">
+        <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate class="form" id="registerForm">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <div class="row">
                 <div class="input-group">
@@ -227,9 +227,15 @@
                 </div>
                 <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
             </div>
+            
+            <div class="row">
+                <div class="col-span-12">
+                    <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "registerForm", ButtonId = "submitButton", Action = "register" }' />
+                </div>
+            </div>
             <div class="row content-center place-items-center text-center mt-8">
                 <div class="col-span-12">
-                    <button class="btn btn-primary btn-block" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer.Register_Join_Us</button>
+                    <button class="btn btn-primary btn-block" id="submitButton" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer.Register_Join_Us</button>
                 </div>
             </div>
             <div class="row content-center place-items-center text-center mt-8">
@@ -253,10 +259,10 @@
                         {
                             <div class="idp idp-@provider.AuthenticationScheme!.ToLower() mx-2.5">
                                 <a asp-page="/Challenge"
-                                   asp-route-provider="@provider.AuthenticationScheme"
-                                   asp-route-returnUrl="@Model.View.ReturnUrl"
-                                   asp-route-prompt="@OidcConstants.PromptModes.SelectAccount"
-                                   title="@Localizer.GetGeneric(provider.DisplayName!)">
+                                       asp-route-provider="@provider.AuthenticationScheme"
+                                       asp-route-returnUrl="@Model.View.ReturnUrl"
+                                       asp-route-prompt="@OidcConstants.PromptModes.SelectAccount"
+                                       title="@Localizer.GetGeneric(provider.DisplayName!)">
                                     <span class="hidden">
                                         @Localizer.GetGeneric(provider.DisplayName!)
                                     </span>
@@ -282,11 +288,11 @@
     <script type="text/javascript" src="~/js/zone-info-select.js" csp-nonce="true" data-id="@Html.IdFor(x => x.Input.ZoneInfo)"></script>
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {
-            el.onclick = function (link) {
-                if (!link.target.classList.contains('disabled')) {
-                    link.target.classList.add('disabled');
-                }
-            };
+        el.onclick = function (link) {
+        if (!link.target.classList.contains('disabled')) {
+        link.target.classList.add('disabled');
+        }
+        };
         });
     </script>
 }
