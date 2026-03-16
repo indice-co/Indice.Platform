@@ -116,11 +116,11 @@
     <partial name="_ValidationScripts" />
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {
-        el.onclick = function (link) {
-        if (!link.target.classList.contains('disabled')) {
-        link.target.classList.add('disabled');
-        }
-        };
+            el.onclick = function (link) {
+                if (!link.target.classList.contains('disabled')) {
+                    link.target.classList.add('disabled');
+                }
+            };
         });
     </script>
     @if (Model.View.GenerateDeviceId)
@@ -129,13 +129,13 @@
         <script type="text/javascript" src="/js/mfa.js" csp-nonce></script>
         <script type="text/javascript" csp-nonce>
             $(document).ready(function () {
-            var viewModelParameters = {
-            $deviceIdInput: $('#Input_DeviceId'),
-            browserFamily: '@Request.GetBrowserName()'
-            };
-            var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
-            viewModel.init();
-            viewModel.calculateDeviceId();
+                var viewModelParameters = {
+                    $deviceIdInput: $('#Input_DeviceId'),
+                    browserFamily: '@Request.GetBrowserName()'
+                };
+                var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
+                viewModel.init();
+                viewModel.calculateDeviceId();
             });
         </script>
     }

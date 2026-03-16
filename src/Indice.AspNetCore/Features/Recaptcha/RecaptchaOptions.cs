@@ -18,7 +18,7 @@ public class RecaptchaOptions
     /// <summary>The reCAPTCHA v2 secret key (optional, falls back to SecretKey if not provided).</summary>
     public string? SecretKeyV2 { get; set; }
 
-    /// <summary>The minimum score threshold for v3 (0.0 to 1.0). Default is 0.4.</summary>
+    /// <summary>The minimum score threshold for v3 (0.0 to 1.0). Default is 0.5.</summary>
     public decimal ScoreThreshold { get; set; } = 0.5m;
 
     /// <summary>Gets the effective v2 site key.</summary>

@@ -95,7 +95,6 @@
 
         // Handle form submission with reCAPTCHA flow
         form.addEventListener('submit', async function(e) {
-            console.log('submit triggered');
             if (isSubmitting) {
                 return;
             }
@@ -154,15 +153,29 @@
             form.submit(); // → Server re-validates v3 token with Google
         });
 
-        // Helper function to ensure button=login is submitted with form.submit()
+        // Helper function to ensure the submit button's name/value is submitted with form.submit()
         function addButtonValueToForm() {
-            // Check if button input already exists
-            let buttonInput = form.querySelector('input[name="button"]');
+            if (!submitButton) {
+                return;
+            }
+
+            const buttonName = submitButton.getAttribute('name');
+            if (!buttonName) {
+                // Only inputs with a name are submitted by the browser, so nothing to mirror.
+                return;
+            }
+
+            const buttonValue = submitButton.getAttribute('value');
+
+            // Check if an input with the same name already exists
+            let buttonInput = form.querySelector('input[name="' + buttonName + '"]');
             if (!buttonInput) {
                 buttonInput = document.createElement('input');
                 buttonInput.type = 'hidden';
-                buttonInput.name = 'button';
-                buttonInput.value = 'login';
+                buttonInput.name = buttonName;
+                if (buttonValue !== null) {
+                    buttonInput.value = buttonValue;
+                }
                 form.appendChild(buttonInput);
             }
         }
