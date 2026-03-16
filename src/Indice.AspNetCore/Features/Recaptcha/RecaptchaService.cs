@@ -41,8 +41,7 @@ public interface IRecaptchaService
 /// <summary>Implementation of the reCAPTCHA validation service.</summary>
 public class RecaptchaService : IRecaptchaService
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
+    private static readonly JsonSerializerOptions JsonOptions = new() {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         PropertyNameCaseInsensitive = true
     };
@@ -55,8 +54,7 @@ public class RecaptchaService : IRecaptchaService
     public RecaptchaService(
         IHttpClientFactory httpClientFactory,
         IOptions<RecaptchaOptions> options,
-        ILogger<RecaptchaService> logger)
-    {
+        ILogger<RecaptchaService> logger) {
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -76,20 +74,16 @@ public class RecaptchaService : IRecaptchaService
     public string? SiteKeyV2 => _options.EffectiveSiteKeyV2;
 
     /// <inheritdoc/>
-    public async Task<RecaptchaValidationResult> ValidateAsync(string? token, string? version = "v3", string? remoteIp = null, CancellationToken cancellationToken = default)
-    {
-        if (!IsEnabled)
-        {
+    public async Task<RecaptchaValidationResult> ValidateAsync(string? token, string? version = "v3", string? remoteIp = null, CancellationToken cancellationToken = default) {
+        if (!IsEnabled) {
             _logger.LogDebug("reCAPTCHA validation skipped - not configured.");
             return new RecaptchaValidationResult { Success = true, Score = 1.0m };
         }
 
-        if (string.IsNullOrWhiteSpace(token))
-        {
+        if (string.IsNullOrWhiteSpace(token)) {
             _logger.LogWarning("reCAPTCHA validation failed - no token provided.");
-            return new RecaptchaValidationResult 
-            { 
-                Success = false, 
+            return new RecaptchaValidationResult {
+                Success = false,
                 Score = 0.0m,
                 ErrorCodes = ["missing-input-response"]
             };
@@ -99,8 +93,7 @@ public class RecaptchaService : IRecaptchaService
         var isV2 = string.Equals(version, "v2", StringComparison.OrdinalIgnoreCase);
         var secretKey = isV2 ? _options.EffectiveSecretKeyV2 : _options.SecretKey;
 
-        try
-        {
+        try {
             var httpClient = _httpClientFactory.CreateClient();
             var formData = new Dictionary<string, string>
             {
@@ -108,22 +101,20 @@ public class RecaptchaService : IRecaptchaService
                 { "response", token }
             };
 
-            if (!string.IsNullOrWhiteSpace(remoteIp))
-            {
+            if (!string.IsNullOrWhiteSpace(remoteIp)) {
                 formData["remoteip"] = remoteIp;
             }
-
+            var content = new FormUrlEncodedContent(formData);
             var response = await httpClient.PostAsync(
                 "https://www.google.com/recaptcha/api/siteverify",
-                new FormUrlEncodedContent(formData),
+                content,
                 cancellationToken
             );
 
             var jsonResponse = await response.Content.ReadAsStringAsync(cancellationToken);
             var result = JsonSerializer.Deserialize<GoogleRecaptchaResponse>(jsonResponse, JsonOptions);
 
-            if (result is null)
-            {
+            if (result is null) {
                 _logger.LogError("Failed to deserialize reCAPTCHA response: {Response}", jsonResponse);
                 return new RecaptchaValidationResult { Success = false, Score = 0.0m };
             }
@@ -134,29 +125,32 @@ public class RecaptchaService : IRecaptchaService
             // v3 requires v2 fallback if score is below configured threshold
             var requiresV2Fallback = !isV2 && result.Success && score < _options.ScoreThreshold;
 
-            if (!result.Success)
-            {
-                _logger.LogWarning("reCAPTCHA validation failed. Error codes: {ErrorCodes}", 
+            if (!result.Success) {
+                _logger.LogWarning("reCAPTCHA validation failed. Error codes: {ErrorCodes}",
                     string.Join(", ", result.ErrorCodes ?? []));
-            }
-            else if (requiresV2Fallback)
-            {
-                _logger.LogInformation("reCAPTCHA v3 score {Score} below threshold {Threshold}, requiring v2 fallback.", 
+            } else if (requiresV2Fallback) {
+                _logger.LogInformation("reCAPTCHA v3 score {Score} below threshold {Threshold}, requiring v2 fallback.",
                     score, _options.ScoreThreshold);
             }
 
-            return new RecaptchaValidationResult
-            {
+            return new RecaptchaValidationResult {
                 Success = result.Success,
                 Score = score,
                 RequiresV2Fallback = requiresV2Fallback,
                 ErrorCodes = result.ErrorCodes?.ToList(),
                 Action = result.Action
             };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Exception occurred during reCAPTCHA validation.");
+        } catch (HttpRequestException ex) { 
+            _logger.LogError(ex, "HTTP error occurred during reCAPTCHA validation.");
+            return new RecaptchaValidationResult { Success = false, Score = 0.0m };
+        } catch (TaskCanceledException ex) {
+            _logger.LogError(ex, "reCAPTCHA validation request timed out or was canceled.");
+            return new RecaptchaValidationResult { Success = false, Score = 0.0m };
+        } catch (OperationCanceledException ex) when (ex.CancellationToken == cancellationToken) {
+            _logger.LogWarning(ex, "reCAPTCHA validation was canceled by the caller.");
+            return new RecaptchaValidationResult { Success = false, Score = 0.0m };
+        } catch (JsonException ex) {
+            _logger.LogError(ex, "Failed to parse reCAPTCHA validation response.");
             return new RecaptchaValidationResult { Success = false, Score = 0.0m };
         }
     }

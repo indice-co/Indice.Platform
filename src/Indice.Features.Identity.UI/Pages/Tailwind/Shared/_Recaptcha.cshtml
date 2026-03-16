@@ -38,8 +38,8 @@
                 const token = await grecaptcha.execute(siteKey, { action: '@Html.Raw(Model.Action)'});
                 return token;
             } catch (error) {
-                console.error('reCAPTCHA v3 error:', error);
-                return null;
+            console.error('reCAPTCHA v3 error:', error);
+            return null;
             }
         }
 

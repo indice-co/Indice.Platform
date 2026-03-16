@@ -16,8 +16,8 @@ public static class RecaptchaApi
         group.MapPost("RecaptchaValidate", RecaptchaHandlers.ValidateRecaptcha)
              .WithName(nameof(RecaptchaHandlers.ValidateRecaptcha))
              .WithSummary("Validates a recaptcha response.")
-             .AllowAnonymous();
-        //do we need ratelimiting?
+             .AllowAnonymous()
+             .RequireRateLimiting("recaptcha");
         return group;
     }
 }
