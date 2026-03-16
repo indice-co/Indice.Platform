@@ -11,7 +11,9 @@ internal class DbActivityLogEntry
     /// <summary>A timestamp that indicates when the user's activity log entry occurred.</summary>
     public DateTimeOffset CreatedAt { get; set; }
     /// <summary>The type of event for activity log.</summary>
-    public ActivityLogEventType EventType { get; set; }
+    public string EventType { get; set; }
+    /// <summary>The category of the action.</summary>
+    public string? Category { get; set; }
     /// <summary>The name of the action.</summary>
     public string? ActionName { get; set; }
     /// <summary>The unique identifier of the application.</summary>
@@ -40,8 +42,6 @@ internal class DbActivityLogEntry
     public string? SessionId { get; set; }
     /// <summary>Describes the user activity type in terms of user presence.</summary>
     public ActivityType? ActivityType { get; set; }
-    /// <summary>Indicates whether the specified log entry is marked for review.</summary>
-    public bool Review { get; set; }
     /// <summary>Two letter ISO code for the country.</summary>
     public string? CountryIsoCode { get; set; }
     /// <summary>The device id.</summary>

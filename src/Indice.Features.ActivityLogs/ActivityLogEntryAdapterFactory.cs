@@ -18,10 +18,7 @@ internal class ActivityLogEntryAdapterFactory
             return default;
         }
         return @event switch {
-            TokenIssuedSuccessEvent => ActivityLogEntryFactory.CreateFromTokenIssuedSuccessEvent((TokenIssuedSuccessEvent)@event),
-            TokenIssuedFailureEvent => ActivityLogEntryFactory.CreateFromTokenIssuedFailureEvent((TokenIssuedFailureEvent)@event),
             ExtendedUserLoginSuccessEvent => ActivityLogEntryFactory.CreateFromUserLoginSuccessEvent((ExtendedUserLoginSuccessEvent)@event),
-            ExtendedUserLoginFailureEvent => ActivityLogEntryFactory.CreateFromUserLoginFailureEvent((ExtendedUserLoginFailureEvent)@event),
             UserPasswordLoginSuccessEvent => ActivityLogEntryFactory.CreateFromUserPasswordLoginSuccessEvent((UserPasswordLoginSuccessEvent)@event),
             _ => null
         };

@@ -68,9 +68,13 @@ internal class ActivityLogStoreEntityFrameworkCore : IActivityLogStore
         return await query.Select(ObjectMapping.ToActivityLogEntry).ToResultSetAsync(options, cancellationToken);
     }
 
-    /// <inheritdoc />
-    public async Task<int> UpdateAsync(Guid id, ActivityLogEntryRequest model, CancellationToken cancellationToken = default) {
-        var query = _dbContext.ActivityLogs.Where(x => x.Id == id);
-        return await query.ExecuteUpdateAsync(updates => updates.SetProperty(x => x.Review, model.Review), cancellationToken);
+    public Task<int> UpdateAsync(Guid id, ActivityLogEntryRequest model, CancellationToken cancellationToken = default) {
+        throw new NotImplementedException();
     }
+
+    /// <inheritdoc />
+    //public async Task<int> UpdateAsync(Guid id, ActivityLogEntryRequest model, CancellationToken cancellationToken = default) {
+    //    var query = _dbContext.ActivityLogs.Where(x => x.Id == id);
+    //    return await query.ExecuteUpdateAsync(updates => updates.SetProperty(x => x.Review, model.Review), cancellationToken);
+    //}
 }

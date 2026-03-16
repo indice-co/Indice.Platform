@@ -22,8 +22,6 @@ internal class ActivityLogEntryQueue
     public ChannelReader<ActivityLogEntry> Reader => _queue.Reader;
 
     public ValueTask EnqueueAsync(ActivityLogEntry logEntry) {
-        var skipEvent = (!_ActivityLogOptions.Events.TokenEvents && logEntry.EventType == ActivityLogEventType.TokenIssued) ||
-                        (!_ActivityLogOptions.Events.PasswordEvents && logEntry.EventType == ActivityLogEventType.UserPasswordValidationCompleted);
-        return skipEvent ? ValueTask.CompletedTask : _queue.Writer.WriteAsync(logEntry);
+        return _queue.Writer.WriteAsync(logEntry);
     }
 }
