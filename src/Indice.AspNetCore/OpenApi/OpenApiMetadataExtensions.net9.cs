@@ -1,13 +1,11 @@
 ﻿#if !NET10_0_OR_GREATER
 using System.Net.Mime;
-using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -38,6 +36,15 @@ public static class OpenApiMetadataExtensions
         builder.WithMetadata(new OpenApiSecurityRequirement() {
             [scheme] = requiredScopes.ToList() ?? []
         });
+#if NET8_0
+        builder.WithOpenApi(operation => new(operation) {
+            Security = {
+                new() {
+                    [scheme] = requiredScopes.ToList() ?? []
+                }
+            },
+        });
+#endif
         return builder;
     }
     /// <summary>Adds the ApiKey security scheme to the Open API description.</summary>
@@ -59,6 +66,15 @@ public static class OpenApiMetadataExtensions
         builder.WithMetadata(new OpenApiSecurityRequirement() {
             [scheme] = []
         });
+#if NET8_0
+        builder.WithOpenApi(operation => new(operation) {
+            Security = {
+                new() {
+                    [scheme] = []
+                }
+            },
+        });
+#endif
         return builder;
     }
     /// <summary>Adds the JWT security scheme to the Open API description.</summary>
