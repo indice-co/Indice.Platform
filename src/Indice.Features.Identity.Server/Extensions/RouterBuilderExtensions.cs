@@ -32,6 +32,8 @@ public static class IdentityServerEndpointRouteBuilderExtensions
         builder.MapSignInLogs();
         // Database settings endpoints.
         builder.MapDatabaseSettings();
+        // Recaptcha endpoints.
+        builder.MapRecaptcha();
         return builder;
     }
 

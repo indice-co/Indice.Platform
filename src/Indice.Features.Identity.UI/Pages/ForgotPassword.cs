@@ -1,3 +1,4 @@
+using Indice.AspNetCore.Features.Recaptcha;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
@@ -22,15 +23,18 @@ public abstract class BaseForgotPasswordModel : BasePageModel
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
     /// <param name="emailService">Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</param>
+    /// <param name="recaptchaService">Service for validating reCAPTCHA tokens.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseForgotPasswordModel(
         ExtendedUserManager<User> userManager,
         ILogger<BaseForgotPasswordModel> logger,
-        IEmailService emailService
+        IEmailService emailService,
+        IRecaptchaService recaptchaService
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         EmailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+        RecaptchaService = recaptchaService ?? throw new ArgumentNullException(nameof(recaptchaService));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -39,6 +43,8 @@ public abstract class BaseForgotPasswordModel : BasePageModel
     protected ILogger<BaseForgotPasswordModel> Logger { get; }
     /// <summary>Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</summary>
     protected IEmailService EmailService { get; }
+    /// <summary>Service for validating reCAPTCHA tokens.</summary>
+    protected IRecaptchaService RecaptchaService { get; }
 
     /// <summary>Forgot password input model data.</summary>
     [BindProperty]
@@ -62,6 +68,21 @@ public abstract class BaseForgotPasswordModel : BasePageModel
         if (!UiOptions.EnableForgotPasswordPage) {
             return Redirect("/404");
         }
+
+        // Validate reCAPTCHA if enabled
+        // Note: For v3, token is pre-validated via /RecaptchaValidate endpoint to check score before form submission.
+        //       For v2, this is the first and only validation (v2 is shown when v3 score < threshold).
+        if (RecaptchaService.IsEnabled && Input.RecaptchaVersion == "v2" && !string.IsNullOrWhiteSpace(Input.RecaptchaToken)) {
+            var remoteIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var recaptchaResult = await RecaptchaService.ValidateAsync(Input.RecaptchaToken, Input.RecaptchaVersion, remoteIp);
+
+            if (!recaptchaResult.Success) {
+                Logger.LogWarning("reCAPTCHA validation failed for forgot password request.");
+                ModelState.AddModelError(string.Empty, "reCAPTCHA validation failed. Please try again.");
+                return Page();
+            }
+        }
+
         RequestSent = true;
         if (!ModelState.IsValid) {
             return Page();
@@ -93,6 +114,7 @@ internal class ForgotPasswordModel : BaseForgotPasswordModel
     public ForgotPasswordModel(
         ExtendedUserManager<User> userManager,
         ILogger<ForgotPasswordModel> logger,
-        IEmailService emailService
-    ) : base(userManager, logger, emailService) { }
+        IEmailService emailService,
+        IRecaptchaService recaptchaService
+    ) : base(userManager, logger, emailService, recaptchaService) { }
 }

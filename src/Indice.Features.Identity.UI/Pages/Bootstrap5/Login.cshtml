@@ -29,17 +29,17 @@
         </div>
         @if (Model.View.EnableLocalLogin)
         {
-        <div class="hr-sect">@Localizer.Login_OR</div>
+            <div class="hr-sect">@Localizer.Login_OR</div>
         }
     }
     @if (Model.View.EnableLocalLogin)
     {
-        <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post">
+        <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" id="loginForm">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <input type="hidden" asp-for="Input.DeviceId" />
             <div class="mb-3">
-				<label asp-for="Input.UserName" class="form-label">@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)</label>
-				<input class="form-control" type="text" placeholder="@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)" asp-for="Input.UserName" />
+                <label asp-for="Input.UserName" class="form-label">@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)</label>
+                <input class="form-control" type="text" placeholder="@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)" asp-for="Input.UserName" />
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
             </div>
             <div class="mb-3">
@@ -63,6 +63,7 @@
                     <a class="btn btn-link p-0 text-md float-end text-blue" asp-page="/ForgotPassword">@Localizer.Login_Forgot_Password</a>
                 }
             </div>
+            <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "loginForm", ButtonId = "loginButton", Action = "login", IsLoginForm = true }' />
             <div class="mb-3">
                 <div class="row align-items-center">
                     @if (Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding)
@@ -74,7 +75,7 @@
                         </div>
                     }
                     <div class="@(Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding ? "col-sm-6" : string.Empty) col-12 py-1">
-                        <button class="btn btn-primary w-100" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>
+                        <button class="btn btn-primary w-100" id="loginButton" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>
                     </div>
                 </div>
             </div>
