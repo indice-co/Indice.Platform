@@ -3,6 +3,7 @@ using System.Threading.RateLimiting;
 using Indice.AspNetCore.Configuration;
 using Indice.Security;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,7 +33,7 @@ public static class RateLimiterExtensions
                         return RateLimitPartition.GetNoLimiter("NoRateLimiting");
                     }
                     return RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: context.User.FindFirstValue(rateLimiterOptions.UserIdentifierClaimType) ?? context.Connection.RemoteIpAddress?.ToString() ?? context.Request.Headers.Host.ToString(),
+                        partitionKey: GetPartitionKey(context, rateLimiterOptions.UserIdentifierClaimType, endpointOptions.PartitionByProperty),
                         factory: _ => new FixedWindowRateLimiterOptions {
                             PermitLimit = endpointOptions.PermitLimit.GetValueOrDefault(),
                             QueueLimit = endpointOptions.QueueLimit.GetValueOrDefault(),
@@ -50,5 +51,46 @@ public static class RateLimiterExtensions
             };
         });
         return services;
+    }
+    // Helper method to determine the partition key based on user claims, request body, or fallback to IP/Host
+    private static string GetPartitionKey(HttpContext httpContext, string userIdentifierClaimType, string? partitionByProperty) {
+        string? partitionKey = null;
+        // Try to get from user claims first
+        partitionKey = httpContext.User.FindFirstValue(userIdentifierClaimType);
+        // If not authenticated, try to get email from request body
+        if (!string.IsNullOrEmpty(partitionKey)) {
+            return partitionKey;
+        }
+        if (string.IsNullOrEmpty(partitionByProperty)) {
+            return httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers.Host.ToString();
+        }
+        // Enable buffering so the body can be read multiple times
+        httpContext.Request.EnableBuffering();
+        try {
+            // Handle form data
+            if (httpContext.Request.HasFormContentType && httpContext.Request.Method == "POST") {
+                if (httpContext.Request.Form.TryGetValue(partitionByProperty, out var emailValue)) {
+                    partitionKey = emailValue.ToString();
+                }
+            }
+            // Handle JSON content
+            else if (httpContext.Request.ContentType?.Contains("application/json") == true) {
+                using var reader = new StreamReader(httpContext.Request.Body, leaveOpen: true);
+                var body = reader.ReadToEndAsync().GetAwaiter().GetResult();
+                if (!string.IsNullOrEmpty(body)) {
+                    var jsonDoc = System.Text.Json.JsonDocument.Parse(body);
+                    if (jsonDoc.RootElement.TryGetProperty(partitionByProperty, out var emailElement)) {
+                        partitionKey = emailElement.GetString();
+                    }
+                }
+            }
+        } catch {
+            // fall back to IP or Host
+        } finally {
+            httpContext.Request.Body.Position = 0;
+        }
+        // Fallback to IP or Host
+        partitionKey ??= httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers.Host.ToString();
+        return partitionKey;
     }
 }
