@@ -4,7 +4,6 @@
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentityUI</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <VersionPrefix>$(VersionPrefixIdentityUI)</VersionPrefix>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
