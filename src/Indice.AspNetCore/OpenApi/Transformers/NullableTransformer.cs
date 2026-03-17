@@ -1,13 +1,12 @@
-#if NET9_0_OR_GREATER
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Any;
+#if NET10_0_OR_GREATER
 using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
 
 namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>
-/// This transformer attempts to coalesce nullable and non-nullable schemas by removing the `nullable` property
+/// This transformer attempts to coalesce nullable and non-nullable schemas by removing the null type
 /// wherever nullability is already implied by the `required` property.
 /// It also removes `null` from enum values if present.
 /// Finally, it removes the "NullableOf" prefix from schema reference IDs if present, being careful to preserve
@@ -36,61 +35,19 @@ public static class NullableTransformer
     public static OpenApiOptions AddNullableTransformer(this OpenApiOptions options) {
         options.AddSchemaTransformer((schema, context, cancellationToken) => {
             if (schema.Properties is not null) {
-                foreach (var jsonProperty in context.JsonTypeInfo.Properties) {
-                    if (!schema.Properties.TryGetValue(jsonProperty.Name, out var property)) {
-                        continue;
+                foreach (var property in schema.Properties) {
+                    if (property.Value is OpenApiSchema propSchema) {
+                        // Remove the null type for non-required properties
+                        if (schema.Required?.Contains(property.Key) != true) {
+                            propSchema.Type &= ~JsonSchemaType.Null;
+                        }
+                        // Also need to remove `null` from enum values if present
+                        if (propSchema.Enum is not null) {
+                            propSchema.Enum = propSchema.Enum
+                                .Where(e => e is not null)
+                                .ToList();
+                        }
                     }
-                    var nullableType = Nullable.GetUnderlyingType(jsonProperty.PropertyType);
-                   
-                    property!.Nullable = (nullableType is not null) || jsonProperty.IsGetNullable;
-                    property.Type ??= (nullableType ?? jsonProperty.PropertyType).Name switch {
-                        "Int16" => "integer",
-                        "Int32" => "integer",
-                        "Int64" => "integer",
-                        "Double" => "number",
-                        "Single" => "number",
-                        "Decimal" => "number",
-                        "Boolean" => "boolean",
-                        "String" => "string",
-                        "DateTime" => "string",
-                        "DateTimeOffset" => "string",
-                        "Guid" => "string",
-                        _ => null
-                    }; 
-                    property.Format ??= (nullableType ?? jsonProperty.PropertyType).Name switch {
-                        "Int16" => null,
-                        "Int32" => "int32",
-                        "Int64" => "int64",
-                        "Double" => "double",
-                        "Single" => "float",
-                        "Decimal" => "double",
-                        "Boolean" => null,
-                        "String" => null,
-                        "DateTime" => "date-time",
-                        "DateTimeOffset" => "date-time",
-                        "Guid" => "uuid",
-                        _ => null
-                    };
-                    if (schema.Required?.Contains(jsonProperty.Name) == true) {
-                        property!.Nullable = false;
-                    }
-                    if (property!.Annotations?.Values.FilterOutNulls().Any() == true) {
-                        property.Nullable = false;
-                    }
-                    // Also need to remove `null` from enum values if present
-                    if (property.Enum is not null) {
-                        property.Enum = property.Enum.Where(e => (e as OpenApiString)!.Value != null).ToList();
-                    }
-                    // And remove default value of null if set
-                    if (property.Default is OpenApiNull) {
-                        property.Default = null;
-                    }
-                }
-            }
-            if (context.ParameterDescription is not null) {
-                // And remove default value of null if set
-                if (schema.Default is OpenApiNull && schema.Annotations.Any(x => x.Value != null) == true) {
-                    schema.Default = null;
                 }
             }
             return Task.CompletedTask;

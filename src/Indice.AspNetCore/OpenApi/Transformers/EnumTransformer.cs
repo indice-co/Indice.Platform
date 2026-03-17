@@ -1,32 +1,29 @@
-﻿#if NET9_0_OR_GREATER
+﻿#if NET10_0_OR_GREATER
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
-using Indice.Extensions;
-using Indice.Serialization;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-/// <summary>Changes the OAS for enum flags and treats them as an array. This works in accordance with serialization by using the <see cref="JsonStringArrayEnumFlagsConverterFactory"/>.</summary>
+/// <summary>Changes the OAS for enums.</summary>
 public static class EnumTransformer
 {
-    internal class ChainedDelegate(Func<JsonTypeInfo, string?> next)
-    {
-        public string? Invoke(JsonTypeInfo type) {
-            // Get the result of the next delegate in the chain
-            var result = next(type);
-            if (result is null && type.Type.IsFlagsEnum()) {
-                return type.Type.Name;
-            }
-            return result;
-        }
-    }
+    //internal class ChainedDelegate(Func<JsonTypeInfo, string?> next)
+    //{
+    //    public string? Invoke(JsonTypeInfo type) {
+    //        // Get the result of the next delegate in the chain
+    //        var result = next(type);
+    //        if (result is null && type.Type.IsFlagsEnum()) {
+    //            return type.Type.Name;
+    //        }
+    //        return result;
+    //    }
+    //}
 
     /// <summary>
     /// Adds a transformer to the OpenApiOptions that modifies enum schemas to reflect enum values and names.
@@ -35,8 +32,8 @@ public static class EnumTransformer
     /// <returns>The options for further configuration.</returns>
     public static OpenApiOptions AddEnumTransformer(this OpenApiOptions options) {
         options.AddSchemaTransformer(TransformAsync);
-        var chainedDelegate = new ChainedDelegate(options.CreateSchemaReferenceId);
-        options.CreateSchemaReferenceId = chainedDelegate.Invoke;
+        //var chainedDelegate = new ChainedDelegate(options.CreateSchemaReferenceId);
+        //options.CreateSchemaReferenceId = chainedDelegate.Invoke;
         return options;
     }
 
@@ -53,8 +50,7 @@ public static class EnumTransformer
         }
 
         if (TryFindMvcQueryParameterEnumType(schema, context.ParameterDescription, out var modelType) && TryTransformEnum(schema, context, modelType!)) {
-            schema.Annotations ??= new Dictionary<string, object>();
-            schema.Annotations["x-schema-id"] = (Nullable.GetUnderlyingType(modelType!) ?? modelType!).Name;
+            
         }
         return Task.CompletedTask;
     }
@@ -63,7 +59,7 @@ public static class EnumTransformer
         modelType = null;
         if (parameterDescription?.ModelMetadata is Microsoft.AspNetCore.Mvc.ModelBinding.Metadata.DefaultModelMetadata mvcModelMetadata &&
             mvcModelMetadata.IsEnum &&
-            schema.Enum.Count == 0) {
+            schema.Enum!.Count == 0) {
             modelType = mvcModelMetadata.ModelType;
             return true;
         }
@@ -80,12 +76,17 @@ public static class EnumTransformer
     public static bool TryTransformEnum(OpenApiSchema schema, OpenApiSchemaTransformerContext context, Type type) {
         
         var enumType = Nullable.GetUnderlyingType(type) ?? type;
-        if (!enumType.IsEnum || schema.Extensions.Count > 0) {
+        if (!enumType.IsEnum || schema.Extensions?.Count > 0) {
             return false;
         }
-        var isString = context.JsonTypeInfo.Options.Converters.OfType<JsonStringEnumConverter>().Any();
 
-        schema.Type = isString ? "string" : "integer";
+        var isString = schema.Enum?.FirstOrDefault()?.ToJsonString().StartsWith('"') ??
+                       schema.Type?.HasFlag(JsonSchemaType.String) ?? 
+                       context.JsonTypeInfo.Options.Converters.OfType<JsonStringEnumConverter>().Any();
+        if (!schema.Type.HasValue) {
+            schema.Type = isString ? JsonSchemaType.String : JsonSchemaType.Integer;
+        }
+        
         schema.Format = null;
         var fields = enumType.GetFields(BindingFlags.Public | BindingFlags.Static).ToDictionary(x => x.Name, x => new {
             Name = x.GetCustomAttribute<JsonStringEnumMemberNameAttribute>()?.Name ?? x.GetCustomAttribute<EnumMemberAttribute>()?.Value ?? x.Name,
@@ -93,25 +94,45 @@ public static class EnumTransformer
         });
         var enumNames = Enum.GetNames(enumType);
         var enumValues = Enum.GetValuesAsUnderlyingType(enumType).Cast<object>().Select(Convert.ToInt32).ToArray();
-        var openApiValueArray = new OpenApiArray();
-        var openApiNameArray = new OpenApiArray();
-        var openApiDescArray = new OpenApiArray();
+        var openApiValueArray = new List<JsonNode>();
+        var openApiNameArray = new List<JsonNode>();
+        var openApiDescArray = new List<JsonNode>();
         bool writeDescriptions = false;
         for (int i = 0; i < enumValues.Length; i++) {
-            openApiValueArray.Add(isString ? new OpenApiString(fields[enumNames[i]].Name) : new OpenApiInteger(enumValues[i]));
-            openApiNameArray.Add(new OpenApiString(enumNames[i]));
-            openApiDescArray.Add(new OpenApiString(fields[enumNames[i]].Description));
+            openApiValueArray.Add(isString ? (JsonNode)fields[enumNames[i]].Name! : (JsonNode)enumValues[i]);
+            openApiNameArray.Add(enumNames[i]);
+            openApiDescArray.Add(fields[enumNames[i]].Description!);
             writeDescriptions |= !string.IsNullOrWhiteSpace(fields[enumNames[i]].Description);
         }
-        schema.Extensions.Add("x-enum-varnames", openApiNameArray);
+        schema.Extensions ??= new Dictionary<string, IOpenApiExtension>();
+        schema.Extensions!.Add("x-enum-varnames", new EnumNamesOpenApiExtension(openApiNameArray));
         if (writeDescriptions) {
-            schema.Extensions.Add("x-enum-descriptions", openApiDescArray);
+            schema.Extensions.Add("x-enum-descriptions", new EnumNamesOpenApiExtension(openApiDescArray));
         }
         schema.Enum = openApiValueArray;
-
         return true;
     }
 
     private static bool IsReferenceOrNullableType(this Type type) => !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
+}
+
+internal class EnumNamesOpenApiExtension : IOpenApiExtension
+{
+    public EnumNamesOpenApiExtension(List<JsonNode> enumDescriptions) {
+        EnumDescriptions = enumDescriptions;
+    }
+
+    public List<JsonNode> EnumDescriptions { get; }
+
+    public void Write(IOpenApiWriter writer, OpenApiSpecVersion specVersion) {
+        if (writer is null) {
+            throw new ArgumentNullException(nameof(writer));
+        }
+        writer.WriteStartArray();
+        foreach (var description in EnumDescriptions) {
+            writer.WriteValue(description.ToString());
+        }
+        writer.WriteEndArray();
+    }
 }
 #endif

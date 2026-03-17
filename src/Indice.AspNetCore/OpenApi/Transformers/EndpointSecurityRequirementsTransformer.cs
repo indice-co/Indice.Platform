@@ -1,7 +1,8 @@
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

@@ -1,6 +1,6 @@
-﻿#if NET9_0_OR_GREATER
+﻿#if NET10_0_OR_GREATER
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Extensions;
+using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -30,20 +30,20 @@ public static class ArrayTransformer
                 if (!schema.Properties.TryGetValue(jsonProperty.Name, out var property)) {
                     continue;
                 }
-                FixEmptyArraySchemas(property, jsonProperty.PropertyType);
-                if (property.AdditionalProperties is not null && property.AdditionalProperties.Type == "array" &&
+                FixEmptyArraySchemas((OpenApiSchema)property, jsonProperty.PropertyType);
+                if (property.AdditionalProperties is not null && property.AdditionalProperties.Type!.Value.HasFlag(JsonSchemaType.Array) &&
                     jsonProperty.PropertyType.GenericTypeArguments?.Length == 2 &&
                     jsonProperty.PropertyType.IsDictionary()) {
-                    FixEmptyArraySchemas(property.AdditionalProperties, jsonProperty.PropertyType.GenericTypeArguments[1]);
+                    FixEmptyArraySchemas((OpenApiSchema)property.AdditionalProperties, jsonProperty.PropertyType.GenericTypeArguments[1]);
                 }
             }
         }
 
-        if (context.ParameterDescription is not null && schema.Type == "array") {
+        if (context.ParameterDescription is not null && schema.Type.HasValue && schema.Type!.Value.HasFlag(JsonSchemaType.Array)) {
             FixEmptyArraySchemas(schema, context.ParameterDescription.Type);
         }
 
-        if (context.ParameterDescription is null && context.JsonPropertyInfo is null && schema.Type == "array") {
+        if (context.ParameterDescription is null && context.JsonPropertyInfo is null && schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Array)) {
             FixEmptyArraySchemas(schema, context.JsonTypeInfo.Type);
         }
 
@@ -51,11 +51,11 @@ public static class ArrayTransformer
     }
 
     private static void FixEmptyArraySchemas(OpenApiSchema schema, Type type) {
-        var canTransform = schema.Type == "array" && schema.Items?.Type == null;
+        var canTransform = schema.Type!.Value.HasFlag(JsonSchemaType.Array) && schema.Items?.Type == null;
         if (!canTransform) {
             return;
         }
-        var itemSchema = schema.Items ?? new OpenApiSchema();
+        OpenApiSchema itemSchema = (schema.Items as OpenApiSchema) ?? new OpenApiSchema();
         // element type switch.
         var elementType = type.GetAnyElementType();
         bool nullable = false;
@@ -66,59 +66,64 @@ public static class ArrayTransformer
         }
         switch (elementType) {
             case Type t when t == typeof(int):
-                itemSchema.Type = "integer";
+                itemSchema.Type = JsonSchemaType.Integer;
                 itemSchema.Format = "int32";
-                itemSchema.Nullable = nullable;
+                if (nullable == true) {
+                    itemSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(long):
-                itemSchema.Type = "integer";
+                itemSchema.Type = JsonSchemaType.Integer;
                 itemSchema.Format = "int64";
-                itemSchema.Nullable = nullable;
+                if (nullable == true) {
+                    itemSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(Guid):
-                itemSchema.Type = "string";
+                itemSchema.Type = JsonSchemaType.String;
                 itemSchema.Format = "uuid";
-                itemSchema.Nullable = nullable;
+                if (nullable == true) {
+                    itemSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(decimal):
-                itemSchema.Type = "number";
+                itemSchema.Type = JsonSchemaType.Number;
                 itemSchema.Format = "double";
-                itemSchema.Nullable = nullable;
+                if (nullable == true) {
+                    itemSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(double):
-                itemSchema.Type = "number";
+                itemSchema.Type = JsonSchemaType.Number;
                 itemSchema.Format = "double";
-                itemSchema.Nullable = nullable;
+                if (nullable == true) {
+                    itemSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(DateTime):
-                itemSchema.Type = "string";
+                itemSchema.Type = JsonSchemaType.String;
                 itemSchema.Format = "date-time";
-                itemSchema.Nullable = nullable;
+                if (nullable == true) {
+                    itemSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(DateTimeOffset):
-                itemSchema.Type = "string";
+                itemSchema.Type = JsonSchemaType.String;
                 itemSchema.Format = "date-time";
-                itemSchema.Nullable = nullable;
+                if (nullable == true) {
+                    itemSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(string):
-                itemSchema.Type = "string";
-                itemSchema.Nullable = nullable;
+                itemSchema.Type = JsonSchemaType.String;
+                if (nullable == true) {
+                    itemSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(bool):
-                itemSchema.Type = "boolean";
-                itemSchema.Nullable = nullable;
-                break;
-            case Type t when t.IsEnum || Nullable.GetUnderlyingType(t)?.IsEnum == true:
-                itemSchema.Annotations = new Dictionary<string, object> {
-                    ["x-schema-id"] = t.Name
-                };
-                break;
-            default:
-                if (elementType is not null && itemSchema.Annotations?.Any(x => x.Value != null) == true) {
-                    itemSchema.Reference = new OpenApiReference {
-                        Type = ReferenceType.Schema,
-                        Id = itemSchema.Annotations?["x-schema-id"]?.ToString() ?? elementType.Name
-                    };
+                itemSchema.Type = JsonSchemaType.Boolean;
+                if (nullable == true) {
+                    itemSchema.Type |= JsonSchemaType.Null;
                 }
                 break;
         }

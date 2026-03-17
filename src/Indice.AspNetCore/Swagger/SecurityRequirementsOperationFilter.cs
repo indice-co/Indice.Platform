@@ -1,4 +1,5 @@
-﻿using System.Net.Mime;
+﻿#if NET8_0
+using System.Net.Mime;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
@@ -51,3 +52,4 @@ internal class SecurityRequirementsOperationFilter : IOperationFilter
         }
     }
 }
+#endif

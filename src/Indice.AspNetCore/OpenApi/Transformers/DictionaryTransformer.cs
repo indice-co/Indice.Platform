@@ -1,5 +1,6 @@
-﻿#if NET9_0_OR_GREATER
+﻿#if NET10_0_OR_GREATER
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -27,7 +28,7 @@ public static class DictionaryTransformer
                 if (!schema.Properties.TryGetValue(jsonProperty.Name, out var property)) {
                     continue;
                 }
-                FixEmptyDictionarySchemas(property, jsonProperty.PropertyType);
+                FixEmptyDictionarySchemas((OpenApiSchema)property, jsonProperty.PropertyType);
             }
         }
         if (context.ParameterDescription is not null) {
@@ -36,7 +37,7 @@ public static class DictionaryTransformer
         return Task.CompletedTask;
     }
     private static void FixEmptyDictionarySchemas(OpenApiSchema schema, Type type) {
-        var canTransform = schema.Type == "object" && schema.Properties.Count == 0 &&
+        var canTransform = schema.Type.HasValue && schema.Type!.Value.HasFlag(JsonSchemaType.Object) && schema.Properties!.Count == 0 &&
                            schema.AdditionalPropertiesAllowed == true &&
                            schema.AdditionalProperties is null &&
                            type.IsDictionary() && type.GenericTypeArguments.Length == 2 && type.GenericTypeArguments[1].IsPrimitive();
@@ -52,49 +53,65 @@ public static class DictionaryTransformer
         // type switch.
         switch (valueType) {
             case Type t when t == typeof(int):
-                valueSchema.Type = "integer";
+                valueSchema.Type = JsonSchemaType.Integer;
                 valueSchema.Format = "int32";
-                valueSchema.Nullable = nullable;
+                if (nullable == true) {
+                    valueSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(long):
-                valueSchema.Type = "integer";
+                valueSchema.Type = JsonSchemaType.Integer;
                 valueSchema.Format = "int64";
-                valueSchema.Nullable = nullable;
+                if (nullable == true) {
+                    valueSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(Guid):
-                valueSchema.Type = "string";
+                valueSchema.Type = JsonSchemaType.String;
                 valueSchema.Format = "uuid";
-                valueSchema.Nullable = nullable;
+                if (nullable == true) {
+                    valueSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(decimal):
-                valueSchema.Type = "number";
+                valueSchema.Type = JsonSchemaType.Number;
                 valueSchema.Format = "double";
-                valueSchema.Nullable = nullable;
+                if (nullable == true) {
+                    valueSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(double):
-                valueSchema.Type = "number";
+                valueSchema.Type = JsonSchemaType.Number;
                 valueSchema.Format = "double";
-                valueSchema.Nullable = nullable;
+                if (nullable == true) {
+                    valueSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(DateTime):
-                valueSchema.Type = "string";
+                valueSchema.Type = JsonSchemaType.String;
                 valueSchema.Format = "date-time";
-                valueSchema.Nullable = nullable;
+                if (nullable == true) {
+                    valueSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(DateTimeOffset):
-                valueSchema.Type = "string";
+                valueSchema.Type = JsonSchemaType.String;
                 valueSchema.Format = "date-time";
-                valueSchema.Nullable = nullable;
+                if (nullable == true) {
+                    valueSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(string):
-                valueSchema.Type = "string";
-                valueSchema.Nullable = nullable;
+                valueSchema.Type = JsonSchemaType.String;
+                if (nullable == true) {
+                    valueSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
             case Type t when t == typeof(bool):
-                valueSchema.Type = "boolean";
-                valueSchema.Nullable = nullable;
-                break;
-            default:
+                valueSchema.Type = JsonSchemaType.Boolean;
+                if (nullable == true) {
+                    valueSchema.Type |= JsonSchemaType.Null;
+                }
                 break;
         }
         schema.AdditionalPropertiesAllowed = true;

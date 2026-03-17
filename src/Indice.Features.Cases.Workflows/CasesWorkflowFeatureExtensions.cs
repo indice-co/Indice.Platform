@@ -37,6 +37,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using NodaTime;
+using Duende.AccessTokenManagement;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -145,10 +146,10 @@ public static class CasesWorkflowFeatureExtensions
         builder.Services.TryAddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
         builder.Services.TryAddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
         builder.Services.AddClientCredentialsTokenManagement().AddClient("workflow", options => {
-            options.TokenEndpoint = builder.Configuration.GetAuthority(tryInternal: true) + "/connect/token";
-            options.ClientId = builder.Configuration.GetApiSecret("ClientId");
-            options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
-            options.Scope = builder.Configuration.GetApiResourceName();
+            options.TokenEndpoint = new (builder.Configuration.GetAuthority(tryInternal: true) + "/connect/token");
+            options.ClientId = ClientId.Parse(builder.Configuration.GetApiSecret("ClientId"));
+            options.ClientSecret = ClientSecret.Parse(builder.Configuration.GetApiSecret("ClientSecret"));
+            options.Scope = Scope.Parse(builder.Configuration.GetApiResourceName()!);
         });
         builder.Services.AddHttpClient<CasesManagerHttpClient>((serviceProvider, httpClient) => {
                 var loopbackUri = builder.Configuration.TryGetEndpoint("ServerLoopbackUri");
@@ -156,7 +157,7 @@ public static class CasesWorkflowFeatureExtensions
                                             serviceProvider.GetServerLoopbackUri() :
                                             new(loopbackUri);
             })
-            .AddClientCredentialsTokenHandler("workflow")
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("workflow"))
             .ClearResilienceHandlers();
         builder.Services.AddScoped<ICasesManager, CasesManagerHttp>();
         

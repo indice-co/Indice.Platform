@@ -1,10 +1,11 @@
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -55,26 +56,23 @@ public static class MappedTypeTransformer
     /// <param name="options">The <see cref="OpenApiOptions"/> instance to configure.</param>
     /// <returns>The configured <see cref="OpenApiOptions"/> instance.</returns>
     public static OpenApiOptions AddMappedTypeTransformer(this OpenApiOptions options) {
-        options.MapType<object>(new() { Type = "object" });
-        options.MapType<object?>(new() { Type = "object", Nullable = true });
-        options.MapType<JsonNode>(new() { Type = "object" });
-        options.MapType<JsonNode?>(new() { Type = "object", Nullable = true });
-        options.MapType<JsonElement>(new() { Type = "object" });
-        options.MapType<JsonElement?>(new() { Type = "object", Nullable = true });
-        options.MapType<Stream>(new() { Type = "string", Format = "binary" });
-        options.MapType<IFormFile>(new() { Type = "string", Format = "binary" });
-        options.MapType<IFormFile?>(new() { Type = "string", Format = "binary", Nullable = true });
-        options.MapType<IFormFileCollection>(new() { Type = "array", Items = new() { Type = "string", Format = "binary" } });
-        options.MapType<GeoPoint>(new() { Type = "string" });
-        options.MapType<GeoPoint?>(new() { Type = "string", Nullable = true });
-        options.MapType<FilterClause>(new() { Type = "string" });
-        options.MapType<FilterClause?>(new() { Type = "string", Nullable = true });
-        options.MapType<Base64Id>(new() { Type = "string" });
-        options.MapType<Base64Id?>(new() { Type = "string", Nullable = true });
-        options.MapType<GuidOrAlias>(new() { Type = "string" });
-        options.MapType<GuidOrAlias?>(new() { Type = "string", Nullable = true });
-        options.MapType<Base64Host>(new() { Type = "string" });
-        options.MapType<Base64Host?>(new() { Type = "string", Nullable = true });
+        options.MapType<object>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
+        options.MapType<JsonNode>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
+        options.MapType<JsonElement>(new() { Type = JsonSchemaType.Object });
+        options.MapType<JsonElement?>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
+        options.MapType<Stream>(new() { Type = JsonSchemaType.String, Format = "binary" });
+        options.MapType<IFormFile>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null, Format = "binary" });
+        options.MapType<IFormFileCollection>(new() { Type = JsonSchemaType.Array, Items = new OpenApiSchema() { Type = JsonSchemaType.String, Format = "binary" } });
+        options.MapType<GeoPoint>(new() { Type = JsonSchemaType.String });
+        options.MapType<GeoPoint?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
+        options.MapType<FilterClause>(new() { Type = JsonSchemaType.String });
+        options.MapType<FilterClause?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
+        options.MapType<Base64Id>(new() { Type = JsonSchemaType.String });
+        options.MapType<Base64Id?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
+        options.MapType<GuidOrAlias>(new() { Type = JsonSchemaType.String });
+        options.MapType<GuidOrAlias?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
+        options.MapType<Base64Host>(new() { Type = JsonSchemaType.String });
+        options.MapType<Base64Host?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
         // Register the type transformer
 
         var chainedDelegate = new ChainedDelegate(options.CreateSchemaReferenceId);
@@ -95,12 +93,12 @@ public static class MappedTypeTransformer
                 }
                 // If transforms contains the property type, set the property schema type and format from the transform schema
                 if (transforms.ContainsKey(jsonProperty.PropertyType)) {
-                    TransformSchema(property, jsonProperty.PropertyType, jsonProperty.IsSetNullable);
+                    TransformSchema((OpenApiSchema)property, jsonProperty.PropertyType, jsonProperty.IsSetNullable);
                     continue;
                 }
-                if (property.Type == "array" && jsonProperty.PropertyType.TryGetAnyElementType(out var elementType) && transforms.ContainsKey(elementType!)) {
+                if (property.Type == JsonSchemaType.Array && jsonProperty.PropertyType.TryGetAnyElementType(out var elementType) && transforms.ContainsKey(elementType!)) {
                     schema.Items ??= new OpenApiSchema();
-                    TransformSchema(property.Items, elementType!, nullable: null);
+                    TransformSchema((OpenApiSchema)property.Items!, elementType!, nullable: null);
                     continue;
                 }
             }
@@ -110,11 +108,11 @@ public static class MappedTypeTransformer
             TransformSchema(schema, context.ParameterDescription.Type, nullable: null);
             return Task.CompletedTask;
         }
-        if (context.ParameterDescription is not null && schema.Type == "array" && 
+        if (context.ParameterDescription is not null && schema.Type == JsonSchemaType.Array && 
             context.ParameterDescription.Type.TryGetAnyElementType(out var parameterElementType) && 
             transforms.ContainsKey(parameterElementType!)) {
             schema.Items ??= new OpenApiSchema();
-            TransformSchema(schema.Items, parameterElementType!, nullable: null);
+            TransformSchema((OpenApiSchema)schema.Items, parameterElementType!, nullable: null);
             return Task.CompletedTask;
         }
         if (context.JsonPropertyInfo is not null && transforms.ContainsKey(context.JsonPropertyInfo.PropertyType)) {
@@ -127,9 +125,9 @@ public static class MappedTypeTransformer
         OpenApiSchema transformedSchema = transforms[type];
         schema.Type = transformedSchema.Type;
         schema.Format = transformedSchema.Format;
-        schema.Annotations?.Clear();
-        //schema.Reference = null;
-        schema.Nullable = nullable ?? transformedSchema.Nullable;
+        if (nullable == false) {
+            schema.Type &= ~JsonSchemaType.Null;
+        }
     }
 }
 #endif

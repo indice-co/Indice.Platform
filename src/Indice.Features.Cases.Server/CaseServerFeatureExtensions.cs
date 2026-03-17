@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Duende.AccessTokenManagement;
+using FluentValidation;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
@@ -61,10 +62,10 @@ public static class CaseServerFeatureExtensions
         builder.Services.AddLimitUpload(serverOptions.ConfigureLimitUpload);
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessRoleBasedHandler>();
         builder.Services.AddClientCredentialsTokenManagement().AddClient("cases", options => {
-            options.TokenEndpoint = builder.Configuration.GetAuthority(tryInternal: true) + "/connect/token";
-            options.ClientId = builder.Configuration.GetApiSecret("ClientId");
-            options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
-            options.Scope = serverOptions.RequiredScope;
+            options.TokenEndpoint = new Uri(builder.Configuration.GetAuthority(tryInternal: true) + "/connect/token");
+            options.ClientId = ClientId.Parse(builder.Configuration.GetApiSecret("ClientId")!);
+            options.ClientSecret = ClientSecret.Parse(builder.Configuration.GetApiSecret("ClientSecret")!);
+            options.Scope = Scope.Parse(serverOptions.RequiredScope);
         });
         builder.Services.AddHttpClient<WorkflowHttpClient>((serviceProvider, httpClient) => {
                 var loopbackUri = builder.Configuration.TryGetEndpoint("ServerLoopbackUri");
@@ -73,7 +74,7 @@ public static class CaseServerFeatureExtensions
                                             new (loopbackUri);
             })
             .ClearResilienceHandlers()
-            .AddClientCredentialsTokenHandler("cases");
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("cases"));
         builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
         builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessMemberHandler>();

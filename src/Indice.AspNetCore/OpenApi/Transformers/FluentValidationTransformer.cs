@@ -1,8 +1,9 @@
-﻿#if NET9_0_OR_GREATER
+﻿#if NET10_0_OR_GREATER
+using System.Globalization;
 using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>
@@ -13,7 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// length limits, and value ranges based on FluentValidation validators.</remarks>
 public static class FluentValidationTransformer
 {
-    
+
     /// <summary>
     /// Adds a FluentValidation-based schema transformer to the specified OpenAPI options.
     /// </summary>
@@ -52,51 +53,52 @@ public static class FluentValidationTransformer
                 }
                 var property = validationRule.Key[..1].ToLower() + validationRule.Key[1..];
                 // make sure
-                property = schema.Properties.Keys.Where(x => x.Equals(property, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                property = schema.Properties!.Keys.Where(x => x.Equals(property, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                 if (property is null) {
                     continue;
                 }
                 foreach (IPropertyValidator propertyValidator in validationRule.Select(x => x.Validator)) {
+                    OpenApiSchema propertySchema = (OpenApiSchema)schema.Properties[property];
                     switch (propertyValidator) {
                         case INotNullValidator:
                         case INotEmptyValidator:
-                            schema.Properties[property].Nullable = false;
+                            propertySchema.Type &= ~JsonSchemaType.Null; 
                             break;
                         case IMinimumLengthValidator minLengthValidator:
-                            schema.Properties[property].MinLength = minLengthValidator.Min;
+                            propertySchema.MinLength = minLengthValidator.Min;
                             break;
                         case IMaximumLengthValidator maxLengthValidator:
-                            schema.Properties[property].MaxLength = maxLengthValidator.Max;
+                            propertySchema.MaxLength = maxLengthValidator.Max;
                             break;
                         case ILengthValidator lengthValidator:
-                            schema.Properties[property].MinLength = lengthValidator.Min;
-                            schema.Properties[property].MaxLength = lengthValidator.Max;
+                            propertySchema.MinLength = lengthValidator.Min;
+                            propertySchema.MaxLength = lengthValidator.Max;
                             break;
                         case IBetweenValidator betweenValidator:
                             if (!IsNumeric(betweenValidator.From)) {
                                 break;
                             }
-                            schema.Properties[property].Minimum = Convert.ToDecimal(betweenValidator.From);
-                            schema.Properties[property].Maximum = Convert.ToDecimal(betweenValidator.To);
-                            schema.Properties[property].ExclusiveMinimum = betweenValidator.Name.Contains("exclusive", StringComparison.OrdinalIgnoreCase);
-                            schema.Properties[property].ExclusiveMaximum = betweenValidator.Name.Contains("exclusive", StringComparison.OrdinalIgnoreCase);
+                            propertySchema.Minimum = Convert.ToDecimal(betweenValidator.From).ToString(CultureInfo.InvariantCulture);
+                            propertySchema.Maximum = Convert.ToDecimal(betweenValidator.To).ToString(CultureInfo.InvariantCulture);
+                            propertySchema.ExclusiveMinimum = betweenValidator.Name.Contains("exclusive", StringComparison.OrdinalIgnoreCase).ToString().ToLowerInvariant();
+                            propertySchema.ExclusiveMaximum = betweenValidator.Name.Contains("exclusive", StringComparison.OrdinalIgnoreCase).ToString().ToLowerInvariant();
                             break;
                         case IComparisonValidator comparisonValidator:
                             if (!IsNumeric(comparisonValidator.ValueToCompare)) {
                                 break;
                             }
                             if (comparisonValidator.Comparison == Comparison.LessThan) {
-                                schema.Properties[property].Maximum = Convert.ToDecimal(comparisonValidator.ValueToCompare);
-                                schema.Properties[property].ExclusiveMaximum = true;
+                                propertySchema.Maximum = Convert.ToDecimal(comparisonValidator.ValueToCompare).ToString(CultureInfo.InvariantCulture);
+                                propertySchema.ExclusiveMaximum = "true";
                             } else if (comparisonValidator.Comparison == Comparison.LessThanOrEqual) {
-                                schema.Properties[property].Maximum = Convert.ToDecimal(comparisonValidator.ValueToCompare);
-                                schema.Properties[property].ExclusiveMaximum = false;
+                                propertySchema.Maximum = Convert.ToDecimal(comparisonValidator.ValueToCompare).ToString(CultureInfo.InvariantCulture);
+                                propertySchema.ExclusiveMaximum = "false";
                             } else if (comparisonValidator.Comparison == Comparison.GreaterThan) {
-                                schema.Properties[property].Minimum = Convert.ToDecimal(comparisonValidator.ValueToCompare);
-                                schema.Properties[property].ExclusiveMaximum = true;
+                                propertySchema.Minimum = Convert.ToDecimal(comparisonValidator.ValueToCompare).ToString(CultureInfo.InvariantCulture);
+                                propertySchema.ExclusiveMaximum = "true";
                             } else if (comparisonValidator.Comparison == Comparison.GreaterThanOrEqual) {
-                                schema.Properties[property].Minimum = Convert.ToDecimal(comparisonValidator.ValueToCompare);
-                                schema.Properties[property].ExclusiveMaximum = false;
+                                propertySchema.Minimum = Convert.ToDecimal(comparisonValidator.ValueToCompare).ToString(CultureInfo.InvariantCulture);
+                                propertySchema.ExclusiveMaximum = "false";
                             }
                             break;
                     }

@@ -1,14 +1,15 @@
-﻿using Microsoft.OpenApi.Any;
-using System.Net.Mime;
-
-#if NET9_0_OR_GREATER
+﻿#if NET10_0_OR_GREATER
 using System.Collections.Immutable;
+using System.Net.Mime;
+using System.Reflection.Metadata;
+using System.Text.Json.Nodes;
+using Humanizer;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
-using Humanizer;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -58,7 +59,7 @@ public static class OpenApiExtensions
         options.AddFluentValidationTransformer();
         options.AddConventionsTransformer();
         options.AddDictionaryTransformer();
-        options.AddArrayTransformer();
+        //options.AddArrayTransformer();
         options.AddEnumTransformer();
         options.AddEndpointSecurityRequirementsTransformer();
         options.AddDocumentTransformer<CanonicalDocumentTransformer>();
@@ -144,8 +145,9 @@ public static class OpenApiExtensions
                 Scopes = GetScopes(apiSettings)
             };
             document.Components ??= new OpenApiComponents();
+            document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
             if (document.Components.SecuritySchemes.TryGetValue(schemeId, out var oauth2)) {
-                oauth2.Flows.AuthorizationCode = authorizationCodeFlow;
+                oauth2.Flows!.AuthorizationCode = authorizationCodeFlow;
                 return Task.CompletedTask;
             }
             document.Components.SecuritySchemes.Add(schemeId, new OpenApiSecurityScheme {
@@ -187,8 +189,9 @@ public static class OpenApiExtensions
                 Scopes = GetScopes(apiSettings)
             };
             document.Components ??= new OpenApiComponents();
+            document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
             if (document.Components.SecuritySchemes.TryGetValue(schemeId, out var oauth2)) {
-                oauth2.Flows.ClientCredentials = clientCredentialsFlow;
+                oauth2.Flows!.ClientCredentials = clientCredentialsFlow;
                 return Task.CompletedTask;
             }
             document.Components.SecuritySchemes.Add(schemeId, new OpenApiSecurityScheme {
@@ -198,9 +201,6 @@ public static class OpenApiExtensions
                     ClientCredentials = clientCredentialsFlow
                 }
             });
-            //document.SecurityRequirements.Add(new OpenApiSecurityRequirement {
-            //    [new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = schemeId } }] = GetScopes(apiSettings).Keys.ToList()
-            //});
             return Task.CompletedTask;
         });
         options.AddSecurityRequirements(schemeId);
@@ -223,17 +223,15 @@ public static class OpenApiExtensions
             var configuration = context.ApplicationServices.GetRequiredService<IConfiguration>();
             var apiSettings = configuration.GetApiSettings() ?? new ApiSettings();
             document.Components ??= new OpenApiComponents();
+            document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
             if (document.Components.SecuritySchemes.TryGetValue(schemeId, out var oidc)) {
                 return Task.CompletedTask;
             }
             document.Components.SecuritySchemes.Add(schemeId, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.OpenIdConnect,
                 Description = "Identity Server Openid connect",
-                OpenIdConnectUrl = new Uri(configuration.GetAuthorityMetadata())
+                OpenIdConnectUrl = new Uri(configuration.GetAuthorityMetadata()!)
             });
-            //document.SecurityRequirements.Add(new OpenApiSecurityRequirement {
-            //    [new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = schemeId } }] = GetScopes(apiSettings).Keys.ToList()
-            //});
             return Task.CompletedTask;
         });
         options.AddSecurityRequirements(schemeId);
@@ -255,11 +253,10 @@ public static class OpenApiExtensions
         ArgumentNullException.ThrowIfNull(options);
         options.AddDocumentTransformer((document, context, cancellationToken) => {
             document.Components ??= new OpenApiComponents();
-            
+            document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
             if (document.Components.SecuritySchemes.TryGetValue(schemeId, out var basicAuth)) {
                 return Task.CompletedTask;
             }
-            
             document.Components.SecuritySchemes.Add(schemeId, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.Http,
                 Scheme = "basic",
@@ -267,8 +264,9 @@ public static class OpenApiExtensions
                 Name = "Authorization",
                 In = ParameterLocation.Header
             });
-            document.SecurityRequirements.Add(new OpenApiSecurityRequirement {
-                [new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = schemeId } }] = []
+            document.Security ??= [];
+            document.Security.Add(new OpenApiSecurityRequirement {
+                [new(schemeId, document)] = []
             });
             return Task.CompletedTask;
         });
@@ -298,8 +296,9 @@ public static class OpenApiExtensions
                 Scopes = GetScopes(apiSettings)
             };
             document.Components ??= new OpenApiComponents();
+            document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
             if (document.Components.SecuritySchemes.TryGetValue(schemeId, out var oauth2)) {
-                oauth2.Flows.Implicit = implicitFlow;
+                oauth2.Flows!.Implicit = implicitFlow;
                 return Task.CompletedTask;
             }
             document.Components.SecuritySchemes.Add(schemeId, new OpenApiSecurityScheme {
@@ -331,11 +330,10 @@ public static class OpenApiExtensions
         ArgumentNullException.ThrowIfNull(options);
         options.AddDocumentTransformer((document, context, cancellationToken) => {
             document.Components ??= new OpenApiComponents();
-            
+            document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
             if (document.Components.SecuritySchemes.TryGetValue(schemeId, out var jwt)) {
                 return Task.CompletedTask;
             }
-            
             document.Components.SecuritySchemes.Add(schemeId, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.Http,
                 Scheme = "bearer",
@@ -363,11 +361,10 @@ public static class OpenApiExtensions
         ArgumentNullException.ThrowIfNull(options);
         options.AddDocumentTransformer((document, context, cancellationToken) => {
             document.Components ??= new OpenApiComponents();
-            
+            document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
             if (document.Components.SecuritySchemes.TryGetValue(schemeId, out var apiKey)) {
                 return Task.CompletedTask;
             }
-           
             document.Components.SecuritySchemes.Add(schemeId, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.ApiKey,
                 Scheme = schemeName,
@@ -375,8 +372,9 @@ public static class OpenApiExtensions
                 Name = "X-API-KEY",
                 Description = "Input your API key to access this API"
             });
-            document.SecurityRequirements.Add(new OpenApiSecurityRequirement {
-                [new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = schemeId } }] = []
+            document.Security ??= [];
+            document.Security.Add(new OpenApiSecurityRequirement {
+                [new (schemeId, document)] = []
             });
             return Task.CompletedTask;
         });
@@ -398,12 +396,13 @@ public static class OpenApiExtensions
         options.AddOperationTransformer((operation, context, cancellationToken) => {
             var extraHeaderParams = context.Description.ActionDescriptor.EndpointMetadata.OfType<ExtraHeaderParameterMetadata>();
             foreach (var item in extraHeaderParams) {
+                operation.Parameters ??= [];
                 operation.Parameters.Add(new OpenApiParameter {
                     Name = item.HeaderName,
                     In = ParameterLocation.Header,
                     Description = item.Description,
                     Required = item.Required,
-                    Schema = new() { Type = "string" }
+                    Schema = new OpenApiSchema() { Type = JsonSchemaType.String }
                 });
             }
             return Task.CompletedTask;
@@ -416,31 +415,29 @@ public static class OpenApiExtensions
         ArgumentException.ThrowIfNullOrWhiteSpace(schemeId);
 
         options.AddOperationTransformer((operation, context, cancellationToken) => {
-            if (operation.Security.Count == 0 &&
+            if ((operation.Security is null || operation.Security.Count == 0) &&
                 context.Description.ActionDescriptor.EndpointMetadata.OfType<IAuthorizeData>().Any() &&
                 !context.Description.ActionDescriptor.EndpointMetadata.OfType<IAllowAnonymous>().Any()) {
                 var configuration = context.ApplicationServices.GetRequiredService<IConfiguration>();
                 var apiSettings = configuration.GetApiSettings() ?? new ApiSettings();
                 var scopes = schemeId == "oauth2" ? GetScopes(apiSettings).Keys.ToList() : [];
                 operation.Security = [
-                        new OpenApiSecurityRequirement {
-                            [new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = schemeId } }] = scopes
-                        }
-                    ];
+                    new OpenApiSecurityRequirement { [new (schemeId)] = scopes }
+                ];
             }
             return Task.CompletedTask;
         });
         return options;
     }
 
-    private static Dictionary<string, string?> GetScopes(ApiSettings? settings) {
+    private static Dictionary<string, string> GetScopes(ApiSettings? settings) {
         settings ??= new ApiSettings();
         // Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow).
-        var scopes = new Dictionary<string, string?> {
+        var scopes = new Dictionary<string, string> {
             [settings.ResourceName] = $"Access to {settings.FriendlyName}",
         };
         foreach (var scope in settings.Scopes) {
-            scopes.Add(scope.Name, scope.Description);
+            scopes.Add(scope.Name, scope.Description ?? scope.Name);
         }
         return scopes;
     }
@@ -452,7 +449,6 @@ public static class OpenApiExtensions
 /// <remarks>This will be used to expose a header.</remarks>
 public record ExtraHeaderParameterMetadata(string HeaderName, bool Required, string? Description = null);
 
-#endif
 
 /// <summary>
 /// Represents metadata for an example associated with an OpenAPI operation request body, including its name, value, and an optional
@@ -466,4 +462,6 @@ public record ExtraHeaderParameterMetadata(string HeaderName, bool Required, str
 /// <param name="Summary">An optional brief summary of the example. May be null.</param>
 /// <param name="Description">An optional description providing additional context or details about the example. May be null.</param>
 /// <param name="ContentType">The content type of the example. Defaults to 'application/json'.</param>
-public record EndpointBodyExampleMetadata(string ExampleName, IOpenApiAny? Value, string? ExternalValue = null, string? Summary = null, string? Description = null, string ContentType = MediaTypeNames.Application.Json);
+public record EndpointBodyExampleMetadata(string ExampleName, JsonNode? Value, string? ExternalValue = null, string? Summary = null, string? Description = null, string ContentType = MediaTypeNames.Application.Json);
+
+#endif

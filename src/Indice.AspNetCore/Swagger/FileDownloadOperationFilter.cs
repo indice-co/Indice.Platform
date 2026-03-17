@@ -1,4 +1,5 @@
-﻿using System.Net.Mime;
+﻿#if NET8_0
+using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
@@ -49,3 +50,5 @@ public class FileDownloadOperationFilter : IOperationFilter
         }
     }
 }
+
+#endif

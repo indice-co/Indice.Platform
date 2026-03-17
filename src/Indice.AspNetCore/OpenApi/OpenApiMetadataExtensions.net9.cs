@@ -1,15 +1,18 @@
-﻿using System.Net.Mime;
+﻿#if !NET10_0_OR_GREATER
+using System.Net.Mime;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 
 namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>Endpoint conventions regarding Open API.</summary>
-public static class OpenApiExtensions
+public static class OpenApiMetadataExtensions
 {
     /// <summary>
     /// Adds an OpenAPI security requirement to the endpoint, specifying the security scheme and required scopes.
@@ -58,7 +61,6 @@ public static class OpenApiExtensions
         });
         return builder;
     }
-
     /// <summary>Adds the JWT security scheme to the Open API description.</summary>
     /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
     /// <param name="securityScheme">The security scheme to use.</param>
@@ -122,7 +124,6 @@ public static class OpenApiExtensions
     /// <returns>The original endpoint convention builder with the example metadata added.</returns>
     public static IEndpointConventionBuilder WithExampleRequestBody<T>(this IEndpointConventionBuilder builder, T example, string? summary = null, string? description = null, string contentType = MediaTypeNames.Application.Json) where T : class 
         => builder.WithMetadata(new EndpointBodyExampleMetadata(nameof(T), example.ToOpenApiAny(), Summary: summary, Description: description, ContentType: contentType));
-    
 
     /// <summary>
     /// Adds an <see cref="IProducesResponseTypeMetadata"/> with a <see cref="ProblemDetails"/> type
@@ -146,3 +147,4 @@ public static class OpenApiExtensions
     public static RouteGroupBuilder ProducesValidationProblem(this RouteGroupBuilder builder, int statusCode = 400, string? contentType = null)
         => builder.WithMetadata(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), [contentType ?? MediaTypeNames.Application.ProblemJson]));
 }
+#endif
