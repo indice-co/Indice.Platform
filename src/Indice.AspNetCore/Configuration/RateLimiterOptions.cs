@@ -45,7 +45,7 @@ public class RateLimiterEndpointRule
     /// <summary>The Http method of the endpoint to apply the rate limiter. Optional.</summary>
     public string? HttpMethod { get; set; }
     /// <summary>
-    /// The property path to extract from the request body for partitioning (e.g., "Input.Email", "email"). 
+    /// The property path to extract from the request body for partitioning (e.g., input name for form "Input.Email" , or property name for json "email"). 
     /// When specified, rate limiting will be applied per unique value of this property instead of per IP or user.
     /// Optional.
     /// </summary>

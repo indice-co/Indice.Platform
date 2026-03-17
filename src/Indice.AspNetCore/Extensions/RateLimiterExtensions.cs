@@ -1,4 +1,6 @@
 ﻿using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.RateLimiting;
 using Indice.AspNetCore.Configuration;
 using Indice.Security;
@@ -57,7 +59,7 @@ public static class RateLimiterExtensions
         string? partitionKey = null;
         // Try to get from user claims first
         partitionKey = httpContext.User.FindFirstValue(userIdentifierClaimType);
-        // If not authenticated, try to get email from request body
+        // If not authenticated, try to get the partition property from request
         if (!string.IsNullOrEmpty(partitionKey)) {
             return partitionKey;
         }
@@ -68,29 +70,81 @@ public static class RateLimiterExtensions
         httpContext.Request.EnableBuffering();
         try {
             // Handle form data
-            if (httpContext.Request.HasFormContentType && httpContext.Request.Method == "POST") {
-                if (httpContext.Request.Form.TryGetValue(partitionByProperty, out var emailValue)) {
-                    partitionKey = emailValue.ToString();
+            if (httpContext.Request.HasFormContentType) {
+                if (httpContext.Request.Form.TryGetValue(partitionByProperty, out var propertyValue)) {
+                    partitionKey = NormalizePartitionKey(propertyValue.ToString());
                 }
             }
             // Handle JSON content
-            else if (httpContext.Request.ContentType?.Contains("application/json") == true) {
-                using var reader = new StreamReader(httpContext.Request.Body, leaveOpen: true);
-                var body = reader.ReadToEndAsync().GetAwaiter().GetResult();
-                if (!string.IsNullOrEmpty(body)) {
-                    var jsonDoc = System.Text.Json.JsonDocument.Parse(body);
-                    if (jsonDoc.RootElement.TryGetProperty(partitionByProperty, out var emailElement)) {
-                        partitionKey = emailElement.GetString();
+            else if (httpContext.Request.ContentType != null && httpContext.Request.ContentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase)) {
+                var requestBody = httpContext.Request.Body;
+                long? originalPosition = null;
+                if (requestBody.CanSeek) {
+                    originalPosition = requestBody.Position;
+                    requestBody.Position = 0;
+                }
+                try {
+                    // Limit body size to prevent reading huge payloads
+                    const int MaxBodySize = 4096;
+
+                    // Use ReadAsync with blocking (required because partition resolver is synchronous)
+                    var buffer = new byte[MaxBodySize];
+                    var bytesRead = requestBody.ReadAsync(buffer, 0, MaxBodySize).GetAwaiter().GetResult();
+
+                    if (bytesRead > 0) {
+                        var body = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        try {
+                            using var jsonDoc = System.Text.Json.JsonDocument.Parse(body);
+                            if (jsonDoc.RootElement.TryGetProperty(partitionByProperty, out var propertyElement)) {
+                                partitionKey = NormalizePartitionKey(propertyElement.GetString());
+                            }
+                        } catch (System.Text.Json.JsonException) {
+                            // Invalid JSON, fall back to IP
+                        }
+                    }
+                } catch {
+                    // fall back to IP or Host
+                } finally {
+                    if (requestBody.CanSeek && originalPosition.HasValue) {
+                        requestBody.Position = originalPosition.Value;
                     }
                 }
             }
         } catch {
             // fall back to IP or Host
-        } finally {
-            httpContext.Request.Body.Position = 0;
         }
         // Fallback to IP or Host
         partitionKey ??= httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers.Host.ToString();
         return partitionKey;
+    }
+
+    /// <summary>
+    /// Normalizes a raw partition key value by trimming, checking for emptiness, and bounding its length.
+    /// Long values are replaced with a fixed-length SHA-256 hash to keep the key size bounded.
+    /// </summary>
+    /// <param name="rawKey">The raw key value extracted from the request or user claims.</param>
+    /// <returns>A normalized, bounded key suitable for use as a partition key, or <c>null</c> if not usable.</returns>
+    private static string? NormalizePartitionKey(string? rawKey) {
+        if (string.IsNullOrWhiteSpace(rawKey)) {
+            return null;
+        }
+        var trimmed = rawKey.Trim();
+        if (trimmed.Length == 0) {
+            return null;
+        }
+        // If the key is already reasonably small, use it as-is.
+        const int MaxKeyLength = 128;
+        if (trimmed.Length <= MaxKeyLength) {
+            return trimmed;
+        }
+        // For very long keys, use a fixed-length hash to bound the size.
+        using var sha256 = SHA256.Create();
+        var bytes = Encoding.UTF8.GetBytes(trimmed);
+        var hash = sha256.ComputeHash(bytes);
+        var builder = new StringBuilder(hash.Length * 2);
+        foreach (var b in hash) {
+            builder.Append(b.ToString("x2"));
+        }
+        return builder.ToString();
     }
 }
