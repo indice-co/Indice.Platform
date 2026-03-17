@@ -1,4 +1,4 @@
-﻿/*
+﻿
 using Indice.AspNetCore;
 using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Models;
@@ -31,7 +31,7 @@ public sealed class DeviceEnricher : IActivityLogEntryEnricher
             return ValueTask.CompletedTask;
         }
         var userAgent = new UserAgent(userAgentHeader!);
-        logEntry.ExtraData ??= new ();
+        logEntry.ExtraData ??= new();
         logEntry.ExtraData.Device = new ActivityLogEntryDevice {
             Model = userAgent.DeviceModel,
             Platform = userAgent.DevicePlatform,
@@ -42,4 +42,4 @@ public sealed class DeviceEnricher : IActivityLogEntryEnricher
         };
         return ValueTask.CompletedTask;
     }
-}*/
+}

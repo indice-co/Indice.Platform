@@ -19,7 +19,7 @@ public class ActivityLogEntryUserDevice
     /// <summary>The date this device was created.</summary>
     public DateTimeOffset DateCreated { get; set; }
     /// <summary>Gets or sets the date and time, in UTC, when the device last signed in.</summary>
-    public DateTimeOffset? LastActivityDate { get; set; }
+    public DateTimeOffset? LastSignInDate { get; set; }
     /// <summary>Flag that determines if push notifications are enabled for this device.</summary>
     public bool IsPushNotificationsEnabled { get; set; }
     /// <summary>Flag for pin support.</summary>

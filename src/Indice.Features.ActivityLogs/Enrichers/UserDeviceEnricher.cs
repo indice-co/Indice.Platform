@@ -1,4 +1,4 @@
-﻿/*using Indice.Features.Identity.Core;
+﻿using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Models;
@@ -26,7 +26,7 @@ public sealed class UserDeviceEnricher : IActivityLogEntryEnricher
     /// <inheritdoc />
     public async ValueTask EnrichAsync(ActivityLogEntry logEntry) {
         var success = await EnrichFromDeviceId(logEntry);
-        if (!success) { 
+        if (!success) {
             await EnrichFromRegistrationId(logEntry);
         }
     }
@@ -43,7 +43,7 @@ public sealed class UserDeviceEnricher : IActivityLogEntryEnricher
         if (device is null) {
             return true;
         }
-        logEntry.ExtraData ??= new ();
+        logEntry.ExtraData ??= new();
         logEntry.ExtraData.UserDevice = new ActivityLogEntryUserDevice {
             Id = device.Id,
             Blocked = device.Blocked,
@@ -52,7 +52,7 @@ public sealed class UserDeviceEnricher : IActivityLogEntryEnricher
             IsPendingTrustActivation = device.IsPendingTrustActivation,
             IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
             IsTrusted = device.IsTrusted,
-            LastActivityDate = device.LastActivityDate,
+            LastSignInDate = device.LastSignInDate,
             MfaSessionExpirationDate = device.MfaSessionExpirationDate,
             Model = device.Model,
             Name = device.Name,
@@ -89,7 +89,7 @@ public sealed class UserDeviceEnricher : IActivityLogEntryEnricher
             IsPendingTrustActivation = device.IsPendingTrustActivation,
             IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
             IsTrusted = device.IsTrusted,
-            LastActivityDate = device.LastActivityDate,
+            LastSignInDate = device.LastSignInDate,
             MfaSessionExpirationDate = device.MfaSessionExpirationDate,
             Model = device.Model,
             Name = device.Name,
@@ -105,4 +105,3 @@ public sealed class UserDeviceEnricher : IActivityLogEntryEnricher
         return true;
     }
 }
-*/
