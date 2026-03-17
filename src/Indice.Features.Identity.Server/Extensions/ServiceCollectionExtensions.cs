@@ -422,7 +422,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
 
     private static IServiceCollection AddIdentityRateLimiter(this IServiceCollection services, IConfiguration configuration) {
         services.AddRateLimiting(configuration, options => {
-
             options.AllRateLimiterPolicies = RateLimiterPolicies.All;
             options.CustomPolicyFactory = (policyName) => policyName switch {
                 "secure-page" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },

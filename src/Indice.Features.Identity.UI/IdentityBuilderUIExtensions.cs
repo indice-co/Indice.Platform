@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Indice.AspNetCore.Features.Recaptcha;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Features.Identity.UI;
@@ -17,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+
 
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Configuration;
@@ -111,7 +113,8 @@ public static class IdentityBuilderUIExtensions
 
         services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
         services.TryAddScoped<IdentityUILocalizer>();
-
+        // Add reCAPTCHA service with options pattern
+        services.AddRecaptcha(configuration);
         return services;
     }
 

@@ -1035,6 +1035,10 @@ a {
     text-align: right;
 }
 
+.grecaptcha-badge {
+    bottom: 50px !important;
+}
+
 /*1 rem = 16px;*/
 /* Grayscale. */
 body.consent .container {

@@ -31,7 +31,7 @@
         </div>
         <div class="hr-sect">@Localizer.Register_OR</div>
     }
-    <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate>
+    <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate id="registerForm">
         <input type="hidden" asp-for="Input.ReturnUrl" />
         <div class="row">
             <div class="col-md-6">
@@ -191,6 +191,11 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "registerForm", ButtonId = "submitButton", Action = "register" }' />
+            </div>
+        </div>
         <div class="row align-items-center">
             <div class="col-md-6 col-12">
                 <div class="mb-3">
@@ -199,7 +204,7 @@
             </div>
             <div class="col-md-6 col-12">
                 <div class="mb-3">
-                    <button class="btn btn-primary w-100" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer.Register_Join_Us</button>
+                    <button class="btn btn-primary w-100" id="submitButton" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer.Register_Join_Us</button>
                 </div>
             </div>
         </div>
@@ -214,11 +219,11 @@
     <script type="text/javascript" src="/js/password-rules.js" csp-nonce="true"></script>
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {
-            el.onclick = function (link) {
-                if (!link.target.classList.contains('disabled')) {
-                    link.target.classList.add('disabled');
-                }
-            };
+        el.onclick = function (link) {
+        if (!link.target.classList.contains('disabled')) {
+        link.target.classList.add('disabled');
+        }
+        };
         });
     </script>
 }
