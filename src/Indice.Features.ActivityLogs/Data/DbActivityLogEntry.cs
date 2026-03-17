@@ -40,8 +40,6 @@ internal class DbActivityLogEntry
     public string? Location { get; set; }
     /// <summary>User's session id.</summary>
     public string? SessionId { get; set; }
-    /// <summary>Describes the user activity type in terms of user presence.</summary>
-    public ActivityType? ActivityType { get; set; }
     /// <summary>Two letter ISO code for the country.</summary>
     public string? CountryIsoCode { get; set; }
     /// <summary>The device id.</summary>

@@ -55,9 +55,6 @@ internal class ActivityLogStoreEntityFrameworkCore : IActivityLogStore
             if (filter.Succeeded.HasValue) {
                 query = query.Where(log => log.Succeeded == filter.Succeeded.Value);
             }
-            if (filter.ActivityType.HasValue) {
-                query = query.Where(log => log.ActivityType == filter.ActivityType.Value);
-            }
             if (!string.IsNullOrWhiteSpace(filter.Subject)) {
                 query = query.Where(log => log.SubjectId == filter.Subject || log.SubjectName == filter.Subject);
             }
@@ -72,9 +69,4 @@ internal class ActivityLogStoreEntityFrameworkCore : IActivityLogStore
         throw new NotImplementedException();
     }
 
-    /// <inheritdoc />
-    //public async Task<int> UpdateAsync(Guid id, ActivityLogEntryRequest model, CancellationToken cancellationToken = default) {
-    //    var query = _dbContext.ActivityLogs.Where(x => x.Id == id);
-    //    return await query.ExecuteUpdateAsync(updates => updates.SetProperty(x => x.Review, model.Review), cancellationToken);
-    //}
 }

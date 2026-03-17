@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Options;
-using Polly;
 
 namespace Indice.Features.ActivityLogs.EntityFrameworkCore;
 

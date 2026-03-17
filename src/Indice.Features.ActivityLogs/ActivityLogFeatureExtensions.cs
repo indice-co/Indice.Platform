@@ -4,15 +4,10 @@ using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Enrichers;
 using Indice.Features.ActivityLogs.EntityFrameworkCore;
 using Indice.Features.ActivityLogs.Hosting;
-using Indice.Features.Identity.Core;
-using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Events;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.FeatureManagement;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -50,68 +45,6 @@ public static class ActivityLogFeatureExtensions
         return builder;
     }
 
-    /// <summary>Registers the <see cref="ActivityLogEventPublisher"/> implementation to the IdentityServer infrastructure.</summary>
-    /// <param name="builder">IdentityServer builder interface.</param>
-    /// <param name="configure">Configure action for the activity log feature.</param>
-    //public static TBuilder AddActivityLogs<TBuilder>(this TBuilder builder, Action<ActivityLogOptions> configure) where TBuilder : IIdentityServerBuilder =>
-    //    builder.AddActivityLogs<TBuilder, User>(configure);
-
-    ///// <summary>Registers the <see cref="ActivityLogEventSink"/> implementation to the IdentityServer infrastructure.</summary>
-    ///// <param name="builder">IdentityServer builder interface.</param>
-    ///// <param name="configure">Configure action for the activity log feature.</param>
-    //public static TBuilder AddActivityLogs<TBuilder, TUser>(this TBuilder builder, Action<ActivityLogOptions> configure)
-    //    where TBuilder : IIdentityServerBuilder
-    //    where TUser : User {
-    //    var services = builder.Services;
-    //    var serviceProvider = services.BuildServiceProvider();
-    //    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    //    var resolvedOptions = new ActivityLogOptions(builder.Services, configuration) {
-    //        Enable = configuration.GetActivityLogsEnabled() ?? ActivityLogOptions.DEFAULT_ENABLE
-    //    };
-    //    configure.Invoke(resolvedOptions);
-    //    // Add IdentityServer sink that captures required activity events.
-    //    if (!resolvedOptions.Enable) {
-    //        return builder;
-    //    }
-    //    builder.AddEventSink<ActivityLogEventSink>();
-    //    services.AddSingleton<IHostedService, PersistLogsHostedService>();
-    //    // Configure options.
-    //    services.Configure<ActivityLogOptions>(options => {
-    //        options.AnonymizePersonalData = resolvedOptions.AnonymizePersonalData;
-    //        options.ApiPrefix = resolvedOptions.ApiPrefix;
-    //        options.ApiScope = resolvedOptions.ApiScope;
-    //        options.Cleanup.BatchSize = resolvedOptions.Cleanup.BatchSize;
-    //        options.Cleanup.Enable = resolvedOptions.Cleanup.Enable;
-    //        options.Cleanup.IntervalSeconds = resolvedOptions.Cleanup.IntervalSeconds;
-    //        options.Cleanup.RetentionDays = resolvedOptions.Cleanup.RetentionDays;
-    //        options.DatabaseSchema = resolvedOptions.DatabaseSchema;
-    //        options.Enable = resolvedOptions.Enable;
-    //        options.QueueChannelCapacity = resolvedOptions.QueueChannelCapacity;
-    //        options.DequeueBatchSize = resolvedOptions.DequeueBatchSize;
-    //        options.DequeueTimeoutInMilliseconds = resolvedOptions.DequeueTimeoutInMilliseconds;
-    //    });
-    //    // Add built-in enrichers & filters for the log entry model.
-    //    services.AddDefaultEnrichers([.. resolvedOptions.ExcludedEnrichers]);
-    //    services.AddDefaultFilters();
-    //    services.AddTransient<ActivityLogEntryEnricherAggregator>();
-    //    services.AddSingleton<ActivityLogEntryQueue>();
-    //    services.AddGeoIPResolver();
-    //    // Enable feature management for this module.
-    //    services.AddFeatureManagement(configuration.GetSection(IdentityServerFeatures.Section));
-    //    // Add a default implementation in case one is not specified. Avoids DI errors.
-    //    services.TryAddSingleton<IActivityLogStore, ActivityLogStoreNoop>();
-    //    // if enabled, register log cleanup hosted (background) service.
-    //    if (resolvedOptions.Cleanup.Enable) {
-    //        services.AddSingleton<IHostedService, LogCleanupHostedService>();
-    //    }
-    //    return builder;
-    //}
-
-    //public static IHostApplicationBuilder AddEventSink<TEventSink>(this IHostApplicationBuilder builder) where TEventSink : class, IEventSink {
-    //    builder.Services.AddTransient<IEventSink, TEventSink>();
-    //    return builder;
-    //}
-
     /// <summary>Uses Entity Framework Core as a persistence store.</summary>
     /// <param name="builder">The host application builder.</param>
     /// <param name="configure">Provides a simple API surface for configuring <see cref="DbContextOptions" />.</param>
@@ -130,14 +63,10 @@ public static class ActivityLogFeatureExtensions
     /// <summary>Adds a custom enricher.</summary>
     /// <typeparam name="TEnricher"></typeparam>
     /// <param name="builder">The host application builder.</param>
-    public static void AddEnricher<TEnricher>(this IHostApplicationBuilder builder) where TEnricher : class, IActivityLogEntryEnricher =>
+    public static IHostApplicationBuilder AddEnricher<TEnricher>(this IHostApplicationBuilder builder) where TEnricher : class, IActivityLogEntryEnricher {
         builder.Services.AddActivityLogEnricher<TEnricher>();
-
-    /// <summary>Removes an existing enricher.</summary>
-    /// <typeparam name="TEnricher"></typeparam>
-    /// <param name="ActivityLogOptions">Options for configuring the IdentityServer activity logs mechanism.</param>
-    public static void RemoveEnricher<TEnricher>(this ActivityLogOptions ActivityLogOptions) where TEnricher : class, IActivityLogEntryEnricher =>
-        ActivityLogOptions.ExcludedEnrichers.Add(typeof(TEnricher));
+        return builder;
+    }
 
     private static IServiceCollection AddActivityLogEnricher<TEnricher>(this IServiceCollection services) where TEnricher : class, IActivityLogEntryEnricher {
         services.AddActivityLogEnricher(typeof(TEnricher));
@@ -151,9 +80,9 @@ public static class ActivityLogFeatureExtensions
 
     private static IServiceCollection AddDefaultEnrichers(this IServiceCollection services, params Type[] excludedTypes) {
         var enrichers = AssemblyInternalExtensions.GetClassesAssignableFrom<IActivityLogEntryEnricher>(Assembly.GetExecutingAssembly()).Except(excludedTypes);
-        foreach (var enricher in enrichers) {
-            services.AddActivityLogEnricher(enricher);
-        }
+        //foreach (var enricher in enrichers) {
+        //    services.AddActivityLogEnricher(enricher);
+        //}
         return services;
     }
 
@@ -177,8 +106,7 @@ public static class ActivityLogFeatureExtensions
     public static IApplicationBuilder ActivityStoreSetup(this IApplicationBuilder app) {
         using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var dbContext = serviceScope.ServiceProvider.GetService<ActivityLogDbContext>();
-        //dbContext.Database.EnsureCreated();
-        dbContext.Database.Migrate();
+        dbContext.Database.EnsureCreated();
         return app;
     }
 }

@@ -21,7 +21,6 @@ internal class LogCleanupHostedService : BackgroundService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
-
     public TimeSpan Interval => TimeSpan.FromSeconds(_ActivityLogOptions.Cleanup.IntervalSeconds);
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken) {

@@ -9,8 +9,6 @@ public class ActivityLogEntryFilterBase
     public DateTimeOffset? To { get; set; }
     /// <summary>The unique identifier of the application.</summary>
     public string? ApplicationId { get; set; }
-    /// <summary>Describes the user activity type in terms of user presence.</summary>
-    public ActivityType? ActivityType { get; set; }
 }
 
 /// <summary>Represents a filter for an <see cref="ActivityLogEntry"/> query.</summary>
