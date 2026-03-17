@@ -30,6 +30,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
+    <ProjectReference Include="..\Indice.Features.ActivityLogs\Indice.Features.ActivityLogs.csproj" />
+
   </ItemGroup>
   <ItemGroup>
     <Compile Update="IdentityLabels.Designer.cs">

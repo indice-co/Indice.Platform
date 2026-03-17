@@ -1,4 +1,4 @@
-﻿
+﻿/*
 using Indice.AspNetCore;
 using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Models;
@@ -42,4 +42,4 @@ public sealed class DeviceEnricher : IActivityLogEntryEnricher
         };
         return ValueTask.CompletedTask;
     }
-}
+}*/

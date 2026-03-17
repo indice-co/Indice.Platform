@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core;
+﻿using System.Text.Json.Nodes;
+using Indice.Features.Identity.Core;
 
 namespace Indice.Features.ActivityLogs.Models;
 
@@ -6,5 +7,5 @@ namespace Indice.Features.ActivityLogs.Models;
 public class ActivityLogEntryExtraData
 {
     /// <summary>Additional information about the user's activity log entry.</summary>
-    public dynamic ExtraData { get; set; }
+    public JsonNode? ExtraData { get; set; }
 }

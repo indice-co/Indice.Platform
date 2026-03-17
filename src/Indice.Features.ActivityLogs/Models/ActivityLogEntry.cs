@@ -25,7 +25,9 @@ public class ActivityLogEntry
     /// <summary>The name of the action.</summary>
     public string? ActionName { get; set; }
     /// <summary>The type of event for activity log.</summary>
-    public string? EventType { get; set; }
+    public string EventType { get; set; } = "Base";
+    /// <summary>The category of the action.</summary>
+    public string? Category { get; set; }
     /// <summary>The unique identifier of the application.</summary>
     public string? ApplicationId { get; set; }
     /// <summary>The display name of the application.</summary>

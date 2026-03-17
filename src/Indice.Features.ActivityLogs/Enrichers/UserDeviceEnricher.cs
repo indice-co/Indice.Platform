@@ -1,4 +1,4 @@
-﻿using Indice.Features.Identity.Core;
+﻿/*using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Models;
@@ -105,3 +105,4 @@ public sealed class UserDeviceEnricher : IActivityLogEntryEnricher
         return true;
     }
 }
+*/

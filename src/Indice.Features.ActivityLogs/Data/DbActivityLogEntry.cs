@@ -11,7 +11,7 @@ internal class DbActivityLogEntry
     /// <summary>A timestamp that indicates when the user's activity log entry occurred.</summary>
     public DateTimeOffset CreatedAt { get; set; }
     /// <summary>The type of event for activity log.</summary>
-    public string EventType { get; set; }
+    public string EventType { get; set; } = "Base";
     /// <summary>The category of the action.</summary>
     public string? Category { get; set; }
     /// <summary>The name of the action.</summary>

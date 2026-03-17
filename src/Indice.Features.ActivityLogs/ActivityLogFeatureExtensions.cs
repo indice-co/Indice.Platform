@@ -3,7 +3,6 @@ using Indice.Features.ActivityLogs;
 using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Enrichers;
 using Indice.Features.ActivityLogs.EntityFrameworkCore;
-using Indice.Features.ActivityLogs.EventHandlers;
 using Indice.Features.ActivityLogs.Hosting;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
@@ -35,7 +34,7 @@ public static class ActivityLogFeatureExtensions
             return builder;
         }
         // 3. Core Services
-        builder.Services.AddSingleton<IActivityEventPublisher, ActivityLogEventPublisher>();
+        builder.Services.AddTransient<IActivityEventPublisher, ActivityLogEventPublisher>();
         builder.Services.AddHostedService<PersistLogsHostedService>();
         builder.Services.AddTransient<ActivityLogEntryEnricherAggregator>();
         builder.Services.AddSingleton<ActivityLogEntryQueue>();
@@ -108,10 +107,10 @@ public static class ActivityLogFeatureExtensions
     //    return builder;
     //}
 
-    public static IHostApplicationBuilder AddEventSink<TEventSink>(this IHostApplicationBuilder builder) where TEventSink : class, IEventSink {
-        builder.Services.AddTransient<IEventSink, TEventSink>();
-        return builder;
-    }
+    //public static IHostApplicationBuilder AddEventSink<TEventSink>(this IHostApplicationBuilder builder) where TEventSink : class, IEventSink {
+    //    builder.Services.AddTransient<IEventSink, TEventSink>();
+    //    return builder;
+    //}
 
     /// <summary>Uses Entity Framework Core as a persistence store.</summary>
     /// <param name="builder">The host application builder.</param>
@@ -178,7 +177,7 @@ public static class ActivityLogFeatureExtensions
     public static IApplicationBuilder ActivityStoreSetup(this IApplicationBuilder app) {
         using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var dbContext = serviceScope.ServiceProvider.GetService<ActivityLogDbContext>();
-        dbContext?.Database.EnsureCreated();
+        //dbContext.Database.EnsureCreated();
         return app;
     }
 }

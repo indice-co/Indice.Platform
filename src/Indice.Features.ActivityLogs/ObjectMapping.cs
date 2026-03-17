@@ -15,6 +15,7 @@ internal static class ObjectMapping
     public static Expression<Func<DbActivityLogEntry, ActivityLogEntry>> ToActivityLogEntry = (logEntry) => new() {
         ActionName = logEntry.ActionName,
         EventType = logEntry.EventType,
+        Category = logEntry.Category,
         ApplicationId = logEntry.ApplicationId,
         ApplicationName = logEntry.ApplicationName,
         Coordinates = logEntry.Coordinates != null ? new GeoPoint(logEntry.Coordinates.Y, logEntry.Coordinates.X, null) : default,
@@ -41,6 +42,7 @@ internal static class ObjectMapping
         return new() {
             ActionName = logEntry.ActionName,
             EventType = logEntry.EventType,
+            Category = logEntry.Category,
             ApplicationId = logEntry.ApplicationId,
             ApplicationName = logEntry.ApplicationName,
             Coordinates = logEntry.Coordinates is not null ? _geometryFactory.CreatePoint(new Coordinate(logEntry.Coordinates.Longitude, logEntry.Coordinates.Latitude)) : default,

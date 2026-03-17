@@ -13,6 +13,8 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 #endif
 using Indice.AspNetCore.Filters;
+using Indice.Features.ActivityLogs.Abstractions;
+using Indice.Features.ActivityLogs.Models;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
@@ -42,6 +44,7 @@ public abstract class BaseLoginModel : BasePageModel
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="logger">A generic interface for logging.</param>
     /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
+    /// <param name="activityPublisher">Interface for publishing activity events.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseLoginModel(
         ExtendedSignInManager<User> signInManager,
@@ -51,7 +54,8 @@ public abstract class BaseLoginModel : BasePageModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<BaseLoginModel> logger,
-        IOptions<IdentityUIOptions> identityUiOptions
+        IOptions<IdentityUIOptions> identityUiOptions,
+        IActivityEventPublisher activityPublisher
     ) : base() {
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -60,8 +64,12 @@ public abstract class BaseLoginModel : BasePageModel
         Events = events ?? throw new ArgumentNullException(nameof(events));
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        ActivityPublisher = activityPublisher ?? throw new ArgumentNullException(nameof(activityPublisher));
         IdentityUIOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
+
     }
+    /// <summary>Interface for publishing activity events.</summary>
+    protected IActivityEventPublisher ActivityPublisher { get; }
 
     /// <summary>Retrieval of client configuration.</summary>
     protected IClientStore ClientStore { get; }
@@ -143,6 +151,7 @@ public abstract class BaseLoginModel : BasePageModel
         if (result.Succeeded) {
             // Replace locale Claim only if it has a different value configured.
             var localeClaim = user!.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.Locale);
+            await ActivityPublisher.PublishAsync(new ActivityLogEntry() { EventType = "Login", Category = "Authentication" });
             if (localeClaim is null) {
                 await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
             } else {
@@ -263,6 +272,7 @@ internal class LoginModel : BaseLoginModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<LoginModel> logger,
-        IOptions<IdentityUIOptions> identityUiOptions
-    ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, identityUiOptions) { }
+        IOptions<IdentityUIOptions> identityUiOptions,
+        IActivityEventPublisher activityPublisher
+    ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, identityUiOptions, activityPublisher) { }
 }

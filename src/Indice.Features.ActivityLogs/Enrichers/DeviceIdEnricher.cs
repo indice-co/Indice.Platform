@@ -1,4 +1,4 @@
-﻿using Indice.Features.Identity.Core.Extensions;
+﻿/*using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Models;
 using Microsoft.AspNetCore.Http;
@@ -35,3 +35,4 @@ public sealed class DeviceIdEnricher : IActivityLogEntryEnricher
         return ValueTask.CompletedTask;
     }
 }
+*/
