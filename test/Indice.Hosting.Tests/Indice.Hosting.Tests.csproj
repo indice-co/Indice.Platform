@@ -8,6 +8,9 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="9.0.14" />
   </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net10.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.5" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.Hosting\Indice.Hosting.csproj" />
   </ItemGroup>

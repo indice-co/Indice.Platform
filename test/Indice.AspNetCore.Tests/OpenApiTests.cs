@@ -68,7 +68,7 @@ public class OpenApiTests : IAsyncLifetime
     public Task InitializeAsync() {
         return Task.CompletedTask;
     }
-
+#if NET9_0
     [Fact]
     public async Task OpenApiHandlesRecursiveModels() {
         // Act
@@ -103,6 +103,46 @@ public class OpenApiTests : IAsyncLifetime
         Assert.Equal(expectedSampleEnumSchema, parameterEnumSchema!.ToJsonString());
     }
 }
+#else
+    [Fact]
+    public async Task OpenApiHandlesRecursiveModels() {
+        // Act
+        var response = await _httpClient.GetAsync("tests/menu");
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(await response.Content.ReadAsStringAsync());
+        }
+        Assert.True(response.IsSuccessStatusCode);
+        var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>();
+
+        Assert.NotEmpty(menu!);
+        var openApi = await _httpClient.GetStringAsync("openapi/v1.json");
+        Assert.NotEmpty(openApi);
+
+        var json = JsonNode.Parse(openApi);
+        var menuItemSchema = json!["components"]!["schemas"]!["MenuItem"];
+        var expectedMenuItemSchema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"},\"type\":{\"$ref\":\"#/components/schemas/MenuType\"},\"children\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/MenuItem\"}}},\"additionalProperties\":false}";
+        Assert.Equal(expectedMenuItemSchema, menuItemSchema!.ToJsonString());
+
+        var uploadRequestSchema = json!["components"]!["schemas"]!["UploadFileRequest"];
+        ///TODO: check this for dotnet 10 it should probably be same or similar to the dotnet9 one 
+        ///      using the default mappings of the MappedTypeTransformer 
+        ///      for IFormFile to be consistent with the rest of the framework. 
+        var expectedUploadRequestSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"oneOf\":[{\"type\":\"null\"},{\"$ref\":\"#/components/schemas/IFormFile\"}]},\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"}},\"additionalProperties\":false}";
+        Assert.Equal(expectedUploadRequestSchema, uploadRequestSchema!.ToJsonString());
+
+        var sampleEnumSchema = json!["components"]!["schemas"]!["SampleEnum"];
+        Assert.NotNull(sampleEnumSchema);
+        var expectedSampleEnumSchema = "{\"enum\":[1,2,3],\"type\":\"integer\",\"x-enum-varnames\":[\"Value1\",\"Value2\",\"Value3\"]}";
+        Assert.Equal(expectedSampleEnumSchema, sampleEnumSchema.ToJsonString());
+
+        var mvcOperationId = json!["paths"]!["/mvc/menu"]!["get"]!["operationId"]!.ToString();
+        Assert.Equal("OpenApiTests_GetMenuItems", mvcOperationId!);
+
+        var parameterEnumSchema = json!["paths"]!["/mvc/menu"]!["get"]!["parameters"]![0]!["schema"];
+        Assert.Equal("{\"$ref\":\"#/components/schemas/SampleEnum\"}", parameterEnumSchema!.ToJsonString());
+    }
+}
+#endif
 
 public class OpenApiTestsModels
 {
