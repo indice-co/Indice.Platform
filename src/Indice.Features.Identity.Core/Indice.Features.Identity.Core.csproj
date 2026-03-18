@@ -15,14 +15,14 @@
     <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.5" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <PackageReference Include="AutoMapper" Version="12.0.0">
+    <PackageReference Include="AutoMapper" Version="16.1.1">
       <NoWarn>NU1608</NoWarn>
     </PackageReference>
     <PackageReference Include="IdentityModel" Version="7.0.0" />
-    <PackageReference Include="Indice.IdentityServer4" Version="4.1.7" />
+    <PackageReference Include="Indice.IdentityServer4" Version="4.1.8" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
-    <PackageReference Include="Indice.IdentityServer4.EntityFramework.Storage" Version="4.1.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.23" />
+    <PackageReference Include="Indice.IdentityServer4.EntityFramework.Storage" Version="4.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.25" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
     <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.4.7" />
