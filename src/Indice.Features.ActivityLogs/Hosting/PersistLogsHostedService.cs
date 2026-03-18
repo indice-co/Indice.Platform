@@ -61,9 +61,39 @@ internal class PersistLogsHostedService : BackgroundService
         }
     }
 
-    public override Task StopAsync(CancellationToken cancellationToken) {
-        _logger.LogInformation("{ServiceName} is shutting down", nameof(PersistLogsHostedService));
-        // TODO: Consider persisting remaining activity log entries on application shutdown.
-        return base.StopAsync(cancellationToken);
+    public override async Task StopAsync(CancellationToken cancellationToken) {
+        var pendingLogs = new List<ActivityLogEntry>();
+        while (_ActivityLogEntryQueue.Reader.TryRead(out var logEntry)) {
+            if (logEntry is not null) {
+                pendingLogs.Add(logEntry);
+            }
+        }
+        if (pendingLogs.Count > 0) {
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
+                var activityLogStore = serviceScope.ServiceProvider.GetRequiredService<IActivityLogStore>();
+                var enricherAggregator = serviceScope.ServiceProvider.GetRequiredService<ActivityLogEntryEnricherAggregator>();
+                var entriesToSave = new List<ActivityLogEntry>(pendingLogs.Count);
+                try {
+                    foreach (var logEntry in pendingLogs) {
+                        var enrichResult = await enricherAggregator.EnrichAsync(
+                            logEntry,
+                            ActivityLogEnricherRunType.Default | ActivityLogEnricherRunType.Asynchronous);
+
+                        if (enrichResult.Succeeded) {
+                            await _eventService.Publish(new ActivityLogCreatedEvent(logEntry));
+                            entriesToSave.Add(logEntry);
+                        }
+                    }
+                    if (entriesToSave.Count > 0) {
+                        await activityLogStore.CreateManyAsync(entriesToSave, cancellationToken);
+                    }
+                } 
+                catch (Exception ex) {
+                    _logger.LogCritical(ex, "CRITICAL: Database write failed during shutdown. {Count} in-memory audit logs were lost.", pendingLogs.Count);
+                    throw;
+                }
+            }
+        }
+        await base.StopAsync(cancellationToken);
     }
 }
