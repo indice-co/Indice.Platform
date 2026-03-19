@@ -5,6 +5,11 @@
     <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="build\*" Pack="true" PackagePath="build\" />
+    <None Include="buildMultiTargeting\*" Pack="true" PackagePath="buildMultiTargeting\" />
+    <None Include="buildTransitive\*" Pack="true" PackagePath="buildTransitive\" />
+  </ItemGroup>
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
