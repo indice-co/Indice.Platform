@@ -103,9 +103,9 @@ public static class ActivityLogFeatureExtensions
 
     
     /// <summary>
-    /// Configures the sign-in store by ensuring the associated database is created.
+    /// Configures the activity store by ensuring the associated database is created.
     /// </summary>
-    /// <remarks>This method ensures that the database for storing sign-in logs is created if it does not
+    /// <remarks>This method ensures that the database for storing activity logs is created if it does not
     /// already exist. It uses a scoped service to access the <see cref="ActivityLogDbContext"/> and calls EnsureCreated.</remarks>
     /// <param name="app">The <see cref="IApplicationBuilder"/> instance used to configure the application.</param>
     /// <returns>The same <see cref="IApplicationBuilder"/> instance passed as the <paramref name="app"/> parameter, allowing for
