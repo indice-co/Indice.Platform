@@ -70,6 +70,9 @@ public abstract class BaseAddEmailModel : BasePageModel
             Input.ReturnUrl = returnUrl;
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        if (user.Email?.Equals(Input.Email) == true && user.EmailConfirmed) { 
+            return RedirectToPage("/AddEmail", routeValues: new { returnUrl });
+        } 
         if (user.Email?.Equals(Input.Email) == false) {
             user.Email = Input.Email;
             var result = await UserManager.SetEmailAsync(user, Input.Email);

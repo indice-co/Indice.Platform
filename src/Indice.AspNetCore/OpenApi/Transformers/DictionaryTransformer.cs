@@ -37,7 +37,7 @@ public static class DictionaryTransformer
         return Task.CompletedTask;
     }
     private static void FixEmptyDictionarySchemas(OpenApiSchema schema, Type type) {
-        var canTransform = schema.Type.HasValue && schema.Type!.Value.HasFlag(JsonSchemaType.Object) && schema.Properties!.Count == 0 &&
+        var canTransform = schema.Type.HasValue && schema.Type!.Value.HasFlag(JsonSchemaType.Object) && (schema.Properties is null || schema.Properties?.Count == 0) &&
                            schema.AdditionalPropertiesAllowed == true &&
                            schema.AdditionalProperties is null &&
                            type.IsDictionary() && type.GenericTypeArguments.Length == 2 && type.GenericTypeArguments[1].IsPrimitive();
