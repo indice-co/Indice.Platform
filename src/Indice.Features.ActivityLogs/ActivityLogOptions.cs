@@ -34,10 +34,13 @@ public class ActivityLogOptions
     /// <summary>The set of categories for activity logs.</summary>
     public HashSet<string> Categories { get; } = new(StringComparer.OrdinalIgnoreCase) {
         "Authentication",
+        "Authorization",
+        "DataAccess",
         "UserManagement",
         "Security",
         "System",
-        "CRUD"
+        "DataModification",
+        "BusinessProcess"
     };
 }
 

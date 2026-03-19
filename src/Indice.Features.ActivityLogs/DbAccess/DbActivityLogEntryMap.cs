@@ -46,6 +46,7 @@ internal class DbActivityLogEntryMap : IEntityTypeConfiguration<DbActivityLogEnt
         builder.Property(x => x.RequestPath).HasMaxLength(TextSizePresets.L2048);
         builder.Property(x => x.UserAgent).HasMaxLength(TextSizePresets.L2048);
         builder.Property(x => x.Review).IsRequired();
+        builder.Property(x => x.ReviewComment).HasMaxLength(TextSizePresets.M128);
 
         builder.Property(x => x.EventType).IsRequired().HasMaxLength(TextSizePresets.M256);
         builder.Property(x => x.Category).HasMaxLength(TextSizePresets.M256);

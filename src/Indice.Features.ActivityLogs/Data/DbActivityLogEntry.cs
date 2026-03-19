@@ -48,6 +48,8 @@ internal class DbActivityLogEntry
     public string? SessionId { get; set; }
     /// <summary>Indicates whether the specified log entry is marked for review.</summary>
     public bool Review { get; set; }
+    /// <summary>An optional comment when a log entry is marked for review.</summary>
+    public string? ReviewComment { get; set; }
     /// <summary>Two letter ISO code for the country.</summary>
     public string? CountryIsoCode { get; set; }
     /// <summary>The device id.</summary>

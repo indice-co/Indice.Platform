@@ -35,6 +35,7 @@ internal static class ObjectMapping
         ResourceType = logEntry.ResourceType,
         SessionId = logEntry.SessionId,
         Review = logEntry.Review,
+        ReviewComment = logEntry.ReviewComment,
         SubjectId = logEntry.SubjectId,
         SubjectName = logEntry.SubjectName,
         SubjectUnknown = logEntry.SubjectId == null,
@@ -65,6 +66,7 @@ internal static class ObjectMapping
             ResourceType = logEntry.ResourceType,
             SessionId = logEntry.SessionId,
             Review = logEntry.Review,
+            ReviewComment = logEntry.ReviewComment,
             SubjectId = logEntry.SubjectId,
             SubjectName = logEntry.SubjectName,
             Succeeded = logEntry.Succeeded
