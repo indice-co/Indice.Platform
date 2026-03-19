@@ -41,8 +41,6 @@ public class ActivityLogOptions
         "Security",
         "System"
     };
-    /// <summary>The set of event types for activity logs.</summary>
-    public HashSet<string> EventTypes { get; } = new(StringComparer.OrdinalIgnoreCase) { };
 }
 
 /// <summary>Options regarding log cleanup.</summary>

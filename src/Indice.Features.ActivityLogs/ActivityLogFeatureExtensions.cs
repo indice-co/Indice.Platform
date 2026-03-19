@@ -107,7 +107,6 @@ public static class ActivityLogFeatureExtensions
         using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var dbContext = serviceScope.ServiceProvider.GetService<ActivityLogDbContext>();
         dbContext.Database.EnsureCreated();
-        //dbContext.Database.Migrate();
         return app;
     }
 }
