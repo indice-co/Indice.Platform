@@ -19,12 +19,12 @@ public class RateLimiterOptions
     public IReadOnlyList<string> AllRateLimiterPolicies { get; set; } = Array.Empty<string>();
 
     /// <summary>Custom factory function for creating policy-specific rate limiter rules. Set this to provide custom configurations based on policy names.</summary>
-    public Func<string, RateLimiterEndpointRule>? CustomPolicyFactory { get; set; }
+    public Func<string, List<RateLimiterEndpointRule>>? CustomPolicyFactory { get; set; }
 
     /// <summary>Default configuration for <see cref="RateLimiterEndpointRule"/>. Returns custom rule if <see cref="CustomPolicyFactory"/> is set, otherwise returns a default rule.</summary>
     /// <param name="policyName">The policy name to get the configuration for.</param>
-    public RateLimiterEndpointRule GetPolicySettings(string policyName) =>
-        CustomPolicyFactory?.Invoke(policyName) ?? new();
+    public List<RateLimiterEndpointRule> GetPolicySettings(string policyName) =>
+        CustomPolicyFactory?.Invoke(policyName) ?? [new()];
 }
 
 /// <summary>Rate limiter fixed window options for Server API.</summary>
@@ -51,10 +51,29 @@ public class RateLimiterEndpointRule
     /// </summary>
     public string? PartitionByProperty { get; set; }
 
+    /// <summary>
+    /// The partitioning strategy to use for rate limiting. Determines how requests are grouped.
+    /// Defaults to <see cref="RateLimiterPartitionStrategy.Auto"/> (User if authenticated, otherwise IP).
+    /// </summary>
+    public RateLimiterPartitionStrategy PartitionStrategy { get; set; } = RateLimiterPartitionStrategy.Auto;
+
     /// <summary>Determines whether <see cref="HttpMethod"/> has a value.</summary>
     public bool HasHttpMehtod => !string.IsNullOrWhiteSpace(HttpMethod);
 
     /// <summary>Determines whether the rate limiter can be applied based on the http method.</summary>
     public bool CanLimitHttpMethod(string? httpMethod) =>
         !HasHttpMehtod || string.Equals(HttpMethod, httpMethod, StringComparison.OrdinalIgnoreCase);
+}
+
+/// <summary>Defines the strategy for partitioning rate limit requests.</summary>
+public enum RateLimiterPartitionStrategy
+{
+    /// <summary>Automatically determine: User subject if authenticated, then request property (if specified), otherwise IP address.</summary>
+    Auto = 0,
+    /// <summary>Partition by IP address.</summary>
+    IpAddress = 1,
+    /// <summary>Partition by authenticated user subject claim.</summary>
+    User = 2,
+    /// <summary>Partition by a property extracted from the request body (requires <see cref="RateLimiterEndpointRule.PartitionByProperty"/>).</summary>
+    RequestProperty = 3
 }

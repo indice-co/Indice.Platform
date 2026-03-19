@@ -424,13 +424,13 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.AddRateLimiting(configuration, options => {
             options.AllRateLimiterPolicies = RateLimiterPolicies.All;
             options.CustomPolicyFactory = (policyName) => policyName switch {
-                "secure-page" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
-                "forgot-password" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
-                "login" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
-                "register" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
-                "login/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
-                "login/mfa/onboarding/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
-                _ => new RateLimiterEndpointRule()
+                "secure-page" => [new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" }],
+                "forgot-password" => [new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" }],
+                "login" => [new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" }],
+                "register" => [new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" }],
+                "login/add-email" => [new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" }],
+                "login/mfa/onboarding/add-email" => [new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" }],
+                _ => [new()]
             };
         }, "IdentityServer:RateLimiter");
         return services;

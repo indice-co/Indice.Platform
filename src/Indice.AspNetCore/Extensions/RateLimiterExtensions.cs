@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.RateLimiting;
 using Indice.AspNetCore.Configuration;
 using Indice.Security;
@@ -29,13 +30,14 @@ public static class RateLimiterExtensions
 
         services.AddRateLimiter(options => {
             foreach (var endpoint in rateLimiterOptions.AllRateLimiterPolicies) {
-                var endpointOptions = rateLimiterOptions.Rules.FirstOrDefault(rule => rule.Endpoint == endpoint) ?? rateLimiterOptions.GetPolicySettings(endpoint);
+                var defaultPolicies = rateLimiterOptions.GetPolicySettings(endpoint);
+                var endpointOptions = rateLimiterOptions.Rules.FirstOrDefault(rule => rule.Endpoint == endpoint) ?? defaultPolicies.First();
                 options.AddPolicy(endpoint, context => {
                     if (!endpointOptions.CanLimitHttpMethod(context.Request.Method)) {
                         return RateLimitPartition.GetNoLimiter("NoRateLimiting");
                     }
                     return RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: GetPartitionKey(context, rateLimiterOptions.UserIdentifierClaimType, endpointOptions.PartitionByProperty),
+                        partitionKey: GetPartitionKey(context, rateLimiterOptions.UserIdentifierClaimType, endpointOptions),
                         factory: _ => new FixedWindowRateLimiterOptions {
                             PermitLimit = endpointOptions.PermitLimit.GetValueOrDefault(),
                             QueueLimit = endpointOptions.QueueLimit.GetValueOrDefault(),
@@ -54,68 +56,128 @@ public static class RateLimiterExtensions
         });
         return services;
     }
-    // Helper method to determine the partition key based on user claims, request body, or fallback to IP/Host
-    private static string GetPartitionKey(HttpContext httpContext, string userIdentifierClaimType, string? partitionByProperty) {
-        string? partitionKey = null;
-        // Try to get from user claims first
-        partitionKey = httpContext.User.FindFirstValue(userIdentifierClaimType);
-        // If not authenticated, try to get the partition property from request
-        if (!string.IsNullOrEmpty(partitionKey)) {
-            return partitionKey;
+    // Helper method to determine the partition key based on strategy, user claims, request body, or fallback to IP/Host
+    private static string GetPartitionKey(HttpContext httpContext, string userIdentifierClaimType, RateLimiterEndpointRule rule) {
+        var strategy = rule.PartitionStrategy;
+
+        switch (strategy) {
+            case RateLimiterPartitionStrategy.IpAddress:
+                return httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers.Host.ToString();
+            case RateLimiterPartitionStrategy.RequestProperty:
+                if (string.IsNullOrEmpty(rule.PartitionByProperty)) {
+                    return httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers.Host.ToString();
+                }
+                return ExtractPropertyFromRequest(httpContext, rule.PartitionByProperty)
+                    ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                    ?? httpContext.Request.Headers.Host.ToString();
+
+            case RateLimiterPartitionStrategy.User:
+            case RateLimiterPartitionStrategy.Auto:
+            default:
+                return httpContext.User.FindFirstValue(userIdentifierClaimType)
+                    ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                    ?? httpContext.Request.Headers.Host.ToString();
         }
-        if (string.IsNullOrEmpty(partitionByProperty)) {
-            return httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers.Host.ToString();
-        }
-        // Enable buffering so the body can be read multiple times
+    }
+
+    private static string? ExtractPropertyFromRequest(HttpContext httpContext, string partitionByProperty) {
         httpContext.Request.EnableBuffering();
         try {
             // Handle form data
             if (httpContext.Request.HasFormContentType) {
                 if (httpContext.Request.Form.TryGetValue(partitionByProperty, out var propertyValue)) {
-                    partitionKey = NormalizePartitionKey(propertyValue.ToString());
+                    return NormalizePartitionKey(propertyValue.ToString());
                 }
             }
             // Handle JSON content
             else if (httpContext.Request.ContentType != null && httpContext.Request.ContentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase)) {
                 var requestBody = httpContext.Request.Body;
-                long? originalPosition = null;
-                if (requestBody.CanSeek) {
-                    originalPosition = requestBody.Position;
-                    requestBody.Position = 0;
-                }
+                requestBody.Position = 0;
                 try {
-                    // Limit body size to prevent reading huge payloads
-                    const int MaxBodySize = 4096;
-
-                    // Use ReadAsync with blocking (required because partition resolver is synchronous)
-                    var buffer = new byte[MaxBodySize];
-                    var bytesRead = requestBody.ReadAsync(buffer, 0, MaxBodySize).GetAwaiter().GetResult();
-
-                    if (bytesRead > 0) {
-                        var body = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                        try {
-                            using var jsonDoc = System.Text.Json.JsonDocument.Parse(body);
-                            if (jsonDoc.RootElement.TryGetProperty(partitionByProperty, out var propertyElement)) {
-                                partitionKey = NormalizePartitionKey(propertyElement.GetString());
-                            }
-                        } catch (System.Text.Json.JsonException) {
-                            // Invalid JSON, fall back to IP
-                        }
-                    }
-                } catch {
-                    // fall back to IP or Host
+                    var property = FindPropertyValue(requestBody, partitionByProperty).GetAwaiter().GetResult();
+                    return property;
                 } finally {
-                    if (requestBody.CanSeek && originalPosition.HasValue) {
-                        requestBody.Position = originalPosition.Value;
-                    }
+                    requestBody.Position = 0;
                 }
             }
         } catch {
-            // fall back to IP or Host
+            // fall back
         }
-        // Fallback to IP or Host
-        partitionKey ??= httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers.Host.ToString();
-        return partitionKey;
+        return null;
+    }
+
+    /// <summary>
+    /// Optimized version using stackalloc for small buffers and avoiding allocations.
+    /// </summary>
+    public static async Task<string?> FindPropertyValue(Stream jsonStream, string property) {
+        string[] path = property.Split('.');
+        const int chunkSize = 4096;
+        byte[] buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(chunkSize);
+
+        try {
+            int bytesInBuffer = 0;
+            int bytesRead;
+            var state = new JsonReaderState();
+            int matchIndex = 0;
+            int currentPathDepth = 0;
+
+            while ((bytesRead = await jsonStream.ReadAsync(buffer.AsMemory(bytesInBuffer, buffer.Length - bytesInBuffer))) > 0) {
+                bytesInBuffer += bytesRead;
+                bool isFinalBlock = bytesRead == 0 || jsonStream.Position == jsonStream.Length;
+
+                var reader = new Utf8JsonReader(buffer.AsSpan(0, bytesInBuffer), isFinalBlock, state);
+
+                while (reader.Read()) {
+                    if (reader.TokenType == JsonTokenType.PropertyName) {
+                        if (matchIndex < path.Length && reader.ValueTextEquals(path[matchIndex])) {
+                            matchIndex++;
+                            currentPathDepth = reader.CurrentDepth;
+
+                            if (matchIndex == path.Length) {
+                                if (reader.Read()) {
+                                    string? result = reader.TokenType switch {
+                                        JsonTokenType.String => reader.GetString(),
+                                        JsonTokenType.Number => reader.GetDouble().ToString(),
+                                        JsonTokenType.True => "true",
+                                        JsonTokenType.False => "false",
+                                        JsonTokenType.Null => null,
+                                        _ => reader.GetString()
+                                    };
+                                    return result;
+                                }
+                            } else {
+                                reader.Read();
+                                if (reader.TokenType == JsonTokenType.StartArray) {
+                                    continue;
+                                }
+                            }
+                        } else if (reader.CurrentDepth <= currentPathDepth && matchIndex > 0) {
+                            matchIndex = 0;
+                            currentPathDepth = 0;
+                        }
+                    }
+                }
+
+                state = reader.CurrentState;
+                int bytesConsumed = (int)reader.BytesConsumed;
+
+                buffer.AsSpan(bytesConsumed, bytesInBuffer - bytesConsumed).CopyTo(buffer);
+                bytesInBuffer -= bytesConsumed;
+
+                if (bytesInBuffer == buffer.Length) {
+                    byte[] newBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(buffer.Length * 2);
+                    buffer.AsSpan(0, bytesInBuffer).CopyTo(newBuffer);
+                    System.Buffers.ArrayPool<byte>.Shared.Return(buffer);
+                    buffer = newBuffer;
+                }
+
+                if (isFinalBlock) break;
+            }
+
+            return null;
+        } finally {
+            System.Buffers.ArrayPool<byte>.Shared.Return(buffer);
+        }
     }
 
     /// <summary>
