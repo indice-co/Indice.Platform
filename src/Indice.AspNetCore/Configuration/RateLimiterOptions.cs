@@ -18,10 +18,19 @@ public class RateLimiterOptions
     /// <summary>List of all rate limiter policies. This is used to ensure that all policies are registered in the rate limiter middleware.</summary>
     public IReadOnlyList<string> AllRateLimiterPolicies { get; set; } = Array.Empty<string>();
 
-    /// <summary>Custom factory function for creating policy-specific rate limiter rules. Set this to provide custom configurations based on policy names.</summary>
+    /// <summary>
+    /// Custom factory function for creating policy-specific collections of rate limiter rules.
+    /// Set this to provide custom configurations based on policy names.
+    /// Return an empty list to indicate that the policy has no active rate limiting rules.
+    /// Returning <c>null</c> will cause <see cref="GetPolicySettings(string)"/> to fall back to a single default rule.
+    /// </summary>
     public Func<string, List<RateLimiterEndpointRule>>? CustomPolicyFactory { get; set; }
 
-    /// <summary>Default configuration for <see cref="RateLimiterEndpointRule"/>. Returns custom rule if <see cref="CustomPolicyFactory"/> is set, otherwise returns a default rule.</summary>
+    /// <summary>
+    /// Gets the configured <see cref="RateLimiterEndpointRule"/> list for the specified policy.
+    /// If <see cref="CustomPolicyFactory"/> is set, its result is returned (including an empty list, which means no rules are applied).
+    /// If the factory is not set or returns <c>null</c>, a list containing a single default rule is returned.
+    /// </summary>
     /// <param name="policyName">The policy name to get the configuration for.</param>
     public List<RateLimiterEndpointRule> GetPolicySettings(string policyName) =>
         CustomPolicyFactory?.Invoke(policyName) ?? [new()];
@@ -53,7 +62,7 @@ public class RateLimiterEndpointRule
 
     /// <summary>
     /// The partitioning strategy to use for rate limiting. Determines how requests are grouped.
-    /// Defaults to <see cref="RateLimiterPartitionStrategy.Auto"/> (User if authenticated, otherwise IP).
+    /// Defaults to <see cref="RateLimiterPartitionStrategy.Auto"/> (User subject if authenticated, then request property (if specified), otherwise IP address).
     /// </summary>
     public RateLimiterPartitionStrategy PartitionStrategy { get; set; } = RateLimiterPartitionStrategy.Auto;
 

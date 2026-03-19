@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.RateLimiting;
+using System.Globalization;
 using Indice.AspNetCore.Configuration;
 using Indice.Security;
 using Microsoft.AspNetCore.Builder;
@@ -95,7 +96,7 @@ public static class RateLimiterExtensions
                 requestBody.Position = 0;
                 try {
                     var property = FindPropertyValue(requestBody, partitionByProperty).GetAwaiter().GetResult();
-                    return property;
+                    return NormalizePartitionKey(property);
                 } finally {
                     requestBody.Position = 0;
                 }
@@ -137,7 +138,7 @@ public static class RateLimiterExtensions
                                 if (reader.Read()) {
                                     string? result = reader.TokenType switch {
                                         JsonTokenType.String => reader.GetString(),
-                                        JsonTokenType.Number => reader.GetDouble().ToString(),
+                                        JsonTokenType.Number => reader.GetDouble().ToString(CultureInfo.InvariantCulture),
                                         JsonTokenType.True => "true",
                                         JsonTokenType.False => "false",
                                         JsonTokenType.Null => null,
