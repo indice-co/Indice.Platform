@@ -29,7 +29,13 @@ internal class ActivityLogEntryEnricherAggregator
             _enrichers = _enrichers.Where(enricher => dependencyType.Value.HasFlag(enricher.RunType));
         }
         foreach (var enricher in _enrichers.OrderBy(x => x.Order)) {
-            await enricher.EnrichAsync(logEntry);
+            try {
+                await enricher.EnrichAsync(logEntry);
+            }
+            catch (Exception ex) {
+                throw;
+            }
+            
         }
         return EnrichResult.Success;
     }

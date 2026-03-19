@@ -1,6 +1,6 @@
-﻿using Indice.Features.Identity.Core.Extensions;
-using Indice.Features.ActivityLogs.Abstractions;
+﻿using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Models;
+using Indice.Features.Identity.Core.Extensions;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.ActivityLogs.Enrichers;

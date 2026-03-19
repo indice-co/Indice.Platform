@@ -14,6 +14,9 @@ internal static class ObjectMapping
 
     public static Expression<Func<DbActivityLogEntry, ActivityLogEntry>> ToActivityLogEntry = (logEntry) => new() {
         ActionName = logEntry.ActionName,
+        HttpMethod = logEntry.HttpMethod,
+        RequestPath = logEntry.RequestPath,
+        UserAgent = logEntry.UserAgent,
         EventType = logEntry.EventType,
         Category = logEntry.Category,
         ApplicationId = logEntry.ApplicationId,
@@ -41,6 +44,9 @@ internal static class ObjectMapping
     public static DbActivityLogEntry ToDbActivityLogEntry(this ActivityLogEntry logEntry) {
         return new() {
             ActionName = logEntry.ActionName,
+            HttpMethod = logEntry.HttpMethod,
+            RequestPath = logEntry.RequestPath,
+            UserAgent = logEntry.UserAgent,
             EventType = logEntry.EventType,
             Category = logEntry.Category,
             ApplicationId = logEntry.ApplicationId,

@@ -80,9 +80,9 @@ public static class ActivityLogFeatureExtensions
 
     private static IServiceCollection AddDefaultEnrichers(this IServiceCollection services, params Type[] excludedTypes) {
         var enrichers = AssemblyInternalExtensions.GetClassesAssignableFrom<IActivityLogEntryEnricher>(Assembly.GetExecutingAssembly()).Except(excludedTypes);
-        //foreach (var enricher in enrichers) {
-        //    services.AddActivityLogEnricher(enricher);
-        //}
+        foreach (var enricher in enrichers) {
+            services.AddActivityLogEnricher(enricher);
+        }
         return services;
     }
 
@@ -107,6 +107,7 @@ public static class ActivityLogFeatureExtensions
         using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var dbContext = serviceScope.ServiceProvider.GetService<ActivityLogDbContext>();
         dbContext.Database.EnsureCreated();
+        //dbContext.Database.Migrate();
         return app;
     }
 }

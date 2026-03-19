@@ -1,4 +1,4 @@
-﻿using Indice.Features.Identity.Core;
+﻿/*using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Models;
@@ -11,7 +11,7 @@ public sealed class UserDeviceEnricher : IActivityLogEntryEnricher
 {
     private readonly ExtendedUserManager<User> _userManager;
 
-    /// <summary>Creates a new instance of <see cref="SubjectNameEnricher"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="UserDeviceEnricher"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public UserDeviceEnricher(ExtendedUserManager<User> userManager) {
@@ -105,3 +105,4 @@ public sealed class UserDeviceEnricher : IActivityLogEntryEnricher
         return true;
     }
 }
+*/
