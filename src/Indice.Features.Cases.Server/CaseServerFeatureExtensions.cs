@@ -5,7 +5,6 @@ using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
 using Indice.Features.Cases.Server.Endpoints.Validators;
-using Indice.Features.Cases.Server.Extensions;
 using Indice.Features.Cases.Server.Integration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Routing;
