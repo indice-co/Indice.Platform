@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.ActivityLogs;
 
@@ -12,15 +10,14 @@ public class ActivityLogOptions
     /// <summary>Creates a new instance of <see cref="ActivityLogOptions"/> class.</summary>
     public ActivityLogOptions() { }
 
-    internal List<Type> ExcludedEnrichers { get; } = [];
+    /// <summary>Determines which of the default enrichers will not be used </summary>
+    public List<Type> ExcludedEnrichers { get; } = [];
     /// <summary>Determines whether personal data (i.e. IP Address) are anonymized when persisted in the database. Defaults to <i>false</i>.</summary>
     public bool AnonymizePersonalData { get; set; }
-    /// <summary>API default resource scope. Defaults to <i>identity</i>.</summary>
-    public string ApiScope { get; set; } = "identity";
     /// <summary>Cleanup options.</summary>
     public LogCleanupOptions Cleanup { get; set; } = new LogCleanupOptions();
-    /// <summary>Schema name to be used for the database, in case a relational provider is configured. Defaults to <i>auth</i>.</summary>
-    public string DatabaseSchema { get; set; } = "auth";
+    /// <summary>Schema name to be used for the database, in case a relational provider is configured. Defaults to <i>app</i>.</summary>
+    public string DatabaseSchema { get; set; } = "app";
     /// <summary>Determines whether activity logging is enabled. Defaults to <i>true</i>.</summary>
     public bool Enable { get; set; } = true;
     /// <summary>The maximum number of items the internal queue may store. Defaults to <i>100</i>.</summary>
@@ -39,7 +36,8 @@ public class ActivityLogOptions
         "Authentication",
         "UserManagement",
         "Security",
-        "System"
+        "System",
+        "CRUD"
     };
 }
 

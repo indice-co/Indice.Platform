@@ -7,28 +7,28 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.ActivityLogs.EntityFrameworkCore;
 
 /// <summary>An implementation of <see cref="IActivityLogStore"/>, using Entity Framework Core as a persistence mechanism.</summary>
-internal class ActivityLogStoreEntityFrameworkCore : IActivityLogStore
+internal class ActivityLogStore : IActivityLogStore
 {
     private readonly ActivityLogDbContext _dbContext;
-    private readonly ActivityLogOptions _ActivityLogOptions;
+    private readonly ActivityLogOptions _activityLogOptions;
 
-    /// <summary>Creates a new instance of <see cref="ActivityLogStoreEntityFrameworkCore"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="ActivityLogStore"/> class.</summary>
     /// <param name="dbContext">The <see cref="ActivityLogDbContext"/> passing the configured options.</param>
-    /// <param name="ActivityLogOptions">Options for configuring the IdentityServer activity logs mechanism.</param>
-    public ActivityLogStoreEntityFrameworkCore(
+    /// <param name="activityLogOptions">Options for configuring the IdentityServer activity logs mechanism.</param>
+    public ActivityLogStore(
         ActivityLogDbContext dbContext,
-        IOptions<ActivityLogOptions> ActivityLogOptions
+        IOptions<ActivityLogOptions> activityLogOptions
     ) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _ActivityLogOptions = ActivityLogOptions?.Value ?? throw new ArgumentNullException(nameof(ActivityLogOptions));
+        _activityLogOptions = activityLogOptions?.Value ?? throw new ArgumentNullException(nameof(activityLogOptions));
     }
 
     /// <inheritdoc />
     public async Task<int> Cleanup(CancellationToken cancellationToken = default) {
         var query = _dbContext
             .ActivityLogs
-            .Where(x => EF.Functions.DateDiffDay(x.CreatedAt, DateTimeOffset.UtcNow) > _ActivityLogOptions.Cleanup.RetentionDays)
-            .Take(_ActivityLogOptions.Cleanup.BatchSize);
+            .Where(x => EF.Functions.DateDiffDay(x.CreatedAt, DateTimeOffset.UtcNow) > _activityLogOptions.Cleanup.RetentionDays)
+            .Take(_activityLogOptions.Cleanup.BatchSize);
         return await query.ExecuteDeleteAsync(cancellationToken);
     }
 
@@ -43,7 +43,7 @@ internal class ActivityLogStoreEntityFrameworkCore : IActivityLogStore
     }
 
     /// <inheritdoc />
-    public async Task<ResultSet<ActivityLogEntry>> ListAsync(ListOptions options, ActivityLogEntryFilter filter, CancellationToken cancellationToken = default) {
+    public async Task<ResultSet<ActivityLogEntry>> ListAsync(ListOptions options, ActivityLogEntryFilter filter , CancellationToken cancellationToken = default) {
         IQueryable<Data.DbActivityLogEntry> query = _dbContext.ActivityLogs;
         if (filter is not null) {
             if (filter.From.HasValue) {
@@ -61,12 +61,25 @@ internal class ActivityLogStoreEntityFrameworkCore : IActivityLogStore
             if (!string.IsNullOrWhiteSpace(filter.ActionName)) {
                 query = query.Where(log => log.ActionName == filter.ActionName);
             }
+            if (!string.IsNullOrWhiteSpace(filter.ApplicationId)) {
+                query = query.Where(log => log.ApplicationId == filter.ApplicationId);
+            }
+            if (!string.IsNullOrWhiteSpace(filter.SessionId)) {
+                query = query.Where(log => log.SessionId == filter.SessionId);
+            }
+            if (filter.MarkForReview.HasValue) {
+                query = query.Where(log => log.Review == filter.MarkForReview.Value);
+            }
+        }
+        if (string.IsNullOrWhiteSpace(options?.Sort)) {
+            query = query.OrderByDescending(log => log.CreatedAt);
         }
         return await query.Select(ObjectMapping.ToActivityLogEntry).ToResultSetAsync(options, cancellationToken);
     }
 
-    public Task<int> UpdateAsync(Guid id, ActivityLogEntryRequest model, CancellationToken cancellationToken = default) {
-        throw new NotImplementedException();
+    public async Task<int> UpdateAsync(Guid id, ActivityLogEntryRequest model, CancellationToken cancellationToken = default) {
+        var query = _dbContext.ActivityLogs.Where(x => x.Id == id);
+        return await query.ExecuteUpdateAsync(updates => updates.SetProperty(x => x.Review, model.Review), cancellationToken);
     }
 
 }
