@@ -15,5 +15,5 @@ public class LimitUploadOptions
     /// When set to <see langword="true"/>, uploaded files are also validated against their expected magic bytes (file signatures).
     /// Files whose content does not match the declared extension will be rejected. Default is <see langword="false"/>.
     /// </summary>
-    public bool EnableMagicByteValidation { get; set; } = false;
+    public bool EnableMagicByteValidation { get; set; }
 }
