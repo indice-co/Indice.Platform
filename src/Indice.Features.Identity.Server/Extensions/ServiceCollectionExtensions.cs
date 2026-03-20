@@ -429,7 +429,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                 "login" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
                 "register" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
                 "login/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                "login/add-phone" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
                 "login/mfa/onboarding/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                "login/mfa/onboarding/add-phone" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                "manage/profile" => new() { PermitLimit = 1, Window = TimeSpan.FromSeconds(3), HttpMethod = "POST" },
                 _ => new RateLimiterEndpointRule()
             };
         }, "IdentityServer:RateLimiter");

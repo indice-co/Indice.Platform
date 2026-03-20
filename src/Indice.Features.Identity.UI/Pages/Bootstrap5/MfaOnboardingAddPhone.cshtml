@@ -1,5 +1,5 @@
 ﻿@page "/login/mfa/onboarding/add-phone"
-
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/mfa/onboarding/add-phone")]
 @model BaseMfaOnboardingAddPhoneModel
 
 @inject IWebHostEnvironment HostingEnvironment
