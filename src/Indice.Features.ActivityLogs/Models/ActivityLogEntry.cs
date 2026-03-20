@@ -1,5 +1,4 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
-using Indice.Types;
+﻿using Indice.Types;
 
 namespace Indice.Features.ActivityLogs.Models;
 
@@ -17,7 +16,6 @@ public class ActivityLogEntry
     /// <summary>Creates a new instance of <see cref="ActivityLogEntry"/> class.</summary>
     public ActivityLogEntry() : this(Guid.NewGuid(), DateTimeOffset.UtcNow) { }
 
-    internal User? User { get; set; }
     /// <summary>The unique id of the user's activity log entry.</summary>
     public Guid Id { get; set; }
     /// <summary>A timestamp that indicates when the user's activity log entry occurred.</summary>

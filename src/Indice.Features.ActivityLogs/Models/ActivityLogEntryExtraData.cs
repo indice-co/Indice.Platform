@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Nodes;
-using Indice.Features.Identity.Core;
 
 namespace Indice.Features.ActivityLogs.Models;
 

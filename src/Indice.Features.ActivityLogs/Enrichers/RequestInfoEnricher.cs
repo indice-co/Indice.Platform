@@ -1,11 +1,8 @@
-﻿using System.Security.Claims;
-using Indice.Features.ActivityLogs.Abstractions;
+﻿using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Models;
-using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting; // Added for IWebHostEnvironment
 using Microsoft.Extensions.Configuration; // Added for IConfiguration
-using Microsoft.Identity.Client;
 
 namespace Indice.Features.ActivityLogs.Enrichers;
 

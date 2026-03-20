@@ -1,4 +1,4 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using Indice.Features.ActivityLogs.PotentialCommon;
 using Indice.Types;
 
 namespace Indice.Features.ActivityLogs.Models;
@@ -45,3 +45,4 @@ public class ActivityLogEntryUserDevice
     /// <summary>The date until the client is remembered by the system and MFA is not asked.</summary>
     public DateTimeOffset? MfaSessionExpirationDate { get; set; }
 }
+
