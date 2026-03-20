@@ -12,7 +12,7 @@ public interface IMagicBytesValidator
     /// <see langword="true"/> if the file content matches the expected magic bytes for the extension,
     /// or if the extension does not have a known signature; otherwise <see langword="false"/>.
     /// </returns>
-    bool IsValid(byte[] bytes, string fileExtension);
+    MagicBytesValidationResult IsValid(byte[] bytes, string fileExtension);
 
     /// <summary>Validates that a stream's content matches the expected magic bytes for the given file extension.</summary>
     /// <param name="bytes">The file bytes as Span to validate.</param>
@@ -21,7 +21,7 @@ public interface IMagicBytesValidator
     /// <see langword="true"/> if the file content matches the expected magic bytes for the extension,
     /// or if the extension does not have a known signature; otherwise <see langword="false"/>.
     /// </returns>
-    bool IsValid(ReadOnlySpan<byte> bytes, string fileExtension);
+    MagicBytesValidationResult IsValid(ReadOnlySpan<byte> bytes, string fileExtension);
 }
 
 /// <summary>
@@ -73,12 +73,46 @@ public sealed record MagicBytesSignature(
 public sealed record MagicBytesSignatureEntry(string FileExtensions, MagicBytesSignature[] Signatures);
 
 /// <summary>
+/// Represents the result of a magic bytes validation check.
+/// </summary>
+public sealed record MagicBytesValidationResult
+{
+    /// <summary>Gets whether the file content matched the expected magic bytes for the given extension.</summary>
+    public bool IsValid { get; }
+
+    /// <summary>Gets whether validation was skipped because no signatures are registered for the given extension.</summary>
+    public bool IsUnknownExtension { get; }
+
+    /// <summary>Gets the error message when <see cref="IsValid"/> is <see langword="false"/>; otherwise <see langword="null"/>.</summary>
+    public string? Error { get; }
+
+    private MagicBytesValidationResult(bool isValid, bool isUnknownExtension, string? error) {
+        IsValid = isValid;
+        IsUnknownExtension = isUnknownExtension;
+        Error = error;
+    }
+
+    /// <summary>Returns a successful validation result.</summary>
+    public static MagicBytesValidationResult Valid() => new(true, false, null);
+
+    /// <summary>Returns a failed result indicating the extension has no registered signatures.</summary>
+    public static MagicBytesValidationResult UnknownExtension(string error) => new(false, true, error);
+
+    /// <summary>Returns a failed result indicating the file content did not match the expected magic bytes.</summary>
+    public static MagicBytesValidationResult Failure(string error) => new(false, false, error);
+
+    /// <summary>Allows implicit use in boolean expressions via <see cref="IsValid"/>.</summary>
+    public static implicit operator bool(MagicBytesValidationResult result) => result.IsValid;
+}
+
+/// <summary>
 /// Validates file content against known magic byte signatures to verify the file matches its declared extension.
 /// </summary>
 public sealed class MagicBytesValidator : IMagicBytesValidator
 {
     private static FrozenDictionary<string, MagicBytesSignature[]>? ByFileExtension;
 
+    #region Magic Bytes table
     private static readonly MagicBytesSignatureEntry[] Entries =
     [
         // images
@@ -276,6 +310,7 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
             ]),
         ])
     ];
+    #endregion
 
     /// <summary>
     /// Looks up signatures for a given extension, supporting slash-delimited multi-extension keys.
@@ -350,9 +385,9 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
     /// or if the extension is unknown (no signatures registered). Returns <c>false</c> if the
     /// extension is known but any signature check fails.
     /// </summary>
-    internal bool ValidateInternal(ReadOnlySpan<byte> bytes, string fileExtension) {
+    internal MagicBytesValidationResult ValidateInternal(ReadOnlySpan<byte> bytes, string fileExtension) {
         if (string.IsNullOrWhiteSpace(fileExtension)) {
-            return true;
+            return MagicBytesValidationResult.Valid();
         }
 
         if (!fileExtension.StartsWith('.')) {
@@ -361,16 +396,16 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
 
         var signatures = TryGetSignatures(fileExtension);
         if (signatures is null || signatures.Length == 0) {
-            return false;
+            return MagicBytesValidationResult.UnknownExtension($"No signatures registered for extension '{fileExtension}'.");
         }
 
         foreach (var sig in signatures) {
             if (!Evaluate(bytes, sig)) {
-                return false;
+                return MagicBytesValidationResult.Failure($"Magic bytes check failed for extension '{fileExtension}'.");
             }
         }
 
-        return true;
+        return MagicBytesValidationResult.Valid();
     }
 
     /// <summary>
@@ -381,12 +416,12 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
     }
 
     /// <inheritdoc/>
-    public bool IsValid(byte[] bytes, string fileExtension) {
+    public MagicBytesValidationResult IsValid(byte[] bytes, string fileExtension) {
         return ValidateInternal(bytes.AsSpan(), fileExtension);
     }
 
     /// <inheritdoc/>
-    public bool IsValid(ReadOnlySpan<byte> bytes, string fileExtension) {
+    public MagicBytesValidationResult IsValid(ReadOnlySpan<byte> bytes, string fileExtension) {
         return ValidateInternal(bytes, fileExtension);
     }
 }

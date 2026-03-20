@@ -53,8 +53,8 @@ public static class LimitUploadFilter
                             await using var memoryStream = new MemoryStream((int)file.Length);
                             await file.CopyToAsync(memoryStream);
                             ReadOnlySpan<byte> fileSpan = memoryStream.GetBuffer().AsSpan(0, (int)memoryStream.Length);
-                            var isValid = magicBytesValidator.IsValid(fileSpan, extension);
-                            if (!isValid) {
+                            var result = magicBytesValidator.IsValid(fileSpan, extension);
+                            if (!result.IsValid && (!result.IsUnknownExtension || !options.AllowUnknownExtensions)) {
                                 errors.AddError(file.FileName, $"File content does not match the expected format for extension {extension}.");
                             }
                         }

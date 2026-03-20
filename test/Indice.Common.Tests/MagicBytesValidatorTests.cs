@@ -19,7 +19,7 @@ public class MagicBytesValidatorTests
     [InlineData(".pptx", new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x00 }, true)]
     public async Task IsValidAsync_ValidMagicBytes_ReturnsTrue(string extension, byte[] bytes, bool expected) {
         var result = _validator.IsValid(bytes, extension);
-        Assert.Equal(expected, result);
+        Assert.Equal(expected, result.IsValid);
     }
 
     [Theory]
@@ -28,14 +28,14 @@ public class MagicBytesValidatorTests
     [InlineData(".pdf",  new byte[] { 0x50, 0x4B, 0x03, 0x04 })]  // ZIP bytes in .pdf file
     public async Task IsValidAsync_InvalidMagicBytes_ReturnsFalse(string extension, byte[] bytes) {
         var result = _validator.IsValid(bytes, extension);
-        Assert.False(result);
+        Assert.False(result.IsValid);
     }
 
     [Fact]
     public async Task IsValidAsync_UnknownExtension_ReturnsFalse() {
         var bytes = new byte[]{0x00, 0x01, 0x02, 0x03};
         var result = _validator.IsValid(bytes, ".xyz");
-        Assert.False(result);
+        Assert.False(result.IsValid);
     }
 
     [Theory]
@@ -43,7 +43,7 @@ public class MagicBytesValidatorTests
     [InlineData(".gif", new byte[] { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61 })]  // GIF89a
     public async Task IsValidAsync_GifVariants_ReturnsTrue(string extension, byte[] bytes) {
         var result = _validator.IsValid(bytes, extension);
-        Assert.True(result);
+        Assert.True(result.IsValid);
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class MagicBytesValidatorTests
         bytes[8] = 0x57; bytes[9] = 0x45; bytes[10] = 0x42; bytes[11] = 0x50;
 
         var result = _validator.IsValid(bytes, ".webp");
-        Assert.True(result);
+        Assert.True(result.IsValid);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class MagicBytesValidatorTests
         bytes[8] = 0x57; bytes[9] = 0x41; bytes[10] = 0x56; bytes[11] = 0x45; // "WAVE"
 
         var result = _validator.IsValid(bytes, ".webp");
-        Assert.False(result);
+        Assert.False(result.IsValid);
     }
 
     [Theory]
@@ -79,7 +79,7 @@ public class MagicBytesValidatorTests
     public async Task IsValidAsync_ValidSvg_ReturnsTrue(string svgContent) {
         var bytes = System.Text.Encoding.UTF8.GetBytes(svgContent);
         var result = _validator.IsValid(bytes, ".svg");
-        Assert.True(result);
+        Assert.True(result.IsValid);
     }
 
     [Fact]
@@ -95,20 +95,20 @@ public class MagicBytesValidatorTests
         // Binary content (JPEG) masquerading as SVG
         var bytes = new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 };
         var result = _validator.IsValid(bytes, ".svg");
-        Assert.False(result);
+        Assert.False(result.IsValid);
     }
 
     [Fact]
     public async Task IsValidAsync_ExtensionWithoutLeadingDot_StillValidates() {
         var bytes = new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 };
         var result = _validator.IsValid(bytes, "jpg");
-        Assert.True(result);
+        Assert.True(result.IsValid);
     }
 
     [Fact]
     public async Task IsValidAsync_NullOrEmptyExtension_ReturnsTrue() {
         var bytes = new byte[] { 0x00, 0x01 };
         var result = _validator.IsValid(bytes, "");
-        Assert.True(result);
+        Assert.True(result.IsValid);
     }
 }
