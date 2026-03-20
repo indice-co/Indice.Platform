@@ -24,17 +24,12 @@ internal class ActivityLogEntryEnricherAggregator
         if (discard) {
             return EnrichResult.MustDiscard;
         }
+        var enrichersToRun = _enrichers; // Local copy
         if (dependencyType.HasValue) {
-            _enrichers = _enrichers.Where(enricher => dependencyType.Value.HasFlag(enricher.RunType));
+            enrichersToRun = enrichersToRun.Where(enricher => dependencyType.Value.HasFlag(enricher.RunType));
         }
-        foreach (var enricher in _enrichers.OrderBy(x => x.Order)) {
-            try {
-                await enricher.EnrichAsync(logEntry);
-            }
-            catch (Exception ex) {
-                throw;
-            }
-            
+        foreach (var enricher in enrichersToRun.OrderBy(x => x.Order)) {
+            await enricher.EnrichAsync(logEntry);
         }
         return EnrichResult.Success;
     }
