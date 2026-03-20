@@ -1,6 +1,6 @@
 ﻿using Indice.Features.ActivityLogs.Models;
 
-namespace Indice.Features.ActivityLogs.Abstractions;
+namespace Indice.Features.ActivityLogs;
 
 /// <summary>
 /// Activity event publisher that is responsible for publishing the activity log entry to the underlying mechanism.

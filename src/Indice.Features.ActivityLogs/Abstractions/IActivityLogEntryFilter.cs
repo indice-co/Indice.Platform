@@ -1,6 +1,6 @@
 ﻿using Indice.Features.ActivityLogs.Models;
 
-namespace Indice.Features.ActivityLogs.Abstractions;
+namespace Indice.Features.ActivityLogs;
 
 internal interface IActivityLogEntryFilter
 {

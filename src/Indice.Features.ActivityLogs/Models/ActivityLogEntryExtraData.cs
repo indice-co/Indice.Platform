@@ -9,7 +9,4 @@ public class ActivityLogEntryExtraData
     public JsonNode? ExtraData { get; set; }
     /// <summary></summary>
     public ActivityLogEntryDevice? Device { get; set; }
-    /// <summary>User devices representation.</summary>
-    public ActivityLogEntryUserDevice? UserDevice { get; set; }
-
 }

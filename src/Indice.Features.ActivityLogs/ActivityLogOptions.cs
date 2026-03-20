@@ -16,8 +16,8 @@ public class ActivityLogOptions
     public bool AnonymizePersonalData { get; set; }
     /// <summary>Cleanup options.</summary>
     public LogCleanupOptions Cleanup { get; set; } = new LogCleanupOptions();
-    /// <summary>Schema name to be used for the database, in case a relational provider is configured. Defaults to <i>app</i>.</summary>
-    public string DatabaseSchema { get; set; } = "app";
+    /// <summary>Schema name to be used for the database, in case a relational provider is configured. Defaults to <i>auth</i>.</summary>
+    public string DatabaseSchema { get; set; } = "auth";
     /// <summary>Determines whether activity logging is enabled. Defaults to <i>true</i>.</summary>
     public bool Enable { get; set; } = true;
     /// <summary>The maximum number of items the internal queue may store. Defaults to <i>100</i>.</summary>
@@ -32,22 +32,13 @@ public class ActivityLogOptions
     /// <summary>The timeout milliseconds the queue waits to reach the batch size. Should be extra careful when configuring!!!</summary>
     public long DequeueTimeoutInMilliseconds { get; set; } = 1000;
     /// <summary>The set of categories for activity logs.</summary>
-    public HashSet<string> Categories { get; } = new(StringComparer.OrdinalIgnoreCase) {
-        "Authentication",
-        "Authorization",
-        "DataAccess",
-        "UserManagement",
-        "Security",
-        "System",
-        "DataModification",
-        "BusinessProcess"
-    };
+    public HashSet<string> Categories { get; } = new(StringComparer.OrdinalIgnoreCase) { };
 }
 
 /// <summary>Options regarding log cleanup.</summary>
 public class LogCleanupOptions
 {
-    /// <summary>The number of log items to delete on each cleanup iteration. Defaults to <i>1000</i>. Maximum allowed values before lock escalation.</summary>
+    /// <summary>The number of log items to delete on each cleanup iteration. Defaults to <i>4000</i>. Maximum allowed values before lock escalation.</summary>
     public ushort BatchSize { get; set; } = 4000;
     /// <summary>The number of seconds to wait between to consecutive cleanup executions. Defaults to <i>3600 seconds</i> (1 hour).</summary>
     public ushort IntervalSeconds { get; set; } = 3600;

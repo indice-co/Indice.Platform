@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.Features.ActivityLogs.Abstractions;
+namespace Indice.Features.ActivityLogs;
 
 /// <summary>
 /// Defines a builder for configuring the activity log feature.

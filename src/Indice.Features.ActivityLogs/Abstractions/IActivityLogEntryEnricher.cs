@@ -1,6 +1,6 @@
 ﻿using Indice.Features.ActivityLogs.Models;
 
-namespace Indice.Features.ActivityLogs.Abstractions;
+namespace Indice.Features.ActivityLogs;
 
 /// <summary>An abstraction used to describe the implementation of a service that enriches the <see cref="ActivityLogEntry"/> class.</summary>
 public interface IActivityLogEntryEnricher

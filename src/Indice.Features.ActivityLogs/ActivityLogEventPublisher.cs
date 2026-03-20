@@ -1,5 +1,4 @@
-﻿using Indice.Features.ActivityLogs.Abstractions;
-using Indice.Features.ActivityLogs.Enrichers;
+﻿using Indice.Features.ActivityLogs.Enrichers;
 using Indice.Features.ActivityLogs.Models;
 
 namespace Indice.Features.ActivityLogs;

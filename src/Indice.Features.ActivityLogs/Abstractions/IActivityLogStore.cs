@@ -1,7 +1,7 @@
 ﻿using Indice.Features.ActivityLogs.Models;
 using Indice.Types;
 
-namespace Indice.Features.ActivityLogs.Abstractions;
+namespace Indice.Features.ActivityLogs;
 
 /// <summary>A service that contains operations used to persist the data of a user's activity event.</summary>
 public interface IActivityLogStore

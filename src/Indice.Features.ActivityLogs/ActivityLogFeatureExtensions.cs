@@ -1,13 +1,12 @@
 ﻿using System.Reflection;
 using Indice.Features.ActivityLogs;
-using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Enrichers;
 using Indice.Features.ActivityLogs.EntityFrameworkCore;
 using Indice.Features.ActivityLogs.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -17,31 +16,33 @@ public static class ActivityLogFeatureExtensions
     /// <summary>
     /// Registers and configures necessary services for the activity log feature to work.
     /// </summary>
-    /// <param name="builder"></param>
-    /// <param name="configure"></param>
+    /// <param name="services">The service collection to add the activity log services to.</param>
+    /// <param name="configuration">The configuration to use for the activity log services.</param>
+    /// <param name="configureAction">An optional action to configure the activity log options.</param>
     /// <returns></returns>
-    public static IActivityLogBuilder AddActivityLogs(this IHostApplicationBuilder builder, Action<ActivityLogOptions> configure) {
+    public static IActivityLogBuilder AddActivityLogs(this IServiceCollection services,IConfiguration configuration, Action<ActivityLogOptions>? configureAction = null) {
         var options = new ActivityLogOptions();
-        configure.Invoke(options);
-        var activityLogBuilder = new ActivityLogBuilder(builder.Services, builder.Configuration);
-        builder.Services.Configure<ActivityLogOptions>(configure);
+        configureAction?.Invoke(options);
+        var activityLogBuilder = new ActivityLogBuilder(services, configuration);
+        if (configureAction != null) {
+            services.Configure<ActivityLogOptions>(configureAction);
+        }
         if (!options.Enable) {
             return activityLogBuilder;
         }
-
         // 3. Core Services
-        builder.Services.AddTransient<IActivityEventPublisher, ActivityLogEventPublisher>();
-        builder.Services.AddHostedService<PersistLogsHostedService>();
-        builder.Services.AddTransient<ActivityLogEntryEnricherAggregator>();
-        builder.Services.AddSingleton<ActivityLogEntryQueue>();
-        builder.Services.AddGeoIPResolver();
+        services.AddTransient<IActivityEventPublisher, ActivityLogEventPublisher>();
+        services.AddHostedService<PersistLogsHostedService>();
+        services.AddTransient<ActivityLogEntryEnricherAggregator>();
+        services.AddSingleton<ActivityLogEntryQueue>();
+        services.AddGeoIPResolver();
 
-        builder.Services.AddDefaultEnrichers([.. options.ExcludedEnrichers]);
-        builder.Services.AddDefaultFilters();
+        services.AddDefaultEnrichers([.. options.ExcludedEnrichers]);
+        services.AddDefaultFilters();
         if (options.Cleanup.Enable) {
-            builder.Services.AddHostedService<LogCleanupHostedService>();
+            services.AddHostedService<LogCleanupHostedService>();
         }
-        builder.Services.TryAddSingleton<IActivityLogStore, ActivityLogStoreNoop>();
+        services.TryAddSingleton<IActivityLogStore, ActivityLogStoreNoop>();
 
         return activityLogBuilder;
     }

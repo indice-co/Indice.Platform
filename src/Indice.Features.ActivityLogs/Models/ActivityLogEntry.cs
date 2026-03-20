@@ -22,12 +22,6 @@ public class ActivityLogEntry
     public DateTimeOffset CreatedAt { get; set; }
     /// <summary>The name of the action.</summary>
     public string? ActionName { get; set; }
-    /// <summary> Gets or sets the HTTP method used for the request (e.g., GET, POST, PUT).</summary>
-    public string? HttpMethod { get; set; }
-    /// <summary> Gets or sets the absolute path of the request being processed.</summary>
-    public string? RequestPath { get; set; }
-    /// <summary> Gets or sets the User-Agent string sent by the client's browser or application.</summary>
-    public string? UserAgent { get; set; }
     /// <summary>The type of event for activity log.</summary>
     public string EventType { get; set; } = "Base";
     /// <summary>The category of the action.</summary>
@@ -60,8 +54,6 @@ public class ActivityLogEntry
     public string? SessionId { get; set; }
     /// <summary>Indicates whether the specified log entry is marked for review.</summary>
     public bool Review { get; set; }
-    /// <summary>An optional comment when a log entry is marked for review.</summary>
-    public string? ReviewComment { get; set; }
     /// <summary>Two letter ISO code for the country.</summary>
     public string? CountryIsoCode { get; set; }
     /// <summary>The device id.</summary>

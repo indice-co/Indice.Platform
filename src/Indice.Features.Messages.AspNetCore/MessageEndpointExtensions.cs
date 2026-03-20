@@ -43,7 +43,6 @@ public static class MessageEndpointExtensions
         routes.MapAnalytics();
         routes.MapSend();
         routes.MapTranslationGraph();
-        routes.MapActivityLogs();
         return routes;
     }
 }

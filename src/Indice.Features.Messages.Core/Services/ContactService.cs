@@ -1,7 +1,4 @@
 ﻿using System.Data.Common;
-using Indice.Features.ActivityLogs;
-using Indice.Features.ActivityLogs.Abstractions;
-using Indice.Features.ActivityLogs.Models;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Exceptions;
@@ -19,13 +16,11 @@ public class ContactService : IContactService
     /// <summary>Creates a new instance of <see cref="ContactService"/>.</summary>
     /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ContactService(CampaignsDbContext dbContext, IActivityEventPublisher activityLogPublisher) {
+    public ContactService(CampaignsDbContext dbContext) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        ActivityLogPublisher = activityLogPublisher ?? throw new ArgumentNullException(nameof(activityLogPublisher));
     }
 
     private CampaignsDbContext DbContext { get; }
-    private IActivityEventPublisher ActivityLogPublisher { get; }
     /// <inheritdoc />
     public async Task AddToDistributionList(Guid id, CreateDistributionListContactRequest request) {
         var list = await DbContext.DistributionLists.FindAsync(id);
@@ -142,7 +137,6 @@ public class ContactService : IContactService
         var contact = Mapper.ToDbContact(request);
         DbContext.Contacts.Add(contact);
         await DbContext.SaveChangesAsync();
-        await ActivityLogPublisher.PublishAsync(new ActivityLogEntry() { EventType = "User created", Category = ActivityLogCategories.DataModification});
         return Mapper.ToContact(contact);
     }
 
@@ -164,7 +158,6 @@ public class ContactService : IContactService
             result.Preference = await GetContactPreference(contact.RecipientId);
 
         }
-        await ActivityLogPublisher.PublishAsync(new ActivityLogEntry() { EventType = "Searched user", Category = ActivityLogCategories.DataAccess, ResourceId = id.ToString() });
         return result;
     }
 

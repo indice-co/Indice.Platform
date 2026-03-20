@@ -1,6 +1,4 @@
-﻿
-using Indice.AspNetCore;
-using Indice.Features.ActivityLogs.Abstractions;
+﻿using Indice.AspNetCore;
 using Indice.Features.ActivityLogs.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
@@ -26,6 +24,7 @@ public sealed class DeviceEnricher : IActivityLogEntryEnricher
 
     /// <inheritdoc />
     public ValueTask EnrichAsync(ActivityLogEntry logEntry) {
+        //logEntry.DeviceId 
         var userAgentHeader = _httpContextAccessor.HttpContext!.Request.Headers[HeaderNames.UserAgent];
         if (string.IsNullOrWhiteSpace(userAgentHeader)) {
             return ValueTask.CompletedTask;
@@ -33,6 +32,7 @@ public sealed class DeviceEnricher : IActivityLogEntryEnricher
         var userAgent = new UserAgent(userAgentHeader!);
         logEntry.ExtraData ??= new();
         logEntry.ExtraData.Device = new ActivityLogEntryDevice {
+            
             Model = userAgent.DeviceModel,
             Platform = userAgent.DevicePlatform,
             UserAgent = userAgent.HeaderValue,

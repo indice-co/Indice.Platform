@@ -1,5 +1,4 @@
-﻿using Indice.Features.ActivityLogs.Abstractions;
-using Indice.Features.ActivityLogs.Models;
+﻿using Indice.Features.ActivityLogs.Models;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -80,8 +79,7 @@ internal class ActivityLogStore : IActivityLogStore
 
     public async Task<int> UpdateAsync(Guid id, ActivityLogEntryRequest model, CancellationToken cancellationToken = default) {
         var query = _dbContext.ActivityLogs.Where(x => x.Id == id);
-        return await query.ExecuteUpdateAsync(updates => updates.SetProperty(x => x.Review, model.Review)
-                                                                .SetProperty(x => x.ReviewComment, model.ReviewComment), cancellationToken);
+        return await query.ExecuteUpdateAsync(updates => updates.SetProperty(x => x.Review, model.Review));
     }
 
 }

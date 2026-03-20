@@ -1,5 +1,4 @@
 ﻿using Indice.Events;
-using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Enrichers;
 using Indice.Features.ActivityLogs.Events;
 using Indice.Features.ActivityLogs.Models;

@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Indice.Features.ActivityLogs.Abstractions;
 using Indice.Features.ActivityLogs.Models;
 using Microsoft.Extensions.Options;
 

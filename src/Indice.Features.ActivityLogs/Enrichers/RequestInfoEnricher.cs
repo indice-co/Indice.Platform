@@ -1,5 +1,4 @@
-﻿using Indice.Features.ActivityLogs.Abstractions;
-using Indice.Features.ActivityLogs.Models;
+﻿using Indice.Features.ActivityLogs.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting; // Added for IWebHostEnvironment
 using Microsoft.Extensions.Configuration; // Added for IConfiguration
@@ -38,13 +37,9 @@ public class RequestInfoEnricher : IActivityLogEntryEnricher
         var context = _httpContextAccessor.HttpContext;
         logEntry.ApplicationName = _environment.ApplicationName;
         if (context is not null) {
-            logEntry.ActionName = context.Request.RouteValues["action"]?.ToString() ?? context.GetEndpoint()?.DisplayName;
+            logEntry.ActionName = context.GetEndpoint()?.DisplayName ?? context.Request.Path;
             logEntry.RequestId = context.TraceIdentifier;
             logEntry.IpAddress = context.Connection.RemoteIpAddress?.ToString();
-
-            logEntry.HttpMethod = context.Request.Method;
-            logEntry.RequestPath = context.Request.Path;
-            logEntry.UserAgent = context.Request.Headers.UserAgent.ToString();
         }
 
         return ValueTask.CompletedTask;

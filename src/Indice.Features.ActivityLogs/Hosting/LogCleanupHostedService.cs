@@ -1,5 +1,4 @@
-﻿using Indice.Features.ActivityLogs.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,32 +22,21 @@ internal class LogCleanupHostedService : BackgroundService
     }
     public TimeSpan Interval => TimeSpan.FromSeconds(_ActivityLogOptions.Cleanup.IntervalSeconds);
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken) {
-        Task.Factory.StartNew(async () => {
-            while (true) {
-                if (stoppingToken.IsCancellationRequested) {
-                    _logger.LogDebug("Cancellation was requested for {ServiceName}. Exiting.", nameof(LogCleanupHostedService));
-                    break;
-                }
-                try {
-                    await Task.Delay(Interval, stoppingToken);
-                    try {
-                        using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
-                            var ActivityLogStore = serviceScope.ServiceProvider.GetRequiredService<IActivityLogStore>();
-                            await ActivityLogStore.Cleanup(stoppingToken);
-                        }
-                    } catch (Exception exception) {
-                        _logger.LogError("Exception while removing expired logs: {Exception}", exception.Message);
-                    }
-                } catch (TaskCanceledException exception) {
-                    _logger.LogDebug("{ServiceName} was canceled. {Exception}", nameof(LogCleanupHostedService), exception.Message);
-                    break;
-                } catch (Exception exception) {
-                    _logger.LogDebug("An exception was thrown during {ServiceName} execution. {Exception}", nameof(LogCleanupHostedService), exception.Message);
-                    break;
-                }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
+        while (!stoppingToken.IsCancellationRequested) {
+            try {
+                await Task.Delay(Interval, stoppingToken);
+                using var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+                var activityLogStore = serviceScope.ServiceProvider.GetRequiredService<IActivityLogStore>();
+                await activityLogStore.Cleanup(stoppingToken);
+            } 
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) {
+                _logger.LogDebug("{ServiceName} is stopping.", nameof(LogCleanupHostedService));
+                break;
+            } 
+            catch (Exception exception) {
+                _logger.LogError(exception, "Exception while removing expired logs.");
             }
-        }, stoppingToken);
-        return Task.CompletedTask;
+        }
     }
 }
