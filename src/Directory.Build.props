@@ -6,18 +6,18 @@
       <VersionPrefixMajor>8</VersionPrefixMajor>
       <VersionPrefixBase>$(VersionPrefixMajor).41</VersionPrefixBase>
 
-      <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).2</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).2</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
-      <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
-      <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
-      <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
-      <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
-      <VersionPrefixGovGr>$(VersionPrefixBase).1</VersionPrefixGovGr>
-      <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
-      <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
+      <VersionPrefixCore>$(VersionPrefixBase).1</VersionPrefixCore>
+      <VersionPrefixIdentity>$(VersionPrefixBase).3</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).3</VersionPrefixIdentityUI>
+      <VersionPrefixCases>$(VersionPrefixBase).1</VersionPrefixCases>
+      <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
+      <VersionPrefixMultitenancy>$(VersionPrefixBase).1</VersionPrefixMultitenancy>
+      <VersionPrefixRisk>$(VersionPrefixBase).1</VersionPrefixRisk>
+      <VersionPrefixMedia>$(VersionPrefixBase).1</VersionPrefixMedia>
+      <VersionPrefixGeoIP>$(VersionPrefixBase).1</VersionPrefixGeoIP>
+      <VersionPrefixGovGr>$(VersionPrefixBase).2</VersionPrefixGovGr>
+      <VersionPrefixAspNet>$(VersionPrefixBase).1</VersionPrefixAspNet>
+      <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
 
       <!--<VersionSuffix>rc04</VersionSuffix>-->
       <Authors>Constantinos Leftheris</Authors>
