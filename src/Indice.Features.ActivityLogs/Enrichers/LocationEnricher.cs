@@ -8,9 +8,11 @@ namespace Indice.Features.ActivityLogs.Enrichers;
 /// <summary>Enriches the activity log entry with location metadata of the user (given the IP address).</summary>
 public sealed class LocationEnricher : IActivityLogEntryEnricher
 {
+    /// <summary>Helper service for locating IP addresses</summary>
     private readonly IPAddressLocator _ipAddressLocator;
 
-    /// <summary></summary>
+    /// <summary>Initializes a new instance of the <see cref="LocationEnricher"/> class.</summary>
+    /// <param name="ipAddressLocator">The IP address locator service.</param>
     public LocationEnricher(IPAddressLocator ipAddressLocator) {
         _ipAddressLocator = ipAddressLocator ?? throw new ArgumentNullException(nameof(ipAddressLocator));
     }

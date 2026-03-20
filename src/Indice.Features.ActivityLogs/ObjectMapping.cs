@@ -12,7 +12,7 @@ internal static class ObjectMapping
     // Cache the geometry factory to avoid creating new instances repeatedly
     private static readonly GeometryFactory _geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(4326);
 
-    public static Expression<Func<DbActivityLogEntry, ActivityLogEntry>> ToActivityLogEntry = (logEntry) => new() {
+    public static readonly Expression<Func<DbActivityLogEntry, ActivityLogEntry>> ToActivityLogEntry = (logEntry) => new() {
         ActionName = logEntry.ActionName,
         HttpMethod = logEntry.HttpMethod,
         RequestPath = logEntry.RequestPath,

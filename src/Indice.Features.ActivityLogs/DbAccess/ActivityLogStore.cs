@@ -40,6 +40,7 @@ internal class ActivityLogStore : IActivityLogStore
     public async Task CreateManyAsync(IEnumerable<ActivityLogEntry> logEntries, CancellationToken cancellationToken = default) {
         _dbContext.ActivityLogs.AddRange(logEntries.ToDbActivityLogEntries());
         await _dbContext.SaveChangesAsync(cancellationToken);
+        _dbContext.ChangeTracker.Clear();
     }
 
     /// <inheritdoc />

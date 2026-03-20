@@ -7,19 +7,19 @@ namespace Indice.Features.ActivityLogs;
 /// <summary>IdentityServer event sink in order to persist data for a activity event.</summary>
 internal class ActivityLogEventPublisher : IActivityEventPublisher
 {
-    private readonly ActivityLogEntryQueue _ActivityLogEntryQueue;
-    private readonly ActivityLogEntryEnricherAggregator _ActivityLogEntryEnricherAggregator;
+    private readonly ActivityLogEntryQueue _activityLogEntryQueue;
+    private readonly ActivityLogEntryEnricherAggregator _activityLogEntryEnricherAggregator;
 
     /// <summary>Creates a new instance of <see cref="ActivityLogEventPublisher"/> class.</summary>
-    /// <param name="ActivityLogEntryQueue"></param>
-    /// <param name="ActivityLogEntryEnricherAggregator"></param>
+    /// <param name="activityLogEntryQueue"></param>
+    /// <param name="activityLogEntryEnricherAggregator"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public ActivityLogEventPublisher(
-        ActivityLogEntryQueue ActivityLogEntryQueue,
-        ActivityLogEntryEnricherAggregator ActivityLogEntryEnricherAggregator
+        ActivityLogEntryQueue activityLogEntryQueue,
+        ActivityLogEntryEnricherAggregator activityLogEntryEnricherAggregator
     ) {
-        _ActivityLogEntryQueue = ActivityLogEntryQueue ?? throw new ArgumentNullException(nameof(ActivityLogEntryQueue));
-        _ActivityLogEntryEnricherAggregator = ActivityLogEntryEnricherAggregator;
+        _activityLogEntryQueue = activityLogEntryQueue ?? throw new ArgumentNullException(nameof(activityLogEntryQueue));
+        _activityLogEntryEnricherAggregator = activityLogEntryEnricherAggregator ?? throw new ArgumentNullException(nameof(activityLogEntryEnricherAggregator));
     }
 
 
@@ -28,7 +28,7 @@ internal class ActivityLogEventPublisher : IActivityEventPublisher
         if (entry is null) {
             return;
         }
-        await _ActivityLogEntryEnricherAggregator.EnrichAsync(entry, ActivityLogEnricherRunType.Synchronous);
-        await _ActivityLogEntryQueue.EnqueueAsync(entry);
+        await _activityLogEntryEnricherAggregator.EnrichAsync(entry, ActivityLogEnricherRunType.Synchronous);
+        await _activityLogEntryQueue.EnqueueAsync(entry);
     }
 }

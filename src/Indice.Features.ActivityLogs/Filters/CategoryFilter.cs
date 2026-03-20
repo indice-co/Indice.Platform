@@ -12,6 +12,9 @@ internal class CategoryFilter : IActivityLogEntryFilter
         this.activityLogOptions = activityLogOptions.Value ?? throw new ArgumentNullException(nameof(activityLogOptions));
     }
     public Task<bool> Discard(ActivityLogEntry logEntry) {
+        if(string.IsNullOrWhiteSpace(logEntry?.Category)) {
+            return Task.FromResult(true);
+        }
         if (activityLogOptions.Categories.Contains(logEntry.Category)) { 
             return Task.FromResult(false);
         }
