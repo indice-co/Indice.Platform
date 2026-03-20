@@ -1,6 +1,10 @@
 ﻿using System.Net.Mime;
+using Indice.AspNetCore.Configuration;
 using Indice.Extensions;
+using Indice.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Http;
 
@@ -31,6 +35,8 @@ public static class LimitUploadFilter
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
                     var httpContext = invocationContext.HttpContext;
+                    var options = httpContext.RequestServices.GetRequiredService<IOptions<LimitUploadOptions>>().Value;
+                    var magicBytesValidator = httpContext.RequestServices.GetService<IMagicBytesValidator>();
                     var errors = ValidationErrors.Create();
                     foreach (var file in httpContext.Request.Form.Files) {
                         var extension = Path.GetExtension(file.FileName);
@@ -39,6 +45,13 @@ public static class LimitUploadFilter
                         }
                         if (file.Length > sizeLimit) {
                             errors.AddError(file.FileName, $"File size cannot exceed {sizeLimit.ToFileSize()}.");
+                        }
+                        if (options.EnableMagicByteValidation && magicBytesValidator is not null) {
+                            using var stream = file.OpenReadStream();
+                            var isValid = await magicBytesValidator.IsValidAsync(stream, extension);
+                            if (!isValid) {
+                                errors.AddError(file.FileName, $"File content does not match the expected format for extension {extension}.");
+                            }
                         }
                     }
                     if (errors.Count > 0) {
