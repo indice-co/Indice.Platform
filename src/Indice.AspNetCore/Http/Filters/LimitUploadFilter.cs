@@ -22,15 +22,16 @@ public static class LimitUploadFilter
     /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
     /// <param name="sizeLimit">The maximum allowed file size in bytes.</param>
     /// <param name="fileExtensions">Allowed file extensions as a comma or space separated string.</param>
+    /// <param name="enableMagicByteValidation">Overrides magic bytes validation option.</param>
     /// <returns>The builder.</returns>
-    public static TBuilder LimitUpload<TBuilder>(this TBuilder builder, long sizeLimit, string? fileExtensions = null) where TBuilder : IEndpointConventionBuilder {
+    public static TBuilder LimitUpload<TBuilder>(this TBuilder builder, long sizeLimit, string? fileExtensions = null, bool? enableMagicByteValidation = null) 
+        where TBuilder : IEndpointConventionBuilder {
         builder.Add(endpointBuilder => {
             var allowedExtensions = fileExtensions?
                 .Split(' ', ',', ';')
                 .Where(x => null != x)
                 .Select(x => '.' + x.Trim().TrimStart('.'))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
-            // We can respond with problem details if there's a validation error.
             endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(StatusCodes.Status400BadRequest, typeof(HttpValidationProblemDetails), [ MediaTypeNames.Application.ProblemJson ]));
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
@@ -46,9 +47,13 @@ public static class LimitUploadFilter
                         if (file.Length > sizeLimit) {
                             errors.AddError(file.FileName, $"File size cannot exceed {sizeLimit.ToFileSize()}.");
                         }
-                        if (options.EnableMagicByteValidation && magicBytesValidator is not null) {
-                            using var stream = file.OpenReadStream();
-                            var isValid = await magicBytesValidator.IsValidAsync(stream, extension);
+
+                        var validateMagicBytes = enableMagicByteValidation ?? options.EnableMagicByteValidation;
+                        if (validateMagicBytes && magicBytesValidator is not null) {
+                            await using var memoryStream = new MemoryStream((int)file.Length);
+                            await file.CopyToAsync(memoryStream);
+                            ReadOnlySpan<byte> fileSpan = memoryStream.GetBuffer().AsSpan(0, (int)memoryStream.Length);
+                            var isValid = magicBytesValidator.IsValid(fileSpan, extension);
                             if (!isValid) {
                                 errors.AddError(file.FileName, $"File content does not match the expected format for extension {extension}.");
                             }
