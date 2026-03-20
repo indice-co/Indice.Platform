@@ -108,9 +108,10 @@ public static class RateLimiterExtensions
     }
 
     /// <summary>
-    /// Optimized version using stackalloc for small buffers and avoiding allocations.
+    /// Efficiently reads a JSON stream and finds the value of the specified (dot-separated) property path
+    /// without deserializing the entire payload.
     /// </summary>
-    public static async Task<string?> FindPropertyValue(Stream jsonStream, string property) {
+    private static async Task<string?> FindPropertyValue(Stream jsonStream, string property) {
         string[] path = property.Split('.');
         const int chunkSize = 4096;
         byte[] buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(chunkSize);
