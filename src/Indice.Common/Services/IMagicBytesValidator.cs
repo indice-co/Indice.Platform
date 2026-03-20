@@ -75,7 +75,7 @@ public sealed record MagicBytesSignatureEntry(string FileExtensions, MagicBytesS
 /// <summary>
 /// Validates file content against known magic byte signatures to verify the file matches its declared extension.
 /// </summary>
-public class MagicBytesValidator : IMagicBytesValidator
+public sealed class MagicBytesValidator : IMagicBytesValidator
 {
     private static FrozenDictionary<string, MagicBytesSignature[]>? ByFileExtension;
 
