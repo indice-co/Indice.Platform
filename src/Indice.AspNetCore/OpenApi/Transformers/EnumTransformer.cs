@@ -6,9 +6,11 @@ using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using Indice.Extensions;
 using Indice.Serialization;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Changes the OAS for enum flags and treats them as an array. This works in accordance with serialization by using the <see cref="JsonStringArrayEnumFlagsConverterFactory"/>.</summary>
@@ -33,17 +35,53 @@ public static class EnumTransformer
     /// <returns>The options for further configuration.</returns>
     public static OpenApiOptions AddEnumTransformer(this OpenApiOptions options) {
         options.AddSchemaTransformer(TransformAsync);
-        //options.AddSchemaTransformer(TransformFlagsAsync);
         var chainedDelegate = new ChainedDelegate(options.CreateSchemaReferenceId);
         options.CreateSchemaReferenceId = chainedDelegate.Invoke;
         return options;
     }
 
-    private static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
-       
-        var enumType = Nullable.GetUnderlyingType(context.JsonTypeInfo.Type) ?? context.JsonTypeInfo.Type;
-        if (!enumType.IsEnum || schema.Extensions.Count > 0) {
+    /// <summary>
+    /// Transforms the OpenAPI schema for enum types by adding enum values, names, and descriptions as extensions to the schema.
+    /// </summary>
+    /// <param name="schema">The OpenAPI schema to transform.</param>
+    /// <param name="context">The context containing information about the schema transformation, including the JSON type information and parameter description.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns></returns>
+    public static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
+        if (TryTransformEnum(schema, context, context.JsonTypeInfo.Type)) {
             return Task.CompletedTask;
+        }
+
+        if (TryFindMvcQueryParameterEnumType(schema, context.ParameterDescription, out var modelType) && TryTransformEnum(schema, context, modelType!)) {
+            schema.Annotations ??= new Dictionary<string, object>();
+            schema.Annotations["x-schema-id"] = (Nullable.GetUnderlyingType(modelType!) ?? modelType!).Name;
+        }
+        return Task.CompletedTask;
+    }
+
+    private static bool TryFindMvcQueryParameterEnumType(OpenApiSchema schema, ApiParameterDescription? parameterDescription, out Type? modelType) {
+        modelType = null;
+        if (parameterDescription?.ModelMetadata is Microsoft.AspNetCore.Mvc.ModelBinding.Metadata.DefaultModelMetadata mvcModelMetadata &&
+            mvcModelMetadata.IsEnum &&
+            schema.Enum.Count == 0) {
+            modelType = mvcModelMetadata.ModelType;
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Attempts to transform the OpenAPI schema for an enum type by adding enum values, names, and descriptions as extensions to the schema.
+    /// </summary>
+    /// <param name="schema">The OpenAPI schema to transform.</param>
+    /// <param name="context">The context containing information about the schema transformation, including the JSON type information and parameter description.</param>
+    /// <param name="type">The type to check for being an enum and to extract enum values, names, and descriptions from.</param>
+    /// <returns>true if transformed</returns>
+    public static bool TryTransformEnum(OpenApiSchema schema, OpenApiSchemaTransformerContext context, Type type) {
+        
+        var enumType = Nullable.GetUnderlyingType(type) ?? type;
+        if (!enumType.IsEnum || schema.Extensions.Count > 0) {
+            return false;
         }
         var isString = context.JsonTypeInfo.Options.Converters.OfType<JsonStringEnumConverter>().Any();
 
@@ -71,36 +109,7 @@ public static class EnumTransformer
         }
         schema.Enum = openApiValueArray;
 
-        return Task.CompletedTask;
-    }
-
-    private static Task TransformFlagsAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
-        if (context.ParameterDescription?.Type.IsFlagsEnum() == true) {
-            //TransformSchemaType(schema, context.ParameterDescription.Type);
-        }
-        if (context.JsonPropertyInfo?.PropertyType.IsFlagsEnum() == true) {
-            TransformSchemaType(schema, context.JsonPropertyInfo.PropertyType);
-        }
-        return Task.CompletedTask;
-    }
-
-    private static void TransformSchemaType(OpenApiSchema schema, Type type) {
-        var enumType = Nullable.GetUnderlyingType(type) ?? type;
-        if (schema.OneOf.Count > 0) {
-            return;
-        }
-        schema.OneOf = [
-            new OpenApiSchema(schema),
-            new OpenApiSchema() {
-                Type = "array",
-                Items = new OpenApiSchema(schema),
-            }
-        ];
-        schema.Type = null;
-        schema.Format = null;
-        //schema.Nullable = context.JsonTypeInfo.Type.IsReferenceOrNullableType();
-        schema.Enum?.Clear();
-        schema.Annotations?.Clear();
+        return true;
     }
 
     private static bool IsReferenceOrNullableType(this Type type) => !type.IsValueType || Nullable.GetUnderlyingType(type) != null;

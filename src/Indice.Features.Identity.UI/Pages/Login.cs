@@ -5,12 +5,16 @@ using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
+using Indice.AspNetCore.Features.Recaptcha;
+
 #else
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using Indice.AspNetCore.Features.Recaptcha;
+
 #endif
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
@@ -42,6 +46,7 @@ public abstract class BaseLoginModel : BasePageModel
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="logger">A generic interface for logging.</param>
     /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
+    /// <param name="recaptchaService">Service for validating reCAPTCHA tokens.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseLoginModel(
         ExtendedSignInManager<User> signInManager,
@@ -51,7 +56,8 @@ public abstract class BaseLoginModel : BasePageModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<BaseLoginModel> logger,
-        IOptions<IdentityUIOptions> identityUiOptions
+        IOptions<IdentityUIOptions> identityUiOptions,
+        IRecaptchaService recaptchaService
     ) : base() {
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -61,7 +67,7 @@ public abstract class BaseLoginModel : BasePageModel
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         IdentityUIOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
-
+        RecaptchaService = recaptchaService ?? throw new ArgumentNullException(nameof(recaptchaService));
     }
 
     /// <summary>Retrieval of client configuration.</summary>
@@ -80,6 +86,8 @@ public abstract class BaseLoginModel : BasePageModel
     protected ExtendedUserManager<User> UserManager { get; }
     /// <summary>Configuration options for Identity UI.</summary>
     protected IdentityUIOptions IdentityUIOptions { get; }
+    /// <summary>Service for validating reCAPTCHA tokens.</summary>
+    protected IRecaptchaService RecaptchaService { get; }
     /// <summary>The current principal's username.</summary>
     public string? UserName => User.FindFirstValue(JwtClaimTypes.Name);
     /// <summary>Login view model.</summary>
@@ -131,6 +139,21 @@ public abstract class BaseLoginModel : BasePageModel
                 return Redirect("/");
             }
         }
+
+        // Validate reCAPTCHA if enabled
+        // Note: For v3, token is pre-validated via /RecaptchaValidate endpoint to check score before form submission.
+        //       For v2, this is the first and only validation (v2 is shown when v3 score < threshold).
+        if (RecaptchaService.IsEnabled && Input.RecaptchaVersion == "v2" && !string.IsNullOrWhiteSpace(Input.RecaptchaToken)) {
+            var remoteIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var recaptchaResult = await RecaptchaService.ValidateAsync(Input.RecaptchaToken, Input.RecaptchaVersion, remoteIp);
+            if (!recaptchaResult.Success) {
+                Logger.LogWarning("reCAPTCHA validation failed for user '{UserName}'.", Input.UserName);
+                ModelState.AddModelError(string.Empty, "reCAPTCHA validation failed. Please try again.");
+                View = await BuildLoginViewModelAsync(Input);
+                return Page();
+            }
+        }
+
         if (!ModelState.IsValid) {
             ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LoginValidationInvalidCredentials);
 
@@ -150,6 +173,7 @@ public abstract class BaseLoginModel : BasePageModel
                 new IdentityCookieRequestCultureProvider().SetLanguage(HttpContext, localeClaim.ClaimValue);
             }
             Logger.LogInformation("User '{UserName}' with email {Email} was successfully logged in.", user.UserName, user.Email);
+
             if (context is not null) {
                 if (context.IsNativeClient()) {
                     // The client is native, so this change in how to return the response is for better UX for the end user.
@@ -168,8 +192,7 @@ public abstract class BaseLoginModel : BasePageModel
                 Logger.LogError("User '{UserName}' might have clicked a malicious link during login: {ReturnUrl}.", Input.UserName!, Input.ReturnUrl);
                 return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", $"User '{Input.UserName}' might have clicked a malicious link during login: {Input.ReturnUrl}.");
             }
-        }
-        else if (result.IsLockedOut) {
+        } else if (result.IsLockedOut) {
             Logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsAttempts} unsuccessful login attempts.", Input.UserName, user?.AccessFailedCount);
             await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName!, "User locked out.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
             ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LoginErrorLockedMessage);
@@ -264,6 +287,9 @@ internal class LoginModel : BaseLoginModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<LoginModel> logger,
-        IOptions<IdentityUIOptions> identityUiOptions
-    ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, identityUiOptions) { }
+        IOptions<IdentityUIOptions> identityUiOptions,
+        IRecaptchaService recaptchaService
+    ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, identityUiOptions, recaptchaService) { }
 }
+
+

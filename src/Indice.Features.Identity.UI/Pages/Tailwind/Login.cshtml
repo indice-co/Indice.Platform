@@ -6,9 +6,9 @@
 @inject ExtendedUserManager<User> userManager
 @inject IdentityUILocalizer Localizer
 
-
 @{
     ViewData["Title"] = Localizer.Login_PageTitle;
+    
 }
 
 <div class="content-wrapper">
@@ -17,7 +17,7 @@
         <partial name="_ValidationSummary" />
         @if (Model.View.EnableLocalLogin)
         {
-            <form asp-route-returnUrl="@Model.View.ReturnUrl" method="POST" class="form">
+            <form asp-route-returnUrl="@Model.View.ReturnUrl" method="POST" class="form" id="loginForm">
                 <input type="hidden" asp-for="Input.ReturnUrl" />
                 <input type="hidden" asp-for="Input.DeviceId" />
                 <div class="row">
@@ -49,8 +49,11 @@
                         <a asp-page="/ForgotPassword" asp-route-returnUrl="@(!string.IsNullOrEmpty(Model.View.ReturnUrl) ? Model.View.ReturnUrl : null)">@Localizer.Login_Forgot_Password</a>
                     }
                 </div>
+                <div class="row">
+                    <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "loginForm", ButtonId = "loginButton", Action = "login", IsLoginForm = true }' />
+                </div>
                 <div class="flex justify-center items-center mt-8">
-                    <button class="btn btn-primary" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>
+                    <button class="btn btn-primary" id="loginButton" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>
                 </div>
             </form>
         }
@@ -77,9 +80,9 @@
                         {
                             <div class="idp idp-@provider.AuthenticationScheme!.ToLower() mx-2.5">
                                 <a asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme"
-                                   asp-route-returnUrl="@Model.View.ReturnUrl"
-                                   asp-route-prompt="@OidcConstants.PromptModes.SelectAccount"
-                                   title="@Localizer.GetGeneric(provider.DisplayName!)">
+                                       asp-route-returnUrl="@Model.View.ReturnUrl"
+                                       asp-route-prompt="@OidcConstants.PromptModes.SelectAccount"
+                                       title="@Localizer.GetGeneric(provider.DisplayName!)">
                                     <span class="hidden">
                                         @Localizer.GetGeneric(provider.DisplayName!)
                                     </span>
