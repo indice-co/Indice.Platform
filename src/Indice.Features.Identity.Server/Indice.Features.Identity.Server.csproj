@@ -25,5 +25,7 @@
     <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
     <ProjectReference Include="..\Indice.Features.Identity.SignInLogs\Indice.Features.Identity.SignInLogs.csproj" />
+    <ProjectReference Include="..\Indice.Features.ActivityLogs\Indice.Features.ActivityLogs.csproj" />
+
   </ItemGroup>
 </Project>

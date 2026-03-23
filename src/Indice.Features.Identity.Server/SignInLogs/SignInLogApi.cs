@@ -1,4 +1,7 @@
-﻿using System.Security.Claims;
+﻿using System.Diagnostics;
+using System.Security.Claims;
+using Indice.Features.ActivityLogs;
+using Indice.Features.ActivityLogs.Models;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.SignInLogs;
 using Indice.Features.Identity.SignInLogs.Abstractions;
@@ -32,7 +35,7 @@ public static class SignInLogApi
         var group = builder
             .MapGroup($"{options.ApiPrefix}/")
             .WithGroupName("identity")
-            .WithTags("SignInLogs")
+            .WithTags("Logs")
             .RequireAuthorization(policy => policy
                 .RequireAuthenticatedUser()
                 .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
@@ -43,6 +46,7 @@ public static class SignInLogApi
             .ProducesProblem(StatusCodes.Status500InternalServerError);
         group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
+        //Sign In Logs
         // GET: /api/sign-in-logs
         group.MapGet("sign-in-logs", async (
             ISignInLogStore signInLogStore,
@@ -95,6 +99,61 @@ public static class SignInLogApi
         .Produces(StatusCodes.Status204NoContent)
         .ProducesProblem(StatusCodes.Status404NotFound)
         .WithName("PatchSignInLog")
+        .WithSummary("Patches the specified log entry by updating the properties given in the request.")
+        .RequireAuthorization(IdentityEndpoints.Policies.BeLogsWriter);
+
+        //Activity Logs
+        // GET: /api/activity-logs
+        group.MapGet("activity-logs", async (
+            IActivityLogStore activityLogStore,
+            [AsParameters] ListOptions options,
+            [AsParameters] ActivityLogEntryFilter filter
+        ) => {
+            var activityLogs = await activityLogStore.ListAsync(options, filter);
+            return TypedResults.Ok(activityLogs);
+        })
+        .Produces<ResultSet<ActivityLogEntry>>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .WithName("GetActivityLogs")
+        .WithSummary("Gets the list of activity logs produced by the Identity system.")
+        .RequireAuthorization(IdentityEndpoints.Policies.BeLogsReader);
+
+        // GET: /api/my/activity-logs
+        group.MapGet("my/activity-logs", async (
+            ClaimsPrincipal currentUser,
+            IActivityLogStore activityLogStore,
+            [AsParameters] ListOptions options,
+            [AsParameters] ActivityLogEntryFilterBase filter
+        ) => {
+            if (options.Size > 100) {
+                return TypedResults.ValidationProblem(ValidationErrors.AddError("size", "Max allowed value for page size is 100."));
+            }
+            var activityLogs = await activityLogStore.ListAsync(options, new ActivityLogEntryFilter {
+                From = filter.From,
+                To = filter.To,
+                ApplicationId = filter.ApplicationId,
+                Subject = currentUser.FindSubjectId()
+            });
+            return Results.Ok(activityLogs);
+        })
+        .Produces<ResultSet<ActivityLogEntry>>(StatusCodes.Status200OK)
+        .ProducesValidationProblem()
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .WithName("GetMyActivityLogs")
+        .WithSummary("Gets the list of activity logs for the current user.");
+
+        // PATCH: /api/activity-logs/{rowId}
+        group.MapPatch("activity-logs/{rowId}", async (
+            IActivityLogStore activityLogStore,
+            Guid rowId,
+            ActivityLogEntryRequest model
+        ) => {
+            var rowsAffected = await activityLogStore.UpdateAsync(rowId, model);
+            return rowsAffected == 0 ? Results.NotFound() : Results.NoContent();
+        })
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .WithName("PatchActivityLog")
         .WithSummary("Patches the specified log entry by updating the properties given in the request.")
         .RequireAuthorization(IdentityEndpoints.Policies.BeLogsWriter);
 

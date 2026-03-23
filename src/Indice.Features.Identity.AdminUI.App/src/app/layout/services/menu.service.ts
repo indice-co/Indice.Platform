@@ -51,10 +51,15 @@ export class MenuService {
                 new MenuItem('App Settings List', '/app/settings', isAdmin),
                 new MenuItem('Add App Setting', '/app/settings/add', isAdmin)
             ]),
+            new MenuItem('Logs', undefined, isAdmin, 'book', this.isActiveMenuItem('/app/activity-logs'), [
+            ]),
         ]);
         this.uiFeaturesService.getUiFeatures().subscribe((response: UiFeaturesInfo) => {
             if (response.signInLogsEnabled) {
-                this._menuItems.push(new MenuItem('Sign in Logs', '/app/sign-in-logs', isAdmin, 'book'));
+                this._menuItems.find(x => x.title == 'Logs').children?.push(new MenuItem('Sign in Logs', '/app/sign-in-logs', isAdmin, 'book'));
+            }
+            if (response.signInLogsEnabled) {
+                this._menuItems.find(x => x.title == 'Logs').children?.push(new MenuItem('Activity Logs', '/app/activity-logs', isAdmin));
             }
         });
     }

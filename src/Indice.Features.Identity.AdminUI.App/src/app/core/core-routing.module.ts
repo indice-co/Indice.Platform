@@ -28,7 +28,8 @@ const appRoutes: Routes = [
             { path: 'clients', loadChildren: () => import('../features/clients/clients.module').then(x => x.ClientsModule) },
             { path: 'resources', loadChildren: () => import('../features/resources/resources.module').then(x => x.ResourcesModule) },
             { path: 'settings', loadChildren: () => import('../features/settings/settings.module').then(x => x.SettingsModule) },
-            { path: 'sign-in-logs', canLoad: [UiFeaturesGuardService], data: { feature: Features.SignInLogs } , loadChildren: () => import('../features/sign-in-logs/sign-in-logs.module').then(x => x.SignInLogsModule) }
+            { path: 'sign-in-logs', canLoad: [UiFeaturesGuardService], data: { feature: Features.SignInLogs }, loadChildren: () => import('../features/sign-in-logs/sign-in-logs.module').then(x => x.SignInLogsModule) },
+            { path: 'activity-logs', loadChildren: () => import('../features/activity-logs/activity-logs.module').then(x => x.ActivityLogsModule) }
         ]
     },
     {
