@@ -36,7 +36,7 @@ public static class LimitUploadFilter
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
                     var httpContext = invocationContext.HttpContext;
-                    var options = httpContext.RequestServices.GetRequiredService<IOptions<LimitUploadOptions>>().Value;
+                    var options = httpContext.RequestServices.GetService<IOptions<LimitUploadOptions>>()?.Value ?? new LimitUploadOptions();
                     var magicBytesValidator = httpContext.RequestServices.GetService<IMagicBytesValidator>();
                     var errors = ValidationErrors.Create();
                     foreach (var file in httpContext.Request.Form.Files) {
