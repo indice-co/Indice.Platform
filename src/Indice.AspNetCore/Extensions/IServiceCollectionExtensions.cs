@@ -225,7 +225,7 @@ public static class ServiceCollectionExtensions
             limit.DefaultAllowedFileExtensions = options.DefaultAllowedFileExtensions;
         }));
 
-        services.TryAddSingleton<IMagicBytesValidator, MagicBytesValidator>();
+        services.AddMagicBytesValidator();
 
         return services;
     }
@@ -238,7 +238,7 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection AddLimitUpload(this IServiceCollection services, IConfiguration configuration) {
         services.Configure<LimitUploadOptions>(configuration);
-        services.TryAddSingleton<IMagicBytesValidator, MagicBytesValidator>();
+        services.AddMagicBytesValidator();
         return services;
     }
 
