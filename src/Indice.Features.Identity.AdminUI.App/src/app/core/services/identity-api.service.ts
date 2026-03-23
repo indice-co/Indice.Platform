@@ -17886,6 +17886,7 @@ export class UiFeaturesInfo implements IUiFeaturesInfo {
     metricsEnabled?: boolean;
     signInLogsEnabled?: boolean;
     emailAsUserName?: boolean;
+    activityLogsEnabled?: boolean;
 
     constructor(data?: IUiFeaturesInfo) {
         if (data) {
@@ -17901,6 +17902,7 @@ export class UiFeaturesInfo implements IUiFeaturesInfo {
             this.metricsEnabled = _data["metricsEnabled"];
             this.signInLogsEnabled = _data["signInLogsEnabled"];
             this.emailAsUserName = _data["emailAsUserName"];
+            this.activityLogsEnabled = _data["activityLogsEnabled"];
         }
     }
 
@@ -17916,6 +17918,7 @@ export class UiFeaturesInfo implements IUiFeaturesInfo {
         data["metricsEnabled"] = this.metricsEnabled;
         data["signInLogsEnabled"] = this.signInLogsEnabled;
         data["emailAsUserName"] = this.emailAsUserName;
+        data["activityLogsEnabled"] = this.activityLogsEnabled;
         return data;
     }
 }
@@ -17924,6 +17927,7 @@ export interface IUiFeaturesInfo {
     metricsEnabled?: boolean;
     signInLogsEnabled?: boolean;
     emailAsUserName?: boolean;
+    activityLogsEnabled?: boolean;
 }
 
 export class UpdateApiResourceRequest implements IUpdateApiResourceRequest {

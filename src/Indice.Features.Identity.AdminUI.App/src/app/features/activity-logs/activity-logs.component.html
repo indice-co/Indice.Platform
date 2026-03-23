@@ -1,6 +1,6 @@
 <ng-template let-modal #content>
     <div class="modal-header">
-        <h4 class="modal-title" id="modal-basic-title">Log Entry</h4>
+        <h4 class="modal-title" id="modal-basic-title">Activity Log Entry</h4>
         <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
     </div>
     <div class="modal-body">
@@ -17,11 +17,26 @@
                     </tr>
                     <tr>
                         <th scope="row">Succeeded</th>
-                        <td>{{ selectedLogEntry?.succeeded ? 'true' : 'false' }}</td>
+                        <td>
+                            <span *ngIf="selectedLogEntry?.succeeded" class="badge text-success border bg-light">Succeeded</span>
+                            <span *ngIf="!selectedLogEntry?.succeeded" class="badge text-danger border bg-light">Failed</span>
+                        </td>
                     </tr>
                     <tr>
-                        <th scope="row">Action</th>
+                        <th scope="row">Action Name</th>
                         <td>{{ selectedLogEntry?.actionName || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Event Type</th>
+                        <td>{{ selectedLogEntry?.eventType || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Category</th>
+                        <td>{{ selectedLogEntry?.category || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ selectedLogEntry?.description || '-' }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Application Id</th>
@@ -37,23 +52,19 @@
                     </tr>
                     <tr>
                         <th scope="row">Subject Name</th>
-                        <td>{{ selectedLogEntry?.subjectName || '-' }}</td>
+                        <td [class.text-danger]="selectedLogEntry?.subjectUnknown">{{ selectedLogEntry?.subjectName || '-' }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Subject Exists</th>
-                        <td>{{ selectedLogEntry?.subjectUnknown || '-' }}</td>
+                        <td>{{ selectedLogEntry?.subjectUnknown ? 'Unknown' : 'Known' }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Endpoint</th>
+                        <th scope="row">Resource Id</th>
                         <td>{{ selectedLogEntry?.resourceId || '-' }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Resource Type</th>
                         <td>{{ selectedLogEntry?.resourceType || '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Description</th>
-                        <td>{{ selectedLogEntry?.description || '-' }}</td>
                     </tr>
                     <tr>
                         <th scope="row">IP Address</th>
@@ -76,9 +87,7 @@
                             <a *ngIf="!selectedLogEntry?.coordinates">-</a>
                             <a *ngIf="selectedLogEntry?.coordinates" target="_blank"
                                [href]="'https://www.google.com/maps/search/?api=1&query=' + selectedLogEntry.coordinates">
-                                {{
-                                selectedLogEntry.coordinates
-                                }}
+                                {{ selectedLogEntry.coordinates }}
                             </a>
                         </td>
                     </tr>
@@ -95,14 +104,17 @@
                         <td>{{ selectedLogEntry?.deviceId || '-' }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Marked for review</th>
-                        <td>{{ selectedLogEntry?.review ? 'true' : 'false' }}</td>
+                        <th scope="row">Marked for Review</th>
+                        <td>
+                            <span *ngIf="selectedLogEntry?.review" class="badge text-warning border bg-light">Review</span>
+                            <span *ngIf="!selectedLogEntry?.review">No</span>
+                        </td>
                     </tr>
                     <tr>
-                        <th scope="row">Metadata</th>
+                        <th scope="row">Extra Data</th>
                         <td>
                             <textarea class="code-editor" cols="100"
-                                      rows="25">{{ selectedLogEntry?.extraData | json }}</textarea>
+                                      rows="15">{{ selectedLogEntry?.extraData | json }}</textarea>
                         </td>
                     </tr>
                 </tbody>
@@ -146,19 +158,12 @@
             </select>
         </div>
         <div class="col">
-            <label class="visually-hidden"
-                   for="activity-logs-activity-type">
-                Activity Type
+            <label class="visually-hidden" for="action-name-filter">
+                Action Name
             </label>
-            <select class="form-control form-select"
-                    id="activity-logs-activity-type"
-                    name="activity-logs-activity-type"
-                    required
-                    [(ngModel)]="filter.ActivityType">
-                <option [ngValue]="undefined" selected="selected">
-                    {{ 'Not Defined' }}
-                </option>
-            </select>
+            <app-dynamic-input id="action-name-filter" name="action-name-filter" [(ngModel)]="filter.actionName" [modelType]="'String'"
+                               [placeholder]="'Action Name'" required #value="ngModel">
+            </app-dynamic-input>
         </div>
         <div class="col">
             <label class="visually-hidden" for="date-from-filter">
@@ -210,8 +215,8 @@
 </ng-template>
 <ng-template let-row="row" let-value="row" #statusTemplate>
     <div *ngIf="value">
-        <span *ngIf="value.succeeded" class="badge text-success border bg-light m-r-10" [title]="'Succeeded Attempt'">Succeeded</span>
-        <span *ngIf="!value.succeeded" class="badge text-danger border bg-light m-r-10" [title]="'Failed Attempt'">Failed</span>
+        <span *ngIf="value.succeeded" class="badge text-success border bg-light m-r-10" [title]="'Succeeded'">Succeeded</span>
+        <span *ngIf="!value.succeeded" class="badge text-danger border bg-light m-r-10" [title]="'Failed'">Failed</span>
         <span *ngIf="value.review" class="badge text-warning border bg-light" [title]="'Marked for Review'">Review</span>
     </div>
     <span *ngIf="!value"> - </span>
@@ -227,43 +232,13 @@
 </ng-template>
 <ng-template let-row="row" let-value="value" #eventTypeCellTemplate>
     <div *ngIf="value">
-        <span *ngIf="row.succeeded && !row.review" class="badge border text-muted bg-light m-r-10" [title]="'Succeeded Attempt'"> <i class="dot bg-success"></i> {{ value }}</span>
-        <span *ngIf="!row.succeeded && !row.review" class="badge border text-muted bg-light m-r-10" [title]="'Failed Attempt'"><i class="dot bg-danger"></i>{{ value }}</span>
-        <span *ngIf="row.succeeded && row.review" class="badge border text-muted bg-light" [title]="'Marked for Review'"><i class="dot bg-warning"></i>{{ value }}</span>
-        <img *ngIf="row.extraData.provider && row.extraData.provider !== 'local'" class="m-1" height="14" alt="{{row.extraData.provider}} logo" title="{{row.extraData.provider}}" src="assets/img/idps/{{row.extraData.provider}}.svg" />
+        <span *ngIf="row.succeeded && !row.review" class="badge border text-muted bg-light" [title]="'Succeeded'"><i class="dot bg-success"></i> {{ value }}</span>
+        <span *ngIf="!row.succeeded && !row.review" class="badge border text-muted bg-light" [title]="'Failed'"><i class="dot bg-danger"></i> {{ value }}</span>
+        <span *ngIf="row.succeeded && row.review" class="badge border text-muted bg-light" [title]="'Marked for Review'"><i class="dot bg-warning"></i> {{ value }}</span>
+        <span *ngIf="!row.succeeded && row.review" class="badge border text-muted bg-light" [title]="'Failed - Marked for Review'"><i class="dot bg-warning"></i> {{ value }}</span>
     </div>
     <span *ngIf="!value"> - </span>
 </ng-template>
-<ng-template let-row="row"
-             let-value="value"
-             let-userAgentFamily="row.extraData?.device?.userAgentFamily?.toLowerCase()"
-             let-platform="row.extraData?.device?.platform?.toLowerCase()"
-             #deviceTemplate>
-    <span class="badge text-muted border bg-light m-1" [title]="value">
-        <i class="device-icon device-icon-ua" style="margin-right:2px"
-           [class.device-icon-ua-firefox]="userAgentFamily?.includes('firefox')"
-           [class.device-icon-ua-safari]="userAgentFamily?.includes('safari')"
-           [class.device-icon-ua-edge]="userAgentFamily?.includes('edge')"
-           [class.device-icon-ua-chrome]="userAgentFamily?.includes('chrome')"
-           [class.device-icon-ua-brave]="userAgentFamily?.includes('brave')"
-           [class.device-icon-ua-opera]="userAgentFamily?.includes('opera')"
-           [class.device-icon-ua-tor]="userAgentFamily?.includes('tor')"
-           [class.device-icon-ua-ie]="userAgentFamily === 'ie'"
-           [class.device-icon-ua-samsung-internet]="userAgentFamily?.includes('samsung') && userAgentFamily?.includes('internet')"
-           [class.device-icon-ua-postman]="userAgentFamily?.includes('postman')"
-           [class.device-icon-ua-generic]="!userAgentFamily"></i>
-        <i class="device-icon"
-           [class.device-icon-os-linux]="platform === 'linux'"
-           [class.device-icon-os-ubuntu]="platform === 'ubuntu'"
-           [class.device-icon-os-windows]="platform === 'windows'"
-           [class.device-icon-os-ios]="platform === 'ios'"
-           [class.device-icon-os-macos]="platform === 'macos'"
-           [class.device-icon-os-android]="platform === 'android'"
-           [class.device-icon-os-none]="platform === 'none' || !platform"></i>
-        {{ value }}
-    </span>
-</ng-template>
-
 <ng-template let-row="row" let-value="value" #subjectNameTemplate>
     <span *ngIf="value" [class.text-danger]="row.subjectUnknown" [title]="value">{{ value }}</span>
     <span *ngIf="!value"> - </span>

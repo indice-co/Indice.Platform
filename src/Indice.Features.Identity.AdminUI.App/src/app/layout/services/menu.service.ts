@@ -56,10 +56,10 @@ export class MenuService {
         ]);
         this.uiFeaturesService.getUiFeatures().subscribe((response: UiFeaturesInfo) => {
             if (response.signInLogsEnabled) {
-                this._menuItems.find(x => x.title == 'Logs').children?.push(new MenuItem('Sign in Logs', '/app/sign-in-logs', isAdmin, 'book'));
+                this._menuItems.find(x => x.title == 'Logs')?.children?.push(new MenuItem('Sign in Logs', '/app/sign-in-logs', isAdmin));
             }
-            if (response.signInLogsEnabled) {
-                this._menuItems.find(x => x.title == 'Logs').children?.push(new MenuItem('Activity Logs', '/app/activity-logs', isAdmin));
+            if (response.activityLogsEnabled) {
+                this._menuItems.find(x => x.title == 'Logs')?.children?.push(new MenuItem('Activity Logs', '/app/activity-logs', isAdmin));
             }
         });
     }
