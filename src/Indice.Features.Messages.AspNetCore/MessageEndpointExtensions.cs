@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Routing;
+﻿using Indice.Features.Messages.AspNetCore.Endpoints;
+using Microsoft.AspNetCore.Routing;
 
 namespace Microsoft.AspNetCore.Builder;
 /// <summary>Configuration extensions on <seealso cref="IEndpointRouteBuilder "/>.</summary>
