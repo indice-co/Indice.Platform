@@ -23,12 +23,14 @@ public static class LimitUploadFilter
     /// <param name="sizeLimit">The maximum allowed file size in bytes.</param>
     /// <param name="fileExtensions">Allowed file extensions as a comma or space separated string.</param>
     /// <param name="enableMagicByteValidation">Overrides magic bytes validation option.</param>
+    /// <param name="allowUnknownExtensions">Overrides allow unknown extension option.</param>
     /// <returns>The builder.</returns>
-    public static TBuilder LimitUpload<TBuilder>(this TBuilder builder, long sizeLimit, string? fileExtensions = null, bool? enableMagicByteValidation = null) 
+    public static TBuilder LimitUpload<TBuilder>(
+        this TBuilder builder, long sizeLimit, string? fileExtensions = null, bool? enableMagicByteValidation = null, bool? allowUnknownExtensions = null) 
         where TBuilder : IEndpointConventionBuilder {
         builder.Add(endpointBuilder => {
             var allowedExtensions = fileExtensions?
-                .Split(' ', ',', ';')
+                .Split([' ', ',', ';'], StringSplitOptions.RemoveEmptyEntries)
                 .Where(x => null != x)
                 .Select(x => '.' + x.Trim().TrimStart('.'))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -39,6 +41,10 @@ public static class LimitUploadFilter
                     var options = httpContext.RequestServices.GetService<IOptions<LimitUploadOptions>>()?.Value ?? new LimitUploadOptions();
                     var magicBytesValidator = httpContext.RequestServices.GetService<IMagicBytesValidator>();
                     var errors = ValidationErrors.Create();
+
+                    var validateMagicBytes = enableMagicByteValidation ?? options.EnableMagicByteValidation;
+                    var isUnknownExtensionAllowed = allowUnknownExtensions ?? options.AllowUnknownExtensions;
+
                     foreach (var file in httpContext.Request.Form.Files) {
                         var extension = Path.GetExtension(file.FileName);
                         if (allowedExtensions is not null && !allowedExtensions.Contains(extension)) {
@@ -47,21 +53,22 @@ public static class LimitUploadFilter
                         if (file.Length > sizeLimit) {
                             errors.AddError(file.FileName, $"File size cannot exceed {sizeLimit.ToFileSize()}.");
                         }
-
-                        var validateMagicBytes = enableMagicByteValidation ?? options.EnableMagicByteValidation;
                         if (validateMagicBytes && magicBytesValidator is not null) {
                             await using var memoryStream = new MemoryStream((int)file.Length);
                             await file.CopyToAsync(memoryStream);
                             ReadOnlySpan<byte> fileSpan = memoryStream.GetBuffer().AsSpan(0, (int)memoryStream.Length);
                             var result = magicBytesValidator.IsValid(fileSpan, extension);
-                            if (!result.IsValid && (!result.IsUnknownExtension || !options.AllowUnknownExtensions)) {
+                            var skipUnknownExtensionCheck = result.IsUnknownExtension && isUnknownExtensionAllowed;
+                            if (!result.IsValid && !skipUnknownExtensionCheck) {
                                 errors.AddError(file.FileName, $"File content does not match the expected format for extension {extension}.");
                             }
                         }
                     }
+
                     if (errors.Count > 0) {
                         return Results.ValidationProblem(errors, detail: "File not allowed");
                     }
+
                     return await next(invocationContext);
                 });
             });
