@@ -3,9 +3,9 @@
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
       <!--<TargetFramework></TargetFramework>-->
+      
       <VersionPrefixMajor>8</VersionPrefixMajor>
       <VersionPrefixBase>$(VersionPrefixMajor).41</VersionPrefixBase>
-
       <VersionPrefixCore>$(VersionPrefixBase).1</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).3</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).3</VersionPrefixIdentityUI>
@@ -17,8 +17,9 @@
       <VersionPrefixGeoIP>$(VersionPrefixBase).1</VersionPrefixGeoIP>
       <VersionPrefixGovGr>$(VersionPrefixBase).2</VersionPrefixGovGr>
       <VersionPrefixAspNet>$(VersionPrefixBase).1</VersionPrefixAspNet>
+      <VersionPrefixActivityLogs>$(VersionPrefixBase).1</VersionPrefixActivityLogs>
       <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
-
+      
       <!--<VersionSuffix>rc04</VersionSuffix>-->
       <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
