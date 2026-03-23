@@ -4,7 +4,7 @@ namespace Indice.Features.ActivityLogs.Enrichers;
 
 internal class ActivityLogEntryEnricherAggregator
 {
-    private IEnumerable<IActivityLogEntryEnricher> _enrichers;
+    private readonly IEnumerable<IActivityLogEntryEnricher> _enrichers;
     private readonly IEnumerable<IActivityLogEntryFilter> _filters;
 
     public ActivityLogEntryEnricherAggregator(
