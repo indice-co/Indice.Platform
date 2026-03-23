@@ -20,6 +20,7 @@ dotnet pack src/Indice.Features.Cases.Server/Indice.Features.Cases.Server.csproj
 dotnet pack src/Indice.Features.FtpServer/Indice.Features.FtpServer.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Cases.UI/Indice.Features.Cases.UI.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.GeoIP/Indice.Features.GeoIP.csproj --no-restore --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Features.ActivityLogs/Indice.Features.ActivityLogs.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.GovGr/Indice.Features.GovGr.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Media.AspNetCore/Indice.Features.Media.AspNetCore.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Messages.AspNetCore/Indice.Features.Messages.AspNetCore.csproj --no-restore --no-build -c Release -o ./artifacts

@@ -21,7 +21,6 @@ public class ContactService : IContactService
     }
 
     private CampaignsDbContext DbContext { get; }
-
     /// <inheritdoc />
     public async Task AddToDistributionList(Guid id, CreateDistributionListContactRequest request) {
         var list = await DbContext.DistributionLists.FindAsync(id);
@@ -159,7 +158,6 @@ public class ContactService : IContactService
             result.Preference = await GetContactPreference(contact.RecipientId);
 
         }
-
         return result;
     }
 
