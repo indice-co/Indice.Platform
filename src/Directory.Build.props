@@ -3,6 +3,7 @@
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
       <!--<TargetFramework></TargetFramework>-->
+      
       <VersionPrefixMajor>8</VersionPrefixMajor>
       <VersionPrefixBase>$(VersionPrefixMajor).42</VersionPrefixBase>
 
@@ -17,6 +18,7 @@
       <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
       <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
+      <VersionPrefixActivityLogs>$(VersionPrefixBase).1</VersionPrefixActivityLogs>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 
       <VersionSuffix>rc01</VersionSuffix>

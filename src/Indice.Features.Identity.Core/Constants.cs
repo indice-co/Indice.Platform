@@ -154,6 +154,12 @@ public static partial class RateLimiterPolicies
     public static readonly string MfaAddEmailPage = "login/mfa/onboarding/add-email";
     /// <summary>Rate limiting policy for recaptcha endpoint.</summary>
     public static readonly string RecaptchaEndpoint = "recaptchavalidate";
+    /// <summary>Rate limiting policy for add phone page.</summary>
+    public static readonly string AddPhonePage = "login/add-phone";
+    /// <summary>Rate limiting policy for MFA onboarding add phone page.</summary>
+    public static readonly string MfaAddPhonePage = "login/mfa/onboarding/add-phone";
+    /// <summary>Rate limiting policy for profile page.</summary>
+    public static readonly string ProfilePage = "manage/profile";
 
     /// <summary>All rate limiting policies.</summary>
     public static IReadOnlyList<string> All { get; } = new List<string> {
@@ -179,6 +185,9 @@ public static partial class RateLimiterPolicies
             LoginPage,
             LoginAddEmailPage,
             MfaAddEmailPage,
-            RecaptchaEndpoint
+            RecaptchaEndpoint,
+            AddPhonePage,
+            MfaAddPhonePage,
+            ProfilePage
         };
 }
