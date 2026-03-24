@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Collections.Frozen;
 
 namespace Indice.Services;
@@ -6,22 +7,14 @@ namespace Indice.Services;
 public interface IMagicBytesValidator
 {
     /// <summary>Validates that a stream's content matches the expected magic bytes for the given file extension.</summary>
-    /// <param name="bytes">The file bytes to validate.</param>
+    /// <param name="stream">The file bytes as Stream to validate.</param>
     /// <param name="fileExtension">The file extension (e.g. ".jpg", ".png").</param>
+    /// <param name="ct">The cancellation token.</param>
     /// <returns>
     /// <see langword="true"/> if the file content matches the expected magic bytes for the extension,
     /// or if the extension does not have a known signature; otherwise <see langword="false"/>.
     /// </returns>
-    MagicBytesValidationResult IsValid(byte[] bytes, string fileExtension);
-
-    /// <summary>Validates that a stream's content matches the expected magic bytes for the given file extension.</summary>
-    /// <param name="bytes">The file bytes as Span to validate.</param>
-    /// <param name="fileExtension">The file extension (e.g. ".jpg", ".png").</param>
-    /// <returns>
-    /// <see langword="true"/> if the file content matches the expected magic bytes for the extension,
-    /// or if the extension does not have a known signature; otherwise <see langword="false"/>.
-    /// </returns>
-    MagicBytesValidationResult IsValid(ReadOnlySpan<byte> bytes, string fileExtension);
+    Task<MagicBytesValidationResult> IsValid(Stream stream, string fileExtension, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -336,6 +329,19 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
         _ => throw new ArgumentOutOfRangeException(nameof(sig.Strategy), sig.Strategy, null),
     };
 
+    private static (int offset, int count) GetRequiredBytesRange(MagicBytesSignature sig, long streamLength) {
+        return sig.Strategy switch {
+            MagicBytesCheckStrategy.StartsWith => (0, sig.Bytes.Length),
+            MagicBytesCheckStrategy.EndsWith => ((int)(streamLength - sig.Bytes.Length), sig.Bytes.Length),
+            MagicBytesCheckStrategy.Anywhere => (0, (int)streamLength),
+            MagicBytesCheckStrategy.AnywhereAnyOf => (0, (int)streamLength),
+            MagicBytesCheckStrategy.StartsWithAnyOf => (0, sig.Candidates!.Max(c => c.Length)),
+            MagicBytesCheckStrategy.EndsWithAnyOf => ((int)(streamLength - sig.Candidates!.Max(c => c.Length)), sig.Candidates!.Max(c => c.Length)),
+            MagicBytesCheckStrategy.Offset => (0, sig.Offset + sig.Bytes.Length),
+            _ => throw new ArgumentOutOfRangeException(nameof(sig.Strategy), sig.Strategy, null)
+        };
+    }
+
     private static bool StartsWithCheck(ReadOnlySpan<byte> buf, byte[] bytes) =>
         buf.Length >= bytes.Length && buf[..bytes.Length].SequenceEqual(bytes);
 
@@ -381,11 +387,14 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
         buf.Slice(offset, bytes.Length).SequenceEqual(bytes);
 
     /// <summary>
-    /// Core validation logic. Returns <c>true</c> if all signatures for the given extension match,
-    /// or if the extension is unknown (no signatures registered). Returns <c>false</c> if the
-    /// extension is known but any signature check fails.
+    /// Builds the frozen lookup dictionary from <see cref="Entries"/> on first instantiation.
     /// </summary>
-    internal MagicBytesValidationResult ValidateInternal(ReadOnlySpan<byte> bytes, string fileExtension) {
+    static MagicBytesValidator() {
+        ByFileExtension = Entries.ToFrozenDictionary(e => e.FileExtensions, e => e.Signatures, StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <inheritdoc/>
+    public async Task<MagicBytesValidationResult> IsValid(Stream fileStream, string fileExtension, CancellationToken ct) {
         if (string.IsNullOrWhiteSpace(fileExtension)) {
             return MagicBytesValidationResult.Valid();
         }
@@ -400,28 +409,26 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
         }
 
         foreach (var sig in signatures) {
-            if (!Evaluate(bytes, sig)) {
+            var (offset, count) = GetRequiredBytesRange(sig, fileStream.Length);
+
+            if (offset < 0 || offset + count > fileStream.Length) {
                 return MagicBytesValidationResult.Failure($"Magic bytes check failed for extension '{fileExtension}'.");
+            }
+
+            var buffer = ArrayPool<byte>.Shared.Rent(count);
+
+            try {
+                fileStream.Seek(offset, SeekOrigin.Begin);
+                var read = await fileStream.ReadAtLeastAsync(buffer.AsMemory(0, count), count, throwOnEndOfStream: false, ct);
+
+                if (!Evaluate(buffer.AsSpan(0, read), sig)) {
+                    return MagicBytesValidationResult.Failure($"Magic bytes check failed for extension '{fileExtension}'.");
+                }
+            } finally {
+                ArrayPool<byte>.Shared.Return(buffer);
             }
         }
 
         return MagicBytesValidationResult.Valid();
-    }
-
-    /// <summary>
-    /// Builds the frozen lookup dictionary from <see cref="Entries"/> once, at type initialization time.
-    /// </summary>
-    static MagicBytesValidator() {
-        ByFileExtension = Entries.ToFrozenDictionary(e => e.FileExtensions, e => e.Signatures, StringComparer.OrdinalIgnoreCase);
-    }
-
-    /// <inheritdoc/>
-    public MagicBytesValidationResult IsValid(byte[] bytes, string fileExtension) {
-        return ValidateInternal(bytes.AsSpan(), fileExtension);
-    }
-
-    /// <inheritdoc/>
-    public MagicBytesValidationResult IsValid(ReadOnlySpan<byte> bytes, string fileExtension) {
-        return ValidateInternal(bytes, fileExtension);
     }
 }

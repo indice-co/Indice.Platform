@@ -54,10 +54,8 @@ public static class LimitUploadFilter
                             errors.AddError(file.FileName, $"File size cannot exceed {sizeLimit.ToFileSize()}.");
                         }
                         if (validateMagicBytes && magicBytesValidator is not null) {
-                            await using var memoryStream = new MemoryStream((int)file.Length);
-                            await file.CopyToAsync(memoryStream);
-                            ReadOnlySpan<byte> fileSpan = memoryStream.GetBuffer().AsSpan(0, (int)memoryStream.Length);
-                            var result = magicBytesValidator.IsValid(fileSpan, extension);
+                            await using var fileStream = file.OpenReadStream();
+                            var result = await magicBytesValidator.IsValid(fileStream, extension);
                             var skipUnknownExtensionCheck = result.IsUnknownExtension && isUnknownExtensionAllowed;
                             if (!result.IsValid && !skipUnknownExtensionCheck) {
                                 errors.AddError(file.FileName, $"File content does not match the expected format for extension {extension}.");
