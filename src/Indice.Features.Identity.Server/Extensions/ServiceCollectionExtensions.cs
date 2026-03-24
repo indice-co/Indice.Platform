@@ -110,6 +110,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                        .AddExtendedUserManager()
                        .AddExtendedSignInManager<User>()
                        .AddDefaultPasswordValidators()
+                       .AddEmailDomainBlacklistValidator(configuration)
                        .AddClaimsPrincipalFactory<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                        .AddDefaultTokenProviders()
                        .AddExtendedPhoneNumberTokenProvider(configuration)
