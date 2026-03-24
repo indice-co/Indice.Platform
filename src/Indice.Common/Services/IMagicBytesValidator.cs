@@ -59,13 +59,6 @@ public sealed record MagicBytesSignature(
 );
 
 /// <summary>
-/// Maps a file extension to one or more magic byte signatures that identify it.
-/// </summary>
-/// <param name="FileExtensions">The file extension(s) this entry represents (e.g. ".docx/.xlsx/.pptx").</param>
-/// <param name="Signatures">All signatures that must collectively identify the file type.</param>
-public sealed record MagicBytesSignatureEntry(string FileExtensions, MagicBytesSignature[] Signatures);
-
-/// <summary>
 /// Represents the result of a magic bytes validation check.
 /// </summary>
 public sealed record MagicBytesValidationResult
@@ -103,218 +96,230 @@ public sealed record MagicBytesValidationResult
 /// </summary>
 public sealed class MagicBytesValidator : IMagicBytesValidator
 {
-    private static FrozenDictionary<string, MagicBytesSignature[]>? ByFileExtension;
+    #region Magic Bytes Signatures
+    /// <summary>
+    /// Maps file extension aliases to their canonical form.
+    /// For example: .jpg -> .jpeg, .tif -> .tiff, .xlsx -> .docx
+    /// </summary>
+    private static readonly FrozenDictionary<string, string> ExtensionAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+        // Image aliases
+        { ".jpg", ".jpeg" },
+        { ".tif", ".tiff" },
+        { ".heif", ".heic" },
 
-    #region Magic Bytes table
-    private static readonly MagicBytesSignatureEntry[] Entries =
-    [
+        // Office document aliases (all OOXML formats share ZIP signatures)
+        { ".xlsx", ".docx" },
+        { ".pptx", ".docx" }
+    }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Maps file extensions to their magic byte signatures for validation.
+    /// </summary>
+    private static readonly FrozenDictionary<string, MagicBytesSignature[]> ByFileExtension = new Dictionary<string, MagicBytesSignature[]>(StringComparer.OrdinalIgnoreCase) {
         // images
-        new(".png", [
+        { ".png", [
             new(MagicBytesCheckStrategy.StartsWith, [0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a]),
-        ]),
-        new(".svg", [
+        ]},
+        { ".svg", [
             new(MagicBytesCheckStrategy.Anywhere,      [0x3C, 0x73, 0x76, 0x67]),
             new(MagicBytesCheckStrategy.EndsWithAnyOf, [], Candidates: [
                 [0x3C, 0x2F, 0x73, 0x76, 0x67, 0x3E],
                 [0x3C, 0x2F, 0x73, 0x76, 0x67, 0x3E, 0x0A],
                 [0x3C, 0x2F, 0x73, 0x76, 0x67, 0x3E, 0x0D, 0x0A],
             ]),
-        ]),
-        new(".jpeg/.jpg", [
+        ]},
+        { ".jpeg", [
             new(MagicBytesCheckStrategy.StartsWithAnyOf, [], Candidates: [
                 [0xff,0xd8,0xff,0xe0],
                 [0xff,0xd8,0xff,0xe1],
                 [0xff,0xd8,0xff,0xee],
                 [0xff,0xd8,0xff,0xdb],
             ]),
-        ]),
-        new(".gif", [
+        ]},
+        { ".gif", [
             new(MagicBytesCheckStrategy.StartsWithAnyOf, [], Candidates: [
                 [0x47,0x49,0x46,0x38,0x37,0x61],
                 [0x47,0x49,0x46,0x38,0x39,0x61],
             ]),
-        ]),
-        new(".webp", [
+        ]},
+        { ".webp", [
             new(MagicBytesCheckStrategy.StartsWith, [0x52,0x49,0x46,0x46]),
             new(MagicBytesCheckStrategy.Offset,     [0x57,0x45,0x42,0x50], Offset: 8),
-        ]),
-        new(".bmp", [
+        ]},
+        { ".bmp", [
             new(MagicBytesCheckStrategy.StartsWith, [0x42,0x4d]),
-        ]),
-        new(".tif/.tiff", [
+        ]},
+        { ".tiff", [
             new(MagicBytesCheckStrategy.StartsWithAnyOf, [], Candidates: [
                 [0x49,0x49,0x2a,0x00],
                 [0x4d,0x4d,0x00,0x2a],
             ]),
-        ]),
-        new(".avif", [
+        ]},
+        { ".avif", [
             new(MagicBytesCheckStrategy.Offset, [0x66,0x74,0x79,0x70,0x61,0x76,0x69,0x66], Offset: 4),
-        ]),
-        new(".heic/heif", [
-            new(MagicBytesCheckStrategy.StartsWithAnyOf, [], Candidates: [
-                [0x66,0x74,0x79,0x70,0x68,0x65,0x69,0x63],
-                [0x66,0x74,0x79,0x70,0x68,0x65,0x69,0x78],
-            ]),
-        ]),
-        new(".ico", [
+        ]},
+        { ".heic", [
+            new(MagicBytesCheckStrategy.Offset, [0x66,0x74,0x79,0x70,0x68,0x65,0x69,0x63], Offset: 4),
+            new(MagicBytesCheckStrategy.Offset, [0x66,0x74,0x79,0x70,0x68,0x65,0x69,0x78], Offset: 4)
+        ]},
+        { ".ico", [
             new(MagicBytesCheckStrategy.StartsWith, [0x00,0x00,0x01,0x00]),
-        ]),
+        ]},
 
         // documents
-        new(".pdf", [
+        { ".pdf", [
             new(MagicBytesCheckStrategy.StartsWith, [0x25,0x50,0x44,0x46]), // %PDF
-        ]),
-        new(".doc", [
+        ]},
+        { ".doc", [
             new(MagicBytesCheckStrategy.StartsWith, [0xd0,0xcf,0x11,0xe0,0xa1,0xb1,0x1a,0xe1]),
-        ]),
-        new(".docx/.xlsx/.pptx", [ // OOXML (docx/xlsx/pptx) are ZIP-based
+        ]},
+        { ".docx", [ // OOXML (docx/xlsx/pptx) are ZIP-based
             new(MagicBytesCheckStrategy.StartsWith, [0x50,0x4b,0x03,0x04]),
-        ]),
-        new(".ps", [
+        ]},
+        { ".ps", [
             new(MagicBytesCheckStrategy.StartsWith, [0x25,0x21,0x50,0x53]), // %!PS
-        ]),
+        ]},
 
         // archives
-        new(".zip", [
+        { ".zip", [
             new(MagicBytesCheckStrategy.StartsWithAnyOf, [], Candidates: [
                 [0x50,0x4b,0x03,0x04],
                 [0x50,0x4b,0x05,0x06], // empty
                 [0x50,0x4b,0x07,0x08], // spanned
             ]),
-        ]),
-        new(".rar", [
+        ]},
+        { ".rar", [
             new(MagicBytesCheckStrategy.StartsWithAnyOf, [], Candidates: [
                 [0x52,0x61,0x72,0x21,0x1a,0x07,0x00],      // RAR4
                 [0x52,0x61,0x72,0x21,0x1a,0x07,0x01,0x00], // RAR5
             ]),
-        ]),
-        new(".7z", [
+        ]},
+        { ".7z", [
             new(MagicBytesCheckStrategy.StartsWith, [0x37,0x7a,0xbc,0xaf,0x27,0x1c]),
-        ]),
-        new(".gz", [
+        ]},
+        { ".gz", [
             new(MagicBytesCheckStrategy.StartsWith, [0x1f,0x8b]),
-        ]),
-        new(".bz2", [
+        ]},
+        { ".bz2", [
             new(MagicBytesCheckStrategy.StartsWith, [0x42,0x5a,0x68]), // BZh
-        ]),
-        new(".xz", [
+        ]},
+        { ".xz", [
             new(MagicBytesCheckStrategy.StartsWith, [0xfd,0x37,0x7a,0x58,0x5a,0x00]),
-        ]),
-        new(".zst", [
+        ]},
+        { ".zst", [
             new(MagicBytesCheckStrategy.StartsWith, [0x28,0xb5,0x2f,0xfd]),
-        ]),
-        new(".tar", [
-            new(MagicBytesCheckStrategy.StartsWithAnyOf, [], Candidates: [
+        ]},
+        { ".tar", [
+            new(MagicBytesCheckStrategy.Offset, [], Offset: 256, Candidates: [
                 [0x75,0x73,0x74,0x61,0x72,0x00,0x30,0x30], // ustar\000
                 [0x75,0x73,0x74,0x61,0x72,0x20,0x20,0x00], // ustar  \0
             ]),
-        ]),
+        ]},
 
         // audio
-        new(".mp3", [
+        { ".mp3", [
             new(MagicBytesCheckStrategy.StartsWithAnyOf, [], Candidates: [
                 [0xff,0xfb],
                 [0xff,0xf3],
                 [0xff,0xf2],
                 [0x49,0x44,0x33], // ID3
             ]),
-        ]),
-        new(".ogg", [
+        ]},
+        { ".ogg", [
             new(MagicBytesCheckStrategy.StartsWith, [0x4f,0x67,0x67,0x53]), // OggS
-        ]),
-        new(".flac", [
+        ]},
+        { ".flac", [
             new(MagicBytesCheckStrategy.StartsWith, [0x66,0x4c,0x61,0x43]), // fLaC
-        ]),
-        new(".wav", [
+        ]},
+        { ".wav", [
             new(MagicBytesCheckStrategy.StartsWith, [0x52,0x49,0x46,0x46]),
             new(MagicBytesCheckStrategy.Offset,     [0x57,0x41,0x56,0x45], Offset: 8),
-        ]),
-        new(".mid", [
+        ]},
+        { ".mid", [
             new(MagicBytesCheckStrategy.StartsWith, [0x4d,0x54,0x68,0x64]), // MThd
-        ]),
-        new(".aac", [
+        ]},
+        { ".aac", [
             new(MagicBytesCheckStrategy.StartsWithAnyOf, [], Candidates: [
                 [0xff,0xf1],
                 [0xff,0xf9],
             ]),
-        ]),
+        ]},
 
         // video
-        new(".mp4", [
+        { ".mp4", [
             new(MagicBytesCheckStrategy.AnywhereAnyOf, [], Candidates: [
                 [0x66,0x74,0x79,0x70,0x69,0x73,0x6f,0x6d], // ftypisom
                 [0x66,0x74,0x79,0x70,0x6d,0x70,0x34,0x32], // ftypmp42
                 [0x66,0x74,0x79,0x70,0x4d,0x53,0x4e,0x56], // ftypMSNV
             ]),
-        ]),
-        new(".webm", [
+        ]},
+        { ".webm", [
             new(MagicBytesCheckStrategy.StartsWith, [0x1a,0x45,0xdf,0xa3]),
-        ]),
-        new(".mkv", [
+        ]},
+        { ".mkv", [
             new(MagicBytesCheckStrategy.StartsWith, [0x1a,0x45,0xdf,0xa3]),
-        ]),
-        new(".avi", [
+        ]},
+        { ".avi", [
             new(MagicBytesCheckStrategy.StartsWith, [0x52,0x49,0x46,0x46]),
             new(MagicBytesCheckStrategy.Offset,     [0x41,0x56,0x49,0x20], Offset: 8),
-        ]),
-        new(".wmv", [
+        ]},
+        { ".wmv", [
             new(MagicBytesCheckStrategy.StartsWith, [0x30,0x26,0xb2,0x75,0x8e,0x66,0xcf,0x11]),
-        ]),
-        new(".3gp", [
+        ]},
+        { ".3gp", [
             new(MagicBytesCheckStrategy.Offset, [0x66,0x74,0x79,0x70,0x33,0x67], Offset: 4),
-        ]),
-        new(".flv", [
+        ]},
+        { ".flv", [
             new(MagicBytesCheckStrategy.StartsWith, [0x46,0x4c,0x56]), // FLV
-        ]),
+        ]},
 
         // binaries
-        new(".elf", [
+        { ".elf", [
             new(MagicBytesCheckStrategy.StartsWith, [0x7f,0x45,0x4c,0x46]), // ELF
-        ]),
-        new(".exe", [
+        ]},
+        { ".exe", [
             new(MagicBytesCheckStrategy.StartsWith, [0x4d,0x5a]), // MZ
-        ]),
-        new(".wasm", [
+        ]},
+        { ".wasm", [
             new(MagicBytesCheckStrategy.StartsWith, [0x00,0x61,0x73,0x6d]),
-        ]),
+        ]},
 
         // fonts
-        new(".woff", [
+        { ".woff", [
             new(MagicBytesCheckStrategy.StartsWith, [0x77,0x4f,0x46,0x46]),
-        ]),
-        new(".woff2", [
+        ]},
+        { ".woff2", [
             new(MagicBytesCheckStrategy.StartsWith, [0x77,0x4f,0x46,0x32]),
-        ]),
+        ]},
 
         // misc
-        new(".db", [
+        { ".db", [
             new(MagicBytesCheckStrategy.StartsWith, [
                 0x53,0x51,0x4c,0x69,0x74,0x65,0x20,0x66,
                 0x6f,0x72,0x6d,0x61,0x74,0x20,0x33,0x00,
             ]),
-        ]),
-        new(".psd", [
+        ]},
+        { ".psd", [
             new(MagicBytesCheckStrategy.StartsWith, [0x38,0x42,0x50,0x53]), // 8BPS
-        ]),
-        new(".swf", [
+        ]},
+        { ".swf", [
             new(MagicBytesCheckStrategy.StartsWithAnyOf, [], Candidates: [
                 [0x43,0x57,0x53], // CWS compressed
                 [0x46,0x57,0x53], // FWS uncompressed
             ]),
-        ])
-    ];
+        ]}
+    }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
     #endregion
 
     /// <summary>
-    /// Looks up signatures for a given extension, supporting slash-delimited multi-extension keys.
+    /// Looks up signatures for a given extension, resolving aliases to canonical forms.
     /// </summary>
-    private static MagicBytesSignature[]? TryGetSignatures(string fileExtension) =>
-        ByFileExtension!
-             .FirstOrDefault(kvp =>
-                 kvp.Key.Split('/', StringSplitOptions.RemoveEmptyEntries)
-                    .Any(ext => string.Equals(ext.Trim(), fileExtension, StringComparison.OrdinalIgnoreCase))
-             ).Value ?? null;
-
+    private static MagicBytesSignature[]? TryGetSignatures(string fileExtension) {
+        // First check if this is an alias and resolve to canonical form
+        var canonicalExtension = ExtensionAliases.GetValueOrDefault(fileExtension, fileExtension);
+        // Then lookup the signatures
+        return ByFileExtension.GetValueOrDefault(canonicalExtension);
+    }
     /// <summary>
     /// Dispatches a single signature check to the appropriate strategy implementation.
     /// </summary>
@@ -386,12 +391,6 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
         buf.Length >= offset + bytes.Length &&
         buf.Slice(offset, bytes.Length).SequenceEqual(bytes);
 
-    /// <summary>
-    /// Builds the frozen lookup dictionary from <see cref="Entries"/> on first instantiation.
-    /// </summary>
-    static MagicBytesValidator() {
-        ByFileExtension = Entries.ToFrozenDictionary(e => e.FileExtensions, e => e.Signatures, StringComparer.OrdinalIgnoreCase);
-    }
 
     /// <inheritdoc/>
     public async Task<MagicBytesValidationResult> IsValid(Stream fileStream, string fileExtension, CancellationToken ct) {
