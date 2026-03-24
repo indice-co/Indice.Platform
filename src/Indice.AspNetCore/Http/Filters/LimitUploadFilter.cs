@@ -26,7 +26,7 @@ public static class LimitUploadFilter
     /// <param name="allowUnknownExtensions">Overrides allow unknown extension option.</param>
     /// <returns>The builder.</returns>
     public static TBuilder LimitUpload<TBuilder>(
-        this TBuilder builder, int sizeLimit, string? fileExtensions = null, bool? enableMagicByteValidation = null, bool? allowUnknownExtensions = null) 
+        this TBuilder builder, long sizeLimit, string? fileExtensions = null, bool? enableMagicByteValidation = null, bool? allowUnknownExtensions = null) 
         where TBuilder : IEndpointConventionBuilder {
         builder.Add(endpointBuilder => {
             var allowedExtensions = fileExtensions?
