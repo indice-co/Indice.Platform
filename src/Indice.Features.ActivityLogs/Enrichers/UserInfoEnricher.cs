@@ -1,8 +1,9 @@
 ﻿using System.Security.Claims;
-using Indice.Features.ActivityLogs;
 using Indice.Features.ActivityLogs.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
+
+namespace Indice.Features.ActivityLogs.Enrichers;
 
 /// <summary>Enriches the activity log entry with basic information such as the subject id.</summary>
 public sealed class UserInfoEnricher : IActivityLogEntryEnricher
@@ -26,10 +27,10 @@ public sealed class UserInfoEnricher : IActivityLogEntryEnricher
         var context = _httpContextAccessor.HttpContext;
         var user = context?.User;
         if (user is not null) {
-            logEntry.SubjectId = user.FindFirstValue(BasicClaimTypes.Subject);
-            logEntry.SubjectName = user.FindFirstValue(BasicClaimTypes.Name);
-            logEntry.SessionId = user.FindFirstValue(BasicClaimTypes.SessionId);
-            logEntry.ApplicationId = user.FindFirstValue(BasicClaimTypes.ClientId);
+            logEntry.SubjectId ??= user.FindFirstValue(BasicClaimTypes.Subject);
+            logEntry.SubjectName ??= user.FindFirstValue(BasicClaimTypes.Name);
+            logEntry.SessionId ??= user.FindFirstValue(BasicClaimTypes.SessionId);
+            logEntry.ApplicationId ??= user.FindFirstValue(BasicClaimTypes.ClientId);
         }
 
     }

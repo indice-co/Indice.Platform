@@ -102,7 +102,22 @@ public static class ActivityLogFeatureExtensions
         return builder;
     }
 
-    
+    /// <summary>Uses Entity Framework Core as a persistence store.</summary>
+    /// <param name="builder">The host application builder.</param>
+    /// <param name="configure">Provides a simple API surface for configuring <see cref="DbContextOptions" />.</param>
+    public static IActivityLogBuilder AddActivityLogAdapterHandler(this IActivityLogBuilder builder, Action<IServiceProvider, DbContextOptionsBuilder> configure) {
+        var services = builder.Services;
+        return builder;
+    }
+
+    /// <summary>Uses Entity Framework Core as a persistence store.</summary>
+    /// <param name="builder">The host application builder.</param>
+    /// <param name="configure">Provides a simple API surface for configuring <see cref="DbContextOptions" />.</param>
+    public static IActivityLogBuilder AddActivityLogFactory(this IActivityLogBuilder builder, Action<IServiceProvider, DbContextOptionsBuilder> configure) {
+        var services = builder.Services;
+        return builder;
+    }
+
     /// <summary>
     /// Configures the activity store by ensuring the associated database is created.
     /// </summary>

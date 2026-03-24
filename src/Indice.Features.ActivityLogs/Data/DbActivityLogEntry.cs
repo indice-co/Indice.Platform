@@ -20,6 +20,8 @@ internal class DbActivityLogEntry
     public string? ApplicationId { get; set; }
     /// <summary>The display name of the application.</summary>
     public string? ApplicationName { get; set; }
+    /// <summary>The source server app name.</summary>
+    public string? Source { get; set; }
     /// <summary>The unique identifier of the subject.</summary>
     public string? SubjectId { get; set; }
     /// <summary>The display name of the subject.</summary>
