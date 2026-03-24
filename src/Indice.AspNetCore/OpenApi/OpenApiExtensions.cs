@@ -58,7 +58,7 @@ public static class OpenApiExtensions
         options.AddMappedTypeTransformer();
         options.AddFluentValidationTransformer();
         options.AddConventionsTransformer();
-        options.AddCustomConverterTransformer();
+        options.AddJsonConverterTransformer();
         //options.AddDictionaryTransformer();
         //options.AddArrayTransformer();
         //options.AddEnumTransformer();

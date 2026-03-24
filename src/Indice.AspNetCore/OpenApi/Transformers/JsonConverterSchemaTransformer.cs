@@ -1,26 +1,17 @@
 ﻿#if NET10_0_OR_GREATER
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Schema;
 using Indice.Serialization;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// This class provides a transformer for handling array schemas in OpenAPI documents.
 /// </summary>
-public static class CustomConverterSchemaTransformer
+public static class JsonConverterSchemaTransformer
 {
-    private static readonly Type[] _converterTypes = [
-        typeof(JsonStringDecimalConverter),
-            typeof(JsonStringDoubleConverter),
-            typeof(JsonStringInt32Converter),
-            typeof(JsonStringBooleanConverter),
-            typeof(JsonAnyStringConverter),
-            typeof(TypeConverterJsonAdapterFactory)
-];
+
 
     /// <summary>
     /// Adds a schema transformer to handle array transformations in OpenAPI options.
@@ -29,7 +20,7 @@ public static class CustomConverterSchemaTransformer
     /// It modifies the behavior of the OpenAPI generation pipeline to handle arrays in a specific way.</remarks>
     /// <param name="options">The <see cref="OpenApiOptions"/> instance to which the transformer will be added.</param>
     /// <returns>The updated <see cref="OpenApiOptions"/> instance with the array transformer registered.</returns>
-    public static OpenApiOptions AddCustomConverterTransformer(this OpenApiOptions options) {
+    public static OpenApiOptions AddJsonConverterTransformer(this OpenApiOptions options) {
 
         // Register the schema transformer
         options.AddSchemaTransformer(TransformAsync);
