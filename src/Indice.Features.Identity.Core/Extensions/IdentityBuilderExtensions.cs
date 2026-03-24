@@ -7,12 +7,15 @@ using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
+using Indice.Features.Identity.Core.EmailValidation;
 using Indice.Features.Identity.Core.TokenProviders;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.AspNetCore.Hosting;
+
 
 #if NET9_0_OR_GREATER
 using Indice.Features.Identity.Core.TokenCleanup;
@@ -226,6 +229,66 @@ public static class IdentityBuilderExtensions
         builder.AddPasswordValidator<UserNameAsPasswordValidator>();
         return builder;
     }
+
+    /// <summary>
+    /// Registers the <see cref="EmailDomainBlacklistValidator{TUser}"/> with optional enable/disable flag.
+    /// By default, validation is enabled.
+    /// </summary>
+    /// <typeparam name="TUser">The type of user.</typeparam>
+    /// <param name="builder">The identity builder.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <param name="configKey">Optional configuration key to toggle the validator (default: "EmailBlacklist:Enabled").</param>
+    /// <returns>The identity builder.</returns>
+    public static IdentityBuilder AddEmailDomainBlacklistValidator<TUser>(
+        this IdentityBuilder builder,
+        IConfiguration configuration,
+        string configKey = "EmailBlacklist:Enabled"
+    ) where TUser : User {
+        // Διαβάζουμε την flag από config, default true αν δεν βρεθεί
+        var enabled = configuration.GetValue<bool?>(configKey) ?? true;
+        if (!enabled) {
+            return builder; // Αν είναι false, δεν κάνουμε register τον validator
+        }
+
+        // Default providers registration
+        builder.Services.AddSingleton<EmailDomainBlacklistValidator.IEmailDomainBlacklistProvider, EmailDomainBlacklistValidator.DefaultEmailDomainBlacklistProvider>();
+        builder.Services.AddSingleton<EmailDomainBlacklistValidator.IEmailDomainBlacklistProvider, EmailDomainBlacklistValidator.ConfigEmailDomainBlacklistProvider>();
+        builder.Services.AddSingleton<EmailDomainBlacklistValidator.IEmailDomainBlacklistProvider>(sp => {
+            var env = sp.GetRequiredService<IWebHostEnvironment>();
+            var configuration = sp.GetRequiredService<IConfiguration>();
+
+            var filePath =
+                configuration["EmailBlacklist:FilePath"] ??
+                "";
+
+            if (File.Exists(filePath)) {
+                return new EmailDomainBlacklistValidator.FileEmailDomainBlacklistProvider(filePath);
+            }
+
+            return new EmailDomainBlacklistValidator.DefaultEmailDomainBlacklistProvider();
+        });
+
+        builder.AddUserValidator<EmailDomainBlacklistValidator<TUser>>();
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Registers <see cref="EmailDomainBlacklistValidator"/> using <see cref="User"/> as the user type.
+    /// This is a convenience overload of <see cref="AddEmailDomainBlacklistValidator{TUser}(IdentityBuilder, IConfiguration, string)"/>
+    /// so you don’t need to specify the generic type explicitly.
+    /// </summary>
+    /// <param name="builder">The <see cref="IdentityBuilder"/> instance.</param>
+    /// <param name="configuration">The application <see cref="IConfiguration"/> used to read the enable/disable flag and file path.</param>
+    /// <param name="configKey">
+    /// Optional configuration key for enabling/disabling the validator. Default is "EmailBlacklist:Enabled".
+    /// </param>
+    /// <returns>The <see cref="IdentityBuilder"/> instance, allowing further chaining.</returns>
+    public static IdentityBuilder AddEmailDomainBlacklistValidator(
+        this IdentityBuilder builder,
+        IConfiguration configuration,
+        string configKey = "EmailBlacklist:Enabled"
+    ) => builder.AddEmailDomainBlacklistValidator<User>(configuration, configKey);
 
     /// <summary>Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.</summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
