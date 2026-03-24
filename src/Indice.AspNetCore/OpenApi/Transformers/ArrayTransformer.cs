@@ -31,7 +31,7 @@ public static class ArrayTransformer
                     continue;
                 }
                 FixEmptyArraySchemas((OpenApiSchema)property, jsonProperty.PropertyType);
-                if (property.AdditionalProperties is not null && property.AdditionalProperties.Type!.Value.HasFlag(JsonSchemaType.Array) &&
+                if (property.AdditionalProperties is not null && property.AdditionalProperties.Type.HasValue && property.AdditionalProperties.Type!.Value.HasFlag(JsonSchemaType.Array) &&
                     jsonProperty.PropertyType.GenericTypeArguments?.Length == 2 &&
                     jsonProperty.PropertyType.IsDictionary()) {
                     FixEmptyArraySchemas((OpenApiSchema)property.AdditionalProperties, jsonProperty.PropertyType.GenericTypeArguments[1]);
@@ -51,7 +51,7 @@ public static class ArrayTransformer
     }
 
     private static void FixEmptyArraySchemas(OpenApiSchema schema, Type type) {
-        var canTransform = schema.Type!.Value.HasFlag(JsonSchemaType.Array) && schema.Items?.Type == null;
+        var canTransform = schema.Type.HasValue && schema.Type!.Value.HasFlag(JsonSchemaType.Array) && schema.Items?.Type == null;
         if (!canTransform) {
             return;
         }

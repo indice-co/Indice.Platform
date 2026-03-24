@@ -13,18 +13,6 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>Changes the OAS for enums.</summary>
 public static class EnumTransformer
 {
-    //internal class ChainedDelegate(Func<JsonTypeInfo, string?> next)
-    //{
-    //    public string? Invoke(JsonTypeInfo type) {
-    //        // Get the result of the next delegate in the chain
-    //        var result = next(type);
-    //        if (result is null && type.Type.IsFlagsEnum()) {
-    //            return type.Type.Name;
-    //        }
-    //        return result;
-    //    }
-    //}
-
     /// <summary>
     /// Adds a transformer to the OpenApiOptions that modifies enum schemas to reflect enum values and names.
     /// </summary>

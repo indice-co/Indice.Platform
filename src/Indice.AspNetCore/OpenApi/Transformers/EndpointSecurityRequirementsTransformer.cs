@@ -27,10 +27,20 @@ public static class EndpointSecurityRequirementsTransformer
     {
 
         options.AddOperationTransformer((operation, context, cancellationToken) => {
-            if (context.Description.ActionDescriptor.EndpointMetadata.OfType<OpenApiSecurityRequirement>().Any() &&
-                !context.Description.ActionDescriptor.EndpointMetadata.OfType<IAllowAnonymous>().Any()) {
-                var securityRequirements = context.Description.ActionDescriptor.EndpointMetadata.OfType<OpenApiSecurityRequirement>();
-                operation.Security = [.. securityRequirements];
+            if (context.Description.ActionDescriptor.EndpointMetadata.OfType<OpenApiSecurityRequirement>().Any()) {
+                var securityRequirements = context.Description.ActionDescriptor
+                                                              .EndpointMetadata
+                                                              .OfType<OpenApiSecurityRequirement>();
+                operation.Security = [];
+                foreach (var item in securityRequirements) {
+                    var requirement = item.First();
+                    operation.Security.Add(new OpenApiSecurityRequirement() {
+                        [new(requirement.Key.Reference!.Id!, context.Document)] = requirement.Value ?? []
+                    });
+                }
+                if (context.Description.ActionDescriptor.EndpointMetadata.OfType<IAllowAnonymous>().Any()) {
+                    operation.Security.Add(new());
+                }
             }
             return Task.CompletedTask;
         });

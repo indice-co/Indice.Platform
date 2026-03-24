@@ -6,8 +6,6 @@ using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-using Microsoft.OpenApi.Models;
-
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
@@ -28,11 +26,15 @@ public static class MappedTypeTransformer
             if (!string.IsNullOrWhiteSpace(result) && transforms.ContainsKey(type.Type)) {
                 return null;
             }
+            if (!string.IsNullOrWhiteSpace(result) && nameTransforms.ContainsKey(type.Type)) {
+                return nameTransforms[type.Type];
+            }
             return result;
         }
     }
 
-    internal static Dictionary<Type, OpenApiSchema> transforms = new ();
+    internal static Dictionary<Type, OpenApiSchema> transforms = new();
+    internal static Dictionary<Type, string> nameTransforms = new();
 
     /// <summary>
     /// Maps a specified type to an OpenAPI schema definition.
@@ -46,6 +48,15 @@ public static class MappedTypeTransformer
         transforms[typeof(T)] = schema;
     }
 
+    /// <summary>
+    /// Rename a specified type in the OpenAPI schema reference ID generation process. 
+    /// </summary>
+    /// <typeparam name="T">The type occurance to rename</typeparam>
+    /// <param name="schemaName">The new name for the type</param>
+    public static void RenameType<T>(string schemaName) {
+        nameTransforms[typeof(T)] = schemaName;
+    }
+
 
     /// <summary>
     /// Configures the <see cref="OpenApiOptions"/> instance with predefined type mappings and a schema transformer.
@@ -56,13 +67,11 @@ public static class MappedTypeTransformer
     /// <param name="options">The <see cref="OpenApiOptions"/> instance to configure.</param>
     /// <returns>The configured <see cref="OpenApiOptions"/> instance.</returns>
     public static OpenApiOptions AddMappedTypeTransformer(this OpenApiOptions options) {
-        options.MapType<object>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
-        options.MapType<JsonNode>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
+        //options.MapType<object>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
+        //options.MapType<JsonNode>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
         options.MapType<JsonElement>(new() { Type = JsonSchemaType.Object });
         options.MapType<JsonElement?>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
-        options.MapType<Stream>(new() { Type = JsonSchemaType.String, Format = "binary" });
-        options.MapType<IFormFile>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null, Format = "binary" });
-        options.MapType<IFormFileCollection>(new() { Type = JsonSchemaType.Array, Items = new OpenApiSchema() { Type = JsonSchemaType.String, Format = "binary" } });
+        
         options.MapType<GeoPoint>(new() { Type = JsonSchemaType.String });
         options.MapType<GeoPoint?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
         options.MapType<FilterClause>(new() { Type = JsonSchemaType.String });
@@ -74,6 +83,9 @@ public static class MappedTypeTransformer
         options.MapType<Base64Host>(new() { Type = JsonSchemaType.String });
         options.MapType<Base64Host?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
         // Register the type transformer
+        RenameType<Stream>("FileParameter");
+        RenameType<IFormFile>("FileParameter");
+
 
         var chainedDelegate = new ChainedDelegate(options.CreateSchemaReferenceId);
         options.CreateSchemaReferenceId = chainedDelegate.Invoke;
@@ -83,40 +95,14 @@ public static class MappedTypeTransformer
 
     internal static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
         // If transforms contains the schema's type, set the schema type and format from the transform schema
-        if (transforms.ContainsKey(context.JsonTypeInfo.Type)) {
-            TransformSchema(schema, context.JsonTypeInfo.Type, nullable: null);
+        if (transforms.TryGetValue(context.JsonTypeInfo.Type, out var apiSchema) && schema.Metadata?.ContainsKey("mapped") != true) {
+            TransformSchema(schema, context.JsonTypeInfo.Type, nullable: context.JsonPropertyInfo?.IsSetNullable);
+            return Task.CompletedTask;
         }
-        if (schema.Properties is not null) {
-            foreach (var jsonProperty in context.JsonTypeInfo.Properties) {
-                if (!schema.Properties.TryGetValue(jsonProperty.Name, out var property)) {
-                    continue;
-                }
-                // If transforms contains the property type, set the property schema type and format from the transform schema
-                if (transforms.ContainsKey(jsonProperty.PropertyType)) {
-                    TransformSchema((OpenApiSchema)property, jsonProperty.PropertyType, jsonProperty.IsSetNullable);
-                    continue;
-                }
-                if (property.Type == JsonSchemaType.Array && jsonProperty.PropertyType.TryGetAnyElementType(out var elementType) && transforms.ContainsKey(elementType!)) {
-                    schema.Items ??= new OpenApiSchema();
-                    TransformSchema((OpenApiSchema)property.Items!, elementType!, nullable: null);
-                    continue;
-                }
-            }
-        }
-        if (context.ParameterDescription is not null && 
+        if (context.ParameterDescription is not null &&
             transforms.ContainsKey(context.ParameterDescription.Type)) {
             TransformSchema(schema, context.ParameterDescription.Type, nullable: null);
             return Task.CompletedTask;
-        }
-        if (context.ParameterDescription is not null && schema.Type == JsonSchemaType.Array && 
-            context.ParameterDescription.Type.TryGetAnyElementType(out var parameterElementType) && 
-            transforms.ContainsKey(parameterElementType!)) {
-            schema.Items ??= new OpenApiSchema();
-            TransformSchema((OpenApiSchema)schema.Items, parameterElementType!, nullable: null);
-            return Task.CompletedTask;
-        }
-        if (context.JsonPropertyInfo is not null && transforms.ContainsKey(context.JsonPropertyInfo.PropertyType)) {
-            TransformSchema(schema, context.JsonPropertyInfo.PropertyType, context.JsonPropertyInfo.IsSetNullable);
         }
         return Task.CompletedTask;
     }
@@ -125,6 +111,10 @@ public static class MappedTypeTransformer
         OpenApiSchema transformedSchema = transforms[type];
         schema.Type = transformedSchema.Type;
         schema.Format = transformedSchema.Format;
+        schema.AnyOf = null;
+        schema.AnyOf = null;
+        schema.Metadata ??= new Dictionary<string, object>();
+        schema.Metadata.Add("mapped", true);
         if (nullable == false) {
             schema.Type &= ~JsonSchemaType.Null;
         }

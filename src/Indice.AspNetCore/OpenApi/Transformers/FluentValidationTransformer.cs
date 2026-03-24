@@ -29,7 +29,7 @@ public static class FluentValidationTransformer
     }
 
     private static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
-        var scope = context.ApplicationServices.CreateScope();
+        using var scope = context.ApplicationServices.CreateScope();
         if (schema.Properties is not null && context.ParameterDescription is not null) {
             AnnotateSchemaPropertiesFromValidators(scope.ServiceProvider, context.JsonTypeInfo.Type, schema);
         }

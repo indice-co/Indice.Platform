@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 using Xunit.Abstractions;
 using static Indice.AspNetCore.Tests.OpenApiTestsModels;
@@ -31,34 +32,38 @@ public class OpenApiTests : IAsyncLifetime
 
     public OpenApiTests(ITestOutputHelper output) {
         _output = output;
-        var builder = new WebHostBuilder();
-        builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
-                ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true",
-                ["General:Host"] = "https://server"
+        var builder = Host.CreateDefaultBuilder()
+            .ConfigureWebHostDefaults(webBuilder => {
+                webBuilder.ConfigureAppConfiguration(builder => {
+                    builder.AddInMemoryCollection(new Dictionary<string, string?> {
+                        ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
+                        ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true",
+                        ["General:Host"] = "https://server"
+                    });
+                });
+                webBuilder.ConfigureServices((context, services) => {
+                    services.AddRouting();
+                    services.AddOpenApi(options => options.AddDocumentInfo().ControllerActionAsOperationId());
+                    services.AddEndpointsApiExplorer();
+                    services.AddControllers().ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new OpenApiTestFeatureProvider()));
+                });
+                webBuilder.Configure(app => {
+                    app.UseRouting();
+                    app.UseEndpoints(e => {
+                        e.MapTestEndpoints();
+                        e.MapControllers();
+                        e.MapOpenApi();
+                    });
+                });
+                webBuilder.UseTestServer();
             });
-        });
-        builder.ConfigureServices((context, services) => {
-            services.AddRouting();
-            services.AddOpenApi(options => options.AddDocumentInfo().ControllerActionAsOperationId());
-            services.AddEndpointsApiExplorer();
-            services.AddControllers().ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new OpenApiTestFeatureProvider()));
-        });
-        builder.Configure(app => {
-            app.UseRouting();
-            app.UseEndpoints(e => {
-                e.MapTestEndpoints();
-                e.MapControllers();
-                e.MapOpenApi();
-            });
-        });
-        var server = new TestServer(builder);
+        var host = builder.Build();
+        var server = host.GetTestServer();
         var handler = server.CreateHandler();
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
-        _serviceProvider = (ServiceProvider)server.Services;
+        _serviceProvider = (ServiceProvider)host.Services;
     }
 
     public async Task DisposeAsync() {

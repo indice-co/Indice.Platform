@@ -37,27 +37,7 @@ public static class TypeConventionTransformer
 
         var chainedDelegate = new ChainedDelegate(options.CreateSchemaReferenceId);
         options.CreateSchemaReferenceId = chainedDelegate.Invoke;
-
-        // Register the schema transformer
-        options.AddSchemaTransformer(TransformAsync);
         return options;
-    }
-
-
-    internal static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
-        // If transforms contains the schema's type, set the schema type and format from the transform schema
-        if (CanTransform(schema, context.JsonTypeInfo.Type)) {
-            schema.AdditionalPropertiesAllowed = false;
-        }
-        return Task.CompletedTask;
-    }
-
-    private static bool CanTransform(OpenApiSchema schema, Type? type) {
-        if (type is null) {
-            return false;
-        }
-        type = Nullable.GetUnderlyingType(type) ?? type;
-        return schema.Type == JsonSchemaType.Object && schema.Properties?.Count > 0 && type is not null && !type.IsPrimitive() && !type.IsDictionary() && type!.Namespace?.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase) != true;
     }
 }
 #endif

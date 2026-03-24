@@ -37,18 +37,18 @@ public static class NullableTransformer
             if (schema.Properties is not null) {
                 foreach (var property in schema.Properties) {
                     if (property.Value is OpenApiSchema propSchema) {
-                        // Remove the null type for non-required properties
+                        // Remove the null type for required properties
                         if (schema.Required?.Contains(property.Key) != true) {
                             propSchema.Type &= ~JsonSchemaType.Null;
                         }
-                        // Also need to remove `null` from enum values if present
-                        if (propSchema.Enum is not null) {
-                            propSchema.Enum = propSchema.Enum
-                                .Where(e => e is not null)
-                                .ToList();
-                        }
                     }
                 }
+            }
+            // Also need to remove `null` from enum values if present
+            if (schema.Enum is not null && schema.Enum.Any(x => x is null)) {
+                schema.Enum = schema.Enum
+                    .Where(e => e is not null)
+                    .ToList();
             }
             return Task.CompletedTask;
         });

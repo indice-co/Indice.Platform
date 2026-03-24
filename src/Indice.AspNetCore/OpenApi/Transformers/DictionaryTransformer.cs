@@ -17,7 +17,7 @@ public static class DictionaryTransformer
     public static OpenApiOptions AddDictionaryTransformer(this OpenApiOptions options) {
 
         // Register the schema transformer
-        options.AddSchemaTransformer(TransformAsync);
+        //options.AddSchemaTransformer(TransformAsync);
         return options;
     }
 
