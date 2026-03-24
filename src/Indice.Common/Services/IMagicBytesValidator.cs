@@ -409,9 +409,9 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
     }
 
     /// <summary>
-    /// Builds the frozen lookup dictionary from <see cref="Entries"/> on first instantiation.
+    /// Builds the frozen lookup dictionary from <see cref="Entries"/> once, at type initialization time.
     /// </summary>
-    public MagicBytesValidator() {
+    static MagicBytesValidator() {
         ByFileExtension = Entries.ToFrozenDictionary(e => e.FileExtensions, e => e.Signatures, StringComparer.OrdinalIgnoreCase);
     }
 
