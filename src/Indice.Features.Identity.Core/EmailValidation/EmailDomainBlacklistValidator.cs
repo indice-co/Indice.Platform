@@ -29,7 +29,7 @@ public class EmailDomainBlacklistValidator<TUser> : IUserValidator<TUser> where 
 
     /// <inheritdoc/>
     public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user) {
-        var email = await manager.GetEmailAsync(user);
+        var email = user.Email;
         var result = IdentityResult.Success;
         if (string.IsNullOrWhiteSpace(email) || !TryGetDomain(email, out var domain) || await IsBlacklistedAsync(domain)) {
             return IdentityResult.Failed(
