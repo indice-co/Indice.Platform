@@ -2,6 +2,7 @@ using Indice.AspNetCore.Features.Recaptcha;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Indice.Services;
@@ -91,17 +92,23 @@ public abstract class BaseForgotPasswordModel : BasePageModel
         if (user is null) {
             return Page();
         }
+        if (user.Claims.Count is 0) {
+            _ = await UserManager.GetClaimsAsync(user); // Lazy load claims if not already loaded
+        }
         var token = await UserManager.GeneratePasswordResetTokenAsync(user);
         var callbackUrl = Url.PageLink("/ForgotPasswordConfirmation", values: new { email = user.Email, token, client_id = HttpContext.GetClientIdFromReturnUrl() });
-
+        if (string.IsNullOrWhiteSpace(callbackUrl)) {
+            Logger.LogError("Failed to generate callback URL for forgot password confirmation email for user: {userId}.", user.Id);
+            return RedirectToPage("/Error");
+        }
         var maskedToken = token.Length > 4 ? string.Concat(token.AsSpan(0, 2), new string('*', token.Length - 4), token.AsSpan(token.Length - 2)) : token;
         Logger.LogDebug("{PageTitle}: Confirmation token is {Token}", "Forgot password", maskedToken);
         await EmailService.SendAsync(builder =>
             builder.To(user.Email!)
                    .WithSubject(UserManager.MessageDescriber.ForgotPasswordMessageSubject)
                    .UsingTemplate("EmailForgotPassword")
-                   .WithData(new {
-                       UserName = User.FindDisplayName() ?? user.UserName,
+                   .WithData(new ForgotPasswordEmailModel {
+                       UserName = user.FindDisplayName() ?? user.UserName!,
                        Url = callbackUrl
                    })
         );
