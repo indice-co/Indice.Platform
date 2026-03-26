@@ -4,17 +4,18 @@ using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.EmailValidation;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
-using Indice.Features.Identity.Core.EmailValidation;
 using Indice.Features.Identity.Core.TokenProviders;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Azure.Amqp.Framing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.AspNetCore.Hosting;
 
 
 #if NET9_0_OR_GREATER
@@ -244,30 +245,28 @@ public static class IdentityBuilderExtensions
         IConfiguration configuration,
         string configKey = "EmailBlacklist:Enabled"
     ) where TUser : User {
-        // Διαβάζουμε την flag από config, default true αν δεν βρεθεί
         var enabled = configuration.GetValue<bool?>(configKey) ?? true;
-        if (!enabled) {
-            return builder; // Αν είναι false, δεν κάνουμε register τον validator
-        }
 
-        // Default providers registration
+        if (!enabled)
+            return builder;
+
+        // Providers
         builder.Services.AddSingleton<EmailDomainBlacklistValidator.IEmailDomainBlacklistProvider, EmailDomainBlacklistValidator.DefaultEmailDomainBlacklistProvider>();
         builder.Services.AddSingleton<EmailDomainBlacklistValidator.IEmailDomainBlacklistProvider, EmailDomainBlacklistValidator.ConfigEmailDomainBlacklistProvider>();
+
         builder.Services.AddSingleton<EmailDomainBlacklistValidator.IEmailDomainBlacklistProvider>(sp => {
-            var env = sp.GetRequiredService<IWebHostEnvironment>();
-            var configuration = sp.GetRequiredService<IConfiguration>();
+            var config = sp.GetRequiredService<IConfiguration>();
+            //TODO make the file path portable
+            var filePath = "C:\\Users\\AngelosVraimakis\\source\\repos\\indice-co\\Indice.Platform\\src\\Indice.Features.Identity.Core\\EmailValidation\\disposable_email_blocklist.conf.txt";
 
-            var filePath =
-                configuration["EmailBlacklist:FilePath"] ??
-                "";
-
-            if (File.Exists(filePath)) {
+            if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath)) {
                 return new EmailDomainBlacklistValidator.FileEmailDomainBlacklistProvider(filePath);
             }
 
             return new EmailDomainBlacklistValidator.DefaultEmailDomainBlacklistProvider();
         });
 
+        // Validator
         builder.AddUserValidator<EmailDomainBlacklistValidator<TUser>>();
 
         return builder;

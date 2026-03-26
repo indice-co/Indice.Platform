@@ -5,6 +5,9 @@
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="EmailValidation\disposable_email_blocklist.conf.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +36,11 @@
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
     <ProjectReference Include="..\Indice.Features.GeoIP\Indice.Features.GeoIP.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="EmailValidation\disposable_email_blocklist.conf.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="ExtendedIdentityErrorResources.Designer.cs">
