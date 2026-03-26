@@ -349,13 +349,9 @@ internal static partial class MyAccountHandlers
             return TypedResults.NoContent();
         }
         var code = await userManager.GeneratePasswordResetTokenAsync(user);
-        var data = new EmailChangeEmailModel {
-            DisplayName = currentUser.FindDisplayName() ?? user.UserName,
-            ReturnUrl = request.ReturnUrl,
-            Subject = userManager.MessageDescriber.ForgotPasswordMessageSubject,
-            Token = code,
-            User = user,
-            Url = linkGenerator.GetUriByPage(httpContext, "/ForgotPasswordConfirmation", values: new { email = request.Email, token = code, request.ReturnUrl })
+        var data = new ForgotPasswordEmailModel {
+            UserName = user.UserName ?? user.Email!,
+            Url = linkGenerator.GetUriByPage(httpContext, "/ForgotPasswordConfirmation", values: new { email = request.Email, token = code, request.ReturnUrl })!
         };
         await emailService.SendAsync(message => {
             var builder = message
@@ -365,7 +361,7 @@ internal static partial class MyAccountHandlers
                 builder.UsingTemplate(endpointOptions.Value.Email.ForgotPasswordTemplate)
                        .WithData(data);
             } else {
-                builder.WithBody(userManager.MessageDescriber.ForgotPasswordMessageBody(user, data.Token, data.Url));
+                builder.WithBody(userManager.MessageDescriber.ForgotPasswordMessageBody(user, code, data.Url));
             }
         });
         return TypedResults.NoContent();

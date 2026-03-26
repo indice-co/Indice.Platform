@@ -1,4 +1,3 @@
-using Indice.Features.Identity.Core.Data.Models;
 namespace Indice.Features.Identity.Core.Models;
 
 /// <summary>
@@ -7,7 +6,7 @@ namespace Indice.Features.Identity.Core.Models;
 public class ForgotPasswordEmailModel
 {
     /// <summary>
-    /// Gets or sets the display name of the user to greet in the email. In case their name is not found this will default to the <see cref="User.UserName"/>
+    /// Gets or sets the display name of the user to greet in the email.
     /// </summary>
     public required string UserName { get; set; }
 

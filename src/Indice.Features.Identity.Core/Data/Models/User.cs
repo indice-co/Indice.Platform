@@ -95,20 +95,4 @@ public class User : IdentityUser
             UserId = Id
         });
     }
-
-    /// <summary>Finds a display name for the user based on <see cref="BasicClaimTypes.GivenName"/>, <see cref="BasicClaimTypes.FamilyName"/> claims and <see cref="User.Email"/>.</summary>
-    public string? FindDisplayName() {
-        var displayName = default(string);
-        var name = Claims.FirstOrDefault(x => x.ClaimType is BasicClaimTypes.Name)?.ClaimValue;
-        var firstName = Claims.FirstOrDefault(x => x.ClaimType is BasicClaimTypes.GivenName)?.ClaimValue;
-        var lastName = Claims.FirstOrDefault(x => x.ClaimType is BasicClaimTypes.FamilyName)?.ClaimValue;
-        if (!string.IsNullOrEmpty(firstName) || !string.IsNullOrEmpty(lastName)) {
-            displayName = $"{firstName} {lastName}".Trim();
-        } else if (!string.IsNullOrEmpty(name)) {
-            displayName = name;
-        } else if (!string.IsNullOrEmpty(Email)) {
-            displayName = Email;
-        }
-        return displayName;
-    }
 }

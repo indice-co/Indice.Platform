@@ -2,6 +2,7 @@ using Indice.AspNetCore.Features.Recaptcha;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.UI.Models;
 using Indice.Security;
@@ -99,7 +100,7 @@ public abstract class BaseForgotPasswordModel : BasePageModel
         var callbackUrl = Url.PageLink("/ForgotPasswordConfirmation", values: new { email = user.Email, token, client_id = HttpContext.GetClientIdFromReturnUrl() });
         if (string.IsNullOrWhiteSpace(callbackUrl)) {
             Logger.LogError("Failed to generate callback URL for forgot password confirmation email for user: {userId}.", user.Id);
-            return RedirectToPage("/Error");
+            return Page();
         }
         var maskedToken = token.Length > 4 ? string.Concat(token.AsSpan(0, 2), new string('*', token.Length - 4), token.AsSpan(token.Length - 2)) : token;
         Logger.LogDebug("{PageTitle}: Confirmation token is {Token}", "Forgot password", maskedToken);
