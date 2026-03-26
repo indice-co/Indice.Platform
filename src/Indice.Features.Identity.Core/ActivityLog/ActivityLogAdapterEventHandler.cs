@@ -12,11 +12,11 @@ namespace Indice.Features.Identity.Core;
 /// <param name="activityLogFactory">The factory used to create activity log entries from events.</param>
 /// <exception cref="ArgumentNullException">Thrown when <paramref name="activityLogPublisher"/> or <paramref name="activityLogFactory"/> is null.</exception>
 public class ActivityLogAdapterEventHandler<TEvent>(
-    IActivityEventPublisher activityLogPublisher,
+    IActivityLogPublisher activityLogPublisher,
     IActivityLogFactory activityLogFactory) : IPlatformEventHandler<TEvent>
     where TEvent : IPlatformEvent
 {
-    private readonly IActivityEventPublisher _activityLogPublisher = activityLogPublisher ?? throw new ArgumentNullException(nameof(activityLogPublisher));
+    private readonly IActivityLogPublisher _activityLogPublisher = activityLogPublisher ?? throw new ArgumentNullException(nameof(activityLogPublisher));
     private readonly IActivityLogFactory _activityLogFactory = activityLogFactory ?? throw new ArgumentNullException(nameof(activityLogFactory));
 
     /// <inheritdoc />

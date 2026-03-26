@@ -31,7 +31,7 @@ public static class ActivityLogFeatureExtensions
             return activityLogBuilder;
         }
         // 3. Core Services
-        services.AddTransient<IActivityEventPublisher, ActivityLogEventPublisher>();
+        services.AddTransient<IActivityLogPublisher, ActivityLogPublisher>();
         services.AddHostedService<PersistLogsHostedService>();
         services.AddTransient<ActivityLogEntryEnricherAggregator>();
         services.AddSingleton<ActivityLogEntryQueue>();
