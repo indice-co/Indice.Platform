@@ -35,6 +35,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
+using Indice.Features.Identity.Core.Extensions;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -348,9 +349,12 @@ internal static partial class MyAccountHandlers
         if (user == null) {
             return TypedResults.NoContent();
         }
+        if (user.Claims.Count is 0) {
+            _ = await userManager.GetClaimsAsync(user); 
+        }
         var code = await userManager.GeneratePasswordResetTokenAsync(user);
         var data = new ForgotPasswordEmailModel {
-            UserName = user.UserName ?? user.Email!,
+            UserName = user.FindDisplayName() ?? user.Email!,
             Url = linkGenerator.GetUriByPage(httpContext, "/ForgotPasswordConfirmation", values: new { email = request.Email, token = code, request.ReturnUrl })!
         };
         await emailService.SendAsync(message => {

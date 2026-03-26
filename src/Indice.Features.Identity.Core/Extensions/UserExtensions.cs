@@ -6,7 +6,7 @@ namespace Indice.Features.Identity.Core.Extensions;
 /// <summary>Extension methods on <see cref="User"/> type.</summary>
 public static class UserExtensions
 {
-    /// <summary>Finds a display name for the user based on <see cref="BasicClaimTypes.GivenName"/>, <see cref="BasicClaimTypes.FamilyName"/> claims or user email.</summary>
+    /// <summary>Finds a display name for the user based on <see cref="BasicClaimTypes.Name"/>, <see cref="BasicClaimTypes.GivenName"/>, <see cref="BasicClaimTypes.FamilyName"/> claims or user email.</summary>
     /// <param name="user">The user instance.</param>
     public static string? FindDisplayName(this User user) {
         var displayName = default(string);
