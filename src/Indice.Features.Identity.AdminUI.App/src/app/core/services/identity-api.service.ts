@@ -61,12 +61,15 @@ export interface IIdentityApiService {
      * @param markForReview (optional) 
      * @param succeeded (optional) 
      * @param actionName (optional) 
+     * @param resourceId (optional) 
+     * @param resourceType (optional) 
+     * @param category (optional) 
      * @param from (optional) 
      * @param to (optional) 
      * @param applicationId (optional) 
      * @return OK
      */
-    getActivityLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, subject?: string | undefined, sessionId?: string | undefined, markForReview?: boolean | undefined, succeeded?: boolean | undefined, actionName?: string | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | undefined): Observable<ActivityLogEntryResultSet>;
+    getActivityLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, subject?: string | undefined, sessionId?: string | undefined, markForReview?: boolean | undefined, succeeded?: boolean | undefined, actionName?: string | undefined, resourceId?: string | undefined, resourceType?: string | undefined, category?: string | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | undefined): Observable<ActivityLogEntryResultSet>;
     /**
      * Patches the specified log entry by updating the properties given in the request.
      * @return No Content
@@ -1403,12 +1406,15 @@ export class IdentityApiService implements IIdentityApiService {
      * @param markForReview (optional) 
      * @param succeeded (optional) 
      * @param actionName (optional) 
+     * @param resourceId (optional) 
+     * @param resourceType (optional) 
+     * @param category (optional) 
      * @param from (optional) 
      * @param to (optional) 
      * @param applicationId (optional) 
      * @return OK
      */
-    getActivityLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, subject?: string | undefined, sessionId?: string | undefined, markForReview?: boolean | undefined, succeeded?: boolean | undefined, actionName?: string | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | undefined): Observable<ActivityLogEntryResultSet> {
+    getActivityLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, subject?: string | undefined, sessionId?: string | undefined, markForReview?: boolean | undefined, succeeded?: boolean | undefined, actionName?: string | undefined, resourceId?: string | undefined, resourceType?: string | undefined, category?: string | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | undefined): Observable<ActivityLogEntryResultSet> {
         let url_ = this.baseUrl + "/api/activity-logs?";
         if (page === null)
             throw new globalThis.Error("The parameter 'page' cannot be null.");
@@ -1446,6 +1452,18 @@ export class IdentityApiService implements IIdentityApiService {
             throw new globalThis.Error("The parameter 'actionName' cannot be null.");
         else if (actionName !== undefined)
             url_ += "ActionName=" + encodeURIComponent("" + actionName) + "&";
+        if (resourceId === null)
+            throw new globalThis.Error("The parameter 'resourceId' cannot be null.");
+        else if (resourceId !== undefined)
+            url_ += "ResourceId=" + encodeURIComponent("" + resourceId) + "&";
+        if (resourceType === null)
+            throw new globalThis.Error("The parameter 'resourceType' cannot be null.");
+        else if (resourceType !== undefined)
+            url_ += "ResourceType=" + encodeURIComponent("" + resourceType) + "&";
+        if (category === null)
+            throw new globalThis.Error("The parameter 'category' cannot be null.");
+        else if (category !== undefined)
+            url_ += "Category=" + encodeURIComponent("" + category) + "&";
         if (from === null)
             throw new globalThis.Error("The parameter 'from' cannot be null.");
         else if (from !== undefined)
@@ -12506,6 +12524,7 @@ export class ActivityLogEntry implements IActivityLogEntry {
     category?: string | undefined;
     applicationId?: string | undefined;
     applicationName?: string | undefined;
+    source?: string | undefined;
     subjectId?: string | undefined;
     subjectName?: string | undefined;
     subjectUnknown?: boolean;
@@ -12541,6 +12560,7 @@ export class ActivityLogEntry implements IActivityLogEntry {
             this.category = _data["category"];
             this.applicationId = _data["applicationId"];
             this.applicationName = _data["applicationName"];
+            this.source = _data["source"];
             this.subjectId = _data["subjectId"];
             this.subjectName = _data["subjectName"];
             this.subjectUnknown = _data["subjectUnknown"];
@@ -12576,6 +12596,7 @@ export class ActivityLogEntry implements IActivityLogEntry {
         data["category"] = this.category;
         data["applicationId"] = this.applicationId;
         data["applicationName"] = this.applicationName;
+        data["source"] = this.source;
         data["subjectId"] = this.subjectId;
         data["subjectName"] = this.subjectName;
         data["subjectUnknown"] = this.subjectUnknown;
@@ -12604,6 +12625,7 @@ export interface IActivityLogEntry {
     category?: string | undefined;
     applicationId?: string | undefined;
     applicationName?: string | undefined;
+    source?: string | undefined;
     subjectId?: string | undefined;
     subjectName?: string | undefined;
     subjectUnknown?: boolean;

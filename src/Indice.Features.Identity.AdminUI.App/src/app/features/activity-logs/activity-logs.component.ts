@@ -32,6 +32,7 @@ export class ActivityLogsComponent implements OnInit {
     @ViewChild('ipCellTemplate', { static: true }) private _ipCellTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('eventTypeCellTemplate', { static: true }) private _eventTypeCellTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('subjectNameTemplate', { static: true }) private _subjectNameTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('deviceTemplate', { static: true }) private _deviceTemplate: TemplateRef<CellContext<any>>;
 
     public count = 0;
     public rows: ActivityLogEntry[] = [];
@@ -47,26 +48,31 @@ export class ActivityLogsComponent implements OnInit {
         dateTo: undefined,
         succeeded: undefined,
         subject: undefined,
-        actionName: undefined
+        actionName: undefined,
+        resourceId: undefined,
+        resourceType: undefined,
+        category: undefined
     }
     public objectKeys = Object.keys;
 
     public ngOnInit(): void {
         this.columns = [
-            { prop: 'createdAt', name: 'Created At', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._actionsTemplate, width: 200 },
-            { prop: 'actionName', name: 'Action', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._eventTypeCellTemplate },
+            { prop: 'createdAt', name: 'Created At', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._actionsTemplate, width: 160 },
+            { prop: 'actionName', name: 'Action', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._eventTypeCellTemplate, width: 250 },
+            { prop: 'subjectName', name: 'Subject', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._subjectNameTemplate, width: 200 },
+            { prop: 'resourceType', name: 'Resource Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
+            { prop: 'resourceId', name: 'Resource Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate, width: 300 },
             { prop: 'category', name: 'Category', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
             { prop: 'applicationName', name: 'App Name', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate },
-            { prop: 'subjectName', name: 'Subject', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._subjectNameTemplate },
-            { prop: 'resourceType', name: 'Resource Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
             { prop: 'ipAddress', name: 'IP Address', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._ipCellTemplate },
+            { prop: 'extraData.device.displayName', name: 'Device', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._deviceTemplate },
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate },
         ];
     }
 
     public getLogs(event: SearchEvent): void {
-        let dateFrom = event.filter.dateFrom ? (new Date(event.filter.dateFrom)) : undefined;
-        let dateTo = event.filter.dateFrom ? (new Date(event.filter.dateTo)) : undefined;
+        const dateFrom = event.filter.dateFrom ? new Date(event.filter.dateFrom) : undefined;
+        const dateTo = event.filter.dateTo ? new Date(event.filter.dateTo) : undefined;
         this._api.getActivityLogs(
             event.page,
             event.pageSize,
@@ -77,6 +83,9 @@ export class ActivityLogsComponent implements OnInit {
             undefined /*markedForReview*/,
             event.filter.succeeded,
             event.filter.actionName,
+            event.filter.resourceId,
+            event.filter.resourceType,
+            event.filter.category,
             dateFrom,
             dateTo,
             undefined  /*applicationId*/)
@@ -91,6 +100,9 @@ export class ActivityLogsComponent implements OnInit {
                 this.filter.dateTo = event.filter.dateTo ? this._dateParser.parseDate(new Date(event.filter.dateTo)) : undefined;
                 this.filter.subject = event.filter.subject;
                 this.filter.actionName = event.filter.actionName;
+                this.filter.resourceId = event.filter.resourceId;
+                this.filter.resourceType = event.filter.resourceType;
+                this.filter.category = event.filter.category;
             });
     }
 
@@ -119,6 +131,15 @@ export class ActivityLogsComponent implements OnInit {
         }
         if (this.filter.actionName) {
             params['actionName'] = this.filter.actionName
+        }
+        if (this.filter.resourceId) {
+            params['resourceId'] = this.filter.resourceId
+        }
+        if (this.filter.resourceType) {
+            params['resourceType'] = this.filter.resourceType
+        }
+        if (this.filter.category) {
+            params['category'] = this.filter.category
         }
         this._router.navigate([], { relativeTo: this._route, queryParams: params });
     }

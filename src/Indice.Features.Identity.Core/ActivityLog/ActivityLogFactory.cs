@@ -59,8 +59,6 @@ public class ActivityLogFactory : IActivityLogFactory
     private static ActivityLogEntry CreateDeviceEntry(UserEventContext user, UserDeviceEventContext device, string eventType, string description) => new() {
         EventType = eventType,
         Category = ActivityLogCategories.Device,
-        SubjectId = user.Id,
-        SubjectName = user.UserName,
         ResourceId = device.DeviceId,
         ResourceType = "Device",
         DeviceId = device.DeviceId,
@@ -71,8 +69,8 @@ public class ActivityLogFactory : IActivityLogFactory
     private static ActivityLogEntry CreateClientEntry(ClientEventContext client, string eventType, string description) => new() {
         EventType = eventType,
         Category = ActivityLogCategories.Client,
-        ApplicationId = client.ClientId,
-        ApplicationName = client.ClientName,
+        //ApplicationId = client.ClientId,
+        //ApplicationName = client.ClientName,
         ResourceId = client.ClientId,
         ResourceType = "Client",
         Description = $"{description}: {client.ClientName ?? client.ClientId}",

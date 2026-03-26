@@ -70,6 +70,15 @@ internal class ActivityLogStore : IActivityLogStore
             if (filter.MarkForReview.HasValue) {
                 query = query.Where(log => log.Review == filter.MarkForReview.Value);
             }
+            if (!string.IsNullOrWhiteSpace(filter.ResourceId)) {
+                query = query.Where(log => log.ResourceId == filter.ResourceId);
+            }
+            if (!string.IsNullOrWhiteSpace(filter.ResourceType)) {
+                query = query.Where(log => log.ResourceType == filter.ResourceType);
+            }
+            if (!string.IsNullOrWhiteSpace(filter.Category)) {
+                query = query.Where(log => log.Category == filter.Category);
+            }
         }
         if (string.IsNullOrWhiteSpace(options?.Sort)) {
             query = query.OrderByDescending(log => log.CreatedAt);

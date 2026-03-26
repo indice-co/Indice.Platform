@@ -47,6 +47,10 @@
                         <td>{{ selectedLogEntry?.applicationName || '-' }}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Source</th>
+                        <td>{{ selectedLogEntry?.source || '-' }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Subject Id</th>
                         <td>{{ selectedLogEntry?.subjectId || '-' }}</td>
                     </tr>
@@ -77,14 +81,14 @@
                     <tr>
                         <th scope="row">Country Code</th>
                         <td>
-                            <i class="flag:{{selectedLogEntry?.countryIsoCode}}" [title]="selectedLogEntry?.countryIsoCode"></i>
+                            <i *ngIf="selectedLogEntry?.countryIsoCode" class="flag:{{selectedLogEntry?.countryIsoCode}}" [title]="selectedLogEntry?.countryIsoCode"></i>
                             <span class="m-2">{{ selectedLogEntry?.countryIsoCode || '-' }}</span>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">Coordinates</th>
                         <td>
-                            <a *ngIf="!selectedLogEntry?.coordinates">-</a>
+                            <span *ngIf="!selectedLogEntry?.coordinates">-</span>
                             <a *ngIf="selectedLogEntry?.coordinates" target="_blank"
                                [href]="'https://www.google.com/maps/search/?api=1&query=' + selectedLogEntry.coordinates">
                                 {{ selectedLogEntry.coordinates }}
@@ -110,11 +114,10 @@
                             <span *ngIf="!selectedLogEntry?.review">No</span>
                         </td>
                     </tr>
-                    <tr>
+                    <tr *ngIf="selectedLogEntry?.extraData">
                         <th scope="row">Extra Data</th>
                         <td>
-                            <textarea class="code-editor" cols="100"
-                                      rows="15">{{ selectedLogEntry?.extraData | json }}</textarea>
+                            <textarea class="code-editor form-control" cols="100" rows="15" readonly>{{ selectedLogEntry?.extraData | json }}</textarea>
                         </td>
                     </tr>
                 </tbody>
@@ -135,58 +138,58 @@
     </div>
 </div>
 <div class="row mb-3 row-cols-1 row-cols-xl-2">
-    <div class="row mb-3 mb-xl-0 col-span row-cols-1 row-cols-md-5 g-3 gy-md-0">
+    <div class="row mb-3 mb-xl-0 col-span row-cols-1 row-cols-md-4 g-3 gy-md-0">
         <div class="col">
-            <label class="visually-hidden"
-                   for="activity-logs-success-select">
-                Attempt Outcome
-            </label>
+            <label class="visually-hidden" for="activity-logs-success-select">Attempt Outcome</label>
             <select class="form-control form-select"
                     id="activity-logs-success-select"
                     name="activity-logs-success-select"
-                    required
                     [(ngModel)]="filter.succeeded">
-                <option [ngValue]="undefined" selected="selected">
-                    {{ 'All Attempts' }}
-                </option>
-                <option [ngValue]="true">
-                    {{ 'Succeeded' }}
-                </option>
-                <option [ngValue]="false">
-                    {{ 'Failed' }}
-                </option>
+                <option [ngValue]="undefined" selected="selected">All Attempts</option>
+                <option [ngValue]="true">Succeeded</option>
+                <option [ngValue]="false">Failed</option>
             </select>
         </div>
         <div class="col">
-            <label class="visually-hidden" for="action-name-filter">
-                Action Name
-            </label>
-            <app-dynamic-input id="action-name-filter" name="action-name-filter" [(ngModel)]="filter.actionName" [modelType]="'String'"
-                               [placeholder]="'Action Name'" required #value="ngModel">
+            <label class="visually-hidden" for="action-name-filter">Action Name</label>
+            <app-dynamic-input id="action-name-filter" name="action-name-filter" [(ngModel)]="filter.actionName"
+                               [modelType]="'String'" [placeholder]="'Action Name'">
             </app-dynamic-input>
         </div>
         <div class="col">
-            <label class="visually-hidden" for="date-from-filter">
-                From Date
-            </label>
-            <app-dynamic-input id="date-from-filter" name="date-from-filter" [(ngModel)]="filter.dateFrom" [modelType]="'DateTime'"
-                               [placeholder]="'From Date'" required #value="ngModel">
+            <label class="visually-hidden" for="date-from-filter">From Date</label>
+            <app-dynamic-input id="date-from-filter" name="date-from-filter" [(ngModel)]="filter.dateFrom"
+                               [modelType]="'DateTime'" [placeholder]="'From Date'">
             </app-dynamic-input>
         </div>
         <div class="col">
-            <label class="visually-hidden" for="date-to-filter">
-                To Date
-            </label>
-            <app-dynamic-input id="date-to-filter" name="date-to-filter" [(ngModel)]="filter.dateTo" [modelType]="'DateTime'"
-                               [placeholder]="'To Date'" required #value="ngModel">
+            <label class="visually-hidden" for="date-to-filter">To Date</label>
+            <app-dynamic-input id="date-to-filter" name="date-to-filter" [(ngModel)]="filter.dateTo"
+                               [modelType]="'DateTime'" [placeholder]="'To Date'">
             </app-dynamic-input>
         </div>
         <div class="col">
-            <label class="visually-hidden" for="subject-filter">
-                Subject
-            </label>
-            <app-dynamic-input id="subject-filter" name="subject-filter" [(ngModel)]="filter.subject" [modelType]="'String'"
-                               [placeholder]="'Subject'" required #value="ngModel">
+            <label class="visually-hidden" for="subject-filter">Subject</label>
+            <app-dynamic-input id="subject-filter" name="subject-filter" [(ngModel)]="filter.subject"
+                               [modelType]="'String'" [placeholder]="'Subject'">
+            </app-dynamic-input>
+        </div>
+        <div class="col">
+            <label class="visually-hidden" for="resource-id-filter">Resource Id</label>
+            <app-dynamic-input id="resource-id-filter" name="resource-id-filter" [(ngModel)]="filter.resourceId"
+                               [modelType]="'String'" [placeholder]="'Resource Id'">
+            </app-dynamic-input>
+        </div>
+        <div class="col">
+            <label class="visually-hidden" for="resource-type-filter">Resource Type</label>
+            <app-dynamic-input id="resource-type-filter" name="resource-type-filter" [(ngModel)]="filter.resourceType"
+                               [modelType]="'String'" [placeholder]="'Resource Type'">
+            </app-dynamic-input>
+        </div>
+        <div class="col">
+            <label class="visually-hidden" for="category-filter">Category</label>
+            <app-dynamic-input id="category-filter" name="category-filter" [(ngModel)]="filter.category"
+                               [modelType]="'String'" [placeholder]="'Category'">
             </app-dynamic-input>
         </div>
     </div>
@@ -201,45 +204,76 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="defaultPageSize"
-                       [defaultSortField]="defaultSortField" [defaultSortDirection]="defaultSortDirection" [filter]="filter" (search)="getLogs($event)"
-                       #ActivityLogsList></app-list-view>
+        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count"
+                       [rowsPerPage]="defaultPageSize" [defaultSortField]="defaultSortField"
+                       [defaultSortDirection]="defaultSortDirection" [filter]="filter"
+                       (search)="getLogs($event)" #ActivityLogsList>
+        </app-list-view>
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #optionalTemplate>
     <span *ngIf="value" [title]="value">{{ value }}</span>
-    <span *ngIf="!value"> - </span>
+    <span *ngIf="!value">-</span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
     <span class="cursor-pointer text-primary" (click)="showLogDetails(row, content)">{{ value | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
 </ng-template>
 <ng-template let-row="row" let-value="row" #statusTemplate>
     <div *ngIf="value">
-        <span *ngIf="value.succeeded" class="badge text-success border bg-light m-r-10" [title]="'Succeeded'">Succeeded</span>
-        <span *ngIf="!value.succeeded" class="badge text-danger border bg-light m-r-10" [title]="'Failed'">Failed</span>
-        <span *ngIf="value.review" class="badge text-warning border bg-light" [title]="'Marked for Review'">Review</span>
+        <span *ngIf="value.succeeded" class="badge text-success border bg-light m-r-10" title="Succeeded">Succeeded</span>
+        <span *ngIf="!value.succeeded" class="badge text-danger border bg-light m-r-10" title="Failed">Failed</span>
+        <span *ngIf="value.review" class="badge text-warning border bg-light" title="Marked for Review">Review</span>
     </div>
-    <span *ngIf="!value"> - </span>
+    <span *ngIf="!value">-</span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #ipCellTemplate>
     <div *ngIf="value">
         <span class="badge text-muted border bg-light m-1" [title]="value">
-            <i class="flag:{{row.countryIsoCode}}" [title]="row.countryIsoCode"></i>
+            <i *ngIf="row.countryIsoCode" class="flag:{{row.countryIsoCode}}" [title]="row.countryIsoCode"></i>
             {{ value }}
         </span>
     </div>
-    <span *ngIf="!value"> - </span>
+    <span *ngIf="!value">-</span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #eventTypeCellTemplate>
     <div *ngIf="value">
-        <span *ngIf="row.succeeded && !row.review" class="badge border text-muted bg-light" [title]="'Succeeded'"><i class="dot bg-success"></i> {{ value }}</span>
-        <span *ngIf="!row.succeeded && !row.review" class="badge border text-muted bg-light" [title]="'Failed'"><i class="dot bg-danger"></i> {{ value }}</span>
-        <span *ngIf="row.succeeded && row.review" class="badge border text-muted bg-light" [title]="'Marked for Review'"><i class="dot bg-warning"></i> {{ value }}</span>
-        <span *ngIf="!row.succeeded && row.review" class="badge border text-muted bg-light" [title]="'Failed - Marked for Review'"><i class="dot bg-warning"></i> {{ value }}</span>
+        <span *ngIf="row.succeeded && !row.review" class="badge border text-muted bg-light" title="Succeeded"><i class="dot bg-success"></i> {{ value }}</span>
+        <span *ngIf="!row.succeeded && !row.review" class="badge border text-muted bg-light" title="Failed"><i class="dot bg-danger"></i> {{ value }}</span>
+        <span *ngIf="row.succeeded && row.review" class="badge border text-muted bg-light" title="Marked for Review"><i class="dot bg-warning"></i> {{ value }}</span>
+        <span *ngIf="!row.succeeded && row.review" class="badge border text-muted bg-light" title="Failed - Marked for Review"><i class="dot bg-warning"></i> {{ value }}</span>
     </div>
-    <span *ngIf="!value"> - </span>
+    <span *ngIf="!value">-</span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #subjectNameTemplate>
     <span *ngIf="value" [class.text-danger]="row.subjectUnknown" [title]="value">{{ value }}</span>
-    <span *ngIf="!value"> - </span>
+    <span *ngIf="!value">-</span>
 </ng-template>
+
+<ng-template let-row="row"
+             let-value="value"
+             let-userAgentFamily="row.extraData?.device?.userAgentFamily?.toLowerCase()"
+             let-platform="row.extraData?.device?.platform?.toLowerCase()"
+             #deviceTemplate>
+    <span class="badge text-muted border bg-light m-1" [title]="value">
+        <i class="device-icon device-icon-ua" style="margin-right:2px"
+           [class.device-icon-ua-firefox]="userAgentFamily?.includes('firefox')"
+           [class.device-icon-ua-safari]="userAgentFamily?.includes('safari')"
+           [class.device-icon-ua-edge]="userAgentFamily?.includes('edge')"
+           [class.device-icon-ua-chrome]="userAgentFamily?.includes('chrome')"
+           [class.device-icon-ua-brave]="userAgentFamily?.includes('brave')"
+           [class.device-icon-ua-opera]="userAgentFamily?.includes('opera')"
+           [class.device-icon-ua-tor]="userAgentFamily?.includes('tor')"
+           [class.device-icon-ua-ie]="userAgentFamily === 'ie'"
+           [class.device-icon-ua-samsung-internet]="userAgentFamily?.includes('samsung') && userAgentFamily?.includes('internet')"
+           [class.device-icon-ua-postman]="userAgentFamily?.includes('postman')"
+           [class.device-icon-ua-generic]="!userAgentFamily"></i>
+        <i class="device-icon"
+           [class.device-icon-os-linux]="platform === 'linux'"
+           [class.device-icon-os-ubuntu]="platform === 'ubuntu'"
+           [class.device-icon-os-windows]="platform === 'windows'"
+           [class.device-icon-os-ios]="platform === 'ios'"
+           [class.device-icon-os-macos]="platform === 'macos'"
+           [class.device-icon-os-android]="platform === 'android'"
+           [class.device-icon-os-none]="platform === 'none' || !platform"></i>
+        {{ value }}
+    </span>
