@@ -151,8 +151,8 @@ public class OpenApiTests : IAsyncLifetime
         Assert.Equal(expectedMenuItemSchema, menuItemSchema!.ToJsonString());
 
         var uploadRequestSchema = json!["components"]!["schemas"]!["UploadFileRequest"];
-        // IFormFile is by default renamed to FileParameter in the schema transformer MappedTypesTransformer
-        var expectedUploadRequestSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"oneOf\":[{\"type\":\"null\"},{\"$ref\":\"#/components/schemas/FileParameter\"}]},\"name\":{\"type\":\"string\"},\"description\":{\"type\":[\"null\",\"string\"]}},\"additionalProperties\":false}";
+        // IFormFile is by default renamed to FileParam in the schema transformer MappedTypesTransformer
+        var expectedUploadRequestSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"oneOf\":[{\"type\":\"null\"},{\"$ref\":\"#/components/schemas/FileParam\"}]},\"name\":{\"type\":\"string\"},\"description\":{\"type\":[\"null\",\"string\"]}},\"additionalProperties\":false}";
         Assert.Equal(expectedUploadRequestSchema, uploadRequestSchema!.ToJsonString());
 
         var sampleEnumSchema = json!["components"]!["schemas"]!["SampleEnum"];
