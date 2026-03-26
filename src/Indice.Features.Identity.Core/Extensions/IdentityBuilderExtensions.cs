@@ -255,7 +255,6 @@ public static class IdentityBuilderExtensions
         builder.Services.AddSingleton<EmailDomainBlacklistValidator.IEmailDomainBlacklistProvider, EmailDomainBlacklistValidator.ConfigEmailDomainBlacklistProvider>();
 
         builder.Services.AddSingleton<EmailDomainBlacklistValidator.IEmailDomainBlacklistProvider>(sp => {
-            var config = sp.GetRequiredService<IConfiguration>();
             //TODO make the file path portable
             var filePath = "C:\\Users\\AngelosVraimakis\\source\\repos\\indice-co\\Indice.Platform\\src\\Indice.Features.Identity.Core\\EmailValidation\\disposable_email_blocklist.conf.txt";
 
