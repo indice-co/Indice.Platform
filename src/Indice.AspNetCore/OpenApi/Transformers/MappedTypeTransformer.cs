@@ -67,6 +67,8 @@ public static class MappedTypeTransformer
     /// <param name="options">The <see cref="OpenApiOptions"/> instance to configure.</param>
     /// <returns>The configured <see cref="OpenApiOptions"/> instance.</returns>
     public static OpenApiOptions AddMappedTypeTransformer(this OpenApiOptions options) {
+        MapType<object>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
+        MapType<JsonNode>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
         MapType<JsonElement>(new() { Type = JsonSchemaType.Object });
         MapType<JsonElement?>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
         MapType<GeoPoint>(new() { Type = JsonSchemaType.String });
