@@ -97,6 +97,18 @@ public static class OpenApiExtensions
         MappedTypeTransformer.RenameType<T>(schemaName);
         return options;
     }
+    
+    
+    /// <summary>
+    /// Configures the OpenAPI options to inline the schema definition for the specified type parameter.
+    /// </summary>
+    /// <typeparam name="T">The type whose schema definition will be inlined in the OpenAPI document.</typeparam>
+    /// <param name="options">The OpenApiOptions instance to configure.</param>
+    /// <returns>The same OpenApiOptions instance, enabling method chaining.</returns>
+    public static OpenApiOptions InlineType<T>(this OpenApiOptions options) {
+        MappedTypeTransformer.RenameType<T>(null!);
+        return options;
+    }
 
     /// <summary>
     /// Adds a document transformer to sort the endpoints (paths) in the OpenAPI document alphabetically.

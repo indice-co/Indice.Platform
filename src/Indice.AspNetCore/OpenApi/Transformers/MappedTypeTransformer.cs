@@ -82,8 +82,10 @@ public static class MappedTypeTransformer
         MapType<Base64Host>(new() { Type = JsonSchemaType.String });
         MapType<Base64Host?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
         // Register the type transformer
-        RenameType<Stream>("FileParameter");
-        RenameType<IFormFile>("FileParameter");
+        RenameType<Stream>("FileParam");
+        RenameType<IFormFile>("FileParam");
+        //MapType<Stream>(new() { Type = JsonSchemaType.String, Format = "binary" });
+        //MapType<IFormFile>(new() { Type = JsonSchemaType.String, Format = "binary" });
 
 
         var chainedDelegate = new ChainedDelegate(options.CreateSchemaReferenceId);

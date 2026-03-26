@@ -50,6 +50,9 @@ public static class NullableTransformer
                     .Where(e => e is not null)
                     .ToList();
             }
+            if (schema.Format is not null && schema.Format == "binary") {
+                schema.Type &= ~JsonSchemaType.Null;
+            }
             return Task.CompletedTask;
         });
 
