@@ -26,15 +26,15 @@ public static class MappedTypeTransformer
             if (!string.IsNullOrWhiteSpace(result) && transforms.ContainsKey(type.Type)) {
                 return null;
             }
-            if (!string.IsNullOrWhiteSpace(result) && nameTransforms.ContainsKey(type.Type)) {
-                return nameTransforms[type.Type];
+            if (!string.IsNullOrWhiteSpace(result) && renames.ContainsKey(type.Type)) {
+                return renames[type.Type];
             }
             return result;
         }
     }
 
     internal static Dictionary<Type, OpenApiSchema> transforms = new();
-    internal static Dictionary<Type, string> nameTransforms = new();
+    internal static Dictionary<Type, string> renames = new();
 
     /// <summary>
     /// Maps a specified type to an OpenAPI schema definition.
@@ -54,7 +54,7 @@ public static class MappedTypeTransformer
     /// <typeparam name="T">The type occurance to rename</typeparam>
     /// <param name="schemaName">The new name for the type</param>
     public static void RenameType<T>(string schemaName) {
-        nameTransforms[typeof(T)] = schemaName;
+        renames[typeof(T)] = schemaName;
     }
 
 
@@ -67,21 +67,18 @@ public static class MappedTypeTransformer
     /// <param name="options">The <see cref="OpenApiOptions"/> instance to configure.</param>
     /// <returns>The configured <see cref="OpenApiOptions"/> instance.</returns>
     public static OpenApiOptions AddMappedTypeTransformer(this OpenApiOptions options) {
-        //options.MapType<object>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
-        //options.MapType<JsonNode>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
-        options.MapType<JsonElement>(new() { Type = JsonSchemaType.Object });
-        options.MapType<JsonElement?>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
-        
-        options.MapType<GeoPoint>(new() { Type = JsonSchemaType.String });
-        options.MapType<GeoPoint?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
-        options.MapType<FilterClause>(new() { Type = JsonSchemaType.String });
-        options.MapType<FilterClause?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
-        options.MapType<Base64Id>(new() { Type = JsonSchemaType.String });
-        options.MapType<Base64Id?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
-        options.MapType<GuidOrAlias>(new() { Type = JsonSchemaType.String });
-        options.MapType<GuidOrAlias?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
-        options.MapType<Base64Host>(new() { Type = JsonSchemaType.String });
-        options.MapType<Base64Host?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
+        MapType<JsonElement>(new() { Type = JsonSchemaType.Object });
+        MapType<JsonElement?>(new() { Type = JsonSchemaType.Object | JsonSchemaType.Null });
+        MapType<GeoPoint>(new() { Type = JsonSchemaType.String });
+        MapType<GeoPoint?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
+        MapType<FilterClause>(new() { Type = JsonSchemaType.String });
+        MapType<FilterClause?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
+        MapType<Base64Id>(new() { Type = JsonSchemaType.String });
+        MapType<Base64Id?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
+        MapType<GuidOrAlias>(new() { Type = JsonSchemaType.String });
+        MapType<GuidOrAlias?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
+        MapType<Base64Host>(new() { Type = JsonSchemaType.String });
+        MapType<Base64Host?>(new() { Type = JsonSchemaType.String | JsonSchemaType.Null });
         // Register the type transformer
         RenameType<Stream>("FileParameter");
         RenameType<IFormFile>("FileParameter");

@@ -2,7 +2,10 @@
 using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using Indice.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -26,9 +29,19 @@ public class OpenApiTests : IAsyncLifetime
     // Constants
     private const string BASE_URL = "https://server";
     // Private fields
-    private readonly HttpClient _httpClient;
+    private readonly IHost _host;
     private readonly ITestOutputHelper _output;
-    private ServiceProvider _serviceProvider;
+    private HttpClient _httpClient = null!;
+    private ServiceProvider _serviceProvider = null!;
+    public static Action<JsonSerializerOptions> ConfigureIndiceHttpJsonOptions = (options) => {
+        options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        options.Converters.Add(new JsonStringDecimalConverter());
+        options.Converters.Add(new JsonStringDoubleConverter());
+        options.Converters.Add(new JsonStringInt32Converter());
+        options.Converters.Add(new JsonStringBooleanConverter());
+        options.Converters.Add(new JsonAnyStringConverter());
+        options.Converters.Add(new TypeConverterJsonAdapterFactory());
+    };
 
     public OpenApiTests(ITestOutputHelper output) {
         _output = output;
@@ -43,6 +56,9 @@ public class OpenApiTests : IAsyncLifetime
                 });
                 webBuilder.ConfigureServices((context, services) => {
                     services.AddRouting();
+                    services.ConfigureHttpJsonOptions(options => {
+                        ConfigureIndiceHttpJsonOptions(options.SerializerOptions);
+                     });
                     services.AddOpenApi(options => options.AddDocumentInfo().ControllerActionAsOperationId());
                     services.AddEndpointsApiExplorer();
                     services.AddControllers().ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new OpenApiTestFeatureProvider()));
@@ -57,22 +73,24 @@ public class OpenApiTests : IAsyncLifetime
                 });
                 webBuilder.UseTestServer();
             });
-        var host = builder.Build();
-        var server = host.GetTestServer();
-        var handler = server.CreateHandler();
-        _httpClient = new HttpClient(handler) {
-            BaseAddress = new Uri(BASE_URL)
-        };
-        _serviceProvider = (ServiceProvider)host.Services;
+        _host = builder.Build();
     }
 
     public async Task DisposeAsync() {
         await _serviceProvider.DisposeAsync();
+        await ((IAsyncDisposable)_host).DisposeAsync();
     }
 
-    public Task InitializeAsync() {
-        return Task.CompletedTask;
+    public async Task InitializeAsync() {
+        await _host.StartAsync();
+        var server = _host.GetTestServer();
+        var handler = server.CreateHandler();
+        _serviceProvider = (ServiceProvider)_host.Services;
+        _httpClient = new HttpClient(handler) {
+            BaseAddress = new Uri(BASE_URL)
+        };
     }
+
 #if NET9_0
     [Fact]
     public async Task OpenApiHandlesRecursiveModels() {
@@ -82,7 +100,9 @@ public class OpenApiTests : IAsyncLifetime
             _output.WriteLine(await response.Content.ReadAsStringAsync());
         }
         Assert.True(response.IsSuccessStatusCode);
-        var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>();
+        var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        ConfigureIndiceHttpJsonOptions(jsonOptions);
+        var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>(jsonOptions);
 
         Assert.NotEmpty(menu!);
         var openApi = await _httpClient.GetStringAsync("openapi/v1.json");
@@ -117,7 +137,9 @@ public class OpenApiTests : IAsyncLifetime
             _output.WriteLine(await response.Content.ReadAsStringAsync());
         }
         Assert.True(response.IsSuccessStatusCode);
-        var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>();
+        var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        ConfigureIndiceHttpJsonOptions(jsonOptions);
+        var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>(jsonOptions);
 
         Assert.NotEmpty(menu!);
         var openApi = await _httpClient.GetStringAsync("openapi/v1.json");
@@ -129,10 +151,8 @@ public class OpenApiTests : IAsyncLifetime
         Assert.Equal(expectedMenuItemSchema, menuItemSchema!.ToJsonString());
 
         var uploadRequestSchema = json!["components"]!["schemas"]!["UploadFileRequest"];
-        ///TODO: check this for dotnet 10 it should probably be same or similar to the dotnet9 one 
-        ///      using the default mappings of the MappedTypeTransformer 
-        ///      for IFormFile to be consistent with the rest of the framework. 
-        var expectedUploadRequestSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"oneOf\":[{\"type\":\"null\"},{\"$ref\":\"#/components/schemas/IFormFile\"}]},\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"}},\"additionalProperties\":false}";
+        // IFormFile is by default renamed to FileParameter in the schema transformer MappedTypesTransformer
+        var expectedUploadRequestSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"oneOf\":[{\"type\":\"null\"},{\"$ref\":\"#/components/schemas/FileParameter\"}]},\"name\":{\"type\":\"string\"},\"description\":{\"type\":[\"null\",\"string\"]}},\"additionalProperties\":false}";
         Assert.Equal(expectedUploadRequestSchema, uploadRequestSchema!.ToJsonString());
 
         var sampleEnumSchema = json!["components"]!["schemas"]!["SampleEnum"];
@@ -187,6 +207,22 @@ public class OpenApiTestsModels
     {
         public SampleEnum? EnumValue { get; set; }
     }
+
+    public class PrimitivesTestRequest
+    {
+        public decimal? Money { get; set; }
+        public string? Currency { get; set; }
+        public int Year { get; set; }
+        public long Id { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public List<string> Tags { get; set; } = [];
+        public List<double> RandomNumbers { get; set; } = [];
+        public List<decimal> RandomDecimals { get; set; } = [];
+        public List<int> RandomIntegers { get; set; } = [];
+        public List<MenuType> MenuTypes { get; set; } = [];
+        public List<DateTime> Schedule { get; set; } = [];
+        public Dictionary<string, string> Mappings { get; set; } = [];
+    }
 }
 
 [ApiController]
@@ -238,6 +274,9 @@ public static class OpenApiTestsEndpoints
         group.MapPost("upload", UploadAttachment)
              .WithName(nameof(UploadAttachment))
              .Accepts<UploadFileRequest>(MediaTypeNames.Multipart.FormData);
+        group.MapPost("converters", UpdateWithConverters)
+             .WithName(nameof(UpdateWithConverters));
+
 
         return routes;
     }
@@ -261,6 +300,9 @@ public static class OpenApiTestsEndpoints
                 }
             };
         return TypedResults.Ok(items);
+    }
+    public static NoContent UpdateWithConverters(PrimitivesTestRequest request) {
+        return TypedResults.NoContent();
     }
 
     public static Ok<AttachmentLink> UploadAttachment(UploadFileRequest uploadFileRequest) {

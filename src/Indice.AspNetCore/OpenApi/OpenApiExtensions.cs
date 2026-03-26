@@ -59,9 +59,7 @@ public static class OpenApiExtensions
         options.AddFluentValidationTransformer();
         options.AddConventionsTransformer();
         options.AddJsonConverterTransformer();
-        //options.AddDictionaryTransformer();
-        //options.AddArrayTransformer();
-        //options.AddEnumTransformer();
+        options.AddEnumTransformer();
         options.AddEndpointSecurityRequirementsTransformer();
         options.AddDocumentTransformer<CanonicalDocumentTransformer>();
         options.AddExamplesTransformer();
@@ -85,6 +83,21 @@ public static class OpenApiExtensions
         MappedTypeTransformer.MapType<T>(schema);
         return options;
     }
+
+    /// <summary>
+    /// Rename a specified type in the OpenAPI schema reference ID generation process. 
+    /// </summary>
+    /// <typeparam name="T">The type occurance to rename</typeparam>
+    /// <param name="options">The <see cref="OpenApiOptions"/> instance to configure.</param>
+    /// <param name="schemaName">The new name for the type</param>
+    /// <returns>The same <see cref="OpenApiOptions"/> instance passed as the <paramref name="options"/> parameter, allowing for
+    /// method chaining.</returns>
+    public static OpenApiOptions RenameType<T>(this OpenApiOptions options, string schemaName) {
+        ArgumentNullException.ThrowIfNull(schemaName);
+        MappedTypeTransformer.RenameType<T>(schemaName);
+        return options;
+    }
+
     /// <summary>
     /// Adds a document transformer to sort the endpoints (paths) in the OpenAPI document alphabetically.
     /// </summary>
