@@ -28,7 +28,8 @@ internal class DbActivityLogEntryMap : IEntityTypeConfiguration<DbActivityLogEnt
         // Configure properties.
         builder.Property(x => x.ActionName).HasMaxLength(TextSizePresets.M256);
         builder.Property(x => x.ApplicationId).HasMaxLength(TextSizePresets.M128);
-        builder.Property(x => x.ApplicationName).HasMaxLength(TextSizePresets.M512);
+        builder.Property(x => x.ApplicationName).HasMaxLength(TextSizePresets.M128);
+        builder.Property(x => x.Source).HasMaxLength(TextSizePresets.M512);
         builder.Property(x => x.CountryIsoCode).HasMaxLength(TextSizePresets.S08);
         builder.Property(x => x.Description).HasMaxLength(TextSizePresets.L2048);
         builder.Property(x => x.DeviceId).HasMaxLength(TextSizePresets.M128);

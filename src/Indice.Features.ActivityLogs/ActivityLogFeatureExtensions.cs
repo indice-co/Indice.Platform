@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Indice.Events;
 using Indice.Features.ActivityLogs;
 using Indice.Features.ActivityLogs.Enrichers;
 using Indice.Features.ActivityLogs.EntityFrameworkCore;
@@ -31,7 +32,7 @@ public static class ActivityLogFeatureExtensions
             return activityLogBuilder;
         }
         // 3. Core Services
-        services.AddTransient<IActivityEventPublisher, ActivityLogEventPublisher>();
+        services.AddTransient<IActivityLogPublisher, ActivityLogPublisher>();
         services.AddHostedService<PersistLogsHostedService>();
         services.AddTransient<ActivityLogEntryEnricherAggregator>();
         services.AddSingleton<ActivityLogEntryQueue>();
@@ -102,7 +103,6 @@ public static class ActivityLogFeatureExtensions
         return builder;
     }
 
-    
     /// <summary>
     /// Configures the activity store by ensuring the associated database is created.
     /// </summary>
@@ -113,8 +113,31 @@ public static class ActivityLogFeatureExtensions
     /// method chaining.</returns>
     public static IApplicationBuilder ActivityStoreSetup(this IApplicationBuilder app) {
         using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-        var dbContext = serviceScope.ServiceProvider.GetService<ActivityLogDbContext>();
+        var dbContext = serviceScope.ServiceProvider.GetRequiredService<ActivityLogDbContext>();
         dbContext.Database.EnsureCreated();
         return app;
     }
+
+    /// <summary>
+    /// Configures the activity log feature to listen to platform events and create activity log entries based on those events.
+    /// </summary>
+    /// <param name="builder"> The host application builder.</param>
+    /// <returns> The same <see cref="IActivityLogBuilder"/> instance passed as the <paramref name="builder"/> parameter, allowing for method chaining.</returns>
+    public static IActivityLogBuilder ListenToPlatformEvents(this IActivityLogBuilder builder)
+        => ListenToPlatformEvents<DefaultActivityLogFromEventConverter>(builder);
+
+    /// <summary>
+    /// Configures the activity log builder to listen for platform events using the specified event factory.
+    /// </summary>
+    /// <remarks>This method registers the specified event factory and the corresponding event handler for
+    /// platform events, enabling the activity log to respond to those events.</remarks>
+    /// <typeparam name="TFactory">The type of the event factory that implements the IActivityLogFromEventFactory interface.</typeparam>
+    /// <param name="builder">The activity log builder instance to configure for platform event handling.</param>
+    /// <returns>The configured instance of IActivityLogBuilder, allowing for method chaining.</returns>
+    public static IActivityLogBuilder ListenToPlatformEvents<TFactory>(this IActivityLogBuilder builder) where TFactory : class, IActivityLogFromEventConverter {
+        builder.Services.TryAddTransient<IActivityLogFromEventConverter, TFactory>();
+        builder.Services.AddTransient(typeof(IPlatformEventHandler<>), typeof(ActivityLogAdapterEventHandler<>));
+        return builder;
+    }
+
 }

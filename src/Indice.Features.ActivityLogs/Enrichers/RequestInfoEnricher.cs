@@ -11,19 +11,13 @@ namespace Indice.Features.ActivityLogs.Enrichers;
 public class RequestInfoEnricher : IActivityLogEntryEnricher
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IWebHostEnvironment _environment;
 
     /// <summary>Creates a new instance of <see cref="RequestInfoEnricher"/> class.</summary>
     /// <param name="httpContextAccessor">Provides access to the current HTTP context.</param>
-    /// <param name="environment">Provides access to the hosting environment details.</param>
-    /// <param name="configuration">Provides access to application configuration.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public RequestInfoEnricher(
-        IHttpContextAccessor httpContextAccessor,
-        IWebHostEnvironment environment,
-        IConfiguration configuration) {
+        IHttpContextAccessor httpContextAccessor) {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        _environment = environment ?? throw new ArgumentNullException(nameof(environment));
     }
 
     /// <inheritdoc />
@@ -35,13 +29,11 @@ public class RequestInfoEnricher : IActivityLogEntryEnricher
     /// <inheritdoc />
     public ValueTask EnrichAsync(ActivityLogEntry logEntry) {
         var context = _httpContextAccessor.HttpContext;
-        logEntry.ApplicationName = _environment.ApplicationName;
         if (context is not null) {
-            logEntry.ActionName = context.GetEndpoint()?.DisplayName ?? context.Request.Path;
-            logEntry.RequestId = context.TraceIdentifier;
-            logEntry.IpAddress = context.Connection.RemoteIpAddress?.ToString();
+            logEntry.ActionName ??= context.GetEndpoint()?.DisplayName ?? context.Request.Path;
+            logEntry.RequestId ??= context.TraceIdentifier;
+            logEntry.IpAddress ??= context.Connection.RemoteIpAddress?.ToString();
         }
-
         return ValueTask.CompletedTask;
     }
 }
