@@ -118,7 +118,7 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
         // images
         [".png"] = [new(MagicBytesCheckStrategy.StartsWith, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])],
         [".svg"] = [
-                new(MagicBytesCheckStrategy.Anywhere,      [0x3C, 0x73, 0x76, 0x67]),
+            new(MagicBytesCheckStrategy.Anywhere, [0x3C, 0x73, 0x76, 0x67]),
             new(MagicBytesCheckStrategy.EndsWithAnyOf, [], Candidates: [
                 [0x3C, 0x2F, 0x73, 0x76, 0x67, 0x3E],
                 [0x3C, 0x2F, 0x73, 0x76, 0x67, 0x3E, 0x0A],
