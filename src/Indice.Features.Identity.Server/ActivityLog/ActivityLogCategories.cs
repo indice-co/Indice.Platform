@@ -1,4 +1,4 @@
-namespace Indice.Features.Identity.Core;
+namespace Indice.Features.Identity.Server;
 
 /// <summary>
 /// Contains constants for activity log categories used in identity-related events.

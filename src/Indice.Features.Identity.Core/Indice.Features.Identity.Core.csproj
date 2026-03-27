@@ -33,7 +33,6 @@
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
     <ProjectReference Include="..\Indice.Features.GeoIP\Indice.Features.GeoIP.csproj" />
-    <ProjectReference Include="..\Indice.Features.ActivityLogs\Indice.Features.ActivityLogs.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="ExtendedIdentityErrorResources.Designer.cs">

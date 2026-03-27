@@ -4,7 +4,7 @@ using Indice.Features.ActivityLogs.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Events.Models;
 
-namespace Indice.Features.Identity.Core;
+namespace Indice.Features.Identity.Server;
 
 /// <inheritdoc/>
 public class IdentityEventsActivityLogConverter : IActivityLogFromEventConverter
