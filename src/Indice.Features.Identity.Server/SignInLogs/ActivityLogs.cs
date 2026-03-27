@@ -1,11 +1,7 @@
-﻿using System.Diagnostics;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Indice.Features.ActivityLogs;
 using Indice.Features.ActivityLogs.Models;
 using Indice.Features.Identity.Server;
-using Indice.Features.Identity.SignInLogs;
-using Indice.Features.Identity.SignInLogs.Abstractions;
-using Indice.Features.Identity.SignInLogs.Models;
 using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
@@ -14,19 +10,18 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Builder;
 
-/// <summary>The sign in logs API.</summary>
-public static class SignInLogApi
+/// <summary>The activity logs API.</summary>
+public static class ActivityLogsApi
 {
-    /// <summary>Maps the sign in logs endpoints.</summary>
+    /// <summary>Maps the activity logs endpoints.</summary>
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    public static IEndpointRouteBuilder MapSignInLogs(this IEndpointRouteBuilder builder) {
-        var isFeatureRegistered = builder.ServiceProvider.GetService<SignInLogEntryQueue>() is not null;
-        var options = builder.GetEndpointOptions<SignInLogOptions>();
+    public static IEndpointRouteBuilder MapActivityLogs(this IEndpointRouteBuilder builder) {
+        var isFeatureRegistered = builder.ServiceProvider.GetService<ActivityLogEntryQueue>() is not null;
+        var options = builder.GetEndpointOptions<ActivityLogOptions>();
         if (!isFeatureRegistered || !options.Enable) {
             return builder;
         }
         var allowedScopes = new[] {
-            options.ApiScope,
             IdentityEndpoints.SubScopes.Logs
         }
         .Where(x => x is not null)
@@ -35,7 +30,7 @@ public static class SignInLogApi
         var group = builder
             .MapGroup($"{options.ApiPrefix}/")
             .WithGroupName("identity")
-            .WithTags("SignInLogs")
+            .WithTags("ActivityLogs")
             .RequireAuthorization(policy => policy
                 .RequireAuthenticatedUser()
                 .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
@@ -44,61 +39,60 @@ public static class SignInLogApi
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
-        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-        //Sign In Logs
-        // GET: /api/sign-in-logs
-        group.MapGet("sign-in-logs", async (
-            ISignInLogStore signInLogStore,
+        //Activity Logs
+        // GET: /api/activity-logs
+        group.MapGet("activity-logs", async (
+            IActivityLogStore activityLogStore,
             [AsParameters] ListOptions options,
-            [AsParameters] SignInLogEntryFilter filter
+            [AsParameters] ActivityLogEntryFilter filter
         ) => {
-            var signInLogs = await signInLogStore.ListAsync(options, filter);
-            return TypedResults.Ok(signInLogs);
+            var activityLogs = await activityLogStore.ListAsync(options, filter);
+            return TypedResults.Ok(activityLogs);
         })
-        .Produces<ResultSet<SignInLogEntry>>(StatusCodes.Status200OK)
+        .Produces<ResultSet<ActivityLogEntry>>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status404NotFound)
-        .WithName("GetSignInLogs")
-        .WithSummary("Gets the list of sign in logs produced by the Identity system.")
+        .WithName("GetActivityLogs")
+        .WithSummary("Gets the list of activity logs produced by the Identity system.")
         .RequireAuthorization(IdentityEndpoints.Policies.BeLogsReader);
 
-        // GET: /api/my/sign-in-logs
-        group.MapGet("my/sign-in-logs", async (
+        // GET: /api/my/activity-logs
+        group.MapGet("my/activity-logs", async (
             ClaimsPrincipal currentUser,
-            ISignInLogStore signInLogStore,
+            IActivityLogStore activityLogStore,
             [AsParameters] ListOptions options,
-            [AsParameters] SignInLogEntryFilterBase filter
+            [AsParameters] ActivityLogEntryFilterBase filter
         ) => {
             if (options.Size > 100) {
                 return TypedResults.ValidationProblem(ValidationErrors.AddError("size", "Max allowed value for page size is 100."));
             }
-            var signInLogs = await signInLogStore.ListAsync(options, new SignInLogEntryFilter {
+            var activityLogs = await activityLogStore.ListAsync(options, new ActivityLogEntryFilter {
                 From = filter.From,
                 To = filter.To,
                 ApplicationId = filter.ApplicationId,
-                SignInType = filter.SignInType,
                 Subject = currentUser.FindSubjectId()
             });
-            return Results.Ok(signInLogs);
+            return Results.Ok(activityLogs);
         })
-        .Produces<ResultSet<SignInLogEntry>>(StatusCodes.Status200OK)
+        .Produces<ResultSet<ActivityLogEntry>>(StatusCodes.Status200OK)
         .ProducesValidationProblem()
         .ProducesProblem(StatusCodes.Status404NotFound)
-        .WithName("GetMySignInLogs")
-        .WithSummary("Gets the list of sign in logs for the current user.");
+        .WithName("GetMyActivityLogs")
+        .WithSummary("Gets the list of activity logs for the current user.");
 
-        // PATCH: /api/sign-in-logs/{rowId}
-        group.MapPatch("sign-in-logs/{rowId}", async (
-            ISignInLogStore signInLogStore,
+        // PATCH: /api/activity-logs/{rowId}
+        group.MapPatch("activity-logs/{rowId}", async (
+            IActivityLogStore activityLogStore,
             Guid rowId,
-            SignInLogEntryRequest model
+            ActivityLogEntryRequest model
         ) => {
-            var rowsAffected = await signInLogStore.UpdateAsync(rowId, model);
+            var rowsAffected = await activityLogStore.UpdateAsync(rowId, model);
             return rowsAffected == 0 ? Results.NotFound() : Results.NoContent();
         })
         .Produces(StatusCodes.Status204NoContent)
         .ProducesProblem(StatusCodes.Status404NotFound)
-        .WithName("PatchSignInLog")
+        .WithName("PatchActivityLog")
         .WithSummary("Patches the specified log entry by updating the properties given in the request.")
         .RequireAuthorization(IdentityEndpoints.Policies.BeLogsWriter);
 

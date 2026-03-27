@@ -21,7 +21,7 @@ internal class ApplicationInfoEnricher : IActivityLogEntryEnricher
 
     /// <inheritdoc />
     public ValueTask EnrichAsync(ActivityLogEntry logEntry) {
-        logEntry.ApplicationName = _environment.ApplicationName;
+        logEntry.Source ??= _environment.ApplicationName;
         return ValueTask.CompletedTask;
     }
 }
