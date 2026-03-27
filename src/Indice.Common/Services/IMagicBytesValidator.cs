@@ -56,7 +56,88 @@ public sealed record MagicBytesSignature(
     byte[] Bytes,
     int Offset = 0,
     byte[][]? Candidates = null
-);
+)
+{
+    /// <summary>
+    /// Determines the byte range to read from the file stream based on the signature's strategy and the total stream length.
+    /// </summary>
+    /// <param name="streamLength"> The total length of the file stream in bytes.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"> Thrown when the strategy is unrecognized.</exception>
+    public (int offset, int count) FindPosition(long streamLength) {
+        return Strategy switch {
+            MagicBytesCheckStrategy.StartsWith => (0, Bytes.Length),
+            MagicBytesCheckStrategy.EndsWith => ((int)(streamLength - Bytes.Length), Bytes.Length),
+            MagicBytesCheckStrategy.Anywhere => (0, (int)streamLength),
+            MagicBytesCheckStrategy.AnywhereAnyOf => (0, (int)streamLength),
+            MagicBytesCheckStrategy.StartsWithAnyOf => (0, Candidates!.Max(c => c.Length)),
+            MagicBytesCheckStrategy.EndsWithAnyOf => ((int)(streamLength - Candidates!.Max(c => c.Length)), Candidates!.Max(c => c.Length)),
+            MagicBytesCheckStrategy.Offset => (0, Offset + Bytes.Length),
+            _ => throw new ArgumentOutOfRangeException(nameof(Strategy), Strategy, null)
+        };
+    }
+
+    /// <summary>
+    /// Dispatches a single signature check to the appropriate strategy implementation.
+    /// </summary>
+    public bool Check(ReadOnlySpan<byte> buffer) => Strategy switch {
+        MagicBytesCheckStrategy.StartsWith => StartsWithCheck(buffer, Bytes),
+        MagicBytesCheckStrategy.EndsWith => EndsWithCheck(buffer, Bytes),
+        MagicBytesCheckStrategy.Anywhere => AnywhereCheck(buffer, Bytes),
+        MagicBytesCheckStrategy.AnywhereAnyOf => AnywhereAnyOfCheck(buffer, Candidates ?? throw new ArgumentNullException(nameof(Candidates))),
+        MagicBytesCheckStrategy.StartsWithAnyOf => StartsWithAnyOfCheck(buffer, Candidates ?? throw new ArgumentNullException(nameof(Candidates))),
+        MagicBytesCheckStrategy.EndsWithAnyOf => EndsWithAnyOfCheck(buffer, Candidates ?? throw new ArgumentNullException(nameof(Candidates))),
+        MagicBytesCheckStrategy.Offset => OffsetCheck(buffer, Bytes, Offset),
+        _ => throw new ArgumentOutOfRangeException(nameof(Strategy), Strategy, null),
+    };
+
+
+    private static bool StartsWithCheck(ReadOnlySpan<byte> buffer, byte[] bytes) =>
+        buffer.Length >= bytes.Length && buffer[..bytes.Length].SequenceEqual(bytes);
+
+    private static bool EndsWithCheck(ReadOnlySpan<byte> buffer, byte[] bytes) =>
+        buffer.Length >= bytes.Length && buffer[^bytes.Length..].SequenceEqual(bytes);
+
+    private static bool EndsWithAnyOfCheck(ReadOnlySpan<byte> buffer, byte[][] candidates) {
+        foreach (var cand in candidates)
+            if (buffer.Length >= cand.Length && buffer[^cand.Length..].SequenceEqual(cand))
+                return true;
+        return false;
+    }
+
+    private static bool AnywhereCheck(ReadOnlySpan<byte> buffer, byte[] needle) {
+        if (buffer.Length < needle.Length) return false;
+        int limit = buffer.Length - needle.Length;
+        for (int i = 0; i <= limit; i++)
+            if (buffer.Slice(i, needle.Length).SequenceEqual(needle))
+                return true;
+        return false;
+    }
+
+    private static bool AnywhereAnyOfCheck(ReadOnlySpan<byte> buffer, byte[][] candidates) {
+        foreach (var cand in candidates) {
+            if (buffer.Length < cand.Length) continue;
+            int limit = buffer.Length - cand.Length;
+            for (int i = 0; i <= limit; i++)
+                if (buffer.Slice(i, cand.Length).SequenceEqual(cand))
+                    return true;
+        }
+        return false;
+    }
+
+    private static bool StartsWithAnyOfCheck(ReadOnlySpan<byte> buffer, byte[][] candidates) {
+        foreach (var cand in candidates)
+            if (buffer.Length >= cand.Length && buffer[..cand.Length].SequenceEqual(cand))
+                return true;
+        return false;
+    }
+
+    private static bool OffsetCheck(ReadOnlySpan<byte> buf, byte[] bytes, int offset) =>
+        buf.Length >= offset + bytes.Length &&
+        buf.Slice(offset, bytes.Length).SequenceEqual(bytes);
+
+
+}
 
 /// <summary>
 /// Represents the result of a magic bytes validation check.
@@ -265,78 +346,7 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
         // Then lookup the signatures
         return ByFileExtension.GetValueOrDefault(canonicalExtension);
     }
-    /// <summary>
-    /// Dispatches a single signature check to the appropriate strategy implementation.
-    /// </summary>
-    private static bool Evaluate(ReadOnlySpan<byte> buf, MagicBytesSignature sig) => sig.Strategy switch {
-        MagicBytesCheckStrategy.StartsWith => StartsWithCheck(buf, sig.Bytes),
-        MagicBytesCheckStrategy.EndsWith => EndsWithCheck(buf, sig.Bytes),
-        MagicBytesCheckStrategy.Anywhere => AnywhereCheck(buf, sig.Bytes),
-        MagicBytesCheckStrategy.AnywhereAnyOf => AnywhereAnyOfCheck(buf, sig.Candidates ?? throw new ArgumentNullException(nameof(sig.Candidates))),
-        MagicBytesCheckStrategy.StartsWithAnyOf => StartsWithAnyOfCheck(buf, sig.Candidates ?? throw new ArgumentNullException(nameof(sig.Candidates))),
-        MagicBytesCheckStrategy.EndsWithAnyOf => EndsWithAnyOfCheck(buf, sig.Candidates ?? throw new ArgumentNullException(nameof(sig.Candidates))),
-        MagicBytesCheckStrategy.Offset => OffsetCheck(buf, sig.Bytes, sig.Offset),
-        _ => throw new ArgumentOutOfRangeException(nameof(sig.Strategy), sig.Strategy, null),
-    };
-
-    private static (int offset, int count) GetRequiredBytesRange(MagicBytesSignature sig, long streamLength) {
-        return sig.Strategy switch {
-            MagicBytesCheckStrategy.StartsWith => (0, sig.Bytes.Length),
-            MagicBytesCheckStrategy.EndsWith => ((int)(streamLength - sig.Bytes.Length), sig.Bytes.Length),
-            MagicBytesCheckStrategy.Anywhere => (0, (int)streamLength),
-            MagicBytesCheckStrategy.AnywhereAnyOf => (0, (int)streamLength),
-            MagicBytesCheckStrategy.StartsWithAnyOf => (0, sig.Candidates!.Max(c => c.Length)),
-            MagicBytesCheckStrategy.EndsWithAnyOf => ((int)(streamLength - sig.Candidates!.Max(c => c.Length)), sig.Candidates!.Max(c => c.Length)),
-            MagicBytesCheckStrategy.Offset => (0, sig.Offset + sig.Bytes.Length),
-            _ => throw new ArgumentOutOfRangeException(nameof(sig.Strategy), sig.Strategy, null)
-        };
-    }
-
-    private static bool StartsWithCheck(ReadOnlySpan<byte> buf, byte[] bytes) =>
-        buf.Length >= bytes.Length && buf[..bytes.Length].SequenceEqual(bytes);
-
-    private static bool EndsWithCheck(ReadOnlySpan<byte> buf, byte[] bytes) =>
-        buf.Length >= bytes.Length && buf[^bytes.Length..].SequenceEqual(bytes);
-
-    private static bool EndsWithAnyOfCheck(ReadOnlySpan<byte> buf, byte[][] candidates) {
-        foreach (var cand in candidates)
-            if (buf.Length >= cand.Length && buf[^cand.Length..].SequenceEqual(cand))
-                return true;
-        return false;
-    }
-
-    private static bool AnywhereCheck(ReadOnlySpan<byte> buf, byte[] needle) {
-        if (buf.Length < needle.Length) return false;
-        int limit = buf.Length - needle.Length;
-        for (int i = 0; i <= limit; i++)
-            if (buf.Slice(i, needle.Length).SequenceEqual(needle))
-                return true;
-        return false;
-    }
-
-    private static bool AnywhereAnyOfCheck(ReadOnlySpan<byte> buf, byte[][] candidates) {
-        foreach (var cand in candidates) {
-            if (buf.Length < cand.Length) continue;
-            int limit = buf.Length - cand.Length;
-            for (int i = 0; i <= limit; i++)
-                if (buf.Slice(i, cand.Length).SequenceEqual(cand))
-                    return true;
-        }
-        return false;
-    }
-
-    private static bool StartsWithAnyOfCheck(ReadOnlySpan<byte> buf, byte[][] candidates) {
-        foreach (var cand in candidates)
-            if (buf.Length >= cand.Length && buf[..cand.Length].SequenceEqual(cand))
-                return true;
-        return false;
-    }
-
-    private static bool OffsetCheck(ReadOnlySpan<byte> buf, byte[] bytes, int offset) =>
-        buf.Length >= offset + bytes.Length &&
-        buf.Slice(offset, bytes.Length).SequenceEqual(bytes);
-
-
+    
     /// <inheritdoc/>
     public async Task<MagicBytesValidationResult> IsValid(Stream fileStream, string fileExtension, CancellationToken cancellationToken = default) {
         if (string.IsNullOrWhiteSpace(fileExtension)) {
@@ -352,24 +362,24 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
             return MagicBytesValidationResult.UnknownExtension($"No signatures registered for extension '{fileExtension}'.");
         }
 
-        foreach (var sig in signatures) {
-            var (offset, count) = GetRequiredBytesRange(sig, fileStream.Length);
+        foreach (var signature in signatures) {
+            var (offset, count) = signature.FindPosition(fileStream.Length);
 
             if (offset < 0 || offset + count > fileStream.Length) {
                 return MagicBytesValidationResult.Failure($"Magic bytes check failed for extension '{fileExtension}'.");
             }
 
-            var buffer = ArrayPool<byte>.Shared.Rent(count);
+            var magicBytes = ArrayPool<byte>.Shared.Rent(count);
 
             try {
                 fileStream.Seek(offset, SeekOrigin.Begin);
-                var read = await fileStream.ReadAtLeastAsync(buffer.AsMemory(0, count), count, throwOnEndOfStream: false, cancellationToken);
+                var read = await fileStream.ReadAtLeastAsync(magicBytes.AsMemory(0, count), count, throwOnEndOfStream: false, cancellationToken);
 
-                if (!Evaluate(buffer.AsSpan(0, read), sig)) {
+                if (!signature.Check(magicBytes.AsSpan(0, read))) {
                     return MagicBytesValidationResult.Failure($"Magic bytes check failed for extension '{fileExtension}'.");
                 }
             } finally {
-                ArrayPool<byte>.Shared.Return(buffer);
+                ArrayPool<byte>.Shared.Return(magicBytes);
             }
         }
 
