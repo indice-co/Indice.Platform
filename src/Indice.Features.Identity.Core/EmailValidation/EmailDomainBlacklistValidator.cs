@@ -1,11 +1,9 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using System.Net.Mail;
+using Indice.Features.Identity.Core.Configuration;
+using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.Core.EmailValidation;
 
@@ -35,43 +33,27 @@ public class EmailDomainBlacklistValidator<TUser> : IUserValidator<TUser> where 
 
     /// <inheritdoc/>
     public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user) {
-        var email = user.Email;
-
-        if (string.IsNullOrWhiteSpace(email) ||
-            !TryGetDomain(email, out var domain) ||
-            await IsBlacklistedAsync(domain)) {
-            return IdentityResult.Failed(
-                (manager?.ErrorDescriber ?? new ExtendedIdentityErrorDescriber())
-                .InvalidEmail(email)
-            );
+        if (await IsBlacklistedAsync(user.Email)) {
+            return IdentityResult.Failed((manager?.ErrorDescriber ?? new ExtendedIdentityErrorDescriber()).InvalidEmail(user.Email));
         }
-
         return IdentityResult.Success;
-    }
-
-    /// <summary>
-    /// Attempts to extract the domain part from an email address.
-    /// </summary>
-    /// <param name="email">The email address.</param>
-    /// <param name="domain">The extracted domain.</param>
-    /// <returns>True if extraction was successful; otherwise false.</returns>
-    private static bool TryGetDomain(string email, out string domain) {
-        domain = string.Empty;
-        var parts = email.Split('@');
-        if (parts.Length != 2) {
-            return false;
-        }
-        domain = parts[1].ToLowerInvariant();
-        return true;
     }
 
     /// <summary>
     /// Checks all configured providers to determine whether the domain is blacklisted.
     /// </summary>
-    /// <param name="domain">The email domain to check.</param>
+    /// <param name="email">The email address to check.</param>
     /// <param name="cancellationToken">Indicates that the operation should be cancelled.</param>
     /// <returns>True if the domain is blacklisted; otherwise false.</returns>
-    public async Task<bool> IsBlacklistedAsync(string domain, CancellationToken cancellationToken = default) {
+    private async Task<bool> IsBlacklistedAsync(string? email, CancellationToken cancellationToken = default) {
+        if (string.IsNullOrWhiteSpace(email)) {
+            return false;
+        }
+
+        if (!TryGetDomain(email, out var domain)) {
+            return false;
+        }
+
         var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         var tasks = _providers.Select(x => x.ContainsAsync(domain, linkedTokenSource.Token)).ToList();
 
@@ -88,70 +70,77 @@ public class EmailDomainBlacklistValidator<TUser> : IUserValidator<TUser> where 
     }
 
     /// <summary>
-    /// Represents a provider that supplies blacklisted email domains.
+    /// Attempts to extract the domain part from an email address using proper RFC 5322 validation.
     /// </summary>
-    public interface IEmailDomainBlacklistProvider
-    {
-        /// <summary>
-        /// Checks whether the specified domain is blacklisted.
-        /// </summary>
-        /// <param name="domain">The email domain to check.</param>
-        /// <param name="cancellationToken">Indicates that the operation should be cancelled.</param>
-        /// <returns>True if the domain is blacklisted; otherwise false.</returns>
-        Task<bool> ContainsAsync(string domain, CancellationToken cancellationToken = default);
-    }
-
-    /// <summary>
-    /// A provider that contains a predefined (hard-coded) list of blacklisted email domains.
-    /// </summary>
-    public class DefaultEmailDomainBlacklistProvider : IEmailDomainBlacklistProvider
-    {
-        private readonly HashSet<string> _blacklist = new(StringComparer.OrdinalIgnoreCase);
-
-        public Task<bool> ContainsAsync(string domain, CancellationToken cancellationToken = default) =>
-            Task.FromResult(_blacklist.Contains(domain));
-    }
-
-    /// <summary>
-    /// A provider that retrieves a list of blacklisted email domains from configuration.
-    /// The list can be defined under:
-    /// 'IdentityOptions:Email:DomainBlacklist' or 'EmailDomainBlacklist'.
-    /// </summary>
-    public class ConfigEmailDomainBlacklistProvider : IEmailDomainBlacklistProvider
-    {
-        private readonly HashSet<string> _blacklist;
-
-        public ConfigEmailDomainBlacklistProvider(IConfiguration configuration) {
-            var list =
-                configuration.GetSection("IdentityOptions:Email:DomainBlacklist").Get<string[]>() ??
-                configuration.GetSection("EmailDomainBlacklist").Get<string[]>() ??
-                Array.Empty<string>();
-
-            _blacklist = new HashSet<string>(list, StringComparer.OrdinalIgnoreCase);
+    /// <param name="email">The email address.</param>
+    /// <param name="domain">The extracted domain in lowercase.</param>
+    /// <returns>True if extraction was successful and email is valid; otherwise false.</returns>
+    private static bool TryGetDomain(string email, out string domain) {
+        domain = string.Empty;
+        try {
+            var mailAddress = new MailAddress(email);
+            domain = mailAddress.Host.ToLowerInvariant();
+            return true;
+        } catch {
+            return false;
         }
-
-        public Task<bool> ContainsAsync(string domain, CancellationToken cancellationToken = default) =>
-            Task.FromResult(_blacklist.Contains(domain));
     }
-
+}
+/// <summary>
+/// Represents a provider that supplies blacklisted email domains.
+/// </summary>
+public interface IEmailDomainBlacklistProvider
+{
     /// <summary>
-    /// A provider that loads blacklisted email domains from the disposable_email_blocklist.conf.txt file.
+    /// Checks whether the specified domain is blacklisted.
     /// </summary>
-    public class FileEmailDomainBlacklistProvider : IEmailDomainBlacklistProvider
-    {
-        private readonly HashSet<string> _blacklist;
+    /// <param name="domain">The email domain to check.</param>
+    /// <param name="cancellationToken">Indicates that the operation should be cancelled.</param>
+    /// <returns>True if the domain is blacklisted; otherwise false.</returns>
+    Task<bool> ContainsAsync(string domain, CancellationToken cancellationToken = default);
+}
 
-        public FileEmailDomainBlacklistProvider(string filePath) {
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException($"Blacklist file not found: {filePath}");
-
-            _blacklist = File.ReadAllLines(filePath)
-                .Where(x => !string.IsNullOrWhiteSpace(x) && !x.StartsWith("#"))
-                .Select(x => x.Trim().ToLowerInvariant())
-                .ToHashSet();
-        }
-
-        public Task<bool> ContainsAsync(string domain, CancellationToken cancellationToken = default) =>
-            Task.FromResult(_blacklist.Contains(domain));
+/// <summary>
+/// A provider that retrieves a list of blacklisted email domains from configuration.
+/// The list can be defined under:
+/// 'IdentityOptions:Email:DomainBlacklist' or 'EmailDomainBlacklist'.
+/// </summary>
+public class ConfigEmailDomainBlacklistProvider : IEmailDomainBlacklistProvider
+{
+    private readonly HashSet<string> _blacklist;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConfigEmailDomainBlacklistProvider"/> class.
+    /// </summary>
+    /// <param name="options">The options containing the email blacklist configuration.</param> 
+    public ConfigEmailDomainBlacklistProvider(IOptions<EmailBlacklistOptions> options) {
+        var list = options.Value.Domain?.Split(',') ?? Array.Empty<string>();
+        _blacklist = new HashSet<string>(list, StringComparer.OrdinalIgnoreCase);
     }
+    /// <inheritdoc/>
+    public Task<bool> ContainsAsync(string domain, CancellationToken cancellationToken = default) =>
+        Task.FromResult(_blacklist.Contains(domain));
+}
+
+/// <summary>
+/// A provider that loads blacklisted email domains from the disposable_email_blocklist.conf.txt file.
+/// </summary>
+public class FileEmailDomainBlacklistProvider : IEmailDomainBlacklistProvider
+{
+    private readonly HashSet<string> _blacklist;
+    /// <summary>
+    /// Initializes a new instance of the FileEmailDomainBlacklistProvider class using the specified blacklist file.    
+    /// </summary>
+    public FileEmailDomainBlacklistProvider() {
+        var filePath = "Indice.Features.Identity.Core.email_blocklist.conf.txt";
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"Blacklist file not found: {filePath}");
+
+        _blacklist = File.ReadAllLines(filePath)
+            .Where(x => !string.IsNullOrWhiteSpace(x) && !x.StartsWith("#"))
+            .Select(x => x.Trim().ToLowerInvariant())
+            .ToHashSet();
+    }
+    /// <inheritdoc/>
+    public Task<bool> ContainsAsync(string domain, CancellationToken cancellationToken = default) =>
+        Task.FromResult(_blacklist.Contains(domain));
 }

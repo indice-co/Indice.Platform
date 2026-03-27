@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Indice.AspNetCore.Features.Recaptcha;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data;
@@ -10,12 +11,11 @@ using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.TokenProviders;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Azure.Amqp.Framing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using SixLabors.ImageSharp;
 
 
 #if NET9_0_OR_GREATER
@@ -238,32 +238,27 @@ public static class IdentityBuilderExtensions
     /// <typeparam name="TUser">The type of user.</typeparam>
     /// <param name="builder">The identity builder.</param>
     /// <param name="configuration">The application configuration.</param>
-    /// <param name="configKey">Optional configuration key to toggle the validator (default: "EmailBlacklist:Enabled").</param>
+    /// <param name="configureAction">An optional action to configure the <see cref="EmailBlacklistOptions"/>.</param>
     /// <returns>The identity builder.</returns>
     public static IdentityBuilder AddEmailDomainBlacklistValidator<TUser>(
         this IdentityBuilder builder,
         IConfiguration configuration,
-        string configKey = "EmailBlacklist:Enabled"
+        Action<EmailBlacklistOptions>? configureAction = null
     ) where TUser : User {
-        var enabled = configuration.GetValue<bool?>(configKey) ?? true;
+        var settings = configuration.GetSection(EmailBlacklistOptions.Name).Get<EmailBlacklistOptions>() ?? new EmailBlacklistOptions();
+        configureAction?.Invoke(settings);
 
-        if (!enabled)
+        builder.Services.Configure<EmailBlacklistOptions>(options => {
+            options.EnableDomainBlacklist = settings.EnableDomainBlacklist;
+            options.Domain = settings.Domain;
+        });
+
+        if (!settings.EnableDomainBlacklist)
             return builder;
 
         // Providers
-        builder.Services.AddSingleton<EmailDomainBlacklistValidator.IEmailDomainBlacklistProvider, EmailDomainBlacklistValidator.DefaultEmailDomainBlacklistProvider>();
-        builder.Services.AddSingleton<EmailDomainBlacklistValidator.IEmailDomainBlacklistProvider, EmailDomainBlacklistValidator.ConfigEmailDomainBlacklistProvider>();
-
-        builder.Services.AddSingleton<EmailDomainBlacklistValidator.IEmailDomainBlacklistProvider>(sp => {
-            //TODO make the file path portable
-            var filePath = "C:\\Users\\AngelosVraimakis\\source\\repos\\indice-co\\Indice.Platform\\src\\Indice.Features.Identity.Core\\EmailValidation\\disposable_email_blocklist.conf.txt";
-
-            if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath)) {
-                return new EmailDomainBlacklistValidator.FileEmailDomainBlacklistProvider(filePath);
-            }
-
-            return new EmailDomainBlacklistValidator.DefaultEmailDomainBlacklistProvider();
-        });
+        builder.Services.AddSingleton<IEmailDomainBlacklistProvider, ConfigEmailDomainBlacklistProvider>();
+        builder.Services.AddSingleton<IEmailDomainBlacklistProvider, FileEmailDomainBlacklistProvider>();
 
         // Validator
         builder.AddUserValidator<EmailDomainBlacklistValidator<TUser>>();

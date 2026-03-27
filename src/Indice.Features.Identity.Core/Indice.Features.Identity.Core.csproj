@@ -38,11 +38,6 @@
     <ProjectReference Include="..\Indice.Features.GeoIP\Indice.Features.GeoIP.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="EmailValidation\disposable_email_blocklist.conf.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Update="ExtendedIdentityErrorResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -53,6 +48,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>IdentityResources.resx</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EmailValidation\email_blocklist.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="ExtendedIdentityErrorResources.resx">
