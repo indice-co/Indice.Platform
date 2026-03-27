@@ -35,6 +35,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
+using Indice.Features.Identity.Core.Extensions;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -348,9 +349,13 @@ internal static partial class MyAccountHandlers
         if (user == null) {
             return TypedResults.NoContent();
         }
+        if (user.Claims.Count is 0) {
+            _ = await userManager.GetClaimsAsync(user);
+        }
         var code = await userManager.GeneratePasswordResetTokenAsync(user);
-        var data = new EmailChangeEmailModel {
-            DisplayName = currentUser.FindDisplayName() ?? user.UserName,
+        
+        var data = new ForgotPasswordEmailModel {
+            DisplayName = user.FindDisplayName() ?? user.Email!,
             ReturnUrl = request.ReturnUrl,
             Subject = userManager.MessageDescriber.ForgotPasswordMessageSubject,
             Token = code,
@@ -360,7 +365,7 @@ internal static partial class MyAccountHandlers
         await emailService.SendAsync(message => {
             var builder = message
                 .To(user.Email!)
-                .WithSubject(userManager.MessageDescriber.ForgotPasswordMessageSubject);
+                .WithSubject(data.Subject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.ForgotPasswordTemplate)) {
                 builder.UsingTemplate(endpointOptions.Value.Email.ForgotPasswordTemplate)
                        .WithData(data);
@@ -574,7 +579,7 @@ internal static partial class MyAccountHandlers
     }
 
     internal static async Task<Results<NoContent, NotFound>> RevokeConsents(
-        ExtendedUserManager<User> userManager, 
+        ExtendedUserManager<User> userManager,
         IPersistedGrantService grants,
         IEventService events,
         ClaimsPrincipal currentUser,
@@ -917,7 +922,7 @@ internal static partial class MyAccountHandlers
                                       }
                                       return info;
                                   }).ToList();
-            
+
             return consents;
         } catch (Exception) { }
         return [];
