@@ -109,7 +109,8 @@ public abstract class BaseForgotPasswordModel : BasePageModel
                    .WithSubject(UserManager.MessageDescriber.ForgotPasswordMessageSubject)
                    .UsingTemplate("EmailForgotPassword")
                    .WithData(new ForgotPasswordEmailModel {
-                       UserName = user.FindDisplayName() ?? user.UserName!,
+                       DisplayName = user.FindDisplayName() ?? user.UserName,
+                       User = user,
                        Url = callbackUrl
                    })
         );

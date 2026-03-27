@@ -350,12 +350,16 @@ internal static partial class MyAccountHandlers
             return TypedResults.NoContent();
         }
         if (user.Claims.Count is 0) {
-            _ = await userManager.GetClaimsAsync(user); 
+            _ = await userManager.GetClaimsAsync(user);
         }
         var code = await userManager.GeneratePasswordResetTokenAsync(user);
         var data = new ForgotPasswordEmailModel {
-            UserName = user.FindDisplayName() ?? user.Email!,
-            Url = linkGenerator.GetUriByPage(httpContext, "/ForgotPasswordConfirmation", values: new { email = request.Email, token = code, request.ReturnUrl })!
+            DisplayName = user.FindDisplayName() ?? user.Email!,
+            ReturnUrl = request.ReturnUrl,
+            Subject = userManager.MessageDescriber.ForgotPasswordMessageSubject,
+            Token = code,
+            User = user,
+            Url = linkGenerator.GetUriByPage(httpContext, "/ForgotPasswordConfirmation", values: new { email = request.Email, token = code, request.ReturnUrl })
         };
         await emailService.SendAsync(message => {
             var builder = message
@@ -365,7 +369,7 @@ internal static partial class MyAccountHandlers
                 builder.UsingTemplate(endpointOptions.Value.Email.ForgotPasswordTemplate)
                        .WithData(data);
             } else {
-                builder.WithBody(userManager.MessageDescriber.ForgotPasswordMessageBody(user, code, data.Url));
+                builder.WithBody(userManager.MessageDescriber.ForgotPasswordMessageBody(user, data.Token, data.Url));
             }
         });
         return TypedResults.NoContent();
@@ -574,7 +578,7 @@ internal static partial class MyAccountHandlers
     }
 
     internal static async Task<Results<NoContent, NotFound>> RevokeConsents(
-        ExtendedUserManager<User> userManager, 
+        ExtendedUserManager<User> userManager,
         IPersistedGrantService grants,
         IEventService events,
         ClaimsPrincipal currentUser,
@@ -917,7 +921,7 @@ internal static partial class MyAccountHandlers
                                       }
                                       return info;
                                   }).ToList();
-            
+
             return consents;
         } catch (Exception) { }
         return [];
