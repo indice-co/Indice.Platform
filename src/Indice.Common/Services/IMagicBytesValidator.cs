@@ -9,12 +9,12 @@ public interface IMagicBytesValidator
     /// <summary>Validates that a stream's content matches the expected magic bytes for the given file extension.</summary>
     /// <param name="stream">The file bytes as Stream to validate.</param>
     /// <param name="fileExtension">The file extension (e.g. ".jpg", ".png").</param>
-    /// <param name="ct">The cancellation token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
     /// <see langword="true"/> if the file content matches the expected magic bytes for the extension,
     /// or if the extension does not have a known signature; otherwise <see langword="false"/>.
     /// </returns>
-    Task<MagicBytesValidationResult> IsValid(Stream stream, string fileExtension, CancellationToken ct = default);
+    Task<MagicBytesValidationResult> IsValid(Stream stream, string fileExtension, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -338,7 +338,7 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
 
 
     /// <inheritdoc/>
-    public async Task<MagicBytesValidationResult> IsValid(Stream fileStream, string fileExtension, CancellationToken ct) {
+    public async Task<MagicBytesValidationResult> IsValid(Stream fileStream, string fileExtension, CancellationToken cancellationToken = default) {
         if (string.IsNullOrWhiteSpace(fileExtension)) {
             return MagicBytesValidationResult.Valid();
         }
@@ -363,7 +363,7 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
 
             try {
                 fileStream.Seek(offset, SeekOrigin.Begin);
-                var read = await fileStream.ReadAtLeastAsync(buffer.AsMemory(0, count), count, throwOnEndOfStream: false, ct);
+                var read = await fileStream.ReadAtLeastAsync(buffer.AsMemory(0, count), count, throwOnEndOfStream: false, cancellationToken);
 
                 if (!Evaluate(buffer.AsSpan(0, read), sig)) {
                     return MagicBytesValidationResult.Failure($"Magic bytes check failed for extension '{fileExtension}'.");
