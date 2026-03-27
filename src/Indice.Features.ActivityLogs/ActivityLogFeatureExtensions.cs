@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Indice.Events;
 using Indice.Features.ActivityLogs;
 using Indice.Features.ActivityLogs.Enrichers;
 using Indice.Features.ActivityLogs.EntityFrameworkCore;
@@ -113,7 +112,7 @@ public static class ActivityLogFeatureExtensions
     /// method chaining.</returns>
     public static IApplicationBuilder ActivityStoreSetup(this IApplicationBuilder app) {
         using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-        var dbContext = serviceScope.ServiceProvider.GetService<ActivityLogDbContext>();
+        var dbContext = serviceScope.ServiceProvider.GetRequiredService<ActivityLogDbContext>();
         dbContext.Database.EnsureCreated();
         return app;
     }

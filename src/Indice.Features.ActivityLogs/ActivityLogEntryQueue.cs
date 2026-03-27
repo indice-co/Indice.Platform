@@ -26,9 +26,16 @@ public class ActivityLogEntryQueue
             FullMode = BoundedChannelFullMode.Wait
         });
     }
-
+    /// <summary>
+    /// Gets the channel reader used to read activity log entries from the queue.
+    /// </summary>
     public ChannelReader<ActivityLogEntry> Reader => _queue.Reader;
 
+    /// <summary>
+    /// Asynchronously enqueues an activity log entry for processing.   
+    /// </summary>
+    /// <param name="logEntry">The activity log entry to add to the queue. Cannot be null.</param>
+    /// <returns>A ValueTask that represents the asynchronous enqueue operation.</returns>
     public ValueTask EnqueueAsync(ActivityLogEntry logEntry) {
         return _queue.Writer.WriteAsync(logEntry);
     }
