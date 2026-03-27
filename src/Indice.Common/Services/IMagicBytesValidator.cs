@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Collections.Frozen;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.Services;
 
@@ -147,8 +148,6 @@ public sealed record MagicBytesSignature(
     private static bool OffsetCheck(ReadOnlySpan<byte> buf, byte[] bytes, int offset) =>
         buf.Length >= offset + bytes.Length &&
         buf.Slice(offset, bytes.Length).SequenceEqual(bytes);
-
-
 }
 
 /// <summary>
@@ -349,6 +348,8 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
     }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
     #endregion
 
+    private readonly ILogger<MagicBytesValidator> _logger;
+
     /// <summary>
     /// Looks up signatures for a given extension, resolving aliases to canonical forms.
     /// </summary>
@@ -358,7 +359,12 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
         // Then lookup the signatures
         return ByFileExtension.GetValueOrDefault(canonicalExtension);
     }
-    
+
+    /// <inheritdoc/>
+    public MagicBytesValidator(ILogger<MagicBytesValidator> logger) {
+        _logger = logger;
+    }
+
     /// <inheritdoc/>
     public async Task<MagicBytesValidationResult> IsValid(Stream fileStream, string fileExtension, CancellationToken cancellationToken = default) {
         if (string.IsNullOrWhiteSpace(fileExtension)) {
@@ -390,6 +396,9 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
                 if (!signature.Check(magicBytes.AsSpan(0, read))) {
                     return MagicBytesValidationResult.Failure($"Magic bytes check failed for extension '{fileExtension}'.");
                 }
+            } catch (Exception exception) {
+                _logger.LogError(exception, "Magic bytes check failed for extension {FileExtension}", fileExtension);
+                return MagicBytesValidationResult.Failure($"Magic bytes check failed for extension '{fileExtension}'.");
             } finally {
                 ArrayPool<byte>.Shared.Return(magicBytes);
             }

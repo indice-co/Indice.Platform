@@ -1,5 +1,6 @@
 using System.Text;
 using Indice.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Indice.Common.Tests;
@@ -11,7 +12,15 @@ public static class MagicBytesTestExtensions
 
 public class MagicBytesValidatorTests
 {
-    private readonly IMagicBytesValidator _validator = new MagicBytesValidator();
+    private readonly IMagicBytesValidator _validator;
+
+    public MagicBytesValidatorTests() {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddMagicBytesValidator();
+        var provider = services.BuildServiceProvider();
+        _validator = provider.GetRequiredService<IMagicBytesValidator>();
+    }
 
     [Theory]
     [InlineData(".jpg", new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 }, true)]
