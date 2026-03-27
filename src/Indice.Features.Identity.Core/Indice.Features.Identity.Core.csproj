@@ -5,9 +5,6 @@
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="EmailValidation\disposable_email_blocklist.conf.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
@@ -38,11 +35,6 @@
     <ProjectReference Include="..\Indice.Features.GeoIP\Indice.Features.GeoIP.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="EmailValidation\disposable_email_blocklist.conf.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Update="ExtendedIdentityErrorResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -55,6 +47,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="EmailValidation\disposable_email_blocklist.conf.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Update="ExtendedIdentityErrorResources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ExtendedIdentityErrorResources.Designer.cs</LastGenOutput>
