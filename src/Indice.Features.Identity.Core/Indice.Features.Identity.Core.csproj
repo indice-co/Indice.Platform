@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿  <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
@@ -47,9 +47,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="EmailValidation\email_blocklist.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="EmailValidation\email_blocklist.conf" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="ExtendedIdentityErrorResources.resx">

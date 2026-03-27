@@ -268,20 +268,16 @@ public static class IdentityBuilderExtensions
 
     /// <summary>
     /// Registers <see cref="EmailDomainBlacklistValidator"/> using <see cref="User"/> as the user type.
-    /// This is a convenience overload of <see cref="AddEmailDomainBlacklistValidator{TUser}(IdentityBuilder, IConfiguration, string)"/>
+    /// This is a convenience overload of <see cref="AddEmailDomainBlacklistValidator{TUser}(IdentityBuilder, IConfiguration, Action{EmailBlacklistOptions})"/>
     /// so you don’t need to specify the generic type explicitly.
     /// </summary>
     /// <param name="builder">The <see cref="IdentityBuilder"/> instance.</param>
     /// <param name="configuration">The application <see cref="IConfiguration"/> used to read the enable/disable flag and file path.</param>
-    /// <param name="configKey">
-    /// Optional configuration key for enabling/disabling the validator. Default is "EmailBlacklist:Enabled".
-    /// </param>
     /// <returns>The <see cref="IdentityBuilder"/> instance, allowing further chaining.</returns>
     public static IdentityBuilder AddEmailDomainBlacklistValidator(
         this IdentityBuilder builder,
-        IConfiguration configuration,
-        string configKey = "EmailBlacklist:Enabled"
-    ) => builder.AddEmailDomainBlacklistValidator<User>(configuration, configKey);
+        IConfiguration configuration
+    ) => builder.AddEmailDomainBlacklistValidator<User>(configuration);
 
     /// <summary>Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.</summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>

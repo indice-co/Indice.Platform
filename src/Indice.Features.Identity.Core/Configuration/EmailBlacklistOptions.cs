@@ -1,7 +1,7 @@
 ﻿
 namespace Indice.Features.Identity.Core.Configuration;
 
-/// <summary>Base options for Time-Base One Time Passwords.</summary>
+/// <summary>Options for configuring email domain blacklist validation.</summary>
 public class EmailBlacklistOptions
 {
     /// <summary>The name is used to mark the section found inside a configuration file.</summary>
