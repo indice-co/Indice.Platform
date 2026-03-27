@@ -41,7 +41,7 @@ export class ActivityLogsComponent implements OnInit {
     public defaultPage: number = 1;
     public defaultPageSize: number = 15;
     public defaultSortField: string = 'createdAt';
-    public defaultSortDirection: string = 'Desc';
+    public defaultSortDirection: string = 'desc';
     public isLoading = true;
     public filter = {
         dateFrom: undefined,

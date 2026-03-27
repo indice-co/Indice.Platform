@@ -50,11 +50,12 @@ export class MenuService {
             new MenuItem('App Settings', undefined, isAdmin, 'settings_system_daydream', this.isActiveMenuItem('/app/settings'), [
                 new MenuItem('App Settings List', '/app/settings', isAdmin),
                 new MenuItem('Add App Setting', '/app/settings/add', isAdmin)
-            ]),
-            new MenuItem('Logs', undefined, isAdmin, 'book', this.isActiveMenuItem('/app/activity-logs'), [
-            ]),
+            ])
         ]);
         this.uiFeaturesService.getUiFeatures().subscribe((response: UiFeaturesInfo) => {
+            if (response.signInLogsEnabled || response.activityLogsEnabled) {
+                this._menuItems.push(new MenuItem('Logs', undefined, isAdmin, 'book', this.isActiveMenuItem('/app/activity-logs') || this.isActiveMenuItem('/app/sign-in-logs')  , []));
+            }
             if (response.signInLogsEnabled) {
                 this._menuItems.find(x => x.title == 'Logs')?.children?.push(new MenuItem('Sign in Logs', '/app/sign-in-logs', isAdmin));
             }

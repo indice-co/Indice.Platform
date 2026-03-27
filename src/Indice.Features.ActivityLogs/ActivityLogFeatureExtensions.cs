@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Indice.Events;
 using Indice.Features.ActivityLogs;
 using Indice.Features.ActivityLogs.Enrichers;
 using Indice.Features.ActivityLogs.EntityFrameworkCore;
@@ -110,13 +111,6 @@ public static class ActivityLogFeatureExtensions
         return builder;
     }
 
-    /// <summary>Uses Entity Framework Core as a persistence store.</summary>
-    /// <param name="builder">The host application builder.</param>
-    /// <param name="configure">Provides a simple API surface for configuring <see cref="DbContextOptions" />.</param>
-    public static IActivityLogBuilder AddActivityLogFactory(this IActivityLogBuilder builder, Action<IServiceProvider, DbContextOptionsBuilder> configure) {
-        var services = builder.Services;
-        return builder;
-    }
 
     /// <summary>
     /// Configures the activity store by ensuring the associated database is created.
@@ -131,5 +125,10 @@ public static class ActivityLogFeatureExtensions
         var dbContext = serviceScope.ServiceProvider.GetService<ActivityLogDbContext>();
         dbContext.Database.EnsureCreated();
         return app;
+    }
+
+    public static IActivityLogBuilder AddActivityLogEventHandler<TEvent, TEventHandler>(this IActivityLogBuilder builder) where TEvent : IPlatformEvent where TEventHandler : class, IPlatformEventHandler<TEvent> {
+        builder.Services.AddPlatformEventHandler<TEvent, TEventHandler>();
+        return builder;
     }
 }

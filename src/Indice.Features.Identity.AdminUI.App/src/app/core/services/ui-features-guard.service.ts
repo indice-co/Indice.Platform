@@ -27,6 +27,9 @@ export class UiFeaturesGuardService  {
       }
       if (data.feature == Features.SignInLogs) {
         return uiFeaturesInfo.signInLogsEnabled;
+        }
+      if (data.feature == Features.ActivityLogs) {
+        return uiFeaturesInfo.activityLogsEnabled;
       }
       return false;
     }));

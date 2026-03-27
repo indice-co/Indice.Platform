@@ -71,7 +71,7 @@ export class SignInLogsComponent implements OnInit {
 
     public getLogs(event: SearchEvent): void {
         let dateFrom = event.filter.dateFrom ? (new Date(event.filter.dateFrom)) : undefined;
-        let dateTo = event.filter.dateFrom ? (new Date(event.filter.dateTo)) : undefined;
+        let dateTo = event.filter.dateTo ? (new Date(event.filter.dateTo)) : undefined;
       this._api.getSignInLogs(
         event.page,
         event.pageSize,
