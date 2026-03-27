@@ -362,7 +362,7 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
 
     /// <inheritdoc/>
     public MagicBytesValidator(ILogger<MagicBytesValidator> logger) {
-        _logger = logger;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <inheritdoc/>
