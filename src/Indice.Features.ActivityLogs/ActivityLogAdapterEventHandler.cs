@@ -1,7 +1,6 @@
 ﻿using Indice.Events;
-using Indice.Features.ActivityLogs;
 
-namespace Indice.Features.Identity.Core;
+namespace Indice.Features.ActivityLogs;
 
 /// <summary>
 /// Generic event handler for activity logging. This handler can be used to log any platform event.
