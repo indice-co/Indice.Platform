@@ -1,24 +1,13 @@
 ﻿using Indice.Events;
+using Indice.Features.ActivityLogs;
 using Indice.Features.ActivityLogs.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Events.Models;
 
 namespace Indice.Features.Identity.Core;
 
-/// <summary>
-/// Factory interface for creating activity log entries.
-/// </summary>
-public interface IActivityLogFactory
-{
-    /// <summary>
-    /// Creates an activity log entry from a platform event.
-    /// </summary>
-    /// <param name="event"></param>
-    public ActivityLogEntry? CreateFrom(IPlatformEvent @event);
-}
-
 /// <inheritdoc/>
-public class ActivityLogFactory : IActivityLogFactory
+public class ActivityLogFactory : IActivityLogEventFactory
 {
     /// <inheritdoc/>
     public ActivityLogEntry? CreateFrom(IPlatformEvent @event) => @event switch {
@@ -76,4 +65,5 @@ public class ActivityLogFactory : IActivityLogFactory
         Description = $"{description}: {client.ClientName ?? client.ClientId}",
         Succeeded = true
     };
+
 }

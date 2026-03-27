@@ -103,15 +103,6 @@ public static class ActivityLogFeatureExtensions
         return builder;
     }
 
-    /// <summary>Uses Entity Framework Core as a persistence store.</summary>
-    /// <param name="builder">The host application builder.</param>
-    /// <param name="configure">Provides a simple API surface for configuring <see cref="DbContextOptions" />.</param>
-    public static IActivityLogBuilder AddActivityLogAdapterHandler(this IActivityLogBuilder builder, Action<IServiceProvider, DbContextOptionsBuilder> configure) {
-        var services = builder.Services;
-        return builder;
-    }
-
-
     /// <summary>
     /// Configures the activity store by ensuring the associated database is created.
     /// </summary>
@@ -127,8 +118,12 @@ public static class ActivityLogFeatureExtensions
         return app;
     }
 
-    public static IActivityLogBuilder AddActivityLogEventHandler<TEvent, TEventHandler>(this IActivityLogBuilder builder) where TEvent : IPlatformEvent where TEventHandler : class, IPlatformEventHandler<TEvent> {
-        builder.Services.AddPlatformEventHandler<TEvent, TEventHandler>();
+    /// <summary>
+    /// Registers a factory that creates activity log entries specifically from events.
+    /// </summary>
+    public static IActivityLogBuilder AddActivityLogEventFactory<TFactory>(this IActivityLogBuilder builder)
+        where TFactory : class, IActivityLogEventFactory {
+        builder.Services.TryAddTransient<IActivityLogEventFactory, TFactory>();
         return builder;
     }
 }
