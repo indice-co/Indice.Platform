@@ -104,13 +104,16 @@ public abstract class BaseForgotPasswordModel : BasePageModel
         }
         var maskedToken = token.Length > 4 ? string.Concat(token.AsSpan(0, 2), new string('*', token.Length - 4), token.AsSpan(token.Length - 2)) : token;
         Logger.LogDebug("{PageTitle}: Confirmation token is {Token}", "Forgot password", maskedToken);
+        var subject = UserManager.MessageDescriber.ForgotPasswordMessageSubject;
         await EmailService.SendAsync(builder =>
             builder.To(user.Email!)
-                   .WithSubject(UserManager.MessageDescriber.ForgotPasswordMessageSubject)
+                   .WithSubject(subject)
                    .UsingTemplate("EmailForgotPassword")
                    .WithData(new ForgotPasswordEmailModel {
                        DisplayName = user.FindDisplayName() ?? user.UserName,
                        User = user,
+                       Token = token,
+                       Subject = subject,
                        Url = callbackUrl
                    })
         );

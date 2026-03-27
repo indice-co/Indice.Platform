@@ -353,6 +353,7 @@ internal static partial class MyAccountHandlers
             _ = await userManager.GetClaimsAsync(user);
         }
         var code = await userManager.GeneratePasswordResetTokenAsync(user);
+        
         var data = new ForgotPasswordEmailModel {
             DisplayName = user.FindDisplayName() ?? user.Email!,
             ReturnUrl = request.ReturnUrl,
@@ -364,7 +365,7 @@ internal static partial class MyAccountHandlers
         await emailService.SendAsync(message => {
             var builder = message
                 .To(user.Email!)
-                .WithSubject(userManager.MessageDescriber.ForgotPasswordMessageSubject);
+                .WithSubject(data.Subject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.ForgotPasswordTemplate)) {
                 builder.UsingTemplate(endpointOptions.Value.Email.ForgotPasswordTemplate)
                        .WithData(data);
