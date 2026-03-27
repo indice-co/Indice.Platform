@@ -18,10 +18,10 @@
       <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
       <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
-      <VersionPrefixActivityLogs>$(VersionPrefixBase).1</VersionPrefixActivityLogs>
+      <VersionPrefixActivityLogs>$(VersionPrefixBase).0</VersionPrefixActivityLogs>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 
-      <VersionSuffix>rc01</VersionSuffix>
+      <VersionSuffix>rc02</VersionSuffix>
       <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <LangVersion>Latest</LangVersion>
