@@ -55,7 +55,7 @@ public class EmailDomainBlacklistValidator<TUser> : IUserValidator<TUser> where 
         }
 
         var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        var tasks = _providers.Select(x => x.ContainsAsync(domain, linkedTokenSource.Token)).ToList();
+        var tasks = _providers.Select(x => x.IsDomainBlacklistedAsync(domain, linkedTokenSource.Token)).ToList();
 
         while (tasks.Count > 0 && !linkedTokenSource.IsCancellationRequested) {
             var finishedTask = await Task.WhenAny(tasks);
