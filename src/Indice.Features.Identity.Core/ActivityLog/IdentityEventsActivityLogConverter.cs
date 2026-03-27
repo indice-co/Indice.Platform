@@ -7,10 +7,10 @@ using Indice.Features.Identity.Core.Events.Models;
 namespace Indice.Features.Identity.Core;
 
 /// <inheritdoc/>
-public class ActivityLogFactory : IActivityLogEventFactory
+public class IdentityEventsActivityLogConverter : IActivityLogFromEventConverter
 {
     /// <inheritdoc/>
-    public ActivityLogEntry? CreateFrom(IPlatformEvent @event) => @event switch {
+    public ActivityLogEntry? Convert(IPlatformEvent @event) => @event switch {
         // User events
         UserCreatedEvent e => CreateUserEntry(e.User, nameof(UserCreatedEvent), ActivityLogCategories.User, "User created"),
         UserDeletedEvent e => CreateUserEntry(e.User, nameof(UserDeletedEvent), ActivityLogCategories.User, "User deleted"),
@@ -25,10 +25,10 @@ public class ActivityLogFactory : IActivityLogEventFactory
         PhoneNumberConfirmedEvent e => CreateUserEntry(e.User, nameof(PhoneNumberConfirmedEvent), ActivityLogCategories.Authentication, "Phone number confirmed"),
         UserRequestForEmailConfirmationEvent e => CreateUserEntry(e.User, nameof(UserRequestForEmailConfirmationEvent), ActivityLogCategories.Authentication, "Email confirmation requested"),
         // Device events
-        DeviceCreatedEvent e => CreateDeviceEntry(e.User, e.Device, nameof(DeviceCreatedEvent), "Device created"),
-        DeviceUpdatedEvent e => CreateDeviceEntry(e.User, e.Device, nameof(DeviceUpdatedEvent), "Device updated"),
-        DeviceDeletedEvent e => CreateDeviceEntry(e.User, e.Device, nameof(DeviceDeletedEvent), "Device deleted"),
-        DeviceTrustRequestedEvent e => CreateDeviceEntry(e.User, e.Device, nameof(DeviceTrustRequestedEvent), "Device trust requested"),
+        DeviceCreatedEvent e => CreateDeviceEntry(e.Device, nameof(DeviceCreatedEvent), "Device created"),
+        DeviceUpdatedEvent e => CreateDeviceEntry(e.Device, nameof(DeviceUpdatedEvent), "Device updated"),
+        DeviceDeletedEvent e => CreateDeviceEntry(e.Device, nameof(DeviceDeletedEvent), "Device deleted"),
+        DeviceTrustRequestedEvent e => CreateDeviceEntry(e.Device, nameof(DeviceTrustRequestedEvent), "Device trust requested"),
         // Client events
         ClientCreatedEvent e => CreateClientEntry(e.Client, nameof(ClientCreatedEvent), "Client created"),
         ClientUpdatedEvent e => CreateClientEntry(e.Client, nameof(ClientUpdatedEvent), "Client updated"),
@@ -45,7 +45,7 @@ public class ActivityLogFactory : IActivityLogEventFactory
         Succeeded = true
     };
 
-    private static ActivityLogEntry CreateDeviceEntry(UserEventContext user, UserDeviceEventContext device, string eventType, string description) => new() {
+    private static ActivityLogEntry CreateDeviceEntry( UserDeviceEventContext device, string eventType, string description) => new() {
         EventType = eventType,
         Category = ActivityLogCategories.Device,
         ResourceId = device.DeviceId,
@@ -58,8 +58,6 @@ public class ActivityLogFactory : IActivityLogEventFactory
     private static ActivityLogEntry CreateClientEntry(ClientEventContext client, string eventType, string description) => new() {
         EventType = eventType,
         Category = ActivityLogCategories.Client,
-        //ApplicationId = client.ClientId,
-        //ApplicationName = client.ClientName,
         ResourceId = client.ClientId,
         ResourceType = "Client",
         Description = $"{description}: {client.ClientName ?? client.ClientId}",

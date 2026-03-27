@@ -12,14 +12,14 @@ namespace Indice.Features.ActivityLogs;
 /// <exception cref="ArgumentNullException">Thrown when <paramref name="activityLogPublisher"/> or <paramref name="activityLogFactory"/> is null.</exception>
 public class ActivityLogAdapterEventHandler<TEvent>(
     IActivityLogPublisher activityLogPublisher,
-    IActivityLogEventFactory activityLogFactory) : IPlatformEventHandler<TEvent>
+    IActivityLogFromEventConverter activityLogFactory) : IPlatformEventHandler<TEvent>
     where TEvent : IPlatformEvent
 {
     private readonly IActivityLogPublisher _activityLogPublisher = activityLogPublisher ?? throw new ArgumentNullException(nameof(activityLogPublisher));
-    private readonly IActivityLogEventFactory _activityLogFactory = activityLogFactory ?? throw new ArgumentNullException(nameof(activityLogFactory));
+    private readonly IActivityLogFromEventConverter _activityLogFactory = activityLogFactory ?? throw new ArgumentNullException(nameof(activityLogFactory));
     /// <inheritdoc />
     public Task Handle(TEvent @event, PlatformEventArgs args) {
-        var activityLogEntry = _activityLogFactory.CreateFrom(@event);
+        var activityLogEntry = _activityLogFactory.Convert(@event);
         if (activityLogEntry is null) {
             return Task.CompletedTask;
         }
