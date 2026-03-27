@@ -99,36 +99,48 @@ public sealed record MagicBytesSignature(
         buffer.Length >= bytes.Length && buffer[^bytes.Length..].SequenceEqual(bytes);
 
     private static bool EndsWithAnyOfCheck(ReadOnlySpan<byte> buffer, byte[][] candidates) {
-        foreach (var cand in candidates)
-            if (buffer.Length >= cand.Length && buffer[^cand.Length..].SequenceEqual(cand))
+        foreach (var cand in candidates) {
+            if (buffer.Length >= cand.Length && buffer[^cand.Length..].SequenceEqual(cand)) {
                 return true;
+            }
+        }
         return false;
     }
 
     private static bool AnywhereCheck(ReadOnlySpan<byte> buffer, byte[] needle) {
-        if (buffer.Length < needle.Length) return false;
+        if (buffer.Length < needle.Length) {
+            return false;
+        }
         int limit = buffer.Length - needle.Length;
-        for (int i = 0; i <= limit; i++)
-            if (buffer.Slice(i, needle.Length).SequenceEqual(needle))
+        for (int i = 0; i <= limit; i++) {
+            if (buffer.Slice(i, needle.Length).SequenceEqual(needle)) {
                 return true;
+            }
+        }
         return false;
     }
 
     private static bool AnywhereAnyOfCheck(ReadOnlySpan<byte> buffer, byte[][] candidates) {
         foreach (var cand in candidates) {
-            if (buffer.Length < cand.Length) continue;
+            if (buffer.Length < cand.Length) {
+                continue;
+            }
             int limit = buffer.Length - cand.Length;
-            for (int i = 0; i <= limit; i++)
-                if (buffer.Slice(i, cand.Length).SequenceEqual(cand))
+            for (int i = 0; i <= limit; i++) {
+                if (buffer.Slice(i, cand.Length).SequenceEqual(cand)) {
                     return true;
+                }
+            }
         }
         return false;
     }
 
     private static bool StartsWithAnyOfCheck(ReadOnlySpan<byte> buffer, byte[][] candidates) {
-        foreach (var cand in candidates)
-            if (buffer.Length >= cand.Length && buffer[..cand.Length].SequenceEqual(cand))
+        foreach (var cand in candidates) {
+            if (buffer.Length >= cand.Length && buffer[..cand.Length].SequenceEqual(cand)) {
                 return true;
+            }
+        }
         return false;
     }
 
@@ -232,10 +244,10 @@ public sealed class MagicBytesValidator : IMagicBytesValidator
             ]),
         ],
         [".avif"] = [new(MagicBytesCheckStrategy.Offset, [0x66, 0x74, 0x79, 0x70, 0x61, 0x76, 0x69, 0x66], Offset: 4)],
-        [".heic"] = [
-            new(MagicBytesCheckStrategy.Offset, [0x66,0x74,0x79,0x70,0x68,0x65,0x69,0x63], Offset: 4),
-            new(MagicBytesCheckStrategy.Offset, [0x66,0x74,0x79,0x70,0x68,0x65,0x69,0x78], Offset: 4)
-        ],
+        [".heic"] = [new(MagicBytesCheckStrategy.Offset, [], Offset: 4, Candidates: [
+                [0x66,0x74,0x79,0x70,0x68,0x65,0x69,0x63], // ftypheic
+                [0x66,0x74,0x79,0x70,0x68,0x65,0x69,0x78]  // ftypheix
+                ])],   
         [".ico"] = [new(MagicBytesCheckStrategy.StartsWith, [0x00, 0x00, 0x01, 0x00])],
 
         // documents
