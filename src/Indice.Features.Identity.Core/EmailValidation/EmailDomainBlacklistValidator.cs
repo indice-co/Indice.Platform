@@ -80,7 +80,7 @@ public class EmailDomainBlacklistValidator<TUser> : IUserValidator<TUser> where 
     /// <param name="email">The email address.</param>
     /// <param name="domain">The extracted domain in lowercase.</param>
     /// <returns>True if extraction was successful and email is valid; otherwise false.</returns>
-    private static bool TryGetDomain(string email, out string domain) {
+        } catch (FormatException) {
         domain = string.Empty;
         try {
             var mailAddress = new MailAddress(email);
