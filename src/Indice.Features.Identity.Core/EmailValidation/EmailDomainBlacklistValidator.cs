@@ -58,11 +58,17 @@ public class EmailDomainBlacklistValidator<TUser> : IUserValidator<TUser> where 
 
         while (tasks.Count > 0 && !linkedTokenSource.IsCancellationRequested) {
             var finishedTask = await Task.WhenAny(tasks);
+            tasks.Remove(finishedTask);
+
+            if (finishedTask.IsCanceled || finishedTask.IsFaulted) {
+                // Fail-open for this provider: ignore canceled/faulted checks and continue with the rest.
+                continue;
+            }
+
             if (finishedTask.Result) {
                 linkedTokenSource.Cancel();
                 return true;
             }
-            tasks.Remove(finishedTask);
         }
 
         return false;
@@ -112,7 +118,11 @@ public class ConfigEmailDomainBlacklistProvider : IEmailDomainBlacklistProvider
     /// </summary>
     /// <param name="options">The options containing the email blacklist configuration.</param> 
     public ConfigEmailDomainBlacklistProvider(IOptions<EmailBlacklistOptions> options) {
-        var list = options.Value.Domain?.Split(',') ?? Array.Empty<string>();
+        var list = options.Value.Domain?
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => x.Trim())
+            .Where(x => !string.IsNullOrEmpty(x))
+            ?? Array.Empty<string>();
         _blacklist = new HashSet<string>(list, StringComparer.OrdinalIgnoreCase);
     }
     /// <inheritdoc/>
