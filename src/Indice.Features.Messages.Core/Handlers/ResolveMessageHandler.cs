@@ -4,6 +4,7 @@ using HandlebarsDotNet.Extension.Json;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Serialization;
@@ -23,7 +24,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <param name="messageService">A service that contains message related operations.</param>
     /// <param name="logger">A logger</param>
     /// <param name="options">Configuration for workers.</param>
-    /// <param name="campaignEventQueue">Campaign event listener queue</param>
+    /// <param name="messageEventQueue">Campaign event listener queue</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ResolveMessageHandler(
         IEventDispatcherFactory eventDispatcherFactory,
@@ -32,38 +33,48 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         IMessageService messageService,
         ILogger<ResolveMessageHandler> logger,
         Microsoft.Extensions.Options.IOptions<MessageWorkerOptions> options,
-        CampaignEventQueue campaignEventQueue
+        MessageEventQueue messageEventQueue
     ) {
         EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
         ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
         MessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        CampaignEventQueue = campaignEventQueue;
+        MessageEventQueue = messageEventQueue;
         Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
-
     private IEventDispatcherFactory EventDispatcherFactory { get; }
     private IContactResolver ContactResolver { get; }
     private IContactService ContactService { get; }
     private IMessageService MessageService { get; }
     private ILogger<ResolveMessageHandler> Logger { get; }
-    private CampaignEventQueue CampaignEventQueue { get; }
+    private MessageEventQueue MessageEventQueue { get; }
     private MessageWorkerOptions Options { get; }
 
     /// <summary>Decides whether to insert or update a resolved contact.</summary>
     /// <param name="event">The event model used when a contact is resolved from an external system.</param>
     public async Task Process(ResolveMessageEvent @event) {
-        var campaign = @event.Campaign;
+        var campaign = @event.Campaign!;
+        var contact = await GetCampaignContactWithPreferences(@event, campaign);
+        // In case this is not yet published we should stop here so no messages get sent yet.
+        if (!@event.Campaign!.Published) {
+            return;
+        }
+        // Make substitution to message content using contact resolved data.
+        GenerateMessageContent(campaign, contact);
+
+        await CreateMessageAndDispatch(@event, campaign, contact);
+    }
+
+
+    private async Task<Contact> GetCampaignContactWithPreferences(ResolveMessageEvent @event, CampaignCreatedEvent campaign) {
         Contact? contact = null;
-        var contactNotUpdatedAWhileNow = !@event.Contact!.UpdatedAt.HasValue
-            || (DateTimeOffset.UtcNow - @event.Contact.UpdatedAt.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
+        var contactNotUpdatedAWhileNow = !@event.Contact!.LastResolutionDate.HasValue
+                                       || (DateTimeOffset.UtcNow - @event.Contact.LastResolutionDate.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
         if (!@event.Contact.IsAnonymous) {
-            contact = await ContactService.FindByRecipientId(@event.Contact.RecipientId);
-            if (contact is null) {
-                contact = await ContactResolver.Resolve(@event.Contact.RecipientId);
-            } else if (contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) {
-                contact = await ContactResolver.Patch(@event.Contact.RecipientId, contact);
+            contact = await ContactService.GetByRecipientId(@event.Contact.RecipientId);
+            if (contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) {
+                contact = await ContactResolver.Patch(@event.Contact.RecipientId, contact!);
             }
         } else {
             // Anonymous contact should find by email or phone number.
@@ -84,16 +95,20 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         contact ??= @event.Contact;
         if ((contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) && contact.Id.HasValue) {
             await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign!.DistributionListId));
+            if (!string.IsNullOrWhiteSpace(contact.RecipientId) && contact.Preference is not null) {
+                await ContactService.UpdateContactPreferences(contact.RecipientId, contact.Preference);
+            }
         }
-        // In case this is not yet published we should stop here so no messages get sent yet.
-        if (!@event.Campaign!.Published) {
-            return;
-        }
-        // Make substitution to message content using contact resolved data.
+
+        return contact;
+    }
+
+
+    private static void GenerateMessageContent(CampaignCreatedEvent campaign, Contact? contact) {
         var handlebars = Handlebars.Create();
-        handlebars.Configuration.TextEncoder = new HtmlEncoder();
         handlebars.Configuration.UseJson();
         foreach (var content in campaign!.Content) {
+            handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(content.Key);
             dynamic templateData = new {
                 id = campaign.Id,
                 title = campaign.Title,
@@ -116,6 +131,9 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);
             messageContent.Body = handlebars.Compile(content.Value.Body)(templateData);
         }
+    }
+
+    private async Task CreateMessageAndDispatch(ResolveMessageEvent @event, CampaignCreatedEvent campaign, Contact contact) {
         // Persist message with merged contents.
         var messageId = await MessageService.Create(new CreateMessageRequest {
             CampaignId = campaign.Id,
@@ -124,10 +142,15 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             RecipientId = contact.RecipientId
         });
         var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
-        var contactChannels = campaign.ResolveAvailableChannels(contact!.CommunicationPreferences);
+        var contactChannels = contact.GetAvailableChannels(campaign.MessageChannelKind, campaign.Type, campaign.IgnoreUserPreferences);
+        if (contactChannels == MessageChannelKind.None) {
+            return;
+        }
+
         if (contactChannels.HasFlag(MessageChannelKind.Inbox)) {
             await LogEvent(campaign, contact, MessageChannelKind.Inbox, messageId);
         }
+
         if (contactChannels.HasFlag(MessageChannelKind.PushNotification)) {
             await LogEvent(campaign, contact, MessageChannelKind.PushNotification, messageId);
             await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false, messageId: messageId),
@@ -146,12 +169,15 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     }
 
     private async Task LogEvent(CampaignCreatedEvent campaign, Contact contact, MessageChannelKind kind, Guid messageId) {
-        await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+        await MessageEventQueue.EnqueueAsync(new MessageEvent() {
             CampaignId = campaign.Id,
             ContactId = contact.Id!.Value,
             MessageId = messageId,
             Type = MessageEventType.Created.ToString(),
-            Channel = kind.ToString()
+            Channel = kind.ToString(),
+            Recipient = contact.GetReceiverByChannel(kind),
+            Title = campaign.Content[kind.ToString()].Title ?? "",
+            Success = true
         });
     }
 }

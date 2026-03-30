@@ -1,0 +1,65 @@
+﻿@page "/login/mfa/onboarding/add-email"
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/mfa/onboarding/add-email")]
+
+@model BaseMfaOnboardingAddEmailModel
+
+@inject IWebHostEnvironment HostingEnvironment
+@inject IdentityUILocalizer Localizer
+
+
+@{
+    ViewBag.Title = Localizer.MfaOnBoardingAddEmail_PageTitle;
+    var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddEmailModel.TempDataKey);
+}
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <vc:page-heading title="@Localizer.MfaOnBoardingAddEmail_PageHeader" image-src="" />
+        <partial name="_ValidationSummary" />
+        <partial name="_Alert" model="alert" />
+
+        <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
+            <div class="mb-4">
+                <input type="hidden" asp-for="Input.ReturnUrl" />
+                <label asp-for="Input.Email" class="sr-only">
+                    @Localizer.MfaOnBoardingAddEmail_Email
+                </label>
+                <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
+                <input asp-for="Input.Email"
+                       type="text"
+                       placeholder="@Localizer.MfaOnBoardingAddEmail_Email"
+                       readonly="@Model.View.DisableEmailInput"
+                       class="block w-full px-3 py-2 border border-gray-300 rounded-md
+                   placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+                   focus:border-transparent disabled:bg-gray-100 readonly:bg-gray-100" />
+
+                <span asp-validation-for="Input.Email"
+                      class="block mt-1 text-sm text-red-600"></span>
+            </div>
+
+            <div class="mb-4">
+                <div class="w-full">
+                    @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
+                    {
+                        <a href="@Model.View.NextStepUrl"
+                           class="block w-full py-2 px-4 text-center font-semibold rounded-md
+                       bg-blue-500 hover:bg-blue-600 text-white transition">
+                            @Localizer.MfaOnBoardingAddEmail_Next
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="submit"
+                                class="block w-full py-2 px-4 font-semibold rounded-md
+                       bg-blue-500 hover:bg-blue-600 text-white transition">
+                            @Localizer.MfaOnBoardingAddEmail_Save
+                        </button>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+}

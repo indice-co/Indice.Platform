@@ -84,7 +84,7 @@ public class PushNotificationServiceAzure : IPushNotificationService
     }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string title, string? body, IList<PushNotificationTag>? tags, string? data = null, string? classification = null) {
+    public async Task<SendReceipt> SendAsync(string title, string? body, IList<PushNotificationTag>? tags, string? data = null, string? classification = null) {
         if (string.IsNullOrEmpty(title)) {
             throw new ArgumentNullException(nameof(title));
         }
@@ -100,18 +100,21 @@ public class PushNotificationServiceAzure : IPushNotificationService
         if (!string.IsNullOrEmpty(classification)) {
             properties.Add("classification", classification);
         }
+        NotificationOutcome outcome;
         if (tags?.Any() == true) {
             var tagsCollection = tags.Select(
                 tag => tag.Kind == PushNotificationTagKind.User || tag.Kind == PushNotificationTagKind.Unspecified
                     ? tag.ToString()
                     : "$InstallationId:{" + tag.Value + "}" // https://learn.microsoft.com/en-us/azure/notification-hubs/notification-hubs-push-notification-registration-management#installations
             );
-            await NotificationHub.SendTemplateNotificationAsync(properties, tagsCollection);
+            outcome = await NotificationHub.SendTemplateNotificationAsync(properties, tagsCollection);
             _logger.LogInformation("A push notification was dispatched to Azure Notification Hubs with properties '{Properties}' to the following tags: {Tags}.", string.Join(" - ", properties), string.Join(", ", tags));
         } else {
-            await NotificationHub.SendTemplateNotificationAsync(properties);
+            outcome = await NotificationHub.SendTemplateNotificationAsync(properties);
             _logger.LogInformation("A push notification was dispatched to Azure Notification Hubs with properties {Properties}.", string.Join(" - ", properties));
         }
+        // The notification id is only available for the azure standard tier so we use the tracking id as a fallback.
+        return new SendReceipt(outcome.NotificationId ?? outcome.TrackingId, DateTimeOffset.UtcNow);
     }
 }
 

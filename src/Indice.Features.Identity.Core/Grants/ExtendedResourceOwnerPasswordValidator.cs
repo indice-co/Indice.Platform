@@ -1,6 +1,10 @@
 ﻿using System.Security.Claims;
 using System.Text;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
@@ -61,6 +65,11 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
         if (user is null) {
             LogError(extendedContext);
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.NotFound);
+            await _eventService.RaiseAsync(new ExtendedUserLoginFailureEvent(
+                context.UserName,
+                "Password login failure.",
+                clientId: context.Request.ClientId,
+                clientName: context?.Request?.Client?.ClientName));
             return;
         }
         var deviceId = context.Request.Raw[RegistrationRequestParameters.DeviceId];
@@ -89,11 +98,14 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
                 clientName: context.Request.Client.ClientName,
                 authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
             ));
-        } else {
+        await _userManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
+        } 
+        else {
             await _eventService.RaiseAsync(new ExtendedUserLoginFailureEvent(
                 user.UserName!,
                 "Password login failure.",
                 clientId: context.Request.ClientId,
+                clientName: context?.Request?.Client?.ClientName,
                 subjectId: user.Id
             ));
         }

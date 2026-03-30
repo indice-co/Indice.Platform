@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DeviceAlreadyTrusted" xml:space="preserve">
+    <value>El dispositivo ya está registrado.</value>
+  </data>
+  <data name="DevicePendingTrustActivation" xml:space="preserve">
+    <value>La confirmación del registro del dispositivo está pendiente.</value>
+  </data>
+  <data name="DeviceRegistrationOtpCode" xml:space="preserve">
+    <value>El código OTP para registrar el dispositivo {0} es {1}</value>
+  </data>
+  <data name="EmailAlreadyConfirmed" xml:space="preserve">
+    <value>El correo electrónico ya ha sido confirmado.</value>
+  </data>
+  <data name="EmailUpdateMessageBody" xml:space="preserve">
+    <value>El código de confirmación de su dirección de correo electrónico es {0}.</value>
+  </data>
+  <data name="EmailUpdateMessageSubject" xml:space="preserve">
+    <value>Confirmación de cuenta.</value>
+  </data>
+  <data name="ForgotPasswordMessageBody" xml:space="preserve">
+    <value>Sigue &lt;a href="{0}"&gt;este enlace&lt;/a&gt; para crear tu nueva contraseña</value>
+  </data>
+  <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
+    <value>Intento de inicio de sesión sospechoso. El código OTP es {0}.</value>
+  </data>
+  <data name="ImpossibleTravelOtpSubject" xml:space="preserve">
+    <value>Intento de inicio de sesión sospechoso desde una nueva ubicación.</value>
+  </data>
+  <data name="InsufficientNumberOfDevices" xml:space="preserve">
+    <value>El usuario debe tener al menos 1 dispositivo.</value>
+  </data>
+  <data name="InvalidPhoneNumber" xml:space="preserve">
+    <value>El número de teléfono '{0}' no es válido.</value>
+  </data>
+  <data name="LargeNumberOfDevices" xml:space="preserve">
+    <value>No puede establecer el número máximo de dispositivos en {0}. El valor máximo permitido es {1}.</value>
+  </data>
+  <data name="LargeNumberOfUserDevices" xml:space="preserve">
+    <value>El usuario ya tiene {0} dispositivos. No puede establecer el máximo en {1}.</value>
+  </data>
+  <data name="MaxNumberOfDevices" xml:space="preserve">
+    <value>Ha alcanzado el número máximo permitido de dispositivos registrados.</value>
+  </data>
+  <data name="OtpSecuredValidatorOtpBody" xml:space="preserve">
+    <value>El código de confirmación es '{0}'.</value>
+  </data>
+  <data name="OtpSecuredValidatorOtpSubject" xml:space="preserve">
+    <value>Confirmación OTP</value>
+  </data>
+  <data name="PhoneNumberAlreadyConfirmed" xml:space="preserve">
+    <value>El número de teléfono del usuario ya ha sido confirmado.</value>
+  </data>
+  <data name="PhoneNumberVerificationMessage" xml:space="preserve">
+    <value>El código de confirmación por SMS es {0}.</value>
+  </data>
+  <data name="RequiresOtpMessage" xml:space="preserve">
+    <value>El código OTP es {0}.</value>
+  </data>
+  <data name="TrustedDeviceRequiresOtpMessage" xml:space="preserve">
+    <value>El código OTP es {0}.</value>
+  </data>
+  <data name="TrustedDevicesLimitReached" xml:space="preserve">
+    <value>Ha alcanzado el número máximo de dispositivos de confianza.</value>
+  </data>
+  <data name="UserAlreadyHasEmail" xml:space="preserve">
+    <value>El usuario ya tiene el correo electrónico '{0}'.</value>
+  </data>
+  <data name="UserAlreadyHasPhoneNumber" xml:space="preserve">
+    <value>El usuario ya tiene el número de teléfono '{0}'.</value>
+  </data>
+  <data name="ConfirmationEmailSubject" xml:space="preserve">
+    <value>Confirmación de cuenta</value>
+  </data>
+  <data name="PhoneVerificationSmsSubject" xml:space="preserve">
+    <value>Verifique su número de teléfono</value>
+  </data>
+  <data name="PhoneVerificationSmsBody" xml:space="preserve">
+    <value>CÓDIGO OTP: {0} PARA VERIFICACIÓN DE NÚMERO DE TELÉFONO. EL CÓDIGO ES VÁLIDO POR 2 MINUTOS.</value>
+  </data>
+  <data name="ConfirmationEmailChangeSubject" xml:space="preserve">
+    <value>Confirmación de cambio de correo electrónico</value>
+  </data>
+  <data name="EmailChangeMessageBody" xml:space="preserve">
+    <value>El código de confirmación de su dirección de correo electrónico es {0}.</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsSubject" xml:space="preserve">
+    <value>Verifique su nuevo número de teléfono</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsBody" xml:space="preserve">
+    <value>CÓDIGO OTP: {0} PARA VERIFICACIÓN DE NÚMERO DE TELÉFONO. EL CÓDIGO ES VÁLIDO POR 2 MINUTOS.</value>
+  </data>
+  <data name="PhoneNumberChangeVerificationMessage" xml:space="preserve">
+    <value>El código de confirmación por SMS es {0}.</value>
+  </data>
+  <data name="RegisterEmailSubject" xml:space="preserve">
+    <value>¡Bienvenido al servicio {0}!</value>
+  </data>
+  <data name="PasswordChangedEventSubject" xml:space="preserve">
+    <value>Su contraseña ha sido cambiada</value>
+  </data>
+  <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
+    <value>Notificación de seguridad para {0}</value>
+  </data>
+  <data name="AddEmailValidationEmailEmpty" xml:space="preserve">
+    <value>Por favor, introduzca su dirección de correo electrónico para que podamos verificarla antes de continuar.</value>
+  </data>
+  <data name="AddEmailConfirmationEmailSend" xml:space="preserve">
+    <value>Se ha enviado un correo de confirmación a la dirección indicada abajo.</value>
+  </data>
+  <data name="AddPhoneValidationPhoneEmpty" xml:space="preserve">
+    <value>Por favor, seleccione su número de teléfono para que podamos verificarlo antes de continuar.</value>
+  </data>
+  <data name="ForgotPasswordMessageSubject" xml:space="preserve">
+    <value>Recuperación de contraseña</value>
+  </data>
+  <data name="ForgotPasswordConfirmationError" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="LoginValidationInvalidCredentials" xml:space="preserve">
+    <value>Por favor, verifique sus credenciales.</value>
+  </data>
+  <data name="MfaAddPhoneValidationPhoneEmpty" xml:space="preserve">
+    <value>Por favor, seleccione su número de teléfono para que podamos verificarlo antes de continuar.</value>
+  </data>
+  <data name="MfaAddPhoneSuccessMessage" xml:space="preserve">
+    <value>Ha habilitado correctamente MFA para su cuenta. Inicie sesión para acceder a su cuenta.</value>
+  </data>
+  <data name="MfaAddPhoneValidationPhoneAlreadyConfirmed" xml:space="preserve">
+    <value>Su número de teléfono ya está confirmado. Continúe para habilitar MFA.</value>
+  </data>
+  <data name="MfaVerifyPhoneValidationMissingPhone" xml:space="preserve">
+    <value>Por favor, introduzca el código que ha recibido en su teléfono móvil.</value>
+  </data>
+  <data name="MfaVerifyPhoneSuccessMessage" xml:space="preserve">
+    <value>Su número de teléfono fue validado correctamente. Pulse el botón 'Siguiente' para continuar.</value>
+  </data>
+  <data name="PasswordChangedSuccessfully" xml:space="preserve">
+    <value>Su contraseña ha sido cambiada correctamente. Pulse el botón 'Siguiente' para continuar.</value>
+  </data>
+  <data name="ProfileExternalLoginAddedSuccessMessage" xml:space="preserve">
+    <value>El inicio de sesión externo fue añadido correctamente al perfil.</value>
+  </data>
+  <data name="RegisterPhoneConfirmationPrompt" xml:space="preserve">
+    <value>Por favor, introduzca el código que ha recibido en su teléfono móvil.</value>
+  </data>
+  <data name="MfaSmsSubject" xml:space="preserve">
+    <value>Inicio de sesión OTP</value>
+  </data>
+  <data name="MfaSmsBody" xml:space="preserve">
+    <value>Su código OTP para iniciar sesión es: {0}</value>
+  </data>
+  <data name="MfaValidationError" xml:space="preserve">
+    <value>El código OTP no es válido.</value>
+  </data>
+  <data name="LoginErrorLockedMessage" xml:space="preserve">
+    <value>Su cuenta está temporalmente bloqueada. Por favor, contacte con un administrador del sistema.</value>
+  </data>
+  <data name="PasswordExpiredMessage" xml:space="preserve">
+    <value>Su contraseña ha expirado. Por favor, elija una nueva contraseña.</value>
+  </data>
+  <data name="UI_Validator_AddPassword_NewPassword_FieldName" xml:space="preserve">
+    <value>Nueva contraseña</value>
+  </data>
+  <data name="UI_Validator_AddPassword_ConfirmPassword_FieldName" xml:space="preserve">
+    <value>Confirmación de contraseña</value>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPassword_Empty_Error" xml:space="preserve">
+    <value>El campo 'Nueva contraseña' no debe estar vacío.</value>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>El campo 'Confirmación de nueva contraseña' no debe estar vacío.</value>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>El campo 'Confirmación de nueva contraseña' debe tener un valor igual a 'Nueva contraseña'.</value>
+  </data>
+  <data name="UI_Validator_AddEmail_Email_FieldName" xml:space="preserve">
+    <value>Correo electrónico</value>
+  </data>
+  <data name="UI_Validator_AddPhone_CallingCode_FieldName" xml:space="preserve">
+    <value>Código de llamada</value>
+  </data>
+  <data name="UI_Validator_AddPhone_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Número de teléfono</value>
+  </data>
+  <data name="UI_Validator_AddPhone_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>El número de teléfono no tiene un formato válido.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_OldPassword_FieldName" xml:space="preserve">
+    <value>Contraseña antigua</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPassword_FieldName" xml:space="preserve">
+    <value>Nueva contraseña</value>
+  </data>
+  <data name="UI_Validator_EnableMfaSms_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Número de teléfono</value>
+  </data>
+  <data name="UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>El número de teléfono no tiene un formato válido.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_Email_FieldName" xml:space="preserve">
+    <value>Correo electrónico</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName" xml:space="preserve">
+    <value>Nueva contraseña</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_Token_FieldName" xml:space="preserve">
+    <value>Token</value>
+  </data>
+  <data name="UI_Validator_ForgotPassword_Email_FieldName" xml:space="preserve">
+    <value>Correo electrónico</value>
+  </data>
+  <data name="UI_Validator_Login_UserName_FieldName" xml:space="preserve">
+    <value>Nombre de usuario</value>
+  </data>
+  <data name="UI_Validator_Login_Password_FieldName" xml:space="preserve">
+    <value>Contraseña</value>
+  </data>
+  <data name="UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_FieldName" xml:space="preserve">
+    <value>Método de autenticación seleccionado</value>
+  </data>
+  <data name="UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_Required" xml:space="preserve">
+    <value>Por favor, seleccione uno de los métodos de autenticación disponibles.</value>
+  </data>
+  <data name="UI_Validator_Profile_UserName_FieldName" xml:space="preserve">
+    <value>Nombre de usuario</value>
+  </data>
+  <data name="UI_Validator_Profile_UserName_InvalidFormat" xml:space="preserve">
+    <value>El campo 'Nombre de usuario' puede aceptar dígitos, caracteres latinos en mayúsculas o minúsculas y los símbolos -._@+</value>
+  </data>
+  <data name="UI_Validator_Profile_Email_FieldName" xml:space="preserve">
+    <value>Correo electrónico</value>
+  </data>
+  <data name="UI_Validator_Profile_CallingCode_FieldName" xml:space="preserve">
+    <value>Código de llamada</value>
+  </data>
+  <data name="UI_Validator_Profile_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Teléfono móvil</value>
+  </data>
+  <data name="UI_Validator_Profile_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>El campo 'Teléfono móvil' tiene un formato inválido.</value>
+  </data>
+  <data name="UI_Validator_Profile_Tin_FieldName" xml:space="preserve">
+    <value>NIF</value>
+  </data>
+  <data name="UI_Validator_Profile_Tin_InvalidFormat" xml:space="preserve">
+    <value>Código fiscal inválido.</value>
+  </data>
+  <data name="UI_Validator_Register_UserName_InvalidFormat" xml:space="preserve">
+    <value>El campo '{PropertyName}' puede aceptar dígitos, caracteres latinos en mayúsculas o minúsculas y los símbolos -._@+</value>
+  </data>
+  <data name="UI_Validator_Register_UserName_AlreadyExists" xml:space="preserve">
+    <value>Este nombre de usuario ya existe. Por favor, utilice otro.</value>
+  </data>
+  <data name="UI_Validator_Register_Email_AlreadyExists" xml:space="preserve">
+    <value>Este correo electrónico ya existe. Por favor, utilice otro correo electrónico.</value>
+  </data>
+  <data name="UI_Validator_Register_AcceptTerms_Message" xml:space="preserve">
+    <value>Debe aceptar los 'términos de uso' del servicio.</value>
+  </data>
+  <data name="UI_Validator_Register_ReadPrivacyPolicy_Message" xml:space="preserve">
+    <value>Debe estar informado sobre la política de privacidad.</value>
+  </data>
+  <data name="UI_Validator_Register_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>El campo 'Número de teléfono' tiene un formato inválido.</value>
+  </data>
+  <data name="UI_Validator_Register_FirstName_FieldName" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="UI_Validator_Register_LastName_FieldName" xml:space="preserve">
+    <value>Apellido</value>
+  </data>
+  <data name="UI_Validator_Register_UserName_FieldName" xml:space="preserve">
+    <value>Nombre de usuario</value>
+  </data>
+  <data name="UI_Validator_Register_Password_FieldName" xml:space="preserve">
+    <value>Contraseña</value>
+  </data>
+  <data name="UI_Validator_Register_Email_FieldName" xml:space="preserve">
+    <value>Correo electrónico</value>
+  </data>
+  <data name="UI_Validator_Register_CallingCode_FieldName" xml:space="preserve">
+    <value>Código de llamada</value>
+  </data>
+  <data name="UI_Validator_VerifyPhone_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Número de teléfono</value>
+  </data>
+  <data name="UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>El campo 'Número de teléfono' tiene un formato inválido.</value>
+  </data>
+  <data name="UI_Validator_VerifyPhone_Code_FieldName" xml:space="preserve">
+    <value>Código</value>
+  </data>
+  <data name="AccountLockedEventSubject" xml:space="preserve">
+    <value>Su cuenta ha sido bloqueada temporalmente</value>
+  </data>
+  <data name="AccountLockedEventDescription" xml:space="preserve">
+    <value>Su cuenta ha sido bloqueada temporalmente debido a múltiples intentos de inicio de sesión fallidos. Este bloqueo es una medida de seguridad para proteger su información. Por favor, inténtelo de nuevo más tarde.</value>
+  </data>
+  <data name="PasswordChangedEventDescription" xml:space="preserve">
+    <value>Su contraseña ha sido cambiada exitosamente.</value>
+  </data>
+  <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
+    <value>Por favor, elija su nueva contraseña para continuar.</value>
+  </data>
+  <data name="MfaAddEmailValidationEmailEmpty" xml:space="preserve">
+    <value>Por favor, seleccione su dirección de correo electrónico para que podamos verificarla antes de continuar.</value>
+  </data>
+  <data name="MfaAddEmailValidationEmailAlreadyConfirmed" xml:space="preserve">
+    <value>Su dirección de correo electrónico ya está confirmada. Continúe para activar MFA.</value>
+  </data>
+  <data name="MfaAddEmailSuccessMessage" xml:space="preserve">
+    <value>Ha activado exitosamente MFA para su cuenta. Inicie sesión para acceder a su cuenta.</value>
+  </data>
+  <data name="MfaVerifyEmailValidationMissingEmail" xml:space="preserve">
+    <value>Por favor, ingrese el código que recibió en su correo electrónico.</value>
+  </data>
+  <data name="MfaVerifyEmailSuccessMessage" xml:space="preserve">
+    <value>Su dirección de correo electrónico fue validada exitosamente. Por favor, presione el botón 'Siguiente' para continuar.</value>
+  </data>
+  <data name="MfaEmailBody" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="MfaEmailSubject" xml:space="preserve">
+    <value>Inicio de sesión OTP</value>
+  </data>
+</root>

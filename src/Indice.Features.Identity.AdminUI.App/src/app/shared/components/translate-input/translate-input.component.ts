@@ -6,10 +6,11 @@ import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo } fro
     selector: 'app-translate-input',
     templateUrl: './translate-input.component.html',
     providers: [{
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => TranslateInputComponent),
-        multi: true
-    }]
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => TranslateInputComponent),
+            multi: true
+        }],
+    standalone: false
 })
 export class TranslateInputComponent implements ControlValueAccessor, OnInit {
     private _translations: { [key: string]: string; } = {};

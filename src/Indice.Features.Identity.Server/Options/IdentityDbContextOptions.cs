@@ -1,8 +1,8 @@
 ﻿using System.Linq.Expressions;
-using IdentityModel;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Server.Manager.Models;
+using Indice.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Identity.Server.Options;
@@ -19,7 +19,7 @@ public class IdentityDbContextOptions
         var searchTerm = search.ToLower();
         var idsFromClaims = await dbContext
             .UserClaims
-            .Where(x => (x.ClaimType == JwtClaimTypes.GivenName || x.ClaimType == JwtClaimTypes.FamilyName) && EF.Functions.Like(x.ClaimValue.ToLower(), $"%{searchTerm}%"))
+            .Where(x => (x.ClaimType == BasicClaimTypes.GivenName || x.ClaimType == BasicClaimTypes.FamilyName) && EF.Functions.Like(x.ClaimValue.ToLower(), $"%{searchTerm}%"))
             .Select(x => x.UserId)
             .ToArrayAsync();
         return x => EF.Functions.Like(x.Email.ToLower(), $"%{searchTerm}%")

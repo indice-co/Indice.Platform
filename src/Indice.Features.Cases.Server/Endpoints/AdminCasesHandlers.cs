@@ -164,13 +164,13 @@ internal static class AdminCasesHandlers
             .FirstOrDefaultAsync();
 
         if (@case == null) {
-            TypedResults.Ok();
+            return TypedResults.NotFound();
         }
 
         // Get List of Available Actions from Workflow
         var actions = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
         if (actions is null) {
-            return TypedResults.NotFound();
+            return TypedResults.Ok(new CaseActions());
         }
 
         var assignedToId = @case!.AssignedToId;
@@ -179,10 +179,10 @@ internal static class AdminCasesHandlers
         // If user is Admin, they can do everything except assign an already assigned case
         if (currentUser.IsAdmin() || currentUser.IsSystemClient()) {
             return TypedResults.Ok(new CaseActions {
-                HasAssignment = actions.AssignmentBookmarks.Count != 0 && !caseIsAssigned,
-                HasApproval = actions.ApprovalBookmarks.Count != 0,
+                HasAssignment = (actions.AssignmentBookmarks?.Count > 0) && !caseIsAssigned,
+                HasApproval = actions.ApprovalBookmarks?.Count > 0,
                 HasUnassignment = caseIsAssigned,
-                HasEdit = actions.EditBookmarks.Count != 0,
+                HasEdit = actions.EditBookmarks?.Count > 0,
                 CustomActions = actions.CustomActions?.Select(x => x.CreateFromWorkflowAction()).ToList()!
             });
         }
@@ -280,10 +280,34 @@ internal static class AdminCasesHandlers
         var pdfOptions = new PdfOptions(@case.CaseType.Config);
         return await casePdfService.HtmlToPdfAsync(template, pdfOptions, @case);
     }
-    
+
     /// <summary>Publish the latest version of Data.</summary>
     /// <param name="caseId"></param>
     /// <param name="adminCaseService"></param>
     public static async Task PublishCasePrivateData(Guid caseId, IAdminCaseService adminCaseService)
         => await adminCaseService.PublishData(caseId);
+
+    public static async Task<Results<Ok<JsonNode>, NotFound>> InitializeCaseData(
+        Guid caseId, IAdminCaseService adminCaseService, ICaseDataInitializer caseDataInitializer, IOptions<CasesOptions> casesOptions, ClaimsPrincipal currentUser) {
+        var @case = await adminCaseService.GetCaseById(caseId, fetchPublicData: false, includeAttachmentData: false);
+        if (@case is null) {
+            return TypedResults.NotFound();
+        }
+
+        var owner = new Contact() {
+            UserId = @case.UserId,
+            Reference = @case.OwnerId,
+            Tin = @case.OwnerTin,
+            GroupId = @case.GroupId,
+            FirstName = @case.OwnerName?.Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries)?.FirstOrDefault(),
+            LastName = @case.OwnerName is not null
+                ? string.Join(' ', @case.OwnerName.Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries).Skip(1))
+                : null
+        };
+
+        var data = await caseDataInitializer.InitializeAsync(owner, @case.CaseType.Code.ToString());
+        return data is null
+            ? TypedResults.Ok(JsonNode.Parse("{}"))
+            : TypedResults.Ok(data);
+    }
 }

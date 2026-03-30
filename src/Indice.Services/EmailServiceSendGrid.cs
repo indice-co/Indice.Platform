@@ -14,6 +14,8 @@ namespace Indice.Services;
 /// </summary>
 public class EmailServiceSendGrid : IEmailService
 {
+    /// <summary>Represents the name of the SendGrid service as a constant string value.</summary>
+    public const string ServiceName = "SendGrid";
     /// <summary>Creates a new instance of <see cref="EmailServiceSendGrid"/>.</summary>
     /// <param name="settings">An instance of <see cref="EmailServiceSendGridSettings"/> used to initialize the service.</param>
     /// <param name="httpClient">The HTTP client to use (DI managed)</param>
@@ -23,19 +25,22 @@ public class EmailServiceSendGrid : IEmailService
         HttpClient httpClient,
         IHtmlRenderingEngine htmlRenderingEngine) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender!, Settings.SenderName));
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
         if (HttpClient.BaseAddress == null) {
-            HttpClient.BaseAddress = new Uri(Settings.Api.TrimEnd('/') + "/");
+            HttpClient.BaseAddress = new Uri($"{Settings.Api.TrimEnd('/')}/");
         }
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.ApiKey
-            ?? throw new ArgumentNullException(nameof(Settings.ApiKey)));
+        ArgumentException.ThrowIfNullOrWhiteSpace(Settings.ApiKey);
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.ApiKey);
     }
 
     private EmailServiceSendGridSettings Settings { get; }
     private HttpClient HttpClient { get; }
     /// <inheritdoc/>
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
+    /// <inheritdoc/>
+    public EmailProvider Provider { get; }
 
     /// <inheritdoc/>
     public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null) {

@@ -9,19 +9,16 @@ namespace Indice.Features.Identity.UI.Validators;
 /// <summary>Validator for <see cref="ForgotPasswordInputModel"/> class.</summary>
 public class ForgotPasswordInputModelValidator : AbstractValidator<ForgotPasswordInputModel>
 {
-    private readonly IStringLocalizer<ForgotPasswordInputModelValidator> _localizer;
-
     /// <summary>Creates a new instance of <see cref="ForgotPasswordInputModelValidator"/> class.</summary>
-    /// <param name="localizer">Represents a service that provides localized strings.</param>
+    /// <param name="describer">Provides the APIs for managing localized error messages.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ForgotPasswordInputModelValidator(IStringLocalizer<ForgotPasswordInputModelValidator> localizer, ExtendedUserManager<User> userManager) {
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+    public ForgotPasswordInputModelValidator(IdentityMessageDescriber describer, ExtendedUserManager<User> userManager) {
         if (userManager.Options.User.RequireUniqueEmail) {
-            RuleFor(x => x.Email).NotEmpty().EmailAddress();
+            RuleFor(x => x.Email).NotEmpty().EmailAddress().WithName(describer.UI_Validator_ForgotPassword_Email_FieldName);
         }
         else {
-            RuleFor(x => x.Email).NotEmpty();
+            RuleFor(x => x.Email).NotEmpty().WithName(describer.UI_Validator_ForgotPassword_Email_FieldName);
         }
     }
 }

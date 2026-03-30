@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="(It may not match the exact location)" xml:space="preserve">
+    <value>（正確な場所と一致しない場合があります）</value>
+  </data>
+  <data name="Device" xml:space="preserve">
+    <value>デバイス</value>
+  </data>
+  <data name="Event details:" xml:space="preserve">
+    <value>イベント詳細：</value>
+    <comment>詳細</comment>
+  </data>
+  <data name="Event time" xml:space="preserve">
+    <value>イベント時刻</value>
+  </data>
+  <data name="Hi" xml:space="preserve">
+    <value>こんにちは</value>
+  </data>
+  <data name="If you did not perform this action, please contact support immediately." xml:space="preserve">
+    <value>この操作に心当たりがない場合は、すぐにサポートにご連絡ください。</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>場所</value>
+  </data>
+  <data name="Sincerely" xml:space="preserve">
+    <value>敬具</value>
+  </data>
+  <data name="We wanted to let you know that a security-related event occurred on your account." xml:space="preserve">
+    <value>お客様のアカウントでセキュリティ関連のイベントが発生したことをお知らせします。</value>
+  </data>
+</root>

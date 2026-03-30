@@ -5,7 +5,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [8.1.0] - Unreleased
+## [8.40.0]
+### Added
+- Add the UserAgentFamily column to store the user-agent family (e.g. browser/client name) for a device
+
+Run this Migration script to update the database
+```sql
+-- 1) Add new column to [auth].[UserDevice]
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns 
+    WHERE Name = N'UserAgentFamily' AND Object_ID = Object_ID(N'[auth].[UserDevice]')
+)
+BEGIN
+    ALTER TABLE [auth].[UserDevice]
+    ADD [UserAgentFamily] NVARCHAR(256) NULL;
+END
+
+GO
+
+UPDATE [auth].[SignInLog]
+SET ExtraData = JSON_MODIFY(
+    ExtraData,
+    '$.device.userAgentFamily',
+    CASE
+        WHEN PATINDEX('% [0-9]%', JSON_VALUE(ExtraData, '$.device.displayName')) > 0 THEN
+            LEFT(
+                JSON_VALUE(ExtraData, '$.device.displayName'),
+                PATINDEX('% [0-9]%', JSON_VALUE(ExtraData, '$.device.displayName')) - 1
+            )
+        ELSE JSON_VALUE(ExtraData, '$.device.displayName')
+    END
+)
+GO
+
+UPDATE [auth].UserDevice SET UserAgentFamily = (CASE
+        WHEN PATINDEX('% [0-9]%', [Name]) > 0 THEN
+            LEFT(
+                [Name],
+                PATINDEX('% [0-9]%',  [Name]) - 1
+            )
+        ELSE [Name]
+    END)
+GO
+```
+
+## [8.18.0]
+### Added
+- Add the PublicKeyId column to store the public key for a client
+
+Run this Migration script to update the database
+```sql
+-- 1) Add new column to [auth].[UserDevice]
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns 
+    WHERE Name = N'PublicKeyId' AND Object_ID = Object_ID(N'[auth].[UserDevice]')
+)
+BEGIN
+    ALTER TABLE [auth].[UserDevice]
+    ADD [PublicKeyId] NVARCHAR(32) NULL;
+END
+
+GO
+
+-- 2) Add default values to [PublicKeyId]
+UPDATE [auth].[UserDevice]
+SET [PublicKeyId] = (SELECT LOWER(LEFT(REPLACE(CONVERT(VARCHAR(36), NEWID(), 2), '-', ''), 32)) AS HexString)
+WHERE [PublicKey] IS NOT NULL AND [PublicKeyId] IS NULL
+
+GO
+```
+
+## [8.1.0] 
 ### Added 
 - This release includes an upgrade to **Duende IdentityServer7**. (_This only applies when running on .NET 9.0 or greater._)
 

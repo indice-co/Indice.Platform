@@ -24,7 +24,7 @@ internal static class IntegrationApi
                 .RequireAssertion(ctx=> ctx.User.IsSystemClient() || ctx.User.IsAdmin())
             ).WithHandledException<Exception>();
         
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
@@ -104,7 +104,11 @@ internal static class IntegrationApi
         group.MapGet("{caseId}/attachments/{attachmentId:guid}", IntegrationHandlers.GetAttachment)
             .WithName(nameof(IntegrationHandlers.GetAttachment))
             .WithSummary("Get a Case Attachment");
-        
+
+        group.MapGet("case-types/{caseTypeCode}/subscribers", IntegrationHandlers.GetCaseTypeSubscribers)
+            .WithName(nameof(IntegrationHandlers.GetCaseTypeSubscribers))
+            .WithSummary("Get case type subscribers.");
+
         return group;
     }
 }

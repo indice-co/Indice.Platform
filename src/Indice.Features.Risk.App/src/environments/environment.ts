@@ -1,12 +1,10 @@
-const title = document.title;
-
 export const environment = {
-  api_url: 'https://localhost:24972',
+  api_url: 'https://localhost:2001',
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
-    authority: 'https://localhost:44359',
+    authority: 'https://my.indice.gr',
     automaticSilentRenew: true,
-    client_id: 'risk-backoffice-app',
+    client_id: 'risk-ui',
     filterProtocolClaims: true,
     loadUserInfo: true,
     monitorSession: true,

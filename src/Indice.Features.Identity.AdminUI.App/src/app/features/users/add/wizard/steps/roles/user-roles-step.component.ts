@@ -10,8 +10,9 @@ import {
 } from "src/app/core/services/identity-api.service";
 
 @Component({
-  selector: "app-roles-step",
-  templateUrl: "./user-roles-step.component.html",
+    selector: "app-roles-step",
+    templateUrl: "./user-roles-step.component.html",
+    standalone: false
 })
 export class UserRolesStepComponent
   extends StepBaseComponent<UserWizardModel>

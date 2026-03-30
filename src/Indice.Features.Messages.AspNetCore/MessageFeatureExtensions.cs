@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
+using System.Text.Json.Serialization;
 using FluentValidation;
-using Indice.AspNetCore.Filters;
-using Indice.AspNetCore.Swagger;
 using Indice.Events;
 using Indice.Features.Media.AspNetCore;
 using Indice.Features.Media.AspNetCore.Services.Hosting;
@@ -16,12 +15,14 @@ using Indice.Features.Messages.Core.Services.Validators;
 using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -51,7 +52,13 @@ public static class MessageFeatureExtensions
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.InboxGroupName;
-            options.CampaignStatisticOptions = apiOptions.CampaignStatisticOptions;
+            options.AnalyticsOptions = apiOptions.AnalyticsOptions;
+        }).AddTranslationGraph(options => {
+            options.DefaultTranslationsBaseName = "Messages.Ui.TranslationApi";
+            options.DefaultTranslationsLocation = "Indice.Features.Messages.AspNetCore";
+            options.DefaultEndpointRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/msg-i18n.{lang:culture}.json";
+            options.ConfigureCachePolicy = new Action<OutputCachePolicyBuilder>(policy => { policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag(); });
+            options.AvailableLanguagesRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/languages";
         });
     }
 
@@ -64,8 +71,11 @@ public static class MessageFeatureExtensions
         configureAction?.Invoke(apiOptions);
 
         // Configure authorization. It's important to register the authorization policy provider at this point.
+        //
+        
         services.AddAuthorization(policy => policy.AddCampaignsManagementPolicy(apiOptions.RequiredScope))
                 .AddTransient<IAuthorizationHandler, BeCampaignManagerHandler>();
+        services.AddTransient<IAuthorizationHandler, CanSendCampaignHandler>();
 
         services.AddCampaignCore(apiOptions);
 
@@ -117,11 +127,11 @@ public static class MessageFeatureExtensions
         });
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
 
-        services.Configure<CampaignStatisticOptions>(opt => {
-            opt.EnableStatics = apiOptions.CampaignStatisticOptions.EnableStatics;
+        services.Configure<AnalyticsOptions>(opt => {
+            opt.Enabled = apiOptions.AnalyticsOptions.Enabled;
         });
-        services.AddSingleton<CampaignEventQueue>();
-        services.AddSingleton<IHostedService, CampaignEventHandler>();
+        services.AddSingleton<MessageEventQueue>();
+        services.AddSingleton<IHostedService, MessageEventHostedServcie>();
         return services;
     }
 
@@ -134,30 +144,28 @@ public static class MessageFeatureExtensions
     internal static IServiceCollection AddCampaignCore(this IServiceCollection services, CampaignOptionsBase baseOptions) {
         // Post configure JSON options.
         services.PostConfigure<JsonOptions>(options => {
-            var enumFlagsConverterExists = options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(JsonStringArrayEnumFlagsConverterFactory));
-            if (!enumFlagsConverterExists) {
-                options.JsonSerializerOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+            if (!options.JsonSerializerOptions.Converters.OfType<JsonStringEnumConverter>().Any()) {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             }
             if (!options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(TypeConverterJsonAdapterFactory))) {
                 options.JsonSerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
         }); 
         services.PostConfigure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => {
-            var enumFlagsConverterExists = options.SerializerOptions.Converters.Any(converter => converter.GetType() == typeof(JsonStringArrayEnumFlagsConverterFactory));
-            if (!enumFlagsConverterExists) {
-                options.SerializerOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+            if (!options.SerializerOptions.Converters.OfType<JsonStringEnumConverter>().Any()) {
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
             }
             if (!options.SerializerOptions.Converters.Any(converter => converter.GetType() == typeof(TypeConverterJsonAdapterFactory))) {
                 options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
         });
         // Post configure Swagger options.
-        services.PostConfigure<SwaggerGenOptions>(options => {
-            var enumFlagsSchemaFilterExists = options.SchemaFilterDescriptors.Any(x => x.Type == typeof(EnumFlagsSchemaFilter));
-            if (!enumFlagsSchemaFilterExists) {
-                options.SchemaFilter<EnumFlagsSchemaFilter>();
-            }
-        });
+        //services.PostConfigure<SwaggerGenOptions>(options => {
+        //    var enumFlagsSchemaFilterExists = options.SchemaFilterDescriptors.Any(x => x.Type == typeof(EnumFlagsSchemaFilter));
+        //    if (!enumFlagsSchemaFilterExists) {
+        //        options.SchemaFilter<EnumFlagsSchemaFilter>();
+        //    }
+        //});
         // Register validators.
         services.AddValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>();
         // Register framework services.
@@ -170,6 +178,7 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<IDistributionListService, DistributionListService>();
         services.TryAddTransient<IMessageService, MessageService>();
+        services.TryAddTransient<IMessageEventService, MessageEventService>();
         services.TryAddScoped<IUserNameAccessor, UserNameFromClaimsAccessor>();
         services.TryAddScoped<UserNameAccessorAggregate>();
         services.TryAddTransient<IFileService, FileServiceNoop>();
@@ -181,7 +190,6 @@ public static class MessageFeatureExtensions
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDb"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
         services.AddHostedService<DbInitializerHostedService>();
-
         return services;
     }
 
@@ -316,6 +324,7 @@ public static class MessageFeatureExtensions
             config.ClientId = serviceOptions.ClientId;
             config.ClientSecret = serviceOptions.ClientSecret;
             config.UserClaimType = serviceOptions.UserClaimType;
+            config.ClaimsToResolve = serviceOptions.ClaimsToResolve;
         });
         options.Services!.AddDistributedMemoryCache();
         options.Services!.AddHttpClient<IContactResolver, ContactResolverIdentity>(httpClient => {

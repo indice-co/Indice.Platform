@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DuplicateUserName" xml:space="preserve">
+    <value>ユーザー名 '{0}' は既に使用されています。</value>
+  </data>
+  <data name="PasswordContainsNotAllowedChars" xml:space="preserve">
+    <value>パスワードに許可されていない文字が含まれています。</value>
+  </data>
+  <data name="PasswordContainsNotAllowedCharsRequirement" xml:space="preserve">
+    <value>許可されていない文字が含まれていません。</value>
+  </data>
+  <data name="PasswordExpiredMessage" xml:space="preserve">
+    <value>パスワードの有効期限が切れています。新しいパスワードを選択してください。</value>
+  </data>
+  <data name="PasswordHasNonLatinChars" xml:space="preserve">
+    <value>パスワードに非ラテン文字は使用できません。</value>
+  </data>
+  <data name="PasswordHasNonLatinCharsRequirement" xml:space="preserve">
+    <value>非ラテン文字が含まれていません。</value>
+  </data>
+  <data name="PasswordIdenticalToUserName" xml:space="preserve">
+    <value>パスワードがユーザー名と似ているため、アカウントが危険にさらされる可能性があります。</value>
+  </data>
+  <data name="PasswordIdenticalToUserNameRequirement" xml:space="preserve">
+    <value>ユーザー名と似ていません。</value>
+  </data>
+  <data name="PasswordIsCommon" xml:space="preserve">
+    <value>選択したパスワードは弱いです。より複雑なパスワードを入力してください。</value>
+  </data>
+  <data name="PasswordIsCommonRequirement" xml:space="preserve">
+    <value>よく知られたパスワードではありません。</value>
+    <comment>hint</comment>
+  </data>
+  <data name="PasswordRecentlyUsed" xml:space="preserve">
+    <value>このパスワードは最近使用されました。以前のパスワードを再利用しないことをお勧めします。</value>
+  </data>
+  <data name="PasswordRecentlyUsedRequirement" xml:space="preserve">
+    <value>最近使用されていません。</value>
+  </data>
+  <data name="PasswordRequiresDigit" xml:space="preserve">
+    <value>パスワードには少なくとも1つの数字が必要です。</value>
+  </data>
+  <data name="PasswordRequiresDigitRequirement" xml:space="preserve">
+    <value>数字が1つ必要です。</value>
+  </data>
+  <data name="PasswordRequiresLower" xml:space="preserve">
+    <value>パスワードには少なくとも1つの小文字が必要です。</value>
+  </data>
+  <data name="PasswordRequiresLowerRequirement" xml:space="preserve">
+    <value>小文字が1つ必要です。</value>
+  </data>
+  <data name="PasswordRequiresNonAlphanumeric" xml:space="preserve">
+    <value>パスワードには少なくとも1つの英数字以外の文字が必要です。</value>
+  </data>
+  <data name="PasswordRequiresNonAlphanumericRequirement" xml:space="preserve">
+    <value>英数字以外の文字が1つ必要です。</value>
+  </data>
+  <data name="PasswordRequiresUniqueChars" xml:space="preserve">
+    <value>パスワードには少なくとも{0}種類の異なる文字が必要です。</value>
+  </data>
+  <data name="PasswordRequiresUniqueCharsRequirement" xml:space="preserve">
+    <value>{0}種類の異なる文字が必要です。</value>
+  </data>
+  <data name="PasswordRequiresUpper" xml:space="preserve">
+    <value>パスワードには少なくとも1つの大文字が必要です。</value>
+  </data>
+  <data name="PasswordRequiresUpperRequirement" xml:space="preserve">
+    <value>大文字が1つ必要です。</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>パスワードは少なくとも{0}文字でなければなりません。</value>
+  </data>
+  <data name="PasswordTooShortRequirement" xml:space="preserve">
+    <value>少なくとも{0}文字必要です。</value>
+  </data>
+</root>

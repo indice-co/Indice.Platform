@@ -7,7 +7,8 @@ import { CasesApiService } from "src/app/core/services/cases-api.service";
 import { FileUploadService } from "src/app/core/services/file-upload.service";
 
 @Component({
-    templateUrl: './file-widget.component.html'
+    templateUrl: './file-widget.component.html',
+    standalone: false
 })
 export class FileWidgetComponent implements OnInit {
     formControl: AbstractControl | undefined;

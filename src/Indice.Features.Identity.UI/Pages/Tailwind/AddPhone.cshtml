@@ -1,20 +1,20 @@
 ﻿@page "/login/add-phone"
-
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/add-phone")]
 @model BaseAddPhoneModel
 
-@inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment HostingEnvironment
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
+@inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = Localizer["Add phone"].Value;
+    ViewData["Title"] = Localizer.AddPhone_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseAddPhoneModel.TempDataKey);
 }
 
-<div class="content-wrapper">
+<div class="content-wrapper">  
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.AddPhone_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
         <partial name="_Alert" model="alert" />
         <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
@@ -23,19 +23,19 @@
                 <div class="row relative my-5">
                     <div class="input-group">
                         <select class="peer" asp-for="Input.CallingCode" required>
-                            <option value="" selected>@Localizer["Choose..."]</option>
+                            <option value="" selected>@Localizer.Profile_Choose</option>
                             @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
                             {
                                 <option value="@callingCode" selected="@(callingCode.Code == Model.Input.CallingCode)">@callingCode.DisplayName</option>
                             }
                         </select>
-                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Localizer["Calling Code"]</label>
+                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Localizer.AddPhone_CallingCode</label>
                         <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
                     </div>
                     <div class="input-group">
                         <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-                        <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
-                        <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
+                        <input class="peer" type="text" placeholder="@Localizer.AddPhone_PhoneNumber" asp-for="Input.PhoneNumber" />
+                        <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.AddPhone_PhoneNumber</label>
                         <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                     </div>
                 </div>
@@ -44,14 +44,14 @@
             {
                 <div class="relative my-5">
                     <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-                    <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
-                    <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
+                    <input class="peer" type="text" placeholder="@Localizer.AddPhone_PhoneNumber" asp-for="Input.PhoneNumber" />
+                    <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.AddPhone_PhoneNumber</label>
                     <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
             }
             <div class="row justify-items-center place-items-center">
                 <div class="input-group-w-full">
-                    <button class="btn btn-primary" type="submit">@Localizer["Save"]</button>
+                    <button class="btn btn-primary" type="submit">@Localizer.AddPhone_Save</button>
                 </div>
             </div>
             <input type="hidden" asp-for="Input.ReturnUrl" />

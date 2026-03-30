@@ -13,7 +13,7 @@ public class AllowedCharactersPasswordValidatorTests
     private const string ALLOWED_CHARACTERS = "123abcAbc!#$";
 
     public AllowedCharactersPasswordValidatorTests() {
-        var inMemorySettings = new Dictionary<string, string> {
+        var inMemorySettings = new Dictionary<string, string?> {
             {$"IdentityOptions:Password:{nameof(AllowedCharactersPasswordValidator.AllowedCharacters)}", ALLOWED_CHARACTERS}
         };
         _configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
@@ -26,7 +26,7 @@ public class AllowedCharactersPasswordValidatorTests
     [InlineData("1234Abc(")]
     public async Task CheckInvalidPasswords(string password) {
         var validator = new AllowedCharactersPasswordValidator(_configuration);
-        var identityResult = await validator.ValidateAsync(null, new User(), password);
+        var identityResult = await validator.ValidateAsync(null!, new User(), password);
         Assert.False(identityResult.Succeeded);
     }
 
@@ -36,7 +36,7 @@ public class AllowedCharactersPasswordValidatorTests
     [InlineData("123")]
     public async Task CheckValidPasswords(string password) {
         var validator = new AllowedCharactersPasswordValidator(_configuration);
-        var identityResult = await validator.ValidateAsync(null, new User(), password);
+        var identityResult = await validator.ValidateAsync(null!, new User(), password);
         Assert.True(identityResult.Succeeded);
     }
 }

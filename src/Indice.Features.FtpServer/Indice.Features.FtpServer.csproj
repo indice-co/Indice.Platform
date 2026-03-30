@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Label="Package">
+    <PackageTags>FtpServer;Worker</PackageTags>
+    <PackageReleaseNotes>FtpServer extensions</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.17.1" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.25.0" />
+    <PackageReference Include="edokan.FubarDev.FtpServer" Version="3.2.9" />
+    <PackageReference Include="edokan.FubarDev.FtpServer.FileSystem.DotNet" Version="3.2.9" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.13.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.12" />
+  </ItemGroup>
+  
+</Project>

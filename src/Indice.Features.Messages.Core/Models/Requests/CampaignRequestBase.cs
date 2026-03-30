@@ -20,11 +20,11 @@ public class CampaignRequestBase
     /// <summary>The id of the type or the Alias this campaign belongs.</summary>
     public GuidOrAlias? TypeId { get; set; }
     /// <summary>The id of the distribution list.</summary>
-    public Guid? RecipientListId { get; set; }
+    public GuidOrAlias? RecipientListId { get; set; }
     /// <summary>The Template id or the Alias  to be used for the new Campaign.</summary>
     public GuidOrAlias? MessageTemplateId { get; set; }
     /// <summary>Optional data for the campaign.</summary>
     public dynamic? Data { get; set; }
     /// <summary>If exists, it overrides the Channels collection of the specified template. </summary>
-    public MessageChannelKind? MessageTemplateChannels { get; set; }
+    public List<MessageChannelKind> MessageTemplateChannels { get; set; } = [];
 }

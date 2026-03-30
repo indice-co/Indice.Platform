@@ -2,17 +2,17 @@
 
 @model BaseMfaOnboardingVerifyPhoneModel
 
-@inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment HostingEnvironment
+@inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewBag.Title = Localizer["Verify phone number"].Value;
+    ViewBag.Title = Localizer.MfaOnBoardingVerifyPhone_PageTitle;
     var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyPhoneModel.TempDataKey);
     var displayNext = !string.IsNullOrEmpty(infoMessage?.NextStepUrl) && infoMessage?.Alert?.AlertType == AlertType.Success;
 }
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.MfaOnBoardingVerifyPhone_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
         <partial name="_Alert" model="infoMessage?.Alert" />
 
@@ -21,10 +21,10 @@
             <input type="hidden" asp-for="Input.PhoneNumber" />
 
             <div class="mb-4">
-                <label asp-for="Input.Code" class="sr-only">@Localizer["Code"]</label>
+                <label asp-for="Input.Code" class="sr-only">@Localizer.MfaOnBoardingVerifyPhone_Code</label>
                 <input asp-for="Input.Code"
                        type="text"
-                       placeholder="@Localizer["Code"]"
+                       placeholder="@Localizer.MfaOnBoardingVerifyPhone_Code"
                        disabled="@displayNext"
                        autofocus
                        autocomplete="off"
@@ -42,7 +42,7 @@
                                 class="block w-full py-2 px-4 font-semibold rounded-md
                    bg-blue-500 hover:bg-blue-600 text-white transition
                    disabled:opacity-50 disabled:cursor-not-allowed">
-                            @Localizer["Save"]
+                            @Localizer.MfaOnBoardingVerifyPhone_Save
                         </button>
                     </div>
                     @if (displayNext)
@@ -51,7 +51,7 @@
                             <a href="@infoMessage!.NextStepUrl"
                                class="block w-full py-2 px-4 text-center font-semibold rounded-md
                      bg-blue-500 hover:bg-blue-600 text-white transition">
-                                @Localizer["Next"]
+                                @Localizer.MfaOnBoardingVerifyPhone_Next
                             </a>
                         </div>
                     }

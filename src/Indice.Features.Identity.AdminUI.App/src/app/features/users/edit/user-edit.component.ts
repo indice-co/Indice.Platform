@@ -13,9 +13,10 @@ import { environment } from "src/environments/environment";
 import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
-  selector: "app-user-edit",
-  templateUrl: "./user-edit.component.html",
-  providers: [UserStore],
+    selector: "app-user-edit",
+    templateUrl: "./user-edit.component.html",
+    providers: [UserStore],
+    standalone: false
 })
 export class UserEditComponent implements OnInit, OnDestroy {
   public userId = "";

@@ -1,12 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DataService } from 'src/app/core/services/data.service';
-import { RiskApiService, RuleOptions } from 'src/app/core/services/risk-api.service';
+import { RiskApiService } from 'src/app/core/services/risk-api.service';
 import { ToasterService, ToastType } from "@indice/ng-components";
 
 @Component({
     selector: 'app-rule-options-page',
     templateUrl: './rule-options-page.component.html',
-    styleUrls: ['./rule-options-page.component.scss']
+    styleUrls: ['./rule-options-page.component.css'],
+    standalone: false
 })
 
 export class RuleOptionsPageComponent implements OnInit {
@@ -31,7 +32,7 @@ export class RuleOptionsPageComponent implements OnInit {
         // set the type discriminator
         this.ruleOptions[this.ruleIdKey] = `${this.ruleOptions[this.ruleIdKey]}RuleOptions`;
         
-        const request: RuleOptions = JSON.parse(JSON.stringify(this.ruleOptions)) as RuleOptions;
+        const request = JSON.parse(JSON.stringify(this.ruleOptions));
         if (this.ruleOptions[this.eligibleEventsKey].trim() !== '') {
             request.eligibleEvents = this.ruleOptions[this.eligibleEventsKey].split(',');
         } else {

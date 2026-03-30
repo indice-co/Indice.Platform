@@ -5,8 +5,9 @@ export class WarningViewModel {
   public description: string | undefined;
 }
 @Component({
-  selector: 'app-case-warning-modal',
-  templateUrl: './case-warning-modal.component.html'
+    selector: 'app-case-warning-modal',
+    templateUrl: './case-warning-modal.component.html',
+    standalone: false
 })
 /**
  * Displays a warning modal (with the red triangle icon)

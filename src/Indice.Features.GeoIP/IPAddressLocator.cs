@@ -1,0 +1,52 @@
+﻿using System.Net;
+using Indice.Features.GeoIP.Extensions;
+using Indice.Features.GeoIP.GeoLite2;
+using Indice.Types;
+
+namespace Indice.Features.GeoIP;
+
+/// <summary>
+/// Service responsible for resolving geolocation metadata given an IP address.
+/// </summary>
+public sealed class IPAddressLocator
+{
+    private readonly CityDatabaseReader _cityDatabaseReader;
+    private readonly CountryDatabaseReader _countryDatabaseReader;
+
+    /// <summary></summary>
+    /// <param name="cityDatabaseReader"></param>
+    /// <param name="countryDatabaseReader"></param>
+    public IPAddressLocator(CityDatabaseReader cityDatabaseReader, CountryDatabaseReader countryDatabaseReader) {
+        _cityDatabaseReader = cityDatabaseReader ?? throw new ArgumentNullException(nameof(cityDatabaseReader));
+        _countryDatabaseReader = countryDatabaseReader ?? throw new ArgumentNullException(nameof(countryDatabaseReader));
+    }
+
+    /// <summary>Gets various geolocation data for the given <see cref="IPAddress"/>.</summary>
+    /// <param name="ipAddress">The IP address to look for.</param>
+    public IPAddressLocation GetLocationMetadata(IPAddress ipAddress) {
+        var result = new IPAddressLocation() {
+            IPAddress = ipAddress.ToString(),
+        };
+        if (IPAddress.IsLoopback(ipAddress) || ipAddress.IsPrivate()) {
+            return result;
+        }
+        if (_cityDatabaseReader.TryCity(ipAddress, out var cityResponse)) {
+            var latitude = cityResponse?.Location?.Latitude;
+            var longitude = cityResponse?.Location?.Longitude;
+            if (latitude.HasValue && longitude.HasValue) {
+                result.Coordinates = new GeoPoint(latitude.Value, longitude.Value);
+            }
+            result.CityName = cityResponse?.City?.Name;
+            result.PostalCode = cityResponse?.Postal?.Code;
+            if (cityResponse?.Subdivisions?.Any() == true) {
+                result.Subdivisions.AddRange(cityResponse.Subdivisions.Select(subdivision => subdivision.Name!));
+            }
+        }
+        if (_countryDatabaseReader.TryCountry(ipAddress, out var countryResponse)) {
+            result.CountryName = countryResponse?.Country?.Name;
+            result.CountryIsoCode = countryResponse?.Country?.IsoCode;
+            result.Continent = countryResponse?.Continent?.Name;
+        }
+        return result;
+    }
+}

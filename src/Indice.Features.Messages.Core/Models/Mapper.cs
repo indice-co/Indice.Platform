@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using Indice.Extensions;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Types;
@@ -20,7 +21,7 @@ internal static class Mapper
         UpdatedAt = campaign.UpdatedAt,
         UpdatedBy = campaign.UpdatedBy,
         Data = campaign.Data,
-        MessageChannelKind = campaign.MessageChannelKind,
+        MessageChannelKind = campaign.MessageChannelKind.ToList(),
         DistributionList = campaign.DistributionList != null ? new DistributionList {
             CreatedAt = campaign.DistributionList.CreatedAt,
             CreatedBy = campaign.DistributionList.CreatedBy,
@@ -51,29 +52,16 @@ internal static class Mapper
         Id = contact.Id,
         LastName = contact.LastName,
         PhoneNumber = contact.PhoneNumber,
-        CommunicationPreferences = contact.CommunicationPreferences,
-        ConsentCommercial = contact.ConsentCommercial,
-        Locale = contact.Locale,
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
         UpdatedAt = contact.UpdatedAt,
+        Resolved = contact.Resolved == true,
+        LastResolutionDate = contact.LastResolutionDate,
         Unsubscribed = contact.DistributionListContacts.Any() && contact.DistributionListContacts[0].Unsubscribed
     };
 
     public static Contact ToContact(DbContact contact) => ProjectToContact.Compile()(contact);
 
-    public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {
-        Email = request.Email,
-        FirstName = request.FirstName,
-        FullName = request.FullName,
-        LastName = request.LastName,
-        PhoneNumber = request.PhoneNumber,
-        RecipientId = request.RecipientId,
-        Salutation = request.Salutation,
-        CommunicationPreferences = request.CommunicationPreferences,
-        ConsentCommercial = request.ConsentCommercial,
-        Locale = request.Locale
-    };
 
     public static UpdateContactRequest ToUpdateContactRequest(Contact request, Guid? distributionListId = null) => new() {
         DistributionListId = distributionListId,
@@ -83,9 +71,8 @@ internal static class Mapper
         LastName = request.LastName,
         PhoneNumber = request.PhoneNumber,
         Salutation = request.Salutation,
-        CommunicationPreferences = request.CommunicationPreferences,
-        ConsentCommercial = request.ConsentCommercial,
-        Locale = request.Locale
+        Resolved = request.Resolved,
+        LastResolutionDate = request.LastResolutionDate
     };
 
     public readonly static Expression<Func<DbCampaign, CampaignDetails>> ProjectToCampaignDetails = campaign => new() {
@@ -105,7 +92,7 @@ internal static class Mapper
         UpdatedAt = campaign.UpdatedAt,
         UpdatedBy = campaign.UpdatedBy,
         Data = campaign.Data,
-        MessageChannelKind = campaign.MessageChannelKind,
+        MessageChannelKind = campaign.MessageChannelKind.ToList(),
         DistributionList = campaign.DistributionList != null ? new DistributionList {
             CreatedAt = campaign.DistributionList.CreatedAt,
             CreatedBy = campaign.DistributionList.CreatedBy,
@@ -154,10 +141,9 @@ internal static class Mapper
         PhoneNumber = request.PhoneNumber,
         RecipientId = request.RecipientId,
         Salutation = request.Salutation,
-        CommunicationPreferences = request.CommunicationPreferences,
-        ConsentCommercial = request.ConsentCommercial,
-        Locale = request.Locale,
-        UpdatedAt = DateTimeOffset.UtcNow
+        Resolved = request.Resolved,
+        UpdatedAt = DateTimeOffset.UtcNow,
+        LastResolutionDate = request.Resolved ? DateTimeOffset.UtcNow : request.LastResolutionDate
     };
 
     public static DbContact ToDbContact(Contact contact) => new() {
@@ -169,12 +155,10 @@ internal static class Mapper
         PhoneNumber = contact.PhoneNumber,
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
-        CommunicationPreferences = contact.CommunicationPreferences,
-        ConsentCommercial = contact.ConsentCommercial,
-        Locale = contact.Locale,
-        UpdatedAt = DateTimeOffset.UtcNow
+        UpdatedAt = DateTimeOffset.UtcNow,
+        Resolved = contact.Resolved,
+        LastResolutionDate = contact.Resolved ? DateTimeOffset.UtcNow : contact.LastResolutionDate,
     };
-
     public static DbContact ToDbContact(CreateContactRequest request) => new() {
         Email = request.Email,
         FirstName = request.FirstName,
@@ -182,13 +166,47 @@ internal static class Mapper
         Id = Guid.NewGuid(),
         LastName = request.LastName,
         PhoneNumber = request.PhoneNumber,
-        CommunicationPreferences = request.CommunicationPreferences,
-        Locale = request.Locale,
-        ConsentCommercial = request.ConsentCommercial,
         RecipientId = request.RecipientId,
         Salutation = request.Salutation,
-        UpdatedAt = DateTimeOffset.UtcNow
+        Resolved = request.Resolved,
+        UpdatedAt = DateTimeOffset.UtcNow,
+        LastResolutionDate = request.Resolved ? DateTimeOffset.UtcNow : null
     };
+
+    public static DbMessageEvent ToDbEvent(this MessageEvent messageEvent) => new() {
+        CampaignId = messageEvent.CampaignId,
+        ContactId = messageEvent.ContactId,
+        CreatedOn = messageEvent.CreatedOn,
+        MessageId = messageEvent.MessageId,
+        Type = messageEvent.Type,
+        Channel = messageEvent.Channel,
+        Recipient = messageEvent.Recipient,
+        Title = messageEvent.Title,
+        Success = messageEvent.Success
+    };
+
+    public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {
+        Email = request.Email,
+        FirstName = request.FirstName,
+        FullName = request.FullName,
+        LastName = request.LastName,
+        PhoneNumber = request.PhoneNumber,
+        RecipientId = request.RecipientId,
+        Salutation = request.Salutation,
+        Resolved = request.Resolved
+    };
+
+    public static DbContactPreference? ToDbCommunicationPreference(CreateContactRequest request) {
+        if (request.CommunicationPreference is null || string.IsNullOrEmpty(request.RecipientId))
+            return null;
+        return new DbContactPreference {
+            ConsentCommercial = request.CommunicationPreference.ConsentCommercial,
+            ConsentCommercialDate = request.CommunicationPreference.ConsentCommercialDate,
+            Locale = request.CommunicationPreference.Locale,
+            RecipientId = request.RecipientId,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+    }
 
     public static CreateDistributionListContactRequest ToCreateDistributionListContactRequest(Contact contact) => new() {
         Email = contact.Email,
@@ -198,10 +216,9 @@ internal static class Mapper
         LastName = contact.LastName,
         PhoneNumber = contact.PhoneNumber,
         RecipientId = contact.RecipientId,
-        CommunicationPreferences = contact.CommunicationPreferences,
-        ConsentCommercial = contact.ConsentCommercial,
-        Locale = contact.Locale,
-        Salutation = contact.Salutation
+        Salutation = contact.Salutation,
+        Resolved = contact.Resolved,
+        LastResolutionDate = contact.LastResolutionDate
     };
 
     public static void MapFromCreateDistributionListContactRequest(this DbContact contact, CreateDistributionListContactRequest request) {
@@ -210,12 +227,14 @@ internal static class Mapper
         contact.FirstName = request.FirstName;
         contact.FullName = request.FullName;
         contact.LastName = request.LastName;
-        contact.PhoneNumber = request.PhoneNumber; 
-        contact.CommunicationPreferences = request.CommunicationPreferences;
+        contact.PhoneNumber = request.PhoneNumber;
         contact.Salutation = request.Salutation;
-        contact.Locale = request.Locale;
-        contact.ConsentCommercial = request.ConsentCommercial;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
+        // do not overwrite resolved to true once it is set. Because this way a known use would become unknown again simply by uploading a csv list.
+        if (contact.Resolved != true) {
+            contact.Resolved = request.Resolved;
+            contact.LastResolutionDate = request.Resolved ? DateTimeOffset.UtcNow : contact.LastResolutionDate;
+        }
     }
 
     public static DbAttachment ToDbAttachment(FileAttachment fileAttachment) => new() {
@@ -258,4 +277,15 @@ internal static class Mapper
     };
 
     public static ExpandoObject? ToExpandoObject(object value) => value.ToExpandoObject();
+
+    public static List<DbDistributionListContact> ToUpdatedDbDistributionListContacts(List<DbDistributionListContact> oldAssoociationList, DbContact newContact) {
+        var newAssociationList = oldAssoociationList.Select(x => new DbDistributionListContact {
+            DistributionListId = x.DistributionListId,
+            DistributionList = x.DistributionList,
+            Contact = newContact,
+            ContactId = newContact.Id,
+            Unsubscribed = x.Unsubscribed,
+        }).ToList();
+        return newAssociationList;
+    }
 }

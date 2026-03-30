@@ -1,14 +1,32 @@
 ﻿@page "/login/mfa/onboarding"
+@using Indice.Features.Identity.Core.Models
 
 @model BaseMfaOnboardingModel
 
-@inject IIdentityViewLocalizer Localizer
 @inject IConfiguration Configuration
+@inject IdentityUILocalizer Localizer
+
 
 @{
-    var title = ViewData["Title"] = Localizer["Enable MFA"].Value;
+    ViewData["Title"] = Localizer.MfaOnBoarding_PageTitle;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
+}
+@functions {
+    public string GetIconFromAuthenticationMethod(AuthenticationMethod method)
+    {
+        return method.DisplayName.ToLowerInvariant() switch
+        {
+            "viber" => "fa-brands fa-viber",
+            "sms" => "fa-regular fa-message",
+            "email" => "fa-regular fa-envelope",
+            "authenticatorapp" => "fa-solid fa-shield-halved",
+            "trusteddevice" => "fa-solid fa-mobile-screen",
+            "fido2" => "fa-solid fa-fingerprint",
+            "code" => "fa-solid fa-square-binary",
+            _ => "fa-regular fa-message"
+        };
+    }
 }
 
 <div class="sign-in m-auto">
@@ -16,12 +34,12 @@
         <a class="header-logo" href="/">
             <img src="~/img/logo@(langSuffix).svg" />
         </a>
-        <span class="header-text">@Localizer["Keep your account safe"]</span>
-        <span class="text-1">@Localizer["Setup an additional authentication method."]</span>
+        <span class="header-text">@Localizer.MfaOnBoarding_Keep_Your_Account_Safe </span>
+        <span class="text-1">@Localizer.MfaOnBoarding_Setup_An_Additional_Authentication_Method</span>
     </h1>
     <div id="authentication-methods" class="list-group">
         <!-- ko foreach: authenticationMethods -->
-        <a href="javascript:void(0)" data-sbind="event: { click: $parent.methodSelected }, css: { selected: selected }" class="list-group-item list-group-item-action">
+        <a href="javascript:void(0)" data-sbind="event: { click: $parent.methodSelected }, css: { active: selected }" class="list-group-item list-group-item-action">
             <div class="d-flex w-100 justify-content-between">
                 <h5 class="mb-1" data-sbind="text: displayName"></h5>
             </div>
@@ -35,7 +53,7 @@
         <input type="hidden" data-sbind="value: selectedMethodType" asp-for="Input.SelectedAuthenticationMethod" />
         <div class="mb-3">
             <div class="row m-0 w-100">
-                <button class="btn btn-primary w-100" name="button" value="login" type="submit">@Localizer["Next"]</button>
+                <button class="btn btn-primary w-100" name="button" value="login" type="submit">@Localizer.MfaOnBoarding_Next</button>
             </div>
         </div>
     </form>

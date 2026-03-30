@@ -24,25 +24,25 @@ public class MessageService : IMessageService
     /// <param name="campaignInboxOptions">Options used to configure the Campaigns inbox API feature.</param>
     /// <param name="contactResolver">Contact resolver service</param>
     /// <param name="contactService"></param>
-    /// <param name="campaignEventQueue">Event queue</param>
+    /// <param name="messageEventQueue">Event queue</param>
     /// <exception cref="ArgumentNullException"></exception>
     public MessageService(CampaignsDbContext dbContext,
         IOptions<MessageInboxOptions> campaignInboxOptions,
         IContactResolver contactResolver,
         IContactService contactService,
-        CampaignEventQueue campaignEventQueue) {
+        MessageEventQueue messageEventQueue) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
         ContactService = contactService;
         CampaignInboxOptions = campaignInboxOptions?.Value ?? throw new ArgumentNullException(nameof(campaignInboxOptions));
-        CampaignEventQueue = campaignEventQueue;
+        MessageEventQueue = messageEventQueue;
     }
 
     private CampaignsDbContext DbContext { get; }
     private MessageInboxOptions CampaignInboxOptions { get; }
     private IContactResolver ContactResolver { get; }
     private IContactService ContactService { get; }
-    private CampaignEventQueue CampaignEventQueue { get; }
+    private MessageEventQueue MessageEventQueue { get; }
 
     /// <inheritdoc />
     public async Task<ResultSet<Message>?> GetList(string recipientId, ListOptions<MessagesFilter>? options) {
@@ -77,12 +77,19 @@ public class MessageService : IMessageService
         }
 
         if (message.ContactId.HasValue) {
-            await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+            var inboxTitle = string.Empty;
+            if (message.Content.TryGetValue(MessageChannelKind.Inbox.ToString(), out var contentValue)) {
+                inboxTitle = contentValue.Title ?? "";
+            }
+            await MessageEventQueue.EnqueueAsync(new MessageEvent() {
                 CampaignId = message.CampaignId,
                 ContactId = message.ContactId.Value,
                 MessageId = message.Id,
-                Type = MessageEventType.MarkedAsDeleted.ToString(),
-                Channel = MessageChannelKind.Inbox.ToString()
+                Type = MessageEventType.Deleted.ToString(),
+                Channel = MessageChannelKind.Inbox.ToString(),
+                Recipient = recipientId,
+                Title = inboxTitle,
+                Success = true
             });
         }
         await DbContext.SaveChangesAsync();
@@ -110,12 +117,15 @@ public class MessageService : IMessageService
             message = await CreateMessageAndMarkAsRead(id, recipientId);
         }
         if (message.ContactId.HasValue) {
-            await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+            await MessageEventQueue.EnqueueAsync(new MessageEvent() {
                 CampaignId = message.CampaignId,
                 ContactId = message.ContactId.Value,
                 MessageId = message.Id,
-                Type = MessageEventType.MarkedAsRead.ToString(),
-                Channel = MessageChannelKind.Inbox.ToString()
+                Type = MessageEventType.Read.ToString(),
+                Channel = MessageChannelKind.Inbox.ToString(),
+                Recipient = recipientId,
+                Title = message.GetContentTitle(MessageChannelKind.Inbox),
+                Success = true
             });
         }
         await DbContext.SaveChangesAsync();
@@ -135,7 +145,7 @@ public class MessageService : IMessageService
                                 .FirstOrDefaultAsync(c => c.Id == id)
             ?? throw MessageExceptions.MessageNotFound(id);
 
-        var contact = await ContactService.FindByRecipientId(recipientId);
+        var contact = await ContactService.GetByRecipientId(recipientId);
         if (dbCampaign.DistributionListId.HasValue) {
             if (contact is null) {
                 var resolvedContact = await ContactResolver.Resolve(recipientId) ??
@@ -170,12 +180,15 @@ public class MessageService : IMessageService
             message.IsRead = false;
             message.ReadDate = null;
             if (message.ContactId.HasValue) {
-                await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+                await MessageEventQueue.EnqueueAsync(new MessageEvent() {
                     CampaignId = message.CampaignId,
                     ContactId = message.ContactId.Value,
                     MessageId = message.Id,
-                    Type = MessageEventType.MarkedAsUnread.ToString(),
-                    Channel = MessageChannelKind.Inbox.ToString()
+                    Type = MessageEventType.UnRead.ToString(),
+                    Channel = MessageChannelKind.Inbox.ToString(),
+                    Recipient = recipientId,
+                    Title = message.GetContentTitle(MessageChannelKind.Inbox),
+                    Success = true
                 });
             }
             await DbContext.SaveChangesAsync();
@@ -239,7 +252,7 @@ public class MessageService : IMessageService
 
         if (searchTerm?.Length > 2) {
             query = DbContext.Database.IsSqlServer() ?
-             query.Where(x => JsonFunctions.JsonValue(x.Message.Content, $"$.{channelKindKey.ToLower()}.title").Contains(searchTerm)) :
+             query.Where(x => JsonFunctions.JsonValue(x.Message!.Content, $"$.{channelKindKey.ToLower()}.title").Contains(searchTerm)) :
              query.Where(x => x.Campaign.Title.Contains(searchTerm));
         }
 
@@ -269,6 +282,7 @@ public class MessageService : IMessageService
             Type = x.Campaign.Type != null ? new MessageType {
                 Id = x.Campaign.Type.Id,
                 Name = x.Campaign.Type.Name,
+                Alias = x.Campaign.Type.Alias,
                 Classification = x.Campaign.Type.Classification,
             } : null
         });

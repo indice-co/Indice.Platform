@@ -1,0 +1,45 @@
+name: Code analysis (C#)
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:  
+    secrets:
+      NUGET_AUTH_TOKEN:
+        required: true
+
+jobs:
+  run-codeql-csharp:
+    permissions:
+      security-events: write
+    runs-on: windows-2025
+    steps:
+
+    - name: Harden Runner
+      uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      with:
+        egress-policy: audit
+
+    - name: Checkout Repository
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+    - name: Use .NET global.json
+      uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5.0.1
+      with:
+        global-json-file: ./global.json
+        source-url: https://api.nuget.org/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
+  
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@cdefb33c0f6224e58673d9004f47f7cb3e328b89 # v4.31.10
+      with:
+        languages: csharp
+        build-mode: none
+        config-file: ./.github/workflows/codeql/codeql-config.yml
+      
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@cdefb33c0f6224e58673d9004f47f7cb3e328b89 # v4.31.10
+      with:
+        category: "/language:csharp"

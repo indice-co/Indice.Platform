@@ -10,7 +10,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-identity-resource-details',
-    templateUrl: './identity-resource-details.component.html'
+    templateUrl: './identity-resource-details.component.html',
+    standalone: false
 })
 export class IdentityResourceDetailsComponent implements OnInit, OnDestroy {
     private _updateIdentityResourceSubscription: Subscription;

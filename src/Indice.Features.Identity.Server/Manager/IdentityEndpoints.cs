@@ -23,6 +23,8 @@ public static partial class IdentityEndpoints
         public const string Users = "identity:users";
         /// <summary>A scope that allows using the totp endpoints on IdentityServer.</summary>
         public const string Totp = "identity:totp";
+        /// <summary>A scope that allows reading the secret for a user device.</summary>
+        public const string UserDeviceSecret = "identity:users.devices.secret.read";
     }
 
     /// <summary>Identity API policies.</summary>
@@ -40,6 +42,8 @@ public static partial class IdentityEndpoints
         public const string BeClientsWriter = nameof(BeClientsWriter);
         /// <summary>A user must have the 'Admin' flag or own one of the <see cref="BasicRoleNames.Administrator"/>, <see cref="BasicRoleNames.AdminUIAdministrator"/>, <see cref="BasicRoleNames.AdminUIUsersReader"/> or <see cref="BasicRoleNames.AdminUIClientsReader"/> roles.</summary>
         public const string BeUsersOrClientsReader = nameof(BeUsersOrClientsReader);
+        /// <summary>A user must have the 'Admin' flag or own the scope <see cref="IdentityEndpoints.SubScopes.UserDeviceSecret"/> or has the <see cref="BeUsersReader"/> policy.</summary>
+        public const string BeUserDeviceSecretReader = nameof(BeUserDeviceSecretReader);
     }
 
     /// <summary>Feature flags for Identity Server API.</summary>
@@ -53,31 +57,4 @@ public static partial class IdentityEndpoints
         public const string RssFeed = nameof(RssFeed);
     }
 
-    /// <summary>Rate limiting config for Identity Server API.</summary>
-    internal static partial class RateLimiter 
-    {
-        public static IReadOnlyList<string> Endpoints { get; } = new List<string> {
-            "account/forgot-password",
-            "account/forgot-password/confirmation",
-            "account/password-options",
-            "account/username-exists",
-            "account/validate-password",
-            "totp",
-            "account/calling-codes",
-            "my/account/picture"
-        };
-
-        public static class Policies
-        {
-            public static readonly string ForgotPassword = Endpoints[0];
-            public static readonly string ForgotPasswordConfirmation = Endpoints[1];
-            public static readonly string PasswordOptions = Endpoints[2];
-            public static readonly string UserNameExists = Endpoints[3];
-            public static readonly string ValidatePassword = Endpoints[4];
-            public static readonly string Totp = Endpoints[5];
-            public static readonly string CallingCodes = Endpoints[6];
-            public static readonly string UploadPicture = Endpoints[7];
-            
-        }
-    }
 }

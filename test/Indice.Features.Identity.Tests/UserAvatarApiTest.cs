@@ -1,4 +1,4 @@
-﻿using IdentityModel;
+﻿using Duende.IdentityModel;
 using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.ResponseHandling;
@@ -17,7 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Xunit;
 using Indice.Security;
-using IdentityModel.Client;
+using Duende.IdentityModel.Client;
 using System.Security.Claims;
 using System.Net.Http.Headers;
 #if NET9_0_OR_GREATER
@@ -32,14 +32,14 @@ using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core.TokenCreation;
 #endif
-using TokenResponse = IdentityModel.Client.TokenResponse;
+using TokenResponse = Duende.IdentityModel.Client.TokenResponse;
 
 namespace Indice.Features.Identity.Tests;
 public class UserAvatarApiTest : IAsyncLifetime
 {
     // Private fields
     private readonly HttpClient _httpClient;
-    private IServiceProvider _serviceProvider;
+    private ServiceProvider _serviceProvider;
     private const string BASE_URL = "https://server";
     private const string CLIENT_ID = "api-user-client";
     private const string CLIENT_SECRET = "JUEKX2XugFv5XrX3";
@@ -49,7 +49,7 @@ public class UserAvatarApiTest : IAsyncLifetime
     public UserAvatarApiTest() {
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string> {
+            builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["test:key"] = "20"
             });
         });
@@ -108,7 +108,6 @@ public class UserAvatarApiTest : IAsyncLifetime
             });
             app.UseIdentityServer();
             app.IdentityStoreSetup();
-            _serviceProvider = app.ApplicationServices as ServiceProvider;
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
@@ -122,7 +121,7 @@ public class UserAvatarApiTest : IAsyncLifetime
         });
         var server = new TestServer(builder);
         var handler = server.CreateHandler();
-        _serviceProvider = server.Services;
+        _serviceProvider = (ServiceProvider)server.Services;
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
@@ -162,7 +161,7 @@ public class UserAvatarApiTest : IAsyncLifetime
 
 
 
-    private async Task<TokenResponse> LoginWithPasswordGrant(string userName, string password, string deviceId = null, string ipAddress = null) {
+    private async Task<TokenResponse> LoginWithPasswordGrant(string userName, string password, string? deviceId = null, string? ipAddress = null) {
         var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
         var request = new PasswordTokenRequest {
             Address = discoveryDocument.TokenEndpoint,
@@ -251,8 +250,7 @@ public class UserAvatarApiTest : IAsyncLifetime
     #endregion
 
     public async Task DisposeAsync() {
-        await Task.CompletedTask;
-        //await _serviceProvider.dispo;
+        await _serviceProvider.DisposeAsync();
     }
 
     public Task InitializeAsync() {

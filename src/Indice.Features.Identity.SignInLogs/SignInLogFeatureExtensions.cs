@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Indice.Features.Identity.Core;
-using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.ImpossibleTravel;
@@ -9,10 +8,8 @@ using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Enrichers;
 using Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 using Indice.Features.Identity.SignInLogs.EventHandlers;
-using Indice.Features.Identity.SignInLogs.GeoLite2;
 using Indice.Features.Identity.SignInLogs.Hosting;
 using Indice.Features.Identity.SignInLogs.ImpossibleTravel;
-using Indice.Features.Identity.SignInLogs.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -76,9 +73,7 @@ public static class SignInLogFeatureExtensions
         services.AddDefaultFilters();
         services.AddTransient<SignInLogEntryEnricherAggregator>();
         services.AddSingleton<SignInLogEntryQueue>();
-        services.AddSingleton<CityDatabaseReader>();
-        services.AddSingleton<CountryDatabaseReader>();
-        services.AddScoped<IPAddressLocator>();
+        services.AddGeoIPResolver();
         // Enable feature management for this module.
         services.AddFeatureManagement(configuration.GetSection(IdentityServerFeatures.Section));
         // Add a default implementation in case one is not specified. Avoids DI errors.
@@ -97,6 +92,7 @@ public static class SignInLogFeatureExtensions
             builder.Services.TryAddScoped<ISignInGuard<TUser>, SignInGuard<TUser>>();
         }
         services.AddPlatformEventHandler<PasswordChangedEvent, UserPasswordChangedEventHandler>();
+        services.AddPlatformEventHandler<AccountLockedEvent, AccountLockedEventHandler>();
         return builder;
     }
 

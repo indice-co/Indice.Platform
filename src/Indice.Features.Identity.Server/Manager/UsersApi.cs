@@ -6,6 +6,7 @@ using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -15,7 +16,7 @@ public static class UsersApi
     /// <summary>Adds endpoints for managing application users.</summary>
     /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageUsers(this IdentityServerEndpointRouteBuilder routes) {
-        
+
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/users");
         group.WithTags("Users");
@@ -27,7 +28,7 @@ public static class UsersApi
              .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
              .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden)
              .ProducesProblem(StatusCodes.Status500InternalServerError);
@@ -127,9 +128,19 @@ public static class UsersApi
              .WithSummary("Gets a list of the external login providers for the specified user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
-        group.MapDelete("{userId}/external-logins/{provider}", UserHandlers.DeleteUserExternalLogin)
+        group.MapDelete("{userId}/external-logins/{provider}/{providerKey}", UserHandlers.DeleteUserExternalLogin)
              .WithName(nameof(UserHandlers.DeleteUserExternalLogin))
              .WithSummary("Permanently deletes a specified login provider association from a user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
+        group.MapGet("{userId}/sessions", UserHandlers.GetUserSessions)
+             .WithName(nameof(UserHandlers.GetUserSessions))
+             .WithSummary("Gets a list of server side sessions for the specified user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        group.MapDelete("{userId}/sessions/{sessionId}", UserHandlers.RemoveUserSession)
+             .WithName(nameof(UserHandlers.RemoveUserSession))
+             .WithSummary("Permanently removes an active session.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapPut("{userId}/block", UserHandlers.SetUserBlock)
@@ -149,6 +160,10 @@ public static class UsersApi
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
              .WithParameterValidation<SetPasswordRequest>();
 
+        group.MapDelete("{userId}/password", UserHandlers.RemovePassword)
+             .WithName(nameof(UserHandlers.RemovePassword))
+             .WithSummary("Removes the last password for the given user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapPut("{userId}/picture", PictureHandlers.SaveUserPicture)
              .WithName(nameof(PictureHandlers.SaveUserPicture))
@@ -184,6 +199,24 @@ public static class UsersApi
              .WithName("GetUserPictureSizeFormat")
              .WithSummary("Get user's profile picture.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        var userDeviceSecretGroup = routes.MapGroup($"{options.ApiPrefix}/users");
+        userDeviceSecretGroup.WithTags("Users");
+        userDeviceSecretGroup.WithGroupName("identity");
+
+        userDeviceSecretGroup.ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        userDeviceSecretGroup.RequireAuthorization(IdentityEndpoints.Policies.BeUserDeviceSecretReader);
+        userDeviceSecretGroup
+            .AddOpenApiSecurityRequirement("oauth2", [options.ApiScope!, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.UserDeviceSecret])
+            .WithOpenApiSecurityRequirement("oauth2", [options.ApiScope!, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.UserDeviceSecret]);
+
+        userDeviceSecretGroup.MapGet("{userId}/devices/{deviceId}/secrets", UserHandlers.GetUserDeviceSecrets)
+             .WithName(nameof(UserHandlers.GetUserDeviceSecrets))
+             .WithSummary("Get the secrets for a user device.")
+             .Produces<List<JsonWebKey>>(StatusCodes.Status200OK, "application/jwk+json");
 
         return group;
     }

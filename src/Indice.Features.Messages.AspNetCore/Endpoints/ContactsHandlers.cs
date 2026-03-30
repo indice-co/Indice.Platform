@@ -7,15 +7,13 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
-internal static class ContactsHandlers
-{
+internal static class ContactsHandlers {
     public static async Task<Ok<ResultSet<Contact>>> GetContacts(
         IContactService contactService,
         IContactResolver contactResolver,
         [AsParameters] ListOptions options,
         [AsParameters] ContactListFilter filter,
         bool? resolve) {
-
         ResultSet<Contact> contacts;
         if (resolve == true) {
             contacts = await contactResolver.Find(new ListOptions {
@@ -30,25 +28,35 @@ internal static class ContactsHandlers
         return TypedResults.Ok(contacts);
     }
 
-    public static async Task<Results<Ok<Contact>, NotFound>> GetContactById(IContactService contactService, Guid contactId) {
-        var contact = await contactService.GetById(contactId);
+    public static async Task<Results<Ok<Contact>, NotFound>> GetContactById(IContactService contactService, Guid contactId, bool? expandPreferences = null) {
+        var contact = await contactService.GetById(contactId, expandPreferences ?? false);
         if (contact is null) {
             return TypedResults.NotFound();
         }
         return TypedResults.Ok(contact);
     }
 
-    public static async Task<Ok<Contact>> CreateContact(IContactService contactService, CreateContactRequest request) {
+    public static async Task<Ok<Contact>> CreateContact(IContactService contactService,
+        CreateContactRequest request) {
+        if (!string.IsNullOrWhiteSpace(request.RecipientId) && request.CommunicationPreference is not null) {
+            await contactService.UpdateContactPreferences(request.RecipientId, request.CommunicationPreference);
+        }
         var contact = await contactService.Create(request);
         return TypedResults.Ok(contact);
     }
 
-    public static async Task<NoContent> UpdateContact(IContactService contactService, Guid contactId, UpdateContactRequest request) {
+    public static async Task<NoContent> UpdateContact(IContactService contactService,
+        Guid contactId,
+        UpdateContactRequest request) {
+        if (!string.IsNullOrWhiteSpace(request.RecipientId) && request.Preference is not null) {
+            await contactService.UpdateContactPreferences(request.RecipientId, request.Preference);
+        }
         await contactService.Update(contactId, request);
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, NotFound, ValidationProblem>> RefreshContact(IContactService contactService, IContactResolver contactResolver, string recipientId) {
+    public static async Task<Results<NoContent, NotFound, ValidationProblem>> ResolveContact(IContactService contactService,
+        IContactResolver contactResolver, string recipientId) {
 
         if (string.IsNullOrWhiteSpace(recipientId))
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(recipientId), "Recipient cannot be null"));
@@ -58,15 +66,57 @@ internal static class ContactsHandlers
             return TypedResults.NotFound();
         }
 
-        var contact = await contactService.FindByRecipientId(recipientId);
+        var contact = await contactService.GetByRecipientId(recipientId);
         if (contact is null) {
             await contactService.Create(Mapper.ToCreateContactRequest(resolvedContact));
+            await contactService.UpdateContactPreferences(recipientId, resolvedContact.Preference!);
             return TypedResults.NoContent();
         }
 
         resolvedContact.Id = contact.Id;
         await contactService.Update(contact.Id!.Value, Mapper.ToUpdateContactRequest(resolvedContact));
+        await contactService.UpdateContactPreferences(recipientId, resolvedContact.Preference!);
         return TypedResults.NoContent();
+    }
+
+    public static async Task<Results<Ok<ContactPreference>, NotFound>> GetPreferences(
+        IContactService contactService,
+         Guid contactId
+     ) {
+        var contact = await contactService.GetById(contactId);
+        if (contact is null || string.IsNullOrWhiteSpace(contact.RecipientId)) {
+            return TypedResults.NotFound();
+        }
+        var preferences = await contactService.GetContactPreference(contact.RecipientId);
+        return TypedResults.Ok(preferences);
+    }
+
+    public static async Task<Results<Ok<ResultSet<Contact>>, NotFound>> GetDuplicateContacts(IContactService contactService, Guid contactId, [AsParameters] ListOptions options) {
+        var contact = await contactService.GetById(contactId);
+        if (contact is null || string.IsNullOrWhiteSpace(contact.RecipientId)) {
+            return TypedResults.NotFound();
+        }
+        var duplicateContacts = await contactService.GetDuplicates(contact,options);
+        return TypedResults.Ok(duplicateContacts);
+    }
+
+    public static async Task<Results<Ok, ValidationProblem>> MergeContacts(IContactService contactService, Guid mainContactId, List<Guid> duplicateContactsIds) {
+        var mainContact = await contactService.GetById(mainContactId);
+        if (mainContact is null) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(mainContact), "No Contact was found with the given Id."));
+        }
+        if(string.IsNullOrWhiteSpace(mainContact.RecipientId)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("Invalid Main Contact","The main contact does not have a recipient Id"));
+        }
+        if (duplicateContactsIds is null || duplicateContactsIds.Count == 0) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(duplicateContactsIds), "Duplicates list cannot be empty"));
+        }
+        if (duplicateContactsIds.Contains(mainContactId)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("Invalid duplicateContactsIds", "Duplicates List should not contain main contact Id"));
+        }
+        duplicateContactsIds = duplicateContactsIds.Distinct().ToList();
+        await contactService.MergeContacts(mainContact, duplicateContactsIds);
+        return TypedResults.Ok();
     }
 
     #region Descriptions
@@ -75,7 +125,12 @@ Retrieves the list of all contacts using the provided ListOptions.
 
 Parameters:
 - options: List parameters used to navigate through collections, including sort, search, page number, and page size.
-- resolve: Determines whether to use the contact resolver service for additional processing; set to true to resolve contacts, or false to retrieve directly from contactService.
+";
+    public static readonly string GET_RESOLVED_CONTACTS_DESCRIPTION = @"
+Retrieves the list of all contacts from the remote store using the provided ListOptions.
+
+Parameters:
+- options: List parameters used to navigate through collections, including sort, search, page number, and page size.
 ";
 
     public static readonly string GET_CONTACT_BY_ID_DESCRIPTION = @"
@@ -99,13 +154,21 @@ Parameters:
 - contactId: The unique ID of the contact to update.
 - request: The request model used to update the contact.
 ";
-    public static readonly string REFRESH_CONTACT_DESCRIPTION = @"
+    public static readonly string RESOLVE_CONTACT_DESCRIPTION = @"
 Updates an existing contact in the store or adds a new contact with data from an external system.
 
 Parameters:
-- recepientId: The unique ID of the recepient.
+- recipientId: The unique correlation ID for the contact in the external system.
+";
+    public static readonly string GET_CONTACT_COMMUNICATION_PREFERENCES = @"
+Retrieves the communication preferences for a specific contact.
 ";
 
-
+    public static readonly string GET_CONTACT_DUPLICATES = @"
+Retrieves the list of all potential duplicate accounts for the given contact Id
+";
+    public static readonly string MERGE_CONTACTS = @"
+Merge a list of duplicate contacts into a main resolved contact
+";
     #endregion
 }

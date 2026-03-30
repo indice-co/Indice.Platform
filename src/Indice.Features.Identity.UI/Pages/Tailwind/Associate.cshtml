@@ -2,82 +2,82 @@
 
 @model BaseAssociateModel
 
-@inject IIdentityViewLocalizer Localizer
+@inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = $"{Localizer["Associate your"].Value} {Model.View.Provider} {Localizer["account"].Value}";
+    ViewData["Title"] = Localizer.Register_Associate_your_Account(Model.View.Provider);
 }
 
-<section class="sign-up m-auto">
-    <vc:page-heading title="@title" image-src="" />
-    <partial name="_ValidationSummary" />
-    <form asp-page="/Associate" method="post" autocomplete="off" novalidate>
-        <input type="hidden" asp-for="Input.ReturnUrl" />
-        <input type="hidden" asp-for="Input.UserName" />
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Input.FirstName">@Localizer["First name"]</label>
-                    <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Localizer["First name"]" autofocus />
-                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
-                </div>
+<div class="content-wrapper">
+    <div class="card-wrapper register">
+        <vc:page-heading title="@Localizer.Associate_PageHeader" image-src="" />
+        <partial name="_ValidationSummary" />
+        <form asp-page="/Associate" method="post" autocomplete="off" novalidate>
+            <input type="hidden" asp-for="Input.ReturnUrl" />
+            <input type="hidden" asp-for="Input.UserName" />
+            <div class="row">
+                @if (Model.View.ShowFullName)
+                {
+                    <div class="input-group">
+                        <label class="form-label">@Localizer.Profile_FullName</label>
+                        <input class="form-control" type="text" placeholder="@Localizer.Profile_FullName" value="@Model.Input.LastName @Model.Input.FirstName" readonly="readonly" />
+                        <input class="form-control" type="hidden" asp-for="Input.FirstName" />
+                        <input class="form-control" type="hidden" asp-for="Input.LastName" />
+                    </div>
+                }
+                else
+                {
+                    <div class="input-group-w-full">
+                        <label asp-for="Input.FirstName">@Localizer.Profile_First_Name</label>
+                        <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Localizer.Profile_First_Name" autofocus readonly="@Model.View.DisableEditGivenName" />
+                        <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="input-group">
+                        <label asp-for="Input.LastName" class="">@Localizer.Profile_Last_Name</label>
+                        <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Localizer.Profile_Last_Name" readonly="@Model.View.DisableEditFamilyName" />
+                        <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                    </div>
+                }
             </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Input.LastName" class="">@Localizer["Last name"]</label>
-                    <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Localizer["Last name"]" />
-                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Input.LastName" class="">@Localizer["Phone number"]</label>
-                    <input class="form-control" type="tel" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+            <div class="row">
+
+                <div class="input-group">
+                    <label asp-for="Input.PhoneNumber" class="">@Localizer.Profile_Phone_Number</label>
+                    <input class="form-control" type="tel" asp-for="Input.PhoneNumber" placeholder="@Localizer.Profile_Phone_Number" />
                     <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Input.Email" class="">@Localizer["Email"]</label>
-                    <input class="form-control" type="email" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
+                <div class="input-group">
+                    <label asp-for="Input.Email" class="">@Localizer.Email</label>
+                    <input class="form-control" type="email" asp-for="Input.Email" placeholder="@Localizer.Email" />
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
+
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="form-group">
+            <div class="grid grid-cols-1 place-items-start place-content-start mb-4">
+                <div class="col-span-1 flex flex-row text-left mb-4">
+                    <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
                     <label class="checkbox">
-                        <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
-                        @Localizer["I have read and accept the <a href=\"/terms\" target=\"_blank\">Terms of service</a> and the <a href=\"/privacy\" target=\"_blank\">privacy policy</a>."]
+                        @Localizer.Register_I_Have_Read_And_Accept_Terms()
                     </label>
-                    <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
                 </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="form-group">
+                <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
+                <div class="col-span-1 flex flex-row text-left">
+                    <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
                     <label class="checkbox">
-                        <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
-                        @Localizer["I consent to the registration and processing of the above personal details for my contact and service as they are defined"]
-                        <a style="font-weight:bold" asp-page="/Privacy" target="_blank">@Localizer["here"].</a>.
+                        @Localizer.Register_I_Consent_To_Registration()
+                        <a style="font-weight:bold" asp-page="/Privacy" target="_blank">@Localizer.Register_Here.</a>.
                     </label>
-                    <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
+                </div>
+                <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
+            </div>
+            <div class="row content-center place-items-center text-center mt-8">
+                <div class="col-span-12">
+                    <button class="btn btn-primary btn-block btn-hover" type="submit">@Localizer.Register_Register</button>
                 </div>
             </div>
-        </div>
-        <div class="row align-items-center">
-            <div class="col-xl-6 col-12">
-                <div class="form-group">
-                    <button class="btn btn-primary btn-block btn-hover" type="submit">@Localizer["Register"]</button>
-                </div>
-            </div>
-        </div>
-    </form>
-</section>
+        </form>
+    </div>
+</div>
 
 @section scripts {
     <partial name="_ValidationScripts" />

@@ -42,13 +42,14 @@ public class NotificationsManager(
     /// <summary>Creates a new message for the specified recipients.</summary>
     /// <param name="title">The title of the campaign.</param>
     /// <param name="templates">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
+    /// <param name="mediaBaseHref">The base href for media links in the message content.</param>
     /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
     /// <param name="actionLink">Defines a (call-to-action) link.</param>
     /// <param name="type">The id or name of the campaign type.</param>
     /// <param name="data">Optional data for the campaign.</param>
     /// <param name="attachment">An attachement available to email and inbox channels</param>
     /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
-    public async Task<CreateCampaignResult> SendMessageToRecipients(string title, Dictionary<MessageChannelKind, MessageContent> templates, Period? period = null,
+    public async Task<CreateCampaignResult> SendMessageToRecipients(string title, Dictionary<MessageChannelKind, MessageContent> templates, Uri mediaBaseHref, Period? period = null,
         Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null, params string[] recipientIds) {
         Guid? typeId = null;
         if (!string.IsNullOrWhiteSpace(type)) {
@@ -73,6 +74,7 @@ public class NotificationsManager(
             RecipientIds = recipientIds?.ToList(),
             Title = title,
             TypeId = typeId,
+            MediaBaseHref = mediaBaseHref.ToString(),
             Attachments = attachment is null ? [] : [attachment],
         };
         return await CreateCampaignInternal(request);
@@ -82,76 +84,81 @@ public class NotificationsManager(
     /// <param name="recipientId">The id of the recipient.</param>
     /// <param name="title">The title of the campaign.</param>
     /// <param name="templates">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
+    /// <param name="mediaBaseHref">The base href for media links in the message content.</param>
     /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
     /// <param name="actionLink">Defines a (call-to-action) link.</param>
     /// <param name="type">The id or name of the campaign type.</param>
     /// <param name="data">Optional data for the campaign.</param>
     /// <param name="attachment">An attachement available to email and inbox channels</param>
-    public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, Dictionary<MessageChannelKind, MessageContent> templates, Period? period = null,
+    public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, Dictionary<MessageChannelKind, MessageContent> templates, Uri mediaBaseHref, Period? period = null,
         Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null) =>
-        SendMessageToRecipients(title, templates, period, actionLink, type, data, attachment, recipientId);
+        SendMessageToRecipients(title, templates, mediaBaseHref, period, actionLink, type, data, attachment, recipientId);
 
     /// <summary>Creates a new message for the specified recipient.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <param name="title">The title of the campaign.</param>
     /// <param name="channels">The delivery channels of a campaign.</param>
     /// <param name="template">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
+    /// <param name="mediaBaseHref">The base href for media links in the message content.</param>
     /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
     /// <param name="actionLink">Defines a (call-to-action) link.</param>
     /// <param name="type">The id or name of the campaign type.</param>
     /// <param name="data">Optional data for the campaign.</param>
     /// <param name="attachment">An attachement available to email and inbox channels</param>
-    public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind channels, MessageContent template, Period? period = null,
+    public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind channels, MessageContent template, Uri mediaBaseHref, Period? period = null,
         Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null) =>
-        SendMessageToRecipients(title, channels.GetFlagValues().ToDictionary(x => x, y => template), period, actionLink, type, data, attachment, recipientId);
+        SendMessageToRecipients(title, channels.GetFlagValues().ToDictionary(x => x, y => template), mediaBaseHref, period, actionLink, type, data, attachment, recipientId);
 
     /// <summary>Creates a new message for the specified recipient.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <param name="title">The title of the campaign.</param>
     /// <param name="channels">The delivery channels of a campaign.</param>
     /// <param name="templateId">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
+    /// <param name="mediaBaseHref">The base href for media links in the message content.</param>
     /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
     /// <param name="actionLink">Defines a (call-to-action) link.</param>
     /// <param name="type">The id or name of the campaign type.</param>
     /// <param name="data">Optional data for the campaign.</param>
     /// <param name="attachment">An attachement available to email and inbox channels</param>
-    public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind channels, Guid templateId, Period? period = null,
+    public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind channels, Guid templateId, Uri mediaBaseHref, Period? period = null,
         Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null) =>
-        SendMessageToRecipients(title, channels, templateId, period, actionLink, type, data, attachment, recipientId);
+        SendMessageToRecipients(title, channels, templateId, mediaBaseHref, period, actionLink, type, data, attachment, recipientId);
 
     /// <summary>Creates a new message for the specified recipients.</summary>
     /// <param name="title">The title of the campaign.</param>
     /// <param name="channels">The delivery channels of a campaign.</param>
     /// <param name="templateId">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
+    /// <param name="mediaBaseHref">The base href for media links in the message content.</param>
     /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
     /// <param name="actionLink">Defines a (call-to-action) link.</param>
     /// <param name="type">The id or name of the campaign type.</param>
     /// <param name="data">Optional data for the campaign.</param>
     /// <param name="attachment">An attachement available to email and inbox channels</param>
     /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
-    public async Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, Guid templateId, Period? period = null,
+    public async Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, Guid templateId, Uri mediaBaseHref, Period? period = null,
         Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null, params string[] recipientIds) {
         var template = await TemplateService.GetById(templateId);
         var arrayOfChannel = channels.GetFlagValues();
         return await SendMessageToRecipients(title, template?.Content
                                                             .Select(x => new KeyValuePair<MessageChannelKind, MessageContent>(Enum.Parse<MessageChannelKind>(x.Key, ignoreCase: true), x.Value))
                                                             .Where(x => arrayOfChannel.Contains(x.Key))
-                                                            .ToDictionary(x => x.Key, x => x.Value), period, actionLink, type, data, attachment, recipientIds);
+                                                            .ToDictionary(x => x.Key, x => x.Value), mediaBaseHref, period, actionLink, type, data, attachment, recipientIds);
     }
 
     /// <summary>Creates a new message for the specified recipients.</summary>
     /// <param name="title">The title of the campaign.</param>
     /// <param name="channels">The delivery channels of a campaign.</param>
     /// <param name="template">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
+    /// <param name="mediaBaseHref">The base href for media links in the message content.</param>
     /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
     /// <param name="actionLink">Defines a (call-to-action) link.</param>
     /// <param name="type">The id or name of the campaign type.</param>
     /// <param name="data">Optional data for the campaign.</param>
     /// <param name="attachment">An attachement available to email and inbox channels</param>
     /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
-    public Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, MessageContent template, Period? period = null,
-        Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null, params string[] recipientIds) =>
-        SendMessageToRecipients(title, channels.GetFlagValues().ToDictionary(x => x, y => template), period, actionLink, type, data, attachment, recipientIds);
+    public Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, MessageContent template, Uri mediaBaseHref, Period? period = null,
+        Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null , params string[] recipientIds) =>
+        SendMessageToRecipients(title, channels.GetFlagValues().ToDictionary(x => x, y => template), mediaBaseHref, period, actionLink, type, data, attachment, recipientIds);
 
     internal async Task<CreateCampaignResult> CreateCampaignInternal(CreateCampaignRequest request, bool? validateRules = true) {
         if (validateRules == true) {
@@ -167,11 +174,18 @@ public class NotificationsManager(
         // If a distribution list id is not set, then we create a new list.
         if (!request.RecipientListId.HasValue) {
             var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
-                Name = $"{request.Title} - {timestamp}",
+                Name = $"{request.Title.Truncate(110)} - {timestamp}",
                 IsSystemGenerated = true
             }, request.GetIncludedContacts());
             request.RecipientListId = createdList.Id;
             isNewDistributionList = true;
+        } else {
+            // If a distribution list id is set, then we check if it exists.
+            var distributionList = await DistributionListService.GetById(request.RecipientListId.Value);
+            if (distributionList is null) {
+                return CreateCampaignResult.Fail($"The specified Distribution List with Id:({request.RecipientListId}) does not exist");
+            }
+            request.RecipientListId = distributionList.Id;
         }
         // create the attachemtns
         if (request.Attachments.Any()) {
@@ -198,17 +212,19 @@ public class NotificationsManager(
             }
             request.Data ??= template.Data;
             var content = template.Content;
-            if (request.MessageTemplateChannels.HasValue && request.MessageTemplateChannels != MessageChannelKind.None) {
-                var channels = request.MessageTemplateChannels.Value
-                                    .GetFlagValues()
+            if (request.MessageTemplateChannels?.Count > 0) {
+                var channels = request.MessageTemplateChannels
                                     .Select(f => f.ToString())
                                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
-                content = new (template.Content.Where(cnt => channels.Contains(cnt.Key)));
+                content = new(template.Content.Where(cnt => channels.Contains(cnt.Key)));
                 if (content.Count == 0) {
                     return CreateCampaignResult.Fail($"Content was empty after applying the messageTemplateChannels to the selected Template with Id:({request.MessageTemplateId})");
                 }
             }
             request.Content = content;
+            if (template.MessageType is not null) {
+                request.TypeId = template.MessageType.Id;
+            }
         }
         if (request.TypeId.HasValue) {
             var messageType = await MessageTypeService.GetById(request.TypeId.Value);
@@ -259,6 +275,7 @@ public class NotificationsManager(
 
     /// <summary>Gets a list of all available templates.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    /// <param name="filter">Filter parameters</param>
     /// <returns></returns>
-    public Task<ResultSet<TemplateListItem>> GetTemplates(ListOptions options) => TemplateService.GetList(options);
+    public Task<ResultSet<TemplateListItem>> GetTemplates(ListOptions options, TemplateListFilter filter) => TemplateService.GetList(ListOptions.Create(options, filter));
 }

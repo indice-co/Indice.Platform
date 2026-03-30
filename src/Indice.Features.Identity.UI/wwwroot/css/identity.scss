@@ -206,7 +206,12 @@ main {
 a{
     font-weight: bold;
 }
-
+.terms-last-update {
+    text-align:right;
+}
+.grecaptcha-badge {
+    bottom:50px!important;
+}
 @import 'consent';
 @import 'error40X';
 @import 'forms';

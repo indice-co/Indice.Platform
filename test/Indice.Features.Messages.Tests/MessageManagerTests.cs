@@ -21,7 +21,7 @@ namespace Indice.Features.Messages.Tests;
 public class MessageManagerTests : IAsyncLifetime
 {
     public MessageManagerTests() {
-        var inMemorySettings = new Dictionary<string, string> {
+        var inMemorySettings = new Dictionary<string, string?> {
             ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true"
         };
         IConfiguration configuration = new ConfigurationBuilder()
@@ -30,7 +30,7 @@ public class MessageManagerTests : IAsyncLifetime
         var services = new ServiceCollection()
             .AddLogging()
             .AddTransient<IHostEnvironment>(serviceProvider => new HostingEnvironment {
-                ApplicationName = typeof(MessageManagerTests).Assembly.GetName().Name,
+                ApplicationName = typeof(MessageManagerTests).Assembly.GetName().Name!,
                 EnvironmentName = Environments.Development,
                 ContentRootPath = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\"),
                 ContentRootFileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\"))
@@ -117,7 +117,8 @@ public class MessageManagerTests : IAsyncLifetime
             templates: new Dictionary<MessageChannelKind, MessageContent> {
                 [MessageChannelKind.Inbox] = new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company."),
                 [MessageChannelKind.PushNotification] = new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.")
-            }
+            },
+            mediaBaseHref: new ("https://media.test")
         );
         Assert.True(result.Succeeded);
         Assert.NotEqual(default, result.CampaignId);
@@ -130,7 +131,8 @@ public class MessageManagerTests : IAsyncLifetime
             recipientId: Guid.NewGuid().ToString(),
             title: "Welcome",
             channels: MessageChannelKind.Inbox | MessageChannelKind.PushNotification,
-            template: new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.")
+            template: new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company."),
+            mediaBaseHref: new("https://media.test")
         );
         Assert.True(result.Succeeded);
         Assert.NotEqual(default, result.CampaignId);

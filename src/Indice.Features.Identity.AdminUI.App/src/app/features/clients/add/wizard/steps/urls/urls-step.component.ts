@@ -6,7 +6,8 @@ import { ClientWizardModel } from '../../models/client-wizard-model';
 
 @Component({
     selector: 'app-urls-step',
-    templateUrl: './urls-step.component.html'
+    templateUrl: './urls-step.component.html',
+    standalone: false
 })
 export class UrlsStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
     constructor() {

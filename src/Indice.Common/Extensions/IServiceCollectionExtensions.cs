@@ -60,6 +60,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddEmailServiceNoop(this IServiceCollection services) {
         services.TryAddSingleton<IEmailService, EmailServiceNoop>();
         services.AddHtmlRenderingEngineNoop();
+        services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
         return services;
     }
 
@@ -82,6 +83,13 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddSmsServiceNoop(this IServiceCollection services) {
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         services.TryAddSingleton<ISmsService, SmsServiceNoop>();
+        return services;
+    }
+
+    /// <summary>Adds the default implementation of <see cref="IMagicBytesValidator"/>.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddMagicBytesValidator(this IServiceCollection services) {
+        services.TryAddSingleton<IMagicBytesValidator, MagicBytesValidator>();
         return services;
     }
 

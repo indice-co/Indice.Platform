@@ -7,7 +7,8 @@ import { ValidationSummaryComponent } from 'src/app/shared/components/validation
 
 @Component({
     selector: 'app-setting-add',
-    templateUrl: './setting-add.component.html'
+    templateUrl: './setting-add.component.html',
+    standalone: false
 })
 export class SettingAddComponent {
     @ViewChild('validationSummary', { static: false }) private _validationSummary: ValidationSummaryComponent;

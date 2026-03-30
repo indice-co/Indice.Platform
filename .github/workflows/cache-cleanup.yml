@@ -1,0 +1,37 @@
+name: "Github Cache Cleanup"
+
+permissions:
+  contents: read
+
+# Github cache cleanup schedule, every day at 23:59 (except Saturday & Sunday)
+# Can be run manually from the UI too
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "59 23 * * 1-5"
+
+jobs:
+  cache-cleanup:
+    name: Github Cache Cleanup
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+    - name: Harden the runner (Audit all outbound calls)
+      uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      with:
+        egress-policy: audit
+
+    - name: Github Cache Cleanup
+      run: |
+        cacheCount=$(gh cache list --json id --jq '. | length')
+        if [ "$cacheCount" -eq 0 ]; then
+          echo "No cache found"
+        else
+          echo "Found $cacheCount caches"
+          gh cache delete --all --repo indice-co/Indice.Platform
+          echo "Cache storage successfully deleted"
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_REPO: ${{ github.repository }}

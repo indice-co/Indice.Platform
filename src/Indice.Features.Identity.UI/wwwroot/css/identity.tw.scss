@@ -1,8 +1,17 @@
-﻿/* You can add global styles to this file, and also import other style files */
+﻿@use 'tailwind/alerts';
+@use 'tailwind/ribbon';
+@use 'tailwind/grants';
+@use 'tailwind/buttons';
+@use 'tailwind/home';
+@use 'tailwind/menu';
+@use 'tailwind/deck';
+@use 'tailwind/passrules';
+@use 'tailwind/sidebar';
+@use 'tailwind/article';
+/* You can add global styles to this file, and also import other style files */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 
 :root {
     --tenant900: #005b96;
@@ -219,14 +228,3 @@
         @apply grid grid-cols-12 gap-5 md:gap-7 md:mb-7 mb-5;
     }
 }
-
-@import 'tailwind/alerts';
-@import 'tailwind/ribbon';
-@import 'tailwind/grants';
-@import 'tailwind/buttons';
-@import 'tailwind/home';
-@import 'tailwind/menu';
-@import 'tailwind/deck';
-@import 'tailwind/passrules';
-@import 'tailwind/sidebar';
-@import 'tailwind/article';

@@ -7,6 +7,7 @@ using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
@@ -64,8 +65,7 @@ internal static class MyMessagesHandlers
     }
 
     public static async Task<NoContent> MarkAllAsRead(
-        string? searchTerm,
-        [AsParameters] MessagesFilter filter,
+        MarkAsReadRequest request,
         IEventDispatcherFactory eventDispatcherFactory,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         ClaimsPrincipal currentUser
@@ -75,8 +75,8 @@ internal static class MyMessagesHandlers
         await eventDispatcher.RaiseEventAsync(
             new MarkMessagesReadEvent {
                 UserCode = userCode,
-                SearchTerm = searchTerm,
-                Filter = filter
+                SearchTerm = request.Search,
+                Filter = request
             },
             builder => builder.WrapInEnvelope().WithQueueName(EventNames.MarkAllAsRead)
         );
@@ -84,8 +84,7 @@ internal static class MyMessagesHandlers
     }
 
     public static async Task<NoContent> MarkAllAsUnRead(
-        string? searchTerm,
-        [AsParameters] MessagesFilter filter,
+        MarkAsReadRequest request,
         IEventDispatcherFactory eventDispatcherFactory,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         ClaimsPrincipal currentUser
@@ -95,8 +94,8 @@ internal static class MyMessagesHandlers
         await eventDispatcher.RaiseEventAsync(
             new MarkMessagesUnreadEvent {
                 UserCode = userCode,
-                SearchTerm = searchTerm,
-                Filter = filter
+                SearchTerm = request.Search,
+                Filter = request
             },
             builder => builder.WrapInEnvelope().WithQueueName(EventNames.MarkAllAsUnread)
         );
@@ -132,6 +131,25 @@ internal static class MyMessagesHandlers
         string format) {
         var fileResult = await CampaignsHandlers.GetFile(fileServiceFactory, "campaigns", fileGuid, format);
         return fileResult;
+    }
+    public static async Task<Ok<ContactPreference>> GetMyCommunicationPreferences(
+        IContactService contactService,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        ClaimsPrincipal currentUser
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        var preferences = await contactService.GetContactPreference(userCode);
+        return TypedResults.Ok(preferences);
+    }
+    public static async Task<NoContent> UpdateMyCommunicationPreferences(
+        IContactService contactService,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        ClaimsPrincipal currentUser,
+        UpdatePreferenceRequest request
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        await contactService.UpdatePreference(userCode, request);
+        return TypedResults.NoContent();
     }
 
     #region Descriptions
@@ -192,6 +210,14 @@ Parameters:
 - fileGuid: Contains the photo's ID.
 - format: Contains the format of the uploaded attachment extension.
 ";
+
+    public static readonly string GET_COMMUNICATION_PREFERENCES_DESCRIPTION = @"Gets all user communication preferences.";
+
+    public static readonly string UPDATE_COMMUNICATION_PREFERENCES_DESCRIPTION = @"
+Updates user's communucation preferences.
+
+Parameters:
+- contactId: The unique ID of the contact to update.";
 
     #endregion
 

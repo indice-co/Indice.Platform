@@ -46,6 +46,12 @@ public static class WorkerHostBuilderExtensions
         workerHostBuilder.Services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
             messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
         });
+        workerHostBuilder.Services.Configure<MessagingDatabaseCleanUpOptions>(dbCleanUpOptions => {
+            dbCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
+            dbCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
+            dbCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
+            dbCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
+        });
         workerHostBuilder.Services.AddHostedService<StartupSeedHostedService>();
         return workerHostBuilder;
     }
@@ -81,7 +87,13 @@ public static class WorkerHostBuilderExtensions
             options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
             options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
             options.InstanceCount = 1;
+        })
+        .AddJob<MessagingDatabaseCleanUpJobHandler>().WithScheduleTrigger(messageOptions.DatabaseCleanUpCronExpression, options => {
+            options.Singleton = true;
+            options.Name = nameof(MessagingDatabaseCleanUpJobHandler);
+            options.Group = nameof(MessagingDatabaseCleanUpJobHandler);
         });
+
     }
 
     private static void AddJobHandlerServices(this IServiceCollection services) {
@@ -90,6 +102,7 @@ public static class WorkerHostBuilderExtensions
         services.TryAddTransient<ICampaignJobHandler<SendPushNotificationEvent>, SendPushNotificationHandler>();
         services.TryAddTransient<ICampaignJobHandler<SendEmailEvent>, SendEmailHandler>();
         services.TryAddTransient<ICampaignJobHandler<SendSmsEvent>, SendSmsHandler>();
+        services.TryAddTransient<ICampaignJobHandler<MessagingDatabaseCleanUpTimerEvent>, MessagingDatabaseCleanUpHandler>();
         services.AddTransient<MessageJobHandlerFactory>();
     }
 
@@ -107,6 +120,7 @@ public static class WorkerHostBuilderExtensions
         services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
         services.TryAddTransient<IDistributionListService, DistributionListService>();
         services.TryAddTransient<IMessageService, MessageService>();
+        services.TryAddTransient<IMessageEventService, MessageEventService>();
         services.TryAddTransient<IContactService, ContactService>();
         services.TryAddTransient<ICampaignService, CampaignService>();
         services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
@@ -116,8 +130,16 @@ public static class WorkerHostBuilderExtensions
         services.TryAddTransient<CreateCampaignRequestValidator>();
         services.TryAddTransient<CreateMessageTypeRequestValidator>();
         services.TryAddTransient<NotificationsManager>();
+        services.TryAddTransient<IMessagingDatabaseCleanUpService, MessagingDatabaseCleanUpService>();
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
+        services.TryAddScoped<UserNameAccessorAggregate>();
+
+        services.Configure<AnalyticsOptions>(opt => {
+            opt.Enabled = options.Analytics.Enabled;
+        });
+        services.AddSingleton<MessageEventQueue>();
+        services.AddSingleton<IHostedService, MessageEventHostedServcie>();
     }
 
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
@@ -145,10 +167,6 @@ public static class WorkerHostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceSmtp(this MessageJobsOptions options, IConfiguration configuration) {
         options.Services.AddEmailServiceSmtp(configuration);
-        options.Services.AddSingleton(serviceProvider => {
-            var smtpSettings = serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smtpSettings.Sender!, smtpSettings.SenderName!));
-        });
         return options;
     }
 
@@ -157,18 +175,30 @@ public static class WorkerHostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceSparkPost(this MessageJobsOptions options, IConfiguration configuration) {
         options.Services.AddEmailServiceSparkPost(configuration);
-        options.Services.AddSingleton(serviceProvider => {
-            var sparkPostSettings = serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkPostSettings.Sender!, sparkPostSettings.SenderName!));
-        });
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses SendGrid to send emails.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageJobsOptions UseEmailServiceSendGrid(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceSparkPost(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses Brevo to send emails.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageJobsOptions UseEmailServiceBrevo(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceSparkPost(configuration);
         return options;
     }
 
     /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static MessageJobsOptions UseSmsServiceYuboto(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddSmsServiceYuboto(configuration);
+    public static MessageJobsOptions UseSmsService(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddSmsService(configuration);
         return options;
     }
 
@@ -184,8 +214,8 @@ public static class WorkerHostBuilderExtensions
     /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static MessageJobsOptions UseViberServiceYubotoOmni(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddViberServiceYubotoOmni(configuration);
+    public static MessageJobsOptions UseSmsServiceYubotoOmniViber(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddSmsServiceYubotoOmniViber(configuration);
         return options;
     }
 
@@ -194,6 +224,22 @@ public static class WorkerHostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseSmsServiceYubotoOmni(this MessageJobsOptions options, IConfiguration configuration) {
         options.Services.AddSmsServiceYubotoOmni(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Vonage from sending regular SMS messages.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageJobsOptions UseSmsServiceVonage(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddSmsServiceVonage(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using SmsUp from sending regular SMS messages.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageJobsOptions UseSmsServiceSmsUp(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddSmsServiceSmsUp(configuration);
         return options;
     }
 

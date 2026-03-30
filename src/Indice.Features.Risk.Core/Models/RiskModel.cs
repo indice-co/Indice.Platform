@@ -1,9 +1,13 @@
-﻿using Indice.Features.Risk.Core.Data.Models;
+﻿using System;
+using Indice.Features.GeoIP;
+using Indice.Features.Risk.Core.Data.Models;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 namespace Indice.Features.Risk.Core.Models;
 
 /// <summary>Describes the risk request model</summary>
-public class RiskModel
+public record RiskModel
 {
     /// <summary>An amount relative to the event.</summary>
     public decimal? Amount { get; set; }
@@ -23,18 +27,6 @@ public class RiskModel
     public string? SourceTransId { get; set; }
     /// <summary>The id of the associated result.</summary>
     public Guid? ResultId { get; set; }
-
-    /// <summary>Converts a <see cref="RiskModel"/> to a <see cref="RiskEvent"/></summary>
-    public RiskEvent ToRiskEvent() => new() {
-        Amount = Amount,
-        CreatedAt = DateTimeOffset.UtcNow,
-        Id = Guid.NewGuid(),
-        IpAddress = IpAddress,
-        Name = Name,
-        SubjectId = SubjectId,
-        Type = Type,
-        Data = Data,
-        SourceId = SourceId,
-        SourceTransId = SourceTransId
-    };
+    /// <summary>An optional session identifier the model is associated with.</summary>
+    public string? SessionId { get; set; }
 }

@@ -5,6 +5,7 @@ using Indice.Features.Messages.AspNetCore.Endpoints;
 using Microsoft.Extensions.Options;
 using Indice.Features.Messages.Core;
 using Indice.Types;
+using Indice.Features.Messages.Core.Models;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -48,12 +49,12 @@ internal static class MyMessagesApi
              .WithSummary("Marks the specified message as read.")
              .WithDescription(MyMessagesHandlers.MARK_MESSAGE_AS_READ_DESCRIPTION);
 
-        group.MapPut("my/messages/all/read/{searchTerm}", MyMessagesHandlers.MarkAllAsRead)
+        group.MapPut("my/messages/all/read", MyMessagesHandlers.MarkAllAsRead)
              .WithName(nameof(MyMessagesHandlers.MarkAllAsRead))
              .WithSummary("Marks all user messages as read.")
              .WithDescription(MyMessagesHandlers.MARK_ALL_MESSAGE_AS_READ_DESCRIPTION);
 
-        group.MapPut("my/messages/all/unread/{searchTerm}", MyMessagesHandlers.MarkAllAsUnRead)
+        group.MapPut("my/messages/all/unread", MyMessagesHandlers.MarkAllAsUnRead)
              .WithName(nameof(MyMessagesHandlers.MarkAllAsUnRead))
              .WithSummary("Marks all user messages as unread.")
              .WithDescription(MyMessagesHandlers.MARK_ALL_MESSAGE_AS_UNREAD_DESCRIPTION);
@@ -80,6 +81,17 @@ internal static class MyMessagesApi
             .WithName(nameof(MyMessagesHandlers.GetInboxMessageTypes))
             .WithSummary("Gets the list of available campaign types.")
             .WithDescription(MyMessagesHandlers.GET_INBOX_MESSAGE_TYPES_DESCRIPTION);
+
+
+        group.MapGet("my/preferences", MyMessagesHandlers.GetMyCommunicationPreferences)
+             .WithName(nameof(MyMessagesHandlers.GetMyCommunicationPreferences))
+             .WithSummary("Gets user communication prefereces.")
+             .WithDescription(MyMessagesHandlers.GET_COMMUNICATION_PREFERENCES_DESCRIPTION);
+
+        group.MapPut("my/preferences", MyMessagesHandlers.UpdateMyCommunicationPreferences)
+             .WithName(nameof(MyMessagesHandlers.UpdateMyCommunicationPreferences))
+             .WithSummary("Updates user's communication prefereces.")
+             .WithDescription(MyMessagesHandlers.UPDATE_COMMUNICATION_PREFERENCES_DESCRIPTION);
         return group;
     }
 

@@ -8,7 +8,8 @@ export interface MatchExp {
 }
 
 @Directive({
-    selector: '[routerLinkMatch]'
+    selector: '[routerLinkMatch]',
+    standalone: false
 })
 export class RouterLinkMatchDirective implements OnDestroy, OnChanges, AfterContentInit {
     private _currentRoute: string;

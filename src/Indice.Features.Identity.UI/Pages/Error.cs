@@ -45,12 +45,16 @@ public abstract class BaseErrorModel : PageModel
     public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     /// <summary>The error message.</summary>
     public string? Message { get; set; }
+    /// <summary>The error title </summary>
+    public string? Title { get; set; }
 
     /// <summary>Error page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync(string errorId) {
         RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
         if (!string.IsNullOrEmpty(errorId)) {
-            Message = (await Interaction.GetErrorContextAsync(errorId))?.ErrorDescription;
+            var error = await Interaction.GetErrorContextAsync(errorId);
+            Title = error?.Error;
+            Message = error?.ErrorDescription;
         }
         return Page();
     }

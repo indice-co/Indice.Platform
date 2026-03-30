@@ -3,20 +3,22 @@
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
       <!--<TargetFramework></TargetFramework>-->
-      <VersionPrefixMajor>8</VersionPrefixMajor>
-      <VersionPrefixBase>$(VersionPrefixMajor).1</VersionPrefixBase>
       
-      <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
-      <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
-      <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
-      <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
-      <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
-      <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
-      <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
+      <VersionPrefixMajor>8</VersionPrefixMajor>
+      <VersionPrefixBase>$(VersionPrefixMajor).41</VersionPrefixBase>
+      <VersionPrefixCore>$(VersionPrefixBase).1</VersionPrefixCore>
+      <VersionPrefixIdentity>$(VersionPrefixBase).3</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).3</VersionPrefixIdentityUI>
+      <VersionPrefixCases>$(VersionPrefixBase).1</VersionPrefixCases>
+      <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
+      <VersionPrefixMultitenancy>$(VersionPrefixBase).1</VersionPrefixMultitenancy>
+      <VersionPrefixRisk>$(VersionPrefixBase).1</VersionPrefixRisk>
+      <VersionPrefixMedia>$(VersionPrefixBase).1</VersionPrefixMedia>
+      <VersionPrefixGeoIP>$(VersionPrefixBase).1</VersionPrefixGeoIP>
+      <VersionPrefixGovGr>$(VersionPrefixBase).2</VersionPrefixGovGr>
+      <VersionPrefixAspNet>$(VersionPrefixBase).1</VersionPrefixAspNet>
+      <VersionPrefixActivityLogs>$(VersionPrefixBase).1</VersionPrefixActivityLogs>
+      <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
       
       <!--<VersionSuffix>rc04</VersionSuffix>-->
       <Authors>Constantinos Leftheris</Authors>

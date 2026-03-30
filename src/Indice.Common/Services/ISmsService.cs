@@ -42,7 +42,7 @@ public class SmsServiceException : Exception
 /// <summary>Settings class for configuring SMS service clients.</summary>
 public class SmsServiceSettings
 {
-    /// <summary>Key in the configuration.</summary>
+    /// <summary>Key in the configuration. <strong>Sms</strong></summary>
     public static readonly string Name = "Sms";
     /// <summary>The API key.</summary>
     public string? ApiKey { get; set; }

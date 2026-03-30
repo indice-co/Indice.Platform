@@ -22,13 +22,13 @@ public class TotpServiceTests
     public TotpServiceTests() {
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string> {
+            builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["Totp:EnableDeveloperTotp"] = "true"
             });
         });
         builder.ConfigureServices(services => {
             services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+            var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
             services.AddTransient<IUserRequirementProvider<User>, UserRequirementProviderNoOp>();
             services.AddTotpServiceFactory(configuration)
                     .AddSmsServiceNoop()

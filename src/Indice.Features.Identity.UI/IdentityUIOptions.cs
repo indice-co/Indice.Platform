@@ -1,5 +1,7 @@
 ﻿using System.Security.Claims;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Security;
+using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.UI;
 
@@ -40,6 +42,9 @@ public class IdentityUIOptions
     public bool HasCustomOnBoarding => !"/Register".Equals(OnBoardingPage);
     /// <summary>Controls whether an external Identity user will go through the associate screen or not.</summary>
     public bool AutoProvisionExternalUsers { get; set; } = true;
+    /// <summary>Controls which external login providers should be auto provisioned.</summary>
+    /// <remarks>use scheme names like Microsoft, Apple, Google etc </remarks>
+    public List<string> AutoProvisionExternalUsersFor { get; set; } = [];
     /// <summary>Controls whether an external identity user be associated to an existing one using the email account.</summary>
     public bool AutoAssociateExternalUsers { get; set; } = true;
     /// <summary>Controls whether The self service /register page is accessible.</summary>
@@ -74,6 +79,14 @@ public class IdentityUIOptions
     public bool OverrideDefaultStaticFileMiddleware { get; set; } = true;
     /// <summary>Stores the calling code along with the phone number.</summary>
     public bool EnablePhoneNumberCallingCodes { get; set; } = false;
+    /// <summary>Automatically signs in the user after registration.</summary>
+    public bool AutomaticSigninAfterRegister { get; set; } = false;
+    /// <summary>Event handlers for various UI specific operations.</summary>
+    public UiPageEvents Events { get; set; } = new UiPageEvents();
+    /// <summary>When this property is true, the email edit option will be disabled in the profile management page.</summary>
+    public bool DisableEmailEdit { get; set; } = false;
+    /// <summary>When this property is true, the phone edit option will be disabled in the profile management page.</summary>
+    public bool DisablePhoneEdit { get; set; } = false;
     /// <summary>
     /// Used with <see cref="Indice.Globalization.PhoneNumber"/> instances to convert to predictable string for storage.
     /// </summary>
@@ -113,4 +126,25 @@ public class IdentityUIOptions
     public record HomePageLink(string DisplayName, string Link, string? CssClass = null, string? ImageSrc = null, Predicate<ClaimsPrincipal>? VisibilityPredicate = null);
 }
 
+/// <summary>
+/// Context for the <see cref="UiPageEvents.OnUserRegistering"/> event. 
+/// </summary>
+/// <param name="HttpContext">The httpContext</param>
+/// <param name="User">the user to be added to database. Already polulated from input</param>
+/// <param name="PageInput">The page input model</param>
+public record UIPageRegisteringUserContext(HttpContext HttpContext, User User, object PageInput);
 
+/// <summary>
+/// Event handler for when a user is registering from the /register page just before it is added to the user store. 
+/// </summary>
+/// <param name="context">The on registering context</param>
+public delegate Task UIPageUserRegisteringEventHandler(UIPageRegisteringUserContext context);
+
+/// <summary>
+/// Event handlers for various UI specific operations. 
+/// </summary>
+public class UiPageEvents
+{
+    /// <summary>Triggered when a user is registering from the /register page.</summary>
+    public UIPageUserRegisteringEventHandler? OnUserRegistering { get; set; }
+}

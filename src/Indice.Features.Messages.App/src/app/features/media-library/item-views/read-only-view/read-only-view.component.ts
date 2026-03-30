@@ -1,16 +1,18 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { tap } from 'rxjs/operators';
 import { MediaFile, FolderContent, MediaApiClient } from 'src/app/core/services/media-api.service';
-import { ToastType, ToasterService } from '@indice/ng-components';
+import { ToastType } from '@indice/ng-components';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
+import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-read-only-view',
-  templateUrl: './read-only-view.component.html'
+    selector: 'app-read-only-view',
+    templateUrl: './read-only-view.component.html',
+    standalone: false
 })
 export class ReadOnlyViewComponent implements OnInit {
 
-  private _currentFolderId: string | undefined = undefined; 
+  private _currentFolderId: string | undefined = undefined;
 
   public page: number = 1;
   public size: number = 20;
@@ -20,8 +22,8 @@ export class ReadOnlyViewComponent implements OnInit {
   @Output() fileSelected: EventEmitter<string> = new EventEmitter<string>();
 
   constructor(
-    private _mediaClient: MediaApiClient, 
-    private _toaster: ToasterService,
+    private _mediaClient: MediaApiClient,
+    private _toaster: AppTranslatedToaster,
     private _fileUtilitiesService: FileUtilitiesService
   ) { }
 
@@ -55,10 +57,10 @@ export class ReadOnlyViewComponent implements OnInit {
   public copyToClipboard(file: MediaFile): void {
     this._fileUtilitiesService.copyPathToClipboard(file.permaLink)
       .then(() => {
-        this._toaster.show(ToastType.Success, 'Αντιγραφή συνδέσμου', `Ο σύνδεσμος του αρχείου '${file.name}' αντιγράφηκε με επιτυχία.`);
+        this._toaster.show(ToastType.Success, 'MediaLibrary.CopyLinkTitle', 'MediaLibrary.CopyLinkSuccessMessage', undefined, { name: file.name });
       })
       .catch((err) => {
-        this._toaster.show(ToastType.Error, 'Αποτυχία αντιγραφής', 'Ο σύνδεσμος του αρχείου δεν μπόρεσε να αντιγραφεί στο πρόχειρο.');
+        this._toaster.show(ToastType.Error, 'MediaLibrary.CopyLinkErrorTitle', 'MediaLibrary.CopyLinkErrorMessage');
       });
   }
 

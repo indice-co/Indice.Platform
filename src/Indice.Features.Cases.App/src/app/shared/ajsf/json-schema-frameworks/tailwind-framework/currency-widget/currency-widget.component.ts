@@ -4,11 +4,12 @@ import { Subject } from 'rxjs';
 import { takeUntil, map, tap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-currency-widget',
-  templateUrl: './currency-widget.component.html',
-  styleUrls: ['./currency-widget.component.scss']
+    selector: 'app-currency-widget',
+    templateUrl: './currency-widget.component.html',
+    styleUrls: ['./currency-widget.component.css'],
+    standalone: false
 })
-export class CurrencyWidgetComponent implements OnInit, OnDestroy {
+export class CurrencyWidgetComponent implements OnInit {
   formControl: any;
   controlName: string | undefined;
   controlValue: string | undefined;
@@ -20,11 +21,15 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
   @Input() layoutIndex: number[] = [];
   @Input() dataIndex: number[] = [];
 
-  thousandSeparator: string = ".";
-  // This is the placeholder for the mask input. The actual control value is a hidden input
+  /*--- custom properties ---*/
+  allowNegativeNumbers = true;
+  decimalPlaces = 2;
+  enableDefaultValue = false;
+  defaultValue = 0;
+  locale = 'el-GR';
+  /*------------------------*/
   displayValue = '';
-  // Specify type parameter for better type safety
-  private destroy$ = new Subject<void>();
+
   constructor(
     private jsf: JsonSchemaFormService
   ) { }
@@ -32,31 +37,72 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.options = this.layoutNode.options || {};
     this.jsf.initializeControl(this);
-    // Initialize displayValue if necessary
-    if (this.formControl.value) {
-      this.displayValue = parseFloat(this.formControl.value).toString()
+
+    const value = this.formControl.value;
+    if (value == null && this.enableDefaultValue) {
+      this.formControl.setValue(this.defaultValue);
     }
-    // Subscribe to formControl value changes in order to inform UI
-    this.formControl.valueChanges.pipe(
-      takeUntil(this.destroy$),
-      map((value: string) =>
-        parseFloat(value)
-      ),
-      tap((value: string) => {
-        this.displayValue = value;
-      })
-    ).subscribe();
-  }
-  ngOnDestroy() {
-    // Emit undefined to ensure type safety
-    this.destroy$.next(undefined);
-    this.destroy$.complete();
+    if (value != null) {
+      this.displayValue = CurrencyWidgetComponent.toLocaleString(this.locale, this.formControl.value, this.decimalPlaces);
+    }
   }
 
   updateValue(event: any) {
-    // Force replace masked value input into global decimal format (eg 5.125.000,03 --> 5125000.03)
-    const controlValue = parseFloat(event.target.value.replace(/[.]/g, '').replace(/[,]/g, '.'));
-    this.displayValue = event.target.value;
-    this.jsf.updateValue(this, controlValue);
+    // allow single '-' character
+    // Accept but don't commit
+    if (this.allowNegativeNumbers && event.target.value === '-') {
+      return;
+    }
+    // business validation
+    // Early exit – empty or non‑numeric input (after removing separators)
+    const inputNumber = CurrencyWidgetComponent.fromLocaleString(this.locale, event.target.value, this.decimalPlaces, this.allowNegativeNumbers);
+    // If the value is undefined we do not update
+    if (inputNumber === undefined && event.target.value !== '') {
+      return;
+    }
+    this.jsf.updateValue(this, inputNumber);
   }
+
+  onBlur($event: FocusEvent) {
+      const inputEl = $event.target as HTMLInputElement;
+      inputEl.value = CurrencyWidgetComponent.toLocaleString(this.locale, this.formControl.value, this.decimalPlaces);
+  }
+
+  private static toLocaleString(locale: string, value: number, decimalPlaces: number) {
+    return value?.toLocaleString(locale, {
+        minimumFractionDigits: decimalPlaces,
+        maximumFractionDigits: decimalPlaces
+    }) || '';
+  }
+
+  private static fromLocaleString(locale: string, inputText: string, decimalPlaces: number, allowNegativeNumbers: boolean = true): number | undefined {
+      if (!inputText?.trim()) {
+          return;
+      }
+      // This is locale dependent, e.g. in Greek it is a comma (,) while in US it is a dot (.)
+      const decimalSeparator = (1.1).toLocaleString(locale).replace(/\d/g, '');
+      const isNegative = allowNegativeNumbers && inputText[0] === '-';
+      const sanitizedInput = inputText.replace(new RegExp(`[^\\${decimalSeparator}|\\d]`, 'g'), '').replace(decimalSeparator, '.');
+
+      let result = parseFloat(sanitizedInput);
+
+      if (isNaN(result)) {
+          return;
+      }
+
+      // Only process fractional part if decimal places > 0 and there is one
+      if (decimalPlaces > 0 && sanitizedInput.includes('.')) {
+          const [intStr, fracStr = ''] = sanitizedInput.split('.');
+          const truncatedFrac = fracStr.slice(0, decimalPlaces);
+          result = truncatedFrac.length > 0 ? Number(`${intStr}.${truncatedFrac}`) : Number(intStr);
+      } else {
+          // ensure it's an integer if no decimals
+          result = Math.trunc(result);
+      }
+      if (isNegative) {
+          result = -result; // Apply negative sign if applicable
+      }
+      return isNaN(result) ? undefined : result;
+  }
+
 }

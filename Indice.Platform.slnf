@@ -1,6 +1,6 @@
 {
   "solution": {
-    "path": "Indice.Platform.sln",
+    "path": "Indice.Platform.slnx",
     "projects": [
       "src\\Indice.AspNetCore.Authentication.Apple\\Indice.AspNetCore.Authentication.Apple.csproj",
       "src\\Indice.AspNetCore.Authentication.GovGr\\Indice.AspNetCore.Authentication.GovGr.csproj",
@@ -13,6 +13,8 @@
       "src\\Indice.Features.Cases.Server\\Indice.Features.Cases.Server.csproj",
       "src\\Indice.Features.Cases.Workflows\\Indice.Features.Cases.Workflows.csproj",
       "src\\Indice.Features.Cases.UI\\Indice.Features.Cases.UI.csproj",
+      "src\\Indice.Features.FtpServer\\Indice.Features.FtpServer.csproj",
+      "src\\Indice.Features.GeoIP\\Indice.Features.GeoIP.csproj",
       "src\\Indice.Features.GovGr\\Indice.Features.GovGr.csproj",
       "src\\Indice.Features.Identity.AdminUI\\Indice.Features.Identity.AdminUI.csproj",
       "src\\Indice.Features.Identity.Core\\Indice.Features.Identity.Core.csproj",
@@ -44,7 +46,8 @@
       "test\\Indice.Features.Risk.Tests\\Indice.Features.Risk.Tests.csproj",
       "test\\Indice.Services.Tests\\Indice.Services.Tests.csproj",
       "test\\Indice.EcmaScript.Tests\\Indice.EcmaScript.Tests.csproj",
-      "test\\Indice.Hosting.Tests\\Indice.Hosting.Tests.csproj"
+      "test\\Indice.Hosting.Tests\\Indice.Hosting.Tests.csproj",
+      "test\\Indice.Feature.GeoIP.Tests\\Indice.Feature.GeoIP.Tests.csproj"
     ]
   }
 }

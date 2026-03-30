@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnInit, TemplateRef } from '@angular/core';
 
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IdentityApiService, SignInLogEntryResultSet, SignInLogEntry, SignInType } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
@@ -13,7 +13,8 @@ import { finalize } from 'rxjs/operators';
 @Component({
     selector: 'app-sign-in-logs',
     templateUrl: './sign-in-logs.component.html',
-    providers: [NgbDateCustomParserFormatter]
+    providers: [NgbDateCustomParserFormatter],
+    standalone: false
 })
 export class SignInLogsComponent implements OnInit {
     constructor(
@@ -24,11 +25,15 @@ export class SignInLogsComponent implements OnInit {
         private _route: ActivatedRoute
     ) { }
 
-    @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('statusTemplate', { static: true }) private _statusTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('statusTemplate', { static: true }) private _statusTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('signInLogsList', { static: true }) public signInLogsList: ListViewComponent;
-    @ViewChild('actionsTemplate', { static: true }) public actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('ipCellTemplate', { static: true }) private _ipCellTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('eventTypeCellTemplate', { static: true }) private _eventTypeCellTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('deviceTemplate', { static: true }) private _deviceCellTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('subjectNameTemplate', { static: true }) private _subjectNameTemplate: TemplateRef<CellContext<any>>;
+
     public count = 0;
     public rows: SignInLogEntry[] = [];
     public columns: TableColumn[] = [];
@@ -51,22 +56,22 @@ export class SignInLogsComponent implements OnInit {
     public ngOnInit(): void {
         this.columns = [
             { prop: 'createdAt', name: 'Created At', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._actionsTemplate, width: 200 },
-            { prop: 'actionName', name: 'Action', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
+            { prop: 'actionName', name: 'Action', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._eventTypeCellTemplate },
             { prop: 'applicationName', name: 'App Name', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate },
-            { prop: 'subjectName', name: 'Subject', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
-            { name: 'Status', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this._statusTemplate },
-            { prop: 'ipAddress', name: 'IP Address', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this.signInLogsList.keyTemplate },
+            { prop: 'subjectName', name: 'Subject', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._subjectNameTemplate },
+            //{ name: 'Status', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this._statusTemplate },
+            { prop: 'extraData.device.displayName', name: 'Device', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._deviceCellTemplate },
+            { prop: 'ipAddress', name: 'IP Address', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._ipCellTemplate },
             { prop: 'location', name: 'Location', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
             { prop: 'sessionId', name: 'Session Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
-            { prop: 'resourceId', name: 'Endpoint', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
-            { prop: 'extraData.device.displayName', name: 'Device', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this.signInLogsList.keyTemplate },
             { prop: 'signInType', name: 'Sign in Type', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this.signInLogsList.keyTemplate }
+            //{ prop: 'resourceId', name: 'Endpoint', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
         ];
     }
 
     public getLogs(event: SearchEvent): void {
         let dateFrom = event.filter.dateFrom ? (new Date(event.filter.dateFrom)) : undefined;
-        let dateTo = event.filter.dateFrom ? (new Date(event.filter.dateTo)) : undefined;
+        let dateTo = event.filter.dateTo ? (new Date(event.filter.dateTo)) : undefined;
       this._api.getSignInLogs(
         event.page,
         event.pageSize,

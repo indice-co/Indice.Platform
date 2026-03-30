@@ -7,7 +7,8 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({
     selector: 'app-setting-edit',
-    templateUrl: './setting-edit.component.html'
+    templateUrl: './setting-edit.component.html',
+    standalone: false
 })
 export class SettingEditComponent implements OnInit {
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;

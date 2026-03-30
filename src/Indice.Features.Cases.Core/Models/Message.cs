@@ -1,4 +1,7 @@
-﻿namespace Indice.Features.Cases.Core.Models;
+﻿using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+
+namespace Indice.Features.Cases.Core.Models;
 
 /// <summary>
 /// The message model that creates a new checkpoint for the case, or adds a simple comment, attaches a file
@@ -17,12 +20,14 @@ public class Message
     
     /// <summary>The comment to add to the checkpoint.</summary>
     public string? Comment { get; set; }
-    
+
     /// <summary>The file that is attached with the checkpoint.</summary>
+    [JsonIgnore]
     public Func<Stream>? FileStreamAccessor { get; set; }
+   
     /// <summary>The file name that is attached with the checkpoint.</summary>
     public string? FileName { get; set; }
 
     /// <summary>The data related with the message.</summary>
-    public dynamic? Data { get; set; }
+    public JsonNode? Data { get; set; }
 }

@@ -34,11 +34,11 @@ public class JsonStringArrayEnumFlagsConverterTests
     [Fact]
     public void CanDeserializeEnumFlagsToStringArray() {
         var json = @"{""id"":2,""name"":""Sales Christmas 2021"",""deliveryChannel"":[""Inbox"",""PushNotification"",""Email""]}";
-        var campaign = JsonSerializer.Deserialize<Campaign>(json, Options);
+        var campaign = JsonSerializer.Deserialize<Campaign>(json, Options)!;
         Assert.Equal(2, campaign.Id);
         Assert.Equal("Sales Christmas 2021", campaign.Name);
         Assert.Equal(CampaignDeliveryChannel.Inbox | CampaignDeliveryChannel.PushNotification | CampaignDeliveryChannel.Email, campaign.DeliveryChannel);
-        var campaign2 = JsonSerializer.Deserialize<Campaign2>(json, Options);
+        var campaign2 = JsonSerializer.Deserialize<Campaign2>(json, Options)!;
         Assert.Equal(2, campaign2.Id);
         Assert.Equal("Sales Christmas 2021", campaign2.Name);
         Assert.Equal(CampaignDeliveryChannel.Inbox | CampaignDeliveryChannel.PushNotification | CampaignDeliveryChannel.Email, campaign2.DeliveryChannel);
@@ -69,9 +69,9 @@ public class JsonStringArrayEnumFlagsConverterTests
         var json = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"":null}";
         var json2 = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"": [""Inbox"", ""PushNotification""]}";
         var json3 = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"": ""Email, SMS""}";
-        var campaign = JsonSerializer.Deserialize<Campaign2>(json, Options);
-        var campaign2 = JsonSerializer.Deserialize<Campaign2>(json2, Options);
-        var campaign3 = JsonSerializer.Deserialize<Campaign2>(json3, Options);
+        var campaign = JsonSerializer.Deserialize<Campaign2>(json, Options)!;
+        var campaign2 = JsonSerializer.Deserialize<Campaign2>(json2, Options)!;
+        var campaign3 = JsonSerializer.Deserialize<Campaign2>(json3, Options)!;
         Assert.Equal(expectedCampaign.DeliveryChannel, campaign.DeliveryChannel);
         Assert.Equal(expectedCampaign2.DeliveryChannel, campaign2.DeliveryChannel);
         Assert.Equal(CampaignDeliveryChannel.Email | CampaignDeliveryChannel.SMS, campaign3.DeliveryChannel);
@@ -81,14 +81,14 @@ public class JsonStringArrayEnumFlagsConverterTests
 public class Campaign
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public CampaignDeliveryChannel DeliveryChannel { get; set; } = CampaignDeliveryChannel.Inbox;
 }
 
 public class Campaign2
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public CampaignDeliveryChannel? DeliveryChannel { get; set; }
 }
 

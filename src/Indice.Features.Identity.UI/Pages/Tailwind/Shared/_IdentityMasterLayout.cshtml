@@ -1,13 +1,13 @@
 ﻿@inject GeneralSettings Settings
-@inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
 @inject IConfiguration Configuration
 @inject ITelemetryJavaScriptSnippet JavaScriptSnippet
 @inject IOptions<IdentityUIOptions> UiOptions
 @inject SignInManager<User> SignInManager
+@inject IdentityUILocalizer Localizer
 
 @{
-    var applicationName = Localizer[ViewBag.ApplicationName ?? Settings.ApplicationName];
+    var applicationName = @Localizer.GetGeneric(ViewBag.ApplicationName ?? Settings.ApplicationName);
     var dash = ViewBag.Title != null ? " - " : string.Empty;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
@@ -42,7 +42,7 @@
     @RenderSection("css", required: false)
     @RenderSection("aside", required: false)
     <environment exclude="Production">
-        <div class="ribbon">
+        <div class="ribbon @Environment.EnvironmentName.ToLower()">
             <span>@Environment.EnvironmentName</span>
         </div>
     </environment>

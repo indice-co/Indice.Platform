@@ -1,5 +1,5 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Events.Models;
+﻿using Indice.Features.Identity.Core.Events.Models;
+using Indice.Features.GeoIP;
 
 namespace Indice.Features.Identity.Core.Models;
 /// <summary>
@@ -16,7 +16,7 @@ public class SecurityNotificationModel
     /// <summary>The client that initiated the password change, if any.</summary>
     public ClientEventContext? Client { get; set; }
     /// <summary>The user's email address.</summary>
-    public IPLocationMetadata Location { get; set; } = null!;
+    public IPAddressLocation Location { get; set; } = null!;
     /// <summary>
     /// Gets or sets the timestamp indicating when the event occurred.
     /// </summary>
@@ -27,4 +27,6 @@ public class SecurityNotificationModel
     public string? DisplayName { get; set; }
     /// <summary>The email subject.</summary>
     public string? Subject { get; set; }
+    /// <summary>The email description.</summary>
+    public string? Description { get; set; }
 }

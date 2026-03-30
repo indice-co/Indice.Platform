@@ -1,3 +1,5 @@
+@use 'variables' as *;
+
 label {
   font-weight: 600;
 }
@@ -56,4 +58,18 @@ label {
 .input-group-addon {
   border-radius: 2px;
   border: 1px solid $light;
+}
+.input-group-text {
+    font-size: 0.8rem;
+}
+.input-group-append {
+    font-size: 0.8rem;
+
+    .material-icons {
+        font-size: inherit;
+    }
+
+    .btn {
+        font-size: inherit;
+    }
 }

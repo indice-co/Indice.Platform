@@ -6,6 +6,7 @@ using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Indice.Features.Messages.Core.Services;
 
@@ -26,6 +27,7 @@ public class DistributionListService : IDistributionListService
         var list = new DbDistributionList {
             Id = Guid.NewGuid(),
             Name = request.Name,
+            Alias = request.Alias,
             CreatedBy = request.IsSystemGenerated ? "system" : null
         };
         // The following code will try at its best effort to create contacts without making duplicates.
@@ -70,7 +72,8 @@ public class DistributionListService : IDistributionListService
             CreatedAt = list.CreatedAt,
             CreatedBy = list.CreatedBy,
             Id = list.Id,
-            Name = list.Name
+            Name = list.Name,
+            Alias = list.Alias
         };
     }
 
@@ -89,8 +92,16 @@ public class DistributionListService : IDistributionListService
     }
 
     /// <inheritdoc />
-    public async Task<DistributionList?> GetById(Guid? id) {
-        var list = await DbContext.DistributionLists.FindAsync(id);
+    public async Task<DistributionList?> GetById(GuidOrAlias? id) {
+
+        if (id == null || id.Value == null) {
+            return default;
+        }
+
+        var list = id.Value.IsGuid ?
+            await DbContext.DistributionLists.FindAsync(id.Value.Uuid) :
+            await DbContext.DistributionLists.FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
+        
         if (list is null) {
             return default;
         }
@@ -100,7 +111,8 @@ public class DistributionListService : IDistributionListService
             UpdatedAt = list.UpdatedAt,
             UpdatedBy = list.UpdatedBy,
             Id = list.Id,
-            Name = list.Name
+            Name = list.Name,
+            Alias = list.Alias
         };
     }
 
@@ -114,7 +126,8 @@ public class DistributionListService : IDistributionListService
             CreatedAt = list.CreatedAt,
             CreatedBy = list.CreatedBy,
             Id = list.Id,
-            Name = list.Name
+            Name = list.Name,
+            Alias = list.Alias
         };
     }
 
@@ -129,7 +142,8 @@ public class DistributionListService : IDistributionListService
                 UpdatedBy = list.UpdatedBy,
                 UpdatedAt = list.UpdatedAt,
                 Id = list.Id,
-                Name = list.Name
+                Name = list.Name,
+                Alias = list.Alias
             });
         if (!string.IsNullOrWhiteSpace(options.Search) && options.Search.Length > 2) {
             query = query.Where(x => x.Name!.ToLower().Contains(options.Search.ToLower()));
@@ -147,6 +161,7 @@ public class DistributionListService : IDistributionListService
             throw MessageExceptions.MessageTypeNotFound(id);
         }
         list.Name = request.Name;
+        list.Alias = request.Alias;
         await DbContext.SaveChangesAsync();
     }
 }

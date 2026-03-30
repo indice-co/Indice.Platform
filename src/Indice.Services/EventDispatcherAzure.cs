@@ -8,6 +8,7 @@ using Indice.Extensions;
 using Indice.Serialization;
 using Indice.Types;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.Services;
 
@@ -24,6 +25,7 @@ public class EventDispatcherAzure : IEventDispatcher
     private readonly Func<ClaimsPrincipal> _claimsPrincipalSelector;
     private readonly Func<string?> _tenantIdSelector;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
+    private readonly ILogger<EventDispatcherAzure>? _logger;
 
     /// <summary>Create a new <see cref="EventDispatcherAzure"/> instance.</summary>
     /// <param name="connectionString">The connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
@@ -33,7 +35,8 @@ public class EventDispatcherAzure : IEventDispatcher
     /// <param name="queueMessageEncoding">Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</param>
     /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
     /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
-    public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal> claimsPrincipalSelector, Func<string> tenantIdSelector) {
+    /// <param name="logger">Logger instance for logging warnings and errors.</param>
+    public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal>? claimsPrincipalSelector, Func<string>? tenantIdSelector, ILogger<EventDispatcherAzure>? logger = null) {
         _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         _enabled = enabled;
@@ -42,12 +45,16 @@ public class EventDispatcherAzure : IEventDispatcher
         _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
         _tenantIdSelector = tenantIdSelector ?? new Func<string?>(() => null);
         _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        _logger = logger;
     }
 
     /// <inheritdoc/>
-    public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal? actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string? queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class {
+    public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal? actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string? queueName = null, bool prependEnvironmentInQueueName = true, string? sessionId = null) where TEvent : class {
         if (!_enabled) {
             return;
+        }
+        if (!string.IsNullOrWhiteSpace(sessionId)) {
+            _logger?.LogWarning("SessionId is not supported in Azure Queue Storage. The SessionId '{SessionId}' will be ignored. Consider using Azure Service Bus for session support.", sessionId);
         }
         if (string.IsNullOrWhiteSpace(queueName)) {
             queueName = typeof(TEvent).Name.ToKebabCase();

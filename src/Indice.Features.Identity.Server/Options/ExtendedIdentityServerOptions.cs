@@ -11,6 +11,8 @@ public class ExtendedIdentityServerOptions
     public string? SigningPfxFile { get; set; }
     /// <summary>Signing .pfx password.</summary>
     public string? SigningPfxPass { get; set; }
+    ///<summary>Duende licence key</summary>
+    public string? DuendeLicenseKey { get; set; }
     /// <summary>Callback to configure the Identity DbContext. If not set then SQL Server is selected by default using <strong>IdentityDb</strong> as connection string name.</summary>
     public Action<DbContextOptionsBuilder>? ConfigureIdentityDbContext { get; set; }
     /// <summary>Callback to configure the DbContext for configuration store. If not set then SQL Server is selected by default using <strong>ConfigurationDb</strong> as connection string name.</summary>
@@ -27,4 +29,8 @@ public class ExtendedIdentityServerOptions
     public IEnumerable<Role> CustomRoles { get; set; } = new List<Role>();
     /// <summary>A list of custom claim types to be inserted in the database on startup. Works only when environment is 'Development'.</summary>
     public IEnumerable<ClaimType> CustomClaims { get; set; } = new List<ClaimType>();
+    /// <summary>A flag that enables server side sessions.</summary>
+    public bool EnableServerSideSessions { get; set; } = false;
+    /// <summary>A flag that enforces a single active session per user.</summary>
+    public bool EnforceSingleActiveSession { get; set; } = false;
 }

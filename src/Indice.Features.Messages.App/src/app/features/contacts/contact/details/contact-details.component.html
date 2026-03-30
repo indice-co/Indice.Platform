@@ -1,0 +1,83 @@
+<section aria-labelledby="applicant-information-title" *ngIf="contact$ | async as contact">
+  <div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+      <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <h2 id="applicant-information-title"
+              class="text-lg leading-6 font-medium text-gray-900">
+            {{ 'Contacts.Title' | translate }}
+            <a [title]="'Contacts.Edit' | translate"
+               [routerLinkActive]="['']"
+               [routerLinkActiveOptions]="{ exact: true }"
+               [routerLink]="['', { outlets: { rightpane: ['update-contact', contact?.id] } }]"
+               class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
+              <i aria-hidden="true" class="meta-icon ms-Icon ms-Icon--Edit"></i>
+            </a>
+            <button type="button" class="p-2 btn-view-header"
+                    *ngIf="contact?.recipientId"
+                    (click)="resolve(contact?.recipientId)"
+                    [disabled]="isRefreshing"
+                    [title]="'Contacts.Resolve' | translate">
+              <i class="ms-Icon ms-Icon--Sync"></i>
+            </button>
+            <a [title]="'Contacts.Duplicates' | translate"
+               *ngIf="contact?.recipientId"
+               [routerLinkActive]="['']"
+               [routerLinkActiveOptions]="{ exact: true }"
+               [routerLink]="['', { outlets: { rightpane: ['get-duplicates', contact?.id] } }]"
+               class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
+              <i aria-hidden="true" class="meta-icon ms-Icon ms-Icon--ConnectContacts"></i>
+            </a>
+          </h2>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Contacts.Salutation' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ contact?.salutation || '-' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Contacts.FullName' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ contact?.fullName || '-' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Contacts.FirstName' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ contact?.firstName || '-' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Contacts.LastName' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ contact?.lastName || '-' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Contacts.Email' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ contact?.email || '-' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Contacts.Phone' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ contact?.phoneNumber || '-' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Contacts.ContactCode' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <span *ngIf="contact?.recipientId" class="badge alias">
+              {{ contact?.recipientId }}
+              <span [title]="contact?.resolved ? ('Contacts.Resolved' | translate) : ('Contacts.Unknown' | translate)"
+                    class="small"
+                    [innerHtml]="contact?.resolved | beautifyBoolean">
+              </span>
+            </span>
+            <span *ngIf="!(contact?.recipientId)">-</span>
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Contacts.UpdatedAt' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ contact?.updatedAt === undefined ? '-' : (contact?.updatedAt | date: 'medium') }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>

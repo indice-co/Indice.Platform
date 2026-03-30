@@ -95,7 +95,7 @@ public class FileServiceAzureStorage : IFileService
             throw new FileNotFoundServiceException($"Container {folder} not found.");
         }
         var results = new List<string>();
-        var segment = container.GetBlobsAsync(prefix: filename);
+        var segment = container.GetBlobsAsync(new GetBlobsOptions() { Prefix = filename });
 
         // Enumerate the blobs returned for each page.
         await foreach (var blob in segment) {
@@ -150,8 +150,8 @@ public class FileServiceAzureStorage : IFileService
 
         if (!isDirectory) {
             await copyAction(sourceContainer.GetBlobClient(sourceFilename), targetContainer.GetBlobClient(targertFilename));
-        } else { 
-            var segment = sourceContainer.GetBlobsAsync(prefix: sourceFilename);
+        } else {
+            var segment = sourceContainer.GetBlobsAsync(new GetBlobsOptions { Prefix = sourceFilename });
             await foreach (var blob in segment) {
                 //await sourceContainer.DeleteBlobIfExistsAsync(blob.Name, DeleteSnapshotsOption.IncludeSnapshots);
                 await copyAction(sourceContainer.GetBlobClient(blob.Name), targetContainer.GetBlobClient(blob.Name.Replace(sourceFilename, targertFilename)));
@@ -206,7 +206,7 @@ public class FileServiceAzureStorage : IFileService
             var blob = container.GetBlobClient(filename);
             deleted = await blob.DeleteIfExistsAsync();
         } else {
-            var segment = container.GetBlobsAsync(prefix: filename);
+            var segment = container.GetBlobsAsync(new GetBlobsOptions { Prefix = filename });
             await foreach (var blob in segment) {
                 await container.DeleteBlobIfExistsAsync(blob.Name, DeleteSnapshotsOption.IncludeSnapshots);
             }

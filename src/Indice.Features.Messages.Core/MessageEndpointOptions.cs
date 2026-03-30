@@ -85,6 +85,6 @@ public class CampaignOptionsBase
     /// <summary>Specifies a prefix for the API endpoints.</summary>
     public string PathPrefix { get; set; } = "/";
 
-    /// <summary>Specifies the settings for statistis feature.</summary>
-    public CampaignStatisticOptions CampaignStatisticOptions { get; set; } = new CampaignStatisticOptions();
+    /// <summary>Specifies the settings for the analytics feature.</summary>
+    public AnalyticsOptions AnalyticsOptions { get; set; } = new ();
 }

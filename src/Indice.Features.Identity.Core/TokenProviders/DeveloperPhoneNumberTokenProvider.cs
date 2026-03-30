@@ -52,7 +52,7 @@ public class DeveloperPhoneNumberTokenProvider<TUser> : ExtendedPhoneNumberToken
         if (_options.EnableDeveloperTotp) {
             var userClaims = await userManager.GetClaimsAsync(user);
             var developerTotpClaim = userClaims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.DeveloperTotp);
-            if (developerTotpClaim?.Value == token) {
+            if (!string.IsNullOrWhiteSpace(developerTotpClaim?.Value) && developerTotpClaim!.Value == token) {
                 return true;
             }
         }

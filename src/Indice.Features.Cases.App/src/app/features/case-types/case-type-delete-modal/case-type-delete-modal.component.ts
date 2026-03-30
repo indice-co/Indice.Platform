@@ -5,9 +5,10 @@ import { CasesApiService } from 'src/app/core/services/cases-api.service';
 import { EMPTY } from 'rxjs';
 
 @Component({
-  selector: 'app-case-type-delete-modal',
-  templateUrl: './case-type-delete-modal.component.html',
-  styleUrls: ['./case-type-delete-modal.component.scss']
+    selector: 'app-case-type-delete-modal',
+    templateUrl: './case-type-delete-modal.component.html',
+    styleUrls: ['./case-type-delete-modal.component.css'],
+    standalone: false
 })
 export class CaseTypeDeleteModalComponent implements OnInit {
   public id: any = '';

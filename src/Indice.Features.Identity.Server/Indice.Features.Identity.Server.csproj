@@ -14,16 +14,19 @@
     <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)-*" />
     <PackageReference Include="Indice.Features.Identity.SignInLogs" Version="$(VersionPrefixIdentity)-*" />
+    <PackageReference Include="Indice.Features.ActivityLogs" Version="$(VersionPrefixActivityLogs)-*" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
-    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="7.2.4" />
+    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="7.4.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
     <ProjectReference Include="..\Indice.Features.Identity.SignInLogs\Indice.Features.Identity.SignInLogs.csproj" />
+    <ProjectReference Include="..\Indice.Features.ActivityLogs\Indice.Features.ActivityLogs.csproj" />
+
   </ItemGroup>
 </Project>

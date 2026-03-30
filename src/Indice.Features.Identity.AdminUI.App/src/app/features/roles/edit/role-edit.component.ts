@@ -8,7 +8,8 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({
     selector: 'app-role-edit',
-    templateUrl: './role-edit.component.html'
+    templateUrl: './role-edit.component.html',
+    standalone: false
 })
 export class RoleEditComponent implements OnInit {
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;

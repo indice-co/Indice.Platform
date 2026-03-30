@@ -2,7 +2,8 @@ import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild }
 
 @Component({
     selector: 'app-file-upload',
-    templateUrl: './file-upload.component.html'
+    templateUrl: './file-upload.component.html',
+    standalone: false
 })
 export class FileUploadComponent implements OnInit {
     @ViewChild('fileInput', { static: false }) public _fileInput: ElementRef | undefined;

@@ -5,6 +5,188 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.31.0] - 2025-01-07
+### Added Messaging Database Cleanup Job
+The following configuration should be added in the appsettings.json and local.settings.json to determine the frequency of the clean up job:
+``` json
+"MessageJobsOptions:DatabaseCleanUpCronExpression": "0 0 2 * * *"
+```
+**Note:** This configuration is required for Azure Worker deployments. For self-hosted workers, 
+this value is used as the default if not specified.
+
+## [8.21.0] - 2025-10-27
+### Added New column Recipient in MessageEvent table
+Keep track of the actual recipient (email, phone number, etc) in the MessageEvent table for easier querying and reporting.
+
+```sql
+-- 1) Add new columns to [cmp].[MessageEvent]
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns 
+    WHERE Name = N'Recipient' AND Object_ID = Object_ID(N'[cmp].[MessageEvent]')
+)
+BEGIN
+    ALTER TABLE [cmp].[MessageEvent]
+    ADD Recipient NVARCHAR(128),
+        Title NVARCHAR(128),
+        Success BIT;
+END
+GO
+
+-- 2) Update existing records to populate the new Recipient, Title and Success columns
+UPDATE [cmp].[MessageEvent]
+SET Recipient = 
+    CASE Events.Channel
+         WHEN 'SMS' THEN ct.PhoneNumber
+         WHEN 'Email' THEN ct.Email
+         ELSE COALESCE(ct.RecipientId, '')
+    END,
+    Success = 1,
+    Title  =   CASE 
+         WHEN Events.Channel = 'SMS' AND msg.Content IS NOT NULL THEN COALESCE(JSON_VALUE(msg.Content, '$.sms.title'), JSON_VALUE(msg.Content, '$.SMS.title'))
+         WHEN Events.Channel = 'Email' AND msg.Content IS NOT NULL  THEN COALESCE(JSON_VALUE(msg.Content, '$.email.title'), JSON_VALUE(msg.Content, '$.Email.title'))
+         WHEN Events.Channel = 'Inbox' AND msg.Content IS NOT NULL THEN COALESCE(JSON_VALUE(msg.Content, '$.inbox.title'), JSON_VALUE(msg.Content, '$.Inbox.title'))
+         WHEN msg.Content IS NOT NULL THEN COALESCE(JSON_VALUE(msg.Content, '$.pushNotification.title'), JSON_VALUE(msg.Content, '$.PushNotification.title'))
+         ELSE '(deleted)'
+    END
+FROM  [cmp].[MessageEvent] as Events
+INNER JOIN [cmp].Contact as ct
+ ON Events.ContactId = ct.Id
+LEFT JOIN [cmp].Message as msg
+ ON msg.Id = Events.MessageId
+```
+
+## [8.17.3] - 2025-09-30
+### Added New column
+```sql
+ALTER TABLE [cmp].[Contact] 
+    ADD [LastResolutionDate]     [datetimeoffset](7)      NULL
+GO
+```
+
+
+## [8.16.0] - 2025-09-19
+
+### Added New column
+```sql
+ALTER TABLE [cmp].[Contact] 
+    ADD [Resolved]     bit      NULL
+GO
+CREATE NONCLUSTERED INDEX [IX_Contact_RecipientId_Resolved] 
+    ON [cmp].[Contact] ([RecipientId] ASC, [Resolved] ASC)
+GO
+CREATE NONCLUSTERED INDEX [IX_Campaign_CreatedAt]
+    ON [cmp].[Campaign] ([CreatedAt] ASC)
+GO
+CREATE NONCLUSTERED INDEX [IX_MessageEvent_Type]
+    ON [cmp].[MessageEvent] ([Type] ASC)
+GO
+CREATE NONCLUSTERED INDEX [IX_MessageEvent_Channel]
+    ON [cmp].[MessageEvent] ([Channel] ASC)
+GO
+```
+
+## [8.1.10] - 2025-08-05
+
+### Added support alias in Distribution list
+```sql
+ALTER TABLE [msg].[DistributionList] 
+    ADD [Alias]     NVARCHAR (64)      NULL
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_DistributionList_Alias]
+    ON [msg].[DistributionList]([Alias] ASC) WHERE ([Alias] IS NOT NULL);
+GO
+```
+
+### Added support to persist communication preferences for users.
+Add Message type in template table for linking templates to message types and eventually preferences.
+```sql
+ALTER TABLE [#schema#].[Template]
+	ADD [MessageTypeId]  UNIQUEIDENTIFIER  
+ALTER TABLE [#schema#].[Template] WITH NOCHECK
+    ADD CONSTRAINT [FK_Template_MessageType_MessageTypeId] FOREIGN KEY ([MessageTypeId]) REFERENCES [msg].[MessageType] ([Id]);
+ALTER TABLE [#schema#].[Template] WITH CHECK CHECK CONSTRAINT [FK_Template_MessageType_MessageTypeId];
+```
+
+The following migration script is needed to add the `ContactPreference` and `ContactCommunicationOption` tables.
+```sql
+CREATE TABLE [#schema#].[ContactPreference] (
+    [Id]                    UNIQUEIDENTIFIER   NOT NULL,
+    [RecipientId]           NVARCHAR (64)      NOT NULL,
+    [Locale]                NVARCHAR (16)      NULL,
+    [ConsentCommercial]     BIT                NOT NULL,
+    [ConsentCommercialDate] DATETIMEOFFSET (7) NULL,
+    [DefaultChannels]       TINYINT            NULL,
+    [UpdatedAt]             DATETIMEOFFSET (7) NULL,
+    CONSTRAINT [PK_ContactPreference] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_ContactPreference_RecipientId]
+    ON [#schema#].[ContactPreference]([RecipientId] ASC);
+GO
+
+CREATE TABLE [#schema#].[ContactCommunicationOption] (
+    [ContactPreferenceId] UNIQUEIDENTIFIER   NOT NULL,
+    [MessageTypeId]       UNIQUEIDENTIFIER   NOT NULL,
+    [Channels]            TINYINT            DEFAULT (CONVERT([tinyint],(0))) NOT NULL,
+    [UpdatedAt]           DATETIMEOFFSET (7) NULL,
+    CONSTRAINT [PK_ContactCommunicationOption] PRIMARY KEY CLUSTERED ([ContactPreferenceId] ASC, [MessageTypeId] ASC),
+    CONSTRAINT [FK_ContactCommunicationOption_ContactPreference_ContactPreferenceId] FOREIGN KEY ([ContactPreferenceId]) REFERENCES [#schema#].[ContactPreference] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_ContactCommunicationOption_MessageType_MessageTypeId] FOREIGN KEY ([MessageTypeId]) REFERENCES [#schema#].[MessageType] ([Id]) ON DELETE CASCADE
+);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_ContactCommunicationOption_MessageTypeId]
+    ON [#schema#].[ContactCommunicationOption]([MessageTypeId] ASC);
+GO
+
+```
+
+In case that you have used communication preferences in your project, you need to run the following migration script to populate the `CommunicationPreference` and `CommunicationPreferenceMessageType` tables.
+```sql
+
+CREATE TABLE #TempContactPreference
+(
+    [RecipientId] nvarchar(64) NOT NULL,
+    [Locale] nvarchar(16) NULL,
+    [ConsentCommercial] bit NOT NULL DEFAULT(0),
+    [DefaultChannels] TINYINT NULL
+);
+
+INSERT INTO #TempContactPreference
+    ([RecipientId]
+    ,[Locale]
+    ,[ConsentCommercial]
+    ,[DefaultChannels])
+SELECT RecipientId, Locale, ConsentCommercial,CommunicationPreferences
+FROM (
+    SELECT RecipientId, Locale, ConsentCommercial,CommunicationPreferences,
+        row_number() over (partition by RecipientId order by [UpdatedAt] desc) as rn
+    FROM [msg].[Contact]
+    WHERE NULLIF(RecipientId,'') IS NOT NULL
+) t
+WHERE rn = 1 
+
+
+INSERT INTO [msg].[ContactPreference]
+    ([Id]
+    ,[RecipientId]
+    ,[Locale]
+    ,[ConsentCommercial])
+SELECT NEWID(),  RecipientId, Locale, ConsentCommercial
+FROM  #TempContactPreference AS CT
+WHERE NOT EXISTS (SELECT TOP 1 1 FROM  [msg].[ContactPreference] WHERE RecipientId = ct.RecipientId)
+
+
+DROP TABLE #TempContactPreference    
+
+```
+
+The last step is to drop the prefernece columns from the `Contact` table.
+```sql
+ALTER TABLE [#schema#].[Contact] DROP COLUMN [CommunicationPreferences], COLUMN [ConsentCommercial], COLUMN [Locale];
+```
 
 ## [8.1.0] - 2025-06-15
 ### For performance reasons, the following indexes were added to the `media` schema in cases db.

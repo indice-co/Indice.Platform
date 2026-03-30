@@ -1,0 +1,2176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Contacts.Title" xml:space="preserve">
+    <value>Contact information</value>
+  </data>
+  <data name="Contacts.Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Contacts.Resolve" xml:space="preserve">
+    <value>Resolve</value>
+  </data>
+  <data name="Contacts.Duplicates" xml:space="preserve">
+    <value>Duplicates</value>
+  </data>
+  <data name="Contacts.Salutation" xml:space="preserve">
+    <value>Salutation</value>
+  </data>
+  <data name="Contacts.FullName" xml:space="preserve">
+    <value>Display name</value>
+  </data>
+  <data name="Contacts.FirstName" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="Contacts.LastName" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="Contacts.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Contacts.Phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Contacts.ContactCode" xml:space="preserve">
+    <value>Contact code</value>
+  </data>
+  <data name="Contacts.Resolved" xml:space="preserve">
+    <value>Resolved</value>
+  </data>
+  <data name="Contacts.Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Contacts.UpdatedAt" xml:space="preserve">
+    <value>Updated at</value>
+  </data>
+  <data name="Contacts.DuplicatesTitle" xml:space="preserve">
+    <value>Find duplicates</value>
+  </data>
+  <data name="Contacts.MergeLabel" xml:space="preserve">
+    <value>Merge</value>
+  </data>
+  <data name="Contacts.CancelLabel" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Contacts.DuplicatesLoading" xml:space="preserve">
+    <value>Loading duplicates...</value>
+  </data>
+  <data name="Contacts.NoDuplicatesFound" xml:space="preserve">
+    <value>No duplicate contacts found.</value>
+  </data>
+  <data name="Contacts.Submit" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+  <data name="Contacts.AvatarAlt" xml:space="preserve">
+    <value>Avatar</value>
+  </data>
+  <data name="Contacts.EditContact" xml:space="preserve">
+    <value>Edit contact</value>
+  </data>
+  <data name="Contacts.Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Contacts.SalutationPlaceholder" xml:space="preserve">
+    <value>Salutation...</value>
+  </data>
+  <data name="Contacts.FirstNamePlaceholder" xml:space="preserve">
+    <value>First name...</value>
+  </data>
+  <data name="Contacts.LastNamePlaceholder" xml:space="preserve">
+    <value>Last name...</value>
+  </data>
+  <data name="Contacts.FullNamePlaceholder" xml:space="preserve">
+    <value>Display name...</value>
+  </data>
+  <data name="Contacts.EmailPlaceholder" xml:space="preserve">
+    <value>Email...</value>
+  </data>
+  <data name="Contacts.PhonePlaceholder" xml:space="preserve">
+    <value>Phone...</value>
+  </data>
+  <data name="Contacts.SalutationInfo" xml:space="preserve">
+    <value>The salutation (e.g. Mr. or Ms.).</value>
+  </data>
+  <data name="Contacts.ContactCodeReadonly" xml:space="preserve">
+    <value>Contact code (readonly)</value>
+  </data>
+  <data name="Contacts.BasicInformation" xml:space="preserve">
+    <value>Basic information</value>
+  </data>
+  <data name="Contacts.CommunicationSettings" xml:space="preserve">
+    <value>Communication settings</value>
+  </data>
+  <data name="Contacts.ListTitle" xml:space="preserve">
+    <value>Contacts</value>
+  </data>
+  <data name="Contacts.Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Contacts.Campaigns" xml:space="preserve">
+    <value>Campaigns</value>
+  </data>
+  <data name="Contacts.CampaignTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Contacts.CampaignDetails" xml:space="preserve">
+    <value>Campaign details</value>
+  </data>
+  <data name="Contacts.Channels" xml:space="preserve">
+    <value>Channels</value>
+  </data>
+  <data name="Contacts.Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Contacts.From" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="Contacts.To" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="Contacts.CreatedBy" xml:space="preserve">
+    <value>Created by</value>
+  </data>
+  <data name="Contacts.CreatedAt" xml:space="preserve">
+    <value>Created at</value>
+  </data>
+  <data name="Contacts.Published" xml:space="preserve">
+    <value>Published</value>
+  </data>
+  <data name="Contacts.SearchTitle" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Contacts.Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Contacts.CommunicationDetailsHeader" xml:space="preserve">
+    <value>Communication Details</value>
+  </data>
+  <data name="Contacts.CommunicationLanguageLabel" xml:space="preserve">
+    <value>Communication language</value>
+  </data>
+  <data name="Contacts.CommunicationConsentLabel" xml:space="preserve">
+    <value>Communication consent</value>
+  </data>
+  <data name="Contacts.CommunicationConsentDateLabel" xml:space="preserve">
+    <value>Communication consent date</value>
+  </data>
+  <data name="Contacts.MessageTypesColumn" xml:space="preserve">
+    <value>Message Types</value>
+  </data>
+  <data name="Contacts.ChannelEmail" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Contacts.ChannelSms" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="Contacts.ChannelPushNotification" xml:space="preserve">
+    <value>Push Notification</value>
+  </data>
+  <data name="Contacts.ChannelInbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Contacts.DefaultSettingsRowLabel" xml:space="preserve">
+    <value>Default Settings</value>
+  </data>
+  <data name="Contacts.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="Contacts.MergeDuplicatesSuccessTitle" xml:space="preserve">
+    <value>Successful merge</value>
+  </data>
+  <data name="Contacts.MergeDuplicatesSuccessMessage" xml:space="preserve">
+    <value>The duplicate contacts of {{name}} were merged successfully.</value>
+  </data>
+  <data name="Contacts.SortCreatedOnOption" xml:space="preserve">
+    <value>Created On</value>
+  </data>
+  <data name="Contacts.SortTitleOption" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Contacts.SortActiveFromOption" xml:space="preserve">
+    <value>Active From</value>
+  </data>
+  <data name="Contacts.SortTypeOption" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Contacts.SortPublishedOption" xml:space="preserve">
+    <value>Published</value>
+  </data>
+  <data name="Contacts.SortUpdatedAtOption" xml:space="preserve">
+    <value>Updated at</value>
+  </data>
+  <data name="Contacts.SortFullNameOption" xml:space="preserve">
+    <value>Full name</value>
+  </data>
+  <data name="Contacts.SortEmailOption" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Contacts.SortPhoneOption" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Contacts.SortContactCodeOption" xml:space="preserve">
+    <value>Contact code</value>
+  </data>
+  <data name="Contacts.SortResolvedOption" xml:space="preserve">
+    <value>Resolved</value>
+  </data>
+  <data name="Contacts.SortLastResolutionDateOption" xml:space="preserve">
+    <value>Last resolution date</value>
+  </data>
+  <data name="Contacts.UpdateSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="Contacts.UpdateSuccessMessage" xml:space="preserve">
+    <value>The contact {{name}} was saved successfully.</value>
+  </data>
+  <data name="DashBoard.Welcome" xml:space="preserve">
+    <value>Welcome,</value>
+  </data>
+  <data name="DashBoard.TodaysCampaigns" xml:space="preserve">
+    <value>Today's campaigns</value>
+  </data>
+  <data name="DashBoard.NewLabel" xml:space="preserve">
+    <value>new</value>
+  </data>
+  <data name="DashBoard.OutOf" xml:space="preserve">
+    <value>out of</value>
+  </data>
+  <data name="DashBoard.TotalLabel" xml:space="preserve">
+    <value>total</value>
+  </data>
+  <data name="DashBoard.TotalCampaignsToday" xml:space="preserve">
+    <value>total campaigns today</value>
+  </data>
+  <data name="DashBoard.IncreasedBySr" xml:space="preserve">
+    <value>Increased by</value>
+  </data>
+  <data name="DashBoard.RegisteredContacts" xml:space="preserve">
+    <value>Registered contacts</value>
+  </data>
+  <data name="DashBoard.TotalRecipientReach" xml:space="preserve">
+    <value>Total recipient reach</value>
+  </data>
+  <data name="DashBoard.AvgReachability" xml:space="preserve">
+    <value>Avg Reachability</value>
+  </data>
+  <data name="DashBoard.ChannelDispatchesLastDays" xml:space="preserve">
+    <value>Channel dispatches last {{days}} days</value>
+  </data>
+  <data name="DashBoard.TotalChannelDeliveries" xml:space="preserve">
+    <value>Total channel deliveries</value>
+  </data>
+  <data name="DashBoard.MessageRecipientsToday" xml:space="preserve">
+    <value>Message recipients today</value>
+  </data>
+  <data name="DistributionLists.CreateTitle" xml:space="preserve">
+    <value>Create new list</value>
+  </data>
+  <data name="DistributionLists.Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="DistributionLists.NameLabelRequired" xml:space="preserve">
+    <value>List name (*)</value>
+  </data>
+  <data name="DistributionLists.NamePlaceholder" xml:space="preserve">
+    <value>The name of the list...</value>
+  </data>
+  <data name="DistributionLists.NameRequiredError" xml:space="preserve">
+    <value>Please enter a list name.</value>
+  </data>
+  <data name="DistributionLists.NameMaxLengthError" xml:space="preserve">
+    <value>Please enter a shorter name.</value>
+  </data>
+  <data name="DistributionLists.NameInfo" xml:space="preserve">
+    <value>The name by which the distribution list will be displayed.</value>
+  </data>
+  <data name="DistributionLists.AliasLabelRequired" xml:space="preserve">
+    <value>Alias (*)</value>
+  </data>
+  <data name="DistributionLists.AliasMaxLengthError" xml:space="preserve">
+    <value>Please enter a shorter alias.</value>
+  </data>
+  <data name="DistributionLists.CsvImportLabel" xml:space="preserve">
+    <value>Bulk import contacts into distribution list (CSV file)</value>
+  </data>
+  <data name="DistributionLists.SearchTitle" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="DistributionLists.Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="DistributionLists.EditContactTitle" xml:space="preserve">
+    <value>Edit contact</value>
+  </data>
+  <data name="DistributionLists.Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="DistributionLists.Salutation" xml:space="preserve">
+    <value>Salutation</value>
+  </data>
+  <data name="DistributionLists.SalutationPlaceholder" xml:space="preserve">
+    <value>Salutation...</value>
+  </data>
+  <data name="DistributionLists.SalutationInfo" xml:space="preserve">
+    <value>The salutation (e.g. Mr. or Ms.).</value>
+  </data>
+  <data name="DistributionLists.FirstName" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="DistributionLists.FirstNamePlaceholder" xml:space="preserve">
+    <value>First name...</value>
+  </data>
+  <data name="DistributionLists.LastName" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="DistributionLists.LastNamePlaceholder" xml:space="preserve">
+    <value>Last name...</value>
+  </data>
+  <data name="DistributionLists.FullName" xml:space="preserve">
+    <value>Display name</value>
+  </data>
+  <data name="DistributionLists.FullNamePlaceholder" xml:space="preserve">
+    <value>Display name...</value>
+  </data>
+  <data name="DistributionLists.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="DistributionLists.EmailPlaceholder" xml:space="preserve">
+    <value>Email...</value>
+  </data>
+  <data name="DistributionLists.Phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="DistributionLists.PhonePlaceholder" xml:space="preserve">
+    <value>Phone...</value>
+  </data>
+  <data name="DistributionLists.ContactCodeReadonly" xml:space="preserve">
+    <value>Contact code (readonly)</value>
+  </data>
+  <data name="DistributionLists.Resolved" xml:space="preserve">
+    <value>Resolved</value>
+  </data>
+  <data name="DistributionLists.Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="DistributionLists.ContactsTitle" xml:space="preserve">
+    <value>List contacts</value>
+  </data>
+  <data name="DistributionLists.Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="DistributionLists.ContactCode" xml:space="preserve">
+    <value>Contact code</value>
+  </data>
+  <data name="DistributionLists.UpdatedAt" xml:space="preserve">
+    <value>Updated at</value>
+  </data>
+  <data name="DistributionLists.Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="DistributionLists.BasicInformation" xml:space="preserve">
+    <value>Basic information</value>
+  </data>
+  <data name="DistributionLists.Contacts" xml:space="preserve">
+    <value>Contacts</value>
+  </data>
+  <data name="DistributionLists.EditList" xml:space="preserve">
+    <value>Edit list</value>
+  </data>
+  <data name="DistributionLists.CancelLabel" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="DistributionLists.ListTitleLabel" xml:space="preserve">
+    <value>List title (*)</value>
+  </data>
+  <data name="DistributionLists.ListNamePlaceholder" xml:space="preserve">
+    <value>The name of the list...</value>
+  </data>
+  <data name="DistributionLists.ListNameRequired" xml:space="preserve">
+    <value>Please enter a title.</value>
+  </data>
+  <data name="DistributionLists.ListNameMaxLength" xml:space="preserve">
+    <value>Please enter a shorter title.</value>
+  </data>
+  <data name="DistributionLists.ListInfo" xml:space="preserve">
+    <value>The name by which the list will be displayed.</value>
+  </data>
+  <data name="DistributionLists.AliasLabel" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="DistributionLists.AliasPlaceholder" xml:space="preserve">
+    <value>The alias of the list...</value>
+  </data>
+  <data name="DistributionLists.AliasMaxLength" xml:space="preserve">
+    <value>Please enter a shorter alias.</value>
+  </data>
+  <data name="DistributionLists.BasicInformationDescription" xml:space="preserve">
+    <value>The basic information of the distribution list.</value>
+  </data>
+  <data name="DistributionLists.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DistributionLists.ListTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="DistributionLists.Alias" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="DistributionLists.CreatedBy" xml:space="preserve">
+    <value>Created by</value>
+  </data>
+  <data name="DistributionLists.CreatedAt" xml:space="preserve">
+    <value>Created at</value>
+  </data>
+  <data name="DistributionLists.UpdatedBy" xml:space="preserve">
+    <value>Updated by</value>
+  </data>
+  <data name="DistributionLists.ImportContactsTitle" xml:space="preserve">
+    <value>Bulk import contacts</value>
+  </data>
+  <data name="DistributionLists.ImportContacts" xml:space="preserve">
+    <value>Bulk import</value>
+  </data>
+  <data name="DistributionLists.ImportContactsLabel" xml:space="preserve">
+    <value>Bulk import contacts into distribution list from CSV file (*)</value>
+  </data>
+  <data name="DistributionLists.ListsTitle" xml:space="preserve">
+    <value>Distribution lists</value>
+  </data>
+  <data name="DistributionLists.Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="DistributionLists.Submit" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+  <data name="DistributionLists.CreateErrorTitle" xml:space="preserve">
+    <value>Create list failed</value>
+  </data>
+  <data name="DistributionLists.CreateErrorMessage" xml:space="preserve">
+    <value>Failed to create the distribution list.</value>
+  </data>
+  <data name="DistributionLists.ImportContactsErrorTitle" xml:space="preserve">
+    <value>Import contacts failed</value>
+  </data>
+  <data name="DistributionLists.ImportContactsErrorMessage" xml:space="preserve">
+    <value>The list was created, but importing contacts failed.</value>
+  </data>
+  <data name="DistributionLists.CreateSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="DistributionLists.CreateSuccessMessage" xml:space="preserve">
+    <value>The distribution list {{name}} was created successfully.</value>
+  </data>
+  <data name="DistributionLists.SortNameOption" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="DistributionLists.DeleteConfirmMessage" xml:space="preserve">
+    <value>Are you sure you want to delete the distribution list '{{name}}'?</value>
+  </data>
+  <data name="DistributionLists.DeleteSuccessTitle" xml:space="preserve">
+    <value>Successful deletion</value>
+  </data>
+  <data name="DistributionLists.DeleteSuccessMessage" xml:space="preserve">
+    <value>The distribution list {{name}} was deleted successfully.</value>
+  </data>
+  <data name="DistributionLists.UpdateSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="DistributionLists.UpdateSuccessMessage" xml:space="preserve">
+    <value>The distribution list {{name}} was saved successfully.</value>
+  </data>
+  <data name="DistributionLists.EditImportContactsErrorTitle" xml:space="preserve">
+    <value>Import contacts failed</value>
+  </data>
+  <data name="DistributionLists.EditImportContactsErrorMessage" xml:space="preserve">
+    <value>A problem occurred while importing contacts into the distribution list..</value>
+  </data>
+  <data name="DistributionLists.EditImportContactsSuccessTitle" xml:space="preserve">
+    <value>Successful import</value>
+  </data>
+  <data name="DistributionLists.EditImportContactsSuccessMessage" xml:space="preserve">
+    <value>The contacts were successfully imported into the distribution list.</value>
+  </data>
+  <data name="DistributionLists.TitleFormat" xml:space="preserve">
+    <value>Distribution list - {{name}}</value>
+  </data>
+  <data name="DistributionLists.SortFirstNameOption" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="DistributionLists.SortLastNameOption" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="DistributionLists.SortEmailOption" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="DistributionLists.SortPhoneOption" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="DistributionLists.SortUpdatedAtOption" xml:space="preserve">
+    <value>Updated at</value>
+  </data>
+  <data name="DistributionLists.SortContactCodeOption" xml:space="preserve">
+    <value>Contact code</value>
+  </data>
+  <data name="DistributionLists.SortResolvedOption" xml:space="preserve">
+    <value>Resolved</value>
+  </data>
+  <data name="DistributionLists.SortLastResolutionDateOption" xml:space="preserve">
+    <value>Last resolution date</value>
+  </data>
+  <data name="DistributionLists.ExportContactsTooltip" xml:space="preserve">
+    <value>Export contacts to CSV file.</value>
+  </data>
+  <data name="DistributionLists.ImportContactsTooltip" xml:space="preserve">
+    <value>Import contacts from CSV file.</value>
+  </data>
+  <data name="DistributionLists.DeleteContactTitle" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DistributionLists.DeleteContactConfirmMessage" xml:space="preserve">
+    <value>Are you sure you want to delete the contact '{{name}}' from the distribution list '{{list}}'?</value>
+  </data>
+  <data name="DistributionLists.DeleteContactSuccessTitle" xml:space="preserve">
+    <value>Successful deletion</value>
+  </data>
+  <data name="DistributionLists.DeleteContactSuccessMessage" xml:space="preserve">
+    <value>The contact {{name}} was removed from the distribution list.</value>
+  </data>
+  <data name="Events.Title" xml:space="preserve">
+    <value>Message events</value>
+  </data>
+  <data name="Events.ItemTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Events.Recipient" xml:space="preserve">
+    <value>Recipient</value>
+  </data>
+  <data name="Events.Channel" xml:space="preserve">
+    <value>Channel</value>
+  </data>
+  <data name="Events.EventType" xml:space="preserve">
+    <value>Event Type</value>
+  </data>
+  <data name="Events.Success" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="Events.Links" xml:space="preserve">
+    <value>Links</value>
+  </data>
+  <data name="Events.MessageDetails" xml:space="preserve">
+    <value>Message details</value>
+  </data>
+  <data name="Events.ContactDetails" xml:space="preserve">
+    <value>Contact details</value>
+  </data>
+  <data name="Events.SortCreatedOnOption" xml:space="preserve">
+    <value>Created On</value>
+  </data>
+  <data name="Events.SortRecipientOption" xml:space="preserve">
+    <value>Recipient</value>
+  </data>
+  <data name="Home.Title" xml:space="preserve">
+    <value>Indice Back-Office</value>
+  </data>
+  <data name="Home.PleaseWait" xml:space="preserve">
+    <value>Please wait...</value>
+  </data>
+  <data name="Campaigns.Title" xml:space="preserve">
+    <value>Campaigns</value>
+  </data>
+  <data name="Campaigns.ItemTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Campaigns.Channels" xml:space="preserve">
+    <value>Channels</value>
+  </data>
+  <data name="Campaigns.Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Campaigns.From" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="Campaigns.To" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="Campaigns.CreatedBy" xml:space="preserve">
+    <value>Created By</value>
+  </data>
+  <data name="Campaigns.CreatedAt" xml:space="preserve">
+    <value>Created At</value>
+  </data>
+  <data name="Campaigns.UpdatedBy" xml:space="preserve">
+    <value>Updated By</value>
+  </data>
+  <data name="Campaigns.UpdatedAt" xml:space="preserve">
+    <value>Updated At</value>
+  </data>
+  <data name="Campaigns.Published" xml:space="preserve">
+    <value>Published</value>
+  </data>
+  <data name="Campaigns.Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Campaigns.CreateTitle" xml:space="preserve">
+    <value>Create Campaign</value>
+  </data>
+  <data name="Campaigns.Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Campaigns.Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Campaigns.Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Campaigns.GeneralLabel" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Campaigns.GeneralInfo" xml:space="preserve">
+    <value>Basic information</value>
+  </data>
+  <data name="Campaigns.ContentLabel" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="Campaigns.ContentInfo" xml:space="preserve">
+    <value>Per communication channel</value>
+  </data>
+  <data name="Campaigns.AttachmentsLabel" xml:space="preserve">
+    <value>Attachments</value>
+  </data>
+  <data name="Campaigns.AttachmentsInfo" xml:space="preserve">
+    <value>Campaign attachments</value>
+  </data>
+  <data name="Campaigns.RecipientsLabel" xml:space="preserve">
+    <value>Recipients</value>
+  </data>
+  <data name="Campaigns.RecipientsInfo" xml:space="preserve">
+    <value>Campaign recipients</value>
+  </data>
+  <data name="Campaigns.OverviewLabel" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="Campaigns.OverviewInfo" xml:space="preserve">
+    <value>Data overview</value>
+  </data>
+  <data name="Campaigns.AttachmentsHeader" xml:space="preserve">
+    <value>Attachments</value>
+  </data>
+  <data name="Campaigns.AttachmentsUsagePrefix" xml:space="preserve">
+    <value>Attachment files are used only if</value>
+  </data>
+  <data name="Campaigns.ChannelInbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Campaigns.AttachmentsUsageConnectorOr" xml:space="preserve">
+    <value>or</value>
+  </data>
+  <data name="Campaigns.ChannelEmail" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Campaigns.AttachmentsUsageSuffix" xml:space="preserve">
+    <value>is selected as a communication channel.</value>
+  </data>
+  <data name="Campaigns.TitleLabel" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Campaigns.TitleLabelRequired" xml:space="preserve">
+    <value>Title (*)</value>
+  </data>
+  <data name="Campaigns.TitlePlaceholder" xml:space="preserve">
+    <value>The campaign title...</value>
+  </data>
+  <data name="Campaigns.TitleRequiredError" xml:space="preserve">
+    <value>Please enter a title.</value>
+  </data>
+  <data name="Campaigns.TitleMaxLengthError" xml:space="preserve">
+    <value>Please enter a shorter title.</value>
+  </data>
+  <data name="Campaigns.TitleInfo" xml:space="preserve">
+    <value>The name that will be displayed for the campaign.</value>
+  </data>
+  <data name="Campaigns.TypeLabel" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Campaigns.TypePlaceholder" xml:space="preserve">
+    <value>Select type...</value>
+  </data>
+  <data name="Campaigns.DurationLabel" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="Campaigns.StartDateLabel" xml:space="preserve">
+    <value>Start date</value>
+  </data>
+  <data name="Campaigns.StartDateInfo" xml:space="preserve">
+    <value>The start date and time of the campaign</value>
+  </data>
+  <data name="Campaigns.EndDateLabel" xml:space="preserve">
+    <value>End date</value>
+  </data>
+  <data name="Campaigns.EndDateInfo" xml:space="preserve">
+    <value>The end date and time of the campaign</value>
+  </data>
+  <data name="Campaigns.CallToActionSectionLabel" xml:space="preserve">
+    <value>Call to action</value>
+  </data>
+  <data name="Campaigns.CallToActionTextLabel" xml:space="preserve">
+    <value>Call-to-action text</value>
+  </data>
+  <data name="Campaigns.CallToActionTextPlaceholder" xml:space="preserve">
+    <value>Click here to...</value>
+  </data>
+  <data name="Campaigns.CallToActionTextInfo" xml:space="preserve">
+    <value>Hyperlink text</value>
+  </data>
+  <data name="Campaigns.CallToActionLinkLabel" xml:space="preserve">
+    <value>Call-to-action link</value>
+  </data>
+  <data name="Campaigns.CallToActionLinkPlaceholder" xml:space="preserve">
+    <value>https://example.com</value>
+  </data>
+  <data name="Campaigns.CallToActionLinkInfo" xml:space="preserve">
+    <value>Hyperlink URL</value>
+  </data>
+  <data name="Campaigns.CallToActionLinkInvalidError" xml:space="preserve">
+    <value>Please enter a valid link.</value>
+  </data>
+  <data name="Campaigns.TemplateUsageLabel" xml:space="preserve">
+    <value>Template usage</value>
+  </data>
+  <data name="Campaigns.TemplateUsageNoOption" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Campaigns.TemplateUsageYesOption" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Campaigns.TemplateIdLabel" xml:space="preserve">
+    <value>Template id</value>
+  </data>
+  <data name="Campaigns.TemplatePlaceholder" xml:space="preserve">
+    <value>Select template...</value>
+  </data>
+  <data name="Campaigns.TemplateRequiredError" xml:space="preserve">
+    <value>Please select a template.</value>
+  </data>
+  <data name="Campaigns.ChannelSms" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="Campaigns.ChannelPushNotification" xml:space="preserve">
+    <value>Push Notification</value>
+  </data>
+  <data name="Campaigns.EditTabLabel" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Campaigns.EditTabTitle" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Campaigns.CommunicationChannelsLabelRequired" xml:space="preserve">
+    <value>Communication Channels (*)</value>
+  </data>
+  <data name="Campaigns.MetadataLabel" xml:space="preserve">
+    <value>Metadata</value>
+  </data>
+  <data name="Campaigns.MetadataPlaceholder" xml:space="preserve">
+    <value>Additional campaign data in JSON format</value>
+  </data>
+  <data name="Campaigns.MetadataInvalidJsonError" xml:space="preserve">
+    <value>JSON format is invalid.</value>
+  </data>
+  <data name="Campaigns.MessageDataLabel" xml:space="preserve">
+    <value>Message Data</value>
+  </data>
+  <data name="Campaigns.SenderLabelRequired" xml:space="preserve">
+    <value>Sender (*)</value>
+  </data>
+  <data name="Campaigns.SubjectLabelRequired" xml:space="preserve">
+    <value>Subject (*)</value>
+  </data>
+  <data name="Campaigns.SubjectPlaceholder" xml:space="preserve">
+    <value>The message subject</value>
+  </data>
+  <data name="Campaigns.SubjectRequiredError" xml:space="preserve">
+    <value>Please enter the subject.</value>
+  </data>
+  <data name="Campaigns.PreviewLabel" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="Campaigns.BodyLabelRequired" xml:space="preserve">
+    <value>Body (*)</value>
+  </data>
+  <data name="Campaigns.BodyPlaceholder" xml:space="preserve">
+    <value>Message body</value>
+  </data>
+  <data name="Campaigns.BodyRequiredError" xml:space="preserve">
+    <value>Please enter the message body.</value>
+  </data>
+  <data name="Campaigns.FileLibraryHeader" xml:space="preserve">
+    <value>File Library</value>
+  </data>
+  <data name="Campaigns.FileLibraryIntroPrefix" xml:space="preserve">
+    <value>You can select an existing file through the</value>
+  </data>
+  <data name="Campaigns.NavigateActionTitle" xml:space="preserve">
+    <value>Navigate</value>
+  </data>
+  <data name="Campaigns.Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Campaigns.Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Campaigns.PublishedLabel" xml:space="preserve">
+    <value>Published</value>
+  </data>
+  <data name="Campaigns.IgnoreUserPreferencesLabel" xml:space="preserve">
+    <value>Ignore contact communication settings</value>
+  </data>
+  <data name="Campaigns.TemplateLabel" xml:space="preserve">
+    <value>Template</value>
+  </data>
+  <data name="Campaigns.DistributionListLabel" xml:space="preserve">
+    <value>Distribution list</value>
+  </data>
+  <data name="Campaigns.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="Campaigns.InfiniteSymbol" xml:space="preserve">
+    <value>∞</value>
+  </data>
+  <data name="Campaigns.Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Campaigns.No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Campaigns.RecipientsSendToLabelRequired" xml:space="preserve">
+    <value>Send to</value>
+  </data>
+  <data name="Campaigns.RecipientsSendViaDistributionListOption" xml:space="preserve">
+    <value>Distribution list</value>
+  </data>
+  <data name="Campaigns.RecipientsSendViaRecipientIdsOption" xml:space="preserve">
+    <value>Code list</value>
+  </data>
+  <data name="Campaigns.RecipientsSendViaRecipientsOption" xml:space="preserve">
+    <value>Recipients list</value>
+  </data>
+  <data name="Campaigns.RecipientsSendViaAllOption" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Campaigns.DistributionListIdLabel" xml:space="preserve">
+    <value>Distribution list id</value>
+  </data>
+  <data name="Campaigns.RecipientIdsLabel" xml:space="preserve">
+    <value>Recipient codes</value>
+  </data>
+  <data name="Campaigns.RecipientIdsPlaceholder" xml:space="preserve">
+    <value>The campaign user list...
+user_code_1
+user_code_2</value>
+  </data>
+  <data name="Campaigns.RecipientsCountSuffix" xml:space="preserve">
+    <value>recipients</value>
+  </data>
+  <data name="Campaigns.NoRecipientsInfo" xml:space="preserve">
+    <value>You have not added recipients to the list.</value>
+  </data>
+  <data name="Campaigns.AddedRecipientsInfoPrefix" xml:space="preserve">
+    <value>You have added</value>
+  </data>
+  <data name="Campaigns.DistributionListRequiredError" xml:space="preserve">
+    <value>Please select a distribution list.</value>
+  </data>
+  <data name="Campaigns.RecipientIdsRequiredError" xml:space="preserve">
+    <value>Please enter at least one code.</value>
+  </data>
+  <data name="Campaigns.RecipientsRequiredError" xml:space="preserve">
+    <value>Please add at least one recipient.</value>
+  </data>
+  <data name="Campaigns.ContentDescription" xml:space="preserve">
+    <value>Campaign content per communication channel.</value>
+  </data>
+  <data name="Campaigns.BasicInformationNav" xml:space="preserve">
+    <value>Basic information</value>
+  </data>
+  <data name="Campaigns.ContentNav" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="Campaigns.ReportsNav" xml:space="preserve">
+    <value>Reports</value>
+  </data>
+  <data name="Campaigns.RecipientsNav" xml:space="preserve">
+    <value>Recipients</value>
+  </data>
+  <data name="Campaigns.ReportsHeader" xml:space="preserve">
+    <value>Reports</value>
+  </data>
+  <data name="Campaigns.ReportsDescription" xml:space="preserve">
+    <value>Charts related to the campaign.</value>
+  </data>
+  <data name="Campaigns.TotalRecipientReachLabel" xml:space="preserve">
+    <value>Total recipient reach</value>
+  </data>
+  <data name="Campaigns.OutOfConnector" xml:space="preserve">
+    <value>out of</value>
+  </data>
+  <data name="Campaigns.TotalSuffix" xml:space="preserve">
+    <value>total</value>
+  </data>
+  <data name="Campaigns.AvgReachabilityLabel" xml:space="preserve">
+    <value>Avg Reachability</value>
+  </data>
+  <data name="Campaigns.TotalMessagesSentLabel" xml:space="preserve">
+    <value>Total messages sent</value>
+  </data>
+  <data name="Campaigns.RecipientsTitle" xml:space="preserve">
+    <value>Recipients</value>
+  </data>
+  <data name="Campaigns.MessageIdColumn" xml:space="preserve">
+    <value>MESSAGE ID</value>
+  </data>
+  <data name="Campaigns.DeliveryDetailsTitle" xml:space="preserve">
+    <value>Delivery details</value>
+  </data>
+  <data name="Campaigns.ChannelsColumn" xml:space="preserve">
+    <value>Channels</value>
+  </data>
+  <data name="Campaigns.EmailColumn" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Campaigns.PhoneColumn" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Campaigns.RecipientIdColumn" xml:space="preserve">
+    <value>Recipient ID</value>
+  </data>
+  <data name="Campaigns.DateColumn" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Campaigns.ContactInfoHeader" xml:space="preserve">
+    <value>Contact information</value>
+  </data>
+  <data name="Campaigns.SalutationLabel" xml:space="preserve">
+    <value>Salutation</value>
+  </data>
+  <data name="Campaigns.DisplayNameLabel" xml:space="preserve">
+    <value>Display name</value>
+  </data>
+  <data name="Campaigns.FirstNameLabel" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="Campaigns.LastNameLabel" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="Campaigns.EmailLabel" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Campaigns.PhoneLabel" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Campaigns.ContactCodeLabel" xml:space="preserve">
+    <value>Contact code</value>
+  </data>
+  <data name="Campaigns.PreviewHeader" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="Campaigns.HistoryHeader" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Campaigns.BasicInformationHeader" xml:space="preserve">
+    <value>Basic Information</value>
+  </data>
+  <data name="Campaigns.BasicInformationDescription" xml:space="preserve">
+    <value>The basic information of the campaign.</value>
+  </data>
+  <data name="Campaigns.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Campaigns.Publish" xml:space="preserve">
+    <value>Publish</value>
+  </data>
+  <data name="Campaigns.StatusLabel" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Campaigns.StatusPublished" xml:space="preserve">
+    <value>Published</value>
+  </data>
+  <data name="Campaigns.StatusUnpublished" xml:space="preserve">
+    <value>Unpublished</value>
+  </data>
+  <data name="Campaigns.FromPrefix" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="Campaigns.ToConnector" xml:space="preserve">
+    <value>to</value>
+  </data>
+  <data name="Campaigns.TargetLabel" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="Campaigns.TargetDistributionListValue" xml:space="preserve">
+    <value>Distribution list</value>
+  </data>
+  <data name="Campaigns.TargetAllValue" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Campaigns.CommunicationChannelsLabel" xml:space="preserve">
+    <value>Communication channels</value>
+  </data>
+  <data name="Campaigns.CreatedByLabel" xml:space="preserve">
+    <value>Created by</value>
+  </data>
+  <data name="Campaigns.CreatedAtLabel" xml:space="preserve">
+    <value>Created at</value>
+  </data>
+  <data name="Campaigns.UpdatedByLabel" xml:space="preserve">
+    <value>Updated by</value>
+  </data>
+  <data name="Campaigns.UpdatedAtLabel" xml:space="preserve">
+    <value>Updated at</value>
+  </data>
+  <data name="Campaigns.EmailSenderLabel" xml:space="preserve">
+    <value>Email sender</value>
+  </data>
+  <data name="Campaigns.EditCampaignTitle" xml:space="preserve">
+    <value>Edit Campaign</value>
+  </data>
+  <data name="Campaigns.TypeInfo" xml:space="preserve">
+    <value>The type assigned to the campaign.</value>
+  </data>
+  <data name="Campaigns.SenderLabel" xml:space="preserve">
+    <value>Sender</value>
+  </data>
+  <data name="Campaigns.SenderInfo" xml:space="preserve">
+    <value>The sender used for the Email channel.</value>
+  </data>
+  <data name="Campaigns.DistributionListInfo" xml:space="preserve">
+    <value>The campaign's distribution list.</value>
+  </data>
+  <data name="Campaigns.EditAttachmentsTitle" xml:space="preserve">
+    <value>Edit attachments</value>
+  </data>
+  <data name="Campaigns.CreateSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="Campaigns.CreateSuccessMessage" xml:space="preserve">
+    <value>The campaign titled {{title}} was created successfully.</value>
+  </data>
+  <data name="Campaigns.ChannelInboxDescription" xml:space="preserve">
+    <value>Notification via inbox personal message.</value>
+  </data>
+  <data name="Campaigns.ChannelPushNotificationDescription" xml:space="preserve">
+    <value>Notification via push notification to registered devices.</value>
+  </data>
+  <data name="Campaigns.ChannelEmailDescription" xml:space="preserve">
+    <value>Notification via email.</value>
+  </data>
+  <data name="Campaigns.ChannelSmsDescription" xml:space="preserve">
+    <value>Notification via short text message.</value>
+  </data>
+  <data name="Campaigns.ActionLinkDefaultText" xml:space="preserve">
+    <value>Click me!</value>
+  </data>
+  <data name="Campaigns.DefaultTitle" xml:space="preserve">
+    <value>Welcome</value>
+  </data>
+  <data name="Campaigns.SelectSenderPlaceholder" xml:space="preserve">
+    <value>Please select...</value>
+  </data>
+  <data name="Campaigns.Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Campaigns.EditTitleFormat" xml:space="preserve">
+    <value>Campaign - {{title}}</value>
+  </data>
+  <data name="Campaigns.PublishedAtInfo" xml:space="preserve">
+    <value>Published at {{date}}</value>
+  </data>
+  <data name="Campaigns.DeleteConfirmMessage" xml:space="preserve">
+    <value>Are you sure you want to delete the campaign '{{title}}'?</value>
+  </data>
+  <data name="Campaigns.DeleteSuccessTitle" xml:space="preserve">
+    <value>Successful deletion</value>
+  </data>
+  <data name="Campaigns.DeleteSuccessMessage" xml:space="preserve">
+    <value>The campaign titled {{title}} was deleted successfully.</value>
+  </data>
+  <data name="Campaigns.PublishConfirmMessage" xml:space="preserve">
+    <value>Are you sure you want to publish the campaign '{{title}}'?</value>
+  </data>
+  <data name="Campaigns.PublishSuccessTitle" xml:space="preserve">
+    <value>Successful publish</value>
+  </data>
+  <data name="Campaigns.PublishSuccessMessage" xml:space="preserve">
+    <value>The campaign titled {{title}} was published successfully.</value>
+  </data>
+  <data name="Campaigns.SelectPlaceholder" xml:space="preserve">
+    <value>Please select...</value>
+  </data>
+  <data name="Campaigns.UpdateSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="Campaigns.UpdateSuccessMessage" xml:space="preserve">
+    <value>The campaign titled {{title}} was saved successfully.</value>
+  </data>
+  <data name="Campaigns.AttachmentUpdateSuccessTitle" xml:space="preserve">
+    <value>Successful update</value>
+  </data>
+  <data name="Campaigns.AttachmentUpdateSuccessMessage" xml:space="preserve">
+    <value>The attachment file was updated successfully.</value>
+  </data>
+  <data name="Campaigns.AttachmentDeleteSuccessMessage" xml:space="preserve">
+    <value>The attachment file was deleted successfully.</value>
+  </data>
+  <data name="Campaigns.AttachmentUpdateErrorTitle" xml:space="preserve">
+    <value>Update error</value>
+  </data>
+  <data name="Campaigns.AttachmentUpdateErrorMessage" xml:space="preserve">
+    <value>There was a problem updating the data. Please try again later.</value>
+  </data>
+  <data name="Campaigns.RecipientsOverflowIndicator" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="Campaigns.SaveAndPublish" xml:space="preserve">
+    <value>Save and Publish</value>
+  </data>
+  <data name="Campaigns.CreateWizardIntro" xml:space="preserve">
+    <value>Follow the steps below to create a new campaign.</value>
+  </data>
+  <data name="Campaigns.ContentUpdateSuccessTitle" xml:space="preserve">
+    <value>Successful update</value>
+  </data>
+  <data name="Campaigns.ContentUpdateSuccessMessage" xml:space="preserve">
+    <value>The campaign content for {{title}} was updated successfully.</value>
+  </data>
+  <data name="Campaigns.SortCreatedOnOption" xml:space="preserve">
+    <value>Created On</value>
+  </data>
+  <data name="Campaigns.SortTitleOption" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Campaigns.SortActiveFromOption" xml:space="preserve">
+    <value>Active From</value>
+  </data>
+  <data name="Campaigns.SortTypeOption" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Campaigns.SortPublishedOption" xml:space="preserve">
+    <value>Published</value>
+  </data>
+  <data name="Campaigns.CreateCampaignAction" xml:space="preserve">
+    <value>Create campaign</value>
+  </data>
+  <data name="MediaLibrary.Title" xml:space="preserve">
+    <value>Files</value>
+  </data>
+  <data name="MediaLibrary.ResultsSuffix" xml:space="preserve">
+    <value>results</value>
+  </data>
+  <data name="MediaLibrary.ViewFolderTitle" xml:space="preserve">
+    <value>Folder view</value>
+  </data>
+  <data name="MediaLibrary.ViewListTitle" xml:space="preserve">
+    <value>List view</value>
+  </data>
+  <data name="MediaLibrary.RefreshTitle" xml:space="preserve">
+    <value>Refresh items</value>
+  </data>
+  <data name="MediaLibrary.AddFolderTitle" xml:space="preserve">
+    <value>Add folder</value>
+  </data>
+  <data name="MediaLibrary.AddFileTitle" xml:space="preserve">
+    <value>Add file</value>
+  </data>
+  <data name="MediaLibrary.FilesCountSuffix" xml:space="preserve">
+    <value>files</value>
+  </data>
+  <data name="MediaLibrary.ParentFolderLabel" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="MediaLibrary.CopyLinkTitle" xml:space="preserve">
+    <value>Copy link</value>
+  </data>
+  <data name="MediaLibrary.OpenInNewTabTitle" xml:space="preserve">
+    <value>Open in new tab</value>
+  </data>
+  <data name="MediaLibrary.NameColumn" xml:space="preserve">
+    <value>NAME</value>
+  </data>
+  <data name="MediaLibrary.TypeColumn" xml:space="preserve">
+    <value>TYPE</value>
+  </data>
+  <data name="MediaLibrary.CreatedByColumn" xml:space="preserve">
+    <value>CREATED BY</value>
+  </data>
+  <data name="MediaLibrary.CreatedAtColumn" xml:space="preserve">
+    <value>CREATED AT</value>
+  </data>
+  <data name="MediaLibrary.ActionsColumn" xml:space="preserve">
+    <value>ACTIONS</value>
+  </data>
+  <data name="MediaLibrary.EditItemTitle" xml:space="preserve">
+    <value>Edit item</value>
+  </data>
+  <data name="MediaLibrary.DeleteItemTitle" xml:space="preserve">
+    <value>Delete item</value>
+  </data>
+  <data name="MediaLibrary.ParentFolderTitle" xml:space="preserve">
+    <value>Up one level</value>
+  </data>
+  <data name="MediaLibrary.EditFolderTitle" xml:space="preserve">
+    <value>Edit folder</value>
+  </data>
+  <data name="MediaLibrary.DeleteFolderTitle" xml:space="preserve">
+    <value>Delete folder</value>
+  </data>
+  <data name="MediaLibrary.DeleteFileTitle" xml:space="preserve">
+    <value>Delete file</value>
+  </data>
+  <data name="MediaLibrary.EditFileTitle" xml:space="preserve">
+    <value>Edit file</value>
+  </data>
+  <data name="MediaLibrary.EditFolderDialogTitle" xml:space="preserve">
+    <value>Edit folder</value>
+  </data>
+  <data name="MediaLibrary.Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MediaLibrary.Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="MediaLibrary.FolderNameLabelRequired" xml:space="preserve">
+    <value>Name (*)</value>
+  </data>
+  <data name="MediaLibrary.FolderNamePlaceholder" xml:space="preserve">
+    <value>The folder name...</value>
+  </data>
+  <data name="MediaLibrary.FolderNameRequiredError" xml:space="preserve">
+    <value>Please enter a name.</value>
+  </data>
+  <data name="MediaLibrary.FolderNameMaxLengthError" xml:space="preserve">
+    <value>Please enter a shorter name.</value>
+  </data>
+  <data name="MediaLibrary.FolderNameInfo" xml:space="preserve">
+    <value>The name by which the folder will be displayed.</value>
+  </data>
+  <data name="MediaLibrary.FolderDescriptionLabel" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="MediaLibrary.FolderDescriptionPlaceholder" xml:space="preserve">
+    <value>The folder description...</value>
+  </data>
+  <data name="MediaLibrary.FolderDescriptionInfo" xml:space="preserve">
+    <value>Short description of the folder contents.</value>
+  </data>
+  <data name="MediaLibrary.ParentFolderSelectLabel" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="MediaLibrary.ParentFolderInfo" xml:space="preserve">
+    <value>The parent folder containing this subfolder.</value>
+  </data>
+  <data name="MediaLibrary.CreateFolderDialogTitle" xml:space="preserve">
+    <value>Create new folder</value>
+  </data>
+  <data name="MediaLibrary.Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="MediaLibrary.AddFileDialogTitle" xml:space="preserve">
+    <value>Add file</value>
+  </data>
+  <data name="MediaLibrary.AddFileIntro" xml:space="preserve">
+    <value>You can add files that can be used as attachments.</value>
+  </data>
+  <data name="MediaLibrary.AttachmentsUsagePrefix" xml:space="preserve">
+    <value>Attachment files are used only if</value>
+  </data>
+  <data name="MediaLibrary.ChannelInbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="MediaLibrary.AttachmentsUsageConnectorOr" xml:space="preserve">
+    <value>or</value>
+  </data>
+  <data name="MediaLibrary.ChannelEmail" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="MediaLibrary.AttachmentsUsageSuffix" xml:space="preserve">
+    <value>is selected as a communication channel.</value>
+  </data>
+  <data name="MediaLibrary.BasicInformationHeader" xml:space="preserve">
+    <value>Basic Information</value>
+  </data>
+  <data name="MediaLibrary.BasicInformationDescription" xml:space="preserve">
+    <value>The basic information of the file.</value>
+  </data>
+  <data name="MediaLibrary.Preview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="MediaLibrary.DownloadFile" xml:space="preserve">
+    <value>Download File</value>
+  </data>
+  <data name="MediaLibrary.TitleLabel" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="MediaLibrary.LocationLabel" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="MediaLibrary.DescriptionLabel" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="MediaLibrary.FolderLabel" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="MediaLibrary.TypeLabel" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="MediaLibrary.SizeLabel" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="MediaLibrary.CreatedByLabel" xml:space="preserve">
+    <value>Created by</value>
+  </data>
+  <data name="MediaLibrary.CreatedAtLabel" xml:space="preserve">
+    <value>Created at</value>
+  </data>
+  <data name="MediaLibrary.UpdatedByLabel" xml:space="preserve">
+    <value>Updated by</value>
+  </data>
+  <data name="MediaLibrary.UpdatedAtLabel" xml:space="preserve">
+    <value>Updated at</value>
+  </data>
+  <data name="MediaLibrary.ImageDimensionsPrefix" xml:space="preserve">
+    <value>Size:</value>
+  </data>
+  <data name="MediaLibrary.PixelsSuffix" xml:space="preserve">
+    <value>px</value>
+  </data>
+  <data name="MediaLibrary.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="MediaLibrary.EditFileDialogTitle" xml:space="preserve">
+    <value>Edit file</value>
+  </data>
+  <data name="MediaLibrary.FileNameLabelRequired" xml:space="preserve">
+    <value>Name (*)</value>
+  </data>
+  <data name="MediaLibrary.FileNamePlaceholder" xml:space="preserve">
+    <value>The file name...</value>
+  </data>
+  <data name="MediaLibrary.FileNameRequiredError" xml:space="preserve">
+    <value>Please enter a name.</value>
+  </data>
+  <data name="MediaLibrary.FileNameMaxLengthError" xml:space="preserve">
+    <value>Please enter a shorter name.</value>
+  </data>
+  <data name="MediaLibrary.FileNameInfo" xml:space="preserve">
+    <value>The name under which the file will be displayed.</value>
+  </data>
+  <data name="MediaLibrary.FileDescriptionLabel" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="MediaLibrary.FileDescriptionPlaceholder" xml:space="preserve">
+    <value>The file description...</value>
+  </data>
+  <data name="MediaLibrary.FileDescriptionInfo" xml:space="preserve">
+    <value>Short description of the file.</value>
+  </data>
+  <data name="MediaLibrary.FileFolderLabel" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="MediaLibrary.FileFolderInfo" xml:space="preserve">
+    <value>The folder that contains the file.</value>
+  </data>
+  <data name="MessageTypes.Title" xml:space="preserve">
+    <value>Message Types</value>
+  </data>
+  <data name="MessageTypes.NameColumn" xml:space="preserve">
+    <value>NAME</value>
+  </data>
+  <data name="MessageTypes.AliasColumn" xml:space="preserve">
+    <value>ALIAS</value>
+  </data>
+  <data name="MessageTypes.CategoryColumn" xml:space="preserve">
+    <value>CATEGORY</value>
+  </data>
+  <data name="MessageTypes.ActionsColumn" xml:space="preserve">
+    <value>ACTIONS</value>
+  </data>
+  <data name="MessageTypes.EditTypeTitle" xml:space="preserve">
+    <value>Edit type</value>
+  </data>
+  <data name="MessageTypes.DeleteTypeTitle" xml:space="preserve">
+    <value>Delete type</value>
+  </data>
+  <data name="MessageTypes.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="MessageTypes.EditDialogTitle" xml:space="preserve">
+    <value>Edit type</value>
+  </data>
+  <data name="MessageTypes.Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MessageTypes.Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="MessageTypes.NameLabelRequired" xml:space="preserve">
+    <value>Name (*)</value>
+  </data>
+  <data name="MessageTypes.NamePlaceholder" xml:space="preserve">
+    <value>The message type name...</value>
+  </data>
+  <data name="MessageTypes.NameRequiredError" xml:space="preserve">
+    <value>Please enter a name.</value>
+  </data>
+  <data name="MessageTypes.NameMaxLengthError" xml:space="preserve">
+    <value>Please enter a shorter name.</value>
+  </data>
+  <data name="MessageTypes.NameInfo" xml:space="preserve">
+    <value>The name that will be displayed for the message type.</value>
+  </data>
+  <data name="MessageTypes.AliasLabel" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="MessageTypes.AliasPlaceholder" xml:space="preserve">
+    <value>The message type alias...</value>
+  </data>
+  <data name="MessageTypes.AliasMaxLengthError" xml:space="preserve">
+    <value>Please enter a shorter alias.</value>
+  </data>
+  <data name="MessageTypes.ClassificationLabel" xml:space="preserve">
+    <value>Classification</value>
+  </data>
+  <data name="MessageTypes.ClassificationRequiredError" xml:space="preserve">
+    <value>Please select a value.</value>
+  </data>
+  <data name="MessageTypes.CreateDialogTitle" xml:space="preserve">
+    <value>Create new type</value>
+  </data>
+  <data name="MessageTypes.Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Settings.Title" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Settings.MediaLibraryHeader" xml:space="preserve">
+    <value>File Library</value>
+  </data>
+  <data name="Settings.MediaLibraryDescription" xml:space="preserve">
+    <value>The File Library settings.</value>
+  </data>
+  <data name="Settings.MediaSettingsKeyColumn" xml:space="preserve">
+    <value>KEY</value>
+  </data>
+  <data name="Settings.MediaSettingsValueColumn" xml:space="preserve">
+    <value>VALUE</value>
+  </data>
+  <data name="Settings.MediaSettingsActionsColumn" xml:space="preserve">
+    <value>ACTIONS</value>
+  </data>
+  <data name="Settings.EditMediaSettingTitle" xml:space="preserve">
+    <value>Edit setting</value>
+  </data>
+  <data name="Settings.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="Settings.EditMediaSettingDialogTitle" xml:space="preserve">
+    <value>Edit setting</value>
+  </data>
+  <data name="Settings.Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Settings.Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Settings.SettingValueLabelRequired" xml:space="preserve">
+    <value>Value (*)</value>
+  </data>
+  <data name="Settings.SettingValuePlaceholder" xml:space="preserve">
+    <value>The setting value...</value>
+  </data>
+  <data name="Settings.SettingValuePatternError" xml:space="preserve">
+    <value>Please enter a valid URL.</value>
+  </data>
+  <data name="Settings.SettingValueInfo" xml:space="preserve">
+    <value>The value of this setting.</value>
+  </data>
+  <data name="Settings.EmailSendersHeader" xml:space="preserve">
+    <value>Email Senders</value>
+  </data>
+  <data name="Settings.EmailSendersDescription" xml:space="preserve">
+    <value>The available senders for the Email channel.</value>
+  </data>
+  <data name="Settings.Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Settings.DefaultSenderInfoPrefix" xml:space="preserve">
+    <value>The default sender when none is selected for a campaign is</value>
+  </data>
+  <data name="Settings.DefaultSenderInfoSuffix" xml:space="preserve">
+    <value>.</value>
+  </data>
+  <data name="Settings.SenderColumn" xml:space="preserve">
+    <value>SENDER</value>
+  </data>
+  <data name="Settings.NameColumn" xml:space="preserve">
+    <value>NAME</value>
+  </data>
+  <data name="Settings.CreatedByColumn" xml:space="preserve">
+    <value>CREATED BY</value>
+  </data>
+  <data name="Settings.CreatedAtColumn" xml:space="preserve">
+    <value>CREATED AT</value>
+  </data>
+  <data name="Settings.ActionsColumn" xml:space="preserve">
+    <value>ACTIONS</value>
+  </data>
+  <data name="Settings.DefaultSenderTooltip" xml:space="preserve">
+    <value>Default Sender</value>
+  </data>
+  <data name="Settings.EditSenderTitle" xml:space="preserve">
+    <value>Edit sender</value>
+  </data>
+  <data name="Settings.DeleteSenderTitle" xml:space="preserve">
+    <value>Delete sender</value>
+  </data>
+  <data name="Settings.EditSenderDialogTitle" xml:space="preserve">
+    <value>Edit sender</value>
+  </data>
+  <data name="Settings.SenderAddressLabelRequired" xml:space="preserve">
+    <value>Sender (*)</value>
+  </data>
+  <data name="Settings.SenderAddressPlaceholder" xml:space="preserve">
+    <value>The sender address...</value>
+  </data>
+  <data name="Settings.SenderAddressRequiredError" xml:space="preserve">
+    <value>Please enter an address.</value>
+  </data>
+  <data name="Settings.SenderAddressMaxLengthError" xml:space="preserve">
+    <value>Please enter a shorter address.</value>
+  </data>
+  <data name="Settings.SenderAddressInfo" xml:space="preserve">
+    <value>The email address used as the sender.</value>
+  </data>
+  <data name="Settings.SenderDisplayNameLabelRequired" xml:space="preserve">
+    <value>Display name (*)</value>
+  </data>
+  <data name="Settings.SenderDisplayNamePlaceholder" xml:space="preserve">
+    <value>The sender display name...</value>
+  </data>
+  <data name="Settings.SenderDisplayNameRequiredError" xml:space="preserve">
+    <value>Please enter a name.</value>
+  </data>
+  <data name="Settings.SenderDisplayNameMaxLengthError" xml:space="preserve">
+    <value>Please enter a shorter name.</value>
+  </data>
+  <data name="Settings.SenderDisplayNameInfo" xml:space="preserve">
+    <value>The name that will appear for the sender.</value>
+  </data>
+  <data name="Settings.DefaultSenderCheckboxLabel" xml:space="preserve">
+    <value>Default Sender</value>
+  </data>
+  <data name="Settings.DefaultSenderCheckboxInfo" xml:space="preserve">
+    <value>Select to mark this sender as the default.</value>
+  </data>
+  <data name="Settings.CreateSenderDialogTitle" xml:space="preserve">
+    <value>Create new sender</value>
+  </data>
+  <data name="Settings.Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Settings.MediaSettingUpdateSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="Settings.MediaSettingUpdateSuccessMessage" xml:space="preserve">
+    <value>The setting {{key}} was updated successfully.</value>
+  </data>
+  <data name="Settings.UpdateSenderSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="Settings.UpdateSenderSuccessMessage" xml:space="preserve">
+    <value>The sender {{sender}} was saved successfully.</value>
+  </data>
+  <data name="Settings.CreateSenderSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="Settings.CreateSenderSuccessMessage" xml:space="preserve">
+    <value>The sender {{sender}} was created successfully.</value>
+  </data>
+  <data name="Templates.Title" xml:space="preserve">
+    <value>Templates</value>
+  </data>
+  <data name="Templates.NameColumn" xml:space="preserve">
+    <value>NAME</value>
+  </data>
+  <data name="Templates.AliasColumn" xml:space="preserve">
+    <value>ALIAS</value>
+  </data>
+  <data name="Templates.ChannelsColumn" xml:space="preserve">
+    <value>Channels</value>
+  </data>
+  <data name="Templates.MessageTypeColumn" xml:space="preserve">
+    <value>MESSAGE TYPE</value>
+  </data>
+  <data name="Templates.CreatedAtColumn" xml:space="preserve">
+    <value>CREATED AT</value>
+  </data>
+  <data name="Templates.UpdatedByColumn" xml:space="preserve">
+    <value>UPDATED BY</value>
+  </data>
+  <data name="Templates.UpdatedAtColumn" xml:space="preserve">
+    <value>UPDATED AT</value>
+  </data>
+  <data name="Templates.ActionsColumn" xml:space="preserve">
+    <value>ACTIONS</value>
+  </data>
+  <data name="Templates.EditTemplateTitle" xml:space="preserve">
+    <value>Edit template</value>
+  </data>
+  <data name="Templates.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="Templates.ChannelEmail" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Templates.ChannelSms" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="Templates.ChannelInbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Templates.ChannelPushNotification" xml:space="preserve">
+    <value>Push Notification</value>
+  </data>
+  <data name="Templates.DeleteTemplateTitle" xml:space="preserve">
+    <value>Delete template</value>
+  </data>
+  <data name="Templates.BasicInformationNav" xml:space="preserve">
+    <value>Basic information</value>
+  </data>
+  <data name="Templates.ContentNav" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="Templates.BasicInformationHeader" xml:space="preserve">
+    <value>Basic Information</value>
+  </data>
+  <data name="Templates.BasicInformationDescription" xml:space="preserve">
+    <value>The basic information of the template.</value>
+  </data>
+  <data name="Templates.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Templates.TitleLabel" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Templates.AliasLabel" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="Templates.MessageTypeLabel" xml:space="preserve">
+    <value>Message type</value>
+  </data>
+  <data name="Templates.IgnoreUserPreferencesLabel" xml:space="preserve">
+    <value>Ignore contact communication settings</value>
+  </data>
+  <data name="Templates.CreatedByLabel" xml:space="preserve">
+    <value>Created by</value>
+  </data>
+  <data name="Templates.CreatedAtLabel" xml:space="preserve">
+    <value>Created at</value>
+  </data>
+  <data name="Templates.UpdatedByLabel" xml:space="preserve">
+    <value>Updated by</value>
+  </data>
+  <data name="Templates.UpdatedAtLabel" xml:space="preserve">
+    <value>Updated at</value>
+  </data>
+  <data name="Templates.Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Templates.No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Templates.EditTemplateDialogTitle" xml:space="preserve">
+    <value>Edit template</value>
+  </data>
+  <data name="Templates.Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Templates.Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Templates.TitleLabelRequired" xml:space="preserve">
+    <value>Title (*)</value>
+  </data>
+  <data name="Templates.TitlePlaceholder" xml:space="preserve">
+    <value>The template name...</value>
+  </data>
+  <data name="Templates.TitleRequiredError" xml:space="preserve">
+    <value>Please enter a title.</value>
+  </data>
+  <data name="Templates.TitleMaxLengthError" xml:space="preserve">
+    <value>Please enter a shorter title.</value>
+  </data>
+  <data name="Templates.TitleInfo" xml:space="preserve">
+    <value>The name that will be shown for the template.</value>
+  </data>
+  <data name="Templates.AliasPlaceholder" xml:space="preserve">
+    <value>The template alias...</value>
+  </data>
+  <data name="Templates.AliasMaxLengthError" xml:space="preserve">
+    <value>Please enter a shorter alias.</value>
+  </data>
+  <data name="Templates.ContentLabel" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="Templates.ContentDescription" xml:space="preserve">
+    <value>The template content per communication channel.</value>
+  </data>
+  <data name="Templates.CreateTemplateDialogTitle" xml:space="preserve">
+    <value>Create Template</value>
+  </data>
+  <data name="Templates.Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Templates.ContentUpdateSuccessTitle" xml:space="preserve">
+    <value>Successful update</value>
+  </data>
+  <data name="Templates.ContentUpdateSuccessMessage" xml:space="preserve">
+    <value>The template content for {{title}} was updated successfully.</value>
+  </data>
+  <data name="Templates.SelectPlaceholder" xml:space="preserve">
+    <value>Please select...</value>
+  </data>
+  <data name="Templates.CreateWizardIntro" xml:space="preserve">
+    <value>Follow the steps below to create a new template.</value>
+  </data>
+  <data name="Templates.CreateSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="Templates.CreateSuccessMessage" xml:space="preserve">
+    <value>The template {{title}} was created successfully.</value>
+  </data>
+  <data name="Templates.DeleteConfirmMessage" xml:space="preserve">
+    <value>Are you sure you want to delete the template '{{name}}'?</value>
+  </data>
+  <data name="Templates.DeleteSuccessTitle" xml:space="preserve">
+    <value>Successful deletion</value>
+  </data>
+  <data name="Templates.DeleteSuccessMessage" xml:space="preserve">
+    <value>The template {{name}} was deleted successfully.</value>
+  </data>
+  <data name="Templates.UpdateSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="Templates.UpdateSuccessMessage" xml:space="preserve">
+    <value>The template {{name}} was saved successfully.</value>
+  </data>
+  <data name="Templates.TemplateTitle" xml:space="preserve">
+    <value>Template - {{title}}</value>
+  </data>
+  <data name="Templates.SortNameOption" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Shared.ContactComboboxNameLabelRequired" xml:space="preserve">
+    <value>Name (*)</value>
+  </data>
+  <data name="Shared.NoResultsPrefix" xml:space="preserve">
+    <value>No results found for</value>
+  </data>
+  <data name="Shared.NoResultsActionPrefix" xml:space="preserve">
+    <value>Click</value>
+  </data>
+  <data name="Shared.HereLinkText" xml:space="preserve">
+    <value>here</value>
+  </data>
+  <data name="Shared.NoResultsActionSuffix" xml:space="preserve">
+    <value>to add the contact.</value>
+  </data>
+  <data name="Shared.CanReceiveInboxTooltip" xml:space="preserve">
+    <value>Can receive inbox</value>
+  </data>
+  <data name="Shared.SalutationLabel" xml:space="preserve">
+    <value>Salutation</value>
+  </data>
+  <data name="Shared.SalutationPlaceholder" xml:space="preserve">
+    <value>Salutation...</value>
+  </data>
+  <data name="Shared.SalutationInfo" xml:space="preserve">
+    <value>The salutation (e.g. Mr or Ms).</value>
+  </data>
+  <data name="Shared.FirstNameLabel" xml:space="preserve">
+    <value>First Name</value>
+  </data>
+  <data name="Shared.FirstNamePlaceholder" xml:space="preserve">
+    <value>First Name...</value>
+  </data>
+  <data name="Shared.LastNameLabel" xml:space="preserve">
+    <value>Last Name</value>
+  </data>
+  <data name="Shared.LastNamePlaceholder" xml:space="preserve">
+    <value>Last Name...</value>
+  </data>
+  <data name="Shared.DisplayNameLabel" xml:space="preserve">
+    <value>Display Name</value>
+  </data>
+  <data name="Shared.DisplayNamePlaceholder" xml:space="preserve">
+    <value>Display Name...</value>
+  </data>
+  <data name="Shared.EmailLabel" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Shared.EmailPlaceholder" xml:space="preserve">
+    <value>Email...</value>
+  </data>
+  <data name="Shared.PhoneLabel" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Shared.PhonePlaceholder" xml:space="preserve">
+    <value>Phone...</value>
+  </data>
+  <data name="Shared.ContactCodeLabel" xml:space="preserve">
+    <value>Contact Code</value>
+  </data>
+  <data name="Shared.ContactCodePlaceholder" xml:space="preserve">
+    <value>Contact Code...</value>
+  </data>
+  <data name="Shared.RemoveActionLabel" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Shared.EditActionLabel" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Shared.SaveActionLabel" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Shared.EmptyValueIndicator" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="Shared.SelectPlaceholder" xml:space="preserve">
+    <value>Please select...</value>
+  </data>
+  <data name="Shared.HttpStatusDefaultTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Shared.HttpStatusDefaultMessage" xml:space="preserve">
+    <value>An unexpected error occurred.</value>
+  </data>
+  <data name="Shared.CompanyLinkText" xml:space="preserve">
+    <value>Indice</value>
+  </data>
+  <data name="Shared.CompanyLinkTitle" xml:space="preserve">
+    <value>Visit Indice website</value>
+  </data>
+  <data name="Shared.SupportLinkText" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="Shared.SupportLinkTitle" xml:space="preserve">
+    <value>Contact support</value>
+  </data>
+  <data name="Shared.NoAttachmentInfo" xml:space="preserve">
+    <value>You have not added any attachment file.</value>
+  </data>
+  <data name="Shared.AddAttachmentButtonTitle" xml:space="preserve">
+    <value>Add attachment file</value>
+  </data>
+  <data name="Shared.FileSizeLimitExceeded" xml:space="preserve">
+    <value>The file size exceeds the allowed limit ({size}).</value>
+  </data>
+  <data name="Shared.AttachmentTitleLabel" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Shared.AttachmentTypeLabel" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Shared.AttachmentSizeLabel" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Shared.Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Shared.ListViewEmptyStateTitle" xml:space="preserve">
+    <value>No records found.</value>
+  </data>
+  <data name="Shared.ListViewEmptyStateSubTitle" xml:space="preserve">
+    <value>Please change your search criteria or start by adding a new record</value>
+  </data>
+  <data name="Shared.ListViewEmptyStateNewItemLabel" xml:space="preserve">
+    <value>New record</value>
+  </data>
+  <data name="Logout.Title" xml:space="preserve">
+    <value>Indice Back-Office</value>
+  </data>
+  <data name="Logout.PleaseWait" xml:space="preserve">
+    <value>please wait...</value>
+  </data>
+  <data name="MessageTypes.CreateSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="MessageTypes.CreateSuccessMessage" xml:space="preserve">
+    <value>The message type {{name}} was created successfully.</value>
+  </data>
+  <data name="MessageTypes.UpdateSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="MessageTypes.UpdateSuccessMessage" xml:space="preserve">
+    <value>The message type {{name}} was saved successfully.</value>
+  </data>
+  <data name="MessageTypes.SortNameOption" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="MessageTypes.DeleteConfirmMessage" xml:space="preserve">
+    <value>Are you sure you want to delete the message type '{{name}}'?</value>
+  </data>
+  <data name="MessageTypes.DeleteSuccessTitle" xml:space="preserve">
+    <value>Successful deletion</value>
+  </data>
+  <data name="MessageTypes.DeleteSuccessMessage" xml:space="preserve">
+    <value>The message type {{name}} was deleted successfully.</value>
+  </data>
+  <data name="MediaLibrary.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="MediaLibrary.DeleteFolderConfirmMessage" xml:space="preserve">
+    <value>Are you sure you want to delete the folder '{{name}}'?</value>
+  </data>
+  <data name="MediaLibrary.DeleteFolderSuccessTitle" xml:space="preserve">
+    <value>Successful deletion</value>
+  </data>
+  <data name="MediaLibrary.DeleteFolderSuccessMessage" xml:space="preserve">
+    <value>The folder {{name}} was deleted successfully.</value>
+  </data>
+  <data name="MediaLibrary.DeleteFileConfirmMessage" xml:space="preserve">
+    <value>Are you sure you want to delete the file '{{name}}'?</value>
+  </data>
+  <data name="MediaLibrary.DeleteFileSuccessTitle" xml:space="preserve">
+    <value>Successful deletion</value>
+  </data>
+  <data name="MediaLibrary.DeleteFileSuccessMessage" xml:space="preserve">
+    <value>The file {{name}} was deleted successfully.</value>
+  </data>
+  <data name="MediaLibrary.CopyLinkSuccessMessage" xml:space="preserve">
+    <value>The link of file {{name}} was copied successfully.</value>
+  </data>
+  <data name="MediaLibrary.CopyLinkErrorTitle" xml:space="preserve">
+    <value>Copy failed</value>
+  </data>
+  <data name="MediaLibrary.CopyLinkErrorMessage" xml:space="preserve">
+    <value>The file link could not be copied to the clipboard.</value>
+  </data>
+  <data name="MediaLibrary.SelectPlaceholder" xml:space="preserve">
+    <value>Please select...</value>
+  </data>
+  <data name="MediaLibrary.UpdateFolderSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="MediaLibrary.UpdateFolderSuccessMessage" xml:space="preserve">
+    <value>The folder {{name}} was updated successfully.</value>
+  </data>
+  <data name="MediaLibrary.CreateFolderSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="MediaLibrary.CreateFolderSuccessMessage" xml:space="preserve">
+    <value>The folder {{name}} was created successfully.</value>
+  </data>
+  <data name="MediaLibrary.CopyPathTitle" xml:space="preserve">
+    <value>Copy location</value>
+  </data>
+  <data name="MediaLibrary.CopyPathSuccessMessage" xml:space="preserve">
+    <value>The location {{path}} was copied successfully.</value>
+  </data>
+  <data name="MediaLibrary.CopyPathErrorTitle" xml:space="preserve">
+    <value>Copy failed</value>
+  </data>
+  <data name="MediaLibrary.CopyPathErrorMessage" xml:space="preserve">
+    <value>The location could not be copied to the clipboard.</value>
+  </data>
+  <data name="MediaLibrary.UpdateFileSuccessTitle" xml:space="preserve">
+    <value>Successful save</value>
+  </data>
+  <data name="MediaLibrary.UpdateFileSuccessMessage" xml:space="preserve">
+    <value>The file {{name}} was updated successfully.</value>
+  </data>
+  <data name="Shared.Search" xml:space="preserve">
+    <value>search</value>
+  </data>
+  <data name="Breadcrumb.Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Breadcrumb.Campaigns" xml:space="preserve">
+    <value>Campaigns</value>
+  </data>
+  <data name="Breadcrumb.Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Breadcrumb.Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Breadcrumb.BasicInformation" xml:space="preserve">
+    <value>Basic Information</value>
+  </data>
+  <data name="Breadcrumb.Content" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="Breadcrumb.Reports" xml:space="preserve">
+    <value>Reports</value>
+  </data>
+  <data name="Breadcrumb.History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Breadcrumb.Timeline" xml:space="preserve">
+    <value>Timeline</value>
+  </data>
+  <data name="Breadcrumb.DeliveryInformation" xml:space="preserve">
+    <value>Delivery Information</value>
+  </data>
+  
+  
+  <data name="Breadcrumb.MessageTypes" xml:space="preserve">
+    <value>Message Types</value>
+  </data>
+  <data name="Breadcrumb.DistributionLists" xml:space="preserve">
+    <value>Distribution Lists</value>
+  </data>
+  <data name="Breadcrumb.Contacts" xml:space="preserve">
+    <value>Contacts</value>
+  </data>
+  <data name="Breadcrumb.CommunicationDetails" xml:space="preserve">
+    <value>Communication Details</value>
+  </data>
+  <data name="Breadcrumb.Templates" xml:space="preserve">
+    <value>Templates</value>
+  </data>
+  <data name="Breadcrumb.Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Breadcrumb.MessageEvents" xml:space="preserve">
+    <value>Message Events</value>
+  </data>
+  <data name="Breadcrumb.Files" xml:space="preserve">
+    <value>Files</value>
+  </data>
+  <data name="Breadcrumb.Folder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="Settings.SortSenderOption" xml:space="preserve">
+    <value>Sender</value>
+  </data>
+  <data name="Settings.SortNameOption" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Settings.SortCreatedAtOption" xml:space="preserve">
+    <value>Created</value>
+  </data>
+</root>

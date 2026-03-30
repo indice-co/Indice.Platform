@@ -40,6 +40,10 @@
                         <td>{{ selectedLogEntry?.subjectName || '-' }}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Subject Exists</th>
+                        <td>{{ selectedLogEntry?.subjectUnknown || '-' }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Endpoint</th>
                         <td>{{ selectedLogEntry?.resourceId || '-' }}</td>
                     </tr>
@@ -65,15 +69,21 @@
                     </tr>
                     <tr>
                         <th scope="row">Country Code</th>
-                        <td>{{ selectedLogEntry?.countryIsoCode || '-' }}</td>
+                        <td>
+                            <i class="flag:{{selectedLogEntry?.countryIsoCode}}" [title]="selectedLogEntry?.countryIsoCode"></i>
+                            <span class="m-2">{{ selectedLogEntry?.countryIsoCode || '-' }}</span>
+                        </td>
                     </tr>
                     <tr>
                         <th scope="row">Coordinates</th>
                         <td>
                             <a *ngIf="!selectedLogEntry?.coordinates">-</a>
                             <a *ngIf="selectedLogEntry?.coordinates" target="_blank"
-                                [href]="'https://www.google.com/maps/search/?api=1&query=' + selectedLogEntry.coordinates">{{
-                                selectedLogEntry.coordinates }}</a>
+                               [href]="'https://www.google.com/maps/search/?api=1&query=' + selectedLogEntry.coordinates">
+                                {{
+                                selectedLogEntry.coordinates
+                                }}
+                            </a>
                         </td>
                     </tr>
                     <tr>
@@ -100,7 +110,7 @@
                         <th scope="row">Metadata</th>
                         <td>
                             <textarea class="code-editor" cols="100"
-                                rows="25">{{ selectedLogEntry?.extraData | json }}</textarea>
+                                      rows="25">{{ selectedLogEntry?.extraData | json }}</textarea>
                         </td>
                     </tr>
                 </tbody>
@@ -166,7 +176,7 @@
                 From Date
             </label>
             <app-dynamic-input id="date-from-filter" name="date-from-filter" [(ngModel)]="filter.dateFrom" [modelType]="'DateTime'"
-                [placeholder]="'From Date'" required #value="ngModel">
+                               [placeholder]="'From Date'" required #value="ngModel">
             </app-dynamic-input>
         </div>
         <div class="col">
@@ -174,7 +184,7 @@
                 To Date
             </label>
             <app-dynamic-input id="date-to-filter" name="date-to-filter" [(ngModel)]="filter.dateTo" [modelType]="'DateTime'"
-                [placeholder]="'To Date'" required #value="ngModel">
+                               [placeholder]="'To Date'" required #value="ngModel">
             </app-dynamic-input>
         </div>
         <div class="col">
@@ -182,7 +192,7 @@
                 Subject
             </label>
             <app-dynamic-input id="subject-filter" name="subject-filter" [(ngModel)]="filter.subject" [modelType]="'String'"
-                [placeholder]="'Subject'" required #value="ngModel">
+                               [placeholder]="'Subject'" required #value="ngModel">
             </app-dynamic-input>
         </div>
     </div>
@@ -198,8 +208,8 @@
 <div class="row">
     <div class="col-12">
         <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="defaultPageSize"
-            [defaultSortField]="defaultSortField" [defaultSortDirection]="defaultSortDirection" [filter]="filter" (search)="getLogs($event)"
-            #signInLogsList></app-list-view>
+                       [defaultSortField]="defaultSortField" [defaultSortDirection]="defaultSortDirection" [filter]="filter" (search)="getLogs($event)"
+                       #signInLogsList></app-list-view>
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #optionalTemplate>
@@ -211,9 +221,61 @@
 </ng-template>
 <ng-template let-row="row" let-value="row" #statusTemplate>
     <div *ngIf="value">
-        <span *ngIf="value.succeeded" class="badge text-success border boder-success bg-light m-r-10" [title]="'Succeeded Attempt'">Succeeded</span>
-        <span *ngIf="!value.succeeded" class="badge text-danger border boder-danger bg-light m-r-10" [title]="'Failed Attempt'">Failed</span>
-        <span *ngIf="value.review" class="badge text-warning border boder-warning bg-light" [title]="'Marked for Review'">Review</span>
+        <span *ngIf="value.succeeded" class="badge text-success border bg-light m-r-10" [title]="'Succeeded Attempt'">Succeeded</span>
+        <span *ngIf="!value.succeeded" class="badge text-danger border bg-light m-r-10" [title]="'Failed Attempt'">Failed</span>
+        <span *ngIf="value.review" class="badge text-warning border bg-light" [title]="'Marked for Review'">Review</span>
     </div>
+    <span *ngIf="!value"> - </span>
+</ng-template>
+<ng-template let-row="row" let-value="value" #ipCellTemplate>
+    <div *ngIf="value">
+        <span class="badge text-muted border bg-light m-1" [title]="value">
+            <i class="flag:{{row.countryIsoCode}}" [title]="row.countryIsoCode"></i>
+            {{ value }}
+        </span>
+    </div>
+    <span *ngIf="!value"> - </span>
+</ng-template>
+<ng-template let-row="row" let-value="value" #eventTypeCellTemplate>
+    <div *ngIf="value">
+        <span *ngIf="row.succeeded && !row.review" class="badge border text-muted bg-light m-r-10" [title]="'Succeeded Attempt'"> <i class="dot bg-success"></i> {{ value }}</span>
+        <span *ngIf="!row.succeeded && !row.review" class="badge border text-muted bg-light m-r-10" [title]="'Failed Attempt'"><i class="dot bg-danger"></i>{{ value }}</span>
+        <span *ngIf="row.succeeded && row.review" class="badge border text-muted bg-light" [title]="'Marked for Review'"><i class="dot bg-warning"></i>{{ value }}</span>
+        <img *ngIf="row.extraData.provider && row.extraData.provider !== 'local'" class="m-1" height="14" alt="{{row.extraData.provider}} logo" title="{{row.extraData.provider}}" src="assets/img/idps/{{row.extraData.provider}}.svg" />
+    </div>
+    <span *ngIf="!value"> - </span>
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             let-userAgentFamily="row.extraData?.device?.userAgentFamily?.toLowerCase()"
+             let-platform="row.extraData?.device?.platform?.toLowerCase()"
+             #deviceTemplate>
+    <span class="badge text-muted border bg-light m-1" [title]="value">
+        <i class="device-icon device-icon-ua" style="margin-right:2px"
+           [class.device-icon-ua-firefox]="userAgentFamily?.includes('firefox')"
+           [class.device-icon-ua-safari]="userAgentFamily?.includes('safari')"
+           [class.device-icon-ua-edge]="userAgentFamily?.includes('edge')"
+           [class.device-icon-ua-chrome]="userAgentFamily?.includes('chrome')"
+           [class.device-icon-ua-brave]="userAgentFamily?.includes('brave')"
+           [class.device-icon-ua-opera]="userAgentFamily?.includes('opera')"
+           [class.device-icon-ua-tor]="userAgentFamily?.includes('tor')"
+           [class.device-icon-ua-ie]="userAgentFamily === 'ie'"
+           [class.device-icon-ua-samsung-internet]="userAgentFamily?.includes('samsung') && userAgentFamily?.includes('internet')"
+           [class.device-icon-ua-postman]="userAgentFamily?.includes('postman')"
+           [class.device-icon-ua-generic]="!userAgentFamily"></i>
+        <i class="device-icon"
+           [class.device-icon-os-linux]="platform === 'linux'"
+           [class.device-icon-os-ubuntu]="platform === 'ubuntu'"
+           [class.device-icon-os-windows]="platform === 'windows'"
+           [class.device-icon-os-ios]="platform === 'ios'"
+           [class.device-icon-os-macos]="platform === 'macos'"
+           [class.device-icon-os-android]="platform === 'android'"
+           [class.device-icon-os-none]="platform === 'none' || !platform"></i>
+        {{ value }}
+    </span>
+</ng-template>
+
+<ng-template let-row="row" let-value="value" #subjectNameTemplate>
+    <span *ngIf="value" [class.text-danger]="row.subjectUnknown" [title]="value">{{ value }}</span>
     <span *ngIf="!value"> - </span>
 </ng-template>

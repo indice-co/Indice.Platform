@@ -7,7 +7,7 @@ namespace Indice.Common.Tests;
 public class PhoneNumberTests
 {
     static PhoneNumberTests() {
-        using var reader = new StreamReader(typeof(PhoneNumberTests).Assembly.GetManifestResourceStream("Indice.Common.Tests.Data.PhoneNumberTests.txt"));
+        using var reader = new StreamReader(typeof(PhoneNumberTests).Assembly.GetManifestResourceStream("Indice.Common.Tests.Data.PhoneNumberTests.txt")!);
         PhoneNumbersData = reader.ReadToEnd().Split('\n').Select(x => new[] { x }).ToArray();
     }
     public PhoneNumberTests() {

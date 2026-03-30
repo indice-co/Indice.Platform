@@ -1,7 +1,7 @@
-﻿@inject IIdentityViewLocalizer Localizer
-@inject IOptions<GeneralSettings> GeneralSettings
+﻿@inject IOptions<GeneralSettings> GeneralSettings
 @inject IOptions<IdentityUIOptions> UIOptions
 @inject UserManager<User> UserManager
+@inject IdentityUILocalizer Localizer
 
 @{
     Layout = "_LayoutEmail.cshtml";
@@ -9,13 +9,13 @@
 
 @{
     var settings = GeneralSettings.Value;
-    var subject = Model?.Subject ?? Localizer["Welcome to {0}! Please confirm your email to get started.", settings.ApplicationName!].Value;
+	var subject = Model?.Subject ?? Localizer.EmailRegister_Subject(settings.ApplicationName!);
     var userName = Model?.UserName ?? UserManager.GetUserName(User);
     var confirmationLink = Model?.Url ?? throw new InvalidOperationException("Confirmation link cannot be null.");
 }
 
 @section preheader {
-    @Localizer[$"Welcome to {0}! Please confirm your email to get started.", settings.ApplicationName!]
+    @Localizer.EmailRegister_Subject(settings.ApplicationName!)
 }
 
 @section subject {
@@ -25,22 +25,25 @@
 }
 
 <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
-    @Localizer["Hi"] @(userName ?? string.Empty),
+    @Localizer.EmailRegister_Body_Hi @(userName ?? string.Empty),
     <br />
     <br />
-    @Localizer["Welcome to {0}! We’re excited to have you on board.", settings.ApplicationName!]
+    @Localizer.EmailRegister_Body_Welcome(settings.ApplicationName!)
     <br />
     <br />
-    @Localizer["To complete your registration, please confirm your email address by clicking"]
-    <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer["here"]</a>.
+    @if (!UIOptions.Value.AutomaticSigninAfterRegister)
+    {
+        @Localizer.EmailRegister_Body_ConfirmEmail
+        <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a>
+        <br />
+        <br />
+    }
+    @Localizer.EmailRegister_Body_IgnoreNotice
     <br />
     <br />
-    @Localizer["If you did not create an account, you can safely ignore this email."]
+    @Localizer.EmailRegister_Body_Thanks
     <br />
     <br />
-    @Localizer["Thank you for joining!"]
-    <br />
-    <br />
-    @Localizer["Sincerely"],<br />
-    @Localizer[settings.Organization!]
+    @Localizer.Email_Body_Sincerely,<br />
+    @Localizer.Email_Body_Organization_Signature(settings.Organization!)
 </p>

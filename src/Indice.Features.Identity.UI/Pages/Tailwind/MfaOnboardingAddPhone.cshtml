@@ -1,17 +1,18 @@
 ﻿@page "/login/mfa/onboarding/add-phone"
-
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/mfa/onboarding/add-phone")]
 @model BaseMfaOnboardingAddPhoneModel
 
-@inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment HostingEnvironment
+@inject IdentityUILocalizer Localizer
+
 
 @{
-    var title = ViewBag.Title = Localizer["MFA onboarding - SMS"].Value;
+    ViewBag.Title = Localizer.MfaOnBoardingAddPhone_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddPhoneModel.TempDataKey);
 }
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.MfaOnBoardingAddPhone_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
         <partial name="_Alert" model="alert" />
 
@@ -19,13 +20,13 @@
             <div class="mb-4">
                 <input type="hidden" asp-for="Input.ReturnUrl" />
                 <label asp-for="Input.PhoneNumber" class="sr-only">
-                    @Localizer["Phone number"]
+                    @Localizer.MfaOnBoardingAddPhone_Phone_Number
                 </label>
                 <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
 
                 <input asp-for="Input.PhoneNumber"
                        type="text"
-                       placeholder="@Localizer["Phone number"]"
+                       placeholder="@Localizer.MfaOnBoardingAddPhone_Phone_Number"
                        readonly="@Model.View.DisablePhoneNumberInput"
                        class="block w-full px-3 py-2 border border-gray-300 rounded-md
                    placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
@@ -42,7 +43,7 @@
                         <a href="@Model.View.NextStepUrl"
                            class="block w-full py-2 px-4 text-center font-semibold rounded-md
                        bg-blue-500 hover:bg-blue-600 text-white transition">
-                            @Localizer["Next"]
+                            @Localizer.MfaOnBoardingAddPhone_Next
                         </a>
                     }
                     else
@@ -50,7 +51,7 @@
                         <button type="submit"
                                 class="block w-full py-2 px-4 font-semibold rounded-md
                        bg-blue-500 hover:bg-blue-600 text-white transition">
-                            @Localizer["Save"]
+                            @Localizer.MfaOnBoardingAddPhone_Save
                         </button>
                     }
                 </div>

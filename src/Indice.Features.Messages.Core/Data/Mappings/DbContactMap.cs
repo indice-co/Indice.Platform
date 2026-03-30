@@ -1,6 +1,5 @@
 ﻿using Indice.Configuration;
 using Indice.Features.Messages.Core.Data.Models;
-using Indice.Features.Messages.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -30,11 +29,9 @@ public class DbContactMap : IEntityTypeConfiguration<DbContact>
         builder.Property(x => x.FullName).HasMaxLength(TextSizePresets.M256);
         builder.Property(x => x.PhoneNumber).HasMaxLength(TextSizePresets.S64);
         builder.Property(x => x.Email).HasMaxLength(TextSizePresets.S64);
-        builder.Property(x => x.RecipientId).HasMaxLength(TextSizePresets.S64);
-        builder.Property(x => x.Locale).HasMaxLength(TextSizePresets.S16);
-        builder.Property(x => x.CommunicationPreferences).HasDefaultValue(ContactChannelKind.Any);
-        builder.Property(x => x.ConsentCommercial).HasDefaultValue(false);
+        builder.Property(x => x.RecipientId).HasMaxLength(TextSizePresets.S64).IsRequired(false);
         // Configure indexes.
         builder.HasIndex(x => x.RecipientId).IsUnique(true);
+        builder.HasIndex(x => new { x.RecipientId, x.Resolved });
     }
 }

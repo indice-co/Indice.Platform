@@ -33,19 +33,19 @@ public class MessagesIntegrationTests : IAsyncLifetime
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
-    private ServiceProvider _serviceProvider;
+    private ServiceProvider _serviceProvider = null!;
 
     public MessagesIntegrationTests(ITestOutputHelper output) {
         _output = output;
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string> {
+            builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
                 ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true"
             });
         });
         builder.ConfigureServices(services => {
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+            var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
             services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
             services.AddRouting();
             services.AddMessaging(options => {
@@ -61,7 +61,6 @@ public class MessagesIntegrationTests : IAsyncLifetime
                         options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
                     })
                     .AddMock(() => DummyPrincipals.IndiceUser);
-            _serviceProvider = services.BuildServiceProvider();
         });
         builder.Configure(app => {
             app.UseAuthentication();
@@ -74,6 +73,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
+        _serviceProvider = (ServiceProvider)server.Services;
     }
 
     [Fact]
@@ -117,7 +117,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         }
 
         //assert
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
         var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
         if (!getCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(getCampaignResponseJson);
@@ -135,7 +135,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         var expectedContentMessageKinds = createTemplateRequest.Content.Select(cnt => cnt.Key);
         Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
         Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
-        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.GetFlagValues().Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.Count());
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Published = false,
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
             MessageTemplateId = new GuidOrAlias(templateAlias),
-            MessageTemplateChannels = MessageChannelKind.Email | MessageChannelKind.PushNotification
+            MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.PushNotification]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
@@ -180,7 +180,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         }
 
         //assert
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
         var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
         if (!getCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(getCampaignResponseJson);
@@ -195,10 +195,10 @@ public class MessagesIntegrationTests : IAsyncLifetime
 
         Assert.NotNull(campaignDetails);
         var actualContentMessageKinds = campaignDetails.Content.Select(cnt => cnt.Key);
-        var expectedContentMessageKinds = createCampaignRequest.MessageTemplateChannels.Value.GetFlagValues().Select(v => v.ToString());
+        var expectedContentMessageKinds = createCampaignRequest.MessageTemplateChannels.Select(v => v.ToString());
         Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
         Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
-        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.GetFlagValues().Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.Count());
     }
 
     [Fact]
@@ -233,7 +233,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Published = false,
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
             MessageTemplateId = new GuidOrAlias(templateAlias),
-            MessageTemplateChannels = MessageChannelKind.Email | MessageChannelKind.Inbox
+            MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.Inbox]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
@@ -243,7 +243,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         }
 
         //assert
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
         var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
         if (!getCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(getCampaignResponseJson);
@@ -261,7 +261,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         var expectedContentMessageKinds = new string[] { MessageChannelKind.Email.ToString() };
         Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
         Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
-        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.GetFlagValues().Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.Count());
     }
 
     [Fact]
@@ -295,7 +295,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Published = false,
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
             MessageTemplateId = new GuidOrAlias(templateAlias),
-            MessageTemplateChannels = MessageChannelKind.Inbox | MessageChannelKind.SMS
+            MessageTemplateChannels = [MessageChannelKind.Inbox, MessageChannelKind.SMS]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
@@ -334,7 +334,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         }
 
         //Retrieve the Created Campaign
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
         var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
         if (!getCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(getCampaignResponseJson);
@@ -394,7 +394,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             { byteArrayContent, "File", "contacts.csv" }
         };
 
-        var response = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/import", form);
+        var response = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/import", form);
 
         var context = _serviceProvider.GetRequiredService<CampaignsDbContext>();
         var contactInDb = await context.Contacts.FirstOrDefaultAsync(c => c.RecipientId == "ABC123");
@@ -510,10 +510,10 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Email = "test@email.gr",
             PhoneNumber = "1234567890",
             Salutation = "Mr",
-            CommunicationPreferences = ContactChannelKind.Any | ContactChannelKind.Email
+            //CommunicationPreferences = ContactChannelKind.Any | ContactChannelKind.Email
         };
         var addContactPayload = JsonSerializer.Serialize(addContactRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));
+        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));
         var addContactResponseJson = await addContactResponse.Content.ReadAsStringAsync();
         if (!addContactResponse.IsSuccessStatusCode) {
             _output.WriteLine(addContactResponseJson);
@@ -523,12 +523,12 @@ public class MessagesIntegrationTests : IAsyncLifetime
 
         var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
-        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/contacts");
+        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts");
         var getDistributionListResponseJson = await getDistributionListResponse.Content.ReadAsStringAsync();
         if (!getDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(getDistributionListResponseJson);
         }
-        var distributionListContacts = JsonSerializer.Deserialize<ResultSet<Contact>>(getDistributionListResponseJson, serializationOptions);
+        var distributionListContacts = JsonSerializer.Deserialize<ResultSet<Contact>>(getDistributionListResponseJson, serializationOptions)!;
 
         Assert.True(createDistributionListResponse.IsSuccessStatusCode);
         Assert.True(addContactResponse.IsSuccessStatusCode);
@@ -559,7 +559,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Salutation = "Mr"
         };
         var addContactPayload = JsonSerializer.Serialize(addContactRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));
+        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));
         var addContactResponseJson = await addContactResponse.Content.ReadAsStringAsync();
         if (!addContactResponse.IsSuccessStatusCode) {
             _output.WriteLine(addContactResponseJson);
@@ -569,12 +569,12 @@ public class MessagesIntegrationTests : IAsyncLifetime
 
         var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
-        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/contacts");
+        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts");
         var getDistributionListResponseJson = await getDistributionListResponse.Content.ReadAsStringAsync();
         if (!getDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(getDistributionListResponseJson);
         }
-        var distributionListContacts = JsonSerializer.Deserialize<ResultSet<Contact>>(getDistributionListResponseJson, serializationOptions);
+        var distributionListContacts = JsonSerializer.Deserialize<ResultSet<Contact>>(getDistributionListResponseJson, serializationOptions)!;
 
         Assert.True(createDistributionListResponse.IsSuccessStatusCode);
         Assert.True(addContactResponse.IsSuccessStatusCode);
@@ -606,7 +606,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         }
 
         //Retrieve the Created Campaign
-        var getTemplateResponse = await _httpClient.GetAsync(createTemplateResponse.Headers.Location.PathAndQuery);
+        var getTemplateResponse = await _httpClient.GetAsync(createTemplateResponse.Headers.Location?.PathAndQuery);
         var getTemplateResponseJson = await getTemplateResponse.Content.ReadAsStringAsync();
         if (!getTemplateResponse.IsSuccessStatusCode) {
             _output.WriteLine(getTemplateResponseJson);

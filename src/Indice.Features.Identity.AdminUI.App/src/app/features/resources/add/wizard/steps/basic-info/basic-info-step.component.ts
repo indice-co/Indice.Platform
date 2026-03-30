@@ -5,8 +5,9 @@ import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base
 import { ResourceWizardModel } from '../../../models/resource-wizard-model';
 
 @Component({
-  selector: 'app-basic-info-step',
-  templateUrl: './basic-info-step.component.html'
+    selector: 'app-basic-info-step',
+    templateUrl: './basic-info-step.component.html',
+    standalone: false
 })
 export class BasicInfoStepComponent extends StepBaseComponent<ResourceWizardModel> implements OnInit {
   constructor() {

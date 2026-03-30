@@ -7,8 +7,9 @@ import { mergeMap, tap, map, switchMap, takeUntil, filter, startWith, skipUntil 
 import { combineLatest } from 'rxjs';
 
 @Component({
-  selector: 'app-media-library',
-  templateUrl: './media-library.component.html'
+    selector: 'app-media-library',
+    templateUrl: './media-library.component.html',
+    standalone: false
 })
 export class MediaLibraryComponent implements OnInit {
 

@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Types;
+﻿
+using Indice.AspNetCore;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
 using Microsoft.AspNetCore.Http;
@@ -36,7 +37,8 @@ public sealed class DeviceEnricher : ISignInLogEntryEnricher
             Platform = userAgent.DevicePlatform,
             UserAgent = userAgent.HeaderValue,
             DisplayName = userAgent.DisplayName,
-            Os = userAgent.Os
+            Os = userAgent.Os,
+            UserAgentFamily = userAgent.UserAgentFamily
         };
         return ValueTask.CompletedTask;
     }

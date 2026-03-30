@@ -1,14 +1,21 @@
 using System.Security.Claims;
 using System.Text;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -42,7 +49,7 @@ public abstract class BaseAssociateModel : BasePageModel
     public AssociateInputModel Input { get; set; } = new AssociateInputModel();
 
     /// <summary>Associate page GET handler.</summary>
-    public async Task<IActionResult> OnGet() {
+    public virtual async Task<IActionResult> OnGet() {
         // if i got here then there was an external login for a new user not present in the database.
         // This following view will help to review the data coming in before proceeding with the user provisioning.
         var associateViewModel = TempData.Peek<AssociateViewModel>("UserDetails");
@@ -50,14 +57,27 @@ public abstract class BaseAssociateModel : BasePageModel
             return RedirectToPage("/Login");
         }
         Input = View = associateViewModel;
-        if (UiOptions.AutoProvisionExternalUsers) {
+
+        await UpdateModelSettings(View);
+        var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync();
+        if (UiOptions.AutoProvisionExternalUsers || UiOptions.AutoProvisionExternalUsersFor.Contains(externalLoginInfo?.LoginProvider ?? string.Empty)) {
             return await OnPostAsync();
         }
         return Page();
     }
 
+    private async Task UpdateModelSettings(AssociateViewModel viewModel) {
+        var configurationDb = ServiceProvider.GetRequiredService<ExtendedConfigurationDbContext>();
+        var claimsList = await configurationDb.ClaimTypes.Where(x => x.Name == BasicClaimTypes.FamilyName || x.Name == BasicClaimTypes.GivenName).ToListAsync();
+        var canEditFamilyName = claimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.FamilyName)?.UserEditable ?? false;
+        var canEditGivenName = claimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.GivenName)?.UserEditable ?? false;
+        viewModel.DisableEditFamilyName = !canEditFamilyName;
+        viewModel.DisableEditGivenName = !canEditGivenName;
+    }
+
     /// <summary>Associate page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync() {
+        await UpdateModelSettings(View);
         if (!ModelState.IsValid) {
             return Page();
         }
@@ -103,15 +123,13 @@ public abstract class BaseAssociateModel : BasePageModel
         if (phoneClaim is not null) {
             claims.Remove(phoneClaim);
         }
-        var givenNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName);
-        var familyNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName);
         var email = emailClaim?.Value;
         if (!string.IsNullOrWhiteSpace(email)) {
             // Try find existing user.
             var user = await UserManager.FindByEmailAsync(email);
             if (user is not null) {
                 if (!user.EmailConfirmed) {
-                    await SendConfirmationEmail(user);
+                    await SendRegistrationEmail(user);
                     throw new Exception("User exists as a local account but the email is not yet confirmed. If you are the owner please confirm your email first so that the accounts can be merged.");
                 }
                 return user;
@@ -132,6 +150,7 @@ public abstract class BaseAssociateModel : BasePageModel
                 UserId = userId
             });
         }
+        UiOptions.Events.OnUserRegistering?.Invoke(new UIPageRegisteringUserContext(HttpContext, newUser, Input));
         var result = await UserManager.CreateAsync(newUser);
         if (!result.Succeeded) {
             var errors = new StringBuilder();

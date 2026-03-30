@@ -4,6 +4,7 @@ using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Messages.Core.Data;
@@ -22,7 +23,7 @@ public class CampaignsDbContext : DbContext
     /// <summary>Campaigns table.</summary>
     public DbSet<DbCampaign> Campaigns { get; set; }
     /// <summary>Campaign events table.</summary>
-    public DbSet<DbMessageEvent> CampaignEvent { get; set; }
+    public DbSet<DbMessageEvent> MessageEvents { get; set; }
     /// <summary>Message types table.</summary>
     public DbSet<DbMessageType> MessageTypes { get; set; }
     /// <summary>Message senders table.</summary>
@@ -40,6 +41,11 @@ public class CampaignsDbContext : DbContext
     /// <summary>A table that associates contacts and distribution lists.</summary>
     public DbSet<DbDistributionListContact> ContactDistributionLists { get; set; }
 
+    /// <summary>Contact preferences</summary>
+    public DbSet<DbContactPreference> ContactPreferences { get; set; }
+    /// <summary>Contacts communication options.</summary>
+    public DbSet<DbContactCommunicationOption> ContactCommunicationOptions { get; set; }
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         var schemaName = Database.GetService<DatabaseSchemaNameResolver>().GetSchemaName();
@@ -54,9 +60,12 @@ public class CampaignsDbContext : DbContext
         modelBuilder.ApplyConfiguration(new DbMessageTypeMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbTemplateMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbMessageSenderMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbContactPreferenceMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbContactCommunicationOptionMap(schemaName));
         if (Database.IsSqlServer()) {
             modelBuilder.ApplyJsonFunctions();
             modelBuilder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("image");
+
         } else if (Database.IsNpgsql()) {
             modelBuilder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("bytea");
         }

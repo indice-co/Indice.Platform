@@ -1,42 +1,29 @@
 <div class="col-sm-12 col-md-4 m-auto" [hidden]="!canFilter">
     <input class="search mt-0" type="text" [placeholder]="'Type at least ' + minimumSearchCharacters + ' characters to filter results...'" [(ngModel)]="searchTerm" #filterInput />
 </div>
-<ngx-datatable class="material expandable" trackByProp="id" [rows]="rows" [columns]="columns" [columnMode]="'force'" [scrollbarH]="true" [count]="count" [rowHeight]="rowHeight" [headerHeight]="50" [footerHeight]="50" [limit]="rowsPerPage" reorderable="false"
+<ngx-datatable class="material expandable" [trackByProp]="trackByProp" [rows]="rows" [columns]="columns" [columnMode]="'force'" [scrollbarH]="true" [count]="count" [rowHeight]="rowHeight" [headerHeight]="50" [footerHeight]="50" [limit]="rowsPerPage" reorderable="false"
                [externalPaging]="!clientSide" [externalSorting]="!clientSide" [loadingIndicator]="isLoading" (page)="setPage($event)" (sort)="setSort($event)" #dataTable>
 </ngx-datatable>
 <ng-template let-row="row" let-value="value" #usernameTemplate>
     <img *ngIf="value" class="avatar rounded-circle" style="height: 24px;" [userPicture]="row.id" size="48" [displayName]="row">
-    <span *ngIf="value" style="padding-right: 16px; position: relative;" [title]="value">
-        {{ value }}
-        <i *ngIf="row.blocked" class="material-icons font-14 text-danger" title="Account is blocked">block</i>
-        <i *ngIf="row.isLocked && !row.blocked" class="material-icons font-14 text-danger" title="Account is locked">vpn_key</i>
-    </span>
+    <span *ngIf="value" style="padding-left: 5px; padding-right: 16px; position: relative;" [title]="value">{{ value }}<i *ngIf="row.blocked" class="material-icons font-14 text-danger" title="Account is blocked">block</i>
+    <i *ngIf="row.isLocked && !row.blocked" class="material-icons font-14 text-danger" title="Account is locked">vpn_key</i></span>
     <span *ngIf="!value"> - </span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #usernameOrEmailTemplate>
     <img *ngIf="value" class="avatar rounded-circle" style="height: 24px;" [userPicture]="row.id" size="48" [displayName]="row">
-    <span *ngIf="value" style="padding-right: 16px; position: relative;" [title]="value">
-        {{ value }}
-        <span class="badge bg-light text-info cursor-default">
-            <i *ngIf="row.emailConfirmed" class="material-icons font-14 text-info" title="Email is confirmed">check</i>
-            <i *ngIf="row.blocked" class="material-icons font-14 text-danger" title="Account is blocked">block</i>
-            <i *ngIf="row.isLocked && !row.blocked" class="material-icons font-14 text-danger" title="Account is locked">vpn_key</i>    
-        </span>
-    </span>
+    <span *ngIf="value" style="padding-left: 5px; padding-right: 16px; position: relative;" [title]="value">{{ value }}<span class="badge bg-light text-info cursor-default" style="margin-left: 3px">
+        <i *ngIf="row.emailConfirmed" class="material-icons font-14 text-info" title="Email is confirmed">check</i>
+        <i *ngIf="row.blocked" class="material-icons font-14 text-danger" title="Account is blocked">block</i>
+        <i *ngIf="row.isLocked && !row.blocked" class="material-icons font-14 text-danger" title="Account is locked">vpn_key</i></span></span>
     <span *ngIf="!value"> - </span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #emailTemplate>
-    <a *ngIf="value" [href]="'mailto:' + value" style="padding-right: 16px; position: relative;" [title]="value">
-        {{ value }}
-        <i *ngIf="row.emailConfirmed" class="material-icons font-14 text-info" title="Email is confirmed">check</i>
-    </a>
+    <a *ngIf="value" [href]="'mailto:' + value" style="padding-left: 5px; padding-right: 16px; position: relative;" [title]="value">{{ value }}<i *ngIf="row.emailConfirmed" class="material-icons font-14 text-info" title="Email is confirmed">check</i></a>
     <span *ngIf="!value"> - </span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #phoneNumberTemplate>
-    <a *ngIf="value" [href]="'tel:' + value" style="padding-right: 16px; position: relative;" [title]="value">
-        {{ value }}
-        <i *ngIf="row.phoneNumberConfirmed" class="material-icons font-14 text-info" title="Phone number is confirmed">check</i>
-    </a>
+    <a *ngIf="value" [href]="'tel:' + value" style="padding-left: 5px; padding-right: 16px; position: relative;" [title]="value">{{ value }}<i *ngIf="row.phoneNumberConfirmed" class="material-icons font-14 text-info" title="Phone number is confirmed">check</i></a>
     <span *ngIf="!value"> - </span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #dateTimeTemplate>
@@ -51,7 +38,7 @@
 <ng-template let-row="row"
              let-value="value"
              #keyTemplate>
-    <span class="badge text-muted border boder-primary bg-light m-1" [title]="value">
+    <span class="badge text-muted border bg-light m-1" [title]="value">
         {{ value }} <b class="text-success" *ngIf="row.isActive">⦿</b>
     </span>
 </ng-template>

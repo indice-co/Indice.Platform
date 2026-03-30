@@ -145,7 +145,8 @@
     <value>Ο κωδικός που επιλέξατε είναι αδύναμος. Παρακαλώ εισαγάγετε έναν πιο σύνθετο κωδικό για μεγαλύτερη ασφάλεια.</value>
   </data>
   <data name="PasswordIsCommonRequirement" xml:space="preserve">
-    <value>Ο κωδικός που επιλέξατε είναι ισχυρός.</value>
+    <value>Όχι ευρέως γνωστός κωδικός πρόσβασης.</value>
+    <comment>hint</comment>
   </data>
   <data name="PasswordRecentlyUsed" xml:space="preserve">
     <value>Αυτός ο κωδικός πρόσβασης έχει χρησιμοποιηθεί πρόσφατα. Είναι καλή πρακτική να μην επαναχρησιμοποιείτε τον προηγούμενο κωδικό σας.</value>

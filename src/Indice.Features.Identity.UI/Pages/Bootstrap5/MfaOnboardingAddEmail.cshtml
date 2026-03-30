@@ -1,0 +1,44 @@
+﻿@page "/login/mfa/onboarding/add-email"
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/mfa/onboarding/add-email")]
+
+@model BaseMfaOnboardingAddEmailModel
+
+@inject IWebHostEnvironment HostingEnvironment
+@inject IdentityUILocalizer Localizer
+
+
+@{
+    ViewBag.Title = Localizer.MfaOnBoardingAddEmail_PageTitle;
+    var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddEmailModel.TempDataKey);
+}
+
+<div class="sign-in m-auto">
+    <vc:page-heading title="@Localizer.MfaOnBoardingAddEmail_PageHeader" image-src="" />
+    <partial name="_ValidationSummary" />
+    <partial name="_Alert" model="alert" />
+    <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
+        <div class="mb-3">
+            <input type="hidden" asp-for="Input.ReturnUrl" />
+            <label asp-for="Input.Email" class="form-label visually-hidden">@Localizer.MfaOnBoardingAddEmail_Email</label>
+            <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
+            <input class="form-control" type="text" placeholder="@Localizer.MfaOnBoardingAddEmail_Email" asp-for="Input.Email" readonly="@Model.View.DisableEmailInput" />
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <div class="row m-0 w-100">
+                @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
+                {
+                    <a class="btn btn-info w-100" href="@Model.View.NextStepUrl">@Localizer.MfaOnBoardingAddEmail_Next</a>
+                }
+                else
+                {
+                    <button class="btn btn-info w-100" type="submit">@Localizer.MfaOnBoardingAddEmail_Save</button>
+                }
+            </div>
+        </div>
+    </form>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+}

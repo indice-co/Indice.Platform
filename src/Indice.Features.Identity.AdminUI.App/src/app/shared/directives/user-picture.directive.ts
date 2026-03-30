@@ -2,7 +2,8 @@ import { AfterContentInit, OnInit, Directive, ElementRef, Input } from '@angular
 import * as app from 'src/app/core/models/settings';
 
 @Directive({
-    selector: 'img[userPicture]'
+    selector: 'img[userPicture]',
+    standalone: false
 })
 export class ImgUserPictureDirective implements OnInit {
     private _userId: string;

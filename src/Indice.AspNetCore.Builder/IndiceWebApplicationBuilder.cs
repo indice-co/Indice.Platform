@@ -62,6 +62,11 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
     public WebApplication Build() {
         var app = InnerBuilder.Build();
 
+        LogStartupBanner();
+
+        if (app.Configuration.UseCertificateForwarding()) {
+            app.UseCertificateForwarding();
+        }
         if (app.Configuration.ProxyEnabled()) {
             app.UseForwardedHeaders();
             app.UseHttpMethodOverride();
@@ -77,6 +82,7 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
         if (app.Configuration.HstsEnabled()) {
             app.UseHsts();
         }
+
         app.UseCors();
         app.UseExceptionHandler();
         app.UseStatusCodePages();
@@ -96,4 +102,65 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
     /// <returns>The <see cref="WebApplication"/>.</returns>
     public static IndiceWebApplicationBuilder CreateBuilder(string[] args) =>
         new(WebApplication.CreateBuilder(args).AddMinimalApiDefaults());
+
+    private readonly string[] Catchphrases = [
+        "Platform Tools, Built to Scale",
+        "Indice Platform: Libraries in Motion",
+        "Platform Team: Build Once, Ship Everywhere",
+        "Indice Platform — Tools That Power Teams"
+        ];
+
+    private void LogStartupBanner() {
+        if (!Configuration.GetValue<bool?>("General:StartupBannerEnabled") ?? Environment.IsProduction()) {
+            return;
+        }
+
+        const int bannerInnerWidth = 46;
+        var catchphrase = Catchphrases[Random.Shared.Next(Catchphrases.Length)];
+        var centeredCatchphrase = CenterText(catchphrase, bannerInnerWidth);
+
+        var banner = $"""
+
+                              ╔══════════════════════════════════════════════╗
+                              ║                                              ║
+                              ║   ██╗███╗   ██╗██████╗ ██╗ ██████╗███████╗   ║
+                              ║   ██║████╗  ██║██╔══██╗██║██╔════╝██╔════╝   ║
+                              ║   ██║██╔██╗ ██║██║  ██║██║██║     █████╗     ║
+                              ║   ██║██║╚██╗██║██║  ██║██║██║     ██╔══╝     ║
+                              ║   ██║██║ ╚████║██████╔╝██║╚██████╗███████║   ║
+                              ║   ╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝ ╚═════╝╚══════╝   ║
+                              ║                                              ║
+                              ║{centeredCatchphrase}║
+                              ║                                              ║
+                              ╚══════════════════════════════════════════════╝
+
+                              """;
+        if (Console.IsOutputRedirected) {
+            Console.WriteLine(banner);
+            return;
+        }
+
+        var originalColor = Console.ForegroundColor;
+        try {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(banner);
+        } finally {
+            Console.ForegroundColor = originalColor;
+        }
+
+        static string CenterText(string text, int width) {
+            if (string.IsNullOrWhiteSpace(text)) {
+                return new string(' ', width);
+            }
+
+            if (text.Length >= width) {
+                return text[..width];
+            }
+
+            var padding = width - text.Length;
+            var left = padding / 2;
+            var right = padding - left;
+            return string.Concat(new string(' ', left), text, new string(' ', right));
+        }
+    }
 }

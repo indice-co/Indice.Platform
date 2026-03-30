@@ -1,0 +1,71 @@
+name: Build process
+
+on:
+  workflow_call:
+    secrets:
+      NUGET_AUTH_TOKEN:
+        required: true
+
+permissions:  
+  contents: read
+
+jobs:
+  run-build:
+    runs-on: windows-2025
+    steps:
+
+    - name: Harden Runner
+      uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      with:
+        egress-policy: audit
+
+    - name: Checkout Repository
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5.0.1
+      with:
+        global-json-file: ./global.json
+        source-url: https://api.nuget.org/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+      with:
+        node-version: 24
+
+    - name: Create .nuget dir
+      shell: pwsh
+      run: |
+        if (!(Test-Path -Path ".\.nuget" )) {
+          New-Item -ItemType "directory" -Path ".\.nuget"
+        }
+        if (!(Test-Path -Path ".\.nuget\packages" )) {
+          New-Item -ItemType "directory" -Path ".\.nuget\packages"
+        }
+                
+    - name: dotnet restore
+      shell: pwsh
+      run: dotnet restore Indice.Platform.slnx
+
+    - name: dotnet build SPAs
+      shell: pwsh
+      run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
+
+    - name: dotnet build
+      shell: pwsh
+      run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
+    
+    - name: dotnet test
+      shell: pwsh
+      run: dotnet test Indice.Platform.slnf --no-build --configuration Release --logger trx --results-directory "TestResults"
+    
+    - name: Test Reporter
+      uses: dorny/test-reporter@b082adf0eced0765477756c2a610396589b8c637 # v2.5.0
+      if: always()
+      with:
+        name: DotNET Tests
+        path: "TestResults/*.trx"                            
+        reporter: dotnet-trx
+        fail-on-error: true

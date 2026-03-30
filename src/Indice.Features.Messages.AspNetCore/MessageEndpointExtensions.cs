@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Routing;
+﻿using Indice.Features.Messages.AspNetCore.Endpoints;
+using Microsoft.AspNetCore.Routing;
 
 namespace Microsoft.AspNetCore.Builder;
 /// <summary>Configuration extensions on <seealso cref="IEndpointRouteBuilder "/>.</summary>
@@ -39,6 +40,9 @@ public static class MessageEndpointExtensions
         routes.MapMessageSenders();
         routes.MapMessageTypes();
         routes.MapTemplates();
+        routes.MapAnalytics();
+        routes.MapSend();
+        routes.MapTranslationGraph();
         return routes;
     }
 }

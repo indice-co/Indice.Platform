@@ -7,7 +7,8 @@ import { ValidationSummaryComponent } from 'src/app/shared/components/validation
 
 @Component({
     selector: 'app-role-add',
-    templateUrl: './role-add.component.html'
+    templateUrl: './role-add.component.html',
+    standalone: false
 })
 export class RoleAddComponent {
     @ViewChild('validationSummary', { static: false }) private _validationSummary: ValidationSummaryComponent;

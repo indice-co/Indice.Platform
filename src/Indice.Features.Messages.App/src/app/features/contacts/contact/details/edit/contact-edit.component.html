@@ -1,0 +1,136 @@
+<lib-side-view-layout title="{{ 'Contacts.EditContact' | translate }}"
+                      [ok-close-dialog]="false"
+                      [ok-label]="'Contacts.Save' | translate"
+                      [cancel-label]="'Contacts.CancelLabel' | translate"
+                      (ok)="submitButton.nativeElement.click()"
+                      [disabled]="!contactForm.valid || submitInProgress"
+                      #sideViewLayout>
+  <div class="mt-4">
+    <form #contactForm="ngForm"
+          (ngSubmit)="onSubmit()">
+      <div class="px-4 space-y-2 pb-4">
+        <div class="grid grid-cols-4 gap-1">
+          <!-- Salutation -->
+          <div class="col-span-4">
+            <label for="salutation"
+                   class="field-label">
+              {{ 'Contacts.Salutation' | translate }}
+            </label>
+            <div class="flex rounded-sm">
+              <input class="w-full"
+                     type="text"
+                     name="salutation"
+                     id="salutation"
+                     placeholder="{{ 'Contacts.SalutationPlaceholder' | translate }}"
+                     [(ngModel)]="model.salutation"
+                     #salutation="ngModel">
+            </div>
+            <p class="field-info col-span-3">{{ 'Contacts.SalutationInfo' | translate }}</p>
+          </div>
+          <!-- First Name -->
+          <div class="col-span-4">
+            <label for="firstName"
+                   class="field-label">
+              {{ 'Contacts.FirstName' | translate }}
+            </label>
+            <div class="flex rounded-sm">
+              <input class="w-full"
+                     type="text"
+                     name="firstName"
+                     id="firstName"
+                     placeholder="{{ 'Contacts.FirstNamePlaceholder' | translate }}"
+                     [(ngModel)]="model.firstName"
+                     #firstName="ngModel">
+            </div>
+          </div>
+          <!-- Last Name -->
+          <div class="col-span-4">
+            <label for="lastName"
+                   class="field-label">
+              {{ 'Contacts.LastName' | translate }}
+            </label>
+            <div class="flex rounded-sm">
+              <input class="w-full"
+                     type="text"
+                     name="lastName"
+                     id="lastName"
+                     placeholder="{{ 'Contacts.LastNamePlaceholder' | translate }}"
+                     [(ngModel)]="model.lastName"
+                     #lastName="ngModel">
+            </div>
+          </div>
+          <!-- Display Name -->
+          <div class="col-span-4">
+            <label for="fullName"
+                   class="field-label">
+              {{ 'Contacts.FullName' | translate }}
+            </label>
+            <div class="flex rounded-sm">
+              <input class="w-full"
+                     type="text"
+                     name="fullName"
+                     id="fullName"
+                     placeholder="{{ 'Contacts.FullNamePlaceholder' | translate }}"
+                     [(ngModel)]="model.fullName"
+                     #fullName="ngModel">
+            </div>
+          </div>
+          <!-- Email -->
+          <div class="col-span-4">
+            <label for="email"
+                   class="field-label">
+              {{ 'Contacts.Email' | translate }}
+            </label>
+            <div class="flex rounded-sm">
+              <input class="w-full"
+                     type="text"
+                     name="email"
+                     id="email"
+                     placeholder="{{ 'Contacts.EmailPlaceholder' | translate }}"
+                     [(ngModel)]="model.email"
+                     #email="ngModel">
+            </div>
+          </div>
+          <!-- Phone -->
+          <div class="col-span-4">
+            <label for="phoneNumber"
+                   class="field-label">
+              {{ 'Contacts.Phone' | translate }}
+            </label>
+            <div class="flex rounded-sm">
+              <input class="w-full"
+                     type="text"
+                     name="phoneNumber"
+                     id="phoneNumber"
+                     placeholder="{{ 'Contacts.PhonePlaceholder' | translate }}"
+                     [(ngModel)]="model.phoneNumber"
+                     #phoneNumber="ngModel">
+            </div>
+          </div>
+
+          <!-- Recipient Id (readonly) -->
+          <div class="col-span-4">
+            <label for="recipientId"
+                   class="field-label">
+              {{ 'Contacts.ContactCodeReadonly' | translate }} <span title="{{model.resolved ? ('Contacts.Resolved' | translate) : ('Contacts.Unknown' | translate) }}" class="small" [innerHtml]="model.resolved | beautifyBoolean"></span>
+            </label>
+            <div class="flex rounded-sm">
+              <input class="w-full"
+                     type="text"
+                     name="recipientId"
+                     id="recipientId"
+                     readonly="readonly"
+                     [ngModel]="model.recipientId"
+                     #recipientId="ngModel">
+            </div>
+          </div>
+        </div>
+      </div>
+      <button type="submit"
+              [style.visibility]="'hidden'"
+              #submitBtn>
+        {{ 'Contacts.Submit' | translate }}
+      </button>
+    </form>
+  </div>
+</lib-side-view-layout>

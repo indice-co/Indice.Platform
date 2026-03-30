@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using IdentityModel;
+using Indice.Security;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Media.AspNetCore.Services;
@@ -17,9 +17,9 @@ public class UserNameFromHttpContextAccessor : IUserNameAccessor
     /// <inheritdoc />
     public string Resolve() {
         var principal = _httpContextAccessor.HttpContext?.User;
-        return principal?.FindFirstValue(JwtClaimTypes.Name)
-            ?? principal?.FindFirstValue(JwtClaimTypes.Email)
-            ?? principal?.FindFirstValue(JwtClaimTypes.ClientId)
+        return principal?.FindFirstValue(BasicClaimTypes.Name)
+            ?? principal?.FindFirstValue(BasicClaimTypes.Email)
+            ?? principal?.FindFirstValue(BasicClaimTypes.ClientId)
             ?? "system";
     }
 }
