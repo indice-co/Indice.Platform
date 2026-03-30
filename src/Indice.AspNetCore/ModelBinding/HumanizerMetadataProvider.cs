@@ -14,7 +14,7 @@ public class HumanizerMetadataProvider : IDisplayMetadataProvider
         var modelMetadata = context.DisplayMetadata;
         var propertyName = context.Key.Name;
         if (IsTransformRequired(propertyName, modelMetadata, propertyAttributes)) {
-            modelMetadata.DisplayName = () => propertyName.Humanize().Transform(To.TitleCase);
+            modelMetadata.DisplayName = () => propertyName!.Humanize().Transform(To.TitleCase);
         }
     }
 

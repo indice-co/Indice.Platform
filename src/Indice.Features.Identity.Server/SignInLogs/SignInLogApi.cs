@@ -44,7 +44,7 @@ public static class SignInLogApi
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
-        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         //Sign In Logs
         // GET: /api/sign-in-logs

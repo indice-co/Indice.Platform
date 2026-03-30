@@ -1,4 +1,4 @@
-﻿#if NET9_0_OR_GREATER
+﻿#if NET10_0_OR_GREATER
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Routing;
 
@@ -23,7 +23,7 @@ public static class ExamplesTransformer
                 var exampleMetadata = context.Description.ActionDescriptor.EndpointMetadata.OfType<EndpointBodyExampleMetadata>().First();
                 var endpointName = context.Description.ActionDescriptor.EndpointMetadata.OfType<EndpointNameMetadata>().FirstOrDefault()?.EndpointName;
                 if (operation.RequestBody is not null && 
-                    operation.RequestBody.Content.ContainsKey(exampleMetadata.ContentType)) {
+                    operation.RequestBody.Content!.ContainsKey(exampleMetadata.ContentType)) {
                     operation.RequestBody.Content[exampleMetadata.ContentType].Example = exampleMetadata.Value;
                 }
             }

@@ -111,8 +111,8 @@ public class EmailServiceSettings
     /// <summary>The configuration section name.</summary>
     public static readonly string Name = "Email";
     /// <summary>The default sender address (ex. no-reply@indice.gr).</summary>
-    public string? Sender { get; set; }
-    /// <summary>The default sender name (ex. INDICE OE).</summary>
+    public string Sender { get; set; } = null!;
+    /// <summary>The default sender name (ex. INDICE SA)</summary>
     public string? SenderName { get; set; }
     /// <summary>The host of the SMTP server (i.e mail.indice.gr).</summary>
     public string? SmtpHost { get; set; }

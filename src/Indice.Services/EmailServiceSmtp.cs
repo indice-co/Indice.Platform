@@ -21,7 +21,7 @@ public class EmailServiceSmtp : IEmailService
         IHtmlRenderingEngine htmlRenderingEngine
     ) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
-        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender!, Settings.SenderName));
+        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender, Settings.SenderName));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
     }
 
@@ -44,7 +44,7 @@ public class EmailServiceSmtp : IEmailService
         message.Subject = subject;
         message.MessageId = messageId;
         var bodyPart = new TextPart(TextFormat.Html) {
-            Text = body
+            Text = body ?? string.Empty
         };
         if (attachments?.Length > 0) {
             var multipart = new Multipart("mixed") {

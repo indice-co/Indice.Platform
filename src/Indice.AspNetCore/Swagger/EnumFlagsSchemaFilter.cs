@@ -1,4 +1,5 @@
-﻿using Indice.Extensions;
+﻿#if NET8_0
+using Indice.Extensions;
 using Indice.Serialization;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -23,3 +24,4 @@ public class EnumFlagsSchemaFilter : ISchemaFilter
         schema.Items.Enum = Enum.GetNames(context.Type).Select(name => (IOpenApiAny)new OpenApiString(name)).ToList();
     }
 }
+#endif
