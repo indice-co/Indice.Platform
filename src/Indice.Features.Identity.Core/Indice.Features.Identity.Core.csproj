@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿  <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
@@ -50,6 +50,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>IdentityResources.resx</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EmailValidation\email_blocklist.conf" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="ExtendedIdentityErrorResources.resx">
