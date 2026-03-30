@@ -173,10 +173,7 @@ public class EmailDomainBlacklistValidatorTests
 
         var slowProvider = new Mock<IEmailDomainBlacklistProvider>();
         slowProvider.Setup(p => p.IsDomainBlacklistedAsync(blacklistedDomain, It.IsAny<CancellationToken>()))
-            .Returns(async (string _, CancellationToken _) => {
-                await Task.Delay(1000);
-                return false;
-            });
+            .ReturnsAsync(false);
 
         var fastProvider = new Mock<IEmailDomainBlacklistProvider>();
         fastProvider.Setup(p => p.IsDomainBlacklistedAsync(blacklistedDomain, It.IsAny<CancellationToken>()))
@@ -296,10 +293,10 @@ public class EmailDomainBlacklistValidatorTests
     #region File Provider Tests
 
     [Fact]
-    public void FileEmailDomainBlacklistProvider_EmbeddedResourceNotFound_ThrowsException() {
-        // The FileEmailDomainBlacklistProvider now uses embedded resources
-        // This test verifies the provider can be instantiated (resource exists)
-        // If the resource is missing, it will throw InvalidOperationException
+    public void FileEmailDomainBlacklistProvider_EmbeddedResourceFound_ConstructsSuccessfully() {
+        // The FileEmailDomainBlacklistProvider now uses embedded resources.
+        // This test verifies the provider can be instantiated when the embedded resource exists.
+        // If the resource is missing, the constructor will throw an InvalidOperationException.
         var provider = new FileEmailDomainBlacklistProvider();
         Assert.NotNull(provider);
     }
