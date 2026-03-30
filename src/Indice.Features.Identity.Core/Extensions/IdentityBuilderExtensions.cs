@@ -243,7 +243,10 @@ public static class IdentityBuilderExtensions
         IConfiguration configuration,
         Action<EmailBlacklistOptions>? configureAction = null
     ) where TUser : User {
-        var settings = configuration.GetSection(EmailBlacklistOptions.Name).Get<EmailBlacklistOptions>() ?? new EmailBlacklistOptions();
+        var settings = new EmailBlacklistOptions() {
+            Enabled = configuration.GetIdentityOption<bool>(EmailBlacklistOptions.Name, nameof(EmailBlacklistOptions.Enabled)),
+            Domains = configuration.GetIdentityOption<string?>(EmailBlacklistOptions.Name, nameof(EmailBlacklistOptions.Domains))
+        };
         configureAction?.Invoke(settings);
 
         builder.Services.Configure<EmailBlacklistOptions>(options => {
