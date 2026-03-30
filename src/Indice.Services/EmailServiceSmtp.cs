@@ -21,7 +21,7 @@ public class EmailServiceSmtp : IEmailService
         IHtmlRenderingEngine htmlRenderingEngine
     ) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
-        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender!, Settings.SenderName));
+        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender, Settings.SenderName));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
     }
 
@@ -35,7 +35,7 @@ public class EmailServiceSmtp : IEmailService
     public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null) {
         var messageId = MimeUtils.GenerateMessageId();
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress(from?.DisplayName ?? Settings.SenderName, from?.Address ?? Settings.Sender!));
+        message.From.Add(new MailboxAddress(from?.DisplayName ?? Settings.SenderName, from?.Address ?? Settings.Sender));
         message.To.AddRange(recipients.Select(InternetAddress.Parse));
         if (!string.IsNullOrWhiteSpace(Settings.BccRecipients)) {
             var bccRecipients = Settings.BccRecipients.Split(',', ';');
@@ -44,7 +44,7 @@ public class EmailServiceSmtp : IEmailService
         message.Subject = subject;
         message.MessageId = messageId;
         var bodyPart = new TextPart(TextFormat.Html) {
-            Text = body!
+            Text = body ?? string.Empty
         };
         if (attachments?.Length > 0) {
             var multipart = new Multipart("mixed") {
