@@ -118,7 +118,7 @@ internal class EnumNamesOpenApiExtension : IOpenApiExtension
         }
         writer.WriteStartArray();
         foreach (var description in EnumDescriptions) {
-            writer.WriteValue(description.ToString());
+            writer.WriteValue(description is null ? "Empty" : description.ToString());
         }
         writer.WriteEndArray();
     }
