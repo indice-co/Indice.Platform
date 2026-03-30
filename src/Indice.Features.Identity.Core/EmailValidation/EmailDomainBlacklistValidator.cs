@@ -107,7 +107,7 @@ public interface IEmailDomainBlacklistProvider
 
 /// <summary>
 /// A provider that retrieves a list of blacklisted email domains from configuration
-/// via <see cref="EmailBlacklistOptions"/>, using the <see cref="EmailBlacklistOptions.Domain"/> setting.
+/// via <see cref="EmailBlacklistOptions"/>, using the <see cref="EmailBlacklistOptions.Domains"/> setting.
 /// This is typically bound from a configuration section named <c>Blacklist</c>.
 /// </summary>
 public class ConfigEmailDomainBlacklistProvider : IEmailDomainBlacklistProvider
@@ -118,7 +118,7 @@ public class ConfigEmailDomainBlacklistProvider : IEmailDomainBlacklistProvider
     /// </summary>
     /// <param name="options">The options containing the email blacklist configuration.</param> 
     public ConfigEmailDomainBlacklistProvider(IOptions<EmailBlacklistOptions> options) {
-        var list = options.Value.Domain?
+        var list = options.Value.Domains?
             .Split(',', StringSplitOptions.RemoveEmptyEntries)
             .Select(x => x.Trim())
             .Where(x => !string.IsNullOrEmpty(x))

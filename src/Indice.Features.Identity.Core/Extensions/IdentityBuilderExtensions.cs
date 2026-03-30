@@ -247,11 +247,11 @@ public static class IdentityBuilderExtensions
         configureAction?.Invoke(settings);
 
         builder.Services.Configure<EmailBlacklistOptions>(options => {
-            options.EnableDomainBlacklist = settings.EnableDomainBlacklist;
-            options.Domain = settings.Domain;
+            options.Enabled = settings.Enabled;
+            options.Domains = settings.Domains;
         });
 
-        if (!settings.EnableDomainBlacklist)
+        if (!settings.Enabled)
             return builder;
 
         // Providers
