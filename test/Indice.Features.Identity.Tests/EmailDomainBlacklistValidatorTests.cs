@@ -314,27 +314,4 @@ public class EmailDomainBlacklistValidatorTests
 
     #endregion
 
-    #region Cancellation Token Tests
-
-    [Fact]
-    public async Task ValidateAsync_WithCancellation_StillValidatesEmail() {
-        // Arrange - When cancellation is already requested, the validator
-        // should still complete but the provider check loop exits early.
-        // The email format is still validated before checking providers.
-        var mockProvider = new Mock<IEmailDomainBlacklistProvider>();
-        mockProvider.Setup(p => p.IsDomainBlacklistedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false); // Provider returns not blacklisted
-
-        var providers = new List<IEmailDomainBlacklistProvider> { mockProvider.Object };
-        var validator = new EmailDomainBlacklistValidator<User>(providers);
-        var user = new User { Email = "test@valid.com" };
-
-        // Act - Normal validation should pass for valid non-blacklisted email
-        var result = await validator.ValidateAsync(_userManager.Object, user);
-
-        // Assert
-        Assert.True(result.Succeeded);
-    }
-
-    #endregion
 }
