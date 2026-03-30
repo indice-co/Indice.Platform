@@ -198,7 +198,7 @@ public class EmailDomainBlacklistValidatorTests
     public async Task ValidateAsync_ConfigurationBlacklist_CommaSeparatedDomains_IsHonored() {
         // Arrange
         var options = Options.Create(new EmailBlacklistOptions {
-            Domain = "tempmail.com,guerrillamail.com,throwaway.email"
+            Domains = "tempmail.com,guerrillamail.com,throwaway.email"
         });
 
         var providers = new List<IEmailDomainBlacklistProvider> {
@@ -220,7 +220,7 @@ public class EmailDomainBlacklistValidatorTests
     public async Task ValidateAsync_ConfigurationBlacklist_EmptyConfiguration_AllowsAllDomains() {
         // Arrange
         var options = Options.Create(new EmailBlacklistOptions {
-            Domain = null
+            Domains = null
         });
 
         var providers = new List<IEmailDomainBlacklistProvider> {
@@ -240,7 +240,7 @@ public class EmailDomainBlacklistValidatorTests
     public async Task ValidateAsync_ConfigurationBlacklist_CaseInsensitive() {
         // Arrange
         var options = Options.Create(new EmailBlacklistOptions {
-            Domain = "tempmail.com"
+            Domains = "tempmail.com"
         });
 
         var providers = new List<IEmailDomainBlacklistProvider> {
@@ -266,7 +266,7 @@ public class EmailDomainBlacklistValidatorTests
     public async Task ValidateAsync_MultipleProviders_AnyProviderMatches_ReturnsFailure() {
         // Arrange
         var options = Options.Create(new EmailBlacklistOptions {
-            Domain = "configblacklist.com"
+            Domains = "configblacklist.com"
         });
 
         var configProvider = new ConfigEmailDomainBlacklistProvider(options);

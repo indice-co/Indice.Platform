@@ -21,7 +21,7 @@
       <VersionPrefixActivityLogs>$(VersionPrefixBase).0</VersionPrefixActivityLogs>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 
-      <VersionSuffix>rc02</VersionSuffix>
+      <!--<VersionSuffix>rc02</VersionSuffix>-->
       <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <LangVersion>Latest</LangVersion>
