@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Mvc.Filters;
+﻿#if NET8_0
+using Indice.Features.Identity.Core.Mvc.Filters;
 using Indice.Features.Identity.Core.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -15,3 +16,4 @@ public static class SwaggerConfig
         return options;
     }
 }
+#endif

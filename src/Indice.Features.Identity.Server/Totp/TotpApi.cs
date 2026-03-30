@@ -30,7 +30,7 @@ public static class TotpApi
                            .RequireRateLimiting(RateLimiterPolicies.Totp);
 
         var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Totp }.FilterOutNulls().ToArray();
-        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         // POST: /api/totp
         group.MapPost(string.Empty, TotpHandlers.Send)

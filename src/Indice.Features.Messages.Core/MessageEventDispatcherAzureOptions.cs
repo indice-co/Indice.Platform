@@ -14,7 +14,7 @@ public class MessageEventDispatcherAzureOptions
     /// <summary>Provides a way to enable/disable event dispatching at will. Defaults to true.</summary>
     public bool Enabled { get; set; } = true;
     /// <summary>A function that retrieves the current thread user from the current operation context.</summary>
-    public Func<ClaimsPrincipal>? ClaimsPrincipalSelector { get; set; }
+    public Func<ClaimsPrincipal?>? ClaimsPrincipalSelector { get; set; }
     /// <summary>A function that retrieves the current tenant id by any means possible. This is optional.</summary>
     public Func<string>? TenantIdSelector { get; set; }
     /// <summary>Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</summary>

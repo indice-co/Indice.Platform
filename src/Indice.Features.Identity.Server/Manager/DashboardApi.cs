@@ -26,7 +26,6 @@ public static class DashboardApi
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
 
-        group.WithOpenApi();
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
 
@@ -41,7 +40,7 @@ public static class DashboardApi
         group.MapGet("summary", DashboardHandlers.GetSystemSummary)
              .WithName(nameof(DashboardHandlers.GetSystemSummary))
              .WithSummary("Gets some useful information as a summary of the system.")
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
+             .WithOpenApiSecurityRequirement("oauth2", allowedScopes)
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersOrClientsReader)
              .CacheOutput(policy => policy.SetAuthorized(ctx => ctx.User.FindSubjectId()!)
                                           .Expire(TimeSpan.FromMinutes(5))

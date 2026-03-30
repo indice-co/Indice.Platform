@@ -33,7 +33,7 @@ internal static class AdminCaseTypesApi
             .RequireCasesAccess(CasesAccessLevel.Manage)
             ).WithHandledException<BusinessException>();
         
-        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)

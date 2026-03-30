@@ -2,7 +2,10 @@
 using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using Indice.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +17,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 using Xunit.Abstractions;
 using static Indice.AspNetCore.Tests.OpenApiTestsModels;
@@ -25,50 +29,69 @@ public class OpenApiTests : IAsyncLifetime
     // Constants
     private const string BASE_URL = "https://server";
     // Private fields
-    private readonly HttpClient _httpClient;
+    private readonly IHost _host;
     private readonly ITestOutputHelper _output;
-    private ServiceProvider _serviceProvider;
+    private HttpClient _httpClient = null!;
+    private ServiceProvider _serviceProvider = null!;
+    public static Action<JsonSerializerOptions> ConfigureIndiceHttpJsonOptions = (options) => {
+        options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        options.Converters.Add(new JsonStringDecimalConverter());
+        options.Converters.Add(new JsonStringDoubleConverter());
+        options.Converters.Add(new JsonStringInt32Converter());
+        options.Converters.Add(new JsonStringBooleanConverter());
+        options.Converters.Add(new JsonAnyStringConverter());
+        options.Converters.Add(new TypeConverterJsonAdapterFactory());
+    };
 
     public OpenApiTests(ITestOutputHelper output) {
         _output = output;
-        var builder = new WebHostBuilder();
-        builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
-                ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true",
-                ["General:Host"] = "https://server"
+        var builder = Host.CreateDefaultBuilder()
+            .ConfigureWebHostDefaults(webBuilder => {
+                webBuilder.ConfigureAppConfiguration(builder => {
+                    builder.AddInMemoryCollection(new Dictionary<string, string?> {
+                        ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
+                        ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true",
+                        ["General:Host"] = "https://server"
+                    });
+                });
+                webBuilder.ConfigureServices((context, services) => {
+                    services.AddRouting();
+                    services.ConfigureHttpJsonOptions(options => {
+                        ConfigureIndiceHttpJsonOptions(options.SerializerOptions);
+                     });
+                    services.AddOpenApi(options => options.AddDocumentInfo().ControllerActionAsOperationId());
+                    services.AddEndpointsApiExplorer();
+                    services.AddControllers().ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new OpenApiTestFeatureProvider()));
+                });
+                webBuilder.Configure(app => {
+                    app.UseRouting();
+                    app.UseEndpoints(e => {
+                        e.MapTestEndpoints();
+                        e.MapControllers();
+                        e.MapOpenApi();
+                    });
+                });
+                webBuilder.UseTestServer();
             });
-        });
-        builder.ConfigureServices((context, services) => {
-            services.AddRouting();
-            services.AddOpenApi(options => options.AddDocumentInfo().ControllerActionAsOperationId());
-            services.AddEndpointsApiExplorer();
-            services.AddControllers().ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new OpenApiTestFeatureProvider()));
-        });
-        builder.Configure(app => {
-            app.UseRouting();
-            app.UseEndpoints(e => {
-                e.MapTestEndpoints();
-                e.MapControllers();
-                e.MapOpenApi();
-            });
-        });
-        var server = new TestServer(builder);
-        var handler = server.CreateHandler();
-        _httpClient = new HttpClient(handler) {
-            BaseAddress = new Uri(BASE_URL)
-        };
-        _serviceProvider = (ServiceProvider)server.Services;
+        _host = builder.Build();
     }
 
     public async Task DisposeAsync() {
         await _serviceProvider.DisposeAsync();
+        await ((IAsyncDisposable)_host).DisposeAsync();
     }
 
-    public Task InitializeAsync() {
-        return Task.CompletedTask;
+    public async Task InitializeAsync() {
+        await _host.StartAsync();
+        var server = _host.GetTestServer();
+        var handler = server.CreateHandler();
+        _serviceProvider = (ServiceProvider)_host.Services;
+        _httpClient = new HttpClient(handler) {
+            BaseAddress = new Uri(BASE_URL)
+        };
     }
 
+#if NET9_0
     [Fact]
     public async Task OpenApiHandlesRecursiveModels() {
         // Act
@@ -77,7 +100,9 @@ public class OpenApiTests : IAsyncLifetime
             _output.WriteLine(await response.Content.ReadAsStringAsync());
         }
         Assert.True(response.IsSuccessStatusCode);
-        var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>();
+        var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        ConfigureIndiceHttpJsonOptions(jsonOptions);
+        var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>(jsonOptions);
 
         Assert.NotEmpty(menu!);
         var openApi = await _httpClient.GetStringAsync("openapi/v1.json");
@@ -103,6 +128,46 @@ public class OpenApiTests : IAsyncLifetime
         Assert.Equal(expectedSampleEnumSchema, parameterEnumSchema!.ToJsonString());
     }
 }
+#else
+    [Fact]
+    public async Task OpenApiHandlesRecursiveModels() {
+        // Act
+        var response = await _httpClient.GetAsync("tests/menu");
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(await response.Content.ReadAsStringAsync());
+        }
+        Assert.True(response.IsSuccessStatusCode);
+        var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        ConfigureIndiceHttpJsonOptions(jsonOptions);
+        var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>(jsonOptions);
+
+        Assert.NotEmpty(menu!);
+        var openApi = await _httpClient.GetStringAsync("openapi/v1.json");
+        Assert.NotEmpty(openApi);
+
+        var json = JsonNode.Parse(openApi);
+        var menuItemSchema = json!["components"]!["schemas"]!["MenuItem"];
+        var expectedMenuItemSchema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"},\"type\":{\"$ref\":\"#/components/schemas/MenuType\"},\"children\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/MenuItem\"}}},\"additionalProperties\":false}";
+        Assert.Equal(expectedMenuItemSchema, menuItemSchema!.ToJsonString());
+
+        var uploadRequestSchema = json!["components"]!["schemas"]!["UploadFileRequest"];
+        // IFormFile is by default renamed to FileParam in the schema transformer MappedTypesTransformer
+        var expectedUploadRequestSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"oneOf\":[{\"type\":\"null\"},{\"$ref\":\"#/components/schemas/FileParam\"}]},\"name\":{\"type\":\"string\"},\"description\":{\"type\":[\"null\",\"string\"]}},\"additionalProperties\":false}";
+        Assert.Equal(expectedUploadRequestSchema, uploadRequestSchema!.ToJsonString());
+
+        var sampleEnumSchema = json!["components"]!["schemas"]!["SampleEnum"];
+        Assert.NotNull(sampleEnumSchema);
+        var expectedSampleEnumSchema = "{\"enum\":[1,2,3],\"type\":\"integer\",\"x-enum-varnames\":[\"Value1\",\"Value2\",\"Value3\"]}";
+        Assert.Equal(expectedSampleEnumSchema, sampleEnumSchema.ToJsonString());
+
+        var mvcOperationId = json!["paths"]!["/mvc/menu"]!["get"]!["operationId"]!.ToString();
+        Assert.Equal("OpenApiTests_GetMenuItems", mvcOperationId!);
+
+        var parameterEnumSchema = json!["paths"]!["/mvc/menu"]!["get"]!["parameters"]![0]!["schema"];
+        Assert.Equal("{\"$ref\":\"#/components/schemas/SampleEnum\"}", parameterEnumSchema!.ToJsonString());
+    }
+}
+#endif
 
 public class OpenApiTestsModels
 {
@@ -141,6 +206,22 @@ public class OpenApiTestsModels
     public class SampleFilterRequest
     {
         public SampleEnum? EnumValue { get; set; }
+    }
+
+    public class PrimitivesTestRequest
+    {
+        public decimal? Money { get; set; }
+        public string? Currency { get; set; }
+        public int Year { get; set; }
+        public long Id { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public List<string> Tags { get; set; } = [];
+        public List<double> RandomNumbers { get; set; } = [];
+        public List<decimal> RandomDecimals { get; set; } = [];
+        public List<int> RandomIntegers { get; set; } = [];
+        public List<MenuType> MenuTypes { get; set; } = [];
+        public List<DateTime> Schedule { get; set; } = [];
+        public Dictionary<string, string> Mappings { get; set; } = [];
     }
 }
 
@@ -193,6 +274,9 @@ public static class OpenApiTestsEndpoints
         group.MapPost("upload", UploadAttachment)
              .WithName(nameof(UploadAttachment))
              .Accepts<UploadFileRequest>(MediaTypeNames.Multipart.FormData);
+        group.MapPost("converters", UpdateWithConverters)
+             .WithName(nameof(UpdateWithConverters));
+
 
         return routes;
     }
@@ -216,6 +300,9 @@ public static class OpenApiTestsEndpoints
                 }
             };
         return TypedResults.Ok(items);
+    }
+    public static NoContent UpdateWithConverters(PrimitivesTestRequest request) {
+        return TypedResults.NoContent();
     }
 
     public static Ok<AttachmentLink> UploadAttachment(UploadFileRequest uploadFileRequest) {

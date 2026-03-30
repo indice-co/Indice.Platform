@@ -31,7 +31,7 @@ internal static class AdminCasesApi
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         ).WithHandledException<BusinessException>();
 
-        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
