@@ -24,4 +24,10 @@ public class ActivityLogEntryFilter : ActivityLogEntryFilterBase
     public bool? Succeeded { get; set; }
     /// <summary>The name of the action.</summary>
     public string? ActionName { get; set; }
+    /// <summary>The unique identifier of the resource.</summary>
+    public string? ResourceId { get; set; }
+    /// <summary>The type of the resource.</summary>
+    public string? ResourceType { get; set; }
+    /// <summary>The category of the action.</summary>
+    public string? Category { get; set; }
 }

@@ -4,16 +4,16 @@ using Indice.Features.ActivityLogs.Models;
 namespace Indice.Features.ActivityLogs;
 
 /// <summary>IdentityServer event sink in order to persist data for a activity event.</summary>
-internal class ActivityLogEventPublisher : IActivityEventPublisher
+internal class ActivityLogPublisher : IActivityLogPublisher
 {
     private readonly ActivityLogEntryQueue _activityLogEntryQueue;
     private readonly ActivityLogEntryEnricherAggregator _activityLogEntryEnricherAggregator;
 
-    /// <summary>Creates a new instance of <see cref="ActivityLogEventPublisher"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="ActivityLogPublisher"/> class.</summary>
     /// <param name="activityLogEntryQueue"></param>
     /// <param name="activityLogEntryEnricherAggregator"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ActivityLogEventPublisher(
+    public ActivityLogPublisher(
         ActivityLogEntryQueue activityLogEntryQueue,
         ActivityLogEntryEnricherAggregator activityLogEntryEnricherAggregator
     ) {

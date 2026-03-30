@@ -102,6 +102,8 @@ public class IdentityServerFeatures
     public const string SignInLogs = nameof(SignInLogs);
     /// <summary>Impossible travel.</summary>
     public const string ImpossibleTravel = nameof(ImpossibleTravel);
+    /// <summary>Activity logs.</summary>
+    public const string ActivityLogs = nameof(ActivityLogs);
 }
 
 

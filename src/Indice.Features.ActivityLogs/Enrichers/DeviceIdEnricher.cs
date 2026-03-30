@@ -23,7 +23,7 @@ public sealed class DeviceIdEnricher : IActivityLogEntryEnricher
 
     /// <inheritdoc />
     public ValueTask EnrichAsync(ActivityLogEntry logEntry) {
-        logEntry.DeviceId = _httpContextAccessor.HttpContext?.User?.FindFirst(BasicClaimTypes.DeviceId)?.Value;
+        logEntry.DeviceId ??= _httpContextAccessor.HttpContext?.User?.FindFirst(BasicClaimTypes.DeviceId)?.Value;
         return ValueTask.CompletedTask;
     }
 }

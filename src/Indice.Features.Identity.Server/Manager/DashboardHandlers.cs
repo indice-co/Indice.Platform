@@ -91,6 +91,7 @@ internal static class DashboardHandlers
         TypedResults.Ok(new UiFeaturesInfo {
             MetricsEnabled = await featureManager.IsEnabledAsync(IdentityServerFeatures.DashboardMetrics),
             SignInLogsEnabled = await featureManager.IsEnabledAsync(IdentityServerFeatures.SignInLogs),
-            EmailAsUserName = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.User)}", nameof(UiFeaturesInfo.EmailAsUserName)) ?? false
+            EmailAsUserName = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.User)}", nameof(UiFeaturesInfo.EmailAsUserName)) ?? false,
+            ActivityLogsEnabled = await featureManager.IsEnabledAsync(IdentityServerFeatures.ActivityLogs)
         });
 }
