@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Indice.AspNetCore.Features.Recaptcha;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data;
@@ -15,7 +14,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using SixLabors.ImageSharp;
 
 
 #if NET9_0_OR_GREATER

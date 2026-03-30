@@ -100,9 +100,9 @@ public interface IEmailDomainBlacklistProvider
 }
 
 /// <summary>
-/// A provider that retrieves a list of blacklisted email domains from configuration.
-/// The list can be defined under:
-/// 'IdentityOptions:Email:DomainBlacklist' or 'EmailDomainBlacklist'.
+/// A provider that retrieves a list of blacklisted email domains from configuration
+/// via <see cref="EmailBlacklistOptions"/>, using the <see cref="EmailBlacklistOptions.Domain"/> setting.
+/// This is typically bound from a configuration section named <c>Blacklist</c>.
 /// </summary>
 public class ConfigEmailDomainBlacklistProvider : IEmailDomainBlacklistProvider
 {
@@ -121,13 +121,13 @@ public class ConfigEmailDomainBlacklistProvider : IEmailDomainBlacklistProvider
 }
 
 /// <summary>
-/// A provider that loads blacklisted email domains from the disposable_email_blocklist.conf.txt file.
+/// A provider that loads blacklisted email domains from the EmailValidation/email_blocklist.conf file.
 /// </summary>
 public class FileEmailDomainBlacklistProvider : IEmailDomainBlacklistProvider
 {
     private readonly HashSet<string> _blacklist;
     /// <summary>
-    /// Initializes a new instance of the FileEmailDomainBlacklistProvider class using the specified blacklist file.    
+    /// Initializes a new instance of the <see cref="FileEmailDomainBlacklistProvider"/> class using the specified blacklist file.    
     /// </summary>
     public FileEmailDomainBlacklistProvider() {
         var assembly = typeof(FileEmailDomainBlacklistProvider).Assembly;
