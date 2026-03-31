@@ -41,10 +41,15 @@
                 <label asp-for="Input.UserName" class="form-label">@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)</label>
                 <input class="form-control" type="text" placeholder="@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)" asp-for="Input.UserName" />
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
+            </div>            
+            <div class="form-group mb-3">
                 <label asp-for="Input.Password" class="form-label">@Localizer.Login_Password</label>
-                <input class="form-control" type="password" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
+                <div class="input-group password-control">
+                    <input class="form-control" type="password" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
+                    <div class="input-group-append rounded-0">
+                        <button type="button" class="btn-password-show"></button>
+                    </div>
+                </div>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="mb-3">

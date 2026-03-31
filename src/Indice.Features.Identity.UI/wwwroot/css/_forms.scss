@@ -165,3 +165,62 @@ input {
         }
     }
 }
+
+
+.input-group.password-control {
+
+    &:focus-within {
+        box-shadow: 0 0 0 0.2rem rgba(42, 102, 84, .25) !important;
+    }
+
+    input.form-control {
+        border-width: $input-border-width 0 $input-border-width $input-border-width;
+        border-color: $input-border-color;
+        border-style: solid;
+
+        &:focus, &:focus-visible {
+            outline: 0 !important;
+            box-shadow: none !important;
+        }
+    }
+
+    .input-group-append {
+        border-color: $input-border-color;
+        border-style: solid;
+        border-width: $input-border-width $input-border-width $input-border-width 0;
+        border-radius: 0 $input-border-radius $input-border-radius 0;
+        box-shadow: none;
+
+        &:focus-visible, &:focus, &:focus-within {
+            outline: 0 !important;
+            box-shadow: none !important;
+        }
+    }
+
+    .btn-password-show {
+        background: transparent;
+        border: 0;
+        color: $color;
+
+        &::before {
+            content: "";
+            background-image: url("/img/view-on.svg");
+            background-size: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            width: 100%;
+            height: 100%;
+        }
+
+        &.active {
+            &::before {
+                background-image: url("/img/view-off.svg");
+            }
+        }
+
+        &:focus-visible, &:focus, &:focus-within {
+            outline: 0 !important;
+            box-shadow: none !important;
+        }
+    }
+}

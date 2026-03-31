@@ -144,9 +144,14 @@
         }
         <div class="row">
             <div class="col-md-12">
-                <div class="mb-3">
+                <div class="form-group mb-3">
                     <label asp-for="Input.Password" class="form-label">@Localizer.Register_Password</label>
-                    <input class="form-control" type="password" asp-for="Input.Password" data-sbind="event: { keyup: passwordChanged }" placeholder="@Localizer.Register_Password" autocomplete="new-password" />
+                    <div class="input-group password-control">
+                        <input class="form-control" type="password" placeholder="@Localizer.Register_Password" data-sbind="event: { keyup: passwordChanged }" asp-for="Input.Password" autocomplete="new-password" />
+                        <div class="input-group-append rounded-0">
+                            <button type="button" class="btn-password-show"></button>
+                        </div>
+                    </div>
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
             </div>
