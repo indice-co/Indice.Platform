@@ -99,8 +99,8 @@ public class EmailServiceSendGridSettings
     /// <summary>The configuration section name.</summary>
     public const string Name = "SendGrid";
     /// <summary>The default sender address (ex. no-reply@indice.gr).</summary>
-    public string? Sender { get; set; }
-    /// <summary>The default sender name (ex. INDICE OE)</summary>
+    public string Sender { get; set; } = null!;
+    /// <summary>The default sender name (ex. INDICE SA)</summary>
     public string? SenderName { get; set; }
     /// <summary>Optional email addresses that are always added as blind carbon copy recipients.</summary>
     public string? BccRecipients { get; set; }

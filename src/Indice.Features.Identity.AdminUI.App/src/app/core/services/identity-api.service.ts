@@ -51,6 +51,31 @@ export interface IIdentityApiService {
      */
     validatePassword(body: ValidatePasswordRequest): Observable<CredentialsValidationInfo>;
     /**
+     * Gets the list of activity logs produced by the Identity system.
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param subject (optional) 
+     * @param sessionId (optional) 
+     * @param markForReview (optional) 
+     * @param succeeded (optional) 
+     * @param actionName (optional) 
+     * @param resourceId (optional) 
+     * @param resourceType (optional) 
+     * @param category (optional) 
+     * @param from (optional) 
+     * @param to (optional) 
+     * @param applicationId (optional) 
+     * @return OK
+     */
+    getActivityLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, subject?: string | undefined, sessionId?: string | undefined, markForReview?: boolean | undefined, succeeded?: boolean | undefined, actionName?: string | undefined, resourceId?: string | undefined, resourceType?: string | undefined, category?: string | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | undefined): Observable<ActivityLogEntryResultSet>;
+    /**
+     * Patches the specified log entry by updating the properties given in the request.
+     * @return No Content
+     */
+    patchActivityLog(rowId: string, body: ActivityLogEntryRequest): Observable<void>;
+    /**
      * Returns a list of AppSettingInfo objects containing the total number of application settings in the database and the data filtered according to the provided AppSettingInfo.
      * @param page (optional) The current page of the list. Default is 1.
      * @param size (optional) The size of the list. Default is 100
@@ -394,6 +419,18 @@ export interface IIdentityApiService {
      * @return No Content
      */
     updateUserName(body: UpdateUserNameRequest): Observable<void>;
+    /**
+     * Gets the list of activity logs for the current user.
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param from (optional) 
+     * @param to (optional) 
+     * @param applicationId (optional) 
+     * @return OK
+     */
+    getMyActivityLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | undefined): Observable<ActivityLogEntryResultSet>;
     /**
      * Returns a list of registered user devices.
      * @param page (optional) The current page of the list. Default is 1.
@@ -1342,6 +1379,244 @@ export class IdentityApiService implements IIdentityApiService {
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the list of activity logs produced by the Identity system.
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param subject (optional) 
+     * @param sessionId (optional) 
+     * @param markForReview (optional) 
+     * @param succeeded (optional) 
+     * @param actionName (optional) 
+     * @param resourceId (optional) 
+     * @param resourceType (optional) 
+     * @param category (optional) 
+     * @param from (optional) 
+     * @param to (optional) 
+     * @param applicationId (optional) 
+     * @return OK
+     */
+    getActivityLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, subject?: string | undefined, sessionId?: string | undefined, markForReview?: boolean | undefined, succeeded?: boolean | undefined, actionName?: string | undefined, resourceId?: string | undefined, resourceType?: string | undefined, category?: string | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | undefined): Observable<ActivityLogEntryResultSet> {
+        let url_ = this.baseUrl + "/api/activity-logs?";
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new globalThis.Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new globalThis.Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new globalThis.Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (subject === null)
+            throw new globalThis.Error("The parameter 'subject' cannot be null.");
+        else if (subject !== undefined)
+            url_ += "Subject=" + encodeURIComponent("" + subject) + "&";
+        if (sessionId === null)
+            throw new globalThis.Error("The parameter 'sessionId' cannot be null.");
+        else if (sessionId !== undefined)
+            url_ += "SessionId=" + encodeURIComponent("" + sessionId) + "&";
+        if (markForReview === null)
+            throw new globalThis.Error("The parameter 'markForReview' cannot be null.");
+        else if (markForReview !== undefined)
+            url_ += "MarkForReview=" + encodeURIComponent("" + markForReview) + "&";
+        if (succeeded === null)
+            throw new globalThis.Error("The parameter 'succeeded' cannot be null.");
+        else if (succeeded !== undefined)
+            url_ += "Succeeded=" + encodeURIComponent("" + succeeded) + "&";
+        if (actionName === null)
+            throw new globalThis.Error("The parameter 'actionName' cannot be null.");
+        else if (actionName !== undefined)
+            url_ += "ActionName=" + encodeURIComponent("" + actionName) + "&";
+        if (resourceId === null)
+            throw new globalThis.Error("The parameter 'resourceId' cannot be null.");
+        else if (resourceId !== undefined)
+            url_ += "ResourceId=" + encodeURIComponent("" + resourceId) + "&";
+        if (resourceType === null)
+            throw new globalThis.Error("The parameter 'resourceType' cannot be null.");
+        else if (resourceType !== undefined)
+            url_ += "ResourceType=" + encodeURIComponent("" + resourceType) + "&";
+        if (category === null)
+            throw new globalThis.Error("The parameter 'category' cannot be null.");
+        else if (category !== undefined)
+            url_ += "Category=" + encodeURIComponent("" + category) + "&";
+        if (from === null)
+            throw new globalThis.Error("The parameter 'from' cannot be null.");
+        else if (from !== undefined)
+            url_ += "From=" + encodeURIComponent(from ? "" + from.toISOString() : "") + "&";
+        if (to === null)
+            throw new globalThis.Error("The parameter 'to' cannot be null.");
+        else if (to !== undefined)
+            url_ += "To=" + encodeURIComponent(to ? "" + to.toISOString() : "") + "&";
+        if (applicationId === null)
+            throw new globalThis.Error("The parameter 'applicationId' cannot be null.");
+        else if (applicationId !== undefined)
+            url_ += "ApplicationId=" + encodeURIComponent("" + applicationId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetActivityLogs(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetActivityLogs(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ActivityLogEntryResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ActivityLogEntryResultSet>;
+        }));
+    }
+
+    protected processGetActivityLogs(response: HttpResponseBase): Observable<ActivityLogEntryResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ActivityLogEntryResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Patches the specified log entry by updating the properties given in the request.
+     * @return No Content
+     */
+    patchActivityLog(rowId: string, body: ActivityLogEntryRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/activity-logs/{rowId}";
+        if (rowId === undefined || rowId === null)
+            throw new globalThis.Error("The parameter 'rowId' must be defined.");
+        url_ = url_.replace("{rowId}", encodeURIComponent("" + rowId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPatchActivityLog(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPatchActivityLog(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processPatchActivityLog(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -6156,6 +6431,128 @@ export class IdentityApiService implements IIdentityApiService {
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the list of activity logs for the current user.
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param from (optional) 
+     * @param to (optional) 
+     * @param applicationId (optional) 
+     * @return OK
+     */
+    getMyActivityLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | undefined): Observable<ActivityLogEntryResultSet> {
+        let url_ = this.baseUrl + "/api/my/activity-logs?";
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new globalThis.Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new globalThis.Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new globalThis.Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (from === null)
+            throw new globalThis.Error("The parameter 'from' cannot be null.");
+        else if (from !== undefined)
+            url_ += "From=" + encodeURIComponent(from ? "" + from.toISOString() : "") + "&";
+        if (to === null)
+            throw new globalThis.Error("The parameter 'to' cannot be null.");
+        else if (to !== undefined)
+            url_ += "To=" + encodeURIComponent(to ? "" + to.toISOString() : "") + "&";
+        if (applicationId === null)
+            throw new globalThis.Error("The parameter 'applicationId' cannot be null.");
+        else if (applicationId !== undefined)
+            url_ += "ApplicationId=" + encodeURIComponent("" + applicationId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMyActivityLogs(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMyActivityLogs(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ActivityLogEntryResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ActivityLogEntryResultSet>;
+        }));
+    }
+
+    protected processGetMyActivityLogs(response: HttpResponseBase): Observable<ActivityLogEntryResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ActivityLogEntryResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -12119,6 +12516,318 @@ export enum AccessTokenType {
     Reference = "Reference",
 }
 
+export class ActivityLogEntry implements IActivityLogEntry {
+    id?: string;
+    createdAt?: Date;
+    actionName?: string | undefined;
+    eventType?: string;
+    category?: string | undefined;
+    applicationId?: string | undefined;
+    applicationName?: string | undefined;
+    source?: string | undefined;
+    subjectId?: string | undefined;
+    subjectName?: string | undefined;
+    subjectUnknown?: boolean;
+    resourceId?: string | undefined;
+    resourceType?: string | undefined;
+    description?: string | undefined;
+    succeeded?: boolean;
+    ipAddress?: string | undefined;
+    requestId?: string | undefined;
+    location?: string | undefined;
+    sessionId?: string | undefined;
+    review?: boolean;
+    countryIsoCode?: string | undefined;
+    deviceId?: string | undefined;
+    coordinates?: string | undefined;
+    extraData?: ActivityLogEntryExtraData;
+
+    constructor(data?: IActivityLogEntry) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
+            this.actionName = _data["actionName"];
+            this.eventType = _data["eventType"];
+            this.category = _data["category"];
+            this.applicationId = _data["applicationId"];
+            this.applicationName = _data["applicationName"];
+            this.source = _data["source"];
+            this.subjectId = _data["subjectId"];
+            this.subjectName = _data["subjectName"];
+            this.subjectUnknown = _data["subjectUnknown"];
+            this.resourceId = _data["resourceId"];
+            this.resourceType = _data["resourceType"];
+            this.description = _data["description"];
+            this.succeeded = _data["succeeded"];
+            this.ipAddress = _data["ipAddress"];
+            this.requestId = _data["requestId"];
+            this.location = _data["location"];
+            this.sessionId = _data["sessionId"];
+            this.review = _data["review"];
+            this.countryIsoCode = _data["countryIsoCode"];
+            this.deviceId = _data["deviceId"];
+            this.coordinates = _data["coordinates"];
+            this.extraData = _data["extraData"] ? ActivityLogEntryExtraData.fromJS(_data["extraData"]) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): ActivityLogEntry {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActivityLogEntry();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
+        data["actionName"] = this.actionName;
+        data["eventType"] = this.eventType;
+        data["category"] = this.category;
+        data["applicationId"] = this.applicationId;
+        data["applicationName"] = this.applicationName;
+        data["source"] = this.source;
+        data["subjectId"] = this.subjectId;
+        data["subjectName"] = this.subjectName;
+        data["subjectUnknown"] = this.subjectUnknown;
+        data["resourceId"] = this.resourceId;
+        data["resourceType"] = this.resourceType;
+        data["description"] = this.description;
+        data["succeeded"] = this.succeeded;
+        data["ipAddress"] = this.ipAddress;
+        data["requestId"] = this.requestId;
+        data["location"] = this.location;
+        data["sessionId"] = this.sessionId;
+        data["review"] = this.review;
+        data["countryIsoCode"] = this.countryIsoCode;
+        data["deviceId"] = this.deviceId;
+        data["coordinates"] = this.coordinates;
+        data["extraData"] = this.extraData ? this.extraData.toJSON() : undefined as any;
+        return data;
+    }
+}
+
+export interface IActivityLogEntry {
+    id?: string;
+    createdAt?: Date;
+    actionName?: string | undefined;
+    eventType?: string;
+    category?: string | undefined;
+    applicationId?: string | undefined;
+    applicationName?: string | undefined;
+    source?: string | undefined;
+    subjectId?: string | undefined;
+    subjectName?: string | undefined;
+    subjectUnknown?: boolean;
+    resourceId?: string | undefined;
+    resourceType?: string | undefined;
+    description?: string | undefined;
+    succeeded?: boolean;
+    ipAddress?: string | undefined;
+    requestId?: string | undefined;
+    location?: string | undefined;
+    sessionId?: string | undefined;
+    review?: boolean;
+    countryIsoCode?: string | undefined;
+    deviceId?: string | undefined;
+    coordinates?: string | undefined;
+    extraData?: ActivityLogEntryExtraData;
+}
+
+export class ActivityLogEntryDevice implements IActivityLogEntryDevice {
+    model?: string | undefined;
+    platform?: DevicePlatform;
+    userAgent?: string;
+    displayName?: string;
+    os?: string | undefined;
+    userAgentFamily?: string;
+
+    constructor(data?: IActivityLogEntryDevice) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.model = _data["model"];
+            this.platform = _data["platform"];
+            this.userAgent = _data["userAgent"];
+            this.displayName = _data["displayName"];
+            this.os = _data["os"];
+            this.userAgentFamily = _data["userAgentFamily"];
+        }
+    }
+
+    static fromJS(data: any): ActivityLogEntryDevice {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActivityLogEntryDevice();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["model"] = this.model;
+        data["platform"] = this.platform;
+        data["userAgent"] = this.userAgent;
+        data["displayName"] = this.displayName;
+        data["os"] = this.os;
+        data["userAgentFamily"] = this.userAgentFamily;
+        return data;
+    }
+}
+
+export interface IActivityLogEntryDevice {
+    model?: string | undefined;
+    platform?: DevicePlatform;
+    userAgent?: string;
+    displayName?: string;
+    os?: string | undefined;
+    userAgentFamily?: string;
+}
+
+export class ActivityLogEntryExtraData implements IActivityLogEntryExtraData {
+    extraData?: any | undefined;
+    device?: ActivityLogEntryDevice;
+
+    constructor(data?: IActivityLogEntryExtraData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.extraData = _data["extraData"];
+            this.device = _data["device"] ? ActivityLogEntryDevice.fromJS(_data["device"]) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): ActivityLogEntryExtraData {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActivityLogEntryExtraData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["extraData"] = this.extraData;
+        data["device"] = this.device ? this.device.toJSON() : undefined as any;
+        return data;
+    }
+}
+
+export interface IActivityLogEntryExtraData {
+    extraData?: any | undefined;
+    device?: ActivityLogEntryDevice;
+}
+
+export class ActivityLogEntryRequest implements IActivityLogEntryRequest {
+    review?: boolean;
+    reviewComment?: string | undefined;
+
+    constructor(data?: IActivityLogEntryRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.review = _data["review"];
+            this.reviewComment = _data["reviewComment"];
+        }
+    }
+
+    static fromJS(data: any): ActivityLogEntryRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActivityLogEntryRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["review"] = this.review;
+        data["reviewComment"] = this.reviewComment;
+        return data;
+    }
+}
+
+export interface IActivityLogEntryRequest {
+    review?: boolean;
+    reviewComment?: string | undefined;
+}
+
+export class ActivityLogEntryResultSet implements IActivityLogEntryResultSet {
+    count?: number;
+    items?: ActivityLogEntry[];
+
+    constructor(data?: IActivityLogEntryResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ActivityLogEntry.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ActivityLogEntryResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActivityLogEntryResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IActivityLogEntryResultSet {
+    count?: number;
+    items?: ActivityLogEntry[];
+}
+
 export class ApiResourceInfo implements IApiResourceInfo {
     id?: number;
     name?: string;
@@ -17199,6 +17908,7 @@ export class UiFeaturesInfo implements IUiFeaturesInfo {
     metricsEnabled?: boolean;
     signInLogsEnabled?: boolean;
     emailAsUserName?: boolean;
+    activityLogsEnabled?: boolean;
 
     constructor(data?: IUiFeaturesInfo) {
         if (data) {
@@ -17214,6 +17924,7 @@ export class UiFeaturesInfo implements IUiFeaturesInfo {
             this.metricsEnabled = _data["metricsEnabled"];
             this.signInLogsEnabled = _data["signInLogsEnabled"];
             this.emailAsUserName = _data["emailAsUserName"];
+            this.activityLogsEnabled = _data["activityLogsEnabled"];
         }
     }
 
@@ -17229,6 +17940,7 @@ export class UiFeaturesInfo implements IUiFeaturesInfo {
         data["metricsEnabled"] = this.metricsEnabled;
         data["signInLogsEnabled"] = this.signInLogsEnabled;
         data["emailAsUserName"] = this.emailAsUserName;
+        data["activityLogsEnabled"] = this.activityLogsEnabled;
         return data;
     }
 }
@@ -17237,6 +17949,7 @@ export interface IUiFeaturesInfo {
     metricsEnabled?: boolean;
     signInLogsEnabled?: boolean;
     emailAsUserName?: boolean;
+    activityLogsEnabled?: boolean;
 }
 
 export class UpdateApiResourceRequest implements IUpdateApiResourceRequest {

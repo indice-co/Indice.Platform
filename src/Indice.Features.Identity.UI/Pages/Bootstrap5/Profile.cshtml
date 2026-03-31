@@ -1,5 +1,5 @@
 ﻿@page "/manage/profile"
-
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("manage/profile")]
 
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions

@@ -27,7 +27,7 @@ public static class MediaApi
                            .WithHandledException<BusinessException>();
 
         var requiredScopes = options.Scope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
+        group.WithOpenApiSecurityRequirement("oauth2", requiredScopes);
 
         group.MapGet("/media-root/{*path}", MediaHandlers.DownloadFile)
              .WithName(nameof(MediaHandlers.DownloadFile))

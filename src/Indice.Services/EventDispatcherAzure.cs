@@ -22,7 +22,7 @@ public class EventDispatcherAzure : IEventDispatcher
     private readonly bool _enabled;
     private readonly bool _useCompression;
     private readonly QueueMessageEncoding _queueMessageEncoding;
-    private readonly Func<ClaimsPrincipal> _claimsPrincipalSelector;
+    private readonly Func<ClaimsPrincipal?> _claimsPrincipalSelector;
     private readonly Func<string?> _tenantIdSelector;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly ILogger<EventDispatcherAzure>? _logger;
@@ -36,7 +36,7 @@ public class EventDispatcherAzure : IEventDispatcher
     /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
     /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
     /// <param name="logger">Logger instance for logging warnings and errors.</param>
-    public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal>? claimsPrincipalSelector, Func<string>? tenantIdSelector, ILogger<EventDispatcherAzure>? logger = null) {
+    public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal?>? claimsPrincipalSelector, Func<string>? tenantIdSelector, ILogger<EventDispatcherAzure>? logger = null) {
         _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         _enabled = enabled;
@@ -115,7 +115,7 @@ public class EventDispatcherAzureOptions
     /// <summary>Provides a way to enable/disable event dispatching at will. Defaults to true.</summary>
     public bool Enabled { get; set; } = true;
     /// <summary>A function that retrieves the current thread user from the current operation context.</summary>
-    public Func<ClaimsPrincipal>? ClaimsPrincipalSelector { get; set; }
+    public Func<ClaimsPrincipal?>? ClaimsPrincipalSelector { get; set; }
     /// <summary>A function that retrieves the current tenant id by any means possible. This is optional.</summary>
     public Func<string>? TenantIdSelector { get; set; }
     /// <summary>Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</summary>

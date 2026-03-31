@@ -3,6 +3,7 @@
 /// <summary>Common claim types used in all Indice applications.</summary>
 public static class BasicClaimTypes
 {
+    
     /// <summary>Basic Claim types prefix.</summary>
     public const string Prefix = "indice_";
     /// <summary>Identifies a physical user principal as a trusted account with administrative privileges.</summary>
@@ -65,6 +66,8 @@ public static class BasicClaimTypes
     public const string BirthDate = "birthdate";
     /// <summary>Client Id (calling application).</summary>
     public const string ClientId = "client_id";
+    /// <summary>Session Id.</summary>
+    public const string SessionId = "sid";
     /// <summary>The <see cref="DateTime"/> when the user password will expire.</summary>
     public const string PasswordExpirationDate = "password_expiration_date";
     /// <summary>A boolean claim indicating that user password has expired.</summary>

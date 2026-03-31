@@ -4,6 +4,7 @@ using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.EmailValidation;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+
 
 #if NET9_0_OR_GREATER
 using Indice.Features.Identity.Core.TokenCleanup;
@@ -226,6 +228,57 @@ public static class IdentityBuilderExtensions
         builder.AddPasswordValidator<UserNameAsPasswordValidator>();
         return builder;
     }
+
+    /// <summary>
+    /// Registers the <see cref="EmailDomainBlacklistValidator{TUser}"/> with optional enable/disable flag.
+    /// By default, validation is enabled.
+    /// </summary>
+    /// <typeparam name="TUser">The type of user.</typeparam>
+    /// <param name="builder">The identity builder.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <param name="configureAction">An optional action to configure the <see cref="EmailBlacklistOptions"/>.</param>
+    /// <returns>The identity builder.</returns>
+    public static IdentityBuilder AddEmailDomainBlacklistValidator<TUser>(
+        this IdentityBuilder builder,
+        IConfiguration configuration,
+        Action<EmailBlacklistOptions>? configureAction = null
+    ) where TUser : User {
+        var settings = new EmailBlacklistOptions() {
+            Enabled = configuration.GetIdentityOption<bool>(EmailBlacklistOptions.Name, nameof(EmailBlacklistOptions.Enabled)),
+            Domains = configuration.GetIdentityOption<string?>(EmailBlacklistOptions.Name, nameof(EmailBlacklistOptions.Domains))
+        };
+        configureAction?.Invoke(settings);
+
+        builder.Services.Configure<EmailBlacklistOptions>(options => {
+            options.Enabled = settings.Enabled;
+            options.Domains = settings.Domains;
+        });
+
+        if (!settings.Enabled)
+            return builder;
+
+        // Providers
+        builder.Services.AddSingleton<IEmailDomainBlacklistProvider, ConfigEmailDomainBlacklistProvider>();
+        builder.Services.AddSingleton<IEmailDomainBlacklistProvider, FileEmailDomainBlacklistProvider>();
+
+        // Validator
+        builder.AddUserValidator<EmailDomainBlacklistValidator<TUser>>();
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Registers <see cref="EmailDomainBlacklistValidator"/> using <see cref="User"/> as the user type.
+    /// This is a convenience overload of <see cref="AddEmailDomainBlacklistValidator{TUser}(IdentityBuilder, IConfiguration, Action{EmailBlacklistOptions})"/>
+    /// so you don’t need to specify the generic type explicitly.
+    /// </summary>
+    /// <param name="builder">The <see cref="IdentityBuilder"/> instance.</param>
+    /// <param name="configuration">The application <see cref="IConfiguration"/> used to read the enable/disable flag and file path.</param>
+    /// <returns>The <see cref="IdentityBuilder"/> instance, allowing further chaining.</returns>
+    public static IdentityBuilder AddEmailDomainBlacklistValidator(
+        this IdentityBuilder builder,
+        IConfiguration configuration
+    ) => builder.AddEmailDomainBlacklistValidator<User>(configuration);
 
     /// <summary>Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.</summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>

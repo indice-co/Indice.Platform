@@ -36,7 +36,7 @@ internal static class CampaignsApi
                                            .RequireCampaignsManagement()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 
-        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.WithHandledException<BusinessException>()
              .ProducesProblem(StatusCodes.Status401Unauthorized)

@@ -1,15 +1,20 @@
-﻿using System.Net.Mime;
+﻿#if NET10_0_OR_GREATER
+
+using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
+using Polly;
 
 namespace Microsoft.AspNetCore.Builder;
 
+
 /// <summary>Endpoint conventions regarding Open API.</summary>
-public static class OpenApiExtensions
+public static class OpenApiMetadataExtensions
 {
     /// <summary>
     /// Adds an OpenAPI security requirement to the endpoint, specifying the security scheme and required scopes.
@@ -23,89 +28,20 @@ public static class OpenApiExtensions
     /// without any specific scopes.</param>
     /// <returns>The <see cref="IEndpointConventionBuilder"/> instance with the applied OpenAPI security requirement.</returns>
     public static IEndpointConventionBuilder WithOpenApiSecurityRequirement(this IEndpointConventionBuilder builder, string securitySchemeId = "oauth2", params string[] requiredScopes) {
-        var scheme = new OpenApiSecurityScheme() {
-            Type = SecuritySchemeType.Http,
-            Name = securitySchemeId,
-            Scheme = securitySchemeId,
-            Reference = new() {
-                Type = ReferenceType.SecurityScheme,
-                Id = securitySchemeId
-            }
-        };
         builder.WithMetadata(new OpenApiSecurityRequirement() {
-            [scheme] = requiredScopes.ToList() ?? []
+            [new(securitySchemeId)] = requiredScopes.ToList() ?? []
         });
         return builder;
     }
     /// <summary>Adds the ApiKey security scheme to the Open API description.</summary>
     /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
-    /// <param name="schemeName"></param>
+    /// <param name="securitySchemeId"></param>
     /// <returns>The <see cref="IEndpointConventionBuilder"/>.</returns>
-    public static IEndpointConventionBuilder WithApiKeySecurityRequirement(this IEndpointConventionBuilder builder, string schemeName = "ApiKey") {
-        var scheme = new OpenApiSecurityScheme {
-            Type = SecuritySchemeType.ApiKey,
-            Scheme = schemeName,
-            Description = "Enter the api key to get access",
-            Name = "X-Api-Key",
-            Reference = new OpenApiReference {
-                Type = ReferenceType.SecurityScheme,
-                Id = "ApiKey"
-            },
-            In = ParameterLocation.Header
-        };
+    public static IEndpointConventionBuilder WithApiKeySecurityRequirement(this IEndpointConventionBuilder builder, string securitySchemeId = "ApiKey") {
         builder.WithMetadata(new OpenApiSecurityRequirement() {
-            [scheme] = []
+            [new(securitySchemeId)] = []
         });
         return builder;
-    }
-
-    /// <summary>Adds the JWT security scheme to the Open API description.</summary>
-    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
-    /// <param name="securityScheme">The security scheme to use.</param>
-    /// <param name="requiredScopes">The array of required scopes.</param>
-    /// <returns>The <see cref="IEndpointConventionBuilder"/>.</returns>
-    public static IEndpointConventionBuilder AddOpenApiSecurityRequirement(this IEndpointConventionBuilder builder, string securityScheme = "oauth2", params string[] requiredScopes) {
-        var scheme = new OpenApiSecurityScheme() {
-            Type = SecuritySchemeType.Http,
-            Name = securityScheme,
-            Scheme = securityScheme,
-            Reference = new() {
-                Type = ReferenceType.SecurityScheme,
-                Id = securityScheme
-            }
-        };
-        return builder.WithOpenApi(operation => new(operation) {
-            Security = {
-                new() {
-                    [scheme] = requiredScopes.ToList() ?? []
-                }
-            },
-        });
-    }
-
-    /// <summary>Adds the ApiKey security scheme to the Open API description.</summary>
-    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
-    /// <returns>The <see cref="IEndpointConventionBuilder"/>.</returns>
-    public static IEndpointConventionBuilder AddApiKeySecurityRequirement(this IEndpointConventionBuilder builder) {
-        var scheme = new OpenApiSecurityScheme {
-            Type = SecuritySchemeType.ApiKey,
-            Scheme = "ApiKeyScheme",
-            Description = "Enter the api key to get access",
-            Name = "X-Api-Key",
-            Reference = new OpenApiReference {
-                Type = ReferenceType.SecurityScheme,
-                Id = "ApiKey"
-            },
-            In = ParameterLocation.Header
-        };
-
-        return builder.WithOpenApi(operation => new(operation) {
-            Security = {
-                new() {
-                    [scheme] = []
-                }
-            }
-        });
     }
 
     /// <summary>
@@ -121,8 +57,8 @@ public static class OpenApiExtensions
     /// <param name="contentType">The media type of the example content. Defaults to "application/json".</param>
     /// <returns>The original endpoint convention builder with the example metadata added.</returns>
     public static IEndpointConventionBuilder WithExampleRequestBody<T>(this IEndpointConventionBuilder builder, T example, string? summary = null, string? description = null, string contentType = MediaTypeNames.Application.Json) where T : class 
-        => builder.WithMetadata(new EndpointBodyExampleMetadata(nameof(T), example.ToOpenApiAny(), Summary: summary, Description: description, ContentType: contentType));
-    
+        => builder.WithMetadata(new EndpointBodyExampleMetadata(nameof(T), JsonSerializer.SerializeToNode(example), Summary: summary, Description: description, ContentType: contentType));
+
 
     /// <summary>
     /// Adds an <see cref="IProducesResponseTypeMetadata"/> with a <see cref="ProblemDetails"/> type
@@ -146,3 +82,4 @@ public static class OpenApiExtensions
     public static RouteGroupBuilder ProducesValidationProblem(this RouteGroupBuilder builder, int statusCode = 400, string? contentType = null)
         => builder.WithMetadata(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), [contentType ?? MediaTypeNames.Application.ProblemJson]));
 }
+#endif
