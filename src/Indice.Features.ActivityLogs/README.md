@@ -386,6 +386,28 @@ The activity logs feature follows a clean architecture with several key componen
 - **Cleanup Service**: Background worker for retention policy enforcement
 - **Event Adapter**: Integration point for domain event conversion
 
+## Troubleshooting
+
+### Logs Not Being Persisted
+
+1. Verify `Enable` is set to `true` in options
+2. Check that `PersistLogsHostedService` is running
+3. Verify database connectivity and migrations have been applied
+4. Check `QueueChannelCapacity` isn't being exceeded
+
+### High Memory Usage
+
+1. Reduce `QueueChannelCapacity` to limit buffered entries
+2. Decrease `DequeueTimeoutInMilliseconds` for faster processing
+3. Increase `DequeueBatchSize` for fewer, larger batches
+
+### Performance Impact
+
+1. Consider excluding unnecessary enrichers
+2. Increase batch sizes for persistence operations
+3. Implement filtering to log only important events
+4. Enable anonymization to reduce data volume
+
 ## License
 
 This library is part of the Indice.Platform and is licensed under the applicable open-source license.
