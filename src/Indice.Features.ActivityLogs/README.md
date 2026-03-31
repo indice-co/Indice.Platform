@@ -50,19 +50,19 @@ services
         options.QueueChannelCapacity = 100;
         options.DequeueBatchSize = 10;
         options.DequeueTimeoutInMilliseconds = 1000;
+        options.Categories.Add("Authentication");
+        options.Categories.Add("Authorization");
         options.Cleanup.Enable = true;
         options.Cleanup.RetentionDays = 90;
         options.Cleanup.IntervalSeconds = 3600; // 1 hour
         options.Cleanup.BatchSize = 4000;
-        options.Categories.Add("Authentication");
-        options.Categories.Add("Authorization");
     })
     .UseEntityFrameworkCoreStore(optionsBuilder => 
     {
         optionsBuilder.UseSqlServer(connectionString);
     });
 ```
-
+*Note: If you add categories, only log entries matching those categories will be published; all others will be filtered out.*
 ### 3. Publish Activity Logs
 
 Inject `IActivityLogPublisher` and publish log entries:
@@ -98,6 +98,7 @@ public class MyService
     }
 }
 ```
+*Note: Many of these fields are automatically populated by the default enrichers.*
 
 ## Configuration Options
 
@@ -110,7 +111,7 @@ public class MyService
 | `QueueChannelCapacity` | `int` | `100` | Maximum number of items the internal queue can store |
 | `DequeueBatchSize` | `int` | `10` | Number of items processed in each batch |
 | `DequeueTimeoutInMilliseconds` | `long` | `1000` | Timeout in milliseconds for the queue to reach batch size |
-| `ApiPrefix` | `string` | `/api` | Prefix for API endpoints |
+| `ApiPrefix` | `PathString` | `/api` | Prefix for API endpoints |
 | `DatabaseSchema` | `string` | `auth` | Schema name for the database (relational providers) |
 | `Categories` | `HashSet<string>` | Empty | Set of activity log categories |
 | `ExcludedEnrichers` | `List<Type>` | Empty | List of default enrichers to exclude |
@@ -145,10 +146,11 @@ Interface for persisting and retrieving activity log entries.
 ```csharp
 public interface IActivityLogStore
 {
-    Task InsertAsync(DbActivityLogEntry logEntry, CancellationToken cancellationToken = default);
-    Task<IEnumerable<ActivityLogEntry>> GetAllAsync(ActivityLogEntryFilter filter, CancellationToken cancellationToken = default);
-    Task<long> CountAsync(ActivityLogEntryFilter filter, CancellationToken cancellationToken = default);
-    Task DeleteAsync(ActivityLogEntryFilter filter, CancellationToken cancellationToken = default);
+    Task Cleanup(ActivityLogEntryFilter filter, CancellationToken cancellationToken = default);
+    Task CreateAsync(ActivityLogEntry entry, CancellationToken cancellationToken = default);
+    Task CreateManyAsync(IEnumerable<ActivityLogEntry> entries, CancellationToken cancellationToken = default);
+    Task<ResultSet<ActivityLogEntry>> ListAsync(ActivityLogEntryFilter filter, CancellationToken cancellationToken = default);
+    Task UpdateAsync(ActivityLogEntry entry, CancellationToken cancellationToken = default);
 }
 ```
 
@@ -164,7 +166,7 @@ public class ActivityLogEntry
     public Guid Id { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public string? ActionName { get; set; }
-    public string EventType { get; set; }
+    public string EventType { get; set; } = "Base";
     public string? Category { get; set; }
     public string? ApplicationId { get; set; }
     public string? ApplicationName { get; set; }
@@ -172,7 +174,7 @@ public class ActivityLogEntry
     public string? SubjectId { get; set; }
     public string? SubjectName { get; set; }
     public bool SubjectUnknown { get; set; }
-    public string? ResourceId { get; set; }
+    public string? ResourceId { get; set; } = null!;
     public string? ResourceType { get; set; }
     public string? Description { get; set; }
     public bool Succeeded { get; set; }
@@ -182,6 +184,9 @@ public class ActivityLogEntry
     public string? SessionId { get; set; }
     public bool Review { get; set; }
     public string? CountryIsoCode { get; set; }
+    public string? DeviceId { get; set; }
+    public GeoPoint? Coordinates { get; set; }
+    public ActivityLogEntryExtraData? ExtraData { get; set; }
 }
 ```
 
@@ -219,6 +224,9 @@ Implement `IActivityLogEntryEnricher` to create custom enrichers:
 ```csharp
 public class CustomEnricher : IActivityLogEntryEnricher
 {
+    public int Order => 0;
+    public ActivityLogEnricherRunType RunType => ActivityLogEnricherRunType.Synchronous;
+
     public async Task EnrichAsync(ActivityLogEntry entry, ActivityLogEnricherRunType runType)
     {
         if (runType == ActivityLogEnricherRunType.Synchronous)
@@ -290,17 +298,9 @@ services
 
 The library uses `ActivityLogDbContext` which includes:
 
-- `DbSet<DbActivityLogEntry> ActivityLogEntries { get; }`
+- `DbSet<DbActivityLogEntry> ActivityLogs { get; }`
 - Configured mappings via `DbActivityLogEntryMap`
 
-### Migrations
-
-Create and apply migrations for the activity logs tables:
-
-```bash
-dotnet ef migrations add InitialActivityLogs --context ActivityLogDbContext
-dotnet ef database update --context ActivityLogDbContext
-```
 
 ## Filtering Activity Logs
 
@@ -311,16 +311,15 @@ var filter = new ActivityLogEntryFilter
 {
     Subject = "user-123",
     Category = "Authentication",
-    FromDate = DateTime.Now.AddDays(-7),
-    ToDate = DateTime.Now,
-    IncludeSuccessful = true,
-    IncludeFailed = true
+    From = DateTime.Now.AddDays(-7),
+    To = DateTime.Now,
+    Succeeded = true
 };
 
-var entries = await store.GetAllAsync(filter);
+var entries = await store.ListAsync(new ListOptions(), filter);
 ```
 
-## No-Op Store
+## Disabling Activity Logs
 
 For scenarios where you want to disable logging without changing code:
 
@@ -329,8 +328,8 @@ services.AddActivityLogs(configuration, options =>
 {
     options.Enable = false;
 });
-// Uses ActivityLogStoreNoop by default when Enable = false
 ```
+*Note: When options.Enable = false, AddActivityLogs returns early and does NOT register*
 
 ## Performance Considerations
 
@@ -344,18 +343,18 @@ services.AddActivityLogs(configuration, options =>
 ### Log Authentication Events
 
 ```csharp
-var loginLog = new ActivityLogEntry
+var passwordChangedLog = new ActivityLogEntry
 {
-    ActionName = "Login",
+    ActionName = "PasswordChanged",
     Category = "Authentication",
     EventType = "SecurityEvent",
     SubjectId = user.Id,
     SubjectName = user.Email,
-    Succeeded = loginSuccessful,
-    Description = loginSuccessful ? "User logged in successfully" : "Login failed"
+    Succeeded = passwordChangeSuccessful,
+    Description = passwordChangeSuccessful ? "User changed their password" : "Password change failed"
 };
 
-await _activityLogPublisher.PublishAsync(loginLog);
+await _activityLogPublisher.PublishAsync(passwordChangedLog);
 ```
 
 ### Log Resource Changes
@@ -386,28 +385,6 @@ The activity logs feature follows a clean architecture with several key componen
 - **Persistence Layer**: Abstracted store interface with Entity Framework Core implementation
 - **Cleanup Service**: Background worker for retention policy enforcement
 - **Event Adapter**: Integration point for domain event conversion
-
-## Troubleshooting
-
-### Logs Not Being Persisted
-
-1. Verify `Enable` is set to `true` in options
-2. Check that `PersistLogsHostedService` is running
-3. Verify database connectivity and migrations have been applied
-4. Check `QueueChannelCapacity` isn't being exceeded
-
-### High Memory Usage
-
-1. Reduce `QueueChannelCapacity` to limit buffered entries
-2. Decrease `DequeueTimeoutInMilliseconds` for faster processing
-3. Increase `DequeueBatchSize` for fewer, larger batches
-
-### Performance Impact
-
-1. Consider excluding unnecessary enrichers
-2. Increase batch sizes for persistence operations
-3. Implement filtering to log only important events
-4. Enable anonymization to reduce data volume
 
 ## License
 
