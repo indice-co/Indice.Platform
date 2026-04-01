@@ -316,7 +316,7 @@ public class CountryInfo
     public int NumericCode { get; private set; }
     /// <summary>Country Calling code.</summary>
     public string CallingCode { get; private set; }
-    /// <summary>Timezone ID.</summary>
+    /// <summary>Default Timezone ID.</summary>
     public string TimeZoneId { get; private set; }
     /// <summary>Default Country Calling code</summary>
     public int CallingCodeDefault => string.IsNullOrWhiteSpace(CallingCode) ? -1 : int.Parse(CallingCode.Split(',').First().Replace("-", string.Empty));
