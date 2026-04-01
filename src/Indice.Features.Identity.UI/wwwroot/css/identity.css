@@ -1379,6 +1379,11 @@ input.form-control:focus {
     box-shadow: 0 0 0 0.2rem rgba(42, 102, 84, 0.25);
 }
 
+input.form-control[readonly] {
+    background-color: #D6D6D6;
+    cursor: not-allowed;
+}
+
 /* Grayscale. */
 /*1 rem = 16px;*/
 /*

@@ -80,6 +80,10 @@
         font-size: inherit;
     }
 
+    input[readonly] {
+        @apply bg-greys-100 cursor-not-allowed;
+    }
+
     input[type]:not([type="checkbox"]) + label {
         @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
     }
@@ -92,9 +96,9 @@
         @apply w-5 h-5 focus:ring-tenant-500 border-greys-400 focus:border-tenant-500 text-tenant-900 mx-2;
     }
 
-    input[type="checkbox"] + label {
-        @apply text-greys-800;
-    }
+        input[type="checkbox"] + label {
+            @apply text-greys-800;
+        }
 
     input[type="range"] {
         @apply appearance-none bg-transparent w-full rounded-full absolute;
@@ -128,10 +132,10 @@
         appearance: textfield !important;
     }
 
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-        @apply appearance-none;
-    }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            @apply appearance-none;
+        }
 
     ::-webkit-scrollbar {
         @apply w-1 ml-5;
@@ -145,9 +149,9 @@
         @apply rounded-full bg-tenant-900;
     }
 
-    ::-webkit-scrollbar-thumb:hover {
-        @apply bg-tenant-900;
-    }
+        ::-webkit-scrollbar-thumb:hover {
+            @apply bg-tenant-900;
+        }
 }
 
 @layer components {
