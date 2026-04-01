@@ -29,9 +29,9 @@ public class CountryInfo
         TwoLetterCode = twoLetterCode;
         ThreeLetterCode = threeLetterCode;
         NumericCode = numericCode;
-        TimeZoneId = timeZoneId;
+        TimeZoneId = string.IsNullOrWhiteSpace(timeZoneId) ? throw new ArgumentNullException(nameof(timeZoneId)) : timeZoneId;
         TwoLetterLanguageCode = string.IsNullOrWhiteSpace(twoLetterLanguageCode) ? null : twoLetterLanguageCode;
-        CallingCode = string.IsNullOrWhiteSpace(callingCode) ? throw new ArgumentNullException(callingCode) : callingCode;
+        CallingCode = string.IsNullOrWhiteSpace(callingCode) ? throw new ArgumentNullException(nameof(callingCode)) : callingCode;
     }
 
     static CountryInfo() {
@@ -116,7 +116,7 @@ public class CountryInfo
             ["GF"] = new CountryInfo("SA", "GF", "GUF", 254, "French Guiana", "Cayenne", "fr", "594", "America/Cayenne"),
             ["PF"] = new CountryInfo("OC", "PF", "PYF", 258, "French Polynesia", "Papeete", "fr", "689", "Pacific/Tahiti"),
             ["TF"] = new CountryInfo("AN", "TF", "ATF", 260, "French Southern Territories", "Port-aux-Francais", "fr", "33", "Indian/Kerguelen"),
-            ["GA"] = new CountryInfo("AF", "GA", "GAB", 266, "Gabon", "Libreville", "fr", "241", "Africa/Libreville,Africa/Malabo"),
+            ["GA"] = new CountryInfo("AF", "GA", "GAB", 266, "Gabon", "Libreville", "fr", "241", "Africa/Libreville"),
             ["GM"] = new CountryInfo("AF", "GM", "GMB", 270, "Gambia", "Banjul", "en", "220", "Africa/Banjul"),
             ["GE"] = new CountryInfo("AS", "GE", "GEO", 268, "Georgia", "Tbilisi", "ka,os", "995", "Asia/Tbilisi"),
             ["DE"] = new CountryInfo("EU", "DE", "DEU", 276, "Germany", "Berlin", "de,dsb,en,hsb,ksh,nds", "49", "Europe/Berlin"),
@@ -138,11 +138,11 @@ public class CountryInfo
             ["HK"] = new CountryInfo("AS", "HK", "HKG", 344, "Hong Kong", "Hong Kong", "en,zh,zh", "852", "Hongkong"),
             ["HU"] = new CountryInfo("EU", "HU", "HUN", 348, "Hungary", "Budapest", "hu", "36", "Europe/Budapest"),
             ["IS"] = new CountryInfo("EU", "IS", "ISL", 352, "Iceland", "Reykjavik", "is", "354", "Iceland"),
-            ["IN"] = new CountryInfo("AS", "IN", "IND", 356, "India", "New Delhi", "as,bn,bo,brx,en,gu,hi,kn,kok,ks,ks,ml,mni,mr,ne,or,pa,sa,sd,ta,te,ur", "91", "Asia/Kolkata,Asia/Calcutta"),
+            ["IN"] = new CountryInfo("AS", "IN", "IND", 356, "India", "New Delhi", "as,bn,bo,brx,en,gu,hi,kn,kok,ks,ks,ml,mni,mr,ne,or,pa,sa,sd,ta,te,ur", "91", "Asia/Calcutta"),
             ["ID"] = new CountryInfo("AS", "ID", "IDN", 360, "Indonesia", "Jakarta", "en,id,jv,jv", "62", "Asia/Jakarta"),
-            ["IR"] = new CountryInfo("AS", "IR", "IRN", 364, "Iran", "Tehran", "fa,ku,lrc,mzn", "98", "Asia/Tehran,Iran"),
+            ["IR"] = new CountryInfo("AS", "IR", "IRN", 364, "Iran", "Tehran", "fa,ku,lrc,mzn", "98", "Iran"),
             ["IQ"] = new CountryInfo("AS", "IQ", "IRQ", 368, "Iraq", "Baghdad", "ar,ku,lrc", "964", "Asia/Baghdad"),
-            ["IE"] = new CountryInfo("EU", "IE", "IRL", 372, "Ireland", "Dublin", "en,ga", "353", "Europe/Dublin,Eire"),
+            ["IE"] = new CountryInfo("EU", "IE", "IRL", 372, "Ireland", "Dublin", "en,ga", "353", "Eire"),
             ["IM"] = new CountryInfo("EU", "IM", "IMN", 833, "Isle of Man", "Douglas", "en,gv", "44-1624", "Europe/Isle_of_Man"),
             ["IL"] = new CountryInfo("AS", "IL", "ISR", 376, "Israel", "Jerusalem", "he,en,ar,en", "972", "Israel"),
             ["IT"] = new CountryInfo("EU", "IT", "ITA", 380, "Italy", "Rome", "it,ca,de,fur", "39", "Europe/Rome"),
@@ -182,14 +182,14 @@ public class CountryInfo
             ["MX"] = new CountryInfo("NA", "MX", "MEX", 484, "Mexico", "Mexico City", "es", "52", "America/Mexico_City"),
             ["FM"] = new CountryInfo("OC", "FM", "FSM", 583, "Micronesia", "Palikir", "en", "691", "Pacific/Pohnpei"),
             ["MD"] = new CountryInfo("EU", "MD", "MDA", 498, "Moldova", "Chisinau", "ro,ru", "373", "Europe/Tiraspol"),
-            ["MC"] = new CountryInfo("EU", "MC", "MCO", 492, "Monaco", "Monaco", "fr", "377", "Europe/Paris,Europe/Monaco"),
+            ["MC"] = new CountryInfo("EU", "MC", "MCO", 492, "Monaco", "Monaco", "fr", "377", "Europe/Monaco"),
             ["MN"] = new CountryInfo("AS", "MN", "MNG", 496, "Mongolia", "Ulan Bator", "mn,mn", "976", "Asia/Hovd"),
             ["ME"] = new CountryInfo("EU", "ME", "MNE", 499, "Montenegro", "Podgorica", "cu,hu,sq,sr", "382", "Europe/Podgorica"),
             ["MS"] = new CountryInfo("NA", "MS", "MSR", 500, "Montserrat", "Plymouth", "en", "1-664", "America/Montserrat"),
             ["MA"] = new CountryInfo("AF", "MA", "MAR", 504, "Morocco", "Rabat", "ar,fr,shi,shi,tzm,tzm,tzm,zgh", "212", "Africa/Casablanca"),
             ["MZ"] = new CountryInfo("AF", "MZ", "MOZ", 508, "Mozambique", "Maputo", "mgh,pt,seh", "258", "Africa/Maputo"),
             ["MM"] = new CountryInfo("AS", "MM", "MMR", 104, "Myanmar [Burma]", "Nay Pyi Taw", "my", "95", "Asia/Rangoon"),
-            ["NA"] = new CountryInfo("AF", "NA", "NAM", 516, "Namibia", "Windhoek", "af,en,naq", "264", "Africa/Windhoek,Africa/Luanda"),
+            ["NA"] = new CountryInfo("AF", "NA", "NAM", 516, "Namibia", "Windhoek", "af,en,naq", "264", "Africa/Windhoek"),
             ["NR"] = new CountryInfo("OC", "NR", "NRU", 520, "Nauru", "Yaren", "en", "674", "Pacific/Nauru"),
             ["NP"] = new CountryInfo("AS", "NP", "NPL", 524, "Nepal", "Kathmandu", "ne", "977", "Asia/Katmandu"),
             ["NL"] = new CountryInfo("EU", "NL", "NLD", 528, "Netherlands", "Amsterdam", "en,fy,nds,nl", "31", "Europe/Amsterdam"),
@@ -238,7 +238,7 @@ public class CountryInfo
             ["RS"] = new CountryInfo("EU", "RS", "SRB", 688, "Serbia", "Belgrade", "sr,sr", "381", "Europe/Belgrade"),
             ["SC"] = new CountryInfo("AF", "SC", "SYC", 690, "Seychelles", "Victoria", "en,fr", "248", "Indian/Mahe"),
             ["SL"] = new CountryInfo("AF", "SL", "SLE", 694, "Sierra Leone", "Freetown", "en", "232", "Africa/Freetown"),
-            ["SG"] = new CountryInfo("AS", "SG", "SGP", 702, "Singapore", "Singapore", "en,ms,ta,zh", "65", "Asia/Singapore,Singapore"),
+            ["SG"] = new CountryInfo("AS", "SG", "SGP", 702, "Singapore", "Singapore", "en,ms,ta,zh", "65", "Singapore"),
             ["SX"] = new CountryInfo("NA", "SX", "SXM", 534, "Sint Maarten", "Philipsburg", "en,nl", "1-721", "America/Lower_Princes"),
             ["SK"] = new CountryInfo("EU", "SK", "SVK", 703, "Slovakia", "Bratislava", "sk", "421", "Europe/Bratislava"),
             ["SI"] = new CountryInfo("EU", "SI", "SVN", 705, "Slovenia", "Ljubljana", "en,sl", "386", "Europe/Ljubljana"),
