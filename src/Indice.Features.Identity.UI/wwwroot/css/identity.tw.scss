@@ -81,7 +81,7 @@
     }
 
     input[readonly] {
-        @apply bg-greys-100 cursor-not-allowed;
+        @apply bg-greys-400 cursor-not-allowed;
     }
 
     input[type]:not([type="checkbox"]) + label {
