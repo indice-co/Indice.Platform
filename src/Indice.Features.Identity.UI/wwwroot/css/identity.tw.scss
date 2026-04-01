@@ -80,17 +80,19 @@
         font-size: inherit;
     }
 
-    input[readonly] {
-        @apply bg-greys-400 cursor-not-allowed;
-    }
+        input[readonly],
+        textarea[readonly],
+        select[readonly] {
+            @apply bg-greys-400 cursor-not-allowed;
+        }
 
-    input[type]:not([type="checkbox"]) + label {
-        @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
-    }
+        input[type]:not([type="checkbox"]) + label {
+            @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
+        }
 
-    select + label {
-        @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
-    }
+        select + label {
+            @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
+        }
 
     input[type="checkbox"] {
         @apply w-5 h-5 focus:ring-tenant-500 border-greys-400 focus:border-tenant-500 text-tenant-900 mx-2;

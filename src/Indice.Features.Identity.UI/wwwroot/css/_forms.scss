@@ -163,7 +163,13 @@ input {
         &:focus {
             box-shadow: 0 0 0 0.2rem rgba(42, 102, 84, .25);
         }
+    }
+}
 
+input,
+textarea,
+select {
+    &.form-control {
         &[readonly] {
             background-color: $gray;
             cursor: not-allowed;
