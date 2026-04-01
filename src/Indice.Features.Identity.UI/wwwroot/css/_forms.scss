@@ -167,6 +167,58 @@ input {
     }
 }
 
+/// Input password icon reveal
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+
+
+.input-group {
+    .input-group-prepend, .input-group-append {
+        button {
+            min-width: 36px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 0;
+        }
+    }
+
+    .input-group-prepend {
+        button {
+            border-radius: 4px 0 0 4px;
+        }
+    }
+
+    .input-group-append {
+        button {
+            border-radius: 0 4px 4px 0;
+        }
+    }
+
+    input {
+        background-color: #fff;
+        border: 0;
+    }
+
+    .form-control {
+        &:focus {
+            border-color: none;
+            border: none;
+            box-shadow: none;
+        }
+    }
+
+    &:focus {
+        border-color: #707070;
+        box-shadow: 0 0 0 0.2rem rgba(42, 102, 84, 0.25) !important;
+    }
+}
 
 .input-group.password-control {
 
@@ -175,9 +227,7 @@ input {
     }
 
     input.form-control {
-        border-width: $input-border-width 0 $input-border-width $input-border-width;
-        border-color: $input-border-color;
-        border-style: solid;
+        border: 1px solid $text-color;
 
         &:focus, &:focus-visible {
             outline: 0 !important;
@@ -186,9 +236,7 @@ input {
     }
 
     .input-group-append {
-        border-color: $input-border-color;
-        border-style: solid;
-        border-width: $input-border-width $input-border-width $input-border-width 0;
+        border: 1px solid $text-color;
         border-radius: 0 $input-border-radius $input-border-radius 0;
         box-shadow: none;
 
@@ -201,7 +249,7 @@ input {
     .btn-password-show {
         background: transparent;
         border: 0;
-        color: $color;
+        color: $text-color;
 
         &::before {
             content: "";
