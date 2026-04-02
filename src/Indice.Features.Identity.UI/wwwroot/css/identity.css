@@ -1382,7 +1382,7 @@ input.form-control:focus {
 input.form-control[readonly],
 textarea.form-control[readonly],
 select.form-control[readonly] {
-    background-color: #D6D6D6;
+    background-color: #F2F2F2;
     cursor: not-allowed;
 }
 
