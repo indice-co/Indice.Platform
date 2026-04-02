@@ -57,8 +57,14 @@ public static class RateLimiterExtensions
         });
         return services;
     }
-    // Helper method to determine the partition key based on strategy, user claims, request body, or fallback to IP/Host
-    private static string GetPartitionKey(HttpContext httpContext, string userIdentifierClaimType, RateLimiterEndpointRule rule) {
+    /// <summary>
+    ///    Helper method to determine the partition key based on strategy, user claims, request body, or fallback to IP/Host
+    /// </summary>
+    /// <param name="httpContext">The HTTP context.</param>
+    /// <param name="userIdentifierClaimType">The claim type to use for identifying the user.</param>
+    /// <param name="rule">The rate limiter endpoint rule.</param>
+    /// <returns>The partition key.</returns>
+    public static string GetPartitionKey(HttpContext httpContext, string userIdentifierClaimType, RateLimiterEndpointRule rule) {
         var strategy = rule.PartitionStrategy;
 
         switch (strategy) {
