@@ -32,12 +32,9 @@ public class SecurityNotificationEventTests
 
     [Fact]
     public void LocalTimeStamp_WhenZoneInfoClaimIsValid_ConvertsToUserTimezone() {
-        // Europe/Athens is UTC+3 during summer (EEST).
+        // Europe/Athens is UTC+3 during summer (EEST). .NET 8+ resolves IANA IDs on all platforms.
         const string ianaTimezone = "Europe/Athens";
-        if (!TimeZoneInfo.TryFindSystemTimeZoneById(ianaTimezone, out var tz)) {
-            // Skip: timezone not resolvable on this platform.
-            return;
-        }
+        var tz = TimeZoneInfo.FindSystemTimeZoneById(ianaTimezone);
         var @event = CreateEvent(zoneInfoClaim: ianaTimezone);
         var expected = TimeZoneInfo.ConvertTime(UtcTimestamp, tz);
         Assert.Equal(expected, @event.LocalTimeStamp);
@@ -49,17 +46,17 @@ public class SecurityNotificationEventTests
         const string invalidTimezone = "Not/AValidTimezone";
         const string countryIsoCode = "GR"; // Greece -> "Europe/Athens"
         var @event = CreateEvent(zoneInfoClaim: invalidTimezone, countryIsoCode: countryIsoCode);
-        // Should not throw; result depends on whether the country TZ resolves on the platform.
-        _ = @event.LocalTimeStamp;
+        var tz = TimeZoneInfo.FindSystemTimeZoneById("Europe/Athens");
+        var expected = TimeZoneInfo.ConvertTime(UtcTimestamp, tz);
+        Assert.Equal(expected, @event.LocalTimeStamp);
+        Assert.NotEqual(TimeSpan.Zero, @event.LocalTimeStamp.Offset);
     }
 
     [Fact]
     public void LocalTimeStamp_WhenNoZoneInfoClaim_FallsBackToCountryTimezone() {
         const string countryIsoCode = "GR"; // Greece -> "Europe/Athens"
         var @event = CreateEvent(zoneInfoClaim: null, countryIsoCode: countryIsoCode);
-        if (!TimeZoneInfo.TryFindSystemTimeZoneById("Europe/Athens", out var tz)) {
-            return;
-        }
+        var tz = TimeZoneInfo.FindSystemTimeZoneById("Europe/Athens");
         var expected = TimeZoneInfo.ConvertTime(UtcTimestamp, tz);
         Assert.Equal(expected, @event.LocalTimeStamp);
         Assert.NotEqual(TimeSpan.Zero, @event.LocalTimeStamp.Offset);
