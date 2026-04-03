@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿#if NET8_0
+using FluentValidation;
 using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Humanizer;
@@ -146,3 +147,4 @@ public class RequestBodyFluentValidationSwaggerFilter : IRequestBodyFilter
 
     private static bool IsNumeric(object value) => value is not null && value.GetType().IsOneOf(typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal));
 }
+#endif

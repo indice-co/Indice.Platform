@@ -1,6 +1,6 @@
 using System.Text;
 using Indice.Services;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Indice.Common.Tests;
@@ -15,11 +15,7 @@ public class MagicBytesValidatorTests
     private readonly IMagicBytesValidator _validator;
 
     public MagicBytesValidatorTests() {
-        var services = new ServiceCollection();
-        services.AddLogging();
-        services.AddMagicBytesValidator();
-        var provider = services.BuildServiceProvider();
-        _validator = provider.GetRequiredService<IMagicBytesValidator>();
+        _validator = new MagicBytesValidator(NullLogger<MagicBytesValidator>.Instance);
     }
 
     [Theory]
