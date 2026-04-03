@@ -193,6 +193,7 @@ public static partial class RateLimiterPolicies
             RecaptchaEndpoint,
             AddPhonePage,
             MfaAddPhonePage,
-            ProfilePage
+            ProfilePage,
+            VerifyPhonePage
         };
 }
