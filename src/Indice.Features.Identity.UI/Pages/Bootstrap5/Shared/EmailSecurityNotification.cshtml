@@ -32,7 +32,7 @@
     @Localizer.EmailSecurity_Body_ContactSupport<br /><br />
     <strong>@Localizer.EmailSecurity_Body_EventDetails</strong><br />
     <ul>
-        <li>@Localizer.EmailSecurity_Body_EventTime: @Model.TimeStamp.LocalDateTime.ToString("f")</li>
+        <li>@Localizer.EmailSecurity_Body_EventTime: @Model.TimeStamp.ToString()</li>
         <li>@Localizer.EmailSecurity_Body_Username: @Model.UserName</li>
         <li>@Localizer.EmailSecurity_Body_Email: @Model.User?.Email</li>
         @if (Model.Device != null)
