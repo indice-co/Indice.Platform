@@ -26,7 +26,7 @@ public static class LimitUploadFilter
     /// <param name="allowUnknownExtensions">Overrides allow unknown extension option.</param>
     /// <returns>The builder.</returns>
     public static TBuilder LimitUpload<TBuilder>(
-        this TBuilder builder, long sizeLimit, string? fileExtensions = null, bool? enableMagicByteValidation = null, bool? allowUnknownExtensions = null) 
+        this TBuilder builder, long? sizeLimit = null, string? fileExtensions = null, bool? enableMagicByteValidation = null, bool? allowUnknownExtensions = null) 
         where TBuilder : IEndpointConventionBuilder {
         builder.Add(endpointBuilder => {
             var allowedExtensions = fileExtensions?
@@ -44,14 +44,15 @@ public static class LimitUploadFilter
 
                     var validateMagicBytes = enableMagicByteValidation ?? options.EnableMagicByteValidation;
                     var isUnknownExtensionAllowed = allowUnknownExtensions ?? options.AllowUnknownExtensions;
+                    var allowedSizeLimit = sizeLimit ?? options.DefaultMaxFileSizeBytes;
 
                     foreach (var file in httpContext.Request.Form.Files) {
                         var extension = Path.GetExtension(file.FileName);
                         if (allowedExtensions is not null && !allowedExtensions.Contains(extension)) {
                             errors.AddError(file.FileName, $"File with extension {Path.GetExtension(file.FileName)} is not permitted. Allowed file extensions are {string.Join(", ", allowedExtensions)}");
                         }
-                        if (file.Length > sizeLimit) {
-                            errors.AddError(file.FileName, $"File size cannot exceed {sizeLimit.ToFileSize()}.");
+                        if (file.Length > allowedSizeLimit) {
+                            errors.AddError(file.FileName, $"File size cannot exceed {allowedSizeLimit.ToFileSize()}.");
                         }
                         if (validateMagicBytes && magicBytesValidator is not null) {
                             await using var fileStream = file.OpenReadStream();
