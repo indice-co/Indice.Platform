@@ -14908,7 +14908,7 @@ input[type=password]::-ms-clear {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border: 0;
+    border: 0 !important;
 }
 
 .input-group .input-group-prepend button {
@@ -14940,7 +14940,8 @@ input[type=password]::-ms-clear {
 }
 
 .input-group.password-control input.form-control {
-    border: 1px solid #3f3e3e;
+    border: 1px solid var(--bs-border-color);
+    border-right: 0;
 }
 
 .input-group.password-control input.form-control:focus, .input-group.password-control input.form-control:focus-visible {
@@ -14949,7 +14950,8 @@ input[type=password]::-ms-clear {
 }
 
 .input-group.password-control .input-group-append {
-    border: 1px solid #3f3e3e;
+    border: 1px solid var(--bs-border-color);
+    border-left: 0;
     border-radius: 0 0 0 0;
     box-shadow: none;
 }
@@ -14961,7 +14963,7 @@ input[type=password]::-ms-clear {
 
 .input-group.password-control .btn-password-show {
     background: transparent;
-    border: 0;
+    border: 0 !important;
     color: #3f3e3e;
 }
 

@@ -174,7 +174,6 @@ input[type="password"]::-ms-clear {
     display: none;
 }
 
-
 .input-group {
     .input-group-prepend, .input-group-append {
         button {
@@ -185,7 +184,7 @@ input[type="password"]::-ms-clear {
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            border: 0;
+            border: 0 !important;
         }
     }
 
@@ -227,7 +226,8 @@ input[type="password"]::-ms-clear {
     }
 
     input.form-control {
-        border: 1px solid $text-color;
+        border: 1px solid var(--bs-border-color);
+        border-right: 0;
 
         &:focus, &:focus-visible {
             outline: 0 !important;
@@ -236,7 +236,8 @@ input[type="password"]::-ms-clear {
     }
 
     .input-group-append {
-        border: 1px solid $text-color;
+        border: 1px solid var(--bs-border-color);
+        border-left: 0;
         border-radius: 0 $input-border-radius $input-border-radius 0;
         box-shadow: none;
 
@@ -248,7 +249,7 @@ input[type="password"]::-ms-clear {
 
     .btn-password-show {
         background: transparent;
-        border: 0;
+        border: 0 !important;
         color: $text-color;
 
         &::before {
