@@ -28,12 +28,13 @@
 }
 
 @layer base {
-    body, html {
-    }
+
+    body,
+    html {}
 
     body {
         @apply min-h-screen flex flex-col relative m-0 bg-no-repeat bg-one bg-cover bg-top bg-[url('../img/background-image.jpg')] overflow-x-hidden;
-         font-family: "Manrope", system-ui, sans-serif;
+        font-family: "Manrope", system-ui, sans-serif;
     }
 
     main {
@@ -44,7 +45,11 @@
         @apply lg:px-32 w-full flex shrink-0 grow-0 basis-full flex-wrap lg:flex-nowrap items-center justify-center lg:justify-between h-16 bottom-0 left-0 text-white bg-one lg:bg-transparent z-40 transition-all ease-in-out lg:my-3;
     }
 
-    article, aside, header, main, section {
+    article,
+    aside,
+    header,
+    main,
+    section {
         @apply block;
     }
 
@@ -80,11 +85,11 @@
         font-size: inherit;
     }
 
-    input[type]:not([type="checkbox"]) + label {
+    input[type]:not([type="checkbox"])+label {
         @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
     }
 
-    select + label {
+    select+label {
         @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
     }
 
@@ -92,7 +97,7 @@
         @apply w-5 h-5 focus:ring-tenant-500 border-greys-400 focus:border-tenant-500 text-tenant-900 mx-2;
     }
 
-    input[type="checkbox"] + label {
+    input[type="checkbox"]+label {
         @apply text-greys-800;
     }
 
@@ -147,6 +152,96 @@
 
     ::-webkit-scrollbar-thumb:hover {
         @apply bg-tenant-900;
+    }
+
+    /// Input password icon reveal
+
+    /* Hide IE password reveal/clear */
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear {
+        @apply hidden;
+    }
+
+    .input-group-w-full {
+        @apply focus-within:shadow-none;
+
+        .input-group-prepend,
+        .input-group-append {
+            button {
+                @apply min-w-[32px] w-full h-full flex flex-col justify-center items-center !border-0;
+            }
+        }
+
+        .input-group-prepend {
+            button {
+                @apply rounded-l;
+            }
+        }
+
+        .input-group-append {
+            button {
+                @apply rounded-r-md;
+            }
+        }        
+
+        .form-control {
+            &:focus {
+                @apply border-0 shadow-none outline-none;
+            }
+        }
+
+        &.password-control {
+            @apply flex flex-row rounded-md overflow-hidden;
+            @apply focus-within:outline-none;
+
+            &:focus-within {
+                box-shadow: 0 0 0 1px var(--tenant900);
+            }
+            
+            input.form-control {
+                @apply border border-r-0 rounded-e-none my-0;
+
+                &:focus, &:focus-visible {
+                    outline: 0 !important;
+                    box-shadow: none !important;
+                }
+            }
+
+            .input-group-append {
+                @apply border border-l-0 shadow-none rounded-s-none rounded-r-md flex justify-center items-center border-greys-400;
+
+                &:focus-visible, &:focus, &:focus-within {
+                    outline: 0 !important;
+                    box-shadow: none !important;
+                }
+            }
+
+            .btn-password-show {
+                @apply bg-transparent border-0 text-inherit pr-1;
+
+                &::before {
+                    content: "";
+                    background-image: url("/img/view-on.svg");
+                    background-size: 100%;
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    width: 100%;
+                    height: 100%;
+                }
+
+                &.active {
+                    &::before {
+                        background-image: url("/img/view-off.svg");
+                    }
+                }
+
+                &:focus,
+                &:focus-visible,
+                &:focus-within {
+                    @apply outline-tenant-900 shadow-none;
+                }
+            }
+        }
     }
 }
 
