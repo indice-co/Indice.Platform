@@ -86,20 +86,20 @@
     }
 
     input[type]:not([type="checkbox"])+label {
-        @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
-    }
+            @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
+        }
 
     select+label {
-        @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
-    }
+            @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
+        }
 
     input[type="checkbox"] {
         @apply w-5 h-5 focus:ring-tenant-500 border-greys-400 focus:border-tenant-500 text-tenant-900 mx-2;
     }
 
     input[type="checkbox"]+label {
-        @apply text-greys-800;
-    }
+            @apply text-greys-800;
+        }
 
     input[type="range"] {
         @apply appearance-none bg-transparent w-full rounded-full absolute;
@@ -133,10 +133,10 @@
         appearance: textfield !important;
     }
 
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-        @apply appearance-none;
-    }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            @apply appearance-none;
+        }
 
     ::-webkit-scrollbar {
         @apply w-1 ml-5;
@@ -150,9 +150,9 @@
         @apply rounded-full bg-tenant-900;
     }
 
-    ::-webkit-scrollbar-thumb:hover {
-        @apply bg-tenant-900;
-    }
+        ::-webkit-scrollbar-thumb:hover {
+            @apply bg-tenant-900;
+        }
 
     /// Input password icon reveal
 
@@ -182,7 +182,7 @@
             button {
                 @apply rounded-r-md;
             }
-        }        
+        }
 
         .form-control {
             &:focus {
@@ -191,13 +191,13 @@
         }
 
         &.password-control {
-            @apply flex flex-row rounded-md overflow-hidden;
+            @apply flex flex-row rounded-md;
             @apply focus-within:outline-none;
 
             &:focus-within {
                 box-shadow: 0 0 0 1px var(--tenant900);
             }
-            
+
             input.form-control {
                 @apply border border-r-0 rounded-e-none my-0;
 
@@ -214,6 +214,10 @@
                     outline: 0 !important;
                     box-shadow: none !important;
                 }
+            }
+
+            label {
+                top: -5px!important;
             }
 
             .btn-password-show {
