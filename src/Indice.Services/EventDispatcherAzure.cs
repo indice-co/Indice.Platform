@@ -27,7 +27,7 @@ public class EventDispatcherAzure : IEventDispatcher
     private readonly Func<string?> _tenantIdSelector;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly ILogger<EventDispatcherAzure>? _logger;
-    private readonly ConcurrentDictionary<string, QueueClient> _queueClients;
+    private readonly ConcurrentDictionary<string, Lazy<Task<QueueClient>>> _queueClients;
 
     /// <summary>Create a new <see cref="EventDispatcherAzure"/> instance.</summary>
     /// <param name="connectionString">The connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
@@ -48,7 +48,7 @@ public class EventDispatcherAzure : IEventDispatcher
         _tenantIdSelector = tenantIdSelector ?? new Func<string?>(() => null);
         _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         _logger = logger;
-        _queueClients = new ConcurrentDictionary<string, QueueClient>();
+        _queueClients = new ConcurrentDictionary<string, Lazy<Task<QueueClient>>>();
     }
 
     /// <inheritdoc/>
@@ -100,15 +100,15 @@ public class EventDispatcherAzure : IEventDispatcher
     }
 
     private async Task<QueueClient> EnsureExistsAsync(string queueName) {
-        if (_queueClients.TryGetValue(queueName, out var existingClient)) {
-            return existingClient;
-        }
-        var queueClient = new QueueClient(_connectionString, queueName, new QueueClientOptions {
-            MessageEncoding = _queueMessageEncoding
-        });
-        await queueClient.CreateIfNotExistsAsync();
-        _queueClients.TryAdd(queueName, queueClient);
-        return queueClient;
+        var lazyClient = _queueClients.GetOrAdd(queueName, key => new Lazy<Task<QueueClient>>(async () => {
+            var queueClient = new QueueClient(_connectionString, key, new QueueClientOptions {
+                MessageEncoding = _queueMessageEncoding
+            });
+            await queueClient.CreateIfNotExistsAsync();
+            return queueClient;
+        }));
+
+        return await lazyClient.Value;
     }
 }
 
