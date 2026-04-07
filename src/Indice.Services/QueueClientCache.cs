@@ -31,6 +31,13 @@ public sealed class QueueClientCache : IQueueClientCache
             return queueClient;
         }));
 
-        return await lazyClient.Value;
+        try {
+            return await lazyClient.Value;
+        }
+        catch {
+            // Remove the faulted task from cache so the next call can retry
+            _queueClients.TryRemove(cacheKey, out _);
+            throw;
+        }
     }
 }
