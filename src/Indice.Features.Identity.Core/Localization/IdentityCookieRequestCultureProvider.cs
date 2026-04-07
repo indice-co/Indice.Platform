@@ -48,7 +48,8 @@ public class IdentityCookieRequestCultureProvider : CookieRequestCultureProvider
                 IsEssential = true, // Critical setting to apply new culture.
                 Path = "/",
                 HttpOnly = true,
-                Secure = httpContext.Request.IsHttps
+                Secure = httpContext.Request.IsHttps,
+                SameSite = SameSiteMode.Lax
             }
         );
         return true;
