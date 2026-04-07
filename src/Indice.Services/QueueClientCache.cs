@@ -17,11 +17,13 @@ public interface IQueueClientCache
 /// <inheritdoc/>
 public sealed class QueueClientCache : IQueueClientCache
 {
-    private readonly ConcurrentDictionary<string, Lazy<Task<QueueClient>>> _queueClients = new();
+    private readonly record struct QueueClientCacheKey(string ConnectionString, string QueueName, QueueMessageEncoding MessageEncoding);
+
+    private readonly ConcurrentDictionary<QueueClientCacheKey, Lazy<Task<QueueClient>>> _queueClients = new();
 
     /// <inheritdoc/>
     public async Task<QueueClient> GetOrCreateAsync(string queueName, string connectionString, QueueMessageEncoding messageEncoding) {
-        var cacheKey = $"{connectionString}::{queueName}::{messageEncoding}";
+        var cacheKey = new QueueClientCacheKey(connectionString, queueName, messageEncoding);
 
         var lazyClient = _queueClients.GetOrAdd(cacheKey, key => new Lazy<Task<QueueClient>>(async () => {
             var queueClient = new QueueClient(connectionString, queueName, new QueueClientOptions {
