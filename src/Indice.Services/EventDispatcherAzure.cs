@@ -65,7 +65,13 @@ public class EventDispatcherAzure : IEventDispatcher
         if (prependEnvironmentInQueueName) {
             queueName = $"{_environmentName}-{queueName}";
         }
-        var queue = await EnsureExistsAsync(queueName);
+        QueueClient queue;
+        try {
+            queue = await EnsureExistsAsync(queueName);
+        } catch (Exception ex) {
+            _logger?.LogError(ex, "Failed to get or create queue '{QueueName}' for event type '{EventType}'.", queueName, typeof(TEvent).Name);
+            throw;
+        }
         var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
         var payloadBytes = Array.Empty<byte>();
         // Special cases string, byte[] or stream.
@@ -102,7 +108,7 @@ public class EventDispatcherAzure : IEventDispatcher
     private async Task<QueueClient> EnsureExistsAsync(string queueName) {
         return await _queueClientCache.GetOrCreateAsync(queueName, _connectionString, _queueMessageEncoding);
     }
-    
+
 }
 
 /// <summary>Options for configuring <see cref="EventDispatcherAzure"/>.</summary>
