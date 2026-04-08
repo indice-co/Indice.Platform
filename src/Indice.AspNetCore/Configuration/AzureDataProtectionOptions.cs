@@ -25,5 +25,8 @@ public class AzureDataProtectionOptions
     /// Configures the data protection system to use the specified cryptographic algorithms by default when generating protected payloads. By default, <see cref="EncryptionAlgorithm.AES_256_GCM"/>
     /// is used for encryption and <see cref="ValidationAlgorithm.HMACSHA512"/> for validation.
     /// </summary>
-    public AuthenticatedEncryptorConfiguration CryptographicAlgorithms { get; set; } = null!;
+    public AuthenticatedEncryptorConfiguration CryptographicAlgorithms { get; set; } = new AuthenticatedEncryptorConfiguration {
+        EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
+        ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
+    };
 }

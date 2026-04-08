@@ -111,8 +111,8 @@ public static class ServiceCollectionExtensions
         container.CreateIfNotExists();
         // Enables data protection services to the specified IServiceCollection.
         var dataProtectionBuilder = services.AddDataProtection()
-                                            // Configures the data protection system to use the specified cryptographic algorithms by default when generating protected payloads.
-                                            // The algorithms selected below are the default and they are added just for completeness.
+                                            // Configures the data protection system to use the cryptographic algorithms from options.CryptographicAlgorithms
+                                            // when generating protected payloads. Default values are initialized above and may be overridden by configure.
                                             .UseCryptographicAlgorithms(options.CryptographicAlgorithms)
                                             .PersistKeysToAzureBlobStorage(options.StorageConnectionString, options.ContainerName, "keys.xml")
                                             // Configure the system to use a key lifetime. Default is 90 days.
