@@ -187,7 +187,7 @@
                 }
             </div>
             <div class="row mb-0.5">
-                <div class="input-group-w-full">
+                <div class="input-group-w-full password-control">
                     <div class="relative">
                         <div class="absolute inset-y-0 right-4 flex items-center mt-[1.8rem]" data-tooltip-target="password-tooltip">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-greys-600" viewBox="0 0 20 20">
@@ -198,8 +198,11 @@
                             @Localizer.Register_Credentials_Notice
                             <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>
+                        <div class="absolute inset-y-0 right-10 flex items-center mt-[1.8rem]">
+                            <button type="button" class="btn-password-show"></button>
+                        </div>
                     </div>
-                    <input type="password" class="peer" asp-for="Input.Password" data-sbind="event: { keyup: passwordChanged }" placeholder="@Localizer.Register_Password" autocomplete="new-password" />
+                    <input type="password" class="form-control peer" asp-for="Input.Password" data-sbind="event: { keyup: passwordChanged }" placeholder="@Localizer.Register_Password" autocomplete="new-password" />
                     <label asp-for="Input.Password" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.Register_Password</label>
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
@@ -285,6 +288,7 @@
     <script type="text/javascript" src="~/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/utilities.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/password-rules.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/reveal-password.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/zone-info-select.js" csp-nonce="true" data-id="@Html.IdFor(x => x.Input.ZoneInfo)"></script>
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {

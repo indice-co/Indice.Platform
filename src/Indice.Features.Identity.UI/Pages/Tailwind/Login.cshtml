@@ -28,21 +28,16 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="input-group-w-full">
-                        <input type="password" class="peer" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
-                        <label asp-for="Input.Password" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.Login_Password</label>
+                    <div class="input-group-w-full password-control">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 right-4 flex items-center mt-[1.8rem]">
+                                <button type="button" class="btn-password-show"></button>
+                            </div>
+                        </div>
+                        <input class="form-control peer" type="password" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
+                        <label asp-for="Input.Password" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.Login_Password</label>                        
                         <span asp-validation-for="Input.Password" class="text-danger"></span>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="input-group-w-full password-control">
-                        <input class="form-control peer" type="password" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
-                        <label asp-for="Input.Password" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.Login_Password</label>
-                        <div class="input-group-append">
-                            <button type="button" class="btn-password-show"></button>
-                        </div>
-                    </div>
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
                 <div class="flex flex-wrap justify-center md:justify-between items-center flex-row w-full">
                     @if (Model.UiOptions.AllowRememberLogin)
