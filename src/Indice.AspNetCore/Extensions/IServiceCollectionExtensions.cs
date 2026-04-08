@@ -96,6 +96,10 @@ public static class ServiceCollectionExtensions
             ContainerName = environmentName,
             ApplicationName = hostingEnvironment.ApplicationName,
             KeyLifetime = defaultKeyLifetime,
+            CryptographicAlgorithms = new AuthenticatedEncryptorConfiguration {
+                EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
+                ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
+            },
             Services = services
         };
         configure?.Invoke(options);
@@ -109,10 +113,7 @@ public static class ServiceCollectionExtensions
         var dataProtectionBuilder = services.AddDataProtection()
                                             // Configures the data protection system to use the specified cryptographic algorithms by default when generating protected payloads.
                                             // The algorithms selected below are the default and they are added just for completeness.
-                                            .UseCryptographicAlgorithms(new AuthenticatedEncryptorConfiguration {
-                                                EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
-                                                ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
-                                            })
+                                            .UseCryptographicAlgorithms(options.CryptographicAlgorithms)
                                             .PersistKeysToAzureBlobStorage(options.StorageConnectionString, options.ContainerName, "keys.xml")
                                             // Configure the system to use a key lifetime. Default is 90 days.
                                             .SetDefaultKeyLifetime(TimeSpan.FromDays(options.KeyLifetime))
