@@ -1,10 +1,11 @@
 ﻿using Indice.AspNetCore.Configuration;
+using Indice.AspNetCore.Features.MultiRateLimiter;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.RateLimiting;
 
-namespace Indice.AspNetCore.Features.MultiRateLimiter;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// Middleware that enforces multiple rate limiting policies on endpoints.
