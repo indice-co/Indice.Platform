@@ -9,15 +9,15 @@
 
   <ItemGroup>
     <PackageReference Include="Duende.AccessTokenManagement" Version="4.1.2" />
-    <PackageReference Include="Elsa" Version="2.16.0" />
-    <PackageReference Include="Elsa.Activities.Email" Version="2.16.0" />
-    <PackageReference Include="Elsa.Activities.Http" Version="2.16.0" />
-    <PackageReference Include="Elsa.Activities.Temporal.Quartz" Version="2.16.0" />
-    <PackageReference Include="Elsa.Activities.UserTask" Version="2.16.0" />
-    <PackageReference Include="Elsa.Designer.Components.Web" Version="2.16.0" />
-    <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.16.0" />
-    <PackageReference Include="Elsa.Retention" Version="2.16.0" />
-    <PackageReference Include="Elsa.Server.Api" Version="2.16.0" />
+    <PackageReference Include="Elsa" Version="2.16.1" />
+    <PackageReference Include="Elsa.Activities.Email" Version="2.16.1" />
+    <PackageReference Include="Elsa.Activities.Http" Version="2.16.1" />
+    <PackageReference Include="Elsa.Activities.Temporal.Quartz" Version="2.16.1" />
+    <PackageReference Include="Elsa.Activities.UserTask" Version="2.16.1" />
+    <PackageReference Include="Elsa.Designer.Components.Web" Version="2.16.1" />
+    <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.16.1" />
+    <PackageReference Include="Elsa.Retention" Version="2.16.1" />
+    <PackageReference Include="Elsa.Server.Api" Version="2.16.1" />
     <PackageReference Include="JsonSchema.Net" Version="8.0.5" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)-*" />
   </ItemGroup>
