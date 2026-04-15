@@ -1,4 +1,4 @@
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, take, filter } from 'rxjs/operators';
 import { AuthService } from '@indice/ng-auth';
 import { IAppLinks, NavLink } from '@indice/ng-components';
 import { Observable, of, ReplaySubject } from 'rxjs';
@@ -18,38 +18,36 @@ export class AppLinks implements IAppLinks {
         private authService: AuthService,
         private _caseTypeService: CaseTypeService
     ) {
+        this._main.next(this.headerMenu);
         this.authService.user$.pipe(
-            switchMap(user => {
-                if (user) {
-                    return this._caseTypeService.getCaseTypeMenuItems().pipe(
-                        map(caseTypeMenuItems => {
-                            for (const item of caseTypeMenuItems) {
-                                if (item.title) {
-                                    const queryParams: Params = {
-                                        view: 'table',
-                                        page: '1',
-                                        pagesize: '20',
-                                        search: '',
-                                        sort: 'createdByWhen',
-                                        dir: 'desc',
-                                        filter: `caseTypeCodes::eq::${item.code}`
-                                    };
-                                    this.headerMenu.push(new NavLink(item.title, `/case/by-type/${item.code}`, true, undefined, Icons.MenuItem, undefined, queryParams));
-                                }
-                            }
-                            if (this.authService.isAdmin()) {
-                                this.headerMenu.push(new NavLink('Διαχείριση Υποθέσεων', '/case-types', true, undefined, Icons.CaseTypes));
-                            }
-                            if (this.authService.isAdmin() || this.authService.hasRole('CasesManager') || this.authService.hasRole('CasesAdministrator')) {
-                                this.headerMenu.push(new NavLink('Ειδοποιήσεις', '/notifications', true, undefined, Icons.Notifications));
-                            }
+            filter(user => !!user),
+            take(1),
+            switchMap(() => this._caseTypeService.getCaseTypeMenuItems().pipe(
+                map(caseTypeMenuItems => {
+                    for (const item of caseTypeMenuItems) {
+                        if (item.title) {
+                            const queryParams: Params = {
+                                view: 'table',
+                                page: '1',
+                                pagesize: '20',
+                                search: '',
+                                sort: 'createdByWhen',
+                                dir: 'desc',
+                                filter: `caseTypeCodes::eq::${item.code}`
+                            };
+                            this.headerMenu.push(new NavLink(item.title, `/case/by-type/${item.code}`, true, undefined, Icons.MenuItem, undefined, queryParams));
+                        }
+                    }
+                    if (this.authService.isAdmin()) {
+                        this.headerMenu.push(new NavLink('Διαχείριση Υποθέσεων', '/case-types', true, undefined, Icons.CaseTypes));
+                    }
+                    if (this.authService.isAdmin() || this.authService.hasRole('CasesManager') || this.authService.hasRole('CasesAdministrator')) {
+                        this.headerMenu.push(new NavLink('Ειδοποιήσεις', '/notifications', true, undefined, Icons.Notifications));
+                    }
 
-                            return this.headerMenu;
-                        })
-                    );
-                }
-                return of(this.headerMenu);
-            })
+                    return this.headerMenu;
+                })
+            ))
         ).subscribe(navLinks => this._main.next(navLinks));
     }
 
