@@ -71,23 +71,33 @@ public static class EnumTransformer
         var isString = schema.Enum?.FirstOrDefault()?.ToJsonString().StartsWith('"') ??
                        schema.Type?.HasFlag(JsonSchemaType.String) ?? 
                        context.JsonTypeInfo.Options.Converters.OfType<JsonStringEnumConverter>().Any();
+        var underlyingType = Enum.GetUnderlyingType(enumType);
+        var isLong = underlyingType.Name.ToLowerInvariant().Equals("int64");
         if (!schema.Type.HasValue) {
             schema.Type = isString ? JsonSchemaType.String : JsonSchemaType.Integer;
         }
-        
+        if (!isString && isLong) {
+            schema.Format = "int64";
+            isLong = true;
+        }
+
         schema.Format = null;
         var fields = enumType.GetFields(BindingFlags.Public | BindingFlags.Static).ToDictionary(x => x.Name, x => new {
             Name = x.GetCustomAttribute<JsonStringEnumMemberNameAttribute>()?.Name ?? x.GetCustomAttribute<EnumMemberAttribute>()?.Value ?? x.Name,
             x.GetCustomAttribute<DescriptionAttribute>()?.Description
         });
         var enumNames = Enum.GetNames(enumType);
-        var enumValues = Enum.GetValuesAsUnderlyingType(enumType).Cast<object>().Select(Convert.ToInt32).ToArray();
+        var enumValues = isLong ? Enum.GetValuesAsUnderlyingType(enumType)! : Enum.GetValuesAsUnderlyingType(enumType).Cast<object>().Select(Convert.ToInt32).ToArray()!;
         var openApiValueArray = new List<JsonNode>();
         var openApiNameArray = new List<JsonNode>();
         var openApiDescArray = new List<JsonNode>();
         bool writeDescriptions = false;
         for (int i = 0; i < enumValues.Length; i++) {
-            openApiValueArray.Add(isString ? (JsonNode)fields[enumNames[i]].Name! : (JsonNode)enumValues[i]);
+
+
+            openApiValueArray.Add(isString ? (JsonNode)fields[enumNames[i]].Name! :
+                                  isLong ? (JsonNode)((long[])enumValues)[i] :
+                                           (JsonNode)((int[])enumValues)[i]);
             openApiNameArray.Add(enumNames[i]);
             openApiDescArray.Add(fields[enumNames[i]].Description!);
             writeDescriptions |= !string.IsNullOrWhiteSpace(fields[enumNames[i]].Description);

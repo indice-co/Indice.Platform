@@ -84,21 +84,27 @@ public static class EnumTransformer
             return false;
         }
         var isString = context.JsonTypeInfo.Options.Converters.OfType<JsonStringEnumConverter>().Any();
-
+        var underlyingType = Enum.GetUnderlyingType(enumType);
+        var isLong = underlyingType.Name.ToLowerInvariant().Equals("int64");
         schema.Type = isString ? "string" : "integer";
         schema.Format = null;
+        if (!isString && isLong) { 
+            schema.Format = "int64";
+        }
         var fields = enumType.GetFields(BindingFlags.Public | BindingFlags.Static).ToDictionary(x => x.Name, x => new {
             Name = x.GetCustomAttribute<JsonStringEnumMemberNameAttribute>()?.Name ?? x.GetCustomAttribute<EnumMemberAttribute>()?.Value ?? x.Name,
             x.GetCustomAttribute<DescriptionAttribute>()?.Description
         });
         var enumNames = Enum.GetNames(enumType);
-        var enumValues = Enum.GetValuesAsUnderlyingType(enumType).Cast<object>().Select(Convert.ToInt32).ToArray();
+        var enumValues = isLong ? Enum.GetValuesAsUnderlyingType(enumType)! : Enum.GetValuesAsUnderlyingType(enumType).Cast<object>().Select(Convert.ToInt32).ToArray()!;
         var openApiValueArray = new OpenApiArray();
         var openApiNameArray = new OpenApiArray();
         var openApiDescArray = new OpenApiArray();
         bool writeDescriptions = false;
         for (int i = 0; i < enumValues.Length; i++) {
-            openApiValueArray.Add(isString ? new OpenApiString(fields[enumNames[i]].Name) : new OpenApiInteger(enumValues[i]));
+            openApiValueArray.Add(isString ? new OpenApiString(fields[enumNames[i]].Name) :
+                                  isLong ? new OpenApiLong(((long[])enumValues)[i]) : 
+                                           new OpenApiInteger(((int[])enumValues)[i]));
             openApiNameArray.Add(new OpenApiString(enumNames[i]));
             openApiDescArray.Add(new OpenApiString(fields[enumNames[i]].Description));
             writeDescriptions |= !string.IsNullOrWhiteSpace(fields[enumNames[i]].Description);
