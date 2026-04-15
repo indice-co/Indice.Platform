@@ -9,27 +9,29 @@ type Dictionary = {
 })
 export class FilterCachingService {
   private filterParams: Dictionary = Object.create(null);
-  private readonly keyPrefix = '$';
   constructor() { }
 
   /**
    * Stores params.
    */
   setParams(key: string, filterParams: object) {
-    this.filterParams[this.keyPrefix + key] = filterParams;
+    let internalKey = '$' + key;
+    this.filterParams[internalKey] = filterParams;
   }
 
   /**
    * Gets Stored params.
    */
   getParams(key: string): object | undefined {
-    return this.filterParams[this.keyPrefix + key];
+    let internalKey = '$' + key;
+    return this.filterParams[internalKey];
   }
 
   /**
    * Clears Stored params.
    */
   resetParams(key: string) {
-    delete this.filterParams[this.keyPrefix + key];
+    let internalKey = '$' + key;
+    delete this.filterParams[internalKey];
   }
 }
