@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 
 type Dictionary = {
-    [key: string]: object;
+    [key: string]: object | undefined;
 };
 
 @Injectable({
   providedIn: 'root'
 })
 export class FilterCachingService {
-  private filterParams: Dictionary = {};
+  private filterParams: Dictionary = Object.create(null);
   private readonly keyPrefix = '$';
   constructor() { }
 
@@ -16,13 +16,13 @@ export class FilterCachingService {
    * Stores params.
    */
   setParams(key: string, filterParams: object) {
-      this.filterParams[this.keyPrefix + key] = filterParams;
+    this.filterParams[this.keyPrefix + key] = filterParams;
   }
 
   /**
    * Gets Stored params.
    */
-  getParams(key: string): object {
+  getParams(key: string): object | undefined {
     return this.filterParams[this.keyPrefix + key];
   }
 
