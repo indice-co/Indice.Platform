@@ -1,4 +1,4 @@
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, take, filter } from 'rxjs/operators';
 import { AuthService } from '@indice/ng-auth';
 import { IAppLinks, NavLink } from '@indice/ng-components';
 import { Observable, of, ReplaySubject } from 'rxjs';
@@ -19,6 +19,8 @@ export class AppLinks implements IAppLinks {
         private _caseTypeService: CaseTypeService
     ) {
         this.authService.user$.pipe(
+            filter(user => !!user),
+            take(1),
             switchMap(user => {
                 if (user) {
                     return this._caseTypeService.getCaseTypeMenuItems().pipe(
@@ -48,6 +50,7 @@ export class AppLinks implements IAppLinks {
                         })
                     );
                 }
+                
                 return of(this.headerMenu);
             })
         ).subscribe(navLinks => this._main.next(navLinks));
