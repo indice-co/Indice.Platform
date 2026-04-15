@@ -18,6 +18,7 @@ export class AppLinks implements IAppLinks {
         private authService: AuthService,
         private _caseTypeService: CaseTypeService
     ) {
+        this._main.next(this.headerMenu);
         this.authService.user$.pipe(
             filter(user => !!user),
             take(1),
@@ -50,7 +51,6 @@ export class AppLinks implements IAppLinks {
                         })
                     );
                 }
-                
                 return of(this.headerMenu);
             })
         ).subscribe(navLinks => this._main.next(navLinks));
