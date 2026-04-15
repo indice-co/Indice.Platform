@@ -26,6 +26,7 @@ public class EventDispatcherAzure : IEventDispatcher
     private readonly Func<string?> _tenantIdSelector;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly ILogger<EventDispatcherAzure>? _logger;
+    private readonly IQueueClientCache _queueClientCache;  // instead of ConcurrentDictionary
 
     /// <summary>Create a new <see cref="EventDispatcherAzure"/> instance.</summary>
     /// <param name="connectionString">The connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
@@ -35,8 +36,9 @@ public class EventDispatcherAzure : IEventDispatcher
     /// <param name="queueMessageEncoding">Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</param>
     /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
     /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
-    /// <param name="logger">Logger instance for logging warnings and errors.</param>
-    public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal?>? claimsPrincipalSelector, Func<string>? tenantIdSelector, ILogger<EventDispatcherAzure>? logger = null) {
+    /// <param name="queueClientCache">Cache for QueueClient instances to avoid repeated instantiation.</param> 
+    /// <param name="logger">Logger instance for logging warnings and errors.</param>   
+    public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal?>? claimsPrincipalSelector, Func<string>? tenantIdSelector, IQueueClientCache queueClientCache, ILogger<EventDispatcherAzure>? logger = null) {
         _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         _enabled = enabled;
@@ -45,6 +47,7 @@ public class EventDispatcherAzure : IEventDispatcher
         _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
         _tenantIdSelector = tenantIdSelector ?? new Func<string?>(() => null);
         _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        _queueClientCache = queueClientCache ?? throw new ArgumentNullException(nameof(queueClientCache));
         _logger = logger;
     }
 
@@ -62,7 +65,13 @@ public class EventDispatcherAzure : IEventDispatcher
         if (prependEnvironmentInQueueName) {
             queueName = $"{_environmentName}-{queueName}";
         }
-        var queue = await EnsureExistsAsync(queueName);
+        QueueClient queue;
+        try {
+            queue = await EnsureExistsAsync(queueName);
+        } catch (Exception ex) {
+            _logger?.LogError(ex, "Failed to get or create queue '{QueueName}' for event type '{EventType}'.", queueName, typeof(TEvent).Name);
+            throw;
+        }
         var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
         var payloadBytes = Array.Empty<byte>();
         // Special cases string, byte[] or stream.
@@ -97,12 +106,9 @@ public class EventDispatcherAzure : IEventDispatcher
     }
 
     private async Task<QueueClient> EnsureExistsAsync(string queueName) {
-        var queueClient = new QueueClient(_connectionString, queueName, new QueueClientOptions {
-            MessageEncoding = _queueMessageEncoding
-        });
-        await queueClient.CreateIfNotExistsAsync();
-        return queueClient;
+        return await _queueClientCache.GetOrCreateAsync(queueName, _connectionString, _queueMessageEncoding);
     }
+
 }
 
 /// <summary>Options for configuring <see cref="EventDispatcherAzure"/>.</summary>

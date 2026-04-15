@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using Azure.Storage.Queues;
+using Moq;
 using Xunit;
 
 namespace Indice.Services.Tests;
@@ -11,7 +12,16 @@ public class EventDispatcherAzureTests
     private const string CONNECTION_STRING = "UseDevelopmentStorage=true;";
 
     public EventDispatcherAzureTests() {
-        EventDispatcher = new EventDispatcherAzure(CONNECTION_STRING, "Development", enabled: true, useCompression: true, QueueMessageEncoding.Base64, () => ClaimsPrincipal.Current!, null);
+        var mockCache = new Mock<IQueueClientCache>();
+        mockCache.Setup(x => x.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<QueueMessageEncoding>()))
+                 .ReturnsAsync((string queueName, string connectionString, QueueMessageEncoding encoding) => {
+                     var queueClient = new QueueClient(connectionString, queueName, new QueueClientOptions {
+                         MessageEncoding = encoding
+                     });
+                     queueClient.CreateIfNotExists();
+                     return queueClient;
+                 });
+        EventDispatcher = new EventDispatcherAzure(CONNECTION_STRING, "Development", enabled: true, useCompression: true, QueueMessageEncoding.Base64, () => ClaimsPrincipal.Current!, null, mockCache.Object);
     }
 
     public EventDispatcherAzure EventDispatcher { get; set; }

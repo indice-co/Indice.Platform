@@ -165,3 +165,14 @@ input {
         }
     }
 }
+
+input,
+textarea,
+select {
+    &.form-control {
+        &[readonly] {
+            background-color: var(--bs-gray-200);
+            cursor: not-allowed;
+        }
+    }
+}
