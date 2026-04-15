@@ -72,16 +72,14 @@ public static class EnumTransformer
                        schema.Type?.HasFlag(JsonSchemaType.String) ?? 
                        context.JsonTypeInfo.Options.Converters.OfType<JsonStringEnumConverter>().Any();
         var underlyingType = Enum.GetUnderlyingType(enumType);
-        var isLong = underlyingType.Name.ToLowerInvariant().Equals("int64");
+        var isLong = underlyingType == typeof(long);
         if (!schema.Type.HasValue) {
             schema.Type = isString ? JsonSchemaType.String : JsonSchemaType.Integer;
         }
+        schema.Format = null;
         if (!isString && isLong) {
             schema.Format = "int64";
-            isLong = true;
         }
-
-        schema.Format = null;
         var fields = enumType.GetFields(BindingFlags.Public | BindingFlags.Static).ToDictionary(x => x.Name, x => new {
             Name = x.GetCustomAttribute<JsonStringEnumMemberNameAttribute>()?.Name ?? x.GetCustomAttribute<EnumMemberAttribute>()?.Value ?? x.Name,
             x.GetCustomAttribute<DescriptionAttribute>()?.Description

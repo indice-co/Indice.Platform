@@ -85,7 +85,7 @@ public static class EnumTransformer
         }
         var isString = context.JsonTypeInfo.Options.Converters.OfType<JsonStringEnumConverter>().Any();
         var underlyingType = Enum.GetUnderlyingType(enumType);
-        var isLong = underlyingType.Name.ToLowerInvariant().Equals("int64");
+        var isLong = underlyingType == typeof(long);
         schema.Type = isString ? "string" : "integer";
         schema.Format = null;
         if (!isString && isLong) { 
