@@ -65,8 +65,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task PatchCaseData(UserActor user, Guid caseId, JsonNode patch, bool patchPublicData) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var caseData = (await GetCaseById(caseId, patchPublicData, false)).DataAsJsonNode();
-
+        var @case = await GetCaseById(caseId, patchPublicData, false) ?? throw new ArgumentNullException(nameof(caseId), @"Case does not exist.");
+        if (@case is null) {
+            throw new ArgumentNullException(nameof(caseId), @"Case does not exist.");
+        }
+        var caseData = @case.DataAsJsonNode();
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = caseData.Merge(patch) });
     }
 
@@ -78,7 +81,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task PatchCaseData(UserActor user, Guid caseId, JsonPatch operations, bool patchPublicData) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var caseData = (await GetCaseById(caseId, patchPublicData, false)).DataAsJsonNode();
+        var @case = await GetCaseById(caseId, patchPublicData, false) ?? throw new ArgumentNullException(nameof(caseId), @"Case does not exist.");
+        var caseData = @case.DataAsJsonNode();
 
         var patchResult = operations.Apply(caseData);
         if (!patchResult.IsSuccess) {
@@ -446,13 +450,16 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return result;
     }
 
-    public async Task<Case> GetCaseById(Guid caseId, bool fetchPublicData, bool? includeAttachmentData = null) {
+    public async Task<Case?> GetCaseById(Guid caseId, bool fetchPublicData, bool? includeAttachmentData = null) {
         var query =
             from c in GetCasesInternal(fetchPublicData, includeAttachmentData ?? false, SchemaKey)
             where c.Id == caseId
             select c;
 
         var @case = await query.FirstOrDefaultAsync();
+        if (@case == null) {
+            return null;
+        }
         @case!.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         @case.CheckpointType = @case.CheckpointType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;
@@ -523,8 +530,12 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<CaseAttachment?> GetAttachmentByField(UserActor user, Guid caseId, string fieldName) {
-        var json = (await GetCaseById(caseId, false, false)).DataAsJsonNode();
+        var @case = await GetCaseById(caseId, false, false);
+        if (@case is null) return null;
+
+        var json = @case.DataAsJsonNode();
         if (json is null) return null;
+
         var attachmentId = json[fieldName]?.GetValue<Guid?>();
         if (attachmentId.HasValue) {
             var attachment = await GetAttachment(caseId, attachmentId.Value);
@@ -637,6 +648,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<List<CasePartial>> GetRelatedCases(UserActor user, Guid caseId) {
         // Check that user role can view this case
         var @case = await GetCaseById(caseId, false, false);
+        if (@case is null) {
+            return [];
+        }
+
         var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {
             Filter = new GetCasesListFilter {
                 Metadata = [new FilterClause("metadata.ExternalCorrelationKey", @case.Metadata!["ExternalCorrelationKey"], FilterOperator.Eq, JsonDataType.String)]
