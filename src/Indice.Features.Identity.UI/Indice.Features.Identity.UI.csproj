@@ -64,5 +64,6 @@
     <Exec Command="npm run build" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Vite build failed. Run 'npm run build' in src/Indice.Features.Identity.UI and fix the reported errors before building the project." />
   </Target>
 </Project>

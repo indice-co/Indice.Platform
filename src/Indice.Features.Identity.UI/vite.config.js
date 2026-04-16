@@ -3,10 +3,6 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { globSync } from 'glob';
-import postcssNested from 'postcss-nested';
-import postcssSimpleVars from 'postcss-simple-vars';
-import postcssMixins from 'postcss-mixins';
-import precss from 'precss';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 
@@ -27,11 +23,13 @@ scssFiles.forEach(file => {
 console.log('SCSS entry points:', scssInputs);
 export default defineConfig({
     root: './',
+    base: './',
     publicDir: false,
     build: {
         outDir: './wwwroot',
         emptyOutDir: false,
         manifest: false,
+        assetsInlineLimit: 0,
         rollupOptions: {
             input: scssInputs,
 
