@@ -70,7 +70,7 @@ public interface IAdminCaseService
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="fetchPublicData">Fetch the public data of case.</param>
     /// <param name="includeAttachmentData">Include the attachment data with the response.</param>
-    /// <returns>A <see cref="Task{Case}"/> representing the asynchronous operation</returns>
+    /// <returns>A <see cref="Task{Case}"/> representing the asynchronous operation. The task result is <see langword="null"/> when no matching case is found.</returns>
     Task<Case?> GetCaseById(Guid caseId, bool fetchPublicData, bool? includeAttachmentData = null);
 
     /// <summary>Performs a physical delete for a draft case.</summary>

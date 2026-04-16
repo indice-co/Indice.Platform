@@ -66,9 +66,6 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var @case = await GetCaseById(caseId, patchPublicData, false) ?? throw new ArgumentNullException(nameof(caseId), @"Case does not exist.");
-        if (@case is null) {
-            throw new ArgumentNullException(nameof(caseId), @"Case does not exist.");
-        }
         var caseData = @case.DataAsJsonNode();
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = caseData.Merge(patch) });
     }
@@ -460,7 +457,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (@case == null) {
             return null;
         }
-        @case!.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+        @case.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         @case.CheckpointType = @case.CheckpointType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;
     }
