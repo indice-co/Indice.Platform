@@ -88,13 +88,14 @@ public class MessagingDatabaseCleanUpService : IMessagingDatabaseCleanUpService
                 await DbContext.DistributionLists.Where(x => x.CreatedBy!.ToLower().Trim() == "system" && deletionCampaignData.Select(c => c.DistributionListId).Contains(x.Id)).ExecuteDeleteAsync();
                 await DbContext.MessageEvents.Where(x => deletionCampaignData.Select(c => c.Id).Contains(x.CampaignId)).ExecuteDeleteAsync();
                 await transaction.CommitAsync();
-            } catch (Exception ex) {
+            } 
+            catch (Exception ex) {
                 _logger.LogError(ex, "Error occurred while deleting campaign batch.");
                 await transaction.RollbackAsync();
                 throw;
             }
         }
-        var attachmentIds = deletionCampaignData.Select(x => x.AttachmentId);
+        var attachmentIds = deletionCampaignData.Where(x => x.AttachmentId is not null).Select(x => x.AttachmentId!.Value).ToList();
         await DeleteAttachmentsAndFiles(attachmentIds);
     }
 
@@ -103,14 +104,18 @@ public class MessagingDatabaseCleanUpService : IMessagingDatabaseCleanUpService
     /// </summary>
     /// <param name="attachmentIds"></param>
     /// <returns></returns>
-    private async Task DeleteAttachmentsAndFiles(IEnumerable<Guid?> attachmentIds) {
+    private async Task DeleteAttachmentsAndFiles(List<Guid> attachmentIds) {
+        if (!attachmentIds.Any()) {
+            return;
+        }
         var dbAttachments = await DbContext.Attachments.Where(x => attachmentIds.Contains(x.Id)).ToListAsync();
         if (dbAttachments.Any()) {
             foreach (var dbAttachment in dbAttachments) {
                 var path = dbAttachment.GetPath();
                 try {
                     await FileService.DeleteAsync(path);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     _logger.LogError(ex, "Error occurred while deleting attachment file at path: {Path}", path);
                 }
             }
