@@ -95,7 +95,7 @@ public class MessagingDatabaseCleanUpService : IMessagingDatabaseCleanUpService
             }
         }
         var attachmentIds = deletionCampaignData.Select(x => x.AttachmentId);
-        await DeleteAttachments(attachmentIds);
+        await DeleteAttachmentsAndFiles(attachmentIds);
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ public class MessagingDatabaseCleanUpService : IMessagingDatabaseCleanUpService
     /// </summary>
     /// <param name="attachmentIds"></param>
     /// <returns></returns>
-    private async Task DeleteAttachments(IEnumerable<Guid?> attachmentIds) {
+    private async Task DeleteAttachmentsAndFiles(IEnumerable<Guid?> attachmentIds) {
         var dbAttachments = await DbContext.Attachments.Where(x => attachmentIds.Contains(x.Id)).ToListAsync();
         if (dbAttachments.Any()) {
             foreach (var dbAttachment in dbAttachments) {

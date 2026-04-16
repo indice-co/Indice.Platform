@@ -43,6 +43,14 @@ public static class HostBuilderExtensions
         builder.Services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
             messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
         });
+
+        builder.Services.Configure<MessagingDatabaseCleanUpOptions>(dbCleanUpOptions =>  {
+            dbCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
+            dbCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
+            dbCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
+            dbCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
+        });
+
         builder.Services.AddHostedService<StartupSeedHostedService>();
         builder.Services.TryAddSingleton(options.FunctionDisablePredicate);
         builder.Services.AddDecorator<IFunctionMetadataProvider, ExtendedFunctionMetadataProvider>();
