@@ -73,6 +73,6 @@ public class SpaUIMiddleware<TOptions> where TOptions : SpaUIOptions, new()
     private void GenerateAntiforgeryCookie(HttpContext httpContext) {
         var antiforgery = httpContext.RequestServices.GetRequiredService<IAntiforgery>();
         var tokenSet = antiforgery.GetAndStoreTokens(httpContext);
-        httpContext.Response.Cookies.Append("XSRF-TOKEN", tokenSet.RequestToken!, new CookieOptions { HttpOnly = false });
+        httpContext.Response.Cookies.Append("XSRF-TOKEN", tokenSet.RequestToken!, new CookieOptions { HttpOnly = false, Secure = httpContext.Request.IsHttps });
     }
 }
