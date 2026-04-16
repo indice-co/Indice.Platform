@@ -287,4 +287,36 @@ public class IdentityMessageDescriber
     /// <summary>Gets the field name used for validating the "Code" input in the Verify Phone UI.</summary>
     public virtual string UI_Validator_VerifyPhone_Code_FieldName => IdentityResources.UI_Validator_VerifyPhone_Code_FieldName;
     #endregion
+
+    #region Authentication Methods
+    /// <summary>Display name for SMS authentication method.</summary>
+    public virtual string AuthMethod_Sms_DisplayName => string.Format(IdentityResources.Culture, IdentityResources.AuthMethod_Sms_DisplayName);
+    /// <summary>Description for SMS authentication method.</summary>
+    public virtual string AuthMethod_Sms_Description => string.Format(IdentityResources.Culture, IdentityResources.AuthMethod_Sms_Description);
+
+    /// <summary>Display name for Email authentication method.</summary>
+    public virtual string AuthMethod_Email_DisplayName => string.Format(IdentityResources.Culture, IdentityResources.AuthMethod_Email_DisplayName);
+    /// <summary>Description for Email authentication method.</summary>
+    public virtual string AuthMethod_Email_Description => string.Format(IdentityResources.Culture, IdentityResources.AuthMethod_Email_Description);
+
+    /// <summary>Display name for Authenticator App authentication method.</summary>
+    public virtual string AuthMethod_AuthenticatorApp_DisplayName => string.Format(IdentityResources.Culture, IdentityResources.AuthMethod_AuthenticatorApp_DisplayName);
+    /// <summary>Description for Authenticator App authentication method.</summary>
+    public virtual string AuthMethod_AuthenticatorApp_Description => string.Format(IdentityResources.Culture, IdentityResources.AuthMethod_AuthenticatorApp_Description);
+
+    /// <summary>Display name for FIDO2 authentication method.</summary>
+    public virtual string AuthMethod_Fido2_DisplayName => string.Format(IdentityResources.Culture, IdentityResources.AuthMethod_Fido2_DisplayName);
+    /// <summary>Description for FIDO2 authentication method.</summary>
+    public virtual string AuthMethod_Fido2_Description => string.Format(IdentityResources.Culture, IdentityResources.AuthMethod_Fido2_Description);
+
+    /// <summary>Display name for Viber authentication method.</summary>
+    public virtual string AuthMethod_Viber_DisplayName => string.Format(IdentityResources.Culture, IdentityResources.AuthMethod_Viber_DisplayName);
+    /// <summary>Description for Viber authentication method.</summary>
+    public virtual string AuthMethod_Viber_Description => string.Format(IdentityResources.Culture, IdentityResources.AuthMethod_Viber_Description);
+
+    /// <summary>Display name for Trusted Device authentication method.</summary>
+    public virtual string AuthMethod_TrustedDevice_DisplayName => string.Format(IdentityResources.Culture, IdentityResources.AuthMethod_TrustedDevice_DisplayName);
+    /// <summary>Description for Trusted Device authentication method.</summary>
+    public virtual string AuthMethod_TrustedDevice_Description => string.Format(IdentityResources.Culture, IdentityResources.AuthMethod_TrustedDevice_Description);
+    #endregion
 }

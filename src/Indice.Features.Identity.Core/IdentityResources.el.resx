@@ -441,4 +441,40 @@
   <data name="MfaEmailSubject" xml:space="preserve">
     <value>Είσοδος με OTP</value>
   </data>
+  <data name="AuthMethod_Sms_DisplayName" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="AuthMethod_Sms_Description" xml:space="preserve">
+    <value>Οι χρήστες θα λάβουν ένα μήνυμα κειμένου που περιέχει έναν κωδικό επαλήθευσης.</value>
+  </data>
+  <data name="AuthMethod_Email_DisplayName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="AuthMethod_Email_Description" xml:space="preserve">
+    <value>Οι χρήστες θα λάβουν έναν κωδικό TOTP στη διεύθυνση email τους που έχει επιβεβαιωθεί.</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_DisplayName" xml:space="preserve">
+    <value>Εφαρμογή ταυτοποίησης (συνιστάται)</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_Description" xml:space="preserve">
+    <value>Χρησιμοποιήστε μια εφαρμογή ταυτοποίησης για τη δημιουργία κωδικών επαλήθευσης.</value>
+  </data>
+  <data name="AuthMethod_Fido2_DisplayName" xml:space="preserve">
+    <value>FIDO2</value>
+  </data>
+  <data name="AuthMethod_Fido2_Description" xml:space="preserve">
+    <value>Χρησιμοποιήστε ένα κλειδί ασφαλείας υλικού για έλεγχο ταυτότητας.</value>
+  </data>
+  <data name="AuthMethod_Viber_DisplayName" xml:space="preserve">
+    <value>Viber</value>
+  </data>
+  <data name="AuthMethod_Viber_Description" xml:space="preserve">
+    <value>Οι χρήστες θα λάβουν ένα μήνυμα Viber που περιέχει έναν κωδικό επαλήθευσης.</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_DisplayName" xml:space="preserve">
+    <value>Ειδοποίηση push</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
+    <value>Λήψη ειδοποίησης push μέσω εμπιστευμένης συσκευής.</value>
+  </data>
 </root>

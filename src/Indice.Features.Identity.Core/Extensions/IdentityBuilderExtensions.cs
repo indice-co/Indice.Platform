@@ -178,13 +178,31 @@ public static class IdentityBuilderExtensions
     /// <param name="authenticationMethod">An authentication method to apply in the identity system.</param>
     /// <param name="otherAuthenticationMethods">The authentication methods to apply in the identity system.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
+    [Obsolete("This method is obsolete. Use AddAuthenticationMethodProviderWithFactory instead for better localization support. This method will be removed in a future version.", false)]
     public static IdentityBuilder AddAuthenticationMethodProvider(this IdentityBuilder builder, AuthenticationMethod authenticationMethod, params AuthenticationMethod[] otherAuthenticationMethods) {
-        var allMethods = (otherAuthenticationMethods ?? []).Prepend(authenticationMethod);
-        foreach (var method in allMethods) {
-            builder.Services.AddSingleton(method);
-        }
-        builder.Services.AddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
-        return builder;
+        var allMethods = (otherAuthenticationMethods ?? []).Prepend(authenticationMethod).ToList();
+
+        // Convert existing authentication method instances to configurations and use the factory pattern
+        return builder.AddAuthenticationMethodProviderWithFactory(factoryBuilder => {
+            foreach (var method in allMethods) {
+                // Map each method instance to a configuration based on its type
+                var config = method switch {
+                    SmsAuthenticationMethod => factoryBuilder.AddSms(method.SupportsMfa, method.Enabled),
+                    EmailAuthenticationMethod => factoryBuilder.AddEmail(method.SupportsMfa, method.Enabled),
+                    AuthenticatorAppAuthenticationMethod => factoryBuilder.AddAuthenticatorApp(method.SupportsMfa, method.Enabled),
+                    Fido2AuthenticationMethod => factoryBuilder.AddFido2(method.SupportsMfa, method.Enabled),
+                    ViberAuthenticationMethod => factoryBuilder.AddViber(method.SupportsMfa, method.Enabled),
+                    TrustedDeviceAuthenticationMethod => factoryBuilder.AddTrustedDevice(method.SupportsMfa, method.Enabled),
+                    _ => factoryBuilder.AddCustom(
+                        method.GetType(), 
+                        method.SupportsMfa, 
+                        method.Enabled, 
+                        method.DisplayName,  // Use the provided display name as custom key
+                        method.Description   // Use the provided description as custom key
+                    )
+                };
+            }
+        });
     }
 
     /// <summary>Registers an implementation of <see cref="IAuthenticationMethodProvider"/>.</summary>
@@ -193,6 +211,32 @@ public static class IdentityBuilderExtensions
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
     public static IdentityBuilder AddAuthenticationMethodProvider<TAuthenticationMethodProvider>(this IdentityBuilder builder) where TAuthenticationMethodProvider : IAuthenticationMethodProvider {
         builder.Services.AddTransient(typeof(IAuthenticationMethodProvider), typeof(TAuthenticationMethodProvider));
+        return builder;
+    }
+
+    /// <summary>Registers authentication methods using the factory pattern with localization support via <see cref="IdentityMessageDescriber"/>.</summary>
+    /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <param name="configure">Action to configure authentication methods.</param>
+    /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
+    public static IdentityBuilder AddAuthenticationMethodProviderWithFactory(
+        this IdentityBuilder builder, 
+        Action<AuthenticationMethodFactoryBuilder> configure)
+    {
+        var factoryBuilder = new AuthenticationMethodFactoryBuilder();
+        configure(factoryBuilder);
+
+        // Register configurations as singletons (they don't change)
+        foreach (var config in factoryBuilder.Configurations)
+        {
+            builder.Services.AddSingleton(config);
+        }
+
+        // Register factory as scoped so it can use IdentityMessageDescriber
+        builder.Services.AddScoped<IAuthenticationMethodFactory, AuthenticationMethodFactory>();
+
+        // Register provider as transient
+        builder.Services.AddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
+
         return builder;
     }
 

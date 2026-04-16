@@ -441,4 +441,40 @@
   <data name="MfaEmailSubject" xml:space="preserve">
     <value>OTP-Anmeldung</value>
   </data>
+  <data name="AuthMethod_Sms_DisplayName" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="AuthMethod_Sms_Description" xml:space="preserve">
+    <value>Benutzer erhalten eine Textnachricht mit einem Bestätigungscode.</value>
+  </data>
+  <data name="AuthMethod_Email_DisplayName" xml:space="preserve">
+    <value>E-Mail</value>
+  </data>
+  <data name="AuthMethod_Email_Description" xml:space="preserve">
+    <value>Benutzer erhalten ein TOTP an ihre verifizierte E-Mail-Adresse.</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_DisplayName" xml:space="preserve">
+    <value>Authentifikator-App (empfohlen)</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_Description" xml:space="preserve">
+    <value>Verwenden Sie eine Authentifikator-App zur Generierung von Bestätigungscodes.</value>
+  </data>
+  <data name="AuthMethod_Fido2_DisplayName" xml:space="preserve">
+    <value>FIDO2</value>
+  </data>
+  <data name="AuthMethod_Fido2_Description" xml:space="preserve">
+    <value>Verwenden Sie einen Hardware-Sicherheitsschlüssel zur Authentifizierung.</value>
+  </data>
+  <data name="AuthMethod_Viber_DisplayName" xml:space="preserve">
+    <value>Viber</value>
+  </data>
+  <data name="AuthMethod_Viber_Description" xml:space="preserve">
+    <value>Benutzer erhalten eine Viber-Nachricht mit einem Bestätigungscode.</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_DisplayName" xml:space="preserve">
+    <value>Push-Benachrichtigung</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
+    <value>Erhalten Sie eine Push-Benachrichtigung über ein vertrauenswürdiges Gerät.</value>
+  </data>
 </root>
