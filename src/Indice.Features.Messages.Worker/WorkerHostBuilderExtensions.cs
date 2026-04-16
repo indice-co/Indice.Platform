@@ -45,13 +45,12 @@ public static class WorkerHostBuilderExtensions
         });
         workerHostBuilder.Services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
             messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
+            messageWorkerOptions.DatabaseCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
+            messageWorkerOptions.DatabaseCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
+            messageWorkerOptions.DatabaseCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
+            messageWorkerOptions.DatabaseCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
         });
-        workerHostBuilder.Services.Configure<MessagingDatabaseCleanUpOptions>(dbCleanUpOptions => {
-            dbCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
-            dbCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
-            dbCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
-            dbCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
-        });
+
         workerHostBuilder.Services.AddHostedService<StartupSeedHostedService>();
         return workerHostBuilder;
     }

@@ -24,8 +24,8 @@ public class MessagingDatabaseCleanUpService : IMessagingDatabaseCleanUpService
     /// <param name="dbContext">Database context for accessing campaign data.</param>
     /// <param name="fileServiceFactory">Factory for creating file services.</param>
     /// <param name="logger">Logger for logging events.</param>
-    public MessagingDatabaseCleanUpService(IOptions<MessagingDatabaseCleanUpOptions> options, CampaignsDbContext dbContext, IFileServiceFactory fileServiceFactory, ILogger<MessagingDatabaseCleanUpService> logger) {
-        _options = options.Value;
+    public MessagingDatabaseCleanUpService(IOptions<MessageWorkerOptions> options, CampaignsDbContext dbContext, IFileServiceFactory fileServiceFactory, ILogger<MessagingDatabaseCleanUpService> logger) {
+        _options = options.Value.DatabaseCleanUpOptions;
         DbContext = dbContext;
         FileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory), $"Service {KeyedServiceNames.FileServiceKey} was not registered");
         _logger = logger;
