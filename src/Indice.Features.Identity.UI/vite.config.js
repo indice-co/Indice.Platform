@@ -9,8 +9,8 @@ import autoprefixer from 'autoprefixer';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Find all main SCSS entry files (not partials)
-const scssFiles = globSync('./wwwroot/css/**/*.scss', { 
-    ignore: './wwwroot/css/**/_*.scss' 
+const scssFiles = globSync('./wwwroot/css/**/*.scss', {
+    ignore: './wwwroot/css/**/_*.scss'
 });
 
 // Convert to Vite input format
@@ -32,26 +32,9 @@ export default defineConfig({
         assetsInlineLimit: 0,
         rollupOptions: {
             input: scssInputs,
-
-            //output: {
-            //    assetFileNames: (assetInfo) => {
-            //        // Place images in assets/images, CSS in assets/css, others in assets
-            //        if (/\.(gif|jpe?g|png|svg)$/.test(name ?? '')) {
-            //            return 'img/[name]-[hash][extname]';
-            //        }
-            //        if (/\.css$/.test(name ?? '')) {
-            //            return 'assets/css/[name]-[hash][extname]';
-            //        }
-            //        return 'assets/[name]-[hash][extname]';
-            //    },
-            //}
             output: {
                 assetFileNames: (assetInfo) => {
                     // Keep static files and generated CSS files in their original locations
-                    //return assets.name;
-                    //const relativePath = path.relative('./wwwroot', assetInfo.originalFileName || assetInfo.name).replace(/\\/g, '/');
-                    //console.log(relativePath);
-                    
                     if (assetInfo.name.endsWith('.css')) {
                         // Extract the original path from the input names
                         let cssName = assetInfo.name.replace(/\.css$/, '');
@@ -59,7 +42,6 @@ export default defineConfig({
                             const relativePath = path.relative('./wwwroot', assetInfo.originalFileName || assetInfo.name).replace(/\\/g, '/');
                             cssName = relativePath.replace(/\.scss$/, '');
                         }
-                        console.log(`${cssName}.css`);
                         return `${cssName}.css`;
                     }
                     const relativePath = path.relative('./wwwroot', assetInfo.originalFileName || assetInfo.name).replace(/\\/g, '/');
