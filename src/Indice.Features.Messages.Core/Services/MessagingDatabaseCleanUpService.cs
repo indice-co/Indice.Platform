@@ -24,8 +24,8 @@ public class MessagingDatabaseCleanUpService : IMessagingDatabaseCleanUpService
     /// <param name="dbContext">Database context for accessing campaign data.</param>
     /// <param name="fileServiceFactory">Factory for creating file services.</param>
     /// <param name="logger">Logger for logging events.</param>
-    public MessagingDatabaseCleanUpService(IOptions<MessagingDatabaseCleanUpOptions> options, CampaignsDbContext dbContext, IFileServiceFactory fileServiceFactory, ILogger<MessagingDatabaseCleanUpService> logger) {
-        _options = options.Value;
+    public MessagingDatabaseCleanUpService(IOptions<MessageWorkerOptions> options, CampaignsDbContext dbContext, IFileServiceFactory fileServiceFactory, ILogger<MessagingDatabaseCleanUpService> logger) {
+        _options = options.Value.DatabaseCleanUpOptions;
         DbContext = dbContext;
         FileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory), $"Service {KeyedServiceNames.FileServiceKey} was not registered");
         _logger = logger;
@@ -88,14 +88,15 @@ public class MessagingDatabaseCleanUpService : IMessagingDatabaseCleanUpService
                 await DbContext.DistributionLists.Where(x => x.CreatedBy!.ToLower().Trim() == "system" && deletionCampaignData.Select(c => c.DistributionListId).Contains(x.Id)).ExecuteDeleteAsync();
                 await DbContext.MessageEvents.Where(x => deletionCampaignData.Select(c => c.Id).Contains(x.CampaignId)).ExecuteDeleteAsync();
                 await transaction.CommitAsync();
-            } catch (Exception ex) {
+            } 
+            catch (Exception ex) {
                 _logger.LogError(ex, "Error occurred while deleting campaign batch.");
                 await transaction.RollbackAsync();
                 throw;
             }
         }
-        var attachmentIds = deletionCampaignData.Select(x => x.AttachmentId);
-        await DeleteAttachments(attachmentIds);
+        var attachmentIds = deletionCampaignData.Where(x => x.AttachmentId is not null).Select(x => x.AttachmentId!.Value).ToList();
+        await DeleteAttachmentsAndFiles(attachmentIds);
     }
 
     /// <summary>
@@ -103,14 +104,18 @@ public class MessagingDatabaseCleanUpService : IMessagingDatabaseCleanUpService
     /// </summary>
     /// <param name="attachmentIds"></param>
     /// <returns></returns>
-    private async Task DeleteAttachments(IEnumerable<Guid?> attachmentIds) {
+    private async Task DeleteAttachmentsAndFiles(List<Guid> attachmentIds) {
+        if (!attachmentIds.Any()) {
+            return;
+        }
         var dbAttachments = await DbContext.Attachments.Where(x => attachmentIds.Contains(x.Id)).ToListAsync();
         if (dbAttachments.Any()) {
             foreach (var dbAttachment in dbAttachments) {
                 var path = dbAttachment.GetPath();
                 try {
                     await FileService.DeleteAsync(path);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     _logger.LogError(ex, "Error occurred while deleting attachment file at path: {Path}", path);
                 }
             }
