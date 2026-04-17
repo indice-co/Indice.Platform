@@ -72,8 +72,55 @@ public class AuthenticationMethodFactory : IAuthenticationMethodFactory
             nameof(TrustedDeviceAuthenticationMethod) => 
                 new TrustedDeviceAuthenticationMethod(displayName, description, config.SupportsMfa, config.Enabled),
 
-            _ => null // Unknown type
+            // Handle custom authentication method types via reflection
+            _ => CreateCustomMethod(config, displayName, description)
         };
+    }
+
+    /// <summary>Creates a custom authentication method instance via reflection.</summary>
+    /// <param name="config">The authentication method configuration.</param>
+    /// <param name="displayName">The localized display name.</param>
+    /// <param name="description">The localized description.</param>
+    /// <returns>The created authentication method or null if creation fails.</returns>
+    private static AuthenticationMethod? CreateCustomMethod(AuthenticationMethodConfiguration config, string displayName, string description)
+    {
+        var methodType = config.MethodType;
+
+        // Ensure the type derives from AuthenticationMethod
+        if (!typeof(AuthenticationMethod).IsAssignableFrom(methodType)) {
+            return null;
+        }
+
+        // Try to find a constructor with (string displayName, string description, bool supportsMfa, bool enabled)
+        var constructor = methodType.GetConstructor([typeof(string), typeof(string), typeof(bool), typeof(bool)]);
+        if (constructor != null) {
+            return constructor.Invoke([displayName, description, config.SupportsMfa, config.Enabled]) as AuthenticationMethod;
+        }
+
+        // Try parameterless constructor and set properties
+        var parameterlessConstructor = methodType.GetConstructor(Type.EmptyTypes);
+        if (parameterlessConstructor != null) {
+            var instance = parameterlessConstructor.Invoke(null) as AuthenticationMethod;
+            if (instance != null) {
+                // Use reflection to set the properties if they have setters
+                var displayNameProperty = methodType.GetProperty(nameof(AuthenticationMethod.DisplayName));
+                var descriptionProperty = methodType.GetProperty(nameof(AuthenticationMethod.Description));
+                var supportsMfaProperty = methodType.GetProperty(nameof(AuthenticationMethod.SupportsMfa));
+                var enabledProperty = methodType.GetProperty(nameof(AuthenticationMethod.Enabled));
+
+                displayNameProperty?.SetValue(instance, displayName);
+                descriptionProperty?.SetValue(instance, description);
+                supportsMfaProperty?.SetValue(instance, config.SupportsMfa);
+                enabledProperty?.SetValue(instance, config.Enabled);
+            }
+            return instance;
+        }
+
+        // No suitable constructor found
+        throw new InvalidOperationException(
+            $"Cannot create instance of custom authentication method '{methodType.FullName}'. " +
+            $"The type must have either a constructor with parameters (string displayName, string description, bool supportsMfa, bool enabled) " +
+            $"or a parameterless constructor.");
     }
 
     /// <summary>Gets localized display name and description for an authentication method.</summary>
