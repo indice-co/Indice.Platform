@@ -3,7 +3,8 @@
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentityUI</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <VersionPrefix>$(VersionPrefixIdentityUI)</VersionPrefix>
+    <VersionPrefix>8.43.2</VersionPrefix>
+    <VersionSuffix>rc01</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
