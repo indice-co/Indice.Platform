@@ -7,7 +7,7 @@ namespace Indice.Features.Identity.Core;
 /// </summary>
 public class AuthenticationMethodFactory : IAuthenticationMethodFactory
 {
-    private readonly IdentityMessageDescriber? _messageDescriber;
+    private readonly IdentityMessageDescriber _messageDescriber;
     private readonly IReadOnlyList<AuthenticationMethodConfiguration> _configurations;
 
     /// <summary>Creates a new instance of <see cref="AuthenticationMethodFactory"/>.</summary>
@@ -15,15 +15,13 @@ public class AuthenticationMethodFactory : IAuthenticationMethodFactory
     /// <param name="messageDescriber">The message describer for localized strings (optional).</param>
     public AuthenticationMethodFactory(
         IEnumerable<AuthenticationMethodConfiguration> configurations,
-        IdentityMessageDescriber? messageDescriber = null)
-    {
+        IdentityMessageDescriber messageDescriber) {
         _configurations = configurations?.ToList() ?? throw new ArgumentNullException(nameof(configurations));
         _messageDescriber = messageDescriber;
     }
 
     /// <inheritdoc />
-    public AuthenticationMethod[] GetAll()
-    {
+    public AuthenticationMethod[] GetAll() {
         return _configurations
             .Select(CreateMethod)
             .Where(m => m != null)
@@ -33,107 +31,58 @@ public class AuthenticationMethodFactory : IAuthenticationMethodFactory
     }
 
     /// <inheritdoc />
-    public AuthenticationMethod? GetByCode(string code)
-    {
+    public AuthenticationMethod? GetByCode(string code) {
         return GetAll().FirstOrDefault(m => m.Code.Equals(code, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <inheritdoc />
-    public T? Get<T>() where T : AuthenticationMethod
-    {
+    public T? Get<T>() where T : AuthenticationMethod {
         var config = _configurations.FirstOrDefault(c => c.MethodType == typeof(T));
         return config != null ? CreateMethod(config) as T : null;
     }
 
     /// <summary>Creates an authentication method instance from configuration.</summary>
-    private AuthenticationMethod? CreateMethod(AuthenticationMethodConfiguration config)
-    {
+    private AuthenticationMethod? CreateMethod(AuthenticationMethodConfiguration config) {
         // Get localized strings
         var (displayName, description) = GetLocalizedStrings(config);
 
-        // Create the instance based on type
-        return config.MethodType.Name switch
-        {
-            nameof(SmsAuthenticationMethod) => 
+        // If a custom factory delegate is provided, use it
+        if (config.Factory != null) {
+            return config.Factory(displayName, description, config.SupportsMfa, config.Enabled);
+        }
+
+        // Create the instance based on built-in type
+        return config.MethodType.Name switch {
+            nameof(SmsAuthenticationMethod) =>
                 new SmsAuthenticationMethod(displayName, description, config.SupportsMfa, config.Enabled),
 
-            nameof(EmailAuthenticationMethod) => 
+            nameof(EmailAuthenticationMethod) =>
                 new EmailAuthenticationMethod(displayName, description, config.SupportsMfa, config.Enabled),
 
-            nameof(AuthenticatorAppAuthenticationMethod) => 
+            nameof(AuthenticatorAppAuthenticationMethod) =>
                 new AuthenticatorAppAuthenticationMethod(displayName, description, config.SupportsMfa, config.Enabled),
 
-            nameof(Fido2AuthenticationMethod) => 
+            nameof(Fido2AuthenticationMethod) =>
                 new Fido2AuthenticationMethod(displayName, description, config.SupportsMfa, config.Enabled),
 
-            nameof(ViberAuthenticationMethod) => 
+            nameof(ViberAuthenticationMethod) =>
                 new ViberAuthenticationMethod(displayName, description, config.SupportsMfa, config.Enabled),
 
-            nameof(TrustedDeviceAuthenticationMethod) => 
+            nameof(TrustedDeviceAuthenticationMethod) =>
                 new TrustedDeviceAuthenticationMethod(displayName, description, config.SupportsMfa, config.Enabled),
 
-            // Handle custom authentication method types via reflection
-            _ => CreateCustomMethod(config, displayName, description)
+            // Unknown type without factory - throw descriptive error
+            _ => throw new InvalidOperationException(
+                $"Cannot create instance of authentication method '{config.MethodType.FullName}'. " +
+                $"For custom authentication methods, use AddCustom<T>(factory, ...) overload with a factory delegate. " +
+                $"Example: AddCustom<MyMethod>((name, desc, mfa, enabled) => new MyMethod(name, desc, mfa, enabled))")
         };
     }
 
-    /// <summary>Creates a custom authentication method instance via reflection.</summary>
-    /// <param name="config">The authentication method configuration.</param>
-    /// <param name="displayName">The localized display name.</param>
-    /// <param name="description">The localized description.</param>
-    /// <returns>The created authentication method or null if creation fails.</returns>
-    private static AuthenticationMethod? CreateCustomMethod(AuthenticationMethodConfiguration config, string displayName, string description)
-    {
-        var methodType = config.MethodType;
-
-        // Ensure the type derives from AuthenticationMethod
-        if (!typeof(AuthenticationMethod).IsAssignableFrom(methodType)) {
-            return null;
-        }
-
-        // Try to find a constructor with (string displayName, string description, bool supportsMfa, bool enabled)
-        var constructor = methodType.GetConstructor([typeof(string), typeof(string), typeof(bool), typeof(bool)]);
-        if (constructor != null) {
-            return constructor.Invoke([displayName, description, config.SupportsMfa, config.Enabled]) as AuthenticationMethod;
-        }
-
-        // Try parameterless constructor and set properties
-        var parameterlessConstructor = methodType.GetConstructor(Type.EmptyTypes);
-        if (parameterlessConstructor != null) {
-            var instance = parameterlessConstructor.Invoke(null) as AuthenticationMethod;
-            if (instance != null) {
-                // Use reflection to set the properties if they have setters
-                var displayNameProperty = methodType.GetProperty(nameof(AuthenticationMethod.DisplayName));
-                var descriptionProperty = methodType.GetProperty(nameof(AuthenticationMethod.Description));
-                var supportsMfaProperty = methodType.GetProperty(nameof(AuthenticationMethod.SupportsMfa));
-                var enabledProperty = methodType.GetProperty(nameof(AuthenticationMethod.Enabled));
-
-                displayNameProperty?.SetValue(instance, displayName);
-                descriptionProperty?.SetValue(instance, description);
-                supportsMfaProperty?.SetValue(instance, config.SupportsMfa);
-                enabledProperty?.SetValue(instance, config.Enabled);
-            }
-            return instance;
-        }
-
-        // No suitable constructor found
-        throw new InvalidOperationException(
-            $"Cannot create instance of custom authentication method '{methodType.FullName}'. " +
-            $"The type must have either a constructor with parameters (string displayName, string description, bool supportsMfa, bool enabled) " +
-            $"or a parameterless constructor.");
-    }
-
     /// <summary>Gets localized display name and description for an authentication method.</summary>
-    private (string displayName, string description) GetLocalizedStrings(AuthenticationMethodConfiguration config)
-    {
-        // If no message describer, use default English strings
-        if (_messageDescriber == null)
-        {
-            return GetDefaultStrings(config);
-        }
-
+    private (string displayName, string description) GetLocalizedStrings(AuthenticationMethodConfiguration config) {
         // Use custom keys if provided, otherwise use type-based defaults
-        var displayName = config.DisplayNameKey != null 
+        var displayName = config.DisplayNameKey != null
             ? config.DisplayNameKey // If custom key provided, use it as-is (should be localized by caller)
             : GetLocalizedDisplayName(config.MethodType);
 
@@ -145,39 +94,35 @@ public class AuthenticationMethodFactory : IAuthenticationMethodFactory
     }
 
     /// <summary>Gets default (fallback) strings when localizer is not available.</summary>
-    private static (string displayName, string description) GetDefaultStrings(AuthenticationMethodConfiguration config)
-    {
-        return config.MethodType.Name switch
-        {
-            nameof(SmsAuthenticationMethod) => 
+    private static (string displayName, string description) GetDefaultStrings(AuthenticationMethodConfiguration config) {
+        return config.MethodType.Name switch {
+            nameof(SmsAuthenticationMethod) =>
                 ("SMS", "Users will receive a text message containing a verification code."),
 
-            nameof(EmailAuthenticationMethod) => 
+            nameof(EmailAuthenticationMethod) =>
                 ("Email", "Users will receive a TOTP in their verified email address."),
 
-            nameof(AuthenticatorAppAuthenticationMethod) => 
+            nameof(AuthenticatorAppAuthenticationMethod) =>
                 ("Authenticator (recommended)", "Use an authenticator app to generate verification codes."),
 
-            nameof(Fido2AuthenticationMethod) => 
+            nameof(Fido2AuthenticationMethod) =>
                 ("FIDO2", "Use a hardware security key for authentication."),
 
-            nameof(ViberAuthenticationMethod) => 
+            nameof(ViberAuthenticationMethod) =>
                 ("Viber", "Users will receive a Viber message containing a verification code."),
 
-            nameof(TrustedDeviceAuthenticationMethod) => 
+            nameof(TrustedDeviceAuthenticationMethod) =>
                 ("Push notification", "Provide a push notification using a trusted device."),
 
-            _ => ("Unknown", "Unknown authentication method")
+            _ => (config.DisplayNameKey ?? "Unknown", config.DescriptionKey ?? "Unknown authentication method")
         };
     }
 
     /// <summary>Gets localized display name from message describer based on method type.</summary>
-    private string GetLocalizedDisplayName(Type methodType)
-    {
+    private string GetLocalizedDisplayName(Type methodType) {
         if (_messageDescriber == null) return methodType.Name;
 
-        return methodType.Name switch
-        {
+        return methodType.Name switch {
             nameof(SmsAuthenticationMethod) => _messageDescriber.AuthMethod_Sms_DisplayName,
             nameof(EmailAuthenticationMethod) => _messageDescriber.AuthMethod_Email_DisplayName,
             nameof(AuthenticatorAppAuthenticationMethod) => _messageDescriber.AuthMethod_AuthenticatorApp_DisplayName,
@@ -189,12 +134,10 @@ public class AuthenticationMethodFactory : IAuthenticationMethodFactory
     }
 
     /// <summary>Gets localized description from message describer based on method type.</summary>
-    private string GetLocalizedDescription(Type methodType)
-    {
+    private string GetLocalizedDescription(Type methodType) {
         if (_messageDescriber == null) return string.Empty;
 
-        return methodType.Name switch
-        {
+        return methodType.Name switch {
             nameof(SmsAuthenticationMethod) => _messageDescriber.AuthMethod_Sms_Description,
             nameof(EmailAuthenticationMethod) => _messageDescriber.AuthMethod_Email_Description,
             nameof(AuthenticatorAppAuthenticationMethod) => _messageDescriber.AuthMethod_AuthenticatorApp_Description,

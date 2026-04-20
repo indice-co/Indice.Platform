@@ -193,13 +193,9 @@ public static class IdentityBuilderExtensions
                     Fido2AuthenticationMethod => factoryBuilder.AddFido2(method.SupportsMfa, method.Enabled),
                     ViberAuthenticationMethod => factoryBuilder.AddViber(method.SupportsMfa, method.Enabled),
                     TrustedDeviceAuthenticationMethod => factoryBuilder.AddTrustedDevice(method.SupportsMfa, method.Enabled),
-                    _ => factoryBuilder.AddCustom(
-                        method.GetType(), 
-                        method.SupportsMfa, 
-                        method.Enabled, 
-                        method.DisplayName,  // Use the provided display name as custom key
-                        method.Description   // Use the provided description as custom key
-                    )
+                    _ => throw new NotSupportedException(
+                        $"Custom authentication method type '{method.GetType().FullName}' is not supported in the obsolete overload. " +
+                        $"Please migrate to AddAuthenticationMethodProvider(Action<AuthenticationMethodFactoryBuilder>) and use AddCustom<T>(factory, ...) for custom types.")
                 };
             }
         });

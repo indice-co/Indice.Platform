@@ -122,7 +122,8 @@ public static class IdentityBuilderUIExtensions
     /// <typeparam name="TDescriber">The type of labels describer.</typeparam>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     public static IServiceCollection AddIdentityUILabelDescriber<TDescriber>(this IServiceCollection services) where TDescriber : IdentityUILocalizer {
-        services.AddScoped<IdentityUILocalizer, TDescriber>();
+        services.AddScoped<TDescriber>();
+        services.AddScoped<IdentityUILocalizer>(sp => sp.GetRequiredService<TDescriber>());
         return services;
     }
     private static Assembly? GetApplicationAssembly(IServiceCollection services) {
