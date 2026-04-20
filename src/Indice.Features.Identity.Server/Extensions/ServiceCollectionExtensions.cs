@@ -178,10 +178,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         // Add store decorators for caching after calling AddDotnet7CompatibleStores.
         .AddInMemoryCaching()
         .AddClientStoreCache<IndiceStores.ClientStore>()
-        .AddClientStoreCacheInvalidation()
         .AddResourceStoreCache<IndiceStores.ResourceStore>()
         .AddCorsPolicyCache<CorsPolicyService>()
 #endif
+        .AddClientStoreCacheInvalidation()
         ;
         if (webHostEnvironment.IsDevelopment()) {
             IdentityModelEventSource.ShowPII = true;
