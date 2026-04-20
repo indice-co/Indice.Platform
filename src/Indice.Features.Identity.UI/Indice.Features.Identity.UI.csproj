@@ -4,7 +4,7 @@
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentityUI</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <VersionPrefix>8.43.2</VersionPrefix>
-    <VersionSuffix>rc01</VersionSuffix>
+    <VersionSuffix>rc02</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
