@@ -42,13 +42,11 @@ jobs:
       with:
         node-version: 24
 
-    # Necessary for gulp tasks
-    - name: NPM Install and Build Identity UI
-      run: |
-        cd src/Indice.Features.Identity.UI
-        npm install --force
-        npm run gulp -- copy:libs
-        npm run gulp -- sass
+    # # Necessary for vite tasks
+    # - name: NPM Install and Build Identity UI
+    #   run: |
+    #     cd src/Indice.Features.Identity.UI
+    #     npm install
   
     #Create .nuget dir
     - name: Create .nuget dir
