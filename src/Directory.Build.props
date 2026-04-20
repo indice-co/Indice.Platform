@@ -1,51 +1,51 @@
 <Project>
-    <PropertyGroup Label="Assembly Common">
-      <Copyright>Copyright (c) 2018 Indice</Copyright>
-      <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
-      <!--<TargetFramework></TargetFramework>-->
-      
-      <VersionPrefixMajor>8</VersionPrefixMajor>
-      <VersionPrefixBase>$(VersionPrefixMajor).42</VersionPrefixBase>
+  <PropertyGroup Label="Assembly Common">
+    <Copyright>Copyright (c) 2018 Indice</Copyright>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <!--<TargetFramework></TargetFramework>-->
 
-      <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
-      <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
-      <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
-      <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
-      <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
-      <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
-      <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
-      <VersionPrefixActivityLogs>$(VersionPrefixBase).0</VersionPrefixActivityLogs>
-      <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
+    <VersionPrefixMajor>8</VersionPrefixMajor>
+    <VersionPrefixBase>$(VersionPrefixMajor).43</VersionPrefixBase>
 
-      <!--<VersionSuffix>rc02</VersionSuffix>-->
-      <Authors>Constantinos Leftheris</Authors>
-      <GenerateDocumentationFile>true</GenerateDocumentationFile>
-      <LangVersion>Latest</LangVersion>
-      <ImplicitUsings>enable</ImplicitUsings>
-      <Nullable>enable</Nullable>
-      <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    </PropertyGroup>
-    <PropertyGroup Label="Package Common">
-      <PackageReleaseNotes></PackageReleaseNotes>
-      <PackageTags></PackageTags>
-      <IsPackable>true</IsPackable>
-      <PackageIcon>icon-310.png</PackageIcon>
-      <PackageProjectUrl>https://github.com/indice-co/Indice.Platform</PackageProjectUrl>
-      <PackageLicenseExpression>MIT</PackageLicenseExpression>
-      <RepositoryType>git</RepositoryType>
-      <RepositoryUrl>https://github.com/indice-co/Indice.Platform</RepositoryUrl>
-      <Company>Indice</Company>
-      <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
-      <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
-      <PublishRepositoryUrl>true</PublishRepositoryUrl>
-      <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
-      <EmbedUntrackedSources>true</EmbedUntrackedSources>
-      <!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
-      <IncludeSymbols>true</IncludeSymbols>
-      <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <VersionPrefixCore>$(VersionPrefixBase).1</VersionPrefixCore>
+    <VersionPrefixIdentity>$(VersionPrefixBase).1</VersionPrefixIdentity>
+    <VersionPrefixIdentityUI>$(VersionPrefixBase).1</VersionPrefixIdentityUI>
+    <VersionPrefixCases>$(VersionPrefixBase).3</VersionPrefixCases>
+    <VersionPrefixMessages>$(VersionPrefixBase).2</VersionPrefixMessages>
+    <VersionPrefixMultitenancy>$(VersionPrefixBase).1</VersionPrefixMultitenancy>
+    <VersionPrefixRisk>$(VersionPrefixBase).1</VersionPrefixRisk>
+    <VersionPrefixMedia>$(VersionPrefixBase).1</VersionPrefixMedia>
+    <VersionPrefixGeoIP>$(VersionPrefixBase).1</VersionPrefixGeoIP>
+    <VersionPrefixGovGr>$(VersionPrefixBase).1</VersionPrefixGovGr>
+    <VersionPrefixAspNet>$(VersionPrefixBase).1</VersionPrefixAspNet>
+    <VersionPrefixActivityLogs>$(VersionPrefixBase).1</VersionPrefixActivityLogs>
+    <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
+
+    <!--<VersionSuffix>rc02</VersionSuffix>-->
+    <Authors>Constantinos Leftheris</Authors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>Latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Label="Package Common">
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageTags></PackageTags>
+    <IsPackable>true</IsPackable>
+    <PackageIcon>icon-310.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/indice-co/Indice.Platform</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/indice-co/Indice.Platform</RepositoryUrl>
+    <Company>Indice</Company>
+    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
+    <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 </Project>

@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Configuration;
 
@@ -19,4 +21,12 @@ public class AzureDataProtectionOptions
     public string ApplicationName { get; set; } = null!;
     /// <summary>Controls the lifetime (in days) of the private key. Defaults to 90 days. It gets rolled automatically, except if option <see cref="DisableAutomaticKeyGeneration"/> is set to true.</summary>
     public int KeyLifetime { get; set; }
+    /// <summary>
+    /// Configures the data protection system to use the specified cryptographic algorithms by default when generating protected payloads. By default, <see cref="EncryptionAlgorithm.AES_256_GCM"/>
+    /// is used for encryption and <see cref="ValidationAlgorithm.HMACSHA512"/> for validation.
+    /// </summary>
+    public AuthenticatedEncryptorConfiguration CryptographicAlgorithms { get; set; } = new AuthenticatedEncryptorConfiguration {
+        EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
+        ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
+    };
 }

@@ -373,6 +373,7 @@ public static class IndiceServicesServiceCollectionExtensions
             options.QueueMessageEncoding,
             options.ClaimsPrincipalSelector,
             options.TenantIdSelector!,
+            serviceProvider.GetRequiredService<IQueueClientCache>(),
             serviceProvider.GetService<ILogger<EventDispatcherAzure>>() ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<EventDispatcherAzure>.Instance
         );
     };
@@ -381,6 +382,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureOptions>? configure = null) {
+        services.TryAddSingleton<IQueueClientCache, QueueClientCache>();
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
         return services.AddTransient<IEventDispatcher, EventDispatcherAzure>(serviceProvider => GetEventDispatcherAzure(serviceProvider, configure));
     }
@@ -390,6 +392,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="name">The key under which the specified implementation is registered.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureOptions>? configure = null) {
+        services.TryAddSingleton<IQueueClientCache, QueueClientCache>();
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
         return services.AddKeyedTransient<IEventDispatcher, EventDispatcherAzure>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzure(serviceProvider, configure));
     }

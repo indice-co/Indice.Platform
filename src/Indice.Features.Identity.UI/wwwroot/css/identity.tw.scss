@@ -24,7 +24,7 @@
     --tenant200: #dfebf2;
     --tenant100: #eff5f8;
     --tenant50: #f7fafc;
-    --tenant-bg-image: url("../../img/background-image.jpg");
+    --tenant-bg-image: url("../img/background-image.jpg");
 }
 
 @layer base {
@@ -85,11 +85,17 @@
         font-size: inherit;
     }
 
-    input[type]:not([type="checkbox"])+label {
+        input[readonly],
+        textarea[readonly],
+        select[readonly] {
+            @apply bg-greys-400 cursor-not-allowed;
+        }
+
+        input[type]:not([type="checkbox"]) + label {
             @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
         }
 
-    select+label {
+        select + label {
             @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
         }
 
@@ -97,7 +103,7 @@
         @apply w-5 h-5 focus:ring-tenant-500 border-greys-400 focus:border-tenant-500 text-tenant-900 mx-2;
     }
 
-    input[type="checkbox"]+label {
+        input[type="checkbox"] + label {
             @apply text-greys-800;
         }
 

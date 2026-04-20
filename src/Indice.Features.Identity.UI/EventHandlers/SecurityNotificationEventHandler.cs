@@ -45,7 +45,7 @@ public class SecurityNotificationEventHandler : IPlatformEventHandler<SecurityNo
                     .WithData(new SecurityNotificationModel {
                         User = @event.User,
                         Location = @event.Location,
-                        TimeStamp = @event.TimeStamp,
+                        TimeStamp = @event.LocalTimeStamp,
                         Client = @event.Client,
                         Device = @event.Device,
                         DisplayName = @event.User.UserName,

@@ -42,7 +42,12 @@ public static class HostBuilderExtensions
         });
         builder.Services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
             messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
+            messageWorkerOptions.DatabaseCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
+            messageWorkerOptions.DatabaseCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
+            messageWorkerOptions.DatabaseCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
+            messageWorkerOptions.DatabaseCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
         });
+
         builder.Services.AddHostedService<StartupSeedHostedService>();
         builder.Services.TryAddSingleton(options.FunctionDisablePredicate);
         builder.Services.AddDecorator<IFunctionMetadataProvider, ExtendedFunctionMetadataProvider>();
@@ -69,12 +74,10 @@ public static class HostBuilderExtensions
             });
             services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
                 messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
-            });
-            services.Configure<MessagingDatabaseCleanUpOptions>(dbCleanUpOptions => {
-                dbCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
-                dbCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
-                dbCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
-                dbCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
+                messageWorkerOptions.DatabaseCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
+                messageWorkerOptions.DatabaseCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
+                messageWorkerOptions.DatabaseCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
+                messageWorkerOptions.DatabaseCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
             });
             services.AddHostedService<StartupSeedHostedService>();
             services.TryAddSingleton(options.FunctionDisablePredicate);
