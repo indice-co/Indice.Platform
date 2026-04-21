@@ -13,13 +13,15 @@ public class ZoneInfo
         string displayName,
         TimeSpan baseUtcOffset,
         string standardName,
-        string daylightName
+        string daylightName,
+        string systemDisplayName
     ) {
         Id = id;
         DisplayName = displayName;
         BaseUtcOffset = baseUtcOffset;
         StandardName = standardName;
         DaylightName = daylightName;
+        SystemDisplayName = systemDisplayName;
     }
 
     /// <summary>
@@ -31,6 +33,11 @@ public class ZoneInfo
     /// Gets the general display name that represents the time zone.
     /// </summary>
     public string DisplayName { get; }
+
+    /// <summary>
+    /// Gets the general display name that represents the time zone.
+    /// </summary>
+    public string SystemDisplayName { get; }
 
     /// <summary>
     /// Gets the time difference between the current time zone's standard time and Coordinated
