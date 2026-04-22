@@ -1,6 +1,4 @@
 ﻿html {
-    font-size: 14px;
-
     @include phone {
         .display-4 {
             font-size: 2rem;
