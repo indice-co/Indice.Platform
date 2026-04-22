@@ -14,8 +14,9 @@
         $input.attr('type', isVisible ? 'password' : 'text');
         $btn.toggleClass('active', !isVisible);
         $btn.attr('aria-pressed', String(!isVisible));
-        $btn.attr('aria-label', isVisible ? 'Show password' : 'Hide password');
-        $btn.attr('title', isVisible ? 'Show password' : 'Hide password');
+        const label = isVisible ? 'Show password' : 'Hide password';
+        $btn.attr('aria-label', label);
+        $btn.attr('title', label);
     }
     $(document).on('click', '.password-control .btn-password-show', togglePassword);
 })(jQuery);
