@@ -2372,11 +2372,6 @@ body.gradient-bg {
   body {
     background: none !important;
   }
-}
-html {
-  font-size: 14px;
-}
-@media only screen and (max-width: 767px) {
   html .display-4 {
     font-size: 2rem;
   }
