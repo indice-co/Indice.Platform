@@ -99,7 +99,7 @@ public static class MappedTypeTransformer
                     continue;
                 }
                 if (property.Type == "array" && jsonProperty.PropertyType.TryGetAnyElementType(out var elementType) && transforms.ContainsKey(elementType!)) {
-                    schema.Items ??= new OpenApiSchema();
+                    property.Items ??= new OpenApiSchema();
                     TransformSchema(property.Items, elementType!, nullable: null);
                     continue;
                 }
