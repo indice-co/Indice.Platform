@@ -42,12 +42,7 @@ jobs:
       with:
         node-version: 24
 
-    # # Necessary for vite tasks
-    # - name: NPM Install and Build Identity UI
-    #   run: |
-    #     cd src/Indice.Features.Identity.UI
-    #     npm install
-  
+    # Identity UI frontend assets are built by the project MSBuild targets during dotnet build.
     #Create .nuget dir
     - name: Create .nuget dir
       shell: pwsh
