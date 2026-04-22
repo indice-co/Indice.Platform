@@ -173,7 +173,7 @@
 
         &::before {
             content: "";
-            background-image: url("/img/view-on.svg");
+            background-image: url("../img/view-on.svg");
             background-size: 100%;
             background-position: center;
             background-repeat: no-repeat;
@@ -184,7 +184,7 @@
 
         &.active {
             &::before {
-                background-image: url("/img/view-off.svg");
+                background-image: url("../img/view-off.svg");
             }
         }        
     }    
