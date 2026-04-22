@@ -15890,37 +15890,23 @@ body.gradient-bg {
   body {
     background: none !important;
   }
-}
-html {
-  font-size: 14px;
-}
-@media only screen and (max-width: 767px) {
-  html {
-    font-size: 1.2rem;
-  }
   html .display-4 {
     font-size: 2rem;
   }
 }
 @media only screen and (min-width: 768px) and (max-width: 1365px) {
-  html {
-    font-size: 1.2rem;
-  }
   html .display-4 {
     font-size: 2rem;
   }
 }
 @media only screen and (min-width: 1366px) and (max-width: 1919px) {
-  html {
-    font-size: 1.4rem;
-  }
   html .display-4 {
     font-size: 2.5rem;
   }
 }
 @media only screen and (min-width: 1920px) {
-  html {
-    font-size: 1.6rem;
+  html .display-4 {
+    font-size: 3.5rem;
   }
 }
 body {
