@@ -31,7 +31,7 @@
                     <div class="input-group-w-full password-control">
                         <div class="relative">
                             <div class="absolute inset-y-0 right-4 flex items-center mt-[1.8rem]">
-                                <button type="button" class="btn-password-show"></button>
+                                <button type="button" class="btn-password-show" aria-label="Show password" title="Show password" aria-pressed="false"></button>
                             </div>
                         </div>
                         <input class="form-control peer" type="password" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
@@ -128,11 +128,11 @@
             };
         });
     </script>
+    <script type="text/javascript" src="~/js/reveal-password.js" csp-nonce="true"></script>
     @if (Model.View.GenerateDeviceId)
     {
         <script type="text/javascript" src="/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
         <script type="text/javascript" src="/js/mfa.js" csp-nonce></script>
-        <script type="text/javascript" src="~/js/reveal-password.js" csp-nonce="true"></script>
         <script type="text/javascript" csp-nonce>
             $(document).ready(function () {
                 var viewModelParameters = {

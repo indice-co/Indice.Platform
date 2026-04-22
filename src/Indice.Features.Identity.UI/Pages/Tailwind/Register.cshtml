@@ -199,7 +199,7 @@
                             <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>
                         <div class="absolute inset-y-0 right-10 flex items-center mt-[1.8rem]">
-                            <button type="button" class="btn-password-show"></button>
+                            <button type="button" class="btn-password-show" aria-label="Show password" title="Show password" aria-pressed="false"></button>
                         </div>
                     </div>
                     <input type="password" class="form-control peer" asp-for="Input.Password" data-sbind="event: { keyup: passwordChanged }" placeholder="@Localizer.Register_Password" autocomplete="new-password" />

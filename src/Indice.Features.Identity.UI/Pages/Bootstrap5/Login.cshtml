@@ -47,7 +47,7 @@
                 <div class="input-group password-control">
                     <input class="form-control" type="password" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
                     <div class="input-group-append rounded-0">
-                        <button type="button" class="btn-password-show"></button>
+                        <button type="button" class="btn-password-show" aria-label="Show password" title="Show password" aria-pressed="false"></button>
                     </div>
                 </div>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
@@ -106,11 +106,11 @@
             };
         });
     </script>
+    <script type="text/javascript" src="~/js/reveal-password.js" csp-nonce="true"></script>
     @if (Model.View.GenerateDeviceId)
     {
         <script type="text/javascript" src="/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
         <script type="text/javascript" src="/js/mfa.js" csp-nonce></script>
-        <script type="text/javascript" src="~/js/reveal-password.js" csp-nonce="true"></script>
         <script type="text/javascript" csp-nonce>
             $(document).ready(function () {
                 var viewModelParameters = {
