@@ -93,31 +93,6 @@ public class AuthenticationMethodFactory : IAuthenticationMethodFactory
         return (displayName, description);
     }
 
-    /// <summary>Gets default (fallback) strings when localizer is not available.</summary>
-    private static (string displayName, string description) GetDefaultStrings(AuthenticationMethodConfiguration config) {
-        return config.MethodType.Name switch {
-            nameof(SmsAuthenticationMethod) =>
-                ("SMS", "Users will receive a text message containing a verification code."),
-
-            nameof(EmailAuthenticationMethod) =>
-                ("Email", "Users will receive a TOTP in their verified email address."),
-
-            nameof(AuthenticatorAppAuthenticationMethod) =>
-                ("Authenticator (recommended)", "Use an authenticator app to generate verification codes."),
-
-            nameof(Fido2AuthenticationMethod) =>
-                ("FIDO2", "Use a hardware security key for authentication."),
-
-            nameof(ViberAuthenticationMethod) =>
-                ("Viber", "Users will receive a Viber message containing a verification code."),
-
-            nameof(TrustedDeviceAuthenticationMethod) =>
-                ("Push notification", "Provide a push notification using a trusted device."),
-
-            _ => (config.DisplayNameKey ?? "Unknown", config.DescriptionKey ?? "Unknown authentication method")
-        };
-    }
-
     /// <summary>Gets localized display name from message describer based on method type.</summary>
     private string GetLocalizedDisplayName(Type methodType) {
         if (_messageDescriber == null) return methodType.Name;
@@ -129,7 +104,7 @@ public class AuthenticationMethodFactory : IAuthenticationMethodFactory
             nameof(Fido2AuthenticationMethod) => _messageDescriber.AuthMethod_Fido2_DisplayName,
             nameof(ViberAuthenticationMethod) => _messageDescriber.AuthMethod_Viber_DisplayName,
             nameof(TrustedDeviceAuthenticationMethod) => _messageDescriber.AuthMethod_TrustedDevice_DisplayName,
-            _ => methodType.Name
+            _ => _messageDescriber.GetGenericString($"AuthMethod_{methodType.Name}_DisplayName") ?? methodType.Name
         };
     }
 
@@ -144,7 +119,7 @@ public class AuthenticationMethodFactory : IAuthenticationMethodFactory
             nameof(Fido2AuthenticationMethod) => _messageDescriber.AuthMethod_Fido2_Description,
             nameof(ViberAuthenticationMethod) => _messageDescriber.AuthMethod_Viber_Description,
             nameof(TrustedDeviceAuthenticationMethod) => _messageDescriber.AuthMethod_TrustedDevice_Description,
-            _ => string.Empty
+            _ => _messageDescriber.GetGenericString($"AuthMethod_{methodType.Name}_Description") ?? methodType.Name
         };
     }
 }
