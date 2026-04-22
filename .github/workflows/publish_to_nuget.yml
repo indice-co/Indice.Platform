@@ -42,14 +42,7 @@ jobs:
       with:
         node-version: 24
 
-    # Necessary for gulp tasks
-    - name: NPM Install and Build Identity UI
-      run: |
-        cd src/Indice.Features.Identity.UI
-        npm install --force
-        npm run gulp -- copy:libs
-        npm run gulp -- sass
-  
+    # Identity UI frontend assets are built by the project MSBuild targets during dotnet build.
     #Create .nuget dir
     - name: Create .nuget dir
       shell: pwsh
