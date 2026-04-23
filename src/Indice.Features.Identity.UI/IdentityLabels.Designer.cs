@@ -2896,6 +2896,15 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string Register_Primary_Contact_Information_Notice {
+            get {
+                return ResourceManager.GetString("Register_Primary_Contact_Information_Notice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Register.
         /// </summary>
         public static string Register_Register {

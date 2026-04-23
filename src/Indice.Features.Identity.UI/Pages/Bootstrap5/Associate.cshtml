@@ -60,6 +60,16 @@
                 </div>
             </div>
         </div>
+        @if (!string.IsNullOrEmpty(Localizer.Register_Primary_Contact_Information_Notice.Value))
+        {
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <p class="text-muted small">@Localizer.Register_Primary_Contact_Information_Notice</p>
+                    </div>
+                </div>
+            </div>
+        }
         <div class="row">
             <div class="col-md-12">
                 <div class="mb-3">
