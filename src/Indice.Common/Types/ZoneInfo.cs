@@ -11,10 +11,10 @@ public class ZoneInfo
     /// </summary>
     public ZoneInfo(
         string id,
+        string systemDisplayName,
         TimeSpan baseUtcOffset,
         string standardName,
-        string daylightName,
-        string systemDisplayName
+        string daylightName
     ) {
         Id = id;
         BaseUtcOffset = baseUtcOffset;
@@ -29,12 +29,12 @@ public class ZoneInfo
     public string Id { get; }
 
     /// <summary>
-    /// Gets the general display name that represents the time zone.
+    /// Gets the translated display name that represents the time zone.
     /// </summary>
     public string DisplayName => GetLocalizedDisplayName(Id, SystemDisplayName);
 
     /// <summary>
-    /// Gets the general display name that represents the time zone.
+    /// Gets the system display name that represents the time zone.
     /// </summary>
     public string SystemDisplayName { get; }
 
