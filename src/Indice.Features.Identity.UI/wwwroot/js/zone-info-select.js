@@ -5,7 +5,9 @@
     if (input == undefined) return;
 
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const first = [].find.call(input.options, (option => timezone === option.value));
+    const first = [].find.call(input.options, (option => 
+        timezone === option.getAttribute('data-iana-id') || timezone === option.value
+    ));
 
     if (first === undefined) return;
 

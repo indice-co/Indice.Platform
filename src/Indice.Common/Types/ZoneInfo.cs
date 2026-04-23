@@ -29,6 +29,11 @@ public class ZoneInfo
     public string Id { get; }
 
     /// <summary>
+    /// Gets the IANA time zone identifier.
+    /// </summary>
+    public string? IanaId => GetIanaId(Id);
+
+    /// <summary>
     /// Gets the translated display name that represents the time zone.
     /// </summary>
     public string DisplayName => GetLocalizedDisplayName(Id, SystemDisplayName);
@@ -70,5 +75,18 @@ public class ZoneInfo
     private static string GetLocalizedDisplayName(string timezoneId, string fallbackDisplayName) {
         var localizedName = TimeZones.ZoneInfoTranslations.ResourceManager.GetString(timezoneId, CultureInfo.CurrentUICulture);
         return string.IsNullOrEmpty(localizedName) ? fallbackDisplayName : localizedName;
+    }
+
+    private static string? GetIanaId(string timezoneId) {
+        // First, try to convert from Windows ID to IANA ID
+        if (TimeZoneInfo.TryConvertWindowsIdToIanaId(timezoneId, out var ianaId)) {
+            return ianaId;
+        }
+        // If conversion fails, the ID might already be an IANA ID (e.g., on Linux)
+        // Verify by trying to convert it back to Windows ID
+        if (TimeZoneInfo.TryConvertIanaIdToWindowsId(timezoneId, out _)) {
+            return timezoneId;
+        }
+        return null;
     }
 }
