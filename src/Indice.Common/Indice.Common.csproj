@@ -11,14 +11,14 @@
     <PackageReference Include="Polly" Version="8.6.6" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Translations\TimeZones.resx">
+    <EmbeddedResource Update="TimeZones\ZoneInfoTranslations.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TimeZones.Designer.cs</LastGenOutput>
+      <LastGenOutput>ZoneInfoTranslations.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Update="Translations\TimeZones.Designer.cs">
+    <Compile Update="TimeZones\ZoneInfoTranslations.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>TimeZones.resx</DependentUpon>
+      <DependentUpon>ZoneInfoTranslations.resx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">

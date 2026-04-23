@@ -1,4 +1,5 @@
-﻿namespace Indice.Types;
+﻿using System.Globalization;
+namespace Indice.Types;
 
 /// <summary>
 /// Contains information about a TimeZone.
@@ -10,14 +11,12 @@ public class ZoneInfo
     /// </summary>
     public ZoneInfo(
         string id,
-        string displayName,
         TimeSpan baseUtcOffset,
         string standardName,
         string daylightName,
         string systemDisplayName
     ) {
         Id = id;
-        DisplayName = displayName;
         BaseUtcOffset = baseUtcOffset;
         StandardName = standardName;
         DaylightName = daylightName;
@@ -32,7 +31,7 @@ public class ZoneInfo
     /// <summary>
     /// Gets the general display name that represents the time zone.
     /// </summary>
-    public string DisplayName { get; }
+    public string DisplayName => GetLocalizedDisplayName(Id, SystemDisplayName);
 
     /// <summary>
     /// Gets the general display name that represents the time zone.
@@ -60,5 +59,16 @@ public class ZoneInfo
     /// </summary>
     public override string ToString() {
         return DisplayName;
+    }
+
+    /// <summary>
+    /// Helper function to retrieve the display name in the user's locale, if available. If not, it falls back to the provided display name.
+    /// </summary>
+    /// <param name="timezoneId">The identifier of the time zone.</param>
+    /// <param name="fallbackDisplayName">The display name to use if a localized name is not available.</param>
+    /// <returns>The localized display name if available; otherwise, the fallback display name.</returns>
+    private static string GetLocalizedDisplayName(string timezoneId, string fallbackDisplayName) {
+        var localizedName = TimeZones.ZoneInfoTranslations.ResourceManager.GetString(timezoneId, CultureInfo.CurrentUICulture);
+        return string.IsNullOrEmpty(localizedName) ? fallbackDisplayName : localizedName;
     }
 }

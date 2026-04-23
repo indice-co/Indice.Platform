@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Indice.Translations {
+namespace Indice.TimeZones {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace Indice.Translations {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class TimeZones {
+    internal class ZoneInfoTranslations {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal TimeZones() {
+        internal ZoneInfoTranslations() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Indice.Translations {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Indice.Translations.TimeZones", typeof(TimeZones).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Indice.TimeZones.ZoneInfoTranslations", typeof(ZoneInfoTranslations).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
