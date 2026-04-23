@@ -211,6 +211,10 @@ input[type="password"]::-ms-clear {
         }
 
 
-    input[type="text"] + .reveal-icon::before {
+    input.password[type="text"] + .reveal-icon::before {
         background-image: url('../img/reveal-hide.svg');
+    }
+
+    input.password:placeholder-shown + .reveal-icon {
+        display: none;
     }

@@ -1202,8 +1202,14 @@ input[type=password]::-ms-clear {
   text-rendering: auto;
   background-image: url("../img/reveal.svg");
 }
-input[type=text] + .reveal-icon::before {
+input.password[type=text] + .reveal-icon::before {
   background-image: url("../img/reveal-hide.svg");
+}
+input.password:-moz-placeholder-shown + .reveal-icon {
+  display: none;
+}
+input.password:placeholder-shown + .reveal-icon {
+  display: none;
 }
 /* Grayscale. */
 /*1 rem = 16px;*/
