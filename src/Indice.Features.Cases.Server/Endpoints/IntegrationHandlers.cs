@@ -27,7 +27,10 @@ internal static class IntegrationHandlers
         IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService,
         bool includeAttachments = false
-    ) => TypedResults.Ok(await adminCaseService.GetCaseById(caseId, fetchPublicData, includeAttachments));
+    ) {
+        var @case = await adminCaseService.GetCaseById(caseId, fetchPublicData, includeAttachments);
+        return @case is not null ? TypedResults.Ok(@case) : TypedResults.NotFound();
+    }
 
     /// <summary>Gets the Last Approval</summary>
     public static async Task<Results<Ok<CaseApproval>, NotFound>> GetLastApproval(Guid caseId, ICaseApprovalService caseApprovalService) {
