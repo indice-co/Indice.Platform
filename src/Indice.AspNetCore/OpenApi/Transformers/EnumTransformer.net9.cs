@@ -85,6 +85,7 @@ public static class EnumTransformer
         }
         var isString = context.JsonTypeInfo.Options.Converters.OfType<JsonStringEnumConverter>().Any();
         var underlyingType = Enum.GetUnderlyingType(enumType);
+        var isNullable = type != enumType;
         var isLong = underlyingType == typeof(long);
         schema.Type = isString ? "string" : "integer";
         schema.Format = null;
@@ -114,6 +115,18 @@ public static class EnumTransformer
             schema.Extensions.Add("x-enum-descriptions", openApiDescArray);
         }
         schema.Enum = openApiValueArray;
+        if (context.JsonPropertyInfo is not null && isNullable) {
+            var refSchema = new OpenApiSchema(schema);
+            schema.Enum?.Clear();
+            schema.Nullable = true;
+            schema.Annotations?.Clear();
+            schema.Extensions?.Clear();
+            schema.Type = null;
+            schema.AdditionalPropertiesAllowed = false;
+            schema.AllOf = new List<OpenApiSchema> {
+                refSchema
+            };
+        }
 
         return true;
     }

@@ -59,7 +59,8 @@ public class OpenApiTests : IAsyncLifetime
                     services.ConfigureHttpJsonOptions(options => {
                         ConfigureIndiceHttpJsonOptions(options.SerializerOptions);
                      });
-                    services.AddOpenApi(options => options.AddDocumentInfo().ControllerActionAsOperationId());
+                    services.AddOpenApi("tests", options => options.AddDocumentInfo().ControllerActionAsOperationId());
+                    services.AddOpenApi("nullables", options => options.AddDocumentInfo().ControllerActionAsOperationId());
                     services.AddEndpointsApiExplorer();
                     services.AddControllers().ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new OpenApiTestFeatureProvider()));
                 });
@@ -67,6 +68,7 @@ public class OpenApiTests : IAsyncLifetime
                     app.UseRouting();
                     app.UseEndpoints(e => {
                         e.MapTestEndpoints();
+                        e.MapNullableTestEndpoints();
                         e.MapControllers();
                         e.MapOpenApi();
                     });
@@ -105,7 +107,7 @@ public class OpenApiTests : IAsyncLifetime
         var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>(jsonOptions);
 
         Assert.NotEmpty(menu!);
-        var openApi = await _httpClient.GetStringAsync("openapi/v1.json");
+        var openApi = await _httpClient.GetStringAsync("openapi/tests.json");
         Assert.NotEmpty(openApi);
 
         var json = JsonNode.Parse(openApi);
@@ -133,6 +135,19 @@ public class OpenApiTests : IAsyncLifetime
         var longListTypeAsStringSchema = json!["components"]!["schemas"]!["LongListTypeAsString"];
         Assert.NotNull(longListTypeAsStringSchema);
     }
+    [Fact]
+    public async Task OpenApiHandlesNullableEnumsModels() {
+        var openApi = await _httpClient.GetStringAsync("openapi/nullables.json");
+        Assert.NotEmpty(openApi);
+
+        var json = JsonNode.Parse(openApi);
+        var actualSchema = json!["components"]!["schemas"]!["NullableEnumsTestRequest"];
+        var expectedSchema = "{\"type\":\"object\",\"properties\":{\"nullableType\":{\"allOf\":[{\"$ref\":\"#/components/schemas/NullableEnumsType\"}],\"additionalProperties\":false,\"nullable\":true}},\"additionalProperties\":false}";
+        Assert.Equal(expectedSchema, actualSchema!.ToJsonString());
+        var actualEnumSchema = json!["components"]!["schemas"]!["NullableEnumsType"];
+        var expectedEnumSchema = "{\"enum\":[0,1,2,3],\"type\":\"integer\",\"x-enum-varnames\":[\"Valid\",\"Invalid\",\"Draft\",\"Deleted\"]}";
+        Assert.Equal(expectedEnumSchema, actualEnumSchema!.ToJsonString());
+    }
 }
 #else
     [Fact]
@@ -148,7 +163,7 @@ public class OpenApiTests : IAsyncLifetime
         var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>(jsonOptions);
 
         Assert.NotEmpty(menu!);
-        var openApi = await _httpClient.GetStringAsync("openapi/v1.json");
+        var openApi = await _httpClient.GetStringAsync("openapi/tests.json");
         Assert.NotEmpty(openApi);
 
         var json = JsonNode.Parse(openApi);
@@ -182,7 +197,7 @@ public class OpenApiTests : IAsyncLifetime
 
 public class OpenApiTestsModels
 {
-    public class MenuItem
+    public class MenuItem 
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
@@ -195,7 +210,6 @@ public class OpenApiTestsModels
         public IFormFile? File { get; set; }
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
-
     }
     public class AttachmentLink
     {
@@ -235,6 +249,17 @@ public class OpenApiTestsModels
         public Dictionary<string, string> Mappings { get; set; } = [];
     }
 
+    public class NullableEnumsTestRequest { 
+        public NullableEnumsType? NullableType { get; set; }
+    }
+    public enum NullableEnumsType
+    {
+        Valid,
+        Invalid,
+        Draft,
+        Deleted,
+
+    }
     public class LongListRequest
     {
         public LongListType LongList { get; set; } = LongListType.None;
@@ -329,6 +354,7 @@ public class OpenApiTestsModels
 }
 
 [ApiController]
+[ApiExplorerSettings(GroupName = "tests")]
 public class OpenApiTestsController
 {
     [HttpGet("/mvc/menu")]
@@ -371,6 +397,7 @@ public static class OpenApiTestsEndpoints
 {
     public static IEndpointRouteBuilder MapTestEndpoints(this IEndpointRouteBuilder routes) {
         var group = routes.MapGroup("tests");
+        group.WithGroupName("tests");
         group.WithTags("Tests");
         group.MapGet("menu", GetMenuItems)
              .WithName(nameof(GetMenuItems));
@@ -381,6 +408,16 @@ public static class OpenApiTestsEndpoints
              .WithName(nameof(UpdateWithConverters));
         group.MapPost("long-enum", UpdateLongTypeEnum)
              .WithName(nameof(UpdateLongTypeEnum));
+
+
+        return routes;
+    }
+    public static IEndpointRouteBuilder MapNullableTestEndpoints(this IEndpointRouteBuilder routes) {
+        var group = routes.MapGroup("tests");
+        group.WithGroupName("nullables");
+        group.WithTags("Tests");
+        group.MapPost("nullable-enum", PostNullableEnum)
+             .WithName(nameof(PostNullableEnum));
 
 
         return routes;
@@ -410,6 +447,9 @@ public static class OpenApiTestsEndpoints
         return TypedResults.NoContent();
     }
     public static NoContent UpdateLongTypeEnum(LongListRequest request) {
+        return TypedResults.NoContent();
+    }
+    public static NoContent PostNullableEnum(NullableEnumsTestRequest request) {
         return TypedResults.NoContent();
     }
 
