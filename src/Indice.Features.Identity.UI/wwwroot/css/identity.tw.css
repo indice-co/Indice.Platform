@@ -1026,6 +1026,56 @@ a.deck-item{
   background: url("../img/icon-pdf.png");
 }
 
+input[type=password]::-ms-reveal,
+input[type=password]::-ms-clear {
+  display: none;
+}
+
+.password-control {
+  position: relative;
+}
+
+.reveal-icon {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  bottom: 0;
+  display: block;
+  transform: translate(-50%, -50%);
+}
+
+.reveal-icon::before {
+  aspect-ratio: 1/1;
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: none;
+  display: inline-block;
+  content: " ";
+  width: 1.6em;
+  line-height: 1;
+  text-align: center;
+  text-rendering: auto;
+  background-image: url("../img/reveal.svg");
+}
+
+.extra-icon .reveal-icon {
+  transform: translate(-50%, 100%);
+}
+
+input.password[type=text] + .reveal-icon::before,
+input.password[type=text] ~ .reveal-icon::before {
+  background-image: url("../img/reveal-hide.svg");
+}
+
+input.password:-moz-placeholder-shown + .reveal-icon, input.password:-moz-placeholder-shown ~ .reveal-icon {
+  display: none;
+}
+
+input.password:placeholder-shown + .reveal-icon,
+input.password:placeholder-shown ~ .reveal-icon {
+  display: none;
+}
+
 /* You can add global styles to this file, and also import other style files */
 *, ::before, ::after{
   --tw-border-spacing-x: 0;
@@ -2799,9 +2849,6 @@ input:visited,
 }
 .right-0{
   right: 0px;
-}
-.right-10{
-  right: 2.5rem;
 }
 .right-4{
   right: 1rem;

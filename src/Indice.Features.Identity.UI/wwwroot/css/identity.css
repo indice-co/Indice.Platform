@@ -1182,12 +1182,12 @@ input[type=password]::-ms-clear {
   position: relative;
 }
 .reveal-icon {
-  right: 0;
   position: absolute;
-  top: 0;
+  top: 50%;
+  right: 0;
   bottom: 0;
-  padding: 0.62em 1em 0.62em 0;
   display: block;
+  transform: translate(-50%, -50%);
 }
 .reveal-icon::before {
   aspect-ratio: 1/1;
@@ -1202,13 +1202,18 @@ input[type=password]::-ms-clear {
   text-rendering: auto;
   background-image: url("../img/reveal.svg");
 }
-input.password[type=text] + .reveal-icon::before {
+.extra-icon .reveal-icon {
+  transform: translate(-50%, 100%);
+}
+input.password[type=text] + .reveal-icon::before,
+input.password[type=text] ~ .reveal-icon::before {
   background-image: url("../img/reveal-hide.svg");
 }
-input.password:-moz-placeholder-shown + .reveal-icon {
+input.password:-moz-placeholder-shown + .reveal-icon, input.password:-moz-placeholder-shown ~ .reveal-icon {
   display: none;
 }
-input.password:placeholder-shown + .reveal-icon {
+input.password:placeholder-shown + .reveal-icon,
+input.password:placeholder-shown ~ .reveal-icon {
   display: none;
 }
 /* Grayscale. */
