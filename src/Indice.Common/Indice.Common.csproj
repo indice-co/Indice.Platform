@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.15" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.15" />
     <PackageReference Include="System.Text.Json" Version="9.0.15" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.26" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.15" />
@@ -29,6 +30,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.15" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.15" />
     <PackageReference Include="System.Text.Json" Version="9.0.15" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.15" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.7" />
@@ -39,5 +41,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.7" />
     <PackageReference Include="System.Text.Json" Version="10.0.7" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.7" />
   </ItemGroup>
 </Project>
