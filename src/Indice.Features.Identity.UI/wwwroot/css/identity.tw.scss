@@ -8,6 +8,7 @@
 @use 'tailwind/passrules';
 @use 'tailwind/sidebar';
 @use 'tailwind/article';
+@use 'reveal';
 /* You can add global styles to this file, and also import other style files */
 @tailwind base;
 @tailwind components;
@@ -28,12 +29,13 @@
 }
 
 @layer base {
-    body, html {
-    }
+
+    body,
+    html {}
 
     body {
         @apply min-h-screen flex flex-col relative m-0 bg-no-repeat bg-one bg-cover bg-top bg-[url('../img/background-image.jpg')] overflow-x-hidden;
-         font-family: "Manrope", system-ui, sans-serif;
+        font-family: "Manrope", system-ui, sans-serif;
     }
 
     main {
@@ -44,7 +46,11 @@
         @apply lg:px-32 w-full flex shrink-0 grow-0 basis-full flex-wrap lg:flex-nowrap items-center justify-center lg:justify-between h-16 bottom-0 left-0 text-white bg-one lg:bg-transparent z-40 transition-all ease-in-out lg:my-3;
     }
 
-    article, aside, header, main, section {
+    article,
+    aside,
+    header,
+    main,
+    section {
         @apply block;
     }
 
@@ -154,6 +160,35 @@
         ::-webkit-scrollbar-thumb:hover {
             @apply bg-tenant-900;
         }
+
+    /// Input password icon reveal
+
+    /* Hide IE password reveal/clear */
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear {
+        @apply hidden;
+    }
+
+    .btn-password-show {
+        @apply bg-transparent border-0 text-inherit pr-1;
+
+        &::before {
+            content: "";
+            background-image: url("../img/view-on.svg");
+            background-size: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            width: 36px;
+            height: 36px;
+            display: block;
+        }
+
+        &.active {
+            &::before {
+                background-image: url("../img/view-off.svg");
+            }
+        }        
+    }    
 }
 
 @layer components {
