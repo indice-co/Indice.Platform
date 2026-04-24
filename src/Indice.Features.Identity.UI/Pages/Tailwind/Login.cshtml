@@ -22,15 +22,16 @@
                 <input type="hidden" asp-for="Input.DeviceId" />
                 <div class="row">
                     <div class="input-group-w-full group">
-                        <input type="text" class="peer" placeholder="@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)" asp-for="Input.UserName" />
-                        <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)</label>
+                        <input type="text" class="peer" placeholder="@(userManager.EmailAsUserName ? Localizer.Email : Localizer.Login_Username)" asp-for="Input.UserName" />
+                        <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@(userManager.EmailAsUserName ? Localizer.Email : Localizer.Login_Username)</label>
                         <span asp-validation-for="Input.UserName" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="input-group-w-full">
-                        <input type="password" class="peer" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
+                    <div class="input-group-w-full group password-control">
+                        <input class="peer password" type="password" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
                         <label asp-for="Input.Password" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.Login_Password</label>
+                        <i role="button" class="reveal-icon" aria-label="Show password" title="Show password" aria-pressed="false"></i>
                         <span asp-validation-for="Input.Password" class="text-danger"></span>
                     </div>
                 </div>
@@ -116,26 +117,27 @@
     <partial name="_ValidationScripts" />
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {
-            el.onclick = function (link) {
-                if (!link.target.classList.contains('disabled')) {
-                    link.target.classList.add('disabled');
-                }
-            };
+        el.onclick = function (link) {
+        if (!link.target.classList.contains('disabled')) {
+        link.target.classList.add('disabled');
+        }
+        };
         });
     </script>
+    <script type="text/javascript" src="~/js/reveal-password.js" csp-nonce="true"></script>
     @if (Model.View.GenerateDeviceId)
     {
         <script type="text/javascript" src="/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
         <script type="text/javascript" src="/js/mfa.js" csp-nonce></script>
         <script type="text/javascript" csp-nonce>
             $(document).ready(function () {
-                var viewModelParameters = {
-                    $deviceIdInput: $('#Input_DeviceId'),
-                    browserFamily: '@Request.GetBrowserName()'
-                };
-                var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
-                viewModel.init();
-                viewModel.calculateDeviceId();
+            var viewModelParameters = {
+            $deviceIdInput: $('#Input_DeviceId'),
+            browserFamily: '@Request.GetBrowserName()'
+            };
+            var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
+            viewModel.init();
+            viewModel.calculateDeviceId();
             });
         </script>
     }

@@ -1118,6 +1118,12 @@ public class IdentityUILocalizer
     /// </summary>
     public virtual HtmlString Register_Username => new HtmlString(IdentityLabels.Register_Username);
 
+    /// <summary>
+    ///   Gets the localized string for "Primary contact information notice".
+    ///   Returns empty by default. Override this property to provide a custom notice.
+    /// </summary>
+    public virtual HtmlString Register_Optional_Instruction_Notice => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Optional_Instruction_Notice));
+
     #endregion
 
     #region SetLanguage

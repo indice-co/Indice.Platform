@@ -476,5 +476,7 @@
   </data>
   <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
     <value>Erhalten Sie eine Push-Benachrichtigung über ein vertrauenswürdiges Gerät.</value>
+  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
+    <value>Das Feld 'Zeitzone' hat ein ungültiges Format.</value>
   </data>
 </root>

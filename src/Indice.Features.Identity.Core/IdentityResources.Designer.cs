@@ -1096,6 +1096,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Timezone&apos; has invalid format..
+        /// </summary>
+        internal static string UI_Validator_Register_ZoneInfo_InvalidFormat {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_ZoneInfo_InvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Code.
         /// </summary>
         internal static string UI_Validator_VerifyPhone_Code_FieldName {

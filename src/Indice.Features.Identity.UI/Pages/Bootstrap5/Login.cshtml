@@ -41,10 +41,13 @@
                 <label asp-for="Input.UserName" class="form-label">@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)</label>
                 <input class="form-control" type="text" placeholder="@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)" asp-for="Input.UserName" />
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
-            </div>
+            </div>            
             <div class="mb-3">
                 <label asp-for="Input.Password" class="form-label">@Localizer.Login_Password</label>
-                <input class="form-control" type="password" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
+                <div class="password-control">
+                    <input class="form-control password" type="password" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
+                    <i role="button" class="reveal-icon" aria-label="Show password" title="Show password" aria-pressed="false"></i>
+                </div>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="mb-3">
@@ -101,6 +104,7 @@
             };
         });
     </script>
+    <script type="text/javascript" src="~/js/reveal-password.js" csp-nonce="true"></script>
     @if (Model.View.GenerateDeviceId)
     {
         <script type="text/javascript" src="/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
