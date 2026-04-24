@@ -107,7 +107,7 @@
                 </div>
             }
             <div class="input-group">
-                <select class="peer" asp-for="Input.ZoneInfo" required>
+                <select class="peer" asp-for="Input.ZoneInfo">
                     <option value="" selected>@Localizer.Profile_Choose</option>
                     @foreach (var timezone in zoneInfoProvider.GetTimeZones())
                     {
@@ -134,7 +134,7 @@
         {
             <div class="row">
                 <div class="input-group">
-                    <select class="peer" asp-for="Input.ZoneInfo" required>
+                    <select class="peer" asp-for="Input.ZoneInfo">
                         <option value="" selected>@Localizer.Profile_Choose</option>
                         @foreach (var timezone in zoneInfoProvider.GetTimeZones())
                         {

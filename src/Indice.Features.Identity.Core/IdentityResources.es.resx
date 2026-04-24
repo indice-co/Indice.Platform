@@ -441,4 +441,7 @@
   <data name="MfaEmailSubject" xml:space="preserve">
     <value>Inicio de sesión OTP</value>
   </data>
+  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
+    <value>El campo 'Zona horaria' tiene un formato inválido.</value>
+  </data>
 </root>
