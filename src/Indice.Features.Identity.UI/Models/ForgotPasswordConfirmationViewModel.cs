@@ -7,4 +7,6 @@ public class ForgotPasswordConfirmationViewModel
     public string? UserId { get; set; }
     /// <summary>The user name.</summary>
     public string? UserName { get; set; }
+    /// <summary>Specifies whether a device (browser) id should be generated.</summary>
+    public bool GenerateDeviceId { get; set; } = true;
 }

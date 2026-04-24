@@ -11,4 +11,6 @@ public class ForgotPasswordConfirmationInputModel
     public string? ReturnUrl { get; set; }
     /// <summary>The token.</summary>
     public string? Token { get; set; }
+    /// <summary>The device identifier.</summary>
+    public string? DeviceId { get; set; }
 }
