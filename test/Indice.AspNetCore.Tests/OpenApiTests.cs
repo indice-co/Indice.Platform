@@ -195,6 +195,7 @@ public class OpenApiTestsModels
         public IFormFile? File { get; set; }
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
+        public SampleEnum? SampleType { get; set; } = null;
 
     }
     public class AttachmentLink
