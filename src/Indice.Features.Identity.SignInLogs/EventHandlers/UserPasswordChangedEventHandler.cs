@@ -68,7 +68,7 @@ public sealed class UserPasswordChangedEventHandler : IPlatformEventHandler<Pass
         }
         if (device is null) {
             var userAgentHeader = _httpContextAccessor?.HttpContext?.Request.Headers[HeaderNames.UserAgent];
-            if (!string.IsNullOrWhiteSpace(userAgentHeader)) {
+            if (!string.IsNullOrWhiteSpace(userAgentHeader) && !deviceId.IsEmpty) {
                 device = UserDevice.FromUserAgent(userAgentHeader!, deviceId, @event.User.Id, 0);
             }
         }
