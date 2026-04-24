@@ -53,6 +53,14 @@
 
                 </div>
             </div>
+            @if (!string.IsNullOrEmpty(Localizer.Register_Optional_Instruction_Notice.Value))
+            {
+                <div class="row">
+                    <div class="col-span-12">
+                        <p class="text-gray-500 text-sm mb-4">@Localizer.Register_Optional_Instruction_Notice</p>
+                    </div>
+                </div>
+            }
             <div class="grid grid-cols-1 place-items-start place-content-start mb-4">
                 <div class="col-span-1 flex flex-row text-left mb-4">
                     <input asp-for="Input.HasAcceptedTerms" type="checkbox" />

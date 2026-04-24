@@ -2851,6 +2851,15 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string Register_Optional_Instruction_Notice {
+            get {
+                return ResourceManager.GetString("Register_Optional_Instruction_Notice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OR.
         /// </summary>
         public static string Register_OR {
