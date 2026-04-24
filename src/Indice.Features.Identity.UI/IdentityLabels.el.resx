@@ -1107,4 +1107,7 @@
   <data name="AcceptTerms_LastUpdated" xml:space="preserve">
     <value>Τελευταία ενημέρωση στις</value>
   </data>
+  <data name="Register_Optional_Instruction_Notice" xml:space="preserve">
+    <value />
+  </data>
 </root>

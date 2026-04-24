@@ -1,0 +1,904 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- Spanish timezone display names -->
+
+  <data name="Dateline Standard Time" xml:space="preserve">
+    <value>(UTC-12:00) Línea de cambio de fecha internacional (Oeste)</value>
+  </data>
+  <data name="Etc/GMT+12" xml:space="preserve">
+    <value>(UTC-12:00) Línea de cambio de fecha internacional (Oeste)</value>
+  </data>
+  <data name="UTC-11" xml:space="preserve">
+    <value>(UTC-11:00) Hora universal coordinada-11</value>
+  </data>
+  <data name="Etc/GMT+11" xml:space="preserve">
+    <value>(UTC-11:00) Hora universal coordinada-11</value>
+  </data>
+  <data name="Aleutian Standard Time" xml:space="preserve">
+    <value>(UTC-10:00) Islas Aleutianas</value>
+  </data>
+  <data name="America/Adak" xml:space="preserve">
+    <value>(UTC-10:00) Islas Aleutianas</value>
+  </data>
+  <data name="Hawaiian Standard Time" xml:space="preserve">
+    <value>(UTC-10:00) Hawái</value>
+  </data>
+  <data name="Pacific/Honolulu" xml:space="preserve">
+    <value>(UTC-10:00) Hawái</value>
+  </data>
+  <data name="Marquesas Standard Time" xml:space="preserve">
+    <value>(UTC-09:30) Islas Marquesas</value>
+  </data>
+  <data name="Pacific/Marquesas" xml:space="preserve">
+    <value>(UTC-09:30) Islas Marquesas</value>
+  </data>
+  <data name="Alaskan Standard Time" xml:space="preserve">
+    <value>(UTC-09:00) Alaska</value>
+  </data>
+  <data name="America/Anchorage" xml:space="preserve">
+    <value>(UTC-09:00) Alaska</value>
+  </data>
+  <data name="UTC-09" xml:space="preserve">
+    <value>(UTC-09:00) Hora universal coordinada-09</value>
+  </data>
+  <data name="Etc/GMT+9" xml:space="preserve">
+    <value>(UTC-09:00) Hora universal coordinada-09</value>
+  </data>
+  <data name="Pacific Standard Time (Mexico)" xml:space="preserve">
+    <value>(UTC-08:00) Baja California</value>
+  </data>
+  <data name="America/Tijuana" xml:space="preserve">
+    <value>(UTC-08:00) Baja California</value>
+  </data>
+  <data name="UTC-08" xml:space="preserve">
+    <value>(UTC-08:00) Hora universal coordinada-08</value>
+  </data>
+  <data name="Etc/GMT+8" xml:space="preserve">
+    <value>(UTC-08:00) Hora universal coordinada-08</value>
+  </data>
+  <data name="Pacific Standard Time" xml:space="preserve">
+    <value>(UTC-08:00) Hora del Pacífico (EE. UU. y Canadá)</value>
+  </data>
+  <data name="America/Los_Angeles" xml:space="preserve">
+    <value>(UTC-08:00) Hora del Pacífico (EE. UU. y Canadá)</value>
+  </data>
+  <data name="US Mountain Standard Time" xml:space="preserve">
+    <value>(UTC-07:00) Arizona</value>
+  </data>
+  <data name="America/Phoenix" xml:space="preserve">
+    <value>(UTC-07:00) Arizona</value>
+  </data>
+  <data name="Mountain Standard Time (Mexico)" xml:space="preserve">
+    <value>(UTC-07:00) La Paz, Mazatlán</value>
+  </data>
+  <data name="America/Chihuahua" xml:space="preserve">
+    <value>(UTC-07:00) La Paz, Mazatlán</value>
+  </data>
+  <data name="Mountain Standard Time" xml:space="preserve">
+    <value>(UTC-07:00) Hora de las Montañas Rocosas (EE. UU. y Canadá)</value>
+  </data>
+  <data name="America/Denver" xml:space="preserve">
+    <value>(UTC-07:00) Hora de las Montañas Rocosas (EE. UU. y Canadá)</value>
+  </data>
+  <data name="Yukon Standard Time" xml:space="preserve">
+    <value>(UTC-07:00) Yukón</value>
+  </data>
+  <data name="America/Whitehorse" xml:space="preserve">
+    <value>(UTC-07:00) Yukón</value>
+  </data>
+  <data name="Central America Standard Time" xml:space="preserve">
+    <value>(UTC-06:00) América Central</value>
+  </data>
+  <data name="America/Guatemala" xml:space="preserve">
+    <value>(UTC-06:00) América Central</value>
+  </data>
+  <data name="Central Standard Time" xml:space="preserve">
+    <value>(UTC-06:00) Hora central (EE. UU. y Canadá)</value>
+  </data>
+  <data name="America/Chicago" xml:space="preserve">
+    <value>(UTC-06:00) Hora central (EE. UU. y Canadá)</value>
+  </data>
+  <data name="Easter Island Standard Time" xml:space="preserve">
+    <value>(UTC-06:00) Isla de Pascua</value>
+  </data>
+  <data name="Pacific/Easter" xml:space="preserve">
+    <value>(UTC-06:00) Isla de Pascua</value>
+  </data>
+  <data name="Central Standard Time (Mexico)" xml:space="preserve">
+    <value>(UTC-06:00) Guadalajara, Ciudad de México, Monterrey</value>
+  </data>
+  <data name="America/Mexico_City" xml:space="preserve">
+    <value>(UTC-06:00) Guadalajara, Ciudad de México, Monterrey</value>
+  </data>
+  <data name="Canada Central Standard Time" xml:space="preserve">
+    <value>(UTC-06:00) Saskatchewan</value>
+  </data>
+  <data name="America/Regina" xml:space="preserve">
+    <value>(UTC-06:00) Saskatchewan</value>
+  </data>
+  <data name="SA Pacific Standard Time" xml:space="preserve">
+    <value>(UTC-05:00) Bogotá, Lima, Quito, Río Branco</value>
+  </data>
+  <data name="America/Bogota" xml:space="preserve">
+    <value>(UTC-05:00) Bogotá, Lima, Quito, Río Branco</value>
+  </data>
+  <data name="Eastern Standard Time (Mexico)" xml:space="preserve">
+    <value>(UTC-05:00) Chetumal</value>
+  </data>
+  <data name="America/Cancun" xml:space="preserve">
+    <value>(UTC-05:00) Chetumal</value>
+  </data>
+  <data name="Eastern Standard Time" xml:space="preserve">
+    <value>(UTC-05:00) Hora del Este (EE. UU. y Canadá)</value>
+  </data>
+  <data name="America/New_York" xml:space="preserve">
+    <value>(UTC-05:00) Hora del Este (EE. UU. y Canadá)</value>
+  </data>
+  <data name="Haiti Standard Time" xml:space="preserve">
+    <value>(UTC-05:00) Haití</value>
+  </data>
+  <data name="America/Port-au-Prince" xml:space="preserve">
+    <value>(UTC-05:00) Haití</value>
+  </data>
+  <data name="Cuba Standard Time" xml:space="preserve">
+    <value>(UTC-05:00) La Habana</value>
+  </data>
+  <data name="America/Havana" xml:space="preserve">
+    <value>(UTC-05:00) La Habana</value>
+  </data>
+  <data name="US Eastern Standard Time" xml:space="preserve">
+    <value>(UTC-05:00) Indiana (Este)</value>
+  </data>
+  <data name="America/Indianapolis" xml:space="preserve">
+    <value>(UTC-05:00) Indiana (Este)</value>
+  </data>
+  <data name="Turks And Caicos Standard Time" xml:space="preserve">
+    <value>(UTC-05:00) Islas Turcas y Caicos</value>
+  </data>
+  <data name="America/Grand_Turk" xml:space="preserve">
+    <value>(UTC-05:00) Islas Turcas y Caicos</value>
+  </data>
+  <data name="Atlantic Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Hora del Atlántico (Canadá)</value>
+  </data>
+  <data name="America/Halifax" xml:space="preserve">
+    <value>(UTC-04:00) Hora del Atlántico (Canadá)</value>
+  </data>
+  <data name="Venezuela Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Caracas</value>
+  </data>
+  <data name="America/Caracas" xml:space="preserve">
+    <value>(UTC-04:00) Caracas</value>
+  </data>
+  <data name="Central Brazilian Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Cuiabá</value>
+  </data>
+  <data name="America/Cuiaba" xml:space="preserve">
+    <value>(UTC-04:00) Cuiabá</value>
+  </data>
+  <data name="SA Western Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Georgetown, La Paz, Manaos, San Juan</value>
+  </data>
+  <data name="America/La_Paz" xml:space="preserve">
+    <value>(UTC-04:00) Georgetown, La Paz, Manaos, San Juan</value>
+  </data>
+  <data name="Pacific SA Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Santiago</value>
+  </data>
+  <data name="America/Santiago" xml:space="preserve">
+    <value>(UTC-04:00) Santiago</value>
+  </data>
+  <data name="Paraguay Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Asunción</value>
+  </data>
+  <data name="America/Asuncion" xml:space="preserve">
+    <value>(UTC-04:00) Asunción</value>
+  </data>
+  <data name="Newfoundland Standard Time" xml:space="preserve">
+    <value>(UTC-03:30) Terranova</value>
+  </data>
+  <data name="America/St_Johns" xml:space="preserve">
+    <value>(UTC-03:30) Terranova</value>
+  </data>
+  <data name="Tocantins Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Araguaína</value>
+  </data>
+  <data name="America/Araguaina" xml:space="preserve">
+    <value>(UTC-03:00) Araguaína</value>
+  </data>
+  <data name="E. South America Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Brasilia</value>
+  </data>
+  <data name="America/Sao_Paulo" xml:space="preserve">
+    <value>(UTC-03:00) Brasilia</value>
+  </data>
+  <data name="SA Eastern Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Cayena, Fortaleza</value>
+  </data>
+  <data name="America/Cayenne" xml:space="preserve">
+    <value>(UTC-03:00) Cayena, Fortaleza</value>
+  </data>
+  <data name="Argentina Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Buenos Aires</value>
+  </data>
+  <data name="America/Buenos_Aires" xml:space="preserve">
+    <value>(UTC-03:00) Buenos Aires</value>
+  </data>
+  <data name="Montevideo Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Montevideo</value>
+  </data>
+  <data name="America/Montevideo" xml:space="preserve">
+    <value>(UTC-03:00) Montevideo</value>
+  </data>
+  <data name="Magallanes Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Punta Arenas</value>
+  </data>
+  <data name="America/Punta_Arenas" xml:space="preserve">
+    <value>(UTC-03:00) Punta Arenas</value>
+  </data>
+  <data name="Saint Pierre Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) San Pedro y Miquelón</value>
+  </data>
+  <data name="America/Miquelon" xml:space="preserve">
+    <value>(UTC-03:00) San Pedro y Miquelón</value>
+  </data>
+  <data name="Bahia Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Salvador</value>
+  </data>
+  <data name="America/Bahia" xml:space="preserve">
+    <value>(UTC-03:00) Salvador</value>
+  </data>
+  <data name="UTC-02" xml:space="preserve">
+    <value>(UTC-02:00) Hora universal coordinada-02</value>
+  </data>
+  <data name="Etc/GMT+2" xml:space="preserve">
+    <value>(UTC-02:00) Hora universal coordinada-02</value>
+  </data>
+  <data name="Greenland Standard Time" xml:space="preserve">
+    <value>(UTC-02:00) Groenlandia</value>
+  </data>
+  <data name="America/Godthab" xml:space="preserve">
+    <value>(UTC-02:00) Groenlandia</value>
+  </data>
+  <data name="Mid-Atlantic Standard Time" xml:space="preserve">
+    <value>(UTC-02:00) Atlántico central - Antiguo</value>
+  </data>
+  <data name="Azores Standard Time" xml:space="preserve">
+    <value>(UTC-01:00) Azores</value>
+  </data>
+  <data name="Atlantic/Azores" xml:space="preserve">
+    <value>(UTC-01:00) Azores</value>
+  </data>
+  <data name="Cape Verde Standard Time" xml:space="preserve">
+    <value>(UTC-01:00) Islas de Cabo Verde</value>
+  </data>
+  <data name="Atlantic/Cape_Verde" xml:space="preserve">
+    <value>(UTC-01:00) Islas de Cabo Verde</value>
+  </data>
+  <data name="UTC" xml:space="preserve">
+    <value>(UTC) Hora universal coordinada</value>
+  </data>
+  <data name="Etc/UTC" xml:space="preserve">
+    <value>(UTC) Hora universal coordinada</value>
+  </data>
+  <data name="GMT Standard Time" xml:space="preserve">
+    <value>(UTC+00:00) Dublín, Edimburgo, Lisboa, Londres</value>
+  </data>
+  <data name="Europe/London" xml:space="preserve">
+    <value>(UTC+00:00) Dublín, Edimburgo, Lisboa, Londres</value>
+  </data>
+  <data name="Greenwich Standard Time" xml:space="preserve">
+    <value>(UTC+00:00) Monrovia, Reikiavik</value>
+  </data>
+  <data name="Atlantic/Reykjavik" xml:space="preserve">
+    <value>(UTC+00:00) Monrovia, Reikiavik</value>
+  </data>
+  <data name="Sao Tome Standard Time" xml:space="preserve">
+    <value>(UTC+00:00) Santo Tomé</value>
+  </data>
+  <data name="Africa/Sao_Tome" xml:space="preserve">
+    <value>(UTC+00:00) Santo Tomé</value>
+  </data>
+  <data name="Morocco Standard Time" xml:space="preserve">
+    <value>(UTC+01:00) Casablanca</value>
+  </data>
+  <data name="Africa/Casablanca" xml:space="preserve">
+    <value>(UTC+01:00) Casablanca</value>
+  </data>
+  <data name="W. Europe Standard Time" xml:space="preserve">
+    <value>(UTC+01:00) Ámsterdam, Berlín, Berna, Roma, Estocolmo, Viena</value>
+  </data>
+  <data name="Europe/Berlin" xml:space="preserve">
+    <value>(UTC+01:00) Ámsterdam, Berlín, Berna, Roma, Estocolmo, Viena</value>
+  </data>
+  <data name="Central Europe Standard Time" xml:space="preserve">
+    <value>(UTC+01:00) Belgrado, Bratislava, Budapest, Liubliana, Praga</value>
+  </data>
+  <data name="Europe/Budapest" xml:space="preserve">
+    <value>(UTC+01:00) Belgrado, Bratislava, Budapest, Liubliana, Praga</value>
+  </data>
+  <data name="Romance Standard Time" xml:space="preserve">
+    <value>(UTC+01:00) Bruselas, Copenhague, Madrid, París</value>
+  </data>
+  <data name="Europe/Paris" xml:space="preserve">
+    <value>(UTC+01:00) Bruselas, Copenhague, Madrid, París</value>
+  </data>
+  <data name="Central European Standard Time" xml:space="preserve">
+    <value>(UTC+01:00) Sarajevo, Skopie, Varsovia, Zagreb</value>
+  </data>
+  <data name="Europe/Warsaw" xml:space="preserve">
+    <value>(UTC+01:00) Sarajevo, Skopie, Varsovia, Zagreb</value>
+  </data>
+  <data name="W. Central Africa Standard Time" xml:space="preserve">
+    <value>(UTC+01:00) África centro-occidental</value>
+  </data>
+  <data name="Africa/Lagos" xml:space="preserve">
+    <value>(UTC+01:00) África centro-occidental</value>
+  </data>
+  <data name="GTB Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Atenas, Bucarest</value>
+  </data>
+  <data name="Europe/Bucharest" xml:space="preserve">
+    <value>(UTC+02:00) Atenas, Bucarest</value>
+  </data>
+  <data name="Middle East Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Beirut</value>
+  </data>
+  <data name="Asia/Beirut" xml:space="preserve">
+    <value>(UTC+02:00) Beirut</value>
+  </data>
+  <data name="Egypt Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) El Cairo</value>
+  </data>
+  <data name="Africa/Cairo" xml:space="preserve">
+    <value>(UTC+02:00) El Cairo</value>
+  </data>
+  <data name="E. Europe Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Chisinau</value>
+  </data>
+  <data name="Europe/Chisinau" xml:space="preserve">
+    <value>(UTC+02:00) Chisinau</value>
+  </data>
+  <data name="West Bank Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Gaza, Hebrón</value>
+  </data>
+  <data name="Asia/Hebron" xml:space="preserve">
+    <value>(UTC+02:00) Gaza, Hebrón</value>
+  </data>
+  <data name="South Africa Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Harare, Pretoria</value>
+  </data>
+  <data name="Africa/Johannesburg" xml:space="preserve">
+    <value>(UTC+02:00) Harare, Pretoria</value>
+  </data>
+  <data name="FLE Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Helsinki, Kiev, Riga, Sofía, Tallin, Vilna</value>
+  </data>
+  <data name="Europe/Kiev" xml:space="preserve">
+    <value>(UTC+02:00) Helsinki, Kiev, Riga, Sofía, Tallin, Vilna</value>
+  </data>
+  <data name="Israel Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Jerusalén</value>
+  </data>
+  <data name="Asia/Jerusalem" xml:space="preserve">
+    <value>(UTC+02:00) Jerusalén</value>
+  </data>
+  <data name="South Sudan Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Yuba</value>
+  </data>
+  <data name="Africa/Juba" xml:space="preserve">
+    <value>(UTC+02:00) Yuba</value>
+  </data>
+  <data name="Kaliningrad Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Kaliningrado</value>
+  </data>
+  <data name="Europe/Kaliningrad" xml:space="preserve">
+    <value>(UTC+02:00) Kaliningrado</value>
+  </data>
+  <data name="Sudan Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Jartum</value>
+  </data>
+  <data name="Africa/Khartoum" xml:space="preserve">
+    <value>(UTC+02:00) Jartum</value>
+  </data>
+  <data name="Libya Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Trípoli</value>
+  </data>
+  <data name="Africa/Tripoli" xml:space="preserve">
+    <value>(UTC+02:00) Trípoli</value>
+  </data>
+  <data name="Namibia Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Windhoek</value>
+  </data>
+  <data name="Africa/Windhoek" xml:space="preserve">
+    <value>(UTC+02:00) Windhoek</value>
+  </data>
+  <data name="Jordan Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Amán</value>
+  </data>
+  <data name="Asia/Amman" xml:space="preserve">
+    <value>(UTC+03:00) Amán</value>
+  </data>
+  <data name="Arabic Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Bagdad</value>
+  </data>
+  <data name="Asia/Baghdad" xml:space="preserve">
+    <value>(UTC+03:00) Bagdad</value>
+  </data>
+  <data name="Syria Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Damasco</value>
+  </data>
+  <data name="Asia/Damascus" xml:space="preserve">
+    <value>(UTC+03:00) Damasco</value>
+  </data>
+  <data name="Turkey Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Estambul</value>
+  </data>
+  <data name="Europe/Istanbul" xml:space="preserve">
+    <value>(UTC+03:00) Estambul</value>
+  </data>
+  <data name="Arab Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Kuwait, Riad</value>
+  </data>
+  <data name="Asia/Riyadh" xml:space="preserve">
+    <value>(UTC+03:00) Kuwait, Riad</value>
+  </data>
+  <data name="Belarus Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Minsk</value>
+  </data>
+  <data name="Europe/Minsk" xml:space="preserve">
+    <value>(UTC+03:00) Minsk</value>
+  </data>
+  <data name="Russian Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Moscú, San Petersburgo</value>
+  </data>
+  <data name="Europe/Moscow" xml:space="preserve">
+    <value>(UTC+03:00) Moscú, San Petersburgo</value>
+  </data>
+  <data name="E. Africa Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Nairobi</value>
+  </data>
+  <data name="Africa/Nairobi" xml:space="preserve">
+    <value>(UTC+03:00) Nairobi</value>
+  </data>
+  <data name="Volgograd Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Volgogrado</value>
+  </data>
+  <data name="Europe/Volgograd" xml:space="preserve">
+    <value>(UTC+03:00) Volgogrado</value>
+  </data>
+  <data name="Iran Standard Time" xml:space="preserve">
+    <value>(UTC+03:30) Teherán</value>
+  </data>
+  <data name="Asia/Tehran" xml:space="preserve">
+    <value>(UTC+03:30) Teherán</value>
+  </data>
+  <data name="Arabian Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Abu Dabi, Mascate</value>
+  </data>
+  <data name="Asia/Dubai" xml:space="preserve">
+    <value>(UTC+04:00) Abu Dabi, Mascate</value>
+  </data>
+  <data name="Astrakhan Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Astracán, Uliánovsk</value>
+  </data>
+  <data name="Europe/Astrakhan" xml:space="preserve">
+    <value>(UTC+04:00) Astracán, Uliánovsk</value>
+  </data>
+  <data name="Azerbaijan Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Bakú</value>
+  </data>
+  <data name="Asia/Baku" xml:space="preserve">
+    <value>(UTC+04:00) Bakú</value>
+  </data>
+  <data name="Russia Time Zone 3" xml:space="preserve">
+    <value>(UTC+04:00) Izhevsk, Samara</value>
+  </data>
+  <data name="Europe/Samara" xml:space="preserve">
+    <value>(UTC+04:00) Izhevsk, Samara</value>
+  </data>
+  <data name="Mauritius Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Port Louis</value>
+  </data>
+  <data name="Indian/Mauritius" xml:space="preserve">
+    <value>(UTC+04:00) Port Louis</value>
+  </data>
+  <data name="Saratov Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Sarátov</value>
+  </data>
+  <data name="Europe/Saratov" xml:space="preserve">
+    <value>(UTC+04:00) Sarátov</value>
+  </data>
+  <data name="Georgian Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Tiflis</value>
+  </data>
+  <data name="Asia/Tbilisi" xml:space="preserve">
+    <value>(UTC+04:00) Tiflis</value>
+  </data>
+  <data name="Caucasus Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Ereván</value>
+  </data>
+  <data name="Asia/Yerevan" xml:space="preserve">
+    <value>(UTC+04:00) Ereván</value>
+  </data>
+  <data name="Afghanistan Standard Time" xml:space="preserve">
+    <value>(UTC+04:30) Kabul</value>
+  </data>
+  <data name="Asia/Kabul" xml:space="preserve">
+    <value>(UTC+04:30) Kabul</value>
+  </data>
+  <data name="West Asia Standard Time" xml:space="preserve">
+    <value>(UTC+05:00) Asjabad, Taskent</value>
+  </data>
+  <data name="Asia/Tashkent" xml:space="preserve">
+    <value>(UTC+05:00) Asjabad, Taskent</value>
+  </data>
+  <data name="Qyzylorda Standard Time" xml:space="preserve">
+    <value>(UTC+05:00) Astaná</value>
+  </data>
+  <data name="Asia/Qyzylorda" xml:space="preserve">
+    <value>(UTC+05:00) Astaná</value>
+  </data>
+  <data name="Ekaterinburg Standard Time" xml:space="preserve">
+    <value>(UTC+05:00) Ekaterimburgo</value>
+  </data>
+  <data name="Asia/Yekaterinburg" xml:space="preserve">
+    <value>(UTC+05:00) Ekaterimburgo</value>
+  </data>
+  <data name="Pakistan Standard Time" xml:space="preserve">
+    <value>(UTC+05:00) Islamabad, Karachi</value>
+  </data>
+  <data name="Asia/Karachi" xml:space="preserve">
+    <value>(UTC+05:00) Islamabad, Karachi</value>
+  </data>
+  <data name="India Standard Time" xml:space="preserve">
+    <value>(UTC+05:30) Chennai, Calcuta, Bombay, Nueva Delhi</value>
+  </data>
+  <data name="Asia/Calcutta" xml:space="preserve">
+    <value>(UTC+05:30) Chennai, Calcuta, Bombay, Nueva Delhi</value>
+  </data>
+  <data name="Sri Lanka Standard Time" xml:space="preserve">
+    <value>(UTC+05:30) Sri Jayawardenepura</value>
+  </data>
+  <data name="Asia/Colombo" xml:space="preserve">
+    <value>(UTC+05:30) Sri Jayawardenepura</value>
+  </data>
+  <data name="Nepal Standard Time" xml:space="preserve">
+    <value>(UTC+05:45) Katmandú</value>
+  </data>
+  <data name="Asia/Katmandu" xml:space="preserve">
+    <value>(UTC+05:45) Katmandú</value>
+  </data>
+  <data name="Central Asia Standard Time" xml:space="preserve">
+    <value>(UTC+06:00) Biskek</value>
+  </data>
+  <data name="Asia/Almaty" xml:space="preserve">
+    <value>(UTC+06:00) Biskek</value>
+  </data>
+  <data name="Bangladesh Standard Time" xml:space="preserve">
+    <value>(UTC+06:00) Daca</value>
+  </data>
+  <data name="Asia/Dhaka" xml:space="preserve">
+    <value>(UTC+06:00) Daca</value>
+  </data>
+  <data name="Omsk Standard Time" xml:space="preserve">
+    <value>(UTC+06:00) Omsk</value>
+  </data>
+  <data name="Asia/Omsk" xml:space="preserve">
+    <value>(UTC+06:00) Omsk</value>
+  </data>
+  <data name="Myanmar Standard Time" xml:space="preserve">
+    <value>(UTC+06:30) Rangún</value>
+  </data>
+  <data name="Asia/Rangoon" xml:space="preserve">
+    <value>(UTC+06:30) Rangún</value>
+  </data>
+  <data name="SE Asia Standard Time" xml:space="preserve">
+    <value>(UTC+07:00) Bangkok, Hanói, Yakarta</value>
+  </data>
+  <data name="Asia/Bangkok" xml:space="preserve">
+    <value>(UTC+07:00) Bangkok, Hanói, Yakarta</value>
+  </data>
+  <data name="Altai Standard Time" xml:space="preserve">
+    <value>(UTC+07:00) Barnaúl, Gorno-Altaisk</value>
+  </data>
+  <data name="Asia/Barnaul" xml:space="preserve">
+    <value>(UTC+07:00) Barnaúl, Gorno-Altaisk</value>
+  </data>
+  <data name="W. Mongolia Standard Time" xml:space="preserve">
+    <value>(UTC+07:00) Hovd</value>
+  </data>
+  <data name="Asia/Hovd" xml:space="preserve">
+    <value>(UTC+07:00) Hovd</value>
+  </data>
+  <data name="North Asia Standard Time" xml:space="preserve">
+    <value>(UTC+07:00) Krasnoyarsk</value>
+  </data>
+  <data name="Asia/Krasnoyarsk" xml:space="preserve">
+    <value>(UTC+07:00) Krasnoyarsk</value>
+  </data>
+  <data name="N. Central Asia Standard Time" xml:space="preserve">
+    <value>(UTC+07:00) Novosibirsk</value>
+  </data>
+  <data name="Asia/Novosibirsk" xml:space="preserve">
+    <value>(UTC+07:00) Novosibirsk</value>
+  </data>
+  <data name="Tomsk Standard Time" xml:space="preserve">
+    <value>(UTC+07:00) Tomsk</value>
+  </data>
+  <data name="Asia/Tomsk" xml:space="preserve">
+    <value>(UTC+07:00) Tomsk</value>
+  </data>
+  <data name="China Standard Time" xml:space="preserve">
+    <value>(UTC+08:00) Pekín, Chongqing, Hong Kong, Urumqi</value>
+  </data>
+  <data name="Asia/Shanghai" xml:space="preserve">
+    <value>(UTC+08:00) Pekín, Chongqing, Hong Kong, Urumqi</value>
+  </data>
+  <data name="North Asia East Standard Time" xml:space="preserve">
+    <value>(UTC+08:00) Irkutsk</value>
+  </data>
+  <data name="Asia/Irkutsk" xml:space="preserve">
+    <value>(UTC+08:00) Irkutsk</value>
+  </data>
+  <data name="Singapore Standard Time" xml:space="preserve">
+    <value>(UTC+08:00) Kuala Lumpur, Singapur</value>
+  </data>
+  <data name="Asia/Singapore" xml:space="preserve">
+    <value>(UTC+08:00) Kuala Lumpur, Singapur</value>
+  </data>
+  <data name="W. Australia Standard Time" xml:space="preserve">
+    <value>(UTC+08:00) Perth</value>
+  </data>
+  <data name="Australia/Perth" xml:space="preserve">
+    <value>(UTC+08:00) Perth</value>
+  </data>
+  <data name="Taipei Standard Time" xml:space="preserve">
+    <value>(UTC+08:00) Taipéi</value>
+  </data>
+  <data name="Asia/Taipei" xml:space="preserve">
+    <value>(UTC+08:00) Taipéi</value>
+  </data>
+  <data name="Ulaanbaatar Standard Time" xml:space="preserve">
+    <value>(UTC+08:00) Ulán Bator</value>
+  </data>
+  <data name="Asia/Ulaanbaatar" xml:space="preserve">
+    <value>(UTC+08:00) Ulán Bator</value>
+  </data>
+  <data name="Aus Central W. Standard Time" xml:space="preserve">
+    <value>(UTC+08:45) Eucla</value>
+  </data>
+  <data name="Australia/Eucla" xml:space="preserve">
+    <value>(UTC+08:45) Eucla</value>
+  </data>
+  <data name="Transbaikal Standard Time" xml:space="preserve">
+    <value>(UTC+09:00) Chitá</value>
+  </data>
+  <data name="Asia/Chita" xml:space="preserve">
+    <value>(UTC+09:00) Chitá</value>
+  </data>
+  <data name="Tokyo Standard Time" xml:space="preserve">
+    <value>(UTC+09:00) Osaka, Sapporo, Tokio</value>
+  </data>
+  <data name="Asia/Tokyo" xml:space="preserve">
+    <value>(UTC+09:00) Osaka, Sapporo, Tokio</value>
+  </data>
+  <data name="North Korea Standard Time" xml:space="preserve">
+    <value>(UTC+09:00) Pionyang</value>
+  </data>
+  <data name="Asia/Pyongyang" xml:space="preserve">
+    <value>(UTC+09:00) Pionyang</value>
+  </data>
+  <data name="Korea Standard Time" xml:space="preserve">
+    <value>(UTC+09:00) Seúl</value>
+  </data>
+  <data name="Asia/Seoul" xml:space="preserve">
+    <value>(UTC+09:00) Seúl</value>
+  </data>
+  <data name="Yakutsk Standard Time" xml:space="preserve">
+    <value>(UTC+09:00) Yakutsk</value>
+  </data>
+  <data name="Asia/Yakutsk" xml:space="preserve">
+    <value>(UTC+09:00) Yakutsk</value>
+  </data>
+  <data name="Cen. Australia Standard Time" xml:space="preserve">
+    <value>(UTC+09:30) Adelaida</value>
+  </data>
+  <data name="Australia/Adelaide" xml:space="preserve">
+    <value>(UTC+09:30) Adelaida</value>
+  </data>
+  <data name="AUS Central Standard Time" xml:space="preserve">
+    <value>(UTC+09:30) Darwin</value>
+  </data>
+  <data name="Australia/Darwin" xml:space="preserve">
+    <value>(UTC+09:30) Darwin</value>
+  </data>
+  <data name="E. Australia Standard Time" xml:space="preserve">
+    <value>(UTC+10:00) Brisbane</value>
+  </data>
+  <data name="Australia/Brisbane" xml:space="preserve">
+    <value>(UTC+10:00) Brisbane</value>
+  </data>
+  <data name="AUS Eastern Standard Time" xml:space="preserve">
+    <value>(UTC+10:00) Canberra, Melbourne, Sídney</value>
+  </data>
+  <data name="Australia/Sydney" xml:space="preserve">
+    <value>(UTC+10:00) Canberra, Melbourne, Sídney</value>
+  </data>
+  <data name="West Pacific Standard Time" xml:space="preserve">
+    <value>(UTC+10:00) Guam, Port Moresby</value>
+  </data>
+  <data name="Pacific/Port_Moresby" xml:space="preserve">
+    <value>(UTC+10:00) Guam, Port Moresby</value>
+  </data>
+  <data name="Tasmania Standard Time" xml:space="preserve">
+    <value>(UTC+10:00) Hobart</value>
+  </data>
+  <data name="Australia/Hobart" xml:space="preserve">
+    <value>(UTC+10:00) Hobart</value>
+  </data>
+  <data name="Vladivostok Standard Time" xml:space="preserve">
+    <value>(UTC+10:00) Vladivostok</value>
+  </data>
+  <data name="Asia/Vladivostok" xml:space="preserve">
+    <value>(UTC+10:00) Vladivostok</value>
+  </data>
+  <data name="Lord Howe Standard Time" xml:space="preserve">
+    <value>(UTC+10:30) Isla de Lord Howe</value>
+  </data>
+  <data name="Australia/Lord_Howe" xml:space="preserve">
+    <value>(UTC+10:30) Isla de Lord Howe</value>
+  </data>
+  <data name="Bougainville Standard Time" xml:space="preserve">
+    <value>(UTC+11:00) Isla de Bougainville</value>
+  </data>
+  <data name="Pacific/Bougainville" xml:space="preserve">
+    <value>(UTC+11:00) Isla de Bougainville</value>
+  </data>
+  <data name="Russia Time Zone 10" xml:space="preserve">
+    <value>(UTC+11:00) Chokurdakh</value>
+  </data>
+  <data name="Asia/Srednekolymsk" xml:space="preserve">
+    <value>(UTC+11:00) Chokurdakh</value>
+  </data>
+  <data name="Magadan Standard Time" xml:space="preserve">
+    <value>(UTC+11:00) Magadán</value>
+  </data>
+  <data name="Asia/Magadan" xml:space="preserve">
+    <value>(UTC+11:00) Magadán</value>
+  </data>
+  <data name="Norfolk Standard Time" xml:space="preserve">
+    <value>(UTC+11:00) Isla Norfolk</value>
+  </data>
+  <data name="Pacific/Norfolk" xml:space="preserve">
+    <value>(UTC+11:00) Isla Norfolk</value>
+  </data>
+  <data name="Sakhalin Standard Time" xml:space="preserve">
+    <value>(UTC+11:00) Sajalín</value>
+  </data>
+  <data name="Asia/Sakhalin" xml:space="preserve">
+    <value>(UTC+11:00) Sajalín</value>
+  </data>
+  <data name="Central Pacific Standard Time" xml:space="preserve">
+    <value>(UTC+11:00) Islas Salomón, Nueva Caledonia</value>
+  </data>
+  <data name="Pacific/Guadalcanal" xml:space="preserve">
+    <value>(UTC+11:00) Islas Salomón, Nueva Caledonia</value>
+  </data>
+  <data name="Russia Time Zone 11" xml:space="preserve">
+    <value>(UTC+12:00) Anádyr, Petropávlovsk-Kamchatski</value>
+  </data>
+  <data name="Asia/Kamchatka" xml:space="preserve">
+    <value>(UTC+12:00) Anádyr, Petropávlovsk-Kamchatski</value>
+  </data>
+  <data name="New Zealand Standard Time" xml:space="preserve">
+    <value>(UTC+12:00) Auckland, Wellington</value>
+  </data>
+  <data name="Pacific/Auckland" xml:space="preserve">
+    <value>(UTC+12:00) Auckland, Wellington</value>
+  </data>
+  <data name="UTC+12" xml:space="preserve">
+    <value>(UTC+12:00) Hora universal coordinada+12</value>
+  </data>
+  <data name="Etc/GMT-12" xml:space="preserve">
+    <value>(UTC+12:00) Hora universal coordinada+12</value>
+  </data>
+  <data name="Fiji Standard Time" xml:space="preserve">
+    <value>(UTC+12:00) Fiyi</value>
+  </data>
+  <data name="Pacific/Fiji" xml:space="preserve">
+    <value>(UTC+12:00) Fiyi</value>
+  </data>
+  <data name="Kamchatka Standard Time" xml:space="preserve">
+    <value>(UTC+12:00) Petropávlovsk-Kamchatski - Antiguo</value>
+  </data>
+  <data name="Chatham Islands Standard Time" xml:space="preserve">
+    <value>(UTC+12:45) Islas Chatham</value>
+  </data>
+  <data name="Pacific/Chatham" xml:space="preserve">
+    <value>(UTC+12:45) Islas Chatham</value>
+  </data>
+  <data name="UTC+13" xml:space="preserve">
+    <value>(UTC+13:00) Hora universal coordinada+13</value>
+  </data>
+  <data name="Etc/GMT-13" xml:space="preserve">
+    <value>(UTC+13:00) Hora universal coordinada+13</value>
+  </data>
+  <data name="Tonga Standard Time" xml:space="preserve">
+    <value>(UTC+13:00) Nukualofa</value>
+  </data>
+  <data name="Pacific/Tongatapu" xml:space="preserve">
+    <value>(UTC+13:00) Nukualofa</value>
+  </data>
+  <data name="Samoa Standard Time" xml:space="preserve">
+    <value>(UTC+13:00) Samoa</value>
+  </data>
+  <data name="Pacific/Apia" xml:space="preserve">
+    <value>(UTC+13:00) Samoa</value>
+  </data>
+  <data name="Line Islands Standard Time" xml:space="preserve">
+    <value>(UTC+14:00) Isla Kiritimati</value>
+  </data>
+  <data name="Pacific/Kiritimati" xml:space="preserve">
+    <value>(UTC+14:00) Isla Kiritimati</value>
+  </data>
+
+</root>

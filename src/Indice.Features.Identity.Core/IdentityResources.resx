@@ -485,4 +485,7 @@
   <data name="MfaEmailSubject" xml:space="preserve">
     <value>OTP login</value>
   </data>
+  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
+    <value>The field 'Timezone' has invalid format.</value>
+  </data>
 </root>
