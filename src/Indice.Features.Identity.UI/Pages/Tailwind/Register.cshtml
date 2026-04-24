@@ -62,7 +62,7 @@
                             <option value="" selected>@Localizer.Profile_Choose</option>
                             @foreach (var timezone in zoneInfoProvider.GetTimeZones())
                             {
-                                <option value="@timezone.Id" data-iana-id="@timezone.IanaId">@timezone.DisplayName</option>
+                                <option value="@timezone.Id">@timezone.DisplayName</option>
                             }
                         </select>
                         <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer.Register_Timezone</label>
@@ -86,7 +86,7 @@
                             <option value="" selected>@Localizer.Profile_Choose</option>
                             @foreach (var timezone in zoneInfoProvider.GetTimeZones())
                             {
-                                <option value="@timezone.Id" data-iana-id="@timezone.IanaId">@timezone.DisplayName</option>
+                                <option value="@timezone.Id">@timezone.DisplayName</option>
                             }
                         </select>
                         <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer.Register_Timezone</label>
@@ -125,7 +125,7 @@
                             <option value="" selected>@Localizer.Profile_Choose</option>
                             @foreach (var timezone in zoneInfoProvider.GetTimeZones())
                             {
-                                <option value="@timezone.Id" data-iana-id="@timezone.IanaId">@timezone.DisplayName</option>
+                                <option value="@timezone.Id">@timezone.DisplayName</option>
                             }
                         </select>
                         <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer.Register_Timezone \</label>

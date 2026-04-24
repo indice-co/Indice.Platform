@@ -441,4 +441,7 @@
   <data name="MfaEmailSubject" xml:space="preserve">
     <value>OTPでサインイン</value>
   </data>
+  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
+    <value>'タイムゾーン' フィールドの形式が正しくありません。</value>
+  </data>
 </root>

@@ -5,11 +5,16 @@
     if (input == undefined) return;
 
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const first = [].find.call(input.options, (option => 
-        timezone === option.getAttribute('data-iana-id') || timezone === option.value
+    const matchingOption = [].find.call(input.options, (option => 
+        timezone === option.value
     ));
 
-    if (first === undefined) return;
-
-    first.selected = true;
+    if (matchingOption !== undefined) {
+        matchingOption.selected = true;
+    } else if (input.options.length > 0) {
+        // No matching option found, set the first option's value and text to the browser's timezone
+        input.options[0].value = timezone;
+        input.options[0].text = timezone;
+        input.options[0].selected = true;
+    }
 }();
