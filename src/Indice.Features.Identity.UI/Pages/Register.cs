@@ -18,6 +18,7 @@ using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
 using Indice.Security;
+using Indice.Types;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -224,7 +225,7 @@ public abstract class BaseRegisterModel : BasePageModel
         if (!string.IsNullOrWhiteSpace(input.ZoneInfo)) {
             user.Claims.Add(new() {
                 ClaimType = JwtClaimTypes.ZoneInfo,
-                ClaimValue = input.ZoneInfo,
+                ClaimValue = TimeZoneInfo.FindSystemTimeZoneById(input.ZoneInfo).Id,
                 UserId = user.Id
             });
         }

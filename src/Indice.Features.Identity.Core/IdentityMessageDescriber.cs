@@ -277,6 +277,8 @@ public class IdentityMessageDescriber
     public virtual string UI_Validator_Register_CallingCode_FieldName => IdentityResources.UI_Validator_Register_CallingCode_FieldName;
     /// <summary>Gets the error message displayed when the "PhoneNumberWithCallingCode" input is invalid in the Register UI.</summary>
     public virtual string UI_Validator_Register_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_Register_PhoneNumber_InvalidFormat;
+    /// <summary>Gets the error message displayed when the "ZoneInfo" input is invalid in the Register UI.</summary>
+    public virtual string UI_Validator_Register_ZoneInfo_InvalidFormat => IdentityResources.UI_Validator_Register_ZoneInfo_InvalidFormat;
     #endregion
 
     #region Verify Phone UI
