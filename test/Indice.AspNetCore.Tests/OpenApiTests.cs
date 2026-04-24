@@ -182,7 +182,7 @@ public class OpenApiTests : IAsyncLifetime
 
 public class OpenApiTestsModels
 {
-    public class MenuItem
+    public class MenuItem 
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
@@ -195,8 +195,6 @@ public class OpenApiTestsModels
         public IFormFile? File { get; set; }
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
-        public SampleEnum? SampleType { get; set; } = null;
-
     }
     public class AttachmentLink
     {
@@ -236,6 +234,17 @@ public class OpenApiTestsModels
         public Dictionary<string, string> Mappings { get; set; } = [];
     }
 
+    public class NullableEnumsTestRequest { 
+        public NullableEnumsType? NullableType { get; set; }
+    }
+    public enum NullableEnumsType
+    {
+        Valid,
+        Invalid,
+        Draft,
+        Deleted,
+
+    }
     public class LongListRequest
     {
         public LongListType LongList { get; set; } = LongListType.None;
@@ -382,6 +391,8 @@ public static class OpenApiTestsEndpoints
              .WithName(nameof(UpdateWithConverters));
         group.MapPost("long-enum", UpdateLongTypeEnum)
              .WithName(nameof(UpdateLongTypeEnum));
+        group.MapPost("nullable-enum", PostNullableEnum)
+             .WithName(nameof(PostNullableEnum));
 
 
         return routes;
@@ -411,6 +422,9 @@ public static class OpenApiTestsEndpoints
         return TypedResults.NoContent();
     }
     public static NoContent UpdateLongTypeEnum(LongListRequest request) {
+        return TypedResults.NoContent();
+    }
+    public static NoContent PostNullableEnum(NullableEnumsTestRequest request) {
         return TypedResults.NoContent();
     }
 
