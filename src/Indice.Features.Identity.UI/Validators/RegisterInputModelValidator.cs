@@ -61,7 +61,7 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
         RuleFor(x => x.ZoneInfo).Must(ZoneInfoMustBeValid).WithMessage(describer.UI_Validator_Register_ZoneInfo_InvalidFormat);
     }
 
-    private bool ZoneInfoMustBeValid(string? zoneInfo) => string.IsNullOrWhiteSpace(zoneInfo) || TimeZoneInfo.TryFindSystemTimeZoneById(zoneInfo, out var result);
+    private static bool ZoneInfoMustBeValid(string? zoneInfo) => string.IsNullOrWhiteSpace(zoneInfo) || TimeZoneInfo.TryFindSystemTimeZoneById(zoneInfo, out var result);
 
     private bool EmailNotBeAssignedToAnotherUser(string? email) => !_identityOptions.Value.User.RequireUniqueEmail || (!string.IsNullOrWhiteSpace(email) && !_dbContext.Users.Any(x => x.Email == email));
 

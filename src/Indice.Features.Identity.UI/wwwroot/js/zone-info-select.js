@@ -12,9 +12,20 @@
     if (matchingOption !== undefined) {
         matchingOption.selected = true;
     } else if (input.options.length > 0) {
-        // No matching option found, set the first option's value and text to the browser's timezone
+        // No matching option found, create a localized display name for the browser's timezone
+        const locale = document.documentElement.lang || undefined;
+        const offset = new Intl.DateTimeFormat(locale, {
+            timeZone: timezone,
+            timeZoneName: 'longOffset'
+        }).formatToParts().find(p => p.type === 'timeZoneName').value.replace(/^GMT/, 'UTC');
+        const name = new Intl.DateTimeFormat(locale, {
+            timeZone: timezone,
+            timeZoneName: 'long'
+        }).formatToParts().find(p => p.type === 'timeZoneName').value;
+        const displayName = `(${offset}) ${name}`;
+
         input.options[0].value = timezone;
-        input.options[0].text = timezone;
+        input.options[0].text = displayName;
         input.options[0].selected = true;
     }
 }();
