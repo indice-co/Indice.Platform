@@ -15,7 +15,7 @@ input[type="password"]::-ms-clear {
     right: 0;
     bottom: 0;
     display: block;
-    transform: translate(-200%, -50%);
+    transform: translate(-50%, -50%);
 }
 
     .reveal-icon::before {
@@ -32,7 +32,7 @@ input[type="password"]::-ms-clear {
         background-image: url('../img/reveal.svg');
     }
 .extra-icon .reveal-icon {
-    transform: translate(-50%, 100%);
+    transform: translate(-200%, -50%);
 }
 
 input.password[type="text"] + .reveal-icon::before,

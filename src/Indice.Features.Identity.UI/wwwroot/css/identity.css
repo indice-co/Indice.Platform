@@ -1203,7 +1203,7 @@ input[type=password]::-ms-clear {
   background-image: url("../img/reveal.svg");
 }
 .extra-icon .reveal-icon {
-  transform: translate(-50%, 100%);
+  transform: translate(-200%, -50%);
 }
 input.password[type=text] + .reveal-icon::before,
 input.password[type=text] ~ .reveal-icon::before {
