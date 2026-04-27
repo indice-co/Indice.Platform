@@ -1,0 +1,964 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+
+    Version 2.0
+
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+
+    Example:
+
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- Greek timezone display names - add entries as needed -->
+  <!-- Example: <data name="Europe/Athens" xml:space="preserve"><value>(UTC+02:00) Αθήνα</value></data> -->
+
+  <data name="Dateline Standard Time" xml:space="preserve">
+    <value>(UTC-12:00) Δυτική διεθνής γραμμή ημερομηνίας</value>
+  </data>
+  <data name="Etc/GMT+12" xml:space="preserve">
+    <value>(UTC-12:00) Δυτική διεθνής γραμμή ημερομηνίας</value>
+  </data>
+  <data name="UTC-11" xml:space="preserve">
+    <value>(UTC-11:00) Συντονισμένη παγκόσμια ώρα-11</value>
+  </data>
+  <data name="Etc/GMT+11" xml:space="preserve">
+    <value>(UTC-11:00) Συντονισμένη παγκόσμια ώρα-11</value>
+  </data>
+  <data name="Aleutian Standard Time" xml:space="preserve">
+    <value>(UTC-10:00) Αλεούτιες Νήσοι</value>
+  </data>
+  <data name="America/Adak" xml:space="preserve">
+    <value>(UTC-10:00) Αλεούτιες Νήσοι</value>
+  </data>
+  <data name="Hawaiian Standard Time" xml:space="preserve">
+    <value>(UTC-10:00) Χαβάη</value>
+  </data>
+  <data name="Pacific/Honolulu" xml:space="preserve">
+    <value>(UTC-10:00) Χαβάη</value>
+  </data>
+  <data name="Marquesas Standard Time" xml:space="preserve">
+    <value>(UTC-09:30) Νήσοι Μαρκέζας</value>
+  </data>
+  <data name="Pacific/Marquesas" xml:space="preserve">
+    <value>(UTC-09:30) Νήσοι Μαρκέζας</value>
+  </data>
+  <data name="Alaskan Standard Time" xml:space="preserve">
+    <value>(UTC-09:00) Αλάσκα</value>
+  </data>
+  <data name="America/Anchorage" xml:space="preserve">
+    <value>(UTC-09:00) Αλάσκα</value>
+  </data>
+  <data name="UTC-09" xml:space="preserve">
+    <value>(UTC-09:00) Συντονισμένη παγκόσμια ώρα-09</value>
+  </data>
+  <data name="Etc/GMT+9" xml:space="preserve">
+    <value>(UTC-09:00) Συντονισμένη παγκόσμια ώρα-09</value>
+  </data>
+  <data name="Pacific Standard Time" xml:space="preserve">
+    <value>(UTC-08:00) Ώρα Ειρηνικού (Η.Π.Α. &amp; Καναδάς)</value>
+  </data>
+  <data name="America/Los_Angeles" xml:space="preserve">
+    <value>(UTC-08:00) Ώρα Ειρηνικού (Η.Π.Α. &amp; Καναδάς)</value>
+  </data>
+  <data name="Pacific Standard Time (Mexico)" xml:space="preserve">
+    <value>(UTC-08:00) Μπάχα Καλιφόρνια</value>
+  </data>
+  <data name="America/Tijuana" xml:space="preserve">
+    <value>(UTC-08:00) Μπάχα Καλιφόρνια</value>
+  </data>
+  <data name="UTC-08" xml:space="preserve">
+    <value>(UTC-08:00) Συντονισμένη παγκόσμια ώρα-08</value>
+  </data>
+  <data name="Etc/GMT+8" xml:space="preserve">
+    <value>(UTC-08:00) Συντονισμένη παγκόσμια ώρα-08</value>
+  </data>
+  <data name="Mountain Standard Time (Mexico)" xml:space="preserve">
+    <value>(UTC-07:00) La Paz, Mazatlan</value>
+  </data>
+  <data name="America/Chihuahua" xml:space="preserve">
+    <value>(UTC-07:00) La Paz, Mazatlan</value>
+  </data>
+  <data name="US Mountain Standard Time" xml:space="preserve">
+    <value>(UTC-07:00) Αριζόνα</value>
+  </data>
+  <data name="America/Phoenix" xml:space="preserve">
+    <value>(UTC-07:00) Αριζόνα</value>
+  </data>
+  <data name="Yukon Standard Time" xml:space="preserve">
+    <value>(UTC-07:00) Γιούκον</value>
+  </data>
+  <data name="America/Whitehorse" xml:space="preserve">
+    <value>(UTC-07:00) Γιούκον</value>
+  </data>
+  <data name="Mountain Standard Time" xml:space="preserve">
+    <value>(UTC-07:00) Ορεινή ώρα (Η.Π.Α. &amp; Καναδάς)</value>
+  </data>
+  <data name="America/Denver" xml:space="preserve">
+    <value>(UTC-07:00) Ορεινή ώρα (Η.Π.Α. &amp; Καναδάς)</value>
+  </data>
+  <data name="Central Standard Time (Mexico)" xml:space="preserve">
+    <value>(UTC-06:00) Γκουανταλαχάρα, Πόλη του Μεξικού, Μοντερέυ</value>
+  </data>
+  <data name="America/Mexico_City" xml:space="preserve">
+    <value>(UTC-06:00) Γκουανταλαχάρα, Πόλη του Μεξικού, Μοντερέυ</value>
+  </data>
+  <data name="Central America Standard Time" xml:space="preserve">
+    <value>(UTC-06:00) Κεντρική Αμερική</value>
+  </data>
+  <data name="America/Guatemala" xml:space="preserve">
+    <value>(UTC-06:00) Κεντρική Αμερική</value>
+  </data>
+  <data name="Central Standard Time" xml:space="preserve">
+    <value>(UTC-06:00) Κεντρική ώρα (Η.Π.Α. &amp; Καναδάς)</value>
+  </data>
+  <data name="America/Chicago" xml:space="preserve">
+    <value>(UTC-06:00) Κεντρική ώρα (Η.Π.Α. &amp; Καναδάς)</value>
+  </data>
+  <data name="Easter Island Standard Time" xml:space="preserve">
+    <value>(UTC-06:00) Νήσος του Πάσχα</value>
+  </data>
+  <data name="Pacific/Easter" xml:space="preserve">
+    <value>(UTC-06:00) Νήσος του Πάσχα</value>
+  </data>
+  <data name="Canada Central Standard Time" xml:space="preserve">
+    <value>(UTC-06:00) Σασκάτσιουαν</value>
+  </data>
+  <data name="America/Regina" xml:space="preserve">
+    <value>(UTC-06:00) Σασκάτσιουαν</value>
+  </data>
+  <data name="Cuba Standard Time" xml:space="preserve">
+    <value>(UTC-05:00) Αβάνα</value>
+  </data>
+  <data name="America/Havana" xml:space="preserve">
+    <value>(UTC-05:00) Αβάνα</value>
+  </data>
+  <data name="Eastern Standard Time" xml:space="preserve">
+    <value>(UTC-05:00) Ανατολική ώρα (Η.Π.Α. &amp; Καναδάς)</value>
+  </data>
+  <data name="America/New_York" xml:space="preserve">
+    <value>(UTC-05:00) Ανατολική ώρα (Η.Π.Α. &amp; Καναδάς)</value>
+  </data>
+  <data name="Haiti Standard Time" xml:space="preserve">
+    <value>(UTC-05:00) Αϊτή</value>
+  </data>
+  <data name="America/Port-au-Prince" xml:space="preserve">
+    <value>(UTC-05:00) Αϊτή</value>
+  </data>
+  <data name="US Eastern Standard Time" xml:space="preserve">
+    <value>(UTC-05:00) Ιντιάνα (Ανατολική)</value>
+  </data>
+  <data name="America/Indianapolis" xml:space="preserve">
+    <value>(UTC-05:00) Ιντιάνα (Ανατολική)</value>
+  </data>
+  <data name="SA Pacific Standard Time" xml:space="preserve">
+    <value>(UTC-05:00) Μπογκοτά, Λίμα, Κουίτο, Ρίο Μπράνκο</value>
+  </data>
+  <data name="America/Bogota" xml:space="preserve">
+    <value>(UTC-05:00) Μπογκοτά, Λίμα, Κουίτο, Ρίο Μπράνκο</value>
+  </data>
+  <data name="Turks And Caicos Standard Time" xml:space="preserve">
+    <value>(UTC-05:00) Τερκ και Κάικος</value>
+  </data>
+  <data name="America/Grand_Turk" xml:space="preserve">
+    <value>(UTC-05:00) Τερκ και Κάικος</value>
+  </data>
+  <data name="Eastern Standard Time (Mexico)" xml:space="preserve">
+    <value>(UTC-05:00) Τσετουμάλ</value>
+  </data>
+  <data name="America/Cancun" xml:space="preserve">
+    <value>(UTC-05:00) Τσετουμάλ</value>
+  </data>
+  <data name="Atlantic Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Ώρα Ατλαντικού (Καναδάς)</value>
+  </data>
+  <data name="America/Halifax" xml:space="preserve">
+    <value>(UTC-04:00) Ώρα Ατλαντικού (Καναδάς)</value>
+  </data>
+  <data name="Venezuela Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Καράκας</value>
+  </data>
+  <data name="America/Caracas" xml:space="preserve">
+    <value>(UTC-04:00) Καράκας</value>
+  </data>
+  <data name="Central Brazilian Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Κουιάμπα</value>
+  </data>
+  <data name="America/Cuiaba" xml:space="preserve">
+    <value>(UTC-04:00) Κουιάμπα</value>
+  </data>
+  <data name="Pacific SA Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Σαντιάγκο</value>
+  </data>
+  <data name="America/Santiago" xml:space="preserve">
+    <value>(UTC-04:00) Σαντιάγκο</value>
+  </data>
+  <data name="SA Western Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Τζόρτζταουν, Λα Παζ, Μανάους, Σαν Χουάν</value>
+  </data>
+  <data name="America/La_Paz" xml:space="preserve">
+    <value>(UTC-04:00) Τζόρτζταουν, Λα Παζ, Μανάους, Σαν Χουάν</value>
+  </data>
+  <data name="Newfoundland Standard Time" xml:space="preserve">
+    <value>(UTC-03:30) Νέα Γη</value>
+  </data>
+  <data name="America/St_Johns" xml:space="preserve">
+    <value>(UTC-03:30) Νέα Γη</value>
+  </data>
+  <data name="Tocantins Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Αραγκουαΐνα</value>
+  </data>
+  <data name="America/Araguaina" xml:space="preserve">
+    <value>(UTC-03:00) Αραγκουαΐνα</value>
+  </data>
+  <data name="SA Eastern Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Καγιέν, Φορταλέζα</value>
+  </data>
+  <data name="America/Cayenne" xml:space="preserve">
+    <value>(UTC-03:00) Καγιέν, Φορταλέζα</value>
+  </data>
+  <data name="Montevideo Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Μοντεβιδέο</value>
+  </data>
+  <data name="America/Montevideo" xml:space="preserve">
+    <value>(UTC-03:00) Μοντεβιδέο</value>
+  </data>
+  <data name="Argentina Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Μπουένος Άιρες</value>
+  </data>
+  <data name="America/Buenos_Aires" xml:space="preserve">
+    <value>(UTC-03:00) Μπουένος Άιρες</value>
+  </data>
+  <data name="E. South America Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Μπραζίλια</value>
+  </data>
+  <data name="America/Sao_Paulo" xml:space="preserve">
+    <value>(UTC-03:00) Μπραζίλια</value>
+  </data>
+  <data name="Magallanes Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Πούντα Αρένας</value>
+  </data>
+  <data name="America/Punta_Arenas" xml:space="preserve">
+    <value>(UTC-03:00) Πούντα Αρένας</value>
+  </data>
+  <data name="Bahia Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Σαλβαδόρ</value>
+  </data>
+  <data name="America/Bahia" xml:space="preserve">
+    <value>(UTC-03:00) Σαλβαδόρ</value>
+  </data>
+  <data name="Saint Pierre Standard Time" xml:space="preserve">
+    <value>(UTC-03:00) Σεν Πιερ και Μικελόν</value>
+  </data>
+  <data name="America/Miquelon" xml:space="preserve">
+    <value>(UTC-03:00) Σεν Πιερ και Μικελόν</value>
+  </data>
+  <data name="Paraguay Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Ασουνσιόν</value>
+  </data>
+  <data name="America/Asuncion" xml:space="preserve">
+    <value>(UTC-04:00) Ασουνσιόν</value>
+  </data>
+  <data name="Greenland Standard Time" xml:space="preserve">
+    <value>(UTC-02:00) Γροιλανδία</value>
+  </data>
+  <data name="America/Godthab" xml:space="preserve">
+    <value>(UTC-02:00) Γροιλανδία</value>
+  </data>
+  <data name="Mid-Atlantic Standard Time" xml:space="preserve">
+    <value>(UTC-02:00) Μέσος Ατλαντικός - Παλαιό</value>
+  </data>
+  <data name="UTC-02" xml:space="preserve">
+    <value>(UTC-02:00) Συντονισμένη παγκόσμια ώρα-02</value>
+  </data>
+  <data name="Etc/GMT+2" xml:space="preserve">
+    <value>(UTC-02:00) Συντονισμένη παγκόσμια ώρα-02</value>
+  </data>
+  <data name="Azores Standard Time" xml:space="preserve">
+    <value>(UTC-01:00) Αζόρες</value>
+  </data>
+  <data name="Atlantic/Azores" xml:space="preserve">
+    <value>(UTC-01:00) Αζόρες</value>
+  </data>
+  <data name="Cape Verde Standard Time" xml:space="preserve">
+    <value>(UTC-01:00) Νησιά Κάμπο Βέρντε</value>
+  </data>
+  <data name="Atlantic/Cape_Verde" xml:space="preserve">
+    <value>(UTC-01:00) Νησιά Κάμπο Βέρντε</value>
+  </data>
+  <data name="UTC" xml:space="preserve">
+    <value>(UTC) Συντονισμένη παγκόσμια ώρα</value>
+  </data>
+  <data name="Etc/UTC" xml:space="preserve">
+    <value>(UTC) Συντονισμένη παγκόσμια ώρα</value>
+  </data>
+  <data name="GMT Standard Time" xml:space="preserve">
+    <value>(UTC+00:00) Δουβλίνο, Εδιμβούργο, Λισαβώνα, Λονδίνο</value>
+  </data>
+  <data name="Europe/London" xml:space="preserve">
+    <value>(UTC+00:00) Δουβλίνο, Εδιμβούργο, Λισαβώνα, Λονδίνο</value>
+  </data>
+  <data name="Greenwich Standard Time" xml:space="preserve">
+    <value>(UTC+00:00) Μονρόβια, Ρέικιαβικ</value>
+  </data>
+  <data name="Atlantic/Reykjavik" xml:space="preserve">
+    <value>(UTC+00:00) Μονρόβια, Ρέικιαβικ</value>
+  </data>
+  <data name="Sao Tome Standard Time" xml:space="preserve">
+    <value>(UTC+00:00) Σάο Τομέ</value>
+  </data>
+  <data name="Africa/Sao_Tome" xml:space="preserve">
+    <value>(UTC+00:00) Σάο Τομέ</value>
+  </data>
+  <data name="Morocco Standard Time" xml:space="preserve">
+    <value>(UTC+01:00) Καζαμπλάνκα</value>
+  </data>
+  <data name="Africa/Casablanca" xml:space="preserve">
+    <value>(UTC+01:00) Καζαμπλάνκα</value>
+  </data>
+  <data name="W. Europe Standard Time" xml:space="preserve">
+    <value>(UTC+01:00) Άμστερνταμ, Βερολίνο, Βέρνη, Ρώμη, Στοκχόλμη, Βιέννη</value>
+  </data>
+  <data name="Europe/Berlin" xml:space="preserve">
+    <value>(UTC+01:00) Άμστερνταμ, Βερολίνο, Βέρνη, Ρώμη, Στοκχόλμη, Βιέννη</value>
+  </data>
+  <data name="Central Europe Standard Time" xml:space="preserve">
+    <value>(UTC+01:00) Βελιγράδι, Μπρατισλάβα, Βουδαπέστη, Λουμπλιάνα, Πράγα</value>
+  </data>
+  <data name="Europe/Budapest" xml:space="preserve">
+    <value>(UTC+01:00) Βελιγράδι, Μπρατισλάβα, Βουδαπέστη, Λουμπλιάνα, Πράγα</value>
+  </data>
+  <data name="Romance Standard Time" xml:space="preserve">
+    <value>(UTC+01:00) Βρυξέλες, Κοπεγχάγη, Μαδρίτη, Παρίσι</value>
+  </data>
+  <data name="Europe/Paris" xml:space="preserve">
+    <value>(UTC+01:00) Βρυξέλες, Κοπεγχάγη, Μαδρίτη, Παρίσι</value>
+  </data>
+  <data name="W. Central Africa Standard Time" xml:space="preserve">
+    <value>(UTC+01:00) Κεντροδυτική Αφρική</value>
+  </data>
+  <data name="Africa/Lagos" xml:space="preserve">
+    <value>(UTC+01:00) Κεντροδυτική Αφρική</value>
+  </data>
+  <data name="Central European Standard Time" xml:space="preserve">
+    <value>(UTC+01:00) Σαράγεβο, Σκόπια, Βαρσοβία, Ζάγκρεμπ</value>
+  </data>
+  <data name="Europe/Warsaw" xml:space="preserve">
+    <value>(UTC+01:00) Σαράγεβο, Σκόπια, Βαρσοβία, Ζάγκρεμπ</value>
+  </data>
+  <data name="South Sudan Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Juba</value>
+  </data>
+  <data name="Africa/Juba" xml:space="preserve">
+    <value>(UTC+02:00) Juba</value>
+  </data>
+  <data name="GTB Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Αθήνα, Βουκουρέστι</value>
+  </data>
+  <data name="Europe/Bucharest" xml:space="preserve">
+    <value>(UTC+02:00) Αθήνα, Βουκουρέστι</value>
+  </data>
+  <data name="Middle East Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Βυρηττός</value>
+  </data>
+  <data name="Asia/Beirut" xml:space="preserve">
+    <value>(UTC+02:00) Βυρηττός</value>
+  </data>
+  <data name="West Bank Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Γάζα, Χεβρώνα</value>
+  </data>
+  <data name="Asia/Hebron" xml:space="preserve">
+    <value>(UTC+02:00) Γάζα, Χεβρώνα</value>
+  </data>
+  <data name="Namibia Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Γουίντχουκ</value>
+  </data>
+  <data name="Africa/Windhoek" xml:space="preserve">
+    <value>(UTC+02:00) Γουίντχουκ</value>
+  </data>
+  <data name="FLE Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Ελσίνκι, Κίεβο, Ρίγα, Σόφια, Ταλίν, Βίλνιους (Bίλνα)</value>
+  </data>
+  <data name="Europe/Kiev" xml:space="preserve">
+    <value>(UTC+02:00) Ελσίνκι, Κίεβο, Ρίγα, Σόφια, Ταλίν, Βίλνιους (Bίλνα)</value>
+  </data>
+  <data name="Israel Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Ιερουσαλήμ</value>
+  </data>
+  <data name="Asia/Jerusalem" xml:space="preserve">
+    <value>(UTC+02:00) Ιερουσαλήμ</value>
+  </data>
+  <data name="Egypt Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Κάιρο</value>
+  </data>
+  <data name="Africa/Cairo" xml:space="preserve">
+    <value>(UTC+02:00) Κάιρο</value>
+  </data>
+  <data name="Kaliningrad Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Καλίνινγκραντ</value>
+  </data>
+  <data name="Europe/Kaliningrad" xml:space="preserve">
+    <value>(UTC+02:00) Καλίνινγκραντ</value>
+  </data>
+  <data name="E. Europe Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Κισινάου</value>
+  </data>
+  <data name="Europe/Chisinau" xml:space="preserve">
+    <value>(UTC+02:00) Κισινάου</value>
+  </data>
+  <data name="Libya Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Τρίπολη</value>
+  </data>
+  <data name="Africa/Tripoli" xml:space="preserve">
+    <value>(UTC+02:00) Τρίπολη</value>
+  </data>
+  <data name="South Africa Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Χαράρε, Πραιτόρια</value>
+  </data>
+  <data name="Africa/Johannesburg" xml:space="preserve">
+    <value>(UTC+02:00) Χαράρε, Πραιτόρια</value>
+  </data>
+  <data name="Sudan Standard Time" xml:space="preserve">
+    <value>(UTC+02:00) Χαρτούμ</value>
+  </data>
+  <data name="Africa/Khartoum" xml:space="preserve">
+    <value>(UTC+02:00) Χαρτούμ</value>
+  </data>
+  <data name="Jordan Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Αμμάν</value>
+  </data>
+  <data name="Asia/Amman" xml:space="preserve">
+    <value>(UTC+03:00) Αμμάν</value>
+  </data>
+  <data name="Arabic Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Βαγδάτη</value>
+  </data>
+  <data name="Asia/Baghdad" xml:space="preserve">
+    <value>(UTC+03:00) Βαγδάτη</value>
+  </data>
+  <data name="Volgograd Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Βόλγκογκραντ</value>
+  </data>
+  <data name="Europe/Volgograd" xml:space="preserve">
+    <value>(UTC+03:00) Βόλγκογκραντ</value>
+  </data>
+  <data name="Syria Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Δαμασκός</value>
+  </data>
+  <data name="Asia/Damascus" xml:space="preserve">
+    <value>(UTC+03:00) Δαμασκός</value>
+  </data>
+  <data name="Arab Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Κουβέιτ, Ριάντ</value>
+  </data>
+  <data name="Asia/Riyadh" xml:space="preserve">
+    <value>(UTC+03:00) Κουβέιτ, Ριάντ</value>
+  </data>
+  <data name="Turkey Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Κωνσταντινούπολη</value>
+  </data>
+  <data name="Europe/Istanbul" xml:space="preserve">
+    <value>(UTC+03:00) Κωνσταντινούπολη</value>
+  </data>
+  <data name="Belarus Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Μινσκ</value>
+  </data>
+  <data name="Europe/Minsk" xml:space="preserve">
+    <value>(UTC+03:00) Μινσκ</value>
+  </data>
+  <data name="Russian Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Μόσχα, Αγ. Πετρούπολη</value>
+  </data>
+  <data name="Europe/Moscow" xml:space="preserve">
+    <value>(UTC+03:00) Μόσχα, Αγ. Πετρούπολη</value>
+  </data>
+  <data name="E. Africa Standard Time" xml:space="preserve">
+    <value>(UTC+03:00) Ναϊρόμπι</value>
+  </data>
+  <data name="Africa/Nairobi" xml:space="preserve">
+    <value>(UTC+03:00) Ναϊρόμπι</value>
+  </data>
+  <data name="Iran Standard Time" xml:space="preserve">
+    <value>(UTC+03:30) Τεχεράνη</value>
+  </data>
+  <data name="Asia/Tehran" xml:space="preserve">
+    <value>(UTC+03:30) Τεχεράνη</value>
+  </data>
+  <data name="Arabian Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Αμπού Ντάμπι, Μουσκάτ</value>
+  </data>
+  <data name="Asia/Dubai" xml:space="preserve">
+    <value>(UTC+04:00) Αμπού Ντάμπι, Μουσκάτ</value>
+  </data>
+  <data name="Astrakhan Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Αστραχάν, Ουλιάνοφσκ</value>
+  </data>
+  <data name="Europe/Astrakhan" xml:space="preserve">
+    <value>(UTC+04:00) Αστραχάν, Ουλιάνοφσκ</value>
+  </data>
+  <data name="Caucasus Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Ερεβάν</value>
+  </data>
+  <data name="Asia/Yerevan" xml:space="preserve">
+    <value>(UTC+04:00) Ερεβάν</value>
+  </data>
+  <data name="Russia Time Zone 3" xml:space="preserve">
+    <value>(UTC+04:00) Ιζέβσκ, Σαμάρα</value>
+  </data>
+  <data name="Europe/Samara" xml:space="preserve">
+    <value>(UTC+04:00) Ιζέβσκ, Σαμάρα</value>
+  </data>
+  <data name="Azerbaijan Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Μπακού</value>
+  </data>
+  <data name="Asia/Baku" xml:space="preserve">
+    <value>(UTC+04:00) Μπακού</value>
+  </data>
+  <data name="Mauritius Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Πορ Λουί</value>
+  </data>
+  <data name="Indian/Mauritius" xml:space="preserve">
+    <value>(UTC+04:00) Πορ Λουί</value>
+  </data>
+  <data name="Saratov Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Σαράτοφ</value>
+  </data>
+  <data name="Europe/Saratov" xml:space="preserve">
+    <value>(UTC+04:00) Σαράτοφ</value>
+  </data>
+  <data name="Georgian Standard Time" xml:space="preserve">
+    <value>(UTC+04:00) Τιφλίδα</value>
+  </data>
+  <data name="Asia/Tbilisi" xml:space="preserve">
+    <value>(UTC+04:00) Τιφλίδα</value>
+  </data>
+  <data name="Afghanistan Standard Time" xml:space="preserve">
+    <value>(UTC+04:30) Καμπούλ</value>
+  </data>
+  <data name="Asia/Kabul" xml:space="preserve">
+    <value>(UTC+04:30) Καμπούλ</value>
+  </data>
+  <data name="Qyzylorda Standard Time" xml:space="preserve">
+    <value>(UTC+05:00) Αστάνα</value>
+  </data>
+  <data name="Asia/Qyzylorda" xml:space="preserve">
+    <value>(UTC+05:00) Αστάνα</value>
+  </data>
+  <data name="West Asia Standard Time" xml:space="preserve">
+    <value>(UTC+05:00) Ασχαμπάτ, Τασκένδη</value>
+  </data>
+  <data name="Asia/Tashkent" xml:space="preserve">
+    <value>(UTC+05:00) Ασχαμπάτ, Τασκένδη</value>
+  </data>
+  <data name="Ekaterinburg Standard Time" xml:space="preserve">
+    <value>(UTC+05:00) Εκατερίνμπουργκ</value>
+  </data>
+  <data name="Asia/Yekaterinburg" xml:space="preserve">
+    <value>(UTC+05:00) Εκατερίνμπουργκ</value>
+  </data>
+  <data name="Pakistan Standard Time" xml:space="preserve">
+    <value>(UTC+05:00) Ισλαμαμπάντ, Καράτσι</value>
+  </data>
+  <data name="Asia/Karachi" xml:space="preserve">
+    <value>(UTC+05:00) Ισλαμαμπάντ, Καράτσι</value>
+  </data>
+  <data name="Sri Lanka Standard Time" xml:space="preserve">
+    <value>(UTC+05:30) Σρι Τζαγιαβαρνταναπούρα</value>
+  </data>
+  <data name="Asia/Colombo" xml:space="preserve">
+    <value>(UTC+05:30) Σρι Τζαγιαβαρνταναπούρα</value>
+  </data>
+  <data name="India Standard Time" xml:space="preserve">
+    <value>(UTC+05:30) Τσενάι, Κολκάτα, Μουμπάι, Νέο Δελχί</value>
+  </data>
+  <data name="Asia/Calcutta" xml:space="preserve">
+    <value>(UTC+05:30) Τσενάι, Κολκάτα, Μουμπάι, Νέο Δελχί</value>
+  </data>
+  <data name="Nepal Standard Time" xml:space="preserve">
+    <value>(UTC+05:45) Κατμαντού</value>
+  </data>
+  <data name="Asia/Katmandu" xml:space="preserve">
+    <value>(UTC+05:45) Κατμαντού</value>
+  </data>
+  <data name="Central Asia Standard Time" xml:space="preserve">
+    <value>(UTC+06:00) Μπισκέκ</value>
+  </data>
+  <data name="Asia/Almaty" xml:space="preserve">
+    <value>(UTC+06:00) Μπισκέκ</value>
+  </data>
+  <data name="Bangladesh Standard Time" xml:space="preserve">
+    <value>(UTC+06:00) Ντάκα</value>
+  </data>
+  <data name="Asia/Dhaka" xml:space="preserve">
+    <value>(UTC+06:00) Ντάκα</value>
+  </data>
+  <data name="Omsk Standard Time" xml:space="preserve">
+    <value>(UTC+06:00) Ομσκ</value>
+  </data>
+  <data name="Asia/Omsk" xml:space="preserve">
+    <value>(UTC+06:00) Ομσκ</value>
+  </data>
+  <data name="Myanmar Standard Time" xml:space="preserve">
+    <value>(UTC+06:30) Γιανγκόν (Ρανγκούν)</value>
+  </data>
+  <data name="Asia/Rangoon" xml:space="preserve">
+    <value>(UTC+06:30) Γιανγκόν (Ρανγκούν)</value>
+  </data>
+  <data name="North Asia Standard Time" xml:space="preserve">
+    <value>(UTC+07:00) Κρασνογιάρσκ</value>
+  </data>
+  <data name="Asia/Krasnoyarsk" xml:space="preserve">
+    <value>(UTC+07:00) Κρασνογιάρσκ</value>
+  </data>
+  <data name="SE Asia Standard Time" xml:space="preserve">
+    <value>(UTC+07:00) Μπανγκόκ, Ανόι, Τζακάρτα</value>
+  </data>
+  <data name="Asia/Bangkok" xml:space="preserve">
+    <value>(UTC+07:00) Μπανγκόκ, Ανόι, Τζακάρτα</value>
+  </data>
+  <data name="Altai Standard Time" xml:space="preserve">
+    <value>(UTC+07:00) Μπαρναούλ, Γκόρνο-Αλτάισκ</value>
+  </data>
+  <data name="Asia/Barnaul" xml:space="preserve">
+    <value>(UTC+07:00) Μπαρναούλ, Γκόρνο-Αλτάισκ</value>
+  </data>
+  <data name="N. Central Asia Standard Time" xml:space="preserve">
+    <value>(UTC+07:00) Νοβοσιμπίρσκ</value>
+  </data>
+  <data name="Asia/Novosibirsk" xml:space="preserve">
+    <value>(UTC+07:00) Νοβοσιμπίρσκ</value>
+  </data>
+  <data name="Tomsk Standard Time" xml:space="preserve">
+    <value>(UTC+07:00) Τομσκ</value>
+  </data>
+  <data name="Asia/Tomsk" xml:space="preserve">
+    <value>(UTC+07:00) Τομσκ</value>
+  </data>
+  <data name="W. Mongolia Standard Time" xml:space="preserve">
+    <value>(UTC+07:00) Χοβντ</value>
+  </data>
+  <data name="Asia/Hovd" xml:space="preserve">
+    <value>(UTC+07:00) Χοβντ</value>
+  </data>
+  <data name="North Asia East Standard Time" xml:space="preserve">
+    <value>(UTC+08:00) Ιρκούτσκ</value>
+  </data>
+  <data name="Asia/Irkutsk" xml:space="preserve">
+    <value>(UTC+08:00) Ιρκούτσκ</value>
+  </data>
+  <data name="Singapore Standard Time" xml:space="preserve">
+    <value>(UTC+08:00) Κουάλα Λουμπούρ, Σιγκαπούρη</value>
+  </data>
+  <data name="Asia/Singapore" xml:space="preserve">
+    <value>(UTC+08:00) Κουάλα Λουμπούρ, Σιγκαπούρη</value>
+  </data>
+  <data name="Ulaanbaatar Standard Time" xml:space="preserve">
+    <value>(UTC+08:00) Ουλάν Μπατόρ</value>
+  </data>
+  <data name="Asia/Ulaanbaatar" xml:space="preserve">
+    <value>(UTC+08:00) Ουλάν Μπατόρ</value>
+  </data>
+  <data name="China Standard Time" xml:space="preserve">
+    <value>(UTC+08:00) Πεκίνο, Τσονγκ-κινγκ, Χονγκ Κονγκ ΕΔΠ, Ουρούμκι</value>
+  </data>
+  <data name="Asia/Shanghai" xml:space="preserve">
+    <value>(UTC+08:00) Πεκίνο, Τσονγκ-κινγκ, Χονγκ Κονγκ ΕΔΠ, Ουρούμκι</value>
+  </data>
+  <data name="W. Australia Standard Time" xml:space="preserve">
+    <value>(UTC+08:00) Περθ</value>
+  </data>
+  <data name="Australia/Perth" xml:space="preserve">
+    <value>(UTC+08:00) Περθ</value>
+  </data>
+  <data name="Taipei Standard Time" xml:space="preserve">
+    <value>(UTC+08:00) Ταϊπέι</value>
+  </data>
+  <data name="Asia/Taipei" xml:space="preserve">
+    <value>(UTC+08:00) Ταϊπέι</value>
+  </data>
+  <data name="Aus Central W. Standard Time" xml:space="preserve">
+    <value>(UTC+08:45) Γιούκλα</value>
+  </data>
+  <data name="Australia/Eucla" xml:space="preserve">
+    <value>(UTC+08:45) Γιούκλα</value>
+  </data>
+  <data name="Yakutsk Standard Time" xml:space="preserve">
+    <value>(UTC+09:00) Γιακούτσκ</value>
+  </data>
+  <data name="Asia/Yakutsk" xml:space="preserve">
+    <value>(UTC+09:00) Γιακούτσκ</value>
+  </data>
+  <data name="Tokyo Standard Time" xml:space="preserve">
+    <value>(UTC+09:00) Οσάκα, Σαππόρο, Τόκιο</value>
+  </data>
+  <data name="Asia/Tokyo" xml:space="preserve">
+    <value>(UTC+09:00) Οσάκα, Σαππόρο, Τόκιο</value>
+  </data>
+  <data name="North Korea Standard Time" xml:space="preserve">
+    <value>(UTC+09:00) Πιονγκ Γιανγκ</value>
+  </data>
+  <data name="Asia/Pyongyang" xml:space="preserve">
+    <value>(UTC+09:00) Πιονγκ Γιανγκ</value>
+  </data>
+  <data name="Korea Standard Time" xml:space="preserve">
+    <value>(UTC+09:00) Σεούλ</value>
+  </data>
+  <data name="Asia/Seoul" xml:space="preserve">
+    <value>(UTC+09:00) Σεούλ</value>
+  </data>
+  <data name="Transbaikal Standard Time" xml:space="preserve">
+    <value>(UTC+09:00) Τσιτά</value>
+  </data>
+  <data name="Asia/Chita" xml:space="preserve">
+    <value>(UTC+09:00) Τσιτά</value>
+  </data>
+  <data name="Cen. Australia Standard Time" xml:space="preserve">
+    <value>(UTC+09:30) Αδελαΐδα</value>
+  </data>
+  <data name="Australia/Adelaide" xml:space="preserve">
+    <value>(UTC+09:30) Αδελαΐδα</value>
+  </data>
+  <data name="AUS Central Standard Time" xml:space="preserve">
+    <value>(UTC+09:30) Ντάργουιν</value>
+  </data>
+  <data name="Australia/Darwin" xml:space="preserve">
+    <value>(UTC+09:30) Ντάργουιν</value>
+  </data>
+  <data name="Vladivostok Standard Time" xml:space="preserve">
+    <value>(UTC+10:00) Βλαδιβοστόκ</value>
+  </data>
+  <data name="Asia/Vladivostok" xml:space="preserve">
+    <value>(UTC+10:00) Βλαδιβοστόκ</value>
+  </data>
+  <data name="West Pacific Standard Time" xml:space="preserve">
+    <value>(UTC+10:00) Γκουάμ, Πορτ Μόρεσμπι</value>
+  </data>
+  <data name="Pacific/Port_Moresby" xml:space="preserve">
+    <value>(UTC+10:00) Γκουάμ, Πορτ Μόρεσμπι</value>
+  </data>
+  <data name="AUS Eastern Standard Time" xml:space="preserve">
+    <value>(UTC+10:00) Καμπέρα, Μελβούρνη, Σίντνεϋ</value>
+  </data>
+  <data name="Australia/Sydney" xml:space="preserve">
+    <value>(UTC+10:00) Καμπέρα, Μελβούρνη, Σίντνεϋ</value>
+  </data>
+  <data name="E. Australia Standard Time" xml:space="preserve">
+    <value>(UTC+10:00) Μπρίσμπεϊν</value>
+  </data>
+  <data name="Australia/Brisbane" xml:space="preserve">
+    <value>(UTC+10:00) Μπρίσμπεϊν</value>
+  </data>
+  <data name="Tasmania Standard Time" xml:space="preserve">
+    <value>(UTC+10:00) Χόμπαρτ</value>
+  </data>
+  <data name="Australia/Hobart" xml:space="preserve">
+    <value>(UTC+10:00) Χόμπαρτ</value>
+  </data>
+  <data name="Lord Howe Standard Time" xml:space="preserve">
+    <value>(UTC+10:30) Νησί Λορντ Χάου</value>
+  </data>
+  <data name="Australia/Lord_Howe" xml:space="preserve">
+    <value>(UTC+10:30) Νησί Λορντ Χάου</value>
+  </data>
+  <data name="Magadan Standard Time" xml:space="preserve">
+    <value>(UTC+11:00) Μάγκανταν</value>
+  </data>
+  <data name="Asia/Magadan" xml:space="preserve">
+    <value>(UTC+11:00) Μάγκανταν</value>
+  </data>
+  <data name="Bougainville Standard Time" xml:space="preserve">
+    <value>(UTC+11:00) Νήσος Μπουγκενβίλ</value>
+  </data>
+  <data name="Pacific/Bougainville" xml:space="preserve">
+    <value>(UTC+11:00) Νήσος Μπουγκενβίλ</value>
+  </data>
+  <data name="Norfolk Standard Time" xml:space="preserve">
+    <value>(UTC+11:00) Νήσος Νόρφολκ</value>
+  </data>
+  <data name="Pacific/Norfolk" xml:space="preserve">
+    <value>(UTC+11:00) Νήσος Νόρφολκ</value>
+  </data>
+  <data name="Central Pacific Standard Time" xml:space="preserve">
+    <value>(UTC+11:00) Νησιά Σολομώντα, Νέα Καληδονία</value>
+  </data>
+  <data name="Pacific/Guadalcanal" xml:space="preserve">
+    <value>(UTC+11:00) Νησιά Σολομώντα, Νέα Καληδονία</value>
+  </data>
+  <data name="Sakhalin Standard Time" xml:space="preserve">
+    <value>(UTC+11:00) Σαχαλίνη</value>
+  </data>
+  <data name="Asia/Sakhalin" xml:space="preserve">
+    <value>(UTC+11:00) Σαχαλίνη</value>
+  </data>
+  <data name="Russia Time Zone 10" xml:space="preserve">
+    <value>(UTC+11:00) Τσοκουρντάχ</value>
+  </data>
+  <data name="Asia/Srednekolymsk" xml:space="preserve">
+    <value>(UTC+11:00) Τσοκουρντάχ</value>
+  </data>
+  <data name="New Zealand Standard Time" xml:space="preserve">
+    <value>(UTC+12:00) Όκλαντ, Γουέλλινγκτον</value>
+  </data>
+  <data name="Pacific/Auckland" xml:space="preserve">
+    <value>(UTC+12:00) Όκλαντ, Γουέλλινγκτον</value>
+  </data>
+  <data name="Russia Time Zone 11" xml:space="preserve">
+    <value>(UTC+12:00) Αναντίρ, Πετροπαβλόσκ-Καμτσάτσκι</value>
+  </data>
+  <data name="Asia/Kamchatka" xml:space="preserve">
+    <value>(UTC+12:00) Αναντίρ, Πετροπαβλόσκ-Καμτσάτσκι</value>
+  </data>
+  <data name="Kamchatka Standard Time" xml:space="preserve">
+    <value>(UTC+12:00) Πετροπαβλόσκ-Καμτσάτσκι - Παλαιό</value>
+  </data>
+  <data name="UTC+12" xml:space="preserve">
+    <value>(UTC+12:00) Συντονισμένη παγκόσμια ώρα+12</value>
+  </data>
+  <data name="Etc/GMT-12" xml:space="preserve">
+    <value>(UTC+12:00) Συντονισμένη παγκόσμια ώρα+12</value>
+  </data>
+  <data name="Fiji Standard Time" xml:space="preserve">
+    <value>(UTC+12:00) Φίτζι</value>
+  </data>
+  <data name="Pacific/Fiji" xml:space="preserve">
+    <value>(UTC+12:00) Φίτζι</value>
+  </data>
+  <data name="Chatham Islands Standard Time" xml:space="preserve">
+    <value>(UTC+12:45) Νήσοι Τσάταμ</value>
+  </data>
+  <data name="Pacific/Chatham" xml:space="preserve">
+    <value>(UTC+12:45) Νήσοι Τσάταμ</value>
+  </data>
+  <data name="Tonga Standard Time" xml:space="preserve">
+    <value>(UTC+13:00) Νουκουαλόφα</value>
+  </data>
+  <data name="Pacific/Tongatapu" xml:space="preserve">
+    <value>(UTC+13:00) Νουκουαλόφα</value>
+  </data>
+  <data name="Samoa Standard Time" xml:space="preserve">
+    <value>(UTC+13:00) Σαμόα</value>
+  </data>
+  <data name="Pacific/Apia" xml:space="preserve">
+    <value>(UTC+13:00) Σαμόα</value>
+  </data>
+  <data name="UTC+13" xml:space="preserve">
+    <value>(UTC+13:00) Συντονισμένη παγκόσμια ώρα+13</value>
+  </data>
+  <data name="Etc/GMT-13" xml:space="preserve">
+    <value>(UTC+13:00) Συντονισμένη παγκόσμια ώρα+13</value>
+  </data>
+  <data name="Line Islands Standard Time" xml:space="preserve">
+    <value>(UTC+14:00) Κιριμάτι</value>
+  </data>
+  <data name="Pacific/Kiritimati" xml:space="preserve">
+    <value>(UTC+14:00) Κιριμάτι</value>
+  </data>
+
+</root>

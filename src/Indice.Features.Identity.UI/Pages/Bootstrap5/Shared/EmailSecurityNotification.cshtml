@@ -32,7 +32,7 @@
     @Localizer.EmailSecurity_Body_ContactSupport<br /><br />
     <strong>@Localizer.EmailSecurity_Body_EventDetails</strong><br />
     <ul>
-        <li>@Localizer.EmailSecurity_Body_EventTime: @Model.TimeStamp.LocalDateTime.ToString("f")</li>
+        <li>@Localizer.EmailSecurity_Body_EventTime: @Model.TimeStamp.ToString()</li>
         <li>@Localizer.EmailSecurity_Body_Username: @Model.UserName</li>
         <li>@Localizer.EmailSecurity_Body_Email: @Model.User?.Email</li>
         @if (Model.Device != null)
@@ -50,5 +50,8 @@
     </ul>
 </p>
 <p style="font-family: 'Century Gothic', Arial, sans-serif, Helvetica, Arial, sans-serif; font-size: 12px;">
-    @Localizer.Email_Body_Sincerely, @Localizer.Email_Body_Organization_Signature(settings.Organization!)
+    @Localizer.Email_Body_Sincerely,
+    <br />
+    <br />
+    @Localizer.Email_Body_Organization_Signature(settings.Organization!)
 </p>

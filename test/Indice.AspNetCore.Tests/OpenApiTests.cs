@@ -59,7 +59,8 @@ public class OpenApiTests : IAsyncLifetime
                     services.ConfigureHttpJsonOptions(options => {
                         ConfigureIndiceHttpJsonOptions(options.SerializerOptions);
                      });
-                    services.AddOpenApi(options => options.AddDocumentInfo().ControllerActionAsOperationId());
+                    services.AddOpenApi("tests", options => options.AddDocumentInfo().ControllerActionAsOperationId());
+                    services.AddOpenApi("nullables", options => options.AddDocumentInfo().ControllerActionAsOperationId());
                     services.AddEndpointsApiExplorer();
                     services.AddControllers().ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new OpenApiTestFeatureProvider()));
                 });
@@ -67,6 +68,7 @@ public class OpenApiTests : IAsyncLifetime
                     app.UseRouting();
                     app.UseEndpoints(e => {
                         e.MapTestEndpoints();
+                        e.MapNullableTestEndpoints();
                         e.MapControllers();
                         e.MapOpenApi();
                     });
@@ -105,7 +107,7 @@ public class OpenApiTests : IAsyncLifetime
         var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>(jsonOptions);
 
         Assert.NotEmpty(menu!);
-        var openApi = await _httpClient.GetStringAsync("openapi/v1.json");
+        var openApi = await _httpClient.GetStringAsync("openapi/tests.json");
         Assert.NotEmpty(openApi);
 
         var json = JsonNode.Parse(openApi);
@@ -126,6 +128,25 @@ public class OpenApiTests : IAsyncLifetime
         var parameterEnumSchema = json!["paths"]!["/mvc/menu"]!["get"]!["parameters"]![0]!["schema"];
         var expectedSampleEnumSchema = "{\"enum\":[1,2,3],\"type\":\"integer\",\"x-enum-varnames\":[\"Value1\",\"Value2\",\"Value3\"]}";
         Assert.Equal(expectedSampleEnumSchema, parameterEnumSchema!.ToJsonString());
+
+
+        var longListTypeSchema = json!["components"]!["schemas"]!["LongListType"];
+        Assert.NotNull(longListTypeSchema);
+        var longListTypeAsStringSchema = json!["components"]!["schemas"]!["LongListTypeAsString"];
+        Assert.NotNull(longListTypeAsStringSchema);
+    }
+    [Fact]
+    public async Task OpenApiHandlesNullableEnumsModels() {
+        var openApi = await _httpClient.GetStringAsync("openapi/nullables.json");
+        Assert.NotEmpty(openApi);
+
+        var json = JsonNode.Parse(openApi);
+        var actualSchema = json!["components"]!["schemas"]!["NullableEnumsTestRequest"];
+        var expectedSchema = "{\"type\":\"object\",\"properties\":{\"nullableType\":{\"allOf\":[{\"$ref\":\"#/components/schemas/NullableEnumsType\"}],\"additionalProperties\":false,\"nullable\":true}},\"additionalProperties\":false}";
+        Assert.Equal(expectedSchema, actualSchema!.ToJsonString());
+        var actualEnumSchema = json!["components"]!["schemas"]!["NullableEnumsType"];
+        var expectedEnumSchema = "{\"enum\":[0,1,2,3],\"type\":\"integer\",\"x-enum-varnames\":[\"Valid\",\"Invalid\",\"Draft\",\"Deleted\"]}";
+        Assert.Equal(expectedEnumSchema, actualEnumSchema!.ToJsonString());
     }
 }
 #else
@@ -142,7 +163,7 @@ public class OpenApiTests : IAsyncLifetime
         var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>(jsonOptions);
 
         Assert.NotEmpty(menu!);
-        var openApi = await _httpClient.GetStringAsync("openapi/v1.json");
+        var openApi = await _httpClient.GetStringAsync("openapi/tests.json");
         Assert.NotEmpty(openApi);
 
         var json = JsonNode.Parse(openApi);
@@ -165,13 +186,18 @@ public class OpenApiTests : IAsyncLifetime
 
         var parameterEnumSchema = json!["paths"]!["/mvc/menu"]!["get"]!["parameters"]![0]!["schema"];
         Assert.Equal("{\"$ref\":\"#/components/schemas/SampleEnum\"}", parameterEnumSchema!.ToJsonString());
+
+        var longListTypeSchema = json!["components"]!["schemas"]!["LongListType"];
+        Assert.NotNull(longListTypeSchema);
+        var longListTypeAsStringSchema = json!["components"]!["schemas"]!["LongListTypeAsString"];
+        Assert.NotNull(longListTypeAsStringSchema);
     }
 }
 #endif
 
 public class OpenApiTestsModels
 {
-    public class MenuItem
+    public class MenuItem 
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
@@ -184,7 +210,6 @@ public class OpenApiTestsModels
         public IFormFile? File { get; set; }
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
-
     }
     public class AttachmentLink
     {
@@ -223,9 +248,113 @@ public class OpenApiTestsModels
         public List<DateTime> Schedule { get; set; } = [];
         public Dictionary<string, string> Mappings { get; set; } = [];
     }
+
+    public class NullableEnumsTestRequest { 
+        public NullableEnumsType? NullableType { get; set; }
+    }
+    public enum NullableEnumsType
+    {
+        Valid,
+        Invalid,
+        Draft,
+        Deleted,
+
+    }
+    public class LongListRequest
+    {
+        public LongListType LongList { get; set; } = LongListType.None;
+        public LongListTypeAsString LongListText { get; set; } = LongListTypeAsString.None;
+    }
+    [Flags]
+    public enum LongListType : long
+    {
+        None = 0,
+        A = 1L << 0,    // 1
+        B = 1L << 1,    // 2
+        C = 1L << 2,    // 4
+        D = 1L << 3,    // 8
+        E = 1L << 4,    // 16
+        F = 1L << 5,    // 32
+        G = 1L << 6,    // 64
+        H = 1L << 7,    // 128
+        I = 1L << 8,    // 256
+        J = 1L << 9,    // 512
+        K = 1L << 10,   // 1024
+        L = 1L << 11,   // 2048
+        M = 1L << 12,   // 4096
+        N = 1L << 13,   // 8192
+        O = 1L << 14,   // 16384
+        P = 1L << 15,   // 32768
+        Q = 1L << 16,   // 65536
+        R = 1L << 17,   // 131072
+        S = 1L << 18,   // 262144
+        T = 1L << 19,   // 524288
+        U = 1L << 20,   // 1048576
+        V = 1L << 21,   // 2097152
+        W = 1L << 22,   // 4194304
+        X = 1L << 23,   // 8388608
+        Y = 1L << 24,   // 16777216
+        Z = 1L << 25,   // 33554432
+        AA = 1L << 26,  // 67108864
+        AB = 1L << 27,  // 134217728
+        AC = 1L << 28,  // 268435456
+        AD = 1L << 29,  // 536870912
+        AE = 1L << 30,  // 1073741824
+        AF = 1L << 31,  // 2147483648
+        AG = 1L << 32,  // 4294967296
+        AH = 1L << 33,  // 8589934592
+        AI = 1L << 34,  // 17179869184
+        AJ = 1L << 35,  // 34359738368
+        AK = 1L << 36   // 68719476736
+    }
+
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum LongListTypeAsString : long
+    {
+        None = 0,
+        A = 1L << 0,    // 1
+        B = 1L << 1,    // 2
+        C = 1L << 2,    // 4
+        D = 1L << 3,    // 8
+        E = 1L << 4,    // 16
+        F = 1L << 5,    // 32
+        G = 1L << 6,    // 64
+        H = 1L << 7,    // 128
+        I = 1L << 8,    // 256
+        J = 1L << 9,    // 512
+        K = 1L << 10,   // 1024
+        L = 1L << 11,   // 2048
+        M = 1L << 12,   // 4096
+        N = 1L << 13,   // 8192
+        O = 1L << 14,   // 16384
+        P = 1L << 15,   // 32768
+        Q = 1L << 16,   // 65536
+        R = 1L << 17,   // 131072
+        S = 1L << 18,   // 262144
+        T = 1L << 19,   // 524288
+        U = 1L << 20,   // 1048576
+        V = 1L << 21,   // 2097152
+        W = 1L << 22,   // 4194304
+        X = 1L << 23,   // 8388608
+        Y = 1L << 24,   // 16777216
+        Z = 1L << 25,   // 33554432
+        AA = 1L << 26,  // 67108864
+        AB = 1L << 27,  // 134217728
+        AC = 1L << 28,  // 268435456
+        AD = 1L << 29,  // 536870912
+        AE = 1L << 30,  // 1073741824
+        AF = 1L << 31,  // 2147483648
+        AG = 1L << 32,  // 4294967296
+        AH = 1L << 33,  // 8589934592
+        AI = 1L << 34,  // 17179869184
+        AJ = 1L << 35,  // 34359738368
+        AK = 1L << 36   // 68719476736
+    }
 }
 
 [ApiController]
+[ApiExplorerSettings(GroupName = "tests")]
 public class OpenApiTestsController
 {
     [HttpGet("/mvc/menu")]
@@ -268,6 +397,7 @@ public static class OpenApiTestsEndpoints
 {
     public static IEndpointRouteBuilder MapTestEndpoints(this IEndpointRouteBuilder routes) {
         var group = routes.MapGroup("tests");
+        group.WithGroupName("tests");
         group.WithTags("Tests");
         group.MapGet("menu", GetMenuItems)
              .WithName(nameof(GetMenuItems));
@@ -276,6 +406,18 @@ public static class OpenApiTestsEndpoints
              .Accepts<UploadFileRequest>(MediaTypeNames.Multipart.FormData);
         group.MapPost("converters", UpdateWithConverters)
              .WithName(nameof(UpdateWithConverters));
+        group.MapPost("long-enum", UpdateLongTypeEnum)
+             .WithName(nameof(UpdateLongTypeEnum));
+
+
+        return routes;
+    }
+    public static IEndpointRouteBuilder MapNullableTestEndpoints(this IEndpointRouteBuilder routes) {
+        var group = routes.MapGroup("tests");
+        group.WithGroupName("nullables");
+        group.WithTags("Tests");
+        group.MapPost("nullable-enum", PostNullableEnum)
+             .WithName(nameof(PostNullableEnum));
 
 
         return routes;
@@ -302,6 +444,12 @@ public static class OpenApiTestsEndpoints
         return TypedResults.Ok(items);
     }
     public static NoContent UpdateWithConverters(PrimitivesTestRequest request) {
+        return TypedResults.NoContent();
+    }
+    public static NoContent UpdateLongTypeEnum(LongListRequest request) {
+        return TypedResults.NoContent();
+    }
+    public static NoContent PostNullableEnum(NullableEnumsTestRequest request) {
         return TypedResults.NoContent();
     }
 

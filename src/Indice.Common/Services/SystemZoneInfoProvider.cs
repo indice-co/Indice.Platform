@@ -18,7 +18,7 @@ public class SystemZoneInfoProvider : IZoneInfoProvider
             .GetSystemTimeZones()
             .Select(tz => new ZoneInfo(
                 id: tz.Id,
-                displayName: tz.DisplayName,
+                systemDisplayName: tz.DisplayName,
                 baseUtcOffset: tz.BaseUtcOffset,
                 standardName: tz.StandardName,
                 daylightName: tz.DaylightName
@@ -28,3 +28,4 @@ public class SystemZoneInfoProvider : IZoneInfoProvider
         return _zoneInfos;
     }
 }
+

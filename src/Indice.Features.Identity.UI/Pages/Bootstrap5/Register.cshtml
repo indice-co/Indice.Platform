@@ -146,7 +146,10 @@
             <div class="col-md-12">
                 <div class="mb-3">
                     <label asp-for="Input.Password" class="form-label">@Localizer.Register_Password</label>
-                    <input class="form-control" type="password" asp-for="Input.Password" data-sbind="event: { keyup: passwordChanged }" placeholder="@Localizer.Register_Password" autocomplete="new-password" />
+                    <div class="password-control">
+                        <input class="form-control password" type="password" placeholder="@Localizer.Register_Password" data-sbind="event: { keyup: passwordChanged }" asp-for="Input.Password" autocomplete="new-password" />
+                        <i role="button" class="reveal-icon" aria-label="Show password" title="Show password" aria-pressed="false"></i>
+                    </div>
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
             </div>
@@ -213,10 +216,11 @@
 
 @section scripts {
     <partial name="_ValidationScripts" />
-    <script type="text/javascript" src="/lib/knockout/build/output/knockout-latest.js" csp-nonce="true"></script>
-    <script type="text/javascript" src="/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
-    <script type="text/javascript" src="/js/utilities.js" csp-nonce="true"></script>
-    <script type="text/javascript" src="/js/password-rules.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/lib/knockout/build/output/knockout-latest.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/utilities.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/password-rules.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/reveal-password.js" csp-nonce="true"></script>
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {
         el.onclick = function (link) {

@@ -38,8 +38,15 @@ public static class NullableTransformer
                 foreach (var property in schema.Properties) {
                     if (property.Value is OpenApiSchema propSchema) {
                         // Remove the null type for required properties
-                        if (schema.Required?.Contains(property.Key) != true) {
-                            propSchema.Type &= ~JsonSchemaType.Null;
+                        if (schema.Required?.Contains(property.Key) == true) {
+                            if (propSchema.Type is not null) {
+                                propSchema.Type &= ~JsonSchemaType.Null;
+                            } else if (propSchema.OneOf is not null && propSchema.OneOf.Count == 2) {
+                                var nullSchema = propSchema.OneOf.FirstOrDefault(type => type.Type == JsonSchemaType.Null);
+                                if (nullSchema is not null) {
+                                    propSchema.OneOf.Remove(nullSchema);
+                                }
+                            }
                         }
                     }
                 }
@@ -49,9 +56,6 @@ public static class NullableTransformer
                 schema.Enum = schema.Enum
                     .Where(e => e is not null)
                     .ToList();
-            }
-            if (schema.Format is not null && schema.Format == "binary") {
-                schema.Type &= ~JsonSchemaType.Null;
             }
             return Task.CompletedTask;
         });

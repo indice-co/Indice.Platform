@@ -178,10 +178,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         // Add store decorators for caching after calling AddDotnet7CompatibleStores.
         .AddInMemoryCaching()
         .AddClientStoreCache<IndiceStores.ClientStore>()
-        .AddClientStoreCacheInvalidation()
         .AddResourceStoreCache<IndiceStores.ResourceStore>()
         .AddCorsPolicyCache<CorsPolicyService>()
 #endif
+        .AddClientStoreCacheInvalidation()
         ;
         if (webHostEnvironment.IsDevelopment()) {
             IdentityModelEventSource.ShowPII = true;
@@ -431,6 +431,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                 "register" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
                 "login/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
                 "login/add-phone" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                "login/verify-phone" => new() { PermitLimit = 3, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
                 "login/mfa/onboarding/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
                 "login/mfa/onboarding/add-phone" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
                 "manage/profile" => new() { PermitLimit = 2, Window = TimeSpan.FromSeconds(3), HttpMethod = "POST" },
