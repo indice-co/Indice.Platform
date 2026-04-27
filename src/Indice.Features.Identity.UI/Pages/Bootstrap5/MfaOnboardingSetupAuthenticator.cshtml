@@ -1,0 +1,48 @@
+@page "/login/mfa/onboarding/setup-authenticator"
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/mfa/onboarding/setup-authenticator")]
+@model BaseMfaOnboardingSetupAuthenticatorModel
+
+@inject IdentityUILocalizer Localizer
+
+@{
+    ViewBag.Title = Localizer.MfaOnBoardingSetupAuthenticator_PageTitle;
+}
+
+<div class="sign-in m-auto">
+    <vc:page-heading title="@Localizer.MfaOnBoardingSetupAuthenticator_PageHeader" image-src="" />
+    <partial name="_ValidationSummary" />
+
+    <p class="text-muted">@Localizer.MfaOnBoardingSetupAuthenticator_ScanQrCode</p>
+
+    <div class="d-flex justify-content-center mb-3">
+        <div id="qrCode" class="p-3 border rounded bg-white"></div>
+    </div>
+    <div id="qrCodeData" data-url="@Model.View.AuthenticatorUri" class="d-none"></div>
+
+    <p class="small text-muted mb-1">@Localizer.MfaOnBoardingSetupAuthenticator_OrEnterManually</p>
+    <p class="fw-semibold font-monospace text-break mb-4">@Model.View.FormattedSharedKey</p>
+
+    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
+        <input type="hidden" asp-for="Input.ReturnUrl" />
+        <div class="mb-3">
+            <label asp-for="Input.Code" class="form-label">@Localizer.MfaOnBoardingSetupAuthenticator_VerificationCode</label>
+            <input asp-for="Input.Code"
+                   class="form-control"
+                   placeholder="@Localizer.MfaOnBoardingSetupAuthenticator_VerificationCode"
+                   autocomplete="one-time-code"
+                   inputmode="numeric"
+                   maxlength="6"
+                   autofocus />
+            <span asp-validation-for="Input.Code" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-info w-100" type="submit">@Localizer.MfaOnBoardingSetupAuthenticator_Verify</button>
+        </div>
+    </form>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+    <script type="text/javascript" src="~/lib/qrcodejs2/qrcode.min.js" csp-nonce></script>
+    <script type="text/javascript" src="~/js/qr.js" csp-nonce></script>
+}

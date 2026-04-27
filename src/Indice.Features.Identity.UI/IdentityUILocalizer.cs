@@ -623,6 +623,11 @@ public class IdentityUILocalizer
     /// </summary>
     public virtual HtmlString Mfa_Check_Your_Inbox(string email) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_CheckYourInbox, email));
 
+    /// <summary>
+    ///   Gets the localized string for "Open your authenticator app and enter the verification code.".
+    /// </summary>
+    public virtual HtmlString Mfa_EnterCodeFromAuthenticatorApp => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_EnterCodeFromAuthenticatorApp));
+
     #endregion
 
 
@@ -725,7 +730,68 @@ public class IdentityUILocalizer
     public virtual HtmlString MfaOnBoardingVerifyEmail_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyEmail_PageHeader));
     #endregion
 
+    #region MfaOnBoardingSetupAuthenticator
 
+    /// <summary>
+    ///   Gets the localized string for "Set up authenticator app".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingSetupAuthenticator_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingSetupAuthenticator_PageTitle));
+
+    /// <summary>
+    ///   Gets the localized string for "Set up authenticator app".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingSetupAuthenticator_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingSetupAuthenticator_PageHeader));
+
+    /// <summary>
+    ///   Gets the localized string for "Scan the QR code below with your authenticator app (e.g. Microsoft Authenticator, Google Authenticator).".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingSetupAuthenticator_ScanQrCode => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingSetupAuthenticator_ScanQrCode));
+
+    /// <summary>
+    ///   Gets the localized string for "If you cannot scan the QR code, enter this key manually:".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingSetupAuthenticator_OrEnterManually => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingSetupAuthenticator_OrEnterManually));
+
+    /// <summary>
+    ///   Gets the localized string for "Verification code".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingSetupAuthenticator_VerificationCode => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingSetupAuthenticator_VerificationCode));
+
+    /// <summary>
+    ///   Gets the localized string for "Verify".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingSetupAuthenticator_Verify => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingSetupAuthenticator_Verify));
+
+    /// <summary>
+    ///   Gets the localized string for "Verification code is invalid.".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingSetupAuthenticator_InvalidCode => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingSetupAuthenticator_InvalidCode));
+
+    #endregion
+
+    #region MfaOnBoardingRecoveryCodes
+
+    /// <summary>
+    ///   Gets the localized string for "Recovery codes".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_PageTitle));
+
+    /// <summary>
+    ///   Gets the localized string for "Save your recovery codes".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_PageHeader));
+
+    /// <summary>
+    ///   Gets the localized string for "Save these recovery codes in a safe place...".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_SaveWarning => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_SaveWarning));
+
+    /// <summary>
+    ///   Gets the localized string for "I have saved my codes".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_Continue => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_Continue));
+
+    #endregion
 
     #region MfaOnBoardingAddEmail
 

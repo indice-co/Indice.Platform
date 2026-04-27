@@ -1,0 +1,29 @@
+@page "/login/mfa/onboarding/recovery-codes"
+@model BaseMfaOnboardingRecoveryCodesModel
+
+@inject IdentityUILocalizer Localizer
+
+@{
+    ViewBag.Title = Localizer.MfaOnBoardingRecoveryCodes_PageTitle;
+}
+
+<div class="sign-in m-auto">
+    <vc:page-heading title="@Localizer.MfaOnBoardingRecoveryCodes_PageHeader" image-src="" />
+
+    <div class="alert alert-warning mb-4">
+        @Localizer.MfaOnBoardingRecoveryCodes_SaveWarning
+    </div>
+
+    <div class="row g-2 mb-4">
+        @foreach (var code in Model.View.RecoveryCodes)
+        {
+            <div class="col-6">
+                <code class="d-block p-2 border rounded bg-light text-center user-select-all">@code</code>
+            </div>
+        }
+    </div>
+
+    <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
+        <button class="btn btn-info w-100" type="submit">@Localizer.MfaOnBoardingRecoveryCodes_Continue</button>
+    </form>
+</div>

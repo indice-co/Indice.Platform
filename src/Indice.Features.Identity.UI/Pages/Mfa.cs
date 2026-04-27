@@ -6,6 +6,7 @@ using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Features.Identity.UI.Models;
 using Indice.Services;
@@ -149,6 +150,7 @@ public abstract class BaseMfaModel : BasePageModel
             IsExistingBrowser = browserDevice?.MfaSessionActive() ?? false,
             Error = hasError ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null,
             ResendEnabled = !hasError &&
+                authenticationMethod?.Type != AuthenticationMethodType.AuthenticatorApp &&
                 (authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms ||
                  authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification ||
                  authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Email),

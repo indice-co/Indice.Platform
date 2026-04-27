@@ -729,6 +729,42 @@
   <data name="MfaOnBoardingVerifyPhone_PageHeader" xml:space="preserve">
     <value>Επιβεβαίωση αριθμού τηλεφώνου</value>
   </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageTitle" xml:space="preserve">
+    <value>Ρύθμιση εφαρμογής ελέγχου ταυτότητας</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageHeader" xml:space="preserve">
+    <value>Ρύθμιση εφαρμογής ελέγχου ταυτότητας</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_ScanQrCode" xml:space="preserve">
+    <value>Σαρώστε τον παρακάτω κωδικό QR με την εφαρμογή ελέγχου ταυτότητας (π.χ. Microsoft Authenticator, Google Authenticator).</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_OrEnterManually" xml:space="preserve">
+    <value>Αν δεν μπορείτε να σαρώσετε τον κωδικό QR, εισαγάγετε αυτό το κλειδί χειροκίνητα:</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_VerificationCode" xml:space="preserve">
+    <value>Κωδικός επιβεβαίωσης</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_Verify" xml:space="preserve">
+    <value>Επιβεβαίωση</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_InvalidCode" xml:space="preserve">
+    <value>Ο κωδικός επιβεβαίωσης δεν είναι έγκυρος.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageTitle" xml:space="preserve">
+    <value>Κωδικοί ανάκτησης</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageHeader" xml:space="preserve">
+    <value>Αποθηκεύστε τους κωδικούς ανάκτησης</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_SaveWarning" xml:space="preserve">
+    <value>Αποθηκεύστε αυτούς τους κωδικούς ανάκτησης σε ασφαλές μέρος. Κάθε κωδικός μπορεί να χρησιμοποιηθεί μία φορά αν χάσετε την πρόσβαση στην εφαρμογή ελέγχου ταυτότητας.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Continue" xml:space="preserve">
+    <value>Έχω αποθηκεύσει τους κωδικούς μου</value>
+  </data>
+  <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
+    <value>Ανοίξτε την εφαρμογή ελέγχου ταυτότητας και εισαγάγετε τον κωδικό επιβεβαίωσης.</value>
+  </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Αλλαγή κωδικού πρόσβασης</value>
   </data>

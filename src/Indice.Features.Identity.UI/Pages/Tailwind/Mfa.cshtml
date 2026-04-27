@@ -47,6 +47,11 @@
             {
                 <partial name="_MfaPushNotification" model="Model" />
             }
+
+            @if (Model.View.AuthenticationMethod?.Type == AuthenticationMethodType.AuthenticatorApp)
+            {
+                <partial name="_MfaAuthenticatorApp" model="Model" />
+            }
         </div>
     </div>
 </div>
