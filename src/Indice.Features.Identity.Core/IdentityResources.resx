@@ -520,6 +520,7 @@
   </data>
   <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
     <value>Provide a push notification using a trusted device.</value>
+  </data>
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>The field 'Timezone' has invalid format.</value>
   </data>

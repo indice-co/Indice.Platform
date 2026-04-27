@@ -476,6 +476,7 @@
   </data>
   <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
     <value>Ricevi una notifica push tramite un dispositivo attendibile.</value>
+    </data>
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>Il campo 'Fuso orario' ha un formato non valido.</value>
   </data>
