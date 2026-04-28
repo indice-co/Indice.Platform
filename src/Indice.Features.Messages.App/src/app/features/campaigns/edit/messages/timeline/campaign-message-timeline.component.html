@@ -87,13 +87,13 @@
               class="absolute flex items-center justify-center w-8 h-8 rounded-full -start-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900"
               [ngClass]="event.success ? 'bg-blue-100' : 'bg-red-100'">
               @if (event.channel === 'Inbox') {
-                <i class="ms-Icon ms-Icon--Accounts"></i>
+                <i class="ms-Icon ms-Icon--Inbox"></i>
               }
               @if (event.channel === 'SMS') {
                 <i class="ms-Icon ms-Icon--Chat"></i>
               }
               @if (event.channel === 'Email') {
-                <i class="ms-Icon ms-Icon--Inbox"></i>
+                <i class="ms-Icon ms-Icon--Accounts"></i>
               }
               @if (event.channel === 'PushNotification') {
                 <i class="ms-Icon ms-Icon--CellPhone"></i>
