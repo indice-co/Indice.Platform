@@ -57,6 +57,20 @@ public static class NullableTransformer
                             }
                             propSchema.Metadata?.Remove("x-is-nullable-property");
                         }
+                        // FormFile
+                        if (propSchema.OneOf is not null && propSchema.OneOf.Any(s => s.Format == "binary")) {
+                            var nullBranch = propSchema.OneOf.FirstOrDefault(s => s.Type == JsonSchemaType.Null);
+                            if (nullBranch is not null) {
+                                propSchema.OneOf.Remove(nullBranch);
+                            }
+                            // If only one branch survives, collapse it into the parent so renderers don't show "oneOf [X]"
+                            if (propSchema.OneOf.Count == 1 && propSchema.OneOf[0] is OpenApiSchema only) {
+                                propSchema.Type ??= (only.Type | JsonSchemaType.Null);
+                                propSchema.Items ??= only.Items;
+                                propSchema.Format ??= only.Format;
+                                propSchema.OneOf.Clear();
+                            }
+                        }
                     }
                 }
             }
