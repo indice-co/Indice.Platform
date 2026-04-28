@@ -1059,7 +1059,7 @@ input[type=password]::-ms-clear {
 }
 
 .extra-icon .reveal-icon {
-  transform: translate(-50%, 100%);
+  transform: translate(-200%, -50%);
 }
 
 input.password[type=text] + .reveal-icon::before,
