@@ -14,7 +14,7 @@ namespace Indice.AspNetCore.Http.Headers;
 /// as Envoy) using the "x-forwarded-client-cert" header. It supports parsing structured forwarded certificate header
 /// values, such as Envoy-style key/value pairs containing fields like <c>Cert</c>. Use this class when you need to
 /// extract and validate client certificates from HTTP headers in environments where direct TLS termination is not
-/// performed by the application.</remarks>
+public static class CertificateForwardingHeaderConverters
 public class CertificateForwardingHeaderConverters
 {
     /// <summary>
