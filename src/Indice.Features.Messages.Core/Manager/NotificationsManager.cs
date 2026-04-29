@@ -171,14 +171,24 @@ public class NotificationsManager(
         }
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var isNewDistributionList = false;
+        if (string.IsNullOrEmpty(request.Title)) {
+            if(!request.MessageTemplateId.HasValue) {
+                return CreateCampaignResult.Fail("Title is required when MessageTemplateId is not provided.");
+            }
+            var template = await TemplateService.GetById(request.MessageTemplateId);
+            if(template == null) {
+                return CreateCampaignResult.Fail($"The selected Template with Id:({request.MessageTemplateId}) does not exist");
+            }
+            request.Title = template!.Name.Truncate(127)!;
+        }
         // If a distribution list id is not set, then we create a new list.
         if (!request.RecipientListId.HasValue) {
-            var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
-                Name = $"{request.Title.Truncate(110)} - {timestamp}",
-                IsSystemGenerated = true
-            }, request.GetIncludedContacts());
-            request.RecipientListId = createdList.Id;
-            isNewDistributionList = true;
+        var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
+            Name = $"{request.Title.Truncate(110)} - {timestamp}",
+            IsSystemGenerated = true
+        }, request.GetIncludedContacts());
+        request.RecipientListId = createdList.Id;
+        isNewDistributionList = true;
         } else {
             // If a distribution list id is set, then we check if it exists.
             var distributionList = await DistributionListService.GetById(request.RecipientListId.Value);
