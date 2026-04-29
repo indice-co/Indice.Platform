@@ -96,7 +96,7 @@ public class IdentityUIOptions
     /// <summary>
     /// A collection of production environment names. Used to determine whether the environment is production and exclude the ribbon in the UI.
     /// </summary>
-    public StringValues ProductionEnvironments { get; set; } = new StringValues(new[] { "prod", "production", "live" });
+    public StringValues ProductionEnvironments { get; set; } = new StringValues([ "prod", "Production", "live" ]);
 
     /// <summary>Services shown in the homepage.</summary>
     public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {
