@@ -1,6 +1,6 @@
 ﻿namespace Indice.Types;
 
-/// <summary>Specifies the time frame for aggregating message event series data.</summary>
+/// <summary>Specifies a time frame for aggregating or filtering time-series data.</summary>
 public enum SeriesTimeFrame
 {
     /// <summary>filter last 24h.</summary>

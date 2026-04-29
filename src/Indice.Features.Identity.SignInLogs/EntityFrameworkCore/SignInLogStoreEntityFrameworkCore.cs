@@ -1,6 +1,6 @@
-﻿using Humanizer;
-using Indice.Features.Identity.SignInLogs.Abstractions;
+﻿using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
+using Indice.Globalization;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -35,7 +35,7 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
 
     /// <inheritdoc />
     public Task CreateAsync(SignInLogEntry logEntry, CancellationToken cancellationToken = default) =>
-        CreateManyAsync(new List<SignInLogEntry> { logEntry }, cancellationToken);
+        CreateManyAsync([logEntry], cancellationToken);
 
     /// <inheritdoc />
     public async Task CreateManyAsync(IEnumerable<SignInLogEntry> logEntries, CancellationToken cancellationToken = default) {
@@ -77,7 +77,7 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
 
 
     /// <inheritdoc />
-    public async Task<SignInLogMap> GetSignInLogMapAsync(SignInLogMapFilter filter, CancellationToken cancellationToken = default) {
+    public async Task<SignInLocationSet> GetSignInLocationsAsync(SignInLogMapFilter filter, CancellationToken cancellationToken = default) {
         var rangeStart = filter.TimeFrame switch {
             SeriesTimeFrame.Last24Hours => DateTimeOffset.UtcNow.AddHours(-24),
             SeriesTimeFrame.Last7Days => DateTimeOffset.UtcNow.Date.AddDays(-7),
@@ -87,16 +87,16 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
             _ => DateTimeOffset.UtcNow.Date.AddDays(-7)
         };
 
-        var set = new SignInLogMap();
         var query = _dbContext.SignInLogs.Where(x => x.CreatedAt >= rangeStart && x.CountryIsoCode != null && x.Coordinates != null)
-                             .GroupBy(x => new { CountryIsoCode = x.CountryIsoCode!, Lat = x.Coordinates!.Y, Lon = x.Coordinates!.X })
+                             .GroupBy(x => new { CountryIsoCode = x.CountryIsoCode!, DisplayName = x.Location!, Lat = x.Coordinates!.Y, Lon = x.Coordinates!.X })
                              .OrderByDescending(x => x.Count())
                              .Select(group => new SignInLogLocation(group.Key.CountryIsoCode,
+                                 group.Key.DisplayName,
                                  new GeoPoint(group.Key.Lat, group.Key.Lon),
                                  group.Count()));
-
-        set.Items = await query.ToListAsync();
-
+        var items = await query.ToListAsync(cancellationToken);
+        var set = new SignInLocationSet(items, items.Count);
+        set.CountryLegend = set.Items.Select(x => x.CountryCode).Distinct().ToDictionary(code => code, code => CountryInfo.GetCountryByNameOrCode(code).Name);
         return set;
     }
 }

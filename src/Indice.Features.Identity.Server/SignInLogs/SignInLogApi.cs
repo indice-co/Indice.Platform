@@ -56,11 +56,10 @@ public static class SignInLogApi
              .WithSummary("Patches the specified log entry by updating the properties given in the request.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeLogsWriter);
 
-        //Sign In Logs
-        // GET: /api/sign-in-logs
-        group.MapGet("sign-in-logs/overview/map", SignInLogHandlers.GetSignInLogMap)
-             .WithName(nameof(SignInLogHandlers.GetSignInLogMap))
-             .WithSummary("Gets aggregates for signins per country.")
+        // GET: /api/sign-in-logs/locations
+        group.MapGet("sign-in-logs/locations", SignInLogHandlers.GetSignInLocations)
+             .WithName(nameof(SignInLogHandlers.GetSignInLocations))
+             .WithSummary("Gets aggregates for sign-ins per city and country.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeLogsReader);
 
         return group;

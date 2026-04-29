@@ -23,5 +23,5 @@ public class SignInLogStoreNoop : ISignInLogStore
     public Task<int> UpdateAsync(Guid id, SignInLogEntryRequest model, CancellationToken cancellationToken = default) => Task.FromResult(0);
 
     /// <inheritdoc />
-    public Task<SignInLogMap> GetSignInLogMapAsync(SignInLogMapFilter filter, CancellationToken cancellationToken = default) => Task.FromResult(new SignInLogMap());
+    public Task<SignInLocationSet> GetSignInLocationsAsync(SignInLogMapFilter filter, CancellationToken cancellationToken = default) => Task.FromResult(new SignInLocationSet([], 0));
 }

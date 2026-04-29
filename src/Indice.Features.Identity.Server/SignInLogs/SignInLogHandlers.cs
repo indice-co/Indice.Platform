@@ -47,11 +47,11 @@ internal class SignInLogHandlers
         return rowsAffected == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
     }
 
-    public static async Task<Ok<SignInLogMap>> GetSignInLogMap(
+    public static async Task<Ok<SignInLocationSet>> GetSignInLocations(
             ISignInLogStore signInLogStore,
             [AsParameters] SignInLogMapFilter filter
         ) {
-        var perCountry = await signInLogStore.GetSignInLogMapAsync(filter);
+        var perCountry = await signInLogStore.GetSignInLocationsAsync(filter);
         return TypedResults.Ok(perCountry);
     }
 }
