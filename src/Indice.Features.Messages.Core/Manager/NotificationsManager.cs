@@ -171,7 +171,7 @@ public class NotificationsManager(
         }
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var isNewDistributionList = false;
-        if (string.IsNullOrEmpty(request.Title)) {
+        if (string.IsNullOrWhiteSpace(request.Title)) {
             if(!request.MessageTemplateId.HasValue) {
                 return CreateCampaignResult.Fail("Title is required when MessageTemplateId is not provided.");
             }
