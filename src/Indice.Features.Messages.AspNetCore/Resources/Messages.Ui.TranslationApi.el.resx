@@ -124,7 +124,7 @@
     <value>Επεξεργασία</value>
   </data>
   <data name="Contacts.Resolve" xml:space="preserve">
-    <value>Επίλυση</value>
+    <value>Ανάκτηση Στοιχείων</value>
   </data>
   <data name="Contacts.Duplicates" xml:space="preserve">
     <value>Διπλότυπα</value>
@@ -2105,7 +2105,6 @@
   <data name="Shared.Search" xml:space="preserve">
     <value>αναζήτηση</value>
   </data>
-
   <data name="Breadcrumb.Home" xml:space="preserve">
     <value>Αρχική</value>
   </data>
