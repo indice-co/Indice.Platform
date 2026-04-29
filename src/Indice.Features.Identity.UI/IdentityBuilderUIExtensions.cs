@@ -67,7 +67,8 @@ public static class IdentityBuilderUIExtensions
             foreach (var url in configuredOptions.ValidReturnUrls) {
                 options.ValidReturnUrls.Add(url);
             }
-            options.ProductionEnvironments = new StringValues(options.ProductionEnvironments.Concat(configuredOptions.ProductionEnvironments).ToArray());
+            options.ProductionEnvironments = new StringValues(options.ProductionEnvironments.Concat(configuredOptions.ProductionEnvironments)
+                                                                                            .Distinct(StringComparer.OrdinalIgnoreCase).ToArray());
         });
 #if NET9_0_OR_GREATER
         services.AddSingleton<IConfigureOptions<IdentityServerOptions>, IdentityServerOptionsConfigure>();
