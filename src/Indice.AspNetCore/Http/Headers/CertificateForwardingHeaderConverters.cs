@@ -23,14 +23,14 @@ public class CertificateForwardingHeaderConverters
     /// <remarks>This constant is typically used when working with reverse proxies that forward client
     /// certificate details to backend services. The header value may contain information about the client certificate
     /// presented to the proxy.</remarks>
-    public const string Envoy_ClientCertificateHeaderName = "x-forwarded-client-cert";
+    public const string EnvoyClientCertificateHeaderName = "x-forwarded-client-cert";
     /// <summary>
     /// Represents the HTTP header name used to forward client certificate information in proxy scenarios.  
     /// </summary>
     /// <remarks>This constant is typically used when working with reverse proxies that forward client
     /// certificate details to backend services. The header value may contain information about the client certificate
     /// presented to the proxy.</remarks>
-    public const string NGINX_ClientCertificateHeaderName = "ssl-client-cert";
+    public const string NginxClientCertificateHeaderName = "ssl-client-cert";
 
     /// <summary>
     /// Converts the value of the "x-forwarded-client-cert" header into an X509Certificate2 object. 
