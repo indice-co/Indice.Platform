@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild, OnDestroy, Inject } from '@angular/core';
-import { AbstractControl, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
+import { AbstractControl, FormGroup, FormArray, FormControl, ValidatorFn, Validators } from '@angular/forms';
 
 import { APP_LANGUAGES, MenuOption } from '@indice/ng-components';
 import { lastValueFrom, combineLatest, Subscription } from 'rxjs';
@@ -250,6 +250,9 @@ export class CampaignBasicInfoComponent implements OnInit, OnDestroy {
       this.template.setValue(null);
       this.templateSelected.emit(undefined);
     }
+
+    // Title becomes optional when a template is selected, required otherwise.
+    this.title.updateValueAndValidity();
   }
 
   public onNeedsTemplateChanged(event: any): void {
@@ -269,6 +272,9 @@ export class CampaignBasicInfoComponent implements OnInit, OnDestroy {
     this.templateCombobox.value = undefined;
     this.template.updateValueAndValidity();
     this.needsTemplate.setValue(value);
+
+    // Title requirement depends on whether a template is selected.
+    this.title.updateValueAndValidity();
   }
 
   private async _fetchMessageTypes(searchTerm: string | undefined): Promise<MessageTypeResultSet> {
@@ -303,7 +309,7 @@ export class CampaignBasicInfoComponent implements OnInit, OnDestroy {
   private _initForm(): void {
     this.form = new FormGroup({
       title: new FormControl(undefined, [
-        Validators.required,
+        this._titleRequiredWhenNoTemplate,
         Validators.maxLength(128)
       ]),
       from: new FormControl(this._datePipe.transform(this.now, 'yyyy-MM-ddTHH:mm')),
@@ -319,4 +325,14 @@ export class CampaignBasicInfoComponent implements OnInit, OnDestroy {
       channels: new FormArray([new FormControl('Inbox')], [Validators.required])
     });
   }
+
+  // Title is required only when the user has not selected a template.
+  private _titleRequiredWhenNoTemplate: ValidatorFn = (control: AbstractControl) => {
+    const parent = control.parent as FormGroup | null;
+    if (!parent) return null;
+    const needsTemplate = parent.get('needsTemplate')?.value;
+    const template = parent.get('template')?.value;
+    const hasTemplateSelected = needsTemplate === 'yes' && !!template;
+    return hasTemplateSelected ? null : Validators.required(control);
+  };
 }
