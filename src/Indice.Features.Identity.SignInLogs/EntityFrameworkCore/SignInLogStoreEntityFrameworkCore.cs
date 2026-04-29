@@ -90,10 +90,16 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
         var query = _dbContext.SignInLogs.Where(x => x.CreatedAt >= rangeStart && x.CountryIsoCode != null && x.Coordinates != null)
                              .GroupBy(x => new { CountryIsoCode = x.CountryIsoCode!, DisplayName = x.Location!, Lat = x.Coordinates!.Y, Lon = x.Coordinates!.X })
                              .OrderByDescending(x => x.Count())
-                             .Select(group => new SignInLogLocation(group.Key.CountryIsoCode,
-                                 group.Key.DisplayName,
-                                 new GeoPoint(group.Key.Lat, group.Key.Lon),
-                                 group.Count()));
+                             .Select(group => new {
+                                 group.Key.CountryIsoCode,
+                                 group.Key.Lat,
+                                 group.Key.Lon,
+                                 Count = group.Count()
+                             })
+                             .OrderByDescending(x => x.Count)
+                             .Select(x => new SignInLogLocation(x.CountryIsoCode,
+                                 new GeoPoint(x.Lat, x.Lon),
+                                 x.Count));
         var items = await query.ToListAsync(cancellationToken);
         var set = new SignInLocationSet(items, items.Count);
         set.CountryLegend = set.Items.Select(x => x.CountryCode).Distinct().ToDictionary(code => code, code => CountryInfo.GetCountryByNameOrCode(code).Name);
