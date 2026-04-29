@@ -39,7 +39,7 @@ public static class CertificateForwardingHeaderConverters
         // Support raw PEM format (detect BEGIN CERTIFICATE marker)
         if (headerValue.Contains("-----BEGIN CERTIFICATE-----")) {
             try {
-                return X509Certificate2.CreateFromPem(Uri.UnescapeDataString(headerValue));
+                return X509Certificate2.CreateFromPem(headerValue);
             } catch (Exception ex) {
                 throw new CertificateForwardingHeaderParseException("Failed to parse certificate from Envoy header raw PEM value.", ex);
             }

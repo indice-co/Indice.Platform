@@ -64,9 +64,9 @@ public class CertificateForwardingHeaderConvertersTests
     }
 
     [Fact]
-    public void ConvertFromEnvoyHeader_ParsesStructuredEnvoyFormat_CertValueWithBase64PaddingEquals() {
-        // URL-encoding preserves the semantics; verify key=value split uses only the first '='
-        // so that URL-encoded '=' (%3D) in the cert base64 body does not break parsing.
+    public void ConvertFromEnvoyHeader_ParsesStructuredEnvoyFormat_UrlEncodedCertPreservesEqualsSign() {
+        // URL-encoding converts '=' to '%3D'. Verify the key=value split uses only the first '='
+        // so that '%3D' in the cert data does not break parsing.
         using var cert = CreateTestCertificate();
         var pem = cert.ExportCertificatePem();
         // URL-encode the PEM so that embedded '=' chars become %3D (as Envoy actually does)
