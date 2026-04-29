@@ -11,9 +11,10 @@ namespace Indice.AspNetCore.Http.Headers;
 /// object representing the forwarded client certificate.
 /// </summary>
 /// <remarks>This class is intended for use in scenarios where client certificates are forwarded by a proxy (such
-/// as Envoy) using the "x-forwarded-client-cert" header. It supports parsing both structured and raw header formats as
-/// commonly used by Envoy and similar proxies. Use this class when you need to extract and validate client certificates
-/// from HTTP headers in environments where direct TLS termination is not performed by the application.</remarks>
+/// as Envoy) using the "x-forwarded-client-cert" header. It supports parsing structured forwarded certificate header
+/// values, such as Envoy-style key/value pairs containing fields like <c>Cert</c>. Use this class when you need to
+/// extract and validate client certificates from HTTP headers in environments where direct TLS termination is not
+/// performed by the application.</remarks>
 public class CertificateForwardingHeaderConverters
 {
     /// <summary>
