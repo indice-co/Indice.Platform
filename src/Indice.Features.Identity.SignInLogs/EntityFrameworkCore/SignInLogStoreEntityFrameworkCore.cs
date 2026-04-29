@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.SignInLogs.Abstractions;
+﻿using Humanizer;
+using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
@@ -72,5 +73,30 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
     public async Task<int> UpdateAsync(Guid id, SignInLogEntryRequest model, CancellationToken cancellationToken = default) {
         var query = _dbContext.SignInLogs.Where(x => x.Id == id);
         return await query.ExecuteUpdateAsync(updates => updates.SetProperty(x => x.Review, model.Review), cancellationToken);
+    }
+
+
+    /// <inheritdoc />
+    public async Task<SignInLogMap> GetSignInLogMapAsync(SignInLogMapFilter filter, CancellationToken cancellationToken = default) {
+        var rangeStart = filter.TimeFrame switch {
+            SeriesTimeFrame.Last24Hours => DateTimeOffset.UtcNow.AddHours(-24),
+            SeriesTimeFrame.Last7Days => DateTimeOffset.UtcNow.Date.AddDays(-7),
+            SeriesTimeFrame.Last30Days => DateTimeOffset.UtcNow.Date.AddDays(-30),
+            SeriesTimeFrame.Last90Days => DateTimeOffset.UtcNow.Date.AddDays(-90),
+            SeriesTimeFrame.Last12Months => DateTimeOffset.UtcNow.Date.AddMonths(-12),
+            _ => DateTimeOffset.UtcNow.Date.AddDays(-7)
+        };
+
+        var set = new SignInLogMap();
+        var query = _dbContext.SignInLogs.Where(x => x.CreatedAt >= rangeStart && x.CountryIsoCode != null && x.Coordinates != null)
+                             .GroupBy(x => new { CountryIsoCode = x.CountryIsoCode!, Lat = x.Coordinates!.Y, Lon = x.Coordinates!.X })
+                             .OrderByDescending(x => x.Count())
+                             .Select(group => new SignInLogLocation(group.Key.CountryIsoCode,
+                                 new GeoPoint(group.Key.Lat, group.Key.Lon),
+                                 group.Count()));
+
+        set.Items = await query.ToListAsync();
+
+        return set;
     }
 }
