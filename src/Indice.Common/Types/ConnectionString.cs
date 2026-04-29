@@ -1,7 +1,9 @@
-﻿namespace Indice.Types;
+﻿using System.Collections;
+
+namespace Indice.Types;
 
 /// <summary>A type that represents a connection string.</summary>
-public class ConnectionString
+public class ConnectionString : IEnumerable<KeyValuePair<string, string?>>
 {
     private readonly IDictionary<string, string?> _properties;
 
@@ -16,10 +18,22 @@ public class ConnectionString
     /// <exception cref="ArgumentException">When <paramref name="connectionString"/> is empty</exception>
     public ConnectionString(string connectionString, char delimiter) {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        Delimiter = delimiter;
         _properties = connectionString
             .Split(delimiter)
             .Select(pair => pair.Split('='))
             .ToDictionary(keySelector: pair => pair[0], elementSelector: pair => pair.Length < 2 ? default : pair[1]);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the ConnectionString class by copying the properties and delimiter from an
+    /// existing instance.  
+    /// </summary>
+    /// <param name="connectionString">The ConnectionString instance to copy. Cannot be null.</param>
+    public ConnectionString(ConnectionString connectionString) {
+        ArgumentNullException.ThrowIfNull(connectionString);
+        _properties = new Dictionary<string, string?>(connectionString._properties);
+        Delimiter = connectionString.Delimiter;
     }
 
     /// <summary>The character used to separate connection string properties.</summary>
@@ -42,4 +56,21 @@ public class ConnectionString
         value = foundValue;
         return exists;
     }
+
+    /// <summary>
+    /// Removes the property with the specified key from the collection.
+    /// </summary>
+    /// <param name="key">The key of the property to remove. Cannot be null.</param>
+    public void Remove(string key) => _properties.Remove(key);
+
+    /// <inheritdoc/>
+    public IEnumerator<KeyValuePair<string, string?>> GetEnumerator() => _properties.GetEnumerator();
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator() {
+        return GetEnumerator();
+    }
+
+    /// <inheritdoc/>
+    public override string ToString() => string.Join(Delimiter, this.Select(x => $"{x.Key}={x.Value}"));
 }
