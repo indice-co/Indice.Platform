@@ -293,7 +293,3 @@ App_Data
 logs
 package-lock.json
 nuget.exe
-
-# Build artifacts
-obj/
-*.g.props
