@@ -179,7 +179,7 @@ public class NotificationsManager(
             if(template == null) {
                 return CreateCampaignResult.Fail($"The selected Template with Id:({request.MessageTemplateId}) does not exist");
             }
-            request.Title = template!.Name.Truncate(127)!;
+            request.Title = template!.Name.Truncate(128)!;
         }
         // If a distribution list id is not set, then we create a new list.
         if (!request.RecipientListId.HasValue) {
