@@ -1,78 +1,89 @@
 ﻿#if NET9_0_OR_GREATER
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using Indice.Extensions;
 
 namespace Indice.AspNetCore.Http.Headers;
 
 /// <summary>
-/// Provides functionality to convert the value of the "x-forwarded-client-cert" HTTP header into an X509Certificate2
-/// object representing the forwarded client certificate.
+/// Provides functionality to convert HTTP header values containing forwarded client certificate
+/// information into <see cref="X509Certificate2"/> objects.
 /// </summary>
-/// <remarks>This class is intended for use in scenarios where client certificates are forwarded by a proxy (such
-/// as Envoy) using the "x-forwarded-client-cert" header. It supports parsing structured forwarded certificate header
-/// values, such as Envoy-style key/value pairs containing fields like <c>Cert</c>. Use this class when you need to
-/// extract and validate client certificates from HTTP headers in environments where direct TLS termination is not
+/// <remarks>
+/// This class supports both Envoy-style ("x-forwarded-client-cert") and NGINX-style ("ssl-client-cert")
+/// forwarded certificate headers. For Envoy, it supports both structured key/value pairs (containing
+/// a <c>Cert</c> field with URL-encoded PEM data) and raw PEM-encoded certificate values.
+/// </remarks>
 public static class CertificateForwardingHeaderConverters
-public class CertificateForwardingHeaderConverters
 {
     /// <summary>
-    /// Represents the HTTP header name used to forward client certificate information in proxy scenarios.  
+    /// Represents the HTTP header name used by Envoy to forward client certificate information.
     /// </summary>
-    /// <remarks>This constant is typically used when working with reverse proxies that forward client
-    /// certificate details to backend services. The header value may contain information about the client certificate
-    /// presented to the proxy.</remarks>
     public const string EnvoyClientCertificateHeaderName = "x-forwarded-client-cert";
     /// <summary>
-    /// Represents the HTTP header name used to forward client certificate information in proxy scenarios.  
+    /// Represents the HTTP header name used by NGINX to forward client certificate information.
     /// </summary>
-    /// <remarks>This constant is typically used when working with reverse proxies that forward client
-    /// certificate details to backend services. The header value may contain information about the client certificate
-    /// presented to the proxy.</remarks>
     public const string NginxClientCertificateHeaderName = "ssl-client-cert";
 
     /// <summary>
-    /// Converts the value of the "x-forwarded-client-cert" header into an X509Certificate2 object. 
+    /// Converts the value of the Envoy "x-forwarded-client-cert" header into an <see cref="X509Certificate2"/> object.
+    /// Supports both structured key/value format (e.g., <c>Hash=...;Cert=...;Chain=...</c>) and raw PEM-encoded values.
     /// </summary>
     /// <param name="headerValue">The value of the "x-forwarded-client-cert" header.</param>
-    /// <returns>An X509Certificate2 object representing the client certificate.</returns>
+    /// <returns>An <see cref="X509Certificate2"/> object representing the client certificate,
+    /// or <see langword="null"/> if <paramref name="headerValue"/> is null or whitespace.</returns>
     /// <exception cref="CertificateForwardingHeaderParseException">Thrown when the header value cannot be parsed into a valid certificate.</exception>
-    public static X509Certificate2 ConvertFromEnvoyHeader(string headerValue) {
-        X509Certificate2? clientCertificate = null;
+    public static X509Certificate2? ConvertFromEnvoyHeader(string headerValue) {
         if (string.IsNullOrWhiteSpace(headerValue)) {
-            return clientCertificate!;
+            return null;
         }
-        // Parse the semicolon-separated parts (Hash, Cert, Chain)
+        // Support raw PEM format (detect BEGIN CERTIFICATE marker)
+        if (headerValue.Contains("-----BEGIN CERTIFICATE-----")) {
+            try {
+                return X509Certificate2.CreateFromPem(Uri.UnescapeDataString(headerValue));
+            } catch (Exception ex) {
+                throw new CertificateForwardingHeaderParseException("Failed to parse certificate from Envoy header raw PEM value.", ex);
+            }
+        }
+        // Parse the semicolon-separated structured parts (e.g., Hash=...;Cert=...;Chain=...)
         if (!headerValue.Contains('=') && !headerValue.Contains(';')) {
-            throw new CertificateForwardingHeaderParseException($"Certifiacate header is invalid HeaderValue: '{headerValue.Truncate(100)}'");
+            throw new CertificateForwardingHeaderParseException("Certificate header value is not in a recognized format (expected structured key=value pairs or raw PEM).");
         }
         try {
             var parts = headerValue.Split(';', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                                .Select(s => new KeyValuePair<string, string>(s.Split("=")[0], s.Split("=")[1]?.Trim('"') ?? string.Empty))
+                                .Select(s => {
+                                    var idx = s.IndexOf('=');
+                                    if (idx < 0) return new KeyValuePair<string, string>(s, string.Empty);
+                                    return new KeyValuePair<string, string>(s[..idx], s[(idx + 1)..].Trim('"'));
+                                })
                                 .ToDictionary(StringComparer.OrdinalIgnoreCase);
-            if (parts.Keys.Count >= 2 && parts.TryGetValue("Cert", out var certificatePart)) {
-                clientCertificate = X509CertificateLoader.LoadCertificate(Encoding.UTF8.GetBytes(Uri.UnescapeDataString(certificatePart)));
+            if (!parts.TryGetValue("Cert", out var certificatePart)) {
+                throw new CertificateForwardingHeaderParseException("Certificate header does not contain a 'Cert' field.");
             }
+            return X509Certificate2.CreateFromPem(Uri.UnescapeDataString(certificatePart));
+        } catch (CertificateForwardingHeaderParseException) {
+            throw;
         } catch (Exception ex) {
-            throw new CertificateForwardingHeaderParseException($"Failed to parse certificate from header {headerValue.Truncate(200)}.", ex);
+            throw new CertificateForwardingHeaderParseException("Failed to parse certificate from Envoy header.", ex);
         }
-        return clientCertificate!;
     }
 
     /// <summary>
-    /// Converts the value of the "x-forwarded-client-cert" header into an X509Certificate2 object. 
+    /// Converts the value of the NGINX "ssl-client-cert" header into an <see cref="X509Certificate2"/> object.
+    /// The header value is expected to be a URL-encoded PEM-encoded certificate.
     /// </summary>
-    /// <param name="headerValue">The value of the "x-forwarded-client-cert" header.</param>
-    /// <returns>An X509Certificate2 object representing the client certificate.</returns>
+    /// <param name="headerValue">The value of the "ssl-client-cert" header.</param>
+    /// <returns>An <see cref="X509Certificate2"/> object representing the client certificate,
+    /// or <see langword="null"/> if <paramref name="headerValue"/> is null or whitespace.</returns>
     /// <exception cref="CertificateForwardingHeaderParseException">Thrown when the header value cannot be parsed into a valid certificate.</exception>
-    public static X509Certificate2 ConvertFromNginxHeader(string headerValue) {
-        X509Certificate2? clientCertificate = null;
-        if (!string.IsNullOrWhiteSpace(headerValue)) {
-            clientCertificate = X509Certificate2.CreateFromPem(
-                WebUtility.UrlDecode(headerValue));
+    public static X509Certificate2? ConvertFromNginxHeader(string headerValue) {
+        if (string.IsNullOrWhiteSpace(headerValue)) {
+            return null;
         }
-        return clientCertificate!;
+        try {
+            return X509Certificate2.CreateFromPem(WebUtility.UrlDecode(headerValue));
+        } catch (Exception ex) {
+            throw new CertificateForwardingHeaderParseException("Failed to parse certificate from NGINX header.", ex);
+        }
     }
 }
 
