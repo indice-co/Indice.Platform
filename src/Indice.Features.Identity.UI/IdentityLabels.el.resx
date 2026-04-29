@@ -730,10 +730,10 @@
     <value>Επιβεβαίωση αριθμού τηλεφώνου</value>
   </data>
   <data name="MfaOnBoardingSetupAuthenticator_PageTitle" xml:space="preserve">
-    <value>Ρύθμιση εφαρμογής ελέγχου ταυτότητας</value>
+    <value>Ρύθμιση Authenticator - 2FA</value>
   </data>
   <data name="MfaOnBoardingSetupAuthenticator_PageHeader" xml:space="preserve">
-    <value>Ρύθμιση εφαρμογής ελέγχου ταυτότητας</value>
+    <value>Ρύθμιση Authenticator - 2FA</value>
   </data>
   <data name="MfaOnBoardingSetupAuthenticator_ScanQrCode" xml:space="preserve">
     <value>Σαρώστε τον παρακάτω κωδικό QR με την εφαρμογή ελέγχου ταυτότητας (π.χ. Microsoft Authenticator, Google Authenticator).</value>
