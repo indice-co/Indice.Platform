@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 
 #if NET9_0_OR_GREATER
@@ -66,6 +67,7 @@ public static class IdentityBuilderUIExtensions
             foreach (var url in configuredOptions.ValidReturnUrls) {
                 options.ValidReturnUrls.Add(url);
             }
+            options.ProductionEnvironments = new StringValues(options.ProductionEnvironments.Concat(configuredOptions.ProductionEnvironments).ToArray());
         });
 #if NET9_0_OR_GREATER
         services.AddSingleton<IConfigureOptions<IdentityServerOptions>, IdentityServerOptionsConfigure>();

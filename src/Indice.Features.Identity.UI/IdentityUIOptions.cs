@@ -2,6 +2,7 @@
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Features.Identity.UI;
 
@@ -91,6 +92,11 @@ public class IdentityUIOptions
     /// Used with <see cref="Indice.Globalization.PhoneNumber"/> instances to convert to predictable string for storage.
     /// </summary>
     public string PhoneNumberStoreFormat => EnablePhoneNumberCallingCodes ? "G" : "N";
+
+    /// <summary>
+    /// A collection of production environment names. Used to determine whether the environment is production and exclude the ribbon in the UI.
+    /// </summary>
+    public StringValues ProductionEnvironments { get; set; } = new StringValues(new[] { "prod", "production", "live" });
 
     /// <summary>Services shown in the homepage.</summary>
     public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {
