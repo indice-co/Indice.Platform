@@ -171,15 +171,19 @@ public class NotificationsManager(
         }
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var isNewDistributionList = false;
-        if (string.IsNullOrWhiteSpace(request.Title)) {
-            if(!request.MessageTemplateId.HasValue) {
-                return CreateCampaignResult.Fail("Title is required when MessageTemplateId is not provided.");
-            }
-            var template = await TemplateService.GetById(request.MessageTemplateId);
-            if(template == null) {
+        if (string.IsNullOrWhiteSpace(request.Title) && !request.MessageTemplateId.HasValue) {
+            return CreateCampaignResult.Fail("Title is required when MessageTemplateId is not provided.");
+        }
+        // use the teplate content if exists
+        Template? template = null;
+        if (request.MessageTemplateId.HasValue && (request.Content.Count == 0 || string.IsNullOrWhiteSpace(request.Title))) {
+            template = await TemplateService.GetById(request.MessageTemplateId.Value);
+            if (template == null) {
                 return CreateCampaignResult.Fail($"The selected Template with Id:({request.MessageTemplateId}) does not exist");
             }
-            request.Title = template!.Name.Truncate(128)!;
+            if (string.IsNullOrWhiteSpace(request.Title)) {
+                request.Title = template.Name!;
+            }
         }
         // If a distribution list id is not set, then we create a new list.
         if (!request.RecipientListId.HasValue) {
@@ -211,17 +215,12 @@ public class NotificationsManager(
                 return CreateCampaignResult.Fail("Failed to store the attachments. Check storage or database settings", ex.Message);
             }
         }
-        // use the teplate content if exists
-        if (request.MessageTemplateId.HasValue && request.Content.Count == 0) {
-            var template = await TemplateService.GetById(request.MessageTemplateId.Value);
-            if (template == null) {
-                return CreateCampaignResult.Fail($"The selected Template with Id:({request.MessageTemplateId}) does not exist");
-            }
+        if (request.Content.Count == 0) {
             if (!request.IgnoreUserPreferences.HasValue) {
-                request.IgnoreUserPreferences = template.IgnoreUserPreferences;
+                request.IgnoreUserPreferences = template!.IgnoreUserPreferences;
             }
-            request.Data ??= template.Data;
-            var content = template.Content;
+            request.Data ??= template!.Data;
+            var content = template!.Content;
             if (request.MessageTemplateChannels?.Count > 0) {
                 var channels = request.MessageTemplateChannels
                                     .Select(f => f.ToString())

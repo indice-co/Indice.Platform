@@ -111,7 +111,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked, OnDest
           this._router.navigate(['campaigns', campaign.campaignId]);
 
           // Localized toast using combineLatest; unsubscribe immediately after emission
-          this._toaster.show(ToastType.Success, 'Campaigns.CreateSuccessTitle', 'Campaigns.CreateSuccessMessage', undefined, {title: data.title || data.messageTemplateId});
+          this._toaster.show(ToastType.Success, 'Campaigns.CreateSuccessTitle', 'Campaigns.CreateSuccessMessage', undefined, { title: data.title });
         }
       });
   }
@@ -168,7 +168,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked, OnDest
       recipientIds: this._recipientsStep.recipientIds.value ? this._recipientsStep.recipientIds.value.split('\n') : null,
       recipientListId: this._recipientsStep.distributionList.value?.value || undefined,
       recipients: this._recipientsStep.recipients.value || undefined,
-      messageTemplateId: this._basicInfoStep.template.value?.id || undefined,
       content: {}
     });
     const formContents = this._contentStep?.form.controls.content.value;
