@@ -157,7 +157,7 @@ public class NotificationsManager(
     /// <param name="attachment">An attachement available to email and inbox channels</param>
     /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
     public Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, MessageContent template, Uri mediaBaseHref, Period? period = null,
-        Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null , params string[] recipientIds) =>
+        Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null, params string[] recipientIds) =>
         SendMessageToRecipients(title, channels.GetFlagValues().ToDictionary(x => x, y => template), mediaBaseHref, period, actionLink, type, data, attachment, recipientIds);
 
     internal async Task<CreateCampaignResult> CreateCampaignInternal(CreateCampaignRequest request, bool? validateRules = true) {
@@ -193,8 +193,7 @@ public class NotificationsManager(
             }, request.GetIncludedContacts());
             request.RecipientListId = createdList.Id;
             isNewDistributionList = true;
-        } 
-        else {
+        } else {
             // If a distribution list id is set, then we check if it exists.
             var distributionList = await DistributionListService.GetById(request.RecipientListId.Value);
             if (distributionList is null) {
