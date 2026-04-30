@@ -762,6 +762,12 @@
   <data name="MfaOnBoardingRecoveryCodes_Continue" xml:space="preserve">
     <value>Έχω αποθηκεύσει τους κωδικούς μου</value>
   </data>
+  <data name="MfaOnBoardingRecoveryCodes_Download" xml:space="preserve">
+    <value>Λήψη</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_FileHeader" xml:space="preserve">
+    <value>Αυτοί είναι οι εφεδρικοί κωδικοί για τον λογαριασμό {0}. Φυλάξτε τους ασφαλείς!</value>
+  </data>
   <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
     <value>Ανοίξτε την εφαρμογή ελέγχου ταυτότητας και εισαγάγετε τον κωδικό επιβεβαίωσης.</value>
   </data>

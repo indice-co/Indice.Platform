@@ -2221,6 +2221,24 @@ namespace Indice.Features.Identity.UI {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Download.
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_Download {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_Download", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to These are your backup codes for account {0}. Keep them safe!.
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_FileHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_FileHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Open your authenticator app and enter the verification code.
         /// </summary>
         public static string Mfa_EnterCodeFromAuthenticatorApp {

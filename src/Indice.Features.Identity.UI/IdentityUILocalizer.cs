@@ -791,6 +791,16 @@ public class IdentityUILocalizer
     /// </summary>
     public virtual HtmlString MfaOnBoardingRecoveryCodes_Continue => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_Continue));
 
+    /// <summary>
+    ///   Gets the localized string for "Download".
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_Download => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_Download));
+
+    /// <summary>
+    ///   Gets the localized format string for the recovery-codes file header (with {0} placeholder for the user's email/username).
+    /// </summary>
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_FileHeader => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_FileHeader);
+
     #endregion
 
     #region MfaOnBoardingAddEmail

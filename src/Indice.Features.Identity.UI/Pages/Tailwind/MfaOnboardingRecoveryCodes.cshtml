@@ -21,6 +21,19 @@
             }
         </div>
 
+        <div id="recovery-codes-data"
+             class="hidden"
+             data-codes='@System.Text.Json.JsonSerializer.Serialize(Model.View.RecoveryCodes)'
+             data-header="@Localizer.MfaOnBoardingRecoveryCodes_FileHeader"
+             data-email="@Model.View.UserEmail"></div>
+
+        <button id="download-recovery-codes"
+                type="button"
+                class="block w-full py-2 px-4 font-semibold rounded-md
+                       bg-gray-800 hover:bg-gray-900 text-white transition mb-2">
+            @Localizer.MfaOnBoardingRecoveryCodes_Download
+        </button>
+
         <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
             <button type="submit"
                     class="block w-full py-2 px-4 font-semibold rounded-md
@@ -30,3 +43,7 @@
         </form>
     </div>
 </div>
+
+@section scripts {
+    <script type="text/javascript" src="~/js/recovery-codes.js" csp-nonce></script>
+}

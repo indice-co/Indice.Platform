@@ -762,6 +762,12 @@
   <data name="MfaOnBoardingRecoveryCodes_Continue" xml:space="preserve">
     <value>I have saved my codes</value>
   </data>
+  <data name="MfaOnBoardingRecoveryCodes_Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_FileHeader" xml:space="preserve">
+    <value>These are your backup codes for account {0}. Keep them safe!</value>
+  </data>
   <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
     <value>Open your authenticator app and enter the verification code.</value>
   </data>
