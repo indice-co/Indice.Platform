@@ -187,13 +187,14 @@ public class NotificationsManager(
         }
         // If a distribution list id is not set, then we create a new list.
         if (!request.RecipientListId.HasValue) {
-        var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
-            Name = $"{request.Title.Truncate(110)} - {timestamp}",
-            IsSystemGenerated = true
-        }, request.GetIncludedContacts());
-        request.RecipientListId = createdList.Id;
-        isNewDistributionList = true;
-        } else {
+            var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
+                Name = $"{request.Title.Truncate(110)} - {timestamp}",
+                IsSystemGenerated = true
+            }, request.GetIncludedContacts());
+            request.RecipientListId = createdList.Id;
+            isNewDistributionList = true;
+        } 
+        else {
             // If a distribution list id is set, then we check if it exists.
             var distributionList = await DistributionListService.GetById(request.RecipientListId.Value);
             if (distributionList is null) {
@@ -217,10 +218,10 @@ public class NotificationsManager(
         }
         if (request.Content.Count == 0) {
             if (!request.IgnoreUserPreferences.HasValue) {
-                request.IgnoreUserPreferences = template!.IgnoreUserPreferences;
+                request.IgnoreUserPreferences = template.IgnoreUserPreferences;
             }
-            request.Data ??= template!.Data;
-            var content = template!.Content;
+            request.Data ??= template.Data;
+            var content = template.Content;
             if (request.MessageTemplateChannels?.Count > 0) {
                 var channels = request.MessageTemplateChannels
                                     .Select(f => f.ToString())

@@ -631,7 +631,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             )
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+        using var createTemplateContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
+        using var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateContent);
         Assert.True(createTemplateResponse.IsSuccessStatusCode);
 
         // act: create a campaign WITHOUT a Title but with a valid MessageTemplateId
@@ -643,7 +644,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             MessageTemplateId = new GuidOrAlias(templateAlias)
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        using var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent);
         var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
         if (!createCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
@@ -651,7 +653,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         Assert.True(createCampaignResponse.IsSuccessStatusCode);
 
         // assert: the created campaign's Title is derived from the template Name
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
+        using var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
         var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
         Assert.True(getCampaignResponse.IsSuccessStatusCode);
 
@@ -672,7 +674,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        using var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent);
 
         // assert: the API must NOT crash; it must return a non-success status code
         Assert.False(createCampaignResponse.IsSuccessStatusCode);
@@ -688,7 +691,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             MessageTemplateId = new GuidOrAlias("non-existent-template-alias")
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        using var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent);
 
         // assert: the API must NOT crash; it must return a non-success status code
         Assert.False(createCampaignResponse.IsSuccessStatusCode);
