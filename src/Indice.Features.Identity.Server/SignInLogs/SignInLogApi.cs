@@ -60,7 +60,8 @@ public static class SignInLogApi
         group.MapGet("sign-in-logs/locations", SignInLogHandlers.GetSignInLocations)
              .WithName(nameof(SignInLogHandlers.GetSignInLocations))
              .WithSummary("Gets aggregates for sign-ins per city and country.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeLogsReader);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeLogsReader)
+             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(30)).SetAuthorized());
 
         return group;
     }

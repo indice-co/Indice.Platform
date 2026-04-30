@@ -23,7 +23,7 @@ public class SignInLocationSet : ResultSet<SignInLogLocation>
     /// <summary>
     /// A dictionary that maps two-letter ISO country codes to their corresponding country names. This is used to provide a human-readable legend for the country codes in the sign-in log map. 
     /// </summary>
-    public Dictionary<string, string> CountryLegend { get; set; } = new Dictionary<string, string>();
+    public List<SignInLogLocation> CountryLegend { get; set; } = [];
 }
 
 /// <summary>

@@ -16562,7 +16562,7 @@ export interface ISetUserBlockRequest {
 }
 
 export class SignInLocationSet implements ISignInLocationSet {
-    countryLegend?: { [key: string]: string; };
+    countryLegend?: SignInLogLocation[];
     count?: number;
     items?: SignInLogLocation[];
 
@@ -16577,12 +16577,10 @@ export class SignInLocationSet implements ISignInLocationSet {
 
     init(_data?: any) {
         if (_data) {
-            if (_data["countryLegend"]) {
-                this.countryLegend = {} as any;
-                for (let key in _data["countryLegend"]) {
-                    if (_data["countryLegend"].hasOwnProperty(key))
-                        (this.countryLegend as any)![key] = _data["countryLegend"][key];
-                }
+            if (Array.isArray(_data["countryLegend"])) {
+                this.countryLegend = [] as any;
+                for (let item of _data["countryLegend"])
+                    this.countryLegend!.push(SignInLogLocation.fromJS(item));
             }
             this.count = _data["count"];
             if (Array.isArray(_data["items"])) {
@@ -16602,12 +16600,10 @@ export class SignInLocationSet implements ISignInLocationSet {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        if (this.countryLegend) {
-            data["countryLegend"] = {};
-            for (let key in this.countryLegend) {
-                if (this.countryLegend.hasOwnProperty(key))
-                    (data["countryLegend"] as any)[key] = (this.countryLegend as any)[key];
-            }
+        if (Array.isArray(this.countryLegend)) {
+            data["countryLegend"] = [];
+            for (let item of this.countryLegend)
+                data["countryLegend"].push(item ? item.toJSON() : undefined as any);
         }
         data["count"] = this.count;
         if (Array.isArray(this.items)) {
@@ -16620,7 +16616,7 @@ export class SignInLocationSet implements ISignInLocationSet {
 }
 
 export interface ISignInLocationSet {
-    countryLegend?: { [key: string]: string; };
+    countryLegend?: SignInLogLocation[];
     count?: number;
     items?: SignInLogLocation[];
 }

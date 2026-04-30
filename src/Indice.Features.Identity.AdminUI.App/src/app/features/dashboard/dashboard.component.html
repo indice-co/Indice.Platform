@@ -236,21 +236,15 @@
         </div>
         <div class="row"
              *ngIf="authService.isAdminUIUsersReader() && signInLocations.count > 0">
-            <div class="col-12">
+            <div class="col-xl-12 col-xxl-10">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="mt-0 header-title mb-4">Sign in Locations ({{signInLocations.count}})</h4>
-                        <ul>
-                            <li *ngFor="let location of signInLocations.items">
-                                <span class="badge text-muted border bg-light m-1" [title]="location.countryCode">
-                                    <i class="flag:{{location.countryCode}}" [title]="location.countryCode"></i>
-                                    {{ location.displayName}}
-                                </span>
-                            </li>
-                        </ul>
-                        <div class="world-map">
-                            <img src="./assets/img/map.svg" alt="world map" />
-                        </div>
+                        <h4 class="mt-0 header-title mb-4">Sign in Locations ({{signInLocations.count}})
+                            <span class="text-muted font-12 ">last 7 days</span>
+                        </h4>
+                        <!-- map component start: here there must be a -->
+                        <app-sign-in-locations-map [locations]="signInLocations"></app-sign-in-locations-map>
+                        <!-- map component end -->
                     </div>
                 </div>
             </div>
