@@ -42,7 +42,7 @@
     <partial name="_Styles" />
     @RenderSection("css", required: false)
     <partial name="_Header" />
-    <environment exclude="Production">
+    <environment exclude="@UiOptions.Value.ProductionEnvironments">
         <div class="ribbon @Environment.EnvironmentName.ToLower()">
             <span>@Environment.EnvironmentName</span>
         </div>
