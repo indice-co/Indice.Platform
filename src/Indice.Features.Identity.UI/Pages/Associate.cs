@@ -11,6 +11,7 @@ using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
+using Indice.Globalization;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -115,6 +116,9 @@ public abstract class BaseAssociateModel : BasePageModel
     /// <exception cref="Exception"></exception>
     [NonAction]
     protected async Task<User> FindOrCreateUser(string userName, string? phoneNumber, List<Claim> claims) {
+        if (!string.IsNullOrWhiteSpace(phoneNumber) && PhoneNumber.TryParse(phoneNumber, out var phone)) {
+            phoneNumber = phone.ToString();
+        }
         var emailClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email);
         if (emailClaim is not null) {
             claims.Remove(emailClaim);
