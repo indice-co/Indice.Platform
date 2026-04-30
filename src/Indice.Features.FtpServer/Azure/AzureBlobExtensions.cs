@@ -1,5 +1,7 @@
-﻿using FubarDev.FtpServer.FileSystem;
+﻿using Azure.Identity;
+using FubarDev.FtpServer.FileSystem;
 using Indice.Features.FtpServer.Azure;
+using Indice.Types;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,10 +23,21 @@ public static class AzureBlobExtensions
             builder.Services.Configure(configureAction);
             var options = new AzureBlobFileSystemOptions();
             configureAction?.Invoke(options);
-            if (!string.IsNullOrWhiteSpace(options.ConnectrionString)) {
+            if (!string.IsNullOrWhiteSpace(options.ConnectionString)) {
+                var storageConnection = new StorageConnectionString(options.ConnectionString);
                 //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection?tabs=web-app-builder
                 builder.Services.AddAzureClients(clientBuilder => {
-                    clientBuilder.AddBlobServiceClient(options.ConnectrionString);
+                    if (storageConnection.HasManagedIdentity) {
+                        clientBuilder.AddBlobServiceClient(new Uri($"https://{storageConnection.AccountName}.blob.core.windows.net"));
+                        var credentialOptions = new DefaultAzureCredentialOptions();
+                        if (!storageConnection.UseSystemAssigned) {
+                            credentialOptions.ManagedIdentityClientId = storageConnection.ManagedIdentityClientId;
+                        }
+                        clientBuilder.UseCredential(new DefaultAzureCredential(credentialOptions));
+
+                    } else {
+                        clientBuilder.AddBlobServiceClient(options.ConnectionString);
+                    }
                 });
             }
         }

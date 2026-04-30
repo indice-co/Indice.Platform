@@ -2,6 +2,8 @@
 using System.Text.RegularExpressions;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Specialized;
+using Indice.Services.Factories;
+using Indice.Types;
 
 namespace Indice.Services;
 
@@ -34,7 +36,7 @@ public class LockManagerAzure : ILockManager
             throw new ArgumentNullException(nameof(options.ConnectionString));
         }
         var environmentName = Regex.Replace(options.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-        BlobContainer = new BlobContainerClient(options.ConnectionString, environmentName);
+        BlobContainer = AzureStorageClientFactory.CreateBlobContainerClient(new StorageConnectionString(options.ConnectionString), environmentName);
     }
 
     /// <summary>The cloud container client.</summary>

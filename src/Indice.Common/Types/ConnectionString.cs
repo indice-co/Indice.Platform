@@ -21,7 +21,7 @@ public class ConnectionString : IEnumerable<KeyValuePair<string, string?>>
         Delimiter = delimiter;
         _properties = connectionString
             .Split(delimiter)
-            .Select(pair => pair.Split('='))
+            .Select(pair => pair.Split('=', 2))
             .ToDictionary(keySelector: pair => pair[0], elementSelector: pair => pair.Length < 2 ? default : pair[1]);
     }
 

@@ -8,6 +8,7 @@ using Indice.AspNetCore.Middleware;
 using Indice.AspNetCore.TagHelpers;
 using Indice.Configuration;
 using Indice.Services;
+using Indice.Services.Factories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
@@ -91,8 +92,9 @@ public static class ServiceCollectionExtensions
         var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
         var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         const int defaultKeyLifetime = 90;
+        serviceProvider.GetRequiredService<IConfiguration>().TryGetStorageConnectionString("StorageConnection", out var storageConnection);
         var options = new AzureDataProtectionOptions {
-            StorageConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("StorageConnection")!,
+            StorageConnectionString = storageConnection!.ToString(),
             ContainerName = environmentName,
             ApplicationName = hostingEnvironment.ApplicationName,
             KeyLifetime = defaultKeyLifetime,
@@ -107,7 +109,7 @@ public static class ServiceCollectionExtensions
         if (options.KeyLifetime <= 0) {
             options.KeyLifetime = defaultKeyLifetime;
         }
-        var container = new BlobContainerClient(options.StorageConnectionString, options.ContainerName);
+        var container = AzureStorageClientFactory.CreateBlobContainerClient(storageConnection, options.ContainerName);
         container.CreateIfNotExists();
         // Enables data protection services to the specified IServiceCollection.
         var dataProtectionBuilder = services.AddDataProtection()

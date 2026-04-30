@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 using Azure.Storage.Queues;
+using Indice.Services.Factories;
+using Indice.Types;
 
 namespace Indice.Services;
 
@@ -26,7 +28,8 @@ public sealed class QueueClientCache : IQueueClientCache
         var cacheKey = new QueueClientCacheKey(connectionString, queueName, messageEncoding);
 
         var lazyClient = _queueClients.GetOrAdd(cacheKey, key => new Lazy<Task<QueueClient>>(async () => {
-            var queueClient = new QueueClient(connectionString, queueName, new QueueClientOptions {
+            var storageConnection = new StorageConnectionString(connectionString);
+            var queueClient = AzureStorageClientFactory.CreateQueueClient(storageConnection, queueName, new QueueClientOptions {
                 MessageEncoding = messageEncoding
             });
             await queueClient.CreateIfNotExistsAsync();
