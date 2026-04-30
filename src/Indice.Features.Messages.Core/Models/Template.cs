@@ -38,4 +38,7 @@ public class TemplateBase
     public DateTimeOffset? UpdatedAt { get; set; }
     /// <summary>The type details of the campaign.</summary>
     public MessageType? MessageType { get; set; }
+
+    /// <summary>The category of the template.</summary>
+    public TemplateType Type { get; set; }
 }

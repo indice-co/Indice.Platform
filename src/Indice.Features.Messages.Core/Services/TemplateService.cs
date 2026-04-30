@@ -31,7 +31,8 @@ public class TemplateService : ITemplateService
             IgnoreUserPreferences = request.IgnoreUserPreferences,
             Data = request.Data,
             CreatedAt = DateTimeOffset.UtcNow,
-            MessageTypeId = request.MessageTypeId
+            MessageTypeId = request.MessageTypeId,
+            Type = request.Type
         };
         DbContext.Templates.Add(template);
         await DbContext.SaveChangesAsync();
@@ -49,6 +50,7 @@ public class TemplateService : ITemplateService
                 Alias = template.MessageType.Alias, 
                 Classification = template.MessageType.Classification 
             } : null,
+            Type = template.Type
         };
     }
 

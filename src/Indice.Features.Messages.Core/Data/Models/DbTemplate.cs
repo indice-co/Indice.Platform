@@ -24,4 +24,7 @@ public class DbTemplate : DbAuditableEntity
     public Guid? MessageTypeId { get; set; }
     /// <summary>The message type details of the template.</summary>
     public virtual DbMessageType? MessageType { get; set; }
+    /// <summary>The type of the template.</summary>
+    public TemplateType Type { get; set; }
+
 }
