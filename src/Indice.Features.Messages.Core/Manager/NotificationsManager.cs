@@ -216,7 +216,7 @@ public class NotificationsManager(
                 return CreateCampaignResult.Fail("Failed to store the attachments. Check storage or database settings", ex.Message);
             }
         }
-        if (request.Content.Count == 0) {
+        if (template is not null && request.Content.Count == 0) {
             if (!request.IgnoreUserPreferences.HasValue) {
                 request.IgnoreUserPreferences = template.IgnoreUserPreferences;
             }
