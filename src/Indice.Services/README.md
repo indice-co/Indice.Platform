@@ -35,6 +35,30 @@ services.AddFilesLocal(options => {
 });
 ```
 
+#### 🔧 Configuration (Azure Storage)
+
+Supports flexible configuration via new `StorageConnectionString`.
+Extends the standard Azure Storage connection-string concept with a structured, strongly-typed model that supports:
+
+- Standard connection-string parsing
+- Azure Entra authentication (system-assigned & user-assigned)
+- First-class access to structured properties (AccountName, ContainerName, etc.)
+
+Standard connection string:
+```json
+"ConnectionString": "AccountName=<NAME>;AccountKey=xxx;EndpointSuffix=core.windows.net"
+```
+
+Managed Identity (system-assigned):
+```json
+"ConnectionString": "AccountName=<NAME>;UseSystemAssigned=true;ContainerName=<CONTAINER>"
+```
+
+Managed Identity (user-assigned):
+```json
+"ConnectionString": "AccountName=<NAME>;ManagedIdentityClientId=<CLIENT_ID>;ContainerName=<CONTAINER>"
+```
+
 ### 📧 Email Services
 
 Send emails through various providers with template rendering support:
