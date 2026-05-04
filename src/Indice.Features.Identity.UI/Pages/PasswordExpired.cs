@@ -39,6 +39,9 @@ public abstract class BasePasswordExpiredModel : BasePageModel
     [BindProperty]
     public PasswordExpiredInputModel Input { get; set; } = new PasswordExpiredInputModel();
 
+    /// <summary>View model for forgot password confirmation model.</summary>
+    public PasswordExpiredViewModel View { get; set; } = new PasswordExpiredViewModel();
+
     /// <summary>Key used for setting and retrieving temp data.</summary>
     public static string TempDataKey => "info_message";
 
