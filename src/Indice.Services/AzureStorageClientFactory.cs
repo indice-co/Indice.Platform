@@ -4,7 +4,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Queues;
 using Indice.Types;
 
-namespace Indice.Services.Factories;
+namespace Indice.Services;
 
 /// <summary>
 /// Factory for creating configured <see cref="BlobContainerClient"/> instances for Azure Blob Storage.
@@ -42,7 +42,7 @@ public static class AzureStorageClientFactory
                 throw new ArgumentNullException("AccountName property is required in connection string.");
             }
 
-            var endpoint = GetBlobEndpoint(connectionString.AccountName, containerName);
+            var endpoint = new Uri($"https://{connectionString.AccountName}.blob.{connectionString.EndpointSuffix}/{containerName}");
             var clientId = (connectionString.UseSystemAssigned ? string.Empty : connectionString.ManagedIdentityClientId);
             var credential = CreateCredential(clientId);
 
@@ -69,7 +69,7 @@ public static class AzureStorageClientFactory
                 throw new ArgumentNullException("AccountName property is required in connection string.");
             }
 
-            var endpoint = GetQueueEndpoint(connectionString.AccountName, queueName);
+            var endpoint = new Uri($"https://{connectionString.AccountName}.queue.{connectionString.EndpointSuffix}/{queueName}");
             var clientId = (connectionString.UseSystemAssigned ? string.Empty : connectionString.ManagedIdentityClientId);
             var credential = CreateCredential(clientId);
 
@@ -78,24 +78,6 @@ public static class AzureStorageClientFactory
 
         return new QueueClient(connectionString.ToString(), queueName, options);
     }
-
-    /// <summary>
-    /// Builds the Blob Storage endpoint URI for a given storage account and container.
-    /// </summary>
-    /// <param name="accountName">Azure Storage account name.</param>
-    /// <param name="containerName">Blob container name.</param>
-    /// <returns>Fully qualified Blob Storage endpoint URI.</returns>
-    private static Uri GetBlobEndpoint(string accountName, string containerName)
-        => new($"https://{accountName}.blob.core.windows.net/{containerName}");
-
-    /// <summary>
-    /// Builds the Queue endpoint URI for a given storage account and queue.
-    /// </summary>
-    /// <param name="accountName">Azure Storage account name.</param>
-    /// <param name="queueName">Queue name.</param>
-    /// <returns>Fully qualified Queue Storage endpoint URI.</returns>
-    private static Uri GetQueueEndpoint(string accountName, string queueName)
-        => new($"https://{accountName}.queue.core.windows.net/{queueName}");
 
     /// <summary>
     /// Creates a <see cref="TokenCredential"/> for Azure authentication.

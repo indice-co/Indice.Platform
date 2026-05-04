@@ -25,6 +25,11 @@ public sealed class StorageConnectionString : ConnectionString
                 value);
 
     /// <summary>
+    /// Gets the value of the Storage Account endpoint suffix.
+    /// </summary>
+    public string? EndpointSuffix => this[nameof(EndpointSuffix)];
+
+    /// <summary>
     /// Gets the name of the Storage Account resource.
     /// </summary>
     public string? AccountName => this[nameof(AccountName)];

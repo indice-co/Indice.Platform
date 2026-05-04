@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using Azure.Storage.Queues;
-using Indice.Services.Factories;
 using Indice.Types;
 
 namespace Indice.Services;

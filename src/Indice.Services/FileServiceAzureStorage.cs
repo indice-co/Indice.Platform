@@ -3,7 +3,6 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Indice.Extensions;
-using Indice.Services.Factories;
 using Indice.Types;
 
 namespace Indice.Services;

@@ -2,7 +2,6 @@
 using System.Text.RegularExpressions;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Specialized;
-using Indice.Services.Factories;
 using Indice.Types;
 
 namespace Indice.Services;

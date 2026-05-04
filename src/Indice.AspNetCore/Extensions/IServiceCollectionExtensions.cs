@@ -8,7 +8,6 @@ using Indice.AspNetCore.Middleware;
 using Indice.AspNetCore.TagHelpers;
 using Indice.Configuration;
 using Indice.Services;
-using Indice.Services.Factories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
