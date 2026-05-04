@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Messages.Core.Models.Requests;
+﻿using Indice.Types;
+
+namespace Indice.Features.Messages.Core.Models.Requests;
 
 /// <summary>
 /// Represents a set of criteria used to filter message event series by event type and channel kind.
@@ -14,19 +16,4 @@ public class MessageEventSeriesFilter
     public MessageChannelKind? Channel { get; set; }
     /// <summary>Gets or sets the time frame for aggregating message event series data.</summary>
     public SeriesTimeFrame? TimeFrame { get; set; }
-}
-
-/// <summary>Specifies the time frame for aggregating message event series data.</summary>
-public enum SeriesTimeFrame
-{
-    /// <summary>filter last 24h.</summary>
-    Last24Hours = 1,
-    /// <summary>filter last week.</summary>
-    Last7Days = 2,
-    /// <summary>filter last month.</summary>
-    Last30Days = 3,
-    /// <summary>filter last Q.</summary>
-    Last90Days = 4,
-    /// <summary>filter last year.</summary>
-    Last12Months = 5,
 }

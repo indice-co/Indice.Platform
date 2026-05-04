@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Indice.Features.Multitenancy.Core" Version="$(VersionPrefixMultitenancy)-*" />
     <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)-*" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.51.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.52.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Multitenancy.Core\Indice.Features.Multitenancy.Core.csproj" />

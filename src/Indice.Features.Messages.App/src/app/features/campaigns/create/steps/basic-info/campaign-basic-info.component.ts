@@ -9,9 +9,9 @@ import { EnhancedComboboxComponent } from '@indice/ng-components';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization service
 
 @Component({
-    selector: 'app-campaign-basic-info',
-    templateUrl: './campaign-basic-info.component.html',
-    standalone: false
+  selector: 'app-campaign-basic-info',
+  templateUrl: './campaign-basic-info.component.html',
+  standalone: false
 })
 export class CampaignBasicInfoComponent implements OnInit, OnDestroy {
   constructor(
