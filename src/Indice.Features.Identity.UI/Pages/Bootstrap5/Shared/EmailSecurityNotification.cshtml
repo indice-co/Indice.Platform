@@ -35,9 +35,13 @@
         <li>@Localizer.EmailSecurity_Body_EventTime: @Model.TimeStamp.ToString()</li>
         <li>@Localizer.EmailSecurity_Body_Username: @Model.UserName</li>
         <li>@Localizer.EmailSecurity_Body_Email: @Model.User?.Email</li>
-        @if (Model.Device != null)
+        @if (Model.UserDevice != null)
         {
-            <li>@Localizer.EmailSecurity_Body_Device: @Model.Device.Name (@Model.Device.ClientType)</li>
+            <li>@Localizer.EmailSecurity_Body_Device: @Model.UserDevice.Name (@Model.UserDevice.ClientType)</li>
+        }
+        else
+        {
+            <li>@Localizer.EmailSecurity_Body_Device: @Model.Device.DisplayName</li>
         }
         @if (Model.Client != null)
         {

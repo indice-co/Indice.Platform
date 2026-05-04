@@ -48,13 +48,13 @@ public class SecurityNotificationEventHandler : IPlatformEventHandler<SecurityNo
                         TimeStamp = @event.LocalTimeStamp,
                         Client = @event.Client,
                         Device = @event.Device,
+                        UserDevice = @event.UserDevice,
                         DisplayName = @event.User.UserName,
                         Subject = subject,
                         Description = description,
                     })
                     .UsingTemplate("EmailSecurityNotification");
             });
-
         }
     }
 }
