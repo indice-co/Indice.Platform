@@ -52,6 +52,8 @@ public static class NullableTransformer
                                     propSchema.Type ??= only.Type;
                                     propSchema.Items ??= only.Items;
                                     propSchema.Format ??= only.Format;
+                                    propSchema.Enum ??= only.Enum;
+                                    propSchema.Metadata ??= only.Metadata;
                                     propSchema.OneOf.Clear();
                                 }
                             }
