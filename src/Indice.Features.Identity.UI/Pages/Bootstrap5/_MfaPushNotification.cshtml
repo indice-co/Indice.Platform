@@ -10,6 +10,7 @@
     <input type="hidden" asp-for="Input.OtpCode" />
     <input type="hidden" asp-for="Input.DeviceId" />
     <input type="hidden" asp-for="Input.SelectedDeliveryChannel" value="@Model.View.AuthenticationMethodDeliveryChannel" />
+    <input type="hidden" asp-for="Input.SelectedMethodCode" value="@Model.View.AuthenticationMethod?.Code" />
 
     <div id="panel-main" class="mb-4">
         <p class="fs-5 fw-semibold">@Model.View.User?.UserName</p>
