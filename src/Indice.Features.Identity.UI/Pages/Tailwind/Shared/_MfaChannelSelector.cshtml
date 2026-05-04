@@ -12,7 +12,6 @@
         <ul role="list" class="divide-y divide-gray-200">
             @foreach (var method in Model.View.AvailableAuthenticationMethods)
             {
-                var dc = method.GetDeliveryChannel();
                 <li>
                     <button type="submit"
                             name="Input.SelectedAuthenticationMethodCode"
