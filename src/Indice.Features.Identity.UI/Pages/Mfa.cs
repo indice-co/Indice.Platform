@@ -121,18 +121,17 @@ public abstract class BaseMfaModel : BasePageModel
     }
 
     private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(MfaLoginInputModel model) {
-        var viewModel = await BuildMfaLoginViewModelAsync(model.ReturnUrl, model.SelectedDeliveryChannel, model.SelectedMethodCode);
-        viewModel.SelectedDeliveryChannel = model.SelectedDeliveryChannel;
-        viewModel.SelectedMethodCode = model.SelectedMethodCode;
+        var viewModel = await BuildMfaLoginViewModelAsync(model.ReturnUrl, model.SelectedAuthenticationMethodCode);
+        viewModel.SelectedAuthenticationMethodCode = model.SelectedAuthenticationMethodCode;
         viewModel.OtpCode = null;
         viewModel.RememberClient = model.RememberClient;
         viewModel.RememberMe = model.RememberMe;
         return viewModel;
     }
 
-    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, TotpDeliveryChannel? selectedTotpChannel = null, string? selectedMethodCode = null) {
+    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, string? selectedMethodCode = null) {
         var user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ?? throw new InvalidOperationException("User cannot be null");
-        var authenticationMethod = await AuthenticationMethodProvider.FindMethodForUserOrDefaultAsync(user, selectedTotpChannel, selectedMethodCode);
+        var authenticationMethod = await AuthenticationMethodProvider.FindMethodForUserOrDefaultAsync(user,  selectedMethodCode);
         var deviceIdentifier = await SignInManager.GetMfaDeviceIdentifierAsync(user);
         UserDevice? browserDevice = null;
         if (!string.IsNullOrWhiteSpace(deviceIdentifier.Value)) {
