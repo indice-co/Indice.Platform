@@ -31,7 +31,7 @@
         }
         else
         {
-            <li>@Localizer.EmailSecurity_Body_Device: @Model.Device.DisplayName</li>
+            <li>@Localizer.EmailSecurity_Body_Device: @(Model.Device?.DisplayName ?? "Unknown")</li>
         }
         @if (Model.Client != null)
         {

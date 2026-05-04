@@ -1,5 +1,6 @@
 ﻿using Indice.Events;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Localization;
@@ -47,7 +48,7 @@ public class SecurityNotificationEventHandler : IPlatformEventHandler<SecurityNo
                         Location = @event.Location,
                         TimeStamp = @event.LocalTimeStamp,
                         Client = @event.Client,
-                        Device = @event.Device,
+                        Device = @event.Device ?? DeviceEventContext.FromUserAgent(null),
                         UserDevice = @event.UserDevice,
                         DisplayName = @event.User.UserName,
                         Subject = subject,

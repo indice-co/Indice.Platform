@@ -25,7 +25,7 @@ public class SecurityNotificationEvent : IPlatformEvent
     /// <summary>The user's email address.</summary>
     public IPAddressLocation Location { get; set; } = null!;
     /// <summary>The device metadata.</summary>
-    public DeviceEventContext Device { get; set; } = null!;
+    public DeviceEventContext Device { get; set; } = DeviceEventContext.FromUserAgent(null);
     /// <summary>The device that initiated the password change, if any.</summary>
     public UserDeviceEventContext? UserDevice { get; set; }
     /// <summary>The client that initiated the password change, if any.</summary>
