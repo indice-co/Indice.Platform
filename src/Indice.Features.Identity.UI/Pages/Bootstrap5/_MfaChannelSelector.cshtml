@@ -13,8 +13,8 @@
         {
             var dc = method.GetDeliveryChannel();
             <button type="submit"
-                    name="ChangeSelectedDeliveryChannel"
-                    value="@dc"
+                    name="ChangeSelectedMethodCode"
+                    value="@method.Code"
                     class="list-group-item list-group-item-action border-0 py-3 channel-btn rounded-0
                            channel-@(method.DisplayName.ToKebabCase()) d-flex justify-content-between align-items-center
                            transition">
