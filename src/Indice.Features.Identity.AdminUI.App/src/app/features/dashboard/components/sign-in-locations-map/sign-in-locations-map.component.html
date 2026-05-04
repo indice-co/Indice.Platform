@@ -1,0 +1,29 @@
+<div class="sign-in-locations-map">
+    <div class="world-map">
+        <img class="world-map-background" src="./assets/img/robinson-world-map.svg"
+             alt="world map" />
+
+        <span *ngFor="let point of points; trackBy: trackByPoint"
+              class="map-point"
+              [title]="point.title"
+              [ngStyle]="{
+                    left: point.left,
+                    top: point.top,
+                    width: point.size,
+                    height: point.size,
+                    backgroundColor: point.color
+                }">
+        </span>
+    </div>
+
+    <ul class="map-legend">
+        <li *ngFor="let point of locations.countryLegend">
+            <span class="badge text-muted border bg-light m-1"
+                  [title]="point.countryCode">
+                <i class="flag:{{point.countryCode}}"
+                   [title]="point.countryCode"></i>
+                {{ point.displayName }} ({{ point.count }})
+            </span>
+        </li>
+    </ul>
+</div>

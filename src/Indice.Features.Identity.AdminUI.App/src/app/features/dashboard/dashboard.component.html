@@ -27,9 +27,10 @@
                         </div>
                         <div>
                             <span class="badge bg-light" [ngClass]="{'text-info': summary.activity.day.trend > 0, 'text-danger': summary.activity.day.trend < 0, 'text-warning': summary.activity.day.trend == 0 }">
-                                {{summary.activity.day.trend >= 0 ? "+" : "" }}{{summary.activity.day.trend}}% 
+                                {{summary.activity.day.trend >= 0 ? "+" : "" }}{{summary.activity.day.trend}}%
                             </span>
-                            <span class="ms-2">Signins from yesterday</span></div>
+                            <span class="ms-2">Signins from yesterday</span>
+                        </div>
                     </div>
                     <div class="p-3">
                         <div class="float-end">
@@ -210,8 +211,11 @@
                                             </strong>
                                             users have verified their phone number
                                         </p>
-                                        <p class="m-0 text-muted text-end">{{
-                                            summary.stats.phoneNumbersVerified.percent }}%</p>
+                                        <p class="m-0 text-muted text-end">
+                                            {{
+                                            summary.stats.phoneNumbersVerified.percent
+                                            }}%
+                                        </p>
                                         <div class="progress"
                                              style="height: 5px;">
                                             <div class="progress-bar bg-warning"
@@ -230,17 +234,32 @@
                 </div>
             </div>
         </div>
+        <div class="row"
+             *ngIf="authService.isAdminUIUsersReader() && signInLocations.count > 0">
+            <div class="col-xl-12 col-xxl-10">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="mt-0 header-title mb-4">Sign in Locations ({{signInLocations.count}})
+                            <span class="text-muted font-12 ">last 7 days</span>
+                        </h4>
+                        <!-- map component start: here there must be a -->
+                        <app-sign-in-locations-map [locations]="signInLocations"></app-sign-in-locations-map>
+                        <!-- map component end -->
+                    </div>
+                </div>
+            </div>
+        </div>
         <h5 *ngIf="blogItems.length > 0">
             Latest News
         </h5>
         <div class="row row-cols-1 row-cols-md-3"
              *ngIf="blogItems">
-             <div class="col" *ngFor="let item of blogItems; let i = index">
+            <div class="col" *ngFor="let item of blogItems; let i = index">
                 <div class="card m-b-30 card-body">
                     <h4 class="card-title font-16 mt-0">
                         {{ i + 1 }} - {{ item.title }}
                         <a [href]="item.link"
-                        target="_blank">
+                           target="_blank">
                             <i class="material-icons">link</i>
                         </a>
                     </h4>
