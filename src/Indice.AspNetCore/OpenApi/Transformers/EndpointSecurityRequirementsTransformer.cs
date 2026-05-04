@@ -1,10 +1,7 @@
 #if NET10_0_OR_GREATER
-using Indice.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi;
-using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -43,43 +40,9 @@ public static class EndpointSecurityRequirementsTransformer
                     operation.Security.Add(new());
                 }
             }
-
-            if (context.Description.ActionDescriptor.EndpointMetadata.OfType<AuthorizeAttribute>().Any()) {
-                operation.Security = [];
-                
-                if (context.Description.ActionDescriptor.EndpointMetadata.OfType<IAllowAnonymous>().Any()) {
-                    operation.Security.Add(new());
-                    return Task.CompletedTask;
-                }
-                var securityRequirements = context.Description.ActionDescriptor
-                                                             .EndpointMetadata
-                                                             .OfType<AuthorizeAttribute>();
-                // Read scopes from configuration — document.Components.SecuritySchemes is not yet
-                // populated when operation transformers run (document transformers execute after).
-                var configuration = context.ApplicationServices.GetRequiredService<IConfiguration>();
-                var apiSettings = configuration.GetApiSettings() ?? new ApiSettings();
-                var allScopes = GetScopes(apiSettings).Keys.ToList();
-                foreach (var item in securityRequirements) {
-                    operation.Security.Add(new OpenApiSecurityRequirement() {
-                        [new(item.AuthenticationSchemes ?? "oauth2", context.Document)] = allScopes
-                    });
-                }
-            }
             return Task.CompletedTask;
         });
         return options;
-    }
-
-    private static Dictionary<string, string> GetScopes(ApiSettings? settings) {
-        settings ??= new ApiSettings();
-        // Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow).
-        var scopes = new Dictionary<string, string> {
-            [settings.ResourceName] = $"Access to {settings.FriendlyName}",
-        };
-        foreach (var scope in settings.Scopes) {
-            scopes.Add(scope.Name, scope.Description ?? scope.Name);
-        }
-        return scopes;
     }
 }
 #endif

@@ -147,6 +147,40 @@ public static class OpenApiExtensions
             }
             return Task.CompletedTask;
         });
+    /// <summary>
+    /// Configures the OpenAPI document to include security requirements for MVC actions based on their authorization
+    /// metadata.
+    /// </summary>
+    /// <remarks>This method inspects each MVC action's endpoint metadata to determine if authorization is
+    /// required. If an action is decorated with AuthorizeAttribute, appropriate security requirements are added to the
+    /// OpenAPI operation. Actions marked with IAllowAnonymous will not require security. Scopes are determined from the
+    /// application's API settings configuration.</remarks>
+    /// <param name="options">The OpenApiOptions instance to configure with security requirements.</param>
+    /// <param name="scopes">A list of scopes to be used for the security requirements.</param>
+    /// <param name="schemeId">The ID of the security scheme to use. Defaults to "oauth2".</param>
+    /// <returns>The same OpenApiOptions instance, enabling method chaining.</returns>
+    public static OpenApiOptions AddControllerSecurityRequirements(this OpenApiOptions options, List<string> scopes, string schemeId = "oauth2") {
+        options.AddOperationTransformer((operation, context, cancellationToken) => {
+            if (context.Description.ActionDescriptor.EndpointMetadata.OfType<AuthorizeAttribute>().Any()) {
+                operation.Security = [];
+
+                if (context.Description.ActionDescriptor.EndpointMetadata.OfType<IAllowAnonymous>().Any()) {
+                    operation.Security.Add(new());
+                    return Task.CompletedTask;
+                }
+                var securityRequirements = context.Description.ActionDescriptor
+                                                             .EndpointMetadata
+                                                             .OfType<AuthorizeAttribute>();
+                foreach (var item in securityRequirements) {
+                    operation.Security.Add(new OpenApiSecurityRequirement() {
+                        [new(item.AuthenticationSchemes ?? schemeId, context.Document)] = scopes
+                    });
+                }
+            }
+            return Task.CompletedTask;
+        });
+        return options;
+    }
 
     /// <summary>
     /// Configures the OpenAPI options to use the OAuth2 Authorization Code flow for authentication.
