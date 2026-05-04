@@ -1,11 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Reflection;
+using Indice.Types;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Indice.Services.Tests;
 public class KeyedServiceTests
 {
-
     [Fact]
     public void KeyedServices_Can_have_Multiple_Configurations_Same_Implementation() {
 
@@ -27,11 +28,19 @@ public class KeyedServiceTests
         var serviceB = serviceProvider.GetKeyedService<IFileService>("serviceB");
         var serviceC = serviceProvider.GetKeyedService<IFileService>("serviceC");
 
+        Assert.IsType<FileServiceAzureStorage>(serviceDefault);
         Assert.IsType<FileServiceAzureStorage>(serviceB);
         Assert.IsType<FileServiceAzureStorage>(serviceC);
-        var connectionString = typeof(Indice.Services.FileServiceAzureStorage).GetField("_connectionString", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        Assert.Equal("serviceB", connectionString!.GetValue(serviceB));
-        Assert.Equal("serviceC", connectionString!.GetValue(serviceC));
-        Assert.Equal("serviceDefault", connectionString.GetValue(serviceDefault));
+
+        var connectionString = typeof(FileServiceAzureStorage)
+            .GetField("_connectionString", BindingFlags.NonPublic | BindingFlags.Instance)!;
+
+        var connectionB = (StorageConnectionString)connectionString.GetValue(serviceB)!;
+        var connectionC = (StorageConnectionString)connectionString.GetValue(serviceC)!;
+        var connectionDefault = (StorageConnectionString)connectionString.GetValue(serviceDefault)!;
+
+        Assert.StartsWith("serviceB", connectionB.ToString());
+        Assert.StartsWith("serviceC", connectionC.ToString());
+        Assert.StartsWith("serviceDefault", connectionDefault.ToString());
     }
 }

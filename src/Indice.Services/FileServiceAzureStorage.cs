@@ -13,6 +13,7 @@ public class FileServiceAzureStorage : IFileService
 {
     /// <summary>The connection string parameter name. The setting key that will be searched inside the configuration.</summary>
     public const string CONNECTION_STRING_NAME = "StorageConnection";
+
     private readonly string? _containerName;
     private readonly StorageConnectionString _connectionString;
 
