@@ -28,7 +28,7 @@ public static class AzureBlobExtensions
                 //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection?tabs=web-app-builder
                 builder.Services.AddAzureClients(clientBuilder => {
                     if (storageConnection.HasManagedIdentity) {
-                        clientBuilder.AddBlobServiceClient(new Uri($"https://{storageConnection.AccountName}.blob.core.windows.net"));
+                        clientBuilder.AddBlobServiceClient(new Uri($"https://{storageConnection["AccountName"]}.blob.{storageConnection["EndpointSuffix"]}"));
                         var credentialOptions = new DefaultAzureCredentialOptions();
                         if (!storageConnection.UseSystemAssigned) {
                             credentialOptions.ManagedIdentityClientId = storageConnection.ManagedIdentityClientId;
