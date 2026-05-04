@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Indice.Features.Messages.Core.Data;
+﻿using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Queries;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models.Kpis;

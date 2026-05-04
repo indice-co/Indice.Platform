@@ -111,7 +111,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked, OnDest
           this._router.navigate(['campaigns', campaign.campaignId]);
 
           // Localized toast using combineLatest; unsubscribe immediately after emission
-          this._toaster.show(ToastType.Success, 'Campaigns.CreateSuccessTitle', 'Campaigns.CreateSuccessMessage', undefined, {title: data.title});
+          this._toaster.show(ToastType.Success, 'Campaigns.CreateSuccessTitle', 'Campaigns.CreateSuccessMessage', undefined, { title: data.title });
         }
       });
   }
