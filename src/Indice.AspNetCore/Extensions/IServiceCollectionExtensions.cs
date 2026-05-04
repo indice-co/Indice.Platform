@@ -108,7 +108,7 @@ public static class ServiceCollectionExtensions
         if (options.KeyLifetime <= 0) {
             options.KeyLifetime = defaultKeyLifetime;
         }
-        var container = AzureStorageClientFactory.CreateBlobContainerClient(storageConnection, options.ContainerName);
+        var container = AzureClientFactory.CreateBlobContainerClient(storageConnection, options.ContainerName);
         container.CreateIfNotExists();
         // Enables data protection services to the specified IServiceCollection.
         var dataProtectionBuilder = services.AddDataProtection()

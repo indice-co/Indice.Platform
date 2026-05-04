@@ -35,9 +35,9 @@ public class KeyedServiceTests
         var connectionString = typeof(FileServiceAzureStorage)
             .GetField("_connectionString", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
-        var connectionB = (StorageConnectionString)connectionString.GetValue(serviceB)!;
-        var connectionC = (StorageConnectionString)connectionString.GetValue(serviceC)!;
-        var connectionDefault = (StorageConnectionString)connectionString.GetValue(serviceDefault)!;
+        var connectionB = (AzureConnectionString)connectionString.GetValue(serviceB)!;
+        var connectionC = (AzureConnectionString)connectionString.GetValue(serviceC)!;
+        var connectionDefault = (AzureConnectionString)connectionString.GetValue(serviceDefault)!;
 
         Assert.StartsWith("serviceB", connectionB.ToString());
         Assert.StartsWith("serviceC", connectionC.ToString());

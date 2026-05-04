@@ -5,6 +5,7 @@ using Azure.Messaging.ServiceBus.Administration;
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Services;
+using Indice.Types;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -406,9 +407,10 @@ public static class IndiceServicesServiceCollectionExtensions
             ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
         };
         configure?.Invoke(serviceProvider, options);
+        var azureConnection = new AzureConnectionString(options.ConnectionString!);
         return new EventDispatcherAzureServiceBus(
-            new ServiceBusClient(connectionString: options.ConnectionString),
-            options.CreateQueueIfNotExists ? new ServiceBusAdministrationClient(connectionString: options.ConnectionString) : null,
+            AzureClientFactory.CreateServiceBusClient(azureConnection),
+            options.CreateQueueIfNotExists ? AzureClientFactory.CreateServiceBusAdministrationClient(azureConnection) : null,
             options.EnvironmentName,
             options.Enabled,
             options.UseCompression,

@@ -37,7 +37,7 @@ services.AddFilesLocal(options => {
 
 #### 🔧 Configuration (Azure Storage)
 
-Supports flexible configuration via new `StorageConnectionString`.
+Supports flexible configuration via new `AzureConnectionString`.
 Extends the standard Azure Storage connection-string concept with a structured, strongly-typed model that supports:
 
 - Standard connection-string parsing

@@ -265,14 +265,14 @@ public static class IConfigurationExtensions
     /// <param name="connectionStringName">The connection string name</param>
     /// <param name="connectionString">Outputs the connection string if valid</param>
     /// <returns>The api secret under the specified key. Api Secrets are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
-    public static bool TryGetStorageConnectionString(this IConfiguration configuration, string connectionStringName, out StorageConnectionString? connectionString) {
+    public static bool TryGetStorageConnectionString(this IConfiguration configuration, string connectionStringName, out AzureConnectionString? connectionString) {
         connectionString = null;
         var storageConnectionString = configuration.GetConnectionString(connectionStringName);
         try {
             if (string.IsNullOrWhiteSpace(storageConnectionString)) {
                 return false;
             }
-            connectionString = new StorageConnectionString(storageConnectionString);
+            connectionString = new AzureConnectionString(storageConnectionString);
         } catch {
             return false;
         }

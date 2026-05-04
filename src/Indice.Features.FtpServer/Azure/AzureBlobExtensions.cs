@@ -24,7 +24,7 @@ public static class AzureBlobExtensions
             var options = new AzureBlobFileSystemOptions();
             configureAction?.Invoke(options);
             if (!string.IsNullOrWhiteSpace(options.ConnectionString)) {
-                var storageConnection = new StorageConnectionString(options.ConnectionString);
+                var storageConnection = new AzureConnectionString(options.ConnectionString);
                 //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection?tabs=web-app-builder
                 builder.Services.AddAzureClients(clientBuilder => {
                     if (storageConnection.HasManagedIdentity) {
