@@ -22,9 +22,12 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
         _templateService = serviceProvider.GetRequiredService<ITemplateService>();
         RuleFor(campaign => campaign.Title)
             .NotEmpty()
-            .WithMessage("Please provide a title for the campaign.")
+            .WithMessage("Campaign title is required.")
+            .When(campaign => !campaign.MessageTemplateId.HasValue);
+        RuleFor(campaign => campaign.Title)
             .MaximumLength(TextSizePresets.M128)
-            .WithMessage($"Campaign title cannot exceed {TextSizePresets.M128} characters.");
+            .WithMessage($"Campaign title cannot exceed {TextSizePresets.M128} characters.")
+            .When(campaign => !string.IsNullOrWhiteSpace(campaign.Title));
         RuleFor(campaign => campaign.Content)
             .Must(content => content.Count > 0)
             .When(campaign => !campaign.MessageTemplateId.HasValue)

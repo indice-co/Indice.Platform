@@ -157,7 +157,7 @@ public class NotificationsManager(
     /// <param name="attachment">An attachement available to email and inbox channels</param>
     /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
     public Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, MessageContent template, Uri mediaBaseHref, Period? period = null,
-        Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null , params string[] recipientIds) =>
+        Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null, params string[] recipientIds) =>
         SendMessageToRecipients(title, channels.GetFlagValues().ToDictionary(x => x, y => template), mediaBaseHref, period, actionLink, type, data, attachment, recipientIds);
 
     internal async Task<CreateCampaignResult> CreateCampaignInternal(CreateCampaignRequest request, bool? validateRules = true) {
@@ -171,6 +171,20 @@ public class NotificationsManager(
         }
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var isNewDistributionList = false;
+        if (string.IsNullOrWhiteSpace(request.Title) && !request.MessageTemplateId.HasValue) {
+            return CreateCampaignResult.Fail("Title is required when MessageTemplateId is not provided.");
+        }
+        // use the teplate content if exists
+        Template? template = null;
+        if (request.MessageTemplateId.HasValue && (request.Content.Count == 0 || string.IsNullOrWhiteSpace(request.Title))) {
+            template = await TemplateService.GetById(request.MessageTemplateId.Value);
+            if (template == null) {
+                return CreateCampaignResult.Fail($"The selected Template with Id:({request.MessageTemplateId}) does not exist");
+            }
+            if (string.IsNullOrWhiteSpace(request.Title)) {
+                request.Title = template.Name!;
+            }
+        }
         // If a distribution list id is not set, then we create a new list.
         if (!request.RecipientListId.HasValue) {
             var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
@@ -201,12 +215,7 @@ public class NotificationsManager(
                 return CreateCampaignResult.Fail("Failed to store the attachments. Check storage or database settings", ex.Message);
             }
         }
-        // use the teplate content if exists
-        if (request.MessageTemplateId.HasValue && request.Content.Count == 0) {
-            var template = await TemplateService.GetById(request.MessageTemplateId.Value);
-            if (template == null) {
-                return CreateCampaignResult.Fail($"The selected Template with Id:({request.MessageTemplateId}) does not exist");
-            }
+        if (template is not null && request.Content.Count == 0) {
             if (!request.IgnoreUserPreferences.HasValue) {
                 request.IgnoreUserPreferences = template.IgnoreUserPreferences;
             }

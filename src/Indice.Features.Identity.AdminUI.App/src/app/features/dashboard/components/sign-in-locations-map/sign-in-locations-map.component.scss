@@ -1,0 +1,53 @@
+.sign-in-locations-map {
+
+
+    .world-map {
+        position: relative;
+        border-radius: 0.25rem;
+        overflow: hidden;
+        background: #f8f9fa;
+
+
+
+        img {
+            display: block;
+            width: 100%;
+            height: auto;
+            opacity: 0.5;
+        }
+
+        .world-map-background {
+            /* transform: translate(8px, -12px); example – adjust these */
+            /* Optional: if the map is also slightly scaled */
+            /* transform: translate(8px, -12px) scale(1.02); */
+            /* transform-origin: 0 0; important so shift starts from top-left */
+        }
+    }
+
+    .map-point {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        border: 1px solid rgba(13, 110, 253, 0.85);
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
+        pointer-events: auto;
+        opacity: 0.85;
+    }
+
+    .map-legend {
+        margin: 1rem 0 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+    }
+}
+
+@media only screen and (min-width: 1400px) {
+    .sign-in-locations-map {
+        .world-map {
+            float: left;
+            width: 50%;
+        }
+    }
+}
