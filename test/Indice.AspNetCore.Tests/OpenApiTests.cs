@@ -192,6 +192,20 @@ public class OpenApiTests : IAsyncLifetime
         var longListTypeAsStringSchema = json!["components"]!["schemas"]!["LongListTypeAsString"];
         Assert.NotNull(longListTypeAsStringSchema);
     }
+
+    [Fact]
+    public async Task OpenApiHandlesNullableEnumsModels() {
+        var openApi = await _httpClient.GetStringAsync("openapi/nullables.json");
+        Assert.NotEmpty(openApi);
+
+        var json = JsonNode.Parse(openApi);
+        var actualSchema = json!["components"]!["schemas"]!["NullableEnumsTestRequest"];
+        var expectedSchema = "{\"type\":\"object\",\"properties\":{\"nullableType\":{\"oneOf\":[{\"type\":\"null\"},{\"$ref\":\"#/components/schemas/NullableEnumsType\"}]}},\"additionalProperties\":false}";
+        Assert.Equal(expectedSchema, actualSchema!.ToJsonString());
+        var actualEnumSchema = json!["components"]!["schemas"]!["NullableEnumsType"];
+        var expectedEnumSchema = "{\"enum\":[0,1,2,3],\"type\":\"integer\",\"x-enum-varnames\":[\"Valid\",\"Invalid\",\"Draft\",\"Deleted\"]}";
+        Assert.Equal(expectedEnumSchema, actualEnumSchema!.ToJsonString());
+    }
 }
 #endif
 
@@ -416,7 +430,7 @@ public static class OpenApiTestsEndpoints
         var group = routes.MapGroup("tests");
         group.WithGroupName("nullables");
         group.WithTags("Tests");
-        group.MapPost("nullable-enum", PostNullableEnum)
+        group.MapPost("nullable-enum/{parentId}", PostNullableEnum)
              .WithName(nameof(PostNullableEnum));
 
 
@@ -449,7 +463,7 @@ public static class OpenApiTestsEndpoints
     public static NoContent UpdateLongTypeEnum(LongListRequest request) {
         return TypedResults.NoContent();
     }
-    public static NoContent PostNullableEnum(NullableEnumsTestRequest request) {
+    public static NoContent PostNullableEnum(string parentId, NullableEnumsTestRequest request) {
         return TypedResults.NoContent();
     }
 
