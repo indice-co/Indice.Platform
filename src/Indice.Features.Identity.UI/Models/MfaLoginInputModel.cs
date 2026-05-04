@@ -19,4 +19,6 @@ public class MfaLoginInputModel
     public string? DeviceId { get; set; }
     /// <summary>The user selected delivery channel for the OTP code.</summary>
     public TotpDeliveryChannel? SelectedDeliveryChannel { get; set; }
+    /// <summary>The <c>Code</c> of the user-selected authentication method (e.g. <c>"Sms"</c>, <c>"AuthenticatorApp"</c>). Preferred over <see cref="SelectedDeliveryChannel"/> for picker disambiguation, since not every method has a delivery channel.</summary>
+    public string? SelectedMethodCode { get; set; }
 }

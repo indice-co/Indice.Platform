@@ -10,6 +10,7 @@
     <input type="hidden" asp-for="Input.ReturnUrl" />
     <input type="hidden" asp-for="Input.DeviceId" />
     <input type="hidden" asp-for="Input.SelectedDeliveryChannel" value="@Model.View.AuthenticationMethodDeliveryChannel" />
+    <input type="hidden" asp-for="Input.SelectedMethodCode" value="@Model.View.AuthenticationMethod?.Code" />
 
     <div id="panel-main">
         <div class="alert alert-primary mb-4">
@@ -63,10 +64,9 @@
         <div class="list-group mb-4 border-top border-bottom">
             @foreach (var method in Model.View.AvailableAuthenticationMethods)
             {
-                var dc = method.GetDeliveryChannel();
                 <button type="submit"
-                        name="ChangeSelectedDeliveryChannel"
-                        value="@dc"
+                        name="ChangeSelectedMethodCode"
+                        value="@method.Code"
                         class="list-group-item list-group-item-action border-0 py-3 channel-btn rounded-0
                                                            channel-@(method.DisplayName.ToKebabCase()) d-flex justify-content-between align-items-center
                                                            transition">

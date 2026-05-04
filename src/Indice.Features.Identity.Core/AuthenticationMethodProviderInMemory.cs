@@ -45,8 +45,14 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
 
     /// <inheritdoc />
     /// <remarks>For now the supported authentication methods are <see cref="SmsAuthenticationMethod"/>, <see cref="TrustedDeviceAuthenticationMethod"/> and <see cref="AuthenticatorAppAuthenticationMethod"/>.</remarks>
-    public async Task<AuthenticationMethod?> FindMethodForUserOrDefaultAsync(User user, TotpDeliveryChannel? channel = null) {
+    public async Task<AuthenticationMethod?> FindMethodForUserOrDefaultAsync(User user, TotpDeliveryChannel? channel = null, string? code = null) {
         var userMethods = await GetAllMethodsForUserAsync(user);
+        if (!string.IsNullOrEmpty(code) && AllowMfaChannelDowngrade) {
+            var byCode = userMethods.FirstOrDefault(x => string.Equals(x.Code, code, StringComparison.OrdinalIgnoreCase));
+            if (byCode is not null) {
+                return byCode;
+            }
+        }
         if (channel.HasValue && AllowMfaChannelDowngrade) {
             return userMethods.FirstOrDefault(x => x.GetDeliveryChannel() == channel!.Value) ?? userMethods.FirstOrDefault();
         }

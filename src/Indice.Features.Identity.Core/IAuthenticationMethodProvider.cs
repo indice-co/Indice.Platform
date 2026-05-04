@@ -20,9 +20,10 @@ public interface IAuthenticationMethodProvider
     Task<AuthenticationMethod[]> GetAllMethodsAsync();
     /// <summary>Get the authentication method that must be applied to the user.</summary>
     /// <param name="user">The user instance.</param>
-    /// <param name="channel">The authentication method delivery channel for OTP (optional).</param>
+    /// <param name="channel">The authentication method delivery channel for OTP (optional). Used as a fallback when <paramref name="code"/> is not supplied.</param>
+    /// <param name="code">The <see cref="AuthenticationMethod.Code"/> of the desired method (optional). Preferred over <paramref name="channel"/> for picker disambiguation, since not every method has a defined delivery channel.</param>
     /// <remarks>This is used on actual MFA screens</remarks>
-    Task<AuthenticationMethod?> FindMethodForUserOrDefaultAsync(User user, TotpDeliveryChannel? channel = null);
+    Task<AuthenticationMethod?> FindMethodForUserOrDefaultAsync(User user, TotpDeliveryChannel? channel = null, string? code = null);
     /// <summary>Gets the authentication methods supported for the user.</summary>
     /// <param name="user">The user instance.</param>
     /// <returns><see cref="AuthenticationMethod"/></returns>

@@ -61,8 +61,8 @@
             var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
             viewModel.init();
 
-            $('button[name="ChangeSelectedDeliveryChannel"]').on('click', function() {
-                $('input[name="Input.SelectedDeliveryChannel"]').val($(this).val());
+            $('button[name="ChangeSelectedMethodCode"]').on('click', function() {
+                $('input[name="Input.SelectedMethodCode"]').val($(this).val());
                 $('input[name="Input.ResendOtp"]').val('true');
             });
         });

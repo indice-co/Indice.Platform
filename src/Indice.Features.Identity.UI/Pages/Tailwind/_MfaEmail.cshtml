@@ -71,11 +71,10 @@
             <ul role="list" class="divide-y divide-gray-200">
                 @foreach (var method in Model.View.AvailableAuthenticationMethods)
                 {
-                    var dc = method.GetDeliveryChannel();
                     <li>
                         <button type="submit"
-                                name="Input.SelectedDeliveryChannel"
-                                value="@dc"
+                                name="Input.SelectedMethodCode"
+                                value="@method.Code"
                                 class="channel-btn channel-@(method.DisplayName.ToKebabCase())
                                                                     relative flex justify-between gap-x-6 px-2  py-5 w-full hover:bg-tenant-200 rounded-md
                                                                     transition-all duration-200 hover:rounded-xl hover:shadow-md">
