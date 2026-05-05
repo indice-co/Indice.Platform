@@ -3270,6 +3270,11 @@ input:visited,
 .cursor-pointer{
   cursor: pointer;
 }
+.select-all{
+  -webkit-user-select: all;
+     -moz-user-select: all;
+          user-select: all;
+}
 .resize{
   resize: both;
 }
@@ -3283,6 +3288,9 @@ input:visited,
 }
 .grid-cols-12{
   grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+.grid-cols-2{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .grid-cols-4{
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -3353,6 +3361,9 @@ input:visited,
 .gap-1{
   gap: 0.25rem;
 }
+.gap-2{
+  gap: 0.5rem;
+}
 .gap-4{
   gap: 1rem;
 }
@@ -3413,6 +3424,9 @@ input:visited,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.break-all{
+  word-break: break-all;
 }
 .rounded{
   border-radius: 0.25rem;
@@ -3509,6 +3523,10 @@ input:visited,
 .border-transparent{
   border-color: transparent;
 }
+.border-yellow-200{
+  --tw-border-opacity: 1;
+  border-color: rgb(254 240 138 / var(--tw-border-opacity, 1));
+}
 .border-b-tenant-900{
   border-bottom-color: var(--tenant900);
 }
@@ -3596,6 +3614,10 @@ input:visited,
 .bg-white\/50{
   background-color: rgb(255 255 255 / 0.5);
 }
+.bg-yellow-50{
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 252 232 / var(--tw-bg-opacity, 1));
+}
 .bg-\[url\(\"\.\.\/img\/idps\/Apple\.svg\"\)\]{
   background-image: url("../img/idps/Apple.svg");
 }
@@ -3661,6 +3683,9 @@ input:visited,
 }
 .p-1{
   padding: 0.25rem;
+}
+.p-2{
+  padding: 0.5rem;
 }
 .p-2\.5{
   padding: 0.625rem;
@@ -3785,6 +3810,9 @@ input:visited,
 }
 .text-right{
   text-align: right;
+}
+.font-mono{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 .text-2xl{
   font-size: 1.5rem;
@@ -3940,6 +3968,10 @@ input:visited,
 .text-white{
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+}
+.text-yellow-800{
+  --tw-text-opacity: 1;
+  color: rgb(133 77 14 / var(--tw-text-opacity, 1));
 }
 .underline{
   text-decoration-line: underline;
@@ -4112,6 +4144,10 @@ input:visited,
 .hover\:bg-gray-50:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(249 250 251 / var(--tw-bg-opacity, 1));
+}
+.hover\:bg-gray-900:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(17 24 39 / var(--tw-bg-opacity, 1));
 }
 .hover\:bg-red-600:hover{
   --tw-bg-opacity: 1;

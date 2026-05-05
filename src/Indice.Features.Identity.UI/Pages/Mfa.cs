@@ -6,6 +6,7 @@ using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Features.Identity.UI.Models;
 using Indice.Services;
@@ -121,17 +122,17 @@ public abstract class BaseMfaModel : BasePageModel
     }
 
     private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(MfaLoginInputModel model) {
-        var viewModel = await BuildMfaLoginViewModelAsync(model.ReturnUrl, model.SelectedDeliveryChannel);
-        viewModel.SelectedDeliveryChannel = model.SelectedDeliveryChannel;
+        var viewModel = await BuildMfaLoginViewModelAsync(model.ReturnUrl, model.SelectedAuthenticationMethodCode);
+        viewModel.SelectedAuthenticationMethodCode = model.SelectedAuthenticationMethodCode;
         viewModel.OtpCode = null;
         viewModel.RememberClient = model.RememberClient;
         viewModel.RememberMe = model.RememberMe;
         return viewModel;
     }
 
-    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, TotpDeliveryChannel? selectedTotpChannel = null) {
+    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, string? selectedMethodCode = null) {
         var user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ?? throw new InvalidOperationException("User cannot be null");
-        var authenticationMethod = await AuthenticationMethodProvider.FindMethodForUserOrDefaultAsync(user, selectedTotpChannel);
+        var authenticationMethod = await AuthenticationMethodProvider.FindMethodForUserOrDefaultAsync(user, selectedMethodCode);
         var deviceIdentifier = await SignInManager.GetMfaDeviceIdentifierAsync(user);
         UserDevice? browserDevice = null;
         if (!string.IsNullOrWhiteSpace(deviceIdentifier.Value)) {
@@ -150,9 +151,10 @@ public abstract class BaseMfaModel : BasePageModel
             IsExistingBrowser = browserDevice?.MfaSessionActive() ?? false,
             Error = hasError ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null,
             ResendEnabled = !hasError &&
-                (authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms ||
-                 authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification ||
-                 authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Email),
+                authenticationMethod!.Type != AuthenticationMethodType.AuthenticatorApp &&
+                (authenticationMethod.GetDeliveryChannel() == TotpDeliveryChannel.Sms ||
+                 authenticationMethod.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification ||
+                 authenticationMethod.GetDeliveryChannel() == TotpDeliveryChannel.Email),
             HubConnectionUrl = Configuration.GetSection("General").GetValue<string>("HubConnectionUrl")
         };
     }

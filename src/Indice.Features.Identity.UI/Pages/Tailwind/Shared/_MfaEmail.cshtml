@@ -1,0 +1,67 @@
+﻿@using Indice.Extensions
+@using Indice.Features.Identity.Core.Models
+@inject IdentityUILocalizer Localizer
+@model BaseMfaModel
+
+<form id="mfa-form"
+      asp-page="/Mfa"
+      asp-route-returnUrl="@Model.Input.ReturnUrl"
+      method="post"
+      class="space-y-6">
+    <input type="hidden" asp-for="Input.ReturnUrl" />
+    <input type="hidden" asp-for="Input.DeviceId" />
+    <div id="panel-main" class="space-y-4">
+        <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mb-4">
+            @Localizer.Mfa_Check_Your_Inbox(Model.View.EmailMasked!)
+        </div>
+        <div>
+            <label asp-for="Input.OtpCode" class="block text-sm font-medium text-gray-700">
+                @Localizer.Mfa_OTP_Code
+            </label>
+            <input asp-for="Input.OtpCode"
+                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm
+                            focus:ring-tenant-500 focus:border-tenant-500"
+                   placeholder="@Localizer.Mfa_OTP_Code"
+                   autofocus autocomplete="off" />
+            <span asp-validation-for="Input.OtpCode" class="text-red-600 text-sm"></span>
+        </div>
+        <div class="flex items-center justify-between">
+            <div indice-if="!Model.View.IsExistingBrowser" class="flex items-center">
+                <input asp-for="Input.RememberClient"
+                       type="checkbox"
+                       class="h-4 w-4 text-tenant-600 border-gray-300 rounded" />
+                <label for="Input_RememberClient" class="text-left ml-2 block text-sm text-gray-900 mr-8">
+                    @Localizer.Mfa_I_Sign_In_Frequently_Here_Remember_This_Browser
+                </label>
+            </div>
+            <button type="submit"
+                    class="py-2 px-4 bg-tenant-800 hover:bg-tenant-900 text-white font-semibold rounded-md">
+                @Localizer.Mfa_Authenticate
+            </button>
+        </div>
+        <div class="@(Model.View.AllowDowngradeAuthenticationMethod ? "flex justify-between" : "flex justify-center")">
+            <!-- Immediate resend -->
+            <button id="otp-resend"
+                    type="submit"
+                    name="Input.ResendOtp"
+                    value="true"
+                    class="text-tenant-600 hover:text-tenant-800 hover:underline font-medium disabled:text-gray-400 disabled:no-underline"
+                    @(Model.View.ResendEnabled ? "" : "disabled")>
+                <span>@Localizer.Mfa_Resend</span>
+                <span class="countdown ml-2 text-sm text-gray-400"></span>
+            </button>
+            <!-- Open channel picker -->
+            @if (Model.View.AllowDowngradeAuthenticationMethod)
+            {
+                <button id="show-channels"
+                        type="button"
+                        class="text-tenant-600 hover:text-tenant-800 hover:underline font-medium">
+                    @Localizer.Mfa_Other_Authentication_Methods
+                </button>
+            }
+        </div>
+    </div>
+
+    <partial name="_MfaChannelSelector" model="Model" />
+    <input type="hidden" name="Input.ResendOtp" value="" />
+</form>

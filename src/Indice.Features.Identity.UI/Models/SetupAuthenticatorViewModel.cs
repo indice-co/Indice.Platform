@@ -1,0 +1,12 @@
+namespace Indice.Features.Identity.UI.Models;
+
+/// <summary>View model for the MFA onboarding authenticator app setup page.</summary>
+public class SetupAuthenticatorViewModel : SetupAuthenticatorInputModel
+{
+    /// <summary>The raw TOTP shared secret (base32).</summary>
+    public string? SharedKey { get; set; }
+    /// <summary>The shared key formatted in lowercase groups of four for manual entry.</summary>
+    public string? FormattedSharedKey { get; set; }
+    /// <summary>The <c>otpauth://</c> URI consumed by authenticator apps (also used as the QR code payload).</summary>
+    public string? AuthenticatorUri { get; set; }
+}

@@ -12,6 +12,7 @@ using Indice.Features.Identity.Core.Hubs;
 using Indice.Services;
 
 namespace Indice.Features.Identity.Tests;
+
 public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
 {
     public AuthenticationMethodProviderInMemoryTests() {
@@ -171,7 +172,7 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
 
         var methods = await authenticationMethodProvider.GetAllMethodsForUserAsync(user);
         Assert.Equal(3, methods.Length);
-        var selectedMethod = await authenticationMethodProvider.FindMethodForUserOrDefaultAsync(user, TotpDeliveryChannel.Viber);
+        var selectedMethod = await authenticationMethodProvider.FindMethodForUserOrDefaultAsync(user, "Viber");
         Assert.NotEqual(methods[0].Type, selectedMethod?.Type);
         Assert.Equal(TotpDeliveryChannel.Viber, selectedMethod?.GetDeliveryChannel());
     }

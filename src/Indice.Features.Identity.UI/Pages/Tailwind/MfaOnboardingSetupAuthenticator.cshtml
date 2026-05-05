@@ -1,0 +1,60 @@
+@page "/login/mfa/onboarding/setup-authenticator"
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/mfa/onboarding/setup-authenticator")]
+@model BaseMfaOnboardingSetupAuthenticatorModel
+
+@inject IdentityUILocalizer Localizer
+
+@{
+    ViewBag.Title = Localizer.MfaOnBoardingSetupAuthenticator_PageTitle;
+}
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <vc:page-heading title="@Localizer.MfaOnBoardingSetupAuthenticator_PageHeader" image-src="" />
+        <partial name="_ValidationSummary" />
+
+        <p class="text-sm text-gray-600 mb-4">@Localizer.MfaOnBoardingSetupAuthenticator_ScanQrCode</p>
+
+        <div class="flex justify-center mb-4">
+            <div id="qrCode" class="p-4 border border-gray-200 rounded-md bg-white"></div>
+        </div>
+        <div id="qrCodeData" data-url="@Model.View.AuthenticatorUri" class="hidden"></div>
+
+        <p class="text-xs text-gray-500 mb-1">@Localizer.MfaOnBoardingSetupAuthenticator_OrEnterManually</p>
+        <p class="font-mono font-semibold break-all mb-6">@Model.View.FormattedSharedKey</p>
+
+        <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
+            <input type="hidden" asp-for="Input.ReturnUrl" />
+
+            <div class="mb-4">
+                <label asp-for="Input.Code" class="block text-sm font-medium text-gray-700">
+                    @Localizer.MfaOnBoardingSetupAuthenticator_VerificationCode
+                </label>
+                <input asp-for="Input.Code"
+                       type="text"
+                       placeholder="@Localizer.MfaOnBoardingSetupAuthenticator_VerificationCode"
+                       autocomplete="one-time-code"
+                       inputmode="numeric"
+                       maxlength="6"
+                       autofocus
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md
+                              placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+                              focus:border-transparent" />
+                <span asp-validation-for="Input.Code" class="block mt-1 text-sm text-red-600"></span>
+            </div>
+
+            <div class="mb-4">
+                <button type="submit"
+                        class="block w-full py-2 px-4 font-semibold rounded-md
+                               bg-blue-500 hover:bg-blue-600 text-white transition">
+                    @Localizer.MfaOnBoardingSetupAuthenticator_Verify
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+    <script type="text/javascript" src="~/lib/qrcodejs2/qrcode.min.js" csp-nonce></script>
+    <script type="text/javascript" src="~/js/qr.js" csp-nonce></script>
+}
