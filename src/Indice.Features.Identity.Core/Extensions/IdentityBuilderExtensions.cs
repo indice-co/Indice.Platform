@@ -183,8 +183,10 @@ public static class IdentityBuilderExtensions
         var allMethods = (otherAuthenticationMethods ?? []).Prepend(authenticationMethod).ToList();
 
         // Convert existing authentication method instances to configurations and use the factory pattern
-        return builder.AddAuthenticationMethodProvider(factoryBuilder => {
+        return builder.AddAuthenticationMethods(factoryBuilder => {
+            factoryBuilder.UseAuthenticationProvider<AuthenticationMethodProviderInMemory>();
             foreach (var method in allMethods) {
+
                 // Map each method instance to a configuration based on its type
                 _ = method switch {
                     SmsAuthenticationMethod => factoryBuilder.AddSms(method.SupportsMfa, method.Enabled),
@@ -200,21 +202,12 @@ public static class IdentityBuilderExtensions
             }
         });
     }
-
-    /// <summary>Registers an implementation of <see cref="IAuthenticationMethodProvider"/>.</summary>
-    /// <typeparam name="TAuthenticationMethodProvider"></typeparam>
-    /// <param name="builder">Helper functions for configuring identity services.</param>
-    /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder AddAuthenticationMethodProvider<TAuthenticationMethodProvider>(this IdentityBuilder builder) where TAuthenticationMethodProvider : IAuthenticationMethodProvider {
-        builder.Services.AddTransient(typeof(IAuthenticationMethodProvider), typeof(TAuthenticationMethodProvider));
-        return builder;
-    }
-
+    
     /// <summary>Registers the <see cref="AuthenticationMethodProviderInMemory"/> which is an in-memory static provider for <see cref="IAuthenticationMethodProvider"/>. Using the factory pattern with localization support via <see cref="IdentityMessageDescriber"/></summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
     /// <param name="configure">Action to configure authentication methods.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder AddAuthenticationMethodProvider(
+    public static IdentityBuilder AddAuthenticationMethods(
         this IdentityBuilder builder, 
         Action<AuthenticationMethodFactoryBuilder> configure)
     {
@@ -231,7 +224,7 @@ public static class IdentityBuilderExtensions
         }
         builder.Services.AddScoped<IAuthenticationMethodFactory, AuthenticationMethodFactory>();
         // Use Scoped to match ExtendedUserManager<User> dependency lifetime
-        builder.Services.AddScoped<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
+        builder.Services.AddScoped(typeof(IAuthenticationMethodProvider), factoryBuilder.AuthenticationProviderType);
         return builder;
     }
 
