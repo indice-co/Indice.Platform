@@ -729,6 +729,48 @@
   <data name="MfaOnBoardingVerifyPhone_PageHeader" xml:space="preserve">
     <value>電話番号を確認</value>
   </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageTitle" xml:space="preserve">
+    <value>認証アプリのセットアップ</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageHeader" xml:space="preserve">
+    <value>認証アプリのセットアップ</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_ScanQrCode" xml:space="preserve">
+    <value>認証アプリでQRコードをスキャンするか、キーを手動で入力してください。</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_OrEnterManually" xml:space="preserve">
+    <value>またはこのキーを手動で入力してください:</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_VerificationCode" xml:space="preserve">
+    <value>確認コード</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_Verify" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_InvalidCode" xml:space="preserve">
+    <value>確認コードが無効です。</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageTitle" xml:space="preserve">
+    <value>リカバリコード</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageHeader" xml:space="preserve">
+    <value>リカバリコードを保存してください</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_SaveWarning" xml:space="preserve">
+    <value>これらのリカバリコードを安全な場所に保管してください。認証アプリへのアクセスを失った場合、各コードは一度だけ使用できます。</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Continue" xml:space="preserve">
+    <value>コードを保存しました</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Download" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_FileHeader" xml:space="preserve">
+    <value>これは {0} アカウントのバックアップコードです。安全に保管してください！</value>
+  </data>
+  <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
+    <value>認証アプリを開いて、確認コードを入力してください。</value>
+  </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>パスワードを変更</value>
   </data>
@@ -1106,5 +1148,8 @@
   </data>
   <data name="AcceptTerms_LastUpdated" xml:space="preserve">
     <value>最終更新日</value>
+  </data>
+  <data name="Register_Optional_Instruction_Notice" xml:space="preserve">
+    <value />
   </data>
 </root>

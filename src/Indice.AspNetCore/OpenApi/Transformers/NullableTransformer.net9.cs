@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 
@@ -41,8 +42,8 @@ public static class NullableTransformer
                         continue;
                     }
                     var nullableType = Nullable.GetUnderlyingType(jsonProperty.PropertyType);
-                   
-                    property!.Nullable = (nullableType is not null) || jsonProperty.IsGetNullable;
+                    bool isNullable = (nullableType is not null) || jsonProperty.IsGetNullable;
+                    property!.Nullable = isNullable;
                     property.Type ??= (nullableType ?? jsonProperty.PropertyType).Name switch {
                         "Int16" => "integer",
                         "Int32" => "integer",

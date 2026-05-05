@@ -19,33 +19,31 @@
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
-     <div class="row justify-content-center mb-3">
-    <div indice-if="identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="form-row col-md-6">
-           <select class="form-control" style="height: 40px" asp-for="Input.CallingCode" required>
-     <option value="" selected>@Localizer.Profile_Choose</option>
-        @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
-              {
-          <option value="@callingCode">@callingCode.DisplayName</option>
-              }
-       </select>
-      <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
+        <div class="row justify-content-center mb-3">
+            <div indice-if="identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="form-row col-md-6">
+                <select class="form-control" style="height: 40px" asp-for="Input.CallingCode" required>
+                    <option value="" selected>@Localizer.Profile_Choose</option>
+                    @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
+                    {
+                        <option value="@callingCode">@callingCode.DisplayName</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
             </div>
-            <div class="form-row @(identityUiOptions.Value.EnablePhoneNumberCallingCodes ? "col-md-6" :"col-md-12")">
-   <label asp-for="Input.PhoneNumber" class="sr-only">@Localizer.AddPhone_PhoneNumber</label>
-              <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-          <input class="form-control" type="text" placeholder="@Localizer.AddPhone_PhoneNumber" asp-for="Input.PhoneNumber" />
-           <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
+            <div class="form-row @(identityUiOptions.Value.EnablePhoneNumberCallingCodes ? "col-md-6" : "col-md-12")">
+                <label asp-for="Input.PhoneNumber" class="sr-only">@Localizer.AddPhone_PhoneNumber</label>
+                <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
+                <input class="form-control" type="text" placeholder="@Localizer.AddPhone_PhoneNumber" asp-for="Input.PhoneNumber" />
+                <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
+            </div>
         </div>
-  </div>
-        <div class="mb-3">
-          <div class="row m-0 w-100">
-                <div class="col-12 py-1">
-        <button class="btn btn-info w-100" type="submit">@Localizer.AddPhone_Save</button>
-    </div>
-          </div>
-      </div>
+        <div class="row mb-3">
+            <div class="col-12 py-1">
+                <button class="btn btn-primary w-100" type="submit">@Localizer.AddPhone_Save</button>
+            </div>
+        </div>
         <input type="hidden" asp-for="Input.ReturnUrl" />
-  </form>
+    </form>
 </div>
 
 @section scripts {

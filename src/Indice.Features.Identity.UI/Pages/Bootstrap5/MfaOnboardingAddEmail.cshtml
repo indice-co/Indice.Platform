@@ -28,11 +28,11 @@
             <div class="row m-0 w-100">
                 @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
                 {
-                    <a class="btn btn-info w-100" href="@Model.View.NextStepUrl">@Localizer.MfaOnBoardingAddEmail_Next</a>
+                    <a class="btn btn-primary w-100" href="@Model.View.NextStepUrl">@Localizer.MfaOnBoardingAddEmail_Next</a>
                 }
                 else
                 {
-                    <button class="btn btn-info w-100" type="submit">@Localizer.MfaOnBoardingAddEmail_Save</button>
+                    <button class="btn btn-primary w-100" type="submit">@Localizer.MfaOnBoardingAddEmail_Save</button>
                 }
             </div>
         </div>

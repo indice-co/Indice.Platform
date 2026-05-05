@@ -729,6 +729,48 @@
   <data name="MfaOnBoardingVerifyPhone_PageHeader" xml:space="preserve">
     <value>Verify phone number</value>
   </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageTitle" xml:space="preserve">
+    <value>Set up authenticator app</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageHeader" xml:space="preserve">
+    <value>Set up authenticator app</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_ScanQrCode" xml:space="preserve">
+    <value>Scan the QR code below with your authenticator app (e.g. Microsoft Authenticator, Google Authenticator).</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_OrEnterManually" xml:space="preserve">
+    <value>If you cannot scan the QR code, enter this key manually:</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_VerificationCode" xml:space="preserve">
+    <value>Verification code</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_Verify" xml:space="preserve">
+    <value>Verify</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_InvalidCode" xml:space="preserve">
+    <value>Verification code is invalid.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageTitle" xml:space="preserve">
+    <value>Recovery codes</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageHeader" xml:space="preserve">
+    <value>Save your recovery codes</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_SaveWarning" xml:space="preserve">
+    <value>Save these recovery codes in a safe place. Each code can be used once if you lose access to your authenticator app.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Continue" xml:space="preserve">
+    <value>I have saved my codes</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_FileHeader" xml:space="preserve">
+    <value>These are your backup codes for account {0}. Keep them safe!</value>
+  </data>
+  <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
+    <value>Open your authenticator app and enter the verification code.</value>
+  </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Change password</value>
   </data>
@@ -925,7 +967,7 @@
     <value>Resend</value>
   </data>
   <data name="VerifyPhone_Save" xml:space="preserve">
-    <value>Save</value>
+    <value>Confirm</value>
   </data>
   <data name="VerifyPhone_PageTitle" xml:space="preserve">
     <value>Verify phone number</value>
@@ -1106,5 +1148,8 @@
   </data>
   <data name="AcceptTerms_LastUpdated" xml:space="preserve">
     <value>Last updated on</value>
+  </data>
+  <data name="Register_Optional_Instruction_Notice" xml:space="preserve">
+    <value />
   </data>
 </root>

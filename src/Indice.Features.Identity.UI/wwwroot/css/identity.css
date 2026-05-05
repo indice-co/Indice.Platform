@@ -1174,6 +1174,48 @@ select.form-control[readonly] {
   background-color: var(--bs-gray-200);
   cursor: not-allowed;
 }
+input[type=password]::-ms-reveal,
+input[type=password]::-ms-clear {
+  display: none;
+}
+.password-control {
+  position: relative;
+}
+.reveal-icon {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  bottom: 0;
+  display: block;
+  transform: translate(-50%, -50%);
+}
+.reveal-icon::before {
+  aspect-ratio: 1/1;
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: none;
+  display: inline-block;
+  content: " ";
+  width: 1.6em;
+  line-height: 1;
+  text-align: center;
+  text-rendering: auto;
+  background-image: url("../img/reveal.svg");
+}
+.extra-icon .reveal-icon {
+  transform: translate(-200%, -50%);
+}
+input.password[type=text] + .reveal-icon::before,
+input.password[type=text] ~ .reveal-icon::before {
+  background-image: url("../img/reveal-hide.svg");
+}
+input.password:-moz-placeholder-shown + .reveal-icon, input.password:-moz-placeholder-shown ~ .reveal-icon {
+  display: none;
+}
+input.password:placeholder-shown + .reveal-icon,
+input.password:placeholder-shown ~ .reveal-icon {
+  display: none;
+}
 /* Grayscale. */
 /*1 rem = 16px;*/
 /*

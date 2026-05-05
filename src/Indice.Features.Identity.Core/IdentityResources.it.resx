@@ -441,4 +441,7 @@
   <data name="MfaEmailSubject" xml:space="preserve">
     <value>Login OTP</value>
   </data>
+  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
+    <value>Il campo 'Fuso orario' ha un formato non valido.</value>
+  </data>
 </root>

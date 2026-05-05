@@ -1753,6 +1753,15 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open your authenticator app and enter the verification code..
+        /// </summary>
+        public static string Mfa_EnterCodeFromAuthenticatorApp {
+            get {
+                return ResourceManager.GetString("Mfa_EnterCodeFromAuthenticatorApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to We sent an identity verification request to your mobile device, but you denied it..
         /// </summary>
         public static string Mfa_IdentityVerificationWasDenied {
@@ -2028,6 +2037,123 @@ namespace Indice.Features.Identity.UI {
         public static string MfaOnBoardingAddPhone_Save {
             get {
                 return ResourceManager.GetString("MfaOnBoardingAddPhone_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to I have saved my codes.
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_Continue {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_Continue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download.
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_Download {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_Download", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to These are your backup codes for account {0}. Keep them safe!.
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_FileHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_FileHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save your recovery codes.
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_PageHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recovery codes.
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_PageTitle {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save these recovery codes in a safe place. Each code can be used once if you lose access to your authenticator app..
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_SaveWarning {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_SaveWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verification code is invalid..
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_InvalidCode {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_InvalidCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If you cannot scan the QR code, enter this key manually:.
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_OrEnterManually {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_OrEnterManually", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set up authenticator app.
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_PageHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set up authenticator app.
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_PageTitle {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scan the QR code below with your authenticator app (e.g. Microsoft Authenticator, Google Authenticator)..
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_ScanQrCode {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_ScanQrCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verification code.
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_VerificationCode {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_VerificationCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verify.
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_Verify {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_Verify", resourceCulture);
             }
         }
         
@@ -2851,6 +2977,15 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string Register_Optional_Instruction_Notice {
+            get {
+                return ResourceManager.GetString("Register_Optional_Instruction_Notice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OR.
         /// </summary>
         public static string Register_OR {
@@ -3022,7 +3157,7 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Save.
+        ///   Looks up a localized string similar to Confirm.
         /// </summary>
         public static string VerifyPhone_Save {
             get {

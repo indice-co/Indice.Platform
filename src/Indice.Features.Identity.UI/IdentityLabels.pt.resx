@@ -729,6 +729,48 @@
   <data name="MfaOnBoardingVerifyPhone_PageHeader" xml:space="preserve">
     <value>Verificar número de telefone</value>
   </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageTitle" xml:space="preserve">
+    <value>Configurar aplicação de autenticação</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageHeader" xml:space="preserve">
+    <value>Configurar aplicação de autenticação</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_ScanQrCode" xml:space="preserve">
+    <value>Leia o código QR com a sua aplicação de autenticação, ou introduza a chave manualmente.</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_OrEnterManually" xml:space="preserve">
+    <value>Ou introduza esta chave manualmente:</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_VerificationCode" xml:space="preserve">
+    <value>Código de verificação</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_Verify" xml:space="preserve">
+    <value>Verificar</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_InvalidCode" xml:space="preserve">
+    <value>O código de verificação não é válido.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageTitle" xml:space="preserve">
+    <value>Códigos de recuperação</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageHeader" xml:space="preserve">
+    <value>Guarde os seus códigos de recuperação</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_SaveWarning" xml:space="preserve">
+    <value>Guarde estes códigos de recuperação num local seguro. Cada código pode ser usado uma vez caso perca o acesso à sua aplicação de autenticação.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Continue" xml:space="preserve">
+    <value>Já guardei os meus códigos</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Download" xml:space="preserve">
+    <value>Transferir</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_FileHeader" xml:space="preserve">
+    <value>Estes são os seus códigos de backup para a conta {0}. Mantenha-os em segurança!</value>
+  </data>
+  <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
+    <value>Abra a sua aplicação de autenticação e introduza o código de verificação.</value>
+  </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Alterar senha</value>
   </data>
@@ -1106,5 +1148,8 @@
   </data>
   <data name="AcceptTerms_LastUpdated" xml:space="preserve">
     <value>Última atualização em</value>
+  </data>
+  <data name="Register_Optional_Instruction_Notice" xml:space="preserve">
+    <value />
   </data>
 </root>

@@ -38,20 +38,33 @@ public static class NullableTransformer
                 foreach (var property in schema.Properties) {
                     if (property.Value is OpenApiSchema propSchema) {
                         // Remove the null type for required properties
-                        if (schema.Required?.Contains(property.Key) != true) {
-                            propSchema.Type &= ~JsonSchemaType.Null;
+                        if (schema.Required?.Contains(property.Key) == true) {
+                            if (propSchema.Type is not null) {
+                                propSchema.Type &= ~JsonSchemaType.Null;
+                            }
+                            if (propSchema.OneOf is not null) {
+                                var nullBranch = propSchema.OneOf.FirstOrDefault(s => s.Type == JsonSchemaType.Null);
+                                if (nullBranch is not null) {
+                                    propSchema.OneOf.Remove(nullBranch);
+                                }
+                                // If only one branch survives, collapse it into the parent so renderers don't show "oneOf [X]"
+                                if (propSchema.OneOf.Count == 1 && propSchema.OneOf[0] is OpenApiSchema only) {
+                                    propSchema.Type ??= only.Type;
+                                    propSchema.Items ??= only.Items;
+                                    propSchema.Format ??= only.Format;
+                                    propSchema.Enum ??= only.Enum;
+                                    propSchema.Metadata ??= only.Metadata;
+                                    propSchema.OneOf.Clear();
+                                }
+                            }
+                            propSchema.Metadata?.Remove("x-is-nullable-property");
                         }
                     }
                 }
             }
             // Also need to remove `null` from enum values if present
             if (schema.Enum is not null && schema.Enum.Any(x => x is null)) {
-                schema.Enum = schema.Enum
-                    .Where(e => e is not null)
-                    .ToList();
-            }
-            if (schema.Format is not null && schema.Format == "binary") {
-                schema.Type &= ~JsonSchemaType.Null;
+                schema.Enum = schema.Enum.FilterOutNulls().ToList();
             }
             return Task.CompletedTask;
         });

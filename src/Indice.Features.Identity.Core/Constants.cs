@@ -160,6 +160,8 @@ public static partial class RateLimiterPolicies
     public static readonly string AddPhonePage = "login/add-phone";
     /// <summary>Rate limiting policy for MFA onboarding add phone page.</summary>
     public static readonly string MfaAddPhonePage = "login/mfa/onboarding/add-phone";
+    /// <summary>Rate limiting policy for MFA onboarding authenticator app setup page.</summary>
+    public static readonly string MfaSetupAuthenticatorPage = "login/mfa/onboarding/setup-authenticator";
     /// <summary>Rate limiting policy for profile page.</summary>
     public static readonly string ProfilePage = "manage/profile";
     /// <summary>Rate limiting policy for verify phone page.</summary>
@@ -193,6 +195,7 @@ public static partial class RateLimiterPolicies
             RecaptchaEndpoint,
             AddPhonePage,
             MfaAddPhonePage,
+            MfaSetupAuthenticatorPage,
             ProfilePage,
             VerifyPhonePage
         };

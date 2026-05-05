@@ -1,7 +1,6 @@
 #if NET10_0_OR_GREATER
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -23,8 +22,7 @@ public static class EndpointSecurityRequirementsTransformer
     /// security requirements applied in the OpenAPI documentation.</remarks>
     /// <param name="options">The <see cref="OpenApiOptions"/> to which the transformer will be added.</param>
     /// <returns>The modified <see cref="OpenApiOptions"/> instance.</returns>
-    public static OpenApiOptions AddEndpointSecurityRequirementsTransformer(this OpenApiOptions options)
-    {
+    public static OpenApiOptions AddEndpointSecurityRequirementsTransformer(this OpenApiOptions options) {
 
         options.AddOperationTransformer((operation, context, cancellationToken) => {
             if (context.Description.ActionDescriptor.EndpointMetadata.OfType<OpenApiSecurityRequirement>().Any()) {
