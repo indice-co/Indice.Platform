@@ -616,6 +616,88 @@ public class MessagesIntegrationTests : IAsyncLifetime
         Assert.True(getTemplateResponse.IsSuccessStatusCode);
     }
 
+    [Fact]
+    public async Task Create_Campaign_Without_Title_Uses_Template_Name_As_Title() {
+        // arrange: create a template whose Name will be used as the campaign Title
+        const string templateAlias = "title-fallback-template";
+        const string templateName = "My Welcome Email Template";
+        var createTemplateRequest = new CreateTemplateRequest {
+            Name = templateName,
+            Alias = templateAlias,
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent("Subject", "Body")
+                }
+            )
+        };
+        var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        using var createTemplateContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
+        using var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateContent);
+        Assert.True(createTemplateResponse.IsSuccessStatusCode);
+
+        // act: create a campaign WITHOUT a Title but with a valid MessageTemplateId
+        var createCampaignRequest = new CreateCampaignRequest {
+            // Title intentionally omitted
+            Published = false,
+            ActivePeriod = new Period { From = DateTimeOffset.UtcNow },
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            MessageTemplateId = new GuidOrAlias(templateAlias)
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        using var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent);
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        if (!createCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createCampaignResponseJson);
+        }
+        Assert.True(createCampaignResponse.IsSuccessStatusCode);
+
+        // assert: the created campaign's Title is derived from the template Name
+        using var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
+        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
+        Assert.True(getCampaignResponse.IsSuccessStatusCode);
+
+        var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+        var campaignDetails = JsonSerializer.Deserialize<CampaignDetails>(getCampaignResponseJson, serializationOptions);
+
+        Assert.NotNull(campaignDetails);
+        Assert.Equal(templateName, campaignDetails!.Title);
+    }
+
+    [Fact]
+    public async Task Create_Campaign_Without_Title_And_Without_Template_Fails() {
+        // act: no Title and no MessageTemplateId
+        var createCampaignRequest = new CreateCampaignRequest {
+            Published = false,
+            ActivePeriod = new Period { From = DateTimeOffset.UtcNow },
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"]
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        using var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent);
+
+        // assert: the API must NOT crash; it must return a non-success status code
+        Assert.False(createCampaignResponse.IsSuccessStatusCode);
+    }
+
+    [Fact]
+    public async Task Create_Campaign_Without_Title_With_Invalid_Template_Fails() {
+        // act: no Title and an unknown MessageTemplateId
+        var createCampaignRequest = new CreateCampaignRequest {
+            Published = false,
+            ActivePeriod = new Period { From = DateTimeOffset.UtcNow },
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            MessageTemplateId = new GuidOrAlias("non-existent-template-alias")
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        using var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent);
+
+        // assert: the API must NOT crash; it must return a non-success status code
+        Assert.False(createCampaignResponse.IsSuccessStatusCode);
+    }
+
     public async Task InitializeAsync() {
         var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureCreatedAsync();

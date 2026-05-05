@@ -175,6 +175,11 @@ export default defineConfig({
                 {
                     src: 'node_modules/flowbite/dist/flowbite.min.css',
                     dest: 'lib/flowbite/dist'
+                },
+                // Copy qrcodejs2
+                {
+                    src: 'node_modules/qrcodejs2/qrcode.min.js',
+                    dest: 'lib/qrcodejs2'
                 }
             ],
             silent: false

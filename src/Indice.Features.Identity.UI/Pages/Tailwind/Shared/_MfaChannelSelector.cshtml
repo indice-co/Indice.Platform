@@ -1,0 +1,70 @@
+@using Indice.Extensions
+@using Indice.Features.Identity.Core.Models
+@inject IdentityUILocalizer Localizer
+@model BaseMfaModel
+
+@if (Model.View.AllowDowngradeAuthenticationMethod && Model.View.AvailableAuthenticationMethods is { Length: > 0 })
+{
+    <div id="panel-channels" class="hidden space-y-4">
+        <p class="text-sm font-medium text-gray-700">
+            @Localizer.Mfa_Authenticate_Yourself_Using
+        </p>
+        <ul role="list" class="divide-y divide-gray-200">
+            @foreach (var method in Model.View.AvailableAuthenticationMethods)
+            {
+                <li>
+                    <button type="submit"
+                            name="Input.SelectedAuthenticationMethodCode"
+                            value="@method.Code"
+                            class="channel-btn channel-@(method.DisplayName.ToKebabCase())
+                                                        relative flex justify-between gap-x-6 px-2  py-5 w-full hover:bg-tenant-200 rounded-md
+                                                        transition-all duration-200 hover:rounded-xl hover:shadow-md">
+                        <div class="flex min-w-0 gap-x-4 items-center">
+                            <div class="flex items-center justify-center w-8">
+                                <i class="@GetIconFromAuthenticationMethod(method) text-2xl text-tenant-600"></i>
+                            </div>
+                            <div class="min-w-0 flex-auto text-left">
+                                <p class="mt-1 flex text-sm/6 text-gray-500">
+                                    <span class="absolute inset-x-0 -top-px bottom-0"></span>
+                                    @Localizer.GetGeneric(method.Description)
+                                </p>
+                                <p class="text-xs/5 font-semibold text-gray-900">
+                                    @Localizer.GetGeneric(method.DisplayName)
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex shrink-0 items-center gap-x-4">
+                            <svg class="size-5 flex-none text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </button>
+                </li>
+            }
+        </ul>
+
+        <div class="flex justify-start mt-2">
+            <button id="go-back"
+                    type="button"
+                    class="py-2 px-4 hover:underline hover:text-black text-gray-700 rounded-md">
+                ← @Localizer.Mfa_Back
+            </button>
+        </div>
+    </div>
+}
+@functions {
+    public string GetIconFromAuthenticationMethod(AuthenticationMethod method)
+    {
+        return method.Code.ToLowerInvariant() switch
+        {
+            "viber" => "fa-brands fa-viber",
+            "sms" => "fa-regular fa-message",
+            "email" => "fa-regular fa-envelope",
+            "authenticatorapp" => "fa-solid fa-shield-halved",
+            "trusteddevice" => "fa-solid fa-mobile-screen",
+            "fido2" => "fa-solid fa-fingerprint",
+            "code" => "fa-solid fa-square-binary",
+            _ => "fa-regular fa-message"
+        };
+    }
+}

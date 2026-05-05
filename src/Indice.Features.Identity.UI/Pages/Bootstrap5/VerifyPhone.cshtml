@@ -18,28 +18,34 @@
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
         <input type="hidden" asp-for="Input.PhoneNumber" />
         <input type="hidden" asp-for="Input.ReturnUrl" />
-        <div class="mb-3">
-            <label asp-for="Input.Code" class="form-label visually-hidden">@Localizer.VerifyPhone_Code</label>
-            <input class="form-control" type="text" placeholder="@Localizer.VerifyPhone_Code" asp-for="Input.Code" disabled="@displayNext" />
-            <span asp-validation-for="Input.Code" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col-12 py-1">
+                <label asp-for="Input.Code" class="form-label visually-hidden">@Localizer.VerifyPhone_Code</label>
+                <input class="form-control" type="text" placeholder="@Localizer.VerifyPhone_Code" asp-for="Input.Code" disabled="@displayNext" />
+                <span asp-validation-for="Input.Code" class="text-danger"></span>
+            </div>
         </div>
-        <div class="mb-3">
-            <div class="row m-0 w-100">
-                <div class="col-6 py-1">
-                    <button class="btn btn-info w-100" type="submit" disabled="@displayNext">@Localizer.VerifyPhone_Save</button>
+        <div class="row mb-3">
+            <div class="@Html.Raw(displayNext ? "col-sm-6 " : "col-12") py-1">
+                <button class="btn btn-primary w-100" type="submit" disabled="@displayNext">@Localizer.VerifyPhone_Save</button>
+            </div>
+            @if (displayNext)
+            {
+                <div class="col-sm-6 col-12 py-1">
+                    <a class="btn btn-primary w-100" href="@tempData?.NextStepUrl">@Localizer.VerifyPhone_Next</a>
                 </div>
-                <div class="col-6 py-1">
-                    <button class="btn btn-info w-100" type="submit" id="otp-resend" name="Input.OtpResend" value="true">
-                        <span>@Localizer.VerifyPhone_Resend</span>
-                        <span class="countdown ms-2 small"></span>
-                    </button>
-                </div>
-                @if (displayNext)
-                {
-                    <div class="col-sm-6 col-12 py-1">
-                        <a class="btn btn-info w-100" href="@tempData?.NextStepUrl">@Localizer.VerifyPhone_Next</a>
-                    </div>
-                }
+            }
+        </div>
+        <div class="row mb-3">
+            <div class="col-6 py-1">
+                <button type="submit"
+                        id="otp-resend"
+                        name="Input.OtpResend"
+                        value="true"
+                        class="btn btn-link text-decoration-none p-0">
+                    <span>@Localizer.VerifyPhone_Resend</span>
+                    <span class="countdown ms-2 text-muted small"></span>
+                </button>
             </div>
         </div>
     </form>

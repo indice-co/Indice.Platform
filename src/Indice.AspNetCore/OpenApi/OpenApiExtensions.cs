@@ -147,7 +147,6 @@ public static class OpenApiExtensions
             }
             return Task.CompletedTask;
         });
-
     /// <summary>
     /// Configures the OpenAPI options to use the OAuth2 Authorization Code flow for authentication.
     /// </summary>
@@ -448,7 +447,7 @@ public static class OpenApiExtensions
                 var apiSettings = configuration.GetApiSettings() ?? new ApiSettings();
                 var scopes = schemeId == "oauth2" ? GetScopes(apiSettings).Keys.ToList() : [];
                 operation.Security = [
-                    new OpenApiSecurityRequirement { [new (schemeId)] = scopes }
+                    new OpenApiSecurityRequirement { [new (schemeId, context.Document)] = scopes }
                 ];
             }
             return Task.CompletedTask;
