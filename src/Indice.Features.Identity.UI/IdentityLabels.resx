@@ -967,7 +967,7 @@
     <value>Resend</value>
   </data>
   <data name="VerifyPhone_Save" xml:space="preserve">
-    <value>Save</value>
+    <value>Confirm</value>
   </data>
   <data name="VerifyPhone_PageTitle" xml:space="preserve">
     <value>Verify phone number</value>

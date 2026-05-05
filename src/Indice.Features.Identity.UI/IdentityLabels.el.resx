@@ -967,7 +967,7 @@
     <value>Επαναποστολή</value>
   </data>
   <data name="VerifyPhone_Save" xml:space="preserve">
-    <value>Αποθήκευση</value>
+    <value>Επιβεβαίωση</value>
   </data>
   <data name="VerifyPhone_PageTitle" xml:space="preserve">
     <value>Επιβεβαίωση αριθμού</value>
