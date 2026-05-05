@@ -47,6 +47,11 @@
             {
                 <partial name="_MfaPushNotification" model="Model" />
             }
+
+            @if (Model.View.AuthenticationMethod?.Type == AuthenticationMethodType.AuthenticatorApp)
+            {
+                <partial name="_MfaAuthenticatorApp" model="Model" />
+            }
         </div>
     </div>
 </div>
@@ -75,7 +80,7 @@
             var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
             viewModel.init();
 
-            $('button[name="Input.SelectedDeliveryChannel"]').on('click', function() {
+        $('button[name="Input.SelectedAuthenticationMethodCode"]').on('click', function() {
                 $('input[name="Input.ResendOtp"]').val('true');
             });
         });

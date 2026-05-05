@@ -729,6 +729,48 @@
   <data name="MfaOnBoardingVerifyPhone_PageHeader" xml:space="preserve">
     <value>Vérifier le numero de telephone</value>
   </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageTitle" xml:space="preserve">
+    <value>Configurer l'application d'authentification</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageHeader" xml:space="preserve">
+    <value>Configurer l'application d'authentification</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_ScanQrCode" xml:space="preserve">
+    <value>Scannez le code QR avec votre application d'authentification ou saisissez la clé manuellement.</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_OrEnterManually" xml:space="preserve">
+    <value>Ou saisissez cette clé manuellement :</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_VerificationCode" xml:space="preserve">
+    <value>Code de vérification</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_Verify" xml:space="preserve">
+    <value>Vérifier</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_InvalidCode" xml:space="preserve">
+    <value>Le code de vérification n'est pas valide.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageTitle" xml:space="preserve">
+    <value>Codes de récupération</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageHeader" xml:space="preserve">
+    <value>Enregistrez vos codes de récupération</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_SaveWarning" xml:space="preserve">
+    <value>Conservez ces codes de récupération en lieu sûr. Chaque code peut être utilisé une seule fois si vous perdez l'accès à votre application d'authentification.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Continue" xml:space="preserve">
+    <value>J'ai enregistré mes codes</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Download" xml:space="preserve">
+    <value>Télécharger</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_FileHeader" xml:space="preserve">
+    <value>Voici vos codes de secours pour le compte {0}. Conservez-les en lieu sûr !</value>
+  </data>
+  <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
+    <value>Ouvrez votre application d'authentification et saisissez le code de vérification.</value>
+  </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Changer le mot de passe</value>
   </data>
