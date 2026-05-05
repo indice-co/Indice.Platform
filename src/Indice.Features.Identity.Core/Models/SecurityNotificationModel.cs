@@ -11,15 +11,15 @@ public class SecurityNotificationModel
 {
     /// <summary>The user instance.</summary>
     public UserEventContext User { get; set; } = null!;
+    /// <summary>The device metadata.</summary>
+    public DeviceEventContext Device { get; set; } = null!;
     /// <summary>The device that initiated the password change, if any.</summary>
-    public UserDeviceEventContext? Device { get; set; }
+    public UserDeviceEventContext? UserDevice { get; set; }
     /// <summary>The client that initiated the password change, if any.</summary>
     public ClientEventContext? Client { get; set; }
     /// <summary>The user's email address.</summary>
     public IPAddressLocation Location { get; set; } = null!;
-    /// <summary>
-    /// Gets or sets the timestamp indicating when the event occurred.
-    /// </summary>
+    /// <summary>Gets or sets the timestamp indicating when the event occurred.</summary>
     public DateTimeOffset TimeStamp { get; set; } = DateTimeOffset.UtcNow;
     /// <summary>The username</summary>
     public string? UserName => User?.UserName;

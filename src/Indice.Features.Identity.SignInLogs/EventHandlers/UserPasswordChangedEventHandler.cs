@@ -61,23 +61,24 @@ public sealed class UserPasswordChangedEventHandler : IPlatformEventHandler<Pass
         var claims = await userManager.GetClaimsAsync(user!);
         var userLocale = claims.FirstOrDefault(c => c.Type == BasicClaimTypes.Locale)?.Value;
 
-        UserDevice? device = null;
+        UserDevice? userDevice = null;
+        var userAgentHeader = _httpContextAccessor?.HttpContext?.Request.Headers[HeaderNames.UserAgent];
+
         if (!deviceId.IsEmpty) {
             // If the device id is available populate data.
-            device = await userManager.GetDeviceByIdAsync(user!, deviceId.Value!);
-        }
-        if (device is null) {
-            var userAgentHeader = _httpContextAccessor?.HttpContext?.Request.Headers[HeaderNames.UserAgent];
-            if (!string.IsNullOrWhiteSpace(userAgentHeader)) {
-                device = UserDevice.FromUserAgent(userAgentHeader!, deviceId, @event.User.Id, 0);
+            userDevice = await userManager.GetDeviceByIdAsync(user!, deviceId.Value!);
+            if (userDevice is null && !string.IsNullOrWhiteSpace(userAgentHeader)) {
+                userDevice = UserDevice.FromUserAgent(userAgentHeader!, deviceId, @event.User.Id, 0);
             }
         }
+
         Client? client = null;
         if (!string.IsNullOrWhiteSpace(clientId)) {
             client = await _clientStore.FindClientByIdAsync(clientId);
         }
         await _platformEvents.Publish(new SecurityNotificationEvent(nameof(PasswordChangedEvent), UserEventContext.InitializeFromUser(user!), ipLocation) {
-            Device = device is not null ? UserDeviceEventContext.InitializeFromUserDevice(device) : null,
+            UserDevice = userDevice is not null ? UserDeviceEventContext.InitializeFromUserDevice(userDevice) : null,
+            Device = DeviceEventContext.FromUserAgent(userAgentHeader),
             Client = client is not null ? ClientEventContext.InitializeFromClient(client) : null,
             TimeStamp = DateTimeOffset.UtcNow,
             Locale = userLocale

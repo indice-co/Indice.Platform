@@ -101,7 +101,8 @@ public abstract class BaseMfaModel : BasePageModel
             }
             return Page();
         }
-        var signInResult = await SignInManager.TwoFactorSignInAsync(View.AuthenticationMethod?.GetTokenProvider()!, Input.OtpCode!, Input.RememberMe, Input.RememberClient);
+        var rememberMfaClient = View.IsExistingBrowser || Input.RememberClient;
+        var signInResult = await SignInManager.TwoFactorSignInAsync(View.AuthenticationMethod?.GetTokenProvider()!, Input.OtpCode!, Input.RememberMe, rememberMfaClient);
         if (signInResult.Succeeded) {
             if (string.IsNullOrEmpty(Input.ReturnUrl)) {
                 return Redirect("/");

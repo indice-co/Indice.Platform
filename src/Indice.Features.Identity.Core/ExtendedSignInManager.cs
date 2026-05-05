@@ -176,11 +176,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             userDevice.LastSignInDate = DateTimeOffset.UtcNow;
             await ExtendedUserManager.UpdateDeviceAsync(user, userDevice);
         }
-        if (RememberExpirationType == MfaExpirationType.Sliding) {
-            var authenticateResult = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
-            if (authenticateResult.Succeeded && authenticateResult.Principal is not null) {
-                await RememberTwoFactorClientAsync(user);
-            }
+        if (RememberExpirationType == MfaExpirationType.Sliding && await IsTwoFactorClientRememberedAsync(user)) {
+            await RememberTwoFactorClientAsync(user);
         }
 
         List<string> authenticationMethods = [loginProvider ?? "pwd"];
@@ -358,11 +355,19 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <param name="user"></param>
     /// <returns>The device identifier</returns>
     public async Task<MfaDeviceIdentifier> GetMfaDeviceIdentifierAsync(TUser user) {
+        if (Context.Items.TryGetValue(BasicClaimTypes.DeviceId, out var deviceItBoxed) 
+            && deviceItBoxed is MfaDeviceIdentifier deviceId) {
+            return deviceId;
+        }
         var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
         if (!result.Succeeded || result.Principal?.FindSubjectId() != user.Id) {
+            deviceId = Context.ResolveDeviceId();
+            Context.Items.Add(BasicClaimTypes.DeviceId, deviceId);
             return Context.ResolveDeviceId();
         }
-        return new MfaDeviceIdentifier(result.Principal.FindFirstValue(BasicClaimTypes.DeviceId));
+        deviceId = new MfaDeviceIdentifier(result.Principal.FindFirstValue(BasicClaimTypes.DeviceId));
+        Context.Items.Add(BasicClaimTypes.DeviceId, deviceId);
+        return deviceId;
     }
     #endregion
 
