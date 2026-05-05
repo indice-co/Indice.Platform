@@ -1078,7 +1078,7 @@ public class IdentityUILocalizer
     /// <summary>
     /// Constructs the full "Associate your {Provider} account" message.
     /// </summary>
-    /// <param name="provider">Name of the external provider (e.g., Google, Facebook)).</param>
+    /// <param name="provider">Name of the external provider (e.g., Google, Facebook).</param>
     public virtual HtmlString Register_Associate_your_Account(string provider) =>
         new HtmlString(
             string.Format(CultureInfo.CurrentUICulture, "{0} {1} {2}",
