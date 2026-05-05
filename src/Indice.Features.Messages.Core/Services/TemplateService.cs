@@ -87,12 +87,13 @@ public class TemplateService : ITemplateService
             Alias = template.Alias,
             IgnoreUserPreferences = template.IgnoreUserPreferences,
             Data = template.Data,
-            MessageType = template.MessageType != null ? new MessageType { 
-                Id = template.MessageType.Id, 
-                Name = template.MessageType.Name, 
-                Alias = template.MessageType.Alias, 
-                Classification = template.MessageType.Classification 
-            } : null
+            MessageType = template.MessageType != null ? new MessageType {
+                Id = template.MessageType.Id,
+                Name = template.MessageType.Name,
+                Alias = template.MessageType.Alias,
+                Classification = template.MessageType.Classification
+            } : null,
+            Type = template.Type
         };
     }
 
@@ -114,6 +115,9 @@ public class TemplateService : ITemplateService
         if (options.Filter?.IncludeItemsWithoutMessageTypeId == false) {
             query = query.Where(x => x.MessageTypeId != null);
         }
+        if (options.Filter?.Type is not null) {
+            query = query.Where(x => x.Type == options.Filter.Type);
+        }
 
         var result = await query.ToResultSetAsync(options);
         var templateItems = result.Items.Select(x => new TemplateListItem {
@@ -126,13 +130,14 @@ public class TemplateService : ITemplateService
             Name = x.Name,
             Alias = x.Alias,
             IgnoreUserPreferences = x.IgnoreUserPreferences,
-            MessageType = x.MessageType != null ? new MessageType { 
-                Id = x.MessageType.Id, 
-                Name = x.MessageType.Name, 
-                Alias = x.MessageType.Alias, 
-                Classification = 
-                x.MessageType.Classification 
-            } : null
+            MessageType = x.MessageType != null ? new MessageType {
+                Id = x.MessageType.Id,
+                Name = x.MessageType.Name,
+                Alias = x.MessageType.Alias,
+                Classification =
+                x.MessageType.Classification
+            } : null,
+            Type = x.Type
         });
         return new ResultSet<TemplateListItem>(templateItems, result.Count);
     }

@@ -5,6 +5,18 @@
   [search-placeholder] ="'Shared.Search' | translate"
   (onAction)="actionHandler($event)"
   (onSearch)="searchChanged($event)">
+  <div class="px-4 sm:px-6 lg:px-8 pt-3 pb-2 flex items-center gap-3">
+    <label for="templateTypeFilter"
+      class="text-sm font-medium text-gray-500">
+      {{ 'Templates.KindLabel' | translate }}
+    </label>
+    <lib-local-drop-down-menu id="templateTypeFilter"
+      name="templateTypeFilter"
+      [options]="typeFilterOptions"
+      [value]="selectedTypeFilterOption"
+      (change)="onTypeFilterChanged($event)">
+    </lib-local-drop-down-menu>
+  </div>
   <lib-list-view [items]="items"
     [page]="page"
     [page-size]="pageSize"
@@ -32,6 +44,14 @@
       <ng-template let-item>@if (item.alias) {
         <span  class="badge alias">{{ item.alias || ('Templates.EmptyValueIndicator' | translate) }}</span>
       }</ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'Templates.TypeColumn' | translate">
+      <ng-template let-item>
+        <span class="badge"
+          [ngClass]="{ 'alias': item.type === templateTypeEnum.Partial }">
+          {{ typeLabelKey(item.type) | translate }}
+        </span>
+      </ng-template>
     </lib-list-column>
     <lib-list-column [title]="'Templates.ChannelsColumn' | translate">
       <ng-template let-item>

@@ -41,6 +41,15 @@
           <dd class="mt-1 text-sm text-gray-900">{{ template?.alias || ('Templates.EmptyValueIndicator' | translate) }}</dd>
         </div>
         <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Templates.KindLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <span class="badge"
+              [ngClass]="{ 'alias': template?.type === 'Partial' }">
+              {{ (template?.type === 'Partial' ? 'Templates.PartialTemplate' : 'Templates.FullTemplate') | translate }}
+            </span>
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">
             {{ 'Templates.MessageTypeLabel' | translate }}
             <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editMessageType' }"></ng-container>

@@ -80,7 +80,27 @@
                           </p>
                         }
 
-                        <!-- Τύπος -->
+                        <!-- Template Kind (Full / Partial) -->
+                        <div class="text-base font-medium text-gray-900 mt-3"
+                          aria-hidden="true">
+                          {{ 'Templates.KindLabel' | translate }}
+                        </div>
+                        <label for="templateKind"
+                          class="hidden">
+                          {{ 'Templates.KindLabel' | translate }}
+                        </label>
+                        <div class="mt-1 flex rounded-sm">
+                          <lib-local-drop-down-menu id="templateKind"
+                            name="templateKind"
+                            class="w-full"
+                            [options]="templateKindOptions"
+                            [value]="selectedKindOption"
+                            (change)="setKind($event)">
+                          </lib-local-drop-down-menu>
+                        </div>
+                        <p class="field-info col-span-3">{{ 'Templates.KindInfo' | translate }}</p>
+
+                        <!-- Message Type -->
                         <div class="text-base font-medium text-gray-900 mt-3"
                           aria-hidden="true">
                           {{ 'Templates.MessageTypeLabel' | translate }}

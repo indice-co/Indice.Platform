@@ -36,7 +36,7 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
             .When(campaign => !campaign.MessageTemplateId.HasValue)
             .WithMessage("Channels provided in the content are not valid.");
         RuleFor(campaign => campaign.MessageTemplateId)
-            .Must(BeExistingTemplateId)
+            .MustAsync(BeExistingFullTemplateId)
             .When(campaign => campaign.MessageTemplateId.HasValue) // Check that TemplateId is valid, when it is provided.
             .WithMessage("Specified template id is not valid.");
         RuleFor(campaign => campaign.RecipientListId)
@@ -70,5 +70,11 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
 
     private bool BeExistingDistributionListId(GuidOrAlias? id) => _distributionListService.GetById(id).Result is not null;
 
-    private bool BeExistingTemplateId(GuidOrAlias? id) => _templateService.GetById(id).Result is not null;
+    private async Task<bool> BeExistingFullTemplateId(GuidOrAlias? id, CancellationToken cancellationToken) {
+        var template =  await _templateService.GetById(id);
+        if (template is not null && template.Type == TemplateType.Full) {
+            return true;
+        }
+        return false;
+    }
 }
