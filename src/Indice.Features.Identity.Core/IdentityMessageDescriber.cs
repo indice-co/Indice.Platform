@@ -327,5 +327,5 @@ public class IdentityMessageDescriber
     /// </summary>
     /// <param name="label">The key or identifier for the string to retrieve from the resource manager. Cannot be null.</param>
     /// <returns>The localized string corresponding to the specified label, or the label itself if no localization is available.</returns>
-    public virtual string GetGenericString(string label) => IdentityResources.ResourceManager.GetString(label) ?? label;
+    public virtual string GetGenericString(string label) => IdentityResources.ResourceManager.GetString(label, IdentityResources.Culture) ?? label;
 }
