@@ -27,17 +27,16 @@ public static class OpenApiIgnoreTransformer
             return Task.CompletedTask;
         }
 
-        // find all properties of the type that are decorated with the OpenApiIgnoreAttribute 
-        var propertiesToIgnoreFromOpenApi = context.JsonTypeInfo.Type
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(x => x.IsDefined(typeof(OpenApiIgnoreAttribute), inherit: true))
-            .Select(x => schema.Properties!.Keys.FirstOrDefault(k => k.Equals(x.Name, StringComparison.OrdinalIgnoreCase)))
-            .Where(x => x is not null)
+        // Find all JSON properties whose underlying member is decorated with OpenApiIgnoreAttribute.
+        // Use the JSON property name so renamed properties (for example via JsonPropertyName) are removed correctly.
+        var propertiesToIgnoreFromOpenApi = context.JsonTypeInfo.Properties
+            .Where(x => x.AttributeProvider?.IsDefined(typeof(OpenApiIgnoreAttribute), inherit: true) == true)
+            .Select(x => x.Name)
             .ToList();
 
         foreach (var property in propertiesToIgnoreFromOpenApi) {
-            schema.Properties?.Remove(property!);
-            schema.Required?.Remove(property!);
+            schema.Properties?.Remove(property);
+            schema.Required?.Remove(property);
         }
 
         return Task.CompletedTask;

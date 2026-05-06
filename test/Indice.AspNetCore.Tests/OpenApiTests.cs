@@ -210,15 +210,18 @@ public class OpenApiTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task OpenApiHandleOpenApiIgnoreAttribute() {
+    public async Task OpenApiHandlesOpenApiIgnoreAttribute() {
         var openApi = await _httpClient.GetStringAsync("openapi/ignore-openapi.json");
         Assert.NotEmpty(openApi);
 
         var json = JsonNode.Parse(openApi);
         var schema = json!["components"]!["schemas"]!["IgnoreAttributeResponse"];
         var expectedSchema = "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":[\"null\",\"string\"]},\"nest\":{\"oneOf\":[{\"type\":\"null\"},{\"$ref\":\"#/components/schemas/IgnoreAttrubuteNest\"}]}},\"additionalProperties\":false}";
+        var nestedSchema = json!["components"]!["schemas"]!["IgnoreAttrubuteNest"];
+        var expectedNestedSchema = "{\"type\":\"object\",\"properties\":{},\"additionalProperties\":false}";
 
         Assert.Equal(expectedSchema, schema!.ToJsonString());
+        Assert.Equal(expectedNestedSchema, nestedSchema!.ToJsonString());
     }
 }
 #endif
@@ -395,17 +398,17 @@ public class OpenApiTestsModels
 #endif
         public required string IgnoredRequiredProperty { get; set; }
 
-        public IgnoreAttrubuteNest? Nest { get; set; }
+        public IgnoreAttributeNest? Nest { get; set; }
     }
 
-    public class IgnoreAttrubuteNest
+    public class IgnoreAttributeNest
     {
         public string NestedId { get; set; } = null!;
 
 #if NET10_0_OR_GREATER
         [OpenApi.Attributes.OpenApiIgnore]
 #endif
-        public bool NestedAndIngored { get; set; }
+        public bool NestedAndIgnored { get; set; }
     }
 
 }
