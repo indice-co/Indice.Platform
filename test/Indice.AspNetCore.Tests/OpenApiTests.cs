@@ -216,9 +216,9 @@ public class OpenApiTests : IAsyncLifetime
 
         var json = JsonNode.Parse(openApi);
         var schema = json!["components"]!["schemas"]!["IgnoreAttributeResponse"];
-        var expectedSchema = "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":[\"null\",\"string\"]},\"nest\":{\"oneOf\":[{\"type\":\"null\"},{\"$ref\":\"#/components/schemas/IgnoreAttrubuteNest\"}]}},\"additionalProperties\":false}";
-        var nestedSchema = json!["components"]!["schemas"]!["IgnoreAttrubuteNest"];
-        var expectedNestedSchema = "{\"type\":\"object\",\"properties\":{},\"additionalProperties\":false}";
+        var expectedSchema = "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":[\"null\",\"string\"]},\"nest\":{\"oneOf\":[{\"type\":\"null\"},{\"$ref\":\"#/components/schemas/IgnoreAttributeNest\"}]}},\"additionalProperties\":false}";
+        var nestedSchema = json!["components"]!["schemas"]!["IgnoreAttributeNest"];
+        var expectedNestedSchema = "{\"type\":\"object\",\"properties\":{\"nestedId\":{\"type\":\"string\"}},\"additionalProperties\":false}";
 
         Assert.Equal(expectedSchema, schema!.ToJsonString());
         Assert.Equal(expectedNestedSchema, nestedSchema!.ToJsonString());
@@ -532,9 +532,9 @@ public static class OpenApiTestsEndpoints
             Id = "123",
             MyProperty = 456,
             IgnoredRequiredProperty = "This should be ignored in the OpenAPI schema",
-            Nest = new IgnoreAttrubuteNest {
+            Nest = new IgnoreAttributeNest {
                 NestedId = "Nested123",
-                NestedAndIngored = true
+                NestedAndIgnored = true
             }
         });
     }
