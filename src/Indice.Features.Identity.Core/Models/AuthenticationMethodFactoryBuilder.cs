@@ -22,8 +22,6 @@ public class AuthenticationMethodFactoryBuilder
         return this;
     }
 
-
-
     /// <summary>Adds a custom authentication method type. The type must have a constructor that accepts an optional <see cref="IdentityMessageDescriber"/>.</summary>
     /// <typeparam name="TAuthenticationMethod">The authentication method type.</typeparam>
     /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>

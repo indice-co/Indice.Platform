@@ -21,33 +21,28 @@ public class AuthenticationMethodFactory : IAuthenticationMethodFactory
     }
 
     /// <inheritdoc />
-    public AuthenticationMethod[] GetAll() {
+    public AuthenticationMethodEntry[] GetAll() {
         return _configurations
-            .Select(CreateMethod)
-            .Where(m => m != null)
-            .Cast<AuthenticationMethod>()
-            .OrderByDescending(x => x.SecurityLevel)
+            .Select(CreateEntry)
+            .Where(e => e is not null)
+            .Cast<AuthenticationMethodEntry>()
+            .OrderByDescending(e => e.Method.SecurityLevel)
             .ToArray();
     }
 
     /// <inheritdoc />
-    public AuthenticationMethod? GetByCode(string code) {
-        return GetAll().FirstOrDefault(m => m.Code.Equals(code, StringComparison.OrdinalIgnoreCase));
-    }
+    public AuthenticationMethodEntry? GetByCode(string code) =>
+        GetAll().FirstOrDefault(e => e.Method.Code.Equals(code, StringComparison.OrdinalIgnoreCase));
 
     /// <inheritdoc />
-    public T? Get<T>() where T : AuthenticationMethod {
+    public AuthenticationMethodEntry? Get<T>() where T : AuthenticationMethod {
         var config = _configurations.FirstOrDefault(c => c.MethodType == typeof(T));
-        return config != null ? CreateMethod(config) as T : null;
+        return config is not null ? CreateEntry(config) : null;
     }
 
     /// <summary>Creates an authentication method instance from configuration.</summary>
-    private AuthenticationMethod? CreateMethod(AuthenticationMethodConfiguration config) {
+    private AuthenticationMethodEntry? CreateEntry(AuthenticationMethodConfiguration config) {
         var method = (AuthenticationMethod?)Activator.CreateInstance(config.MethodType, _messageDescriber);
-        //if (method is not null) {
-        //    method.SupportsMfa = config.SupportsMfa;
-        //    method.Enabled = config.Enabled;
-        //}
-        return method;
+        return method is not null ? new AuthenticationMethodEntry(method, config) : null;
     }
 }
