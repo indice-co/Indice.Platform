@@ -15,19 +15,19 @@ namespace Indice.Features.Identity.Tests;
 
 internal class TestAuthenticationMethodFactory : IAuthenticationMethodFactory
 {
-    private readonly AuthenticationMethod[] _methods;
+    private readonly AuthenticationMethodEntry[] _methods;
 
-    public TestAuthenticationMethodFactory(params AuthenticationMethod[] methods) {
+    public TestAuthenticationMethodFactory(params AuthenticationMethodEntry[] methods) {
         _methods = methods;
     }
 
-    public AuthenticationMethod[] GetAll() => _methods;
+    public AuthenticationMethodEntry[] GetAll() => _methods;
 
-    public AuthenticationMethod? GetByCode(string code) =>
-        _methods.FirstOrDefault(m => m.Code.Equals(code, StringComparison.OrdinalIgnoreCase));
+    public AuthenticationMethodEntry? GetByCode(string code) =>
+        _methods.FirstOrDefault(m => m.Method.Code.Equals(code, StringComparison.OrdinalIgnoreCase));
 
-    public T? Get<T>() where T : AuthenticationMethod =>
-        _methods.OfType<T>().FirstOrDefault();
+    public AuthenticationMethodEntry? Get<T>() where T : AuthenticationMethod =>
+        _methods.OfType<AuthenticationMethodEntry>().FirstOrDefault(m => m.Method is T);
 }
 
 public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
@@ -68,11 +68,9 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
     public async Task GetAllMethodsForUser_Allows_Only_Configured_Sms_Methods() {
         var authenticationMethodProvider = new AuthenticationMethodProviderInMemory(
             new TestAuthenticationMethodFactory(
-                new TrustedDeviceAuthenticationMethod("Push notification using Indice app", "Provide a push notification using Indice app."),
-                new SmsAuthenticationMethod("SMS", "Users will receive a text message containing a verification code."),
-                new SmsAuthenticationMethod("SMS2", "Users will receive a 2 text message containing a verification code."),
-                new EmailAuthenticationMethod("Email", "Users will receive a TOTP in their verified email address.", supportsMfa: false),
-                new EmailAuthenticationMethod("Email2", "Users will receive a TOTP in their verified email address2.", supportsMfa: false)
+                new AuthenticationMethodEntry(new TrustedDeviceAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod), SupportsMfa = true }),
+                new AuthenticationMethodEntry(new SmsAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod), SupportsMfa = true }),
+                new AuthenticationMethodEntry(new EmailAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod), SupportsMfa = false })
             ),
             Enumerable.Empty<IHubContext<MultiFactorAuthenticationHub>>(),
             ServiceProvider.GetRequiredService<IConfiguration>(),
@@ -95,9 +93,9 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
     public async Task GetAllMethodsForUser_Allows_Only_Configured_TrustedDevice_Methods() {
         var authenticationMethodProvider = new AuthenticationMethodProviderInMemory(
             new TestAuthenticationMethodFactory(
-                new TrustedDeviceAuthenticationMethod("Push notification using Indice app", "Provide a push notification using Indice app."),
-                new SmsAuthenticationMethod("SMS", "Users will receive a text message containing a verification code."),
-                new EmailAuthenticationMethod("Email", "Users will receive a TOTP in their verified email address.", supportsMfa: false)
+                new AuthenticationMethodEntry(new TrustedDeviceAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod), SupportsMfa = true }),
+                new AuthenticationMethodEntry(new SmsAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod), SupportsMfa = true }),
+                new AuthenticationMethodEntry(new EmailAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod), SupportsMfa = true })
             ),
             Enumerable.Empty<IHubContext<MultiFactorAuthenticationHub>>(),
             ServiceProvider.GetRequiredService<IConfiguration>(),
@@ -128,9 +126,9 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
     public async Task GetAllMethodsForUser_Allows_Only_Configured_Sms_TrustedDevice_Methods() {
         var authenticationMethodProvider = new AuthenticationMethodProviderInMemory(
             new TestAuthenticationMethodFactory(
-                new TrustedDeviceAuthenticationMethod("Push notification using Indice app", "Provide a push notification using Indice app."),
-                new SmsAuthenticationMethod("SMS", "Users will receive a text message containing a verification code."),
-                new EmailAuthenticationMethod("Email", "Users will receive a TOTP in their verified email address.", supportsMfa: false)
+                 new AuthenticationMethodEntry(new TrustedDeviceAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod) }),
+                new AuthenticationMethodEntry(new SmsAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod) }),
+                new AuthenticationMethodEntry(new EmailAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod) })
             ),
             Enumerable.Empty<IHubContext<MultiFactorAuthenticationHub>>(),
             ServiceProvider.GetRequiredService<IConfiguration>(),
@@ -162,10 +160,10 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
     public async Task GetAllMethodsForUser_Allows_Only_Configured_Viber_Method() {
         var authenticationMethodProvider = new AuthenticationMethodProviderInMemory(
             new TestAuthenticationMethodFactory(
-                new TrustedDeviceAuthenticationMethod("Push notification using Indice app", "Provide a push notification using Indice app."),
-                new SmsAuthenticationMethod("SMS", "Users will receive a text message containing a verification code."),
-                new ViberAuthenticationMethod("Viber", "Users will receive a TOTP in their verified Viber account."),
-                new EmailAuthenticationMethod("Email", "Users will receive a TOTP in their verified email address.", supportsMfa: false)
+                new AuthenticationMethodEntry(new TrustedDeviceAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod) }),
+                new AuthenticationMethodEntry(new SmsAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod) }),
+                new AuthenticationMethodEntry(new ViberAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(ViberAuthenticationMethod) }),
+                new AuthenticationMethodEntry(new EmailAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod) })
             ),
             Enumerable.Empty<IHubContext<MultiFactorAuthenticationHub>>(),
             ServiceProvider.GetRequiredService<IConfiguration>(),
