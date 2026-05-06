@@ -23,7 +23,7 @@ public static class OpenApiIgnoreTransformer
     }
 
     private static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
-        if (schema.Properties?.Count == 0) {
+        if (schema.Properties is null || schema.Properties.Count == 0) {
             return Task.CompletedTask;
         }
 
