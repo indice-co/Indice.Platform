@@ -24,37 +24,18 @@ public class AuthenticationMethodFactoryBuilder
 
 
 
-    /// <summary>Adds a custom authentication method with a factory delegate for instance creation.</summary>
+    /// <summary>Adds a custom authentication method type. The type must have a constructor that accepts an optional <see cref="IdentityMessageDescriber"/>.</summary>
     /// <typeparam name="TAuthenticationMethod">The authentication method type.</typeparam>
-    /// <param name="factory">Factory delegate that creates the authentication method instance.</param>
     /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>
     /// <param name="enabled">Determines whether this authentication method is enabled.</param>
-    /// <param name="displayNameKey">Optional custom display name (overrides default localization).</param>
-    /// <param name="descriptionKey">Optional custom description (overrides default localization).</param>
     /// <returns>The builder instance for method chaining.</returns>
-    /// <example>
-    /// <code>
-    /// builder.Add&lt;MyAuthMethod&gt;(
-    ///     factory: (name, desc, mfa, enabled) => new MyAuthMethod(name, desc, mfa, enabled),
-    ///     displayNameKey: "My Method",
-    ///     descriptionKey: "Custom authentication method");
-    /// </code>
-    /// </example>
     public AuthenticationMethodFactoryBuilder Add<TAuthenticationMethod>(
-        AuthenticationMethodFactoryDelegate factory,
         bool supportsMfa = true,
-        bool enabled = true,
-        string? displayNameKey = null,
-        string? descriptionKey = null) where TAuthenticationMethod : AuthenticationMethod {
-        ArgumentNullException.ThrowIfNull(factory);
-
+        bool enabled = true) where TAuthenticationMethod : AuthenticationMethod {
         _configurations.Add(new AuthenticationMethodConfiguration {
             MethodType = typeof(TAuthenticationMethod),
             SupportsMfa = supportsMfa,
             Enabled = enabled,
-            DisplayNameKey = displayNameKey,
-            DescriptionKey = descriptionKey,
-            Factory = (displayName, description, mfa, isEnabled) => factory(displayName, description, mfa, isEnabled)
         });
         return this;
     }

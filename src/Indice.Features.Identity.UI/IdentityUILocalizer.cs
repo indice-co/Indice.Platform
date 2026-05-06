@@ -1180,7 +1180,7 @@ public class IdentityUILocalizer
     public virtual HtmlString Register_PageTitle => new HtmlString(IdentityLabels.Register_PageTitle);
 
     /// <summary>
-    ///   Gets the localized string for "These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email)) in third parties".
+    ///   Gets the localized string for "These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties".
     /// </summary>
     public virtual HtmlString Register_Credentials_Notice => new HtmlString(IdentityLabels.Register_KeepCredentialsPrivateHint);
 

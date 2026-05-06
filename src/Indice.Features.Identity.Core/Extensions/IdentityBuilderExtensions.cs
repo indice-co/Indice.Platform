@@ -189,12 +189,12 @@ public static class IdentityBuilderExtensions
 
                 // Map each method instance to a configuration based on its type
                 _ = method switch {
-                    SmsAuthenticationMethod => factoryBuilder.AddSms(method.SupportsMfa, method.Enabled),
-                    EmailAuthenticationMethod => factoryBuilder.AddEmail(method.SupportsMfa, method.Enabled),
-                    AuthenticatorAppAuthenticationMethod => factoryBuilder.AddAuthenticatorApp(method.SupportsMfa, method.Enabled),
-                    Fido2AuthenticationMethod => factoryBuilder.AddFido2(method.SupportsMfa, method.Enabled),
-                    ViberAuthenticationMethod => factoryBuilder.AddViber(method.SupportsMfa, method.Enabled),
-                    TrustedDeviceAuthenticationMethod => factoryBuilder.AddTrustedDevice(method.SupportsMfa, method.Enabled),
+                    SmsAuthenticationMethod => factoryBuilder.AddSms(),
+                    EmailAuthenticationMethod => factoryBuilder.AddEmail(),
+                    AuthenticatorAppAuthenticationMethod => factoryBuilder.AddAuthenticatorApp(),
+                    Fido2AuthenticationMethod => factoryBuilder.AddFido2(),
+                    ViberAuthenticationMethod => factoryBuilder.AddViber(),
+                    TrustedDeviceAuthenticationMethod => factoryBuilder.AddTrustedDevice(),
                     _ => throw new NotSupportedException(
                         $"Custom authentication method type '{method.GetType().FullName}' is not supported in the obsolete overload. " +
                         $"Please migrate to AddAuthenticationMethodProvider(Action<AuthenticationMethodFactoryBuilder>) and use AddCustom<T>(factory, ...) for custom types.")
