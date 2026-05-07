@@ -691,13 +691,16 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public async Task<IdentityResult> ResetTwoFactorAsync(TUser user, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await SetTwoFactorEnabledAsync(user, false);
         if (!result.Succeeded) {
             return result;
         }
         var extendedStore = GetUserStore();
+        cancellationToken.ThrowIfCancellationRequested();
         await extendedStore!.SetTwoFactorPreferenceAsync(user, null).ConfigureAwait(false);
-        
+
+        cancellationToken.ThrowIfCancellationRequested();
         result = await ResetAuthenticatorKeyAsync(user);
         if (!result.Succeeded) {
             return result;
