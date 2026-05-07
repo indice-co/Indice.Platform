@@ -71,7 +71,7 @@ public interface IExtendedUserStore<TUser> where TUser : User
     /// <summary>
     /// Gets the two factor authentication preference for the user.
     /// </summary>
-    /// <param name="user">The user for whom to set the two factor authentication preference.</param>
+    /// <param name="user">The user for whom to get the two factor authentication preference.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>The authentication method code preference or null</returns>
     Task<string?> GetTwoFactorPreferenceAsync(TUser user, CancellationToken cancellationToken = default);
