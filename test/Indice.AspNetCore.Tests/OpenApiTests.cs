@@ -58,9 +58,10 @@ public class OpenApiTests : IAsyncLifetime
                     services.AddRouting();
                     services.ConfigureHttpJsonOptions(options => {
                         ConfigureIndiceHttpJsonOptions(options.SerializerOptions);
-                     });
+                    });
                     services.AddOpenApi("tests", options => options.AddDocumentInfo().ControllerActionAsOperationId());
                     services.AddOpenApi("nullables", options => options.AddDocumentInfo().ControllerActionAsOperationId());
+                    services.AddOpenApi("ignore-openapi", options => options.AddDocumentInfo().ControllerActionAsOperationId());
                     services.AddEndpointsApiExplorer();
                     services.AddControllers().ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new OpenApiTestFeatureProvider()));
                 });
@@ -69,6 +70,7 @@ public class OpenApiTests : IAsyncLifetime
                     app.UseEndpoints(e => {
                         e.MapTestEndpoints();
                         e.MapNullableTestEndpoints();
+                        e.MapIgnoreAttributeEndpoints();
                         e.MapControllers();
                         e.MapOpenApi();
                     });
@@ -206,12 +208,27 @@ public class OpenApiTests : IAsyncLifetime
         var expectedEnumSchema = "{\"enum\":[0,1,2,3],\"type\":\"integer\",\"x-enum-varnames\":[\"Valid\",\"Invalid\",\"Draft\",\"Deleted\"]}";
         Assert.Equal(expectedEnumSchema, actualEnumSchema!.ToJsonString());
     }
+
+    [Fact]
+    public async Task OpenApiHandlesOpenApiIgnoreAttribute() {
+        var openApi = await _httpClient.GetStringAsync("openapi/ignore-openapi.json");
+        Assert.NotEmpty(openApi);
+
+        var json = JsonNode.Parse(openApi);
+        var schema = json!["components"]!["schemas"]!["IgnoreAttributeResponse"];
+        var expectedSchema = "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":[\"null\",\"string\"]},\"nest\":{\"oneOf\":[{\"type\":\"null\"},{\"$ref\":\"#/components/schemas/IgnoreAttributeNest\"}]}},\"additionalProperties\":false}";
+        var nestedSchema = json!["components"]!["schemas"]!["IgnoreAttributeNest"];
+        var expectedNestedSchema = "{\"type\":\"object\",\"properties\":{\"nestedId\":{\"type\":\"string\"}},\"additionalProperties\":false}";
+
+        Assert.Equal(expectedSchema, schema!.ToJsonString());
+        Assert.Equal(expectedNestedSchema, nestedSchema!.ToJsonString());
+    }
 }
 #endif
 
 public class OpenApiTestsModels
 {
-    public class MenuItem 
+    public class MenuItem
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
@@ -263,7 +280,8 @@ public class OpenApiTestsModels
         public Dictionary<string, string> Mappings { get; set; } = [];
     }
 
-    public class NullableEnumsTestRequest { 
+    public class NullableEnumsTestRequest
+    {
         public NullableEnumsType? NullableType { get; set; }
     }
     public enum NullableEnumsType
@@ -365,6 +383,34 @@ public class OpenApiTestsModels
         AJ = 1L << 35,  // 34359738368
         AK = 1L << 36   // 68719476736
     }
+
+    public class IgnoreAttributeResponse
+    {
+        public string? Id { get; set; }
+
+#if NET10_0_OR_GREATER
+        [OpenApi.Attributes.OpenApiIgnore]
+#endif
+        public int MyProperty { get; set; }
+
+#if NET10_0_OR_GREATER
+        [OpenApi.Attributes.OpenApiIgnore]
+#endif
+        public required string IgnoredRequiredProperty { get; set; }
+
+        public IgnoreAttributeNest? Nest { get; set; }
+    }
+
+    public class IgnoreAttributeNest
+    {
+        public string NestedId { get; set; } = null!;
+
+#if NET10_0_OR_GREATER
+        [OpenApi.Attributes.OpenApiIgnore]
+#endif
+        public bool NestedAndIgnored { get; set; }
+    }
+
 }
 
 [ApiController]
@@ -372,7 +418,7 @@ public class OpenApiTestsModels
 public class OpenApiTestsController
 {
     [HttpGet("/mvc/menu")]
-    public IActionResult GetMenuItems([FromQuery]SampleFilterRequest filter) {
+    public IActionResult GetMenuItems([FromQuery] SampleFilterRequest filter) {
         var items = new List<MenuItem>
         {
                 new()
@@ -423,7 +469,6 @@ public static class OpenApiTestsEndpoints
         group.MapPost("long-enum", UpdateLongTypeEnum)
              .WithName(nameof(UpdateLongTypeEnum));
 
-
         return routes;
     }
     public static IEndpointRouteBuilder MapNullableTestEndpoints(this IEndpointRouteBuilder routes) {
@@ -433,6 +478,15 @@ public static class OpenApiTestsEndpoints
         group.MapPost("nullable-enum/{parentId}", PostNullableEnum)
              .WithName(nameof(PostNullableEnum));
 
+        return routes;
+    }
+
+    public static IEndpointRouteBuilder MapIgnoreAttributeEndpoints(this IEndpointRouteBuilder routes) {
+        var group = routes.MapGroup("ignore-openapi");
+        group.WithGroupName("ignore-openapi");
+        group.WithTags("Ignore OpenApi");
+        group.MapGet("ignore-open-api/sample", GetIgnoreAttributeResponse)
+                   .WithName(nameof(GetIgnoreAttributeResponse));
 
         return routes;
     }
@@ -470,6 +524,18 @@ public static class OpenApiTestsEndpoints
     public static Ok<AttachmentLink> UploadAttachment(UploadFileRequest uploadFileRequest) {
         return TypedResults.Ok(new AttachmentLink {
             AttachmentId = Guid.Parse("1b62a5f3-f2d2-43be-81f9-572e97862b60")
+        });
+    }
+
+    public static Ok<IgnoreAttributeResponse> GetIgnoreAttributeResponse() {
+        return TypedResults.Ok(new IgnoreAttributeResponse {
+            Id = "123",
+            MyProperty = 456,
+            IgnoredRequiredProperty = "This should be ignored in the OpenAPI schema",
+            Nest = new IgnoreAttributeNest {
+                NestedId = "Nested123",
+                NestedAndIgnored = true
+            }
         });
     }
 }
