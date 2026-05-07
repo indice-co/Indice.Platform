@@ -8,7 +8,7 @@ import {
   UiFeaturesInfo,
 } from "src/app/core/services/identity-api.service";
 import { UiFeaturesService } from "src/app/core/services/ui-features.service";
-import { forkJoin, map, Subscription } from "rxjs";
+import { combineLatest, map, Subscription } from "rxjs";
 import { environment } from "src/environments/environment";
 import { AuthService } from 'src/app/core/services/auth.service';
 
@@ -24,6 +24,7 @@ export class UserEditComponent implements OnInit, OnDestroy {
   public displayName = "";
   public blocked: boolean = false;
   public locked: boolean = false;
+  public isAdmin: boolean = false;
   public signInLogsEnabled = false;
   public canEditUser: boolean;
 
@@ -45,7 +46,7 @@ export class UserEditComponent implements OnInit, OnDestroy {
     const getFeatures = this.uiFeaturesService.getUiFeatures();
     const getUser = this.userStore.getUser(this.userId);
 
-    this._getDataSubscription = forkJoin([getFeatures, getUser])
+    this._getDataSubscription = combineLatest([getFeatures, getUser])
       .pipe(
         map((responses: [UiFeaturesInfo, SingleUserInfo]) => {
           return {
@@ -57,15 +58,7 @@ export class UserEditComponent implements OnInit, OnDestroy {
       .subscribe(
         (result: { user: SingleUserInfo; features: UiFeaturesInfo }) => {
           this.signInLogsEnabled = result.features.signInLogsEnabled;
-
-          const { userName, claims, blocked, isLocked } = result.user;
-          const givenName = claims.find((c) => c.type === "given_name")?.value;
-          const familyName = claims.find((c) => c.type === "family_name")?.value;
-
-          this.userName = userName;
-          this.displayName = `${givenName || ''} ${familyName || ''}`.trim();
-          this.blocked = blocked;
-          this.locked = isLocked;
+          this._updateUserFields(result.user);
         }
       );
   }
@@ -75,5 +68,17 @@ export class UserEditComponent implements OnInit, OnDestroy {
     if (this._getDataSubscription) {
       this._getDataSubscription.unsubscribe();
     }
+  }
+
+  private _updateUserFields(user: SingleUserInfo): void {
+    const { userName, claims, blocked, isLocked, isAdmin } = user;
+    const givenName = claims.find((c) => c.type === "given_name")?.value;
+    const familyName = claims.find((c) => c.type === "family_name")?.value;
+
+    this.userName = userName;
+    this.displayName = `${givenName || ''} ${familyName || ''}`.trim();
+    this.blocked = blocked;
+    this.locked = isLocked;
+    this.isAdmin = isAdmin;
   }
 }

@@ -471,4 +471,18 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
         outputStream.Seek(0, SeekOrigin.Begin);
         return (Stream: outputStream, ContentType: contentType);
     }
+
+
+    /// <inheritdoc/>
+    public async Task SetTwoFactorPreferenceAsync(TUser user, string? authenticationMethodCode, CancellationToken cancellationToken = default) {
+        await base.SetTokenAsync(user, InternalLoginProvider, TwoFactorPreferenceTokenName, authenticationMethodCode, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<string?> GetTwoFactorPreferenceAsync(TUser user, CancellationToken cancellationToken = default) {
+        return await base.GetTokenAsync(user, InternalLoginProvider, TwoFactorPreferenceTokenName, cancellationToken);
+    }
+
+    private const string InternalLoginProvider = "[AspNetUserStore]";
+    private const string TwoFactorPreferenceTokenName = "TwoFactorPreference";
 }

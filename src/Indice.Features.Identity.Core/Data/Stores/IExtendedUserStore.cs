@@ -59,4 +59,20 @@ public interface IExtendedUserStore<TUser> where TUser : User
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
     /// <remarks>This overload will purge any other instances of the claim type so that the added claim is has a single instance in the claims list. For example the 'given_name' claim that is commonly used as the FirstName</remarks>
     Task<IdentityResult> ReplaceClaimAsync(TUser user, string claimType, string? claimValue, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Sets the two factor authentication preference for the user.
+    /// </summary>
+    /// <param name="user">The user for whom to set the two factor authentication preference.</param>
+    /// <param name="authenticationMethodCode">The authentication method code to set as the user's preference.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    Task SetTwoFactorPreferenceAsync(TUser user, string? authenticationMethodCode, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Gets the two factor authentication preference for the user.
+    /// </summary>
+    /// <param name="user">The user for whom to set the two factor authentication preference.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>The authentication method code preference or null</returns>
+    Task<string?> GetTwoFactorPreferenceAsync(TUser user, CancellationToken cancellationToken = default);
 }
