@@ -74,7 +74,7 @@ public class SmsAuthenticationMethod : AuthenticationMethod, IAuthenticationMeth
     /// Creates a new instance of <see cref="SmsAuthenticationMethod"/> class. 
     /// </summary>
     /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
-    public SmsAuthenticationMethod(IdentityMessageDescriber? identityMessageDescriber = null) : base(identityMessageDescriber) {
+    public SmsAuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
         Type = AuthenticationMethodType.PhoneNumber;
         SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
     }
@@ -98,7 +98,7 @@ public class ViberAuthenticationMethod : AuthenticationMethod, IAuthenticationMe
     /// Creates a new instance of <see cref="ViberAuthenticationMethod"/> class. 
     /// </summary>
     /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
-    public ViberAuthenticationMethod(IdentityMessageDescriber? identityMessageDescriber = null) : base(identityMessageDescriber) {
+    public ViberAuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
         Type = AuthenticationMethodType.PhoneNumber;
         SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
     }
@@ -123,7 +123,7 @@ public class Fido2AuthenticationMethod : AuthenticationMethod
     /// Creates a new instance of <see cref="Fido2AuthenticationMethod"/> class. 
     /// </summary>
     /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
-    public Fido2AuthenticationMethod(IdentityMessageDescriber? identityMessageDescriber = null) : base(identityMessageDescriber) {
+    public Fido2AuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
         Type = AuthenticationMethodType.Fido2;
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
@@ -142,7 +142,7 @@ public class AuthenticatorAppAuthenticationMethod : AuthenticationMethod, IAuthe
     /// Creates a new instance of <see cref="AuthenticatorAppAuthenticationMethod"/> class. 
     /// </summary>
     /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
-    public AuthenticatorAppAuthenticationMethod(IdentityMessageDescriber? identityMessageDescriber = null) : base(identityMessageDescriber) {
+    public AuthenticatorAppAuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
         Type = AuthenticationMethodType.AuthenticatorApp;
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
@@ -164,7 +164,7 @@ public class TrustedDeviceAuthenticationMethod : AuthenticationMethod, IAuthenti
     /// Creates a new instance of <see cref="TrustedDeviceAuthenticationMethod"/> class. 
     /// </summary>
     /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
-    public TrustedDeviceAuthenticationMethod(IdentityMessageDescriber? identityMessageDescriber = null) : base(identityMessageDescriber) {
+    public TrustedDeviceAuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
         Type = AuthenticationMethodType.TrustedDevice;
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
@@ -191,7 +191,7 @@ public class EmailAuthenticationMethod : AuthenticationMethod, IAuthenticationMe
     /// Creates a new instance of <see cref="EmailAuthenticationMethod"/> class. 
     /// </summary>
     /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
-    public EmailAuthenticationMethod(IdentityMessageDescriber? identityMessageDescriber = null) : base(identityMessageDescriber) {
+    public EmailAuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
         Type = AuthenticationMethodType.Email;
         SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
     }

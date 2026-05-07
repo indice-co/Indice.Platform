@@ -4,6 +4,7 @@ using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using SixLabors.ImageSharp;
 
 namespace Indice.Features.Identity.Core;
 
@@ -12,27 +13,32 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
 {
     private readonly IConfiguration _configuration;
     private readonly ExtendedUserManager<User> _userManager;
-    private readonly Lazy<AuthenticationMethodEntry[]> _authenticationMethods;
+    private readonly IReadOnlyCollection<AuthenticationMethodEntry> _authenticationMethods;
 
     /// <summary>Creates a new instance of <see cref="AuthenticationMethodProviderInMemory"/>.</summary>
-    /// <param name="methodFactory">Factory for creating localized authentication methods.</param>
     /// <param name="multiFactorAuthenticationHubs">SignalR hub contexts for MFA.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
+    /// <param name="authenticationMethods">A collection of authentication methods.</param>
+    /// <param name="configurations">A collection of authentication method configurations.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public AuthenticationMethodProviderInMemory(
-        IAuthenticationMethodFactory methodFactory,
         IEnumerable<IHubContext<MultiFactorAuthenticationHub>> multiFactorAuthenticationHubs,
         IConfiguration configuration,
-        ExtendedUserManager<User> userManager
+        ExtendedUserManager<User> userManager,
+        IEnumerable<AuthenticationMethod> authenticationMethods,
+        IEnumerable<AuthenticationMethodConfiguration> configurations
     ) {
-        ArgumentNullException.ThrowIfNull(methodFactory);
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
         // Lazy initialization - methods are created only when first accessed
-        _authenticationMethods = new Lazy<AuthenticationMethodEntry[]>(() => methodFactory.GetAll());
-
+        _authenticationMethods = configurations.Join(authenticationMethods, 
+                                                     c => c.MethodType, 
+                                                     m => m.GetType(), 
+                                                     (c, m) => new AuthenticationMethodEntry(m, c))
+                                                .OrderByDescending(e => e.Method.SecurityLevel)
+                                                .ToArray();
         HubContext = multiFactorAuthenticationHubs?.FirstOrDefault();
         AllowMfaChannelDowngrade = _configuration.GetIdentityOption<bool>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod");
     }
@@ -44,7 +50,7 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
     public bool AllowMfaChannelDowngrade { get; }
 
     /// <inheritdoc />
-    public Task<AuthenticationMethod[]> GetAllMethodsAsync() => Task.FromResult(_authenticationMethods.Value.Select(e => e.Method).ToArray());
+    public Task<AuthenticationMethod[]> GetAllMethodsAsync() => Task.FromResult(_authenticationMethods.Select(e => e.Method).ToArray());
 
     /// <inheritdoc />
     /// <remarks>For now the supported authentication methods are <see cref="SmsAuthenticationMethod"/>, <see cref="TrustedDeviceAuthenticationMethod"/> and <see cref="AuthenticatorAppAuthenticationMethod"/>.</remarks>
@@ -62,7 +68,7 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
     /// <inheritdoc />
     public async Task<AuthenticationMethod[]> GetAllMethodsForUserAsync(User user) {
         var methods = new List<AuthenticationMethod>();
-        foreach (var entry in _authenticationMethods.Value.Where(x => x.SupportsMfa && x.Enabled)) {
+        foreach (var entry in _authenticationMethods.Where(x => x.SupportsMfa && x.Enabled)) {
             switch (entry.Method.Type) {
                 case AuthenticationMethodType.TrustedDevice when await _userManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices()) is { Count: > 0 }:
                 case AuthenticationMethodType.AuthenticatorApp when !string.IsNullOrWhiteSpace(await _userManager.GetAuthenticatorKeyAsync(user)):

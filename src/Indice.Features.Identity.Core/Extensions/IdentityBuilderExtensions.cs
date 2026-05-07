@@ -183,23 +183,14 @@ public static class IdentityBuilderExtensions
         var allMethods = (otherAuthenticationMethods ?? []).Prepend(authenticationMethod).ToList();
 
         // Convert existing authentication method instances to configurations and use the factory pattern
-        return builder.AddAuthenticationMethods(factoryBuilder => {
-            factoryBuilder.UseAuthenticationProvider<AuthenticationMethodProviderInMemory>();
-            foreach (var method in allMethods) {
-
-                // Map each method instance to a configuration based on its type
-                _ = method switch {
-                    SmsAuthenticationMethod => factoryBuilder.AddSms(),
-                    EmailAuthenticationMethod => factoryBuilder.AddEmail(),
-                    AuthenticatorAppAuthenticationMethod => factoryBuilder.AddAuthenticatorApp(),
-                    Fido2AuthenticationMethod => factoryBuilder.AddFido2(),
-                    ViberAuthenticationMethod => factoryBuilder.AddViber(),
-                    TrustedDeviceAuthenticationMethod => factoryBuilder.AddTrustedDevice(),
-                    _ => throw new NotSupportedException(
-                        $"Custom authentication method type '{method.GetType().FullName}' is not supported in the obsolete overload. " +
-                        $"Please migrate to AddAuthenticationMethodProvider(Action<AuthenticationMethodFactoryBuilder>) and use AddCustom<T>(factory, ...) for custom types.")
-                };
-            }
+        return builder.AddAuthenticationMethods(innerBuilder => {
+            innerBuilder.UseInMemoryProvider(methods => {
+                methods.AddRange(allMethods.Select(m => new AuthenticationMethodConfiguration {
+                    MethodType = m.GetType(),
+                    SupportsMfa = true,
+                    Enabled = true
+                }));
+            });
         });
     }
     
@@ -209,22 +200,11 @@ public static class IdentityBuilderExtensions
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
     public static IdentityBuilder AddAuthenticationMethods(
         this IdentityBuilder builder, 
-        Action<AuthenticationMethodFactoryBuilder> configure)
+        Action<AuthenticationMethodBuilder> configure)
     {
-        var factoryBuilder = new AuthenticationMethodFactoryBuilder();
-        configure(factoryBuilder);
+        var innerBuilder = new AuthenticationMethodBuilder(builder.Services);
+        configure(innerBuilder);
 
-        // Validate that at least one authentication method is configured
-        if (!factoryBuilder.Configurations.Any()) {
-            throw new InvalidOperationException("At least one authentication method must be configured when using AddAuthenticationMethodProvider.");
-        }
-
-        foreach (var config in factoryBuilder.Configurations) {
-            builder.Services.AddSingleton(config);
-        }
-        builder.Services.AddScoped<IAuthenticationMethodFactory, AuthenticationMethodFactory>();
-        // Use Scoped to match ExtendedUserManager<User> dependency lifetime
-        builder.Services.AddScoped(typeof(IAuthenticationMethodProvider), factoryBuilder.AuthenticationProviderType);
         return builder;
     }
 
