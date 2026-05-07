@@ -3,6 +3,9 @@
 <swal [title]="!user?.blocked ? 'Block?' : 'Unblock?'" [text]="!user?.blocked ? 'User will be blocked. You can revert this action later.' : 'User will be unblocked. You can revert this action later.'" type="warning"
       [showCancelButton]="true" (confirm)="toggleBlock()" #blockAlert>
 </swal>
+<swal [title]="'Require re-register multifactor authentication'" [text]="'User will have his mfa configuration reset. This includes any Authenticator App keys. According to the TwoFactorPolicy The user will be requested to re register multifactor authentication.'" type="warning"
+      [showCancelButton]="true" (confirm)="resetMfa()" #resetMfaAlert>
+</swal>
 <ng-template let-modal #content>
     <div class="modal-header">
         <h4 class="modal-title" id="modal-basic-title">Reset Password</h4>
@@ -102,14 +105,14 @@
         </div>
     </div>
     <div class="mb-3 row">
-      <label for="user-tfa-policy" class="col-sm-2 col-form-label">2FA Requirement</label>
-      <div class="col-sm-10">
-        <select class="form-control form-select" id="user-tfa-policy" name="user-tfa-policy" [(ngModel)]="user.twoFactorPolicy" #userTwoFactorPolicy="ngModel">
-          <option value="">Please select a Two factor enforcement policy</option>
-          <option value="Optional">Optional</option>
-          <option value="Enforced">Enforced</option>
-        </select>
-      </div>
+        <label for="user-tfa-policy" class="col-sm-2 col-form-label">2FA Requirement</label>
+        <div class="col-sm-10">
+            <select class="form-control form-select" id="user-tfa-policy" name="user-tfa-policy" [(ngModel)]="user.twoFactorPolicy" #userTwoFactorPolicy="ngModel">
+                <option value="">Please select a Two factor enforcement policy</option>
+                <option value="Optional">Optional</option>
+                <option value="Enforced">Enforced</option>
+            </select>
+        </div>
     </div>
     <div class="mb-3 row">
         <label for="user-tfa-enabled" class="col-sm-2 col-form-label">2FA Enabled</label>
@@ -161,6 +164,9 @@
             </button>
             <button type="button" class="btn btn-secondary m-r-5 float-end" (click)="showResetPassword(content)" [disabled]="currentUserId === user.id">
                 <i class="material-icons align-middle m-r-5">vpn_key</i>Reset Password
+            </button>
+            <button type="button" class="btn btn-secondary m-r-5 float-end" (click)="resetMfaAlert.fire()">
+                <i class="material-icons align-middle m-r-5">refresh</i>Reset 2FA
             </button>
         </div>
     </div>

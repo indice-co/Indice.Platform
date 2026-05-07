@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import { Observable, AsyncSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, AsyncSubject, ReplaySubject } from 'rxjs';
+import { map, take, tap } from 'rxjs/operators';
 import {
   IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, ClaimInfo, CreateClaimRequest, BasicClaimInfo,
   UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, SetPasswordRequest, SetUserBlockRequest, UserLoginProviderInfo, DeviceInfo, DeviceInfoResultSet, UserLoginProviderInfoResultSet,
@@ -12,7 +12,8 @@ import { ClaimType } from './details/models/claim-type.model';
 
 @Injectable()
 export class UserStore {
-  private _user: AsyncSubject<SingleUserInfo>;
+  private _user: ReplaySubject<SingleUserInfo> = new ReplaySubject<SingleUserInfo>(1);
+  private _userLoaded = false;
   private _allRoles: AsyncSubject<RoleInfo[]>;
   private _allClaims: AsyncSubject<ClaimTypeInfo[]>;
   private _userApplications: AsyncSubject<UserClientInfo[]>;
@@ -23,14 +24,18 @@ export class UserStore {
   constructor(private _api: IdentityApiService) { }
 
   public getUser(userId: string): Observable<SingleUserInfo> {
-    if (!this._user) {
-      this._user = new AsyncSubject<SingleUserInfo>();
+    if (!this._userLoaded) {
+      this._userLoaded = true;
       this._api.getUser(userId).subscribe((user: SingleUserInfo) => {
         this._user.next(user);
-        this._user.complete();
       });
     }
     return this._user;
+  }
+
+  public refreshUser(userId: string): Observable<SingleUserInfo> {
+    this._userLoaded = false;
+    return this.getUser(userId);
   }
 
   public updateUser(user: SingleUserInfo, requiredClaims: ClaimType[], bypassEmailAsUserNamePolicy: boolean = false): Observable<void> {
@@ -53,9 +58,7 @@ export class UserStore {
       claims,
       bypassEmailAsUserNamePolicy
     } as UpdateUserRequest).pipe(map((updatedUser: SingleUserInfo) => {
-      user.claims = [...updatedUser.claims];
-      this._user.next(user);
-      this._user.complete();
+      this._user.next(updatedUser);
     }));
   }
 
@@ -64,43 +67,40 @@ export class UserStore {
   }
 
   public blockUser(userId: string): Observable<void> {
-    this.getUser(userId).subscribe((user: SingleUserInfo) => {
+    this.getUser(userId).pipe(take(1)).subscribe((user: SingleUserInfo) => {
       user.blocked = true;
       this._user.next(user);
-      this._user.complete();
     });
-    return this._api.setUserBlock(userId, {
-      blocked: true
-    } as SetUserBlockRequest);
+    return this._api.setUserBlock(userId, { blocked: true } as SetUserBlockRequest);
   }
 
   public unblockUser(userId: string): Observable<void> {
-    this.getUser(userId).subscribe((user: SingleUserInfo) => {
+    this.getUser(userId).pipe(take(1)).subscribe((user: SingleUserInfo) => {
       user.blocked = false;
       this._user.next(user);
-      this._user.complete();
     });
-    return this._api.setUserBlock(userId, {
-      blocked: false
-    } as SetUserBlockRequest);
+    return this._api.setUserBlock(userId, { blocked: false } as SetUserBlockRequest);
   }
 
   public unlockUser(userId: string): Observable<void> {
-    this.getUser(userId).subscribe((user: SingleUserInfo) => {
+    this.getUser(userId).pipe(take(1)).subscribe((user: SingleUserInfo) => {
       user.lockoutEnd = null;
       user.isLocked = false;
       user.accessFailedCount = 0;
       this._user.next(user);
-      this._user.complete();
     });
     return this._api.unlockUser(userId);
   }
 
+  public setAdmin(user: SingleUserInfo, isAdmin: boolean): Observable<void> {
+      const copy = { ...user };
+      copy.isAdmin = isAdmin;
+      return this._api.updateUser(user.id, copy as UpdateUserRequest).pipe(map((updatedUser: SingleUserInfo) => {
+          this._user.next(updatedUser);
+      }));
+  }
+
   public resetPassword(userId: string, password: string, changePasswordAfterFirstSignIn: boolean, bypassPasswordValidation: boolean): Observable<void> {
-    this.getUser(userId).subscribe((user: SingleUserInfo) => {
-      this._user.next(user);
-      this._user.complete();
-    });
     return this._api.setPassword(userId, {
       password,
       changePasswordAfterFirstSignIn,
@@ -108,23 +108,27 @@ export class UserStore {
     } as SetPasswordRequest);
   }
 
+  public resetMfa(userId: string): Observable<void> {
+    return this._api.resetMfa(userId).pipe(
+      tap(() => this.refreshUser(userId))
+    );
+  }
+
   public addUserRole(userId: string, role: RoleInfo): Observable<void> {
-    this.getUser(userId).subscribe((user: SingleUserInfo) => {
+    this.getUser(userId).pipe(take(1)).subscribe((user: SingleUserInfo) => {
       user.roles.push(role.name);
       this._user.next(user);
-      this._user.complete();
     });
     return this._api.addUserRole(userId, role.id);
   }
 
   public deleteUserRole(userId: string, role: RoleInfo): Observable<void> {
-    this.getUser(userId).subscribe((user: SingleUserInfo) => {
+    this.getUser(userId).pipe(take(1)).subscribe((user: SingleUserInfo) => {
       const index = user.roles.indexOf(role.name, 0);
       if (index > -1) {
         user.roles.splice(index, 1);
       }
       this._user.next(user);
-      this._user.complete();
     });
     return this._api.deleteUserRole(userId, role.id);
   }
@@ -134,10 +138,9 @@ export class UserStore {
       type: claim.type,
       value: claim.value
     } as CreateClaimRequest).pipe(map((createdClaim: ClaimInfo) => {
-      this.getUser(userId).subscribe((user: SingleUserInfo) => {
+      this.getUser(userId).pipe(take(1)).subscribe((user: SingleUserInfo) => {
         user.claims.push(createdClaim);
         this._user.next(user);
-        this._user.complete();
       });
     }));
   }
@@ -146,25 +149,23 @@ export class UserStore {
     return this._api.updateUserClaim(userId, claimId, {
       claimValue: value
     } as UpdateUserClaimRequest).pipe(map(_ => {
-      this.getUser(userId).subscribe((user: SingleUserInfo) => {
+      this.getUser(userId).pipe(take(1)).subscribe((user: SingleUserInfo) => {
         const claim = user.claims.find(x => x.id === claimId);
         claim.value = value;
         this._user.next(user);
-        this._user.complete();
       });
     }));
   }
 
   public deleteUserClaim(userId: string, claimId: number): Observable<void> {
     return this._api.deleteUserClaim(claimId, userId).pipe(map(_ => {
-      this.getUser(userId).subscribe((user: SingleUserInfo) => {
+      this.getUser(userId).pipe(take(1)).subscribe((user: SingleUserInfo) => {
         const claim = user.claims.find(x => x.id === claimId);
         const index = user.claims.indexOf(claim, 0);
         if (index > -1) {
           user.claims.splice(index, 1);
         }
         this._user.next(user);
-        this._user.complete();
       });
     }));
   }
