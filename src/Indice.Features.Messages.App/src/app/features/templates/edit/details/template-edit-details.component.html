@@ -44,8 +44,8 @@
           <dt class="text-sm font-medium text-gray-500">{{ 'Templates.KindLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900">
             <span class="badge"
-              [ngClass]="{ 'alias': template?.type === 'Partial' }">
-              {{ (template?.type === 'Partial' ? 'Templates.PartialTemplate' : 'Templates.FullTemplate') | translate }}
+              [ngClass]="{ 'alias': template?.type === 'Partial' || template?.type === 'Layout' }">
+              {{ typeLabelKey(template?.type) | translate }}
             </span>
           </dd>
         </div>

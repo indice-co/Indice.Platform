@@ -1895,11 +1895,14 @@ user_code_2</value>
   <data name="Templates.PartialTemplate" xml:space="preserve">
     <value>Partial</value>
   </data>
+  <data name="Templates.LayoutTemplate" xml:space="preserve">
+    <value>Layout</value>
+  </data>
   <data name="Templates.AllTypes" xml:space="preserve">
     <value>All</value>
   </data>
   <data name="Templates.KindInfo" xml:space="preserve">
-    <value>Choose Full for standalone templates or Partial for reusable fragments (e.g. headers/footers).</value>
+    <value>Choose Full for standalone templates, Partial for reusable fragments (e.g. headers/footers), or Layout for page layouts.</value>
   </data>
   <data name="Shared.ContactComboboxNameLabelRequired" xml:space="preserve">
     <value>Name (*)</value>

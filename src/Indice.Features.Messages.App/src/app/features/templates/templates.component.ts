@@ -44,7 +44,8 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
   public typeFilterOptions: MenuOption[] = [
     new MenuOption('Templates.AllTypes', undefined),
     new MenuOption('Templates.FullTemplate', TemplateType.Full),
-    new MenuOption('Templates.PartialTemplate', TemplateType.Partial)
+    new MenuOption('Templates.PartialTemplate', TemplateType.Partial),
+    new MenuOption('Templates.LayoutTemplate', TemplateType.Layout)
   ];
   public selectedTypeFilterOption: MenuOption = this.typeFilterOptions[0];
 
@@ -83,6 +84,9 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
     }
     if (type === TemplateType.Full) {
       return 'Templates.FullTemplate';
+    }
+    if (type === TemplateType.Layout) {
+      return 'Templates.LayoutTemplate';
     }
     return 'Templates.EmptyValueIndicator';
   }

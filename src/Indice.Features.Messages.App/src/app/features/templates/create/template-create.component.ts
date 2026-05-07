@@ -44,7 +44,8 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked, OnDest
 
   public templateKindOptions: MenuOption[] = [
     new MenuOption('Templates.FullTemplate', TemplateType.Full),
-    new MenuOption('Templates.PartialTemplate', TemplateType.Partial)
+    new MenuOption('Templates.PartialTemplate', TemplateType.Partial),
+    new MenuOption('Templates.LayoutTemplate', TemplateType.Layout)
   ];
   public selectedKindOption: MenuOption = this.templateKindOptions[0];
 

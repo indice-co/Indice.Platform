@@ -7630,6 +7630,7 @@ export interface ITemplateListItemResultSet {
 export enum TemplateType {
     Full = "Full",
     Partial = "Partial",
+    Layout = "Layout",
 }
 
 export class UpdateCampaignRequest implements IUpdateCampaignRequest {

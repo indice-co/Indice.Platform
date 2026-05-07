@@ -1895,11 +1895,14 @@
   <data name="Templates.PartialTemplate" xml:space="preserve">
     <value>Τμηματικό</value>
   </data>
+  <data name="Templates.LayoutTemplate" xml:space="preserve">
+    <value>Διάταξη</value>
+  </data>
   <data name="Templates.AllTypes" xml:space="preserve">
     <value>Όλα</value>
   </data>
   <data name="Templates.KindInfo" xml:space="preserve">
-    <value>Επιλέξτε «Πλήρες» για αυτόνομα πρότυπα ή «Τμηματικό» για επαναχρησιμοποιήσιμα τμήματα (π.χ. κεφαλίδες/υποσέλιδα).</value>
+    <value>Επιλέξτε «Πλήρες» για αυτόνομα πρότυπα, «Τμηματικό» για επαναχρησιμοποιήσιμα τμήματα (π.χ. κεφαλίδες/υποσέλιδα) ή «Διάταξη» για διατάξεις σελίδας.</value>
   </data>
   <data name="Shared.ContactComboboxNameLabelRequired" xml:space="preserve">
     <value>Όνομα (*)</value>

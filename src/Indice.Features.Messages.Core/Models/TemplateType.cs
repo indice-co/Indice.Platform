@@ -18,5 +18,9 @@ public enum TemplateType : byte
     /// <summary>
     /// The template is partial.
     /// </summary>
-    Partial = 1
+    Partial = 1,
+    /// <summary>
+    /// The template is a page layout / wrapper.
+    /// </summary>
+    Layout = 2
 }
