@@ -13,23 +13,6 @@ using Indice.Services;
 
 namespace Indice.Features.Identity.Tests;
 
-internal class TestAuthenticationMethodFactory : IAuthenticationMethodFactory
-{
-    private readonly AuthenticationMethodEntry[] _methods;
-
-    public TestAuthenticationMethodFactory(params AuthenticationMethodEntry[] methods) {
-        _methods = methods;
-    }
-
-    public AuthenticationMethodEntry[] GetAll() => _methods;
-
-    public AuthenticationMethodEntry? GetByCode(string code) =>
-        _methods.FirstOrDefault(m => m.Method.Code.Equals(code, StringComparison.OrdinalIgnoreCase));
-
-    public AuthenticationMethodEntry? Get<T>() where T : AuthenticationMethod =>
-        _methods.OfType<AuthenticationMethodEntry>().FirstOrDefault(m => m.Method is T);
-}
-
 public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
 {
     public AuthenticationMethodProviderInMemoryTests() {
@@ -67,14 +50,19 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
     [Fact]
     public async Task GetAllMethodsForUser_Allows_Only_Configured_Sms_Methods() {
         var authenticationMethodProvider = new AuthenticationMethodProviderInMemory(
-            new TestAuthenticationMethodFactory(
-                new AuthenticationMethodEntry(new TrustedDeviceAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod), SupportsMfa = true }),
-                new AuthenticationMethodEntry(new SmsAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod), SupportsMfa = true }),
-                new AuthenticationMethodEntry(new EmailAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod), SupportsMfa = false })
-            ),
             Enumerable.Empty<IHubContext<MultiFactorAuthenticationHub>>(),
             ServiceProvider.GetRequiredService<IConfiguration>(),
-            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>()
+            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>(),
+            [
+               new TrustedDeviceAuthenticationMethod(new IdentityMessageDescriber()),
+               new SmsAuthenticationMethod(new IdentityMessageDescriber()),
+               new EmailAuthenticationMethod(new IdentityMessageDescriber())
+            ],
+            [
+               new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod), SupportsMfa = true },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod), SupportsMfa = true },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod), SupportsMfa = false }
+            ]
         );
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = new User {
@@ -92,14 +80,19 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
     [Fact]
     public async Task GetAllMethodsForUser_Allows_Only_Configured_TrustedDevice_Methods() {
         var authenticationMethodProvider = new AuthenticationMethodProviderInMemory(
-            new TestAuthenticationMethodFactory(
-                new AuthenticationMethodEntry(new TrustedDeviceAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod), SupportsMfa = true }),
-                new AuthenticationMethodEntry(new SmsAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod), SupportsMfa = true }),
-                new AuthenticationMethodEntry(new EmailAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod), SupportsMfa = true })
-            ),
             Enumerable.Empty<IHubContext<MultiFactorAuthenticationHub>>(),
             ServiceProvider.GetRequiredService<IConfiguration>(),
-            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>()
+            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>(),
+            [
+               new TrustedDeviceAuthenticationMethod(new IdentityMessageDescriber()),
+               new SmsAuthenticationMethod(new IdentityMessageDescriber()),
+               new EmailAuthenticationMethod(new IdentityMessageDescriber())
+            ],
+            [
+               new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod), SupportsMfa = true },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod), SupportsMfa = true },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod), SupportsMfa = true }
+            ]
         );
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = new User {
@@ -125,14 +118,19 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
     [Fact]
     public async Task GetAllMethodsForUser_Allows_Only_Configured_Sms_TrustedDevice_Methods() {
         var authenticationMethodProvider = new AuthenticationMethodProviderInMemory(
-            new TestAuthenticationMethodFactory(
-                 new AuthenticationMethodEntry(new TrustedDeviceAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod) }),
-                new AuthenticationMethodEntry(new SmsAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod) }),
-                new AuthenticationMethodEntry(new EmailAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod) })
-            ),
             Enumerable.Empty<IHubContext<MultiFactorAuthenticationHub>>(),
             ServiceProvider.GetRequiredService<IConfiguration>(),
-            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>()
+            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>(),
+            [
+               new TrustedDeviceAuthenticationMethod(new IdentityMessageDescriber()),
+               new SmsAuthenticationMethod(new IdentityMessageDescriber()),
+               new EmailAuthenticationMethod(new IdentityMessageDescriber())
+            ],
+            [
+               new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod)},
+               new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod) },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod)}
+            ]
         );
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = new User {
@@ -140,7 +138,7 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
             UserName = "someone@somewhere.com",
             PhoneNumber = "+306900000000",
             PhoneNumberConfirmed = true,
-            EmailConfirmed = true,
+            EmailConfirmed = false,
         };
         await userManager.CreateAsync(user);
         await userManager.CreateDeviceAsync(user, new UserDevice {
@@ -159,15 +157,21 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
     [Fact]
     public async Task GetAllMethodsForUser_Allows_Only_Configured_Viber_Method() {
         var authenticationMethodProvider = new AuthenticationMethodProviderInMemory(
-            new TestAuthenticationMethodFactory(
-                new AuthenticationMethodEntry(new TrustedDeviceAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod) }),
-                new AuthenticationMethodEntry(new SmsAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod) }),
-                new AuthenticationMethodEntry(new ViberAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(ViberAuthenticationMethod) }),
-                new AuthenticationMethodEntry(new EmailAuthenticationMethod(), new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod) })
-            ),
             Enumerable.Empty<IHubContext<MultiFactorAuthenticationHub>>(),
             ServiceProvider.GetRequiredService<IConfiguration>(),
-            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>()
+            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>(),
+            [
+               new TrustedDeviceAuthenticationMethod(new IdentityMessageDescriber()),
+               new SmsAuthenticationMethod(new IdentityMessageDescriber()),
+               new ViberAuthenticationMethod(new IdentityMessageDescriber()),
+               new EmailAuthenticationMethod(new IdentityMessageDescriber())
+            ],
+            [
+               new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod)},
+               new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod) },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(ViberAuthenticationMethod) },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod)}
+            ]
         );
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = new User {
@@ -186,7 +190,7 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
         });
 
         var methods = await authenticationMethodProvider.GetAllMethodsForUserAsync(user);
-        Assert.Equal(3, methods.Length);
+        Assert.Equal(4, methods.Length);
         var selectedMethod = await authenticationMethodProvider.FindMethodForUserOrDefaultAsync(user, "Viber");
         Assert.NotEqual(methods[0].Type, selectedMethod?.Type);
         Assert.Equal(TotpDeliveryChannel.Viber, selectedMethod?.GetDeliveryChannel());
