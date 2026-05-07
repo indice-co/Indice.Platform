@@ -106,6 +106,114 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Use an authenticator app to generate verification codes..
+        /// </summary>
+        internal static string AuthMethod_AuthenticatorApp_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_AuthenticatorApp_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authenticator (recommended).
+        /// </summary>
+        internal static string AuthMethod_AuthenticatorApp_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_AuthenticatorApp_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Users will receive a TOTP in their verified email address..
+        /// </summary>
+        internal static string AuthMethod_Email_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_Email_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email.
+        /// </summary>
+        internal static string AuthMethod_Email_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_Email_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use a hardware security key for authentication..
+        /// </summary>
+        internal static string AuthMethod_Fido2_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_Fido2_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FIDO2.
+        /// </summary>
+        internal static string AuthMethod_Fido2_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_Fido2_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Users will receive a text message containing a verification code..
+        /// </summary>
+        internal static string AuthMethod_Sms_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_Sms_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SMS.
+        /// </summary>
+        internal static string AuthMethod_Sms_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_Sms_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Provide a push notification using a trusted device..
+        /// </summary>
+        internal static string AuthMethod_TrustedDevice_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_TrustedDevice_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Push notification.
+        /// </summary>
+        internal static string AuthMethod_TrustedDevice_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_TrustedDevice_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Users will receive a Viber message containing a verification code..
+        /// </summary>
+        internal static string AuthMethod_Viber_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_Viber_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Viber.
+        /// </summary>
+        internal static string AuthMethod_Viber_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_Viber_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Change email confirmation.
         /// </summary>
         internal static string ConfirmationEmailChangeSubject {

@@ -11,14 +11,15 @@
                     if (selected) {
                         self.selectedMethodType(method.type);
                     }
-                    return new self.authenticationMethod(method.displayName, method.description, method.type, selected);
+                    return new self.authenticationMethod(method.displayName, method.description, method.type, selected, viewModelParams.icons[method.code]);
                 }));
             },
-            authenticationMethod: function (displayName, description, type, selected) {
+            authenticationMethod: function (displayName, description, type, selected, iconClass) {
                 return {
                     displayName: displayName,
                     description: description,
                     type: type,
+                    iconClass: iconClass,
                     selected: ko.observable(selected)
                 };
             },

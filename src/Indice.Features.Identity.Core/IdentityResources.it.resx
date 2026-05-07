@@ -441,6 +441,42 @@
   <data name="MfaEmailSubject" xml:space="preserve">
     <value>Login OTP</value>
   </data>
+  <data name="AuthMethod_Sms_DisplayName" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="AuthMethod_Sms_Description" xml:space="preserve">
+    <value>Gli utenti riceveranno un messaggio di testo contenente un codice di verifica.</value>
+  </data>
+  <data name="AuthMethod_Email_DisplayName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="AuthMethod_Email_Description" xml:space="preserve">
+    <value>Gli utenti riceveranno un TOTP al loro indirizzo email verificato.</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_DisplayName" xml:space="preserve">
+    <value>App di autenticazione (consigliato)</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_Description" xml:space="preserve">
+    <value>Utilizza un'app di autenticazione per generare codici di verifica.</value>
+  </data>
+  <data name="AuthMethod_Fido2_DisplayName" xml:space="preserve">
+    <value>FIDO2</value>
+  </data>
+  <data name="AuthMethod_Fido2_Description" xml:space="preserve">
+    <value>Utilizza una chiave di sicurezza hardware per l'autenticazione.</value>
+  </data>
+  <data name="AuthMethod_Viber_DisplayName" xml:space="preserve">
+    <value>Viber</value>
+  </data>
+  <data name="AuthMethod_Viber_Description" xml:space="preserve">
+    <value>Gli utenti riceveranno un messaggio Viber contenente un codice di verifica.</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_DisplayName" xml:space="preserve">
+    <value>Notifica push</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
+    <value>Ricevi una notifica push tramite un dispositivo attendibile.</value>
+    </data>
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>Il campo 'Fuso orario' ha un formato non valido.</value>
   </data>
