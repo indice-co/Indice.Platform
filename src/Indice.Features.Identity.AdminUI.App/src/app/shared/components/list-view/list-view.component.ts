@@ -29,7 +29,9 @@ export class ListViewComponent extends ListView implements OnInit, OnDestroy {
                 this._filter[key] = this.filter[key]
             })
         }
-        this.queryParamsSubscription = this.route.queryParams.subscribe((params: Params) => {
+        this.queryParamsSubscription = this.route.queryParams.pipe(
+            distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+        ).subscribe((params: Params) => {
             this.parseQueryParams(params);
             this.doSearch();
         });
@@ -53,6 +55,9 @@ export class ListViewComponent extends ListView implements OnInit, OnDestroy {
     }
 
     public setPage(event: { count: number, limit: number, offset: number, pageSize: number }): void {
+        if (this.page === event.offset + 1) {
+            return;
+        }
         this.page = event.offset + 1;
         this.changeSearchLocation();
     }
