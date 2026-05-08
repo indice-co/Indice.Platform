@@ -6,11 +6,13 @@
 
 @{
     ViewBag.Title = Localizer.MfaOnBoardingSetupAuthenticator_PageTitle;
+    var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingSetupAuthenticatorModel.TempDataKey);
 }
 <div class="content-wrapper">
     <div class="card-wrapper">
         <vc:page-heading title="@Localizer.MfaOnBoardingSetupAuthenticator_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
+        <partial name="_Alert" model="alert" />
 
         <p class="text-sm text-gray-600 mb-4">@Localizer.MfaOnBoardingSetupAuthenticator_ScanQrCode</p>
 

@@ -461,6 +461,12 @@
   <data name="PasswordChangedEventDescription" xml:space="preserve">
     <value>Your password has been successfully changed.</value>
   </data>
+  <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
+    <value>Two-Factor Authentication Preference Changed</value>
+  </data>
+  <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
+    <value>Your two-factor authentication preference has been updated to: {0}.</value>
+  </data>
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
     <value>Please choose your new password to continue.</value>
   </data>

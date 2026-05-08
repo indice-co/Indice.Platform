@@ -714,9 +714,10 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="authenticationMethodCode">The authentication method code</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>An <see cref="IdentityResult"/></returns>
-    public async Task<IdentityResult> SetTwoFactorAsync(TUser user, string? authenticationMethodCode, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> SetTwoFactorAsync(TUser user, string authenticationMethodCode, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authenticationMethodCode);
         var result = await SetTwoFactorEnabledAsync(user, true);
         if (!result.Succeeded) {
             return result;
@@ -725,6 +726,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         var extendedStore = GetUserStore();
         cancellationToken.ThrowIfCancellationRequested();
         await extendedStore!.SetTwoFactorPreferenceAsync(user, authenticationMethodCode).ConfigureAwait(false);
+        await _eventService.Publish(new TwoFactorPreferenceChangedEvent(UserEventContext.InitializeFromUser(user), authenticationMethodCode));
         return result;
     }
 

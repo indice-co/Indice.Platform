@@ -323,6 +323,40 @@ public class IdentityUILocalizer
 
     #endregion
 
+    #region EmailTwoFactorPreferenceChanged
+
+    /// <summary>Preheader of the two-factor preference changed notification email.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Preheader => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Preheader);
+
+    /// <summary>Subject of the two-factor preference changed notification email.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Subject => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Subject);
+
+    /// <summary>Greeting "Hi" in the two-factor preference changed notification email.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_Hi => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_Hi);
+
+    /// <summary>Message that the two-factor preference was updated.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_EventOccurred => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_EventOccurred);
+
+    /// <summary>Label for change details section.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_EventDetails => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_EventDetails);
+
+    /// <summary>Label for change time field.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_EventTime => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_EventTime);
+
+    /// <summary>Label for username field.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_Username => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_Username);
+
+    /// <summary>Label for email field.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_Email => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_Email);
+
+    /// <summary>Label for authentication method field.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_AuthMethod => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_AuthMethod);
+
+    /// <summary>Message advising the user to contact support if the action was not theirs.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_ContactSupport => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_ContactSupport);
+
+    #endregion
+
     #region Error
     /// <summary>General label for error messages.</summary>
     public virtual HtmlString Error_PageTitle => new HtmlString(IdentityLabels.Error_PageTitle);

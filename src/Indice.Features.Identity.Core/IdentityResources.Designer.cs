@@ -581,6 +581,24 @@ namespace Indice.Features.Identity.Core {
                 return ResourceManager.GetString("PasswordChangedEventDescription", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Two-Factor Authentication Preference Changed.
+        /// </summary>
+        internal static string TwoFactorPreferenceChangedEventSubject {
+            get {
+                return ResourceManager.GetString("TwoFactorPreferenceChangedEventSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your two-factor authentication preference has been updated to: {0}..
+        /// </summary>
+        internal static string TwoFactorPreferenceChangedEventDescription {
+            get {
+                return ResourceManager.GetString("TwoFactorPreferenceChangedEventDescription", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Your Password has been Changed.

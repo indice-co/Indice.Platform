@@ -95,6 +95,13 @@ public class IdentityMessageDescriber
             _ => string.Empty
         };
 
+    /// <summary>Two-factor preference changed event subject.</summary>
+    public virtual string TwoFactorPreferenceChangedEventSubject => IdentityResources.TwoFactorPreferenceChangedEventSubject;
+
+    /// <summary>Two-factor preference changed event description.</summary>
+    public virtual string TwoFactorPreferenceChangedEventDescription(string authenticationMethodCode) =>
+        string.Format(IdentityResources.TwoFactorPreferenceChangedEventDescription, authenticationMethodCode);
+
     /// <summary>Add email page validation empty email</summary>
     public virtual string AddEmailValidationEmailEmpty => IdentityResources.AddEmailValidationEmailEmpty;
 

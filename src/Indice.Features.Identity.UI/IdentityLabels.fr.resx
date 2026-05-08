@@ -444,6 +444,36 @@
   <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
     <value>Si vous n'avez pas effectue cette action, veuillez contacter le support immediatement.</value>
   </data>
+  <data name="EmailTwoFactorPreferenceChanged_Preheader" xml:space="preserve">
+    <value>Votre préférence d'authentification à deux facteurs a été mise à jour.</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Subject" xml:space="preserve">
+    <value>Modification de la Préférence d'Authentification à Deux Facteurs</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_Hi" xml:space="preserve">
+    <value>Bonjour</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_EventOccurred" xml:space="preserve">
+    <value>Nous souhaitons vous informer que votre préférence d'authentification à deux facteurs a été mise à jour sur votre compte.</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_EventDetails" xml:space="preserve">
+    <value>Détails de la modification :</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_EventTime" xml:space="preserve">
+    <value>Heure de la modification</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_Username" xml:space="preserve">
+    <value>Nom d'utilisateur</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_Email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_AuthMethod" xml:space="preserve">
+    <value>Nouvelle méthode d'authentification</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_ContactSupport" xml:space="preserve">
+    <value>Si vous n'avez pas effectué cette action, veuillez contacter le support immédiatement.</value>
+  </data>
   <data name="Error_PageTitle" xml:space="preserve">
     <value>Erreur</value>
   </data>
