@@ -1,7 +1,6 @@
 using System.Threading.RateLimiting;
 using Indice.AspNetCore.Configuration;
 using Indice.AspNetCore.Features.MultiRateLimiter;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -63,23 +62,4 @@ public static class MultiRateLimiterServiceExtensions
 
         return services;
     }
-
-    /// <summary>
-    /// Adds the MultiRateLimitingMiddleware to the application pipeline.
-    /// </summary>
-    public static IApplicationBuilder UseMultipleRateLimiting(this IApplicationBuilder builder) {
-        return builder.UseMiddleware<MultiRateLimitingMiddleware>();
-    }
-
-    /// <summary>
-    /// Applies multiple rate limiting policies to a minimal API endpoint.
-    /// </summary>
-    /// <param name="builder">The endpoint convention builder.</param>
-    /// <param name="policyNames">The names of the rate limiting policies to apply.</param>
-    /// <returns>The endpoint convention builder for chaining.</returns>
-    public static TBuilder RequireMultiRateLimiting<TBuilder>(this TBuilder builder, params string[] policyNames)
-        where TBuilder : IEndpointConventionBuilder {
-        return builder.WithMetadata(new MultiRateLimitingMetadata(policyNames));
-    }
-
 }
