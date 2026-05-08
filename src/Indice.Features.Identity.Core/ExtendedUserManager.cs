@@ -409,7 +409,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         if (!string.IsNullOrEmpty(device.PublicKey) && string.IsNullOrEmpty(device.PublicKeyId)) {
             device.PublicKeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex);
         }
-        
+
         var result = await deviceStore!.CreateDeviceAsync(user, device, cancellationToken);
         if (result.Succeeded) {
             await _eventService.Publish(new DeviceCreatedEvent(UserDeviceEventContext.InitializeFromUserDevice(device), UserEventContext.InitializeFromUser(user)));
@@ -705,6 +705,26 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         if (!result.Succeeded) {
             return result;
         }
+        return result;
+    }
+    /// <summary>
+    /// Activates the two-factor authentication for the specified user by enabling it and setting the specified authentication method.
+    /// </summary>
+    /// <param name="user">The user instance</param>
+    /// <param name="authenticationMethodCode">The authentication method code</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>An <see cref="IdentityResult"/></returns>
+    public async Task<IdentityResult> SetTwoFactorAsync(TUser user, string? authenticationMethodCode, CancellationToken cancellationToken = default) {
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+        var result = await SetTwoFactorEnabledAsync(user, true);
+        if (!result.Succeeded) {
+            return result;
+        }
+        cancellationToken.ThrowIfCancellationRequested();
+        var extendedStore = GetUserStore();
+        cancellationToken.ThrowIfCancellationRequested();
+        await extendedStore!.SetTwoFactorPreferenceAsync(user, authenticationMethodCode).ConfigureAwait(false);
         return result;
     }
 
