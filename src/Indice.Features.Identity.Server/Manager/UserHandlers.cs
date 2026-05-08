@@ -312,6 +312,7 @@ internal static class UserHandlers
         return TypedResults.Ok(new SingleUserInfo {
             Id = userId,
             CreateDate = user.CreateDate,
+            LastSignInDate = user.LastSignInDate,
             Email = user.Email,
             EmailConfirmed = user.EmailConfirmed,
             LockoutEnabled = user.LockoutEnabled,
@@ -319,8 +320,13 @@ internal static class UserHandlers
             PhoneNumber = user.PhoneNumber,
             PhoneNumberConfirmed = user.PhoneNumberConfirmed,
             TwoFactorEnabled = user.TwoFactorEnabled,
+            TwoFactorPolicy = user.TwoFactorPolicy,
+            AccessFailedCount = user.AccessFailedCount,
+            PasswordExpirationDate = user.PasswordExpirationDate,
+            PasswordExpirationPolicy = user.PasswordExpirationPolicy,
             UserName = user.UserName,
             Blocked = user.Blocked,
+            IsAdmin = user.Admin,
             Claims = user.Claims.Select(x => new ClaimInfo {
                 Id = x.Id,
                 Type = x.ClaimType,
@@ -749,6 +755,21 @@ internal static class UserHandlers
             return TypedResults.NotFound();
         }
         var result = await userManager.RemovePasswordAsync(user);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        return TypedResults.NoContent();
+    }
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ResetMfa(
+        ExtendedUserManager<User> userManager,
+        ClaimsPrincipal currentUser,
+        string userId
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var result = await userManager.ResetTwoFactorAsync(user);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }

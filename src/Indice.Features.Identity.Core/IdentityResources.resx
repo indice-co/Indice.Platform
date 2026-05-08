@@ -485,6 +485,42 @@
   <data name="MfaEmailSubject" xml:space="preserve">
     <value>OTP login</value>
   </data>
+  <data name="AuthMethod_Sms_DisplayName" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="AuthMethod_Sms_Description" xml:space="preserve">
+    <value>Users will receive a text message containing a verification code.</value>
+  </data>
+  <data name="AuthMethod_Email_DisplayName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="AuthMethod_Email_Description" xml:space="preserve">
+    <value>Users will receive a TOTP in their verified email address.</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_DisplayName" xml:space="preserve">
+    <value>Authenticator (recommended)</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_Description" xml:space="preserve">
+    <value>Use an authenticator app to generate verification codes.</value>
+  </data>
+  <data name="AuthMethod_Fido2_DisplayName" xml:space="preserve">
+    <value>FIDO2</value>
+  </data>
+  <data name="AuthMethod_Fido2_Description" xml:space="preserve">
+    <value>Use a hardware security key for authentication.</value>
+  </data>
+  <data name="AuthMethod_Viber_DisplayName" xml:space="preserve">
+    <value>Viber</value>
+  </data>
+  <data name="AuthMethod_Viber_Description" xml:space="preserve">
+    <value>Users will receive a Viber message containing a verification code.</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_DisplayName" xml:space="preserve">
+    <value>Push notification</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
+    <value>Provide a push notification using a trusted device.</value>
+  </data>
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>The field 'Timezone' has invalid format.</value>
   </data>

@@ -165,6 +165,11 @@ public static class UsersApi
              .WithSummary("Removes the last password for the given user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
+        group.MapDelete("{userId}/mfa", UserHandlers.ResetMfa)
+             .WithName(nameof(UserHandlers.ResetMfa))
+             .WithSummary("Resets the multi-factor authentication for the given user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
         group.MapPut("{userId}/picture", PictureHandlers.SaveUserPicture)
              .WithName(nameof(PictureHandlers.SaveUserPicture))
              .WithSummary("Create or update profile picture of the given user.")

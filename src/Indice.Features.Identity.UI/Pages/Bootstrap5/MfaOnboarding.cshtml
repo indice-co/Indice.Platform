@@ -15,7 +15,7 @@
 @functions {
     public string GetIconFromAuthenticationMethod(AuthenticationMethod method)
     {
-        return method.DisplayName.ToLowerInvariant() switch
+        return method.Code.ToLowerInvariant() switch
         {
             "viber" => "fa-brands fa-viber",
             "sms" => "fa-regular fa-message",
@@ -39,12 +39,15 @@
     </h1>
     <div id="authentication-methods" class="list-group">
         <!-- ko foreach: authenticationMethods -->
-        <a href="javascript:void(0)" data-sbind="event: { click: $parent.methodSelected }, css: { active: selected }" class="list-group-item list-group-item-action">
-            <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1" data-sbind="text: displayName"></h5>
+        <div role="button" data-sbind="event: { click: $parent.methodSelected }, css: { active: selected }" class="list-group-item list-group-item-action active">
+            <div class="d-flex flex-row  align-items-center gap-3">
+                <i class="fa-2xl" data-sbind="css: iconClass" aria-label="icon"></i>
+                <div class="d-flex w-100 flex-column justify-content-between">
+                    <h5 class="mb-1" data-sbind="text: displayName">Authenticator (recommended)</h5>
+                    <small data-sbind="text: description">Use an authenticator app to generate verification codes.</small>
+                </div>
             </div>
-            <small data-sbind="text: description"></small>
-        </a>
+        </div>
         <!-- /ko -->
         <span asp-validation-for="Input.SelectedAuthenticationMethod" class="text-danger mt-2"></span>
     </div>
@@ -65,8 +68,9 @@
     <script type="text/javascript" src="~/js/mfa-onboarding.js" csp-nonce></script>
     <script type="text/javascript" csp-nonce>
         var viewModelParameters = {
-            authenticationMethods: @Html.Raw(JsonSerializer.Serialize(Model.View.AuthenticationMethods, JsonSerializerOptionDefaults.GetDefaultSettings()))
-                };
+            authenticationMethods: @Html.Raw(JsonSerializer.Serialize(Model.View.AuthenticationMethods, JsonSerializerOptionDefaults.GetDefaultSettings())),
+            icons: @Html.Raw(JsonSerializer.Serialize(Model.View.AuthenticationMethods.ToDictionary(x => x.Code, x => GetIconFromAuthenticationMethod(x)), JsonSerializerOptionDefaults.GetDefaultSettings()))
+        };
         var viewModel = new indice.MfaOnboardingViewModelFactory(viewModelParameters);
         viewModel.init();
         ko.bindingProvider.instance = new ko.secureBindingsProvider();
