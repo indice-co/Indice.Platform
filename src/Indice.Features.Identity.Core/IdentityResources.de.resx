@@ -270,6 +270,9 @@
   <data name="MfaValidationError" xml:space="preserve">
     <value>Der OTP-Code ist ungültig.</value>
   </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Ungültiger Wiederherstellungscode eingegeben.</value>
+  </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Ihr Konto ist vorübergehend gesperrt. Bitte kontaktieren Sie einen Systemadministrator.</value>
   </data>

@@ -270,6 +270,9 @@
   <data name="MfaValidationError" xml:space="preserve">
     <value>The OTP code is not valid.</value>
   </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Invalid recovery code entered.</value>
+  </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Your account is temporarily locked. Please contact a system administrator.</value>
   </data>

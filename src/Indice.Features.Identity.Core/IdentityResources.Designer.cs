@@ -518,6 +518,15 @@ namespace Indice.Features.Identity.Core {
                 return ResourceManager.GetString("MfaValidationError", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid recovery code entered..
+        /// </summary>
+        internal static string MfaInvalidRecoveryCode {
+            get {
+                return ResourceManager.GetString("MfaInvalidRecoveryCode", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Your email was successfully validated. Please press the &apos;Next&apos; button to continue..

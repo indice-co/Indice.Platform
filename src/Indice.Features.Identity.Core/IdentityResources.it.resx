@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -269,6 +269,9 @@
   </data>
   <data name="MfaValidationError" xml:space="preserve">
     <value>Il codice OTP non è valido.</value>
+  </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Codice di recupero non valido inserito.</value>
   </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Il tuo account è temporaneamente bloccato. Contatta un amministratore di sistema.</value>

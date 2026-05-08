@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -269,6 +269,9 @@
   </data>
   <data name="MfaValidationError" xml:space="preserve">
     <value>Ο κωδικός OTP δεν είναι έγκυρος.</value>
+  </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Εισήχθη μη έγκυρος κωδικός ανάκτησης.</value>
   </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Ο λογαριασμός σας είναι προσωρινά κλειδωμένος. Παρακαλώ επικοινωνήστε με έναν διαχειριστή του συστήματος.</value>

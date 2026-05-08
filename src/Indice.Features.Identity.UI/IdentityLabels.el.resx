@@ -801,6 +801,15 @@
   <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
     <value>Ανοίξτε το Authenticator App και εισαγάγετε τον κωδικό επιβεβαίωσης.</value>
   </data>
+  <data name="Mfa_RecoveryCode" xml:space="preserve">
+    <value>Κωδικός ανάκτησης</value>
+  </data>
+  <data name="Mfa_EnterRecoveryCode" xml:space="preserve">
+    <value>Ζητήσατε σύνδεση με κωδικό ανάκτησης. Αυτή η σύνδεση δεν θα αποθηκευτεί έως ότου παρέχετε κωδικό εφαρμογής αυθεντικοποίησης κατά την είσοδο ή απενεργοποιήσετε την 2FA και συνδεθείτε ξανά.</value>
+  </data>
+  <data name="Mfa_InvalidRecoveryCode" xml:space="preserve">
+    <value>Εισήχθη μη έγκυρος κωδικός ανάκτησης.</value>
+  </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Αλλαγή κωδικού πρόσβασης</value>
   </data>

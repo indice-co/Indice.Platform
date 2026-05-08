@@ -801,6 +801,15 @@
   <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
     <value>Open your authenticator app and enter the verification code.</value>
   </data>
+  <data name="Mfa_RecoveryCode" xml:space="preserve">
+    <value>Recovery Code</value>
+  </data>
+  <data name="Mfa_EnterRecoveryCode" xml:space="preserve">
+    <value>You have requested to log in with a recovery code. This login will not be remembered until you provide an authenticator app code at log in or disable 2FA and log in again.</value>
+  </data>
+  <data name="Mfa_InvalidRecoveryCode" xml:space="preserve">
+    <value>Invalid recovery code entered.</value>
+  </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Change password</value>
   </data>

@@ -165,6 +165,8 @@ public class IdentityMessageDescriber
 
     /// <summary>Mfa validation error message</summary>
     public virtual string MfaValidationError => IdentityResources.MfaValidationError;
+    /// <summary>Mfa invalid recovery code error message.</summary>
+    public virtual string MfaInvalidRecoveryCode => IdentityResources.MfaInvalidRecoveryCode;
     /// <summary>Login error message when user is locked out.</summary>
     public virtual string LoginErrorLockedMessage => IdentityResources.LoginErrorLockedMessage;
 

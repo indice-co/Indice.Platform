@@ -662,6 +662,15 @@ public class IdentityUILocalizer
     /// </summary>
     public virtual HtmlString Mfa_EnterCodeFromAuthenticatorApp => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_EnterCodeFromAuthenticatorApp));
 
+    /// <summary>Gets the localized label for the recovery code input field.</summary>
+    public virtual HtmlString Mfa_RecoveryCode => new HtmlString(IdentityLabels.Mfa_RecoveryCode);
+
+    /// <summary>Gets the localized instruction message shown when signing in with a recovery code.</summary>
+    public virtual HtmlString Mfa_EnterRecoveryCode => new HtmlString(IdentityLabels.Mfa_EnterRecoveryCode);
+
+    /// <summary>Gets the localized error message for an invalid recovery code.</summary>
+    public virtual HtmlString Mfa_InvalidRecoveryCode => new HtmlString(IdentityLabels.Mfa_InvalidRecoveryCode);
+
     #endregion
 
 

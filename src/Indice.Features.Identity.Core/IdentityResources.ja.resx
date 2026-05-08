@@ -270,6 +270,9 @@
   <data name="MfaValidationError" xml:space="preserve">
     <value>OTPコードが無効です。</value>
   </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>無効なリカバリーコードが入力されました。</value>
+  </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>アカウントは一時的にロックされています。システム管理者に連絡してください。</value>
   </data>

@@ -801,6 +801,15 @@
   <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
     <value>認証アプリを開いて、確認コードを入力してください。</value>
   </data>
+  <data name="Mfa_RecoveryCode" xml:space="preserve">
+    <value>リカバリーコード</value>
+  </data>
+  <data name="Mfa_EnterRecoveryCode" xml:space="preserve">
+    <value>リカバリーコードでのログインをリクエストしました。このログインは、次回ログイン時に認証アプリのコードを入力するか、2FAを無効にして再度ログインするまで記憶されません。</value>
+  </data>
+  <data name="Mfa_InvalidRecoveryCode" xml:space="preserve">
+    <value>無効なリカバリーコードが入力されました。</value>
+  </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>パスワードを変更</value>
   </data>

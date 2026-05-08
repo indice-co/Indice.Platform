@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -800,6 +800,15 @@
   </data>
   <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
     <value>Öffnen Sie Ihre Authenticator-App und geben Sie den Bestätigungscode ein.</value>
+  </data>
+  <data name="Mfa_RecoveryCode" xml:space="preserve">
+    <value>Wiederherstellungscode</value>
+  </data>
+  <data name="Mfa_EnterRecoveryCode" xml:space="preserve">
+    <value>Sie haben angefordert, sich mit einem Wiederherstellungscode anzumelden. Diese Anmeldung wird nicht gespeichert, bis Sie beim Anmelden einen Authentifizierungs-App-Code angeben oder 2FA deaktivieren und sich erneut anmelden.</value>
+  </data>
+  <data name="Mfa_InvalidRecoveryCode" xml:space="preserve">
+    <value>Ungültiger Wiederherstellungscode eingegeben.</value>
   </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Passwort ändern</value>

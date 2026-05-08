@@ -801,6 +801,15 @@
   <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
     <value>Abra a sua aplicação de autenticação e introduza o código de verificação.</value>
   </data>
+  <data name="Mfa_RecoveryCode" xml:space="preserve">
+    <value>Código de recuperação</value>
+  </data>
+  <data name="Mfa_EnterRecoveryCode" xml:space="preserve">
+    <value>Solicitou iniciar sessão com um código de recuperação. Este início de sessão não será lembrado até que forneça um código da aplicação de autenticação ao iniciar sessão ou desative a 2FA e inicie sessão novamente.</value>
+  </data>
+  <data name="Mfa_InvalidRecoveryCode" xml:space="preserve">
+    <value>Código de recuperação inválido inserido.</value>
+  </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Alterar senha</value>
   </data>

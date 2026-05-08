@@ -270,6 +270,9 @@
   <data name="MfaValidationError" xml:space="preserve">
     <value>Le code OTP n'est pas valide.</value>
   </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Code de récupération invalide saisi.</value>
+  </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Votre compte est temporairement verrouille. Veuillez contacter un administrateur systeme.</value>
   </data>

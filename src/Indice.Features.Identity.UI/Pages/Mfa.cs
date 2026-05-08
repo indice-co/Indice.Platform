@@ -128,6 +128,43 @@ public abstract class BaseMfaModel : BasePageModel
         return Page();
     }
 
+    /// <summary>MFA page POST handler for recovery code authentication.</summary>
+    /// <param name="returnUrl">The return URL.</param>
+    public virtual async Task<IActionResult> OnPostRecoveryCodeAsync([FromQuery] string? returnUrl) {
+        View = await BuildMfaLoginViewModelAsync(Input);
+        if (!ModelState.IsValid) {
+            return Page();
+        }
+        var user = await SignInManager.GetTwoFactorAuthenticationUserAsync();
+        if (user == null) {
+            throw new InvalidOperationException("Unable to load two-factor authentication user.");
+        }
+        var recoveryCode = Input.RecoveryCode?.Replace(" ", string.Empty);
+        if (string.IsNullOrWhiteSpace(recoveryCode)) {
+            ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.MfaValidationError);
+            return Page();
+        }
+        var result = await SignInManager.TwoFactorRecoveryCodeSignInAsync(recoveryCode);
+        if (result.Succeeded) {
+            Logger.LogInformation("User logged in with a recovery code.");
+            if (string.IsNullOrEmpty(returnUrl)) {
+                return Redirect("/");
+            } else if (IsValidReturnUrl(returnUrl)) {
+                return Redirect(returnUrl);
+            } else {
+                Logger.LogError("Invalid return URL while signing in with recovery code.");
+                return await RedirectToErrorPageAsync(HttpContext, "Invalid return URL.", "Invalid return URL while signing in with recovery code.");
+            }
+        }
+        if (result.IsLockedOut) {
+            Logger.LogWarning("User account locked out.");
+            return RedirectToPage("/Lockout");
+        }
+        Logger.LogWarning("Invalid recovery code entered.");
+        ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.MfaInvalidRecoveryCode);
+        return Page();
+    }
+
     private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(MfaLoginInputModel model) {
         var viewModel = await BuildMfaLoginViewModelAsync(model.ReturnUrl, model.SelectedAuthenticationMethodCode);
         viewModel.SelectedAuthenticationMethodCode = model.SelectedAuthenticationMethodCode;

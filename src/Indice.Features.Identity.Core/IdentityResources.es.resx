@@ -270,6 +270,9 @@
   <data name="MfaValidationError" xml:space="preserve">
     <value>El código OTP no es válido.</value>
   </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Código de recuperación no válido.</value>
+  </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Su cuenta está temporalmente bloqueada. Por favor, contacte con un administrador del sistema.</value>
   </data>

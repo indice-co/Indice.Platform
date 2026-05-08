@@ -1850,6 +1850,33 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Mfa_EnterCodeFromAuthenticatorApp", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Recovery Code.
+        /// </summary>
+        public static string Mfa_RecoveryCode {
+            get {
+                return ResourceManager.GetString("Mfa_RecoveryCode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You have requested to log in with a recovery code. This login will not be remembered until you provide an authenticator app code at log in or disable 2FA and log in again..
+        /// </summary>
+        public static string Mfa_EnterRecoveryCode {
+            get {
+                return ResourceManager.GetString("Mfa_EnterRecoveryCode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid recovery code entered..
+        /// </summary>
+        public static string Mfa_InvalidRecoveryCode {
+            get {
+                return ResourceManager.GetString("Mfa_InvalidRecoveryCode", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to We sent an identity verification request to your mobile device, but you denied it..
