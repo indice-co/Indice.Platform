@@ -6,11 +6,13 @@
 
 @{
     ViewBag.Title = Localizer.MfaOnBoardingSetupAuthenticator_PageTitle;
+    var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingSetupAuthenticatorModel.TempDataKey);
 }
 
 <div class="sign-in m-auto">
     <vc:page-heading title="@Localizer.MfaOnBoardingSetupAuthenticator_PageHeader" image-src="" />
     <partial name="_ValidationSummary" />
+    <partial name="_Alert" model="alert" />
 
     <p class="text-muted">@Localizer.MfaOnBoardingSetupAuthenticator_ScanQrCode</p>
 
@@ -31,12 +33,18 @@
                    placeholder="@Localizer.MfaOnBoardingSetupAuthenticator_VerificationCode"
                    autocomplete="one-time-code"
                    inputmode="numeric"
-                   maxlength="6"
+                   maxlength="@Model.View.AuthenticatorDigits"
                    autofocus />
             <span asp-validation-for="Input.Code" class="text-danger small"></span>
         </div>
         <div class="mb-3">
             <button class="btn btn-primary w-100" type="submit">@Localizer.MfaOnBoardingSetupAuthenticator_Verify</button>
+        </div>
+        <div class="mb-3">
+            <a asp-page="/MfaOnboarding"
+                   class="btn btn-link text-decoration-none p-0 text-dark">
+                ← @Localizer.Mfa_Back
+            </a>
         </div>
     </form>
 </div>

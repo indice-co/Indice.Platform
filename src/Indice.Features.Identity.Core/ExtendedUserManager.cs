@@ -708,7 +708,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         return result;
     }
     /// <summary>
-    /// Activates the two-factor authentication for the specified user by enabling it and setting the specified authentication method.
+    /// Resets the two-factor authentication for the specified user by disabling it, clearing any two-factor preferences, and resetting the authenticator key.
     /// </summary>
     /// <param name="user">The user instance</param>
     /// <param name="authenticationMethodCode">The authentication method code</param>
