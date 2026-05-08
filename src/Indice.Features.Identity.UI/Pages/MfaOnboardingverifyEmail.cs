@@ -2,6 +2,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -62,7 +63,7 @@ public abstract class BaseMfaOnboardingVerifyEmailModel : BasePageModel
         var result = await UserManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider, Input.Code!.Trim());
         if (result) {
             user.EmailConfirmed = true;
-            await UserManager.SetTwoFactorEnabledAsync(user, true);
+            await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.Email.ToString());
             tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyEmailSuccessMessage);
         } else {
             tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail);

@@ -6,6 +6,7 @@ using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -82,7 +83,7 @@ public abstract class BaseMfaOnboardingSetupAuthenticatorModel : BasePageModel
             await BuildViewModel(user, returnUrl);
             return Page();
         }
-        var setTwoFactorResult = await UserManager.SetTwoFactorEnabledAsync(user, true);
+        var setTwoFactorResult = await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.AuthenticatorApp.ToString());
         if (!setTwoFactorResult.Succeeded) {
             AddModelErrors(setTwoFactorResult);
             await BuildViewModel(user, returnUrl);
