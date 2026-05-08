@@ -107,7 +107,17 @@ public static class RateLimiterExtensions
                     requestBody.Position = 0;
                 }
             }
-        } catch {
+        } catch (JsonException) {
+            // fall back
+        } catch (InvalidDataException) {
+            // fall back
+        } catch (IOException) {
+            // fall back
+        } catch (UnauthorizedAccessException) {
+            // fall back
+        } catch (NotSupportedException) {
+            // fall back
+        } catch (InvalidOperationException) {
             // fall back
         }
         return null;
