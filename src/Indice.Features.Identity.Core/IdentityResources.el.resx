@@ -476,7 +476,7 @@
   </data>
   <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
     <value>Λήψη ειδοποίησης push μέσω εμπιστευμένης συσκευής.</value>
-    </data>
+  </data>
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>Το πεδίο 'Ζώνη ώρας' δεν έχει αποδεκτή μορφή.</value>
   </data>

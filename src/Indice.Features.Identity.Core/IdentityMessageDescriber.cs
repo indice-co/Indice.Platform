@@ -320,6 +320,10 @@ public class IdentityMessageDescriber
     public virtual string AuthMethod_TrustedDevice_DisplayName => IdentityResources.AuthMethod_TrustedDevice_DisplayName;
     /// <summary>Description for Trusted Device authentication method.</summary>
     public virtual string AuthMethod_TrustedDevice_Description => IdentityResources.AuthMethod_TrustedDevice_Description;
+    /// <summary>Display name for Recovery Code authentication method.</summary>
+    public virtual string AuthMethod_RecoveryCode_DisplayName => IdentityResources.AuthMethod_RecoveryCode_DisplayName;
+    /// <summary>Description for Recovery Code authentication method.</summary>
+    public virtual string AuthMethod_RecoveryCode_Description => IdentityResources.AuthMethod_RecoveryCode_Description;
     #endregion
     /// <summary>
     /// Retrieves a localized string for the specified label, or returns the label itself if no localized value is

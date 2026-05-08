@@ -524,4 +524,10 @@
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>The field 'Timezone' has invalid format.</value>
   </data>
+  <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
+    <value>Recovery code verification</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
+    <value>You have requested to log in with a recovery code. This login will not be remembered until you provide</value>
+  </data>
 </root>
