@@ -36,6 +36,9 @@ public abstract class AuthenticationMethod
     /// <summary>Determines whether the authentication method has a token provider configured.</summary>
     public bool SupportsTokenProvider() => typeof(IAuthenticationMethodWithTokenProvider).IsAssignableFrom(GetType());
 
+    /// <summary>Determines whether the authentication method supports multi-factor authentication (MFA) onboarding.</summary>
+    public virtual bool SupportsMfaOnboarding => true;
+
     /// <summary>Gets the <see cref="TotpDeliveryChannel"/> if the authentication method supports it.</summary>
     public TotpDeliveryChannel GetDeliveryChannel() => SupportsDeliveryChannel() ? ((IAuthenticationMethodWithChannel)this).DeliveryChannel : default;
 
@@ -154,6 +157,29 @@ public class AuthenticatorAppAuthenticationMethod : AuthenticationMethod, IAuthe
     public override string DisplayName => MessageDescriber.AuthMethod_AuthenticatorApp_DisplayName;
     /// <inheritdoc />
     public override string Description => MessageDescriber.AuthMethod_AuthenticatorApp_Description;
+}
+
+/// <summary>
+/// Recovery code authentication method.
+/// </summary>
+public class RecoveryCodeAuthenticationMethod : AuthenticationMethod
+{
+    /// <summary>
+    /// Creates a new instance of <see cref="RecoveryCodeAuthenticationMethod"/> class. 
+    /// </summary>
+    /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
+    public RecoveryCodeAuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
+        Type = AuthenticationMethodType.RecoveryCode;
+        SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
+    }
+    /// <inheritdoc />
+    public override bool SupportsMfaOnboarding => false;
+    /// <inheritdoc />
+    public override string Code => "RecoveryCode";
+    /// <inheritdoc />
+    public override string DisplayName => MessageDescriber.AuthMethod_RecoveryCode_DisplayName;
+    /// <inheritdoc />
+    public override string Description => MessageDescriber.AuthMethod_RecoveryCode_Description;
 }
 
 /// <summary>Trusted device authentication method.</summary>

@@ -12,5 +12,7 @@ public enum AuthenticationMethodType
     /// <summary>Trusted Device, push otp</summary>
     TrustedDevice,
     /// <summary>Email</summary>
-    Email
+    Email,
+    /// <summary>Recovery code</summary>
+    RecoveryCode
 }

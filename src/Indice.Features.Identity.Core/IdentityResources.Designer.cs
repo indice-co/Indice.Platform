@@ -160,6 +160,24 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You have requested to log in with a recovery code. This login will not be remembered until you provide.
+        /// </summary>
+        internal static string AuthMethod_RecoveryCode_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_RecoveryCode_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recovery code verification.
+        /// </summary>
+        internal static string AuthMethod_RecoveryCode_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_RecoveryCode_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Users will receive a text message containing a verification code..
         /// </summary>
         internal static string AuthMethod_Sms_Description {
