@@ -774,32 +774,32 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Recovery codes".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingRecoveryCodes_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_PageTitle));
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_PageTitle => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_PageTitle);
 
     /// <summary>
     ///   Gets the localized string for "Save your recovery codes".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingRecoveryCodes_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_PageHeader));
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_PageHeader => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_PageHeader);
 
     /// <summary>
     ///   Gets the localized string for "Save these recovery codes in a safe place...".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingRecoveryCodes_SaveWarning => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_SaveWarning));
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_SaveWarning => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_SaveWarning);
 
     /// <summary>
     ///   Gets the localized string for "I have saved my codes".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingRecoveryCodes_Continue => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_Continue));
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_Continue => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_Continue);
 
     /// <summary>
     ///   Gets the localized string for "Download".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingRecoveryCodes_Download => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_Download));
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_Download => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_Download);
 
     /// <summary>
     ///   Gets the localized format string for the recovery-codes file header (with {0} placeholder for the user's email/username).
     /// </summary>
-    public virtual HtmlString MfaOnBoardingRecoveryCodes_FileHeader => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_FileHeader);
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_FileHeader(string userName) => new HtmlString(string.Format(IdentityLabels.MfaOnBoardingRecoveryCodes_FileHeader, userName));
 
     #endregion
 

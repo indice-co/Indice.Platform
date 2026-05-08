@@ -91,7 +91,7 @@ public abstract class BaseMfaOnboardingSetupAuthenticatorModel : BasePageModel
         var recoveryCodes = await UserManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10) ?? Enumerable.Empty<string>();
         TempData.Put(RecoveryCodesTempDataKey, new RecoveryCodesViewModel {
             RecoveryCodes = recoveryCodes.ToArray(),
-            UserEmail = await UserManager.GetEmailAsync(user) ?? user.UserName,
+            UserName = await UserManager.GetUserNameAsync(user) ?? user.UserName,
             ReturnUrl = Input.ReturnUrl ?? returnUrl
         });
         return RedirectToPage("/MfaOnboardingRecoveryCodes", routeValues: new { returnUrl = Input.ReturnUrl ?? returnUrl });
