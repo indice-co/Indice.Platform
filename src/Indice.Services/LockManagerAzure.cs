@@ -24,7 +24,7 @@ public class LockManagerAzure : ILockManager
 
     /// <summary>Creates a new instance of <see cref="LockManagerAzure"/>.</summary>
     /// <param name="options"></param>
-    public LockManagerAzure(LockManagerAzureOptions options) {
+    public LockManagerAzure(AzureClientFactory factory, LockManagerAzureOptions options) {
         if (options == null) {
             throw new ArgumentNullException(nameof(options));
         }
@@ -35,7 +35,7 @@ public class LockManagerAzure : ILockManager
             throw new ArgumentNullException(nameof(options.ConnectionString));
         }
         var environmentName = Regex.Replace(options.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-        BlobContainer = AzureClientFactory.CreateBlobContainerClient(new AzureConnectionString(options.ConnectionString), environmentName);
+        BlobContainer = factory.CreateBlobContainerClient(CONNECTION_STRING_NAME, environmentName);
     }
 
     /// <summary>The cloud container client.</summary>

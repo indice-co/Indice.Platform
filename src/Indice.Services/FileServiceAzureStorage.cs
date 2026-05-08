@@ -3,7 +3,6 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Indice.Extensions;
-using Indice.Types;
 
 namespace Indice.Services;
 
@@ -13,22 +12,18 @@ public class FileServiceAzureStorage : IFileService
     /// <summary>The connection string parameter name. The setting key that will be searched inside the configuration.</summary>
     public const string CONNECTION_STRING_NAME = "StorageConnection";
 
+    private readonly AzureClientFactory _factory;
     private readonly string? _containerName;
-    private readonly AzureConnectionString _connectionString;
 
     /// <summary>Constructs the service.</summary>
-    /// <param name="connectionString">The connection string to the Azure Storage account.</param>
     /// <param name="containerName">Usually The environment name (ex. Development, Production).</param>
-    /// <exception cref="ArgumentNullException">Then <paramref name="connectionString"/> is null</exception>
-    /// <exception cref="ArgumentException">Then <paramref name="connectionString"/> is empty</exception>
-    public FileServiceAzureStorage(string connectionString, string? containerName) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+    public FileServiceAzureStorage(AzureClientFactory factory, string? containerName) {
+        _factory = factory;
         if (!string.IsNullOrEmpty(containerName)) {
             _containerName = Regex.Replace(containerName, @"\s+", "-").ToLowerInvariant();
         } else {
             _containerName = null;
         }
-        _connectionString = new AzureConnectionString(connectionString);
     }
 
     /// <inheritdoc />
@@ -37,7 +32,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath[folder!.Length..] : filePath;
-        var container = AzureClientFactory.CreateBlobContainerClient(_connectionString, folder!);
+        var container = _factory.CreateBlobContainerClient(CONNECTION_STRING_NAME, folder!);
         await container.CreateIfNotExistsAsync();
         var blobClient = container.GetBlobClient(filename);
         var fileExtension = Path.GetExtension(filePath);
@@ -63,7 +58,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
-        var container = AzureClientFactory.CreateBlobContainerClient(_connectionString, folder!);
+        var container = _factory.CreateBlobContainerClient(CONNECTION_STRING_NAME, folder!);
         await container.CreateIfNotExistsAsync();
         var exists = await container.ExistsAsync();
         if (!exists) {
@@ -91,7 +86,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
-        var container = AzureClientFactory.CreateBlobContainerClient(_connectionString, folder!);
+        var container = _factory.CreateBlobContainerClient(CONNECTION_STRING_NAME, folder!);
         var exists = await container.ExistsAsync();
         if (!exists) {
             throw new FileNotFoundServiceException($"Container {folder} not found.");
@@ -126,7 +121,7 @@ public class FileServiceAzureStorage : IFileService
         destinationPath = destinationPath.TrimStart('\\', '/');
         var sourceFolder = _containerName ?? Path.GetDirectoryName(sourcePath);
         var sourceFilename = _containerName == null ? sourcePath.Substring(sourceFolder!.Length) : sourcePath;
-        var sourceContainer = AzureClientFactory.CreateBlobContainerClient(_connectionString, sourceFolder!);
+        var sourceContainer = _factory.CreateBlobContainerClient(CONNECTION_STRING_NAME, sourceFolder!);
 
         var exists = await sourceContainer.ExistsAsync();
         if (!exists) {
@@ -136,7 +131,7 @@ public class FileServiceAzureStorage : IFileService
         var targertFilename = _containerName == null ? destinationPath.Substring(targetFolder!.Length) : destinationPath;
         bool moveUnderTheSameContainer = sourceFolder!.Equals(targetFolder, StringComparison.InvariantCultureIgnoreCase);
         bool isDirectory = sourcePath.EndsWith('/');
-        var targetContainer = moveUnderTheSameContainer ? sourceContainer : AzureClientFactory.CreateBlobContainerClient(_connectionString, targetFolder!);
+        var targetContainer = moveUnderTheSameContainer ? sourceContainer : _factory.CreateBlobContainerClient(CONNECTION_STRING_NAME, targetFolder!);
         if (!moveUnderTheSameContainer) {
             await targetContainer.CreateIfNotExistsAsync();
         }
@@ -168,7 +163,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
-        var container = AzureClientFactory.CreateBlobContainerClient(_connectionString, folder!);
+        var container = _factory.CreateBlobContainerClient(CONNECTION_STRING_NAME, folder!);
         var exists = await container.ExistsAsync();
         if (!exists) {
             throw new FileNotFoundServiceException($"Container {folder} not found.");
@@ -198,7 +193,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
-        var container = AzureClientFactory.CreateBlobContainerClient(_connectionString, folder!);
+        var container = _factory.CreateBlobContainerClient(CONNECTION_STRING_NAME, folder!);
         var exists = await container.ExistsAsync();
         if (!exists) {
             throw new FileNotFoundServiceException($"Container {folder} not found.");

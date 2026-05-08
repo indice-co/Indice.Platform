@@ -1,5 +1,4 @@
 ﻿using Indice.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
@@ -22,8 +21,8 @@ public static class IServiceCollectionFileExtensions
             ContainerName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
         };
         configure?.Invoke(options);
-        var connectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(options.ConnectionStringName);
-        return new FileServiceAzureStorage(connectionString!, options.ContainerName);
+        var factory = serviceProvider.GetRequiredService<AzureClientFactory>();
+        return new FileServiceAzureStorage(factory, options.ContainerName);
     };
 
     /// <summary>The factory that creates the default instance and configuration for <see cref="FileServiceLocal"/>.</summary>
@@ -102,6 +101,7 @@ public static class IServiceCollectionFileExtensions
 
     /// <summary>Adds <see cref="FileServiceAzureStorage"/> implementation.</summary>
     public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceAzureOptions>? configure = null) {
+        builder.Services.AddSingleton<AzureClientFactory>();
         builder.Services.AddKeyedTransient<IFileService, FileServiceAzureStorage>(serviceKey: name, implementationFactory: (sp, serviceKey) => GetFileServiceAzureStorage(sp, configure));
         return builder;
     }

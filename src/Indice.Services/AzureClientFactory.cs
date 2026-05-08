@@ -4,150 +4,93 @@ using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
 using Azure.Storage.Blobs;
 using Azure.Storage.Queues;
-using Indice.Types;
+using Microsoft.Extensions.Configuration;
 
 namespace Indice.Services;
 
-internal static class AzureConnectionKeys
+public sealed class AzureClientFactory
 {
-    internal static class StorageAccount {
-        internal const string AccountName = nameof(AccountName);
-        internal const string ContainerName = nameof(ContainerName);
-        internal const string EndpointSuffix = nameof(EndpointSuffix);
+    private IConfiguration _configuration;
+
+    public AzureClientFactory(IConfiguration configuration) {
+        ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+        _configuration = configuration;
     }
 
-    internal static class ServiceBus {
-        internal const string Endpoint = nameof(Endpoint);
-    }
-}
-
-/// <summary>
-/// Factory for creating configured <see cref="BlobContainerClient"/> instances for Azure Blob Storage.
-/// Supports both connection string authentication and managed identity authentication.
-/// </summary>
-public static class AzureClientFactory
-{
-    /// <summary>
-    /// Creates a <see cref="BlobContainerClient"/> using the container name defined in the connection string.
-    /// </summary>
-    /// <param name="connectionString">Storage connection configuration.</param>
-    /// <returns>A configured <see cref="BlobContainerClient"/> instance.</returns>
-    public static BlobContainerClient CreateBlobContainerClient(AzureConnectionString connectionString) {
-        var container = connectionString[AzureConnectionKeys.StorageAccount.ContainerName];
-        if (string.IsNullOrWhiteSpace(container)) {
-            throw new ArgumentNullException("ContainerName property is required in connection string.");
+    public BlobContainerClient CreateBlobContainerClient(string connectionStringName, string containerName) {
+        if (string.IsNullOrWhiteSpace(connectionStringName)) {
+            throw new ArgumentNullException("Storage connection string name is required.");
         }
 
-        return CreateBlobContainerClient(connectionString, container);
-    }
-
-    /// <summary>
-    /// Creates a <see cref="BlobContainerClient"/> for a specific container.
-    /// Uses managed identity when enabled, otherwise falls back to connection string authentication.
-    /// </summary>
-    /// <param name="connectionString">Storage connection configuration.</param>
-    /// <param name="containerName">Target blob container name.</param>
-    /// <returns>A configured <see cref="BlobContainerClient"/> instance.</returns>
-    public static BlobContainerClient CreateBlobContainerClient(AzureConnectionString connectionString, string containerName) {
         if (string.IsNullOrWhiteSpace(containerName)) {
-            throw new ArgumentNullException("Container Name is required.");
+            throw new ArgumentNullException("Storage container name is required.");
         }
 
-        if (connectionString.HasManagedIdentity) {
-            var accountName = connectionString[AzureConnectionKeys.StorageAccount.AccountName];
-            var endpointSuffix = connectionString[AzureConnectionKeys.StorageAccount.EndpointSuffix];
-
-            if (string.IsNullOrWhiteSpace(accountName)) {
-                throw new ArgumentNullException("AccountName property is required in connection string.");
-            }
-
-            var endpoint = new Uri($"https://{accountName}.blob.{endpointSuffix}/{containerName}");
-            var credential = CreateAzureCredential(connectionString);
-
-            return new BlobContainerClient(endpoint, credential);
+        var storageConnection = _configuration.GetConnectionString(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(storageConnection)) {
+            return new BlobContainerClient(storageConnection, containerName);
         }
 
-        return new BlobContainerClient(connectionString.ToString(), containerName);
+        var credential = CreateAzureCredential(connectionStringName);
+        var accountName = _configuration[$"{connectionStringName}__accountName"];
+        var blobUri = new Uri($"https://{accountName}.blob.core.windows.net/{containerName}");
+        return new BlobContainerClient(blobUri, credential);
     }
 
-    /// <summary>
-    /// Creates an Azure Storage QueueClient using either Managed Identity or connection string authentication.
-    /// </summary>
-    /// <param name="connectionString">Storage connection configuration.</param>
-    /// <param name="queueName">Target queue name.</param>
-    /// <param name="options">Optional client configuration options.</param>
-    /// <returns>A configured <see cref="QueueClient"/> instance.</returns>
-    public static QueueClient CreateQueueClient(AzureConnectionString connectionString, string queueName, QueueClientOptions? options = null) {
+    public QueueClient CreateQueueClient(string connectionStringName, string queueName, QueueClientOptions? options = null) {
+        if (string.IsNullOrWhiteSpace(connectionStringName)) {
+            throw new ArgumentNullException("Storage ConnectionStringName is required.");
+        }
+
         if (string.IsNullOrWhiteSpace(queueName)) {
-            throw new ArgumentNullException("Queue Name is required.");
+            throw new ArgumentNullException("Storage queue name is required.");
         }
 
-        if (connectionString.HasManagedIdentity) {
-            var accountName = connectionString[AzureConnectionKeys.StorageAccount.AccountName];
-            var endpointSuffix = connectionString[AzureConnectionKeys.StorageAccount.EndpointSuffix];
-
-            if (string.IsNullOrWhiteSpace(accountName)) {
-                throw new ArgumentNullException("AccountName property is required in connection string.");
-            }
-
-            var endpoint = new Uri($"https://{accountName}.queue.{endpointSuffix}/{queueName}");
-            var credential = CreateAzureCredential(connectionString);
-
-            return new QueueClient(endpoint, credential, options);
+        var storageConnection = _configuration.GetConnectionString(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(storageConnection)) {
+            return new QueueClient(storageConnection, queueName, options);
         }
 
-        return new QueueClient(connectionString.ToString(), queueName, options);
+        var credential = CreateAzureCredential(connectionStringName);
+        var accountName = _configuration[$"{connectionStringName}__accountName"];
+        var queueUri = new Uri($"https://{accountName}.queue.core.windows.net/{queueName}");
+        return new QueueClient(queueUri, credential, options);
     }
 
-    /// <summary>
-    /// Creates a <see cref="ServiceBusClient"/> using either Managed Identity authentication
-    /// or connection string authentication depending on the provided configuration.
-    /// </summary>
-    /// <param name="connectionString">Azure connection string configuration.</param>
-    /// <returns>A configured <see cref="ServiceBusClient"/> instance.</returns>
-    public static ServiceBusClient CreateServiceBusClient(AzureConnectionString connectionString) {
-        if (connectionString.HasManagedIdentity) {
-            return new ServiceBusClient(GetServiceBusFqdn(connectionString), CreateAzureCredential(connectionString));
+    public ServiceBusClient CreateServiceBusClient(string connectionStringName) {
+        if (string.IsNullOrWhiteSpace(connectionStringName)) {
+            throw new ArgumentNullException("Service Bus ConnectionStringName is required.");
         }
 
-        return new ServiceBusClient(connectionString.ToString());
-    }
-
-    /// <summary>
-    /// Creates a <see cref="ServiceBusAdministrationClient"/> using either Managed Identity authentication
-    /// or connection string authentication depending on the provided configuration.
-    /// </summary>
-    /// <param name="connectionString">Azure connection string configuration.</param>
-    /// <returns>A configured <see cref="ServiceBusAdministrationClient"/> instance.</returns>
-    public static ServiceBusAdministrationClient CreateServiceBusAdministrationClient(AzureConnectionString connectionString) {
-        if (connectionString.HasManagedIdentity) {
-            return new ServiceBusAdministrationClient(GetServiceBusFqdn(connectionString), CreateAzureCredential(connectionString));
+        var serviceBusConnection = _configuration.GetConnectionString(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(serviceBusConnection)) {
+            return new ServiceBusClient(serviceBusConnection);
         }
 
-        return new ServiceBusAdministrationClient(connectionString.ToString());
+        var credential = CreateAzureCredential(connectionStringName);
+        var namespaceName = _configuration[$"{connectionStringName}__fullyQualifiedNamespace"];
+
+        return new ServiceBusClient(namespaceName, credential);
     }
 
-    /// <summary>
-    /// Normalizes a Service Bus endpoint by removing protocol prefixes and trailing slashes,
-    /// returning a fully qualified namespace (FQDN).
-    /// </summary>
-    /// <returns>Normalized Service Bus FQDN.</returns>
-    private static string GetServiceBusFqdn(AzureConnectionString connectionString) =>
-        connectionString[AzureConnectionKeys.ServiceBus.Endpoint]!
-            .Replace("sb://", string.Empty)
-            .Replace("https://", string.Empty)
-            .TrimEnd('/');
+    public ServiceBusAdministrationClient CreateServiceBusAdministrationClient(string connectionStringName) {
+        if (string.IsNullOrWhiteSpace(connectionStringName)) {
+            throw new ArgumentNullException("Service Bus ConnectionStringName is required.");
+        }
 
-    /// <summary>
-    /// Creates a <see cref="TokenCredential"/> for Azure authentication.
-    /// Uses system-assigned managed identity when no client ID is provided.
-    /// </summary>
-    /// <param name="connectionString">The Azure connection string.</param>
-    /// <returns>A <see cref="TokenCredential"/> instance.</returns>
-    private static TokenCredential CreateAzureCredential(AzureConnectionString connectionString) {
-        var clientId = connectionString.UseSystemAssigned
-            ? string.Empty
-            : connectionString.ManagedIdentityClientId;
+        var serviceBusConnection = _configuration.GetConnectionString(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(serviceBusConnection)) {
+            return new ServiceBusAdministrationClient(serviceBusConnection);
+        }
+
+        var credential = CreateAzureCredential(connectionStringName);
+        var namespaceName = _configuration[$"{connectionStringName}__fullyQualifiedNamespace"];
+
+        return new ServiceBusAdministrationClient(namespaceName, credential);
+    }
+
+    private TokenCredential CreateAzureCredential(string connectionStringName) {
+        var clientId = _configuration[$"{connectionStringName}__clientId"] ?? _configuration["AZURE_CLIENT_ID"];
 
         return string.IsNullOrWhiteSpace(clientId)
             ? new DefaultAzureCredential()

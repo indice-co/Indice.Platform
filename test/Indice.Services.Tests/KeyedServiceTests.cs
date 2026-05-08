@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Indice.Types;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -10,18 +9,18 @@ public class KeyedServiceTests
     [Fact]
     public void KeyedServices_Can_have_Multiple_Configurations_Same_Implementation() {
 
-        var inMemorySettings = new Dictionary<string, string?> {
-        };
+        var inMemorySettings = new Dictionary<string, string?> {};
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
             .Build();
+        var factory = new AzureClientFactory(configuration);
         var collection = new ServiceCollection()
             .AddSingleton(configuration)
             .AddOptions()
-            .AddTransient<IFileService>(sp => new FileServiceAzureStorage("serviceDefault", "serviceDefault"))
+            .AddTransient<IFileService>(sp => new FileServiceAzureStorage(factory, "serviceDefault"))
             .AddKeyedTransient<IFileService, FileServiceInMemory>("serviceA")
-            .AddKeyedTransient<IFileService, FileServiceAzureStorage>("serviceB", (sp, key) => new FileServiceAzureStorage(key!.ToString()!, key.ToString()))
-            .AddKeyedTransient<IFileService, FileServiceAzureStorage>("serviceC", (sp, key) => new FileServiceAzureStorage(key!.ToString()!, key.ToString()));
+            .AddKeyedTransient<IFileService, FileServiceAzureStorage>("serviceB", (sp, key) => new FileServiceAzureStorage(factory, key!.ToString()))
+            .AddKeyedTransient<IFileService, FileServiceAzureStorage>("serviceC", (sp, key) => new FileServiceAzureStorage(factory, key!.ToString()));
         var serviceProvider = collection.BuildServiceProvider();
 
         var serviceDefault = serviceProvider.GetRequiredService<IFileService>();
@@ -32,15 +31,15 @@ public class KeyedServiceTests
         Assert.IsType<FileServiceAzureStorage>(serviceB);
         Assert.IsType<FileServiceAzureStorage>(serviceC);
 
-        var connectionString = typeof(FileServiceAzureStorage)
-            .GetField("_connectionString", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var containerName = typeof(FileServiceAzureStorage)
+            .GetField("_containerName", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
-        var connectionB = (AzureConnectionString)connectionString.GetValue(serviceB)!;
-        var connectionC = (AzureConnectionString)connectionString.GetValue(serviceC)!;
-        var connectionDefault = (AzureConnectionString)connectionString.GetValue(serviceDefault)!;
+        var connectionB = containerName.GetValue(serviceB)!;
+        var connectionC = containerName.GetValue(serviceC)!;
+        var connectionDefault = containerName.GetValue(serviceDefault)!;
 
-        Assert.StartsWith("serviceB", connectionB.ToString());
-        Assert.StartsWith("serviceC", connectionC.ToString());
-        Assert.StartsWith("serviceDefault", connectionDefault.ToString());
+        Assert.Equal("serviceB", connectionB.ToString(), StringComparer.OrdinalIgnoreCase);
+        Assert.Equal("serviceC", connectionC.ToString(), StringComparer.OrdinalIgnoreCase);
+        Assert.Equal("serviceDefault", connectionDefault.ToString(), StringComparer.OrdinalIgnoreCase);
     }
 }

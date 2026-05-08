@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Net;
 using System.Text.RegularExpressions;
+using Azure.Identity;
 using Azure.Storage.Blobs;
 using Indice.AspNetCore.Configuration;
 using Indice.AspNetCore.Filters;
@@ -87,13 +88,13 @@ public static class ServiceCollectionExtensions
     /// <param name="configure">Configures the available options. Null to use defaults.</param>
     public static IServiceCollection AddDataProtectionAzure(this IServiceCollection services, Action<AzureDataProtectionOptions>? configure = null) {
         services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
+        services.TryAddSingleton<AzureClientFactory>();
         var serviceProvider = services.BuildServiceProvider();
         var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+        var azureClientFactory = serviceProvider.GetRequiredService<AzureClientFactory>();
         var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         const int defaultKeyLifetime = 90;
-        serviceProvider.GetRequiredService<IConfiguration>().TryGetStorageConnectionString("StorageConnection", out var storageConnection);
         var options = new AzureDataProtectionOptions {
-            StorageConnectionString = storageConnection!.ToString(),
             ContainerName = environmentName,
             ApplicationName = hostingEnvironment.ApplicationName,
             KeyLifetime = defaultKeyLifetime,
@@ -108,14 +109,16 @@ public static class ServiceCollectionExtensions
         if (options.KeyLifetime <= 0) {
             options.KeyLifetime = defaultKeyLifetime;
         }
-        var container = AzureClientFactory.CreateBlobContainerClient(storageConnection, options.ContainerName);
+        var container = azureClientFactory.CreateBlobContainerClient(options.ConnectionStringName, options.ContainerName);
         container.CreateIfNotExists();
         // Enables data protection services to the specified IServiceCollection.
+        var accountName = Environment.GetEnvironmentVariable($"{options.ConnectionStringName}__accountName");
+        var blobUri = new Uri($"https://{accountName}.blob.core.windows.net/{options.ContainerName}/keys.xml");
         var dataProtectionBuilder = services.AddDataProtection()
                                             // Configures the data protection system to use the cryptographic algorithms from options.CryptographicAlgorithms
                                             // when generating protected payloads. Default values are initialized above and may be overridden by configure.
                                             .UseCryptographicAlgorithms(options.CryptographicAlgorithms)
-                                            .PersistKeysToAzureBlobStorage(options.StorageConnectionString, options.ContainerName, "keys.xml")
+                                            .PersistKeysToAzureBlobStorage(blobUri, new DefaultAzureCredential())
                                             // Configure the system to use a key lifetime. Default is 90 days.
                                             .SetDefaultKeyLifetime(TimeSpan.FromDays(options.KeyLifetime))
                                             // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, 

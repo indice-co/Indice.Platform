@@ -406,11 +406,11 @@ public static class IndiceServicesServiceCollectionExtensions
             EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
             ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
         };
+        var factory = serviceProvider.GetRequiredService<AzureClientFactory>();
         configure?.Invoke(serviceProvider, options);
-        var azureConnection = new AzureConnectionString(options.ConnectionString!);
         return new EventDispatcherAzureServiceBus(
-            AzureClientFactory.CreateServiceBusClient(azureConnection),
-            options.CreateQueueIfNotExists ? AzureClientFactory.CreateServiceBusAdministrationClient(azureConnection) : null,
+            factory.CreateServiceBusClient(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
+            options.CreateQueueIfNotExists ? factory.CreateServiceBusAdministrationClient(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME) : null,
             options.EnvironmentName,
             options.Enabled,
             options.UseCompression,
@@ -448,12 +448,13 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddLockManagerAzure(this IServiceCollection services, Action<IServiceProvider, LockManagerAzureOptions>? configure = null) {
         services.AddTransient<ILockManager, LockManagerAzure>(serviceProvider => {
+            var factory = serviceProvider.GetRequiredService<AzureClientFactory>();
             var options = new LockManagerAzureOptions {
                 ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(LockManagerAzure.CONNECTION_STRING_NAME),
                 EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
             };
             configure?.Invoke(serviceProvider, options);
-            return new LockManagerAzure(options);
+            return new LockManagerAzure(factory, options);
         });
         return services;
     }

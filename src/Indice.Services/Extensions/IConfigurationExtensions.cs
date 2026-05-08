@@ -258,26 +258,5 @@ public static class IConfigurationExtensions
             return false;
         }
         return false;
-    }
-
-    /// <summary>Tries to get the applicationInsights connection string only if valid.</summary>
-    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="connectionStringName">The connection string name</param>
-    /// <param name="connectionString">Outputs the connection string if valid</param>
-    /// <returns>The api secret under the specified key. Api Secrets are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
-    public static bool TryGetStorageConnectionString(this IConfiguration configuration, string connectionStringName, out AzureConnectionString? connectionString) {
-        connectionString = null;
-        var storageConnectionString = configuration.GetConnectionString(connectionStringName);
-        try {
-            if (string.IsNullOrWhiteSpace(storageConnectionString)) {
-                return false;
-            }
-            connectionString = new AzureConnectionString(storageConnectionString);
-        } catch {
-            return false;
-        }
-        return false;
-    }
-
-    
+    }    
 }

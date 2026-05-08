@@ -1,24 +1,46 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Indice.Serialization;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Indice.Services.Tests;
 
 public class LockManagerAzureTests
 {
-    private readonly string _connectionString = "UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://127.0.0.1";
     private readonly ILockManager _LockManager;
     private readonly IFileService _FileService;
+
     public LockManagerAzureTests() {
-        if (_connectionString.StartsWith("UseDevelopmentStorage=true;")) {
-            StorageEmulator.Start();
-        }
-        _LockManager = new LockManagerAzure(new LockManagerAzureOptions {
+        var services = new ServiceCollection();
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["ConnectionStrings:Storage"] =
+                    "UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://127.0.0.1"
+            })
+            .Build();
+
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddSingleton<AzureClientFactory>();
+
+        services.AddSingleton(new LockManagerAzureOptions {
             EnvironmentName = "test",
-            ConnectionString = _connectionString
+            ConnectionString = configuration.GetConnectionString("Storage")!
         });
-        _FileService = new FileServiceAzureStorage(_connectionString, "test");
+
+        services.AddSingleton<ILockManager, LockManagerAzure>();
+
+        services.AddTransient<IFileService>(sp =>
+            new FileServiceAzureStorage(
+                sp.GetRequiredService<AzureClientFactory>(),
+                "test"));
+
+        var provider = services.BuildServiceProvider();
+
+        _LockManager = provider.GetRequiredService<ILockManager>();
+        _FileService = provider.GetRequiredService<IFileService>();
     }
 
     [Fact(Skip = "Should integrate azurite on build yaml")]

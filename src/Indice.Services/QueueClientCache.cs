@@ -22,13 +22,18 @@ public sealed class QueueClientCache : IQueueClientCache
 
     private readonly ConcurrentDictionary<QueueClientCacheKey, Lazy<Task<QueueClient>>> _queueClients = new();
 
+    private readonly AzureClientFactory _factory;
+
+    public QueueClientCache(AzureClientFactory factory) {
+        _factory = factory;
+    }
+
     /// <inheritdoc/>
-    public async Task<QueueClient> GetOrCreateAsync(string queueName, string connectionString, QueueMessageEncoding messageEncoding) {
-        var cacheKey = new QueueClientCacheKey(connectionString, queueName, messageEncoding);
+    public async Task<QueueClient> GetOrCreateAsync(string queueName, string connectionStringName, QueueMessageEncoding messageEncoding) {
+        var cacheKey = new QueueClientCacheKey(connectionStringName, queueName, messageEncoding);
 
         var lazyClient = _queueClients.GetOrAdd(cacheKey, key => new Lazy<Task<QueueClient>>(async () => {
-            var storageConnection = new AzureConnectionString(connectionString);
-            var queueClient = AzureClientFactory.CreateQueueClient(storageConnection, queueName, new QueueClientOptions {
+            var queueClient = _factory.CreateQueueClient(connectionStringName, queueName, new QueueClientOptions {
                 MessageEncoding = messageEncoding
             });
             await queueClient.CreateIfNotExistsAsync();
