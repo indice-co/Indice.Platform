@@ -5,6 +5,7 @@ using IdentityServer4.Services;
 #endif
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.Totp;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -32,6 +34,7 @@ public abstract class BaseMfaModel : BasePageModel
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="authenticationMethodProvider">Abstracts interaction with system's various authentication methods.</param>
+    /// <param name="totpOptions">Options for configuring Time-based One-Time Password (TOTP) settings.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseMfaModel(
         ILogger<BaseMfaModel> logger,
@@ -40,7 +43,8 @@ public abstract class BaseMfaModel : BasePageModel
         TotpServiceFactory totpServiceFactory,
         IConfiguration configuration,
         IIdentityServerInteractionService interaction,
-        IAuthenticationMethodProvider authenticationMethodProvider
+        IAuthenticationMethodProvider authenticationMethodProvider,
+        IOptions<TotpOptions> totpOptions
     ) {
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -49,6 +53,7 @@ public abstract class BaseMfaModel : BasePageModel
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         AuthenticationMethodProvider = authenticationMethodProvider ?? throw new ArgumentNullException(nameof(authenticationMethodProvider));
+        AuthenticatorDigits = totpOptions?.Value.CodeLength ?? AuthenticatorDigits;
     }
 
     /// <summary>The logger instance for this page.</summary>
@@ -66,6 +71,8 @@ public abstract class BaseMfaModel : BasePageModel
     /// <summary>Abstracts interaction with system's various authentication methods.</summary>
     protected IAuthenticationMethodProvider AuthenticationMethodProvider { get; }
 
+    /// <summary>Number of digits for the authenticator code.</summary>
+    protected readonly int AuthenticatorDigits = 6;
     /// <summary>Login view model.</summary>
     public MfaLoginViewModel View { get; set; } = new MfaLoginViewModel();
 
@@ -155,7 +162,8 @@ public abstract class BaseMfaModel : BasePageModel
                 (authenticationMethod.GetDeliveryChannel() == TotpDeliveryChannel.Sms ||
                  authenticationMethod.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification ||
                  authenticationMethod.GetDeliveryChannel() == TotpDeliveryChannel.Email),
-            HubConnectionUrl = Configuration.GetSection("General").GetValue<string>("HubConnectionUrl")
+            HubConnectionUrl = Configuration.GetSection("General").GetValue<string>("HubConnectionUrl"),
+            AuthenticatorDigits = AuthenticatorDigits
         };
     }
 
@@ -195,6 +203,7 @@ internal class MfaModel : BaseMfaModel
         TotpServiceFactory totpServiceFactory,
         IConfiguration configuration,
         IIdentityServerInteractionService interaction,
-        IAuthenticationMethodProvider authenticationMethodProvider
-    ) : base(logger, userManager, signInManager, totpServiceFactory, configuration, interaction, authenticationMethodProvider) { }
+        IAuthenticationMethodProvider authenticationMethodProvider,
+        IOptions<TotpOptions> totpOptions
+    ) : base(logger, userManager, signInManager, totpServiceFactory, configuration, interaction, authenticationMethodProvider, totpOptions) { }
 }

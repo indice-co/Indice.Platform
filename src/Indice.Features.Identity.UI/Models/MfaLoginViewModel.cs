@@ -48,6 +48,8 @@ public partial class MfaLoginViewModel<TUser> : MfaLoginInputModel where TUser :
     [GeneratedRegex(@"(?<=^..)[^@]+(?=@)")]
     public static partial Regex GetMaskEmailRegex();
 
+    /// <summary>Number of digits for the authenticator code</summary>
+    public int AuthenticatorDigits = 6;
 }
 
 /// <summary>MFA login view model.</summary>

@@ -23,7 +23,7 @@
                    placeholder="@Localizer.Mfa_OTP_Code"
                    autocomplete="one-time-code"
                    inputmode="numeric"
-                   maxlength="6"
+                   maxlength="@Model.View.AuthenticatorDigits"
                    autofocus />
             <span asp-validation-for="Input.OtpCode" class="text-danger small"></span>
         </div>
