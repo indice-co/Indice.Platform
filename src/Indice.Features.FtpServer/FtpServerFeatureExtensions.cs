@@ -1,6 +1,15 @@
-﻿using FubarDev.FtpServer;
+﻿using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
+using FubarDev.FtpServer;
+using FubarDev.FtpServer.AccountManagement.Anonymous;
+using FubarDev.FtpServer.AccountManagement.Directories;
+using FubarDev.FtpServer.AccountManagement.Directories.RootPerUser;
+using FubarDev.FtpServer.FileSystem;
 using FubarDev.FtpServer.FileSystem.DotNet;
 using Indice.Features.FtpServer;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -34,5 +43,86 @@ public static class FtpServerFeatureExtensions
         builder.Services.Configure(configureAction);
         builder.UseDotNetFileSystem();
         return builder;
+    }
+
+    /// <summary>
+    /// Enables anonymous authentication for the FTP server and allows configuration of anonymous authentication
+    /// options.
+    /// </summary>
+    /// <remarks>Call this method to allow clients to connect using anonymous credentials. Use the <paramref
+    /// name="configureAction"/> parameter to specify additional options, such as whether any password is accepted for
+    /// anonymous users.</remarks>
+    /// <param name="builder">The FTP server builder to configure. Cannot be null.</param>
+    /// <param name="configureAction">An action to configure the anonymous authentication options. Cannot be null.</param>
+    /// <returns>The same instance of <see cref="IFtpServerBuilder"/> to allow for method chaining.</returns>
+    public static IFtpServerBuilder EnableAnonymousAuthentication(this IFtpServerBuilder builder, Action<FtpServerAnonymousAuthenticationOptions> configureAction) {
+        var options = new FtpServerAnonymousAuthenticationOptions(builder.Services);
+        configureAction(options);
+        if (options.AllowAnyPassword) {
+            builder.Services.AddSingleton<IAnonymousPasswordValidator, NotEmptyPasswordValidation>(sp => new NotEmptyPasswordValidation(options.MinimumPasswordLength));
+        }
+        builder.EnableAnonymousAuthentication();
+        return builder;
+    }
+}
+
+/// <summary>
+/// Options for configuring anonymous authentication for the FTP server.
+/// </summary>
+public class FtpServerAnonymousAuthenticationOptions
+{
+    internal FtpServerAnonymousAuthenticationOptions(IServiceCollection services) {
+        Services = services ?? throw new ArgumentNullException(nameof(services));
+    }
+    internal IServiceCollection Services { get; }
+    /// <summary>
+    /// Gets or sets a value indicating whether any password is accepted during authentication.
+    /// </summary>
+    public bool AllowAnyPassword { get; set; }
+
+    /// <summary>
+    /// Gets or sets the minimum length for passwords during authentication. This option is used to enforce a minimum length requirement for passwords when <see cref="AllowAnyPassword"/> is set to true. If a password does not meet the specified minimum length, authentication will fail.
+    /// </summary>
+    public int MinimumPasswordLength { get; set; } = 3;
+
+    /// <summary>
+    /// Configures a custom password validator for anonymous authentication. The specified validator will be used to 
+    /// validate passwords for anonymous users.
+    /// </summary>
+    /// <typeparam name="TAnonymousPasswordValidator">The type of the custom password validator.</typeparam>
+    /// <returns>The same instance of <see cref="FtpServerAnonymousAuthenticationOptions"/> to allow for method chaining.</returns>
+    public FtpServerAnonymousAuthenticationOptions WithPasswordValidator<TAnonymousPasswordValidator>() where TAnonymousPasswordValidator : class, IAnonymousPasswordValidator {
+        Services.AddSingleton<IAnonymousPasswordValidator, TAnonymousPasswordValidator>();
+        return this;
+    }
+}
+
+/// <summary>
+/// Performs no validation but guards against empty passwords.
+/// </summary>
+public class NotEmptyPasswordValidation : IAnonymousPasswordValidator
+{
+    private readonly int _minimumLength;
+
+    /// <summary>
+    ///  Initializes a new instance of the NotEmptyPasswordValidation class with the specified minimum password length.
+    /// </summary>
+    /// <param name="minimumLength">The minimum number of characters required for a valid password. Must be greater than zero.</param>
+    public NotEmptyPasswordValidation(int minimumLength) {
+        _minimumLength = minimumLength;
+    }
+
+    /// <inheritdoc/>
+    public bool IsValid(string password) {
+        if (password.IndexOfAny(['/', '\\']) != -1) {
+            return false;
+        }
+        if (string.IsNullOrWhiteSpace(password)) {
+            return false;
+        }
+        if (password.Length < _minimumLength) {
+            return false;
+        }
+        return true;
     }
 }
