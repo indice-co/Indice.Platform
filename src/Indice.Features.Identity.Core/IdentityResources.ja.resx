@@ -417,6 +417,12 @@
   <data name="AccountLockedEventDescription" xml:space="preserve">
     <value>複数回のログイン試行が失敗したため、アカウントが一時的にロックされました。このロックは、お客様の情報を保護するためのセキュリティ対策です。後ほど再度お試しください。</value>
   </data>
+  <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
+    <value>二要素認証方法が変更されました</value>
+  </data>
+  <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
+    <value>二要素認証方法が次のように更新されました: {0}。</value>
+  </data>
   <data name="PasswordChangedEventDescription" xml:space="preserve">
     <value>パスワードが正常に変更されました。</value>
   </data>
@@ -479,6 +485,12 @@
   </data>
   <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
     <value>信頼できるデバイスを介してプッシュ通知を受信します。</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
+    <value>リカバリーコードによる確認</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
+    <value>リカバリーコードでログインをリクエストしました。MFA方法を提供するまで、このログインは記憶されません。</value>
   </data>
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>'タイムゾーン' フィールドの形式が正しくありません。</value>

@@ -57,7 +57,7 @@ public abstract class BaseMfaOnboardingRecoveryCodesModel : BasePageModel
 
 
     /// <summary>MFA onboarding recovery codes page download Get handler.</summary>
-    public virtual async Task<IActionResult> OnGetDownloadAsync() {
+    public virtual IActionResult OnGetDownload() {
         var tempModel = TempData.Peek<RecoveryCodesViewModel>(BaseMfaOnboardingSetupAuthenticatorModel.RecoveryCodesTempDataKey);
         if (tempModel is null || tempModel.RecoveryCodes is null || tempModel.RecoveryCodes.Length == 0) {
             return File(System.Text.Encoding.UTF8.GetBytes("Invalid request"), "text/plain", "recovery-codes.txt");

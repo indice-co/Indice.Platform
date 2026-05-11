@@ -4,7 +4,7 @@
     <PackageTags>FtpServer;Worker</PackageTags>
     <PackageReleaseNotes>FtpServer extensions</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
+    <VersionPrefix>$(VersionPrefixFtpServer)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
