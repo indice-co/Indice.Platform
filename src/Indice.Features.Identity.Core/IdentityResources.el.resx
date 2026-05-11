@@ -421,10 +421,10 @@
     <value>Ο κωδικός πρόσβασής σας έχει αλλάξει επιτυχώς.</value>
   </data>
   <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
-    <value>Αλλαγή Προτίμησης MFA</value>
+    <value>Ενημέρωση μεθόδου MFA</value>
   </data>
   <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
-    <value>Η προτίμησή σας για MFA ενημερώθηκε σε: {0}.</value>
+    <value>Η μέθοδος σας για MFA ενημερώθηκε σε: {0}.</value>
   </data>
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
     <value>Παρακαλώ επιλέξτε το νέο σας κωδικό πρόσβασης για να συνεχίσετε.</value>
@@ -488,5 +488,11 @@
   </data>
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>Το πεδίο 'Ζώνη ώρας' δεν έχει αποδεκτή μορφή.</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
+    <value>Επαλήθευση με κωδικό ανάκτησης</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
+    <value>Έχετε ζητήσει να συνδεθείτε με κωδικό ανάκτησης. Αυτή η σύνδεση δεν θα απομνημονευτεί έως ότου παρέχετε μια μέθοδο MFA.</value>
   </data>
 </root>

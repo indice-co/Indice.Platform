@@ -79,7 +79,7 @@ public abstract class BaseMfaOnboardingSetupAuthenticatorModel : BasePageModel
         var verificationCode = (Input.Code ?? string.Empty).Replace(" ", string.Empty).Replace("-", string.Empty);
         var isTokenValid = await UserManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultAuthenticatorProvider, verificationCode);
         if (!isTokenValid) {
-            ModelState.AddModelError("Input_Code", UserManager.MessageDescriber.MfaValidationError);
+            ModelState.AddModelError("Input.Code", UserManager.MessageDescriber.MfaValidationError);
             await BuildViewModel(user, returnUrl);
             return Page();
         }
