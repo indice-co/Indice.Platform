@@ -302,7 +302,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     public override async Task RememberTwoFactorClientAsync(TUser user) {
         var deviceId = await GetMfaDeviceIdentifierAsync(user);
         var principal = await StoreRememberClient(user, deviceId);
-        await Context.SignInAsync(IdentityConstants.TwoFactorRememberMeScheme, principal, new AuthenticationProperties { IsPersistent = true });
+        await Context.SignInAsync(IdentityConstants.TwoFactorRememberMeScheme, principal, new AuthenticationProperties { IsPersistent = true, AllowRefresh = true, ExpiresUtc = DateTime.UtcNow.AddDays(MfaRememberDurationInDays) });
     }
 
     /// <inheritdoc/>
