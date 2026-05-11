@@ -1,7 +1,9 @@
-﻿using FubarDev.FtpServer;
+﻿using System.Net;
+using FubarDev.FtpServer;
 using FubarDev.FtpServer.AccountManagement.Anonymous;
 using FubarDev.FtpServer.FileSystem.DotNet;
 using Indice.Features.FtpServer;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -67,9 +69,13 @@ public static class FtpServerFeatureExtensions
     /// <param name="configureAction">An action to configure the passive mode options. This action is invoked to customize settings related to passive
     /// address resolution.</param>
     /// <returns>The same instance of <see cref="IFtpServerBuilder"/> to allow for method chaining.</returns>
-    public static IFtpServerBuilder UsePassiveAddressResolution(this IFtpServerBuilder builder, Action<SimplePasvOptions> configureAction) {
+    public static IFtpServerBuilder UsePassiveAddressResolution(this IFtpServerBuilder builder, Action<SimplePasvOptions>? configureAction = null) {
         //https://github.com/FubarDevelopment/FtpServer/issues/140
-        builder.Services.Configure(configureAction);
+        builder.Services.Configure(configureAction ?? new Action<SimplePasvOptions>((options) => {
+            options.PasvMinPort = 49152;
+            options.PasvMaxPort = 49153;
+            options.PublicAddress = null;
+        }));
         builder.Services.Configure<PasvCommandOptions>(options => {
             options.PromiscuousPasv = true;
         }); 
