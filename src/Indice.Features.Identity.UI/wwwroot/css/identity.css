@@ -829,6 +829,7 @@ main::after {
 .footer .links a {
   font-size: 1em;
   font-weight: bold;
+  color: #fff;
 }
 .footer .language .dropdown-toggle {
   color: inherit;

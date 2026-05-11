@@ -95,6 +95,13 @@ public class IdentityMessageDescriber
             _ => string.Empty
         };
 
+    /// <summary>Two-factor preference changed event subject.</summary>
+    public virtual string TwoFactorPreferenceChangedEventSubject => IdentityResources.TwoFactorPreferenceChangedEventSubject;
+
+    /// <summary>Two-factor preference changed event description.</summary>
+    public virtual string TwoFactorPreferenceChangedEventDescription(string authenticationMethodCode) =>
+        string.Format(IdentityResources.TwoFactorPreferenceChangedEventDescription, authenticationMethodCode);
+
     /// <summary>Add email page validation empty email</summary>
     public virtual string AddEmailValidationEmailEmpty => IdentityResources.AddEmailValidationEmailEmpty;
 
@@ -158,6 +165,8 @@ public class IdentityMessageDescriber
 
     /// <summary>Mfa validation error message</summary>
     public virtual string MfaValidationError => IdentityResources.MfaValidationError;
+    /// <summary>Mfa invalid recovery code error message.</summary>
+    public virtual string MfaInvalidRecoveryCode => IdentityResources.MfaInvalidRecoveryCode;
     /// <summary>Login error message when user is locked out.</summary>
     public virtual string LoginErrorLockedMessage => IdentityResources.LoginErrorLockedMessage;
 
@@ -320,6 +329,10 @@ public class IdentityMessageDescriber
     public virtual string AuthMethod_TrustedDevice_DisplayName => IdentityResources.AuthMethod_TrustedDevice_DisplayName;
     /// <summary>Description for Trusted Device authentication method.</summary>
     public virtual string AuthMethod_TrustedDevice_Description => IdentityResources.AuthMethod_TrustedDevice_Description;
+    /// <summary>Display name for Recovery Code authentication method.</summary>
+    public virtual string AuthMethod_RecoveryCode_DisplayName => IdentityResources.AuthMethod_RecoveryCode_DisplayName;
+    /// <summary>Description for Recovery Code authentication method.</summary>
+    public virtual string AuthMethod_RecoveryCode_Description => IdentityResources.AuthMethod_RecoveryCode_Description;
     #endregion
     /// <summary>
     /// Retrieves a localized string for the specified label, or returns the label itself if no localized value is

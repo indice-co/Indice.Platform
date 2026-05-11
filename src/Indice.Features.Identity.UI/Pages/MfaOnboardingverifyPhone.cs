@@ -2,6 +2,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -59,11 +60,12 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
         Input.PhoneNumber = user.PhoneNumber;
         var result = await UserManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, Input.Code!);
         if (result.Succeeded) {
-            await UserManager.SetTwoFactorEnabledAsync(user, true);
+            await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.PhoneNumber.ToString());
             tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyPhoneSuccessMessage);
         } else {
             tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone);
         }
+        
         TempData.Put(TempDataKey, tempDataModel);
         return Page();
     }

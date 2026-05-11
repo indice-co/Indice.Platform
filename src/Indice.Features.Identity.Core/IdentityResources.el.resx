@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -270,6 +270,9 @@
   <data name="MfaValidationError" xml:space="preserve">
     <value>Ο κωδικός OTP δεν είναι έγκυρος.</value>
   </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Εισήχθη μη έγκυρος κωδικός ανάκτησης.</value>
+  </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Ο λογαριασμός σας είναι προσωρινά κλειδωμένος. Παρακαλώ επικοινωνήστε με έναν διαχειριστή του συστήματος.</value>
   </data>
@@ -417,6 +420,12 @@
   <data name="PasswordChangedEventDescription" xml:space="preserve">
     <value>Ο κωδικός πρόσβασής σας έχει αλλάξει επιτυχώς.</value>
   </data>
+  <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
+    <value>Ενημέρωση μεθόδου MFA</value>
+  </data>
+  <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
+    <value>Η μέθοδος σας για MFA ενημερώθηκε σε: {0}.</value>
+  </data>
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
     <value>Παρακαλώ επιλέξτε το νέο σας κωδικό πρόσβασης για να συνεχίσετε.</value>
   </data>
@@ -476,8 +485,14 @@
   </data>
   <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
     <value>Λήψη ειδοποίησης push μέσω εμπιστευμένης συσκευής.</value>
-    </data>
+  </data>
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>Το πεδίο 'Ζώνη ώρας' δεν έχει αποδεκτή μορφή.</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
+    <value>Επαλήθευση με κωδικό ανάκτησης</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
+    <value>Έχετε ζητήσει να συνδεθείτε με κωδικό ανάκτησης. Αυτή η σύνδεση δεν θα απομνημονευτεί έως ότου παρέχετε μια μέθοδο MFA.</value>
   </data>
 </root>

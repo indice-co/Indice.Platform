@@ -29,8 +29,8 @@
                        placeholder="@Localizer.MfaOnBoardingAddPhone_Phone_Number"
                        readonly="@Model.View.DisablePhoneNumberInput"
                        class="block w-full px-3 py-2 border border-gray-300 rounded-md
-                   placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
-                   focus:border-transparent disabled:bg-gray-100 readonly:bg-gray-100" />
+                placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+                focus:border-transparent disabled:bg-gray-100 readonly:bg-gray-100" />
 
                 <span asp-validation-for="Input.PhoneNumber"
                       class="block mt-1 text-sm text-red-600"></span>
@@ -41,8 +41,8 @@
                     @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
                     {
                         <a href="@Model.View.NextStepUrl"
-                           class="block w-full py-2 px-4 text-center font-semibold rounded-md
-                       bg-blue-500 hover:bg-blue-600 text-white transition">
+                               class="block w-full py-2 px-4 text-center font-semibold rounded-md
+                            bg-blue-500 hover:bg-blue-600 text-white transition">
                             @Localizer.MfaOnBoardingAddPhone_Next
                         </a>
                     }
@@ -50,11 +50,17 @@
                     {
                         <button type="submit"
                                 class="block w-full py-2 px-4 font-semibold rounded-md
-                       bg-blue-500 hover:bg-blue-600 text-white transition">
+                            bg-blue-500 hover:bg-blue-600 text-white transition">
                             @Localizer.MfaOnBoardingAddPhone_Save
                         </button>
                     }
                 </div>
+            </div>
+            <div class="flex justify-start mt-2">
+                <a asp-page="/MfaOnboarding"
+                       class="py-2 px-4 hover:underline hover:text-black text-gray-700 rounded-md no-underline">
+                    ← @Localizer.Mfa_Back
+                </a>
             </div>
         </form>
     </div>

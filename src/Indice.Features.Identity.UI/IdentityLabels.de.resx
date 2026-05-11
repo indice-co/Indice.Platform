@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -444,6 +444,36 @@
   <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
     <value>Wenn Sie diese Aktion nicht durchgeführt haben, kontaktieren Sie bitte sofort den Support.</value>
   </data>
+  <data name="EmailTwoFactorPreferenceChanged_Preheader" xml:space="preserve">
+    <value>Ihre Zwei-Faktor-Authentifizierungspräferenz wurde aktualisiert.</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Subject" xml:space="preserve">
+    <value>Änderung der Zwei-Faktor-Authentifizierungspräferenz</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_Hi" xml:space="preserve">
+    <value>Hallo</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_EventOccurred" xml:space="preserve">
+    <value>Wir möchten Sie darüber informieren, dass Ihre Zwei-Faktor-Authentifizierungspräferenz auf Ihrem Konto aktualisiert wurde.</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_EventDetails" xml:space="preserve">
+    <value>Änderungsdetails:</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_EventTime" xml:space="preserve">
+    <value>Änderungszeit</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_Username" xml:space="preserve">
+    <value>Benutzername</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_Email" xml:space="preserve">
+    <value>E-Mail</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_AuthMethod" xml:space="preserve">
+    <value>Neue Authentifizierungsmethode</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_ContactSupport" xml:space="preserve">
+    <value>Wenn Sie diese Aktion nicht durchgeführt haben, kontaktieren Sie bitte sofort den Support.</value>
+  </data>
   <data name="Error_PageTitle" xml:space="preserve">
     <value>Fehler</value>
   </data>
@@ -770,6 +800,15 @@
   </data>
   <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
     <value>Öffnen Sie Ihre Authenticator-App und geben Sie den Bestätigungscode ein.</value>
+  </data>
+  <data name="Mfa_RecoveryCode" xml:space="preserve">
+    <value>Wiederherstellungscode</value>
+  </data>
+  <data name="Mfa_EnterRecoveryCode" xml:space="preserve">
+    <value>Sie haben angefordert, sich mit einem Wiederherstellungscode anzumelden. Diese Anmeldung wird nicht gespeichert, bis Sie beim Anmelden einen Authentifizierungs-App-Code angeben oder 2FA deaktivieren und sich erneut anmelden.</value>
+  </data>
+  <data name="Mfa_InvalidRecoveryCode" xml:space="preserve">
+    <value>Ungültiger Wiederherstellungscode eingegeben.</value>
   </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Passwort ändern</value>

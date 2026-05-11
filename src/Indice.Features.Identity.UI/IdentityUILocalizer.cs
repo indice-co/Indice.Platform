@@ -323,6 +323,40 @@ public class IdentityUILocalizer
 
     #endregion
 
+    #region EmailTwoFactorPreferenceChanged
+
+    /// <summary>Preheader of the two-factor preference changed notification email.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Preheader => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Preheader);
+
+    /// <summary>Subject of the two-factor preference changed notification email.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Subject => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Subject);
+
+    /// <summary>Greeting "Hi" in the two-factor preference changed notification email.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_Hi => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_Hi);
+
+    /// <summary>Message that the two-factor preference was updated.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_EventOccurred => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_EventOccurred);
+
+    /// <summary>Label for change details section.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_EventDetails => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_EventDetails);
+
+    /// <summary>Label for change time field.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_EventTime => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_EventTime);
+
+    /// <summary>Label for username field.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_Username => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_Username);
+
+    /// <summary>Label for email field.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_Email => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_Email);
+
+    /// <summary>Label for authentication method field.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_AuthMethod => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_AuthMethod);
+
+    /// <summary>Message advising the user to contact support if the action was not theirs.</summary>
+    public virtual HtmlString EmailTwoFactorPreferenceChanged_Body_ContactSupport => new HtmlString(IdentityLabels.EmailTwoFactorPreferenceChanged_Body_ContactSupport);
+
+    #endregion
+
     #region Error
     /// <summary>General label for error messages.</summary>
     public virtual HtmlString Error_PageTitle => new HtmlString(IdentityLabels.Error_PageTitle);
@@ -628,6 +662,15 @@ public class IdentityUILocalizer
     /// </summary>
     public virtual HtmlString Mfa_EnterCodeFromAuthenticatorApp => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_EnterCodeFromAuthenticatorApp));
 
+    /// <summary>Gets the localized label for the recovery code input field.</summary>
+    public virtual HtmlString Mfa_RecoveryCode => new HtmlString(IdentityLabels.Mfa_RecoveryCode);
+
+    /// <summary>Gets the localized instruction message shown when signing in with a recovery code.</summary>
+    public virtual HtmlString Mfa_EnterRecoveryCode => new HtmlString(IdentityLabels.Mfa_EnterRecoveryCode);
+
+    /// <summary>Gets the localized error message for an invalid recovery code.</summary>
+    public virtual HtmlString Mfa_InvalidRecoveryCode => new HtmlString(IdentityLabels.Mfa_InvalidRecoveryCode);
+
     #endregion
 
 
@@ -774,32 +817,32 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Recovery codes".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingRecoveryCodes_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_PageTitle));
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_PageTitle => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_PageTitle);
 
     /// <summary>
     ///   Gets the localized string for "Save your recovery codes".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingRecoveryCodes_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_PageHeader));
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_PageHeader => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_PageHeader);
 
     /// <summary>
     ///   Gets the localized string for "Save these recovery codes in a safe place...".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingRecoveryCodes_SaveWarning => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_SaveWarning));
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_SaveWarning => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_SaveWarning);
 
     /// <summary>
     ///   Gets the localized string for "I have saved my codes".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingRecoveryCodes_Continue => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_Continue));
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_Continue => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_Continue);
 
     /// <summary>
     ///   Gets the localized string for "Download".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingRecoveryCodes_Download => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingRecoveryCodes_Download));
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_Download => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_Download);
 
     /// <summary>
     ///   Gets the localized format string for the recovery-codes file header (with {0} placeholder for the user's email/username).
     /// </summary>
-    public virtual HtmlString MfaOnBoardingRecoveryCodes_FileHeader => new HtmlString(IdentityLabels.MfaOnBoardingRecoveryCodes_FileHeader);
+    public virtual HtmlString MfaOnBoardingRecoveryCodes_FileHeader(string userName) => new HtmlString(string.Format(IdentityLabels.MfaOnBoardingRecoveryCodes_FileHeader, userName));
 
     #endregion
 

@@ -37,17 +37,23 @@
                        maxlength="6"
                        autofocus
                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md
-                              placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
-                              focus:border-transparent" />
+                placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+                focus:border-transparent" />
                 <span asp-validation-for="Input.Code" class="block mt-1 text-sm text-red-600"></span>
             </div>
 
             <div class="mb-4">
                 <button type="submit"
                         class="block w-full py-2 px-4 font-semibold rounded-md
-                               bg-blue-500 hover:bg-blue-600 text-white transition">
+                    bg-blue-500 hover:bg-blue-600 text-white transition">
                     @Localizer.MfaOnBoardingSetupAuthenticator_Verify
                 </button>
+            </div>
+            <div class="flex justify-start mt-2">
+                <a asp-page="/MfaOnboarding"
+                       class="py-2 px-4 hover:underline hover:text-black text-gray-700 rounded-md no-underline">
+                    ← @Localizer.Mfa_Back
+                </a>
             </div>
         </form>
     </div>

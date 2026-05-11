@@ -3,6 +3,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Features.Recaptcha;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Features.Identity.UI;
 using Indice.Features.Identity.UI.EventHandlers;
@@ -115,6 +116,7 @@ public static class IdentityBuilderUIExtensions
         services.TryAddTransient<ITelemetryJavaScriptSnippet, AzureMonitorTelemetryJavaScriptSnippet>(); // browser ui telemetry.
 
         services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
+        services.AddPlatformEventHandler<TwoFactorPreferenceChangedEvent, TwoFactorPreferenceChangedEventHandler>();
         services.TryAddScoped<IdentityUILocalizer>();
         // Add reCAPTCHA service with options pattern
         services.AddRecaptcha(configuration);
