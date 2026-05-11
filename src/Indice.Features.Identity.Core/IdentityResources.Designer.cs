@@ -160,6 +160,24 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You have requested to log in with a recovery code. This login will not be remembered until you provide an MFA method..
+        /// </summary>
+        internal static string AuthMethod_RecoveryCode_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_RecoveryCode_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recovery code verification.
+        /// </summary>
+        internal static string AuthMethod_RecoveryCode_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_RecoveryCode_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Users will receive a text message containing a verification code..
         /// </summary>
         internal static string AuthMethod_Sms_Description {
@@ -475,6 +493,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid recovery code entered..
+        /// </summary>
+        internal static string MfaInvalidRecoveryCode {
+            get {
+                return ResourceManager.GetString("MfaInvalidRecoveryCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your OTP code for login is: {0}.
         /// </summary>
         internal static string MfaSmsBody {
@@ -723,6 +750,24 @@ namespace Indice.Features.Identity.Core {
         internal static string TrustedDevicesLimitReached {
             get {
                 return ResourceManager.GetString("TrustedDevicesLimitReached", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your two-factor authentication method has been updated to: {0}..
+        /// </summary>
+        internal static string TwoFactorPreferenceChangedEventDescription {
+            get {
+                return ResourceManager.GetString("TwoFactorPreferenceChangedEventDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Two-Factor Authentication Method Changed.
+        /// </summary>
+        internal static string TwoFactorPreferenceChangedEventSubject {
+            get {
+                return ResourceManager.GetString("TwoFactorPreferenceChangedEventSubject", resourceCulture);
             }
         }
         

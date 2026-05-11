@@ -23,7 +23,7 @@
             "authenticatorapp" => "fa-solid fa-shield-halved",
             "trusteddevice" => "fa-solid fa-mobile-screen",
             "fido2" => "fa-solid fa-fingerprint",
-            "code" => "fa-solid fa-square-binary",
+            "recoverycode" => "fa-solid fa-square-binary",
             _ => "fa-regular fa-message"
         };
     }
@@ -51,6 +51,11 @@
             @if (Model.View.AuthenticationMethod?.Type == AuthenticationMethodType.AuthenticatorApp)
             {
                 <partial name="_MfaAuthenticatorApp" model="Model" />
+            }
+
+            @if (Model.View.AuthenticationMethod?.Type == AuthenticationMethodType.RecoveryCode)
+            {
+                <partial name="_MfaRecoveryCodes" model="Model" />
             }
         </div>
     </div>

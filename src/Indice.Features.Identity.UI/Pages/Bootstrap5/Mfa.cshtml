@@ -34,6 +34,11 @@
         {
             <partial name="_MfaAuthenticatorApp" model="Model" />
         }
+
+        @if (Model.View.AuthenticationMethod?.Type == AuthenticationMethodType.RecoveryCode)
+        {
+            <partial name="_MfaRecoveryCodes" model="Model" />
+        }
     </div>
 </div>
 

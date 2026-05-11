@@ -444,6 +444,36 @@
   <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
     <value>Se não realizou esta ação, por favor contacte o suporte imediatamente.</value>
   </data>
+  <data name="EmailTwoFactorPreferenceChanged_Preheader" xml:space="preserve">
+    <value>A sua preferência de autenticação de dois fatores foi atualizada.</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Subject" xml:space="preserve">
+    <value>Alteração da Preferência de Autenticação de Dois Fatores</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_Hi" xml:space="preserve">
+    <value>Olá</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_EventOccurred" xml:space="preserve">
+    <value>Gostaríamos de informar que a sua preferência de autenticação de dois fatores foi atualizada na sua conta.</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_EventDetails" xml:space="preserve">
+    <value>Detalhes da alteração:</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_EventTime" xml:space="preserve">
+    <value>Hora da alteração</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_Username" xml:space="preserve">
+    <value>Nome de utilizador</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_Email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_AuthMethod" xml:space="preserve">
+    <value>Novo método de autenticação</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_ContactSupport" xml:space="preserve">
+    <value>Se não realizou esta ação, por favor contacte o suporte imediatamente.</value>
+  </data>
   <data name="Error_PageTitle" xml:space="preserve">
     <value>Erro</value>
   </data>
@@ -770,6 +800,15 @@
   </data>
   <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
     <value>Abra a sua aplicação de autenticação e introduza o código de verificação.</value>
+  </data>
+  <data name="Mfa_RecoveryCode" xml:space="preserve">
+    <value>Código de recuperação</value>
+  </data>
+  <data name="Mfa_EnterRecoveryCode" xml:space="preserve">
+    <value>Solicitou iniciar sessão com um código de recuperação. Este início de sessão não será lembrado até que forneça um código da aplicação de autenticação ao iniciar sessão ou desative a 2FA e inicie sessão novamente.</value>
+  </data>
+  <data name="Mfa_InvalidRecoveryCode" xml:space="preserve">
+    <value>Código de recuperação inválido inserido.</value>
   </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Alterar senha</value>

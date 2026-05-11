@@ -444,6 +444,36 @@
   <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
     <value>Εάν δεν πραγματοποιήσατε αυτήν την ενέργεια, επικοινωνήστε άμεσα με την υποστήριξη.</value>
   </data>
+  <data name="EmailTwoFactorPreferenceChanged_Preheader" xml:space="preserve">
+    <value>Η προτίμησή σας για MFA ενημερώθηκε.</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Subject" xml:space="preserve">
+    <value>Αλλαγή Προτίμησης MFA</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_Hi" xml:space="preserve">
+    <value>Γεια</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_EventOccurred" xml:space="preserve">
+    <value>Θέλαμε να σας ενημερώσουμε ότι η προτίμησή σας για MFA ενημερώθηκε στον λογαριασμό σας.</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_EventDetails" xml:space="preserve">
+    <value>Λεπτομέρειες αλλαγής:</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_EventTime" xml:space="preserve">
+    <value>Ώρα αλλαγής</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_Username" xml:space="preserve">
+    <value>Όνομα χρήστη</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_AuthMethod" xml:space="preserve">
+    <value>Νέα μέθοδος αυθεντικοποίησης</value>
+  </data>
+  <data name="EmailTwoFactorPreferenceChanged_Body_ContactSupport" xml:space="preserve">
+    <value>Εάν δεν πραγματοποιήσατε αυτήν την ενέργεια, επικοινωνήστε άμεσα με την υποστήριξη.</value>
+  </data>
   <data name="Error_PageTitle" xml:space="preserve">
     <value>Σφάλμα</value>
   </data>
@@ -770,6 +800,15 @@
   </data>
   <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
     <value>Ανοίξτε το Authenticator App και εισαγάγετε τον κωδικό επιβεβαίωσης.</value>
+  </data>
+  <data name="Mfa_RecoveryCode" xml:space="preserve">
+    <value>Κωδικός ανάκτησης</value>
+  </data>
+  <data name="Mfa_EnterRecoveryCode" xml:space="preserve">
+    <value>Ζητήσατε σύνδεση με κωδικό ανάκτησης. Αυτή η σύνδεση δεν θα αποθηκευτεί έως ότου παρέχετε κωδικό εφαρμογής αυθεντικοποίησης κατά την είσοδο ή απενεργοποιήσετε την 2FA και συνδεθείτε ξανά.</value>
+  </data>
+  <data name="Mfa_InvalidRecoveryCode" xml:space="preserve">
+    <value>Εισήχθη μη έγκυρος κωδικός ανάκτησης.</value>
   </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Αλλαγή κωδικού πρόσβασης</value>

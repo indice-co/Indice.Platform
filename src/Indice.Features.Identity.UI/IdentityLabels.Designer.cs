@@ -1105,6 +1105,96 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to New authentication method.
+        /// </summary>
+        public static string EmailTwoFactorPreferenceChanged_Body_AuthMethod {
+            get {
+                return ResourceManager.GetString("EmailTwoFactorPreferenceChanged_Body_AuthMethod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If you did not perform this action, please contact support immediately..
+        /// </summary>
+        public static string EmailTwoFactorPreferenceChanged_Body_ContactSupport {
+            get {
+                return ResourceManager.GetString("EmailTwoFactorPreferenceChanged_Body_ContactSupport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email.
+        /// </summary>
+        public static string EmailTwoFactorPreferenceChanged_Body_Email {
+            get {
+                return ResourceManager.GetString("EmailTwoFactorPreferenceChanged_Body_Email", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change details:.
+        /// </summary>
+        public static string EmailTwoFactorPreferenceChanged_Body_EventDetails {
+            get {
+                return ResourceManager.GetString("EmailTwoFactorPreferenceChanged_Body_EventDetails", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to We wanted to let you know that your two-factor authentication preference has been updated on your account..
+        /// </summary>
+        public static string EmailTwoFactorPreferenceChanged_Body_EventOccurred {
+            get {
+                return ResourceManager.GetString("EmailTwoFactorPreferenceChanged_Body_EventOccurred", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change time.
+        /// </summary>
+        public static string EmailTwoFactorPreferenceChanged_Body_EventTime {
+            get {
+                return ResourceManager.GetString("EmailTwoFactorPreferenceChanged_Body_EventTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hi.
+        /// </summary>
+        public static string EmailTwoFactorPreferenceChanged_Body_Hi {
+            get {
+                return ResourceManager.GetString("EmailTwoFactorPreferenceChanged_Body_Hi", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username.
+        /// </summary>
+        public static string EmailTwoFactorPreferenceChanged_Body_Username {
+            get {
+                return ResourceManager.GetString("EmailTwoFactorPreferenceChanged_Body_Username", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your two-factor authentication preference has been updated..
+        /// </summary>
+        public static string EmailTwoFactorPreferenceChanged_Preheader {
+            get {
+                return ResourceManager.GetString("EmailTwoFactorPreferenceChanged_Preheader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Two-Factor Authentication Preference Changed.
+        /// </summary>
+        public static string EmailTwoFactorPreferenceChanged_Subject {
+            get {
+                return ResourceManager.GetString("EmailTwoFactorPreferenceChanged_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Go back home.
         /// </summary>
         public static string Error_Go_back_home {
@@ -1758,6 +1848,33 @@ namespace Indice.Features.Identity.UI {
         public static string Mfa_EnterCodeFromAuthenticatorApp {
             get {
                 return ResourceManager.GetString("Mfa_EnterCodeFromAuthenticatorApp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Recovery Code.
+        /// </summary>
+        public static string Mfa_RecoveryCode {
+            get {
+                return ResourceManager.GetString("Mfa_RecoveryCode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You have requested to log in with a recovery code. This login will not be remembered until you provide an authenticator app code at log in or disable 2FA and log in again..
+        /// </summary>
+        public static string Mfa_EnterRecoveryCode {
+            get {
+                return ResourceManager.GetString("Mfa_EnterRecoveryCode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid recovery code entered..
+        /// </summary>
+        public static string Mfa_InvalidRecoveryCode {
+            get {
+                return ResourceManager.GetString("Mfa_InvalidRecoveryCode", resourceCulture);
             }
         }
         
