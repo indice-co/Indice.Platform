@@ -13,8 +13,8 @@ public class AzureDataProtectionOptions
     /// <summary>Stops the process of automatically rolling keys (create new keys) as they approach expiration.</summary>
     /// <remarks>https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview?view=aspnetcore-3.1#disableautomatickeygeneration</remarks>
     public bool DisableAutomaticKeyGeneration { get; set; }
-    /// <summary>The connection string name to your Azure storage account.</summary>
-    public string ConnectionStringName { get; set; } = null!;
+    /// <summary>The connection string name to your Azure storage account. Defaults to "StorageConnection".</summary>
+    public string ConnectionStringName { get; set; } = "StorageConnection";
     /// <summary>The name of the container that will be used within the data protection system.</summary>
     public string ContainerName { get; set; } = null!;
     /// <summary>Sets the unique name of this application within the data protection system.</summary>

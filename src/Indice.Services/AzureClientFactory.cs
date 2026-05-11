@@ -45,6 +45,10 @@ public sealed class AzureClientFactory
         if (!string.IsNullOrWhiteSpace(storageConnection)) {
             return new BlobContainerClient(storageConnection, containerName);
         }
+        storageConnection = _configuration.GetValue<string>(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(storageConnection)) {
+            return new BlobContainerClient(storageConnection, containerName);
+        }
 
         var credential = CreateAzureCredential(connectionStringName);
         var accountName = _configuration[$"{connectionStringName}__accountName"];
@@ -71,6 +75,10 @@ public sealed class AzureClientFactory
         if (!string.IsNullOrWhiteSpace(storageConnection)) {
             return new QueueClient(storageConnection, queueName, options);
         }
+        storageConnection = _configuration.GetValue<string>(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(storageConnection)) {
+            return new QueueClient(storageConnection, queueName, options);
+        }
 
         var credential = CreateAzureCredential(connectionStringName);
         var accountName = _configuration[$"{connectionStringName}__accountName"];
@@ -84,10 +92,8 @@ public sealed class AzureClientFactory
     /// <remarks>If a connection string is found for the specified name, it is used to create the
     /// ServiceBusClient. Otherwise, the method attempts to create the client using Azure credentials and a fully
     /// qualified namespace from configuration.</remarks>
-    /// <param name="connectionStringName">The name of the connection string or configuration key used to retrieve Service Bus connection information.
-    /// Cannot be null, empty, or whitespace.</param>
-    /// <returns>A ServiceBusClient instance configured to connect to the Azure Service Bus namespace specified by the provided
-    /// connection string name.</returns>
+    /// <param name="connectionStringName">The name of the connection string or configuration key used to retrieve Service Bus connection information.</param>
+    /// <returns>A ServiceBusClient instance configured to connect to the Azure Service Bus namespace specified by the provided connection string name.</returns>
     /// <exception cref="ArgumentNullException">Thrown if connectionStringName is null, empty, or consists only of white-space characters.</exception>
     public ServiceBusClient CreateServiceBusClient(string connectionStringName) {
         if (string.IsNullOrWhiteSpace(connectionStringName)) {
@@ -95,6 +101,10 @@ public sealed class AzureClientFactory
         }
 
         var serviceBusConnection = _configuration.GetConnectionString(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(serviceBusConnection)) {
+            return new ServiceBusClient(serviceBusConnection);
+        }
+        serviceBusConnection = _configuration.GetValue<string>(connectionStringName);
         if (!string.IsNullOrWhiteSpace(serviceBusConnection)) {
             return new ServiceBusClient(serviceBusConnection);
         }
@@ -126,7 +136,10 @@ public sealed class AzureClientFactory
         if (!string.IsNullOrWhiteSpace(serviceBusConnection)) {
             return new ServiceBusAdministrationClient(serviceBusConnection);
         }
-
+        serviceBusConnection = _configuration.GetValue<string>(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(serviceBusConnection)) {
+            return new ServiceBusAdministrationClient(serviceBusConnection);
+        }
         var credential = CreateAzureCredential(connectionStringName);
         var namespaceName = _configuration[$"{connectionStringName}__fullyQualifiedNamespace"];
 

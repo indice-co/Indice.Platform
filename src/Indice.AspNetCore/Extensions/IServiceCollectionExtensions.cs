@@ -2,7 +2,6 @@
 using System.Net;
 using System.Text.RegularExpressions;
 using Azure.Identity;
-using Azure.Storage.Blobs;
 using Indice.AspNetCore.Configuration;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Middleware;
