@@ -28,7 +28,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace Indice.Features.Identity.Core;
 
