@@ -28,6 +28,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace Indice.Features.Identity.Core;
 
@@ -250,7 +251,34 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         return await ExtendedUserManager.FindByIdAsync(info.UserId!);
     }
-
+    /// <summary>
+    /// Signs in the user without two factor authentication using a two factor recovery code.
+    /// </summary>
+    /// <param name="recoveryCode">The two factor recovery code.</param>
+    /// <returns></returns>
+    public override async Task<SignInResult> TwoFactorRecoveryCodeSignInAsync(string recoveryCode) {
+        var twoFactorInfo = await RetrieveTwoFactorInfoAsync();
+        if (twoFactorInfo == null || twoFactorInfo.UserId == null) {
+            return SignInResult.Failed;
+        }
+        var user = await ExtendedUserManager.FindByIdAsync(twoFactorInfo.UserId);
+        if (user == null) {
+            return SignInResult.Failed;
+        }
+        var error = await PreSignInCheck(user);
+        if (error != null) {
+            return error!;
+        }
+        var result = await UserManager.RedeemTwoFactorRecoveryCodeAsync(user, recoveryCode);
+        if (result.Succeeded) {
+            return await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent: false, rememberClient: false);
+        }
+        if (ExtendedUserManager.SupportsUserLockout) {
+            await ExtendedUserManager.AccessFailedAsync(user);
+        }
+        // We don't protect against brute force attacks since codes are expected to be random.
+        return SignInResult.Failed;
+    }
     /// <inheritdoc/>
     public async override Task SignOutAsync() {
         var allSchemes = await _authenticationSchemeProvider.GetAllSchemesAsync();
