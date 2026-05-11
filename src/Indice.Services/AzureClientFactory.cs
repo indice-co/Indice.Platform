@@ -8,15 +8,30 @@ using Microsoft.Extensions.Configuration;
 
 namespace Indice.Services;
 
+/// <summary>
+/// Client factory for Azure services such as Blob Storage, Queue Storage, and Service Bus. 
+/// It supports both connection string-based and Azure AD credential-based authentication. 
+/// The factory retrieves configuration settings from the provided IConfiguration instance 
+/// to create the appropriate clients based on the specified connection string name and service type.
+/// </summary>
 public sealed class AzureClientFactory
 {
-    private IConfiguration _configuration;
+    private readonly IConfiguration _configuration;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AzureClientFactory"/> class.
+    /// </summary>
+    /// <param name="configuration">The configuration instance to retrieve Azure service settings from.</param>
     public AzureClientFactory(IConfiguration configuration) {
         ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
         _configuration = configuration;
     }
-
+    /// <summary>
+    /// Creates a <see cref="BlobContainerClient"/> instance for the specified connection string name and container name.
+    /// </summary>
+    /// <param name="connectionStringName">The name of the connection string in the configuration.</param>
+    /// <param name="containerName">The name of the blob container.</param>
+    /// <returns>A <see cref="BlobContainerClient"/> instance.</returns>
     public BlobContainerClient CreateBlobContainerClient(string connectionStringName, string containerName) {
         if (string.IsNullOrWhiteSpace(connectionStringName)) {
             throw new ArgumentNullException("Storage connection string name is required.");
@@ -36,7 +51,13 @@ public sealed class AzureClientFactory
         var blobUri = new Uri($"https://{accountName}.blob.core.windows.net/{containerName}");
         return new BlobContainerClient(blobUri, credential);
     }
-
+    /// <summary>
+    /// Creates a <see cref="QueueClient"/> instance for the specified connection string name and queue name.
+    /// </summary>
+    /// <param name="connectionStringName">The name of the connection string in the configuration.</param>
+    /// <param name="queueName">The name of the queue.</param>
+    /// <param name="options">Optional queue client options.</param>
+    /// <returns>A <see cref="QueueClient"/> instance.</returns>
     public QueueClient CreateQueueClient(string connectionStringName, string queueName, QueueClientOptions? options = null) {
         if (string.IsNullOrWhiteSpace(connectionStringName)) {
             throw new ArgumentNullException("Storage ConnectionStringName is required.");
@@ -56,7 +77,18 @@ public sealed class AzureClientFactory
         var queueUri = new Uri($"https://{accountName}.queue.core.windows.net/{queueName}");
         return new QueueClient(queueUri, credential, options);
     }
-
+    /// <summary>
+    /// Creates and returns a new instance of the ServiceBusClient using the specified connection string name or
+    /// associated Azure credentials.
+    /// </summary>
+    /// <remarks>If a connection string is found for the specified name, it is used to create the
+    /// ServiceBusClient. Otherwise, the method attempts to create the client using Azure credentials and a fully
+    /// qualified namespace from configuration.</remarks>
+    /// <param name="connectionStringName">The name of the connection string or configuration key used to retrieve Service Bus connection information.
+    /// Cannot be null, empty, or whitespace.</param>
+    /// <returns>A ServiceBusClient instance configured to connect to the Azure Service Bus namespace specified by the provided
+    /// connection string name.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if connectionStringName is null, empty, or consists only of white-space characters.</exception>
     public ServiceBusClient CreateServiceBusClient(string connectionStringName) {
         if (string.IsNullOrWhiteSpace(connectionStringName)) {
             throw new ArgumentNullException("Service Bus ConnectionStringName is required.");
@@ -73,6 +105,18 @@ public sealed class AzureClientFactory
         return new ServiceBusClient(namespaceName, credential);
     }
 
+    /// <summary>
+    /// Creates a new instance of the ServiceBusAdministrationClient using the specified connection string name or
+    /// associated Azure credentials.
+    /// </summary>
+    /// <remarks>If a connection string is found for the specified name, it is used to create the client.
+    /// Otherwise, the method attempts to create the client using Azure credentials and a fully qualified namespace from
+    /// configuration.</remarks>
+    /// <param name="connectionStringName">The name of the connection string or configuration key used to retrieve Service Bus connection information.
+    /// Cannot be null, empty, or whitespace.</param>
+    /// <returns>A ServiceBusAdministrationClient instance configured to manage Azure Service Bus resources for the specified
+    /// connection.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if connectionStringName is null, empty, or consists only of white-space characters.</exception>
     public ServiceBusAdministrationClient CreateServiceBusAdministrationClient(string connectionStringName) {
         if (string.IsNullOrWhiteSpace(connectionStringName)) {
             throw new ArgumentNullException("Service Bus ConnectionStringName is required.");
