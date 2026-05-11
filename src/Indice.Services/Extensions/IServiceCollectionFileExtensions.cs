@@ -11,6 +11,8 @@ public static class IServiceCollectionFileExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureOptions>? configure = null) {
+        services.TryAddSingleton<AzureClientFactory>();
+        services.TryAddSingleton<IBlobContainerClientCache, BlobContainerClientCache>();
         services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => GetFileServiceAzureStorage(serviceProvider, configure));
         return services;
     }
@@ -21,8 +23,8 @@ public static class IServiceCollectionFileExtensions
             ContainerName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
         };
         configure?.Invoke(options);
-        var factory = serviceProvider.GetRequiredService<AzureClientFactory>();
-        return new FileServiceAzureStorage(factory, options.ContainerName);
+        var blobCache = serviceProvider.GetRequiredService<IBlobContainerClientCache>();
+        return new FileServiceAzureStorage(blobCache, options.ConnectionStringName, options.ContainerName);
     };
 
     /// <summary>The factory that creates the default instance and configuration for <see cref="FileServiceLocal"/>.</summary>
@@ -117,6 +119,6 @@ public static class IServiceCollectionFileExtensions
 
         /// <summary>Specifies the contract for a collection of service descriptors.</summary>
         public IServiceCollection Services { get; }
-    }   
+    }
 }
 

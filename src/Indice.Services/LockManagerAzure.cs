@@ -2,7 +2,6 @@
 using System.Text.RegularExpressions;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Specialized;
-using Indice.Types;
 
 namespace Indice.Services;
 
@@ -23,7 +22,8 @@ public class LockManagerAzure : ILockManager
     public const string CONNECTION_STRING_NAME = "StorageConnection";
 
     /// <summary>Creates a new instance of <see cref="LockManagerAzure"/>.</summary>
-    /// <param name="options"></param>
+    /// <param name="factory">The Azure client factory.</param>
+    /// <param name="options">The options for configuring the lock manager.</param>
     public LockManagerAzure(AzureClientFactory factory, LockManagerAzureOptions options) {
         if (options == null) {
             throw new ArgumentNullException(nameof(options));

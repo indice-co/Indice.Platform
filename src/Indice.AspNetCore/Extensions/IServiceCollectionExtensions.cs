@@ -110,14 +110,13 @@ public static class ServiceCollectionExtensions
         }
         var container = azureClientFactory.CreateBlobContainerClient(options.ConnectionStringName, options.ContainerName);
         container.CreateIfNotExists();
+        var blobClient = container.GetBlobClient("keys.xml");
         // Enables data protection services to the specified IServiceCollection.
-        var accountName = Environment.GetEnvironmentVariable($"{options.ConnectionStringName}__accountName");
-        var blobUri = new Uri($"https://{accountName}.blob.core.windows.net/{options.ContainerName}/keys.xml");
         var dataProtectionBuilder = services.AddDataProtection()
                                             // Configures the data protection system to use the cryptographic algorithms from options.CryptographicAlgorithms
                                             // when generating protected payloads. Default values are initialized above and may be overridden by configure.
                                             .UseCryptographicAlgorithms(options.CryptographicAlgorithms)
-                                            .PersistKeysToAzureBlobStorage(blobUri, new DefaultAzureCredential())
+                                            .PersistKeysToAzureBlobStorage(blobClient)
                                             // Configure the system to use a key lifetime. Default is 90 days.
                                             .SetDefaultKeyLifetime(TimeSpan.FromDays(options.KeyLifetime))
                                             // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, 

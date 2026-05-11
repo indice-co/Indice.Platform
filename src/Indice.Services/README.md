@@ -46,7 +46,7 @@ Extends the standard Azure Storage connection-string concept with a structured, 
 
 Standard connection string:
 ```json
-"ConnectionString": "AccountName=<NAME>;AccountKey=xxx;EndpointSuffix=core.windows.net"
+"ConnectionString": "DefaultEndpointsProtocol=https;AccountName=<NAME>;AccountKey=xxx;EndpointSuffix=core.windows.net"
 ```
 
 Managed Identity (system-assigned):
