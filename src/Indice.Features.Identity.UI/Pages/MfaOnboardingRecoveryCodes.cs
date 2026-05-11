@@ -60,7 +60,7 @@ public abstract class BaseMfaOnboardingRecoveryCodesModel : BasePageModel
     public virtual async Task<IActionResult> OnGetDownloadAsync() {
         var tempModel = TempData.Peek<RecoveryCodesViewModel>(BaseMfaOnboardingSetupAuthenticatorModel.RecoveryCodesTempDataKey);
         if (tempModel is null || tempModel.RecoveryCodes is null || tempModel.RecoveryCodes.Length == 0) {
-            return File(System.Text.Encoding.UTF8.GetBytes("Invalid request"), "text/plain", "recovery-codes.txt"); ;
+            return File(System.Text.Encoding.UTF8.GetBytes("Invalid request"), "text/plain", "recovery-codes.txt");
         }
         var txt = tempModel.ToString(Localizer.ApplicationName(Configuration.GetApplicationName()!), Localizer.MfaOnBoardingRecoveryCodes_FileHeader(tempModel.UserName!).Value);
         return File(System.Text.Encoding.UTF8.GetBytes(txt), "text/plain", "recovery-codes.txt");

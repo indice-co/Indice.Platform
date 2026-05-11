@@ -67,7 +67,7 @@ public abstract class BaseMfaOnboardingModel : BasePageModel
     }
     private async Task<AuthenticationMethod[]> GetMfaAuthenticationMethods() {
         var allMethods = await AuthenticationMethodProvider.GetAllMethodsAsync();
-        return allMethods.Where(x => x.SupportsMfaOnboarding).ToArray();
+        return [.. allMethods.Where(x => x.SupportsMfaOnboarding)];
     }
 }
 
