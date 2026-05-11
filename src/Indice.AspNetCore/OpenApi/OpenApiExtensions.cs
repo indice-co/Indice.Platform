@@ -63,6 +63,7 @@ public static class OpenApiExtensions
         options.AddEndpointSecurityRequirementsTransformer();
         options.AddDocumentTransformer<CanonicalDocumentTransformer>();
         options.AddExamplesTransformer();
+        options.AddOpenApiIgnoreTransformer();
         return options;
     }
 

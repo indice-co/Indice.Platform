@@ -7,7 +7,7 @@
 
 
 @{
-	ViewData["Title"] = Localizer.AddEmail_PageTitle;
+    ViewData["Title"] = Localizer.AddEmail_PageTitle;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseAddEmailModel.TempDataKey);
 }
 
@@ -16,23 +16,23 @@
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="tempData?.Alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
-        <div class="mb-3">
-            <label asp-for="Input.Email" class="form-label visually-hidden">@Localizer.Email</label>
-            <input class="form-control" type="text" placeholder="@Localizer.Email" asp-for="Input.Email" disabled="@tempData?.DisableForm" />
-            <span asp-validation-for="Input.Email" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <div class="row m-0 w-100">
-                <div indice-if="Model.UiOptions.ShowAddEmailPrompt" class="@(tempData?.DisableForm == true ? "col-sm-6" : string.Empty) col-12 py-1">
-                    <button class="btn btn-info w-100" type="submit" disabled="@tempData?.DisableForm">@Localizer.AddEmail_Save</button>
-                </div>
-                @if (tempData?.DisableForm == true || !string.IsNullOrEmpty(tempData?.NextStepUrl))
-                {
-                    <div class="col-sm-6 col-12 py-1">
-                        <a class="btn btn-info w-100" href="@tempData.NextStepUrl">@Localizer.AddEmail_Next</a>
-                    </div>
-                }
+        <div class="row mb-3">
+            <div class="col-12">
+                <label asp-for="Input.Email" class="form-label visually-hidden">@Localizer.Email</label>
+                <input class="form-control" type="text" placeholder="@Localizer.Email" asp-for="Input.Email" disabled="@tempData?.DisableForm" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
+        </div>
+        <div class="row mb-3">
+            <div indice-if="Model.UiOptions.ShowAddEmailPrompt" class="@(tempData?.DisableForm == true ? "col-sm-6" : string.Empty) col-12 py-1">
+                <button class="btn btn-primary w-100" type="submit" disabled="@tempData?.DisableForm">@Localizer.AddEmail_Save</button>
+            </div>
+            @if (tempData?.DisableForm == true || !string.IsNullOrEmpty(tempData?.NextStepUrl))
+            {
+                <div class="col-sm-6 col-12 py-1">
+                    <a class="btn btn-primary w-100" href="@tempData.NextStepUrl">@Localizer.AddEmail_Next</a>
+                </div>
+            }
         </div>
         <input type="hidden" asp-for="Input.ReturnUrl" />
     </form>

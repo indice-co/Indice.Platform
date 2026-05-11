@@ -12,6 +12,7 @@ using Indice.Features.Identity.Core.Hubs;
 using Indice.Services;
 
 namespace Indice.Features.Identity.Tests;
+
 public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
 {
     public AuthenticationMethodProviderInMemoryTests() {
@@ -49,16 +50,19 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
     [Fact]
     public async Task GetAllMethodsForUser_Allows_Only_Configured_Sms_Methods() {
         var authenticationMethodProvider = new AuthenticationMethodProviderInMemory(
-            [
-                new TrustedDeviceAuthenticationMethod("Push notification using Indice app", "Provide a push notification using Indice app."),
-                new SmsAuthenticationMethod("SMS", "Users will receive a text message containing a verification code."),
-                new SmsAuthenticationMethod("SMS2", "Users will receive a 2 text message containing a verification code."),
-                new EmailAuthenticationMethod("Email", "Users will receive a TOTP in their verified email address.", supportsMfa: false),
-                new EmailAuthenticationMethod("Email2", "Users will receive a TOTP in their verified email address2.", supportsMfa: false)
-            ],
             Enumerable.Empty<IHubContext<MultiFactorAuthenticationHub>>(),
             ServiceProvider.GetRequiredService<IConfiguration>(),
-            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>()
+            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>(),
+            [
+               new TrustedDeviceAuthenticationMethod(new IdentityMessageDescriber()),
+               new SmsAuthenticationMethod(new IdentityMessageDescriber()),
+               new EmailAuthenticationMethod(new IdentityMessageDescriber())
+            ],
+            [
+               new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod), SupportsMfa = true },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod), SupportsMfa = true },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod), SupportsMfa = false }
+            ]
         );
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = new User {
@@ -76,14 +80,19 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
     [Fact]
     public async Task GetAllMethodsForUser_Allows_Only_Configured_TrustedDevice_Methods() {
         var authenticationMethodProvider = new AuthenticationMethodProviderInMemory(
-            [
-                new TrustedDeviceAuthenticationMethod("Push notification using Indice app", "Provide a push notification using Indice app."),
-                new SmsAuthenticationMethod("SMS", "Users will receive a text message containing a verification code."),
-                new EmailAuthenticationMethod("Email", "Users will receive a TOTP in their verified email address.", supportsMfa: false),
-            ],
             Enumerable.Empty<IHubContext<MultiFactorAuthenticationHub>>(),
             ServiceProvider.GetRequiredService<IConfiguration>(),
-            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>()
+            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>(),
+            [
+               new TrustedDeviceAuthenticationMethod(new IdentityMessageDescriber()),
+               new SmsAuthenticationMethod(new IdentityMessageDescriber()),
+               new EmailAuthenticationMethod(new IdentityMessageDescriber())
+            ],
+            [
+               new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod), SupportsMfa = true },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod), SupportsMfa = true },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod), SupportsMfa = true }
+            ]
         );
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = new User {
@@ -109,14 +118,19 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
     [Fact]
     public async Task GetAllMethodsForUser_Allows_Only_Configured_Sms_TrustedDevice_Methods() {
         var authenticationMethodProvider = new AuthenticationMethodProviderInMemory(
-            [
-                new TrustedDeviceAuthenticationMethod("Push notification using Indice app", "Provide a push notification using Indice app."),
-                new SmsAuthenticationMethod("SMS", "Users will receive a text message containing a verification code."),
-                new EmailAuthenticationMethod("Email", "Users will receive a TOTP in their verified email address.", supportsMfa: false),
-            ],
             Enumerable.Empty<IHubContext<MultiFactorAuthenticationHub>>(),
             ServiceProvider.GetRequiredService<IConfiguration>(),
-            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>()
+            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>(),
+            [
+               new TrustedDeviceAuthenticationMethod(new IdentityMessageDescriber()),
+               new SmsAuthenticationMethod(new IdentityMessageDescriber()),
+               new EmailAuthenticationMethod(new IdentityMessageDescriber())
+            ],
+            [
+               new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod)},
+               new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod) },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod)}
+            ]
         );
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = new User {
@@ -124,7 +138,7 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
             UserName = "someone@somewhere.com",
             PhoneNumber = "+306900000000",
             PhoneNumberConfirmed = true,
-            EmailConfirmed = true,
+            EmailConfirmed = false,
         };
         await userManager.CreateAsync(user);
         await userManager.CreateDeviceAsync(user, new UserDevice {
@@ -143,15 +157,21 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
     [Fact]
     public async Task GetAllMethodsForUser_Allows_Only_Configured_Viber_Method() {
         var authenticationMethodProvider = new AuthenticationMethodProviderInMemory(
-            [
-                new TrustedDeviceAuthenticationMethod("Push notification using Indice app", "Provide a push notification using Indice app."),
-                new SmsAuthenticationMethod("SMS", "Users will receive a text message containing a verification code."),
-                new ViberAuthenticationMethod("Viber", "Users will receive a TOTP in their verified Viber account."),
-                new EmailAuthenticationMethod("Email", "Users will receive a TOTP in their verified email address.", supportsMfa: false),
-            ],
             Enumerable.Empty<IHubContext<MultiFactorAuthenticationHub>>(),
             ServiceProvider.GetRequiredService<IConfiguration>(),
-            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>()
+            ServiceProvider.GetRequiredService<ExtendedUserManager<User>>(),
+            [
+               new TrustedDeviceAuthenticationMethod(new IdentityMessageDescriber()),
+               new SmsAuthenticationMethod(new IdentityMessageDescriber()),
+               new ViberAuthenticationMethod(new IdentityMessageDescriber()),
+               new EmailAuthenticationMethod(new IdentityMessageDescriber())
+            ],
+            [
+               new AuthenticationMethodConfiguration() { MethodType = typeof(TrustedDeviceAuthenticationMethod)},
+               new AuthenticationMethodConfiguration() { MethodType = typeof(SmsAuthenticationMethod) },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(ViberAuthenticationMethod) },
+               new AuthenticationMethodConfiguration() { MethodType = typeof(EmailAuthenticationMethod)}
+            ]
         );
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = new User {
@@ -170,8 +190,8 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
         });
 
         var methods = await authenticationMethodProvider.GetAllMethodsForUserAsync(user);
-        Assert.Equal(3, methods.Length);
-        var selectedMethod = await authenticationMethodProvider.FindMethodForUserOrDefaultAsync(user, TotpDeliveryChannel.Viber);
+        Assert.Equal(4, methods.Length);
+        var selectedMethod = await authenticationMethodProvider.FindMethodForUserOrDefaultAsync(user, "Viber");
         Assert.NotEqual(methods[0].Type, selectedMethod?.Type);
         Assert.Equal(TotpDeliveryChannel.Viber, selectedMethod?.GetDeliveryChannel());
     }

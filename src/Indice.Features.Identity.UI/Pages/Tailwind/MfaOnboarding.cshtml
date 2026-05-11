@@ -1,4 +1,5 @@
 ﻿@page "/login/mfa/onboarding"
+@using Indice.Features.Identity.Core.Models
 
 @model BaseMfaOnboardingModel
 
@@ -9,6 +10,22 @@
     ViewData["Title"] = @Localizer.MfaOnBoarding_PageTitle;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
+}
+@functions {
+    public string GetIconFromAuthenticationMethod(AuthenticationMethod method)
+    {
+        return method.Code.ToLowerInvariant() switch
+        {
+            "viber" => "fa-brands fa-viber",
+            "sms" => "fa-regular fa-message",
+            "email" => "fa-regular fa-envelope",
+            "authenticatorapp" => "fa-solid fa-shield-halved",
+            "trusteddevice" => "fa-solid fa-mobile-screen",
+            "fido2" => "fa-solid fa-fingerprint",
+            "code" => "fa-solid fa-square-binary",
+            _ => "fa-regular fa-message"
+        };
+    }
 }
 <div class="content-wrapper">
     <div class="card-wrapper">
@@ -70,8 +87,9 @@
     <script type="text/javascript" src="~/js/mfa-onboarding.js" csp-nonce></script>
     <script type="text/javascript" csp-nonce>
         var viewModelParameters = {
-            authenticationMethods: @Html.Raw(JsonSerializer.Serialize(Model.View.AuthenticationMethods, JsonSerializerOptionDefaults.GetDefaultSettings()))
-                };
+           authenticationMethods: @Html.Raw(JsonSerializer.Serialize(Model.View.AuthenticationMethods, JsonSerializerOptionDefaults.GetDefaultSettings())),
+           icons: @Html.Raw(JsonSerializer.Serialize(Model.View.AuthenticationMethods.ToDictionary(x => x.Code, x => GetIconFromAuthenticationMethod(x)), JsonSerializerOptionDefaults.GetDefaultSettings()))
+        };
         var viewModel = new indice.MfaOnboardingViewModelFactory(viewModelParameters);
         viewModel.init();
         ko.bindingProvider.instance = new ko.secureBindingsProvider();
