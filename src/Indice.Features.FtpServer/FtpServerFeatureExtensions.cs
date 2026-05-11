@@ -1,15 +1,7 @@
-﻿using System.Security.Claims;
-using System.Text;
-using System.Text.RegularExpressions;
-using FubarDev.FtpServer;
+﻿using FubarDev.FtpServer;
 using FubarDev.FtpServer.AccountManagement.Anonymous;
-using FubarDev.FtpServer.AccountManagement.Directories;
-using FubarDev.FtpServer.AccountManagement.Directories.RootPerUser;
-using FubarDev.FtpServer.FileSystem;
 using FubarDev.FtpServer.FileSystem.DotNet;
 using Indice.Features.FtpServer;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -62,6 +54,25 @@ public static class FtpServerFeatureExtensions
             builder.Services.AddSingleton<IAnonymousPasswordValidator, NotEmptyPasswordValidation>(sp => new NotEmptyPasswordValidation(options.MinimumPasswordLength));
         }
         builder.EnableAnonymousAuthentication();
+        return builder;
+    }
+
+    /// <summary>
+    /// Enables passive address resolution for the FTP server and allows configuration of passive mode options.
+    /// </summary>
+    /// <remarks>This method configures the FTP server to resolve passive addresses and enables promiscuous
+    /// passive mode. Use this extension method to customize how the server handles passive connections, especially in
+    /// environments with complex network configurations.</remarks>
+    /// <param name="builder">The FTP server builder to configure.</param>
+    /// <param name="configureAction">An action to configure the passive mode options. This action is invoked to customize settings related to passive
+    /// address resolution.</param>
+    /// <returns>The same instance of <see cref="IFtpServerBuilder"/> to allow for method chaining.</returns>
+    public static IFtpServerBuilder UsePassiveAddressResolution(this IFtpServerBuilder builder, Action<SimplePasvOptions> configureAction) {
+        //https://github.com/FubarDevelopment/FtpServer/issues/140
+        builder.Services.Configure(configureAction);
+        builder.Services.Configure<PasvCommandOptions>(options => {
+            options.PromiscuousPasv = true;
+        }); 
         return builder;
     }
 }
