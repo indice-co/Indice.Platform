@@ -25,6 +25,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <param name="logger">A logger</param>
     /// <param name="options">Configuration for workers.</param>
     /// <param name="messageEventQueue">Campaign event listener queue</param>
+    /// <param name="partialTemplateResolverFactory">Factory for creating partial template resolvers per channel.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ResolveMessageHandler(
         IEventDispatcherFactory eventDispatcherFactory,
@@ -33,7 +34,8 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         IMessageService messageService,
         ILogger<ResolveMessageHandler> logger,
         Microsoft.Extensions.Options.IOptions<MessageWorkerOptions> options,
-        MessageEventQueue messageEventQueue
+        MessageEventQueue messageEventQueue,
+        IPartialTemplateResolverFactory partialTemplateResolverFactory
     ) {
         EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
@@ -42,6 +44,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         MessageEventQueue = messageEventQueue;
         Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        PartialTemplateResolverFactory = partialTemplateResolverFactory ?? throw new ArgumentNullException(nameof(partialTemplateResolverFactory));
     }
     private IEventDispatcherFactory EventDispatcherFactory { get; }
     private IContactResolver ContactResolver { get; }
@@ -50,6 +53,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     private ILogger<ResolveMessageHandler> Logger { get; }
     private MessageEventQueue MessageEventQueue { get; }
     private MessageWorkerOptions Options { get; }
+    private IPartialTemplateResolverFactory PartialTemplateResolverFactory { get; }
 
     /// <summary>Decides whether to insert or update a resolved contact.</summary>
     /// <param name="event">The event model used when a contact is resolved from an external system.</param>
@@ -61,7 +65,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             return;
         }
         // Make substitution to message content using contact resolved data.
-        GenerateMessageContent(campaign, contact);
+        GenerateMessageContent(campaign, contact, PartialTemplateResolverFactory);
 
         await CreateMessageAndDispatch(@event, campaign, contact);
     }
@@ -104,11 +108,12 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     }
 
 
-    private static void GenerateMessageContent(CampaignCreatedEvent campaign, Contact? contact) {
+    private static void GenerateMessageContent(CampaignCreatedEvent campaign, Contact? contact, IPartialTemplateResolverFactory partialTemplateResolverFactory) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.UseJson();
         foreach (var content in campaign!.Content) {
             handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(content.Key);
+            handlebars.Configuration.PartialTemplateResolver = partialTemplateResolverFactory.Create(content.Key);
             dynamic templateData = new {
                 id = campaign.Id,
                 title = campaign.Title,

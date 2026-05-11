@@ -41,6 +41,10 @@ public class CreateTemplateRequestValidator : AbstractValidator<CreateTemplateRe
                 return aliasIsEmpty || aliasExists;
             })
             .WithMessage(x => $"There is already a template with the same alias '{x.Alias}'.");
+        RuleFor(x => x.Alias)
+            .NotEmpty()
+            .When(x => x.Type is TemplateType.Partial or TemplateType.Layout)
+            .WithMessage(x => $"Alias is required for templates of type '{x.Type}'.");
         RuleFor(x => x.Type)
             .Must(BeValidTemplateType)
             .WithMessage(x => $"The template type '{x.Type}' is not valid.");

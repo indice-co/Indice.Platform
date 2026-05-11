@@ -8,6 +8,7 @@ using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Serialization;
 using Indice.Types;
@@ -25,17 +26,20 @@ public class MessageService : IMessageService
     /// <param name="contactResolver">Contact resolver service</param>
     /// <param name="contactService"></param>
     /// <param name="messageEventQueue">Event queue</param>
+    /// <param name="partialTemplateResolverFactory">Partial template resolver factory</param>
     /// <exception cref="ArgumentNullException"></exception>
     public MessageService(CampaignsDbContext dbContext,
         IOptions<MessageInboxOptions> campaignInboxOptions,
         IContactResolver contactResolver,
         IContactService contactService,
-        MessageEventQueue messageEventQueue) {
+        MessageEventQueue messageEventQueue,
+        IPartialTemplateResolverFactory partialTemplateResolverFactory) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
         ContactService = contactService;
         CampaignInboxOptions = campaignInboxOptions?.Value ?? throw new ArgumentNullException(nameof(campaignInboxOptions));
         MessageEventQueue = messageEventQueue;
+        PartialTemplateResolverFactory = partialTemplateResolverFactory ?? throw new ArgumentNullException(nameof(partialTemplateResolverFactory));
     }
 
     private CampaignsDbContext DbContext { get; }
@@ -43,6 +47,7 @@ public class MessageService : IMessageService
     private IContactResolver ContactResolver { get; }
     private IContactService ContactService { get; }
     private MessageEventQueue MessageEventQueue { get; }
+    private IPartialTemplateResolverFactory PartialTemplateResolverFactory { get; }
 
     /// <inheritdoc />
     public async Task<ResultSet<Message>?> GetList(string recipientId, ListOptions<MessagesFilter>? options) {
@@ -287,10 +292,11 @@ public class MessageService : IMessageService
             } : null
         });
     }
-
+    
     private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, ResultSet<Message> userMessages) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
+        handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(MessageChannelKind.Inbox.ToString());
         var contact = await ContactResolver.Resolve(userIdentitfier);
         var contactExpandoObject = contact is not null
             ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
@@ -310,6 +316,7 @@ public class MessageService : IMessageService
     private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, Message userMessage) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
+        handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(MessageChannelKind.Inbox.ToString());
         var contact = await ContactResolver.Resolve(userIdentitfier);
         dynamic templateData = new {
             contact = contact is not null
@@ -327,6 +334,7 @@ public class MessageService : IMessageService
         if (dbCampaign.MessageChannelKind.HasFlag(MessageChannelKind.Inbox) && dbCampaign.Content.ContainsKey(MessageChannelKind.Inbox.ToString())) {
             var handlebars = Handlebars.Create();
             handlebars.Configuration.TextEncoder = new HtmlEncoder();
+            handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(MessageChannelKind.Inbox.ToString());
             dynamic templateData = new {
                 contact = contact is not null
                             ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
