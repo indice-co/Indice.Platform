@@ -1150,7 +1150,7 @@
     <value>Εγκατάσταση MFA - Email</value>
   </data>
   <data name="MfaOnBoardingAddEmail_PageHeader" xml:space="preserve">
-    <value>Εγκατάσταση cccc- Email</value>
+    <value>Εγκατάσταση MFA - Email</value>
   </data>
   <data name="MfaOnBoardingAddEmail_Next" xml:space="preserve">
     <value>Επόμενο</value>

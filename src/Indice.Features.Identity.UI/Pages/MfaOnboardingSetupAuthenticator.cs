@@ -60,9 +60,6 @@ public abstract class BaseMfaOnboardingSetupAuthenticatorModel : BasePageModel
     /// <summary>Key used for storing recovery codes in temp data between the setup and recovery-codes pages.</summary>
     public static string RecoveryCodesTempDataKey => "mfa_onboarding_recovery_codes";
 
-    /// <summary>Key used for setting and retrieving temp data.</summary>
-    public static string TempDataKey => "mfa_onboarding_authenticator";
-
     /// <summary>MFA onboarding authenticator setup page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
@@ -75,7 +72,6 @@ public abstract class BaseMfaOnboardingSetupAuthenticatorModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        TempData.Remove(TempDataKey);
         if (!ModelState.IsValid) {
             await BuildViewModel(user, returnUrl);
             return Page();
@@ -83,15 +79,13 @@ public abstract class BaseMfaOnboardingSetupAuthenticatorModel : BasePageModel
         var verificationCode = (Input.Code ?? string.Empty).Replace(" ", string.Empty).Replace("-", string.Empty);
         var isTokenValid = await UserManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultAuthenticatorProvider, verificationCode);
         if (!isTokenValid) {
-            TempData.Put(TempDataKey, AlertModel.Error(UserManager.MessageDescriber.MfaValidationError));
-            ModelState.AddModelError(nameof(Input.Code), UserManager.MessageDescriber.MfaValidationError);
+            ModelState.AddModelError("Input_Code", UserManager.MessageDescriber.MfaValidationError);
             await BuildViewModel(user, returnUrl);
             return Page();
         }
         var setTwoFactorResult = await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.AuthenticatorApp.ToString());
         if (!setTwoFactorResult.Succeeded) {
             AddModelErrors(setTwoFactorResult);
-            TempData.Put(TempDataKey, AlertModel.Error(UserManager.MessageDescriber.MfaAddPhoneSuccessMessage));
             await BuildViewModel(user, returnUrl);
             return Page();
         }

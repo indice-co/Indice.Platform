@@ -131,6 +131,8 @@ public class Fido2AuthenticationMethod : AuthenticationMethod
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
     /// <inheritdoc />
+    public override bool SupportsMfaOnboarding => false;
+    /// <inheritdoc />
     public override string Code => "Fido2";
     /// <inheritdoc />
     public override string DisplayName => MessageDescriber.AuthMethod_Fido2_DisplayName;
@@ -203,6 +205,8 @@ public class TrustedDeviceAuthenticationMethod : AuthenticationMethod, IAuthenti
     public string TokenProvider => TokenOptions.DefaultPhoneProvider;
     /// <inheritdoc />
     public override string Code => "TrustedDevice";
+    /// <inheritdoc />
+    public override bool SupportsMfaOnboarding => false;
     /// <inheritdoc />
     public override string DisplayName => MessageDescriber.AuthMethod_TrustedDevice_DisplayName;
     /// <inheritdoc />

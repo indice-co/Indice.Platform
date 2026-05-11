@@ -49,7 +49,7 @@ public partial class MfaLoginViewModel<TUser> : MfaLoginInputModel where TUser :
     public static partial Regex GetMaskEmailRegex();
 
     /// <summary>Number of digits for the authenticator code</summary>
-    public int AuthenticatorDigits = 6;
+    public int AuthenticatorDigits { get; set; } = 6;
 }
 
 /// <summary>MFA login view model.</summary>

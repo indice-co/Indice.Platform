@@ -472,7 +472,7 @@
     <value>Nuovo metodo di autenticazione</value>
   </data>
   <data name="EmailTwoFactorPreferenceChanged_Body_ContactSupport" xml:space="preserve">
-    <value>Se non hai effettuato questa azione, contatta immediatamente l?assistenza.</value>
+    <value>Se non hai effettuato questa azione, contatta immediatamente l'assistenza.</value>
   </data>
   <data name="Error_PageTitle" xml:space="preserve">
     <value>Errore</value>

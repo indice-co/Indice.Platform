@@ -537,6 +537,6 @@
     <value>Recovery code verification</value>
   </data>
   <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
-    <value>You have requested to log in with a recovery code. This login will not be remembered until you provide</value>
+    <value>You have requested to log in with a recovery code. This login will not be remembered until you provide an MFA method.</value>
   </data>
 </root>

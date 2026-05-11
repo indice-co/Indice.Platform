@@ -44,14 +44,14 @@
 
         <div id="authentication-methods" class="space-y-4">
             <!-- ko foreach: authenticationMethods -->
-            <a href="javascript:void(0)"
-               data-sbind="event: { click: $parent.methodSelected }, css: { outline: selected }"
-               class="block p-4 bg-white border border-gray-200 rounded hover:bg-gray-50 transition">
+            <div role="button"
+                 data-sbind="event: { click: $parent.methodSelected }, css: { outline: selected }"
+                 class="block p-4 bg-white border border-gray-200 rounded hover:bg-gray-50 transition">
                 <div class="flex justify-between">
                     <h5 class="text-lg font-medium" data-sbind="text: displayName"></h5>
                 </div>
                 <small class="block text-sm text-gray-500 mt-1" data-sbind="text: description"></small>
-            </a>
+            </div>
             <!-- /ko -->
 
             <span asp-validation-for="Input.SelectedAuthenticationMethod"
@@ -87,8 +87,8 @@
     <script type="text/javascript" src="~/js/mfa-onboarding.js" csp-nonce></script>
     <script type="text/javascript" csp-nonce>
         var viewModelParameters = {
-           authenticationMethods: @Html.Raw(JsonSerializer.Serialize(Model.View.AuthenticationMethods, JsonSerializerOptionDefaults.GetDefaultSettings())),
-           icons: @Html.Raw(JsonSerializer.Serialize(Model.View.AuthenticationMethods.ToDictionary(x => x.Code, x => GetIconFromAuthenticationMethod(x)), JsonSerializerOptionDefaults.GetDefaultSettings()))
+        authenticationMethods: @Html.Raw(JsonSerializer.Serialize(Model.View.AuthenticationMethods, JsonSerializerOptionDefaults.GetDefaultSettings())),
+        icons: @Html.Raw(JsonSerializer.Serialize(Model.View.AuthenticationMethods.ToDictionary(x => x.Code, x => GetIconFromAuthenticationMethod(x)), JsonSerializerOptionDefaults.GetDefaultSettings()))
         };
         var viewModel = new indice.MfaOnboardingViewModelFactory(viewModelParameters);
         viewModel.init();
