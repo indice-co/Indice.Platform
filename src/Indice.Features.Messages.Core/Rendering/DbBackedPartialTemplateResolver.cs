@@ -1,6 +1,5 @@
 using HandlebarsDotNet;
 using Indice.Features.Messages.Core.Models;
-using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 
