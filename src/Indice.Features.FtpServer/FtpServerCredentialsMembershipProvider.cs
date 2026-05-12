@@ -1,4 +1,6 @@
 ﻿using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using FubarDev.FtpServer.AccountManagement;
 using Microsoft.Extensions.Options;
 
@@ -49,8 +51,10 @@ public class FtpServerCredentialsMembershipProvider : IMembershipProviderAsync
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="FtpSymmetricCredentials"/> if the
     /// credentials are valid; otherwise, <see langword="null"/>.</returns>
     protected virtual Task<FtpSymmetricCredentials?> ValidateCredentialsAsync(string username, string password, CancellationToken cancellationToken) {
-        var credential = _options.Value.Credentials.Values.FirstOrDefault(c => c.Username == username && c.Password == password);
-        return Task.FromResult(credential);
+        if (_options.Value.Credentials.TryGetValue(username, out var credential) && credential.VerifyPassword(password)) {
+            return Task.FromResult<FtpSymmetricCredentials?>(credential);
+        }
+        return Task.FromResult<FtpSymmetricCredentials?>(null);
     }
 }
 
@@ -78,6 +82,12 @@ public class FtpServerCredentialsOptions
 /// <param name="Password">The password associated with the specified user name. Cannot be null or empty.</param>
 /// <param name="Roles">An optional comma-separated list of roles associated with the user. This can be used for role-based authorization when accessing FTP server resources. Can be null.</param>
 public record FtpSymmetricCredentials(string Username, string Password, string? Roles = null) {
+    /// <summary>
+    /// Gets or initializes an optional password hash in the format:
+    /// <c>PBKDF2$&lt;iterations&gt;$&lt;saltBase64&gt;$&lt;hashBase64&gt;</c>.
+    /// If set, this hash is used for validation instead of <see cref="Password"/>.
+    /// </summary>
+    public string? PasswordHash { get; init; }
 
     /// <summary>
     /// Gets the roles associated with the user as an array of strings. 
@@ -93,16 +103,52 @@ public record FtpSymmetricCredentials(string Username, string Password, string? 
     }
 
     /// <summary>
+    /// Validates the provided clear-text password against this credential.
+    /// </summary>
+    /// <param name="password">The clear-text password to validate.</param>
+    /// <returns><see langword="true"/> when the password matches; otherwise, <see langword="false"/>.</returns>
+    public bool VerifyPassword(string password) {
+        return PasswordHash switch {
+            null or "" => FixedTimeEquals(Password, password),
+            _ => VerifyPbkdf2Password(password)
+        };
+    }
+
+    /// <summary>
     /// Converts the current instance of <see cref="FtpSymmetricCredentials"/> to a <see cref="ClaimsPrincipal"/> that can be used for authentication and authorization purposes. 
     /// The resulting <see cref="ClaimsPrincipal"/> will contain claims for the user's name and roles based on the properties of the current instance. 
     /// The authentication type can be specified as an optional parameter, defaulting to "custom" if not provided.
     /// </summary>
-    /// <param name="authenticationType"></param>
-    /// <returns>The constructed principal</returns>
+    /// <param name="authenticationType">The authentication type to assign to the resulting <see cref="ClaimsIdentity"/>.</param>
+    /// <returns>The constructed principal.</returns>
     public ClaimsPrincipal ToClaimsPrincipal(string authenticationType = "custom") => new ClaimsPrincipal(new ClaimsIdentity(
         [
             new Claim(ClaimsIdentity.DefaultNameClaimType, Username),
             .. GetRoles().Select(role => new Claim(ClaimsIdentity.DefaultRoleClaimType, role)),
         ],
         authenticationType));
+
+    private bool VerifyPbkdf2Password(string password) {
+        var parts = PasswordHash!.Split('$', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (parts.Length != 4 || !parts[0].Equals("PBKDF2", StringComparison.OrdinalIgnoreCase)) {
+            return false;
+        }
+        if (!int.TryParse(parts[1], out var iterations) || iterations <= 0) {
+            return false;
+        }
+        try {
+            var salt = Convert.FromBase64String(parts[2]);
+            var expectedHash = Convert.FromBase64String(parts[3]);
+            var actualHash = Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA256, expectedHash.Length);
+            return CryptographicOperations.FixedTimeEquals(expectedHash, actualHash);
+        } catch (FormatException) {
+            return false;
+        }
+    }
+
+    private static bool FixedTimeEquals(string left, string right) {
+        var leftBytes = Encoding.UTF8.GetBytes(left);
+        var rightBytes = Encoding.UTF8.GetBytes(right);
+        return CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
+    }
 }
