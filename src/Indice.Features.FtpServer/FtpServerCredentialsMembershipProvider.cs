@@ -98,7 +98,7 @@ public record FtpSymmetricCredentials(string Username, string Password, string? 
     /// The authentication type can be specified as an optional parameter, defaulting to "custom" if not provided.
     /// </summary>
     /// <param name="authenticationType"></param>
-    /// <returns>The constructed prinipal</returns>
+    /// <returns>The constructed principal</returns>
     public ClaimsPrincipal ToClaimsPrincipal(string authenticationType = "custom") => new ClaimsPrincipal(new ClaimsIdentity(
         [
             new Claim(ClaimsIdentity.DefaultNameClaimType, Username),
