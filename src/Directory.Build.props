@@ -5,11 +5,11 @@
     <!--<TargetFramework></TargetFramework>-->
 
     <VersionPrefixMajor>8</VersionPrefixMajor>
-    <VersionPrefixBase>$(VersionPrefixMajor).45</VersionPrefixBase>
+    <VersionPrefixBase>$(VersionPrefixMajor).46</VersionPrefixBase>
 
     <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
-    <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
-    <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
+    <VersionPrefixIdentity>$(VersionPrefixBase).3</VersionPrefixIdentity>
+    <VersionPrefixIdentityUI>$(VersionPrefixBase).3</VersionPrefixIdentityUI>
     <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
     <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
     <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
@@ -19,6 +19,7 @@
     <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
     <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
     <VersionPrefixActivityLogs>$(VersionPrefixBase).0</VersionPrefixActivityLogs>
+    <VersionPrefixFtpServer>$(VersionPrefixBase).1</VersionPrefixFtpServer>
     <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 
     <!--<VersionSuffix>rc02</VersionSuffix>-->

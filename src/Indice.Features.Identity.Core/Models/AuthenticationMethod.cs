@@ -7,32 +7,24 @@ namespace Indice.Features.Identity.Core.Models;
 /// <summary>Describes the various authentication methods for multi-factor authentication.</summary>
 public abstract class AuthenticationMethod
 {
+    /// <summary>The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</summary>
+    protected IdentityMessageDescriber MessageDescriber { get; }
+
     /// <summary>Constructor blueprint for <see cref="AuthenticationMethod"/>.</summary>
-    /// <param name="displayName">The name for the UI.</param>
-    /// <param name="description">A detailed description.</param>
-    /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>
-    /// <param name="enabled">Determines whether this authentication method is enabled.</param>
-    public AuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) {
-        DisplayName = displayName;
-        Description = description;
-        Enabled = enabled;
-        SupportsMfa = supportsMfa;
+    public AuthenticationMethod(IdentityMessageDescriber? messageDescriber = null) {
+        MessageDescriber = messageDescriber ?? new IdentityMessageDescriber();
     }
 
     /// <summary>The name for the UI.</summary>
-    public string DisplayName { get; }
+    public abstract string DisplayName { get; }
     /// <summary>A detailed description.</summary>
-    public string Description { get; }
-    /// <summary>Determines whether this authentication method is enabled.</summary>
-    public bool Enabled { get; }
-    /// <summary>Determines whether this authentication method participates in the MFA step.</summary>
-    public bool SupportsMfa { get; }
+    public abstract string Description { get; }
     /// <summary>An enumeration type for the <see cref="AuthenticationMethod"/>.</summary>
     public AuthenticationMethodType Type { get; protected set; }
     /// <summary>Authentication method security level.</summary>
     public AuthenticationMethodSecurityLevel SecurityLevel { get; protected set; }
 
-    /// <summary>Gets the code for the authentication method.</summary>
+    /// <summary>Gets the code for the authentication method. Must be unique.</summary>
     public abstract string Code { get; }
 
     /// <summary>Determines whether the authentication method supports the use of a delivery channel.</summary>
@@ -43,6 +35,9 @@ public abstract class AuthenticationMethod
 
     /// <summary>Determines whether the authentication method has a token provider configured.</summary>
     public bool SupportsTokenProvider() => typeof(IAuthenticationMethodWithTokenProvider).IsAssignableFrom(GetType());
+
+    /// <summary>Determines whether the authentication method supports multi-factor authentication (MFA) onboarding.</summary>
+    public virtual bool SupportsMfaOnboarding => true;
 
     /// <summary>Gets the <see cref="TotpDeliveryChannel"/> if the authentication method supports it.</summary>
     public TotpDeliveryChannel GetDeliveryChannel() => SupportsDeliveryChannel() ? ((IAuthenticationMethodWithChannel)this).DeliveryChannel : default;
@@ -78,12 +73,11 @@ public interface IAuthenticationMethodWithTokenProvider
 /// <summary>SMS authentication method.</summary>
 public class SmsAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithChannel, IAuthenticationMethodWithTokenProvider
 {
-    /// <summary>Creates a new instance of <see cref="SmsAuthenticationMethod"/> class.</summary>
-    /// <param name="displayName">The name for the UI.</param>
-    /// <param name="description">A detailed description.</param>
-    /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>
-    /// <param name="enabled">Determines whether this authentication method is enabled.</param>
-    public SmsAuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) : base(displayName, description, supportsMfa, enabled) {
+    /// <summary>
+    /// Creates a new instance of <see cref="SmsAuthenticationMethod"/> class. 
+    /// </summary>
+    /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
+    public SmsAuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
         Type = AuthenticationMethodType.PhoneNumber;
         SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
     }
@@ -94,17 +88,20 @@ public class SmsAuthenticationMethod : AuthenticationMethod, IAuthenticationMeth
     public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
     /// <inheritdoc />
     public override string Code => "Sms";
+    /// <inheritdoc />
+    public override string DisplayName => MessageDescriber.AuthMethod_Sms_DisplayName;
+    /// <inheritdoc />
+    public override string Description => MessageDescriber.AuthMethod_Sms_Description;
 }
 
-/// <summary>SMS authentication method.</summary>
+/// <summary>Viber authentication method.</summary>
 public class ViberAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithChannel, IAuthenticationMethodWithTokenProvider
 {
-    /// <summary>Creates a new instance of <see cref="ViberAuthenticationMethod"/> class.</summary>
-    /// <param name="displayName">The name for the UI.</param>
-    /// <param name="description">A detailed description.</param>
-    /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>
-    /// <param name="enabled">Determines whether this authentication method is enabled.</param>
-    public ViberAuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) : base(displayName, description, supportsMfa, enabled) {
+    /// <summary>
+    /// Creates a new instance of <see cref="ViberAuthenticationMethod"/> class. 
+    /// </summary>
+    /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
+    public ViberAuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
         Type = AuthenticationMethodType.PhoneNumber;
         SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
     }
@@ -115,33 +112,42 @@ public class ViberAuthenticationMethod : AuthenticationMethod, IAuthenticationMe
     public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
     /// <inheritdoc />
     public override string Code => "Viber";
+
+    /// <inheritdoc />
+    public override string DisplayName => MessageDescriber.AuthMethod_Viber_DisplayName;
+    /// <inheritdoc />
+    public override string Description => MessageDescriber.AuthMethod_Viber_Description;
 }
 
 /// <summary>FIDO2 authentication method.</summary>
 public class Fido2AuthenticationMethod : AuthenticationMethod
 {
-    /// <summary>Creates a new instance of <see cref="Fido2AuthenticationMethod"/> class.</summary>
-    /// <param name="displayName">The name for the UI.</param>
-    /// <param name="description">A detailed description.</param>
-    /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>
-    /// <param name="enabled">Determines whether this authentication method is enabled.</param>
-    public Fido2AuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) : base(displayName, description, supportsMfa, enabled) {
+    /// <summary>
+    /// Creates a new instance of <see cref="Fido2AuthenticationMethod"/> class. 
+    /// </summary>
+    /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
+    public Fido2AuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
         Type = AuthenticationMethodType.Fido2;
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
     /// <inheritdoc />
+    public override bool SupportsMfaOnboarding => false;
+    /// <inheritdoc />
     public override string Code => "Fido2";
+    /// <inheritdoc />
+    public override string DisplayName => MessageDescriber.AuthMethod_Fido2_DisplayName;
+    /// <inheritdoc />
+    public override string Description => MessageDescriber.AuthMethod_Fido2_Description;
 }
 
 /// <summary>Authenticator app authentication method.</summary>
 public class AuthenticatorAppAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithTokenProvider
 {
-    /// <summary>Creates a new instance of <see cref="AuthenticatorAppAuthenticationMethod"/> class.</summary>
-    /// <param name="displayName">The name for the UI.</param>
-    /// <param name="description">A detailed description.</param>
-    /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>
-    /// <param name="enabled">Determines whether this authentication method is enabled.</param>
-    public AuthenticatorAppAuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) : base(displayName, description, supportsMfa, enabled) {
+    /// <summary>
+    /// Creates a new instance of <see cref="AuthenticatorAppAuthenticationMethod"/> class. 
+    /// </summary>
+    /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
+    public AuthenticatorAppAuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
         Type = AuthenticationMethodType.AuthenticatorApp;
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
@@ -149,17 +155,44 @@ public class AuthenticatorAppAuthenticationMethod : AuthenticationMethod, IAuthe
     public string TokenProvider => TokenOptions.DefaultAuthenticatorProvider;
     /// <inheritdoc />
     public override string Code => "AuthenticatorApp";
+    /// <inheritdoc />
+    public override string DisplayName => MessageDescriber.AuthMethod_AuthenticatorApp_DisplayName;
+    /// <inheritdoc />
+    public override string Description => MessageDescriber.AuthMethod_AuthenticatorApp_Description;
+}
+
+/// <summary>
+/// Recovery code authentication method.
+/// </summary>
+public class RecoveryCodeAuthenticationMethod : AuthenticationMethod
+{
+    /// <summary>
+    /// Creates a new instance of <see cref="RecoveryCodeAuthenticationMethod"/> class. 
+    /// </summary>
+    /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
+    public RecoveryCodeAuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
+        Type = AuthenticationMethodType.RecoveryCode;
+        SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
+    }
+    /// <inheritdoc />
+    public override bool SupportsMfaOnboarding => false;
+    /// <inheritdoc />
+    public override string Code => "RecoveryCode";
+    /// <inheritdoc />
+    public override string DisplayName => MessageDescriber.AuthMethod_RecoveryCode_DisplayName;
+    /// <inheritdoc />
+    public override string Description => MessageDescriber.AuthMethod_RecoveryCode_Description;
 }
 
 /// <summary>Trusted device authentication method.</summary>
 public class TrustedDeviceAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithChannel, IAuthenticationMethodWithDevices, IAuthenticationMethodWithTokenProvider
 {
-    /// <summary>Creates a new instance of <see cref="TrustedDeviceAuthenticationMethod"/> class.</summary>
-    /// <param name="displayName">The name for the UI.</param>
-    /// <param name="description">A detailed description.</param>
-    /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>
-    /// <param name="enabled">Determines whether this authentication method is enabled.</param>
-    public TrustedDeviceAuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) : base(displayName, description, supportsMfa, enabled) {
+
+    /// <summary>
+    /// Creates a new instance of <see cref="TrustedDeviceAuthenticationMethod"/> class. 
+    /// </summary>
+    /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
+    public TrustedDeviceAuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
         Type = AuthenticationMethodType.TrustedDevice;
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
@@ -172,17 +205,23 @@ public class TrustedDeviceAuthenticationMethod : AuthenticationMethod, IAuthenti
     public string TokenProvider => TokenOptions.DefaultPhoneProvider;
     /// <inheritdoc />
     public override string Code => "TrustedDevice";
+    /// <inheritdoc />
+    public override bool SupportsMfaOnboarding => false;
+    /// <inheritdoc />
+    public override string DisplayName => MessageDescriber.AuthMethod_TrustedDevice_DisplayName;
+    /// <inheritdoc />
+    public override string Description => MessageDescriber.AuthMethod_TrustedDevice_Description;
 }
 
 /// <summary>Email authentication method.</summary>
 public class EmailAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithTokenProvider, IAuthenticationMethodWithChannel
 {
-    /// <summary>Creates a new instance of <see cref="EmailAuthenticationMethod"/> class.</summary>
-    /// <param name="displayName">The name for the UI.</param>
-    /// <param name="description">A detailed description.</param>
-    /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>
-    /// <param name="enabled">Determines whether this authentication method is enabled.</param>
-    public EmailAuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) : base(displayName, description, supportsMfa, enabled) {
+
+    /// <summary>
+    /// Creates a new instance of <see cref="EmailAuthenticationMethod"/> class. 
+    /// </summary>
+    /// <param name="identityMessageDescriber">The <see cref="IdentityMessageDescriber"/> used to provide localized messages for the authentication method.</param>
+    public EmailAuthenticationMethod(IdentityMessageDescriber identityMessageDescriber) : base(identityMessageDescriber) {
         Type = AuthenticationMethodType.Email;
         SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
     }
@@ -193,4 +232,8 @@ public class EmailAuthenticationMethod : AuthenticationMethod, IAuthenticationMe
     public TotpDeliveryChannel DeliveryChannel => TotpDeliveryChannel.Email;
     /// <inheritdoc />
     public override string Code => "Email";
+    /// <inheritdoc />
+    public override string DisplayName => MessageDescriber.AuthMethod_Email_DisplayName;
+    /// <inheritdoc />
+    public override string Description => MessageDescriber.AuthMethod_Email_Description;
 }

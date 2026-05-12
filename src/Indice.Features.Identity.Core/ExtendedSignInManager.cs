@@ -250,7 +250,34 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         return await ExtendedUserManager.FindByIdAsync(info.UserId!);
     }
-
+    /// <summary>
+    /// Signs in the user without two factor authentication using a two factor recovery code.
+    /// </summary>
+    /// <param name="recoveryCode">The two factor recovery code.</param>
+    /// <returns></returns>
+    public override async Task<SignInResult> TwoFactorRecoveryCodeSignInAsync(string recoveryCode) {
+        var twoFactorInfo = await RetrieveTwoFactorInfoAsync();
+        if (twoFactorInfo == null || twoFactorInfo.UserId == null) {
+            return SignInResult.Failed;
+        }
+        var user = await ExtendedUserManager.FindByIdAsync(twoFactorInfo.UserId);
+        if (user == null) {
+            return SignInResult.Failed;
+        }
+        var error = await PreSignInCheck(user);
+        if (error != null) {
+            return error!;
+        }
+        var result = await UserManager.RedeemTwoFactorRecoveryCodeAsync(user, recoveryCode);
+        if (result.Succeeded) {
+            return await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent: false, rememberClient: false);
+        }
+        if (ExtendedUserManager.SupportsUserLockout) {
+            await ExtendedUserManager.AccessFailedAsync(user);
+        }
+        // We don't protect against brute force attacks since codes are expected to be random.
+        return SignInResult.Failed;
+    }
     /// <inheritdoc/>
     public async override Task SignOutAsync() {
         var allSchemes = await _authenticationSchemeProvider.GetAllSchemesAsync();
@@ -302,7 +329,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     public override async Task RememberTwoFactorClientAsync(TUser user) {
         var deviceId = await GetMfaDeviceIdentifierAsync(user);
         var principal = await StoreRememberClient(user, deviceId);
-        await Context.SignInAsync(IdentityConstants.TwoFactorRememberMeScheme, principal, new AuthenticationProperties { IsPersistent = true });
+        await Context.SignInAsync(IdentityConstants.TwoFactorRememberMeScheme, principal, new AuthenticationProperties { IsPersistent = true, AllowRefresh = true, ExpiresUtc = DateTime.UtcNow.AddDays(MfaRememberDurationInDays) });
     }
 
     /// <inheritdoc/>

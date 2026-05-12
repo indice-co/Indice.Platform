@@ -8,7 +8,7 @@ import {
 import { ActivatedRoute } from "@angular/router";
 import { NgForm } from "@angular/forms";
 
-import { Subscription, forkJoin } from "rxjs";
+import { Subscription, combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
 import { CellContext, TableColumn } from "@swimlane/ngx-datatable";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
@@ -100,7 +100,7 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
     const userId = this._route.parent.snapshot.params["id"];
     const getUser = this._userStore.getUser(userId);
     const getAllClaims = this._userStore.getAllClaims();
-    this._getDataSubscription = forkJoin([getUser, getAllClaims])
+    this._getDataSubscription = combineLatest([getUser, getAllClaims])
       .pipe(
         map((responses: [SingleUserInfo, ClaimTypeInfo[]]) => {
           return {

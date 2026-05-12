@@ -178,21 +178,33 @@ public static class IdentityBuilderExtensions
     /// <param name="authenticationMethod">An authentication method to apply in the identity system.</param>
     /// <param name="otherAuthenticationMethods">The authentication methods to apply in the identity system.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
+    [Obsolete("This method is obsolete. Use AddAuthenticationMethodProvider with factory instead for better localization support. This method will be removed in a future version.", false)]
     public static IdentityBuilder AddAuthenticationMethodProvider(this IdentityBuilder builder, AuthenticationMethod authenticationMethod, params AuthenticationMethod[] otherAuthenticationMethods) {
-        var allMethods = (otherAuthenticationMethods ?? []).Prepend(authenticationMethod);
-        foreach (var method in allMethods) {
-            builder.Services.AddSingleton(method);
-        }
-        builder.Services.AddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
-        return builder;
-    }
+        var allMethods = (otherAuthenticationMethods ?? []).Prepend(authenticationMethod).ToList();
 
-    /// <summary>Registers an implementation of <see cref="IAuthenticationMethodProvider"/>.</summary>
-    /// <typeparam name="TAuthenticationMethodProvider"></typeparam>
+        // Convert existing authentication method instances to configurations and use the factory pattern
+        return builder.AddAuthenticationMethods(innerBuilder => {
+            innerBuilder.UseInMemoryProvider(methods => {
+                methods.AddRange(allMethods.Select(m => new AuthenticationMethodConfiguration {
+                    MethodType = m.GetType(),
+                    SupportsMfa = true,
+                    Enabled = true
+                }));
+            });
+        });
+    }
+    
+    /// <summary>Registers the <see cref="AuthenticationMethodProviderInMemory"/> which is an in-memory static provider for <see cref="IAuthenticationMethodProvider"/>. Using the factory pattern with localization support via <see cref="IdentityMessageDescriber"/></summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <param name="configure">Action to configure authentication methods.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder AddAuthenticationMethodProvider<TAuthenticationMethodProvider>(this IdentityBuilder builder) where TAuthenticationMethodProvider : IAuthenticationMethodProvider {
-        builder.Services.AddTransient(typeof(IAuthenticationMethodProvider), typeof(TAuthenticationMethodProvider));
+    public static IdentityBuilder AddAuthenticationMethods(
+        this IdentityBuilder builder, 
+        Action<AuthenticationMethodBuilder> configure)
+    {
+        var innerBuilder = new AuthenticationMethodBuilder(builder.Services);
+        configure(innerBuilder);
+
         return builder;
     }
 

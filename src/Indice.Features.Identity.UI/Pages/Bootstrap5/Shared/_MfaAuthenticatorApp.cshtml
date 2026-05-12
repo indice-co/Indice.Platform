@@ -23,7 +23,7 @@
                    placeholder="@Localizer.Mfa_OTP_Code"
                    autocomplete="one-time-code"
                    inputmode="numeric"
-                   maxlength="6"
+                   maxlength="@Model.View.AuthenticatorDigits"
                    autofocus />
             <span asp-validation-for="Input.OtpCode" class="text-danger small"></span>
         </div>
@@ -37,6 +37,7 @@
                     @Localizer.Mfa_I_Sign_In_Frequently_Here_Remember_This_Browser
                 </label>
             </div>
+            <div></div><!-- flex positioning anchor -->
             <button type="submit" class="btn btn-primary">
                 @Localizer.Mfa_Authenticate
             </button>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -270,6 +270,9 @@
   <data name="MfaValidationError" xml:space="preserve">
     <value>Il codice OTP non è valido.</value>
   </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Codice di recupero non valido inserito.</value>
+  </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Il tuo account è temporaneamente bloccato. Contatta un amministratore di sistema.</value>
   </data>
@@ -414,6 +417,12 @@
   <data name="AccountLockedEventDescription" xml:space="preserve">
     <value>Il tuo account è stato temporaneamente bloccato a causa di molteplici tentativi di accesso non riusciti. Questo blocco è una misura di sicurezza per proteggere le tue informazioni. Si prega di riprovare più tardi.</value>
   </data>
+  <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
+    <value>Metodo di autenticazione a due fattori modificato</value>
+  </data>
+  <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
+    <value>Il tuo metodo di autenticazione a due fattori è stato aggiornato a: {0}.</value>
+  </data>
   <data name="PasswordChangedEventDescription" xml:space="preserve">
     <value>La tua password è stata modificata con successo.</value>
   </data>
@@ -440,6 +449,48 @@
   </data>
   <data name="MfaEmailSubject" xml:space="preserve">
     <value>Login OTP</value>
+  </data>
+  <data name="AuthMethod_Sms_DisplayName" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="AuthMethod_Sms_Description" xml:space="preserve">
+    <value>Gli utenti riceveranno un messaggio di testo contenente un codice di verifica.</value>
+  </data>
+  <data name="AuthMethod_Email_DisplayName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="AuthMethod_Email_Description" xml:space="preserve">
+    <value>Gli utenti riceveranno un TOTP al loro indirizzo email verificato.</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_DisplayName" xml:space="preserve">
+    <value>App di autenticazione (consigliato)</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_Description" xml:space="preserve">
+    <value>Utilizza un'app di autenticazione per generare codici di verifica.</value>
+  </data>
+  <data name="AuthMethod_Fido2_DisplayName" xml:space="preserve">
+    <value>FIDO2</value>
+  </data>
+  <data name="AuthMethod_Fido2_Description" xml:space="preserve">
+    <value>Utilizza una chiave di sicurezza hardware per l'autenticazione.</value>
+  </data>
+  <data name="AuthMethod_Viber_DisplayName" xml:space="preserve">
+    <value>Viber</value>
+  </data>
+  <data name="AuthMethod_Viber_Description" xml:space="preserve">
+    <value>Gli utenti riceveranno un messaggio Viber contenente un codice di verifica.</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_DisplayName" xml:space="preserve">
+    <value>Notifica push</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
+    <value>Ricevi una notifica push tramite un dispositivo attendibile.</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
+    <value>Verifica con codice di recupero</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
+    <value>Hai richiesto di accedere con un codice di recupero. Questo accesso non verrà ricordato finché non fornisci un metodo MFA.</value>
   </data>
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>Il campo 'Fuso orario' ha un formato non valido.</value>

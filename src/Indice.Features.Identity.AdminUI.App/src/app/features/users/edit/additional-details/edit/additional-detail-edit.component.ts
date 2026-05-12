@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { ClaimType } from '../../details/models/claim-type.model';
@@ -32,7 +32,7 @@ export class AdditionalDetailEditComponent implements OnInit, OnDestroy {
         this._claimId = +this._route.snapshot.params['id'];
         const getUser = this._userStore.getUser(this._userId);
         const getClaims = this._userStore.getAllClaims();
-        this._getDataSubscription = forkJoin([getUser, getClaims]).pipe(map((responses: [SingleUserInfo, ClaimTypeInfo[]]) => {
+        this._getDataSubscription = combineLatest([getUser, getClaims]).pipe(map((responses: [SingleUserInfo, ClaimTypeInfo[]]) => {
             return {
                 user: responses[0],
                 claims: responses[1] as ClaimType[]

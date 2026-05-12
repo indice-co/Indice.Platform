@@ -21,6 +21,7 @@
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
         <div class="row justify-content-center mb-3">
             <div indice-if="identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="form-row col-md-6">
+                <label asp-for="Input.CallingCode" class="sr-only">@Localizer.AddPhone_CallingCode</label>
                 <select class="form-control" style="height: 40px" asp-for="Input.CallingCode" required>
                     <option value="" selected>@Localizer.Profile_Choose</option>
                     @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())

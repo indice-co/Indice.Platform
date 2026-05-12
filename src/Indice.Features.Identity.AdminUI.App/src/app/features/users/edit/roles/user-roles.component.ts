@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { map } from 'rxjs/operators';
 import { TableColumn } from '@swimlane/ngx-datatable';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, combineLatest } from 'rxjs';
 import { RoleInfo, SingleUserInfo } from 'src/app/core/services/identity-api.service';
 import { UserStore } from '../user-store.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
@@ -45,7 +45,7 @@ export class UserRolesComponent implements OnInit, OnDestroy {
         this.currentUserId = this._authService.getSubjectId();
         const getUser = this._userStore.getUser(userId);
         const getRoles = this._userStore.getAllRoles();
-        this._getDataSubscription = forkJoin([getUser, getRoles]).pipe(map((responses: [SingleUserInfo, RoleInfo[]]) => {
+        this._getDataSubscription = combineLatest([getUser, getRoles]).pipe(map((responses: [SingleUserInfo, RoleInfo[]]) => {
             return {
                 user: responses[0],
                 roles: responses[1]
@@ -86,8 +86,7 @@ export class UserRolesComponent implements OnInit, OnDestroy {
     }
 
     public toggleAdmin(): void {
-        this.user.isAdmin = !this.user.isAdmin;
-        this._userStore.updateUser(this.user, null).subscribe(_ => {
+        this._userStore.setAdmin(this.user, !this.user.isAdmin).subscribe(_ => {
             this._toast.showSuccess(`User '${this.user.email}' was updated successfully.`);
         });
     }

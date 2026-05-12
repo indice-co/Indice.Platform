@@ -206,7 +206,6 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         return result;
     }
 
-
     /// <inheritdoc/>
     public override async Task<IdentityResult> ChangeEmailAsync(TUser user, string newEmail, string token) {
         ArgumentNullException.ThrowIfNull(user);
@@ -410,7 +409,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         if (!string.IsNullOrEmpty(device.PublicKey) && string.IsNullOrEmpty(device.PublicKeyId)) {
             device.PublicKeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex);
         }
-        
+
         var result = await deviceStore!.CreateDeviceAsync(user, device, cancellationToken);
         if (result.Succeeded) {
             await _eventService.Publish(new DeviceCreatedEvent(UserDeviceEventContext.InitializeFromUserDevice(device), UserEventContext.InitializeFromUser(user)));
@@ -681,6 +680,54 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public async Task<(Stream? Stream, string ContentType, bool Exists)> FindPictureByKeyAsync(string pictureKey, string? contentType = null, int? size = null) {
         var pictureStore = GetPictureStore();
         return await pictureStore!.FindUserPictureByKeyAsync(pictureKey, contentType, size);
+    }
+
+    /// <summary>
+    /// Resets the two-factor authentication for the specified user by disabling it, clearing any two-factor preferences, and resetting the authenticator key.
+    /// </summary>
+    /// <param name="user">The user instance</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>An <see cref="IdentityResult"/></returns>
+    public async Task<IdentityResult> ResetTwoFactorAsync(TUser user, CancellationToken cancellationToken = default) {
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+        cancellationToken.ThrowIfCancellationRequested();
+        var result = await SetTwoFactorEnabledAsync(user, false);
+        if (!result.Succeeded) {
+            return result;
+        }
+        var extendedStore = GetUserStore();
+        cancellationToken.ThrowIfCancellationRequested();
+        await extendedStore!.SetTwoFactorPreferenceAsync(user, null).ConfigureAwait(false);
+
+        cancellationToken.ThrowIfCancellationRequested();
+        result = await ResetAuthenticatorKeyAsync(user);
+        if (!result.Succeeded) {
+            return result;
+        }
+        return result;
+    }
+    /// <summary>
+    /// Resets the two-factor authentication for the specified user by disabling it, clearing any two-factor preferences, and resetting the authenticator key.
+    /// </summary>
+    /// <param name="user">The user instance</param>
+    /// <param name="authenticationMethodCode">The authentication method code</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>An <see cref="IdentityResult"/></returns>
+    public async Task<IdentityResult> SetTwoFactorAsync(TUser user, string authenticationMethodCode, CancellationToken cancellationToken = default) {
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authenticationMethodCode);
+        var result = await SetTwoFactorEnabledAsync(user, true);
+        if (!result.Succeeded) {
+            return result;
+        }
+        cancellationToken.ThrowIfCancellationRequested();
+        var extendedStore = GetUserStore();
+        cancellationToken.ThrowIfCancellationRequested();
+        await extendedStore!.SetTwoFactorPreferenceAsync(user, authenticationMethodCode).ConfigureAwait(false);
+        await _eventService.Publish(new TwoFactorPreferenceChangedEvent(UserEventContext.InitializeFromUser(user), authenticationMethodCode));
+        return result;
     }
 
 
