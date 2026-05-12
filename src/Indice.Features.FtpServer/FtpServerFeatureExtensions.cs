@@ -86,7 +86,7 @@ public static class FtpServerFeatureExtensions
         return builder;
     }
 
-    private static IFtpServerBuilder EnableAnonymousAuthenticationInternal(this IFtpServerBuilder builder) {
+    private static IFtpServerBuilder EnableNormalAuthenticationInternal(this IFtpServerBuilder builder) {
         builder.Services.AddSingleton<IMembershipProviderAsync, FtpServerCredentialsMembershipProvider>();
         builder.Services.AddSingleton<IMembershipProvider, FtpServerCredentialsMembershipProvider>();
         return builder;
