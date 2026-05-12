@@ -98,6 +98,27 @@ public class TemplateService : ITemplateService
     }
 
     /// <inheritdoc />
+    public async Task<ResultSet<Template>> GetPartialsAndLayouts() {
+        var templates = await DbContext.Templates
+            .Where(x => x.Type == TemplateType.Partial || x.Type == TemplateType.Layout)
+            .ToListAsync();
+        var items = templates.Select(t => new Template {
+            Id = t.Id,
+            Name = t.Name,
+            Alias = t.Alias,
+            Type = t.Type,
+            Content = t.Content,
+            Data = t.Data,
+            CreatedAt = t.CreatedAt,
+            CreatedBy = t.CreatedBy,
+            UpdatedAt = t.UpdatedAt,
+            UpdatedBy = t.UpdatedBy,
+            IgnoreUserPreferences = t.IgnoreUserPreferences
+        }).ToList();
+        return new ResultSet<Template>(items, items.Count);
+    }
+
+    /// <inheritdoc />
     public async Task<Template?> GetByAlias(string alias) {
         if (string.IsNullOrWhiteSpace(alias)) {
             return default;

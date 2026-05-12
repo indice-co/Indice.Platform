@@ -1,7 +1,6 @@
 import { AfterViewChecked, Component, Inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
-import Handlebars from "handlebars";
 import * as app from 'src/app/core/models/settings';
 import { APP_LANGUAGES, LibTabComponent, LibTabGroupComponent, MenuOption, SidePaneComponent } from '@indice/ng-components';
 import { Hyperlink, MessageChannelKind, MessageContent, MessageSender, MessageSenderResultSet } from 'src/app/core/services/messages-api.service';
@@ -14,6 +13,7 @@ import { MediaFile } from 'src/app/core/services/media-api.service';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
 import { languages } from '@codemirror/language-data';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization for non-template rendered dropdown
+import { PartialTemplatesStore } from './partial-templates-store.service';
 
 // codew mirror
 
@@ -49,6 +49,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     private _formBuilder: FormBuilder,
     private _store: SettingsStore,
     private _fileUtilitiesService: FileUtilitiesService,
+    private _partialStore: PartialTemplatesStore,
     @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
@@ -151,7 +152,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
           }
           this.channelsContent.push(channelForm);
           if (index === 0) {
-            this._setSubjectPreview(content.title);
+            this._setSubjectPreview(content.title, channel);
             this._setBodyPreview(content.body, channel);
           }
         }
@@ -212,7 +213,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     const subject = formGroup.controls['subject'].value;
     const body = formGroup.controls['body'].value;
     const channel = formGroup.controls['channel'].value;
-    this._setSubjectPreview(subject);
+    this._setSubjectPreview(subject, channel);
     this._setBodyPreview(body, channel);
   }
 
@@ -224,7 +225,8 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
 
   public onSubjectInput(content: FormGroup): void {
     const subject = content.controls['subject'].value;
-    this._setSubjectPreview(subject);
+    const channel = content.controls['channel'].value;
+    this._setSubjectPreview(subject, channel);
   }
 
   public onBodyInput(content: FormGroup): void {
@@ -268,28 +270,33 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     }
   }
 
-  private _setSubjectPreview(value: string | undefined): void {
+  private _setSubjectPreview(value: string | undefined, channel?: any): void {
     if (!value) {
       this.subjectPreview = '';
+      return;
     }
-    try {
-      const template = Handlebars.compile(value);
-      this.subjectPreview = template(this.samplePayload);
-    } catch (error) { }
+    this._partialStore.envFor(channel).subscribe(env => {
+      try {
+        const template = env.compile(value);
+        this.subjectPreview = template(this.samplePayload);
+      } catch (error) { }
+    });
   }
   private _setBodyPreview(value: string | undefined, channel?: any): void {
     if (!value) {
       this.bodyPreview = '';
+      return;
     }
-    try {
-      const template = Handlebars.compile(value);
-      const isPlainText = channel?.toLowerCase() != 'email' && channel?.toLowerCase() != 'inbox'
-      if (isPlainText) {
-        this.bodyPreview = `<pre style="white-space: pre-wrap">${template(this.samplePayload)}</pre>`;
-        return;
-      }
-      this.bodyPreview = template(this.samplePayload);
-    } catch (error) { }
+    this._partialStore.envFor(channel).subscribe(env => {
+      try {
+        const template = env.compile(value);
+        const rendered = template(this.samplePayload);
+        const isPlainText = channel?.toLowerCase() != 'email' && channel?.toLowerCase() != 'inbox';
+        this.bodyPreview = isPlainText
+          ? `<pre style="white-space: pre-wrap">${rendered}</pre>`
+          : rendered;
+      } catch (error) { }
+    });
   }
   private _loadMessageSenders(): void {
     // Localize placeholder (component controls third-party dropdown)
