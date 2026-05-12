@@ -1,11 +1,8 @@
 ﻿using System.Collections;
 using System.Security.Claims;
-using Azure.Messaging.ServiceBus;
-using Azure.Messaging.ServiceBus.Administration;
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Services;
-using Indice.Types;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -366,6 +363,7 @@ public static class IndiceServicesServiceCollectionExtensions
             ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
         };
         configure?.Invoke(serviceProvider, options);
+
         return new EventDispatcherAzure(
             options.ConnectionStringName!,
             options.EnvironmentName,
@@ -384,6 +382,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureOptions>? configure = null) {
         services.TryAddSingleton<IQueueClientCache, QueueClientCache>();
+        services.TryAddSingleton<AzureClientFactory>();
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
         return services.AddTransient<IEventDispatcher, EventDispatcherAzure>(serviceProvider => GetEventDispatcherAzure(serviceProvider, configure));
     }
@@ -394,6 +393,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureOptions>? configure = null) {
         services.TryAddSingleton<IQueueClientCache, QueueClientCache>();
+        services.TryAddSingleton<AzureClientFactory>();
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
         return services.AddKeyedTransient<IEventDispatcher, EventDispatcherAzure>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzure(serviceProvider, configure));
     }
@@ -424,6 +424,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        services.TryAddSingleton<AzureClientFactory>();
         return services.AddSingleton<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceProvider => GetEventDispatcherAzureServiceBus(null, serviceProvider, configure));
     }
 
@@ -433,6 +434,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        services.TryAddSingleton<AzureClientFactory>();
         return services.AddKeyedSingleton<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzureServiceBus(name, serviceProvider, configure));
     }
 
@@ -447,6 +449,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddLockManagerAzure(this IServiceCollection services, Action<IServiceProvider, LockManagerAzureOptions>? configure = null) {
+        services.TryAddSingleton<AzureClientFactory>();
         services.AddTransient<ILockManager, LockManagerAzure>(serviceProvider => {
             var factory = serviceProvider.GetRequiredService<AzureClientFactory>();
             var options = new LockManagerAzureOptions {

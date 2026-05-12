@@ -21,13 +21,13 @@ public sealed class BlobContainerClientCache : IBlobContainerClientCache
     private readonly ConcurrentDictionary<BlobClientCacheKey, Lazy<Task<BlobContainerClient>>> _blobClients = new();
     private readonly AzureClientFactory _factory;
     /// <summary>
-    /// Initializes a new instance of the BlobClientCache class using the specified Azure client factory.
+    /// Initializes a new instance of the BlobContainerClientCache class using the specified Azure client factory.
     /// </summary>
-    /// <param name="factory">The AzureClientFactory instance used to create and manage BlobContlient instances. Cannot be null.</param>
+    /// <param name="factory">The AzureClientFactory instance used to create BlobContainerClient instances. Cannot be null.</param>
     public BlobContainerClientCache(AzureClientFactory factory) {
         _factory = factory;
     }
-            
+
     /// <inheritdoc/>
     public async Task<BlobContainerClient> GetOrCreateAsync(string connectionStringName, string containerName) {
         var cacheKey = new BlobClientCacheKey(connectionStringName, containerName);
@@ -40,8 +40,7 @@ public sealed class BlobContainerClientCache : IBlobContainerClientCache
 
         try {
             return await lazyClient.Value;
-        }
-        catch {
+        } catch {
             // Remove the faulted task from cache so the next call can retry
             _blobClients.TryRemove(cacheKey, out _);
             throw;

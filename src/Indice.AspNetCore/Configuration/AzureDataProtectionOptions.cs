@@ -15,6 +15,15 @@ public class AzureDataProtectionOptions
     public bool DisableAutomaticKeyGeneration { get; set; }
     /// <summary>The connection string name to your Azure storage account. Defaults to "StorageConnection".</summary>
     public string ConnectionStringName { get; set; } = "StorageConnection";
+    /// <summary>
+    /// Obsolete alias for <see cref="ConnectionStringName"/> kept for backward compatibility with callers
+    /// that still configure <c>StorageConnectionString</c>.
+    /// </summary>
+    [Obsolete("Use ConnectionStringName instead.")]
+    public string StorageConnectionString {
+        get => ConnectionStringName;
+        set => ConnectionStringName = value;
+    }
     /// <summary>The name of the container that will be used within the data protection system.</summary>
     public string ContainerName { get; set; } = null!;
     /// <summary>Sets the unique name of this application within the data protection system.</summary>

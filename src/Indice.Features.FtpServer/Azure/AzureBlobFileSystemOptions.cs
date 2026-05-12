@@ -5,7 +5,7 @@
 /// </summary>
 public class AzureBlobFileSystemOptions
 {
-    /// <summary>The connection string used to connect to the Azure Blob Storage account.</summary>
+    /// <summary>The connection string name used to connect to the Azure Blob Storage account.</summary>
     public string? ConnectionStringName { get; set; }
     /// <summary>The name of the blob container to use as the root for the FTP file system.</summary>
     public string ContainerName { get; set; } = "ftp-root";

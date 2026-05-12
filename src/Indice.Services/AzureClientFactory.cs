@@ -33,13 +33,8 @@ public sealed class AzureClientFactory
     /// <param name="containerName">The name of the blob container.</param>
     /// <returns>A <see cref="BlobContainerClient"/> instance.</returns>
     public BlobContainerClient CreateBlobContainerClient(string connectionStringName, string containerName) {
-        if (string.IsNullOrWhiteSpace(connectionStringName)) {
-            throw new ArgumentNullException("Storage connection string name is required.");
-        }
-
-        if (string.IsNullOrWhiteSpace(containerName)) {
-            throw new ArgumentNullException("Storage container name is required.");
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionStringName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
 
         var storageConnection = _configuration.GetConnectionString(connectionStringName);
         if (!string.IsNullOrWhiteSpace(storageConnection)) {
@@ -52,6 +47,9 @@ public sealed class AzureClientFactory
 
         var credential = CreateAzureCredential(connectionStringName);
         var accountName = _configuration[$"{connectionStringName}__accountName"];
+        if (string.IsNullOrWhiteSpace(accountName)) {
+            throw new ArgumentNullException($"\"{connectionStringName}__accountName\" is missing.");
+        }
         var blobUri = new Uri($"https://{accountName}.blob.core.windows.net/{containerName}");
         return new BlobContainerClient(blobUri, credential);
     }
@@ -82,6 +80,9 @@ public sealed class AzureClientFactory
 
         var credential = CreateAzureCredential(connectionStringName);
         var accountName = _configuration[$"{connectionStringName}__accountName"];
+        if (string.IsNullOrWhiteSpace(accountName)) {
+            throw new ArgumentNullException($"\"{connectionStringName}__accountName\" is missing.");
+        }
         var queueUri = new Uri($"https://{accountName}.queue.core.windows.net/{queueName}");
         return new QueueClient(queueUri, credential, options);
     }
@@ -111,7 +112,9 @@ public sealed class AzureClientFactory
 
         var credential = CreateAzureCredential(connectionStringName);
         var namespaceName = _configuration[$"{connectionStringName}__fullyQualifiedNamespace"];
-
+        if (string.IsNullOrWhiteSpace(namespaceName)) {
+            throw new ArgumentNullException($"\"{connectionStringName}__fullyQualifiedNamespace\" is missing.");
+        }
         return new ServiceBusClient(namespaceName, credential);
     }
 
@@ -142,7 +145,9 @@ public sealed class AzureClientFactory
         }
         var credential = CreateAzureCredential(connectionStringName);
         var namespaceName = _configuration[$"{connectionStringName}__fullyQualifiedNamespace"];
-
+        if (string.IsNullOrWhiteSpace(namespaceName)) {
+            throw new ArgumentNullException($"\"{connectionStringName}__fullyQualifiedNamespace\" is missing.");
+        }
         return new ServiceBusAdministrationClient(namespaceName, credential);
     }
 

@@ -8,16 +8,16 @@ public interface IQueueClientCache
 {
     /// <summary>Gets or creates a QueueClient for the specified queue name and connection string.</summary>
     /// <param name="queueName">The name of the queue.</param>
-    /// <param name="connectionString">The Azure Storage connection string.</param>
+    /// <param name="connectionStringName">The Azure Storage connection string name.</param>
     /// <param name="messageEncoding">The message encoding to use.</param>
     /// <returns>A cached or newly created QueueClient.</returns>
-    Task<QueueClient> GetOrCreateAsync(string queueName, string connectionString, QueueMessageEncoding messageEncoding);
+    Task<QueueClient> GetOrCreateAsync(string queueName, string connectionStringName, QueueMessageEncoding messageEncoding);
 }
 
 /// <inheritdoc/>
 public sealed class QueueClientCache : IQueueClientCache
 {
-    private readonly record struct QueueClientCacheKey(string ConnectionString, string QueueName, QueueMessageEncoding MessageEncoding);
+    private readonly record struct QueueClientCacheKey(string ConnectionStringName, string QueueName, QueueMessageEncoding MessageEncoding);
 
     private readonly ConcurrentDictionary<QueueClientCacheKey, Lazy<Task<QueueClient>>> _queueClients = new();
 

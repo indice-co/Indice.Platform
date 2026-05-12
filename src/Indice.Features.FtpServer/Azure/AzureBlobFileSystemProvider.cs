@@ -19,7 +19,7 @@ public class AzureBlobFileSystemProvider : IFileSystemClassFactory
     /// Creates a new instance of <see cref="AzureBlobFileSystemProvider"/>.
     /// </summary>
     /// <param name="azureClientFactory">The Azure client factory service</param>
-    /// <param name="options">The file system oblions</param>
+    /// <param name="options">The file system options</param>
     /// <param name="accountDirectoryQuery">Account directory with permissions and users</param>
     /// <param name="logger">The logger</param>
     public AzureBlobFileSystemProvider(
@@ -34,6 +34,7 @@ public class AzureBlobFileSystemProvider : IFileSystemClassFactory
         RootPath = string.IsNullOrEmpty(options.Value.RootPath)
             ? "/"
             : Path.GetFileName(options.Value.RootPath.TrimEnd('/', '\\'));
+        
         Container = azureClientFactory.CreateBlobContainerClient(options.Value.ConnectionStringName!, options.Value.ContainerName);
     }
 

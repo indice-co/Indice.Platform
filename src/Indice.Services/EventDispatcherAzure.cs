@@ -17,7 +17,7 @@ public class EventDispatcherAzure : IEventDispatcher
 {
     /// <summary>The default name of the storage connection string.</summary>
     public const string CONNECTION_STRING_NAME = "StorageConnection";
-    private readonly string _connectionString;
+    private readonly string _connectionStringName;
     private readonly string _environmentName;
     private readonly bool _enabled;
     private readonly bool _useCompression;
@@ -29,7 +29,7 @@ public class EventDispatcherAzure : IEventDispatcher
     private readonly IQueueClientCache _queueClientCache;  // instead of ConcurrentDictionary
 
     /// <summary>Create a new <see cref="EventDispatcherAzure"/> instance.</summary>
-    /// <param name="connectionString">The connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
+    /// <param name="connectionStringName">The name of the connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
     /// <param name="environmentName">The environment name to use. Defaults to 'Production'.</param>
     /// <param name="enabled">Provides a way to enable/disable event dispatching at will. Defaults to true.</param>
     /// <param name="useCompression">When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.</param>
@@ -38,8 +38,8 @@ public class EventDispatcherAzure : IEventDispatcher
     /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
     /// <param name="queueClientCache">Cache for QueueClient instances to avoid repeated instantiation.</param> 
     /// <param name="logger">Logger instance for logging warnings and errors.</param>   
-    public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal?>? claimsPrincipalSelector, Func<string>? tenantIdSelector, IQueueClientCache queueClientCache, ILogger<EventDispatcherAzure>? logger = null) {
-        _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+    public EventDispatcherAzure(string connectionStringName, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal?>? claimsPrincipalSelector, Func<string>? tenantIdSelector, IQueueClientCache queueClientCache, ILogger<EventDispatcherAzure>? logger = null) {
+        _connectionStringName = connectionStringName ?? throw new ArgumentNullException(nameof(connectionStringName));
         _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         _enabled = enabled;
         _useCompression = useCompression;
@@ -106,7 +106,7 @@ public class EventDispatcherAzure : IEventDispatcher
     }
 
     private async Task<QueueClient> EnsureExistsAsync(string queueName) {
-        return await _queueClientCache.GetOrCreateAsync(queueName, _connectionString, _queueMessageEncoding);
+        return await _queueClientCache.GetOrCreateAsync(queueName, _connectionStringName, _queueMessageEncoding);
     }
 
 }

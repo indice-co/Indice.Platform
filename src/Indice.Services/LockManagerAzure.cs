@@ -25,9 +25,8 @@ public class LockManagerAzure : ILockManager
     /// <param name="factory">The Azure client factory.</param>
     /// <param name="options">The options for configuring the lock manager.</param>
     public LockManagerAzure(AzureClientFactory factory, LockManagerAzureOptions options) {
-        if (options == null) {
-            throw new ArgumentNullException(nameof(options));
-        }
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentNullException.ThrowIfNull(options);
         if (string.IsNullOrWhiteSpace(options.EnvironmentName)) {
             throw new ArgumentNullException(nameof(options.EnvironmentName));
         }

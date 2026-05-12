@@ -1,8 +1,6 @@
-﻿using Azure.Identity;
-using FubarDev.FtpServer.FileSystem;
+﻿using FubarDev.FtpServer.FileSystem;
 using Indice.Features.FtpServer.Azure;
 using Indice.Services;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FubarDev.FtpServer;
