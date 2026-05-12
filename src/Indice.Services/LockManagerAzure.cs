@@ -31,11 +31,11 @@ public class LockManagerAzure : ILockManager
         if (string.IsNullOrWhiteSpace(options.EnvironmentName)) {
             throw new ArgumentNullException(nameof(options.EnvironmentName));
         }
-        if (string.IsNullOrWhiteSpace(options.ConnectionString)) {
-            throw new ArgumentNullException(nameof(options.ConnectionString));
+        if (string.IsNullOrWhiteSpace(options.ConnectionStringName)) {
+            throw new ArgumentNullException(nameof(options.ConnectionStringName));
         }
         var environmentName = Regex.Replace(options.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-        BlobContainer = factory.CreateBlobContainerClient(CONNECTION_STRING_NAME, environmentName);
+        BlobContainer = factory.CreateBlobContainerClient(options.ConnectionStringName, environmentName);
     }
 
     /// <summary>The cloud container client.</summary>
@@ -92,5 +92,6 @@ public class LockManagerAzureOptions
     /// <summary>Hosting environment name.</summary>
     public string? EnvironmentName { get; set; }
     /// <summary>Storage connection.</summary>
-    public string? ConnectionString { get; set; }
+    public string? ConnectionStringName { get; set; }
+
 }

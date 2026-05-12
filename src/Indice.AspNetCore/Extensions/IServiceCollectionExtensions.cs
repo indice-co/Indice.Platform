@@ -1,7 +1,6 @@
 ﻿using System.Data;
 using System.Net;
 using System.Text.RegularExpressions;
-using Azure.Identity;
 using Indice.AspNetCore.Configuration;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Middleware;

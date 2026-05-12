@@ -28,7 +28,7 @@ public class LockManagerAzureTests
 
         services.AddSingleton(new LockManagerAzureOptions {
             EnvironmentName = "test",
-            ConnectionString = configuration.GetConnectionString("Storage")!
+            ConnectionStringName = "Storage"
         });
 
         services.AddSingleton<ILockManager, LockManagerAzure>();

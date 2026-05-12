@@ -23,8 +23,8 @@ public static class IServiceCollectionFileExtensions
             ContainerName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
         };
         configure?.Invoke(options);
-        var blobCache = serviceProvider.GetRequiredService<IBlobContainerClientCache>();
-        return new FileServiceAzureStorage(blobCache, options.ConnectionStringName, options.ContainerName);
+        var blobContainerCache = serviceProvider.GetRequiredService<IBlobContainerClientCache>();
+        return new FileServiceAzureStorage(blobContainerCache, options.ConnectionStringName, options.ContainerName);
     };
 
     /// <summary>The factory that creates the default instance and configuration for <see cref="FileServiceLocal"/>.</summary>
@@ -104,6 +104,7 @@ public static class IServiceCollectionFileExtensions
     /// <summary>Adds <see cref="FileServiceAzureStorage"/> implementation.</summary>
     public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceAzureOptions>? configure = null) {
         builder.Services.AddSingleton<AzureClientFactory>();
+        builder.Services.TryAddSingleton<IBlobContainerClientCache, BlobContainerClientCache>();
         builder.Services.AddKeyedTransient<IFileService, FileServiceAzureStorage>(serviceKey: name, implementationFactory: (sp, serviceKey) => GetFileServiceAzureStorage(sp, configure));
         return builder;
     }

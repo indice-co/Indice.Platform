@@ -115,7 +115,7 @@ public class EventDispatcherAzure : IEventDispatcher
 public class EventDispatcherAzureOptions
 {
     /// <summary>The connection string to the Azure Storage account. By default it searches for <see cref="EventDispatcherAzure.CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</summary>
-    public string? ConnectionString { get; set; }
+    public string? ConnectionStringName { get; set; }
     /// <summary>The environment name to use. Defaults to <see cref="IHostEnvironment.EnvironmentName"/>.</summary>
     public string EnvironmentName { get; set; } = "Production";
     /// <summary>Provides a way to enable/disable event dispatching at will. Defaults to true.</summary>

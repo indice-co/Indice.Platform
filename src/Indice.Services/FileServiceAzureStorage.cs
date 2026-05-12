@@ -14,7 +14,7 @@ public class FileServiceAzureStorage : IFileService
 
     private readonly IBlobContainerClientCache _blobClientCache;
     private readonly string? _containerName;
-    private readonly string _connectionString;
+    private readonly string _connectionStringName;
 
     /// <summary>Constructs the service.</summary>
     /// <param name="containerClientCache">The blob container client cache.</param>    
@@ -28,7 +28,7 @@ public class FileServiceAzureStorage : IFileService
         } else {
             _containerName = null;
         }
-        _connectionString = connectionStringName;
+        _connectionStringName = connectionStringName;
     }
 
     /// <inheritdoc />
@@ -37,7 +37,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath[folder!.Length..] : filePath;
-        var container = await _blobClientCache.GetOrCreateAsync(_connectionString, folder!);
+        var container = await _blobClientCache.GetOrCreateAsync(_connectionStringName, folder!);
         var blobClient = container.GetBlobClient(filename);
         var fileExtension = Path.GetExtension(filePath);
         if (string.IsNullOrWhiteSpace(saveOptions.ContentType) && !string.IsNullOrEmpty(fileExtension)) {
@@ -62,7 +62,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
-        var container = await _blobClientCache.GetOrCreateAsync(_connectionString, folder!);
+        var container = await _blobClientCache.GetOrCreateAsync(_connectionStringName, folder!);
         var exists = await container.ExistsAsync();
         if (!exists) {
             throw new FileNotFoundServiceException($"Container {folder} not found.");
@@ -89,7 +89,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
-        var container = await _blobClientCache.GetOrCreateAsync(_connectionString, folder!);
+        var container = await _blobClientCache.GetOrCreateAsync(_connectionStringName, folder!);
         var exists = await container.ExistsAsync();
         if (!exists) {
             throw new FileNotFoundServiceException($"Container {folder} not found.");
@@ -124,7 +124,7 @@ public class FileServiceAzureStorage : IFileService
         destinationPath = destinationPath.TrimStart('\\', '/');
         var sourceFolder = _containerName ?? Path.GetDirectoryName(sourcePath);
         var sourceFilename = _containerName == null ? sourcePath.Substring(sourceFolder!.Length) : sourcePath;
-        var sourceContainer = await _blobClientCache.GetOrCreateAsync(_connectionString, sourceFolder!);
+        var sourceContainer = await _blobClientCache.GetOrCreateAsync(_connectionStringName, sourceFolder!);
 
         var exists = await sourceContainer.ExistsAsync();
         if (!exists) {
@@ -134,7 +134,7 @@ public class FileServiceAzureStorage : IFileService
         var targertFilename = _containerName == null ? destinationPath.Substring(targetFolder!.Length) : destinationPath;
         bool moveUnderTheSameContainer = sourceFolder!.Equals(targetFolder, StringComparison.InvariantCultureIgnoreCase);
         bool isDirectory = sourcePath.EndsWith('/');
-        var targetContainer = moveUnderTheSameContainer ? sourceContainer : await _blobClientCache.GetOrCreateAsync(_connectionString, targetFolder!);
+        var targetContainer = moveUnderTheSameContainer ? sourceContainer : await _blobClientCache.GetOrCreateAsync(_connectionStringName, targetFolder!);
         if (!moveUnderTheSameContainer) {
             await targetContainer.CreateIfNotExistsAsync();
         }
@@ -166,7 +166,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
-        var container = await _blobClientCache.GetOrCreateAsync(_connectionString, folder!);
+        var container = await _blobClientCache.GetOrCreateAsync(_connectionStringName, folder!);
         var exists = await container.ExistsAsync();
         if (!exists) {
             throw new FileNotFoundServiceException($"Container {folder} not found.");
@@ -196,7 +196,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
-        var container = await _blobClientCache.GetOrCreateAsync(_connectionString, folder!);
+        var container = await _blobClientCache.GetOrCreateAsync(_connectionStringName, folder!);
         var exists = await container.ExistsAsync();
         if (!exists) {
             throw new FileNotFoundServiceException($"Container {folder} not found.");

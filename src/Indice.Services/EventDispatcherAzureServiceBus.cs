@@ -116,7 +116,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
 public class EventDispatcherAzureServiceBusOptions
 {
     /// <summary>The connection string to the Azure Storage account. By default it searches for <see cref="EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</summary>
-    public string? ConnectionString { get; set; }
+    public string? ConnectionStringName { get; set; }
     /// <summary>The environment name to use. Defaults to <see cref="IHostEnvironment.EnvironmentName"/>.</summary>
     public string EnvironmentName { get; set; } = "Production";
     /// <summary>Provides a way to enable/disable event dispatching at will. Defaults to true.</summary>
@@ -151,7 +151,7 @@ public class ConfigureEventDispatcherAzureServiceBusOptions : IConfigureOptions<
 
     /// <inheritdoc />
     public void Configure(EventDispatcherAzureServiceBusOptions options) {
-        options.ConnectionString = _configuration.GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME);
+        options.ConnectionStringName = options.ConnectionStringName ?? EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME;
         options.EnvironmentName = _hostEnvironment.EnvironmentName;
         options.ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!);
         options.Enabled = true;

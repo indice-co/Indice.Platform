@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using Azure.Storage.Queues;
-using Indice.Types;
 
 namespace Indice.Services;
 
@@ -23,7 +22,7 @@ public sealed class QueueClientCache : IQueueClientCache
     private readonly ConcurrentDictionary<QueueClientCacheKey, Lazy<Task<QueueClient>>> _queueClients = new();
 
     private readonly AzureClientFactory _factory;
-
+    /// <summary>Creates a new instance of <see cref="QueueClientCache"/>.</summary>
     public QueueClientCache(AzureClientFactory factory) {
         _factory = factory;
     }

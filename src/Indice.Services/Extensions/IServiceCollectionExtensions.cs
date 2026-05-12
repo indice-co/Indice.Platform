@@ -177,7 +177,7 @@ public static class IndiceServicesServiceCollectionExtensions
         var providerNamesText = configuration.GetSection(SmsServiceSettings.Name).GetValue<string>("Provider");
         ArgumentException.ThrowIfNullOrWhiteSpace(providerNamesText, "Sms:Provider");
         var providerNames = providerNamesText.ToLowerInvariant().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        foreach (var name in providerNames) { 
+        foreach (var name in providerNames) {
             switch (name) {
                 case "yuboto":
                 case "yuboto_omni":
@@ -360,14 +360,14 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <summary>The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.</summary>
     private static readonly Func<IServiceProvider, Action<IServiceProvider, EventDispatcherAzureOptions>?, EventDispatcherAzure> GetEventDispatcherAzure = (serviceProvider, configure) => {
         var options = new EventDispatcherAzureOptions {
-            ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
+            ConnectionStringName = EventDispatcherAzure.CONNECTION_STRING_NAME,
             Enabled = true,
             EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
             ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
         };
         configure?.Invoke(serviceProvider, options);
         return new EventDispatcherAzure(
-            options.ConnectionString!,
+            options.ConnectionStringName!,
             options.EnvironmentName,
             options.Enabled,
             options.UseCompression,
@@ -401,7 +401,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <summary>The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.</summary>
     private static readonly Func<object?, IServiceProvider, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>?, EventDispatcherAzureServiceBus> GetEventDispatcherAzureServiceBus = (serviceKey, serviceProvider, configure) => {
         var options = new EventDispatcherAzureServiceBusOptions {
-            ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
+            ConnectionStringName = EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME,
             Enabled = true,
             EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
             ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
@@ -409,8 +409,8 @@ public static class IndiceServicesServiceCollectionExtensions
         var factory = serviceProvider.GetRequiredService<AzureClientFactory>();
         configure?.Invoke(serviceProvider, options);
         return new EventDispatcherAzureServiceBus(
-            factory.CreateServiceBusClient(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
-            options.CreateQueueIfNotExists ? factory.CreateServiceBusAdministrationClient(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME) : null,
+            factory.CreateServiceBusClient(options.ConnectionStringName),
+            options.CreateQueueIfNotExists ? factory.CreateServiceBusAdministrationClient(options.ConnectionStringName) : null,
             options.EnvironmentName,
             options.Enabled,
             options.UseCompression,
@@ -450,7 +450,7 @@ public static class IndiceServicesServiceCollectionExtensions
         services.AddTransient<ILockManager, LockManagerAzure>(serviceProvider => {
             var factory = serviceProvider.GetRequiredService<AzureClientFactory>();
             var options = new LockManagerAzureOptions {
-                ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(LockManagerAzure.CONNECTION_STRING_NAME),
+                ConnectionStringName = LockManagerAzure.CONNECTION_STRING_NAME,
                 EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
             };
             configure?.Invoke(serviceProvider, options);
