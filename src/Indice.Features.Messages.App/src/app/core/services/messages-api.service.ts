@@ -295,9 +295,10 @@ export interface IMessagesApiClient {
      * @param search (optional) A search term used to limit the results of the list.
      * @param messageTypeId (optional) 
      * @param includeItemsWithoutMessageTypeId (optional) 
+     * @param type (optional) 
      * @return OK
      */
-    getTemplates(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, messageTypeId?: string | undefined, includeItemsWithoutMessageTypeId?: boolean | null | undefined): Observable<TemplateListItemResultSet>;
+    getTemplates(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, messageTypeId?: string | undefined, includeItemsWithoutMessageTypeId?: boolean | null | undefined, type?: TemplateType | undefined): Observable<TemplateListItemResultSet>;
     /**
      * Creates a new template in the store.
      * @return Created
@@ -333,6 +334,11 @@ export interface IMessagesApiClient {
      * @return No Content
      */
     updateTemplateUserPreferences(templateId: string, body: UpdateTemplateUserPreferencesRequest): Observable<void>;
+    /**
+     * Gets every Partial/Layout template with full Content.
+     * @return OK
+     */
+    getPartialTemplates(): Observable<TemplateResultSet>;
 }
 
 @Injectable({
@@ -4061,12 +4067,12 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param size (optional) The size of the list. Default is 100
      * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
      * @param search (optional) A search term used to limit the results of the list.
-     * @param messageTypeId (optional)
-     * @param includeItemsWithoutMessageTypeId (optional)
-     * @param type (optional) Filter by template type (Full / Partial).
+     * @param messageTypeId (optional) 
+     * @param includeItemsWithoutMessageTypeId (optional) 
+     * @param type (optional) 
      * @return OK
      */
-    getTemplates(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, messageTypeId?: string | undefined, includeItemsWithoutMessageTypeId?: boolean | null | undefined, type?: TemplateType | null | undefined): Observable<TemplateListItemResultSet> {
+    getTemplates(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, messageTypeId?: string | undefined, includeItemsWithoutMessageTypeId?: boolean | null | undefined, type?: TemplateType | undefined): Observable<TemplateListItemResultSet> {
         let url_ = this.baseUrl + "/templates?";
         if (page !== undefined && page !== null)
             url_ += "Page=" + encodeURIComponent("" + page) + "&";
@@ -4082,9 +4088,9 @@ export class MessagesApiClient implements IMessagesApiClient {
             url_ += "MessageTypeId=" + encodeURIComponent("" + messageTypeId) + "&";
         if (includeItemsWithoutMessageTypeId !== undefined && includeItemsWithoutMessageTypeId !== null)
             url_ += "IncludeItemsWithoutMessageTypeId=" + encodeURIComponent("" + includeItemsWithoutMessageTypeId) + "&";
-        if (type !== undefined && type !== null)
-            url_ += "Type=" + encodeURIComponent("" + type) + "&";
-        url_ = url_.replace(/[?&]$/, "");
+      if (type !== undefined && type !== null)
+        url_ += "Type=" + encodeURIComponent("" + type) + "&";
+      url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
             observe: "response",
@@ -4625,6 +4631,86 @@ export class MessagesApiClient implements IMessagesApiClient {
         if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets every Partial/Layout template with full Content.
+     * @return OK
+     */
+    getPartialTemplates(): Observable<TemplateResultSet> {
+        let url_ = this.baseUrl + "/templates/partials";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPartialTemplates(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPartialTemplates(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<TemplateResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<TemplateResultSet>;
+        }));
+    }
+
+    protected processGetPartialTemplates(response: HttpResponseBase): Observable<TemplateResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TemplateResultSet.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -7625,6 +7711,54 @@ export class TemplateListItemResultSet implements ITemplateListItemResultSet {
 export interface ITemplateListItemResultSet {
     count?: number;
     items?: TemplateListItem[];
+}
+
+export class TemplateResultSet implements ITemplateResultSet {
+    count?: number;
+    items?: Template[];
+
+    constructor(data?: ITemplateResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Template.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): TemplateResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new TemplateResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface ITemplateResultSet {
+    count?: number;
+    items?: Template[];
 }
 
 export enum TemplateType {

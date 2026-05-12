@@ -1,29 +1,23 @@
-import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable, Optional } from '@angular/core';
+import { Injectable } from '@angular/core';
 import Handlebars from 'handlebars';
 import { Observable, map, shareReplay } from 'rxjs';
-import { MESSAGES_API_BASE_URL, Template } from 'src/app/core/services/messages-api.service';
+import { MessagesApiClient, Template } from 'src/app/core/services/messages-api.service';
 
 const CHANNELS = ['inbox', 'pushnotification', 'email', 'sms'] as const;
 type Channel = typeof CHANNELS[number];
 
 /**
- * On first injection, fetches every Partial/Layout template once and builds one
- * isolated Handlebars environment per channel with all partials pre-registered
- * (keyed by alias). The component pulls the env for the active channel and uses
- * it for both `registerPartial` lookup and `compile` — same instance, no
- * cross-channel leakage.
+ * On first injection, fetches every Partial/Layout template once via the
+ * generated `getPartialTemplates` method (backed by `GET /api/templates/partials`)
+ * and builds one isolated Handlebars environment per channel with all partials
+ * pre-registered (keyed by lowercase alias). The component pulls the env for the
+ * active channel and uses it for both `registerPartial` lookup and `compile`.
  */
 @Injectable({ providedIn: 'root' })
 export class PartialTemplatesStore {
-  private readonly _baseUrl: string;
   private readonly _envs$: Observable<Record<Channel, typeof Handlebars>>;
 
-  constructor(
-    private _http: HttpClient,
-    @Optional() @Inject(MESSAGES_API_BASE_URL) baseUrl?: string
-  ) {
-    this._baseUrl = baseUrl ?? '';
+  constructor(private _api: MessagesApiClient) {
     this._envs$ = this._fetch().pipe(
       map(templates => this._buildEnvs(templates)),
       shareReplay({ bufferSize: 1, refCount: false })
@@ -36,6 +30,24 @@ export class PartialTemplatesStore {
   public envFor(channel: string | undefined): Observable<typeof Handlebars> {
     const key = (channel || '').toLowerCase() as Channel;
     return this._envs$.pipe(map(envs => envs[key] ?? Handlebars.create()));
+  }
+
+  /**
+   * Lowercases the names inside `{{> name}}` / `{{#> name}}` partial references
+   * (and their matching `{{/name}}` closers) so author casing doesn't have to
+   * exactly match the DB alias. Helper blocks like `{{#if X}}...{{/X}}` are
+   * untouched (their opener has no `>`).
+   */
+  public normalizePartialCasing(template: string): string {
+    const blockNames = new Set<string>();
+    template.replace(/\{\{#>\s*([\w.-]+)/g, (_, name) => { blockNames.add(name); return ''; });
+    let out = template
+      .replace(/(\{\{>\s*)([\w.-]+)/g, (_, prefix, name) => prefix + name.toLowerCase())
+      .replace(/(\{\{#>\s*)([\w.-]+)/g, (_, prefix, name) => prefix + name.toLowerCase());
+    out = out.replace(/(\{\{\/\s*)([\w.-]+)(\s*\}\})/g, (full, prefix, name, suffix) =>
+      blockNames.has(name) ? prefix + name.toLowerCase() + suffix : full
+    );
+    return out;
   }
 
   private _buildEnvs(templates: Template[]): Record<Channel, typeof Handlebars> {
@@ -54,9 +66,8 @@ export class PartialTemplatesStore {
   }
 
   private _fetch(): Observable<Template[]> {
-    const url = `${this._baseUrl}/templates/partials`;
-    return this._http.get<{ count?: number; items?: any[] }>(url)
-      .pipe(map(result => (result?.items ?? []).map(x => Template.fromJS(x))));
+    return this._api.getPartialTemplates()
+      .pipe(map((result: any) => (result?.items ?? []) as Template[]));
   }
 
   private _bodyFor(t: Template, channelLower: string): string | undefined {
