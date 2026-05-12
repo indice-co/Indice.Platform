@@ -1,8 +1,10 @@
 ﻿using System.Net;
 using FubarDev.FtpServer;
+using FubarDev.FtpServer.AccountManagement;
 using FubarDev.FtpServer.AccountManagement.Anonymous;
 using FubarDev.FtpServer.FileSystem.DotNet;
 using Indice.Features.FtpServer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -56,6 +58,37 @@ public static class FtpServerFeatureExtensions
             builder.Services.AddSingleton<IAnonymousPasswordValidator, NotEmptyPasswordValidation>(sp => new NotEmptyPasswordValidation(options.MinimumPasswordLength));
         }
         builder.EnableAnonymousAuthentication();
+        return builder;
+    }
+
+    /// <summary>
+    /// Enables normal authentication for the FTP server using a custom membership provider that validates user credentials against a predefined list of username-password pairs specified in the <see cref="FtpServerCredentialsOptions"/>. This method allows you to easily set up basic authentication for your FTP server without needing to implement a custom membership provider. Use the <paramref name="configureAction"/> parameter to specify the credentials that should be accepted by the server.
+    /// </summary>
+    /// <param name="builder">The FTP server builder to configure. Cannot be null.</param>
+    /// <param name="configureAction">An action to configure the FTP server credentials options. 
+    /// This action is invoked to specify the username-password pairs that will be accepted for authentication. Cannot be null.</param>
+    /// <returns>The same instance of <see cref="IFtpServerBuilder"/> to allow for method chaining.</returns>
+    public static IFtpServerBuilder EnableNormalAuthentication(this IFtpServerBuilder builder, Action<FtpServerCredentialsOptions> configureAction) {
+        builder.Services.Configure(configureAction);
+        builder.EnableAnonymousAuthenticationInternal();
+        return builder;
+    }
+
+    /// <summary>
+    /// Enables normal authentication for the FTP server using a custom membership provider that validates user credentials against a predefined list of username-password pairs specified in the <see cref="FtpServerCredentialsOptions"/>. This method allows you to easily set up basic authentication for your FTP server without needing to implement a custom membership provider. Use the <paramref name="configuration"/> parameter to specify the credentials that should be accepted by the server.
+    /// </summary>
+    /// <param name="builder">The FTP server builder to configure. Cannot be null.</param>
+    /// <param name="configuration">The configuration instance to configure the FTP server credentials options. Cannot be null.</param>
+    /// <returns>The same instance of <see cref="IFtpServerBuilder"/> to allow for method chaining.</returns>
+    public static IFtpServerBuilder EnableNormalAuthentication(this IFtpServerBuilder builder, IConfiguration configuration) {
+        builder.Services.Configure<FtpServerCredentialsOptions>(configuration);
+        builder.EnableAnonymousAuthenticationInternal();
+        return builder;
+    }
+
+    private static IFtpServerBuilder EnableAnonymousAuthenticationInternal(this IFtpServerBuilder builder) {
+        builder.Services.AddSingleton<IMembershipProviderAsync, FtpServerCredentialsMembershipProvider>();
+        builder.Services.AddSingleton<IMembershipProvider, FtpServerCredentialsMembershipProvider>();
         return builder;
     }
 
