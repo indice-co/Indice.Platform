@@ -70,7 +70,7 @@ public static class FtpServerFeatureExtensions
     /// <returns>The same instance of <see cref="IFtpServerBuilder"/> to allow for method chaining.</returns>
     public static IFtpServerBuilder EnableNormalAuthentication(this IFtpServerBuilder builder, Action<FtpServerCredentialsOptions> configureAction) {
         builder.Services.Configure(configureAction);
-        builder.EnableAnonymousAuthenticationInternal();
+        builder.EnableNormalAuthenticationInternal();
         return builder;
     }
 
@@ -82,7 +82,7 @@ public static class FtpServerFeatureExtensions
     /// <returns>The same instance of <see cref="IFtpServerBuilder"/> to allow for method chaining.</returns>
     public static IFtpServerBuilder EnableNormalAuthentication(this IFtpServerBuilder builder, IConfiguration configuration) {
         builder.Services.Configure<FtpServerCredentialsOptions>(configuration);
-        builder.EnableAnonymousAuthenticationInternal();
+        builder.EnableNormalAuthenticationInternal();
         return builder;
     }
 
