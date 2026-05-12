@@ -19,7 +19,7 @@
     <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
     <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
     <VersionPrefixActivityLogs>$(VersionPrefixBase).0</VersionPrefixActivityLogs>
-    <VersionPrefixFtpServer>$(VersionPrefixBase).1</VersionPrefixFtpServer>
+    <VersionPrefixFtpServer>$(VersionPrefixBase).2</VersionPrefixFtpServer>
     <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 
     <!--<VersionSuffix>rc02</VersionSuffix>-->
