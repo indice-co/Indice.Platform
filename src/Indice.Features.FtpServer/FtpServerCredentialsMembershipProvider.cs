@@ -9,6 +9,9 @@ namespace Indice.Features.FtpServer;
 /// <summary>
 /// An implementation of <see cref="IMembershipProviderAsync"/> that validates user credentials against a predefined list of username-password pairs specified in the <see cref="FtpServerCredentialsOptions"/>. This provider is suitable for simple scenarios where user credentials are managed in-memory and does not require integration with external authentication systems.
 /// </summary>
+/// <summary>
+/// An implementation of <see cref="IMembershipProviderAsync"/> that validates user credentials against a predefined list of username-password pairs specified in the <see cref="FtpServerCredentialsOptions"/>. This provider is suitable for simple scenarios where user credentials are managed in-memory and does not require integration with external authentication systems.
+/// </summary>
 public class FtpServerCredentialsMembershipProvider : IMembershipProviderAsync
 {
     private readonly IOptions<FtpServerCredentialsOptions> _options;
@@ -51,7 +54,7 @@ public class FtpServerCredentialsMembershipProvider : IMembershipProviderAsync
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="FtpSymmetricCredentials"/> if the
     /// credentials are valid; otherwise, <see langword="null"/>.</returns>
     protected virtual Task<FtpSymmetricCredentials?> ValidateCredentialsAsync(string username, string password, CancellationToken cancellationToken) {
-        if (_options.Value.Credentials.TryGetValue(username, out var credential) && credential.VerifyPassword(password)) {
+        if (_options.Value.Credentials.Values.FirstOrDefault(c => c.Username == username) is FtpSymmetricCredentials credential && credential.VerifyPassword(password)) {
             return Task.FromResult<FtpSymmetricCredentials?>(credential);
         }
         return Task.FromResult<FtpSymmetricCredentials?>(null);
@@ -67,9 +70,9 @@ public class FtpServerCredentialsMembershipProvider : IMembershipProviderAsync
 public class FtpServerCredentialsOptions
 {
     /// <summary>
-    /// Gets or sets the collection of FTP symmetric credentials, indexed by user name.
+    /// Gets or sets the collection of FTP symmetric credentials, indexed by a description/label.
     /// </summary>
-    /// <remarks>Each entry in the dictionary associates a user name with its corresponding FTP symmetric
+    /// <remarks>Each entry in the dictionary associates a description/label with its corresponding FTP symmetric
     /// credentials. Modifying this collection affects authentication for FTP operations that use these
     /// credentials.</remarks>
     public Dictionary<string, FtpSymmetricCredentials> Credentials { get; set; } = new();
