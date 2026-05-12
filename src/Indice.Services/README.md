@@ -37,26 +37,37 @@ services.AddFilesLocal(options => {
 
 #### 🔧 Configuration (Azure Storage)
 
-Supports flexible configuration via new `AzureConnectionString`.
-Extends the standard Azure Storage connection-string concept with a structured, strongly-typed model that supports:
+`AzureClientFactory` resolves the connection by `ConnectionStringName` (`StorageConnection` by default):
 
-- Standard connection-string parsing
-- Azure Entra authentication (system-assigned & user-assigned)
-- First-class access to structured properties (AccountName, ContainerName, etc.)
+- First from `ConnectionStrings:{ConnectionStringName}` (or a direct value with the same key)
+- Otherwise from managed-identity settings under `{ConnectionStringName}`
 
 Standard connection string:
 ```json
-"ConnectionString": "DefaultEndpointsProtocol=https;AccountName=<NAME>;AccountKey=xxx;EndpointSuffix=core.windows.net"
+{
+  "ConnectionStrings": {
+    "StorageConnection": "DefaultEndpointsProtocol=https;AccountName=<NAME>;AccountKey=xxx;EndpointSuffix=core.windows.net"
+  }
+}
 ```
 
 Managed Identity (system-assigned):
 ```json
-"ConnectionString": "AccountName=<NAME>;UseSystemAssigned=true;ContainerName=<CONTAINER>"
+{
+  "StorageConnection": {
+    "accountName": "<NAME>"
+  }
+}
 ```
 
 Managed Identity (user-assigned):
 ```json
-"ConnectionString": "AccountName=<NAME>;ManagedIdentityClientId=<CLIENT_ID>;ContainerName=<CONTAINER>"
+{
+  "StorageConnection": {
+    "accountName": "<NAME>",
+    "clientId": "<CLIENT_ID>"
+  }
+}
 ```
 
 ### 📧 Email Services
