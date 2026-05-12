@@ -129,11 +129,11 @@ public record FtpSymmetricCredentials(string Username, string Password, string? 
         authenticationType));
 
     private bool VerifyPbkdf2Password(string password) {
-        var parts = PasswordHash!.Split('$', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var parts = PasswordHash!.Split('$', StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length != 4 || !parts[0].Equals("PBKDF2", StringComparison.OrdinalIgnoreCase)) {
             return false;
         }
-        if (!int.TryParse(parts[1], out var iterations) || iterations <= 0) {
+        if (!int.TryParse(parts[1], out var iterations) || iterations < 10_000) {
             return false;
         }
         try {
@@ -147,8 +147,8 @@ public record FtpSymmetricCredentials(string Username, string Password, string? 
     }
 
     private static bool FixedTimeEquals(string left, string right) {
-        var leftBytes = Encoding.UTF8.GetBytes(left);
-        var rightBytes = Encoding.UTF8.GetBytes(right);
-        return CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
+        var leftHash = SHA256.HashData(Encoding.UTF8.GetBytes(left));
+        var rightHash = SHA256.HashData(Encoding.UTF8.GetBytes(right));
+        return CryptographicOperations.FixedTimeEquals(leftHash, rightHash);
     }
 }
