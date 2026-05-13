@@ -17,6 +17,16 @@
     (pageSizeChanged)="pageSizeChanged($event)"
     (sortChanged)="sortChanged($event)"
     (sortdirChanged)="sortdirChanged($event)">
+    <ng-container pager-near-content>
+      <div class="inline-flex">
+        <lib-toggle-buttons-list class="mr-2"
+          [icon]="'ms-Icon ms-Icon--Filter text-gray-300'"
+          [options]="typeFilterOptions"
+          [value]="selectedTypeFilter"
+          (valueChange)="onFilterChanged('templateType', $event)">
+        </lib-toggle-buttons-list>
+      </div>
+    </ng-container>
     <lib-list-column [title]="'Templates.NameColumn' | translate">
       <ng-template let-item>
         <a href="#"
@@ -32,6 +42,14 @@
       <ng-template let-item>@if (item.alias) {
         <span  class="badge alias">{{ item.alias || ('Templates.EmptyValueIndicator' | translate) }}</span>
       }</ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'Templates.TypeColumn' | translate">
+      <ng-template let-item>
+        <span class="badge"
+          [ngClass]="{ 'alias': item.type === templateTypeEnum.Partial }">
+          {{ typeLabelKey(item.type) | translate }}
+        </span>
+      </ng-template>
     </lib-list-column>
     <lib-list-column [title]="'Templates.ChannelsColumn' | translate">
       <ng-template let-item>

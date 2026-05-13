@@ -293,3 +293,5 @@ App_Data
 logs
 package-lock.json
 nuget.exe
+/CLAUDE.md
+/.claude

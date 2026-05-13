@@ -3,6 +3,7 @@ using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Manager;
 using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
@@ -50,6 +51,7 @@ public class MessageManagerTests : IAsyncLifetime
             .AddTransient(serviceProvider => new DatabaseSchemaNameResolver("cmp"))
             .AddTransient<IUserNameAccessor, UserNameAccessorNoOp>()
             .AddTransient<UserNameAccessorAggregate>()
+            .AddTransient<IPartialTemplateResolverFactory, DbBackedPartialTemplateResolverFactory>()
             .AddFiles(x => x.AddFilesInMemory(KeyedServiceNames.FileServiceKey))
             .AddOptions()
             .Configure<MessageManagementOptions>(configuration);

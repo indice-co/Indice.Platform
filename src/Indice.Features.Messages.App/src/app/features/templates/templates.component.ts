@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ToastType, ViewAction } from '@indice/ng-components';
 import { Observable, combineLatest, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
-import { MessagesApiClient, Template, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
+import { MessagesApiClient, Template, TemplateListItemResultSet, TemplateType } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
@@ -31,13 +31,25 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
     this.sortdir = 'asc';
     this.search = '';
     // Fallback uses translation key as initial label.
-    this.sortOptions = [new MenuOption('Templates.SortNameOption', 'name')];
+    this.sortOptions = [
+      new MenuOption('Templates.SortNameOption', 'name'),
+      new MenuOption('Templates.SortTypeOption', 'type')
+    ];
   }
 
   private _destroy$ = new Subject<void>();
 
   public newItemLink: string | null = null;
   public full = true;
+
+  public readonly templateTypeEnum = TemplateType;
+  public selectedTypeFilter: TemplateType | undefined = undefined;
+  public typeFilterOptions: MenuOption[] = [
+    new MenuOption('Templates.AllTypes', undefined),
+    new MenuOption('Templates.FullTemplate', TemplateType.Full),
+    new MenuOption('Templates.PartialTemplate', TemplateType.Partial),
+    new MenuOption('Templates.LayoutTemplate', TemplateType.Layout)
+  ];
 
   public override ngOnInit(): void {
     super.ngOnInit();
@@ -50,6 +62,35 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
       .subscribe(translated => {
         this.sortOptions = this.sortOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));
       });
+
+    // Reactive translation of the type filter labels.
+    const typeFilterKeys = this.typeFilterOptions.map(o => o.text);
+    combineLatest(typeFilterKeys.map(k => this._lang.translateKey(k)))
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(translated => {
+        this.typeFilterOptions = this.typeFilterOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));
+      });
+  }
+
+  public onFilterChanged(filterName: string, value: any): void {
+    if (filterName === 'templateType') {
+      this.selectedTypeFilter = value as TemplateType | undefined;
+      this.page = 1;
+      this.refresh();
+    }
+  }
+
+  public typeLabelKey(type: TemplateType | undefined): string {
+    if (type === TemplateType.Partial) {
+      return 'Templates.PartialTemplate';
+    }
+    if (type === TemplateType.Full) {
+      return 'Templates.FullTemplate';
+    }
+    if (type === TemplateType.Layout) {
+      return 'Templates.LayoutTemplate';
+    }
+    return 'Templates.EmptyValueIndicator';
   }
 
   public override ngOnDestroy(): void {
@@ -59,7 +100,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
 
   public loadItems(): Observable<IResultSet<Template> | null | undefined> {
     return this._api
-      .getTemplates(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined)
+      .getTemplates(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, undefined, undefined, this.selectedTypeFilter)
       .pipe(map((result: TemplateListItemResultSet) => (result as IResultSet<Template>)));
   }
 

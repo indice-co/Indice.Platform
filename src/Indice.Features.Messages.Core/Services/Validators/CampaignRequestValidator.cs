@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Indice.Configuration;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -36,9 +37,9 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
             .When(campaign => !campaign.MessageTemplateId.HasValue)
             .WithMessage("Channels provided in the content are not valid.");
         RuleFor(campaign => campaign.MessageTemplateId)
-            .Must(BeExistingTemplateId)
+            .MustAsync(BeExistingFullTemplateId)
             .When(campaign => campaign.MessageTemplateId.HasValue) // Check that TemplateId is valid, when it is provided.
-            .WithMessage("Specified template id is not valid.");
+            .WithMessage("The template either does not exist or is not Full.");
         RuleFor(campaign => campaign.RecipientListId)
             .Must(id => id is null)
             .When(campaign => campaign.IsGlobal) // DistributionListId property must not be provided when campaign is global.
@@ -70,5 +71,11 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
 
     private bool BeExistingDistributionListId(GuidOrAlias? id) => _distributionListService.GetById(id).Result is not null;
 
-    private bool BeExistingTemplateId(GuidOrAlias? id) => _templateService.GetById(id).Result is not null;
+    private async Task<bool> BeExistingFullTemplateId(GuidOrAlias? id, CancellationToken cancellationToken) {
+        var template =  await _templateService.GetById(id);
+        if (template is not null && template.Type == TemplateType.Full) {
+            return true;
+        }
+        return false;
+    }
 }

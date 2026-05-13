@@ -2,7 +2,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnDestroy, OnIn
 import { Router } from '@angular/router';
 
 import { APP_LANGUAGES, HeaderMetaItem, Icons, MenuOption, ToastType } from '@indice/ng-components';
-import { CreateTemplateRequest, MessageContent, MessagesApiClient, MessageTypeResultSet } from 'src/app/core/services/messages-api.service';
+import { CreateTemplateRequest, MessageContent, MessagesApiClient, MessageTypeResultSet, TemplateType } from 'src/app/core/services/messages-api.service';
 import { CampaignContentComponent } from '../../campaigns/create/steps/content/campaign-content.component';
 import { catchError, EMPTY, Subject, combineLatest } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
@@ -42,6 +42,13 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked, OnDest
     'inbox': new MessageContent()
   };
 
+  public templateKindOptions: MenuOption[] = [
+    new MenuOption('Templates.FullTemplate', TemplateType.Full),
+    new MenuOption('Templates.PartialTemplate', TemplateType.Partial),
+    new MenuOption('Templates.LayoutTemplate', TemplateType.Layout)
+  ];
+  public selectedKindOption: MenuOption = this.templateKindOptions[0];
+
   public ngOnInit(): void {
     // Wizard intro meta item initialized with translation key as fallback.
     this.metaItems = [
@@ -64,6 +71,15 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked, OnDest
         if (this.messageTypes.length > 0) {
           this.messageTypes[0] = this.selectedOption;
         }
+      });
+
+    // Reactive translation of the template kind dropdown labels.
+    const kindKeys = this.templateKindOptions.map(o => o.text);
+    combineLatest(kindKeys.map(k => this._lang.translateKey(k)))
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(translated => {
+        this.templateKindOptions = this.templateKindOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));
+        this.selectedKindOption = this.templateKindOptions.find(o => o.value === this.selectedKindOption.value) ?? this.templateKindOptions[0];
       });
 
     this._loadMessageTypes();
@@ -94,6 +110,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked, OnDest
     this.template.content = content;
     this.template.data = JSON.parse(dataContents ?? "{}");
     this.template.messageTypeId = this.selectedOption.value;
+    this.template.type = this.selectedKindOption.value as TemplateType;
     this._api
       .createTemplate(new CreateTemplateRequest(this.template))
       .pipe(
@@ -122,5 +139,9 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked, OnDest
 
   protected setType(event: MenuOption): void {
     this.selectedOption = event;
+  }
+
+  protected setKind(event: MenuOption): void {
+    this.selectedKindOption = event;
   }
 }

@@ -44,6 +44,11 @@ internal static class TemplatesApi
              .WithSummary("Gets the list of all templates using the provided ListOptions.")
              .WithDescription(TemplatesHandlers.GET_TEMPLATES_DESCRIPTION);
 
+        group.MapGet("partials", TemplatesHandlers.GetPartialTemplates)
+             .WithName(nameof(TemplatesHandlers.GetPartialTemplates))
+             .WithSummary("Gets every Partial/Layout template with full Content.")
+             .WithDescription(TemplatesHandlers.GET_PARTIAL_TEMPLATES_DESCRIPTION);
+
         group.MapGet("{templateId}", TemplatesHandlers.GetTemplateById)
              .WithName(nameof(TemplatesHandlers.GetTemplateById))
              .WithSummary("Gets a template by its unique id.")
