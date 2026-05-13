@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Azure.Messaging;
 using HandlebarsDotNet;
 using HandlebarsDotNet.Extension.Json;
 using Indice.Features.Messages.Core.Data;
@@ -334,10 +335,11 @@ public class CampaignService : ICampaignService
     public async Task<RecipientMessageEvents> GetCampaignRecipientDetails(Guid campaignId, Guid contactId) {
         var details = new RecipientMessageEvents();
         var contact = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
-        var campaign = Mapper.ToCampaign(await DbContext.Campaigns.AsNoTracking().FirstAsync(x => x.Id == campaignId));
+        var message = await DbContext.Messages.AsNoTracking().FirstAsync( x => x.CampaignId == campaignId && x.ContactId == contactId);
+        var messageContent = message!.Content;
         details.Recipient = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
-        GenerateMessageContent(campaign, contact);
-        details.Content = campaign.Content;
+        GetMessageContentFromMessage(messageContent);
+        details.Content = messageContent;
         details.Events.AddRange(await DbContext.MessageEvents
                         .Where(x => x.CampaignId == campaignId && x.ContactId == contactId)
                         .Select(x => new MessageEvent {
@@ -353,34 +355,17 @@ public class CampaignService : ICampaignService
         return details;
     }
 
-    private void GenerateMessageContent(Campaign campaign, Contact? contact) {
+    private void GetMessageContentFromMessage(MessageContentDictionary messageContentDict) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
         handlebars.Configuration.UseJson();
-        foreach (var content in campaign!.Content) {
+        foreach (var content in messageContentDict) {
             handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(content.Key);
             handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(content.Key);
-            dynamic templateData = new {
-                id = campaign.Id,
-                title = campaign.Title,
-                type = campaign.Type?.Name,
-                classification = campaign.Type?.Classification,
-                actionLink = new {
-                    href = !string.IsNullOrEmpty(campaign.ActionLink?.Href) ? $"_tracking/messages/cta/{(Base64Id)campaign.Id}" : null,
-                    text = campaign.ActionLink?.Text,
-                },
-                mediaBaseHref = campaign.MediaBaseHref,
-                now = DateTimeOffset.UtcNow,
-                contact = contact is not null
-                    ? JsonDocument.Parse(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()))
-                    : null,
-                data = campaign.Data is not null && (campaign.Data is not string || !string.IsNullOrWhiteSpace(campaign.Data))
-                    ? JsonDocument.Parse(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()))
-                    : null
-            };
-            var messageContent = campaign.Content[content.Key];
-            messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);
-            messageContent.Body = handlebars.Compile(content.Value.Body)(templateData);
+            var messageContent = messageContentDict[content.Key];
+            messageContent.Title = handlebars.Compile(content.Value.Title)("");
+            messageContent.Body = handlebars.Compile(content.Value.Body)("");
         }
+
     }
 }
