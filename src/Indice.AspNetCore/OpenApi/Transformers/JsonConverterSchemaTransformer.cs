@@ -80,12 +80,8 @@ public static class JsonConverterSchemaTransformer
         if (defaultSchema is not System.Text.Json.Nodes.JsonObject) {
             return;
         }
-        // Guard: if the schema has no "type" property (e.g. unsupported .NET type), bail out.
-        if (defaultSchema["type"] is null) {
-            return;
-        }
-        var isArrayOfTypes = defaultSchema["type"]!.GetValueKind() == JsonValueKind.Array;
-        var defaultTypes = isArrayOfTypes ? string.Join(',', defaultSchema["type"]!.AsArray().Select(x => x!.ToString())) : defaultSchema["type"]!.ToString();
+        var isArrayOfTypes = defaultSchema["type"]?.GetValueKind() == JsonValueKind.Array;
+        var defaultTypes = isArrayOfTypes ? string.Join(',', defaultSchema["type"]!.AsArray().Select(x => x!.ToString())) : defaultSchema["type"]?.ToString();
         schema.Pattern = defaultSchema["pattern"]?.ToString();
         schema.Format = defaultSchema["format"]?.ToString();
         if (Enum.TryParse<JsonSchemaType>(defaultTypes, ignoreCase: true, out var defaultSchemaType)) {
