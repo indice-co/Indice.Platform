@@ -387,10 +387,13 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return deviceId;
         }
         var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
-        if (!result.Succeeded || result.Principal?.FindSubjectId() != user.Id) {
+        var userId = result.Principal?.FindFirstValue(Options.ClaimsIdentity.UserIdClaimType) ??
+                     result.Principal?.FindFirstValue(JwtClaimTypes.Subject) ??
+                     result.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!result.Succeeded || userId != user.Id) {
             deviceId = Context.ResolveDeviceId();
             Context.Items.Add(BasicClaimTypes.DeviceId, deviceId);
-            return Context.ResolveDeviceId();
+            return deviceId;
         }
         deviceId = new MfaDeviceIdentifier(result.Principal.FindFirstValue(BasicClaimTypes.DeviceId));
         Context.Items.Add(BasicClaimTypes.DeviceId, deviceId);
