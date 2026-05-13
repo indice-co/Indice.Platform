@@ -278,7 +278,9 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     this._partialStore.envFor(channel).subscribe(env => {
       try {
         const template = env.compile(value);
-        this.subjectPreview = template(this.samplePayload);
+        this.subjectPreview = template(this.samplePayload, {
+          data: { 'partial-block': () => '' }
+        });
       } catch (error) { }
     });
   }
@@ -290,7 +292,9 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     this._partialStore.envFor(channel).subscribe(env => {
       try {
         const template = env.compile(value);
-        const rendered = template(this.samplePayload);
+        const rendered = template(this.samplePayload, {
+          data: { 'partial-block': () => '' }
+        });
         const isPlainText = channel?.toLowerCase() != 'email' && channel?.toLowerCase() != 'inbox';
         this.bodyPreview = isPlainText
           ? `<pre style="white-space: pre-wrap">${rendered}</pre>`
