@@ -335,11 +335,9 @@ public class CampaignService : ICampaignService
     public async Task<RecipientMessageEvents> GetCampaignRecipientDetails(Guid campaignId, Guid contactId) {
         var details = new RecipientMessageEvents();
         var contact = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
-        var message = await DbContext.Messages.AsNoTracking().FirstAsync( x => x.CampaignId == campaignId && x.ContactId == contactId);
-        var messageContent = message!.Content;
+        var dbMessage = await DbContext.Messages.AsNoTracking().FirstAsync( x => x.CampaignId == campaignId && x.ContactId == contactId);
         details.Recipient = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
-        GetMessageContentFromMessage(messageContent);
-        details.Content = messageContent;
+        details.Content = dbMessage.Content;
         details.Events.AddRange(await DbContext.MessageEvents
                         .Where(x => x.CampaignId == campaignId && x.ContactId == contactId)
                         .Select(x => new MessageEvent {
@@ -355,17 +353,4 @@ public class CampaignService : ICampaignService
         return details;
     }
 
-    private void GetMessageContentFromMessage(MessageContentDictionary messageContentDict) {
-        var handlebars = Handlebars.Create();
-        handlebars.Configuration.TextEncoder = new HtmlEncoder();
-        handlebars.Configuration.UseJson();
-        foreach (var content in messageContentDict) {
-            handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(content.Key);
-            handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(content.Key);
-            var messageContent = messageContentDict[content.Key];
-            messageContent.Title = handlebars.Compile(content.Value.Title)("");
-            messageContent.Body = handlebars.Compile(content.Value.Body)("");
-        }
-
-    }
 }
