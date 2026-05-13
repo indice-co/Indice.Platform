@@ -76,8 +76,12 @@ public static class JsonConverterSchemaTransformer
     private static void TransformSchemaPrimitive(OpenApiSchema schema, JsonSerializerOptions runtimeJsonOptions, Type type) {
         _WebDefalts ??= StripCustomConverters(runtimeJsonOptions);
         var defaultSchema = _WebDefalts.GetJsonSchemaAsNode(type);
-        var isArrayOfTypes = defaultSchema["type"]!.GetValueKind() == JsonValueKind.Array;
-        var defaultTypes = isArrayOfTypes ? string.Join(',', defaultSchema["type"]!.AsArray().Select(x => x!.ToString())) : defaultSchema["type"]!.ToString();
+        // Guard: if the schema is not a JsonObject (e.g. bare 'true'/'false' schema), bail out.
+        if (defaultSchema is not System.Text.Json.Nodes.JsonObject) {
+            return;
+        }
+        var isArrayOfTypes = defaultSchema["type"]?.GetValueKind() == JsonValueKind.Array;
+        var defaultTypes = isArrayOfTypes ? string.Join(',', defaultSchema["type"]!.AsArray().Select(x => x!.ToString())) : defaultSchema["type"]?.ToString();
         schema.Pattern = defaultSchema["pattern"]?.ToString();
         schema.Format = defaultSchema["format"]?.ToString();
         if (Enum.TryParse<JsonSchemaType>(defaultTypes, ignoreCase: true, out var defaultSchemaType)) {
