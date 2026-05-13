@@ -23,17 +23,21 @@ public class CampaignService : ICampaignService
     /// <summary>Creates a new instance of <see cref="CampaignService"/>.</summary>
     /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
     /// <param name="campaignManagementOptions">Options used to configure the Campaigns management API feature.</param>
+    /// <param name="partialTemplateResolverFactory">Factory used to create partial template resolvers.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public CampaignService(
         CampaignsDbContext dbContext,
-        IOptions<MessageManagementOptions> campaignManagementOptions
+        IOptions<MessageManagementOptions> campaignManagementOptions,
+        IPartialTemplateResolverFactory partialTemplateResolverFactory
     ) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         CampaignManagementOptions = campaignManagementOptions?.Value ?? throw new ArgumentNullException(nameof(campaignManagementOptions));
+        PartialTemplateResolverFactory = partialTemplateResolverFactory ?? throw new ArgumentNullException(nameof(partialTemplateResolverFactory));
     }
 
     private CampaignsDbContext DbContext { get; }
     private MessageManagementOptions CampaignManagementOptions { get; }
+    private IPartialTemplateResolverFactory PartialTemplateResolverFactory { get; }
 
     /// <inheritdoc />
     public Task<ResultSet<Campaign>> GetList(ListOptions<CampaignListFilter> options) {
@@ -349,12 +353,13 @@ public class CampaignService : ICampaignService
         return details;
     }
 
-    private static void GenerateMessageContent(Campaign campaign, Contact? contact) {
+    private void GenerateMessageContent(Campaign campaign, Contact? contact) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
         handlebars.Configuration.UseJson();
         foreach (var content in campaign!.Content) {
             handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(content.Key);
+            handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(content.Key);
             dynamic templateData = new {
                 id = campaign.Id,
                 title = campaign.Title,

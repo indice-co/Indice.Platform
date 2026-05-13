@@ -65,7 +65,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             return;
         }
         // Make substitution to message content using contact resolved data.
-        GenerateMessageContent(campaign, contact, PartialTemplateResolverFactory);
+        GenerateMessageContent(campaign, contact);
 
         await CreateMessageAndDispatch(@event, campaign, contact);
     }
@@ -108,12 +108,12 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     }
 
 
-    private static void GenerateMessageContent(CampaignCreatedEvent campaign, Contact? contact, IPartialTemplateResolverFactory partialTemplateResolverFactory) {
+    private void GenerateMessageContent(CampaignCreatedEvent campaign, Contact? contact) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.UseJson();
         foreach (var content in campaign!.Content) {
             handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(content.Key);
-            handlebars.Configuration.PartialTemplateResolver = partialTemplateResolverFactory.Create(content.Key);
+            handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(content.Key);
             dynamic templateData = new {
                 id = campaign.Id,
                 title = campaign.Title,
