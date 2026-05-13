@@ -195,6 +195,15 @@ public static class WorkerHostBuilderExtensions
         return options;
     }
 
+    /// <summary>Adds an instance of <see cref="IEmailService"/> according to <seealso cref="IConfiguration"/> and the <strong>Email:Provider</strong> setting.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <remarks>Auto discovers the correct service to register according to configuration</remarks>    
+    public static MessageJobsOptions UseEmailService(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddEmailService(configuration);
+        return options;
+    }
+
     /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
