@@ -5,18 +5,6 @@
   [search-placeholder] ="'Shared.Search' | translate"
   (onAction)="actionHandler($event)"
   (onSearch)="searchChanged($event)">
-  <div class="px-4 sm:px-6 lg:px-8 pt-3 pb-2 flex items-center gap-3">
-    <label for="templateTypeFilter"
-      class="text-sm font-medium text-gray-500">
-      {{ 'Templates.KindLabel' | translate }}
-    </label>
-    <lib-local-drop-down-menu id="templateTypeFilter"
-      name="templateTypeFilter"
-      [options]="typeFilterOptions"
-      [value]="selectedTypeFilterOption"
-      (change)="onTypeFilterChanged($event)">
-    </lib-local-drop-down-menu>
-  </div>
   <lib-list-view [items]="items"
     [page]="page"
     [page-size]="pageSize"
@@ -29,6 +17,16 @@
     (pageSizeChanged)="pageSizeChanged($event)"
     (sortChanged)="sortChanged($event)"
     (sortdirChanged)="sortdirChanged($event)">
+    <ng-container pager-near-content>
+      <div class="inline-flex">
+        <lib-toggle-buttons-list class="mr-2"
+          [icon]="'ms-Icon ms-Icon--Filter text-gray-300'"
+          [options]="typeFilterOptions"
+          [value]="selectedTypeFilter"
+          (valueChange)="onFilterChanged('templateType', $event)">
+        </lib-toggle-buttons-list>
+      </div>
+    </ng-container>
     <lib-list-column [title]="'Templates.NameColumn' | translate">
       <ng-template let-item>
         <a href="#"

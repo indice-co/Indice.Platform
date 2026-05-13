@@ -31,7 +31,10 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
     this.sortdir = 'asc';
     this.search = '';
     // Fallback uses translation key as initial label.
-    this.sortOptions = [new MenuOption('Templates.SortNameOption', 'name')];
+    this.sortOptions = [
+      new MenuOption('Templates.SortNameOption', 'name'),
+      new MenuOption('Templates.SortTypeOption', 'type')
+    ];
   }
 
   private _destroy$ = new Subject<void>();
@@ -47,7 +50,6 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
     new MenuOption('Templates.PartialTemplate', TemplateType.Partial),
     new MenuOption('Templates.LayoutTemplate', TemplateType.Layout)
   ];
-  public selectedTypeFilterOption: MenuOption = this.typeFilterOptions[0];
 
   public override ngOnInit(): void {
     super.ngOnInit();
@@ -67,15 +69,15 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
       .pipe(takeUntil(this._destroy$))
       .subscribe(translated => {
         this.typeFilterOptions = this.typeFilterOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));
-        this.selectedTypeFilterOption = this.typeFilterOptions.find(o => o.value === this.selectedTypeFilter) ?? this.typeFilterOptions[0];
       });
   }
 
-  public onTypeFilterChanged(option: MenuOption): void {
-    this.selectedTypeFilterOption = option;
-    this.selectedTypeFilter = option.value as TemplateType | undefined;
-    this.page = 1;
-    this.refresh();
+  public onFilterChanged(filterName: string, value: any): void {
+    if (filterName === 'templateType') {
+      this.selectedTypeFilter = value as TemplateType | undefined;
+      this.page = 1;
+      this.refresh();
+    }
   }
 
   public typeLabelKey(type: TemplateType | undefined): string {

@@ -1883,6 +1883,9 @@ user_code_2</value>
   <data name="Templates.SortNameOption" xml:space="preserve">
     <value>Name</value>
   </data>
+  <data name="Templates.SortTypeOption" xml:space="preserve">
+    <value>Type</value>
+  </data>
   <data name="Templates.KindLabel" xml:space="preserve">
     <value>Kind</value>
   </data>

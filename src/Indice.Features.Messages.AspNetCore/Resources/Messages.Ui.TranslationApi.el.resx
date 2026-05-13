@@ -1883,6 +1883,9 @@
   <data name="Templates.SortNameOption" xml:space="preserve">
     <value>Όνομα</value>
   </data>
+  <data name="Templates.SortTypeOption" xml:space="preserve">
+    <value>Τύπος</value>
+  </data>
   <data name="Templates.KindLabel" xml:space="preserve">
     <value>Είδος</value>
   </data>
@@ -1890,19 +1893,19 @@
     <value>Είδος</value>
   </data>
   <data name="Templates.FullTemplate" xml:space="preserve">
-    <value>Πλήρες</value>
+    <value>Full</value>
   </data>
   <data name="Templates.PartialTemplate" xml:space="preserve">
-    <value>Τμηματικό</value>
+    <value>Partial</value>
   </data>
   <data name="Templates.LayoutTemplate" xml:space="preserve">
-    <value>Διάταξη</value>
+    <value>Layout</value>
   </data>
   <data name="Templates.AllTypes" xml:space="preserve">
     <value>Όλα</value>
   </data>
   <data name="Templates.KindInfo" xml:space="preserve">
-    <value>Επιλέξτε «Πλήρες» για αυτόνομα πρότυπα, «Τμηματικό» για επαναχρησιμοποιήσιμα τμήματα (π.χ. κεφαλίδες/υποσέλιδα) ή «Διάταξη» για διατάξεις σελίδας.</value>
+    <value>Επιλέξτε «Full» για αυτόνομα πρότυπα, «Partial» για επαναχρησιμοποιήσιμα τμήματα (π.χ. κεφαλίδες/υποσέλιδα) ή «Layout» για διατάξεις σελίδας.</value>
   </data>
   <data name="Shared.ContactComboboxNameLabelRequired" xml:space="preserve">
     <value>Όνομα (*)</value>
