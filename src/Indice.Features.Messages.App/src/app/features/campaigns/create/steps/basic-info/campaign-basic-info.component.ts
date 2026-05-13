@@ -4,7 +4,7 @@ import { AbstractControl, FormGroup, FormArray, FormControl, Validators } from '
 
 import { APP_LANGUAGES, MenuOption } from '@indice/ng-components';
 import { lastValueFrom, combineLatest, Subscription } from 'rxjs';
-import { MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
+import { MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet, TemplateType } from 'src/app/core/services/messages-api.service';
 import { EnhancedComboboxComponent } from '@indice/ng-components';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization service
 
@@ -291,7 +291,8 @@ export class CampaignBasicInfoComponent implements OnInit, OnDestroy {
           'name+',
           searchTerm || '',
           this.messageType,
-          true
+          true,
+          TemplateType.Full
         )
       );
     } catch (error) {

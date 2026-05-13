@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { APP_LANGUAGES, ModalService, ToastType } from '@indice/ng-components';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
-import { MessagesApiClient, Template } from 'src/app/core/services/messages-api.service';
+import { MessagesApiClient, Template, TemplateType } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from '../template-edit-store.service';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
@@ -43,6 +43,19 @@ export class TemplateDetailsEditComponent implements OnInit, OnDestroy {
   public ngOnDestroy(): void {
     this._destroy$.next();
     this._destroy$.complete();
+  }
+
+  public typeLabelKey(type: TemplateType | undefined): string {
+    if (type === TemplateType.Partial) {
+      return 'Templates.PartialTemplate';
+    }
+    if (type === TemplateType.Layout) {
+      return 'Templates.LayoutTemplate';
+    }
+    if (type === TemplateType.Full) {
+      return 'Templates.FullTemplate';
+    }
+    return 'Templates.EmptyValueIndicator';
   }
 
   public deleteTemplate(): void {

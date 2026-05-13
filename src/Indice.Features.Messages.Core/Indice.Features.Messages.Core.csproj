@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Messages.AspNetCore" />
+    <InternalsVisibleTo Include="Indice.Features.Messages.Tests" />
     <None Include="CHANGELOG.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
