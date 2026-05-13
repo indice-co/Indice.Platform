@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Indice.Configuration;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -38,7 +39,7 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
         RuleFor(campaign => campaign.MessageTemplateId)
             .MustAsync(BeExistingFullTemplateId)
             .When(campaign => campaign.MessageTemplateId.HasValue) // Check that TemplateId is valid, when it is provided.
-            .WithMessage("Specified template id is not valid.");
+            .WithMessage("The template either does not exist or is not Full.");
         RuleFor(campaign => campaign.RecipientListId)
             .Must(id => id is null)
             .When(campaign => campaign.IsGlobal) // DistributionListId property must not be provided when campaign is global.

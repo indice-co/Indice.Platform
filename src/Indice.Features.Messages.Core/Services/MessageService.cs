@@ -53,7 +53,7 @@ public class MessageService : IMessageService
     public async Task<ResultSet<Message>?> GetList(string recipientId, ListOptions<MessagesFilter>? options) {
         var userMessages = await GetUserMessagesQuery(recipientId, options?.Filter, options?.Search).ToResultSetAsync(options);
         if (userMessages?.Items != null && userMessages.Items.Any(i => i.RequiresSubstitutions)) {
-            await ApplyHandlebarsSubstitutions(recipientId, userMessages);
+            await ApplyHandlebarsSubstitutions(recipientId, userMessages, MessageChannelKind.Inbox);
         }
         return userMessages;
     }
@@ -62,7 +62,7 @@ public class MessageService : IMessageService
     public async Task<Message?> GetById(Guid id, string recipientId, MessageChannelKind? channel = MessageChannelKind.Inbox) {
         var userMessage = await GetUserMessagesQuery(recipientId, new MessagesFilter { MessageChannelKind = channel }).SingleOrDefaultAsync(x => x.Id == id);
         if (userMessage?.RequiresSubstitutions == true && channel == MessageChannelKind.Inbox) {
-            await ApplyHandlebarsSubstitutions(recipientId, userMessage);
+            await ApplyHandlebarsSubstitutions(recipientId, userMessage, MessageChannelKind.Inbox);
         }
         return userMessage;
     }
@@ -293,10 +293,10 @@ public class MessageService : IMessageService
         });
     }
     
-    private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, ResultSet<Message> userMessages) {
+    private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, ResultSet<Message> userMessages, MessageChannelKind channelKind) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
-        handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(MessageChannelKind.Inbox.ToString());
+        handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(channelKind.ToString());
         var contact = await ContactResolver.Resolve(userIdentitfier);
         var contactExpandoObject = contact is not null
             ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
@@ -313,10 +313,10 @@ public class MessageService : IMessageService
         }
     }
 
-    private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, Message userMessage) {
+    private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, Message userMessage, MessageChannelKind channelKind) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
-        handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(MessageChannelKind.Inbox.ToString());
+        handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(channelKind.ToString());
         var contact = await ContactResolver.Resolve(userIdentitfier);
         dynamic templateData = new {
             contact = contact is not null

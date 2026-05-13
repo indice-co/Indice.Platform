@@ -119,36 +119,6 @@ public class TemplateService : ITemplateService
     }
 
     /// <inheritdoc />
-    public async Task<Template?> GetByAlias(string alias) {
-        if (string.IsNullOrWhiteSpace(alias)) {
-            return default;
-        }
-        var template = await DbContext.Templates.Include(x => x.MessageType).FirstOrDefaultAsync(x => x.Alias == alias.Trim());
-        if (template is null) {
-            return default;
-        }
-        return new Template {
-            Content = template.Content,
-            CreatedAt = template.CreatedAt,
-            UpdatedAt = template.UpdatedAt,
-            UpdatedBy = template.UpdatedBy,
-            CreatedBy = template.CreatedBy,
-            Id = template.Id,
-            Name = template.Name,
-            Alias = template.Alias,
-            IgnoreUserPreferences = template.IgnoreUserPreferences,
-            Data = template.Data,
-            MessageType = template.MessageType != null ? new MessageType {
-                Id = template.MessageType.Id,
-                Name = template.MessageType.Name,
-                Alias = template.MessageType.Alias,
-                Classification = template.MessageType.Classification
-            } : null,
-            Type = template.Type
-        };
-    }
-
-    /// <inheritdoc />
     public async Task<ResultSet<TemplateListItem>> GetList(ListOptions<TemplateListFilter> options) {
         var query = DbContext.Templates.Include(x => x.MessageType).AsQueryable();
         if (!string.IsNullOrWhiteSpace(options.Search) && options.Search.Length > 2) {

@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentValidation;
 using Indice.Configuration;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;

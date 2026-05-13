@@ -12,7 +12,7 @@ public class DbTemplate : DbAuditableEntity
     /// <summary>The alias of the message type.</summary>
     /// <remarks>Optional, but if set then the value must be Unique</remarks>
     public string? Alias { get; set; }
-    /// <summary>Determines if the taemplate to be created from this template should ignore user communication preferences.</summary>
+    /// <summary>Determines if the template to be created from this template should ignore user communication preferences.</summary>
     /// <remarks>This option can be overridden at campaign level</remarks>
     public bool IgnoreUserPreferences { get; set; }
     /// <summary>The contents of the template.</summary>
@@ -28,3 +28,23 @@ public class DbTemplate : DbAuditableEntity
     public TemplateType Type { get; set; }
 
 }
+
+/// <summary>
+/// Represents the type of a template.
+/// </summary>
+public enum TemplateType : byte
+{
+    /// <summary>
+    /// The template is a full template.
+    /// </summary>
+    Full = 0,
+    /// <summary>
+    /// The template is partial.
+    /// </summary>
+    Partial = 1,
+    /// <summary>
+    /// The template is a page layout / wrapper.
+    /// </summary>
+    Layout = 2
+}
+

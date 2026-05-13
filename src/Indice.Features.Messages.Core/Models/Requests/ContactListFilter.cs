@@ -1,4 +1,4 @@
-﻿using Indice.Features.Messages.Core.Models;
+﻿using Indice.Features.Messages.Core.Data.Models;
 
 namespace Indice.Features.Messages.Core.Models.Requests;
 
@@ -11,6 +11,6 @@ public class TemplateListFilter
     /// <summary>Fetch items without Message type id.</summary>
     public bool? IncludeItemsWithoutMessageTypeId { get; set; }
 
-    /// <summary>Filter by template type (Full / Partial).</summary>
+    /// <summary>Filter by template type (Full / Partial / Layout).</summary>
     public TemplateType? Type { get; set; }
 }

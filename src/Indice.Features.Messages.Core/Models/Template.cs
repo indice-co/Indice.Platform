@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Messages.Core.Models;
+﻿using Indice.Features.Messages.Core.Data.Models;
+
+namespace Indice.Features.Messages.Core.Models;
 
 /// <summary>Models a template.</summary>
 public class Template : TemplateBase
@@ -26,7 +28,7 @@ public class TemplateBase
     public string? Name { get; set; }
     /// <summary>The alias of the template.</summary>
     public string? Alias { get; set; }
-    /// <summary>Determines if the taemplate to be created from this template should ignore user communication preferences.</summary>
+    /// <summary>Determines if the template to be created from this template should ignore user communication preferences.</summary>
     public bool IgnoreUserPreferences { get; set; }
     /// <summary>Specifies the principal that created the template.</summary>
     public string? CreatedBy { get; set; }
