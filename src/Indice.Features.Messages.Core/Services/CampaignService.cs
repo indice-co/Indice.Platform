@@ -337,7 +337,8 @@ public class CampaignService : ICampaignService
         var contact = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
         var dbMessage = await DbContext.Messages.AsNoTracking().FirstAsync( x => x.CampaignId == campaignId && x.ContactId == contactId);
         details.Recipient = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
-        details.Content = dbMessage.Content;
+        var content = new MessageContentDictionary(dbMessage.Content);
+        details.Content = content;
         details.Events.AddRange(await DbContext.MessageEvents
                         .Where(x => x.CampaignId == campaignId && x.ContactId == contactId)
                         .Select(x => new MessageEvent {
