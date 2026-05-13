@@ -1,11 +1,11 @@
 using HandlebarsDotNet;
 using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
-using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
