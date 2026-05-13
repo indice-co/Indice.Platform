@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.47.0] - 2026-05-13
+### Added partial template functionality
+
+To categorize the new template types a new column must be added. This column is not nullable, defualts to 0 (Full template) and all the existing templates should be categorized as Full.
+<br>
+Example script:
+```sql
+ALTER TABLE cmp.Template
+ADD YourColumnName TINYINT NOT NULL 
+CONSTRAINT DF_Template_TemplateType DEFAULT 0;
+```
+**Note:** This example assumes SQLServer.
+
 ## [8.31.0] - 2025-01-07
 ### Added Messaging Database Cleanup Job
 The following configuration should be added in the appsettings.json and local.settings.json to determine the frequency of the clean up job:

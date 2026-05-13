@@ -9,6 +9,7 @@ using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Manager;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
@@ -97,6 +98,7 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
         services.TryAddTransient<IContactService, ContactService>();
         services.TryAddTransient<ITemplateService, TemplateService>();
+        services.TryAddTransient<IPartialTemplateResolverFactory, DbBackedPartialTemplateResolverFactory>();
         services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
         services.TryAddTransient<NotificationsManager>();
         services.TryAddTransient<IDistributionListService, DistributionListService>();

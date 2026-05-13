@@ -5,6 +5,7 @@ using Indice.Features.Messages.Core.Handlers;
 using Indice.Features.Messages.Core.Hosting;
 using Indice.Features.Messages.Core.Manager;
 using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
@@ -133,6 +134,7 @@ public static class WorkerHostBuilderExtensions
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         services.TryAddScoped<UserNameAccessorAggregate>();
+        services.TryAddTransient<IPartialTemplateResolverFactory, DbBackedPartialTemplateResolverFactory>();
 
         services.Configure<AnalyticsOptions>(opt => {
             opt.Enabled = options.Analytics.Enabled;
@@ -190,6 +192,15 @@ public static class WorkerHostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceBrevo(this MessageJobsOptions options, IConfiguration configuration) {
         options.Services.AddEmailServiceSparkPost(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> according to <seealso cref="IConfiguration"/> and the <strong>Email:Provider</strong> setting.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <remarks>Auto discovers the correct service to register according to configuration</remarks>    
+    public static MessageJobsOptions UseEmailService(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddEmailService(configuration);
         return options;
     }
 

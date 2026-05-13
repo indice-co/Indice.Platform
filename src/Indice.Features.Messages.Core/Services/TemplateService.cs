@@ -31,7 +31,8 @@ public class TemplateService : ITemplateService
             IgnoreUserPreferences = request.IgnoreUserPreferences,
             Data = request.Data,
             CreatedAt = DateTimeOffset.UtcNow,
-            MessageTypeId = request.MessageTypeId
+            MessageTypeId = request.MessageTypeId,
+            Type = request.Type
         };
         DbContext.Templates.Add(template);
         await DbContext.SaveChangesAsync();
@@ -49,6 +50,7 @@ public class TemplateService : ITemplateService
                 Alias = template.MessageType.Alias, 
                 Classification = template.MessageType.Classification 
             } : null,
+            Type = template.Type
         };
     }
 
@@ -85,13 +87,35 @@ public class TemplateService : ITemplateService
             Alias = template.Alias,
             IgnoreUserPreferences = template.IgnoreUserPreferences,
             Data = template.Data,
-            MessageType = template.MessageType != null ? new MessageType { 
-                Id = template.MessageType.Id, 
-                Name = template.MessageType.Name, 
-                Alias = template.MessageType.Alias, 
-                Classification = template.MessageType.Classification 
-            } : null
+            MessageType = template.MessageType != null ? new MessageType {
+                Id = template.MessageType.Id,
+                Name = template.MessageType.Name,
+                Alias = template.MessageType.Alias,
+                Classification = template.MessageType.Classification
+            } : null,
+            Type = template.Type
         };
+    }
+
+    /// <inheritdoc />
+    public async Task<ResultSet<Template>> GetPartialsAndLayouts() {
+        var templates = await DbContext.Templates
+            .Where(x => x.Type == TemplateType.Partial || x.Type == TemplateType.Layout)
+            .Select(t => new Template {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Alias = t.Alias,
+                    Type = t.Type,
+                    Content = t.Content,
+                    Data = t.Data,
+                    CreatedAt = t.CreatedAt,
+                    CreatedBy = t.CreatedBy,
+                    UpdatedAt = t.UpdatedAt,
+                    UpdatedBy = t.UpdatedBy,
+                    IgnoreUserPreferences = t.IgnoreUserPreferences
+                })
+            .ToListAsync();
+        return new ResultSet<Template>(templates, templates.Count);
     }
 
     /// <inheritdoc />
@@ -112,6 +136,9 @@ public class TemplateService : ITemplateService
         if (options.Filter?.IncludeItemsWithoutMessageTypeId == false) {
             query = query.Where(x => x.MessageTypeId != null);
         }
+        if (options.Filter?.Type is not null) {
+            query = query.Where(x => x.Type == options.Filter.Type);
+        }
 
         var result = await query.ToResultSetAsync(options);
         var templateItems = result.Items.Select(x => new TemplateListItem {
@@ -124,13 +151,14 @@ public class TemplateService : ITemplateService
             Name = x.Name,
             Alias = x.Alias,
             IgnoreUserPreferences = x.IgnoreUserPreferences,
-            MessageType = x.MessageType != null ? new MessageType { 
-                Id = x.MessageType.Id, 
-                Name = x.MessageType.Name, 
-                Alias = x.MessageType.Alias, 
-                Classification = 
-                x.MessageType.Classification 
-            } : null
+            MessageType = x.MessageType != null ? new MessageType {
+                Id = x.MessageType.Id,
+                Name = x.MessageType.Name,
+                Alias = x.MessageType.Alias,
+                Classification =
+                x.MessageType.Classification
+            } : null,
+            Type = x.Type
         });
         return new ResultSet<TemplateListItem>(templateItems, result.Count);
     }
