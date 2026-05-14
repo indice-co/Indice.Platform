@@ -231,6 +231,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         });
         services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorRememberMeScheme, options => {
             options.Cookie.Name = ExtendedIdentityConstants.TwoFactorRememberMeCookieName;
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             options.ExpireTimeSpan = TimeSpan.FromDays(configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? ExtendedSignInManager<User>.DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS);
         });
         services.AddAntiforgery(options => options.Cookie.Name = ExtendedIdentityConstants.AntiforgeryCookieName);

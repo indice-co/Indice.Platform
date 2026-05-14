@@ -382,15 +382,18 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <param name="user"></param>
     /// <returns>The device identifier</returns>
     public async Task<MfaDeviceIdentifier> GetMfaDeviceIdentifierAsync(TUser user) {
-        if (Context.Items.TryGetValue(BasicClaimTypes.DeviceId, out var deviceItBoxed) 
+        if (Context.Items.TryGetValue(BasicClaimTypes.DeviceId, out var deviceItBoxed)
             && deviceItBoxed is MfaDeviceIdentifier deviceId) {
             return deviceId;
         }
         var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
-        if (!result.Succeeded || result.Principal?.FindSubjectId() != user.Id) {
+        var userId = result.Principal?.FindFirstValue(Options.ClaimsIdentity.UserIdClaimType) ??
+                     result.Principal?.FindFirstValue(JwtClaimTypes.Subject) ??
+                     result.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!result.Succeeded || userId != user.Id) {
             deviceId = Context.ResolveDeviceId();
             Context.Items.Add(BasicClaimTypes.DeviceId, deviceId);
-            return Context.ResolveDeviceId();
+            return deviceId;
         }
         deviceId = new MfaDeviceIdentifier(result.Principal.FindFirstValue(BasicClaimTypes.DeviceId));
         Context.Items.Add(BasicClaimTypes.DeviceId, deviceId);
@@ -484,6 +487,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var userId = await ExtendedUserManager.GetUserIdAsync(user);
         var deviceIdentity = new ClaimsIdentity(IdentityConstants.TwoFactorRememberMeScheme);
         deviceIdentity.AddClaim(new Claim(Options.ClaimsIdentity.UserIdClaimType, userId));
+        deviceIdentity.AddClaim(new Claim(ClaimTypes.Name, userId));
         if (!deviceId.IsEmpty) {
             deviceIdentity.AddClaim(new Claim(BasicClaimTypes.DeviceId, deviceId.Value!));
         }
