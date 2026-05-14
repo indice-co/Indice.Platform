@@ -206,6 +206,24 @@ public static class IConfigurationExtensions
     /// <exception cref="KeyNotFoundException">Throws a <see cref="KeyNotFoundException"/> if the specified key is not found.</exception>
     public static string GetSecret(this IConfiguration configuration, string key) => GetSecrets(configuration)![key];
 
+    /// <summary>
+    /// Determines whether an Azure-compatible connection definition exists for the given connection name.
+    /// Supports either:
+    /// - Traditional connection string via GetConnectionString
+    /// - Azure identity-based configuration (accountName, fullyQualifiedNamespace, serviceUri)
+    /// - accountName: Storage Account
+    /// - serviceUri: SignalR
+    /// - fullyQualifiedNamespace: Service Bus
+    /// </summary>
+    /// <param name="configuration">Application configuration instance</param>
+    /// <param name="connectionStringName">Connection string key name</param>
+    /// <returns>True if any supported Azure connection configuration is present</returns>
+    public static bool HasAzureConnection(this IConfiguration configuration, string connectionStringName) =>
+        !string.IsNullOrWhiteSpace(configuration.GetConnectionString(connectionStringName)) ||
+            !string.IsNullOrWhiteSpace(configuration[$"{connectionStringName}__accountName"]) ||
+                !string.IsNullOrWhiteSpace(configuration[$"{connectionStringName}__fullyQualifiedNamespace"]) ||
+                    !string.IsNullOrWhiteSpace(configuration[$"{connectionStringName}__serviceUri"]);
+
     /// <summary>Tries to get the signalR connection string only if valid.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="connectionString">Outputs the connection string if valid</param>

@@ -3,7 +3,7 @@
 namespace Indice.Types;
 
 /// <summary>A type that represents a connection string.</summary>
-public class ConnectionString : IEnumerable<KeyValuePair<string, string?>>
+public sealed class ConnectionString : IEnumerable<KeyValuePair<string, string?>>
 {
     private readonly IDictionary<string, string?> _properties;
 
