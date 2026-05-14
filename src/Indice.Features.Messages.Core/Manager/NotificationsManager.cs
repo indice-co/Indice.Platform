@@ -201,10 +201,10 @@ public class NotificationsManager(
             }
             request.RecipientListId = distributionList.Id;
         }
-        // create the attachemtns
+        // create the attachments
         if (request.Attachments.Any()) {
             if (request.Attachments.Count > 3) {
-                return CreateCampaignResult.Fail("Too many attachments. Maximum attachent size for Notification manager is '3'");
+                return CreateCampaignResult.Fail("Too many attachments. Maximum attachment size for Notification manager is '3'");
             }
 
             try {
