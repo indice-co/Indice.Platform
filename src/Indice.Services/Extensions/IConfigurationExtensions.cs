@@ -220,9 +220,9 @@ public static class IConfigurationExtensions
     /// <returns>True if any supported Azure connection configuration is present</returns>
     public static bool HasAzureConnection(this IConfiguration configuration, string connectionStringName) =>
         !string.IsNullOrWhiteSpace(configuration.GetConnectionString(connectionStringName)) ||
-            !string.IsNullOrWhiteSpace(configuration[$"{connectionStringName}__accountName"]) ||
-                !string.IsNullOrWhiteSpace(configuration[$"{connectionStringName}__fullyQualifiedNamespace"]) ||
-                    !string.IsNullOrWhiteSpace(configuration[$"{connectionStringName}__serviceUri"]);
+            !string.IsNullOrWhiteSpace(configuration.GetSection(connectionStringName).GetValue<string>("accountName")) ||
+                !string.IsNullOrWhiteSpace(configuration.GetSection(connectionStringName).GetValue<string>("fullyQualifiedNamespace")) ||
+                    !string.IsNullOrWhiteSpace(configuration.GetSection(connectionStringName).GetValue<string>("serviceUri"));
 
     /// <summary>Tries to get the signalR connection string only if valid.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
