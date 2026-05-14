@@ -22,7 +22,7 @@
     <VersionPrefixFtpServer>$(VersionPrefixBase).0</VersionPrefixFtpServer>
     <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 
-    <VersionSuffix>rc04</VersionSuffix>
+    <VersionSuffix>rc05</VersionSuffix>
     <Authors>Constantinos Leftheris</Authors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>Latest</LangVersion>
