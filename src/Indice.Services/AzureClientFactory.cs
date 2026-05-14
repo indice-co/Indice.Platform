@@ -46,7 +46,7 @@ public sealed class AzureClientFactory
         }
 
         var credential = CreateAzureCredential(connectionStringName);
-        var accountName = _configuration[$"{connectionStringName}__accountName"];
+        var accountName = _configuration.GetSection(connectionStringName).GetValue<string>("accountName");
         if (string.IsNullOrWhiteSpace(accountName)) {
             throw new ArgumentNullException($"\"{connectionStringName}__accountName\" is missing.");
         }
@@ -71,7 +71,7 @@ public sealed class AzureClientFactory
         }
 
         var credential = CreateAzureCredential(connectionStringName);
-        var accountName = _configuration[$"{connectionStringName}__accountName"];
+        var accountName = _configuration.GetSection(connectionStringName).GetValue<string>("accountName");
         if (string.IsNullOrWhiteSpace(accountName)) {
             throw new ArgumentNullException($"\"{connectionStringName}__accountName\" is missing.");
         }
@@ -101,7 +101,7 @@ public sealed class AzureClientFactory
         }
 
         var credential = CreateAzureCredential(connectionStringName);
-        var accountName = _configuration[$"{connectionStringName}__accountName"];
+        var accountName = _configuration.GetSection(connectionStringName).GetValue<string>("accountName");
         if (string.IsNullOrWhiteSpace(accountName)) {
             throw new ArgumentNullException($"\"{connectionStringName}__accountName\" is missing.");
         }
@@ -130,7 +130,7 @@ public sealed class AzureClientFactory
         }
 
         var credential = CreateAzureCredential(connectionStringName);
-        var namespaceName = _configuration[$"{connectionStringName}__fullyQualifiedNamespace"];
+        var namespaceName = _configuration.GetSection(connectionStringName).GetValue<string>("fullyQualifiedNamespace");
         if (string.IsNullOrWhiteSpace(namespaceName)) {
             throw new ArgumentNullException($"\"{connectionStringName}__fullyQualifiedNamespace\" is missing.");
         }
@@ -161,7 +161,7 @@ public sealed class AzureClientFactory
         }
 
         var credential = CreateAzureCredential(connectionStringName);
-        var namespaceName = _configuration[$"{connectionStringName}__fullyQualifiedNamespace"];
+        var namespaceName = _configuration.GetSection(connectionStringName).GetValue<string>("fullyQualifiedNamespace");
         if (string.IsNullOrWhiteSpace(namespaceName)) {
             throw new ArgumentNullException($"\"{connectionStringName}__fullyQualifiedNamespace\" is missing.");
         }
@@ -169,7 +169,8 @@ public sealed class AzureClientFactory
     }
 
     private TokenCredential CreateAzureCredential(string connectionStringName) {
-        var clientId = _configuration[$"{connectionStringName}__clientId"] ?? _configuration["AZURE_CLIENT_ID"];
+        var clientId = _configuration.GetSection(connectionStringName).GetValue<string>("clientId") 
+            ?? _configuration["AZURE_CLIENT_ID"];
 
         return string.IsNullOrWhiteSpace(clientId)
             ? new DefaultAzureCredential()
