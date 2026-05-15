@@ -39,8 +39,12 @@ public sealed class AzureClientFactory
     public BlobServiceClient CreateBlobServiceClient(string connectionStringName) {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionStringName);
 
-        var storageConnection = _configuration.GetConnectionString(connectionStringName) ??
-            _configuration.GetValue<string>(connectionStringName);
+        var storageConnection = _configuration.GetConnectionString(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(storageConnection)) {
+            return new BlobServiceClient(storageConnection);
+        }
+
+        storageConnection = _configuration.GetValue<string>(connectionStringName);
         if (!string.IsNullOrWhiteSpace(storageConnection)) {
             return new BlobServiceClient(storageConnection);
         }
@@ -64,8 +68,11 @@ public sealed class AzureClientFactory
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionStringName);
         ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
 
-        var storageConnection = _configuration.GetConnectionString(connectionStringName) ??
-            _configuration.GetValue<string>(connectionStringName);
+        var storageConnection = _configuration.GetConnectionString(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(storageConnection)) {
+            return new BlobContainerClient(storageConnection, containerName);
+        }
+        storageConnection = _configuration.GetValue<string>(connectionStringName);
         if (!string.IsNullOrWhiteSpace(storageConnection)) {
             return new BlobContainerClient(storageConnection, containerName);
         }
@@ -94,12 +101,14 @@ public sealed class AzureClientFactory
             throw new ArgumentNullException("Storage queue name is required.");
         }
 
-        var storageConnection = _configuration.GetConnectionString(connectionStringName) ??
-            _configuration.GetValue<string>(connectionStringName);
+        var storageConnection = _configuration.GetConnectionString(connectionStringName);
         if (!string.IsNullOrWhiteSpace(storageConnection)) {
             return new QueueClient(storageConnection, queueName, options);
         }
-
+        storageConnection = _configuration.GetValue<string>(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(storageConnection)) {
+            return new QueueClient(storageConnection, queueName, options);
+        }
         var credential = CreateAzureCredential(connectionStringName);
         var accountName = _configuration.GetSection(connectionStringName).GetValue<string>("accountName");
         if (string.IsNullOrWhiteSpace(accountName)) {
@@ -123,8 +132,11 @@ public sealed class AzureClientFactory
             throw new ArgumentNullException("Service Bus ConnectionStringName is required.");
         }
 
-        var serviceBusConnection = _configuration.GetConnectionString(connectionStringName) ??
-            _configuration.GetValue<string>(connectionStringName);
+        var serviceBusConnection = _configuration.GetConnectionString(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(serviceBusConnection)) {
+            return new ServiceBusClient(serviceBusConnection);
+        }
+        serviceBusConnection = _configuration.GetValue<string>(connectionStringName);
         if (!string.IsNullOrWhiteSpace(serviceBusConnection)) {
             return new ServiceBusClient(serviceBusConnection);
         }
@@ -154,8 +166,11 @@ public sealed class AzureClientFactory
             throw new ArgumentNullException("Service Bus ConnectionStringName is required.");
         }
 
-        var serviceBusConnection = _configuration.GetConnectionString(connectionStringName) ??
-            _configuration.GetValue<string>(connectionStringName);
+        var serviceBusConnection = _configuration.GetConnectionString(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(serviceBusConnection)) {
+            return new ServiceBusAdministrationClient(serviceBusConnection);
+        }
+        serviceBusConnection = _configuration.GetValue<string>(connectionStringName);
         if (!string.IsNullOrWhiteSpace(serviceBusConnection)) {
             return new ServiceBusAdministrationClient(serviceBusConnection);
         }
@@ -169,7 +184,7 @@ public sealed class AzureClientFactory
     }
 
     private TokenCredential CreateAzureCredential(string connectionStringName) {
-        var clientId = _configuration.GetSection(connectionStringName).GetValue<string>("clientId") 
+        var clientId = _configuration.GetSection(connectionStringName).GetValue<string>("clientId")
             ?? _configuration["AZURE_CLIENT_ID"];
 
         return string.IsNullOrWhiteSpace(clientId)
