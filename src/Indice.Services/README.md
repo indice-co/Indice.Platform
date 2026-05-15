@@ -55,7 +55,8 @@ Managed Identity (system-assigned):
 ```json
 {
   "StorageConnection": {
-    "accountName": "<NAME>"
+    "accountName": "<NAME>",
+    "serviceUri": "<SERVICE_URI>"
   }
 }
 ```
@@ -65,10 +66,31 @@ Managed Identity (user-assigned):
 {
   "StorageConnection": {
     "accountName": "<NAME>",
+    "serviceUri": "<SERVICE_URI>",
     "clientId": "<CLIENT_ID>"
   }
 }
 ```
+
+For Azure Functions host, you need to provide these extra values too:
+```json
+AzureWebJobsStorage__accountName = <NAME>
+AzureWebJobsStorage__serviceUri = <BASE_SERVICE_URL>
+```
+
+For user-assigned Managed Identity, add this too:
+```json
+AzureWebJobsStorage__clientId = <CLIENT_ID>
+```
+
+Proper RBAC roles to be assigned to the Managed Identity:
+
+- Storage Account Contributor
+- Storage Blob Data Owner
+- Storage Queue Data Contributor
+- Storage Queue Data Message Processor
+- Storage Queue Data Message Sender
+- Storage Queue Data Reader
 
 ### 📧 Email Services
 
