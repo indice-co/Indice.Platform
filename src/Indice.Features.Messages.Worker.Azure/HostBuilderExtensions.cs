@@ -349,7 +349,8 @@ public static class HostBuilderExtensions
                                                             EventNames.SendPushNotification,
                                                             EventNames.SendSms,
                                                             EventNames.MarkAllAsRead,
-                                                            EventNames.MarkAllAsUnread
+                                                            EventNames.MarkAllAsUnread,
+                                                            EventNames.MergeContacts
                                                             );
 
     internal static readonly ExtendedFunctionMetadataProviderDisablePredicate ExcludeServiceBusTriggers =
@@ -359,8 +360,8 @@ public static class HostBuilderExtensions
                                                             $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendPushNotification}",
                                                             $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendSms}",
                                                             $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.MarkAllAsRead}",
-                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.MarkAllAsUnread}");
-
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.MarkAllAsUnread}",
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.MergeContacts}");
     internal static ExtendedFunctionMetadataProviderDisablePredicate ExcludeFunctions(params string[] functionNames) {
         return (fn, Configuration) => functionNames.Any(x => x.Equals(fn.Name, StringComparison.OrdinalIgnoreCase));
     }

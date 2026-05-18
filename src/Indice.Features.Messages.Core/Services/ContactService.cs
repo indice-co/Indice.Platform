@@ -1,10 +1,12 @@
 ﻿using System.Data.Common;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,11 +17,13 @@ public class ContactService : IContactService
 {
     /// <summary>Creates a new instance of <see cref="ContactService"/>.</summary>
     /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
+    /// <param name="eventDispatcherFactory">The <see cref="IEventDispatcherFactory"/> for dispatching events.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ContactService(CampaignsDbContext dbContext) {
+    public ContactService(CampaignsDbContext dbContext, IEventDispatcherFactory eventDispatcherFactory) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
     }
-
+    private IEventDispatcherFactory EventDispatcherFactory { get; }
     private CampaignsDbContext DbContext { get; }
     /// <inheritdoc />
     public async Task AddToDistributionList(Guid id, CreateDistributionListContactRequest request) {
@@ -319,7 +323,22 @@ public class ContactService : IContactService
                                     .ToList()
                             }
                         });
-        return await query.SingleOrDefaultAsync();
+        try {
+            return await query.SingleOrDefaultAsync();
+        } catch (InvalidOperationException) {
+            // More than one matching record was found
+            var duplicateContacts = await query.ToListAsync();
+            var primaryRecord = duplicateContacts.OrderByDescending(r => r.UpdatedAt).First();
+            var eventDispatcher = EventDispatcherFactory.Create(Core.KeyedServiceNames.EventDispatcherServiceKey);
+            await eventDispatcher.RaiseEventAsync(
+                new MergeContactsEvent() {
+                    PrimaryContactId = primaryRecord.Id!.Value,
+                    DuplicateContactsIds = [.. duplicateContacts.Where(r => r.Id != primaryRecord.Id).Select(r => r.Id!.Value)]
+                },
+                builder => builder.WrapInEnvelope().WithQueueName(EventNames.MergeContacts)
+            );
+            return primaryRecord;
+        }
     }
 
 
@@ -398,8 +417,7 @@ public class ContactService : IContactService
                 await DbContext.ContactPreferences.AddAsync(recipientPreferences);
                 await DbContext.SaveChangesAsync();
                 return;
-            } 
-            catch (DbUpdateException ex) when (IsDuplicateKeyViolation(ex)) {
+            } catch (DbUpdateException ex) when (IsDuplicateKeyViolation(ex)) {
                 DbContext.ChangeTracker.Clear();
                 recipientPreferences = await DbContext.ContactPreferences
                                            .Include(x => x.CommunicationOptions)
@@ -447,8 +465,7 @@ public class ContactService : IContactService
                 await DbContext.ContactPreferences.AddAsync(recipientPreferences);
                 await DbContext.SaveChangesAsync();
                 return;
-            } 
-            catch (DbUpdateException ex) when(IsDuplicateKeyViolation(ex)) {
+            } catch (DbUpdateException ex) when (IsDuplicateKeyViolation(ex)) {
                 DbContext.ChangeTracker.Clear();
                 recipientPreferences = await DbContext.ContactPreferences
                                              .Include(x => x.CommunicationOptions)

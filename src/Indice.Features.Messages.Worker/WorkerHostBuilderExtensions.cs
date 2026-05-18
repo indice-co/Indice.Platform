@@ -88,12 +88,29 @@ public static class WorkerHostBuilderExtensions
             options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
             options.InstanceCount = 1;
         })
+        .AddJob<MarkAllAsReadHandler>().WithQueueTrigger<MarkMessagesReadEvent>(options => {
+            options.QueueName = EventNames.SendSms;
+            options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
+            options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
+            options.InstanceCount = 1;
+        })
+        .AddJob<MarkAllAsUnreadHandler>().WithQueueTrigger<MarkMessagesUnreadEvent>(options => {
+            options.QueueName = EventNames.SendSms;
+            options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
+            options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
+            options.InstanceCount = 1;
+        })
+        .AddJob<MergeContactsHandler>().WithQueueTrigger<MergeContactsEvent>(options => {
+            options.QueueName = EventNames.SendSms;
+            options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
+            options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
+            options.InstanceCount = 1;
+        })
         .AddJob<MessagingDatabaseCleanUpJobHandler>().WithScheduleTrigger(messageOptions.DatabaseCleanUpCronExpression, options => {
             options.Singleton = true;
             options.Name = nameof(MessagingDatabaseCleanUpJobHandler);
             options.Group = nameof(MessagingDatabaseCleanUpJobHandler);
         });
-
     }
 
     private static void AddJobHandlerServices(this IServiceCollection services) {

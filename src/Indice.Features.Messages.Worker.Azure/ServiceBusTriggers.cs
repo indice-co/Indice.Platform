@@ -115,6 +115,17 @@ internal class ServiceBusTriggers
         await CampaignJobHandlerFactory.CreateFor<MarkMessagesUnreadEvent>().Process(payload!);
     }
 
+    [Function(ServiceBusTriggerPrefix + EventNames.MergeContacts)]
+    public async Task MergeContactsHandler(
+        [QueueTrigger("%ENVIRONMENT%-" + EventNames.MergeContacts, Connection = "ServiceBusConnection")] byte[] message,
+        FunctionContext functionContext
+    ) {
+        LogExecution(functionContext, EventNames.MergeContacts);
+        var envelope = JsonSerializer.Deserialize<Envelope<MergeContactsEvent>>(await ReadMessageAsync(message), JsonSerializerOptions)!;
+        var payload = envelope.Payload;
+        await CampaignJobHandlerFactory.CreateFor<MergeContactsEvent>().Process(payload!);
+    }
+
     private async Task<byte[]> ReadMessageAsync(byte[] message) {
         if (_options.UseCompression) {
             return await CompressionUtils.Decompress(message);
