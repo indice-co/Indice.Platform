@@ -128,7 +128,7 @@ internal class QueueTriggers
 
     [Function(EventNames.MergeContacts)]
     public async Task MergeContactsHandler(
-        [QueueTrigger("%ENVIRONMENT%-" + EventNames.MergeContacts, Connection = "ServiceBusConnection")] byte[] message,
+        [QueueTrigger("%ENVIRONMENT%-" + EventNames.MergeContacts, Connection = "StorageConnection" )] byte[] message,
         FunctionContext functionContext
     ) {
         LogExecution(functionContext, EventNames.MergeContacts);
