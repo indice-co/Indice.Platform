@@ -9,6 +9,7 @@
     <None Include="README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Azure.Communication.Email" Version="1.1.0" />
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.25.0" />
