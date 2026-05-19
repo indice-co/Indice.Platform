@@ -1,5 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -58,8 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <!-- German timezone display names -->
-
   <data name="Dateline Standard Time" xml:space="preserve">
     <value>(UTC-12:00) Internationale Datumsgrenze West</value>
   </data>
@@ -153,9 +210,6 @@
   <data name="Pacific SA Standard Time" xml:space="preserve">
     <value>(UTC-04:00) Santiago</value>
   </data>
-  <data name="Paraguay Standard Time" xml:space="preserve">
-    <value>(UTC-04:00) Asunción</value>
-  </data>
   <data name="Newfoundland Standard Time" xml:space="preserve">
     <value>(UTC-03:30) Neufundland</value>
   </data>
@@ -182,6 +236,9 @@
   </data>
   <data name="Bahia Standard Time" xml:space="preserve">
     <value>(UTC-03:00) Salvador</value>
+  </data>
+  <data name="Paraguay Standard Time" xml:space="preserve">
+    <value>(UTC-04:00) Asunción</value>
   </data>
   <data name="UTC-02" xml:space="preserve">
     <value>(UTC-02:00) Koordinierte Weltzeit-02</value>
@@ -480,9 +537,6 @@
   <data name="Line Islands Standard Time" xml:space="preserve">
     <value>(UTC+14:00) Kiritimati-Insel</value>
   </data>
-  <!-- Generated IANA entries below — do not edit by hand. -->
-  <!-- Regenerate with tools/Generate-TimezoneResx/generate.py -->
-  <!-- Africa/* -->
   <data name="Africa/Abidjan" xml:space="preserve">
     <value>(UTC+00:00) Abidjan</value>
   </data>
@@ -651,7 +705,6 @@
   <data name="Africa/Windhoek" xml:space="preserve">
     <value>(UTC+02:00) Windhoek</value>
   </data>
-  <!-- America/* -->
   <data name="America/Adak" xml:space="preserve">
     <value>(UTC-10:00) Adak</value>
   </data>
@@ -683,7 +736,7 @@
     <value>(UTC-03:00) Catamarca</value>
   </data>
   <data name="America/Argentina/ComodRivadavia" xml:space="preserve">
-    <value>(UTC-03:00) Catamarca</value>
+    <value>(UTC-03:00) Comodoro Rivadavia</value>
   </data>
   <data name="America/Catamarca" xml:space="preserve">
     <value>(UTC-03:00) Catamarca</value>
@@ -695,7 +748,7 @@
     <value>(UTC-03:00) Córdoba</value>
   </data>
   <data name="America/Rosario" xml:space="preserve">
-    <value>(UTC-03:00) Córdoba</value>
+    <value>(UTC-03:00) Rosario</value>
   </data>
   <data name="America/Argentina/Jujuy" xml:space="preserve">
     <value>(UTC-03:00) Jujuy</value>
@@ -800,7 +853,7 @@
     <value>(UTC-07:00) Ciudad Juárez</value>
   </data>
   <data name="America/Coral_Harbour" xml:space="preserve">
-    <value>(UTC-05:00) Atikokan</value>
+    <value>(UTC-05:00) Coral Harbour</value>
   </data>
   <data name="America/Costa_Rica" xml:space="preserve">
     <value>(UTC-06:00) Costa Rica</value>
@@ -908,7 +961,7 @@
     <value>(UTC-05:00) Indianapolis</value>
   </data>
   <data name="America/Fort_Wayne" xml:space="preserve">
-    <value>(UTC-05:00) Indianapolis</value>
+    <value>(UTC-05:00) Fort Wayne</value>
   </data>
   <data name="America/Indianapolis" xml:space="preserve">
     <value>(UTC-05:00) Indianapolis</value>
@@ -998,7 +1051,7 @@
     <value>(UTC-04:00) Manaus</value>
   </data>
   <data name="America/Marigot" xml:space="preserve">
-    <value>(UTC-04:00) Saint-Barthélemy</value>
+    <value>(UTC-04:00) Marigot</value>
   </data>
   <data name="America/Martinique" xml:space="preserve">
     <value>(UTC-04:00) Martinique</value>
@@ -1103,7 +1156,7 @@
     <value>(UTC-05:00) Port-au-Prince</value>
   </data>
   <data name="America/Port_of_Spain" xml:space="preserve">
-    <value>(UTC-04:00) Saint-Barthélemy</value>
+    <value>(UTC-04:00) Port of Spain</value>
   </data>
   <data name="America/Porto_Acre" xml:space="preserve">
     <value>(UTC-05:00) Porto Acre</value>
@@ -1226,7 +1279,7 @@
     <value>(UTC-08:00) Vancouver</value>
   </data>
   <data name="America/Virgin" xml:space="preserve">
-    <value>(UTC-04:00) St. Thomas</value>
+    <value>(UTC-04:00) Jungferninseln</value>
   </data>
   <data name="America/Whitehorse" xml:space="preserve">
     <value>(UTC-07:00) Whitehorse</value>
@@ -1246,7 +1299,6 @@
   <data name="America/Yellowknife" xml:space="preserve">
     <value>(UTC-07:00) Yellowknife</value>
   </data>
-  <!-- Antarctica/* -->
   <data name="Antarctica/Casey" xml:space="preserve">
     <value>(UTC+08:00) Casey</value>
   </data>
@@ -1283,11 +1335,9 @@
   <data name="Antarctica/Vostok" xml:space="preserve">
     <value>(UTC+05:00) Wostok</value>
   </data>
-  <!-- Arctic/* -->
   <data name="Arctic/Longyearbyen" xml:space="preserve">
     <value>(UTC+01:00) Longyearbyen</value>
   </data>
-  <!-- Asia/* -->
   <data name="Asia/Aden" xml:space="preserve">
     <value>(UTC+03:00) Aden</value>
   </data>
@@ -1424,7 +1474,7 @@
     <value>(UTC+05:00) Karatschi</value>
   </data>
   <data name="Asia/Kashgar" xml:space="preserve">
-    <value>(UTC+06:00) Ürümqi</value>
+    <value>(UTC+06:00) Kaschgar</value>
   </data>
   <data name="Asia/Kathmandu" xml:space="preserve">
     <value>(UTC+05:45) Kathmandu</value>
@@ -1609,7 +1659,6 @@
   <data name="Asia/Yerevan" xml:space="preserve">
     <value>(UTC+04:00) Eriwan</value>
   </data>
-  <!-- Atlantic/* -->
   <data name="Atlantic/Azores" xml:space="preserve">
     <value>(UTC-01:00) Azoren</value>
   </data>
@@ -1649,7 +1698,6 @@
   <data name="Atlantic/Stanley" xml:space="preserve">
     <value>(UTC-03:00) Stanley</value>
   </data>
-  <!-- Australia/* -->
   <data name="Australia/Adelaide" xml:space="preserve">
     <value>(UTC+09:30) Adelaide</value>
   </data>
@@ -1719,7 +1767,6 @@
   <data name="Australia/Yancowinna" xml:space="preserve">
     <value>(UTC+09:30) Yancowinna</value>
   </data>
-  <!-- Etc/* -->
   <data name="Etc/GMT" xml:space="preserve">
     <value>(UTC+00:00) GMT</value>
   </data>
@@ -1846,7 +1893,6 @@
   <data name="Etc/Zulu" xml:space="preserve">
     <value>(UTC+00:00) Zulu</value>
   </data>
-  <!-- Europe/* -->
   <data name="Europe/Amsterdam" xml:space="preserve">
     <value>(UTC+01:00) Amsterdam</value>
   </data>
@@ -1869,7 +1915,7 @@
     <value>(UTC+01:00) Berlin</value>
   </data>
   <data name="Europe/Bratislava" xml:space="preserve">
-    <value>(UTC+01:00) Prag</value>
+    <value>(UTC+01:00) Bratislava</value>
   </data>
   <data name="Europe/Brussels" xml:space="preserve">
     <value>(UTC+01:00) Brüssel</value>
@@ -1986,7 +2032,7 @@
     <value>(UTC+01:00) Paris</value>
   </data>
   <data name="Europe/Podgorica" xml:space="preserve">
-    <value>(UTC+01:00) Belgrad</value>
+    <value>(UTC+01:00) Podgorica</value>
   </data>
   <data name="Europe/Prague" xml:space="preserve">
     <value>(UTC+01:00) Prag</value>
@@ -2001,7 +2047,7 @@
     <value>(UTC+04:00) Samara</value>
   </data>
   <data name="Europe/San_Marino" xml:space="preserve">
-    <value>(UTC+01:00) Rom</value>
+    <value>(UTC+01:00) San Marino</value>
   </data>
   <data name="Europe/Sarajevo" xml:space="preserve">
     <value>(UTC+01:00) Sarajevo</value>
@@ -2060,7 +2106,6 @@
   <data name="Europe/Zurich" xml:space="preserve">
     <value>(UTC+01:00) Zürich</value>
   </data>
-  <!-- Indian/* -->
   <data name="Indian/Antananarivo" xml:space="preserve">
     <value>(UTC+03:00) Antananarivo</value>
   </data>
@@ -2094,7 +2139,6 @@
   <data name="Indian/Reunion" xml:space="preserve">
     <value>(UTC+04:00) Réunion</value>
   </data>
-  <!-- Pacific/* -->
   <data name="Pacific/Apia" xml:space="preserve">
     <value>(UTC+13:00) Apia</value>
   </data>
@@ -2156,7 +2200,7 @@
     <value>(UTC-10:00) Honolulu</value>
   </data>
   <data name="Pacific/Johnston" xml:space="preserve">
-    <value>(UTC-10:00) Honolulu</value>
+    <value>(UTC-10:00) Johnston</value>
   </data>
   <data name="Pacific/Kanton" xml:space="preserve">
     <value>(UTC+13:00) Canton</value>
@@ -2243,9 +2287,8 @@
     <value>(UTC+12:00) Wallis &amp; Futuna</value>
   </data>
   <data name="Pacific/Yap" xml:space="preserve">
-    <value>(UTC+10:00) Chuuk</value>
+    <value>(UTC+10:00) Yap</value>
   </data>
-  <!-- Rootless zones -->
   <data name="CET" xml:space="preserve">
     <value>(UTC+01:00) CET</value>
   </data>
@@ -2288,5 +2331,4 @@
   <data name="WET" xml:space="preserve">
     <value>(UTC+00:00) WET</value>
   </data>
-
 </root>

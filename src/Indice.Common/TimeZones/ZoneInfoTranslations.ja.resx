@@ -637,7 +637,7 @@
     <value>(UTC+00:00) サントメ</value>
   </data>
   <data name="Africa/Timbuktu" xml:space="preserve">
-    <value>(UTC+00:00) バマコ</value>
+    <value>(UTC+00:00) トンブクトゥ</value>
   </data>
   <data name="Africa/Tripoli" xml:space="preserve">
     <value>(UTC+02:00) トリポリ</value>
@@ -683,7 +683,7 @@
     <value>(UTC-03:00) カタマルカ</value>
   </data>
   <data name="America/Argentina/ComodRivadavia" xml:space="preserve">
-    <value>(UTC-03:00) カタマルカ</value>
+    <value>(UTC-03:00) コモドロ・リバダビア</value>
   </data>
   <data name="America/Catamarca" xml:space="preserve">
     <value>(UTC-03:00) カタマルカ</value>
@@ -695,7 +695,7 @@
     <value>(UTC-03:00) コルドバ</value>
   </data>
   <data name="America/Rosario" xml:space="preserve">
-    <value>(UTC-03:00) コルドバ</value>
+    <value>(UTC-03:00) ロサリオ</value>
   </data>
   <data name="America/Argentina/Jujuy" xml:space="preserve">
     <value>(UTC-03:00) フフイ</value>
@@ -800,7 +800,7 @@
     <value>(UTC-07:00) シウダー・フアレス</value>
   </data>
   <data name="America/Coral_Harbour" xml:space="preserve">
-    <value>(UTC-05:00) アティコカン</value>
+    <value>(UTC-05:00) コーラル・ハーバー</value>
   </data>
   <data name="America/Costa_Rica" xml:space="preserve">
     <value>(UTC-06:00) コスタリカ</value>
@@ -857,7 +857,7 @@
     <value>(UTC-06:00) エルサルバドル</value>
   </data>
   <data name="America/Ensenada" xml:space="preserve">
-    <value>(UTC-08:00) ティフアナ</value>
+    <value>(UTC-08:00) エンセナダ</value>
   </data>
   <data name="America/Fort_Nelson" xml:space="preserve">
     <value>(UTC-07:00) フォートネルソン</value>
@@ -908,7 +908,7 @@
     <value>(UTC-05:00) インディアナポリス</value>
   </data>
   <data name="America/Fort_Wayne" xml:space="preserve">
-    <value>(UTC-05:00) インディアナポリス</value>
+    <value>(UTC-05:00) フォートウェイン</value>
   </data>
   <data name="America/Indianapolis" xml:space="preserve">
     <value>(UTC-05:00) インディアナポリス</value>
@@ -1040,7 +1040,7 @@
     <value>(UTC-03:00) モンテビデオ</value>
   </data>
   <data name="America/Montreal" xml:space="preserve">
-    <value>(UTC-05:00) トロント</value>
+    <value>(UTC-05:00) モントリオール</value>
   </data>
   <data name="America/Montserrat" xml:space="preserve">
     <value>(UTC-04:00) モントセラト</value>
@@ -1055,7 +1055,7 @@
     <value>(UTC-05:00) ニューヨーク</value>
   </data>
   <data name="America/Nipigon" xml:space="preserve">
-    <value>(UTC-05:00) トロント</value>
+    <value>(UTC-05:00) ニピゴン</value>
   </data>
   <data name="America/Nome" xml:space="preserve">
     <value>(UTC-09:00) ノーム</value>
@@ -1088,7 +1088,7 @@
     <value>(UTC-05:00) パナマ</value>
   </data>
   <data name="America/Pangnirtung" xml:space="preserve">
-    <value>(UTC-05:00) イカルイット</value>
+    <value>(UTC-05:00) パンニルトゥング</value>
   </data>
   <data name="America/Paramaribo" xml:space="preserve">
     <value>(UTC-03:00) パラマリボ</value>
@@ -1106,7 +1106,7 @@
     <value>(UTC-04:00) ポートオブスペイン</value>
   </data>
   <data name="America/Porto_Acre" xml:space="preserve">
-    <value>(UTC-05:00) リオブランコ</value>
+    <value>(UTC-05:00) ポルトアクレ</value>
   </data>
   <data name="America/Porto_Velho" xml:space="preserve">
     <value>(UTC-04:00) ポルトベーリョ</value>
@@ -1118,7 +1118,7 @@
     <value>(UTC-03:00) プンタアレナス</value>
   </data>
   <data name="America/Rainy_River" xml:space="preserve">
-    <value>(UTC-06:00) ウィニペグ</value>
+    <value>(UTC-06:00) レイニーリバー</value>
   </data>
   <data name="America/Rankin_Inlet" xml:space="preserve">
     <value>(UTC-06:00) ランキンインレット</value>
@@ -1142,7 +1142,7 @@
     <value>(UTC-05:00) リオブランコ</value>
   </data>
   <data name="America/Santa_Isabel" xml:space="preserve">
-    <value>(UTC-08:00) ティフアナ</value>
+    <value>(UTC-08:00) サンタイサベル</value>
   </data>
   <data name="America/Santarem" xml:space="preserve">
     <value>(UTC-03:00) サンタレム</value>
@@ -1166,7 +1166,7 @@
     <value>(UTC-02:00) イトコルトルミット</value>
   </data>
   <data name="America/Shiprock" xml:space="preserve">
-    <value>(UTC-07:00) デンバー</value>
+    <value>(UTC-07:00) シップロック</value>
   </data>
   <data name="America/Sitka" xml:space="preserve">
     <value>(UTC-09:00) シトカ</value>
@@ -1202,7 +1202,7 @@
     <value>(UTC-04:00) チューレ</value>
   </data>
   <data name="America/Thunder_Bay" xml:space="preserve">
-    <value>(UTC-05:00) トロント</value>
+    <value>(UTC-05:00) サンダーベイ</value>
   </data>
   <data name="America/Tijuana" xml:space="preserve">
     <value>(UTC-08:00) ティフアナ</value>
@@ -1226,7 +1226,7 @@
     <value>(UTC-08:00) バンクーバー</value>
   </data>
   <data name="America/Virgin" xml:space="preserve">
-    <value>(UTC-04:00) セントトーマス</value>
+    <value>(UTC-04:00) ヴァージン諸島</value>
   </data>
   <data name="America/Whitehorse" xml:space="preserve">
     <value>(UTC-07:00) ホワイトホース</value>
@@ -1244,7 +1244,7 @@
     <value>(UTC-09:00) ヤクタット</value>
   </data>
   <data name="America/Yellowknife" xml:space="preserve">
-    <value>(UTC-07:00) エドモントン</value>
+    <value>(UTC-07:00) イエローナイフ</value>
   </data>
   <!-- Antarctica/* -->
   <data name="Antarctica/Casey" xml:space="preserve">
@@ -1343,10 +1343,10 @@
     <value>(UTC+09:00) チタ</value>
   </data>
   <data name="Asia/Choibalsan" xml:space="preserve">
-    <value>(UTC+08:00) ウランバートル</value>
+    <value>(UTC+08:00) チョイバルサン</value>
   </data>
   <data name="Asia/Chongqing" xml:space="preserve">
-    <value>(UTC+08:00) 上海</value>
+    <value>(UTC+08:00) 重慶</value>
   </data>
   <data name="Asia/Colombo" xml:space="preserve">
     <value>(UTC+05:30) コロンボ</value>
@@ -1376,7 +1376,7 @@
     <value>(UTC+02:00) ガザ</value>
   </data>
   <data name="Asia/Harbin" xml:space="preserve">
-    <value>(UTC+08:00) 上海</value>
+    <value>(UTC+08:00) ハルビン</value>
   </data>
   <data name="Asia/Hebron" xml:space="preserve">
     <value>(UTC+02:00) ヘブロン</value>
@@ -1424,7 +1424,7 @@
     <value>(UTC+05:00) カラチ</value>
   </data>
   <data name="Asia/Kashgar" xml:space="preserve">
-    <value>(UTC+06:00) ウルムチ</value>
+    <value>(UTC+06:00) カシュガル</value>
   </data>
   <data name="Asia/Kathmandu" xml:space="preserve">
     <value>(UTC+05:45) カトマンズ</value>
@@ -1559,7 +1559,7 @@
     <value>(UTC+03:30) テヘラン</value>
   </data>
   <data name="Asia/Tel_Aviv" xml:space="preserve">
-    <value>(UTC+02:00) エルサレム</value>
+    <value>(UTC+02:00) テルアビブ</value>
   </data>
   <data name="Asia/Thimphu" xml:space="preserve">
     <value>(UTC+06:00) ティンプー</value>
@@ -1629,7 +1629,7 @@
     <value>(UTC+00:00) フェロー</value>
   </data>
   <data name="Atlantic/Jan_Mayen" xml:space="preserve">
-    <value>(UTC+01:00) オスロ</value>
+    <value>(UTC+01:00) ヤンマイエン</value>
   </data>
   <data name="Atlantic/Madeira" xml:space="preserve">
     <value>(UTC+00:00) マデイラ</value>
@@ -1666,10 +1666,10 @@
     <value>(UTC+09:30) ブロークンヒル</value>
   </data>
   <data name="Australia/Canberra" xml:space="preserve">
-    <value>(UTC+10:00) シドニー</value>
+    <value>(UTC+10:00) キャンベラ</value>
   </data>
   <data name="Australia/Currie" xml:space="preserve">
-    <value>(UTC+10:00) ホバート</value>
+    <value>(UTC+10:00) カリー</value>
   </data>
   <data name="Australia/Darwin" xml:space="preserve">
     <value>(UTC+09:30) ダーウィン</value>
@@ -1860,7 +1860,7 @@
     <value>(UTC+02:00) アテネ</value>
   </data>
   <data name="Europe/Belfast" xml:space="preserve">
-    <value>(UTC+00:00) ロンドン</value>
+    <value>(UTC+00:00) ベルファスト</value>
   </data>
   <data name="Europe/Belgrade" xml:space="preserve">
     <value>(UTC+01:00) ベオグラード</value>
@@ -2156,7 +2156,7 @@
     <value>(UTC-10:00) ホノルル</value>
   </data>
   <data name="Pacific/Johnston" xml:space="preserve">
-    <value>(UTC-10:00) ホノルル</value>
+    <value>(UTC-10:00) ジョンストン</value>
   </data>
   <data name="Pacific/Kanton" xml:space="preserve">
     <value>(UTC+13:00) カントン島</value>
@@ -2225,7 +2225,7 @@
     <value>(UTC+10:00) サイパン</value>
   </data>
   <data name="Pacific/Samoa" xml:space="preserve">
-    <value>(UTC-11:00) パゴパゴ</value>
+    <value>(UTC-11:00) サモア</value>
   </data>
   <data name="Pacific/Tahiti" xml:space="preserve">
     <value>(UTC-10:00) タヒチ</value>
@@ -2243,7 +2243,7 @@
     <value>(UTC+12:00) ウォリス諸島</value>
   </data>
   <data name="Pacific/Yap" xml:space="preserve">
-    <value>(UTC+10:00) チューク</value>
+    <value>(UTC+10:00) ヤップ</value>
   </data>
   <!-- Rootless zones -->
   <data name="CET" xml:space="preserve">

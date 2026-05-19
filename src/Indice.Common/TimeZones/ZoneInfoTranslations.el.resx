@@ -286,7 +286,7 @@
     <value>(UTC+01:00) Σαράγεβο, Σκόπια, Βαρσοβία, Ζάγκρεμπ</value>
   </data>
   <data name="South Sudan Standard Time" xml:space="preserve">
-    <value>(UTC+02:00) Juba</value>
+    <value>(UTC+02:00) Τζούμπα</value>
   </data>
   <data name="GTB Standard Time" xml:space="preserve">
     <value>(UTC+02:00) Αθήνα, Βουκουρέστι</value>
@@ -697,7 +697,7 @@
     <value>(UTC+00:00) Σάο Τομέ</value>
   </data>
   <data name="Africa/Timbuktu" xml:space="preserve">
-    <value>(UTC+00:00) Μπαμάκο</value>
+    <value>(UTC+00:00) Τιμπουκτού</value>
   </data>
   <data name="Africa/Tripoli" xml:space="preserve">
     <value>(UTC+02:00) Τρίπολη</value>
@@ -743,7 +743,7 @@
     <value>(UTC-03:00) Καταμάρκα</value>
   </data>
   <data name="America/Argentina/ComodRivadavia" xml:space="preserve">
-    <value>(UTC-03:00) Καταμάρκα</value>
+    <value>(UTC-03:00) Κομοδόρο Ριβαδάβια</value>
   </data>
   <data name="America/Catamarca" xml:space="preserve">
     <value>(UTC-03:00) Καταμάρκα</value>
@@ -755,7 +755,7 @@
     <value>(UTC-03:00) Κόρδοβα</value>
   </data>
   <data name="America/Rosario" xml:space="preserve">
-    <value>(UTC-03:00) Κόρδοβα</value>
+    <value>(UTC-03:00) Ροσάριο</value>
   </data>
   <data name="America/Argentina/Jujuy" xml:space="preserve">
     <value>(UTC-03:00) Χουχούι</value>
@@ -860,7 +860,7 @@
     <value>(UTC-07:00) Σιουδάδ Χουάρες</value>
   </data>
   <data name="America/Coral_Harbour" xml:space="preserve">
-    <value>(UTC-05:00) Ατικόκαν</value>
+    <value>(UTC-05:00) Κόραλ Χάρμπορ</value>
   </data>
   <data name="America/Costa_Rica" xml:space="preserve">
     <value>(UTC-06:00) Κόστα Ρίκα</value>
@@ -917,7 +917,7 @@
     <value>(UTC-06:00) Ελ Σαλβαδόρ</value>
   </data>
   <data name="America/Ensenada" xml:space="preserve">
-    <value>(UTC-08:00) Τιχουάνα</value>
+    <value>(UTC-08:00) Ενσενάδα</value>
   </data>
   <data name="America/Fort_Nelson" xml:space="preserve">
     <value>(UTC-07:00) Φορτ Νέλσον</value>
@@ -968,7 +968,7 @@
     <value>(UTC-05:00) Ιντιανάπολις</value>
   </data>
   <data name="America/Fort_Wayne" xml:space="preserve">
-    <value>(UTC-05:00) Ιντιανάπολις</value>
+    <value>(UTC-05:00) Φορτ Γουέιν</value>
   </data>
   <data name="America/Indianapolis" xml:space="preserve">
     <value>(UTC-05:00) Ιντιανάπολις</value>
@@ -1100,7 +1100,7 @@
     <value>(UTC-03:00) Μοντεβιδέο</value>
   </data>
   <data name="America/Montreal" xml:space="preserve">
-    <value>(UTC-05:00) Τορόντο</value>
+    <value>(UTC-05:00) Μόντρεαλ</value>
   </data>
   <data name="America/Montserrat" xml:space="preserve">
     <value>(UTC-04:00) Μονσεράτ</value>
@@ -1115,7 +1115,7 @@
     <value>(UTC-05:00) Νέα Υόρκη</value>
   </data>
   <data name="America/Nipigon" xml:space="preserve">
-    <value>(UTC-05:00) Τορόντο</value>
+    <value>(UTC-05:00) Νιπιγκόν</value>
   </data>
   <data name="America/Nome" xml:space="preserve">
     <value>(UTC-09:00) Νόμε</value>
@@ -1148,7 +1148,7 @@
     <value>(UTC-05:00) Παναμάς</value>
   </data>
   <data name="America/Pangnirtung" xml:space="preserve">
-    <value>(UTC-05:00) Ικαλούιτ</value>
+    <value>(UTC-05:00) Παγκνιρτούνγκ</value>
   </data>
   <data name="America/Paramaribo" xml:space="preserve">
     <value>(UTC-03:00) Παραμαρίμπο</value>
@@ -1166,7 +1166,7 @@
     <value>(UTC-04:00) Πορτ οφ Σπέιν</value>
   </data>
   <data name="America/Porto_Acre" xml:space="preserve">
-    <value>(UTC-05:00) Ρίο Μπράνκο</value>
+    <value>(UTC-05:00) Πόρτο Άκρε</value>
   </data>
   <data name="America/Porto_Velho" xml:space="preserve">
     <value>(UTC-04:00) Πόρτο Βέλιο</value>
@@ -1178,7 +1178,7 @@
     <value>(UTC-03:00) Πούντα Αρένας</value>
   </data>
   <data name="America/Rainy_River" xml:space="preserve">
-    <value>(UTC-06:00) Γουίνιπεγκ</value>
+    <value>(UTC-06:00) Ρέινι Ρίβερ</value>
   </data>
   <data name="America/Rankin_Inlet" xml:space="preserve">
     <value>(UTC-06:00) Ράνκιν Ίνλετ</value>
@@ -1202,7 +1202,7 @@
     <value>(UTC-05:00) Ρίο Μπράνκο</value>
   </data>
   <data name="America/Santa_Isabel" xml:space="preserve">
-    <value>(UTC-08:00) Τιχουάνα</value>
+    <value>(UTC-08:00) Σάντα Ιζαμπέλ</value>
   </data>
   <data name="America/Santarem" xml:space="preserve">
     <value>(UTC-03:00) Σανταρέμ</value>
@@ -1226,7 +1226,7 @@
     <value>(UTC-02:00) Σκορεσμπίσουντ</value>
   </data>
   <data name="America/Shiprock" xml:space="preserve">
-    <value>(UTC-07:00) Ντένβερ</value>
+    <value>(UTC-07:00) Σιπρόκ</value>
   </data>
   <data name="America/Sitka" xml:space="preserve">
     <value>(UTC-09:00) Σίτκα</value>
@@ -1262,7 +1262,7 @@
     <value>(UTC-04:00) Θούλη</value>
   </data>
   <data name="America/Thunder_Bay" xml:space="preserve">
-    <value>(UTC-05:00) Τορόντο</value>
+    <value>(UTC-05:00) Θάντερ Μπέι</value>
   </data>
   <data name="America/Tijuana" xml:space="preserve">
     <value>(UTC-08:00) Τιχουάνα</value>
@@ -1286,7 +1286,7 @@
     <value>(UTC-08:00) Βανκούβερ</value>
   </data>
   <data name="America/Virgin" xml:space="preserve">
-    <value>(UTC-04:00) Άγιος Θωμάς</value>
+    <value>(UTC-04:00) Παρθένοι Νήσοι</value>
   </data>
   <data name="America/Whitehorse" xml:space="preserve">
     <value>(UTC-07:00) Γουάιτχορς</value>
@@ -1304,7 +1304,7 @@
     <value>(UTC-09:00) Γιάκουτατ</value>
   </data>
   <data name="America/Yellowknife" xml:space="preserve">
-    <value>(UTC-07:00) Έντμοντον</value>
+    <value>(UTC-07:00) Γέλοουναϊφ</value>
   </data>
   <!-- Antarctica/* -->
   <data name="Antarctica/Casey" xml:space="preserve">
@@ -1403,10 +1403,10 @@
     <value>(UTC+09:00) Τσιτά</value>
   </data>
   <data name="Asia/Choibalsan" xml:space="preserve">
-    <value>(UTC+08:00) Ουλάν Μπατόρ</value>
+    <value>(UTC+08:00) Τσοϊμπαλσάν</value>
   </data>
   <data name="Asia/Chongqing" xml:space="preserve">
-    <value>(UTC+08:00) Σανγκάη</value>
+    <value>(UTC+08:00) Τσονγκτσίνγκ</value>
   </data>
   <data name="Asia/Colombo" xml:space="preserve">
     <value>(UTC+05:30) Κολόμπο</value>
@@ -1436,7 +1436,7 @@
     <value>(UTC+02:00) Γάζα</value>
   </data>
   <data name="Asia/Harbin" xml:space="preserve">
-    <value>(UTC+08:00) Σανγκάη</value>
+    <value>(UTC+08:00) Χαρμπίν</value>
   </data>
   <data name="Asia/Hebron" xml:space="preserve">
     <value>(UTC+02:00) Χεβρώνα</value>
@@ -1484,7 +1484,7 @@
     <value>(UTC+05:00) Καράτσι</value>
   </data>
   <data name="Asia/Kashgar" xml:space="preserve">
-    <value>(UTC+06:00) Ουρούμτσι</value>
+    <value>(UTC+06:00) Κασγκάρ</value>
   </data>
   <data name="Asia/Kathmandu" xml:space="preserve">
     <value>(UTC+05:45) Κατμαντού</value>
@@ -1619,7 +1619,7 @@
     <value>(UTC+03:30) Τεχεράνη</value>
   </data>
   <data name="Asia/Tel_Aviv" xml:space="preserve">
-    <value>(UTC+02:00) Ιερουσαλήμ</value>
+    <value>(UTC+02:00) Τελ Αβίβ</value>
   </data>
   <data name="Asia/Thimphu" xml:space="preserve">
     <value>(UTC+06:00) Θίμφου</value>
@@ -1689,7 +1689,7 @@
     <value>(UTC+00:00) Φερόες</value>
   </data>
   <data name="Atlantic/Jan_Mayen" xml:space="preserve">
-    <value>(UTC+01:00) Όσλο</value>
+    <value>(UTC+01:00) Γιαν Μάγιεν</value>
   </data>
   <data name="Atlantic/Madeira" xml:space="preserve">
     <value>(UTC+00:00) Μαδέρα</value>
@@ -1726,10 +1726,10 @@
     <value>(UTC+09:30) Μπρόκεν Χιλ</value>
   </data>
   <data name="Australia/Canberra" xml:space="preserve">
-    <value>(UTC+10:00) Σίδνεϊ</value>
+    <value>(UTC+10:00) Καμπέρα</value>
   </data>
   <data name="Australia/Currie" xml:space="preserve">
-    <value>(UTC+10:00) Χόμπαρτ</value>
+    <value>(UTC+10:00) Κάρι</value>
   </data>
   <data name="Australia/Darwin" xml:space="preserve">
     <value>(UTC+09:30) Ντάργουιν</value>
@@ -1920,7 +1920,7 @@
     <value>(UTC+02:00) Αθήνα</value>
   </data>
   <data name="Europe/Belfast" xml:space="preserve">
-    <value>(UTC+00:00) Λονδίνο</value>
+    <value>(UTC+00:00) Μπέλφαστ</value>
   </data>
   <data name="Europe/Belgrade" xml:space="preserve">
     <value>(UTC+01:00) Βελιγράδι</value>
@@ -2106,7 +2106,7 @@
     <value>(UTC+02:00) Βίλνιους</value>
   </data>
   <data name="Europe/Volgograd" xml:space="preserve">
-    <value>(UTC+03:00) Βόλγκοκραντ</value>
+    <value>(UTC+03:00) Βόλγκογκραντ</value>
   </data>
   <data name="Europe/Warsaw" xml:space="preserve">
     <value>(UTC+01:00) Βαρσοβία</value>
@@ -2216,7 +2216,7 @@
     <value>(UTC-10:00) Χονολουλού</value>
   </data>
   <data name="Pacific/Johnston" xml:space="preserve">
-    <value>(UTC-10:00) Χονολουλού</value>
+    <value>(UTC-10:00) Τζόνστον</value>
   </data>
   <data name="Pacific/Kanton" xml:space="preserve">
     <value>(UTC+13:00) Καντών</value>
@@ -2285,7 +2285,7 @@
     <value>(UTC+10:00) Σαϊπάν</value>
   </data>
   <data name="Pacific/Samoa" xml:space="preserve">
-    <value>(UTC-11:00) Πάγκο Πάγκο</value>
+    <value>(UTC-11:00) Σαμόα</value>
   </data>
   <data name="Pacific/Tahiti" xml:space="preserve">
     <value>(UTC-10:00) Ταϊτή</value>
@@ -2303,7 +2303,7 @@
     <value>(UTC+12:00) Γουάλις</value>
   </data>
   <data name="Pacific/Yap" xml:space="preserve">
-    <value>(UTC+10:00) Τσουκ</value>
+    <value>(UTC+10:00) Γιαπ</value>
   </data>
   <!-- Rootless zones -->
   <data name="CET" xml:space="preserve">

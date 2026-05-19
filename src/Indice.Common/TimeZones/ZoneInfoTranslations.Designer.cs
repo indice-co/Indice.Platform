@@ -1483,7 +1483,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-04:00) St. Barthélemy.
+        ///   Looks up a localized string similar to (UTC-04:00) Marigot.
         /// </summary>
         internal static string America_Marigot {
             get {
@@ -1753,7 +1753,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-04:00) St. Barthélemy.
+        ///   Looks up a localized string similar to (UTC-04:00) Port of Spain.
         /// </summary>
         internal static string America_Port_of_Spain {
             get {
