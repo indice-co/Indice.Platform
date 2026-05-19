@@ -89,6 +89,10 @@ export default defineConfig({
                     transform: stripComments
                 },
                 {
+                    src: 'node_modules/bootstrap/LICENSE',
+                    dest: 'lib/bootstrap/dist/js'
+                },
+                {
                     src: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
                     dest: 'lib/bootstrap/dist/css'
                 },
@@ -104,6 +108,10 @@ export default defineConfig({
                     dest: 'lib/jquery/dist',
                     transform: stripComments
                 },
+                {
+                    src: 'node_modules/jquery/LICENSE.txt',
+                    dest: 'lib/jquery/dist'
+                },
                 // Copy jQuery Validation
                 {
                     src: 'node_modules/jquery-validation/dist/jquery.validate.min.js',
@@ -115,16 +123,23 @@ export default defineConfig({
                     dest: 'lib/jquery-validation/dist',
                     transform: stripComments
                 },
+                {
+                    src: 'node_modules/jquery-validation/LICENSE.md',
+                    dest: 'lib/jquery-validation/dist',
+                    transform: stripComments
+                },
                 // Copy jQuery Validation Unobtrusive (with parseJSON fix)
                 {
                     src: 'node_modules/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js',
                     dest: 'lib/jquery-validation-unobtrusive/dist',
                     transform: (contents) => {
-
                         // Replace deprecated $.parseJSON with native JSON.parse
-
                         return stripComments(contents).replace(/(\w|\$)\.parseJSON/g, 'JSON.parse');
                     }
+                },
+                {
+                    src: 'node_modules/jquery-validation-unobtrusive/LICENSE.txt',
+                    dest: 'lib/jquery-validation-unobtrusive/dist'
                 },
                 // Copy Knockout
                 {
@@ -132,17 +147,29 @@ export default defineConfig({
                     dest: 'lib/knockout/build/output',
                     transform: stripComments
                 },
+                {
+                    src: 'node_modules/knockout/LICENSE',
+                    dest: 'lib/knockout/build/output'
+                },
                 // Copy Knockout Secure Binding
                 {
                     src: 'node_modules/knockout-secure-binding/dist/knockout-secure-binding.min.js',
                     dest: 'lib/knockout-secure-binding/dist',
                     transform: stripComments
                 },
+                {
+                    src: 'node_modules/knockout-secure-binding/LICENSE',
+                    dest: 'lib/knockout-secure-binding/dist',
+                },
                 // Copy Popper.js
                 {
                     src: 'node_modules/@popperjs/core/dist/umd/popper.min.js',
                     dest: 'lib/@popperjs/core/dist/umd',
                     transform: stripComments
+                },
+                {
+                    src: 'node_modules/@popperjs/core/LICENSE.md',
+                    dest: 'lib/@popperjs/core/dist/umd'
                 },
                 // Copy SignalR
                 {
@@ -155,6 +182,10 @@ export default defineConfig({
                     src: 'node_modules/@fingerprintjs/fingerprintjs/dist/fp.min.js',
                     dest: 'lib/@fingerprintjs/fingerprintjs/dist',
                     transform: stripComments
+                },
+                {
+                    src: 'node_modules/@fingerprintjs/fingerprintjs/LICENSE',
+                    dest: 'lib/@fingerprintjs/fingerprintjs/dist'
                 },
                 // Copy Font Awesome 4.7
                 {
@@ -181,6 +212,10 @@ export default defineConfig({
                     transform: stripComments
                 },
                 {
+                    src: 'node_modules/swiper/LICENSE',
+                    dest: 'lib/swiper'
+                },
+                {
                     src: 'node_modules/swiper/swiper-bundle.min.css',
                     dest: 'lib/swiper'
                 },
@@ -191,6 +226,10 @@ export default defineConfig({
                     transform: stripComments
                 },
                 {
+                    src: 'node_modules/flowbite/LICENSE.md',
+                    dest: 'lib/flowbite/dist'
+                },
+                {
                     src: 'node_modules/flowbite/dist/flowbite.min.css',
                     dest: 'lib/flowbite/dist'
                 },
@@ -199,6 +238,10 @@ export default defineConfig({
                     src: 'node_modules/qrcodejs2/qrcode.min.js',
                     dest: 'lib/qrcodejs2',
                     transform: stripComments
+                },
+                {
+                    src: 'node_modules/qrcodejs2/LICENSE',
+                    dest: 'lib/qrcodejs2'
                 }
             ],
             silent: false
