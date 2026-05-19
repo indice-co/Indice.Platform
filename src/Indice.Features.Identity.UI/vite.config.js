@@ -90,7 +90,8 @@ export default defineConfig({
                 },
                 {
                     src: 'node_modules/bootstrap/LICENSE',
-                    dest: 'lib/bootstrap/dist/js'
+                    dest: 'lib/bootstrap/dist/js',
+                    rename: 'LICENSE.md'
                 },
                 {
                     src: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
@@ -149,7 +150,8 @@ export default defineConfig({
                 },
                 {
                     src: 'node_modules/knockout/LICENSE',
-                    dest: 'lib/knockout/build/output'
+                    dest: 'lib/knockout/build/output',
+                    rename: 'LICENSE.md'
                 },
                 // Copy Knockout Secure Binding
                 {
@@ -160,6 +162,7 @@ export default defineConfig({
                 {
                     src: 'node_modules/knockout-secure-binding/LICENSE',
                     dest: 'lib/knockout-secure-binding/dist',
+                    rename: 'LICENSE.md'
                 },
                 // Copy Popper.js
                 {
@@ -185,7 +188,8 @@ export default defineConfig({
                 },
                 {
                     src: 'node_modules/@fingerprintjs/fingerprintjs/LICENSE',
-                    dest: 'lib/@fingerprintjs/fingerprintjs/dist'
+                    dest: 'lib/@fingerprintjs/fingerprintjs/dist',
+                    rename: 'LICENSE.md'
                 },
                 // Copy Font Awesome 4.7
                 {
@@ -213,7 +217,8 @@ export default defineConfig({
                 },
                 {
                     src: 'node_modules/swiper/LICENSE',
-                    dest: 'lib/swiper'
+                    dest: 'lib/swiper',
+                    rename: 'LICENSE.md'
                 },
                 {
                     src: 'node_modules/swiper/swiper-bundle.min.css',
@@ -241,7 +246,8 @@ export default defineConfig({
                 },
                 {
                     src: 'node_modules/qrcodejs2/LICENSE',
-                    dest: 'lib/qrcodejs2'
+                    dest: 'lib/qrcodejs2',
+                    rename: 'LICENSE.md'
                 }
             ],
             silent: false
