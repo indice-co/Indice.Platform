@@ -21,6 +21,7 @@ scssFiles.forEach(file => {
     scssInputs[name] = file;
 });
 console.log('SCSS entry points:', scssInputs);
+const stripComments = (contents) => contents.toString().replace(/\/\*[\s\S]*?\*\/|^\s*\/\/.*/gm, '');
 export default defineConfig({
     root: './',
     base: './',
@@ -55,6 +56,9 @@ export default defineConfig({
         target: 'es2015',
         write: true
     },
+    esbuild: {
+        legalComments: 'none'
+    },
     css: {
         devSourcemap: false,
         preprocessorOptions: {
@@ -81,7 +85,8 @@ export default defineConfig({
                 // Copy Bootstrap
                 {
                     src: 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
-                    dest: 'lib/bootstrap/dist/js'
+                    dest: 'lib/bootstrap/dist/js',
+                    transform: stripComments
                 },
                 {
                     src: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
@@ -90,55 +95,66 @@ export default defineConfig({
                 // Copy Bootstrap.Native
                 {
                     src: 'node_modules/bootstrap.native/dist/bootstrap-native.js',
-                    dest: 'lib/bootstrap.native/dist'
+                    dest: 'lib/bootstrap.native/dist',
+                    transform: stripComments
                 },
                 // Copy jQuery
                 {
                     src: 'node_modules/jquery/dist/jquery.min.js',
-                    dest: 'lib/jquery/dist'
+                    dest: 'lib/jquery/dist',
+                    transform: stripComments
                 },
                 // Copy jQuery Validation
                 {
                     src: 'node_modules/jquery-validation/dist/jquery.validate.min.js',
-                    dest: 'lib/jquery-validation/dist'
+                    dest: 'lib/jquery-validation/dist',
+                    transform: stripComments
                 },
                 {
                     src: 'node_modules/jquery-validation/dist/additional-methods.min.js',
-                    dest: 'lib/jquery-validation/dist'
+                    dest: 'lib/jquery-validation/dist',
+                    transform: stripComments
                 },
                 // Copy jQuery Validation Unobtrusive (with parseJSON fix)
                 {
                     src: 'node_modules/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js',
                     dest: 'lib/jquery-validation-unobtrusive/dist',
                     transform: (contents) => {
+
                         // Replace deprecated $.parseJSON with native JSON.parse
-                        return contents.toString().replace(/(\w|\$)\.parseJSON/g, 'JSON.parse');
+
+                        return stripComments(contents).replace(/(\w|\$)\.parseJSON/g, 'JSON.parse');
                     }
                 },
                 // Copy Knockout
                 {
                     src: 'node_modules/knockout/build/output/knockout-latest.js',
-                    dest: 'lib/knockout/build/output'
+                    dest: 'lib/knockout/build/output',
+                    transform: stripComments
                 },
                 // Copy Knockout Secure Binding
                 {
                     src: 'node_modules/knockout-secure-binding/dist/knockout-secure-binding.min.js',
-                    dest: 'lib/knockout-secure-binding/dist'
+                    dest: 'lib/knockout-secure-binding/dist',
+                    transform: stripComments
                 },
                 // Copy Popper.js
                 {
                     src: 'node_modules/@popperjs/core/dist/umd/popper.min.js',
-                    dest: 'lib/@popperjs/core/dist/umd'
+                    dest: 'lib/@popperjs/core/dist/umd',
+                    transform: stripComments
                 },
                 // Copy SignalR
                 {
                     src: 'node_modules/@microsoft/signalr/dist/browser/signalr.min.js',
-                    dest: 'lib/@microsoft/signalr/dist/browser'
+                    dest: 'lib/@microsoft/signalr/dist/browser',
+                    transform: stripComments
                 },
                 // Copy FingerprintJS
                 {
                     src: 'node_modules/@fingerprintjs/fingerprintjs/dist/fp.min.js',
-                    dest: 'lib/@fingerprintjs/fingerprintjs/dist'
+                    dest: 'lib/@fingerprintjs/fingerprintjs/dist',
+                    transform: stripComments
                 },
                 // Copy Font Awesome 4.7
                 {
@@ -161,7 +177,8 @@ export default defineConfig({
                 // Copy Swiper
                 {
                     src: 'node_modules/swiper/swiper-bundle.min.js',
-                    dest: 'lib/swiper'
+                    dest: 'lib/swiper',
+                    transform: stripComments
                 },
                 {
                     src: 'node_modules/swiper/swiper-bundle.min.css',
@@ -170,7 +187,8 @@ export default defineConfig({
                 // Copy Flowbite
                 {
                     src: 'node_modules/flowbite/dist/flowbite.min.js',
-                    dest: 'lib/flowbite/dist'
+                    dest: 'lib/flowbite/dist',
+                    transform: stripComments
                 },
                 {
                     src: 'node_modules/flowbite/dist/flowbite.min.css',
@@ -179,7 +197,8 @@ export default defineConfig({
                 // Copy qrcodejs2
                 {
                     src: 'node_modules/qrcodejs2/qrcode.min.js',
-                    dest: 'lib/qrcodejs2'
+                    dest: 'lib/qrcodejs2',
+                    transform: stripComments
                 }
             ],
             silent: false

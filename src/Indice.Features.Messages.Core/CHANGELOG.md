@@ -12,8 +12,8 @@ To categorize the new template types a new column must be added. This column is 
 <br>
 Example script:
 ```sql
-ALTER TABLE cmp.Template
-ADD YourColumnName TINYINT NOT NULL 
+ALTER TABLE [cmp].[Template]
+ADD [Type] TINYINT NOT NULL 
 CONSTRAINT DF_Template_TemplateType DEFAULT 0;
 ```
 **Note:** This example assumes SQLServer.
