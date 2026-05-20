@@ -26,7 +26,7 @@ public sealed class AzureCommunicationServicesEmailService : IEmailService
         IHtmlRenderingEngine htmlRenderingEngine
     ) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
-        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender, Settings.SenderName));
+        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender, string.Empty));
         HtmlRenderingEngine = htmlRenderingEngine;
         //Create client
         _emailClient = new EmailClient(new Uri(Settings.ResourceEndpoint), new ClientSecretCredential(Settings.TenantId, Settings.ClientId, Settings.ClientSecret));
@@ -41,9 +41,10 @@ public sealed class AzureCommunicationServicesEmailService : IEmailService
     private readonly EmailClient _emailClient;
 
     /// <inheritdoc/>
+    /// <param name="from">You can't pass the sender name it has to be configured on the ACS resource itself, so the from parameter is currently only used for the email address only.</param>
     public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null) {
         //Gather recipient addresses and bcc addresses
-        var bccAddresses = Settings.BccRecipients?.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => {
+        var bccAddresses = Settings.BccRecipients?.Split(';', ',', StringSplitOptions.RemoveEmptyEntries).Select(x => {
             var parsed = new MailAddress(x.Trim());
             return new EmailAddress(parsed.Address, parsed.DisplayName);
         }) ?? [];
@@ -62,7 +63,7 @@ public sealed class AzureCommunicationServicesEmailService : IEmailService
         var emailContent = new EmailContent(subject) {
             Html = body
         };
-        var emailMessage = new EmailMessageAzure(from is not null ? from.ToString() : Provider.DefaultSender.ToString(), emailRecipients, emailContent);
+        var emailMessage = new EmailMessageAzure(from is not null ? from.Address : Provider.DefaultSender.Address, emailRecipients, emailContent);
         //Add attachments
         if (attachments is { Length: > 0 }) {
             foreach (var emailAttachment in attachments) {
@@ -74,12 +75,16 @@ public sealed class AzureCommunicationServicesEmailService : IEmailService
             }
         }
         //Send
-        var operation = await _emailClient.SendAsync(WaitUntil.Completed, emailMessage);
+        var operation = await _emailClient.SendAsync(Settings.WaitUntilCompleted ? WaitUntil.Completed : WaitUntil.Started, emailMessage);
         return new SendReceipt(operation.Id, DateTimeOffset.UtcNow);
     }
 }
 
 /// <summary>Custom settings that are used to send emails via Azure Communication Services.</summary>
+/// <remarks>
+/// To configure the sender name you have to take a look at the azure portal and it's documentation
+/// because currently ACS doesn't allow you to set the sender name via API, and it has to be configured on the resource itself.
+/// </remarks>
 public sealed class EmailServiceAzureCommsSettings
 {
     /// <summary>The configuration section name.</summary>
@@ -88,8 +93,6 @@ public sealed class EmailServiceAzureCommsSettings
     [Required]
     [EmailAddress]
     public string Sender { get; set; } = null!;
-    /// <summary>The default sender name (ex. INDICE SA)</summary>
-    public string? SenderName { get; set; }
     /// <summary>Optional email addresses that are always added as blind carbon copy recipients.</summary>
     public string? BccRecipients { get; set; }
     /// <summary>The Azure AD application (client) ID used for authentication.</summary>
@@ -105,4 +108,7 @@ public sealed class EmailServiceAzureCommsSettings
     [Required]
     [Url]
     public string ResourceEndpoint { get; set; } = null!;
+    /// <summary>Whether to wait until the email sending operation is completed before returning the receipt. If false, the receipt will be returned immediately after the operation is started.</summary>
+    /// <remarks>Usually waiting for the operation to complete is not recommended because it takes about 12 seconds for the email to be sent</remarks>
+    public bool WaitUntilCompleted { get; set; } = false;
 }

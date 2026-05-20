@@ -84,6 +84,9 @@ public static class IndiceServicesServiceCollectionExtensions
                 case EmailServiceBrevo.ServiceName:
                     services.AddEmailServiceBrevo(configuration);
                     break;
+                case AzureCommunicationServicesEmailService.ServiceName:
+                    services.AddEmailServiceAzureCommunicationServices(configuration);
+                    break;
                 case EmailServiceNoop.ServiceName:
                 default:
                     services.AddEmailServiceNoop();
@@ -171,7 +174,7 @@ public static class IndiceServicesServiceCollectionExtensions
             var options = serviceProvider.GetRequiredService<IOptions<EmailServiceAzureCommsSettings>>().Value;
             return new EmailProvider(
             AzureCommunicationServicesEmailService.ServiceName,
-            new EmailSender(options.Sender!, options.SenderName)
+            new EmailSender(options.Sender!, string.Empty)
             );
         });
         services.TryAddTransient((serviceProvider) =>
