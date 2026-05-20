@@ -89,19 +89,19 @@ public static class WorkerHostBuilderExtensions
             options.InstanceCount = 1;
         })
         .AddJob<MarkAllAsReadHandler>().WithQueueTrigger<MarkMessagesReadEvent>(options => {
-            options.QueueName = EventNames.SendSms;
+            options.QueueName = EventNames.MarkAllAsRead;
             options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
             options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
             options.InstanceCount = 1;
         })
         .AddJob<MarkAllAsUnreadHandler>().WithQueueTrigger<MarkMessagesUnreadEvent>(options => {
-            options.QueueName = EventNames.SendSms;
+            options.QueueName = EventNames.MarkAllAsUnread;
             options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
             options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
             options.InstanceCount = 1;
         })
         .AddJob<MergeContactsHandler>().WithQueueTrigger<MergeContactsEvent>(options => {
-            options.QueueName = EventNames.SendSms;
+            options.QueueName = EventNames.MergeContacts;
             options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
             options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
             options.InstanceCount = 1;
