@@ -145,12 +145,12 @@ public class AzureClientFactory
     /// <summary>
     /// Gets or creates a cached <see cref="QueueClient"/> using the provided connection string value directly.
     /// </summary>
-    /// <param name="queueName">The name of the queue.</param>
     /// <param name="connectionStringName">The configuration key used to resolve either connection string or identity-based settings.</param>
+    /// <param name="queueName">The name of the queue.</param>
     /// <param name="messageEncoding">The message encoding to use.</param>
     /// <returns>A cached <see cref="QueueClient"/> instance.</returns>
     /// <exception cref="ArgumentException">Thrown when <paramref name="queueName"/> or <paramref name="connectionStringName"/> is null or empty.</exception>
-    public async Task<QueueClient> GetOrCreateQueueClientAsync(string queueName, string connectionStringName, QueueMessageEncoding messageEncoding) {
+    public async Task<QueueClient> GetOrCreateQueueClientAsync(string connectionStringName, string queueName, QueueMessageEncoding messageEncoding) {
         var cacheKey = new QueueCacheKey(connectionStringName, queueName, messageEncoding);
 
         var lazyClient = _queueClients.GetOrAdd(cacheKey, key => new Lazy<Task<QueueClient>>(async () => {
