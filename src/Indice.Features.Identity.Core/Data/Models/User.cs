@@ -58,7 +58,7 @@ public class User : IdentityUser
     /// <summary>Calculates the next date that the user must change his password.</summary>
     public DateTimeOffset? CalculatePasswordExpirationDate() {
         // check for empty or zero expiration policy. Empty is interpreted the same as Never expires.
-        // but zero PasswordExpirationPolicy in days is an invalid state that coud loop the user endlessly changing passwords
+        // but zero PasswordExpirationPolicy in days is an invalid state that could loop the user endlessly changing passwords
         // so zero must be interpreted as null too.
         if (!PasswordExpirationPolicy.HasValue || (int)PasswordExpirationPolicy == 0) {
             return null;
