@@ -126,8 +126,7 @@ export default defineConfig({
                 },
                 {
                     src: 'node_modules/jquery-validation/LICENSE.md',
-                    dest: 'lib/jquery-validation/dist',
-                    transform: stripComments
+                    dest: 'lib/jquery-validation/dist'
                 },
                 // Copy jQuery Validation Unobtrusive (with parseJSON fix)
                 {
