@@ -24,7 +24,6 @@ public class LockManagerAzureTests
 
         services.AddSingleton<IConfiguration>(configuration);
         services.AddSingleton<AzureClientFactory>();
-        services.AddSingleton<IBlobContainerClientCache, BlobContainerClientCache>();
 
         services.AddSingleton(new LockManagerAzureOptions {
             EnvironmentName = "test",
@@ -35,7 +34,7 @@ public class LockManagerAzureTests
 
         services.AddTransient<IFileService>(sp =>
             new FileServiceAzureStorage(            
-                sp.GetRequiredService<IBlobContainerClientCache>(),
+                sp.GetRequiredService<AzureClientFactory>(),
                 "test",
                 null));
 

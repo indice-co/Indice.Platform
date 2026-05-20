@@ -26,7 +26,7 @@ public class EventDispatcherAzure : IEventDispatcher
     private readonly Func<string?> _tenantIdSelector;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly ILogger<EventDispatcherAzure>? _logger;
-    private readonly IQueueClientCache _queueClientCache;  // instead of ConcurrentDictionary
+    private readonly AzureClientFactory _azureClientFactory;
 
     /// <summary>Create a new <see cref="EventDispatcherAzure"/> instance.</summary>
     /// <param name="connectionStringName">The name of the connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
@@ -36,9 +36,9 @@ public class EventDispatcherAzure : IEventDispatcher
     /// <param name="queueMessageEncoding">Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</param>
     /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
     /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
-    /// <param name="queueClientCache">Cache for QueueClient instances to avoid repeated instantiation.</param> 
+    /// <param name="azureClientFactory">The Azure client factory used to create and cache QueueClient instances.</param> 
     /// <param name="logger">Logger instance for logging warnings and errors.</param>   
-    public EventDispatcherAzure(string connectionStringName, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal?>? claimsPrincipalSelector, Func<string>? tenantIdSelector, IQueueClientCache queueClientCache, ILogger<EventDispatcherAzure>? logger = null) {
+    public EventDispatcherAzure(string connectionStringName, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal?>? claimsPrincipalSelector, Func<string>? tenantIdSelector, AzureClientFactory azureClientFactory, ILogger<EventDispatcherAzure>? logger = null) {
         _connectionStringName = connectionStringName ?? throw new ArgumentNullException(nameof(connectionStringName));
         _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         _enabled = enabled;
@@ -47,7 +47,7 @@ public class EventDispatcherAzure : IEventDispatcher
         _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
         _tenantIdSelector = tenantIdSelector ?? new Func<string?>(() => null);
         _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
-        _queueClientCache = queueClientCache ?? throw new ArgumentNullException(nameof(queueClientCache));
+        _azureClientFactory = azureClientFactory ?? throw new ArgumentNullException(nameof(azureClientFactory));
         _logger = logger;
     }
 
@@ -106,7 +106,7 @@ public class EventDispatcherAzure : IEventDispatcher
     }
 
     private async Task<QueueClient> EnsureExistsAsync(string queueName) {
-        return await _queueClientCache.GetOrCreateAsync(queueName, _connectionStringName, _queueMessageEncoding);
+        return await _azureClientFactory.GetOrCreateQueueClientAsync(_connectionStringName, queueName, _queueMessageEncoding);
     }
 
 }

@@ -12,7 +12,6 @@ public static class IServiceCollectionFileExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureOptions>? configure = null) {
         services.TryAddSingleton<AzureClientFactory>();
-        services.TryAddSingleton<IBlobContainerClientCache, BlobContainerClientCache>();
         services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => GetFileServiceAzureStorage(serviceProvider, configure));
         return services;
     }
@@ -23,7 +22,7 @@ public static class IServiceCollectionFileExtensions
             ContainerName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
         };
         configure?.Invoke(options);
-        var blobContainerCache = serviceProvider.GetRequiredService<IBlobContainerClientCache>();
+        var blobContainerCache = serviceProvider.GetRequiredService<AzureClientFactory>();
         return new FileServiceAzureStorage(blobContainerCache, options.ConnectionStringName, options.ContainerName);
     };
 
@@ -104,7 +103,6 @@ public static class IServiceCollectionFileExtensions
     /// <summary>Adds <see cref="FileServiceAzureStorage"/> implementation.</summary>
     public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceAzureOptions>? configure = null) {
         builder.Services.AddSingleton<AzureClientFactory>();
-        builder.Services.TryAddSingleton<IBlobContainerClientCache, BlobContainerClientCache>();
         builder.Services.AddKeyedTransient<IFileService, FileServiceAzureStorage>(serviceKey: name, implementationFactory: (sp, serviceKey) => GetFileServiceAzureStorage(sp, configure));
         return builder;
     }

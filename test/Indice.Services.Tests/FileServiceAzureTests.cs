@@ -21,11 +21,10 @@ public class FileServiceAzureTests
 
         services.AddSingleton<IConfiguration>(configuration);
         services.AddSingleton<AzureClientFactory>();
-        services.AddSingleton<IBlobContainerClientCache, BlobContainerClientCache>();
 
         services.AddTransient<IFileService>(sp =>
             new FileServiceAzureStorage(
-                sp.GetRequiredService<IBlobContainerClientCache>(),
+                sp.GetRequiredService<AzureClientFactory>(),
                 "test",
                 null));
 

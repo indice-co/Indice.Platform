@@ -1,4 +1,5 @@
-﻿using Azure.Core;
+﻿using System.Collections.Concurrent;
+using Azure.Core;
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
@@ -14,8 +15,13 @@ namespace Indice.Services;
 /// The factory retrieves configuration settings from the provided IConfiguration instance 
 /// to create the appropriate clients based on the specified connection string name and service type.
 /// </summary>
-public sealed class AzureClientFactory
+public class AzureClientFactory
 {
+    private readonly record struct BlobContainerCacheKey(string ConnectionStringName, string ContainerName);
+    private readonly record struct QueueCacheKey(string ConnectionStringName, string QueueName, QueueMessageEncoding MessageEncoding);
+
+    private readonly ConcurrentDictionary<BlobContainerCacheKey, Lazy<Task<BlobContainerClient>>> _blobContainerClients = new();
+    private readonly ConcurrentDictionary<QueueCacheKey, Lazy<Task<QueueClient>>> _queueClients = new();
     private readonly IConfiguration _configuration;
 
     /// <summary>
@@ -25,6 +31,72 @@ public sealed class AzureClientFactory
     public AzureClientFactory(IConfiguration configuration) {
         ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
         _configuration = configuration;
+    }
+
+
+    /// <summary>
+    /// Gets or creates a cached <see cref="BlobContainerClient"/> for the specified connection string name and container name.
+    /// Creates the container if it does not exist.
+    /// </summary>
+    /// <param name="connectionStringName">Configuration key used to resolve the Azure Storage connection.</param>
+    /// <param name="containerName">The name of the blob container.</param>
+    /// <returns>A cached <see cref="BlobContainerClient"/> instance.</returns>
+    public async Task<BlobContainerClient> GetOrCreateBlobContainerClientAsync(string connectionStringName, string containerName) {
+        var cacheKey = new BlobContainerCacheKey(connectionStringName, containerName);
+        var lazyClient = _blobContainerClients.GetOrAdd(cacheKey, _ => new Lazy<Task<BlobContainerClient>>(async () => {
+            var client = CreateBlobContainerClient(connectionStringName, containerName);
+            await client.CreateIfNotExistsAsync();
+            return client;
+        }));
+        try {
+            return await lazyClient.Value;
+        } catch {
+            _blobContainerClients.TryRemove(cacheKey, out _);
+            throw;
+        }
+    }
+    private BlobContainerClient CreateBlobContainerClient(string connectionStringName, string containerName) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionStringName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
+
+        var storageConnection = _configuration.GetConnectionString(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(storageConnection)) {
+            return new BlobContainerClient(storageConnection, containerName);
+        }
+        storageConnection = _configuration.GetValue<string>(connectionStringName);
+        if (!string.IsNullOrWhiteSpace(storageConnection)) {
+            return new BlobContainerClient(storageConnection, containerName);
+        }
+        var credential = CreateAzureCredential(connectionStringName);
+        var accountName = _configuration.GetSection(connectionStringName).GetValue<string>("accountName");
+        if (string.IsNullOrWhiteSpace(accountName)) {
+            throw new ArgumentNullException($"\"{connectionStringName}__accountName\" is missing.");
+        }
+        var blobUri = new Uri($"https://{accountName}.blob.core.windows.net/{containerName}");
+        return new BlobContainerClient(blobUri, credential);
+
+    }
+    /// <summary>
+    /// Creates a <see cref="BlobContainerClient"/> instance using the provided connection string value directly and container name.
+    /// </summary>
+    /// <param name="connectionString">The actual Azure Storage connection string.</param>
+    /// <param name="containerName">The name of the blob container.</param>
+    /// <returns>A <see cref="BlobContainerClient"/> instance.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="connectionString"/> or <paramref name="containerName"/> is null or empty.</exception>
+    public async Task<BlobContainerClient> GetOrCreateBlobContainerClientAsyncWithConnectionString(string connectionString, string containerName) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName); var cacheKey = new BlobContainerCacheKey(connectionString, containerName);
+        var lazyClient = _blobContainerClients.GetOrAdd(cacheKey, _ => new Lazy<Task<BlobContainerClient>>(async () => {
+            var client = new BlobContainerClient(connectionString, containerName);
+            await client.CreateIfNotExistsAsync();
+            return client;
+        }));
+        try {
+            return await lazyClient.Value;
+        } catch {
+            _blobContainerClients.TryRemove(cacheKey, out _);
+            throw;
+        }
     }
 
     /// <summary>
@@ -38,7 +110,6 @@ public sealed class AzureClientFactory
     /// <exception cref="ArgumentNullException">Thrown when identity-based configuration is used but account name is missing.</exception>
     public BlobServiceClient CreateBlobServiceClient(string connectionStringName) {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionStringName);
-
         var storageConnection = _configuration.GetConnectionString(connectionStringName);
         if (!string.IsNullOrWhiteSpace(storageConnection)) {
             return new BlobServiceClient(storageConnection);
@@ -59,48 +130,52 @@ public sealed class AzureClientFactory
     }
 
     /// <summary>
-    /// Creates a <see cref="BlobContainerClient"/> instance for the specified connection string name and container name.
+    /// Gets or creates a cached <see cref="BlobServiceClient"/> using the provided connection string value directly.
     /// </summary>
-    /// <param name="connectionStringName">The name of the connection string in the configuration.</param>
-    /// <param name="containerName">The name of the blob container.</param>
-    /// <returns>A <see cref="BlobContainerClient"/> instance.</returns>
-    public BlobContainerClient CreateBlobContainerClient(string connectionStringName, string containerName) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(connectionStringName);
-        ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
-
-        var storageConnection = _configuration.GetConnectionString(connectionStringName);
-        if (!string.IsNullOrWhiteSpace(storageConnection)) {
-            return new BlobContainerClient(storageConnection, containerName);
-        }
-        storageConnection = _configuration.GetValue<string>(connectionStringName);
-        if (!string.IsNullOrWhiteSpace(storageConnection)) {
-            return new BlobContainerClient(storageConnection, containerName);
-        }
-
-        var credential = CreateAzureCredential(connectionStringName);
-        var accountName = _configuration.GetSection(connectionStringName).GetValue<string>("accountName");
-        if (string.IsNullOrWhiteSpace(accountName)) {
-            throw new ArgumentNullException($"\"{connectionStringName}__accountName\" is missing.");
-        }
-        var blobUri = new Uri($"https://{accountName}.blob.core.windows.net/{containerName}");
-        return new BlobContainerClient(blobUri, credential);
+    /// <param name="connectionString">The actual Azure Storage connection string.</param>
+    /// <returns>A cached <see cref="BlobServiceClient"/> instance.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="connectionString"/> is null or empty.</exception>
+    public BlobServiceClient GetOrCreateCreateBlobServiceClientWithConnectionString(string connectionString) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        return new BlobServiceClient(connectionString);
     }
+
+
+
     /// <summary>
-    /// Creates a <see cref="QueueClient"/> instance for the specified connection string name and queue name.
+    /// Gets or creates a cached <see cref="QueueClient"/> using the provided connection string value directly.
     /// </summary>
-    /// <param name="connectionStringName">The name of the connection string in the configuration.</param>
     /// <param name="queueName">The name of the queue.</param>
-    /// <param name="options">Optional queue client options.</param>
-    /// <returns>A <see cref="QueueClient"/> instance.</returns>
-    public QueueClient CreateQueueClient(string connectionStringName, string queueName, QueueClientOptions? options = null) {
+    /// <param name="connectionStringName">The configuration key used to resolve either connection string or identity-based settings.</param>
+    /// <param name="messageEncoding">The message encoding to use.</param>
+    /// <returns>A cached <see cref="QueueClient"/> instance.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="queueName"/> or <paramref name="connectionStringName"/> is null or empty.</exception>
+    public async Task<QueueClient> GetOrCreateQueueClientAsync(string queueName, string connectionStringName, QueueMessageEncoding messageEncoding) {
+        var cacheKey = new QueueCacheKey(connectionStringName, queueName, messageEncoding);
+
+        var lazyClient = _queueClients.GetOrAdd(cacheKey, key => new Lazy<Task<QueueClient>>(async () => {
+            var queueClient = CreateQueueClient(connectionStringName, queueName, new QueueClientOptions {
+                MessageEncoding = messageEncoding
+            });
+            await queueClient.CreateIfNotExistsAsync();
+            return queueClient;
+        }));
+
+        try {
+            return await lazyClient.Value;
+        } catch {
+            // Remove the faulted task from cache so the next call can retry
+            _queueClients.TryRemove(cacheKey, out _);
+            throw;
+        }
+    }
+    private QueueClient CreateQueueClient(string connectionStringName, string queueName, QueueClientOptions? options = null) {
         if (string.IsNullOrWhiteSpace(connectionStringName)) {
             throw new ArgumentNullException("Storage ConnectionStringName is required.");
         }
-
         if (string.IsNullOrWhiteSpace(queueName)) {
             throw new ArgumentNullException("Storage queue name is required.");
         }
-
         var storageConnection = _configuration.GetConnectionString(connectionStringName);
         if (!string.IsNullOrWhiteSpace(storageConnection)) {
             return new QueueClient(storageConnection, queueName, options);
@@ -117,6 +192,38 @@ public sealed class AzureClientFactory
         var queueUri = new Uri($"https://{accountName}.queue.core.windows.net/{queueName}");
         return new QueueClient(queueUri, credential, options);
     }
+
+    /// <summary>
+    /// Creates a <see cref="QueueClient"/> instance using the provided connection string value directly and queue name.
+    /// </summary>
+    /// <param name="connectionString">The actual Azure Storage connection string.</param>
+    /// <param name="queueName">The name of the queue.</param>
+    /// <param name="messageEncoding">The message encoding to use.</param>
+    /// <returns>A <see cref="QueueClient"/> instance.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="connectionString"/> or <paramref name="queueName"/> is null or empty.</exception>
+    public async Task<QueueClient> CreateQueueClientWithConnectionString(string connectionString, string queueName, QueueMessageEncoding messageEncoding) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
+
+        var cacheKey = new QueueCacheKey(connectionString, queueName, messageEncoding);
+
+        var lazyClient = _queueClients.GetOrAdd(cacheKey, key => new Lazy<Task<QueueClient>>(async () => {
+            var queueClient = new QueueClient(connectionString, queueName, new QueueClientOptions {
+                MessageEncoding = messageEncoding
+            });
+            await queueClient.CreateIfNotExistsAsync();
+            return queueClient;
+        }));
+
+        try {
+            return await lazyClient.Value;
+        } catch {
+            // Remove the faulted task from cache so the next call can retry
+            _queueClients.TryRemove(cacheKey, out _);
+            throw;
+        }
+    }
+
     /// <summary>
     /// Creates and returns a new instance of the ServiceBusClient using the specified connection string name or
     /// associated Azure credentials.
@@ -147,6 +254,17 @@ public sealed class AzureClientFactory
             throw new ArgumentNullException($"\"{connectionStringName}__fullyQualifiedNamespace\" is missing.");
         }
         return new ServiceBusClient(namespaceName, credential);
+    }
+
+    /// <summary>
+    /// Creates a <see cref="ServiceBusClient"/> using the provided connection string value directly.
+    /// </summary>
+    /// <param name="connectionString">The actual Azure Service Bus connection string.</param>
+    /// <returns>A <see cref="ServiceBusClient"/> instance.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="connectionString"/> is null or empty.</exception>
+    public ServiceBusClient CreateServiceBusClientWithConnectionString(string connectionString) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        return new ServiceBusClient(connectionString);
     }
 
     /// <summary>
@@ -182,6 +300,19 @@ public sealed class AzureClientFactory
         }
         return new ServiceBusAdministrationClient(namespaceName, credential);
     }
+
+    /// <summary>
+    /// Creates a <see cref="ServiceBusAdministrationClient"/> using the provided connection string value directly.
+    /// </summary>
+    /// <param name="connectionString">The actual Azure Service Bus connection string.</param>
+    /// <returns>A <see cref="ServiceBusAdministrationClient"/> instance.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="connectionString"/> is null or empty.</exception>
+    public ServiceBusAdministrationClient CreateServiceBusAdministrationClientWithConnectionString(string connectionString) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        return new ServiceBusAdministrationClient(connectionString);
+    }
+
+
 
     private TokenCredential CreateAzureCredential(string connectionStringName) {
         var clientId = _configuration.GetSection(connectionStringName).GetValue<string>("clientId")

@@ -14,14 +14,13 @@ public class KeyedServiceTests
             .AddInMemoryCollection(inMemorySettings)
             .Build();
         var factory = new AzureClientFactory(configuration);
-        var blobCache = new BlobContainerClientCache(factory);
         var collection = new ServiceCollection()
             .AddSingleton(configuration)
             .AddOptions()
-            .AddTransient<IFileService>(sp => new FileServiceAzureStorage(blobCache, FileServiceAzureStorage.CONNECTION_STRING_NAME, "serviceDefault"))
+            .AddTransient<IFileService>(sp => new FileServiceAzureStorage(factory, FileServiceAzureStorage.CONNECTION_STRING_NAME, "serviceDefault"))
             .AddKeyedTransient<IFileService, FileServiceInMemory>("serviceA")
-            .AddKeyedTransient<IFileService, FileServiceAzureStorage>("serviceB", (sp, key) => new FileServiceAzureStorage(blobCache, FileServiceAzureStorage.CONNECTION_STRING_NAME, key!.ToString()))
-            .AddKeyedTransient<IFileService, FileServiceAzureStorage>("serviceC", (sp, key) => new FileServiceAzureStorage(blobCache, FileServiceAzureStorage.CONNECTION_STRING_NAME, key!.ToString()));        
+            .AddKeyedTransient<IFileService, FileServiceAzureStorage>("serviceB", (sp, key) => new FileServiceAzureStorage(factory, FileServiceAzureStorage.CONNECTION_STRING_NAME, key!.ToString()))
+            .AddKeyedTransient<IFileService, FileServiceAzureStorage>("serviceC", (sp, key) => new FileServiceAzureStorage(factory, FileServiceAzureStorage.CONNECTION_STRING_NAME, key!.ToString()));
         var serviceProvider = collection.BuildServiceProvider();        
 
         var serviceDefault = serviceProvider.GetRequiredService<IFileService>();
