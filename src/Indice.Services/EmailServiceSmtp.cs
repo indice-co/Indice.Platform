@@ -76,9 +76,12 @@ public class EmailServiceSmtp : IEmailService
             // https://www.stevejgordon.co.uk/how-to-send-emails-in-asp-net-core-1-0
             // https://portal.smartertools.com/kb/a2862/smtp-settings-for-outlook365-and-gmail.aspx
             // Only needed if the SMTP server requires authentication.
+            if (string.IsNullOrEmpty(Settings.SmtpHost)) {
+                throw new EmailServiceException("SmtpHost parameter cannot be empty.");
+            }
             await client.ConnectAsync(Settings.SmtpHost, Settings.SmtpPort, (MailKit.Security.SecureSocketOptions)(int)Settings.SecureSocket);
             if (!string.IsNullOrEmpty(Settings.Username)) {
-                client.Authenticate(Settings.Username, Settings.Password);
+                client.Authenticate(Settings.Username, Settings.Password!);
             }
             var response = await client.SendAsync(message);
             if (!string.IsNullOrWhiteSpace(response)) {
