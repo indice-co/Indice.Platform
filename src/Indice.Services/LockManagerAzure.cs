@@ -34,7 +34,7 @@ public class LockManagerAzure : ILockManager
             throw new ArgumentNullException(nameof(options.ConnectionStringName));
         }
         var environmentName = Regex.Replace(options.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-        BlobContainer = factory.GetOrCreateBlobContainerClientAsync(options.ConnectionStringName, environmentName).GetAwaiter().GetResult();
+        BlobContainer = factory.GetOrCreateBlobContainerClient(options.ConnectionStringName, environmentName);
     }
 
     /// <summary>The cloud container client.</summary>

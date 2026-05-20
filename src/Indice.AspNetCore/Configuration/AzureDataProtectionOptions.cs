@@ -16,14 +16,12 @@ public class AzureDataProtectionOptions
     /// <summary>The connection string name to your Azure storage account. Defaults to "StorageConnection".</summary>
     public string ConnectionStringName { get; set; } = "StorageConnection";
     /// <summary>
-    /// Obsolete alias for <see cref="ConnectionStringName"/> kept for backward compatibility with callers
-    /// that still configure <c>StorageConnectionString</c>.
+    /// Obsolete raw Azure Storage connection string kept for backward compatibility with callers
+    /// that still configure <c>StorageConnectionString</c>. When set, this value should take
+    /// precedence over <see cref="ConnectionStringName"/> in the options consumption path.
     /// </summary>
     [Obsolete("Use ConnectionStringName instead.")]
-    public string StorageConnectionString {
-        get => ConnectionStringName;
-        set => ConnectionStringName = value;
-    }
+    public string StorageConnectionString { get; set; }
     /// <summary>The name of the container that will be used within the data protection system.</summary>
     public string ContainerName { get; set; } = null!;
     /// <summary>Sets the unique name of this application within the data protection system.</summary>

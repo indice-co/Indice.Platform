@@ -18,7 +18,7 @@ public class EventDispatcherAzureTests
             })
             .Build();
         var factory = new AzureClientFactory(configuration);
-        EventDispatcher = new EventDispatcherAzure(CONNECTION_STRING, "Development", enabled: true, useCompression: true, QueueMessageEncoding.Base64, () => ClaimsPrincipal.Current!, null, factory);
+        EventDispatcher = new EventDispatcherAzure("StorageConnection", "Development", enabled: true, useCompression: true, QueueMessageEncoding.Base64, () => ClaimsPrincipal.Current!, null, factory);
     }
 
     public EventDispatcherAzure EventDispatcher { get; set; }

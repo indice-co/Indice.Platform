@@ -35,7 +35,7 @@ public class AzureBlobFileSystemProvider : IFileSystemClassFactory
             ? "/"
             : Path.GetFileName(options.Value.RootPath.TrimEnd('/', '\\'));
         
-        Container = azureClientFactory.GetOrCreateBlobContainerClientAsync(options.Value.ConnectionStringName!, options.Value.ContainerName).GetAwaiter().GetResult();
+        Container = azureClientFactory.GetOrCreateBlobContainerClient(options.Value.ConnectionStringName!, options.Value.ContainerName);
     }
 
     /// <summary>Gets the Azure Blob Storage container client used by this file system provider.</summary>

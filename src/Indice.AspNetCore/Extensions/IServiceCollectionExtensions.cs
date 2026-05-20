@@ -107,7 +107,7 @@ public static class ServiceCollectionExtensions
         if (options.KeyLifetime <= 0) {
             options.KeyLifetime = defaultKeyLifetime;
         }
-        var container = azureClientFactory.GetOrCreateBlobContainerClientAsync(options.ConnectionStringName, options.ContainerName).GetAwaiter().GetResult();
+        var container = azureClientFactory.GetOrCreateBlobContainerClient(options.ConnectionStringName, options.ContainerName);
         var blobClient = container.GetBlobClient("keys.xml");
         // Enables data protection services to the specified IServiceCollection.
         var dataProtectionBuilder = services.AddDataProtection()

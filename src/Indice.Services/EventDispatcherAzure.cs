@@ -67,7 +67,7 @@ public class EventDispatcherAzure : IEventDispatcher
         }
         QueueClient queue;
         try {
-            queue = await EnsureExistsAsync(queueName);
+            queue = _azureClientFactory.GetOrCreateQueueClient(_connectionStringName, queueName, _queueMessageEncoding);
         } catch (Exception ex) {
             _logger?.LogError(ex, "Failed to get or create queue '{QueueName}' for event type '{EventType}'.", queueName, typeof(TEvent).Name);
             throw;
@@ -78,8 +78,8 @@ public class EventDispatcherAzure : IEventDispatcher
         // if already in binary format mark it so it does not go through compression (twice)
         var isBinary = false;
         switch (payload) {
-            case string text: payloadBytes = Encoding.UTF8.GetBytes(text);break;
-            case byte[] bytes: payloadBytes = bytes; isBinary = true;  break;
+            case string text: payloadBytes = Encoding.UTF8.GetBytes(text); break;
+            case byte[] bytes: payloadBytes = bytes; isBinary = true; break;
             case ReadOnlyMemory<byte> memory: payloadBytes = memory.ToArray(); isBinary = true; break;
             case Stream stream:
                 await using (var memoryStream = new MemoryStream()) {
@@ -104,11 +104,6 @@ public class EventDispatcherAzure : IEventDispatcher
         }
         await queue.SendMessageAsync(new BinaryData(payloadBytes), visibilityTimeout);
     }
-
-    private async Task<QueueClient> EnsureExistsAsync(string queueName) {
-        return await _azureClientFactory.GetOrCreateQueueClientAsync(_connectionStringName, queueName, _queueMessageEncoding);
-    }
-
 }
 
 /// <summary>Options for configuring <see cref="EventDispatcherAzure"/>.</summary>

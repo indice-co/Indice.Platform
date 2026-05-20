@@ -20,8 +20,8 @@ public class AzureClientFactory
     private readonly record struct BlobContainerCacheKey(string ConnectionStringName, string ContainerName);
     private readonly record struct QueueCacheKey(string ConnectionStringName, string QueueName, QueueMessageEncoding MessageEncoding);
 
-    private readonly ConcurrentDictionary<BlobContainerCacheKey, Lazy<Task<BlobContainerClient>>> _blobContainerClients = new();
-    private readonly ConcurrentDictionary<QueueCacheKey, Lazy<Task<QueueClient>>> _queueClients = new();
+    private readonly ConcurrentDictionary<BlobContainerCacheKey, BlobContainerClient> _blobContainerClients = new();
+    private readonly ConcurrentDictionary<QueueCacheKey, QueueClient> _queueClients = new();
     private readonly IConfiguration _configuration;
 
     /// <summary>
@@ -41,19 +41,13 @@ public class AzureClientFactory
     /// <param name="connectionStringName">Configuration key used to resolve the Azure Storage connection.</param>
     /// <param name="containerName">The name of the blob container.</param>
     /// <returns>A cached <see cref="BlobContainerClient"/> instance.</returns>
-    public async Task<BlobContainerClient> GetOrCreateBlobContainerClientAsync(string connectionStringName, string containerName) {
+    public BlobContainerClient GetOrCreateBlobContainerClient(string connectionStringName, string containerName) {
         var cacheKey = new BlobContainerCacheKey(connectionStringName, containerName);
-        var lazyClient = _blobContainerClients.GetOrAdd(cacheKey, _ => new Lazy<Task<BlobContainerClient>>(async () => {
+        return _blobContainerClients.GetOrAdd(cacheKey, _ => {
             var client = CreateBlobContainerClient(connectionStringName, containerName);
-            await client.CreateIfNotExistsAsync();
+            client.CreateIfNotExists();
             return client;
-        }));
-        try {
-            return await lazyClient.Value;
-        } catch {
-            _blobContainerClients.TryRemove(cacheKey, out _);
-            throw;
-        }
+        });
     }
     private BlobContainerClient CreateBlobContainerClient(string connectionStringName, string containerName) {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionStringName);
@@ -83,20 +77,15 @@ public class AzureClientFactory
     /// <param name="containerName">The name of the blob container.</param>
     /// <returns>A <see cref="BlobContainerClient"/> instance.</returns>
     /// <exception cref="ArgumentException">Thrown when <paramref name="connectionString"/> or <paramref name="containerName"/> is null or empty.</exception>
-    public async Task<BlobContainerClient> GetOrCreateBlobContainerClientAsyncWithConnectionString(string connectionString, string containerName) {
+    public BlobContainerClient GetOrCreateBlobContainerClientWithConnectionString(string connectionString, string containerName) {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-        ArgumentException.ThrowIfNullOrWhiteSpace(containerName); var cacheKey = new BlobContainerCacheKey(connectionString, containerName);
-        var lazyClient = _blobContainerClients.GetOrAdd(cacheKey, _ => new Lazy<Task<BlobContainerClient>>(async () => {
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
+        var cacheKey = new BlobContainerCacheKey(connectionString, containerName);
+        return _blobContainerClients.GetOrAdd(cacheKey, _ => {
             var client = new BlobContainerClient(connectionString, containerName);
-            await client.CreateIfNotExistsAsync();
+            client.CreateIfNotExists();
             return client;
-        }));
-        try {
-            return await lazyClient.Value;
-        } catch {
-            _blobContainerClients.TryRemove(cacheKey, out _);
-            throw;
-        }
+        });
     }
 
     /// <summary>
@@ -150,24 +139,15 @@ public class AzureClientFactory
     /// <param name="messageEncoding">The message encoding to use.</param>
     /// <returns>A cached <see cref="QueueClient"/> instance.</returns>
     /// <exception cref="ArgumentException">Thrown when <paramref name="queueName"/> or <paramref name="connectionStringName"/> is null or empty.</exception>
-    public async Task<QueueClient> GetOrCreateQueueClientAsync(string connectionStringName, string queueName, QueueMessageEncoding messageEncoding) {
+    public QueueClient GetOrCreateQueueClient(string connectionStringName, string queueName, QueueMessageEncoding messageEncoding) {
         var cacheKey = new QueueCacheKey(connectionStringName, queueName, messageEncoding);
-
-        var lazyClient = _queueClients.GetOrAdd(cacheKey, key => new Lazy<Task<QueueClient>>(async () => {
-            var queueClient = CreateQueueClient(connectionStringName, queueName, new QueueClientOptions {
+        return _queueClients.GetOrAdd(cacheKey, _ => {
+            var client = CreateQueueClient(connectionStringName, queueName, new QueueClientOptions {
                 MessageEncoding = messageEncoding
             });
-            await queueClient.CreateIfNotExistsAsync();
-            return queueClient;
-        }));
-
-        try {
-            return await lazyClient.Value;
-        } catch {
-            // Remove the faulted task from cache so the next call can retry
-            _queueClients.TryRemove(cacheKey, out _);
-            throw;
-        }
+            client.CreateIfNotExists();
+            return client;
+        });
     }
     private QueueClient CreateQueueClient(string connectionStringName, string queueName, QueueClientOptions? options = null) {
         if (string.IsNullOrWhiteSpace(connectionStringName)) {
@@ -201,27 +181,17 @@ public class AzureClientFactory
     /// <param name="messageEncoding">The message encoding to use.</param>
     /// <returns>A <see cref="QueueClient"/> instance.</returns>
     /// <exception cref="ArgumentException">Thrown when <paramref name="connectionString"/> or <paramref name="queueName"/> is null or empty.</exception>
-    public async Task<QueueClient> CreateQueueClientWithConnectionString(string connectionString, string queueName, QueueMessageEncoding messageEncoding) {
+    public QueueClient CreateQueueClientWithConnectionString(string connectionString, string queueName, QueueMessageEncoding messageEncoding) {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
-
         var cacheKey = new QueueCacheKey(connectionString, queueName, messageEncoding);
-
-        var lazyClient = _queueClients.GetOrAdd(cacheKey, key => new Lazy<Task<QueueClient>>(async () => {
-            var queueClient = new QueueClient(connectionString, queueName, new QueueClientOptions {
+        return _queueClients.GetOrAdd(cacheKey, _ => {
+            var client = new QueueClient(connectionString, queueName, new QueueClientOptions {
                 MessageEncoding = messageEncoding
             });
-            await queueClient.CreateIfNotExistsAsync();
-            return queueClient;
-        }));
-
-        try {
-            return await lazyClient.Value;
-        } catch {
-            // Remove the faulted task from cache so the next call can retry
-            _queueClients.TryRemove(cacheKey, out _);
-            throw;
-        }
+            client.CreateIfNotExists();
+            return client;
+        });
     }
 
     /// <summary>
