@@ -102,7 +102,7 @@ public static class IServiceCollectionFileExtensions
 
     /// <summary>Adds <see cref="FileServiceAzureStorage"/> implementation.</summary>
     public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceAzureOptions>? configure = null) {
-        builder.Services.AddSingleton<AzureClientFactory>();
+        builder.Services.TryAddSingleton<AzureClientFactory>();
         builder.Services.AddKeyedTransient<IFileService, FileServiceAzureStorage>(serviceKey: name, implementationFactory: (sp, serviceKey) => GetFileServiceAzureStorage(sp, configure));
         return builder;
     }
