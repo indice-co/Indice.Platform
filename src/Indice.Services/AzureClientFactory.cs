@@ -70,7 +70,7 @@ public class AzureClientFactory
         var credential = CreateAzureCredential(connectionStringName);
         var accountName = _configuration.GetSection(connectionStringName).GetValue<string>("accountName");
         if (string.IsNullOrWhiteSpace(accountName)) {
-            throw new ArgumentNullException($"\"{connectionStringName}__accountName\" is missing.");
+            throw new InvalidOperationException($"Configuration value \"{connectionStringName}__accountName\" is missing.");
         }
         var blobUri = new Uri($"https://{accountName}.blob.core.windows.net/{containerName}");
         return new BlobContainerClient(blobUri, credential);
