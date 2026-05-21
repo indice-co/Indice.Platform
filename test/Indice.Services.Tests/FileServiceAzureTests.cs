@@ -1,20 +1,34 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using Indice.Types;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Indice.Services.Tests;
 
 public class FileServiceAzureTests
 {
-    private readonly string _connectionString = "UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://127.0.0.1";
     private readonly IFileService _FileService;
 
     public FileServiceAzureTests() {
-        if (_connectionString.StartsWith("UseDevelopmentStorage=true;")) { 
-            //StorageEmulator.Start();
-        }
-        _FileService = new FileServiceAzureStorage(_connectionString, "test");
+        var services = new ServiceCollection();
+        var configuration = new ConfigurationBuilder()
+          .AddInMemoryCollection(new Dictionary<string, string?> {
+              ["ConnectionStrings:test"] = "UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://127.0.0.1"
+          })
+          .Build();
+
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddSingleton<AzureClientFactory>();
+
+        services.AddTransient<IFileService>(sp =>
+            new FileServiceAzureStorage(
+                sp.GetRequiredService<AzureClientFactory>(),
+                "test",
+                null));
+
+        _FileService = services.BuildServiceProvider().GetRequiredService<IFileService>();
     }
 
     [Fact(Skip = "Should integrate azurite on build yaml")]

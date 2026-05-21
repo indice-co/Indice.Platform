@@ -22,19 +22,19 @@ public class LockManagerAzure : ILockManager
     public const string CONNECTION_STRING_NAME = "StorageConnection";
 
     /// <summary>Creates a new instance of <see cref="LockManagerAzure"/>.</summary>
-    /// <param name="options"></param>
-    public LockManagerAzure(LockManagerAzureOptions options) {
-        if (options == null) {
-            throw new ArgumentNullException(nameof(options));
-        }
+    /// <param name="factory">The Azure client factory.</param>
+    /// <param name="options">The options for configuring the lock manager.</param>
+    public LockManagerAzure(AzureClientFactory factory, LockManagerAzureOptions options) {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentNullException.ThrowIfNull(options);
         if (string.IsNullOrWhiteSpace(options.EnvironmentName)) {
             throw new ArgumentNullException(nameof(options.EnvironmentName));
         }
-        if (string.IsNullOrWhiteSpace(options.ConnectionString)) {
-            throw new ArgumentNullException(nameof(options.ConnectionString));
+        if (string.IsNullOrWhiteSpace(options.ConnectionStringName)) {
+            throw new ArgumentNullException(nameof(options.ConnectionStringName));
         }
         var environmentName = Regex.Replace(options.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-        BlobContainer = new BlobContainerClient(options.ConnectionString, environmentName);
+        BlobContainer = factory.GetOrCreateBlobContainerClient(options.ConnectionStringName, environmentName);
     }
 
     /// <summary>The cloud container client.</summary>
@@ -91,5 +91,6 @@ public class LockManagerAzureOptions
     /// <summary>Hosting environment name.</summary>
     public string? EnvironmentName { get; set; }
     /// <summary>Storage connection.</summary>
-    public string? ConnectionString { get; set; }
+    public string? ConnectionStringName { get; set; }
+
 }

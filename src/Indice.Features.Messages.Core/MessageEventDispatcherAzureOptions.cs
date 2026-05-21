@@ -7,8 +7,10 @@ namespace Indice.Features.Messages.Core;
 /// <summary>Options for configuring <see cref="EventDispatcherAzure"/>.</summary>
 public class MessageEventDispatcherAzureOptions
 {
-    /// <summary>The connection string to the Azure Storage account. By default it searches for <see cref="EventDispatcherAzure.CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</summary>
-    public string? ConnectionString { get; set; }
+    /// <summary>The name of the connection string entry for the Azure Storage account. 
+    /// The actual connection string is resolved from the application's ConnectionStrings section; 
+    /// when not set, <see cref="EventDispatcherAzure.CONNECTION_STRING_NAME"/> is used.</summary>
+    public string? ConnectionStringName { get; set; }
     /// <summary>The environment name to use. Defaults to 'Production'.</summary>
     public string EnvironmentName { get; set; } = "Production";
     /// <summary>Provides a way to enable/disable event dispatching at will. Defaults to true.</summary>
