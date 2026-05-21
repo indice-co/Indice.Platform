@@ -70,6 +70,123 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Abidjan.
+        /// </summary>
+        internal static string Africa_Abidjan {
+            get {
+                return ResourceManager.GetString("Africa/Abidjan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Accra.
+        /// </summary>
+        internal static string Africa_Accra {
+            get {
+                return ResourceManager.GetString("Africa/Accra", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Addis Ababa.
+        /// </summary>
+        internal static string Africa_Addis_Ababa {
+            get {
+                return ResourceManager.GetString("Africa/Addis_Ababa", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Algiers.
+        /// </summary>
+        internal static string Africa_Algiers {
+            get {
+                return ResourceManager.GetString("Africa/Algiers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Asmara.
+        /// </summary>
+        internal static string Africa_Asmara {
+            get {
+                return ResourceManager.GetString("Africa/Asmara", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Asmara.
+        /// </summary>
+        internal static string Africa_Asmera {
+            get {
+                return ResourceManager.GetString("Africa/Asmera", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Bamako.
+        /// </summary>
+        internal static string Africa_Bamako {
+            get {
+                return ResourceManager.GetString("Africa/Bamako", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Bangui.
+        /// </summary>
+        internal static string Africa_Bangui {
+            get {
+                return ResourceManager.GetString("Africa/Bangui", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Banjul.
+        /// </summary>
+        internal static string Africa_Banjul {
+            get {
+                return ResourceManager.GetString("Africa/Banjul", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Bissau.
+        /// </summary>
+        internal static string Africa_Bissau {
+            get {
+                return ResourceManager.GetString("Africa/Bissau", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Blantyre.
+        /// </summary>
+        internal static string Africa_Blantyre {
+            get {
+                return ResourceManager.GetString("Africa/Blantyre", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Brazzaville.
+        /// </summary>
+        internal static string Africa_Brazzaville {
+            get {
+                return ResourceManager.GetString("Africa/Brazzaville", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Bujumbura.
+        /// </summary>
+        internal static string Africa_Bujumbura {
+            get {
+                return ResourceManager.GetString("Africa/Bujumbura", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+02:00) Cairo.
         /// </summary>
         internal static string Africa_Cairo {
@@ -79,7 +196,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+01:00) Casablanca.
+        ///   Looks up a localized string similar to (UTC+00:00) Casablanca.
         /// </summary>
         internal static string Africa_Casablanca {
             get {
@@ -88,7 +205,97 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+02:00) Harare, Pretoria.
+        ///   Looks up a localized string similar to (UTC+01:00) Ceuta.
+        /// </summary>
+        internal static string Africa_Ceuta {
+            get {
+                return ResourceManager.GetString("Africa/Ceuta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Conakry.
+        /// </summary>
+        internal static string Africa_Conakry {
+            get {
+                return ResourceManager.GetString("Africa/Conakry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Dakar.
+        /// </summary>
+        internal static string Africa_Dakar {
+            get {
+                return ResourceManager.GetString("Africa/Dakar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Dar es Salaam.
+        /// </summary>
+        internal static string Africa_Dar_es_Salaam {
+            get {
+                return ResourceManager.GetString("Africa/Dar_es_Salaam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Djibouti.
+        /// </summary>
+        internal static string Africa_Djibouti {
+            get {
+                return ResourceManager.GetString("Africa/Djibouti", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Douala.
+        /// </summary>
+        internal static string Africa_Douala {
+            get {
+                return ResourceManager.GetString("Africa/Douala", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) El Aaiún.
+        /// </summary>
+        internal static string Africa_El_Aaiun {
+            get {
+                return ResourceManager.GetString("Africa/El_Aaiun", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Freetown.
+        /// </summary>
+        internal static string Africa_Freetown {
+            get {
+                return ResourceManager.GetString("Africa/Freetown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Gaborone.
+        /// </summary>
+        internal static string Africa_Gaborone {
+            get {
+                return ResourceManager.GetString("Africa/Gaborone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Harare.
+        /// </summary>
+        internal static string Africa_Harare {
+            get {
+                return ResourceManager.GetString("Africa/Harare", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Johannesburg.
         /// </summary>
         internal static string Africa_Johannesburg {
             get {
@@ -106,6 +313,15 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Kampala.
+        /// </summary>
+        internal static string Africa_Kampala {
+            get {
+                return ResourceManager.GetString("Africa/Kampala", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+02:00) Khartoum.
         /// </summary>
         internal static string Africa_Khartoum {
@@ -115,11 +331,128 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+01:00) West Central Africa.
+        ///   Looks up a localized string similar to (UTC+02:00) Kigali.
+        /// </summary>
+        internal static string Africa_Kigali {
+            get {
+                return ResourceManager.GetString("Africa/Kigali", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Kinshasa.
+        /// </summary>
+        internal static string Africa_Kinshasa {
+            get {
+                return ResourceManager.GetString("Africa/Kinshasa", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Lagos.
         /// </summary>
         internal static string Africa_Lagos {
             get {
                 return ResourceManager.GetString("Africa/Lagos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Libreville.
+        /// </summary>
+        internal static string Africa_Libreville {
+            get {
+                return ResourceManager.GetString("Africa/Libreville", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Lomé.
+        /// </summary>
+        internal static string Africa_Lome {
+            get {
+                return ResourceManager.GetString("Africa/Lome", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Luanda.
+        /// </summary>
+        internal static string Africa_Luanda {
+            get {
+                return ResourceManager.GetString("Africa/Luanda", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Lubumbashi.
+        /// </summary>
+        internal static string Africa_Lubumbashi {
+            get {
+                return ResourceManager.GetString("Africa/Lubumbashi", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Lusaka.
+        /// </summary>
+        internal static string Africa_Lusaka {
+            get {
+                return ResourceManager.GetString("Africa/Lusaka", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Malabo.
+        /// </summary>
+        internal static string Africa_Malabo {
+            get {
+                return ResourceManager.GetString("Africa/Malabo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Maputo.
+        /// </summary>
+        internal static string Africa_Maputo {
+            get {
+                return ResourceManager.GetString("Africa/Maputo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Maseru.
+        /// </summary>
+        internal static string Africa_Maseru {
+            get {
+                return ResourceManager.GetString("Africa/Maseru", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Mbabane.
+        /// </summary>
+        internal static string Africa_Mbabane {
+            get {
+                return ResourceManager.GetString("Africa/Mbabane", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Mogadishu.
+        /// </summary>
+        internal static string Africa_Mogadishu {
+            get {
+                return ResourceManager.GetString("Africa/Mogadishu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Monrovia.
+        /// </summary>
+        internal static string Africa_Monrovia {
+            get {
+                return ResourceManager.GetString("Africa/Monrovia", resourceCulture);
             }
         }
         
@@ -133,11 +466,65 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+00:00) Sao Tome.
+        ///   Looks up a localized string similar to (UTC+01:00) N’Djamena.
+        /// </summary>
+        internal static string Africa_Ndjamena {
+            get {
+                return ResourceManager.GetString("Africa/Ndjamena", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Niamey.
+        /// </summary>
+        internal static string Africa_Niamey {
+            get {
+                return ResourceManager.GetString("Africa/Niamey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Nouakchott.
+        /// </summary>
+        internal static string Africa_Nouakchott {
+            get {
+                return ResourceManager.GetString("Africa/Nouakchott", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Ouagadougou.
+        /// </summary>
+        internal static string Africa_Ouagadougou {
+            get {
+                return ResourceManager.GetString("Africa/Ouagadougou", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Porto-Novo.
+        /// </summary>
+        internal static string Africa_Porto_Novo {
+            get {
+                return ResourceManager.GetString("Africa/Porto-Novo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) São Tomé.
         /// </summary>
         internal static string Africa_Sao_Tome {
             get {
                 return ResourceManager.GetString("Africa/Sao_Tome", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Timbuktu.
+        /// </summary>
+        internal static string Africa_Timbuktu {
+            get {
+                return ResourceManager.GetString("Africa/Timbuktu", resourceCulture);
             }
         }
         
@@ -147,6 +534,15 @@ namespace Indice.TimeZones {
         internal static string Africa_Tripoli {
             get {
                 return ResourceManager.GetString("Africa/Tripoli", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Tunis.
+        /// </summary>
+        internal static string Africa_Tunis {
+            get {
+                return ResourceManager.GetString("Africa/Tunis", resourceCulture);
             }
         }
         
@@ -187,7 +583,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-10:00) Aleutian Islands.
+        ///   Looks up a localized string similar to (UTC-10:00) Adak.
         /// </summary>
         internal static string America_Adak {
             get {
@@ -196,7 +592,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-09:00) Alaska.
+        ///   Looks up a localized string similar to (UTC-09:00) Anchorage.
         /// </summary>
         internal static string America_Anchorage {
             get {
@@ -205,7 +601,25 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-03:00) Araguaina.
+        ///   Looks up a localized string similar to (UTC-04:00) Anguilla.
+        /// </summary>
+        internal static string America_Anguilla {
+            get {
+                return ResourceManager.GetString("America/Anguilla", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Antigua.
+        /// </summary>
+        internal static string America_Antigua {
+            get {
+                return ResourceManager.GetString("America/Antigua", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Araguaína.
         /// </summary>
         internal static string America_Araguaina {
             get {
@@ -214,7 +628,133 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-04:00) Asuncion.
+        ///   Looks up a localized string similar to (UTC-03:00) Buenos Aires.
+        /// </summary>
+        internal static string America_Argentina_Buenos_Aires {
+            get {
+                return ResourceManager.GetString("America/Argentina/Buenos_Aires", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Catamarca.
+        /// </summary>
+        internal static string America_Argentina_Catamarca {
+            get {
+                return ResourceManager.GetString("America/Argentina/Catamarca", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Catamarca.
+        /// </summary>
+        internal static string America_Argentina_ComodRivadavia {
+            get {
+                return ResourceManager.GetString("America/Argentina/ComodRivadavia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Córdoba.
+        /// </summary>
+        internal static string America_Argentina_Cordoba {
+            get {
+                return ResourceManager.GetString("America/Argentina/Cordoba", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Jujuy.
+        /// </summary>
+        internal static string America_Argentina_Jujuy {
+            get {
+                return ResourceManager.GetString("America/Argentina/Jujuy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) La Rioja.
+        /// </summary>
+        internal static string America_Argentina_La_Rioja {
+            get {
+                return ResourceManager.GetString("America/Argentina/La_Rioja", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Mendoza.
+        /// </summary>
+        internal static string America_Argentina_Mendoza {
+            get {
+                return ResourceManager.GetString("America/Argentina/Mendoza", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Río Gallegos.
+        /// </summary>
+        internal static string America_Argentina_Rio_Gallegos {
+            get {
+                return ResourceManager.GetString("America/Argentina/Rio_Gallegos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Salta.
+        /// </summary>
+        internal static string America_Argentina_Salta {
+            get {
+                return ResourceManager.GetString("America/Argentina/Salta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) San Juan.
+        /// </summary>
+        internal static string America_Argentina_San_Juan {
+            get {
+                return ResourceManager.GetString("America/Argentina/San_Juan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) San Luis.
+        /// </summary>
+        internal static string America_Argentina_San_Luis {
+            get {
+                return ResourceManager.GetString("America/Argentina/San_Luis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Tucumán.
+        /// </summary>
+        internal static string America_Argentina_Tucuman {
+            get {
+                return ResourceManager.GetString("America/Argentina/Tucuman", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Ushuaia.
+        /// </summary>
+        internal static string America_Argentina_Ushuaia {
+            get {
+                return ResourceManager.GetString("America/Argentina/Ushuaia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Aruba.
+        /// </summary>
+        internal static string America_Aruba {
+            get {
+                return ResourceManager.GetString("America/Aruba", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Asunción.
         /// </summary>
         internal static string America_Asuncion {
             get {
@@ -223,7 +763,25 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-03:00) Salvador.
+        ///   Looks up a localized string similar to (UTC-05:00) Atikokan.
+        /// </summary>
+        internal static string America_Atikokan {
+            get {
+                return ResourceManager.GetString("America/Atikokan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-10:00) Atka.
+        /// </summary>
+        internal static string America_Atka {
+            get {
+                return ResourceManager.GetString("America/Atka", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Bahia.
         /// </summary>
         internal static string America_Bahia {
             get {
@@ -232,7 +790,61 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-05:00) Bogota, Lima, Quito, Rio Branco.
+        ///   Looks up a localized string similar to (UTC-06:00) Bahía de Banderas.
+        /// </summary>
+        internal static string America_Bahia_Banderas {
+            get {
+                return ResourceManager.GetString("America/Bahia_Banderas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Barbados.
+        /// </summary>
+        internal static string America_Barbados {
+            get {
+                return ResourceManager.GetString("America/Barbados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Belém.
+        /// </summary>
+        internal static string America_Belem {
+            get {
+                return ResourceManager.GetString("America/Belem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Belize.
+        /// </summary>
+        internal static string America_Belize {
+            get {
+                return ResourceManager.GetString("America/Belize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Blanc-Sablon.
+        /// </summary>
+        internal static string America_Blanc_Sablon {
+            get {
+                return ResourceManager.GetString("America/Blanc-Sablon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Boa Vista.
+        /// </summary>
+        internal static string America_Boa_Vista {
+            get {
+                return ResourceManager.GetString("America/Boa_Vista", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Bogotá.
         /// </summary>
         internal static string America_Bogota {
             get {
@@ -241,7 +853,16 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-03:00) City of Buenos Aires.
+        ///   Looks up a localized string similar to (UTC-07:00) Boise.
+        /// </summary>
+        internal static string America_Boise {
+            get {
+                return ResourceManager.GetString("America/Boise", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Buenos Aires.
         /// </summary>
         internal static string America_Buenos_Aires {
             get {
@@ -250,7 +871,25 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-05:00) Chetumal.
+        ///   Looks up a localized string similar to (UTC-07:00) Cambridge Bay.
+        /// </summary>
+        internal static string America_Cambridge_Bay {
+            get {
+                return ResourceManager.GetString("America/Cambridge_Bay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Campo Grande.
+        /// </summary>
+        internal static string America_Campo_Grande {
+            get {
+                return ResourceManager.GetString("America/Campo_Grande", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Cancún.
         /// </summary>
         internal static string America_Cancun {
             get {
@@ -268,7 +907,16 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-03:00) Cayenne, Fortaleza.
+        ///   Looks up a localized string similar to (UTC-03:00) Catamarca.
+        /// </summary>
+        internal static string America_Catamarca {
+            get {
+                return ResourceManager.GetString("America/Catamarca", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Cayenne.
         /// </summary>
         internal static string America_Cayenne {
             get {
@@ -277,7 +925,16 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-06:00) Central Time (US &amp; Canada).
+        ///   Looks up a localized string similar to (UTC-05:00) Cayman.
+        /// </summary>
+        internal static string America_Cayman {
+            get {
+                return ResourceManager.GetString("America/Cayman", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Chicago.
         /// </summary>
         internal static string America_Chicago {
             get {
@@ -286,7 +943,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-07:00) La Paz, Mazatlan.
+        ///   Looks up a localized string similar to (UTC-06:00) Chihuahua.
         /// </summary>
         internal static string America_Chihuahua {
             get {
@@ -295,7 +952,61 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-04:00) Cuiaba.
+        ///   Looks up a localized string similar to (UTC-07:00) Ciudad Juárez.
+        /// </summary>
+        internal static string America_Ciudad_Juarez {
+            get {
+                return ResourceManager.GetString("America/Ciudad_Juarez", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Atikokan.
+        /// </summary>
+        internal static string America_Coral_Harbour {
+            get {
+                return ResourceManager.GetString("America/Coral_Harbour", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Córdoba.
+        /// </summary>
+        internal static string America_Cordoba {
+            get {
+                return ResourceManager.GetString("America/Cordoba", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Costa Rica.
+        /// </summary>
+        internal static string America_Costa_Rica {
+            get {
+                return ResourceManager.GetString("America/Costa_Rica", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Coyhaique.
+        /// </summary>
+        internal static string America_Coyhaique {
+            get {
+                return ResourceManager.GetString("America/Coyhaique", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Creston.
+        /// </summary>
+        internal static string America_Creston {
+            get {
+                return ResourceManager.GetString("America/Creston", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Cuiabá.
         /// </summary>
         internal static string America_Cuiaba {
             get {
@@ -304,7 +1015,43 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-07:00) Mountain Time (US &amp; Canada).
+        ///   Looks up a localized string similar to (UTC-04:00) Curaçao.
+        /// </summary>
+        internal static string America_Curacao {
+            get {
+                return ResourceManager.GetString("America/Curacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Danmarkshavn.
+        /// </summary>
+        internal static string America_Danmarkshavn {
+            get {
+                return ResourceManager.GetString("America/Danmarkshavn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Dawson.
+        /// </summary>
+        internal static string America_Dawson {
+            get {
+                return ResourceManager.GetString("America/Dawson", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Dawson Creek.
+        /// </summary>
+        internal static string America_Dawson_Creek {
+            get {
+                return ResourceManager.GetString("America/Dawson_Creek", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Denver.
         /// </summary>
         internal static string America_Denver {
             get {
@@ -313,7 +1060,97 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-02:00) Greenland.
+        ///   Looks up a localized string similar to (UTC-05:00) Detroit.
+        /// </summary>
+        internal static string America_Detroit {
+            get {
+                return ResourceManager.GetString("America/Detroit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Dominica.
+        /// </summary>
+        internal static string America_Dominica {
+            get {
+                return ResourceManager.GetString("America/Dominica", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Edmonton.
+        /// </summary>
+        internal static string America_Edmonton {
+            get {
+                return ResourceManager.GetString("America/Edmonton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Eirunepé.
+        /// </summary>
+        internal static string America_Eirunepe {
+            get {
+                return ResourceManager.GetString("America/Eirunepe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) El Salvador.
+        /// </summary>
+        internal static string America_El_Salvador {
+            get {
+                return ResourceManager.GetString("America/El_Salvador", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-08:00) Ensenada.
+        /// </summary>
+        internal static string America_Ensenada {
+            get {
+                return ResourceManager.GetString("America/Ensenada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Fort Nelson.
+        /// </summary>
+        internal static string America_Fort_Nelson {
+            get {
+                return ResourceManager.GetString("America/Fort_Nelson", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Indianapolis.
+        /// </summary>
+        internal static string America_Fort_Wayne {
+            get {
+                return ResourceManager.GetString("America/Fort_Wayne", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Fortaleza.
+        /// </summary>
+        internal static string America_Fortaleza {
+            get {
+                return ResourceManager.GetString("America/Fortaleza", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Glace Bay.
+        /// </summary>
+        internal static string America_Glace_Bay {
+            get {
+                return ResourceManager.GetString("America/Glace_Bay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-02:00) Nuuk.
         /// </summary>
         internal static string America_Godthab {
             get {
@@ -322,7 +1159,16 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-05:00) Turks and Caicos.
+        ///   Looks up a localized string similar to (UTC-04:00) Goose Bay.
+        /// </summary>
+        internal static string America_Goose_Bay {
+            get {
+                return ResourceManager.GetString("America/Goose_Bay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Grand Turk.
         /// </summary>
         internal static string America_Grand_Turk {
             get {
@@ -331,7 +1177,25 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-06:00) Central America.
+        ///   Looks up a localized string similar to (UTC-04:00) Grenada.
+        /// </summary>
+        internal static string America_Grenada {
+            get {
+                return ResourceManager.GetString("America/Grenada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Guadeloupe.
+        /// </summary>
+        internal static string America_Guadeloupe {
+            get {
+                return ResourceManager.GetString("America/Guadeloupe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Guatemala.
         /// </summary>
         internal static string America_Guatemala {
             get {
@@ -340,7 +1204,25 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-04:00) Atlantic Time (Canada).
+        ///   Looks up a localized string similar to (UTC-05:00) Guayaquil.
+        /// </summary>
+        internal static string America_Guayaquil {
+            get {
+                return ResourceManager.GetString("America/Guayaquil", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Guyana.
+        /// </summary>
+        internal static string America_Guyana {
+            get {
+                return ResourceManager.GetString("America/Guyana", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Halifax.
         /// </summary>
         internal static string America_Halifax {
             get {
@@ -358,7 +1240,88 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-05:00) Indiana (East).
+        ///   Looks up a localized string similar to (UTC-07:00) Hermosillo.
+        /// </summary>
+        internal static string America_Hermosillo {
+            get {
+                return ResourceManager.GetString("America/Hermosillo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Indianapolis.
+        /// </summary>
+        internal static string America_Indiana_Indianapolis {
+            get {
+                return ResourceManager.GetString("America/Indiana/Indianapolis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Knox, Indiana.
+        /// </summary>
+        internal static string America_Indiana_Knox {
+            get {
+                return ResourceManager.GetString("America/Indiana/Knox", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Marengo, Indiana.
+        /// </summary>
+        internal static string America_Indiana_Marengo {
+            get {
+                return ResourceManager.GetString("America/Indiana/Marengo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Petersburg, Indiana.
+        /// </summary>
+        internal static string America_Indiana_Petersburg {
+            get {
+                return ResourceManager.GetString("America/Indiana/Petersburg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Tell City, Indiana.
+        /// </summary>
+        internal static string America_Indiana_Tell_City {
+            get {
+                return ResourceManager.GetString("America/Indiana/Tell_City", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Vevay, Indiana.
+        /// </summary>
+        internal static string America_Indiana_Vevay {
+            get {
+                return ResourceManager.GetString("America/Indiana/Vevay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Vincennes, Indiana.
+        /// </summary>
+        internal static string America_Indiana_Vincennes {
+            get {
+                return ResourceManager.GetString("America/Indiana/Vincennes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Winamac, Indiana.
+        /// </summary>
+        internal static string America_Indiana_Winamac {
+            get {
+                return ResourceManager.GetString("America/Indiana/Winamac", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Indianapolis.
         /// </summary>
         internal static string America_Indianapolis {
             get {
@@ -367,7 +1330,88 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-04:00) Georgetown, La Paz, Manaus, San Juan.
+        ///   Looks up a localized string similar to (UTC-07:00) Inuvik.
+        /// </summary>
+        internal static string America_Inuvik {
+            get {
+                return ResourceManager.GetString("America/Inuvik", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Iqaluit.
+        /// </summary>
+        internal static string America_Iqaluit {
+            get {
+                return ResourceManager.GetString("America/Iqaluit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Jamaica.
+        /// </summary>
+        internal static string America_Jamaica {
+            get {
+                return ResourceManager.GetString("America/Jamaica", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Jujuy.
+        /// </summary>
+        internal static string America_Jujuy {
+            get {
+                return ResourceManager.GetString("America/Jujuy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-09:00) Juneau.
+        /// </summary>
+        internal static string America_Juneau {
+            get {
+                return ResourceManager.GetString("America/Juneau", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Louisville.
+        /// </summary>
+        internal static string America_Kentucky_Louisville {
+            get {
+                return ResourceManager.GetString("America/Kentucky/Louisville", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Monticello, Kentucky.
+        /// </summary>
+        internal static string America_Kentucky_Monticello {
+            get {
+                return ResourceManager.GetString("America/Kentucky/Monticello", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Knox, Indiana.
+        /// </summary>
+        internal static string America_Knox_IN {
+            get {
+                return ResourceManager.GetString("America/Knox_IN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Curaçao.
+        /// </summary>
+        internal static string America_Kralendijk {
+            get {
+                return ResourceManager.GetString("America/Kralendijk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) La Paz.
         /// </summary>
         internal static string America_La_Paz {
             get {
@@ -376,7 +1420,16 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-08:00) Pacific Time (US &amp; Canada).
+        ///   Looks up a localized string similar to (UTC-05:00) Lima.
+        /// </summary>
+        internal static string America_Lima {
+            get {
+                return ResourceManager.GetString("America/Lima", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-08:00) Los Angeles.
         /// </summary>
         internal static string America_Los_Angeles {
             get {
@@ -385,7 +1438,124 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-06:00) Guadalajara, Mexico City, Monterrey.
+        ///   Looks up a localized string similar to (UTC-05:00) Louisville.
+        /// </summary>
+        internal static string America_Louisville {
+            get {
+                return ResourceManager.GetString("America/Louisville", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Lower Prince’s Quarter.
+        /// </summary>
+        internal static string America_Lower_Princes {
+            get {
+                return ResourceManager.GetString("America/Lower_Princes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Maceió.
+        /// </summary>
+        internal static string America_Maceio {
+            get {
+                return ResourceManager.GetString("America/Maceio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Managua.
+        /// </summary>
+        internal static string America_Managua {
+            get {
+                return ResourceManager.GetString("America/Managua", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Manaus.
+        /// </summary>
+        internal static string America_Manaus {
+            get {
+                return ResourceManager.GetString("America/Manaus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Marigot.
+        /// </summary>
+        internal static string America_Marigot {
+            get {
+                return ResourceManager.GetString("America/Marigot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Martinique.
+        /// </summary>
+        internal static string America_Martinique {
+            get {
+                return ResourceManager.GetString("America/Martinique", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Matamoros.
+        /// </summary>
+        internal static string America_Matamoros {
+            get {
+                return ResourceManager.GetString("America/Matamoros", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Mazatlán.
+        /// </summary>
+        internal static string America_Mazatlan {
+            get {
+                return ResourceManager.GetString("America/Mazatlan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Mendoza.
+        /// </summary>
+        internal static string America_Mendoza {
+            get {
+                return ResourceManager.GetString("America/Mendoza", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Menominee.
+        /// </summary>
+        internal static string America_Menominee {
+            get {
+                return ResourceManager.GetString("America/Menominee", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Mérida.
+        /// </summary>
+        internal static string America_Merida {
+            get {
+                return ResourceManager.GetString("America/Merida", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-09:00) Metlakatla.
+        /// </summary>
+        internal static string America_Metlakatla {
+            get {
+                return ResourceManager.GetString("America/Metlakatla", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Mexico City.
         /// </summary>
         internal static string America_Mexico_City {
             get {
@@ -394,11 +1564,29 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-03:00) Saint Pierre and Miquelon.
+        ///   Looks up a localized string similar to (UTC-03:00) Saint-Pierre.
         /// </summary>
         internal static string America_Miquelon {
             get {
                 return ResourceManager.GetString("America/Miquelon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Moncton.
+        /// </summary>
+        internal static string America_Moncton {
+            get {
+                return ResourceManager.GetString("America/Moncton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Monterrey.
+        /// </summary>
+        internal static string America_Monterrey {
+            get {
+                return ResourceManager.GetString("America/Monterrey", resourceCulture);
             }
         }
         
@@ -412,7 +1600,34 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-05:00) Eastern Time (US &amp; Canada).
+        ///   Looks up a localized string similar to (UTC-05:00) Montreal.
+        /// </summary>
+        internal static string America_Montreal {
+            get {
+                return ResourceManager.GetString("America/Montreal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Montserrat.
+        /// </summary>
+        internal static string America_Montserrat {
+            get {
+                return ResourceManager.GetString("America/Montserrat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Nassau.
+        /// </summary>
+        internal static string America_Nassau {
+            get {
+                return ResourceManager.GetString("America/Nassau", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) New York.
         /// </summary>
         internal static string America_New_York {
             get {
@@ -421,7 +1636,106 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-07:00) Arizona.
+        ///   Looks up a localized string similar to (UTC-05:00) Nipigon.
+        /// </summary>
+        internal static string America_Nipigon {
+            get {
+                return ResourceManager.GetString("America/Nipigon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-09:00) Nome.
+        /// </summary>
+        internal static string America_Nome {
+            get {
+                return ResourceManager.GetString("America/Nome", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-02:00) Fernando de Noronha.
+        /// </summary>
+        internal static string America_Noronha {
+            get {
+                return ResourceManager.GetString("America/Noronha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Beulah, North Dakota.
+        /// </summary>
+        internal static string America_North_Dakota_Beulah {
+            get {
+                return ResourceManager.GetString("America/North_Dakota/Beulah", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Center, North Dakota.
+        /// </summary>
+        internal static string America_North_Dakota_Center {
+            get {
+                return ResourceManager.GetString("America/North_Dakota/Center", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) New Salem, North Dakota.
+        /// </summary>
+        internal static string America_North_Dakota_New_Salem {
+            get {
+                return ResourceManager.GetString("America/North_Dakota/New_Salem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-02:00) Nuuk.
+        /// </summary>
+        internal static string America_Nuuk {
+            get {
+                return ResourceManager.GetString("America/Nuuk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Ojinaga.
+        /// </summary>
+        internal static string America_Ojinaga {
+            get {
+                return ResourceManager.GetString("America/Ojinaga", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Panama.
+        /// </summary>
+        internal static string America_Panama {
+            get {
+                return ResourceManager.GetString("America/Panama", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Pangnirtung.
+        /// </summary>
+        internal static string America_Pangnirtung {
+            get {
+                return ResourceManager.GetString("America/Pangnirtung", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Paramaribo.
+        /// </summary>
+        internal static string America_Paramaribo {
+            get {
+                return ResourceManager.GetString("America/Paramaribo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Phoenix.
         /// </summary>
         internal static string America_Phoenix {
             get {
@@ -430,11 +1744,47 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-05:00) Haiti.
+        ///   Looks up a localized string similar to (UTC-05:00) Port-au-Prince.
         /// </summary>
         internal static string America_Port_au_Prince {
             get {
                 return ResourceManager.GetString("America/Port-au-Prince", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Port of Spain.
+        /// </summary>
+        internal static string America_Port_of_Spain {
+            get {
+                return ResourceManager.GetString("America/Port_of_Spain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Porto Acre.
+        /// </summary>
+        internal static string America_Porto_Acre {
+            get {
+                return ResourceManager.GetString("America/Porto_Acre", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Porto Velho.
+        /// </summary>
+        internal static string America_Porto_Velho {
+            get {
+                return ResourceManager.GetString("America/Porto_Velho", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Puerto Rico.
+        /// </summary>
+        internal static string America_Puerto_Rico {
+            get {
+                return ResourceManager.GetString("America/Puerto_Rico", resourceCulture);
             }
         }
         
@@ -448,11 +1798,83 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-06:00) Saskatchewan.
+        ///   Looks up a localized string similar to (UTC-06:00) Rainy River.
+        /// </summary>
+        internal static string America_Rainy_River {
+            get {
+                return ResourceManager.GetString("America/Rainy_River", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Rankin Inlet.
+        /// </summary>
+        internal static string America_Rankin_Inlet {
+            get {
+                return ResourceManager.GetString("America/Rankin_Inlet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Recife.
+        /// </summary>
+        internal static string America_Recife {
+            get {
+                return ResourceManager.GetString("America/Recife", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Regina.
         /// </summary>
         internal static string America_Regina {
             get {
                 return ResourceManager.GetString("America/Regina", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Resolute.
+        /// </summary>
+        internal static string America_Resolute {
+            get {
+                return ResourceManager.GetString("America/Resolute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Rio Branco.
+        /// </summary>
+        internal static string America_Rio_Branco {
+            get {
+                return ResourceManager.GetString("America/Rio_Branco", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Córdoba.
+        /// </summary>
+        internal static string America_Rosario {
+            get {
+                return ResourceManager.GetString("America/Rosario", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-08:00) Santa Isabel.
+        /// </summary>
+        internal static string America_Santa_Isabel {
+            get {
+                return ResourceManager.GetString("America/Santa_Isabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Santarém.
+        /// </summary>
+        internal static string America_Santarem {
+            get {
+                return ResourceManager.GetString("America/Santarem", resourceCulture);
             }
         }
         
@@ -466,7 +1888,16 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-03:00) Brasilia.
+        ///   Looks up a localized string similar to (UTC-04:00) Santo Domingo.
+        /// </summary>
+        internal static string America_Santo_Domingo {
+            get {
+                return ResourceManager.GetString("America/Santo_Domingo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) São Paulo.
         /// </summary>
         internal static string America_Sao_Paulo {
             get {
@@ -475,7 +1906,43 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-03:30) Newfoundland.
+        ///   Looks up a localized string similar to (UTC-02:00) Ittoqqortoormiit.
+        /// </summary>
+        internal static string America_Scoresbysund {
+            get {
+                return ResourceManager.GetString("America/Scoresbysund", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Shiprock.
+        /// </summary>
+        internal static string America_Shiprock {
+            get {
+                return ResourceManager.GetString("America/Shiprock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-09:00) Sitka.
+        /// </summary>
+        internal static string America_Sitka {
+            get {
+                return ResourceManager.GetString("America/Sitka", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) St. Barthélemy.
+        /// </summary>
+        internal static string America_St_Barthelemy {
+            get {
+                return ResourceManager.GetString("America/St_Barthelemy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:30) St. John’s.
         /// </summary>
         internal static string America_St_Johns {
             get {
@@ -484,7 +1951,79 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-08:00) Baja California.
+        ///   Looks up a localized string similar to (UTC-04:00) St. Kitts.
+        /// </summary>
+        internal static string America_St_Kitts {
+            get {
+                return ResourceManager.GetString("America/St_Kitts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) St. Lucia.
+        /// </summary>
+        internal static string America_St_Lucia {
+            get {
+                return ResourceManager.GetString("America/St_Lucia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) St. Thomas.
+        /// </summary>
+        internal static string America_St_Thomas {
+            get {
+                return ResourceManager.GetString("America/St_Thomas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) St. Vincent.
+        /// </summary>
+        internal static string America_St_Vincent {
+            get {
+                return ResourceManager.GetString("America/St_Vincent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Swift Current.
+        /// </summary>
+        internal static string America_Swift_Current {
+            get {
+                return ResourceManager.GetString("America/Swift_Current", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Tegucigalpa.
+        /// </summary>
+        internal static string America_Tegucigalpa {
+            get {
+                return ResourceManager.GetString("America/Tegucigalpa", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Thule.
+        /// </summary>
+        internal static string America_Thule {
+            get {
+                return ResourceManager.GetString("America/Thule", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Thunder Bay.
+        /// </summary>
+        internal static string America_Thunder_Bay {
+            get {
+                return ResourceManager.GetString("America/Thunder_Bay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-08:00) Tijuana.
         /// </summary>
         internal static string America_Tijuana {
             get {
@@ -493,11 +2032,182 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-07:00) Yukon.
+        ///   Looks up a localized string similar to (UTC-05:00) Toronto.
+        /// </summary>
+        internal static string America_Toronto {
+            get {
+                return ResourceManager.GetString("America/Toronto", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Tortola.
+        /// </summary>
+        internal static string America_Tortola {
+            get {
+                return ResourceManager.GetString("America/Tortola", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-08:00) Vancouver.
+        /// </summary>
+        internal static string America_Vancouver {
+            get {
+                return ResourceManager.GetString("America/Vancouver", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) St. Thomas.
+        /// </summary>
+        internal static string America_Virgin {
+            get {
+                return ResourceManager.GetString("America/Virgin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Whitehorse.
         /// </summary>
         internal static string America_Whitehorse {
             get {
                 return ResourceManager.GetString("America/Whitehorse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Winnipeg.
+        /// </summary>
+        internal static string America_Winnipeg {
+            get {
+                return ResourceManager.GetString("America/Winnipeg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-09:00) Yakutat.
+        /// </summary>
+        internal static string America_Yakutat {
+            get {
+                return ResourceManager.GetString("America/Yakutat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Yellowknife.
+        /// </summary>
+        internal static string America_Yellowknife {
+            get {
+                return ResourceManager.GetString("America/Yellowknife", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Casey Station.
+        /// </summary>
+        internal static string Antarctica_Casey {
+            get {
+                return ResourceManager.GetString("Antarctica/Casey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+07:00) Davis.
+        /// </summary>
+        internal static string Antarctica_Davis {
+            get {
+                return ResourceManager.GetString("Antarctica/Davis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Dumont d’Urville Station.
+        /// </summary>
+        internal static string Antarctica_DumontDUrville {
+            get {
+                return ResourceManager.GetString("Antarctica/DumontDUrville", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Macquarie Island.
+        /// </summary>
+        internal static string Antarctica_Macquarie {
+            get {
+                return ResourceManager.GetString("Antarctica/Macquarie", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Mawson Station.
+        /// </summary>
+        internal static string Antarctica_Mawson {
+            get {
+                return ResourceManager.GetString("Antarctica/Mawson", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+12:00) McMurdo Station.
+        /// </summary>
+        internal static string Antarctica_McMurdo {
+            get {
+                return ResourceManager.GetString("Antarctica/McMurdo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Palmer Land.
+        /// </summary>
+        internal static string Antarctica_Palmer {
+            get {
+                return ResourceManager.GetString("Antarctica/Palmer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Rothera Station.
+        /// </summary>
+        internal static string Antarctica_Rothera {
+            get {
+                return ResourceManager.GetString("Antarctica/Rothera", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+12:00) McMurdo Station.
+        /// </summary>
+        internal static string Antarctica_South_Pole {
+            get {
+                return ResourceManager.GetString("Antarctica/South_Pole", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Showa Station.
+        /// </summary>
+        internal static string Antarctica_Syowa {
+            get {
+                return ResourceManager.GetString("Antarctica/Syowa", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Troll Station.
+        /// </summary>
+        internal static string Antarctica_Troll {
+            get {
+                return ResourceManager.GetString("Antarctica/Troll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Vostok Station.
+        /// </summary>
+        internal static string Antarctica_Vostok {
+            get {
+                return ResourceManager.GetString("Antarctica/Vostok", resourceCulture);
             }
         }
         
@@ -529,6 +2239,15 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Longyearbyen.
+        /// </summary>
+        internal static string Arctic_Longyearbyen {
+            get {
+                return ResourceManager.GetString("Arctic/Longyearbyen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC-03:00) City of Buenos Aires.
         /// </summary>
         internal static string Argentina_Standard_Time {
@@ -538,7 +2257,16 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+06:00) Bishkek.
+        ///   Looks up a localized string similar to (UTC+03:00) Aden.
+        /// </summary>
+        internal static string Asia_Aden {
+            get {
+                return ResourceManager.GetString("Asia/Aden", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Almaty.
         /// </summary>
         internal static string Asia_Almaty {
             get {
@@ -556,11 +2284,74 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+12:00) Anadyr.
+        /// </summary>
+        internal static string Asia_Anadyr {
+            get {
+                return ResourceManager.GetString("Asia/Anadyr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Aktau.
+        /// </summary>
+        internal static string Asia_Aqtau {
+            get {
+                return ResourceManager.GetString("Asia/Aqtau", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Aqtobe.
+        /// </summary>
+        internal static string Asia_Aqtobe {
+            get {
+                return ResourceManager.GetString("Asia/Aqtobe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Ashgabat.
+        /// </summary>
+        internal static string Asia_Ashgabat {
+            get {
+                return ResourceManager.GetString("Asia/Ashgabat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Ashgabat.
+        /// </summary>
+        internal static string Asia_Ashkhabad {
+            get {
+                return ResourceManager.GetString("Asia/Ashkhabad", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Atyrau.
+        /// </summary>
+        internal static string Asia_Atyrau {
+            get {
+                return ResourceManager.GetString("Asia/Atyrau", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+03:00) Baghdad.
         /// </summary>
         internal static string Asia_Baghdad {
             get {
                 return ResourceManager.GetString("Asia/Baghdad", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Bahrain.
+        /// </summary>
+        internal static string Asia_Bahrain {
+            get {
+                return ResourceManager.GetString("Asia/Bahrain", resourceCulture);
             }
         }
         
@@ -574,7 +2365,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+07:00) Bangkok, Hanoi, Jakarta.
+        ///   Looks up a localized string similar to (UTC+07:00) Bangkok.
         /// </summary>
         internal static string Asia_Bangkok {
             get {
@@ -583,7 +2374,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+07:00) Barnaul, Gorno-Altaysk.
+        ///   Looks up a localized string similar to (UTC+07:00) Barnaul.
         /// </summary>
         internal static string Asia_Barnaul {
             get {
@@ -601,7 +2392,25 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+05:30) Chennai, Kolkata, Mumbai, New Delhi.
+        ///   Looks up a localized string similar to (UTC+06:00) Bishkek.
+        /// </summary>
+        internal static string Asia_Bishkek {
+            get {
+                return ResourceManager.GetString("Asia/Bishkek", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Brunei.
+        /// </summary>
+        internal static string Asia_Brunei {
+            get {
+                return ResourceManager.GetString("Asia/Brunei", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:30) Kolkata.
         /// </summary>
         internal static string Asia_Calcutta {
             get {
@@ -619,11 +2428,47 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+05:30) Sri Jayawardenepura.
+        ///   Looks up a localized string similar to (UTC+08:00) Choibalsan.
+        /// </summary>
+        internal static string Asia_Choibalsan {
+            get {
+                return ResourceManager.GetString("Asia/Choibalsan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Chongqing.
+        /// </summary>
+        internal static string Asia_Chongqing {
+            get {
+                return ResourceManager.GetString("Asia/Chongqing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Shanghai.
+        /// </summary>
+        internal static string Asia_Chungking {
+            get {
+                return ResourceManager.GetString("Asia/Chungking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:30) Colombo.
         /// </summary>
         internal static string Asia_Colombo {
             get {
                 return ResourceManager.GetString("Asia/Colombo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+06:00) Dhaka.
+        /// </summary>
+        internal static string Asia_Dacca {
+            get {
+                return ResourceManager.GetString("Asia/Dacca", resourceCulture);
             }
         }
         
@@ -646,7 +2491,16 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+04:00) Abu Dhabi, Muscat.
+        ///   Looks up a localized string similar to (UTC+09:00) Dili.
+        /// </summary>
+        internal static string Asia_Dili {
+            get {
+                return ResourceManager.GetString("Asia/Dili", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+04:00) Dubai.
         /// </summary>
         internal static string Asia_Dubai {
             get {
@@ -655,7 +2509,43 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+02:00) Gaza, Hebron.
+        ///   Looks up a localized string similar to (UTC+05:00) Dushanbe.
+        /// </summary>
+        internal static string Asia_Dushanbe {
+            get {
+                return ResourceManager.GetString("Asia/Dushanbe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Famagusta.
+        /// </summary>
+        internal static string Asia_Famagusta {
+            get {
+                return ResourceManager.GetString("Asia/Famagusta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Gaza.
+        /// </summary>
+        internal static string Asia_Gaza {
+            get {
+                return ResourceManager.GetString("Asia/Gaza", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Harbin.
+        /// </summary>
+        internal static string Asia_Harbin {
+            get {
+                return ResourceManager.GetString("Asia/Harbin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Hebron.
         /// </summary>
         internal static string Asia_Hebron {
             get {
@@ -664,7 +2554,25 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+07:00) Hovd.
+        ///   Looks up a localized string similar to (UTC+07:00) Ho Chi Minh City.
+        /// </summary>
+        internal static string Asia_Ho_Chi_Minh {
+            get {
+                return ResourceManager.GetString("Asia/Ho_Chi_Minh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Hong Kong.
+        /// </summary>
+        internal static string Asia_Hong_Kong {
+            get {
+                return ResourceManager.GetString("Asia/Hong_Kong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+07:00) Khovd.
         /// </summary>
         internal static string Asia_Hovd {
             get {
@@ -678,6 +2586,33 @@ namespace Indice.TimeZones {
         internal static string Asia_Irkutsk {
             get {
                 return ResourceManager.GetString("Asia/Irkutsk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Istanbul.
+        /// </summary>
+        internal static string Asia_Istanbul {
+            get {
+                return ResourceManager.GetString("Asia/Istanbul", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+07:00) Jakarta.
+        /// </summary>
+        internal static string Asia_Jakarta {
+            get {
+                return ResourceManager.GetString("Asia/Jakarta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+09:00) Jayapura.
+        /// </summary>
+        internal static string Asia_Jayapura {
+            get {
+                return ResourceManager.GetString("Asia/Jayapura", resourceCulture);
             }
         }
         
@@ -700,7 +2635,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+12:00) Anadyr, Petropavlovsk-Kamchatsky.
+        ///   Looks up a localized string similar to (UTC+12:00) Kamchatka.
         /// </summary>
         internal static string Asia_Kamchatka {
             get {
@@ -709,11 +2644,29 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+05:00) Islamabad, Karachi.
+        ///   Looks up a localized string similar to (UTC+05:00) Karachi.
         /// </summary>
         internal static string Asia_Karachi {
             get {
                 return ResourceManager.GetString("Asia/Karachi", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+06:00) Ürümqi.
+        /// </summary>
+        internal static string Asia_Kashgar {
+            get {
+                return ResourceManager.GetString("Asia/Kashgar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:45) Kathmandu.
+        /// </summary>
+        internal static string Asia_Kathmandu {
+            get {
+                return ResourceManager.GetString("Asia/Kathmandu", resourceCulture);
             }
         }
         
@@ -727,6 +2680,24 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+09:00) Khandyga.
+        /// </summary>
+        internal static string Asia_Khandyga {
+            get {
+                return ResourceManager.GetString("Asia/Khandyga", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:30) Kolkata.
+        /// </summary>
+        internal static string Asia_Kolkata {
+            get {
+                return ResourceManager.GetString("Asia/Kolkata", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+07:00) Krasnoyarsk.
         /// </summary>
         internal static string Asia_Krasnoyarsk {
@@ -736,11 +2707,101 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Kuala Lumpur.
+        /// </summary>
+        internal static string Asia_Kuala_Lumpur {
+            get {
+                return ResourceManager.GetString("Asia/Kuala_Lumpur", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Kuching.
+        /// </summary>
+        internal static string Asia_Kuching {
+            get {
+                return ResourceManager.GetString("Asia/Kuching", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Kuwait.
+        /// </summary>
+        internal static string Asia_Kuwait {
+            get {
+                return ResourceManager.GetString("Asia/Kuwait", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Macao.
+        /// </summary>
+        internal static string Asia_Macao {
+            get {
+                return ResourceManager.GetString("Asia/Macao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Macao.
+        /// </summary>
+        internal static string Asia_Macau {
+            get {
+                return ResourceManager.GetString("Asia/Macau", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+11:00) Magadan.
         /// </summary>
         internal static string Asia_Magadan {
             get {
                 return ResourceManager.GetString("Asia/Magadan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Makassar.
+        /// </summary>
+        internal static string Asia_Makassar {
+            get {
+                return ResourceManager.GetString("Asia/Makassar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Manila.
+        /// </summary>
+        internal static string Asia_Manila {
+            get {
+                return ResourceManager.GetString("Asia/Manila", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+04:00) Muscat.
+        /// </summary>
+        internal static string Asia_Muscat {
+            get {
+                return ResourceManager.GetString("Asia/Muscat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Nicosia.
+        /// </summary>
+        internal static string Asia_Nicosia {
+            get {
+                return ResourceManager.GetString("Asia/Nicosia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+07:00) Novokuznetsk.
+        /// </summary>
+        internal static string Asia_Novokuznetsk {
+            get {
+                return ResourceManager.GetString("Asia/Novokuznetsk", resourceCulture);
             }
         }
         
@@ -763,6 +2824,33 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Oral.
+        /// </summary>
+        internal static string Asia_Oral {
+            get {
+                return ResourceManager.GetString("Asia/Oral", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+07:00) Phnom Penh.
+        /// </summary>
+        internal static string Asia_Phnom_Penh {
+            get {
+                return ResourceManager.GetString("Asia/Phnom_Penh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+07:00) Pontianak.
+        /// </summary>
+        internal static string Asia_Pontianak {
+            get {
+                return ResourceManager.GetString("Asia/Pontianak", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+09:00) Pyongyang.
         /// </summary>
         internal static string Asia_Pyongyang {
@@ -772,7 +2860,25 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+05:00) Astana.
+        ///   Looks up a localized string similar to (UTC+03:00) Qatar.
+        /// </summary>
+        internal static string Asia_Qatar {
+            get {
+                return ResourceManager.GetString("Asia/Qatar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Kostanay.
+        /// </summary>
+        internal static string Asia_Qostanay {
+            get {
+                return ResourceManager.GetString("Asia/Qostanay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Kyzylorda.
         /// </summary>
         internal static string Asia_Qyzylorda {
             get {
@@ -781,7 +2887,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+06:30) Yangon (Rangoon).
+        ///   Looks up a localized string similar to (UTC+06:30) Yangon.
         /// </summary>
         internal static string Asia_Rangoon {
             get {
@@ -790,11 +2896,20 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+03:00) Kuwait, Riyadh.
+        ///   Looks up a localized string similar to (UTC+03:00) Riyadh.
         /// </summary>
         internal static string Asia_Riyadh {
             get {
                 return ResourceManager.GetString("Asia/Riyadh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+07:00) Ho Chi Minh City.
+        /// </summary>
+        internal static string Asia_Saigon {
+            get {
+                return ResourceManager.GetString("Asia/Saigon", resourceCulture);
             }
         }
         
@@ -808,6 +2923,15 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Samarkand.
+        /// </summary>
+        internal static string Asia_Samarkand {
+            get {
+                return ResourceManager.GetString("Asia/Samarkand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+09:00) Seoul.
         /// </summary>
         internal static string Asia_Seoul {
@@ -817,7 +2941,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+08:00) Beijing, Chongqing, Hong Kong, Urumqi.
+        ///   Looks up a localized string similar to (UTC+08:00) Shanghai.
         /// </summary>
         internal static string Asia_Shanghai {
             get {
@@ -826,7 +2950,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+08:00) Kuala Lumpur, Singapore.
+        ///   Looks up a localized string similar to (UTC+08:00) Singapore.
         /// </summary>
         internal static string Asia_Singapore {
             get {
@@ -835,7 +2959,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+11:00) Chokurdakh.
+        ///   Looks up a localized string similar to (UTC+11:00) Srednekolymsk.
         /// </summary>
         internal static string Asia_Srednekolymsk {
             get {
@@ -853,7 +2977,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+05:00) Ashgabat, Tashkent.
+        ///   Looks up a localized string similar to (UTC+05:00) Tashkent.
         /// </summary>
         internal static string Asia_Tashkent {
             get {
@@ -880,7 +3004,34 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+09:00) Osaka, Sapporo, Tokyo.
+        ///   Looks up a localized string similar to (UTC+02:00) Tel Aviv.
+        /// </summary>
+        internal static string Asia_Tel_Aviv {
+            get {
+                return ResourceManager.GetString("Asia/Tel_Aviv", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+06:00) Thimphu.
+        /// </summary>
+        internal static string Asia_Thimbu {
+            get {
+                return ResourceManager.GetString("Asia/Thimbu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+06:00) Thimphu.
+        /// </summary>
+        internal static string Asia_Thimphu {
+            get {
+                return ResourceManager.GetString("Asia/Thimphu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+09:00) Tokyo.
         /// </summary>
         internal static string Asia_Tokyo {
             get {
@@ -898,11 +3049,56 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Makassar.
+        /// </summary>
+        internal static string Asia_Ujung_Pandang {
+            get {
+                return ResourceManager.GetString("Asia/Ujung_Pandang", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+08:00) Ulaanbaatar.
         /// </summary>
         internal static string Asia_Ulaanbaatar {
             get {
                 return ResourceManager.GetString("Asia/Ulaanbaatar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Ulaanbaatar.
+        /// </summary>
+        internal static string Asia_Ulan_Bator {
+            get {
+                return ResourceManager.GetString("Asia/Ulan_Bator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+06:00) Ürümqi.
+        /// </summary>
+        internal static string Asia_Urumqi {
+            get {
+                return ResourceManager.GetString("Asia/Urumqi", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Ust-Nera.
+        /// </summary>
+        internal static string Asia_Ust_Nera {
+            get {
+                return ResourceManager.GetString("Asia/Ust-Nera", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+07:00) Vientiane.
+        /// </summary>
+        internal static string Asia_Vientiane {
+            get {
+                return ResourceManager.GetString("Asia/Vientiane", resourceCulture);
             }
         }
         
@@ -925,7 +3121,16 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+05:00) Ekaterinburg.
+        ///   Looks up a localized string similar to (UTC+06:30) Yangon.
+        /// </summary>
+        internal static string Asia_Yangon {
+            get {
+                return ResourceManager.GetString("Asia/Yangon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Yekaterinburg.
         /// </summary>
         internal static string Asia_Yekaterinburg {
             get {
@@ -961,7 +3166,25 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-01:00) Cabo Verde Is..
+        ///   Looks up a localized string similar to (UTC-04:00) Bermuda.
+        /// </summary>
+        internal static string Atlantic_Bermuda {
+            get {
+                return ResourceManager.GetString("Atlantic/Bermuda", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Canaries.
+        /// </summary>
+        internal static string Atlantic_Canary {
+            get {
+                return ResourceManager.GetString("Atlantic/Canary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-01:00) Cape Verde.
         /// </summary>
         internal static string Atlantic_Cape_Verde {
             get {
@@ -970,11 +3193,65 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+00:00) Monrovia, Reykjavik.
+        ///   Looks up a localized string similar to (UTC+00:00) Faroes.
+        /// </summary>
+        internal static string Atlantic_Faeroe {
+            get {
+                return ResourceManager.GetString("Atlantic/Faeroe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Faroes.
+        /// </summary>
+        internal static string Atlantic_Faroe {
+            get {
+                return ResourceManager.GetString("Atlantic/Faroe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Jan Mayen.
+        /// </summary>
+        internal static string Atlantic_Jan_Mayen {
+            get {
+                return ResourceManager.GetString("Atlantic/Jan_Mayen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Madeira.
+        /// </summary>
+        internal static string Atlantic_Madeira {
+            get {
+                return ResourceManager.GetString("Atlantic/Madeira", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Reykjavik.
         /// </summary>
         internal static string Atlantic_Reykjavik {
             get {
                 return ResourceManager.GetString("Atlantic/Reykjavik", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-02:00) South Georgia.
+        /// </summary>
+        internal static string Atlantic_South_Georgia {
+            get {
+                return ResourceManager.GetString("Atlantic/South_Georgia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) St. Helena.
+        /// </summary>
+        internal static string Atlantic_St_Helena {
+            get {
+                return ResourceManager.GetString("Atlantic/St_Helena", resourceCulture);
             }
         }
         
@@ -984,6 +3261,15 @@ namespace Indice.TimeZones {
         internal static string Atlantic_Standard_Time {
             get {
                 return ResourceManager.GetString("Atlantic Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) Stanley.
+        /// </summary>
+        internal static string Atlantic_Stanley {
+            get {
+                return ResourceManager.GetString("Atlantic/Stanley", resourceCulture);
             }
         }
         
@@ -1015,6 +3301,15 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Sydney.
+        /// </summary>
+        internal static string Australia_ACT {
+            get {
+                return ResourceManager.GetString("Australia/ACT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+09:30) Adelaide.
         /// </summary>
         internal static string Australia_Adelaide {
@@ -1029,6 +3324,33 @@ namespace Indice.TimeZones {
         internal static string Australia_Brisbane {
             get {
                 return ResourceManager.GetString("Australia/Brisbane", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+09:30) Broken Hill.
+        /// </summary>
+        internal static string Australia_Broken_Hill {
+            get {
+                return ResourceManager.GetString("Australia/Broken_Hill", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Canberra.
+        /// </summary>
+        internal static string Australia_Canberra {
+            get {
+                return ResourceManager.GetString("Australia/Canberra", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Currie.
+        /// </summary>
+        internal static string Australia_Currie {
+            get {
+                return ResourceManager.GetString("Australia/Currie", resourceCulture);
             }
         }
         
@@ -1062,9 +3384,54 @@ namespace Indice.TimeZones {
         /// <summary>
         ///   Looks up a localized string similar to (UTC+10:30) Lord Howe Island.
         /// </summary>
+        internal static string Australia_LHI {
+            get {
+                return ResourceManager.GetString("Australia/LHI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Lindeman.
+        /// </summary>
+        internal static string Australia_Lindeman {
+            get {
+                return ResourceManager.GetString("Australia/Lindeman", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:30) Lord Howe Island.
+        /// </summary>
         internal static string Australia_Lord_Howe {
             get {
                 return ResourceManager.GetString("Australia/Lord_Howe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Melbourne.
+        /// </summary>
+        internal static string Australia_Melbourne {
+            get {
+                return ResourceManager.GetString("Australia/Melbourne", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+09:30) Darwin.
+        /// </summary>
+        internal static string Australia_North {
+            get {
+                return ResourceManager.GetString("Australia/North", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Sydney.
+        /// </summary>
+        internal static string Australia_NSW {
+            get {
+                return ResourceManager.GetString("Australia/NSW", resourceCulture);
             }
         }
         
@@ -1078,11 +3445,65 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+10:00) Canberra, Melbourne, Sydney.
+        ///   Looks up a localized string similar to (UTC+10:00) Brisbane.
+        /// </summary>
+        internal static string Australia_Queensland {
+            get {
+                return ResourceManager.GetString("Australia/Queensland", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+09:30) Adelaide.
+        /// </summary>
+        internal static string Australia_South {
+            get {
+                return ResourceManager.GetString("Australia/South", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Sydney.
         /// </summary>
         internal static string Australia_Sydney {
             get {
                 return ResourceManager.GetString("Australia/Sydney", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Hobart.
+        /// </summary>
+        internal static string Australia_Tasmania {
+            get {
+                return ResourceManager.GetString("Australia/Tasmania", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Melbourne.
+        /// </summary>
+        internal static string Australia_Victoria {
+            get {
+                return ResourceManager.GetString("Australia/Victoria", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Perth.
+        /// </summary>
+        internal static string Australia_West {
+            get {
+                return ResourceManager.GetString("Australia/West", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+09:30) Yancowinna.
+        /// </summary>
+        internal static string Australia_Yancowinna {
+            get {
+                return ResourceManager.GetString("Australia/Yancowinna", resourceCulture);
             }
         }
         
@@ -1141,11 +3562,119 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Rio Branco.
+        /// </summary>
+        internal static string Brazil_Acre {
+            get {
+                return ResourceManager.GetString("Brazil/Acre", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-02:00) Fernando de Noronha.
+        /// </summary>
+        internal static string Brazil_DeNoronha {
+            get {
+                return ResourceManager.GetString("Brazil/DeNoronha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:00) São Paulo.
+        /// </summary>
+        internal static string Brazil_East {
+            get {
+                return ResourceManager.GetString("Brazil/East", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Manaus.
+        /// </summary>
+        internal static string Brazil_West {
+            get {
+                return ResourceManager.GetString("Brazil/West", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Halifax.
+        /// </summary>
+        internal static string Canada_Atlantic {
+            get {
+                return ResourceManager.GetString("Canada/Atlantic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Winnipeg.
+        /// </summary>
+        internal static string Canada_Central {
+            get {
+                return ResourceManager.GetString("Canada/Central", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC-06:00) Saskatchewan.
         /// </summary>
         internal static string Canada_Central_Standard_Time {
             get {
                 return ResourceManager.GetString("Canada Central Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Toronto.
+        /// </summary>
+        internal static string Canada_Eastern {
+            get {
+                return ResourceManager.GetString("Canada/Eastern", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Edmonton.
+        /// </summary>
+        internal static string Canada_Mountain {
+            get {
+                return ResourceManager.GetString("Canada/Mountain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-03:30) St. John’s.
+        /// </summary>
+        internal static string Canada_Newfoundland {
+            get {
+                return ResourceManager.GetString("Canada/Newfoundland", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-08:00) Vancouver.
+        /// </summary>
+        internal static string Canada_Pacific {
+            get {
+                return ResourceManager.GetString("Canada/Pacific", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Regina.
+        /// </summary>
+        internal static string Canada_Saskatchewan {
+            get {
+                return ResourceManager.GetString("Canada/Saskatchewan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Whitehorse.
+        /// </summary>
+        internal static string Canada_Yukon {
+            get {
+                return ResourceManager.GetString("Canada/Yukon", resourceCulture);
             }
         }
         
@@ -1249,6 +3778,15 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) CET.
+        /// </summary>
+        internal static string CET {
+            get {
+                return ResourceManager.GetString("CET", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+12:45) Chatham Islands.
         /// </summary>
         internal static string Chatham_Islands_Standard_Time {
@@ -1258,11 +3796,47 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC-04:00) Santiago.
+        /// </summary>
+        internal static string Chile_Continental {
+            get {
+                return ResourceManager.GetString("Chile/Continental", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Easter Island.
+        /// </summary>
+        internal static string Chile_EasterIsland {
+            get {
+                return ResourceManager.GetString("Chile/EasterIsland", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+08:00) Beijing, Chongqing, Hong Kong, Urumqi.
         /// </summary>
         internal static string China_Standard_Time {
             get {
                 return ResourceManager.GetString("China Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) CST6CDT.
+        /// </summary>
+        internal static string CST6CDT {
+            get {
+                return ResourceManager.GetString("CST6CDT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Havana.
+        /// </summary>
+        internal static string Cuba {
+            get {
+                return ResourceManager.GetString("Cuba", resourceCulture);
             }
         }
         
@@ -1348,11 +3922,38 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) EET.
+        /// </summary>
+        internal static string EET {
+            get {
+                return ResourceManager.GetString("EET", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Cairo.
+        /// </summary>
+        internal static string Egypt {
+            get {
+                return ResourceManager.GetString("Egypt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+02:00) Cairo.
         /// </summary>
         internal static string Egypt_Standard_Time {
             get {
                 return ResourceManager.GetString("Egypt Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Dublin.
+        /// </summary>
+        internal static string Eire {
+            get {
+                return ResourceManager.GetString("Eire", resourceCulture);
             }
         }
         
@@ -1366,16 +3967,34 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-11:00) Coordinated Universal Time-11.
+        ///   Looks up a localized string similar to (UTC-05:00) EST.
         /// </summary>
-        internal static string Etc_GMT_11 {
+        internal static string EST {
             get {
-                return ResourceManager.GetString("Etc/GMT+11", resourceCulture);
+                return ResourceManager.GetString("EST", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+13:00) Coordinated Universal Time+13.
+        ///   Looks up a localized string similar to (UTC-05:00) EST5EDT.
+        /// </summary>
+        internal static string EST5EDT {
+            get {
+                return ResourceManager.GetString("EST5EDT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) GMT.
+        /// </summary>
+        internal static string Etc_GMT {
+            get {
+                return ResourceManager.GetString("Etc/GMT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+13:00) GMT-13.
         /// </summary>
         internal static string Etc_GMT_13 {
             get {
@@ -1384,34 +4003,52 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-02:00) Coordinated Universal Time-02.
+        ///   Looks up a localized string similar to (UTC+14:00) GMT-14.
         /// </summary>
-        internal static string Etc_GMT_2 {
+        internal static string Etc_GMT_14 {
             get {
-                return ResourceManager.GetString("Etc/GMT+2", resourceCulture);
+                return ResourceManager.GetString("Etc/GMT-14", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-08:00) Coordinated Universal Time-08.
+        ///   Looks up a localized string similar to (UTC+00:00) GMT0.
         /// </summary>
-        internal static string Etc_GMT_8 {
+        internal static string Etc_GMT0 {
             get {
-                return ResourceManager.GetString("Etc/GMT+8", resourceCulture);
+                return ResourceManager.GetString("Etc/GMT0", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-09:00) Coordinated Universal Time-09.
+        ///   Looks up a localized string similar to (UTC+00:00) Greenwich.
         /// </summary>
-        internal static string Etc_GMT_9 {
+        internal static string Etc_Greenwich {
             get {
-                return ResourceManager.GetString("Etc/GMT+9", resourceCulture);
+                return ResourceManager.GetString("Etc/Greenwich", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC) Coordinated Universal Time.
+        ///   Looks up a localized string similar to (UTC+00:00) UCT.
+        /// </summary>
+        internal static string Etc_UCT {
+            get {
+                return ResourceManager.GetString("Etc/UCT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Universal.
+        /// </summary>
+        internal static string Etc_Universal {
+            get {
+                return ResourceManager.GetString("Etc/Universal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) UTC.
         /// </summary>
         internal static string Etc_UTC {
             get {
@@ -1420,7 +4057,34 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+04:00) Astrakhan, Ulyanovsk.
+        ///   Looks up a localized string similar to (UTC+00:00) Zulu.
+        /// </summary>
+        internal static string Etc_Zulu {
+            get {
+                return ResourceManager.GetString("Etc/Zulu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Amsterdam.
+        /// </summary>
+        internal static string Europe_Amsterdam {
+            get {
+                return ResourceManager.GetString("Europe/Amsterdam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Andorra.
+        /// </summary>
+        internal static string Europe_Andorra {
+            get {
+                return ResourceManager.GetString("Europe/Andorra", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+04:00) Astrakhan.
         /// </summary>
         internal static string Europe_Astrakhan {
             get {
@@ -1429,7 +4093,34 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna.
+        ///   Looks up a localized string similar to (UTC+02:00) Athens.
+        /// </summary>
+        internal static string Europe_Athens {
+            get {
+                return ResourceManager.GetString("Europe/Athens", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Belfast.
+        /// </summary>
+        internal static string Europe_Belfast {
+            get {
+                return ResourceManager.GetString("Europe/Belfast", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Belgrade.
+        /// </summary>
+        internal static string Europe_Belgrade {
+            get {
+                return ResourceManager.GetString("Europe/Belgrade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Berlin.
         /// </summary>
         internal static string Europe_Berlin {
             get {
@@ -1438,7 +4129,25 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+02:00) Athens, Bucharest.
+        ///   Looks up a localized string similar to (UTC+01:00) Bratislava.
+        /// </summary>
+        internal static string Europe_Bratislava {
+            get {
+                return ResourceManager.GetString("Europe/Bratislava", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Brussels.
+        /// </summary>
+        internal static string Europe_Brussels {
+            get {
+                return ResourceManager.GetString("Europe/Brussels", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Bucharest.
         /// </summary>
         internal static string Europe_Bucharest {
             get {
@@ -1447,7 +4156,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+01:00) Belgrade, Bratislava, Budapest, Ljubljana, Prague.
+        ///   Looks up a localized string similar to (UTC+01:00) Budapest.
         /// </summary>
         internal static string Europe_Budapest {
             get {
@@ -1456,11 +4165,74 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+02:00) Chisinau.
+        ///   Looks up a localized string similar to (UTC+01:00) Büsingen.
+        /// </summary>
+        internal static string Europe_Busingen {
+            get {
+                return ResourceManager.GetString("Europe/Busingen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Chișinău.
         /// </summary>
         internal static string Europe_Chisinau {
             get {
                 return ResourceManager.GetString("Europe/Chisinau", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Copenhagen.
+        /// </summary>
+        internal static string Europe_Copenhagen {
+            get {
+                return ResourceManager.GetString("Europe/Copenhagen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Dublin.
+        /// </summary>
+        internal static string Europe_Dublin {
+            get {
+                return ResourceManager.GetString("Europe/Dublin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Gibraltar.
+        /// </summary>
+        internal static string Europe_Gibraltar {
+            get {
+                return ResourceManager.GetString("Europe/Gibraltar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Guernsey.
+        /// </summary>
+        internal static string Europe_Guernsey {
+            get {
+                return ResourceManager.GetString("Europe/Guernsey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Helsinki.
+        /// </summary>
+        internal static string Europe_Helsinki {
+            get {
+                return ResourceManager.GetString("Europe/Helsinki", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Isle of Man.
+        /// </summary>
+        internal static string Europe_Isle_of_Man {
+            get {
+                return ResourceManager.GetString("Europe/Isle_of_Man", resourceCulture);
             }
         }
         
@@ -1474,6 +4246,15 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Jersey.
+        /// </summary>
+        internal static string Europe_Jersey {
+            get {
+                return ResourceManager.GetString("Europe/Jersey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+02:00) Kaliningrad.
         /// </summary>
         internal static string Europe_Kaliningrad {
@@ -1483,7 +4264,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+02:00) Helsinki, Kyiv, Riga, Sofia, Tallinn, Vilnius.
+        ///   Looks up a localized string similar to (UTC+02:00) Kyiv.
         /// </summary>
         internal static string Europe_Kiev {
             get {
@@ -1492,11 +4273,83 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+00:00) Dublin, Edinburgh, Lisbon, London.
+        ///   Looks up a localized string similar to (UTC+03:00) Kirov.
+        /// </summary>
+        internal static string Europe_Kirov {
+            get {
+                return ResourceManager.GetString("Europe/Kirov", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Kyiv.
+        /// </summary>
+        internal static string Europe_Kyiv {
+            get {
+                return ResourceManager.GetString("Europe/Kyiv", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Lisbon.
+        /// </summary>
+        internal static string Europe_Lisbon {
+            get {
+                return ResourceManager.GetString("Europe/Lisbon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Ljubljana.
+        /// </summary>
+        internal static string Europe_Ljubljana {
+            get {
+                return ResourceManager.GetString("Europe/Ljubljana", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) London.
         /// </summary>
         internal static string Europe_London {
             get {
                 return ResourceManager.GetString("Europe/London", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Luxembourg.
+        /// </summary>
+        internal static string Europe_Luxembourg {
+            get {
+                return ResourceManager.GetString("Europe/Luxembourg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Madrid.
+        /// </summary>
+        internal static string Europe_Madrid {
+            get {
+                return ResourceManager.GetString("Europe/Madrid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Malta.
+        /// </summary>
+        internal static string Europe_Malta {
+            get {
+                return ResourceManager.GetString("Europe/Malta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Mariehamn.
+        /// </summary>
+        internal static string Europe_Mariehamn {
+            get {
+                return ResourceManager.GetString("Europe/Mariehamn", resourceCulture);
             }
         }
         
@@ -1510,7 +4363,16 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+03:00) Moscow, St. Petersburg.
+        ///   Looks up a localized string similar to (UTC+01:00) Monaco.
+        /// </summary>
+        internal static string Europe_Monaco {
+            get {
+                return ResourceManager.GetString("Europe/Monaco", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Moscow.
         /// </summary>
         internal static string Europe_Moscow {
             get {
@@ -1519,7 +4381,25 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+01:00) Brussels, Copenhagen, Madrid, Paris.
+        ///   Looks up a localized string similar to (UTC+02:00) Nicosia.
+        /// </summary>
+        internal static string Europe_Nicosia {
+            get {
+                return ResourceManager.GetString("Europe/Nicosia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Oslo.
+        /// </summary>
+        internal static string Europe_Oslo {
+            get {
+                return ResourceManager.GetString("Europe/Oslo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Paris.
         /// </summary>
         internal static string Europe_Paris {
             get {
@@ -1528,11 +4408,65 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+04:00) Izhevsk, Samara.
+        ///   Looks up a localized string similar to (UTC+01:00) Podgorica.
+        /// </summary>
+        internal static string Europe_Podgorica {
+            get {
+                return ResourceManager.GetString("Europe/Podgorica", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Prague.
+        /// </summary>
+        internal static string Europe_Prague {
+            get {
+                return ResourceManager.GetString("Europe/Prague", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Riga.
+        /// </summary>
+        internal static string Europe_Riga {
+            get {
+                return ResourceManager.GetString("Europe/Riga", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Rome.
+        /// </summary>
+        internal static string Europe_Rome {
+            get {
+                return ResourceManager.GetString("Europe/Rome", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+04:00) Samara.
         /// </summary>
         internal static string Europe_Samara {
             get {
                 return ResourceManager.GetString("Europe/Samara", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) San Marino.
+        /// </summary>
+        internal static string Europe_San_Marino {
+            get {
+                return ResourceManager.GetString("Europe/San_Marino", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Sarajevo.
+        /// </summary>
+        internal static string Europe_Sarajevo {
+            get {
+                return ResourceManager.GetString("Europe/Sarajevo", resourceCulture);
             }
         }
         
@@ -1546,6 +4480,123 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Simferopol.
+        /// </summary>
+        internal static string Europe_Simferopol {
+            get {
+                return ResourceManager.GetString("Europe/Simferopol", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Skopje.
+        /// </summary>
+        internal static string Europe_Skopje {
+            get {
+                return ResourceManager.GetString("Europe/Skopje", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Sofia.
+        /// </summary>
+        internal static string Europe_Sofia {
+            get {
+                return ResourceManager.GetString("Europe/Sofia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Stockholm.
+        /// </summary>
+        internal static string Europe_Stockholm {
+            get {
+                return ResourceManager.GetString("Europe/Stockholm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Tallinn.
+        /// </summary>
+        internal static string Europe_Tallinn {
+            get {
+                return ResourceManager.GetString("Europe/Tallinn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Tirana.
+        /// </summary>
+        internal static string Europe_Tirane {
+            get {
+                return ResourceManager.GetString("Europe/Tirane", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Chișinău.
+        /// </summary>
+        internal static string Europe_Tiraspol {
+            get {
+                return ResourceManager.GetString("Europe/Tiraspol", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+04:00) Ulyanovsk.
+        /// </summary>
+        internal static string Europe_Ulyanovsk {
+            get {
+                return ResourceManager.GetString("Europe/Ulyanovsk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Kyiv.
+        /// </summary>
+        internal static string Europe_Uzhgorod {
+            get {
+                return ResourceManager.GetString("Europe/Uzhgorod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Vaduz.
+        /// </summary>
+        internal static string Europe_Vaduz {
+            get {
+                return ResourceManager.GetString("Europe/Vaduz", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Vatican.
+        /// </summary>
+        internal static string Europe_Vatican {
+            get {
+                return ResourceManager.GetString("Europe/Vatican", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Vienna.
+        /// </summary>
+        internal static string Europe_Vienna {
+            get {
+                return ResourceManager.GetString("Europe/Vienna", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Vilnius.
+        /// </summary>
+        internal static string Europe_Vilnius {
+            get {
+                return ResourceManager.GetString("Europe/Vilnius", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+03:00) Volgograd.
         /// </summary>
         internal static string Europe_Volgograd {
@@ -1555,11 +4606,47 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+01:00) Sarajevo, Skopje, Warsaw, Zagreb.
+        ///   Looks up a localized string similar to (UTC+01:00) Warsaw.
         /// </summary>
         internal static string Europe_Warsaw {
             get {
                 return ResourceManager.GetString("Europe/Warsaw", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Zagreb.
+        /// </summary>
+        internal static string Europe_Zagreb {
+            get {
+                return ResourceManager.GetString("Europe/Zagreb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Kyiv.
+        /// </summary>
+        internal static string Europe_Zaporozhye {
+            get {
+                return ResourceManager.GetString("Europe/Zaporozhye", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Büsingen.
+        /// </summary>
+        internal static string Europe_Zurich {
+            get {
+                return ResourceManager.GetString("Europe/Zurich", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Factory.
+        /// </summary>
+        internal static string Factory {
+            get {
+                return ResourceManager.GetString("Factory", resourceCulture);
             }
         }
         
@@ -1582,11 +4669,38 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) London.
+        /// </summary>
+        internal static string GB {
+            get {
+                return ResourceManager.GetString("GB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) London.
+        /// </summary>
+        internal static string GB_Eire {
+            get {
+                return ResourceManager.GetString("GB-Eire", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+04:00) Tbilisi.
         /// </summary>
         internal static string Georgian_Standard_Time {
             get {
                 return ResourceManager.GetString("Georgian Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) GMT.
+        /// </summary>
+        internal static string GMT {
+            get {
+                return ResourceManager.GetString("GMT", resourceCulture);
             }
         }
         
@@ -1600,11 +4714,29 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) GMT.
+        /// </summary>
+        internal static string GMT0 {
+            get {
+                return ResourceManager.GetString("GMT0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC-02:00) Greenland.
         /// </summary>
         internal static string Greenland_Standard_Time {
             get {
                 return ResourceManager.GetString("Greenland Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) GMT.
+        /// </summary>
+        internal static string Greenwich {
+            get {
+                return ResourceManager.GetString("Greenwich", resourceCulture);
             }
         }
         
@@ -1645,6 +4777,33 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Hong Kong.
+        /// </summary>
+        internal static string Hongkong {
+            get {
+                return ResourceManager.GetString("Hongkong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-10:00) HST.
+        /// </summary>
+        internal static string HST {
+            get {
+                return ResourceManager.GetString("HST", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Reykjavik.
+        /// </summary>
+        internal static string Iceland {
+            get {
+                return ResourceManager.GetString("Iceland", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+05:30) Chennai, Kolkata, Mumbai, New Delhi.
         /// </summary>
         internal static string India_Standard_Time {
@@ -1654,11 +4813,110 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+04:00) Port Louis.
+        ///   Looks up a localized string similar to (UTC+03:00) Antananarivo.
+        /// </summary>
+        internal static string Indian_Antananarivo {
+            get {
+                return ResourceManager.GetString("Indian/Antananarivo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+06:00) Chagos Archipelago.
+        /// </summary>
+        internal static string Indian_Chagos {
+            get {
+                return ResourceManager.GetString("Indian/Chagos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+07:00) Christmas Island.
+        /// </summary>
+        internal static string Indian_Christmas {
+            get {
+                return ResourceManager.GetString("Indian/Christmas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+06:30) Cocos Islands.
+        /// </summary>
+        internal static string Indian_Cocos {
+            get {
+                return ResourceManager.GetString("Indian/Cocos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Comoros.
+        /// </summary>
+        internal static string Indian_Comoro {
+            get {
+                return ResourceManager.GetString("Indian/Comoro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Kerguelen Islands.
+        /// </summary>
+        internal static string Indian_Kerguelen {
+            get {
+                return ResourceManager.GetString("Indian/Kerguelen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+04:00) Mahé.
+        /// </summary>
+        internal static string Indian_Mahe {
+            get {
+                return ResourceManager.GetString("Indian/Mahe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+05:00) Maldives.
+        /// </summary>
+        internal static string Indian_Maldives {
+            get {
+                return ResourceManager.GetString("Indian/Maldives", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+04:00) Mauritius.
         /// </summary>
         internal static string Indian_Mauritius {
             get {
                 return ResourceManager.GetString("Indian/Mauritius", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Mayotte.
+        /// </summary>
+        internal static string Indian_Mayotte {
+            get {
+                return ResourceManager.GetString("Indian/Mayotte", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+04:00) Réunion.
+        /// </summary>
+        internal static string Indian_Reunion {
+            get {
+                return ResourceManager.GetString("Indian/Reunion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:30) Tehran.
+        /// </summary>
+        internal static string Iran {
+            get {
+                return ResourceManager.GetString("Iran", resourceCulture);
             }
         }
         
@@ -1674,9 +4932,36 @@ namespace Indice.TimeZones {
         /// <summary>
         ///   Looks up a localized string similar to (UTC+02:00) Jerusalem.
         /// </summary>
+        internal static string Israel {
+            get {
+                return ResourceManager.GetString("Israel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Jerusalem.
+        /// </summary>
         internal static string Israel_Standard_Time {
             get {
                 return ResourceManager.GetString("Israel Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Jamaica.
+        /// </summary>
+        internal static string Jamaica {
+            get {
+                return ResourceManager.GetString("Jamaica", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+09:00) Tokyo.
+        /// </summary>
+        internal static string Japan {
+            get {
+                return ResourceManager.GetString("Japan", resourceCulture);
             }
         }
         
@@ -1713,6 +4998,24 @@ namespace Indice.TimeZones {
         internal static string Korea_Standard_Time {
             get {
                 return ResourceManager.GetString("Korea Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+12:00) Kwajalein Atoll.
+        /// </summary>
+        internal static string Kwajalein {
+            get {
+                return ResourceManager.GetString("Kwajalein", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+02:00) Tripoli.
+        /// </summary>
+        internal static string Libya {
+            get {
+                return ResourceManager.GetString("Libya", resourceCulture);
             }
         }
         
@@ -1780,6 +5083,42 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) MET.
+        /// </summary>
+        internal static string MET {
+            get {
+                return ResourceManager.GetString("MET", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-08:00) Tijuana.
+        /// </summary>
+        internal static string Mexico_BajaNorte {
+            get {
+                return ResourceManager.GetString("Mexico/BajaNorte", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Mazatlán.
+        /// </summary>
+        internal static string Mexico_BajaSur {
+            get {
+                return ResourceManager.GetString("Mexico/BajaSur", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Mexico City.
+        /// </summary>
+        internal static string Mexico_General {
+            get {
+                return ResourceManager.GetString("Mexico/General", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC-02:00) Mid-Atlantic - Old.
         /// </summary>
         internal static string Mid_Atlantic_Standard_Time {
@@ -1834,6 +5173,24 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) MST.
+        /// </summary>
+        internal static string MST {
+            get {
+                return ResourceManager.GetString("MST", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) MST7MDT.
+        /// </summary>
+        internal static string MST7MDT {
+            get {
+                return ResourceManager.GetString("MST7MDT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+06:30) Yangon (Rangoon).
         /// </summary>
         internal static string Myanmar_Standard_Time {
@@ -1857,6 +5214,15 @@ namespace Indice.TimeZones {
         internal static string Namibia_Standard_Time {
             get {
                 return ResourceManager.GetString("Namibia Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Denver.
+        /// </summary>
+        internal static string Navajo {
+            get {
+                return ResourceManager.GetString("Navajo", resourceCulture);
             }
         }
         
@@ -1924,6 +5290,24 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+12:00) Auckland.
+        /// </summary>
+        internal static string NZ {
+            get {
+                return ResourceManager.GetString("NZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+12:45) Chatham Islands.
+        /// </summary>
+        internal static string NZ_CHAT {
+            get {
+                return ResourceManager.GetString("NZ-CHAT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+06:00) Omsk.
         /// </summary>
         internal static string Omsk_Standard_Time {
@@ -1933,7 +5317,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+13:00) Samoa.
+        ///   Looks up a localized string similar to (UTC+13:00) Apia.
         /// </summary>
         internal static string Pacific_Apia {
             get {
@@ -1942,7 +5326,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+12:00) Auckland, Wellington.
+        ///   Looks up a localized string similar to (UTC+12:00) Auckland.
         /// </summary>
         internal static string Pacific_Auckland {
             get {
@@ -1951,7 +5335,7 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+11:00) Bougainville Island.
+        ///   Looks up a localized string similar to (UTC+11:00) Bougainville.
         /// </summary>
         internal static string Pacific_Bougainville {
             get {
@@ -1969,11 +5353,47 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Chuuk.
+        /// </summary>
+        internal static string Pacific_Chuuk {
+            get {
+                return ResourceManager.GetString("Pacific/Chuuk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC-06:00) Easter Island.
         /// </summary>
         internal static string Pacific_Easter {
             get {
                 return ResourceManager.GetString("Pacific/Easter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+11:00) Efate.
+        /// </summary>
+        internal static string Pacific_Efate {
+            get {
+                return ResourceManager.GetString("Pacific/Efate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+13:00) Canton Island.
+        /// </summary>
+        internal static string Pacific_Enderbury {
+            get {
+                return ResourceManager.GetString("Pacific/Enderbury", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+13:00) Fakaofo.
+        /// </summary>
+        internal static string Pacific_Fakaofo {
+            get {
+                return ResourceManager.GetString("Pacific/Fakaofo", resourceCulture);
             }
         }
         
@@ -1987,7 +5407,34 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+11:00) Solomon Is., New Caledonia.
+        ///   Looks up a localized string similar to (UTC+12:00) Funafuti.
+        /// </summary>
+        internal static string Pacific_Funafuti {
+            get {
+                return ResourceManager.GetString("Pacific/Funafuti", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Galápagos Islands.
+        /// </summary>
+        internal static string Pacific_Galapagos {
+            get {
+                return ResourceManager.GetString("Pacific/Galapagos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-09:00) Gambier.
+        /// </summary>
+        internal static string Pacific_Gambier {
+            get {
+                return ResourceManager.GetString("Pacific/Gambier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+11:00) Guadalcanal.
         /// </summary>
         internal static string Pacific_Guadalcanal {
             get {
@@ -1996,7 +5443,16 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC-10:00) Hawaii.
+        ///   Looks up a localized string similar to (UTC+10:00) Guam.
+        /// </summary>
+        internal static string Pacific_Guam {
+            get {
+                return ResourceManager.GetString("Pacific/Guam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-10:00) Honolulu.
         /// </summary>
         internal static string Pacific_Honolulu {
             get {
@@ -2005,11 +5461,56 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+14:00) Kiritimati Island.
+        ///   Looks up a localized string similar to (UTC-10:00) Johnston.
+        /// </summary>
+        internal static string Pacific_Johnston {
+            get {
+                return ResourceManager.GetString("Pacific/Johnston", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+13:00) Canton Island.
+        /// </summary>
+        internal static string Pacific_Kanton {
+            get {
+                return ResourceManager.GetString("Pacific/Kanton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+14:00) Kiritimati.
         /// </summary>
         internal static string Pacific_Kiritimati {
             get {
                 return ResourceManager.GetString("Pacific/Kiritimati", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+11:00) Kosrae.
+        /// </summary>
+        internal static string Pacific_Kosrae {
+            get {
+                return ResourceManager.GetString("Pacific/Kosrae", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+12:00) Kwajalein Atoll.
+        /// </summary>
+        internal static string Pacific_Kwajalein {
+            get {
+                return ResourceManager.GetString("Pacific/Kwajalein", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+12:00) Majuro.
+        /// </summary>
+        internal static string Pacific_Majuro {
+            get {
+                return ResourceManager.GetString("Pacific/Majuro", resourceCulture);
             }
         }
         
@@ -2023,6 +5524,33 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC-11:00) Midway Atoll.
+        /// </summary>
+        internal static string Pacific_Midway {
+            get {
+                return ResourceManager.GetString("Pacific/Midway", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+12:00) Nauru.
+        /// </summary>
+        internal static string Pacific_Nauru {
+            get {
+                return ResourceManager.GetString("Pacific/Nauru", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-11:00) Niue.
+        /// </summary>
+        internal static string Pacific_Niue {
+            get {
+                return ResourceManager.GetString("Pacific/Niue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+11:00) Norfolk Island.
         /// </summary>
         internal static string Pacific_Norfolk {
@@ -2032,11 +5560,74 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+10:00) Guam, Port Moresby.
+        ///   Looks up a localized string similar to (UTC+11:00) Nouméa.
+        /// </summary>
+        internal static string Pacific_Noumea {
+            get {
+                return ResourceManager.GetString("Pacific/Noumea", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-11:00) Pago Pago.
+        /// </summary>
+        internal static string Pacific_Pago_Pago {
+            get {
+                return ResourceManager.GetString("Pacific/Pago_Pago", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+09:00) Palau.
+        /// </summary>
+        internal static string Pacific_Palau {
+            get {
+                return ResourceManager.GetString("Pacific/Palau", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-08:00) Pitcairn Islands.
+        /// </summary>
+        internal static string Pacific_Pitcairn {
+            get {
+                return ResourceManager.GetString("Pacific/Pitcairn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+11:00) Pohnpei.
+        /// </summary>
+        internal static string Pacific_Pohnpei {
+            get {
+                return ResourceManager.GetString("Pacific/Pohnpei", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+11:00) Pohnpei.
+        /// </summary>
+        internal static string Pacific_Ponape {
+            get {
+                return ResourceManager.GetString("Pacific/Ponape", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Port Moresby.
         /// </summary>
         internal static string Pacific_Port_Moresby {
             get {
                 return ResourceManager.GetString("Pacific/Port_Moresby", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-10:00) Rarotonga.
+        /// </summary>
+        internal static string Pacific_Rarotonga {
+            get {
+                return ResourceManager.GetString("Pacific/Rarotonga", resourceCulture);
             }
         }
         
@@ -2046,6 +5637,24 @@ namespace Indice.TimeZones {
         internal static string Pacific_SA_Standard_Time {
             get {
                 return ResourceManager.GetString("Pacific SA Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Saipan.
+        /// </summary>
+        internal static string Pacific_Saipan {
+            get {
+                return ResourceManager.GetString("Pacific/Saipan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-11:00) Samoa.
+        /// </summary>
+        internal static string Pacific_Samoa {
+            get {
+                return ResourceManager.GetString("Pacific/Samoa", resourceCulture);
             }
         }
         
@@ -2068,11 +5677,65 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC+13:00) Nuku&apos;alofa.
+        ///   Looks up a localized string similar to (UTC-10:00) Tahiti.
+        /// </summary>
+        internal static string Pacific_Tahiti {
+            get {
+                return ResourceManager.GetString("Pacific/Tahiti", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+12:00) Tarawa.
+        /// </summary>
+        internal static string Pacific_Tarawa {
+            get {
+                return ResourceManager.GetString("Pacific/Tarawa", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+13:00) Tongatapu.
         /// </summary>
         internal static string Pacific_Tongatapu {
             get {
                 return ResourceManager.GetString("Pacific/Tongatapu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Chuuk.
+        /// </summary>
+        internal static string Pacific_Truk {
+            get {
+                return ResourceManager.GetString("Pacific/Truk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+12:00) Wake Island.
+        /// </summary>
+        internal static string Pacific_Wake {
+            get {
+                return ResourceManager.GetString("Pacific/Wake", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+12:00) Wallis &amp; Futuna.
+        /// </summary>
+        internal static string Pacific_Wallis {
+            get {
+                return ResourceManager.GetString("Pacific/Wallis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+10:00) Chuuk.
+        /// </summary>
+        internal static string Pacific_Yap {
+            get {
+                return ResourceManager.GetString("Pacific/Yap", resourceCulture);
             }
         }
         
@@ -2095,11 +5758,65 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+01:00) Warsaw.
+        /// </summary>
+        internal static string Poland {
+            get {
+                return ResourceManager.GetString("Poland", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) Lisbon.
+        /// </summary>
+        internal static string Portugal {
+            get {
+                return ResourceManager.GetString("Portugal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Shanghai.
+        /// </summary>
+        internal static string PRC {
+            get {
+                return ResourceManager.GetString("PRC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-08:00) PST8PDT.
+        /// </summary>
+        internal static string PST8PDT {
+            get {
+                return ResourceManager.GetString("PST8PDT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+05:00) Astana.
         /// </summary>
         internal static string Qyzylorda_Standard_Time {
             get {
                 return ResourceManager.GetString("Qyzylorda Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Taipei.
+        /// </summary>
+        internal static string ROC {
+            get {
+                return ResourceManager.GetString("ROC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+09:00) Seoul.
+        /// </summary>
+        internal static string ROK {
+            get {
+                return ResourceManager.GetString("ROK", resourceCulture);
             }
         }
         
@@ -2230,6 +5947,15 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+08:00) Singapore.
+        /// </summary>
+        internal static string Singapore {
+            get {
+                return ResourceManager.GetString("Singapore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+08:00) Kuala Lumpur, Singapore.
         /// </summary>
         internal static string Singapore_Standard_Time {
@@ -2349,6 +6075,15 @@ namespace Indice.TimeZones {
         /// <summary>
         ///   Looks up a localized string similar to (UTC+03:00) Istanbul.
         /// </summary>
+        internal static string Turkey {
+            get {
+                return ResourceManager.GetString("Turkey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Istanbul.
+        /// </summary>
         internal static string Turkey_Standard_Time {
             get {
                 return ResourceManager.GetString("Turkey Standard Time", resourceCulture);
@@ -2365,11 +6100,83 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) UTC.
+        /// </summary>
+        internal static string UCT {
+            get {
+                return ResourceManager.GetString("UCT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+08:00) Ulaanbaatar.
         /// </summary>
         internal static string Ulaanbaatar_Standard_Time {
             get {
                 return ResourceManager.GetString("Ulaanbaatar Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) UTC.
+        /// </summary>
+        internal static string Universal {
+            get {
+                return ResourceManager.GetString("Universal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-09:00) Anchorage.
+        /// </summary>
+        internal static string US_Alaska {
+            get {
+                return ResourceManager.GetString("US/Alaska", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-10:00) Adak.
+        /// </summary>
+        internal static string US_Aleutian {
+            get {
+                return ResourceManager.GetString("US/Aleutian", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Phoenix.
+        /// </summary>
+        internal static string US_Arizona {
+            get {
+                return ResourceManager.GetString("US/Arizona", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Chicago.
+        /// </summary>
+        internal static string US_Central {
+            get {
+                return ResourceManager.GetString("US/Central", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Indianapolis.
+        /// </summary>
+        internal static string US_East_Indiana {
+            get {
+                return ResourceManager.GetString("US/East-Indiana", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) New York.
+        /// </summary>
+        internal static string US_Eastern {
+            get {
+                return ResourceManager.GetString("US/Eastern", resourceCulture);
             }
         }
         
@@ -2383,6 +6190,42 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC-10:00) Honolulu.
+        /// </summary>
+        internal static string US_Hawaii {
+            get {
+                return ResourceManager.GetString("US/Hawaii", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-06:00) Knox, Indiana.
+        /// </summary>
+        internal static string US_Indiana_Starke {
+            get {
+                return ResourceManager.GetString("US/Indiana-Starke", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-05:00) Detroit.
+        /// </summary>
+        internal static string US_Michigan {
+            get {
+                return ResourceManager.GetString("US/Michigan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-07:00) Denver.
+        /// </summary>
+        internal static string US_Mountain {
+            get {
+                return ResourceManager.GetString("US/Mountain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC-07:00) Arizona.
         /// </summary>
         internal static string US_Mountain_Standard_Time {
@@ -2392,7 +6235,25 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (UTC) Coordinated Universal Time.
+        ///   Looks up a localized string similar to (UTC-08:00) Los Angeles.
+        /// </summary>
+        internal static string US_Pacific {
+            get {
+                return ResourceManager.GetString("US/Pacific", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC-11:00) Pago Pago.
+        /// </summary>
+        internal static string US_Samoa {
+            get {
+                return ResourceManager.GetString("US/Samoa", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) UTC.
         /// </summary>
         internal static string UTC {
             get {
@@ -2518,6 +6379,15 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+03:00) Moscow.
+        /// </summary>
+        internal static string W_SU {
+            get {
+                return ResourceManager.GetString("W-SU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+05:00) Ashgabat, Tashkent.
         /// </summary>
         internal static string West_Asia_Standard_Time {
@@ -2545,6 +6415,15 @@ namespace Indice.TimeZones {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) WET.
+        /// </summary>
+        internal static string WET {
+            get {
+                return ResourceManager.GetString("WET", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (UTC+09:00) Yakutsk.
         /// </summary>
         internal static string Yakutsk_Standard_Time {
@@ -2559,6 +6438,15 @@ namespace Indice.TimeZones {
         internal static string Yukon_Standard_Time {
             get {
                 return ResourceManager.GetString("Yukon Standard Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (UTC+00:00) UTC.
+        /// </summary>
+        internal static string Zulu {
+            get {
+                return ResourceManager.GetString("Zulu", resourceCulture);
             }
         }
     }
