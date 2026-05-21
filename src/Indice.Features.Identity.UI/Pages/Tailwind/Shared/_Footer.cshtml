@@ -16,8 +16,10 @@
         <a asp-page="/Terms" target="_blank">@Localizer.Footer_Terms</a>
         <span class="">•</span>
         <a asp-page="/Privacy" target="_blank">@Localizer.Footer_Privacy</a>
-        <span class="" indice-if="!Environment.IsProduction()">•</span>
-        <a indice-if="!Environment.IsProduction()" href="~/.well-known/openid-configuration" target="_blank">@Localizer.Footer_Discovery</a>
+        <environment exclude="@UIOptions.Value.ProductionEnvironments">
+            <span class="">•</span>
+            <a href="~/.well-known/openid-configuration" target="_blank">@Localizer.Footer_Discovery</a>
+        </environment>
         <span indice-if="showContactUs" class="">•</span>
         <a indice-if="showContactUs" href="@UIOptions.Value.ContactUsUrl" target="_blank">@Localizer.Footer_Contact_us</a>
         <span class="hidden lg:block">•</span>
