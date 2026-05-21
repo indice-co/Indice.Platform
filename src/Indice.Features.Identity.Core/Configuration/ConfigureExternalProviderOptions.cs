@@ -35,7 +35,7 @@ internal class ConfigureOpenIdOptions<TOptions> : ConfigureExternalProviderOptio
 
 internal class ConfigureExternalProviderOptions : IPostConfigureOptions<OpenIdConnectOptions>, IPostConfigureOptions<OAuthOptions>
 {
-    private string[] _schemes;
+    private readonly string[] _schemes;
     private readonly IServiceProvider _serviceProvider;
 
     public ConfigureExternalProviderOptions(string[] schemes, IServiceProvider serviceProvider) {
