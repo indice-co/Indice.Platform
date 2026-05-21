@@ -13,7 +13,14 @@
 
     <div id="panel-main">
         <div class="alert alert-warning mb-4">
-            @Localizer.Mfa_EnterRecoveryCode
+            <div class="d-flex flex-row  align-items-center gap-3">
+                <i class="fa-2xl fa-solid fa-square-binary" aria-label="icon"></i>
+                <div class="d-flex w-100 flex-column justify-content-between">
+                    <span>
+                        @Localizer.Mfa_EnterRecoveryCode
+                    </span>
+                </div>
+            </div>
         </div>
         <div class="mb-4">
             <label asp-for="Input.RecoveryCode" class="form-label">

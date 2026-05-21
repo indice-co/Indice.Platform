@@ -12,7 +12,12 @@
 
     <div id="panel-main">
         <div class="alert alert-primary mb-4">
-            @Localizer.Mfa_Check_Your_Inbox(Model.View.EmailMasked!)
+            <div class="d-flex flex-row  align-items-center gap-3">
+                <i class="fa-2xl fa-regular fa-envelope" aria-label="icon"></i>
+                <div class="d-flex w-100 flex-column justify-content-between">
+                    <span>@Localizer.Mfa_Check_Your_Inbox(Model.View.EmailMasked!)</span>
+                </div>
+            </div>
         </div>
         <div class="mb-4">
             <label asp-for="Input.OtpCode" class="form-label">
