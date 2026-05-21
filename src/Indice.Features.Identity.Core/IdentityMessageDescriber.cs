@@ -84,23 +84,18 @@ public class IdentityMessageDescriber
         activity switch {
             nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventSubject,
             nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventSubject,
+            nameof(TwoFactorPreferenceChangedEvent) => IdentityResources.TwoFactorPreferenceChangedEventSubject,
             _ => string.Format(IdentityResources.SecurityNotificationDefaultSubject, activity.Replace("Event", "").Humanize())
         };
 
     /// <summary>Security event descriptions.</summary>
-    public virtual string SecurityEventDescription(string activity) =>
+    public virtual string SecurityEventDescription(string activity, string? description) =>
         activity switch {
             nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventDescription,
             nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventDescription,
-            _ => string.Empty
+            nameof(TwoFactorPreferenceChangedEvent) => string.Format(IdentityResources.TwoFactorPreferenceChangedEventDescription, description),
+            _ => description ?? string.Empty
         };
-
-    /// <summary>Two-factor preference changed event subject.</summary>
-    public virtual string TwoFactorPreferenceChangedEventSubject => IdentityResources.TwoFactorPreferenceChangedEventSubject;
-
-    /// <summary>Two-factor preference changed event description.</summary>
-    public virtual string TwoFactorPreferenceChangedEventDescription(string authenticationMethodCode) =>
-        string.Format(IdentityResources.TwoFactorPreferenceChangedEventDescription, authenticationMethodCode);
 
     /// <summary>Add email page validation empty email</summary>
     public virtual string AddEmailValidationEmailEmpty => IdentityResources.AddEmailValidationEmailEmpty;

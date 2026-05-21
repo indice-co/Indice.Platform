@@ -463,10 +463,10 @@
     <value>Οι χρήστες θα λάβουν έναν κωδικό TOTP στη διεύθυνση email τους που έχει επιβεβαιωθεί.</value>
   </data>
   <data name="AuthMethod_AuthenticatorApp_DisplayName" xml:space="preserve">
-    <value>Εφαρμογή ταυτοποίησης (συνιστάται)</value>
+    <value>Authenticator App (συνιστάται)</value>
   </data>
   <data name="AuthMethod_AuthenticatorApp_Description" xml:space="preserve">
-    <value>Χρησιμοποιήστε μια εφαρμογή ταυτοποίησης για τη δημιουργία κωδικών επαλήθευσης.</value>
+    <value>Χρησιμοποιήστε μια εφαρμογή ταυτοποίησης για τη δημιουργία κωδικών επαλήθευσης όπως ο Microsoft Authenticator, Google Authenticator ή Apple KeyChain.</value>
   </data>
   <data name="AuthMethod_Fido2_DisplayName" xml:space="preserve">
     <value>FIDO2</value>

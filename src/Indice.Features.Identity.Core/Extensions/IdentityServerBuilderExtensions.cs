@@ -1,9 +1,11 @@
-﻿using System;
-#if NET9_0_OR_GREATER
+﻿#if NET9_0_OR_GREATER
 using IdSrvModels = Duende.IdentityServer.Models;
 using Duende.IdentityServer.EntityFramework.Entities;
 using Duende.IdentityServer.EntityFramework.Options;
 using Duende.IdentityServer.Services;
+using Duende.IdentityServer.EntityFramework;
+using Indice.Features.Identity.Core.TokenCleanup;
+using Indice.Features.Identity.Core.Cache;
 #else
 using IdSrvModels = IdentityServer4.Models;
 using IdentityServer4.EntityFramework.Entities;
@@ -129,4 +131,29 @@ public static class IdentityServerBuilderExtensions
         options.PushedAuthorizationRequests = new TableConfiguration(nameof(PushedAuthorizationRequest));
 #endif
     }
+
+#if NET9_0_OR_GREATER
+    /// <summary>
+    /// Registers an alternative implementation of <see cref="TokenCleanupService"/>   
+    /// that user an alternative way to delete records and removes events. 
+    /// </summary>
+    /// <param name="builder">instance</param>
+    /// <returns>The current <see cref="IIdentityServerBuilder"/> instance.</returns>
+    public static TIdentityServerBuilder AddFastCleanUpService<TIdentityServerBuilder>(this TIdentityServerBuilder builder) where TIdentityServerBuilder : IIdentityServerBuilder {
+        builder.Services.AddTransient<ITokenCleanupService, FastTokenCleanupService>();
+        return builder;
+    }
+
+    /// <summary>
+    /// Registers an alternative implementation of <see cref="ICache{T}"/> using <c>HybridCache</c>
+    /// </summary>
+    /// <param name="builder">instance</param>
+    /// <returns>The current <see cref="IIdentityServerBuilder"/> instance.</returns>
+    public static TIdentityServerBuilder AddHybridCache<TIdentityServerBuilder>(this TIdentityServerBuilder builder) where TIdentityServerBuilder : IIdentityServerBuilder {
+        // Add HybridCache service
+        builder.Services.AddHybridCache();
+        builder.Services.AddTransient(typeof(ICache<>), typeof(DuendeHybridCache<>));
+        return builder;
+    }
+#endif
 }

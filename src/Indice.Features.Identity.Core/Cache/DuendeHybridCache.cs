@@ -2,7 +2,7 @@
 using Duende.IdentityServer.Services;
 using Microsoft.Extensions.Caching.Hybrid;
 
-namespace Microsoft.AspNetCore.Identity;
+namespace Indice.Features.Identity.Core.Cache;
 
 /// <summary>
 /// Provides a hybrid cache implementation for storing and retrieving objects of type <typeparamref name="T"/>.

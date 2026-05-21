@@ -39,7 +39,7 @@ public class SecurityNotificationEventHandler : IPlatformEventHandler<SecurityNo
         }
         using (new TemporaryCulture(@event.Locale)) {
             var subject = _messageDescriber.SecurityEventSubject(@event.Activity);
-            var description = _messageDescriber.SecurityEventDescription(@event.Activity);
+            var description = _messageDescriber.SecurityEventDescription(@event.Activity, @event.Description);
             await _emailService.SendAsync(email => {
                 email.To(@event.User.Email)
                     .WithSubject(subject)

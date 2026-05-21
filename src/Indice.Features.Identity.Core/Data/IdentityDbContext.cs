@@ -50,5 +50,6 @@ public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, s
         builder.ApplyConfiguration(new UserDeviceMap<TUser>());
         builder.ApplyConfiguration(new UserPictureMap<TUser>());
         builder.ApplyConfiguration(new AppSettingMap());
+        builder.ApplyConfiguration(new CacheMap());
     }
 }

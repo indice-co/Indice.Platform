@@ -2,6 +2,22 @@
 @inject IdentityUILocalizer Localizer
 @model BaseMfaModel
 
+@functions {
+    public string GetIconFromAuthenticationMethod(AuthenticationMethod? method)
+    {
+        return method?.Code.ToLowerInvariant() switch
+        {
+            "viber" => "fa-brands fa-viber",
+            "sms" => "fa-regular fa-message",
+            "email" => "fa-regular fa-envelope",
+            "authenticatorapp" => "fa-solid fa-shield-halved",
+            "trusteddevice" => "fa-solid fa-mobile-screen",
+            "fido2" => "fa-solid fa-fingerprint",
+            "recoverycode" => "fa-solid fa-square-binary",
+            _ => "fa-regular fa-message"
+        };
+    }
+}
 <form id="mfa-form"
       asp-page="/Mfa"
       asp-route-returnUrl="@Model.Input.ReturnUrl"
@@ -12,7 +28,15 @@
     
     <div id="panel-main">
         <div class="alert alert-primary mb-4">
-            @Localizer.Mfa_We_Texted_Your_Phone(Model.View.PhoneNumberMasked!)
+            <div class="d-flex flex-row  align-items-center gap-3">
+                <i class="fa-2xl @GetIconFromAuthenticationMethod(Model.View.AuthenticationMethod)" aria-label="icon"></i>
+                <div class="d-flex w-100 flex-column justify-content-between">
+                    <span>
+                        @Localizer.Mfa_We_Texted_Your_Phone(Model.View.PhoneNumberMasked!)
+                    </span>
+                </div>
+            </div>
+            
         </div>
         <div class="mb-4">
             <label asp-for="Input.OtpCode" class="form-label">
