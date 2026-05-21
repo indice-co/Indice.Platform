@@ -24,7 +24,7 @@ public class MessageService : IMessageService
     /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
     /// <param name="campaignInboxOptions">Options used to configure the Campaigns inbox API feature.</param>
     /// <param name="contactResolver">Contact resolver service</param>
-    /// <param name="contactService"></param>
+    /// <param name="contactService">Contacts management service</param>
     /// <param name="messageEventQueue">Event queue</param>
     /// <param name="partialTemplateResolverFactory">Partial template resolver factory</param>
     /// <exception cref="ArgumentNullException"></exception>
