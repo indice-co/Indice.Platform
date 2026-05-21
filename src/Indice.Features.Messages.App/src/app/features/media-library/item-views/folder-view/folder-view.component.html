@@ -46,7 +46,7 @@
     @for (file of folderContent?.files; track file) {
       <div class="h-40 w-40 flex flex-col items-center justify-center cursor-pointer bg-white rounded-lg mr-5 mt-5 relative group" (click)="editFile(file)" [title]="file.name">
         <div class="h-28 w-full p-2">
-          <img class="h-full w-full object-contain" [src]="getImageUrl(file, 128)" onerror="'../../../../assets/images/no-image-icon.png'"/>
+          <img class="h-full w-full object-contain" [src]="getImageUrl(file)" onerror="this.onerror=null;this.src='../../../../assets/images/no-image-icon.png'" />
         </div>
         <span class="w-36 text-ellipsis overflow-hidden text-center whitespace-nowrap">{{file.name}}</span>
         <div class="flex flex-row items-center absolute top-2 right-2 space-x-2">

@@ -19,7 +19,7 @@
           </span>
           @if (!isLoading) {
             <div class="mt-10">
-              <app-multi-file-upload #fileUploadComponent [extendedView]="true" [maxSize]="6*1024*1024" (filesChange)="onFileChange($event)"></app-multi-file-upload>
+              <app-multi-file-upload #fileUploadComponent [extendedView]="true" [maxSize]="settings.maxFileSize" [accept]="settings.acceptableFileExtensions" (filesChange)="onFileChange($event)"></app-multi-file-upload>
             </div>
           }
         </div>
