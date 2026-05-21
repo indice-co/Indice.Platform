@@ -24,7 +24,9 @@ export const environment = {
   culture: 'el-GR',
   isTemplate: false,
   production: false,
-  enableMediaLibrary: true
+  enableMediaLibrary: true,
+  maxFileSize: 6 * 1024 * 1024,
+  acceptableFileExtensions: ".png, .jpg, .gif, .webp"
 };
 
 /*

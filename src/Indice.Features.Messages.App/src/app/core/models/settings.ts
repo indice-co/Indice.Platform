@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority = '', clientId = '', host = '', api = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '', enableMediaLibrary = undefined;
+    let authority = '', clientId = '', host = '', api = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '', enableMediaLibrary = undefined, maxFileSize = undefined, acceptableFileExtensions = undefined;
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -16,6 +16,8 @@ function createAppSettings(): IAppSettings {
         scopes = appRoot.getAttribute('scopes') || '';
         tenantId = appRoot.getAttribute('tenantId') || undefined;
         enableMediaLibrary = appRoot.getAttribute('enableMediaLibrary') || undefined;
+        maxFileSize = appRoot.getAttribute('maxFileSize') || undefined;
+        acceptableFileExtensions = appRoot.getAttribute('acceptableFileExtensions') || undefined;
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
@@ -29,6 +31,8 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('tenantId');
         appRoot.attributes.removeNamedItem('api');
         appRoot.attributes.removeNamedItem('enableMediaLibrary');
+        appRoot.attributes.removeNamedItem('maxFileSize');
+        appRoot.attributes.removeNamedItem('acceptableFileExtensions');
     }
     return {
         api_url: !isTemplate ? environment.api_url : (api || [host.replace(/\/$/su, ""), 'api'].join('/')),
@@ -57,6 +61,8 @@ function createAppSettings(): IAppSettings {
         version: version || '1.0.0',
         tenantId: tenantId,
         enableMediaLibrary: enableMediaLibrary ? enableMediaLibrary === 'True' : environment.enableMediaLibrary,
+        maxFileSize: maxFileSize ? parseInt(maxFileSize, 10) : environment.maxFileSize,
+        acceptableFileExtensions: acceptableFileExtensions || environment.acceptableFileExtensions
     };
 }
 
