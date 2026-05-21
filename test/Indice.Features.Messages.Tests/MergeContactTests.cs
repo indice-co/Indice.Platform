@@ -40,6 +40,7 @@ public class MergeContactTests : IAsyncLifetime
             .AddTransient<IContactService, ContactService>()
             .AddTransient(serviceProvider => new DatabaseSchemaNameResolver("cmp"))
             .AddTransient<IUserNameAccessor, UserNameAccessorNoOp>()
+            .AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>()
             .AddTransient<UserNameAccessorAggregate>()
             .AddOptions()
             .Configure<MessageManagementOptions>(configuration);

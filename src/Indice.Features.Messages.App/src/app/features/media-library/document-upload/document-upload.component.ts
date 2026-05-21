@@ -5,6 +5,7 @@ import { FileParameter } from 'src/app/core/services/media-api.service';
 import { FileUploadComponent, IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
 import { MediaLibraryStore } from '../media-library-store.service';
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster'; // replaced ToasterService
+import { settings } from 'src/app/core/models/settings';
 
 @Component({
     selector: 'app-document-upload',
@@ -18,6 +19,7 @@ export class DocumentUploadComponent implements OnInit {
   public isLoading = false;
   public file: IAttachment | undefined;
   public files: IAttachment[] = [];
+  public settings = settings;
 
   private _folderId: string | undefined;
 

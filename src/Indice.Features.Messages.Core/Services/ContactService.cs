@@ -1,10 +1,12 @@
 ﻿using System.Data.Common;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +21,6 @@ public class ContactService : IContactService
     public ContactService(CampaignsDbContext dbContext) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
-
     private CampaignsDbContext DbContext { get; }
     /// <inheritdoc />
     public async Task AddToDistributionList(Guid id, CreateDistributionListContactRequest request) {
@@ -398,8 +399,7 @@ public class ContactService : IContactService
                 await DbContext.ContactPreferences.AddAsync(recipientPreferences);
                 await DbContext.SaveChangesAsync();
                 return;
-            } 
-            catch (DbUpdateException ex) when (IsDuplicateKeyViolation(ex)) {
+            } catch (DbUpdateException ex) when (IsDuplicateKeyViolation(ex)) {
                 DbContext.ChangeTracker.Clear();
                 recipientPreferences = await DbContext.ContactPreferences
                                            .Include(x => x.CommunicationOptions)
@@ -447,8 +447,7 @@ public class ContactService : IContactService
                 await DbContext.ContactPreferences.AddAsync(recipientPreferences);
                 await DbContext.SaveChangesAsync();
                 return;
-            } 
-            catch (DbUpdateException ex) when(IsDuplicateKeyViolation(ex)) {
+            } catch (DbUpdateException ex) when (IsDuplicateKeyViolation(ex)) {
                 DbContext.ChangeTracker.Clear();
                 recipientPreferences = await DbContext.ContactPreferences
                                              .Include(x => x.CommunicationOptions)
