@@ -89,7 +89,6 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<AzureClientFactory>();
         var serviceProvider = services.BuildServiceProvider();
         var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-        var azureClientFactory = serviceProvider.GetRequiredService<AzureClientFactory>();
         var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         const int defaultKeyLifetime = 90;
         var options = new AzureDataProtectionOptions {
@@ -107,14 +106,12 @@ public static class ServiceCollectionExtensions
         if (options.KeyLifetime <= 0) {
             options.KeyLifetime = defaultKeyLifetime;
         }
-        var container = azureClientFactory.GetOrCreateBlobContainerClient(options.ConnectionStringName, options.ContainerName);
-        var blobClient = container.GetBlobClient("keys.xml");
         // Enables data protection services to the specified IServiceCollection.
         var dataProtectionBuilder = services.AddDataProtection()
                                             // Configures the data protection system to use the cryptographic algorithms from options.CryptographicAlgorithms
                                             // when generating protected payloads. Default values are initialized above and may be overridden by configure.
                                             .UseCryptographicAlgorithms(options.CryptographicAlgorithms)
-                                            .PersistKeysToAzureBlobStorage(blobClient)
+                                            .PersistKeysToAzureBlobStorage(sp =>  sp.GetRequiredService<AzureClientFactory>().GetOrCreateBlobContainerClient(options.ConnectionStringName, options.ContainerName).GetBlobClient("keys.xml"))
                                             // Configure the system to use a key lifetime. Default is 90 days.
                                             .SetDefaultKeyLifetime(TimeSpan.FromDays(options.KeyLifetime))
                                             // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, 
