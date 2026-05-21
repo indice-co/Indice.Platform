@@ -25,7 +25,7 @@ export const environment = {
   isTemplate: false,
   production: false,
   enableMediaLibrary: true,
-  maxFileSize: 6 * 1024 * 1024,
+  maxFileSize: 10 * 1024 * 1024,
   acceptableFileExtensions: ".png, .jpg, .gif, .webp"
 };
 

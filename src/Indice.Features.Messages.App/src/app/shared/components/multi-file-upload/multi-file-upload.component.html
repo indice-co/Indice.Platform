@@ -1,47 +1,43 @@
-<div class="flex items-center w-full">
+<div class="flex flex-col gap-2 w-full">
   @for (file of files; track file; let i = $index) {
-    <div class="flex justify-center items-center max-w-[400px]">
-      <label class="overflow-hidden text-black text-ellipsis whitespace-pre text-sm">
-        {{ file.title }}
-      </label>
-      <button type="button" (click)="removeFile(i)" class="cursor-pointer bg-white text-red-500 rounded-md inline-flex ml-1">
-        <span class="sr-only">Remove</span>
+    <div class="flex items-center justify-between gap-3 bg-gray-50 rounded-md px-3 py-2 w-full">
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <svg class="h-5 w-5 text-gray-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+        </svg>
+        <span class="text-sm text-black truncate" [title]="file.title">{{ file.title }}</span>
+      </div>
+      <button type="button" (click)="removeFile(i)" class="cursor-pointer bg-transparent text-red-500 hover:text-red-700 rounded-md flex-shrink-0">
+        <span class="sr-only">{{ 'Shared.RemoveActionLabel' | translate }}</span>
         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path fill-rule="evenodd"
             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
             clip-rule="evenodd" />
-          </svg>
-        </button>
-      </div>
-    }
-
-    @if (!files.length) {
-      <div class="flex justify-center pr-3">
-        <label class="overflow-hidden text-black text-ellipsis whitespace-pre text-sm">
-          Δεν έχετε προσθέσει κάποιο επισυναπτόμενο αρχείο.
-        </label>
-      </div>
-    }
-
-    <input type="file" id="fileInput" #fileInput class="hidden" multiple (change)="onFilesAdded()" [accept]="accept" />
-
-    @if (!files.length) {
-      <button class="pl-3 py-2 border-0 border-l border-gray-300" (click)="clickElement()">
-        <svg class="text-gray-400 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
         </svg>
       </button>
-    }
-  </div>
+    </div>
+  }
+
+  @if (!files.length) {
+    <div class="text-sm text-gray-500 px-1">
+      {{ 'Shared.NoAttachmentInfo' | translate }}
+    </div>
+  }
+
+  <input type="file" id="fileInput" #fileInput class="hidden" multiple (change)="onFilesAdded()" [accept]="accept" />
+
+  <button type="button" (click)="clickElement()"
+    class="flex items-center justify-center gap-2 w-full border border-dashed border-gray-300 rounded-md py-2 px-3 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 hover:border-gray-400">
+    <svg class="h-5 w-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+    </svg>
+    <span>{{ 'Shared.AddAttachmentButtonTitle' | translate }}</span>
+  </button>
+</div>
 
   @if (sizeLimitReached) {
     <p class="mt-2 text-sm text-red-600">
-      Το μέγεθος του αρχείου είναι μεγαλύτερο από το επιτρεπτό ({{ maxSizeText }}).
+      {{ 'Shared.FileSizeLimitExceeded' | translate:{size: maxSizeText} }}
     </p>
   }
 
@@ -50,9 +46,9 @@
       @for (file of files; track file; let i = $index) {
         <div>
           <fieldset>
-            <legend class="sr-only">Τίτλος</legend>
+            <legend class="sr-only">{{ 'Shared.AttachmentTitleLabel' | translate }}</legend>
             <div class="text-sm font-medium text-gray-500" aria-hidden="true">
-              Τίτλος
+              {{ 'Shared.AttachmentTitleLabel' | translate }}
             </div>
             <div class="mt-1 text-sm text-gray-900">
               {{ file.title }}
@@ -60,18 +56,18 @@
           </fieldset>
           <fieldset class="flex flex-row gap-4">
             <div>
-              <legend class="sr-only">Τύπος</legend>
+              <legend class="sr-only">{{ 'Shared.AttachmentTypeLabel' | translate }}</legend>
               <div class="text-sm font-medium text-gray-500" aria-hidden="true">
-                Τύπος
+                {{ 'Shared.AttachmentTypeLabel' | translate }}
               </div>
               <div class="mt-1 text-sm text-gray-900">
                 {{ file.contentType }}
               </div>
             </div>
             <div>
-              <legend class="sr-only">Μέγεθος</legend>
+              <legend class="sr-only">{{ 'Shared.AttachmentSizeLabel' | translate }}</legend>
               <div class="text-sm font-medium text-gray-500" aria-hidden="true">
-                Μέγεθος
+                {{ 'Shared.AttachmentSizeLabel' | translate }}
               </div>
               <div class="mt-1 text-sm text-gray-900">
                 {{ file.sizeText }}
