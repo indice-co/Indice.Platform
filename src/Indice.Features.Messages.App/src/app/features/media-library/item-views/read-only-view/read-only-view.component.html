@@ -46,7 +46,7 @@
         [ngClass]="selectedFile?.id === file.id ? 'border-gray-500' : 'border-gray-100'"
         (click)="selectFile(file)">
         <div class="h-20 w-full p-2">
-          <img class="h-full w-full object-contain" [src]="getImageUrl(file)" onerror="'../../../../assets/images/no-image-icon.png'"/>
+          <img class="h-full w-full object-contain" [src]="getImageUrl(file)" onerror="this.onerror=null;this.src='../../../../assets/images/no-image-icon.png'"/>
         </div>
         <span class="w-28 text-ellipsis overflow-hidden text-center whitespace-nowrap text-sm" [title]="file.name">{{file.name}}</span>
         <div class="flex flex-row items-center absolute top-2 right-2 space-x-2">
