@@ -7,8 +7,6 @@
   <Folder Name="/.misc/">
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
-    <File Path="docs/CodeQL-Warning-Alerts-Indice.Platform.csv" />
-    <File Path="docs/CodeQL-Warning-Alerts-Indice.Platform1.csv" />
     <File Path="global.json" />
     <File Path="LICENSE" />
     <File Path="local-feed.ps1" />
