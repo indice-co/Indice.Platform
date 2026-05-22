@@ -80,7 +80,7 @@ internal class NotifyCustomerActivity(ICasesManager casesManager, ISmsService sm
         foreach (var channel in DeliveryChannel) {
             switch (channel) {
                 case "SMS/Viber": {
-                    var customerPhoneNumber = @case.Metadata?["CustomerPhoneNumber"] as string; // this can be activity input to match different cases (eg CustomerPhoneNumber or PhoneNumber)
+                    var customerPhoneNumber = @case.Metadata?["CustomerPhoneNumber"]; // this can be activity input to match different cases (eg CustomerPhoneNumber or PhoneNumber)
                     if (string.IsNullOrEmpty(customerPhoneNumber)) {
                         infoMessage.Append("Customer phone number is empty in case metadata. Notification will not be send.");
                         continue;
