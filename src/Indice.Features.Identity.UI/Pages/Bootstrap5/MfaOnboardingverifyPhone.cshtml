@@ -8,7 +8,7 @@
 @{
     ViewBag.Title = Localizer.MfaOnBoardingVerifyPhone_PageTitle;
     var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyPhoneModel.TempDataKey);
-    var displayNext = !string.IsNullOrEmpty(infoMessage?.NextStepUrl) && infoMessage?.Alert?.AlertType == AlertType.Success;
+    var displayNext = infoMessage?.Alert?.AlertType == AlertType.Success && !string.IsNullOrEmpty(infoMessage?.NextStepUrl);
 }
 
 <div class="sign-in m-auto">

@@ -262,7 +262,7 @@ public abstract class BaseLoginModel : BasePageModel
             ExternalProviders = providers.ToArray(),
             GenerateDeviceId = true,
             Operation = context?.Parameters?.AllKeys?.Contains(ExtraQueryParamNames.Operation) == true
-                ? context?.Parameters[ExtraQueryParamNames.Operation]
+                ? context.Parameters[ExtraQueryParamNames.Operation]
                 : null,
             ReturnUrl = returnUrl,
             UserName = context?.LoginHint

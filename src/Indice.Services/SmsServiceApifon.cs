@@ -142,7 +142,7 @@ internal class ApifonResponse
     [JsonPropertyName("result_info")]
     public ResultInfo? Status { get; set; }
 
-    public bool HasError => !(Status?.StatusCode >= 200 && Status?.StatusCode < 300);
+    public bool HasError => Status is null || !(Status.StatusCode >= 200 && Status.StatusCode < 300);
 
     internal class ResultDetails
     {

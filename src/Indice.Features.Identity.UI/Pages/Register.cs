@@ -247,7 +247,7 @@ public abstract class BaseRegisterModel : BasePageModel
         if (input.HasConsentedToCommercialCommunications) {
             user.Claims.Add(new() {
                 ClaimType = BasicClaimTypes.ConsentCommercial,
-                ClaimValue = input.HasConsentedToCommercialCommunications ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+                ClaimValue = bool.TrueString.ToLower(),
                 UserId = user.Id
             });
             user.Claims.Add(new() {
