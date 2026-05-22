@@ -28,7 +28,7 @@ public class EmailServiceSmtp : IEmailService
     private EmailServiceSettings Settings { get; }
     /// <inheritdoc/>
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
-    /// <inheritdoc/>
+    /// <summary>Gets the email provider configuration used by this SMTP service.</summary>
     public EmailProvider Provider { get; }
 
     /// <inheritdoc/>
@@ -60,8 +60,8 @@ public class EmailServiceSmtp : IEmailService
                     FileName = attachment.FileName
                 };
                 multipart.Add(attachmentPart);
-                message.Body = multipart;
             }
+            message.Body = multipart;
         } else {
             message.Body = bodyPart;
         }
@@ -81,7 +81,10 @@ public class EmailServiceSmtp : IEmailService
             }
             await client.ConnectAsync(Settings.SmtpHost, Settings.SmtpPort, (MailKit.Security.SecureSocketOptions)(int)Settings.SecureSocket);
             if (!string.IsNullOrEmpty(Settings.Username)) {
-                client.Authenticate(Settings.Username, Settings.Password!);
+                if (string.IsNullOrEmpty(Settings.Password)) {
+                    throw new EmailServiceException("Password parameter cannot be empty when Username is provided.");
+                }
+                client.Authenticate(Settings.Username, Settings.Password);
             }
             var response = await client.SendAsync(message);
             if (!string.IsNullOrWhiteSpace(response)) {
