@@ -66,12 +66,13 @@ public class TemplateService : ITemplateService
 
     /// <inheritdoc />
     public async Task<Template?> GetById(GuidOrAlias? id) {
-        if (id is null || id.Value == null) {
+        if (id is null || string.IsNullOrWhiteSpace(id.Value.Value)) {
             return default;
         }
-        DbTemplate? template = id.Value.IsGuid ?
-            await DbContext.Templates.Include(x => x.MessageType).FirstOrDefaultAsync(x => x.Id == id.Value.Uuid) :
-            await DbContext.Templates.Include(x => x.MessageType).FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
+        var idValue = id.Value;
+        DbTemplate? template = idValue.IsGuid ?
+            await DbContext.Templates.Include(x => x.MessageType).FirstOrDefaultAsync(x => x.Id == idValue.Uuid) :
+            await DbContext.Templates.Include(x => x.MessageType).FirstOrDefaultAsync(x => x.Alias == idValue.Value);
 
         if (template is null) {
             return default;

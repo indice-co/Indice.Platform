@@ -33,7 +33,7 @@ public class LockManagerAzure : ILockManager
         if (string.IsNullOrWhiteSpace(options.ConnectionStringName)) {
             throw new ArgumentNullException(nameof(options.ConnectionStringName));
         }
-        var environmentName = Regex.Replace(options.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
+        var environmentName = Regex.Replace(options.EnvironmentName, @"\s+", "-").ToLowerInvariant();
         BlobContainer = factory.GetOrCreateBlobContainerClient(options.ConnectionStringName, environmentName);
     }
 

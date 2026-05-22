@@ -45,8 +45,8 @@ internal abstract class BaseCaseMessageService
             throw new BusinessException($"Invalid checkpoint. Not checkpoint was found for the current case with name {message.CheckpointTypeName}.");
         }
 
-        if (message.ReplyToCommentId.HasValue) {
-            var exists = await DbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == message.ReplyToCommentId.Value);
+        if (message.ReplyToCommentId is Guid replyToCommentId) {
+            var exists = await DbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == replyToCommentId);
             if (!exists) {
                 throw new BusinessException("Invalid reply to comment id. Not found on the current case.");
             }

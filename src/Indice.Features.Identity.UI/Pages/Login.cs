@@ -246,8 +246,8 @@ public abstract class BaseLoginModel : BasePageModel
             })
             .ToList();
         var allowLocal = true;
-        if (context?.Client.ClientId is not null) {
-            var client = await ClientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
+        if (context?.Client?.ClientId is string clientId) {
+            var client = await ClientStore.FindEnabledClientByIdAsync(clientId);
             if (client is not null) {
                 allowLocal = client.EnableLocalLogin;
                 if (client.IdentityProviderRestrictions is not null && client.IdentityProviderRestrictions.Any()) {
@@ -262,7 +262,7 @@ public abstract class BaseLoginModel : BasePageModel
             ExternalProviders = providers.ToArray(),
             GenerateDeviceId = true,
             Operation = context?.Parameters?.AllKeys?.Contains(ExtraQueryParamNames.Operation) == true
-                ? context?.Parameters[ExtraQueryParamNames.Operation]
+                ? context.Parameters[ExtraQueryParamNames.Operation]
                 : null,
             ReturnUrl = returnUrl,
             UserName = context?.LoginHint

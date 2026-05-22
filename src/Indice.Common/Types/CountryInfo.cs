@@ -321,7 +321,7 @@ public class CountryInfo
     /// <summary>Default Country Calling code</summary>
     public int CallingCodeDefault => string.IsNullOrWhiteSpace(CallingCode) ? -1 : int.Parse(CallingCode.Split(',').First().Replace("-", string.Empty));
     /// <summary>Culture code locale.</summary>
-    public string? Locale => TwoLetterLanguageCode != null ? $"{TwoLetterLanguageCode?.Split(',')[0]}-{TwoLetterCode}" : null;
+    public string? Locale => TwoLetterLanguageCode != null ? $"{TwoLetterLanguageCode.Split(',')[0]}-{TwoLetterCode}" : null;
 
     /// <summary>Currency Symbol if available.</summary>
     public string? GetCurrencyISO() {

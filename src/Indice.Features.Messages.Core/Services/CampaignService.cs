@@ -48,10 +48,10 @@ public class CampaignService : ICampaignService
                 .Include(x => x.DistributionList)
                 .AsNoTracking();
 
-        if (options.Filter?.ContactId.HasValue == true) {
+        if (options.Filter?.ContactId is Guid contactId) {
             query = from o in query
                     join c in DbContext.ContactDistributionLists on o.DistributionListId equals c.DistributionListId
-                    where c.ContactId == options.Filter.ContactId.Value
+                    where c.ContactId == contactId
                     select o;
         }
 
@@ -67,8 +67,8 @@ public class CampaignService : ICampaignService
             var searchTerm = options.Search.Trim();
             projectedQuery = projectedQuery.Where(x => x.Title != null && x.Title.Contains(searchTerm));
         }
-        if (options.Filter?.Published.HasValue == true) {
-            projectedQuery = projectedQuery.Where(x => x.Published == options.Filter.Published.Value);
+        if (options.Filter?.Published is bool published) {
+            projectedQuery = projectedQuery.Where(x => x.Published == published);
         }
         if (options.Filter?.TypeId?.Length > 0) {
             var types = options.Filter.TypeId.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => GuidOrAlias.Parse(x));
