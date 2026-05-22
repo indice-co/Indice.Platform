@@ -86,7 +86,7 @@ internal class NotifyCustomerActivity(ICasesManager casesManager, ISmsService sm
                         continue;
                     }
                     infoMessage.Append($"Customer has been notified through \"{channel}\".");
-                    var lang = @case.Metadata?["CurrentCultureName"] as string; // el-GR, en-US, en-GB
+                    var lang = @case.Metadata?["CurrentCultureName"]; // el-GR, en-US, en-GB
                     subject = lang == "el-GR" ? SubjectEL : SubjectEN;
                     body = lang == "el-GR" ? BodyEL : BodyEN;
                     await _smsService.SendAsync(customerPhoneNumber, subject, body);
