@@ -38,6 +38,11 @@ public class SmsServiceApifon : ISmsService
     internal static readonly string APIFON_BASE_URL = "https://ars.apifon.com";
     /// <summary>The Apifon IM service gateway endpoint.</summary>
     internal static readonly string SERVICE_ENDPOINT = "/services/api/v1/sms/send";
+    /// <summary>Cached JSON serializer options: CamelCase, ignore null values.</summary>
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new() {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
     /// <summary>The settings required to configure the service.</summary>
     protected SmsServiceApifonSettings Settings { get; }
     /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
@@ -50,9 +55,6 @@ public class SmsServiceApifon : ISmsService
         HttpResponseMessage httpResponse;
         ApifonResponse response;
         var recipients = (destination ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries);
-        if (recipients == null) {
-            throw new ArgumentNullException(nameof(destination));
-        }
         if (recipients.Length == 0) {
             throw new ArgumentException("Recipients list cannot be empty.", nameof(destination));
         }
@@ -111,10 +113,7 @@ public class SmsServiceApifon : ISmsService
     public bool Supports(string deliveryChannel) => "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Get default JSON serializer options: CamelCase, ignore null values.</summary>
-    protected static JsonSerializerOptions GetJsonSerializerOptions() => new () {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    protected static JsonSerializerOptions GetJsonSerializerOptions() => JsonSerializerOptions;
 }
 
 /// <summary>Options for configuring <see cref="SmsServiceApifon"/>.</summary>
@@ -224,7 +223,7 @@ internal class ApifonRequest
     [JsonPropertyName("date")]
     public DateTime? DateToSend { get; set; }
     [JsonIgnore]
-    public DateTime RequestDate { get; set; } = DateTime.Now.ToUniversalTime();
+    public DateTime RequestDate { get; set; } = DateTime.UtcNow;
 
     internal class ApifonMessage
     {

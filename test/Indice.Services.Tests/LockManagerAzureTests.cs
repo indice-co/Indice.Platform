@@ -45,7 +45,7 @@ public class LockManagerAzureTests
     }
 
     [Fact(Skip = "Should integrate azurite on build yaml")]
-    public async Task AquireLockTest() {
+    public async Task AcquireLockTest() {
         var duration = TimeSpan.FromSeconds(15);
         var name = "constantinos"; // using a random name :)
         var @lock = await _LockManager.AcquireLock(name, duration);
