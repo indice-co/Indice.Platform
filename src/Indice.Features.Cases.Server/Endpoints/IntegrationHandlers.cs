@@ -185,11 +185,11 @@ internal static class IntegrationHandlers
             Comment = request.Comment
         });
 
-        await adminCaseService.PatchCaseData(request.Actor, caseId, new JsonObject { [request.DataRootKey] = attachmentId.ToString() }, false);
-
         if (attachmentId is not Guid value) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.File), "Could not create attachment."));
         }
+
+        await adminCaseService.PatchCaseData(request.Actor, caseId, new JsonObject { [request.DataRootKey] = value.ToString() }, false);
 
         return TypedResults.Ok(new CasesAttachmentLink {
             Id = value,
