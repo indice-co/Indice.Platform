@@ -80,13 +80,13 @@ internal class NotifyCustomerActivity(ICasesManager casesManager, ISmsService sm
         foreach (var channel in DeliveryChannel) {
             switch (channel) {
                 case "SMS/Viber": {
-                    var customerPhoneNumber = @case.Metadata?["CustomerPhoneNumber"] as string; // this can be activity input to match different cases (eg CustomerPhoneNumber or PhoneNumber)
+                    var customerPhoneNumber = @case.Metadata?["CustomerPhoneNumber"]; // this can be activity input to match different cases (eg CustomerPhoneNumber or PhoneNumber)
                     if (string.IsNullOrEmpty(customerPhoneNumber)) {
                         infoMessage.Append("Customer phone number is empty in case metadata. Notification will not be send.");
                         continue;
                     }
                     infoMessage.Append($"Customer has been notified through \"{channel}\".");
-                    var lang = @case.Metadata?["CurrentCultureName"] as string; // el-GR, en-US, en-GB
+                    var lang = @case.Metadata?["CurrentCultureName"]; // el-GR, en-US, en-GB
                     subject = lang == "el-GR" ? SubjectEL : SubjectEN;
                     body = lang == "el-GR" ? BodyEL : BodyEN;
                     await _smsService.SendAsync(customerPhoneNumber, subject, body);
