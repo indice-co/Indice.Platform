@@ -180,7 +180,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
         // filter by Checkpoint Code
         if (filter?.Checkpoints is { Length: > 0 } checkpoints) {
-            var expressions = checkpoints.Select(checkpoint => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Code == checkpoint));
+            var expressions = checkpoints.Select<string, Expression<Func<DbCase, bool>>>(checkpoint => c => c.PublicCheckpoint.CheckpointType.Code == checkpoint);
             // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Code == checkpoint1 OR == checkpoint2 etc
             var aggregatedExpression = expressions.Aggregate((expression, next) => {
                 var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
