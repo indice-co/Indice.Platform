@@ -8,7 +8,9 @@
 @{
     ViewBag.Title = Localizer.MfaOnBoardingVerifyPhone_PageTitle;
     var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyPhoneModel.TempDataKey);
-    var displayNext = infoMessage?.Alert?.AlertType == AlertType.Success && !string.IsNullOrEmpty(infoMessage?.NextStepUrl);
+    var displayNext = infoMessage is not null
+        && infoMessage.Alert?.AlertType == AlertType.Success
+        && !string.IsNullOrEmpty(infoMessage.NextStepUrl);
 }
 <div class="content-wrapper">
     <div class="card-wrapper">
