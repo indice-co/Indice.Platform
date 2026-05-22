@@ -243,8 +243,8 @@ public class MessageService : IMessageService
             if (filter.ActiveTo is DateTimeOffset activeTo) {
                 query = query.Where(x => (x.Campaign.ActivePeriod!.To ?? DateTimeOffset.MinValue) < activeTo);
             }
-            if (filter.IsRead.HasValue) {
-                query = query.Where(x => x.Message!.IsRead == filter.IsRead);
+            if (filter.IsRead is bool isRead) {
+                query = query.Where(x => ((bool?)x.Message!.IsRead ?? false) == isRead);
             }
             if (filter.MessageChannelKind.HasValue && filter.MessageChannelKind != MessageChannelKind.None) {
                 messageChannelKind = filter.MessageChannelKind.Value;
