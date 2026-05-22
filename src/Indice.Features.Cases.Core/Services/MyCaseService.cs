@@ -152,7 +152,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
         // filter Statuses
         if (filter?.Statuses is { Length: > 0 } statuses) {
-            var expressions = statuses.Select(status => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Status == status));
+            IEnumerable<Expression<Func<DbCase, bool>>> expressions = statuses.Select(status => c => c.PublicCheckpoint.CheckpointType.Status == status);
             // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Status == status1 OR == status2 etc
             var aggregatedExpression = expressions.Aggregate((expression, next) => {
                 var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
