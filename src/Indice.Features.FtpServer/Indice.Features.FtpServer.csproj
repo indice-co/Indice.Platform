@@ -11,7 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.21.0" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.28.0" />
     <PackageReference Include="edokan.FubarDev.FtpServer" Version="3.2.9" />
     <PackageReference Include="edokan.FubarDev.FtpServer.FileSystem.DotNet" Version="3.2.9" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.14.0" />
