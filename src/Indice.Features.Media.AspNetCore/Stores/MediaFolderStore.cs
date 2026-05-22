@@ -59,9 +59,9 @@ internal class MediaFolderStore : IMediaFolderStore
         _dbContext.Update(folder);
         await _dbContext.SaveChangesAsync();
         // change paths
-        var rows = await _dbContext.Folders.Where(x => x.ParentId == folder.Id || x.Path.StartsWith(existingPath))
+        await _dbContext.Folders.Where(x => x.ParentId == folder.Id || x.Path.StartsWith(existingPath))
                                 .ExecuteUpdateAsync(x => x.SetProperty(child => child.Path, child => child.Path.Replace(existingPath, folder.Path)));
-        rows = await _dbContext.Files.Where(x => x.FolderId == folder.Id || x.Path.StartsWith(existingPath))
+        await _dbContext.Files.Where(x => x.FolderId == folder.Id || x.Path.StartsWith(existingPath))
                                 .ExecuteUpdateAsync(x => x.SetProperty(child => child.Path, child => child.Path.Replace(existingPath, folder.Path)));
         await _platformEventService.Publish(new FolderRenameCommand(folder.Id, existingPath, folder.Path));
     }

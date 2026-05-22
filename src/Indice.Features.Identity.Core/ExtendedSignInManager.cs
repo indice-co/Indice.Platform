@@ -334,7 +334,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     /// <inheritdoc/>
     public override async Task<bool> IsTwoFactorClientRememberedAsync(TUser user) {
-        var userId = await ExtendedUserManager.GetUserIdAsync(user);
         var deviceId = await GetMfaDeviceIdentifierAsync(user);
         if (!deviceId.IsEmpty) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value!);

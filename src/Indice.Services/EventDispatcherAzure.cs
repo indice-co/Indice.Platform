@@ -73,7 +73,7 @@ public class EventDispatcherAzure : IEventDispatcher
             throw;
         }
         var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
-        var payloadBytes = Array.Empty<byte>();
+        byte[] payloadBytes;
         // Special cases string, byte[] or stream.
         // if already in binary format mark it so it does not go through compression (twice)
         var isBinary = false;

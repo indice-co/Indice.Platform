@@ -237,11 +237,11 @@ public class MessageService : IMessageService
             if (filter.TypeId?.Length > 0) {
                 query = query.Where(x => x.Campaign.Type != null && filter.TypeId.Contains(x.Campaign.Type.Id));
             }
-            if (filter.ActiveFrom.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod!.From ?? DateTimeOffset.MaxValue) > filter.ActiveFrom.Value);
+            if (filter.ActiveFrom is DateTimeOffset activeFrom) {
+                query = query.Where(x => (x.Campaign.ActivePeriod!.From ?? DateTimeOffset.MaxValue) > activeFrom);
             }
-            if (filter.ActiveTo.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod!.To ?? DateTimeOffset.MinValue) < filter.ActiveTo.Value);
+            if (filter.ActiveTo is DateTimeOffset activeTo) {
+                query = query.Where(x => (x.Campaign.ActivePeriod!.To ?? DateTimeOffset.MinValue) < activeTo);
             }
             if (filter.IsRead.HasValue) {
                 query = query.Where(x => x.Message!.IsRead == filter.IsRead);

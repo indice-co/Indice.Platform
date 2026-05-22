@@ -187,9 +187,13 @@ internal static class IntegrationHandlers
 
         await adminCaseService.PatchCaseData(request.Actor, caseId, new JsonObject { [request.DataRootKey] = attachmentId.ToString() }, false);
 
+        if (attachmentId is not Guid value) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.File), "Could not create attachment."));
+        }
+
         return TypedResults.Ok(new CasesAttachmentLink {
-            Id = attachmentId.Value,
-            FileGuid = attachmentId.Value,
+            Id = value,
+            FileGuid = value,
             ContentType = file.ContentType,
             Label = file.FileName,
             Size = file.Length

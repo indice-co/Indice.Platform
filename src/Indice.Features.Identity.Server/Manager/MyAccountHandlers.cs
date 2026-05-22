@@ -771,7 +771,6 @@ internal static partial class MyAccountHandlers
         var result = new Dictionary<string, (string Description, string? Hint)>();
         var passwordOptions = userManager.Options.Password;
         var errorDescriber = userManager.ErrorDescriber;
-        var messageDescriber = userManager.MessageDescriber;
         result.Add(nameof(IdentityErrorDescriber.PasswordTooShort),
             (userManager.ErrorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description, Hint: errorDescriber.PasswordTooShortRequirement(passwordOptions.RequiredLength)));
         if (passwordOptions.RequiredUniqueChars > 1) {

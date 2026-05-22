@@ -67,8 +67,8 @@ internal class ActivityLogStore : IActivityLogStore
             if (!string.IsNullOrWhiteSpace(filter.SessionId)) {
                 query = query.Where(log => log.SessionId == filter.SessionId);
             }
-            if (filter.MarkForReview.HasValue) {
-                query = query.Where(log => log.Review == filter.MarkForReview.Value);
+            if (filter.MarkForReview is bool markForReview) {
+                query = query.Where(log => log.Review == markForReview);
             }
             if (!string.IsNullOrWhiteSpace(filter.ResourceId)) {
                 query = query.Where(log => log.ResourceId == filter.ResourceId);

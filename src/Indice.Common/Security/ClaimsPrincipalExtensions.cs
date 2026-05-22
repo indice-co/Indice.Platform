@@ -27,7 +27,10 @@ public static class ClaimsPrincipalExtensions
 
     /// <summary>Gets the user's unique id.</summary>
     /// <param name="principal">The current principal.</param>
-    public static string? FindSubjectId(this ClaimsPrincipal principal) => principal.FindFirst(BasicClaimTypes.Subject)?.Value;
+    public static string? FindSubjectId(this ClaimsPrincipal principal) {
+        ArgumentNullException.ThrowIfNull(principal);
+        return principal.FindFirst(BasicClaimTypes.Subject)?.Value;
+    }
 
     private static bool TryFindFirstValue<T>(this ClaimsPrincipal principal, string claimType, out T result) where T : struct {
         result = default;

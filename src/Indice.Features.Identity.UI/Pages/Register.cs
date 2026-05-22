@@ -183,8 +183,8 @@ public abstract class BaseRegisterModel : BasePageModel
             })
             .ToList();
         var enableLocalLogin = IdentityUIOptions.EnableLocalLogin;
-        if (context?.Client.ClientId is not null) {
-            var client = await ClientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
+        if (context?.Client?.ClientId is string clientId) {
+            var client = await ClientStore.FindEnabledClientByIdAsync(clientId);
             if (client is not null) {
                 enableLocalLogin = client.EnableLocalLogin;
                 if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
