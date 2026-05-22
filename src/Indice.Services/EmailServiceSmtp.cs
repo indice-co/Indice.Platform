@@ -80,8 +80,8 @@ public class EmailServiceSmtp : IEmailService
                 throw new EmailServiceException("SmtpHost parameter cannot be empty.");
             }
             await client.ConnectAsync(Settings.SmtpHost, Settings.SmtpPort, (MailKit.Security.SecureSocketOptions)(int)Settings.SecureSocket);
-            if (!string.IsNullOrEmpty(Settings.Username)) {
-                if (string.IsNullOrEmpty(Settings.Password)) {
+            if (!string.IsNullOrWhiteSpace(Settings.Username)) {
+                if (string.IsNullOrWhiteSpace(Settings.Password)) {
                     throw new EmailServiceException("Password parameter cannot be empty when Username is provided.");
                 }
                 client.Authenticate(Settings.Username, Settings.Password);
