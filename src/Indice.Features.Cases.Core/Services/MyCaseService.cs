@@ -117,6 +117,10 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         return @case;
     }
 
+    /// <summary>We do not return draft cases as a default behaviour either when</summary>
+    /// <remarks>Change this constant to true if you want to include draft cases by default</remarks>
+    private const bool DEFAULT_INCLUDE_DRAFTS = false; // We do not return draft cases as a default behaviour;
+
     public async Task<ResultSet<MyCasePartial>> GetCases(UserActor user, ListOptions<GetMyCasesListFilter> options) {
 
         var filter = options.Filter;
@@ -128,15 +132,14 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             dbCaseQueryable = dbCaseQueryable.Where(filter.Metadata);
         }
 
-        // We do not return draft cases as a default behaviour either when
         // IncludeDrafts does not have value or IncludeDrafts is false.
         // If IncludeDrafts is true we return both draft and non draft cases
-        //
-        // TODO: as an alternative we can return (however this will result in breaking changes)
-        // * both draft and non draft cases if IncludeDrafts is null
-        // * only non draft cases if IncludeDrafts is false
-        // * only drafts cases if IncludeDrafts is true
-        if (!filter?.IncludeDrafts.HasValue ?? true || !filter.IncludeDrafts.Value) {
+
+        bool includeDrafts = DEFAULT_INCLUDE_DRAFTS; // Start with the default behaviour;
+        if (filter?.IncludeDrafts is bool includeDraftsFilter) {
+            includeDrafts = includeDraftsFilter; // override the default behaviour if IncludeDrafts has value
+        }
+        if (!includeDrafts) {   // apply the filter to exclude drafts when IncludeDrafts is not true
             dbCaseQueryable = dbCaseQueryable.Where(p => !p.Draft);
         }
 
