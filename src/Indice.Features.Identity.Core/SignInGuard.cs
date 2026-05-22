@@ -19,12 +19,11 @@ public class SignInGuard<TUser> : ISignInGuard<TUser> where TUser : User
     public IImpossibleTravelDetector<TUser>? ImpossibleTravelDetector { get; init; }
 
     /// <inheritdoc />
-    public async Task<SignInGuardResult> IsSuspiciousLogin(HttpContext? httpContext, TUser user) {
-        if (httpContext is null) {
-            throw new ArgumentNullException(nameof(httpContext));
-        }
+    public async Task<SignInGuardResult> IsSuspiciousLogin(HttpContext httpContext, TUser user) {
+        ArgumentNullException.ThrowIfNull(httpContext);
+        ArgumentNullException.ThrowIfNull(user);
         object? impossibleTravelObject = null;
-        var resultExists = httpContext.Items.TryGetValue(HTTP_CONTEXT_ITEM_KEY, out impossibleTravelObject) == true;
+        var resultExists = httpContext.Items.TryGetValue(HTTP_CONTEXT_ITEM_KEY, out impossibleTravelObject);
         if (resultExists && impossibleTravelObject is not null) {
             return (SignInGuardResult)impossibleTravelObject;
         }
