@@ -7,20 +7,20 @@
     <VersionPrefixMajor>8</VersionPrefixMajor>
     <VersionPrefixBase>$(VersionPrefixMajor).47</VersionPrefixBase>
 
-    <VersionPrefixCore>$(VersionPrefixBase).1</VersionPrefixCore>
-    <VersionPrefixIdentity>$(VersionPrefixBase).1</VersionPrefixIdentity>
-    <VersionPrefixIdentityUI>$(VersionPrefixBase).2</VersionPrefixIdentityUI>
-    <VersionPrefixCases>$(VersionPrefixBase).1</VersionPrefixCases>
-    <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
-    <VersionPrefixMultitenancy>$(VersionPrefixBase).1</VersionPrefixMultitenancy>
-    <VersionPrefixRisk>$(VersionPrefixBase).1</VersionPrefixRisk>
-    <VersionPrefixMedia>$(VersionPrefixBase).1</VersionPrefixMedia>
-    <VersionPrefixGeoIP>$(VersionPrefixBase).1</VersionPrefixGeoIP>
-    <VersionPrefixGovGr>$(VersionPrefixBase).1</VersionPrefixGovGr>
-    <VersionPrefixAspNet>$(VersionPrefixBase).1</VersionPrefixAspNet>
-    <VersionPrefixActivityLogs>$(VersionPrefixBase).1</VersionPrefixActivityLogs>
-    <VersionPrefixFtpServer>$(VersionPrefixBase).1</VersionPrefixFtpServer>
-    <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
+    <VersionPrefixCore>$(VersionPrefixBase).3</VersionPrefixCore>
+    <VersionPrefixIdentity>$(VersionPrefixBase).3</VersionPrefixIdentity>
+    <VersionPrefixIdentityUI>$(VersionPrefixBase).3</VersionPrefixIdentityUI>
+    <VersionPrefixCases>$(VersionPrefixBase).3</VersionPrefixCases>
+    <VersionPrefixMessages>$(VersionPrefixBase).3</VersionPrefixMessages>
+    <VersionPrefixMultitenancy>$(VersionPrefixBase).3</VersionPrefixMultitenancy>
+    <VersionPrefixRisk>$(VersionPrefixBase).3</VersionPrefixRisk>
+    <VersionPrefixMedia>$(VersionPrefixBase).3</VersionPrefixMedia>
+    <VersionPrefixGeoIP>$(VersionPrefixBase).3</VersionPrefixGeoIP>
+    <VersionPrefixGovGr>$(VersionPrefixBase).3</VersionPrefixGovGr>
+    <VersionPrefixAspNet>$(VersionPrefixBase).3</VersionPrefixAspNet>
+    <VersionPrefixActivityLogs>$(VersionPrefixBase).3</VersionPrefixActivityLogs>
+    <VersionPrefixFtpServer>$(VersionPrefixBase).3</VersionPrefixFtpServer>
+    <VersionPrefix>$(VersionPrefixBase).3</VersionPrefix>
 
     <!--<VersionSuffix>rc06</VersionSuffix>-->
     <Authors>Constantinos Leftheris</Authors>
