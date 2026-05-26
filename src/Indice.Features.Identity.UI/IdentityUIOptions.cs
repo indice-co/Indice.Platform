@@ -115,10 +115,13 @@ public class IdentityUIOptions
     /// </summary>
     public string PhoneNumberStoreFormat => EnablePhoneNumberCallingCodes ? "G" : "N";
 
+    /// <summary>The production environment names.</summary>
+    public StringValues ProductionEnvironments => new StringValues(ProductionEnvironmentsSet.ToArray());
+
     /// <summary>
     /// A collection of production environment names. Used to determine whether the environment is production and exclude the ribbon in the UI.
     /// </summary>
-    public HashSet<string> ProductionEnvironments { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "prod", "Production", "live" };
+    public HashSet<string> ProductionEnvironmentsSet { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "prod", "Production", "live" };
 
 
     /// <summary>Services shown in the homepage.</summary>
