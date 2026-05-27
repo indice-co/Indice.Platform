@@ -94,13 +94,14 @@ public class DistributionListService : IDistributionListService
     /// <inheritdoc />
     public async Task<DistributionList?> GetById(GuidOrAlias? id) {
 
-        if (id == null || id.Value == null) {
+        if (id is null || string.IsNullOrWhiteSpace(id.Value.Value)) {
             return default;
         }
 
-        var list = id.Value.IsGuid ?
-            await DbContext.DistributionLists.FindAsync(id.Value.Uuid) :
-            await DbContext.DistributionLists.FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
+        var idValue = id.Value;
+        var list = idValue.IsGuid ?
+            await DbContext.DistributionLists.FindAsync(idValue.Uuid) :
+            await DbContext.DistributionLists.FirstOrDefaultAsync(x => x.Alias == idValue.Value);
         
         if (list is null) {
             return default;

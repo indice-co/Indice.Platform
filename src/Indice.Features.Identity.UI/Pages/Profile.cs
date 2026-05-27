@@ -192,7 +192,7 @@ public abstract class BaseProfileModel : BasePageModel
             TempData.Put("Alert", AlertModel.Error($"file cannot be empty."));
             return RedirectToPage("/Profile");
         }
-        if (file?.Length > UiOptions.PictureUploadSizeLimit) {
+        if (file.Length > UiOptions.PictureUploadSizeLimit) {
             TempData.Put("Alert", AlertModel.Error($"file cannot over {UiOptions.PictureUploadSizeLimit.ToFileSize()}."));
             return RedirectToPage("/Profile");
         }

@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
+using System.Security.Claims;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
@@ -27,12 +28,33 @@ public class IdentityUIOptions
     /// </list>
     /// </remarks>
     public string HomePageSlogan { get; set; } = "Welcome to the {0} Digital Services <strong>Portal</strong>";
+
+    /// <summary>
+    /// A function that resolves the terms and conditions url based on the current culture. 
+    /// It will be used in the login and register pages. If not set, the default behavior is to use the <see cref="TermsUrl"/> property as-is. Use this resolver for culture-specific URLs.
+    /// </summary>
+    public Func<CultureInfo, string?>? TermsUrlResolver { get; set; }
+
+    /// <summary>
+    /// A function that resolves the privacy url based on the current culture. 
+    /// It will be used in the login and register pages. If not set, the default behavior is to use the <see cref="PrivacyUrl"/> property as-is. Use this resolver for culture-specific URLs.
+    /// </summary>
+    public Func<CultureInfo, string?>? PrivacyUrlResolver { get; set; }
+
     /// <summary>An absolute URL to the <strong>terms and conditions</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
-    /// <remarks>If left null the <strong>./legal/terms.md</strong> will be used. If populated it will do a redirect to this URL</remarks>
-    public string? TermsUrl { get; set; }
+    /// <remarks>If left null the <strong>./legal/terms.md</strong> will be used. If populated it will do a redirect to this URL. This value is not format-expanded; use <see cref="TermsUrlResolver"/> for culture-specific URLs.</remarks>
+    public string? TermsUrl {
+        get => TermsUrlResolver != null ? TermsUrlResolver(CultureInfo.CurrentCulture) : field;
+        set => field = TermsUrlResolver != null ? null : value;
+    }
+
     /// <summary>An absolute URL to the <strong>privacy</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
     /// <remarks>If left null the <strong>./legal/privacy.md</strong> will be used. If populated it will do a redirect to this URL</remarks>
-    public string? PrivacyUrl { get; set; }
+    public string? PrivacyUrl {
+        get => PrivacyUrlResolver != null ? PrivacyUrlResolver(CultureInfo.CurrentCulture) : field;
+        set => field = PrivacyUrlResolver != null ? null : value;
+    }
+
     /// <summary>An absolute URL to the <strong>Contact us</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
     /// <remarks>If left null the <strong>Contact Us</strong> link in the footer will disappear. If populated it will do a redirect to this URL. By default it is empty</remarks>
     public string? ContactUsUrl { get; set; }
@@ -93,15 +115,19 @@ public class IdentityUIOptions
     /// </summary>
     public string PhoneNumberStoreFormat => EnablePhoneNumberCallingCodes ? "G" : "N";
 
+    /// <summary>The production environment names.</summary>
+    public StringValues ProductionEnvironments => new StringValues(ProductionEnvironmentsSet.ToArray());
+
     /// <summary>
     /// A collection of production environment names. Used to determine whether the environment is production and exclude the ribbon in the UI.
     /// </summary>
-    public StringValues ProductionEnvironments { get; set; } = new StringValues([ "prod", "Production", "live" ]);
+    public HashSet<string> ProductionEnvironmentsSet { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "prod", "Production", "live" };
+
 
     /// <summary>Services shown in the homepage.</summary>
-    public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {
-        new HomePageLink("Admin","~/admin", CssClass:"admin", VisibilityPredicate: user => user.IsAdmin())
-    };
+    public List<HomePageLink> HomepageLinks { get; } = [
+        new ("Admin","~/admin", CssClass:"admin", VisibilityPredicate: user => user.IsAdmin())
+    ];
     /// <summary>
     /// Should show the Add Email page before sending the confirmation email prompt (in case of pernding confirmation login) or Confirm emai immediately.
     /// </summary>

@@ -444,36 +444,6 @@
   <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
     <value>この操作を実行していない場合は、直ちにサポートにご連絡ください。</value>
   </data>
-  <data name="EmailTwoFactorPreferenceChanged_Preheader" xml:space="preserve">
-    <value>二要素認証の設定が更新されました。</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Subject" xml:space="preserve">
-    <value>二要素認証設定の変更</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_Hi" xml:space="preserve">
-    <value>こんにちは</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_EventOccurred" xml:space="preserve">
-    <value>アカウントの二要素認証設定が更新されたことをお知らせします。</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_EventDetails" xml:space="preserve">
-    <value>変更の詳細:</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_EventTime" xml:space="preserve">
-    <value>変更日時</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_Username" xml:space="preserve">
-    <value>ユーザー名</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_Email" xml:space="preserve">
-    <value>メールアドレス</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_AuthMethod" xml:space="preserve">
-    <value>新しい認証方法</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_ContactSupport" xml:space="preserve">
-    <value>この操作を実行していない場合は、直ちにサポートにご連絡ください。</value>
-  </data>
   <data name="Error_PageTitle" xml:space="preserve">
     <value>エラー</value>
   </data>

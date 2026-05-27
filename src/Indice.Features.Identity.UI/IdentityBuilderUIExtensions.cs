@@ -59,17 +59,18 @@ public static class IdentityBuilderUIExtensions
             options.HomePageSlogan = configuredOptions.HomePageSlogan;
             options.HtmlBodyBackgroundCssClass = configuredOptions.HtmlBodyBackgroundCssClass;
             options.OverrideDefaultStaticFileMiddleware = configuredOptions.OverrideDefaultStaticFileMiddleware;
+            options.PrivacyUrlResolver = configuredOptions.PrivacyUrlResolver;
+            options.TermsUrlResolver = configuredOptions.TermsUrlResolver;
             options.PrivacyUrl = configuredOptions.PrivacyUrl;
+            options.TermsUrl = configuredOptions.TermsUrl;
             options.RememberMeLoginDuration = configuredOptions.RememberMeLoginDuration;
             options.ShowLogoutPrompt = configuredOptions.ShowLogoutPrompt;
-            options.TermsUrl = configuredOptions.TermsUrl;
             options.Events = configuredOptions.Events;
             options.EnablePhoneNumberCallingCodes = configuredOptions.EnablePhoneNumberCallingCodes;
             foreach (var url in configuredOptions.ValidReturnUrls) {
                 options.ValidReturnUrls.Add(url);
             }
-            options.ProductionEnvironments = new StringValues(options.ProductionEnvironments.Concat(configuredOptions.ProductionEnvironments)
-                                                                                            .Distinct(StringComparer.OrdinalIgnoreCase).ToArray());
+            options.ProductionEnvironmentsSet.UnionWith(configuredOptions.ProductionEnvironmentsSet);
         });
 #if NET9_0_OR_GREATER
         services.AddSingleton<IConfigureOptions<IdentityServerOptions>, IdentityServerOptionsConfigure>();

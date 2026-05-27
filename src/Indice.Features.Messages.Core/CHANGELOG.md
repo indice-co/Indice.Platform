@@ -8,12 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [8.47.0] - 2026-05-13
 ### Added partial template functionality
 
-To categorize the new template types a new column must be added. This column is not nullable, defualts to 0 (Full template) and all the existing templates should be categorized as Full.
+To categorize the new template types a new column must be added. This column is not nullable, defaults to 0 (Full template) and all the existing templates should be categorized as Full.
 <br>
 Example script:
 ```sql
-ALTER TABLE cmp.Template
-ADD YourColumnName TINYINT NOT NULL 
+ALTER TABLE [cmp].[Template]
+ADD [Type] TINYINT NOT NULL 
 CONSTRAINT DF_Template_TemplateType DEFAULT 0;
 ```
 **Note:** This example assumes SQLServer.
@@ -374,7 +374,7 @@ ADD [MediaBaseHref] [nvarchar](1024) NULL
 ## [7.4.1] - 2023-09-22
 ### Changed
 - CampaignId is returned in PushNotification data in property "messageId". 
-  Intentioanally added for naming consistency. external MessageId == internal CampaignId.
+  Intentionally added for naming consistency. external MessageId == internal CampaignId.
 
 ## [7.3.8] - 2023-08-07
 ### Added

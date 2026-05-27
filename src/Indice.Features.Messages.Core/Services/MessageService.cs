@@ -24,7 +24,7 @@ public class MessageService : IMessageService
     /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
     /// <param name="campaignInboxOptions">Options used to configure the Campaigns inbox API feature.</param>
     /// <param name="contactResolver">Contact resolver service</param>
-    /// <param name="contactService"></param>
+    /// <param name="contactService">Contacts management service</param>
     /// <param name="messageEventQueue">Event queue</param>
     /// <param name="partialTemplateResolverFactory">Partial template resolver factory</param>
     /// <exception cref="ArgumentNullException"></exception>
@@ -237,14 +237,14 @@ public class MessageService : IMessageService
             if (filter.TypeId?.Length > 0) {
                 query = query.Where(x => x.Campaign.Type != null && filter.TypeId.Contains(x.Campaign.Type.Id));
             }
-            if (filter.ActiveFrom.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod!.From ?? DateTimeOffset.MaxValue) > filter.ActiveFrom.Value);
+            if (filter.ActiveFrom is DateTimeOffset activeFrom) {
+                query = query.Where(x => (x.Campaign.ActivePeriod!.From ?? DateTimeOffset.MaxValue) > activeFrom);
             }
-            if (filter.ActiveTo.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod!.To ?? DateTimeOffset.MinValue) < filter.ActiveTo.Value);
+            if (filter.ActiveTo is DateTimeOffset activeTo) {
+                query = query.Where(x => (x.Campaign.ActivePeriod!.To ?? DateTimeOffset.MinValue) < activeTo);
             }
-            if (filter.IsRead.HasValue) {
-                query = query.Where(x => ((bool?)x.Message!.IsRead ?? false) == filter.IsRead);
+            if (filter.IsRead is bool isRead) {
+                query = query.Where(x => ((bool?)x.Message!.IsRead ?? false) == isRead);
             }
             if (filter.MessageChannelKind.HasValue && filter.MessageChannelKind != MessageChannelKind.None) {
                 messageChannelKind = filter.MessageChannelKind.Value;

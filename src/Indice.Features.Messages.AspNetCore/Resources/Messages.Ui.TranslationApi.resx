@@ -2126,6 +2126,18 @@ user_code_2</value>
   <data name="MediaLibrary.UpdateFileSuccessMessage" xml:space="preserve">
     <value>The file {{name}} was updated successfully.</value>
   </data>
+  <data name="MediaLibrary.AttachmentUpdateSuccessTitle" xml:space="preserve">
+    <value>Successful update</value>
+  </data>
+  <data name="MediaLibrary.AttachmentUpdateSuccessMessage" xml:space="preserve">
+    <value>The attachment was updated successfully.</value>
+  </data>
+  <data name="MediaLibrary.AttachmentUpdateErrorTitle" xml:space="preserve">
+    <value>Update failed</value>
+  </data>
+  <data name="MediaLibrary.AttachmentUpdateErrorMessage" xml:space="preserve">
+    <value>An error occurred while updating the attachment.</value>
+  </data>
   <data name="Shared.Search" xml:space="preserve">
     <value>search</value>
   </data>

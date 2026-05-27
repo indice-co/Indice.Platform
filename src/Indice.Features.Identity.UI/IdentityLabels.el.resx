@@ -444,36 +444,6 @@
   <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
     <value>Εάν δεν πραγματοποιήσατε αυτήν την ενέργεια, επικοινωνήστε άμεσα με την υποστήριξη.</value>
   </data>
-  <data name="EmailTwoFactorPreferenceChanged_Preheader" xml:space="preserve">
-    <value>Η προτίμησή σας για MFA ενημερώθηκε.</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Subject" xml:space="preserve">
-    <value>Αλλαγή Προτίμησης MFA</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_Hi" xml:space="preserve">
-    <value>Γεια</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_EventOccurred" xml:space="preserve">
-    <value>Θέλαμε να σας ενημερώσουμε ότι η προτίμησή σας για MFA ενημερώθηκε στον λογαριασμό σας.</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_EventDetails" xml:space="preserve">
-    <value>Λεπτομέρειες αλλαγής:</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_EventTime" xml:space="preserve">
-    <value>Ώρα αλλαγής</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_Username" xml:space="preserve">
-    <value>Όνομα χρήστη</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_Email" xml:space="preserve">
-    <value>Email</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_AuthMethod" xml:space="preserve">
-    <value>Νέα μέθοδος αυθεντικοποίησης</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_ContactSupport" xml:space="preserve">
-    <value>Εάν δεν πραγματοποιήσατε αυτήν την ενέργεια, επικοινωνήστε άμεσα με την υποστήριξη.</value>
-  </data>
   <data name="Error_PageTitle" xml:space="preserve">
     <value>Σφάλμα</value>
   </data>

@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Security.Claims;
-using Azure.Messaging.ServiceBus;
-using Azure.Messaging.ServiceBus.Administration;
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Services;
@@ -386,21 +384,22 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <summary>The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.</summary>
     private static readonly Func<IServiceProvider, Action<IServiceProvider, EventDispatcherAzureOptions>?, EventDispatcherAzure> GetEventDispatcherAzure = (serviceProvider, configure) => {
         var options = new EventDispatcherAzureOptions {
-            ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
+            ConnectionStringName = EventDispatcherAzure.CONNECTION_STRING_NAME,
             Enabled = true,
             EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
             ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
         };
         configure?.Invoke(serviceProvider, options);
+
         return new EventDispatcherAzure(
-            options.ConnectionString!,
+            options.ConnectionStringName!,
             options.EnvironmentName,
             options.Enabled,
             options.UseCompression,
             options.QueueMessageEncoding,
             options.ClaimsPrincipalSelector,
             options.TenantIdSelector!,
-            serviceProvider.GetRequiredService<IQueueClientCache>(),
+            serviceProvider.GetRequiredService<AzureClientFactory>(),
             serviceProvider.GetService<ILogger<EventDispatcherAzure>>() ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<EventDispatcherAzure>.Instance
         );
     };
@@ -409,7 +408,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureOptions>? configure = null) {
-        services.TryAddSingleton<IQueueClientCache, QueueClientCache>();
+        services.TryAddSingleton<AzureClientFactory>();
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
         return services.AddTransient<IEventDispatcher, EventDispatcherAzure>(serviceProvider => GetEventDispatcherAzure(serviceProvider, configure));
     }
@@ -419,7 +418,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="name">The key under which the specified implementation is registered.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureOptions>? configure = null) {
-        services.TryAddSingleton<IQueueClientCache, QueueClientCache>();
+        services.TryAddSingleton<AzureClientFactory>();
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
         return services.AddKeyedTransient<IEventDispatcher, EventDispatcherAzure>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzure(serviceProvider, configure));
     }
@@ -427,15 +426,16 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <summary>The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.</summary>
     private static readonly Func<object?, IServiceProvider, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>?, EventDispatcherAzureServiceBus> GetEventDispatcherAzureServiceBus = (serviceKey, serviceProvider, configure) => {
         var options = new EventDispatcherAzureServiceBusOptions {
-            ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
+            ConnectionStringName = EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME,
             Enabled = true,
             EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
             ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
         };
+        var factory = serviceProvider.GetRequiredService<AzureClientFactory>();
         configure?.Invoke(serviceProvider, options);
         return new EventDispatcherAzureServiceBus(
-            new ServiceBusClient(connectionString: options.ConnectionString),
-            options.CreateQueueIfNotExists ? new ServiceBusAdministrationClient(connectionString: options.ConnectionString) : null,
+            factory.CreateServiceBusClient(options.ConnectionStringName),
+            options.CreateQueueIfNotExists ? factory.CreateServiceBusAdministrationClient(options.ConnectionStringName) : null,
             options.EnvironmentName,
             options.Enabled,
             options.UseCompression,
@@ -449,6 +449,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        services.TryAddSingleton<AzureClientFactory>();
         return services.AddSingleton<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceProvider => GetEventDispatcherAzureServiceBus(null, serviceProvider, configure));
     }
 
@@ -458,6 +459,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        services.TryAddSingleton<AzureClientFactory>();
         return services.AddKeyedSingleton<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzureServiceBus(name, serviceProvider, configure));
     }
 
@@ -472,13 +474,15 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddLockManagerAzure(this IServiceCollection services, Action<IServiceProvider, LockManagerAzureOptions>? configure = null) {
+        services.TryAddSingleton<AzureClientFactory>();
         services.AddTransient<ILockManager, LockManagerAzure>(serviceProvider => {
+            var factory = serviceProvider.GetRequiredService<AzureClientFactory>();
             var options = new LockManagerAzureOptions {
-                ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(LockManagerAzure.CONNECTION_STRING_NAME),
+                ConnectionStringName = LockManagerAzure.CONNECTION_STRING_NAME,
                 EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
             };
             configure?.Invoke(serviceProvider, options);
-            return new LockManagerAzure(options);
+            return new LockManagerAzure(factory, options);
         });
         return services;
     }

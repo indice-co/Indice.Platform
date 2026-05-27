@@ -2126,6 +2126,18 @@
   <data name="MediaLibrary.UpdateFileSuccessMessage" xml:space="preserve">
     <value>Το αρχείο με όνομα {{name}} ενημερώθηκε με επιτυχία.</value>
   </data>
+  <data name="MediaLibrary.AttachmentUpdateSuccessTitle" xml:space="preserve">
+    <value>Επιτυχής ενημέρωση</value>
+  </data>
+  <data name="MediaLibrary.AttachmentUpdateSuccessMessage" xml:space="preserve">
+    <value>Το συνημμένο ενημερώθηκε με επιτυχία.</value>
+  </data>
+  <data name="MediaLibrary.AttachmentUpdateErrorTitle" xml:space="preserve">
+    <value>Αποτυχία ενημέρωσης</value>
+  </data>
+  <data name="MediaLibrary.AttachmentUpdateErrorMessage" xml:space="preserve">
+    <value>Παρουσιάστηκε σφάλμα κατά την ενημέρωση του συνημμένου.</value>
+  </data>
   <data name="Shared.Search" xml:space="preserve">
     <value>αναζήτηση</value>
   </data>

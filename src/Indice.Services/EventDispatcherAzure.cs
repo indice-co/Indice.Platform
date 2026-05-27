@@ -17,7 +17,7 @@ public class EventDispatcherAzure : IEventDispatcher
 {
     /// <summary>The default name of the storage connection string.</summary>
     public const string CONNECTION_STRING_NAME = "StorageConnection";
-    private readonly string _connectionString;
+    private readonly string _connectionStringName;
     private readonly string _environmentName;
     private readonly bool _enabled;
     private readonly bool _useCompression;
@@ -26,20 +26,20 @@ public class EventDispatcherAzure : IEventDispatcher
     private readonly Func<string?> _tenantIdSelector;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly ILogger<EventDispatcherAzure>? _logger;
-    private readonly IQueueClientCache _queueClientCache;  // instead of ConcurrentDictionary
+    private readonly AzureClientFactory _azureClientFactory;
 
     /// <summary>Create a new <see cref="EventDispatcherAzure"/> instance.</summary>
-    /// <param name="connectionString">The connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
+    /// <param name="connectionStringName">The name of the connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
     /// <param name="environmentName">The environment name to use. Defaults to 'Production'.</param>
     /// <param name="enabled">Provides a way to enable/disable event dispatching at will. Defaults to true.</param>
     /// <param name="useCompression">When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.</param>
     /// <param name="queueMessageEncoding">Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</param>
     /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
     /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
-    /// <param name="queueClientCache">Cache for QueueClient instances to avoid repeated instantiation.</param> 
+    /// <param name="azureClientFactory">The Azure client factory used to create and cache QueueClient instances.</param> 
     /// <param name="logger">Logger instance for logging warnings and errors.</param>   
-    public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal?>? claimsPrincipalSelector, Func<string>? tenantIdSelector, IQueueClientCache queueClientCache, ILogger<EventDispatcherAzure>? logger = null) {
-        _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+    public EventDispatcherAzure(string connectionStringName, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal?>? claimsPrincipalSelector, Func<string>? tenantIdSelector, AzureClientFactory azureClientFactory, ILogger<EventDispatcherAzure>? logger = null) {
+        _connectionStringName = connectionStringName ?? throw new ArgumentNullException(nameof(connectionStringName));
         _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         _enabled = enabled;
         _useCompression = useCompression;
@@ -47,7 +47,7 @@ public class EventDispatcherAzure : IEventDispatcher
         _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
         _tenantIdSelector = tenantIdSelector ?? new Func<string?>(() => null);
         _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
-        _queueClientCache = queueClientCache ?? throw new ArgumentNullException(nameof(queueClientCache));
+        _azureClientFactory = azureClientFactory ?? throw new ArgumentNullException(nameof(azureClientFactory));
         _logger = logger;
     }
 
@@ -67,19 +67,19 @@ public class EventDispatcherAzure : IEventDispatcher
         }
         QueueClient queue;
         try {
-            queue = await EnsureExistsAsync(queueName);
+            queue = _azureClientFactory.GetOrCreateQueueClient(_connectionStringName, queueName, _queueMessageEncoding);
         } catch (Exception ex) {
             _logger?.LogError(ex, "Failed to get or create queue '{QueueName}' for event type '{EventType}'.", queueName, typeof(TEvent).Name);
             throw;
         }
         var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
-        var payloadBytes = Array.Empty<byte>();
+        byte[] payloadBytes;
         // Special cases string, byte[] or stream.
         // if already in binary format mark it so it does not go through compression (twice)
         var isBinary = false;
         switch (payload) {
-            case string text: payloadBytes = Encoding.UTF8.GetBytes(text);break;
-            case byte[] bytes: payloadBytes = bytes; isBinary = true;  break;
+            case string text: payloadBytes = Encoding.UTF8.GetBytes(text); break;
+            case byte[] bytes: payloadBytes = bytes; isBinary = true; break;
             case ReadOnlyMemory<byte> memory: payloadBytes = memory.ToArray(); isBinary = true; break;
             case Stream stream:
                 await using (var memoryStream = new MemoryStream()) {
@@ -104,18 +104,13 @@ public class EventDispatcherAzure : IEventDispatcher
         }
         await queue.SendMessageAsync(new BinaryData(payloadBytes), visibilityTimeout);
     }
-
-    private async Task<QueueClient> EnsureExistsAsync(string queueName) {
-        return await _queueClientCache.GetOrCreateAsync(queueName, _connectionString, _queueMessageEncoding);
-    }
-
 }
 
 /// <summary>Options for configuring <see cref="EventDispatcherAzure"/>.</summary>
 public class EventDispatcherAzureOptions
 {
     /// <summary>The connection string to the Azure Storage account. By default it searches for <see cref="EventDispatcherAzure.CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</summary>
-    public string? ConnectionString { get; set; }
+    public string? ConnectionStringName { get; set; }
     /// <summary>The environment name to use. Defaults to <see cref="IHostEnvironment.EnvironmentName"/>.</summary>
     public string EnvironmentName { get; set; } = "Production";
     /// <summary>Provides a way to enable/disable event dispatching at will. Defaults to true.</summary>

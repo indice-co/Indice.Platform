@@ -19,5 +19,7 @@ export const environment = {
   culture: 'el-GR',
   isTemplate: false,
   production: true,
-  enableMediaLibrary: true
+  enableMediaLibrary: true,
+  maxFileSize: 10485760,
+  acceptableFileExtensions: ".png, .jpg, .gif, .webp"
 };

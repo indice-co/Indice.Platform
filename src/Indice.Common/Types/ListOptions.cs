@@ -75,7 +75,7 @@ public class ListOptions
         if (string.IsNullOrWhiteSpace(Sort)) {
             Sort = sort;
         } else {
-            var parts = (Sort ?? string.Empty).Split(',');
+            var parts = Sort.Split(',');
             var paths = parts.Select(x => ((SortByClause)x).Path).ToList();
             var index = paths.IndexOf(sort.Path);
             if (index > -1) {

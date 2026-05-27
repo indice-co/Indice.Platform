@@ -156,7 +156,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string? loginProvider = null, bool bypassTwoFactor = false) {
         var deviceId = await GetMfaDeviceIdentifierAsync(user);
 
-        var result = await _signInGuard.IsSuspiciousLogin(Context!, user);
+        var result = await _signInGuard.IsSuspiciousLogin(Context, user);
         if (result.Warning == SignInWarning.ImpossibleTravel && _signInGuard.ImpossibleTravelDetector?.FlowType == ImpossibleTravelFlowType.DenyLogin) {
             return SignInResult.Failed;
         }
@@ -334,7 +334,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     /// <inheritdoc/>
     public override async Task<bool> IsTwoFactorClientRememberedAsync(TUser user) {
-        var userId = await ExtendedUserManager.GetUserIdAsync(user);
         var deviceId = await GetMfaDeviceIdentifierAsync(user);
         if (!deviceId.IsEmpty) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value!);

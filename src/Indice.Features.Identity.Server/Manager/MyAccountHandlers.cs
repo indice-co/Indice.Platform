@@ -729,14 +729,14 @@ internal static partial class MyAccountHandlers
         if (!string.IsNullOrWhiteSpace(request.FirstName)) {
             user.Claims.Add(new IdentityUserClaim<string> {
                 ClaimType = BasicClaimTypes.GivenName,
-                ClaimValue = request.FirstName ?? string.Empty,
+                ClaimValue = request.FirstName,
                 UserId = user.Id
             });
         }
         if (!string.IsNullOrWhiteSpace(request.LastName)) {
             user.Claims.Add(new IdentityUserClaim<string> {
                 ClaimType = BasicClaimTypes.FamilyName,
-                ClaimValue = request.LastName ?? string.Empty,
+                ClaimValue = request.LastName,
                 UserId = user.Id
             });
         }
@@ -755,7 +755,7 @@ internal static partial class MyAccountHandlers
         if (request.HasConsentedToCommercialCommunications) {
             user.Claims.Add(new() {
                 ClaimType = BasicClaimTypes.ConsentCommercial,
-                ClaimValue = request.HasConsentedToCommercialCommunications ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+                ClaimValue = bool.TrueString.ToLower(),
                 UserId = user.Id
             });
             user.Claims.Add(new() {
@@ -771,7 +771,6 @@ internal static partial class MyAccountHandlers
         var result = new Dictionary<string, (string Description, string? Hint)>();
         var passwordOptions = userManager.Options.Password;
         var errorDescriber = userManager.ErrorDescriber;
-        var messageDescriber = userManager.MessageDescriber;
         result.Add(nameof(IdentityErrorDescriber.PasswordTooShort),
             (userManager.ErrorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description, Hint: errorDescriber.PasswordTooShortRequirement(passwordOptions.RequiredLength)));
         if (passwordOptions.RequiredUniqueChars > 1) {

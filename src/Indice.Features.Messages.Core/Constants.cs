@@ -42,6 +42,8 @@ public static class EventNames
     public const string MarkAllAsRead = "my-messages-mark-all-read";
     /// <summary>Name for the event that is raised when user trigger mark all as unread.</summary>
     public const string MarkAllAsUnread = "my-messages-mark-all-unread";
+    /// <summary>Name for the event that is raised when contacts are merged.</summary>
+    public const string MergeContacts = "contacts-merge";
 }
 
 /// <summary>Placeholder for prefixing Messages API endpoints.</summary>

@@ -26,12 +26,11 @@ public class DbAttachment
         PopulateFrom(fileName, fileStreamAccessor(), saveData);
 
     public void PopulateFrom(string fileName, Stream dataStream, bool saveData = false) {
+        ArgumentNullException.ThrowIfNull(dataStream);
+
         Name = Path.GetFileName(fileName);
         FileExtension = Path.GetExtension(fileName);
         ContentType = FileExtensions.GetMimeType(Path.GetExtension(fileName));
-        if (dataStream is null) {
-            ArgumentNullException.ThrowIfNull(dataStream);
-        }
         ContentLength = (int)dataStream.Length;
         if (saveData) {
             dataStream.Seek(0, SeekOrigin.Begin);

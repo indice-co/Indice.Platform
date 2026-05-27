@@ -28,7 +28,7 @@ public class EmailServiceSmtp : IEmailService
     private EmailServiceSettings Settings { get; }
     /// <inheritdoc/>
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
-    /// <inheritdoc/>
+    /// <summary>Gets the email provider configuration used by this SMTP service.</summary>
     public EmailProvider Provider { get; }
 
     /// <inheritdoc/>
@@ -60,8 +60,8 @@ public class EmailServiceSmtp : IEmailService
                     FileName = attachment.FileName
                 };
                 multipart.Add(attachmentPart);
-                message.Body = multipart;
             }
+            message.Body = multipart;
         } else {
             message.Body = bodyPart;
         }
@@ -76,8 +76,14 @@ public class EmailServiceSmtp : IEmailService
             // https://www.stevejgordon.co.uk/how-to-send-emails-in-asp-net-core-1-0
             // https://portal.smartertools.com/kb/a2862/smtp-settings-for-outlook365-and-gmail.aspx
             // Only needed if the SMTP server requires authentication.
+            if (string.IsNullOrEmpty(Settings.SmtpHost)) {
+                throw new EmailServiceException("SmtpHost parameter cannot be empty.");
+            }
             await client.ConnectAsync(Settings.SmtpHost, Settings.SmtpPort, (MailKit.Security.SecureSocketOptions)(int)Settings.SecureSocket);
-            if (!string.IsNullOrEmpty(Settings.Username)) {
+            if (!string.IsNullOrWhiteSpace(Settings.Username)) {
+                if (string.IsNullOrWhiteSpace(Settings.Password)) {
+                    throw new EmailServiceException("Password parameter cannot be empty when Username is provided.");
+                }
                 client.Authenticate(Settings.Username, Settings.Password);
             }
             var response = await client.SendAsync(message);

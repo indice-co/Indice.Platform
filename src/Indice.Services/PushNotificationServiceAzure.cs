@@ -19,7 +19,7 @@ public class PushNotificationServiceAzure : IPushNotificationService
     /// <param name="loggerFactory">Represents a type used to configure the logging system and create instances of <see cref="ILogger"/> from the registered <see cref="ILoggerProvider"/>s.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public PushNotificationServiceAzure(PushNotificationAzureOptions options, ILoggerFactory loggerFactory) {
-        if (string.IsNullOrWhiteSpace(options?.ConnectionString) || string.IsNullOrWhiteSpace(options?.NotificationHubPath)) {
+        if (options is null || string.IsNullOrWhiteSpace(options.ConnectionString) || string.IsNullOrWhiteSpace(options.NotificationHubPath)) {
             throw new InvalidOperationException($"{nameof(PushNotificationAzureOptions)} are not properly configured.");
         }
         PushNotificationAzureOptions = options;

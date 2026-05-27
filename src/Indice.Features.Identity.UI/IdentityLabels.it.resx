@@ -444,36 +444,6 @@
   <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
     <value>Se non hai effettuato questa azione, contatta immediatamente l’assistenza.</value>
   </data>
-  <data name="EmailTwoFactorPreferenceChanged_Preheader" xml:space="preserve">
-    <value>La tua preferenza di autenticazione a due fattori e stata aggiornata.</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Subject" xml:space="preserve">
-    <value>Modifica della Preferenza di Autenticazione a Due Fattori</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_Hi" xml:space="preserve">
-    <value>Ciao</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_EventOccurred" xml:space="preserve">
-    <value>Vogliamo informarti che la tua preferenza di autenticazione a due fattori e stata aggiornata sul tuo account.</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_EventDetails" xml:space="preserve">
-    <value>Dettagli della modifica:</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_EventTime" xml:space="preserve">
-    <value>Ora della modifica</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_Username" xml:space="preserve">
-    <value>Nome utente</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_Email" xml:space="preserve">
-    <value>Email</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_AuthMethod" xml:space="preserve">
-    <value>Nuovo metodo di autenticazione</value>
-  </data>
-  <data name="EmailTwoFactorPreferenceChanged_Body_ContactSupport" xml:space="preserve">
-    <value>Se non hai effettuato questa azione, contatta immediatamente l'assistenza.</value>
-  </data>
   <data name="Error_PageTitle" xml:space="preserve">
     <value>Errore</value>
   </data>
