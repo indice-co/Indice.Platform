@@ -29,7 +29,7 @@ public sealed class AzureCommsEmailServiceTests
     }
 
     [Fact]
-    public async Task SendAsync_Success() {
+    public async Task SendAsync_Succeeds() {
         var expectedOperationId = Guid.NewGuid().ToString();
         var mockOperation = new Mock<EmailSendOperation>();
         mockOperation.Setup(x => x.Id).Returns(expectedOperationId);
@@ -43,8 +43,8 @@ public sealed class AzureCommsEmailServiceTests
 
         // Using reflection swap the private _emailClient field with our mock
         var clientField = typeof(AzureCommunicationServicesEmailService).GetField(
-        "_emailClient",
-        BindingFlags.NonPublic | BindingFlags.Instance);
+            "_emailClient",
+            BindingFlags.NonPublic | BindingFlags.Instance);
 
         clientField!.SetValue(service, mockEmailClient.Object);
         var receipt = await service.SendAsync([ "user@indice.gr" ], "Test Email Subject", "This is the test body");

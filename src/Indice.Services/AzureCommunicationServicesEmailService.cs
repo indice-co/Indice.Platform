@@ -27,7 +27,7 @@ public sealed class AzureCommunicationServicesEmailService : IEmailService
     ) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
         Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender, string.Empty));
-        HtmlRenderingEngine = htmlRenderingEngine;
+        HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
         //Create client
         _emailClient = new EmailClient(new Uri(Settings.ResourceEndpoint), new ClientSecretCredential(Settings.TenantId, Settings.ClientId, Settings.ClientSecret));
     }
@@ -41,16 +41,13 @@ public sealed class AzureCommunicationServicesEmailService : IEmailService
     private readonly EmailClient _emailClient;
 
     /// <inheritdoc/>
-    /// <param name="from">You can't pass the sender name it has to be configured on the ACS resource itself, so the from parameter is currently only used for the email address only.</param>
     public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null) {
-        //Gather recipient addresses and bcc addresses
         var bccAddresses = Settings.BccRecipients?.Split(';', ',', StringSplitOptions.RemoveEmptyEntries).Select(x => {
             var parsed = new MailAddress(x.Trim());
             return new EmailAddress(parsed.Address, parsed.DisplayName);
         }) ?? [];
         //Currently not used and empty
         var ccAddresses = Enumerable.Empty<EmailAddress>();
-
         var emailRecipients = new EmailRecipients(
             recipients.Select(x => {
                 var parsed = new MailAddress(x.Trim());
@@ -59,12 +56,12 @@ public sealed class AzureCommunicationServicesEmailService : IEmailService
             ccAddresses,
             bccAddresses
         );
-        //Create request
+
         var emailContent = new EmailContent(subject) {
             Html = body
         };
         var emailMessage = new EmailMessageAzure(from is not null ? from.Address : Provider.DefaultSender.Address, emailRecipients, emailContent);
-        //Add attachments
+
         if (attachments is { Length: > 0 }) {
             foreach (var emailAttachment in attachments) {
                 emailMessage.Attachments.Add(new EmailAttachmentAzure(
@@ -74,7 +71,7 @@ public sealed class AzureCommunicationServicesEmailService : IEmailService
                 );
             }
         }
-        //Send
+
         var operation = await _emailClient.SendAsync(Settings.WaitUntilCompleted ? WaitUntil.Completed : WaitUntil.Started, emailMessage);
         return new SendReceipt(operation.Id, DateTimeOffset.UtcNow);
     }

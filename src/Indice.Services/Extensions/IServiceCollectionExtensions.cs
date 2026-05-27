@@ -174,7 +174,7 @@ public static class IndiceServicesServiceCollectionExtensions
             var options = serviceProvider.GetRequiredService<IOptions<EmailServiceAzureCommsSettings>>().Value;
             return new EmailProvider(
             AzureCommunicationServicesEmailService.ServiceName,
-            new EmailSender(options.Sender!, string.Empty)
+            new EmailSender(options.Sender!, null)
             );
         });
         services.TryAddTransient((serviceProvider) =>
