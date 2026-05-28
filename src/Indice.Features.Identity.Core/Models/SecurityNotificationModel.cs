@@ -23,6 +23,8 @@ public class SecurityNotificationModel
     public DateTimeOffset TimeStamp { get; set; } = DateTimeOffset.UtcNow;
     /// <summary>The username</summary>
     public string? UserName => User?.UserName;
+    /// <summary>The recipients email</summary>
+    public string? RecipientEmail => User?.Email;
     /// <summary>User's name for display purposes.</summary>
     public string? DisplayName { get; set; }
     /// <summary>The email subject.</summary>
