@@ -5,22 +5,22 @@
     <!--<TargetFramework></TargetFramework>-->
 
     <VersionPrefixMajor>8</VersionPrefixMajor>
-    <VersionPrefixBase>$(VersionPrefixMajor).47</VersionPrefixBase>
+    <VersionPrefixBase>$(VersionPrefixMajor).48</VersionPrefixBase>
 
-    <VersionPrefixCore>$(VersionPrefixBase).3</VersionPrefixCore>
-    <VersionPrefixIdentity>$(VersionPrefixBase).3</VersionPrefixIdentity>
-    <VersionPrefixIdentityUI>$(VersionPrefixBase).3</VersionPrefixIdentityUI>
-    <VersionPrefixCases>$(VersionPrefixBase).3</VersionPrefixCases>
-    <VersionPrefixMessages>$(VersionPrefixBase).3</VersionPrefixMessages>
-    <VersionPrefixMultitenancy>$(VersionPrefixBase).3</VersionPrefixMultitenancy>
-    <VersionPrefixRisk>$(VersionPrefixBase).3</VersionPrefixRisk>
-    <VersionPrefixMedia>$(VersionPrefixBase).3</VersionPrefixMedia>
-    <VersionPrefixGeoIP>$(VersionPrefixBase).3</VersionPrefixGeoIP>
-    <VersionPrefixGovGr>$(VersionPrefixBase).3</VersionPrefixGovGr>
-    <VersionPrefixAspNet>$(VersionPrefixBase).3</VersionPrefixAspNet>
-    <VersionPrefixActivityLogs>$(VersionPrefixBase).3</VersionPrefixActivityLogs>
-    <VersionPrefixFtpServer>$(VersionPrefixBase).3</VersionPrefixFtpServer>
-    <VersionPrefix>$(VersionPrefixBase).3</VersionPrefix>
+    <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
+    <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
+    <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
+    <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
+    <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
+    <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
+    <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
+    <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
+    <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
+    <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
+    <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
+    <VersionPrefixActivityLogs>$(VersionPrefixBase).0</VersionPrefixActivityLogs>
+    <VersionPrefixFtpServer>$(VersionPrefixBase).0</VersionPrefixFtpServer>
+    <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 
     <!--<VersionSuffix>rc06</VersionSuffix>-->
     <Authors>Constantinos Leftheris</Authors>

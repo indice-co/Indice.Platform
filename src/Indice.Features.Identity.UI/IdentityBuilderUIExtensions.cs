@@ -119,6 +119,7 @@ public static class IdentityBuilderUIExtensions
         services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
         services.AddPlatformEventHandler<TwoFactorPreferenceChangedEvent, TwoFactorPreferenceChangedEventHandler>();
         services.TryAddScoped<IdentityUILocalizer>();
+        services.AddGeoIPResolver();
         // Add reCAPTCHA service with options pattern
         services.AddRecaptcha(configuration);
         return services;
