@@ -1,5 +1,6 @@
-﻿using Indice.Features.Identity.Core.Events.Models;
-using Indice.Features.GeoIP;
+﻿using Indice.Features.GeoIP;
+using Indice.Features.Identity.Core.Events.Models;
+using Indice.Features.Identity.Server.Manager.Models;
 
 namespace Indice.Features.Identity.Core.Models;
 /// <summary>
@@ -7,7 +8,7 @@ namespace Indice.Features.Identity.Core.Models;
 /// </summary>
 /// <remarks>This model contains information about the user, the device that initiated the password change (if
 /// applicable), and additional details such as the email subject and display name.</remarks>
-public class SecurityNotificationModel
+public class SecurityNotificationModel : IEmailModel
 {
     /// <summary>The user instance.</summary>
     public UserEventContext User { get; set; } = null!;
