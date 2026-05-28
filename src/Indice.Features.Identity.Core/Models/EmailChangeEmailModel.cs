@@ -27,7 +27,7 @@ public class TokenBasedEmailModel : IEmailModel
     /// <summary>The URL to return to.</summary>
     public string? ReturnUrl { get; set; }
     /// <summary>The recipient of the email</summary>
-    public string? RecipientEmail => User?.Email;
+    public virtual string? RecipientEmail => User?.Email;
 }
 
 /// <summary>Models the data being sent to the view template for email messages.</summary>
@@ -35,8 +35,9 @@ public class EmailChangeEmailModel : TokenBasedEmailModel
 {
     /// <summary>The new email address that the user wants to confirm.</summary>
     public string? NewEmail { get; set; }
+    /// <inheritdoc/>
+    public override string? RecipientEmail => NewEmail;
 }
-
 
 /// <summary>Basic interface that all Email models should implement.</summary>
 public interface IEmailModel
