@@ -9,7 +9,7 @@ namespace Indice.Features.Identity.Server.Manager.Models;
 /// <remarks>This model encapsulates information required to generate and send an email containing a token for
 /// user verification or other purposes. It includes user details, the token, and associated metadata such as the
 /// confirmation URL and email subject.</remarks>
-public class TokenBasedEmailModel : IEmailModel
+public class TokenBasedEmailModel : IIdentityEmailModelMetadata
 {
 
     /// <summary>The user instance.</summary>
@@ -40,7 +40,7 @@ public class EmailChangeEmailModel : TokenBasedEmailModel
 }
 
 /// <summary>Basic interface that all Email models should implement.</summary>
-public interface IEmailModel
+public interface IIdentityEmailModelMetadata
 {
     /// <summary>The recipient of the email.</summary>
     string? RecipientEmail { get; }
