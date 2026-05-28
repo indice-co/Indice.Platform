@@ -26,6 +26,8 @@ public class TokenBasedEmailModel
     public string? Subject { get; set; }
     /// <summary>The URL to return to.</summary>
     public string? ReturnUrl { get; set; }
+    /// <summary>The recipient of the email</summary>
+    public string? RecipientEmail => User?.Email;
 }
 
 /// <summary>Models the data being sent to the view template for email messages.</summary>
