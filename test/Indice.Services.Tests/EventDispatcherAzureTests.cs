@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using Azure.Storage.Queues;
-using Moq;
+using Microsoft.Extensions.Configuration;
 using Xunit;
 
 namespace Indice.Services.Tests;
@@ -12,16 +12,13 @@ public class EventDispatcherAzureTests
     private const string CONNECTION_STRING = "UseDevelopmentStorage=true;";
 
     public EventDispatcherAzureTests() {
-        var mockCache = new Mock<IQueueClientCache>();
-        mockCache.Setup(x => x.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<QueueMessageEncoding>()))
-                 .ReturnsAsync((string queueName, string connectionString, QueueMessageEncoding encoding) => {
-                     var queueClient = new QueueClient(connectionString, queueName, new QueueClientOptions {
-                         MessageEncoding = encoding
-                     });
-                     queueClient.CreateIfNotExists();
-                     return queueClient;
-                 });
-        EventDispatcher = new EventDispatcherAzure(CONNECTION_STRING, "Development", enabled: true, useCompression: true, QueueMessageEncoding.Base64, () => ClaimsPrincipal.Current!, null, mockCache.Object);
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["ConnectionStrings:StorageConnection"] = CONNECTION_STRING
+            })
+            .Build();
+        var factory = new AzureClientFactory(configuration);
+        EventDispatcher = new EventDispatcherAzure(EventDispatcherAzure.CONNECTION_STRING_NAME, "Development", enabled: true, useCompression: true, QueueMessageEncoding.Base64, () => ClaimsPrincipal.Current!, null, factory);
     }
 
     public EventDispatcherAzure EventDispatcher { get; set; }

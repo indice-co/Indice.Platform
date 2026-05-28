@@ -72,6 +72,7 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
             switch (entry.Method.Type) {
                 case AuthenticationMethodType.TrustedDevice when await _userManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices()) is { Count: > 0 }:
                 case AuthenticationMethodType.AuthenticatorApp when !string.IsNullOrWhiteSpace(await _userManager.GetAuthenticatorKeyAsync(user)):
+                case AuthenticationMethodType.RecoveryCode when !string.IsNullOrWhiteSpace(await _userManager.GetAuthenticatorKeyAsync(user)):
                 case AuthenticationMethodType.PhoneNumber when !string.IsNullOrWhiteSpace(await _userManager.GetPhoneNumberAsync(user)) && await _userManager.IsPhoneNumberConfirmedAsync(user):
                     methods.Add(entry.Method);
                     break;

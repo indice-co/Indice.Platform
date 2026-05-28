@@ -43,7 +43,7 @@
                                         @Localizer.Grants_Created @grant.Created.ToString("yyyy-MM-dd") @grant.Created.ToString("HH:mm")
                                     </span>
                                     <span class="text-xs mb-2" indice-if="grant.Expires.HasValue">
-                                        @Localizer.Grants_Expires_On @grant.Expires!.Value.ToString("yyyy-MM-dd") &commat;  @grant.Expires.Value.ToString("HH:mm")
+                                        @Localizer.Grants_Expires_On @grant.Expires?.ToString("yyyy-MM-dd") &commat;  @grant.Expires?.ToString("HH:mm")
                                     </span>
                                 </div>
                             </div>

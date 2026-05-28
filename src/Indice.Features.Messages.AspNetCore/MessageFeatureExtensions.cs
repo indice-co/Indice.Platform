@@ -9,6 +9,7 @@ using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Manager;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
@@ -72,7 +73,7 @@ public static class MessageFeatureExtensions
 
         // Configure authorization. It's important to register the authorization policy provider at this point.
         //
-        
+
         services.AddAuthorization(policy => policy.AddCampaignsManagementPolicy(apiOptions.RequiredScope))
                 .AddTransient<IAuthorizationHandler, BeCampaignManagerHandler>();
         services.AddTransient<IAuthorizationHandler, CanSendCampaignHandler>();
@@ -97,6 +98,7 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
         services.TryAddTransient<IContactService, ContactService>();
         services.TryAddTransient<ITemplateService, TemplateService>();
+        services.TryAddTransient<IPartialTemplateResolverFactory, DbBackedPartialTemplateResolverFactory>();
         services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
         services.TryAddTransient<NotificationsManager>();
         services.TryAddTransient<IDistributionListService, DistributionListService>();
@@ -150,7 +152,7 @@ public static class MessageFeatureExtensions
             if (!options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(TypeConverterJsonAdapterFactory))) {
                 options.JsonSerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
-        }); 
+        });
         services.PostConfigure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => {
             if (!options.SerializerOptions.Converters.OfType<JsonStringEnumConverter>().Any()) {
                 options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -246,23 +248,23 @@ public static class MessageFeatureExtensions
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static void UseEventDispatcherAzure(this MessageEndpointOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions>? configure = null) {
-        options.Services!.AddEventDispatcherAzure(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey, 
+        options.Services!.AddEventDispatcherAzure(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey,
             (serviceProvider, options) => {
-            var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
-                ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
-                Enabled = true,
-                EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
-                ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
-            };
-            configure?.Invoke(serviceProvider, eventDispatcherOptions);
-            options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
-            options.ConnectionString = eventDispatcherOptions.ConnectionString;
-            options.Enabled = eventDispatcherOptions.Enabled;
-            options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
-            options.QueueMessageEncoding = eventDispatcherOptions.QueueMessageEncoding;
-            options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
-            options.UseCompression = true;
-        });
+                var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
+                    ConnectionStringName = EventDispatcherAzure.CONNECTION_STRING_NAME,
+                    Enabled = true,
+                    EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
+                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
+                };
+                configure?.Invoke(serviceProvider, eventDispatcherOptions);
+                options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
+                options.ConnectionStringName = eventDispatcherOptions.ConnectionStringName;
+                options.Enabled = eventDispatcherOptions.Enabled;
+                options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
+                options.QueueMessageEncoding = eventDispatcherOptions.QueueMessageEncoding;
+                options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
+                options.UseCompression = true;
+            });
     }
 
     /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
@@ -272,14 +274,14 @@ public static class MessageFeatureExtensions
         options.Services!.AddEventDispatcherAzureServiceBus(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey,
             (serviceProvider, options) => {
                 var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
-                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
+                    ConnectionStringName = EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME,
                     Enabled = true,
                     EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
                     ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
                 };
                 configure?.Invoke(serviceProvider, eventDispatcherOptions);
                 options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
-                options.ConnectionString = eventDispatcherOptions.ConnectionString;
+                options.ConnectionStringName = eventDispatcherOptions.ConnectionStringName;
                 options.Enabled = eventDispatcherOptions.Enabled;
                 options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
                 options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;

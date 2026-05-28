@@ -3,7 +3,6 @@ using Indice.Features.Cases.Workflows.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -12,8 +11,6 @@ public static class WorkflowManagerApi
 {
     /// <summary>Invoking Workflow Activities for blocked instances.</summary>
     public static IEndpointRouteBuilder MapWorkflowManager(this IEndpointRouteBuilder routes) {
-        var options = routes.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowOptions>>().Value;
-
         var group = routes.MapGroup($"api/workflow-actions");
         group.WithGroupName("workflow");
         group.WithTags("Workflow");

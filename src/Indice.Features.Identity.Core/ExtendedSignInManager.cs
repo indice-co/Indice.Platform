@@ -156,7 +156,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string? loginProvider = null, bool bypassTwoFactor = false) {
         var deviceId = await GetMfaDeviceIdentifierAsync(user);
 
-        var result = await _signInGuard.IsSuspiciousLogin(Context!, user);
+        var result = await _signInGuard.IsSuspiciousLogin(Context, user);
         if (result.Warning == SignInWarning.ImpossibleTravel && _signInGuard.ImpossibleTravelDetector?.FlowType == ImpossibleTravelFlowType.DenyLogin) {
             return SignInResult.Failed;
         }
@@ -250,7 +250,34 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         return await ExtendedUserManager.FindByIdAsync(info.UserId!);
     }
-
+    /// <summary>
+    /// Signs in the user without two factor authentication using a two factor recovery code.
+    /// </summary>
+    /// <param name="recoveryCode">The two factor recovery code.</param>
+    /// <returns></returns>
+    public override async Task<SignInResult> TwoFactorRecoveryCodeSignInAsync(string recoveryCode) {
+        var twoFactorInfo = await RetrieveTwoFactorInfoAsync();
+        if (twoFactorInfo == null || twoFactorInfo.UserId == null) {
+            return SignInResult.Failed;
+        }
+        var user = await ExtendedUserManager.FindByIdAsync(twoFactorInfo.UserId);
+        if (user == null) {
+            return SignInResult.Failed;
+        }
+        var error = await PreSignInCheck(user);
+        if (error != null) {
+            return error!;
+        }
+        var result = await UserManager.RedeemTwoFactorRecoveryCodeAsync(user, recoveryCode);
+        if (result.Succeeded) {
+            return await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent: false, rememberClient: false);
+        }
+        if (ExtendedUserManager.SupportsUserLockout) {
+            await ExtendedUserManager.AccessFailedAsync(user);
+        }
+        // We don't protect against brute force attacks since codes are expected to be random.
+        return SignInResult.Failed;
+    }
     /// <inheritdoc/>
     public async override Task SignOutAsync() {
         var allSchemes = await _authenticationSchemeProvider.GetAllSchemesAsync();
@@ -302,12 +329,11 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     public override async Task RememberTwoFactorClientAsync(TUser user) {
         var deviceId = await GetMfaDeviceIdentifierAsync(user);
         var principal = await StoreRememberClient(user, deviceId);
-        await Context.SignInAsync(IdentityConstants.TwoFactorRememberMeScheme, principal, new AuthenticationProperties { IsPersistent = true });
+        await Context.SignInAsync(IdentityConstants.TwoFactorRememberMeScheme, principal, new AuthenticationProperties { IsPersistent = true, AllowRefresh = true, ExpiresUtc = DateTime.UtcNow.AddDays(MfaRememberDurationInDays) });
     }
 
     /// <inheritdoc/>
     public override async Task<bool> IsTwoFactorClientRememberedAsync(TUser user) {
-        var userId = await ExtendedUserManager.GetUserIdAsync(user);
         var deviceId = await GetMfaDeviceIdentifierAsync(user);
         if (!deviceId.IsEmpty) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value!);
@@ -355,15 +381,18 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <param name="user"></param>
     /// <returns>The device identifier</returns>
     public async Task<MfaDeviceIdentifier> GetMfaDeviceIdentifierAsync(TUser user) {
-        if (Context.Items.TryGetValue(BasicClaimTypes.DeviceId, out var deviceItBoxed) 
+        if (Context.Items.TryGetValue(BasicClaimTypes.DeviceId, out var deviceItBoxed)
             && deviceItBoxed is MfaDeviceIdentifier deviceId) {
             return deviceId;
         }
         var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
-        if (!result.Succeeded || result.Principal?.FindSubjectId() != user.Id) {
+        var userId = result.Principal?.FindFirstValue(Options.ClaimsIdentity.UserIdClaimType) ??
+                     result.Principal?.FindFirstValue(JwtClaimTypes.Subject) ??
+                     result.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!result.Succeeded || userId != user.Id) {
             deviceId = Context.ResolveDeviceId();
             Context.Items.Add(BasicClaimTypes.DeviceId, deviceId);
-            return Context.ResolveDeviceId();
+            return deviceId;
         }
         deviceId = new MfaDeviceIdentifier(result.Principal.FindFirstValue(BasicClaimTypes.DeviceId));
         Context.Items.Add(BasicClaimTypes.DeviceId, deviceId);
@@ -457,6 +486,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var userId = await ExtendedUserManager.GetUserIdAsync(user);
         var deviceIdentity = new ClaimsIdentity(IdentityConstants.TwoFactorRememberMeScheme);
         deviceIdentity.AddClaim(new Claim(Options.ClaimsIdentity.UserIdClaimType, userId));
+        deviceIdentity.AddClaim(new Claim(ClaimTypes.Name, userId));
         if (!deviceId.IsEmpty) {
             deviceIdentity.AddClaim(new Claim(BasicClaimTypes.DeviceId, deviceId.Value!));
         }

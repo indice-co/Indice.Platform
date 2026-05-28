@@ -332,12 +332,12 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
 
-        if (options.Filter.From != null) {
-            query = query.Where(c => c.CreatedByWhen >= options.Filter.From.Value.Date);
+        if (options.Filter?.From is DateTimeOffset from) {
+            query = query.Where(c => c.CreatedByWhen >= from.Date);
         }
 
-        if (options.Filter.To != null) {
-            query = query.Where(c => c.CreatedByWhen <= options.Filter.To.Value.Date.AddDays(1));
+        if (options.Filter?.To is DateTimeOffset to) {
+            query = query.Where(c => c.CreatedByWhen <= to.Date.AddDays(1));
         }
 
         // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user

@@ -1883,6 +1883,30 @@ user_code_2</value>
   <data name="Templates.SortNameOption" xml:space="preserve">
     <value>Name</value>
   </data>
+  <data name="Templates.SortTypeOption" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Templates.KindLabel" xml:space="preserve">
+    <value>Kind</value>
+  </data>
+  <data name="Templates.TypeColumn" xml:space="preserve">
+    <value>Kind</value>
+  </data>
+  <data name="Templates.FullTemplate" xml:space="preserve">
+    <value>Full</value>
+  </data>
+  <data name="Templates.PartialTemplate" xml:space="preserve">
+    <value>Partial</value>
+  </data>
+  <data name="Templates.LayoutTemplate" xml:space="preserve">
+    <value>Layout</value>
+  </data>
+  <data name="Templates.AllTypes" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Templates.KindInfo" xml:space="preserve">
+    <value>Choose Full for standalone templates, Partial for reusable fragments (e.g. headers/footers), or Layout for page layouts.</value>
+  </data>
   <data name="Shared.ContactComboboxNameLabelRequired" xml:space="preserve">
     <value>Name (*)</value>
   </data>
@@ -2101,6 +2125,18 @@ user_code_2</value>
   </data>
   <data name="MediaLibrary.UpdateFileSuccessMessage" xml:space="preserve">
     <value>The file {{name}} was updated successfully.</value>
+  </data>
+  <data name="MediaLibrary.AttachmentUpdateSuccessTitle" xml:space="preserve">
+    <value>Successful update</value>
+  </data>
+  <data name="MediaLibrary.AttachmentUpdateSuccessMessage" xml:space="preserve">
+    <value>The attachment was updated successfully.</value>
+  </data>
+  <data name="MediaLibrary.AttachmentUpdateErrorTitle" xml:space="preserve">
+    <value>Update failed</value>
+  </data>
+  <data name="MediaLibrary.AttachmentUpdateErrorMessage" xml:space="preserve">
+    <value>An error occurred while updating the attachment.</value>
   </data>
   <data name="Shared.Search" xml:space="preserve">
     <value>search</value>

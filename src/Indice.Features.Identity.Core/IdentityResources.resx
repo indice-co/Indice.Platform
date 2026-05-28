@@ -270,6 +270,9 @@
   <data name="MfaValidationError" xml:space="preserve">
     <value>The OTP code is not valid.</value>
   </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Invalid recovery code entered.</value>
+  </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Your account is temporarily locked. Please contact a system administrator.</value>
   </data>
@@ -461,6 +464,12 @@
   <data name="PasswordChangedEventDescription" xml:space="preserve">
     <value>Your password has been successfully changed.</value>
   </data>
+  <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
+    <value>Two-Factor Authentication Method Changed</value>
+  </data>
+  <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
+    <value>Your two-factor authentication method has been updated to: {0}.</value>
+  </data>
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
     <value>Please choose your new password to continue.</value>
   </data>
@@ -523,5 +532,11 @@
   </data>
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>The field 'Timezone' has invalid format.</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
+    <value>Recovery code verification</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
+    <value>You have requested to log in with a recovery code. This login will not be remembered until you provide an MFA method.</value>
   </data>
 </root>

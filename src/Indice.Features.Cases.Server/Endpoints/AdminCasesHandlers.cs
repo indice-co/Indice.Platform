@@ -249,7 +249,7 @@ internal static class AdminCasesHandlers
             HasApproval = hasApproval,
             HasAssignment = hasAssignment,
             HasEdit = hasEdit,
-            CustomActions = hasCustom ? actions.CustomActions?.Select(x => x.CreateFromWorkflowAction()).ToList()! : []
+            CustomActions = hasCustom ? actions.CustomActions!.Select(x => x.CreateFromWorkflowAction()).ToList() : []
         });
     }
 

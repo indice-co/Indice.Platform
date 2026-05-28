@@ -84,15 +84,17 @@ public class IdentityMessageDescriber
         activity switch {
             nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventSubject,
             nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventSubject,
+            nameof(TwoFactorPreferenceChangedEvent) => IdentityResources.TwoFactorPreferenceChangedEventSubject,
             _ => string.Format(IdentityResources.SecurityNotificationDefaultSubject, activity.Replace("Event", "").Humanize())
         };
 
     /// <summary>Security event descriptions.</summary>
-    public virtual string SecurityEventDescription(string activity) =>
+    public virtual string SecurityEventDescription(string activity, string? description) =>
         activity switch {
             nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventDescription,
             nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventDescription,
-            _ => string.Empty
+            nameof(TwoFactorPreferenceChangedEvent) => string.Format(IdentityResources.TwoFactorPreferenceChangedEventDescription, description),
+            _ => description ?? string.Empty
         };
 
     /// <summary>Add email page validation empty email</summary>
@@ -158,6 +160,8 @@ public class IdentityMessageDescriber
 
     /// <summary>Mfa validation error message</summary>
     public virtual string MfaValidationError => IdentityResources.MfaValidationError;
+    /// <summary>Mfa invalid recovery code error message.</summary>
+    public virtual string MfaInvalidRecoveryCode => IdentityResources.MfaInvalidRecoveryCode;
     /// <summary>Login error message when user is locked out.</summary>
     public virtual string LoginErrorLockedMessage => IdentityResources.LoginErrorLockedMessage;
 
@@ -320,6 +324,10 @@ public class IdentityMessageDescriber
     public virtual string AuthMethod_TrustedDevice_DisplayName => IdentityResources.AuthMethod_TrustedDevice_DisplayName;
     /// <summary>Description for Trusted Device authentication method.</summary>
     public virtual string AuthMethod_TrustedDevice_Description => IdentityResources.AuthMethod_TrustedDevice_Description;
+    /// <summary>Display name for Recovery Code authentication method.</summary>
+    public virtual string AuthMethod_RecoveryCode_DisplayName => IdentityResources.AuthMethod_RecoveryCode_DisplayName;
+    /// <summary>Description for Recovery Code authentication method.</summary>
+    public virtual string AuthMethod_RecoveryCode_Description => IdentityResources.AuthMethod_RecoveryCode_Description;
     #endregion
     /// <summary>
     /// Retrieves a localized string for the specified label, or returns the label itself if no localized value is

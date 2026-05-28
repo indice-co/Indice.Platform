@@ -12,7 +12,12 @@
 
     <div id="panel-main">
         <div class="alert alert-primary mb-4">
-            @Localizer.Mfa_EnterCodeFromAuthenticatorApp
+            <div class="d-flex flex-row  align-items-center gap-3">
+                <i class="fa-2xl fa-solid fa-shield-halved" aria-label="icon"></i>
+                <div class="d-flex w-100 flex-column justify-content-between">
+                    <span>@Localizer.Mfa_EnterCodeFromAuthenticatorApp</span>
+                </div>
+            </div>
         </div>
         <div class="mb-4">
             <label asp-for="Input.OtpCode" class="form-label">
@@ -23,7 +28,7 @@
                    placeholder="@Localizer.Mfa_OTP_Code"
                    autocomplete="one-time-code"
                    inputmode="numeric"
-                   maxlength="6"
+                   maxlength="@Model.View.AuthenticatorDigits"
                    autofocus />
             <span asp-validation-for="Input.OtpCode" class="text-danger small"></span>
         </div>

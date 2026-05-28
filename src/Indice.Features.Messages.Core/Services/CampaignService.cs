@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Azure.Messaging;
 using HandlebarsDotNet;
 using HandlebarsDotNet.Extension.Json;
 using Indice.Features.Messages.Core.Data;
@@ -23,17 +24,21 @@ public class CampaignService : ICampaignService
     /// <summary>Creates a new instance of <see cref="CampaignService"/>.</summary>
     /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
     /// <param name="campaignManagementOptions">Options used to configure the Campaigns management API feature.</param>
+    /// <param name="partialTemplateResolverFactory">Factory used to create partial template resolvers.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public CampaignService(
         CampaignsDbContext dbContext,
-        IOptions<MessageManagementOptions> campaignManagementOptions
+        IOptions<MessageManagementOptions> campaignManagementOptions,
+        IPartialTemplateResolverFactory partialTemplateResolverFactory
     ) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         CampaignManagementOptions = campaignManagementOptions?.Value ?? throw new ArgumentNullException(nameof(campaignManagementOptions));
+        PartialTemplateResolverFactory = partialTemplateResolverFactory ?? throw new ArgumentNullException(nameof(partialTemplateResolverFactory));
     }
 
     private CampaignsDbContext DbContext { get; }
     private MessageManagementOptions CampaignManagementOptions { get; }
+    private IPartialTemplateResolverFactory PartialTemplateResolverFactory { get; }
 
     /// <inheritdoc />
     public Task<ResultSet<Campaign>> GetList(ListOptions<CampaignListFilter> options) {
@@ -43,10 +48,10 @@ public class CampaignService : ICampaignService
                 .Include(x => x.DistributionList)
                 .AsNoTracking();
 
-        if (options.Filter?.ContactId.HasValue == true) {
+        if (options.Filter?.ContactId is Guid contactId) {
             query = from o in query
                     join c in DbContext.ContactDistributionLists on o.DistributionListId equals c.DistributionListId
-                    where c.ContactId == options.Filter.ContactId.Value
+                    where c.ContactId == contactId
                     select o;
         }
 
@@ -62,8 +67,8 @@ public class CampaignService : ICampaignService
             var searchTerm = options.Search.Trim();
             projectedQuery = projectedQuery.Where(x => x.Title != null && x.Title.Contains(searchTerm));
         }
-        if (options.Filter?.Published.HasValue == true) {
-            projectedQuery = projectedQuery.Where(x => x.Published == options.Filter.Published.Value);
+        if (options.Filter?.Published is bool published) {
+            projectedQuery = projectedQuery.Where(x => x.Published == published);
         }
         if (options.Filter?.TypeId?.Length > 0) {
             var types = options.Filter.TypeId.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => GuidOrAlias.Parse(x));
@@ -330,10 +335,10 @@ public class CampaignService : ICampaignService
     public async Task<RecipientMessageEvents> GetCampaignRecipientDetails(Guid campaignId, Guid contactId) {
         var details = new RecipientMessageEvents();
         var contact = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
-        var campaign = Mapper.ToCampaign(await DbContext.Campaigns.AsNoTracking().FirstAsync(x => x.Id == campaignId));
+        var dbMessage = await DbContext.Messages.AsNoTracking().FirstAsync( x => x.CampaignId == campaignId && x.ContactId == contactId);
         details.Recipient = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
-        GenerateMessageContent(campaign, contact);
-        details.Content = campaign.Content;
+        var content = new MessageContentDictionary(dbMessage.Content);
+        details.Content = content;
         details.Events.AddRange(await DbContext.MessageEvents
                         .Where(x => x.CampaignId == campaignId && x.ContactId == contactId)
                         .Select(x => new MessageEvent {
@@ -349,33 +354,4 @@ public class CampaignService : ICampaignService
         return details;
     }
 
-    private static void GenerateMessageContent(Campaign campaign, Contact? contact) {
-        var handlebars = Handlebars.Create();
-        handlebars.Configuration.TextEncoder = new HtmlEncoder();
-        handlebars.Configuration.UseJson();
-        foreach (var content in campaign!.Content) {
-            handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(content.Key);
-            dynamic templateData = new {
-                id = campaign.Id,
-                title = campaign.Title,
-                type = campaign.Type?.Name,
-                classification = campaign.Type?.Classification,
-                actionLink = new {
-                    href = !string.IsNullOrEmpty(campaign.ActionLink?.Href) ? $"_tracking/messages/cta/{(Base64Id)campaign.Id}" : null,
-                    text = campaign.ActionLink?.Text,
-                },
-                mediaBaseHref = campaign.MediaBaseHref,
-                now = DateTimeOffset.UtcNow,
-                contact = contact is not null
-                    ? JsonDocument.Parse(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()))
-                    : null,
-                data = campaign.Data is not null && (campaign.Data is not string || !string.IsNullOrWhiteSpace(campaign.Data))
-                    ? JsonDocument.Parse(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()))
-                    : null
-            };
-            var messageContent = campaign.Content[content.Key];
-            messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);
-            messageContent.Body = handlebars.Compile(content.Value.Body)(templateData);
-        }
-    }
 }

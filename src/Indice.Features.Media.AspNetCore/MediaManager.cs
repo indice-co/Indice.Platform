@@ -72,7 +72,7 @@ public class MediaManager(
             ParentId = folderTree.Node.ParentId,
             Files = pagedFiles,
             Folders = pagedFolders,
-            TotalCount = files != null ? folderTree.TotalCount + files.Count : folderTree.TotalCount,
+            TotalCount = folderTree.TotalCount + files.Count,
         };
     }
 

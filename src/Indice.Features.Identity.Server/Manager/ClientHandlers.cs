@@ -109,15 +109,13 @@ internal static class ClientHandlers
                     clientScope => clientScope.Scope,
                     apiScope => apiScope.Scope,
                     (clientScope, apiScope) => apiScope.Scope
-                )
-                .Select(x => x),
+                ),
                 IdentityResources = x.AllowedScopes.Join(
                     configurationDbContext.IdentityResources,
                     clientScope => clientScope.Scope,
                     identityResource => identityResource.Name,
                     (clientScope, identityResource) => identityResource.Name
-                )
-                .Select(x => x),
+                ),
                 Claims = x.Claims.Select(x => new ClaimInfo {
                     Id = x.Id,
                     Type = x.Type,

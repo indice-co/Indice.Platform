@@ -107,6 +107,11 @@ public static class AuthenticationMethodBuilderExtensions
             MethodType = typeof(AuthenticatorAppAuthenticationMethod),
             SupportsMfa = supportsMfa,
             Enabled = enabled
+        }); 
+        configuredMethods.Add(new AuthenticationMethodConfiguration {
+            MethodType = typeof(RecoveryCodeAuthenticationMethod),
+            SupportsMfa = supportsMfa,
+            Enabled = enabled
         });
         return configuredMethods;
     }

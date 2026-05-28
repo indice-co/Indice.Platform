@@ -771,6 +771,15 @@
   <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
     <value>Apri l'app di autenticazione e inserisci il codice di verifica.</value>
   </data>
+  <data name="Mfa_RecoveryCode" xml:space="preserve">
+    <value>Codice di recupero</value>
+  </data>
+  <data name="Mfa_EnterRecoveryCode" xml:space="preserve">
+    <value>Hai richiesto di accedere con un codice di recupero. Questo accesso non verrà ricordato finché non fornisci un codice dell'app di autenticazione al momento dell'accesso o disabiliti la 2FA e accedi nuovamente.</value>
+  </data>
+  <data name="Mfa_InvalidRecoveryCode" xml:space="preserve">
+    <value>Codice di recupero non valido inserito.</value>
+  </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Modifica password</value>
   </data>

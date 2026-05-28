@@ -2,6 +2,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -72,11 +73,12 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
             await SendVerificationEmailAsync(user);
             return RedirectToPage("/MfaOnboardingVerifyEmail", routeValues: new { Input.ReturnUrl });
         }
-        result = await UserManager.SetTwoFactorEnabledAsync(user, true);
+        result = await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.Email.ToString());
         if (!result.Succeeded) {
             AddModelErrors(result);
             return Page();
         }
+
         TempData.Put(TempDataKey, AlertModel.Success(UserManager.MessageDescriber.MfaAddEmailSuccessMessage));
         View.EmailConfirmed = user.EmailConfirmed;
         return Page();

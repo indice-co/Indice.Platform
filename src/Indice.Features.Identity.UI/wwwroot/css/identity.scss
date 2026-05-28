@@ -50,14 +50,17 @@ main {
     display: flex;
     flex-direction: column;
     position: relative;
+
     &::before, &::after {
         flex-grow: 1;
         content: '';
         display: block;
     }
+
     &::before {
         min-height: 100px;
     }
+
     &::after {
         min-height: 92px;
     }
@@ -134,6 +137,7 @@ main {
         a {
             font-size: 1em;
             font-weight: bold;
+            color: #fff;
         }
     }
 
@@ -203,15 +207,18 @@ main {
     }
 }
 
-a{
+a {
     font-weight: bold;
 }
+
 .terms-last-update {
-    text-align:right;
+    text-align: right;
 }
+
 .grecaptcha-badge {
-    bottom:50px!important;
+    bottom: 50px !important;
 }
+
 @import 'consent';
 @import 'error40X';
 @import 'forms';

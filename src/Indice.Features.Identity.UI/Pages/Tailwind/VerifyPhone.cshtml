@@ -9,7 +9,7 @@
     ViewData["Title"] = Localizer.VerifyPhone_PageTitle;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseVerifyPhoneModel.TempDataKey);
     var alert = tempData?.Alert;
-    var displayNext = !string.IsNullOrEmpty(tempData?.NextStepUrl) && tempData?.Alert?.AlertType == AlertType.Success;
+    var displayNext = tempData?.Alert?.AlertType == AlertType.Success && !string.IsNullOrEmpty(tempData.NextStepUrl);
 }
 
 <div class="content-wrapper">

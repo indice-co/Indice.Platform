@@ -270,6 +270,9 @@
   <data name="MfaValidationError" xml:space="preserve">
     <value>El código OTP no es válido.</value>
   </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Código de recuperación no válido.</value>
+  </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Su cuenta está temporalmente bloqueada. Por favor, contacte con un administrador del sistema.</value>
   </data>
@@ -414,6 +417,12 @@
   <data name="AccountLockedEventDescription" xml:space="preserve">
     <value>Su cuenta ha sido bloqueada temporalmente debido a múltiples intentos de inicio de sesión fallidos. Este bloqueo es una medida de seguridad para proteger su información. Por favor, inténtelo de nuevo más tarde.</value>
   </data>
+  <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
+    <value>Método de autenticación de dos factores cambiado</value>
+  </data>
+  <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
+    <value>Su método de autenticación de dos factores ha sido actualizado a: {0}.</value>
+  </data>
   <data name="PasswordChangedEventDescription" xml:space="preserve">
     <value>Su contraseña ha sido cambiada exitosamente.</value>
   </data>
@@ -476,6 +485,12 @@
   </data>
   <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
     <value>Reciba una notificación push mediante un dispositivo de confianza.</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
+    <value>Verificación con código de recuperación</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
+    <value>Ha solicitado iniciar sesión con un código de recuperación. Este inicio de sesión no se recordará hasta que proporcione un método MFA.</value>
   </data>
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>El campo 'Zona horaria' tiene un formato inválido.</value>

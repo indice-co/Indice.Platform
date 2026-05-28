@@ -1,4 +1,4 @@
-﻿using Indice.Types;
+﻿using Indice.Features.Messages.Core.Data.Models;
 
 namespace Indice.Features.Messages.Core.Models.Requests;
 
@@ -11,10 +11,12 @@ public class CreateTemplateRequest
     public string? Alias { get; set; }
     /// <summary>The alias of the template.</summary>
     public Guid? MessageTypeId { get; set; }
-    /// <summary>Determines if the taemplate to be created from this template should ignore user communication preferences.</summary>
+    /// <summary>Determines if the template to be created from this template should ignore user communication preferences.</summary>
     public bool IgnoreUserPreferences { get; set; }
     /// <summary>The content of the template.</summary>
     public MessageContentDictionary Content { get; set; } = [];
     /// <summary>Sample data to test your templating</summary>
     public dynamic? Data { get; set; }
+    /// <summary>The type of the template.</summary>
+    public TemplateType Type { get; set; } = TemplateType.Full;
 }

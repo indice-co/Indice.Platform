@@ -3,6 +3,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Features.Recaptcha;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Features.Identity.UI;
 using Indice.Features.Identity.UI.EventHandlers;
@@ -58,17 +59,18 @@ public static class IdentityBuilderUIExtensions
             options.HomePageSlogan = configuredOptions.HomePageSlogan;
             options.HtmlBodyBackgroundCssClass = configuredOptions.HtmlBodyBackgroundCssClass;
             options.OverrideDefaultStaticFileMiddleware = configuredOptions.OverrideDefaultStaticFileMiddleware;
+            options.PrivacyUrlResolver = configuredOptions.PrivacyUrlResolver;
+            options.TermsUrlResolver = configuredOptions.TermsUrlResolver;
             options.PrivacyUrl = configuredOptions.PrivacyUrl;
+            options.TermsUrl = configuredOptions.TermsUrl;
             options.RememberMeLoginDuration = configuredOptions.RememberMeLoginDuration;
             options.ShowLogoutPrompt = configuredOptions.ShowLogoutPrompt;
-            options.TermsUrl = configuredOptions.TermsUrl;
             options.Events = configuredOptions.Events;
             options.EnablePhoneNumberCallingCodes = configuredOptions.EnablePhoneNumberCallingCodes;
             foreach (var url in configuredOptions.ValidReturnUrls) {
                 options.ValidReturnUrls.Add(url);
             }
-            options.ProductionEnvironments = new StringValues(options.ProductionEnvironments.Concat(configuredOptions.ProductionEnvironments)
-                                                                                            .Distinct(StringComparer.OrdinalIgnoreCase).ToArray());
+            options.ProductionEnvironmentsSet.UnionWith(configuredOptions.ProductionEnvironmentsSet);
         });
 #if NET9_0_OR_GREATER
         services.AddSingleton<IConfigureOptions<IdentityServerOptions>, IdentityServerOptionsConfigure>();
@@ -115,6 +117,7 @@ public static class IdentityBuilderUIExtensions
         services.TryAddTransient<ITelemetryJavaScriptSnippet, AzureMonitorTelemetryJavaScriptSnippet>(); // browser ui telemetry.
 
         services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
+        services.AddPlatformEventHandler<TwoFactorPreferenceChangedEvent, TwoFactorPreferenceChangedEventHandler>();
         services.TryAddScoped<IdentityUILocalizer>();
         // Add reCAPTCHA service with options pattern
         services.AddRecaptcha(configuration);

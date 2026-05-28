@@ -64,7 +64,7 @@
                   <span
                   class="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded ml-3">Πελάτης</span>
                 }
-                <ng-container *ngTemplateOutlet="publicStatus;context:{status: entry.checkpoint?.checkpointType?.status}">
+                <ng-container *ngTemplateOutlet="publicStatus;context:{status: entry.checkpoint?.checkpointType?.status, index: $index}">
                 </ng-container>
               </h3>
               <time class="block mb-2 text-sm font-normal leading-none text-gray-400"><span
@@ -108,7 +108,8 @@
     </div>
 
     <ng-template #publicStatus
-      let-status="status">
+      let-status="status"
+      let-index="index">
       @if (status !== null && !hideStatuses) {
         <span [ngClass]="{
             'bg-blue-100 text-blue-800 rounded ': status === 'Submitted',
@@ -117,12 +118,12 @@
             'bg-red-100 text-red-800 ': status === 'Deleted'
         }"
           class="ml-2 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded"
-          data-tooltip-target="tooltip-public-status"
-        title="Status Πελάτη">{{status}}</span>
-        <div id="tooltip-public status"
+          [attr.data-tooltip-target]="'tooltip-public-status-' + index"
+        title="Δημόσιο Status">{{status}}</span>
+        <div [attr.id]="'tooltip-public-status-' + index"
           role="tooltip"
           class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-dark-green rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip ">
-          Status πελάτη
+          Δημόσιο Status
           <div class="tooltip-arrow"
           data-popper-arrow></div>
         </div>

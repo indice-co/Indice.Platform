@@ -40,10 +40,13 @@ namespace Indice.Features.Cases.Workflows.Activities;
     protected override async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
         var assignment = context.Input as InvokeAssignmentRequest;
+        if (assignment is null) {
+            return Outcome(CustomOutcomeNames.Failed);
+        }
 
         AuditMeta assignedTo;
         try {
-            assignedTo = await CasesManager.AssignToActor(assignment!.Actor.ToCasesActor(), CaseId!.Value);
+            assignedTo = await CasesManager.AssignToActor(assignment.Actor.ToCasesActor(), CaseId!.Value);
         } catch (Exception ex) {
             await LogCaseError(context, ex);
             return Outcome(CustomOutcomeNames.Failed);

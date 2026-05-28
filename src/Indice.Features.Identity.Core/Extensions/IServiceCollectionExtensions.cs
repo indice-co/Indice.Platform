@@ -6,10 +6,13 @@ using Indice.Features.Identity.Core.Mvc.Localization;
 using Indice.Features.Identity.Core.Mvc.Razor;
 using Indice.Features.Identity.Core.Totp;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -61,6 +64,42 @@ public static class IServiceCollectionExtensions
         });
         services.TryAddTransient<TotpServiceFactory>();
         services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
+        return services;
+    }
+
+    /// <summary>
+    /// Configures the OpenIdConnect handlers and OAuth based handlers to persist the state parameter into the server-side IDistributedCache.
+    /// </summary>
+    /// <param name="services">The service collection to configure.</param>
+    /// <param name="schemes">The schemes to configure. If none provided, then all OpenIdConnect schemes will use the cache.</param>
+    public static IServiceCollection AddExternalProviderStateDataFormatterCache(this IServiceCollection services, params string[] schemes) {
+        services.AddSingleton<IPostConfigureOptions<OpenIdConnectOptions>>(svcs => new ConfigureExternalProviderOptions(schemes, svcs));
+        services.AddSingleton<IPostConfigureOptions<OAuthOptions>>(svcs => new ConfigureExternalProviderOptions(schemes, svcs));
+        return services;
+    }
+
+    /// <summary>
+    /// Adds OAuth state data formatter cache configuration for external providers to the service collection.
+    /// </summary>
+    /// <typeparam name="TOptions">The OAuth options type to configure.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="schemes">The authentication schemes to configure.</param>
+    /// <returns>The service collection for method chaining.</returns>
+    public static IServiceCollection AddExternalProviderOAuthStateDataFormatterCache<TOptions>(this IServiceCollection services, params string[] schemes) where TOptions : OAuthOptions {
+        services.AddSingleton<IPostConfigureOptions<TOptions>>(svcs => new ConfigureOAuthOptions<TOptions>(schemes, svcs));
+        return services;
+    }
+
+    /// <summary>
+    /// Adds external provider OpenID Connect state data formatter cache configuration for the specified authentication
+    /// schemes.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of <see cref="OpenIdConnectOptions"/> to configure.</typeparam>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>
+    /// <param name="schemes">The authentication schemes to configure.</param>
+    /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
+    public static IServiceCollection AddExternalProviderOidStateDataFormatterCache<TOptions>(this IServiceCollection services, params string[] schemes) where TOptions : OpenIdConnectOptions {
+        services.AddSingleton<IPostConfigureOptions<TOptions>>(svcs => new ConfigureOpenIdOptions<TOptions>(schemes, svcs));
         return services;
     }
 }

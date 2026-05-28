@@ -69,7 +69,7 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
                 context.UserName,
                 "Password login failure.",
                 clientId: context.Request.ClientId,
-                clientName: context?.Request?.Client?.ClientName));
+                clientName: context.Request.Client?.ClientName));
             return;
         }
         var deviceId = context.Request.Raw[RegistrationRequestParameters.DeviceId];

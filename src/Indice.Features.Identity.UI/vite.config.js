@@ -21,6 +21,7 @@ scssFiles.forEach(file => {
     scssInputs[name] = file;
 });
 console.log('SCSS entry points:', scssInputs);
+const stripComments = (contents) => contents.toString().replace(/\/\*[\s\S]*?\*\/|^\s*\/\/.*/gm, '');
 export default defineConfig({
     root: './',
     base: './',
@@ -55,6 +56,9 @@ export default defineConfig({
         target: 'es2015',
         write: true
     },
+    esbuild: {
+        legalComments: 'none'
+    },
     css: {
         devSourcemap: false,
         preprocessorOptions: {
@@ -81,7 +85,13 @@ export default defineConfig({
                 // Copy Bootstrap
                 {
                     src: 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
-                    dest: 'lib/bootstrap/dist/js'
+                    dest: 'lib/bootstrap/dist/js',
+                    transform: stripComments
+                },
+                {
+                    src: 'node_modules/bootstrap/LICENSE',
+                    dest: 'lib/bootstrap/dist/js',
+                    rename: 'LICENSE.md'
                 },
                 {
                     src: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
@@ -90,20 +100,32 @@ export default defineConfig({
                 // Copy Bootstrap.Native
                 {
                     src: 'node_modules/bootstrap.native/dist/bootstrap-native.js',
-                    dest: 'lib/bootstrap.native/dist'
+                    dest: 'lib/bootstrap.native/dist',
+                    transform: stripComments
                 },
                 // Copy jQuery
                 {
                     src: 'node_modules/jquery/dist/jquery.min.js',
+                    dest: 'lib/jquery/dist',
+                    transform: stripComments
+                },
+                {
+                    src: 'node_modules/jquery/LICENSE.txt',
                     dest: 'lib/jquery/dist'
                 },
                 // Copy jQuery Validation
                 {
                     src: 'node_modules/jquery-validation/dist/jquery.validate.min.js',
-                    dest: 'lib/jquery-validation/dist'
+                    dest: 'lib/jquery-validation/dist',
+                    transform: stripComments
                 },
                 {
                     src: 'node_modules/jquery-validation/dist/additional-methods.min.js',
+                    dest: 'lib/jquery-validation/dist',
+                    transform: stripComments
+                },
+                {
+                    src: 'node_modules/jquery-validation/LICENSE.md',
                     dest: 'lib/jquery-validation/dist'
                 },
                 // Copy jQuery Validation Unobtrusive (with parseJSON fix)
@@ -112,33 +134,61 @@ export default defineConfig({
                     dest: 'lib/jquery-validation-unobtrusive/dist',
                     transform: (contents) => {
                         // Replace deprecated $.parseJSON with native JSON.parse
-                        return contents.toString().replace(/(\w|\$)\.parseJSON/g, 'JSON.parse');
+                        return stripComments(contents).replace(/(\w|\$)\.parseJSON/g, 'JSON.parse');
                     }
+                },
+                {
+                    src: 'node_modules/jquery-validation-unobtrusive/LICENSE.txt',
+                    dest: 'lib/jquery-validation-unobtrusive/dist'
                 },
                 // Copy Knockout
                 {
                     src: 'node_modules/knockout/build/output/knockout-latest.js',
-                    dest: 'lib/knockout/build/output'
+                    dest: 'lib/knockout/build/output',
+                    transform: stripComments
+                },
+                {
+                    src: 'node_modules/knockout/LICENSE',
+                    dest: 'lib/knockout/build/output',
+                    rename: 'LICENSE.md'
                 },
                 // Copy Knockout Secure Binding
                 {
                     src: 'node_modules/knockout-secure-binding/dist/knockout-secure-binding.min.js',
-                    dest: 'lib/knockout-secure-binding/dist'
+                    dest: 'lib/knockout-secure-binding/dist',
+                    transform: stripComments
+                },
+                {
+                    src: 'node_modules/knockout-secure-binding/LICENSE',
+                    dest: 'lib/knockout-secure-binding/dist',
+                    rename: 'LICENSE.md'
                 },
                 // Copy Popper.js
                 {
                     src: 'node_modules/@popperjs/core/dist/umd/popper.min.js',
+                    dest: 'lib/@popperjs/core/dist/umd',
+                    transform: stripComments
+                },
+                {
+                    src: 'node_modules/@popperjs/core/LICENSE.md',
                     dest: 'lib/@popperjs/core/dist/umd'
                 },
                 // Copy SignalR
                 {
                     src: 'node_modules/@microsoft/signalr/dist/browser/signalr.min.js',
-                    dest: 'lib/@microsoft/signalr/dist/browser'
+                    dest: 'lib/@microsoft/signalr/dist/browser',
+                    transform: stripComments
                 },
                 // Copy FingerprintJS
                 {
                     src: 'node_modules/@fingerprintjs/fingerprintjs/dist/fp.min.js',
-                    dest: 'lib/@fingerprintjs/fingerprintjs/dist'
+                    dest: 'lib/@fingerprintjs/fingerprintjs/dist',
+                    transform: stripComments
+                },
+                {
+                    src: 'node_modules/@fingerprintjs/fingerprintjs/LICENSE',
+                    dest: 'lib/@fingerprintjs/fingerprintjs/dist',
+                    rename: 'LICENSE.md'
                 },
                 // Copy Font Awesome 4.7
                 {
@@ -161,7 +211,13 @@ export default defineConfig({
                 // Copy Swiper
                 {
                     src: 'node_modules/swiper/swiper-bundle.min.js',
-                    dest: 'lib/swiper'
+                    dest: 'lib/swiper',
+                    transform: stripComments
+                },
+                {
+                    src: 'node_modules/swiper/LICENSE',
+                    dest: 'lib/swiper',
+                    rename: 'LICENSE.md'
                 },
                 {
                     src: 'node_modules/swiper/swiper-bundle.min.css',
@@ -170,6 +226,11 @@ export default defineConfig({
                 // Copy Flowbite
                 {
                     src: 'node_modules/flowbite/dist/flowbite.min.js',
+                    dest: 'lib/flowbite/dist',
+                    transform: stripComments
+                },
+                {
+                    src: 'node_modules/flowbite/LICENSE.md',
                     dest: 'lib/flowbite/dist'
                 },
                 {
@@ -179,7 +240,13 @@ export default defineConfig({
                 // Copy qrcodejs2
                 {
                     src: 'node_modules/qrcodejs2/qrcode.min.js',
-                    dest: 'lib/qrcodejs2'
+                    dest: 'lib/qrcodejs2',
+                    transform: stripComments
+                },
+                {
+                    src: 'node_modules/qrcodejs2/LICENSE',
+                    dest: 'lib/qrcodejs2',
+                    rename: 'LICENSE.md'
                 }
             ],
             silent: false
