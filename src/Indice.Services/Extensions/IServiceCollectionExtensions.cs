@@ -63,7 +63,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <remarks>Automatically discovers the correct provider using the configuration setting <strong>Email:Provider</strong> to automatically load the correct configuration.
     /// <br />Acceptable values:
-    /// <strong>smtp, sparkpost, sendgrid, brevo, none</strong>
+    /// <strong>smtp, sparkpost, sendgrid, brevo, none, azurecommunicationservices</strong>
     /// </remarks>
     public static EmailServiceBuilder AddEmailService(this IServiceCollection services, IConfiguration configuration) {
         var providerNamesText = configuration.GetSection(EmailServiceSettings.Name).GetValue<string>("Provider");
@@ -81,6 +81,9 @@ public static class IndiceServicesServiceCollectionExtensions
                     break;
                 case EmailServiceBrevo.ServiceName:
                     services.AddEmailServiceBrevo(configuration);
+                    break;
+                case AzureCommunicationServicesEmailService.ServiceName:
+                    services.AddEmailServiceAzureCommunicationServices(configuration);
                     break;
                 case EmailServiceNoop.ServiceName:
                 default:
@@ -151,6 +154,26 @@ public static class IndiceServicesServiceCollectionExtensions
             return new EmailProvider(EmailServiceBrevo.ServiceName, new EmailSender(options.Sender!, options.SenderName));
         });
         services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
+        services.AddHtmlRenderingEngineNoop();
+        return new EmailServiceBuilder(services);
+    }
+
+    /// <summary>Adds an implementation of <see cref="IEmailService"/> that uses Azure Communication Services to send emails.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static EmailServiceBuilder AddEmailServiceAzureCommunicationServices(this IServiceCollection services, IConfiguration configuration) {
+        services.Configure<EmailServiceAzureCommsSettings>(configuration.GetSection(EmailServiceAzureCommsSettings.Name));
+        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceAzureCommsSettings>>().Value);
+        services.AddTransient<IEmailService, AzureCommunicationServicesEmailService>();
+        services.AddSingleton((serviceProvider) => {
+            var options = serviceProvider.GetRequiredService<IOptions<EmailServiceAzureCommsSettings>>().Value;
+                return new EmailProvider(
+                AzureCommunicationServicesEmailService.ServiceName,
+                new EmailSender(options.Sender!, null));
+        });
+        services.TryAddTransient((serviceProvider) =>
+            new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList())
+        );
         services.AddHtmlRenderingEngineNoop();
         return new EmailServiceBuilder(services);
     }
