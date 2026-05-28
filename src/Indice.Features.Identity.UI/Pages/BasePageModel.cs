@@ -96,6 +96,7 @@ public abstract class BasePageModel : PageModel
                    .UsingTemplate("EmailRegister")
                    .WithData(new {
                        user.UserName,
+                       RecipientEmail = user.Email,
                        Subject = identityMessageDescriber.RegisterEmailSubject(configuration.GetApplicationName()!),
                        Url = callbackUrl
                    })
@@ -128,6 +129,8 @@ public abstract class BasePageModel : PageModel
                    .UsingTemplate("EmailConfirmYourEmail")
                    .WithData(new {
                        user.UserName,
+                       RecipientEmail = user.Email,
+                       Subject = identityMessageDescriber.ConfirmationEmailSubject,
                        Url = callbackUrl
                    })
         );
@@ -161,6 +164,8 @@ public abstract class BasePageModel : PageModel
                    .UsingTemplate("EmailConfirmEmailChange")
                    .WithData(new {
                        UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ?? user.UserName,
+                       RecipientEmail = newEmail,
+                       Subject = identityMessageDescriber.ConfirmationEmailChangeSubject,
                        NewEmail = newEmail,
                        Url = callbackUrl
                    })
@@ -190,7 +195,9 @@ public abstract class BasePageModel : PageModel
                 .UsingTemplate("EmailMfaOnboarding")
                 .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject)
                 .WithData(new {
-                    Username = user.UserName,
+                    user.UserName,
+                    RecipientEmail = user.Email,
+                    Subject = userManager.MessageDescriber.UpdateEmailMessageSubject,
                     Code = code
                 });
         });

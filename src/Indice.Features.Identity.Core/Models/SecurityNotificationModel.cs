@@ -1,5 +1,6 @@
-﻿using Indice.Features.Identity.Core.Events.Models;
-using Indice.Features.GeoIP;
+﻿using Indice.Features.GeoIP;
+using Indice.Features.Identity.Core.Events.Models;
+using Indice.Features.Identity.Server.Manager.Models;
 
 namespace Indice.Features.Identity.Core.Models;
 /// <summary>
@@ -7,7 +8,7 @@ namespace Indice.Features.Identity.Core.Models;
 /// </summary>
 /// <remarks>This model contains information about the user, the device that initiated the password change (if
 /// applicable), and additional details such as the email subject and display name.</remarks>
-public class SecurityNotificationModel
+public class SecurityNotificationModel : IIdentityEmailModelMetadata
 {
     /// <summary>The user instance.</summary>
     public UserEventContext User { get; set; } = null!;
@@ -23,6 +24,8 @@ public class SecurityNotificationModel
     public DateTimeOffset TimeStamp { get; set; } = DateTimeOffset.UtcNow;
     /// <summary>The username</summary>
     public string? UserName => User?.UserName;
+    /// <summary>The recipients email</summary>
+    public string? RecipientEmail => User?.Email;
     /// <summary>User's name for display purposes.</summary>
     public string? DisplayName { get; set; }
     /// <summary>The email subject.</summary>
