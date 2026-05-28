@@ -87,23 +87,16 @@ public sealed class EmailServiceAzureCommsSettings
     /// <summary>The configuration section name.</summary>
     public const string Name = "AzureCommunicationServices";
     /// <summary>The default sender address (ex. no-reply@indice.gr).</summary>
-    [Required]
-    [EmailAddress]
     public string Sender { get; set; } = null!;
     /// <summary>Optional email addresses that are always added as blind carbon copy recipients.</summary>
     public string? BccRecipients { get; set; }
     /// <summary>The Azure AD application (client) ID used for authentication.</summary>
-    [Required]
     public string ClientId { get; set; } = null!;
     /// <summary>The Azure AD application (client) secret used for authentication.</summary>
-    [Required]
     public string ClientSecret { get; set; } = null!;
     /// <summary>The Azure AD tenant ID used for authentication.</summary>
-    [Required]
     public string TenantId { get; set; } = null!;
     /// <summary>The endpoint of the ACS resource</summary>
-    [Required]
-    [Url]
     public string ResourceEndpoint { get; set; } = null!;
     /// <summary>Whether to wait until the email sending operation is completed before returning the receipt. If false, the receipt will be returned immediately after the operation is started.</summary>
     /// <remarks>Usually waiting for the operation to complete is not recommended because it takes about 12 seconds for the email to be sent</remarks>

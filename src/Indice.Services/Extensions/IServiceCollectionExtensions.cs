@@ -162,18 +162,14 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static EmailServiceBuilder AddEmailServiceAzureCommunicationServices(this IServiceCollection services, IConfiguration configuration) {
-        services.AddOptions<EmailServiceAzureCommsSettings>()
-            .BindConfiguration(EmailServiceAzureCommsSettings.Name)
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
+        services.Configure<EmailServiceAzureCommsSettings>(configuration.GetSection(EmailServiceAzureCommsSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceAzureCommsSettings>>().Value);
         services.AddTransient<IEmailService, AzureCommunicationServicesEmailService>();
         services.AddSingleton((serviceProvider) => {
             var options = serviceProvider.GetRequiredService<IOptions<EmailServiceAzureCommsSettings>>().Value;
-            return new EmailProvider(
-            AzureCommunicationServicesEmailService.ServiceName,
-            new EmailSender(options.Sender!, null)
-            );
+                return new EmailProvider(
+                AzureCommunicationServicesEmailService.ServiceName,
+                new EmailSender(options.Sender!, null));
         });
         services.TryAddTransient((serviceProvider) =>
             new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList())
