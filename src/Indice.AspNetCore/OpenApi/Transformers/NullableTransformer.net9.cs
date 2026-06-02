@@ -90,7 +90,7 @@ public static class NullableTransformer
             }
             if (context.ParameterDescription is not null) {
                 // And remove default value of null if set
-                if (schema.Default is OpenApiNull && schema.Annotations.Any(x => x.Value != null) == true) {
+                if (schema.Default is OpenApiNull && schema.Annotations?.Any(x => x.Value != null) == true) {
                     schema.Default = null;
                 }
             }
