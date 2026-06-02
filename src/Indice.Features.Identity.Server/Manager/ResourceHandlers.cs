@@ -310,11 +310,11 @@ internal static class ResourceHandlers
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "ScopeName is required"));
         }
         scopeName = scopeName.Trim();
-        var apiScope = await configurationDbContext.ApiScopes.SingleOrDefaultAsync(x => x.Name == scopeName);
+        var apiScope = await configurationDbContext.ApiScopes.Include(x => x.UserClaims).SingleOrDefaultAsync(x => x.Name == scopeName);
         if (apiScope == null) {
             return TypedResults.NotFound();
         }
-        if (!(claims?.Length > 0)) {
+        if (claims is not [_, ..]) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("claims", "A claims list is required"));
         }
         apiScope.UserClaims =
@@ -519,7 +519,7 @@ internal static class ResourceHandlers
         if (resource == null) {
             return TypedResults.NotFound();
         }
-        if (!(claims?.Length > 0)) {
+        if (claims is not [_, ..]) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("claims", "A claims list is required"));
         }
         resource.UserClaims =
