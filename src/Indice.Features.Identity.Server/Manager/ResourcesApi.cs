@@ -85,8 +85,39 @@ public static class ResourcesApi
 
         group.MapGet("protected/scopes", ResourceHandlers.GetApiScopes)
              .WithName(nameof(ResourceHandlers.GetApiScopes))
-             .WithSummary("Returns a list of ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided ListOptions.")
+             .WithSummary("Returns a list of API scopes.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsReader);
+
+        group.MapPost("protected/scopes", ResourceHandlers.CreateApiScope)
+             .WithName(nameof(ResourceHandlers.CreateApiScope))
+             .WithSummary("Creates a new API scope.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
+             .WithParameterValidation<CreateApiScopeRequest>();
+
+        group.MapPut("protected/scopes/{scopeName}", ResourceHandlers.UpdateApiScope)
+             .WithName(nameof(ResourceHandlers.UpdateApiScope))
+             .WithSummary("Updates a specified API scope.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
+             .InvalidateCacheTag(CacheTagPrefix, ["scopeName"], [])
+             .WithParameterValidation<UpdateApiScopeRequest>();
+
+        group.MapDelete("protected/scopes/{scopeName}", ResourceHandlers.DeleteApiScope)
+             .WithName(nameof(ResourceHandlers.DeleteApiScope))
+             .WithSummary("Deletes an existing API scope.")
+             .InvalidateCacheTag(CacheTagPrefix, ["scopeName"], [])
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter);
+
+        group.MapPost("protected/scopes/{scopeName}/claims", ResourceHandlers.AddApiScopeClaims)
+             .WithName(nameof(ResourceHandlers.AddApiScopeClaims))
+             .WithSummary("Adds claims to an API Scope.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
+             .InvalidateCacheTag(CacheTagPrefix, ["scopeName"], []);
+
+        group.MapDelete("protected/scopes/{scopeName}/claims/{claim}", ResourceHandlers.DeleteApiScopeClaim)
+             .WithName(nameof(ResourceHandlers.DeleteApiScopeClaim))
+             .WithSummary("Removes a specified claim from an API Scope.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
+             .InvalidateCacheTag(CacheTagPrefix, ["scopeName"], []);
 
         group.MapGet("protected/{resourceId:int}", ResourceHandlers.GetApiResource)
              .WithName(nameof(ResourceHandlers.GetApiResource))
