@@ -209,7 +209,7 @@ internal static class ResourceHandlers
         return TypedResults.Ok(scopes);
     }
 
-    internal static async Task<Results<Ok<ApiScopeInfo>, NotFound, ValidationProblem>> CreateApiScope(
+    internal static async Task<Results<Ok<ApiScopeInfo>, ValidationProblem>> CreateApiScope(
         ExtendedConfigurationDbContext configurationDbContext,
         CreateApiScopeRequest request
     ) {
@@ -264,8 +264,8 @@ internal static class ResourceHandlers
         if (apiScope == null) {
             return TypedResults.NotFound();
         }
-        var canDelete = await configurationDbContext.ApiResources.AnyAsync(x => x.Scopes.Any(s => s.Scope == scopeName));
-        if (!canDelete) {
+        var isInUse = await configurationDbContext.ApiResources.AnyAsync(x => x.Scopes.Any(s => s.Scope == scopeName));
+        if (isInUse) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "Cannot delete API scope as it is in use."));
         }
 
@@ -292,11 +292,11 @@ internal static class ResourceHandlers
         apiScope.Required = request.Required;
         apiScope.ShowInDiscoveryDocument = request.ShowInDiscoveryDocument;
         apiScope.Emphasize = request.Emphasize;
-        var apiScoreTranslations = apiScope.Properties?.SingleOrDefault(x => x.Key == ClientPropertyKeys.Translation);
-        if (apiScoreTranslations == null) {
+        var apiScopeTranslations = apiScope.Properties?.SingleOrDefault(x => x.Key == ClientPropertyKeys.Translation);
+        if (apiScopeTranslations == null) {
             AddTranslationsToApiScope(apiScope, request.Translations.ToJson());
         } else {
-            apiScoreTranslations.Value = request.Translations.ToJson() ?? string.Empty;
+            apiScopeTranslations.Value = request.Translations.ToJson() ?? string.Empty;
         }
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
@@ -336,14 +336,17 @@ internal static class ResourceHandlers
         if (string.IsNullOrWhiteSpace(scopeName)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "ScopeName is required"));
         }
+        if (string.IsNullOrWhiteSpace(claim)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(claim).ToLower(), "Claim is required"));
+        }
         scopeName = scopeName.Trim();
+        claim = claim.Trim();
         var apiScope = await configurationDbContext.ApiScopes.Include(x => x.UserClaims).SingleOrDefaultAsync(x => x.Name == scopeName);
         if (apiScope == null) {
             return TypedResults.NotFound();
         }
         apiScope.UserClaims ??= [];
-        var claimToRemove = apiScope.UserClaims.Select(x => x.Type == claim).ToList();
-        if (claimToRemove?.Count == 0) {
+        if (!apiScope.UserClaims.Any(x => x.Type == claim)) {
             return TypedResults.NotFound();
         }
         apiScope.UserClaims.RemoveAll(x => x.Type == claim);
