@@ -361,7 +361,7 @@ public class MediaManager(
         foreach (var deletedFile in deletedFiles) {
             try {
                 await _fileService.DeleteAsync(deletedFile.Path);
-            } catch { 
+            } catch (Exception) {
                 // ignore
             } finally {
                 await _fileStore.Delete(deletedFile.Id);
