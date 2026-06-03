@@ -116,10 +116,7 @@ public static class IdentityBuilderUIExtensions
         services.AddMarkdown();
         services.TryAddTransient<ITelemetryJavaScriptSnippet, AzureMonitorTelemetryJavaScriptSnippet>(); // browser ui telemetry.
 
-        services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
-        services.AddPlatformEventHandler<TwoFactorPreferenceChangedEvent, TwoFactorPreferenceChangedEventHandler>();
         services.TryAddScoped<IdentityUILocalizer>();
-        services.AddGeoIPResolver();
         // Add reCAPTCHA service with options pattern
         services.AddRecaptcha(configuration);
         return services;
