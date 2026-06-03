@@ -13,11 +13,14 @@
     <EmbeddedResource Include="GeoLite2\GeoLite2-Country.mmdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="GeoLite2\GeoLite2-ASN.mmdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)-*" />
-    <PackageReference Include="MaxMind.GeoIP2" Version="5.4.1" />
+    <PackageReference Include="MaxMind.GeoIP2" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

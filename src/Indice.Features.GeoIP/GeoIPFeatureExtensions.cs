@@ -17,6 +17,7 @@ public static class GeoIPFeatureExtensions
     public static IServiceCollection AddGeoIPResolver(this IServiceCollection services) {
         services.TryAddSingleton<CityDatabaseReader>();
         services.TryAddSingleton<CountryDatabaseReader>();
+        services.TryAddSingleton<AsnDatabaseReader>();
         services.TryAddScoped<IPAddressLocator>();
         return services;
     }
