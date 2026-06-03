@@ -268,7 +268,7 @@ public class MediaManager(
         // discard all files and folders marked as deleted
         await CleanUpFolders();
         // 0. Get all file paths from the storage.
-        var storageFilePaths = await _fileService.SearchAsync(string.Empty);
+        var storageFilePaths = await _fileService.SearchAsync("media");
         var dbFolders = await _folderStore.GetList(f => !f.IsDeleted);
         var storageFolders = storageFilePaths.Select(p => Path.GetDirectoryName(p)?.Replace('\\', '/').Substring(p.StartsWith("/media") ? 6 : 0)).Where(p => !string.IsNullOrEmpty(p)).Distinct().ToList();
         var newFolders = storageFolders.Except(dbFolders.Select(f => f.Path)).FilterOutNulls().ToList();
@@ -279,11 +279,12 @@ public class MediaManager(
         foreach (var folder in newFolders) {
             var pathSegments = folder.Split('/', StringSplitOptions.RemoveEmptyEntries);
             Guid? parentId = null;
-            var currentPath = string.Empty;
+            var currentPathBuilder = new System.Text.StringBuilder();
             foreach (var segment in pathSegments) {
                 var cacheKey = $"{CONTENT_CACHE_KEY}_{(parentId.HasValue ? parentId.Value : "root")}";
                 await _cache.RemoveAsync(cacheKey);
-                currentPath = string.Join('/', currentPath, segment) + "/";
+                currentPathBuilder.Append(segment).Append('/');
+                var currentPath = currentPathBuilder.ToString();
                 var existingFolder = dbFolders.FirstOrDefault(f => f.Path == currentPath);
                 if (existingFolder == null) {
                     var newFolder = new DbMediaFolder {
