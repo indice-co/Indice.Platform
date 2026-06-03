@@ -276,10 +276,11 @@ public class MediaManager(
         // 2. Then clear all existing files in the database that are not in the storage,
         // 3. and add all files that are in the storage but not in the database.
         // 4. Try to invalidate cache entries for folders that are affected by the changes.
+        var currentPathBuilder = new System.Text.StringBuilder();
         foreach (var folder in newFolders) {
             var pathSegments = folder.Split('/', StringSplitOptions.RemoveEmptyEntries);
             Guid? parentId = null;
-            var currentPathBuilder = new System.Text.StringBuilder();
+            currentPathBuilder.Clear();
             foreach (var segment in pathSegments) {
                 var cacheKey = $"{CONTENT_CACHE_KEY}_{(parentId.HasValue ? parentId.Value : "root")}";
                 await _cache.RemoveAsync(cacheKey);
