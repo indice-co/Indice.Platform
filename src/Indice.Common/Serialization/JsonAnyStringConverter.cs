@@ -32,7 +32,8 @@ public class JsonAnyStringConverter : JsonConverter<string?>
             return JsonSerializer.Serialize(document.RootElement, options);
         }
     }
-    
+
+    /// <inheritdoc/>
     public override string? ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
             reader.GetString();
 
