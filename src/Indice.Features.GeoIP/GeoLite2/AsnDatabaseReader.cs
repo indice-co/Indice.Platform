@@ -12,5 +12,6 @@ public sealed class AsnDatabaseReader : DatabaseReader
     /// Initializes a new instance of the AsnDatabaseReader class using the embedded GeoLite2 ASN database file.
     /// </summary>
     public AsnDatabaseReader() :
-        base(typeof(AsnDatabaseReader).Assembly.GetManifestResourceStream($"Indice.Features.GeoIP.GeoLite2.{Constants.GEO_LITE2_ASN_FILE_NAME}")!) { }
+        base(typeof(AsnDatabaseReader).Assembly.GetManifestResourceStream($"Indice.Features.GeoIP.GeoLite2.{Constants.GEO_LITE2_ASN_FILE_NAME}")
+             ?? throw new InvalidOperationException($"Embedded GeoLite2 ASN database resource '{Constants.GEO_LITE2_ASN_FILE_NAME}' was not found.")) { }
 }

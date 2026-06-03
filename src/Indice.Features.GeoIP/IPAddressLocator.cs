@@ -53,8 +53,8 @@ public sealed class IPAddressLocator
             result.Continent = countryResponse?.Continent?.Name;
         }
         if (_asnDatabaseReader.TryAsn(ipAddress, out var asnResponse)) {
-            result.ASN = asnResponse?.AutonomousSystemNumber;
-            result.ASOrganization = asnResponse?.AutonomousSystemOrganization;
+            result.Asn = asnResponse?.AutonomousSystemNumber;
+            result.AsOrganization = asnResponse?.AutonomousSystemOrganization;
         }
         return result;
     }

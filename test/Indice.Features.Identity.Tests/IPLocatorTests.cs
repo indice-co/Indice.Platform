@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Indice.Features.GeoIP;
+﻿using Indice.Features.GeoIP;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -11,7 +6,7 @@ namespace Indice.Features.Identity.Tests;
 
 public class IPLocatorTests : IAsyncLifetime
 {
-    private ServiceProvider _serviceProvider;
+    private readonly ServiceProvider _serviceProvider;
     public IPLocatorTests() {
         var services = new ServiceCollection();
         services.AddGeoIPResolver();
@@ -19,11 +14,11 @@ public class IPLocatorTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task GetLocationMetadata_Returns_Correct_Metadata() {
+    public void GetLocationMetadata_Returns_Correct_Metadata() {
         var ipAddressLocator = _serviceProvider.GetRequiredService<IPAddressLocator>();
         var locationMetadata = ipAddressLocator.GetLocationMetadata(System.Net.IPAddress.Parse("8.8.8.8"));
         Assert.NotNull(locationMetadata);
-        Assert.Equal("Google LLC", locationMetadata.ASOrganization);
+        Assert.Equal("Google LLC", locationMetadata.AsOrganization);
     }
 
     public async Task DisposeAsync() {

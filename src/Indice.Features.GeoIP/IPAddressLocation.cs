@@ -23,9 +23,9 @@ public sealed class IPAddressLocation
     /// <summary>The continent name.</summary>
     public string? Continent { get; set; }
     /// <summary>The autonomous system number (ASN).</summary>
-    public long? ASN { get; set; }
+    public long? Asn { get; set; }
     /// <summary>The autonomous system organization.</summary>
-    public string? ASOrganization { get; set; }
+    public string? AsOrganization { get; set; }
     /// <summary>
     /// Gets or sets the geographical coordinates represented as a nullable <see cref="GeoPoint"/>.
     /// </summary>

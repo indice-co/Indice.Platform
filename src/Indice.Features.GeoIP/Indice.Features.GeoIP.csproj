@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)-*" />
-    <PackageReference Include="MaxMind.GeoIP2" Version="5.4.1" />
+    <PackageReference Include="MaxMind.GeoIP2" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
