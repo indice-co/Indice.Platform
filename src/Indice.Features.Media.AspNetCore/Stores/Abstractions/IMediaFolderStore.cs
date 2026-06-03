@@ -14,7 +14,8 @@ public interface IMediaFolderStore
     Task<List<DbMediaFolder>> GetList(Expression<Func<DbMediaFolder, bool>>? query = null);
     /// <summary>Creates a new folder.</summary>
     /// <param name="folder">The data for the folder to create.</param>
-    Task<Guid> Create(DbMediaFolder folder);
+    /// <param name="normalizePath">Will go about normalizing the structure path according to parent structure, naming conventions and url safe rules. Defaults to true.
+    Task<Guid> Create(DbMediaFolder folder, bool normalizePath = true);
     /// <summary>Updates an existing folder.</summary>
     /// <param name="folder">The data for the folder to update.</param>
     Task Update(DbMediaFolder folder);

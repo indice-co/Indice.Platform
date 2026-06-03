@@ -1,6 +1,9 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Reflection.PortableExecutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Serialization;
 
@@ -30,6 +33,15 @@ public class JsonAnyStringConverter : JsonConverter<string?>
         using (var document = JsonDocument.ParseValue(ref reader)) {
             return JsonSerializer.Serialize(document.RootElement, options);
         }
+    }
+    
+    /// <inheritdoc/>   
+    public override string? ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+            Read(ref reader, typeToConvert, options);
+
+    /// <inheritdoc/>
+    public override void WriteAsPropertyName(Utf8JsonWriter writer, [DisallowNull] string value, JsonSerializerOptions options) {
+        writer.WritePropertyName(value);
     }
 
     /// <inheritdoc/>

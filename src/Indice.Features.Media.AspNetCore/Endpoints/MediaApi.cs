@@ -73,6 +73,10 @@ public static class MediaApi
              .WithSummary("Deletes an existing file.")
              .ProducesProblem(StatusCodes.Status400BadRequest);
 
+        group.MapPost("/media/discover", MediaHandlers.Discover)
+             .WithName(nameof(MediaHandlers.Discover))
+             .WithSummary("Discovers files in the system that are not tracked in the database and adds them to the media library.");
+
         return builder;
     }
 }

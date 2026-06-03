@@ -1,18 +1,17 @@
-﻿using Indice.Features.Media.AspNetCore.Models;
-using Indice.Features.Media.AspNetCore.Models.Commands;
-using Indice.Types;
-using Indice.Services;
-using Indice.Features.Media.AspNetCore.Stores.Abstractions;
-using Microsoft.Extensions.Caching.Distributed;
-using System.Text.Json;
-using Indice.Serialization;
-using Indice.Features.Media.AspNetCore.Services.Hosting;
-using Microsoft.Extensions.Options;
-using Indice.Features.Media.AspNetCore.Services;
-using Microsoft.Extensions.Configuration;
-using SixLabors.ImageSharp;
+﻿using System.Text.Json;
 using Indice.Features.Media.AspNetCore.Data.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Indice.Features.Media.AspNetCore.Models;
+using Indice.Features.Media.AspNetCore.Models.Commands;
+using Indice.Features.Media.AspNetCore.Services;
+using Indice.Features.Media.AspNetCore.Services.Hosting;
+using Indice.Features.Media.AspNetCore.Stores.Abstractions;
+using Indice.Serialization;
+using Indice.Services;
+using Indice.Types;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using SixLabors.ImageSharp;
 
 namespace Indice.Features.Media.AspNetCore;
 /// <summary>A manager class that helps work with the Media Library API infrastructure.</summary>
@@ -263,6 +262,67 @@ public class MediaManager(
         return await GetFileDetailsInternal(file, includeData);
     }
 
+    /// <summary>Discovers files from persistent storage.</summary>
+    /// <remarks>Used to discover files that exist in the storage but not in the database, and add them to the database.</remarks>
+    public async Task Discover() {
+        // discard all files and folders marked as deleted
+        await CleanUpFolders();
+        // 0. Get all file paths from the storage.
+        var storageFilePaths = await _fileService.SearchAsync(string.Empty);
+        var dbFolders = await _folderStore.GetList(f => !f.IsDeleted);
+        var storageFolders = storageFilePaths.Select(p => Path.GetDirectoryName(p)?.Replace('\\', '/').Substring(p.StartsWith("/media") ? 6 : 0)).Where(p => !string.IsNullOrEmpty(p)).Distinct().ToList();
+        var newFolders = storageFolders.Except(dbFolders.Select(f => f.Path)).FilterOutNulls().ToList();
+        // 1. merge folder structure with existing database folder structure.
+        // 2. Then clear all existing files in the database that are not in the storage,
+        // 3. and add all files that are in the storage but not in the database.
+        // 4. Try to invalidate cache entries for folders that are affected by the changes.
+        foreach (var folder in newFolders) {
+            var pathSegments = folder.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            Guid? parentId = null;
+            var currentPath = string.Empty;
+            foreach (var segment in pathSegments) {
+                var cacheKey = $"{CONTENT_CACHE_KEY}_{(parentId.HasValue ? parentId.Value : "root")}";
+                await _cache.RemoveAsync(cacheKey);
+                currentPath = string.Join('/', currentPath, segment) + "/";
+                var existingFolder = dbFolders.FirstOrDefault(f => f.Path == currentPath);
+                if (existingFolder == null) {
+                    var newFolder = new DbMediaFolder {
+                        Name = segment,
+                        ParentId = parentId,
+                        Path = currentPath
+                    };
+                    var newFolderId = await _folderStore.Create(newFolder, normalizePath: false);
+                    parentId = newFolderId;
+                    dbFolders.Add(newFolder);
+                } else {
+                    parentId = existingFolder.Id;
+                }
+            }
+        }
+        await CleanUpFiles(onlyMarkedAsDeleted: false);
+
+        var filesToStore = new List<DbMediaFile>();
+        foreach (var file in storageFilePaths) {
+            var filePath = file.Replace('\\', '/').Substring(file.StartsWith("/media") ? 6 : 0);
+            var folderPath = Path.GetDirectoryName(filePath)?.Replace('\\', '/') + '/';
+            var parentId = dbFolders.FirstOrDefault(f => f.Path == folderPath)?.Id;
+            var metadata = await _fileService.GetPropertiesAsync(file);
+            if (metadata == null) {
+                continue;
+            }
+            filesToStore.Add(new DbMediaFile {
+                Name = Path.GetFileName(file),
+                FolderId = parentId,
+                Path = filePath,
+                ContentLength = (int)metadata.Length,
+                ContentType = metadata.ContentType,
+                FileExtension = Path.GetExtension(file),
+            });
+        }
+        await _fileStore.CreateMany(filesToStore, normalizePath: false);
+        await _cache.RemoveAsync(STRUCT_CACHE_KEY);
+    }
+
     private async Task<MediaFile?> GetFileDetailsInternal(DbMediaFile? file, bool? includeData) {
         if (file == null) {
             return null;
@@ -283,20 +343,25 @@ public class MediaManager(
     }
 
     /// <summary>Deletes all files marked as deleted. Used by <see cref="FilesCleanUpHostedService"/></summary>
-    internal async Task CleanUpFiles() {
-        var deletedFiles = await _fileStore.GetList(f => f.IsDeleted);
+    internal async Task CleanUpFiles(bool onlyMarkedAsDeleted = true) {
+        var deletedFiles = onlyMarkedAsDeleted ? await _fileStore.GetList(f => f.IsDeleted) : await _fileStore.GetList();
         if (deletedFiles is null) {
             return;
         }
         foreach (var deletedFile in deletedFiles) {
-            await _fileService.DeleteAsync(deletedFile.Path);
-            await _fileStore.Delete(deletedFile.Id);
+            try {
+                await _fileService.DeleteAsync(deletedFile.Path);
+            } catch { 
+                // ignore
+            } finally {
+                await _fileStore.Delete(deletedFile.Id);
+            }
         }
     }
 
     /// <summary>Deletes all folders marked as deleted. Used by <see cref="FoldersCleanUpHostedService"/></summary>
-    internal async Task CleanUpFolders() {
-        var deletedFolders = await _folderStore.GetList(f => f.IsDeleted);
+    internal async Task CleanUpFolders(bool onlyMarkedAsDeleted = true) {
+        var deletedFolders = onlyMarkedAsDeleted ? await _folderStore.GetList(f => f.IsDeleted) : await _folderStore.GetList();
         if (deletedFolders is null) {
             return;
         }
