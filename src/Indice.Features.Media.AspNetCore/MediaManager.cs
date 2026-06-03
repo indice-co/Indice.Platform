@@ -301,11 +301,17 @@ public class MediaManager(
                 }
             }
         }
-        await CleanUpFiles(onlyMarkedAsDeleted: false);
+        await CleanUpFiles();
 
+        var existingFilePaths = (await _fileStore.GetList(f => !f.IsDeleted))
+            .Select(f => f.Path)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
         var filesToStore = new List<DbMediaFile>();
         foreach (var file in storageFilePaths) {
             var filePath = file.Replace('\\', '/').Substring(file.StartsWith("/media") ? 6 : 0);
+            if (existingFilePaths.Contains(filePath)) {
+                continue;
+            }
             var folderPath = Path.GetDirectoryName(filePath)?.Replace('\\', '/') + '/';
             var parentId = dbFolders.FirstOrDefault(f => f.Path == folderPath)?.Id;
             var metadata = await _fileService.GetPropertiesAsync(file);
@@ -321,7 +327,9 @@ public class MediaManager(
                 FileExtension = Path.GetExtension(file),
             });
         }
-        await _fileStore.CreateMany(filesToStore, normalizePath: false);
+        if (filesToStore.Count > 0) {
+            await _fileStore.CreateMany(filesToStore, normalizePath: false);
+        }
         await _cache.RemoveAsync(STRUCT_CACHE_KEY);
     }
 
