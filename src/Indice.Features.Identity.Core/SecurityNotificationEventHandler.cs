@@ -33,7 +33,7 @@ public class SecurityNotificationEventHandler : IPlatformEventHandler<SecurityNo
     public SecurityNotificationEventHandler(IEmailService emailService, IdentityMessageDescriber messageDescriber, IConfiguration configuration) {
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         _messageDescriber = messageDescriber;
-        _disableSecurityNotification = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.User)}", "DisableSecurityNotifications") ?? false;
+        _disableSecurityNotification = configuration.GetSection("IdentityServer").GetValue<bool?>("DisableSecurityNotifications") ?? false;
     }
 
     /// <inheritdoc/>
