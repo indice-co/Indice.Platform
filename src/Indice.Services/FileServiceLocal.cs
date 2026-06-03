@@ -100,7 +100,7 @@ public class FileServiceLocal : IFileService
     private static bool GuardExists(string path, bool isDirectory = false, bool throwOnError = true) {
         var exists = isDirectory ? Directory.Exists(path) : File.Exists(path);
         if (!exists && throwOnError) {
-            throw new Exception($"file or directory '{path}' not found.");
+            throw new FileNotFoundServiceException($"file or directory '{path}' not found.");
         }
         return exists;
     }

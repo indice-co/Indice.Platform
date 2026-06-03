@@ -270,7 +270,7 @@ public class MediaManager(
         // 0. Get all file paths from the storage.
         var storageFilePaths = await _fileService.SearchAsync("media");
         var dbFolders = await _folderStore.GetList(f => !f.IsDeleted);
-        var storageFolders = storageFilePaths.Select(p => Path.GetDirectoryName(p)?.Replace('\\', '/').Substring(p.StartsWith("/media") ? 6 : 0)).Where(p => !string.IsNullOrEmpty(p)).Distinct().ToList();
+        var storageFolders = storageFilePaths.Select(p => Path.GetDirectoryName(p)?.Replace('\\', '/').Substring(p.StartsWith("/media") ? 6 : 0) + '/').Where(p => !string.IsNullOrEmpty(p)).Distinct().ToList();
         var newFolders = storageFolders.Except(dbFolders.Select(f => f.Path)).FilterOutNulls().ToList();
         // 1. merge folder structure with existing database folder structure.
         // 2. Then clear all existing files in the database that are not in the storage,
@@ -361,7 +361,7 @@ public class MediaManager(
         foreach (var deletedFile in deletedFiles) {
             try {
                 await _fileService.DeleteAsync(deletedFile.Path);
-            } catch (Exception) {
+            } catch (FileNotFoundServiceException) {
                 // ignore
             } finally {
                 await _fileStore.Delete(deletedFile.Id);
