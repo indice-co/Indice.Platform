@@ -1,25 +1,19 @@
 ﻿using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Indice.AspNetCore.Features.Recaptcha;
 using Indice.Features.Identity.Core;
-using Indice.Features.Identity.Core.Events;
-using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Features.Identity.UI;
-using Indice.Features.Identity.UI.EventHandlers;
 using Indice.Features.Identity.UI.Localization;
 using Indice.Features.Identity.UI.Telemetry;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 
 
 #if NET9_0_OR_GREATER
