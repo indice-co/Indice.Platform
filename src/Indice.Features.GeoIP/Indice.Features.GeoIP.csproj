@@ -13,6 +13,9 @@
     <EmbeddedResource Include="GeoLite2\GeoLite2-Country.mmdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="GeoLite2\GeoLite2-ASN.mmdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
