@@ -62,6 +62,7 @@ public class OpenApiTests : IAsyncLifetime
                     services.AddOpenApi("tests", options => options.AddDocumentInfo().ControllerActionAsOperationId());
                     services.AddOpenApi("nullables", options => options.AddDocumentInfo().ControllerActionAsOperationId());
                     services.AddOpenApi("ignore-openapi", options => options.AddDocumentInfo().ControllerActionAsOperationId());
+                    services.AddOpenApi("uploads", options => options.AddDocumentInfo().ControllerActionAsOperationId());
                     services.AddEndpointsApiExplorer();
                     services.AddControllers().ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new OpenApiTestFeatureProvider()));
                 });
@@ -71,6 +72,7 @@ public class OpenApiTests : IAsyncLifetime
                         e.MapTestEndpoints();
                         e.MapNullableTestEndpoints();
                         e.MapIgnoreAttributeEndpoints();
+                        e.MapUploadsEndpoints();
                         e.MapControllers();
                         e.MapOpenApi();
                     });
@@ -223,6 +225,21 @@ public class OpenApiTests : IAsyncLifetime
         Assert.Equal(expectedSchema, schema!.ToJsonString());
         Assert.Equal(expectedNestedSchema, nestedSchema!.ToJsonString());
     }
+
+    [Fact]
+    public async Task OpenApiHandlesUploads() {
+        var openApi = await _httpClient.GetStringAsync("openapi/uploads.json");
+        Assert.NotEmpty(openApi);
+
+        var json = JsonNode.Parse(openApi);
+        var singleSchema = json!["components"]!["schemas"]!["UploadFileRequest"];
+        var expectedSingleSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"oneOf\":[{\"type\":\"null\"},{\"$ref\":\"#/components/schemas/FileParam\"}]},\"name\":{\"type\":\"string\"},\"description\":{\"type\":[\"null\",\"string\"]}},\"additionalProperties\":false}";
+        var multiSchema = json!["components"]!["schemas"]!["UploadMultiFileRequest"];
+        var expectedMultiSchema = "{\"type\":\"object\",\"properties\":{\"file\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/IFormFile\"}},\"description\":{\"type\":[\"null\",\"string\"]}},\"additionalProperties\":false}";
+
+        Assert.Equal(expectedSingleSchema, singleSchema!.ToJsonString());
+        Assert.Equal(expectedMultiSchema, multiSchema!.ToJsonString());
+    }
 }
 #endif
 
@@ -240,6 +257,11 @@ public class OpenApiTestsModels
     {
         public IFormFile? File { get; set; }
         public string Name { get; set; } = null!;
+        public string? Description { get; set; }
+    }
+    public class UploadMultiFileRequest
+    {
+        public IFormFileCollection File { get; set; } = null!;
         public string? Description { get; set; }
     }
     public class AttachmentLink
@@ -490,6 +512,19 @@ public static class OpenApiTestsEndpoints
 
         return routes;
     }
+    public static IEndpointRouteBuilder MapUploadsEndpoints(this IEndpointRouteBuilder routes) {
+        var group = routes.MapGroup("uploads");
+        group.WithGroupName("uploads");
+        group.WithTags("Uploads");
+        group.MapPost("upload-single", UploadSingleAttachment)
+             .WithName(nameof(UploadSingleAttachment))
+             .Accepts<UploadFileRequest>(MediaTypeNames.Multipart.FormData);
+        group.MapPost("upload-multiple", UploadMultipleAttachments)
+             .WithName(nameof(UploadMultipleAttachments))
+             .Accepts<UploadMultiFileRequest>(MediaTypeNames.Multipart.FormData);
+
+        return routes;
+    }
 
     public static Ok<List<MenuItem>> GetMenuItems() {
         var items = new List<MenuItem>
@@ -522,6 +557,17 @@ public static class OpenApiTestsEndpoints
     }
 
     public static Ok<AttachmentLink> UploadAttachment(UploadFileRequest uploadFileRequest) {
+        return TypedResults.Ok(new AttachmentLink {
+            AttachmentId = Guid.Parse("1b62a5f3-f2d2-43be-81f9-572e97862b60")
+        });
+    }
+
+    public static Ok<AttachmentLink> UploadSingleAttachment(UploadFileRequest uploadFileRequest) {
+        return TypedResults.Ok(new AttachmentLink {
+            AttachmentId = Guid.Parse("1b62a5f3-f2d2-43be-81f9-572e97862b60")
+        });
+    }
+    public static Ok<AttachmentLink> UploadMultipleAttachments(UploadMultiFileRequest uploadFileRequest) {
         return TypedResults.Ok(new AttachmentLink {
             AttachmentId = Guid.Parse("1b62a5f3-f2d2-43be-81f9-572e97862b60")
         });

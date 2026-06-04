@@ -75,7 +75,7 @@ public static class MediaApi
 
         group.MapPost("/media/discover", MediaHandlers.Discover)
              .WithName(nameof(MediaHandlers.Discover))
-             .WithSummary("Discovers files in the system that are not tracked in the database and adds them to the media library.");
+             .WithSummary("Discovers files in the system that are not tracked in the database and adds them to the media library. Limited to structure and metadata discovery.");
 
         return builder;
     }

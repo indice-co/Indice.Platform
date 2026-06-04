@@ -263,8 +263,9 @@ public class MediaManager(
     }
 
     /// <summary>Discovers files from persistent storage.</summary>
-    /// <remarks>Used to discover files that exist in the storage but not in the database, and add them to the database.</remarks>
-    public async Task Discover() {
+    /// <remarks>Used to discover files that exist in the storage but not in the database, and add them to the database. 
+    /// This does not involve actual data and is limited to metadata and structure.</remarks>
+    public async Task DiscoverStructure() {
         // discard all files and folders marked as deleted
         await CleanUpFolders();
         // 0. Get all file paths from the storage.
@@ -281,6 +282,7 @@ public class MediaManager(
             var pathSegments = folder.Split('/', StringSplitOptions.RemoveEmptyEntries);
             Guid? parentId = null;
             currentPathBuilder.Clear();
+            currentPathBuilder.Append('/');
             foreach (var segment in pathSegments) {
                 var cacheKey = $"{CONTENT_CACHE_KEY}_{(parentId.HasValue ? parentId.Value : "root")}";
                 await _cache.RemoveAsync(cacheKey);

@@ -99,7 +99,7 @@ internal static class MediaHandlers
     }
 
     internal static async Task<NoContent> Discover(MediaManager mediaManager) {
-        await mediaManager.Discover();
+        await mediaManager.DiscoverStructure();
         return TypedResults.NoContent();
     }
 }

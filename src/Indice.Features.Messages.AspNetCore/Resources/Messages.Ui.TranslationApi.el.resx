@@ -2207,4 +2207,7 @@
   <data name="Settings.SortCreatedAtOption" xml:space="preserve">
     <value>Δημιουργήθηκε</value>
   </data>
+  <data name="MediaLibrary.DiscoverStructureTitle" xml:space="preserve">
+    <value>Συγχρονισμός δομής στη βάση δεδομένων</value>
+  </data>
 </root>
