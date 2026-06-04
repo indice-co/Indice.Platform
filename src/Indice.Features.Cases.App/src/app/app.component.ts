@@ -1,4 +1,3 @@
-import { TranslateService } from '@ngx-translate/core';
 import { Component } from '@angular/core';
 import { settings } from './core/models/settings';
 
@@ -17,9 +16,8 @@ import { settings } from './core/models/settings';
   standalone: false
 })
 export class AppComponent {
+  // Fallback language for missing keys is configured via `fallbackLang: 'en'` in
+  // provideTranslateService (app.module.ts). The active language is selected by AppLanguagesService
+  // (provided via APP_LANGUAGES) from the user's OIDC locale.
   settings = settings;
-
-  constructor(translate: TranslateService) {
-    translate.setDefaultLang('el');
-  }
 }

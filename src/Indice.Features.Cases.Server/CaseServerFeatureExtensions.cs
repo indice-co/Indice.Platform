@@ -7,6 +7,7 @@ using Indice.Features.Cases.Server.Endpoints;
 using Indice.Features.Cases.Server.Endpoints.Validators;
 using Indice.Features.Cases.Server.Integration;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -79,7 +80,15 @@ public static class CaseServerFeatureExtensions
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessMemberHandler>();
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessOwnerHandler>();
         builder.Services.AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>();
-        
+        // Client side UI translations served as a JSON graph from the embedded resx files.
+        builder.Services.AddTranslationGraph(options => {
+            options.DefaultTranslationsBaseName = "Cases.Ui.TranslationApi";
+            options.DefaultTranslationsLocation = "Indice.Features.Cases.Server";
+            options.DefaultEndpointRoutePattern = serverOptions.PathPrefix.Value!.TrimEnd('/') + "/cases-i18n.{lang:culture}.json";
+            options.AvailableLanguagesRoutePattern = serverOptions.PathPrefix.Value!.TrimEnd('/') + "/languages";
+            options.ConfigureCachePolicy = policy => policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag();
+        });
+
         return builder;
     }
 
@@ -103,6 +112,8 @@ public static class CaseServerFeatureExtensions
         routes.MapLookup();
         routes.MapAdminAccessRules();
         routes.MapIntegration();
+        // UI translations (resx -> JSON graph) + available languages.
+        routes.MapTranslationGraph();
         return routes;
     }
 }

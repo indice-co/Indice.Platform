@@ -1,8 +1,8 @@
 import { JsonSchemaFormModule } from '@ajsf-extended/core';
 import { CommonModule } from '@angular/common';
-import { HTTP_INTERCEPTORS, HttpClient, withInterceptors, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, withInterceptors, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
-import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
+import { APP_LANGUAGES, APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
 import { AppComponent } from './app.component';
 import { AppLinks } from './app.links';
 import { AppRoutingModule } from './app-routing.module';
@@ -16,13 +16,14 @@ import { SharedModule } from './shared/shared.module';
 import { NotificationsModule } from './features/notifications/notifications.module';
 import { CaseTypesModule } from './features/case-types/case-types.module';
 import { AcceptLanguageHttpInterceptor } from './core/services/accept-language-http-interceptor.service';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateModule, provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CaseTypeService } from './core/services/case-type.service';
 import { FormsModule } from '@angular/forms';
 import { AUTH_SETTINGS, AuthHttpInterceptor, AuthService, IndiceAuthModule } from '@indice/ng-auth';
 import { NgModule } from '@angular/core';
 import { CasesModule } from './features/cases/cases.module';
+import { AppLanguagesService } from './shared/services/app-languages.service';
 import { NgProgressbar } from 'ngx-progressbar';
 import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
 
@@ -45,13 +46,11 @@ import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
         JsonSchemaFormModule,
         NgProgressbar,
         NgProgressHttp,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient]
-            }
-        })], providers: [
+        TranslateModule.forRoot()], providers: [
+        provideTranslateService({
+            loader: provideTranslateHttpLoader({ prefix: `${app.settings.api_url}/cases-i18n.`, useHttpBackend: true }),
+            fallbackLang: 'en'
+        }),
         ModalService,
         AuthService,
         CasesApiService,
@@ -60,16 +59,9 @@ import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
         { provide: CASES_API_BASE_URL, useFactory: () => app.settings.api_url },
         { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: AcceptLanguageHttpInterceptor, multi: true },
+        { provide: APP_LANGUAGES, useClass: AppLanguagesService },
         { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
         provideHttpClient(withInterceptors([progressInterceptor])),
         provideHttpClient(withInterceptorsFromDi())
     ] })
 export class AppModule { }
-
-export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
-    let assets = app.settings.i18n_assets;
-    if (!assets.endsWith('/')) {
-        assets += '/';
-    }
-    return new TranslateHttpLoader(http, assets, '.json');
-}
