@@ -417,14 +417,14 @@
   <data name="AccountLockedEventDescription" xml:space="preserve">
     <value>Ihr Konto wurde aufgrund mehrerer fehlgeschlagener Anmeldeversuche vorübergehend gesperrt. Diese Sperre ist eine Sicherheitsmaßnahme zum Schutz Ihrer Informationen. Bitte versuchen Sie es später erneut.</value>
   </data>
+  <data name="PasswordChangedEventDescription" xml:space="preserve">
+    <value>Ihr Passwort wurde erfolgreich geändert.</value>
+  </data>
   <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
     <value>Zwei-Faktor-Authentifizierungsmethode geändert</value>
   </data>
   <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
     <value>Ihre Zwei-Faktor-Authentifizierungsmethode wurde aktualisiert auf: {0}.</value>
-  </data>
-  <data name="PasswordChangedEventDescription" xml:space="preserve">
-    <value>Ihr Passwort wurde erfolgreich geändert.</value>
   </data>
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
     <value>Bitte wählen Sie Ihr neues Passwort, um fortzufahren.</value>
@@ -486,13 +486,16 @@
   <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
     <value>Erhalten Sie eine Push-Benachrichtigung über ein vertrauenswürdiges Gerät.</value>
   </data>
+  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
+    <value>Das Feld 'Zeitzone' hat ein ungültiges Format.</value>
+  </data>
   <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
     <value>Wiederherstellungscode-Verifizierung</value>
   </data>
   <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
     <value>Sie haben die Anmeldung mit einem Wiederherstellungscode angefordert. Diese Anmeldung wird erst gespeichert, wenn Sie eine MFA-Methode angeben.</value>
   </data>
-  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
-    <value>Das Feld 'Zeitzone' hat ein ungültiges Format.</value>
+  <data name="MfaTokenNotExpired" xml:space="preserve">
+    <value>Ihr aktueller Code ist noch nicht abgelaufen. Bitte warten Sie, bevor Sie einen neuen anfordern.</value>
   </data>
 </root>

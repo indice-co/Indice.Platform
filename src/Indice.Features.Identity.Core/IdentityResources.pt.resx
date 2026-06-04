@@ -417,14 +417,14 @@
   <data name="AccountLockedEventDescription" xml:space="preserve">
     <value>A sua conta foi temporariamente bloqueada devido a múltiplas tentativas de login falhadas. Este bloqueio é uma medida de segurança para proteger as suas informações. Por favor, tente novamente mais tarde.</value>
   </data>
+  <data name="PasswordChangedEventDescription" xml:space="preserve">
+    <value>A sua senha foi alterada com sucesso.</value>
+  </data>
   <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
     <value>Método de autenticação de dois fatores alterado</value>
   </data>
   <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
     <value>O seu método de autenticação de dois fatores foi atualizado para: {0}.</value>
-  </data>
-  <data name="PasswordChangedEventDescription" xml:space="preserve">
-    <value>A sua senha foi alterada com sucesso.</value>
   </data>
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
     <value>Por favor, escolha a sua nova senha para continuar.</value>
@@ -486,13 +486,16 @@
   <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
     <value>Receba uma notificação push por meio de um dispositivo confiável.</value>
   </data>
+  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
+    <value>O campo 'Fuso horário' tem formato inválido.</value>
+  </data>
   <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
     <value>Verificação com código de recuperação</value>
   </data>
   <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
     <value>Você solicitou o login com um código de recuperação. Este login não será lembrado até que você forneça um método MFA.</value>
   </data>
-  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
-    <value>O campo 'Fuso horário' tem formato inválido.</value>
+  <data name="MfaTokenNotExpired" xml:space="preserve">
+    <value>O seu código atual ainda não expirou. Por favor, aguarde antes de solicitar um novo.</value>
   </data>
 </root>

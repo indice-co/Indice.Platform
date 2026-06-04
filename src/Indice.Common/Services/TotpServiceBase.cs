@@ -6,7 +6,7 @@ namespace Indice.Services;
 /// <summary>Base abstract class for creating a TOTP service.</summary>
 public abstract class TotpServiceBase
 {
-    private const int CACHE_EXPIRATION_SECONDS = 30;
+    private const int CACHE_EXPIRATION_SECONDS = 120;
 
     /// <summary>Creates a new instance of <see cref="TotpServiceBase"/>.</summary>
     /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
@@ -77,7 +77,7 @@ public abstract class TotpServiceBase
     protected async Task AddCacheKeyAsync(string cacheKey) {
         var unixTime = DateTimeOffset.UtcNow.AddSeconds(CACHE_EXPIRATION_SECONDS).ToUnixTimeSeconds();
         await ServiceProvider.GetRequiredService<IDistributedCache>().SetStringAsync(cacheKey, unixTime.ToString(), new DistributedCacheEntryOptions {
-            AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(120)
+            AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(CACHE_EXPIRATION_SECONDS)
         });
     }
 

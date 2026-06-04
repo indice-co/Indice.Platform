@@ -520,6 +520,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Last token has not expired yet. Please wait a few seconds and try again..
+        /// </summary>
+        internal static string MfaTokenNotExpired {
+            get {
+                return ResourceManager.GetString("MfaTokenNotExpired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The OTP code is not valid..
         /// </summary>
         internal static string MfaValidationError {
