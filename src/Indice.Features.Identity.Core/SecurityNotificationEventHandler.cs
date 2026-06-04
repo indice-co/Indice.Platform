@@ -1,12 +1,13 @@
 ﻿using Indice.Events;
-using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Localization;
 using Indice.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
-namespace Indice.Features.Identity.UI.EventHandlers;
+namespace Indice.Features.Identity.Core;
 
 /// <summary>
 /// Handles security notification events by processing the event data and sending notifications.
@@ -18,22 +19,28 @@ public class SecurityNotificationEventHandler : IPlatformEventHandler<SecurityNo
 {
     private readonly IEmailService _emailService;
     private readonly IdentityMessageDescriber _messageDescriber;
+    private readonly bool? _disableSecurityNotification;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SecurityNotificationEventHandler"/> class.
     /// </summary>
     /// <param name="emailService">The email service used to send security notifications. This parameter cannot be <see langword="null"/>.</param>
     /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
+    /// <param name="configuration">The configuration used to retrieve identity options.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="emailService"/> is <see langword="null"/>.</exception>
 
 
-    public SecurityNotificationEventHandler(IEmailService emailService, IdentityMessageDescriber messageDescriber) {
+    public SecurityNotificationEventHandler(IEmailService emailService, IdentityMessageDescriber messageDescriber, IConfiguration configuration) {
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         _messageDescriber = messageDescriber;
+        _disableSecurityNotification = configuration.GetSection("IdentityServer").GetValue<bool?>("DisableSecurityNotifications") ?? false;
     }
 
     /// <inheritdoc/>
     public async Task Handle(SecurityNotificationEvent @event, PlatformEventArgs args) {
+        if (_disableSecurityNotification == true) {
+            return;
+        }
         if (string.IsNullOrWhiteSpace(@event.User.Email)) {
             return; // No email to send notification to.
         }

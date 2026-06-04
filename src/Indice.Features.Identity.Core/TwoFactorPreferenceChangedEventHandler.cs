@@ -9,7 +9,6 @@ using IdentityServer4.Stores;
 #endif
 using System.Security.Claims;
 using Indice.Events;
-using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Events.Models;
@@ -20,7 +19,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 
 
-namespace Indice.Features.Identity.UI.EventHandlers;
+namespace Indice.Features.Identity.Core;
 
 /// <summary>Handles <see cref="TwoFactorPreferenceChangedEvent"/> by sending an email notification to the user.</summary>
 public class TwoFactorPreferenceChangedEventHandler : IPlatformEventHandler<TwoFactorPreferenceChangedEvent>
