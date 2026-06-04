@@ -104,7 +104,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
             //TODO: this should not be needed - we assign this so its available for the async calls
             this.caseTypes = caseTypes;
             const tempSearchOptions: SearchOption[] = [];
-            if (this.tableFilters.OwnerId) {
+            if (this.tableFilters.ReferenceNumber) {
                 tempSearchOptions.push({
                     field: 'referenceNumber',
                     name: 'ΑΡΙΘΜΟΣ ΥΠΟΘΕΣΗΣ',

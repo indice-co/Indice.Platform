@@ -2171,8 +2171,6 @@ user_code_2</value>
   <data name="Breadcrumb.DeliveryInformation" xml:space="preserve">
     <value>Delivery Information</value>
   </data>
-  
-  
   <data name="Breadcrumb.MessageTypes" xml:space="preserve">
     <value>Message Types</value>
   </data>
@@ -2208,5 +2206,9 @@ user_code_2</value>
   </data>
   <data name="Settings.SortCreatedAtOption" xml:space="preserve">
     <value>Created</value>
+  </data>
+  <data name="MediaLibrary.DiscoverStructureTitle" xml:space="preserve">
+    <value>Discover storage structure</value>
+    <comment>Icon title for button Used to load structure form storage to database</comment>
   </data>
 </root>
