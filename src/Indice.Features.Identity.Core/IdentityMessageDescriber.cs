@@ -109,6 +109,8 @@ public class IdentityMessageDescriber
     /// <summary>Forgot password confirmation error</summary>
     public virtual string ForgotPasswordConfirmationError => IdentityResources.ForgotPasswordConfirmationError;
 
+    /// <summary>MFA token not expired message</summary>
+    public virtual string MfaTokenNotExpired => IdentityResources.MfaTokenNotExpired;
     /// <summary>Login page validation invalid credentials error</summary>
     public virtual string LoginValidationInvalidCredentials => IdentityResources.LoginValidationInvalidCredentials;
     /// <summary>Mfa onboarding AddPhone Validation Phone Empty</summary>

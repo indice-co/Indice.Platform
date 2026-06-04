@@ -417,14 +417,14 @@
   <data name="AccountLockedEventDescription" xml:space="preserve">
     <value>Votre compte a ete temporairement verrouille en raison de plusieurs tentatives de connexion infructueuses. Ce verrouillage est une mesure de securite pour proteger vos informations. Veuillez reessayer plus tard.</value>
   </data>
+  <data name="PasswordChangedEventDescription" xml:space="preserve">
+    <value>Votre mot de passe a ete modifie avec succes.</value>
+  </data>
   <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
     <value>Méthode d'authentification à deux facteurs modifiée</value>
   </data>
   <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
     <value>Votre méthode d'authentification à deux facteurs a été mise à jour : {0}.</value>
-  </data>
-  <data name="PasswordChangedEventDescription" xml:space="preserve">
-    <value>Votre mot de passe a ete modifie avec succes.</value>
   </data>
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
     <value>Veuillez choisir votre nouveau mot de passe pour continuer.</value>
@@ -486,13 +486,16 @@
   <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
     <value>Recevoir une notification push via un appareil de confiance.</value>
   </data>
+  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
+    <value>Le champ 'Fuseau horaire' a un format invalide.</value>
+  </data>
   <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
     <value>Vérification par code de récupération</value>
   </data>
   <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
     <value>Vous avez demandé à vous connecter avec un code de récupération. Cette connexion ne sera pas mémorisée tant que vous ne fournirez pas une méthode MFA.</value>
   </data>
-  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
-    <value>Le champ 'Fuseau horaire' a un format invalide.</value>
+  <data name="MfaTokenNotExpired" xml:space="preserve">
+    <value>Votre code actuel n'a pas encore expiré. Veuillez patienter avant d'en demander un nouveau.</value>
   </data>
 </root>
