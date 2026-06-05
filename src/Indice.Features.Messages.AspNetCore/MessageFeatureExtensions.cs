@@ -93,20 +93,7 @@ public static class MessageFeatureExtensions
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
         // Register framework services.
         services.AddHttpContextAccessor();
-        // Register events.
         services.TryAddSingleton<MediaBaseHrefResolver>();
-        services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
-        services.TryAddTransient<IContactService, ContactService>();
-        services.TryAddTransient<ITemplateService, TemplateService>();
-        services.TryAddTransient<IPartialTemplateResolverFactory, DbBackedPartialTemplateResolverFactory>();
-        services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
-        services.TryAddTransient<NotificationsManager>();
-        services.TryAddTransient<IDistributionListService, DistributionListService>();
-        services.TryAddTransient<ICampaignService, CampaignService>();
-        services.TryAddTransient<IMessageTypeService, MessageTypeService>();
-        services.TryAddTransient<IMessageSenderService, MessageSenderService>();
-        services.TryAddTransient<CreateCampaignRequestValidator>();
-        services.TryAddTransient<CreateMessageTypeRequestValidator>();
         return services;
     }
 
@@ -161,21 +148,20 @@ public static class MessageFeatureExtensions
                 options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
         });
-        // Post configure Swagger options.
-        //services.PostConfigure<SwaggerGenOptions>(options => {
-        //    var enumFlagsSchemaFilterExists = options.SchemaFilterDescriptors.Any(x => x.Type == typeof(EnumFlagsSchemaFilter));
-        //    if (!enumFlagsSchemaFilterExists) {
-        //        options.SchemaFilter<EnumFlagsSchemaFilter>();
-        //    }
-        //});
         // Register validators.
         services.AddValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>();
+        services.TryAddTransient<CreateCampaignRequestValidator>();
+        services.TryAddTransient<CreateMessageTypeRequestValidator>();
         // Register framework services.
         services.AddResponseCaching();
         services.AddOutputCache();
         services.AddEndpointParameterFluentValidation(typeof(UpdateMessageTypeRequestValidator).Assembly);
         // Register custom services.
+        services.TryAddTransient<IContactService, ContactService>();
+        services.TryAddTransient<ITemplateService, TemplateService>();
         services.TryAddTransient<ICampaignService, CampaignService>();
+        services.TryAddTransient<IPartialTemplateResolverFactory, DbBackedPartialTemplateResolverFactory>();
+        services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
         services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<IDistributionListService, DistributionListService>();
@@ -185,7 +171,8 @@ public static class MessageFeatureExtensions
         services.TryAddScoped<UserNameAccessorAggregate>();
         services.TryAddTransient<IFileService, FileServiceNoop>();
         services.TryAddTransient<IFileServiceFactory, DefaultFileServiceFactory>();
-        services.TryAddTransient<IContactResolver, ContactResolverNoop>();
+        services.TryAddTransient<IContactResolver, ContactResolverNoop>(); 
+        services.TryAddTransient<NotificationsManager>();
         services.AddEventDispatcherNoop();
         services.AddFilesNoop();
         // Register application DbContext.
