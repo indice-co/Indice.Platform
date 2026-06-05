@@ -94,9 +94,6 @@ public static class MessageFeatureExtensions
         // Register framework services.
         services.AddHttpContextAccessor();
         services.TryAddSingleton<MediaBaseHrefResolver>();
-        // Register Validators.
-        services.TryAddTransient<CreateCampaignRequestValidator>();
-        services.TryAddTransient<CreateMessageTypeRequestValidator>();
         return services;
     }
 
