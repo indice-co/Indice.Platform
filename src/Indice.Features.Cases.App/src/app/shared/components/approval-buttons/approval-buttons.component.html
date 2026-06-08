@@ -4,13 +4,13 @@
     <hr class="mb-3">
     <div class="col-span-4">
       <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2">
-        Απόφαση Υπόθεσης
+        {{ 'modals.approval.title' | translate }}
       </h3>
       <lib-toggle-button id="inbox"
         [value]="true"
         (valueChange)="onToggleButtonChange()"
-        [text-true]="'Η υπόθεση θα εγκριθεί!'"
-        [text-false]="'Η υπόθεση θα απορριφθεί!'">
+        [text-true]="'modals.approval.willApprove' | translate"
+        [text-false]="'modals.approval.willReject' | translate">
       </lib-toggle-button>
     </div>
     @if (rejectionOptions$ | async; as rejectionOptions) {
@@ -22,7 +22,7 @@
               [options]="rejectionOptions"
               [(value)]="selectedRejectReason"
               (valueChange)="onOptionChange($event)"
-            title="Αιτιολογία Απόρριψης"></lib-radio-buttons-list>
+            [title]="'modals.approval.rejectionReason' | translate"></lib-radio-buttons-list>
           </div>
         </div>
       }
@@ -30,13 +30,13 @@
     @if ((caseTypeConfig?.commentsEnabled ?? true) && !approveButtonDisabled) {
       <div>
         <label for="comment-textarea"
-        class="field-label">Σχόλιο</label>
+        class="field-label">{{ 'common.comment' | translate }}</label>
         <div class="my-2 flex rounded-sm">
           <textarea id="comment-textarea"
             name="comment-textarea"
             [(ngModel)]="comment"
             rows="3"
-          placeholder="Προαιρετικό σχόλιο..."></textarea>
+          [placeholder]="'modals.approval.commentPlaceholder' | translate"></textarea>
         </div>
       </div>
     }
@@ -44,20 +44,20 @@
       <button href="#"
         class="btn-success mr-1"
         [ngClass]="{'opacity-50 cursor-not-allowed': formValid === false || approveButtonDisabled === true || buttonsDisabled === true}"
-        title="Έγκριση Υπόθεσης"
+        [title]="'modals.approval.approveTooltip' | translate"
         (click)="approveCase()"
         [disabled]="!formValid || approveButtonDisabled || buttonsDisabled">
-        <p>Έγκριση</p>&nbsp;
+        <p>{{ 'modals.approval.approve' | translate }}</p>&nbsp;
         <i class="ms-Icon ms-Icon--Accept"></i>
       </button>
       <button type="button"
         href="#"
         class="btn-error"
         [ngClass]="{'opacity-50 cursor-not-allowed': approveButtonDisabled === false || buttonsDisabled === true}"
-        title="Απόρριψη Υπόθεσης"
+        [title]="'modals.approval.rejectTooltip' | translate"
         (click)="rejectCase()"
         [disabled]="!approveButtonDisabled || buttonsDisabled">
-        <p>Απόρριψη</p>&nbsp;
+        <p>{{ 'modals.approval.reject' | translate }}</p>&nbsp;
         <i class="ms-Icon ms-Icon--Cancel"></i>
       </button>
     </div>

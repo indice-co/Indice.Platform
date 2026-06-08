@@ -1,10 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MenuOption, ToasterService, ToastType, ModalService } from '@indice/ng-components';
+import { MenuOption, ToastType, ModalService } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { Approval, ApprovalRequest, CasesApiService, RejectReason } from 'src/app/core/services/cases-api.service';
 import { CaseWarningModalComponent } from 'src/app/shared/components/case-warning-modal/case-warning-modal.component';
+import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 
 @Component({
     selector: 'app-approval-buttons',
@@ -28,7 +29,7 @@ export class ApprovalButtonsComponent implements OnInit {
   selectedRejectReason = '';
 
   constructor(
-    private _toaster: ToasterService,
+    private _toaster: TranslatedToasterService,
     private _api: CasesApiService,
     private router: Router,
     private modalService: ModalService
@@ -56,7 +57,7 @@ export class ApprovalButtonsComponent implements OnInit {
       return;
     }
     if (this.formUnSavedChanges) {
-      this._toaster.show(ToastType.Success, 'Έχετε μη αποθηκευμένες αλλαγές!', `Παρακαλούμε αποθηκεύστε τις αλλαγές σας`, 5000);
+      this._toaster.show(ToastType.Success, 'toasts.unsavedChanges.title', 'toasts.unsavedChanges.body', 5000);
       return;
     }
     if (this.showWarningModal) {
@@ -85,13 +86,13 @@ export class ApprovalButtonsComponent implements OnInit {
     this._api.submitApproval(this.caseId!, approvalRequest)
       .subscribe(_ => {
         if (action === 'Approve') {
-          this._toaster.show(ToastType.Success, undefined, `Η υπόθεση εγκρίθηκε.`, 5000);
+          this._toaster.show(ToastType.Success, undefined, 'toasts.caseApproved', 5000);
         } else {
-          this._toaster.show(ToastType.Success, undefined, `Η υπόθεση απορρίφθηκε.`, 5000);
+          this._toaster.show(ToastType.Success, undefined, 'toasts.caseRejected', 5000);
         }
         this.router.navigate(['/cases']);
       }, _ => {
-        this._toaster.show(ToastType.Error, 'Αποτυχία Επεξεργασίας', `Δεν κατέστη εφικτή η επεξεργασία της υπόθεσης.`, 5000);
+        this._toaster.show(ToastType.Error, 'toasts.caseDecisionError.title', 'toasts.caseDecisionError.body', 5000);
         this.router.navigate(['/cases']);
       });
   }

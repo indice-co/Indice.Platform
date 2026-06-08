@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { IAppLanguagesService, MenuOption } from '@indice/ng-components';
-import { catchError, map, Observable, of, Subject, take, tap } from 'rxjs';
+import { catchError, map, Observable, of, startWith, Subject, take, tap } from 'rxjs';
 import { AuthService } from '@indice/ng-auth';
 import { HttpBackend, HttpClient } from '@angular/common/http';
 import { CASES_API_BASE_URL } from '../../core/services/cases-api.service';
@@ -86,6 +86,16 @@ export class AppLanguagesService implements IAppLanguagesService {
 
   public translateKey(key?: string, parameters?: any): Observable<string> {
     return this.translate.stream(key || '', parameters);
+  }
+
+  /**
+   * Emits once immediately, then again on every language change (including the initial
+   * language load). Subscribe to this in a component to rebuild any labels that are produced
+   * from TypeScript via {@link TranslateService.instant}, so they re-translate live when the
+   * user switches language without a page reload.
+   */
+  public onLanguageChange(): Observable<LangChangeEvent | null> {
+    return this.translate.onLangChange.pipe(startWith(null));
   }
 
   ngOnDestroy(): void {

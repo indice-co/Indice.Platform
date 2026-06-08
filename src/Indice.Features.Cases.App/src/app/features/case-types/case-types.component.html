@@ -1,17 +1,17 @@
-<lib-view-layout title="Λίστα Τύπων Υποθέσεων"
+<lib-view-layout [title]="'caseTypes.title' | translate"
   [busy]="!items"
   [actions]="formActions"
   [meta-items]="metaItems">
   <lib-list-view [items]="items"
     [count]="count"
     [busy]="!items">
-    <lib-list-column title="ΤΙΤΛΟΣ">
+    <lib-list-column [title]="'caseTypes.column.title' | translate">
       <ng-template let-item>{{ item.title }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="ΚΩΔΙΚΟΣ">
+    <lib-list-column [title]="'caseTypes.column.code' | translate">
       <ng-template let-item>{{ item.code }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="ΕΤΙΚΕΤΕΣ">
+    <lib-list-column [title]="'caseTypes.column.tags' | translate">
       <ng-template let-item>
         @if (item.tags) {
           @for (tag of item.tags.split(','); track tag) {
@@ -21,21 +21,21 @@
         }
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+    <lib-list-column [title]="'caseTypes.column.actions' | translate">
       <ng-template let-item>
         <a href="#"
           [routerLinkActive]="['nav-link-profile-active']"
           [routerLinkActiveOptions]="{ exact: true }"
           [routerLink]="[item.id + '/edit']"
           class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
-          <span>Επεξεργασία</span>
+          <span>{{ 'common.edit' | translate }}</span>
         </a>
         &nbsp;
         <a href="#"
           [routerLink]=""
           (click)="openModal(item.id)"
           class="bg-red-600 hover:bg-red-800 cursor-pointer text-white font-bold p-2 inline-flex rounded text-xs">
-          <span>Διαγραφή</span>
+          <span>{{ 'common.delete' | translate }}</span>
         </a>
       </ng-template>
     </lib-list-column>

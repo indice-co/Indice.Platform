@@ -1,4 +1,4 @@
-<lib-view-layout title="Καλώς ήλθατε, {{ user?.profile?.name }}!"
+<lib-view-layout [title]="'dashboard.welcome' | translate:{ name: user?.profile?.name }"
   [meta-items]="metaItems">
   <div class="cards-deck-1 mb-4">
     <div class="grid grid-cols-3 gap-x-5 gap-y-0">

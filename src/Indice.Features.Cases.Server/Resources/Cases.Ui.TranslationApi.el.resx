@@ -213,4 +213,334 @@
   <data name="caseDetails.userCustomerId" xml:space="preserve">
     <value>ΑΠ Χρήστη</value>
   </data>
+  <data name="common.save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="common.cancel" xml:space="preserve">
+    <value>Ακύρωση</value>
+  </data>
+  <data name="common.delete" xml:space="preserve">
+    <value>Διαγραφή</value>
+  </data>
+  <data name="common.edit" xml:space="preserve">
+    <value>Επεξεργασία</value>
+  </data>
+  <data name="common.return" xml:space="preserve">
+    <value>Επιστροφή</value>
+  </data>
+  <data name="common.apply" xml:space="preserve">
+    <value>Εφαρμογή</value>
+  </data>
+  <data name="common.search" xml:space="preserve">
+    <value>Αναζήτηση</value>
+  </data>
+  <data name="common.download" xml:space="preserve">
+    <value>Λήψη</value>
+  </data>
+  <data name="common.yes" xml:space="preserve">
+    <value>Ναι</value>
+  </data>
+  <data name="common.no" xml:space="preserve">
+    <value>Όχι</value>
+  </data>
+  <data name="common.comment" xml:space="preserve">
+    <value>Σχόλιο</value>
+  </data>
+  <data name="common.execute" xml:space="preserve">
+    <value>Εκτέλεση</value>
+  </data>
+  <data name="common.removeAttachment" xml:space="preserve">
+    <value>Αφαίρεση συνημμένου</value>
+  </data>
+  <data name="common.noDocumentSubmitted" xml:space="preserve">
+    <value>Δεν έχει υποβληθεί κάποιο έγγραφο.</value>
+  </data>
+  <data name="home.pleaseWait" xml:space="preserve">
+    <value>παρακαλώ περιμένετε...</value>
+  </data>
+  <data name="dashboard.welcome" xml:space="preserve">
+    <value>Καλώς ήλθατε, {{name}}!</value>
+  </data>
+  <data name="notifications.title" xml:space="preserve">
+    <value>Ειδοποιήσεις</value>
+  </data>
+  <data name="notifications.subscribeHeading" xml:space="preserve">
+    <value>Εγγραφείτε σε συνδρομή ειδοποιήσεων μέσω ηλεκτρονικού ταχυδρομείου</value>
+  </data>
+  <data name="notifications.description" xml:space="preserve">
+    <value>Θα λαμβάνετε e-mail κατά την υποβολή νέων υποθέσεων.</value>
+  </data>
+  <data name="cases.title" xml:space="preserve">
+    <value>Υποθέσεις</value>
+  </data>
+  <data name="cases.saveSearch" xml:space="preserve">
+    <value>Αποθήκευση Αναζήτησης</value>
+  </data>
+  <data name="cases.mySearches" xml:space="preserve">
+    <value>Οι αναζητήσεις μου</value>
+  </data>
+  <data name="cases.noSavedSearches" xml:space="preserve">
+    <value>Δεν έχετε αποθηκευμένες αναζητήσεις!</value>
+  </data>
+  <data name="cases.newCase" xml:space="preserve">
+    <value>Νέα υπόθεση</value>
+  </data>
+  <data name="cases.create.title" xml:space="preserve">
+    <value>Υποβολή Υπόθεσης - Επιλογή τύπου υπόθεσης</value>
+  </data>
+  <data name="cases.searchContact.placeholder" xml:space="preserve">
+    <value>Εισάγετε αριθμό αναφοράς/πελάτη</value>
+  </data>
+  <data name="cases.searchContact.contact" xml:space="preserve">
+    <value>Επαφή</value>
+  </data>
+  <data name="cases.searchContact.referenceNumber" xml:space="preserve">
+    <value>Αριθμός αναφοράς</value>
+  </data>
+  <data name="cases.searchContact.taxId" xml:space="preserve">
+    <value>ΑΦΜ</value>
+  </data>
+  <data name="caseDetails.title" xml:space="preserve">
+    <value>Λεπτομέρειες Υπόθεσης</value>
+  </data>
+  <data name="caseDetails.basicInfo" xml:space="preserve">
+    <value>Βασικά στοιχεία υπόθεσης</value>
+  </data>
+  <data name="caseDetails.customerInfo" xml:space="preserve">
+    <value>Στοιχεία Πελάτη/Επαφής</value>
+  </data>
+  <data name="caseDetails.userInfo" xml:space="preserve">
+    <value>Στοιχεία Χρήστη</value>
+  </data>
+  <data name="caseDetails.form.newCaseInfo" xml:space="preserve">
+    <value>Η υπόθεση μέχρι την τελική της καταχώρηση δεν θα είναι ορατή σε άλλους χρήστες.</value>
+  </data>
+  <data name="caseDetails.form.caseData" xml:space="preserve">
+    <value>Δεδομένα Υπόθεσης</value>
+  </data>
+  <data name="caseDetails.timeline.title" xml:space="preserve">
+    <value>Ιστορικό</value>
+  </data>
+  <data name="caseDetails.timeline.attachment" xml:space="preserve">
+    <value>Επισύναψη Αρχείου</value>
+  </data>
+  <data name="caseDetails.timeline.customer" xml:space="preserve">
+    <value>Πελάτης</value>
+  </data>
+  <data name="caseDetails.timeline.publicStatus" xml:space="preserve">
+    <value>Δημόσιο Status</value>
+  </data>
+  <data name="caseDetails.assignment.assignToMe" xml:space="preserve">
+    <value>Ανάθεση σε εμένα</value>
+  </data>
+  <data name="caseDetails.assignment.info" xml:space="preserve">
+    <value>Εφόσον η υπόθεση ανατεθεί, δε θα μπορεί να διεκπεραιωθεί από άλλον χρήστη του συστήματος.</value>
+  </data>
+  <data name="caseDetails.unassignment.title" xml:space="preserve">
+    <value>Αποδέσμευση υπόθεσης</value>
+  </data>
+  <data name="caseDetails.discardDraft.title" xml:space="preserve">
+    <value>Ακύρωση υπόθεσης</value>
+  </data>
+  <data name="caseDetails.print.title" xml:space="preserve">
+    <value>Κατεβάστε το Pdf της υπόθεσης.</value>
+  </data>
+  <data name="caseDetails.print.info" xml:space="preserve">
+    <value>Ισχύει μόνο για αποθηκευμένες υποθέσεις.</value>
+  </data>
+  <data name="caseDetails.print.button" xml:space="preserve">
+    <value>Pdf υπόθεσης</value>
+  </data>
+  <data name="caseTypes.title" xml:space="preserve">
+    <value>Λίστα Τύπων Υποθέσεων</value>
+  </data>
+  <data name="caseTypes.column.title" xml:space="preserve">
+    <value>ΤΙΤΛΟΣ</value>
+  </data>
+  <data name="caseTypes.column.code" xml:space="preserve">
+    <value>ΚΩΔΙΚΟΣ</value>
+  </data>
+  <data name="caseTypes.column.tags" xml:space="preserve">
+    <value>ΕΤΙΚΕΤΕΣ</value>
+  </data>
+  <data name="caseTypes.column.actions" xml:space="preserve">
+    <value>ΕΝΕΡΓΕΙΕΣ</value>
+  </data>
+  <data name="caseTypes.create.title" xml:space="preserve">
+    <value>Δημιουργία Τύπου Υπόθεσης</value>
+  </data>
+  <data name="caseTypes.edit.title" xml:space="preserve">
+    <value>Επεξεργασία Τύπου Υπόθεσης</value>
+  </data>
+  <data name="caseTypes.delete.title" xml:space="preserve">
+    <value>Διαγραφή Τύπου Υπόθεσης</value>
+  </data>
+  <data name="caseTypes.delete.confirm" xml:space="preserve">
+    <value>Είστε σίγουρος πως θέλετε να διαγράψετε αυτόν τον τύπο υπόθεσης;</value>
+  </data>
+  <data name="caseTypes.form.legend" xml:space="preserve">
+    <value>Τύπος Υπόθεσης</value>
+  </data>
+  <data name="caseTypes.form.code" xml:space="preserve">
+    <value>Κωδικός</value>
+  </data>
+  <data name="caseTypes.form.codePlaceholder" xml:space="preserve">
+    <value>O κωδικός...</value>
+  </data>
+  <data name="caseTypes.form.titleLabel" xml:space="preserve">
+    <value>Τίτλος</value>
+  </data>
+  <data name="caseTypes.form.titlePlaceholder" xml:space="preserve">
+    <value>Ο τίτλος της υπόθεσης...</value>
+  </data>
+  <data name="caseTypes.form.order" xml:space="preserve">
+    <value>Σειρά μέσα στην κατηγορία</value>
+  </data>
+  <data name="caseTypes.form.description" xml:space="preserve">
+    <value>Περιγραφή</value>
+  </data>
+  <data name="caseTypes.form.descriptionPlaceholder" xml:space="preserve">
+    <value>Περιγραφή...</value>
+  </data>
+  <data name="caseTypes.form.translations" xml:space="preserve">
+    <value>Μετάφραση</value>
+  </data>
+  <data name="caseTypes.form.layoutTranslations" xml:space="preserve">
+    <value>Μετάφραση Layout</value>
+  </data>
+  <data name="caseTypes.form.tags" xml:space="preserve">
+    <value>Ετικέτες</value>
+  </data>
+  <data name="caseTypes.form.canCreateRoles" xml:space="preserve">
+    <value>Επιτρεπτοί Ρόλοι για Δημιουργία υπόθεσης (csv χωρίς κενά πχ Role1,Role2)</value>
+  </data>
+  <data name="modals.query.description" xml:space="preserve">
+    <value>Παρακαλώ δώστε μια φιλική ονομασία στην αναζήτησή σας</value>
+  </data>
+  <data name="modals.query.namePlaceholder" xml:space="preserve">
+    <value>Ονομασία Αναζήτησης</value>
+  </data>
+  <data name="modals.deleteQuery.title" xml:space="preserve">
+    <value>Διαγραφή αναζήτησης</value>
+  </data>
+  <data name="modals.deleteQuery.confirm" xml:space="preserve">
+    <value>Θέλετε να διαγράψετε την αναζήτηση;</value>
+  </data>
+  <data name="modals.approval.title" xml:space="preserve">
+    <value>Απόφαση Υπόθεσης</value>
+  </data>
+  <data name="modals.approval.willApprove" xml:space="preserve">
+    <value>Η υπόθεση θα εγκριθεί!</value>
+  </data>
+  <data name="modals.approval.willReject" xml:space="preserve">
+    <value>Η υπόθεση θα απορριφθεί!</value>
+  </data>
+  <data name="modals.approval.rejectionReason" xml:space="preserve">
+    <value>Αιτιολογία Απόρριψης</value>
+  </data>
+  <data name="modals.approval.commentPlaceholder" xml:space="preserve">
+    <value>Προαιρετικό σχόλιο...</value>
+  </data>
+  <data name="modals.approval.approve" xml:space="preserve">
+    <value>Έγκριση</value>
+  </data>
+  <data name="modals.approval.approveTooltip" xml:space="preserve">
+    <value>Έγκριση Υπόθεσης</value>
+  </data>
+  <data name="modals.approval.reject" xml:space="preserve">
+    <value>Απόρριψη</value>
+  </data>
+  <data name="modals.approval.rejectTooltip" xml:space="preserve">
+    <value>Απόρριψη Υπόθεσης</value>
+  </data>
+  <data name="cases.refresh" xml:space="preserve">
+    <value>Ανανέωση στοιχείων</value>
+  </data>
+  <data name="cases.submitNewCase" xml:space="preserve">
+    <value>Υποβολή νέας υπόθεσης</value>
+  </data>
+  <data name="caseDetails.approveWarning.title" xml:space="preserve">
+    <value>Έγκριση υπόθεσης</value>
+  </data>
+  <data name="caseDetails.approveWarning.description" xml:space="preserve">
+    <value>Δεν έχετε τυπώσει το PDF της υπόθεσης, θέλετε να προχωρήσετε στην έγκρισή της;</value>
+  </data>
+  <data name="notifications.otherCategory" xml:space="preserve">
+    <value>ΛΟΙΠΕΣ</value>
+  </data>
+  <data name="validation.required" xml:space="preserve">
+    <value>Υποχρεωτικό Πεδίο.</value>
+  </data>
+  <data name="toasts.success.title" xml:space="preserve">
+    <value>Επιτυχία</value>
+  </data>
+  <data name="toasts.error.title" xml:space="preserve">
+    <value>Whoops!</value>
+  </data>
+  <data name="toasts.saveSuccess.title" xml:space="preserve">
+    <value>Επιτυχής αποθήκευση</value>
+  </data>
+  <data name="toasts.saveSuccess.body" xml:space="preserve">
+    <value>Οι αλλαγές σας αποθηκεύτηκαν με επιτυχία.</value>
+  </data>
+  <data name="toasts.saveError.title" xml:space="preserve">
+    <value>Αποτυχία αποθήκευσης</value>
+  </data>
+  <data name="toasts.saveError.body" xml:space="preserve">
+    <value>Δεν κατέστη εφικτό να αποθηκευτούν οι αλλαγές σας.</value>
+  </data>
+  <data name="toasts.unsavedChanges.title" xml:space="preserve">
+    <value>Έχετε μη αποθηκευμένες αλλαγές!</value>
+  </data>
+  <data name="toasts.unsavedChanges.body" xml:space="preserve">
+    <value>Παρακαλούμε αποθηκεύστε τις αλλαγές σας</value>
+  </data>
+  <data name="toasts.caseApproved" xml:space="preserve">
+    <value>Η υπόθεση εγκρίθηκε.</value>
+  </data>
+  <data name="toasts.caseRejected" xml:space="preserve">
+    <value>Η υπόθεση απορρίφθηκε.</value>
+  </data>
+  <data name="toasts.caseDecisionError.title" xml:space="preserve">
+    <value>Αποτυχία Επεξεργασίας</value>
+  </data>
+  <data name="toasts.caseDecisionError.body" xml:space="preserve">
+    <value>Δεν κατέστη εφικτή η επεξεργασία της υπόθεσης.</value>
+  </data>
+  <data name="toasts.caseSubmitted.title" xml:space="preserve">
+    <value>Επιτυχής Καταχώριση</value>
+  </data>
+  <data name="toasts.caseSubmitted.body" xml:space="preserve">
+    <value>Η αρχική καταχώριση της υπόθεσης ολοκληρώθηκε.</value>
+  </data>
+  <data name="toasts.caseSubmitError.title" xml:space="preserve">
+    <value>Αποτυχία Καταχώρισης</value>
+  </data>
+  <data name="toasts.caseSubmitError.body" xml:space="preserve">
+    <value>Δεν κατέστη εφικτή η καταχώριση της υπόθεσής σας.</value>
+  </data>
+  <data name="toasts.attachmentsError.body" xml:space="preserve">
+    <value>Προέκυψε πρόβλημα κατά την αποθήκευση των εγγράφων.</value>
+  </data>
+  <data name="toasts.caseDiscarded.body" xml:space="preserve">
+    <value>Η υπόθεση έχει ακυρωθεί</value>
+  </data>
+  <data name="toasts.caseTypeCreated.body" xml:space="preserve">
+    <value>Η δημιουργία τύπου υπόθεσης ήταν επιτυχής.</value>
+  </data>
+  <data name="toasts.caseTypeUpdated.body" xml:space="preserve">
+    <value>Η επεξεργασία του τύπου υπόθεσης ήταν επιτυχής</value>
+  </data>
+  <data name="toasts.caseTypeDeleted.body" xml:space="preserve">
+    <value>Η διαγραφή του τύπου υπόθεσης ολοκληρώθηκε</value>
+  </data>
+  <data name="toasts.settingsSaved.body" xml:space="preserve">
+    <value>Οι ρυθμίσεις σας αποθηκεύτηκαν επιτυχώς.</value>
+  </data>
+  <data name="toasts.settingsSaveError.body" xml:space="preserve">
+    <value>Δεν κατέστη εφικτή η αποθήκευση των ρυθμίσεών σας.</value>
+  </data>
+  <data name="toasts.invalidFileType.body" xml:space="preserve">
+    <value>Μη αποδεκτός τύπος αρχείου.</value>
+  </data>
 </root>

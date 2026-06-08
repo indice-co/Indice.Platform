@@ -1,4 +1,4 @@
-<lib-view-layout title="Υποθέσεις {{caseTypeTitle}}"
+<lib-view-layout [title]="('cases.title' | translate) + ' ' + (caseTypeTitle || '')"
   [busy]="!items"
   [actions]="formActions"
   [meta-items]="metaItems"
@@ -9,7 +9,7 @@
       [ngClass]="{'opacity-50 cursor-not-allowed': !queryParamsHasFilter}"
       [disabled]="!queryParamsHasFilter"
       (click)="openQueryModal()">
-    Αποθήκευση Αναζήτησης</button>
+    {{ 'cases.saveSearch' | translate }}</button>
   </div>
   <lib-list-view [items]="items"
     [search-options]="searchOptions"
