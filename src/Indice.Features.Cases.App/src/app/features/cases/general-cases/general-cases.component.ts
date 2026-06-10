@@ -154,7 +154,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
             return;
         }
         const tempSearchOptions: SearchOption[] = [];
-        if (this.tableFilters.OwnerId) {
+        if (this.tableFilters.ReferenceNumber) {
             tempSearchOptions.push({
                 field: 'referenceNumber',
                 name: this._translate.instant('cases.referenceNumber'),

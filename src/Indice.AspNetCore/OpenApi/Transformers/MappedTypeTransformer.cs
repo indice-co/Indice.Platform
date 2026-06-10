@@ -84,6 +84,7 @@ public static class MappedTypeTransformer
         // Register the type transformer
         RenameType<Stream>("FileParam");
         RenameType<IFormFile>("FileParam");
+        MapType<IFormFileCollection>(new() { Type = JsonSchemaType.Array, Items = new OpenApiSchema() { Type = JsonSchemaType.String, Format = "binary" } });
         //MapType<Stream>(new() { Type = JsonSchemaType.String, Format = "binary" });
         //MapType<IFormFile>(new() { Type = JsonSchemaType.String, Format = "binary" });
 
@@ -112,7 +113,6 @@ public static class MappedTypeTransformer
         OpenApiSchema transformedSchema = transforms[type];
         schema.Type = transformedSchema.Type;
         schema.Format = transformedSchema.Format;
-        schema.AnyOf = null;
         schema.AnyOf = null;
         schema.Metadata ??= new Dictionary<string, object>();
         schema.Metadata.Add("mapped", true);

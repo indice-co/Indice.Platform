@@ -15,13 +15,13 @@
         </div>
         <div class="flex flex-row">
           <button type="button" class="p-2 flex items-center justify-center w-8 h-8 rounded-lg"
-            [ngClass]="view == 'folder' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-800 '"
-            [title]="'MediaLibrary.ViewFolderTitle' | translate">
+                  [ngClass]="view == 'folder' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-800 '"
+                  [title]="'MediaLibrary.ViewFolderTitle' | translate">
             <i class="ms-Icon ms-Icon--Backlog" (click)="selectView('folder')"></i>
           </button>
           <button type="button" class="p-2 flex items-center justify-center w-8 h-8 rounded-lg"
-            [ngClass]="view == 'list' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-800 '"
-            [title]="'MediaLibrary.ViewListTitle' | translate">
+                  [ngClass]="view == 'list' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-800 '"
+                  [title]="'MediaLibrary.ViewListTitle' | translate">
             <i class="ms-Icon ms-Icon--BulletedList" (click)="selectView('list')"></i>
           </button>
         </div>
@@ -30,28 +30,33 @@
     </div>
 
     <div class="view-layout-title-container-far">
-      <button type="button" class="p-2 btn-view-header" [title]="'MediaLibrary.RefreshTitle' | translate" (click)="loadContent()"><i
-      class="ms-Icon ms-Icon--Refresh"></i>
-    </button>
-    <button type="button" href="#" class="p-2 btn-view-header" [title]="'MediaLibrary.AddFolderTitle' | translate"><i
-    class="ms-Icon ms-Icon--FabricNewFolder" (click)="createFolder()"></i>
-  </button>
-  <button type="button" href="#" class="p-2 btn-view-header" [title]="'MediaLibrary.AddFileTitle' | translate"><i
-  class="ms-Icon ms-Icon--Upload" (click)="uploadFile()"></i>
-</button>
-</div>
-</div>
-<div class="mt-10 flex flex-row space-x-10">
-  @if (useBreadcrumb) {
+      <button type="button" class="p-2 btn-view-header" [title]="'MediaLibrary.RefreshTitle' | translate" (click)="loadContent()">
+        <i class="ms-Icon ms-Icon--Refresh"></i>
+      </button>
+      @if (!currentFolderId) {
+      <button type="button" class="p-2 btn-view-header" [title]="'MediaLibrary.DiscoverStructureTitle' | translate" (click)="discoverStructure()">
+        <i class="ms-Icon ms-Icon--DatabaseSync"></i>
+      </button>
+      }
+      <button type="button" class="p-2 btn-view-header" [title]="'MediaLibrary.AddFolderTitle' | translate">
+        <i class="ms-Icon ms-Icon--FabricNewFolder" (click)="createFolder()"></i>
+      </button>
+      <button type="button" class="p-2 btn-view-header" [title]="'MediaLibrary.AddFileTitle' | translate">
+        <i class="ms-Icon ms-Icon--Upload" (click)="uploadFile()"></i>
+      </button>
+    </div>
+  </div>
+  <div class="mt-10 flex flex-row space-x-10">
+    @if (useBreadcrumb) {
     <div class="w-96">
       <app-tree-breadcrumb [structure]="structure"></app-tree-breadcrumb>
     </div>
-  }
-  @if (view == 'folder') {
+    }
+    @if (view == 'folder') {
     <app-folder-view class="w-full" [folderContent]="folderContent" (pageChanged)="onPageChanged($event)" (pageSizeChanged)="onPageSizeChanged($event)" (itemDeleted)="onItemDeleted()"></app-folder-view>
-  }
-  @if (view == 'list') {
+    }
+    @if (view == 'list') {
     <app-list-view class="w-full overflow-x-hidden" [folderContent]="folderContent" (pageChanged)="onPageChanged($event)" (pageSizeChanged)="onPageSizeChanged($event)" (itemDeleted)="onItemDeleted()"></app-list-view>
-  }
-</div>
+    }
+  </div>
 </div>

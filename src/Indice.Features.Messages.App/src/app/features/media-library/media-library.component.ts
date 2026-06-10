@@ -3,8 +3,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FolderContent, FolderTreeStructure, MediaApiClient } from 'src/app/core/services/media-api.service';
 import { IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
 import { MediaLibraryStore } from './media-library-store.service';
-import { mergeMap, tap, map, switchMap, takeUntil, filter, startWith, skipUntil } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
+import { mergeMap, tap, filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-media-library',
@@ -61,6 +60,16 @@ export class MediaLibraryComponent implements OnInit {
           this.folderContent = content;
         });
   }
+
+  public discoverStructure() {
+    this._media.discover().pipe(
+      tap(() => {
+        this.loadContent();
+        this.loadStructure();
+      })
+    ).subscribe();
+  }
+
   public loadStructure() {
     this._mediaStore.getFolderStructure()
       .subscribe((structure) => {
