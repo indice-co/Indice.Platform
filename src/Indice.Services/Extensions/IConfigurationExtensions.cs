@@ -22,7 +22,7 @@ public static class IConfigurationExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>True if specified flag is set to true, otherwise false.</returns>
     /// <remarks>Checks for the <strong>General:UseDeveloperExceptionPage</strong> option in appsettings.json file.</remarks>
-    public static bool UseDeveloperExceptionPage(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.UseDeveloperExceptionPage));
+    public static bool UseDeveloperExceptionPage(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.UseDeveloperExceptionPage), false);
 
     /// <summary>
     /// Determines whether client certificate forwarding is enabled based on the configuration settings. 

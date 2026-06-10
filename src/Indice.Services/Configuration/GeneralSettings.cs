@@ -29,7 +29,7 @@ public class GeneralSettings
     public bool UseHttpsRedirection { get; set; }
     /// <summary>A flag that indicates whether the developer exception page is enabled.</summary>
     public bool UseDeveloperExceptionPage { get; set; }
-    /// <summary>A flag that indicates whether to redirect the setting that is definded in <see cref="Host"/>.</summary>
+    /// <summary>A flag that indicates whether to redirect the setting that is defined in <see cref="Host"/>.</summary>
     public bool UseRedirectToHost { get; set; }
     /// <summary>A flag that indicates whether to use certificate forwarding middleware.</summary>
     public bool UseCertificateForwarding { get; set; }
