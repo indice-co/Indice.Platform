@@ -18,6 +18,12 @@ public static class IConfigurationExtensions
     /// <remarks>Checks for the <strong>General:UseHttpsRedirection</strong> option in appsettings.json file. When true you can register HttpsPolicyBuilderExtensions.UseHttpsRedirection(IApplicationBuilder) middleware.</remarks>
     public static bool UseHttpsRedirection(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.UseHttpsRedirection));
 
+    /// <summary>Indicates whether the developer exception page is enabled.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>True if specified flag is set to true, otherwise false.</returns>
+    /// <remarks>Checks for the <strong>General:UseDeveloperExceptionPage</strong> option in appsettings.json file.</remarks>
+    public static bool UseDeveloperExceptionPage(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.UseDeveloperExceptionPage), false);
+
     /// <summary>
     /// Determines whether client certificate forwarding is enabled based on the configuration settings. 
     /// </summary>
