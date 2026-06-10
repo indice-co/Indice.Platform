@@ -104,6 +104,8 @@ public class IdentityServerFeatures
     public const string ImpossibleTravel = nameof(ImpossibleTravel);
     /// <summary>Activity logs.</summary>
     public const string ActivityLogs = nameof(ActivityLogs);
+    /// <summary>Disable security notifications.</summary>
+    public const string DisableSecurityNotifications = nameof(DisableSecurityNotifications);
 }
 
 
