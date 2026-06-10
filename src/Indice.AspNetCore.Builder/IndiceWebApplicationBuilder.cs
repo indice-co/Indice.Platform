@@ -84,13 +84,14 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
         }
 
         app.UseCors();
-        app.UseExceptionHandler();
+        if (app.Environment.IsDevelopment() && app.Configuration.UseDeveloperExceptionPage()) {
+            app.UseDeveloperExceptionPage();
+        } else {
+            app.UseExceptionHandler();
+        }
         app.UseStatusCodePages();
         app.UseAuthentication();
         app.UseAuthorization();
-        if (app.Environment.IsDevelopment()) {
-            app.UseDeveloperExceptionPage();
-        }
         app.UseRequestLocalization();
         return app;
     }
