@@ -543,4 +543,70 @@
   <data name="toasts.invalidFileType.body" xml:space="preserve">
     <value>Μη αποδεκτός τύπος αρχείου.</value>
   </data>
+  <data name="nav.dashboard" xml:space="preserve">
+    <value>Αρχική</value>
+  </data>
+  <data name="nav.cases" xml:space="preserve">
+    <value>Υποθέσεις</value>
+  </data>
+  <data name="nav.caseTypes" xml:space="preserve">
+    <value>Διαχείριση Υποθέσεων</value>
+  </data>
+  <data name="nav.notifications" xml:space="preserve">
+    <value>Ειδοποιήσεις</value>
+  </data>
+  <data name="nav.logout" xml:space="preserve">
+    <value>Αποσύνδεση</value>
+  </data>
+  <data name="breadcrumb.authCallback" xml:space="preserve">
+    <value>Αυθεντικοποίηση</value>
+  </data>
+  <data name="breadcrumb.authRenew" xml:space="preserve">
+    <value>Ανανέωση Αυθεντικοποίησης</value>
+  </data>
+  <data name="breadcrumb.home" xml:space="preserve">
+    <value>Αρχική</value>
+  </data>
+  <data name="breadcrumb.dashboard" xml:space="preserve">
+    <value>Πίνακας ελέγχου</value>
+  </data>
+  <data name="breadcrumb.cases" xml:space="preserve">
+    <value>Υποθέσεις</value>
+  </data>
+  <data name="breadcrumb.casesByType" xml:space="preserve">
+    <value>Υποθέσεις Συγκεκριμένου Τύπου</value>
+  </data>
+  <data name="breadcrumb.case" xml:space="preserve">
+    <value>Υπόθεση</value>
+  </data>
+  <data name="breadcrumb.caseDetails" xml:space="preserve">
+    <value>Λεπτομέρειες Υπόθεσης</value>
+  </data>
+  <data name="breadcrumb.caseTypes" xml:space="preserve">
+    <value>Τύποι Υπόθεσης</value>
+  </data>
+  <data name="breadcrumb.createCaseType" xml:space="preserve">
+    <value>Δημιουργία Τύπου Υπόθεσης</value>
+  </data>
+  <data name="breadcrumb.editCaseType" xml:space="preserve">
+    <value>Επεξεργασία Τύπου Υπόθεσης</value>
+  </data>
+  <data name="breadcrumb.notifications" xml:space="preserve">
+    <value>Ειδοποιήσεις</value>
+  </data>
+  <data name="breadcrumb.newCase" xml:space="preserve">
+    <value>Νέα Υπόθεση</value>
+  </data>
+  <data name="breadcrumb.queries" xml:space="preserve">
+    <value>Εύρεση</value>
+  </data>
+  <data name="breadcrumb.logout" xml:space="preserve">
+    <value>Αποσύνδεση</value>
+  </data>
+  <data name="breadcrumb.forbidden" xml:space="preserve">
+    <value>Μη επαρκής πρόσβαση</value>
+  </data>
+  <data name="breadcrumb.pageNotFound" xml:space="preserve">
+    <value>Δεν βρέθηκε η σελίδα</value>
+  </data>
 </root>

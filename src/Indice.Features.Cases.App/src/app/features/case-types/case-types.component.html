@@ -31,12 +31,11 @@
           <span>{{ 'common.edit' | translate }}</span>
         </a>
         &nbsp;
-        <a href="#"
-          [routerLink]=""
+        <button type="button"
           (click)="openModal(item.id)"
           class="bg-red-600 hover:bg-red-800 cursor-pointer text-white font-bold p-2 inline-flex rounded text-xs">
           <span>{{ 'common.delete' | translate }}</span>
-        </a>
+        </button>
       </ng-template>
     </lib-list-column>
   </lib-list-view>

@@ -543,4 +543,70 @@
   <data name="toasts.invalidFileType.body" xml:space="preserve">
     <value>Invalid file type.</value>
   </data>
+  <data name="nav.dashboard" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="nav.cases" xml:space="preserve">
+    <value>Cases</value>
+  </data>
+  <data name="nav.caseTypes" xml:space="preserve">
+    <value>Case Management</value>
+  </data>
+  <data name="nav.notifications" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="nav.logout" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  <data name="breadcrumb.authCallback" xml:space="preserve">
+    <value>Authentication</value>
+  </data>
+  <data name="breadcrumb.authRenew" xml:space="preserve">
+    <value>Reauthentication</value>
+  </data>
+  <data name="breadcrumb.home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="breadcrumb.dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="breadcrumb.cases" xml:space="preserve">
+    <value>Cases</value>
+  </data>
+  <data name="breadcrumb.casesByType" xml:space="preserve">
+    <value>Cases</value>
+  </data>
+  <data name="breadcrumb.case" xml:space="preserve">
+    <value>Case</value>
+  </data>
+  <data name="breadcrumb.caseDetails" xml:space="preserve">
+    <value>Case Details</value>
+  </data>
+  <data name="breadcrumb.caseTypes" xml:space="preserve">
+    <value>Case Types</value>
+  </data>
+  <data name="breadcrumb.createCaseType" xml:space="preserve">
+    <value>Create Case Type</value>
+  </data>
+  <data name="breadcrumb.editCaseType" xml:space="preserve">
+    <value>Edit Case Type</value>
+  </data>
+  <data name="breadcrumb.notifications" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="breadcrumb.newCase" xml:space="preserve">
+    <value>New Case</value>
+  </data>
+  <data name="breadcrumb.queries" xml:space="preserve">
+    <value>Searches</value>
+  </data>
+  <data name="breadcrumb.logout" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  <data name="breadcrumb.forbidden" xml:space="preserve">
+    <value>Forbidden</value>
+  </data>
+  <data name="breadcrumb.pageNotFound" xml:space="preserve">
+    <value>Page Not Found</value>
+  </data>
 </root>
