@@ -16,8 +16,5 @@ import { settings } from './core/models/settings';
   standalone: false
 })
 export class AppComponent {
-  // Fallback language for missing keys is configured via `fallbackLang: 'en'` in
-  // provideTranslateService (app.module.ts). The active language is selected by AppLanguagesService
-  // (provided via APP_LANGUAGES) from the user's OIDC locale.
   settings = settings;
 }
