@@ -41,15 +41,22 @@ internal static class AnalyticsApi
 
         group.MapGet("overview", AnalyticsHandlers.GetOverview)
              .WithName(nameof(AnalyticsHandlers.GetOverview))
-             .WithSummary("Gets the overview analytics.");
+             .WithSummary("Gets the overview analytics.")
+             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(10))
+                                          .SetAuthorized());
 
         group.MapGet("events", AnalyticsHandlers.GetEventsList)
              .WithName(nameof(AnalyticsHandlers.GetEventsList))
-             .WithSummary("Gets a result set of events.");
+             .WithSummary("Gets a result set of events.")
+             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(10))
+                                          .SetAuthorized());
+
 
         group.MapGet("events/series", AnalyticsHandlers.GetEventsSeriesList)
              .WithName(nameof(AnalyticsHandlers.GetEventsSeriesList))
-             .WithSummary("Gets a result set of events.");
+             .WithSummary("Gets a result set of events.")
+             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(10))
+                                          .SetAuthorized());
 
         return group;
     }
