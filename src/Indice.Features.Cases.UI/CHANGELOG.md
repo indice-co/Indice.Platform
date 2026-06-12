@@ -10,14 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Overriding / extending translations
 
 Default implementation covers all the previous el.json keys and more (previously hardcoded UI html,ts etc), but if you want to override any of them or add your own,
-you can layer a second resource onto the same `cases-i18n` endpoint with `PostConfigure`.
-To override shipped keys or add your own, layer a second resource onto the **same** `cases-i18n`
-endpoint with `PostConfigure`:
+you can layer a second resource onto the same `cases-i18n` endpoint with `AddTranslationsResource`.
 
-**Note**: The proper keys for the new resources are the same as the previous keys in `el.json` but with dots instead of camelCase,
+The keys for the new resources are the same as the previous keys in `el.json` but with dots instead of camelCase,
 and prefixed with the page name. For example, the key `groupedByCasetype` in `el.json` becomes `dashboard.groupedByCasetype` in the new resource file.
 
-**Note**: You can find the rest of the keys in Indice.Features.Cases.Server project, under the Resources folder.
+**Note**: You can find the rest of the keys in [Indice.Features.Cases.Server project, inside the Resources folder.](https://github.com/indice-co/Indice.Platform/tree/develop/src/Indice.Features.Cases.Server/Resources)
 
 Previous keys in `el.json` example:
 ```json
@@ -40,12 +38,14 @@ New resource el example:
   </data>
 ```
 
+### Example override:
 ```csharp
-builder.Services.PostConfigure<TranslationsGraphOptions>(options => {
-    // translationBaseName: "MyApp.Cases.Translations" -> look for MyApp.Cases.Translations.{culture}.resx embedded resources inside a Resources folder (by default)
-    // endpointRoutePattern: null -> reuse the default cases-i18n endpoint
-    // translationsLocation: "MyApp.Host" -> look for embedded resources in the MyApp.Host assembly
-    options.AddResource("MyApp.Cases.Translations", endpointRoutePattern: null, translationsLocation: "MyApp.Host");
+// resourceName: "MyApp.Cases.Translations" -> look for MyApp.Cases.Translations.{culture}.resx embedded resources * inside a Resources folder * (by default)
+// endpointRoutePattern: null -> reuse the default cases-i18n endpoint
+// resourceLocation: "MyApp.Host" -> look for embedded resources in the MyApp.Host assembly
+builder.Services.AddTranslationsResource( resourceName: "MyApp.Cases.Translations",
+    endpointRoutePattern: null,
+    resourceLocation: "MyApp.Host"
 });
 ```
 
@@ -53,13 +53,12 @@ builder.Services.PostConfigure<TranslationsGraphOptions>(options => {
 endpoint are resolved in one pass; if any one can't find its embedded manifest, the entire request
 throws `MissingManifestResourceException`. For your resource to resolve:
 
-- Provide a **neutral** `.resx` (e.g. `MyApp.Cases.Translations.resx`), not only culture-specific ones —
-  the neutral file anchors the culture hierarchy.
+- Provide a **neutral** `.resx` (e.g. `MyApp.Cases.Translations.resx`), not only culture-specific ones.
 - Mark the `.resx` files as **`EmbeddedResource`**.
 - With `ResourcesPath = "Resources"` (the platform default), place them under a **`Resources`** folder so
   the manifest name is `{Assembly}.Resources.{baseName}`. Pass the base name *without* the `Resources.`
   prefix — the `ResourcesPath` adds it.
-- Pass the correct **assembly name** as `translationsLocation`, and ensure that assembly's `RootNamespace`
+- Pass the correct **assembly name** as `resourceLocation`, and ensure that assembly's `RootNamespace`
   matches its assembly name.
 
 **Note**: You can remove the previous translation file `el.json` as it is no longer needed.
