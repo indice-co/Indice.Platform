@@ -21,7 +21,7 @@ Previous keys in `el.json` example:
 ```json
 {
   "dashboard": {
-    "groupedByCasetype": "Συνολικές Υποθέσεις ανά Τύπο Υπόθεσης",
+    "groupedByCasetype": "Συνολικές Υποθέσεις ανά Τύπο Υπόθεσης"
     }
 }
 ```
@@ -44,9 +44,7 @@ New resource el example:
 // endpointRoutePattern: null -> reuse the default cases-i18n endpoint
 // resourceLocation: "MyApp.Host" -> look for embedded resources in the MyApp.Host assembly
 builder.Services.AddTranslationsResource( resourceName: "MyApp.Cases.Translations",
-    endpointRoutePattern: null,
-    resourceLocation: "MyApp.Host"
-});
+    endpointRoutePattern: null, resourceLocation: "MyApp.Host");
 ```
 
 **Make the added resource actually resolve.** All resources sharing the
