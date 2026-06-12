@@ -6,97 +6,52 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [8.49.1] - 2026-06-11
-### What changed
-
-The Cases UI can now be served in **English and Greek**, switchable at runtime. UI strings live in
-embedded `.resx` files on the server and are delivered to the SPA as a JSON graph; the SPA consumes
-them through `@ngx-translate`.
-
-| Area | Change |
-|---|---|
-| `AddCaseServer(...)` | Now also calls `AddTranslationGraph(...)` internally to register the Cases translation graph. |
-| `MapCases(...)` | Now also calls `MapTranslationGraph()`, exposing two new endpoints (below). |
-| New embedded resources | `Resources/Cases.Ui.TranslationApi.resx` (neutral / English) and `Resources/Cases.Ui.TranslationApi.el.resx` (Greek) in `Indice.Features.Cases.Server`. |
-| Cases SPA | Added `@ngx-translate/core` v17 + `@ngx-translate/http-loader`, an `AppLanguagesService` and runtime language switching. |
-
-#### New endpoints
-
-Both are mapped automatically by `MapCases()` and follow your configured `PathPrefix` (default `/api`):
-
-| Method & route | Purpose |
-|---|---|
-| `GET {prefix}/cases-i18n.{lang}.json` | Returns the UI translation strings for `{lang}` (e.g. `en`, `el`) as a nested JSON object graph. Output-cached for 24h. |
-| `GET {prefix}/languages` | Returns the list of available UI languages (`lang`, `nativeName`, `englishName`), derived from the host's configured supported cultures. |
-
-> Both endpoints are excluded from the OpenAPI/Swagger description by default.
-
-### Backend migration
-
-If you wire Cases the standard way, **there is nothing to do** — the endpoints are registered and
-mapped for you:
-
-```csharp
-builder.AddCaseServer(options => options.PathPrefix = "/api"); // registers the translation graph
-// ...
-app.MapCases(); // maps /api/cases-i18n.{lang}.json and /api/languages
-```
-
-Check the following in your host:
-
-1. **Supported cultures.** The `/languages` endpoint reflects
-   `RequestLocalizationOptions.SupportedCultures`. Make sure your host registers the cultures you want
-   offered (at minimum `en` and `el`).
-2. **Localization / `ResourcesPath`.** The shipped resources resolve under the `Resources` folder.
-   `IndiceWebApplicationBuilder` / `AddMinimalApiDefaults()` already configures
-   `AddLocalization(o => o.ResourcesPath = "Resources")`, so standard hosts need no action. If you build
-   a non-standard host, ensure localization is configured equivalently.
-3. **Custom `PathPrefix`.** Both new routes inherit your prefix. If you changed it, your SPA's loader
-   URL must match (see below).
-
-### Frontend migration
-
-The Cases SPA is configured out of the box:
-
-1. **Dependencies:** `@ngx-translate/core@^17` and `@ngx-translate/http-loader`.
-2. **Translate provider** (in `app.module.ts`) — point the loader at the backend endpoint and set a
-   fallback language:
-
-   ```ts
-   provideTranslateService({
-     loader: provideTranslateHttpLoader({
-       prefix: `${app.settings.api_url}/cases-i18n.`, // resolves to /api/cases-i18n.{lang}.json
-       useHttpBackend: true
-     }),
-     fallbackLang: 'en'
-   })
-   ```
-3. **`AppLanguagesService`** — provided for `APP_LANGUAGES`; calls `/languages` (over a bare
-   `HttpBackend` so it bypasses the auth / accept-language interceptors), exposes the menu options, and
-   drives `translate.use(...)` on selection. It also re-applies the user's `locale` claim on sign-in.
-
-   > For labels built in TypeScript via `translate.instant(...)` (not the `| translate` pipe), subscribe
-   > to `AppLanguagesService.onLanguageChange()` and rebuild them so they re-translate live on switch.
 
 ### Overriding / extending translations
 
+Default implementation covers all the previous el.json keys and more (previously hardcoded UI html,ts etc), but if you want to override any of them or add your own,
+you can layer a second resource onto the same `cases-i18n` endpoint with `PostConfigure`.
 To override shipped keys or add your own, layer a second resource onto the **same** `cases-i18n`
-endpoint with `PostConfigure` (so you augment rather than clobber the Cases config):
+endpoint with `PostConfigure`:
+
+**Note**: The proper keys for the new resources are the same as the previous keys in `el.json` but with dots instead of camelCase,
+and prefixed with the page name. For example, the key `groupedByCasetype` in `el.json` becomes `dashboard.groupedByCasetype` in the new resource file.
+
+**Note**: You can find the rest of the keys in Indice.Features.Cases.Server project, under the Resources folder.
+
+Previous keys in `el.json` example:
+```json
+{
+  "dashboard": {
+    "groupedByCasetype": "Συνολικές Υποθέσεις ανά Τύπο Υπόθεσης",
+    }
+}
+```
+New resource en/neutral example:
+```xml
+  <data name="dashboard.groupedByCasetype" xml:space="preserve">
+    <value>Total Cases by Case Type</value>
+  </data>
+```
+New resource el example:
+```xml
+  <data name="dashboard.groupedByCasetype" xml:space="preserve">
+    <value>Συνολικές Υποθέσεις ανά Τύπο Υπόθεσης</value>
+  </data>
+```
 
 ```csharp
 builder.Services.PostConfigure<TranslationsGraphOptions>(options => {
+    // translationBaseName: "MyApp.Cases.Translations" -> look for MyApp.Cases.Translations.{culture}.resx embedded resources inside a Resources folder (by default)
     // endpointRoutePattern: null -> reuse the default cases-i18n endpoint
+    // translationsLocation: "MyApp.Host" -> look for embedded resources in the MyApp.Host assembly
     options.AddResource("MyApp.Cases.Translations", endpointRoutePattern: null, translationsLocation: "MyApp.Host");
 });
 ```
 
-How the merge works: `GetEndpoints()` orders resources `[Cases default, ...your additions]`, the handler
-concatenates their strings in that order, and `ToObjectGraph()` is **last-wins** on duplicate keys — so
-your resource overrides the Cases defaults for matching keys.
-
-**Make the added resource actually resolve, or the whole endpoint 500s.** All resources sharing the
+**Make the added resource actually resolve.** All resources sharing the
 endpoint are resolved in one pass; if any one can't find its embedded manifest, the entire request
-throws `MissingManifestResourceException` (taking the working Cases strings down with it). For your
-resource to resolve:
+throws `MissingManifestResourceException`. For your resource to resolve:
 
 - Provide a **neutral** `.resx` (e.g. `MyApp.Cases.Translations.resx`), not only culture-specific ones —
   the neutral file anchors the culture hierarchy.
@@ -107,6 +62,7 @@ resource to resolve:
 - Pass the correct **assembly name** as `translationsLocation`, and ensure that assembly's `RootNamespace`
   matches its assembly name.
 
+**Note**: You can remove the previous translation file `el.json` as it is no longer needed.
 
 ## [8.42.2] - 2026-06-04
 ### Fixed
