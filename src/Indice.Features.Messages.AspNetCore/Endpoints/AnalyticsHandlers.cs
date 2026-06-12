@@ -6,6 +6,7 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -44,4 +45,10 @@ internal static class AnalyticsHandlers
         var result = await messageEventService.GetSeriesAsync(filter);
         return TypedResults.Ok(result);
     }
+
+    public static async Task<NoContent> RefreshCache(IOutputCacheStore cacheStore,CancellationToken cancellationToken) {
+        await cacheStore.EvictByTagAsync(CacheTag, cancellationToken);
+        return TypedResults.NoContent();
+    }
+    internal const string CacheTag = "Analytics";
 }

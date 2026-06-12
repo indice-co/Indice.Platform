@@ -25,6 +25,7 @@ internal static class AnalyticsApi
             group.WithGroupName(options.GroupName);
         }
         group.WithTags("Analytics");
+        group.WithCacheTag(AnalyticsHandlers.CacheTag);
         var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
 
         group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
@@ -43,20 +44,24 @@ internal static class AnalyticsApi
              .WithName(nameof(AnalyticsHandlers.GetOverview))
              .WithSummary("Gets the overview analytics.")
              .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(10))
-                                          .SetAuthorized());
+                                          .SetAuthorized().SetAutoTag());
 
         group.MapGet("events", AnalyticsHandlers.GetEventsList)
              .WithName(nameof(AnalyticsHandlers.GetEventsList))
              .WithSummary("Gets a result set of events.")
              .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(10))
-                                          .SetAuthorized());
+                                          .SetAuthorized().SetAutoTag());
 
 
         group.MapGet("events/series", AnalyticsHandlers.GetEventsSeriesList)
              .WithName(nameof(AnalyticsHandlers.GetEventsSeriesList))
              .WithSummary("Gets a result set of events.")
              .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(10))
-                                          .SetAuthorized());
+                                          .SetAuthorized().SetAutoTag());
+
+        group.MapPost("refresh", AnalyticsHandlers.RefreshCache)
+             .WithName(nameof(AnalyticsHandlers.RefreshCache))
+             .WithSummary("Refreshes the analytics cache.");
 
         return group;
     }
