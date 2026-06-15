@@ -58,28 +58,18 @@
                         </tr>
                     }
                     <tr>
-                        <td align="center" style="padding: 0 0 8px; font-size: 11px; color: #8a8a8a;">
-                            @Localizer.ConfirmEmail_DoNotReply
-                            @Localizer.ConfirmEmail_ServiceEmailInfo
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="padding: 0; font-size: 11px; color: #595959;">
+                        <td align="center" style="padding: 2px 0 0; font-size: 11px; color: #595959;">
                             &copy; @ui.CopyYear @organizationLegalName
                             @if (!string.IsNullOrWhiteSpace(organizationAddress)) {
                                 <text>&bull; @organizationAddress</text>
                             }
+                            @if (!string.IsNullOrWhiteSpace(organizationRegistryNumber)) {
+                                <text>&bull; @Localizer.EmailFooter_RegistryNumber(organizationRegistryNumber)</text>
+                            }
                         </td>
                     </tr>
-                    @if (!string.IsNullOrWhiteSpace(organizationRegistryNumber)) {
-                        <tr>
-                            <td align="center" style="padding: 2px 0 0; font-size: 11px; color: #8a8a8a;">
-                                @Localizer.EmailFooter_RegistryNumber(organizationRegistryNumber)
-                            </td>
-                        </tr>
-                    }
                     <tr>
-                        <td align="center" style="padding: 10px 0 0; font-size: 11px;">
+                        <td align="center" style="padding: 4px 0 0; font-size: 11px;">
                             <a href="@(settings.Host)/privacy?culture=@culture" target="_blank" style="color: #@linkColor; text-decoration: underline; margin: 0 6px;">@Localizer.Footer_Privacy</a>
                             <span style="color: #cccccc;">|</span>
                             <a href="@(settings.Host)/terms?culture=@culture" target="_blank" style="color: #@linkColor; text-decoration: underline; margin: 0 6px;">@Localizer.Footer_Terms</a>
@@ -87,7 +77,7 @@
                     </tr>
                     @if (!string.IsNullOrWhiteSpace(supportPhone) || !string.IsNullOrWhiteSpace(supportEmail)) {
                         <tr>
-                            <td align="center" style="padding: 16px 0 0; font-size: 11px; color: #8a8a8a;">
+                            <td align="center" style="padding: 2px 0 0; font-size: 11px; color: #8a8a8a;">
                                 <strong style="color: #595959;">@Localizer.EmailFooter_NeedHelp</strong>
                                 @if (!string.IsNullOrWhiteSpace(supportPhone)) {
                                     <text> @Localizer.EmailFooter_CallSupport($"<a href=\"tel:{supportPhone.Replace(" ", string.Empty)}\" style=\"color:#{linkColor};text-decoration:underline;\">{supportPhone}</a>")</text>
@@ -101,6 +91,12 @@
                             </td>
                         </tr>
                     }
+                    <tr>
+                        <td align="center" style="padding: 0 0 8px; font-size: 11px; color: #8a8a8a;">
+                            @Localizer.ConfirmEmail_DoNotReply
+                            @Localizer.ConfirmEmail_ServiceEmailInfo
+                        </td>
+                    </tr>
                 </table>
             </td>
         </tr>
