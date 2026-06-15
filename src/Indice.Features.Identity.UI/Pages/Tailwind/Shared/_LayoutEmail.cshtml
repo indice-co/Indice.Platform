@@ -10,15 +10,11 @@
     var legalEntity = Configuration.GetSection("General");
     var supportPhone = legalEntity["OrganizationSupportPhone"] ?? "";
     var supportEmail = legalEntity["OrganizationSupportEmail"] ?? "";
-    var hasSupport = !string.IsNullOrWhiteSpace(supportPhone) && !string.IsNullOrWhiteSpace(supportEmail);
     var culture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
     var recipientEmail = GetSafeRecipientEmail();
     var organizationLegalName = (Localizer.OrganizationLegalName() ?? legalEntity["OrganizationLegalName"])!.ToString();
     var organizationAddress = (Localizer.OrganizationAddress() ?? legalEntity["OrganizationAddress"])!.ToString();
     var organizationRegistryNumber =  legalEntity["OrganizationRegistryNumber"]!.ToString();
-
-    var phoneLink = $"<a href=\"tel:{supportPhone.Replace(" ", string.Empty)}\" style=\"color:#{linkColor};text-decoration:underline;\">{supportPhone}</a>";
-    var emailLink = $"<a href=\"mailto:{supportEmail}\" style=\"color:#{linkColor};text-decoration:underline;\">{supportEmail}</a>";
 }
 
 @functions {
@@ -80,11 +76,19 @@
                             <a href="@(settings.Host)/terms?culture=@culture" target="_blank" style="color: #@linkColor; text-decoration: underline; margin: 0 6px;">@Localizer.Footer_Terms</a>
                         </td>
                     </tr>
-                    @if (hasSupport) {
+                    @if (!string.IsNullOrWhiteSpace(supportPhone) || !string.IsNullOrWhiteSpace(supportEmail)) {
                         <tr>
                             <td align="center" style="padding: 2px 0 0; font-size: 11px; color: #8a8a8a;">
                                 <strong style="color: #595959;">@Localizer.EmailFooter_NeedHelp</strong>
-                                @Localizer.EmailFooter_SupportContactLine(phoneLink, emailLink)
+                                @if (!string.IsNullOrWhiteSpace(supportPhone)) {
+                                    <text> @Localizer.EmailFooter_CallSupport($"<a href=\"tel:{supportPhone.Replace(" ", string.Empty)}\" style=\"color:#{linkColor};text-decoration:underline;\">{supportPhone}</a>")</text>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(supportPhone) && !string.IsNullOrWhiteSpace(supportEmail)) {
+                                    <text> &bull; </text>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(supportEmail)) {
+                                    <text>@Localizer.EmailFooter_EmailSupport($"<a href=\"mailto:{supportEmail}\" style=\"color:#{linkColor};text-decoration:underline;\">{supportEmail}</a>")</text>
+                                }
                             </td>
                         </tr>
                     }

@@ -393,8 +393,11 @@
   <data name="EmailFooter_NeedHelp" xml:space="preserve">
     <value>Need help?</value>
   </data>
-  <data name="EmailFooter_SupportContactLine" xml:space="preserve">
-    <value>Call {0} or email {1}</value>
+  <data name="EmailFooter_CallSupport" xml:space="preserve">
+    <value>Call {0}</value>
+  </data>
+  <data name="EmailFooter_EmailSupport" xml:space="preserve">
+    <value>Email {0}</value>
   </data>
   <data name="Email_Reset_Password_FieldLabel" xml:space="preserve">
     <value>Reset password</value>

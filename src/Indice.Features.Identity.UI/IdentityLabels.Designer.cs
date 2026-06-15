@@ -853,7 +853,7 @@ namespace Indice.Features.Identity.UI {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Indice Single Member P.C..
+        ///   Looks up a localized string similar to Indice S.A..
         /// </summary>
         public static string OrganizationLegalName {
             get {
@@ -889,11 +889,20 @@ namespace Indice.Features.Identity.UI {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Call {0} or email {1}.
+        ///   Looks up a localized string similar to Call {0}.
         /// </summary>
-        public static string EmailFooter_SupportContactLine {
+        public static string EmailFooter_CallSupport {
             get {
-                return ResourceManager.GetString("EmailFooter_SupportContactLine", resourceCulture);
+                return ResourceManager.GetString("EmailFooter_CallSupport", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Email {0}.
+        /// </summary>
+        public static string EmailFooter_EmailSupport {
+            get {
+                return ResourceManager.GetString("EmailFooter_EmailSupport", resourceCulture);
             }
         }
 

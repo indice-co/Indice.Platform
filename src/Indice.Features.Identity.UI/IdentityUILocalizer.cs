@@ -261,8 +261,10 @@ public class IdentityUILocalizer
     public virtual HtmlString EmailFooter_SentTo(string email) => new HtmlString(string.Format(IdentityLabels.EmailFooter_SentTo, email));
     /// <summary>Email footer prompt before the support contact details: "Need help?"</summary>
     public virtual HtmlString EmailFooter_NeedHelp => new HtmlString(IdentityLabels.EmailFooter_NeedHelp);
-    /// <summary>Email footer support contact line: "Call {0} or email {1}".</summary>
-    public virtual HtmlString EmailFooter_SupportContactLine(string phone, string email) => new HtmlString(string.Format(IdentityLabels.EmailFooter_SupportContactLine, phone, email));
+    /// <summary>Email footer phone support line: "Call {0}".</summary>
+    public virtual HtmlString EmailFooter_CallSupport(string phone) => new HtmlString(string.Format(IdentityLabels.EmailFooter_CallSupport, phone));
+    /// <summary>Email footer email support line: "Email {0}".</summary>
+    public virtual HtmlString EmailFooter_EmailSupport(string email) => new HtmlString(string.Format(IdentityLabels.EmailFooter_EmailSupport, email));
     /// <summary>Organization legal entity name for the email footer; null when not set so the caller can fall back to configuration.</summary>
     public virtual string? OrganizationLegalName() => string.IsNullOrWhiteSpace(IdentityLabels.OrganizationLegalName) ? null : IdentityLabels.OrganizationLegalName;
     /// <summary>Organization postal address for the email footer; null when not set so the caller can fall back to configuration.</summary>
