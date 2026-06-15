@@ -44,7 +44,7 @@ public class DistributionListService : IDistributionListService
                     if (!existingContacts.ContainsKey(nameof(item.RecipientId))) {
                         existingContacts[nameof(item.RecipientId)] = await DbContext.Contacts.Where(x => recipientIds.Contains(x.RecipientId)).ToListAsync();
                     }
-                    dbContact = existingContacts[nameof(item.RecipientId)].FirstOrDefault(x => item.RecipientId.Equals(x.RecipientId, StringComparison.InvariantCultureIgnoreCase) );
+                    dbContact = existingContacts[nameof(item.RecipientId)].FirstOrDefault(x => string.Equals(x.RecipientId, item.RecipientId, StringComparison.OrdinalIgnoreCase));
                 } else if (!string.IsNullOrWhiteSpace(item.Email)) {
                     if (!existingContacts.ContainsKey(nameof(item.Email))) {
                         existingContacts[nameof(item.Email)] = await DbContext.Contacts.Where(x => emails.Contains(x.Email)).ToListAsync();
