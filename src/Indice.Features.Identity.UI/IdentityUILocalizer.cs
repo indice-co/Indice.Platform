@@ -257,6 +257,18 @@ public class IdentityUILocalizer
     /// </summary>
     public virtual HtmlString Email_ResetPassword_IgnoreNotice => new HtmlString(IdentityLabels.Email_ResetPassword_IgnoreNotice);
 
+    /// <summary>Email footer line indicating the recipient address: "This email was sent to {0}."</summary>
+    public virtual HtmlString EmailFooter_SentTo(string email) => new HtmlString(string.Format(IdentityLabels.EmailFooter_SentTo, email));
+    /// <summary>Email footer prompt before the support contact details: "Need help?"</summary>
+    public virtual HtmlString EmailFooter_NeedHelp => new HtmlString(IdentityLabels.EmailFooter_NeedHelp);
+    /// <summary>Email footer support contact line: "Call {0} or email {1}".</summary>
+    public virtual HtmlString EmailFooter_SupportContactLine(string phone, string email) => new HtmlString(string.Format(IdentityLabels.EmailFooter_SupportContactLine, phone, email));
+    /// <summary>Organization legal entity name for the email footer; null when not set so the caller can fall back to configuration.</summary>
+    public virtual string? OrganizationLegalName() => string.IsNullOrWhiteSpace(IdentityLabels.OrganizationLegalName) ? null : IdentityLabels.OrganizationLegalName;
+    /// <summary>Organization postal address for the email footer; null when not set so the caller can fall back to configuration.</summary>
+    public virtual string? OrganizationAddress() => string.IsNullOrWhiteSpace(IdentityLabels.OrganizationAddress) ? null : IdentityLabels.OrganizationAddress;
+    /// <summary>Email footer commercial registry line: "GEMH: {0}".</summary>
+    public virtual HtmlString EmailFooter_RegistryNumber(string registryNumber) => new HtmlString(string.Format(IdentityLabels.EmailFooter_RegistryNumber, registryNumber));
 
     #endregion
 

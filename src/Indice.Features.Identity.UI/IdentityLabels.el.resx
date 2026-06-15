@@ -378,6 +378,24 @@
   <data name="Email_Body_Organization_Signature" xml:space="preserve">
     <value>{0}</value>
   </data>
+  <data name="EmailFooter_SentTo" xml:space="preserve">
+    <value>Αυτό το email στάλθηκε στη διεύθυνση {0}.</value>
+  </data>
+  <data name="OrganizationLegalName" xml:space="preserve">
+    <value>Indice S.A.</value>
+  </data>
+  <data name="OrganizationAddress" xml:space="preserve">
+    <value>22, Iakchou Str, Athens 11854</value>
+  </data>
+  <data name="EmailFooter_RegistryNumber" xml:space="preserve">
+    <value>ΓΕΜΗ: {0}</value>
+  </data>
+  <data name="EmailFooter_NeedHelp" xml:space="preserve">
+    <value>Χρειάζεστε βοήθεια;</value>
+  </data>
+  <data name="EmailFooter_SupportContactLine" xml:space="preserve">
+    <value>Καλέστε στο {0} ή στείλτε email στο {1}</value>
+  </data>
   <data name="Email_Reset_Password_FieldLabel" xml:space="preserve">
     <value>Επαναφορά κωδικού</value>
   </data>

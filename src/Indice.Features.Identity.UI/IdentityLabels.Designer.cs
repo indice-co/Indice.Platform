@@ -842,7 +842,61 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Email_Body_Organization_Signature", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to This email was sent to {0}..
+        /// </summary>
+        public static string EmailFooter_SentTo {
+            get {
+                return ResourceManager.GetString("EmailFooter_SentTo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Indice Single Member P.C..
+        /// </summary>
+        public static string OrganizationLegalName {
+            get {
+                return ResourceManager.GetString("OrganizationLegalName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 22, Iakchou Str, Athens 11854.
+        /// </summary>
+        public static string OrganizationAddress {
+            get {
+                return ResourceManager.GetString("OrganizationAddress", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to GEMH: {0}.
+        /// </summary>
+        public static string EmailFooter_RegistryNumber {
+            get {
+                return ResourceManager.GetString("EmailFooter_RegistryNumber", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Need help?.
+        /// </summary>
+        public static string EmailFooter_NeedHelp {
+            get {
+                return ResourceManager.GetString("EmailFooter_NeedHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Call {0} or email {1}.
+        /// </summary>
+        public static string EmailFooter_SupportContactLine {
+            get {
+                return ResourceManager.GetString("EmailFooter_SupportContactLine", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Sincerely.
         /// </summary>
