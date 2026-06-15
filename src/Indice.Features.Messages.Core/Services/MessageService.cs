@@ -231,7 +231,7 @@ public class MessageService : IMessageService
             );
         var messageChannelKind = MessageChannelKind.Inbox;
         if (filter is not null) {
-            if (filter.ShowExpired == true) {
+            if (filter.ShowExpired.HasValue && filter.ShowExpired.Value == false) {
                 query = query.Where(x => !x.Campaign.ActivePeriod!.To.HasValue || x.Campaign.ActivePeriod.To.Value >= DateTime.UtcNow);
             }
             if (filter.TypeId?.Length > 0) {
