@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { IAppLanguagesService, MenuOption } from '@indice/ng-components';
-import { catchError, map, Observable, of, startWith, Subject, take, tap } from 'rxjs';
+import { catchError, filter, map, Observable, of, startWith, Subject, take, tap } from 'rxjs';
 import { AuthService } from '@indice/ng-auth';
 import { HttpBackend, HttpClient } from '@angular/common/http';
 import { CASES_API_BASE_URL } from '../../core/services/cases-api.service';
@@ -37,7 +37,12 @@ export class AppLanguagesService implements IAppLanguagesService {
   }
 
   private setUserLocale(): void {
-    this._authService.user$.subscribe((user) => this.setLocale(user));
+    this._authService.user$
+      .pipe(
+        filter((user): user is User => !!user?.profile?.locale),
+        take(1)
+      )
+      .subscribe((user) => this.setLocale(user));
   }
 
   loadAvailableLanguages(): Observable<MenuOption[]> {
@@ -64,19 +69,14 @@ export class AppLanguagesService implements IAppLanguagesService {
     return of(this._languages);
   }
 
-  private setLocale(user: User | null): void {
-    if (user && user.profile) {
-      const userLocale = user.profile.locale;
-      if (userLocale && this._languages.map(x => x.value).includes(userLocale.toUpperCase())) {
-        this.setSelected(userLocale);
-      } else {
-        if (!this.selected) this.setSelected(this.default!);
-      }
-    } else {
-      if (!this.selected) {
-        this.setSelected(this.default!);
-      }
+  private setLocale(user: User): void {
+    // Called once with a user guaranteed to have a profile locale (see setUserLocale).
+    const userLocale = user.profile.locale!;
+    if (this._languages.map(x => x.value).includes(userLocale.toUpperCase())) {
+      this.setSelected(userLocale);
     }
+    // Otherwise keep the constructor's default ('en'); an unsupported profile locale must not
+    // override it.
   }
 
   public setSelected(lang: string): void {
