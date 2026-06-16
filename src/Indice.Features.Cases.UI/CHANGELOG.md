@@ -62,8 +62,9 @@ throws `MissingManifestResourceException`. For your resource to resolve:
 **Note**: You can remove the previous translation file `el.json` as it is no longer needed.
 
 ### Disabling the new endpoints.
-To disable the new endpoints, you need set CaseServerOptions.MapTranslations to false:
-
+By default, the system will automatically map the built-in translation endpoints.<br>
+However, if you have integrated your own custom translation service and wish to bypass the provided endpoints entirely, 
+you can easily opt out of this default behavior. Simply update your startup configuration by setting `CaseServerOptions.MapTranslations` to false
 ```csharp
 builder.AddCaseServer(options => { options.PathPrefix = "/api"; // rest of configs...
                                    options.MapTranslations = false; });
