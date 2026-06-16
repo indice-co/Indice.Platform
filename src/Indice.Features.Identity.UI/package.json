@@ -17,7 +17,7 @@
     "qrcodejs2": "0.0.2"
   },
   "devDependencies": {
-    "vite": "6.4.2",
+    "vite": "6.4.3",
     "vite-plugin-static-copy": "2.3.2",
     "glob": "12.0.0",
     "sass": "1.85.0",
