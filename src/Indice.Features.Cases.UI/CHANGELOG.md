@@ -7,14 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.50.0] - 2026-06-16
 
-### Mapping the new endpoints.
-To map the new endpoint, you need to call `app.MapTranslationGraph()`
-
-```csharp
-app.MapCases(); 
-app.MapTranslationGraph(); // maps /api/cases-i18n.{lang}.json and /api/languages
-```
-
 ### Overriding / extending translations
 
 Default implementation covers all the previous el.json keys and more (previously hardcoded UI html,ts etc), but if you want to override any of them or add your own,
@@ -68,6 +60,14 @@ throws `MissingManifestResourceException`. For your resource to resolve:
   matches its assembly name.
 
 **Note**: You can remove the previous translation file `el.json` as it is no longer needed.
+
+### Disabling the new endpoints.
+To disable the new endpoints, you need set CaseServerOptions.MapTranslations to false:
+
+```csharp
+builder.AddCaseServer(options => { options.PathPrefix = "/api"; // rest of configs...
+                                   options.MapTranslations = false; });
+```
 
 ## [8.42.2] - 2026-06-04
 ### Fixed

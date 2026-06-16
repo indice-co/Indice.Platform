@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -58,6 +59,7 @@ public static class CaseServerFeatureExtensions
             options.GroupName = serverOptions.GroupName;
             options.ConfigureLimitUpload = serverOptions.ConfigureLimitUpload;
             options.ByPassAccessRulesForElevatedUsers = serverOptions.ByPassAccessRulesForElevatedUsers;
+            options.MapTranslations = serverOptions.MapTranslations;
         });
         builder.Services.AddLimitUpload(serverOptions.ConfigureLimitUpload);
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessRoleBasedHandler>();
@@ -96,6 +98,7 @@ public static class CaseServerFeatureExtensions
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <returns>The <see cref="IEndpointRouteBuilder"/> for further configuration.</returns>
     public static IEndpointRouteBuilder MapCases(this IEndpointRouteBuilder routes) {
+        bool mapTranslations = routes.ServiceProvider.GetService<IOptions<CaseServerOptions>>()?.Value.MapTranslations ?? false;
         // my account
         routes.MapMyCases();
         routes.MapMyCaseTypes();
@@ -112,6 +115,10 @@ public static class CaseServerFeatureExtensions
         routes.MapLookup();
         routes.MapAdminAccessRules();
         routes.MapIntegration();
+        // translations
+        if (mapTranslations) { 
+            routes.MapTranslationGraph();
+        }
         return routes;
     }
 }

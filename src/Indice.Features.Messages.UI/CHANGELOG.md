@@ -6,11 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [8.50.0] - 2026-06-16
 
-Decouple `MapTranslationGraph` from `MapMessaging` so it needs to be added explicitely.
+### Disabling the MapTranslationsGraph endpoints.
+To disable the MapTranslationsGraph endpoints, you need set MessageEndpointOptions.MapTranslations to false:
 
 ```csharp
-app.MapMessaging();
-app.MapTranslationGraph();
+builder.Services.AddMessaging(options => { options.MapTranslations = false;
+});
 ```
 
 ## [7.3.7] - 2023-08-02

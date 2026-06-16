@@ -1,5 +1,7 @@
-﻿using Indice.Features.Messages.AspNetCore.Endpoints;
+﻿using Indice.Features.Messages.Core;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Builder;
 /// <summary>Configuration extensions on <seealso cref="IEndpointRouteBuilder "/>.</summary>
@@ -33,6 +35,7 @@ public static class MessageEndpointExtensions
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance for further configuration.</returns>
     /// <remarks>For everything use <see cref="MapMessaging(IEndpointRouteBuilder)"/> instead</remarks>
     public static IEndpointRouteBuilder MapMessagingManagement(this IEndpointRouteBuilder routes) {
+        bool mapTranslations = routes.ServiceProvider.GetService<IOptions<MessageManagementOptions>>()?.Value.MapTranslations ?? false;
         // management
         routes.MapCampaigns();
         routes.MapContacts();
@@ -42,6 +45,10 @@ public static class MessageEndpointExtensions
         routes.MapTemplates();
         routes.MapAnalytics();
         routes.MapSend();
+        // translations
+        if (mapTranslations) {
+            routes.MapTranslationGraph();
+        }
         return routes;
     }
 }
