@@ -54,12 +54,6 @@ public static class MessageFeatureExtensions
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.InboxGroupName;
             options.AnalyticsOptions = apiOptions.AnalyticsOptions;
-        }).AddTranslationGraph(options => {
-            options.DefaultTranslationsBaseName = "Messages.Ui.TranslationApi";
-            options.DefaultTranslationsLocation = "Indice.Features.Messages.AspNetCore";
-            options.DefaultEndpointRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/msg-i18n.{lang:culture}.json";
-            options.ConfigureCachePolicy = new Action<OutputCachePolicyBuilder>(policy => { policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag(); });
-            options.AvailableLanguagesRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/languages";
         });
     }
 
@@ -94,6 +88,13 @@ public static class MessageFeatureExtensions
         // Register framework services.
         services.AddHttpContextAccessor();
         services.TryAddSingleton<MediaBaseHrefResolver>();
+        services.AddTranslationGraph(options => {
+            options.DefaultTranslationsBaseName = "Messages.Ui.TranslationApi";
+            options.DefaultTranslationsLocation = "Indice.Features.Messages.AspNetCore";
+            options.DefaultEndpointRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/msg-i18n.{lang:culture}.json";
+            options.ConfigureCachePolicy = new Action<OutputCachePolicyBuilder>(policy => { policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag(); });
+            options.AvailableLanguagesRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/languages";
+        });
         return services;
     }
 

@@ -112,8 +112,6 @@ public static class CaseServerFeatureExtensions
         routes.MapLookup();
         routes.MapAdminAccessRules();
         routes.MapIntegration();
-        // UI translations (resx -> JSON graph) + available languages.
-        routes.MapTranslationGraph();
         return routes;
     }
 }
