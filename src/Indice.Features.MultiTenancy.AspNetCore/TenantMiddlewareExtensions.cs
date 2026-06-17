@@ -12,7 +12,7 @@ internal static class TenantMiddlewareExtensions
     /// <summary>
     /// Registers a <see cref="IStartupFilter"/> that injects <see cref="TenantMiddleware{TTenant}"/>
     /// </summary>
-    internal static IServiceCollection AddTenantMiddleware<TTenant>(this IServiceCollection services) where TTenant : Tenant {
+    internal static IServiceCollection AddTenantMiddlewareStartupFilter<TTenant>(this IServiceCollection services) where TTenant : Tenant {
         return services.AddTransient<IStartupFilter>(_ =>
             new TenantMiddlewareStartupFilter(app => app.UseMiddleware<TenantMiddleware<TTenant>>()));
     }

@@ -22,7 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddDistributedMemoryCache();
         services.AddTransient<ITenantAccessor<TTenant>, TenantAccessorHttpContext<TTenant>>();
         services.AddTransient<IAuthorizationHandler, BeTenantMemberHandler<TTenant>>();
-        services.AddTenantMiddleware<TTenant>();
+        services.AddTenantMiddlewareStartupFilter<TTenant>();
         return builder;
     }
 
