@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Indice.Features.MultiTenancy.AspNetCore;
+namespace Indice.Features.Multitenancy.AspNetCore;
 
 /// <summary>
 /// An <see cref="IStartupFilter"/> that wraps the application builder with a

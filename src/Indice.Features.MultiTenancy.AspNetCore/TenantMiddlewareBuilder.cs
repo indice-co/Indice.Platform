@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 
-namespace Indice.Features.MultiTenancy.AspNetCore;
+namespace Indice.Features.Multitenancy.AspNetCore;
 
 /// <summary>
 /// An <see cref="IApplicationBuilder"/> decorator that intercepts each <c>Use()</c> call
