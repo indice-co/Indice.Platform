@@ -5,7 +5,6 @@
 using Indice.Features.Multitenancy.AspNetCore;
 using Indice.Features.Multitenancy.AspNetCore.Authorization;
 using Indice.Features.Multitenancy.Core;
-using Indice.Features.MultiTenancy.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Microsoft.Extensions.DependencyInjection;
