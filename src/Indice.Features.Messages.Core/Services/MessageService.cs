@@ -51,7 +51,7 @@ public class MessageService : IMessageService
 
     /// <inheritdoc />
     public async Task<ResultSet<Message>?> GetList(string recipientId, ListOptions<MessagesFilter>? options) {
-        var userMessages = await GetUserMessagesQuery(recipientId, options?.Filter, options?.Search).ToResultSetAsync(options);
+        var userMessages = await GetUserMessagesQuery(recipientId, options?.Filter ?? new MessagesFilter(), options?.Search).ToResultSetAsync(options);
         if (userMessages?.Items != null && userMessages.Items.Any(i => i.RequiresSubstitutions)) {
             await ApplyHandlebarsSubstitutions(recipientId, userMessages, MessageChannelKind.Inbox);
         }
@@ -60,7 +60,7 @@ public class MessageService : IMessageService
 
     /// <inheritdoc />
     public async Task<Message?> GetById(Guid id, string recipientId, MessageChannelKind? channel = MessageChannelKind.Inbox) {
-        var userMessage = await GetUserMessagesQuery(recipientId, new MessagesFilter { MessageChannelKind = channel }).SingleOrDefaultAsync(x => x.Id == id);
+        var userMessage = await GetUserMessagesQuery(recipientId, new MessagesFilter { MessageChannelKind = channel, ShowExpired = true }).SingleOrDefaultAsync(x => x.Id == id);
         if (userMessage?.RequiresSubstitutions == true && channel == MessageChannelKind.Inbox) {
             await ApplyHandlebarsSubstitutions(recipientId, userMessage, MessageChannelKind.Inbox);
         }
@@ -231,7 +231,8 @@ public class MessageService : IMessageService
             );
         var messageChannelKind = MessageChannelKind.Inbox;
         if (filter is not null) {
-            if (filter.ShowExpired.HasValue) {
+            var showNotExpired = filter.ShowExpired is not true;
+            if (showNotExpired) {
                 query = query.Where(x => !x.Campaign.ActivePeriod!.To.HasValue || x.Campaign.ActivePeriod.To.Value >= DateTime.UtcNow);
             }
             if (filter.TypeId?.Length > 0) {
@@ -292,7 +293,7 @@ public class MessageService : IMessageService
             } : null
         });
     }
-    
+
     private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, ResultSet<Message> userMessages, MessageChannelKind channelKind) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
