@@ -5,6 +5,12 @@
     <TargetFramework>net10.0</TargetFramework>    
     <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
     <VersionSuffix>beta00</VersionSuffix>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <SpaProjectName>browser</SpaProjectName>
+    <SpaSourceFolder>..\Indice.Features.Agents.App</SpaSourceFolder>
+    <SpaDistFolder>$(SpaSourceFolder)\dist\dex-app</SpaDistFolder>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageTags>AspNetCore;Agents;AI Foundation</PackageTags>
   </PropertyGroup>
 
 	<ItemGroup>
