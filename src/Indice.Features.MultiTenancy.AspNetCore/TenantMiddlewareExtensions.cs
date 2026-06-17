@@ -7,12 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Indice.Features.MultiTenancy.AspNetCore;
 
 /// <summary>Extensions on <see cref="IServiceCollection"/> for ordering tenant middleware.</summary>
-public static class TenantMiddlewareExtensions
+internal static class TenantMiddlewareExtensions
 {
     /// <summary>
     /// Registers a <see cref="IStartupFilter"/> that injects <see cref="TenantMiddleware{TTenant}"/>
     /// </summary>
-    public static IServiceCollection AddTenantMiddleware<TTenant>(this IServiceCollection services) where TTenant : Tenant {
+    internal static IServiceCollection AddTenantMiddleware<TTenant>(this IServiceCollection services) where TTenant : Tenant {
         return services.AddTransient<IStartupFilter>(_ =>
             new TenantMiddlewareStartupFilter(app => app.UseMiddleware<TenantMiddleware<TTenant>>()));
     }
