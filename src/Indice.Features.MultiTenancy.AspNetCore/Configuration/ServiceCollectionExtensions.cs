@@ -5,6 +5,7 @@
 using Indice.Features.Multitenancy.AspNetCore;
 using Indice.Features.Multitenancy.AspNetCore.Authorization;
 using Indice.Features.Multitenancy.Core;
+using Indice.Features.MultiTenancy.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddDistributedMemoryCache();
         services.AddTransient<ITenantAccessor<TTenant>, TenantAccessorHttpContext<TTenant>>();
         services.AddTransient<IAuthorizationHandler, BeTenantMemberHandler<TTenant>>();
+        services.AddTenantMiddleware<TTenant>();
         return builder;
     }
 
