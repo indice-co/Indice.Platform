@@ -17,49 +17,49 @@ import { GeneralCasesComponent } from './features/cases/general-cases/general-ca
 import { CaseTypeSpecificCasesComponent } from './features/cases/case-type-specific-cases/case-type-specific-cases.component';
 
 const routes: Routes = [
-  { path: 'auth-callback', component: AuthCallbackComponent, data: { title: 'Αυθεντικοποίηση', breadcrumb: { title: 'Αυθεντικοποίηση' } } },
-  { path: 'auth-renew', component: AuthRenewComponent, data: { title: 'Ανενέωση Αυθεντικοποίησης', breadcrumb: { title: 'Ανενέωση Αυθεντικοποίησης' } } },
-  { path: '', redirectTo: 'home', pathMatch: 'full', data: { title: 'Αρχική', breadcrumb: { title: 'Αρχική' } }  },
-  { path: 'home', component: HomeComponent, pathMatch: 'full', data: { title: 'Αρχική', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'Αρχική' } } },
+  { path: 'auth-callback', component: AuthCallbackComponent, data: { title: 'Αυθεντικοποίηση', breadcrumb: { title: 'breadcrumb.authCallback' } } },
+  { path: 'auth-renew', component: AuthRenewComponent, data: { title: 'Ανενέωση Αυθεντικοποίησης', breadcrumb: { title: 'breadcrumb.authRenew' } } },
+  { path: '', redirectTo: 'home', pathMatch: 'full', data: { title: 'Αρχική', breadcrumb: { title: 'breadcrumb.home' } }  },
+  { path: 'home', component: HomeComponent, pathMatch: 'full', data: { title: 'Αρχική', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'breadcrumb.home' } } },
   {
     path: '', canActivate: [AuthGuardService], children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full', data: { title: 'Dashboard', breadcrumb: { title: 'Dashboard' } } },
-      { path: 'dashboard', component: DashboardComponent, data: { title: 'Dashboard', breadcrumb: { title: 'Dashboard' } } },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full', data: { title: 'Dashboard', breadcrumb: { title: 'breadcrumb.dashboard' } } },
+      { path: 'dashboard', component: DashboardComponent, data: { title: 'Dashboard', breadcrumb: { title: 'breadcrumb.dashboard' } } },
       {
         path: 'cases',
-        data: { title: 'Υποθέσεις', breadcrumb: { title: 'Υποθέσεις' } },
+        data: { title: 'Υποθέσεις', breadcrumb: { title: 'breadcrumb.cases' } },
         component: GeneralCasesComponent
       },
       {
         path: 'case/by-type/:caseTypeCode', pathMatch: 'prefix',
-        data: { title: 'Υποθέσεις Συγκεκριμένου Τύπου', breadcrumb: { title: 'Υποθέσεις Συγκεκριμένου Τύπου' } },
+        data: { title: 'Υποθέσεις Συγκεκριμένου Τύπου', breadcrumb: { title: 'breadcrumb.casesByType' } },
         component: CaseTypeSpecificCasesComponent
       },
       {
-        path: 'cases/:caseId', pathMatch: 'prefix', data: { title: 'Υπόθεση', breadcrumb: { title: 'Υπόθεση' } },
+        path: 'cases/:caseId', pathMatch: 'prefix', data: { title: 'Υπόθεση', breadcrumb: { title: 'breadcrumb.case' } },
         children: [
-          { path: '', pathMatch: 'full', redirectTo: 'details', data: { title: 'Λεπτομέρειες Υπόθεσης', breadcrumb: { title: 'Λεπτομέρειες Υπόθεσης' } } },
-          { path: 'details', component: CaseDetailPageComponent, data: { title: 'Λεπτομέρειες Υπόθεσης', animation: 'three', breadcrumb: { title: 'Λεπτομέρειες Υπόθεσης' } } }
+          { path: '', pathMatch: 'full', redirectTo: 'details', data: { title: 'Λεπτομέρειες Υπόθεσης', breadcrumb: { title: 'breadcrumb.caseDetails' } } },
+          { path: 'details', component: CaseDetailPageComponent, data: { title: 'Λεπτομέρειες Υπόθεσης', animation: 'three', breadcrumb: { title: 'breadcrumb.caseDetails' } } }
         ]
       },
       {
-        path: 'case-types', pathMatch: 'prefix', canActivate: [adminGuard], data: { title: 'Τύποι Υπόθεσης', breadcrumb: { title: 'Τύποι Υπόθεσης' } },
+        path: 'case-types', pathMatch: 'prefix', canActivate: [adminGuard], data: { title: 'Τύποι Υπόθεσης', breadcrumb: { title: 'breadcrumb.caseTypes' } },
         children: [
-          { path: '', component: CaseTypesComponent, data: { title: 'Τύποι Υπόθεσης', breadcrumb: { title: 'Τύποι Υπόθεσης' } } },
-          { path: 'create', component: CaseTypeCreateComponent, pathMatch: 'full', data: { title: 'Δημιουργία Υπόθεσης', breadcrumb: { title: 'Δημιουργία Υπόθεσης' } } },
-          { path: ':caseTypeId/edit', component: CaseTypeEditComponent, pathMatch: 'full', data: { title: 'Επεξεργασία Τύπου Υπόθεσης', breadcrumb: { title: 'Επεξεργασία Τύπου Υπόθεσης' } } }
+          { path: '', component: CaseTypesComponent, data: { title: 'Τύποι Υπόθεσης', breadcrumb: { title: 'breadcrumb.caseTypes' } } },
+          { path: 'create', component: CaseTypeCreateComponent, pathMatch: 'full', data: { title: 'Δημιουργία Υπόθεσης', breadcrumb: { title: 'breadcrumb.createCaseType' } } },
+          { path: ':caseTypeId/edit', component: CaseTypeEditComponent, pathMatch: 'full', data: { title: 'Επεξεργασία Τύπου Υπόθεσης', breadcrumb: { title: 'breadcrumb.editCaseType' } } }
         ]
       }
     ]
   },
-  { path: 'notifications', canActivate: [AuthGuardService], component: NotificationsComponent, data: { title: 'Notifications', breadcrumb: { title: 'Ειδοποιήσεις' } } },
+  { path: 'notifications', canActivate: [AuthGuardService], component: NotificationsComponent, data: { title: 'Notifications', breadcrumb: { title: 'breadcrumb.notifications' } } },
 
   /// PATHS FOR NEW SIDE PANE FORMS GO HERE
-  { path: 'new-case', component: CaseCreatePageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { title: 'New Case', paneSize: SidePaneSize.Small25, breadcrumb: { title: 'Νέα Υπόθεση' } } },
-  { path: 'queries', component: QueriesPageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { title: 'Queries', paneSize: SidePaneSize.Small25, breadcrumb: { title: 'Εύρεση' } } },
-  { path: 'logout', component: LogOutComponent, data: { title: 'Logout', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'Αποσύνδεση' } } },
-  { path: 'forbidden', component: UnauthorizedComponent, data: { title: 'Forbidden', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'Μη επαρκής πρόσβαση' } } },
-  { path: '**', component: PageNotFoundComponent, data: { title: 'Page Not Found', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'Δεν βρέθηκε η σελίδα' } } },
+  { path: 'new-case', component: CaseCreatePageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { title: 'New Case', paneSize: SidePaneSize.Small25, breadcrumb: { title: 'breadcrumb.newCase' } } },
+  { path: 'queries', component: QueriesPageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { title: 'Queries', paneSize: SidePaneSize.Small25, breadcrumb: { title: 'breadcrumb.queries' } } },
+  { path: 'logout', component: LogOutComponent, data: { title: 'Logout', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'breadcrumb.logout' } } },
+  { path: 'forbidden', component: UnauthorizedComponent, data: { title: 'Forbidden', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'breadcrumb.forbidden' } } },
+  { path: '**', component: PageNotFoundComponent, data: { title: 'Page Not Found', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'breadcrumb.pageNotFound' } } },
 ];
 
 @NgModule({

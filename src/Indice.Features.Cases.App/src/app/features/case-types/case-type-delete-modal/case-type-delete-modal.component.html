@@ -20,10 +20,9 @@
                     </div>
                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                         <h3 class="text-lg leading-6 font-medium text-gray-900"
-                            id="modal-title">Διαγραφή Τύπου Υπόθεσης</h3>
+                            id="modal-title">{{ 'caseTypes.delete.title' | translate }}</h3>
                         <div class="mt-2">
-                            <p class="text-sm text-gray-500">Είστε σίγουρος πως θέλετε
-                                να διαγράψετε αυτόν τον τύπο υπόθεσης;
+                            <p class="text-sm text-gray-500">{{ 'caseTypes.delete.confirm' | translate }}
                             </p>
                         </div>
                     </div>
@@ -31,10 +30,10 @@
                 <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                     <button type="button"
                             class="btn-delete"
-                            (click)="deleteCaseType()">Διαγραφή</button>
+                            (click)="deleteCaseType()">{{ 'common.delete' | translate }}</button>
                     <button type="button"
                             class="btn-return"
-                            (click)="closeModal(false)">Επιστροφή</button>
+                            (click)="closeModal(false)">{{ 'common.return' | translate }}</button>
                 </div>
             </div>
         </div>
