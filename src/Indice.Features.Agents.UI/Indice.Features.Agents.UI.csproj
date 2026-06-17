@@ -5,6 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>    
     <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
     <VersionSuffix>beta00</VersionSuffix>
+    
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaProjectName>browser</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Agents.App</SpaSourceFolder>
@@ -16,7 +17,6 @@
 	<ItemGroup>
 		<EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html;$(SpaDistFolder)\**\3rdpartylicenses.txt;$(SpaDistFolder)\**\prerendered-routes.json" />
 		<EmbeddedResource Include="$(SpaProjectName)\index.html" />
-		<None Include="CHANGELOG.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixCore)-*" />
