@@ -1,8 +1,4 @@
-﻿/* 
- * Attribution: https://michael-mckenna.com/multi-tenant-asp-dot-net-core-application-tenant-resolution 
- */
-
-using Indice.Features.Multitenancy.AspNetCore;
+﻿using Indice.Features.Multitenancy.AspNetCore;
 using Indice.Features.Multitenancy.AspNetCore.Authorization;
 using Indice.Features.Multitenancy.Core;
 using Microsoft.AspNetCore.Authorization;
