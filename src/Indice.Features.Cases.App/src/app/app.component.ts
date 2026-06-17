@@ -1,4 +1,3 @@
-import { TranslateService } from '@ngx-translate/core';
 import { Component } from '@angular/core';
 import { settings } from './core/models/settings';
 
@@ -18,8 +17,4 @@ import { settings } from './core/models/settings';
 })
 export class AppComponent {
   settings = settings;
-
-  constructor(translate: TranslateService) {
-    translate.setDefaultLang('el');
-  }
 }

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.Features.MultiTenancy.AspNetCore;
+namespace Indice.Features.Multitenancy.AspNetCore;
 
 /// <summary>Extensions on <see cref="IServiceCollection"/> for ordering tenant middleware.</summary>
 internal static class TenantMiddlewareExtensions

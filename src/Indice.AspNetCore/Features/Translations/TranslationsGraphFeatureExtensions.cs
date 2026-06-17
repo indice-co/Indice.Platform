@@ -41,6 +41,25 @@ public static class TranslationsGraphFeatureExtensions
     }
 
     /// <summary>
+    /// Adds translation resources. Used when we want to add translation endpoints with the
+    /// default configuration without the need to configure options.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="resourceName">A dot-delimited path to the folder containing the Resx file with the translation key-values. For example <strong>Resources.UiTranslations</strong>.</param>
+    /// <param name="endpointRoutePattern">The route pattern for the translation endpoint.</param>
+    /// <param name="resourceLocation">The assembly name containing the translation Resx files as embedded resources.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddTranslationsResource(this IServiceCollection services, string resourceName, string? endpointRoutePattern, string? resourceLocation) {
+        if(string.IsNullOrWhiteSpace(resourceName)) {
+            throw new ArgumentException("Resource name must be provided", nameof(resourceName));
+        }
+        services.Configure<TranslationsGraphOptions>(options => {
+            options.AddResource(resourceName, endpointRoutePattern, resourceLocation);
+        });
+        return services;
+    }
+
+    /// <summary>
     /// Maps the Json Translations endpoint.
     /// </summary>
     /// <param name="routes">The endpoint route builder</param>

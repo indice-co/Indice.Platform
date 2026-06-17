@@ -1,7 +1,9 @@
 import { CaseTypePartial } from './../../core/services/cases-api.service';
 import { Component, OnInit } from "@angular/core";
 import { AuthService } from "@indice/ng-auth";
-import { ToasterService, ToastType } from "@indice/ng-components";
+import { ToastType } from "@indice/ng-components";
+import { TranslateService } from "@ngx-translate/core";
+import { TranslatedToasterService } from "src/app/shared/services/translated-toaster.service";
 import { EMPTY, forkJoin } from "rxjs";
 import { tap, catchError } from "rxjs/operators";
 import { DisplayNotificationSubscriptionsViewModel, NotificationSubscriptionCategoryViewModel, NotificationSubscriptionViewModel } from "src/app/core/models/NotificationSubscriptionsViewModel";
@@ -24,7 +26,8 @@ export class NotificationsComponent implements OnInit {
     constructor(
         private _api: CasesApiService,
         private authService: AuthService,
-        private _toaster: ToasterService,
+        private _toaster: TranslatedToasterService,
+        private _translate: TranslateService,
         private caseTypeService: CaseTypeService
     ) { }
 
@@ -37,6 +40,7 @@ export class NotificationsComponent implements OnInit {
             getCaseTypes: this.caseTypeService.getCaseTypes()
         })
             .subscribe(({ getMySubscriptions: mySubscriptions, getCaseTypes: caseTypes }) => {
+                this.noCategoryName = this._translate.instant('notifications.otherCategory');
                 // create an initial view model that contains all categories and case types (and respects server-side ordering) with no active subs
                 this.displayNotificationSubscriptionsViewModel = this.createEmptyDisplayNotificationSubscriptionsViewModel(caseTypes.items!);
                 // add active subscriptions
@@ -51,11 +55,11 @@ export class NotificationsComponent implements OnInit {
         this._api.subscribe(request).pipe(
             tap(_ => {
                 this.formSubmitting = false;
-                this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Οι ρυθμίσεις σας αποθηκεύτηκαν επιτυχώς.`, 5000);
+                this._toaster.show(ToastType.Success, 'toasts.saveSuccess.title', 'toasts.settingsSaved.body', 5000);
             }),
             catchError(() => {
                 this.formSubmitting = false;
-                this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Δεν κατέστη εφικτή η αποθήκευση των ρυθμίσεών σας.`, 5000);
+                this._toaster.show(ToastType.Error, 'toasts.saveError.title', 'toasts.settingsSaveError.body', 5000);
                 return EMPTY;
             })
         ).subscribe();
