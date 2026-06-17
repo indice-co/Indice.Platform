@@ -1,16 +1,20 @@
-<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.5836340">
+﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.5836340">
   <PropertyGroup>
     <StartupCommand>npm start</StartupCommand>
     <BuildCommand>npm run build:template</BuildCommand>
     <PublishCommand>npm run build:template</PublishCommand>
     <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
     <!-- Allows the build (or compile) script located on package.json to run on Build -->
-    <ShouldRunBuildScript>true</ShouldRunBuildScript>
+    <ShouldRunBuildScript>false</ShouldRunBuildScript>
+    <shouldRunNpmInstall>false</shouldRunNpmInstall>
     <!-- Folder where production build objects will be placed -->
-    <PublishAssetsDirectory>$(MSBuildProjectDirectory)\dist\risks-app\</PublishAssetsDirectory>
+    <PublishAssetsDirectory>$(MSBuildProjectDirectory)\dist\dex-app\</PublishAssetsDirectory>
     <!-- Disable tests -->
-    <JavaScriptTestRoot></JavaScriptTestRoot>
-    <JavaScriptTestFramework></JavaScriptTestFramework>
+    <JavaScriptTestRoot>
+    </JavaScriptTestRoot>
+    <JavaScriptTestFramework>
+    </JavaScriptTestFramework>
     <IsPackable>false</IsPackable>
+    <shouldRunNpmInstall>false</shouldRunNpmInstall>
   </PropertyGroup>
 </Project>

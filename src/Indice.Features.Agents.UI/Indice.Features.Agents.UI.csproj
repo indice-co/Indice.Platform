@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>    
+    <TargetFrameworks></TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>    
+    <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
+    <VersionSuffix>beta00</VersionSuffix>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html;$(SpaDistFolder)\**\3rdpartylicenses.txt;$(SpaDistFolder)\**\prerendered-routes.json" />
+		<EmbeddedResource Include="$(SpaProjectName)\index.html" />
+		<None Include="CHANGELOG.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixCore)-*" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
+		<ProjectReference Include="..\Indice.Features.Agents.App\Indice.Features.Agents.App.esproj" Condition="'$(Configuration)' == 'Debug'">
+			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+		</ProjectReference>
+	</ItemGroup>
+</Project>

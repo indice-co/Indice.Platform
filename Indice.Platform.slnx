@@ -27,6 +27,13 @@
     <Project Path="src/Indice.EntityFrameworkCore/Indice.EntityFrameworkCore.csproj" />
     <Project Path="src/Indice.Extensions.Configuration.Database/Indice.Extensions.Configuration.Database.csproj" />
     <Project Path="src/Indice.Features.ActivityLogs/Indice.Features.ActivityLogs.csproj" />
+    <Project Path="src/Indice.Features.Agents.App/Indice.Features.Agents.App.esproj">
+      <Build />
+      <Deploy />
+    </Project>
+    <Project Path="src/Indice.Features.Agents.Core/Indice.Features.Agents.Core.csproj" />
+    <Project Path="src/Indice.Features.Agents.Server/Indice.Features.Agents.Server.csproj" />
+    <Project Path="src/Indice.Features.Agents.UI/Indice.Features.Agents.UI.csproj" />
     <Project Path="src/Indice.Features.Cases.App/Indice.Features.Cases.App.esproj">
       <Build />
       <Deploy />
