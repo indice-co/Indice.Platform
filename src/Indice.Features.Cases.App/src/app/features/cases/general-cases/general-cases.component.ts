@@ -1,12 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, SearchOption, ViewAction } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { forkJoin, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
 import { CasePartial, CasePartialResultSet, CasesApiService, CaseTypePartialResultSet, CheckpointType, } from 'src/app/core/services/cases-api.service';
 import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
+import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 import { QueriesModalComponent } from 'src/app/shared/components/query-modal/query-modal.component';
 
 @Component({
@@ -16,15 +19,17 @@ import { QueriesModalComponent } from 'src/app/shared/components/query-modal/que
 })
 export class GeneralCasesComponent extends BaseListComponent<CasePartial> implements OnInit {
     public newItemLink = 'new-case';
-    public formActions: ViewAction[] = [
-        new RouterViewAction(Icons.EntryView, 'queries', 'rightpane', 'Οι αναζητήσεις μου', 'Οι αναζητήσεις μου'),
-        new ViewAction('refresh', 'refresh', null, Icons.Refresh, 'Ανανέωση στοιχείων')
-    ];
+    public formActions: ViewAction[] = [];
     public queryParamsHasFilter = false;
     public tableFilters = new TableFilters();
     protected caseTypes: CaseTypePartialResultSet | undefined;
+    /** Cached so search-option labels can be rebuilt on language change without re-fetching. */
+    protected _checkpointTypes: CheckpointType[] = [];
+    /** Whether the user can create cases — controls the "new case" form action. */
+    protected _canCreateCase = false;
     public caseTypeTitle: string = "";
     public columns = this.setDefaultColumns();
+    private destroyRef = inject(DestroyRef);
 
     constructor(
         protected _route: ActivatedRoute,
@@ -32,16 +37,17 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
         protected _api: CasesApiService,
         protected _filterCachingService: FilterCachingService,
         protected _modalService: ModalService,
-        protected _caseTypeService: CaseTypeService
+        protected _caseTypeService: CaseTypeService,
+        protected _translate: TranslateService,
+        protected _lang: AppLanguagesService
     ) {
         super(_route, _router);
         this.view = ListViewType.Table;
         this.pageSize = 10;
         this.sort = 'createdByWhen';
         this.sortdir = 'desc';
-        this.sortOptions = [
-            new MenuOption('Ημ. Υποβολής', 'createdByWhen')
-        ];
+        this.buildSortOptions();
+        this.buildFormActions();
         this.loadFilterSettings();
     }
 
@@ -49,6 +55,34 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
         this.initialize();
         this.createNewCaseButton();
         this.initColumns();
+        // Single global signal: rebuild every TS-built label whenever the language changes
+        // (and once immediately). Columns are translated in the template, so they're not rebuilt here.
+        this._lang.onLanguageChange()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+                this.buildSortOptions();
+                this.buildFormActions();
+                this.buildSearchOptions();
+            });
+    }
+
+    protected buildSortOptions(): void {
+        this.sortOptions = [
+            new MenuOption(this._translate.instant('cases.submitDate'), 'createdByWhen')
+        ];
+    }
+
+    protected buildFormActions(): void {
+        const actions: ViewAction[] = [
+            new RouterViewAction(Icons.EntryView, 'queries', 'rightpane', this._translate.instant('cases.mySearches'), this._translate.instant('cases.mySearches')),
+            new ViewAction('refresh', 'refresh', null, Icons.Refresh, this._translate.instant('cases.refresh'))
+        ];
+        if (this._canCreateCase) {
+            actions.unshift(
+                new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', this._translate.instant('cases.submitNewCase'), this._translate.instant('cases.newCase'))
+            );
+        }
+        this.formActions = actions;
     }
 
     protected initColumns() {
@@ -103,66 +137,79 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
         }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
             //TODO: this should not be needed - we assign this so its available for the async calls
             this.caseTypes = caseTypes;
-            const tempSearchOptions: SearchOption[] = [];
-            if (this.tableFilters.ReferenceNumber) {
-                tempSearchOptions.push({
-                    field: 'referenceNumber',
-                    name: 'ΑΡΙΘΜΟΣ ΥΠΟΘΕΣΗΣ',
-                    dataType: 'string'
-                });
-            }
-            if (this.tableFilters.OwnerId) {
-                tempSearchOptions.push({
-                    field: 'ownerId',
-                    name: 'ΚΩΔΙΚΟΣ ΠΕΛΑΤΗ',
-                    dataType: 'string'
-                });
-            }
-            if (this.tableFilters.OwnerName) {
-                tempSearchOptions.push({
-                    field: 'ownerName',
-                    name: 'ΟΝΟΜΑ ΠΕΛΑΤΗ',
-                    dataType: 'string'
-                });
-            }
-            if (this.tableFilters.TaxId) {
-                tempSearchOptions.push({
-                    field: 'TaxId', 
-                    name: 'Α.Φ.Μ. ΠΕΛΑΤΗ',
-                    dataType: 'string'
-                });
-            }
-            if (this.tableFilters.GroupIds) {
-                tempSearchOptions.push({
-                    field: 'groupIds',
-                    name: 'ΑΡΙΘΜΟΣ ΚΑΤΑΣΤΗΜΑΤΟΣ',
-                    dataType: 'string',
-                    multiTerm: true
-                });
-            }
-            if (this.tableFilters.DateRange) {
-                tempSearchOptions.push({
-                    field: 'dateRange',
-                    name: 'ΗΜ. ΥΠΟΒΟΛΗΣ',
-                    dataType: 'daterange'
-                });
-            }
-            if (this.tableFilters.CaseTypeCodes) {
-                const caseTypeSearchOption = this.getCaseTypeSearchOption(caseTypes);
-                tempSearchOptions.push(caseTypeSearchOption);
-            }
-            if (this.tableFilters.CheckpointTypeCodes) {
-                const checkpointTypeSearchOption = this.getCaseTypeCheckpoints(checkpointTypes);
-                tempSearchOptions.push(checkpointTypeSearchOption);
-            }
-            const otherSearchOptions = this.getOtherSearchOptions(caseTypes);
-            if (otherSearchOptions) {
-                tempSearchOptions.push(...otherSearchOptions);
-            }
-            this.searchOptions = tempSearchOptions;
+            this._checkpointTypes = checkpointTypes;
+            this.buildSearchOptions();
             // now that we have the searchOptions, call parent's ngOnInit!
             super.ngOnInit();
         });
+    }
+
+    /**
+     * Builds the table's search/filter options with translated labels. Re-runs on language change
+     * using the cached {@link caseTypes} / {@link _checkpointTypes}, so the filter labels stay localized.
+     */
+    protected buildSearchOptions(): void {
+        const caseTypes = this.caseTypes;
+        if (!caseTypes) {
+            return;
+        }
+        const tempSearchOptions: SearchOption[] = [];
+        if (this.tableFilters.ReferenceNumber) {
+            tempSearchOptions.push({
+                field: 'referenceNumber',
+                name: this._translate.instant('cases.referenceNumber'),
+                dataType: 'string'
+            });
+        }
+        if (this.tableFilters.OwnerId) {
+            tempSearchOptions.push({
+                field: 'ownerId',
+                name: this._translate.instant('cases.customerId'),
+                dataType: 'string'
+            });
+        }
+        if (this.tableFilters.OwnerName) {
+            tempSearchOptions.push({
+                field: 'ownerName',
+                name: this._translate.instant('cases.customerName'),
+                dataType: 'string'
+            });
+        }
+        if (this.tableFilters.TaxId) {
+            tempSearchOptions.push({
+                field: 'TaxId',
+                name: this._translate.instant('cases.taxId'),
+                dataType: 'string'
+            });
+        }
+        if (this.tableFilters.GroupIds) {
+            tempSearchOptions.push({
+                field: 'groupIds',
+                name: this._translate.instant('cases.groupId'),
+                dataType: 'string',
+                multiTerm: true
+            });
+        }
+        if (this.tableFilters.DateRange) {
+            tempSearchOptions.push({
+                field: 'dateRange',
+                name: this._translate.instant('cases.submitDate'),
+                dataType: 'daterange'
+            });
+        }
+        if (this.tableFilters.CaseTypeCodes) {
+            const caseTypeSearchOption = this.getCaseTypeSearchOption(caseTypes);
+            tempSearchOptions.push(caseTypeSearchOption);
+        }
+        if (this.tableFilters.CheckpointTypeCodes) {
+            const checkpointTypeSearchOption = this.getCaseTypeCheckpoints(this._checkpointTypes);
+            tempSearchOptions.push(checkpointTypeSearchOption);
+        }
+        const otherSearchOptions = this.getOtherSearchOptions(caseTypes);
+        if (otherSearchOptions) {
+            tempSearchOptions.push(...otherSearchOptions);
+        }
+        this.searchOptions = tempSearchOptions;
     }
 
     public loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
@@ -230,9 +277,8 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
             .subscribe(
                 (caseTypesForCaseCreation: CasePartialResultSet) => {
                     if (caseTypesForCaseCreation.count !== 0) {
-                        this.formActions.unshift(
-                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'Υποβολή νέας υπόθεσης', 'Νέα υπόθεση')
-                        );
+                        this._canCreateCase = true;
+                        this.buildFormActions();
                     }
                 }
             );
@@ -252,7 +298,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     protected getCaseTypeCheckpoints(checkpointTypes: CheckpointType[]) {
         const checkpointTypeSearchOption: SearchOption = {
             field: 'checkpointTypeCodes',
-            name: 'ΤΡΕΧΟΝ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ',
+            name: this._translate.instant('cases.checkpointType'),
             dataType: 'array',
             options: [],
             multiTerm: true
@@ -267,7 +313,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     protected getCaseTypeSearchOption(caseTypes: CaseTypePartialResultSet) {
         const caseTypeSearchOption: SearchOption = {
             field: 'caseTypeCodes',
-            name: 'ΤΥΠΟΣ ΥΠΟΘΕΣΗΣ',
+            name: this._translate.instant('cases.caseType'),
             dataType: 'array',
             options: [],
             multiTerm: true

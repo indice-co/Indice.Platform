@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalService, SearchOption } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { CasesApiService, CaseTypePartialResultSet, CheckpointType, } from 'src/app/core/services/cases-api.service';
 import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
 import { GeneralCasesComponent } from '../general-cases/general-cases.component';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
+import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 import { map } from 'rxjs';
 
 @Component({
@@ -20,8 +22,10 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
     protected _caseTypeService: CaseTypeService,
+    protected _translate: TranslateService,
+    protected _lang: AppLanguagesService,
   ) {
-    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService);
+    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService, _translate, _lang);
     this._route.params.subscribe(() => {
       this.initialize();
     })
@@ -58,7 +62,7 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
   getCaseTypeCheckpoints(checkpointTypes: CheckpointType[]) {
     const checkpointTypeSearchOption: SearchOption = {
       field: 'checkpointTypeCodes',
-      name: 'ΤΡΕΧΟΝ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ',
+      name: this._translate.instant('cases.checkpointType'),
       dataType: 'array',
       options: [],
       multiTerm: true
@@ -74,7 +78,7 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
   getCaseTypeSearchOption(caseTypes: CaseTypePartialResultSet) {
     const caseTypeSearchOption: SearchOption = {
       field: 'caseTypeCodes',
-      name: 'ΤΥΠΟΣ ΥΠΟΘΕΣΗΣ',
+      name: this._translate.instant('cases.caseType'),
       dataType: 'array',
       options: [],
       multiTerm: true,

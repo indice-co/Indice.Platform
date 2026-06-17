@@ -1,10 +1,11 @@
 import { JsonSchemaFormService } from "@ajsf-extended/core";
 import { Component, Input, OnInit } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
-import { ToasterService, ToastType } from "@indice/ng-components";
+import { ToastType } from "@indice/ng-components";
 import { tap } from "rxjs/operators";
 import { CasesApiService } from "src/app/core/services/cases-api.service";
 import { FileUploadService } from "src/app/core/services/file-upload.service";
+import { TranslatedToasterService } from "src/app/shared/services/translated-toaster.service";
 
 @Component({
     templateUrl: './file-widget.component.html',
@@ -28,7 +29,7 @@ export class FileWidgetComponent implements OnInit {
     accept: string = '*.*';
 
     constructor(
-        private _toaster: ToasterService,
+        private _toaster: TranslatedToasterService,
         private _api: CasesApiService,
         private _jsf: JsonSchemaFormService,
         private _fileUploadService: FileUploadService
@@ -53,7 +54,7 @@ export class FileWidgetComponent implements OnInit {
             event.target.value = '';
             this._jsf.updateValue(this, undefined);
             // TODO: make this a validation error
-            this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Μη αποδεκτός τύπος αρχείου.`, 5000);
+            this._toaster.show(ToastType.Error, 'toasts.saveError.title', 'toasts.invalidFileType.body', 5000);
             return;
         }
         const value = event.target.files.length > 0 ? this.layoutNode.dataPointer : undefined;
