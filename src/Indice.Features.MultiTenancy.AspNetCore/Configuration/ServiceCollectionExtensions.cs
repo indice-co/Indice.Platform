@@ -22,18 +22,6 @@ public static class ServiceCollectionExtensions
         services.AddDistributedMemoryCache();
         services.AddTransient<ITenantAccessor<TTenant>, TenantAccessorHttpContext<TTenant>>();
         services.AddTransient<IAuthorizationHandler, BeTenantMemberHandler<TTenant>>();
-        return builder;
-    }
-
-    /// <summary>Adds the required services, using the specified tenant type and adds the tenant middleware.</summary>
-    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    /// <returns>The builder used to configure the multi-tenancy feature.</returns>
-    public static TenantBuilder<TTenant> UseMultiTenancy<TTenant>(this IServiceCollection services) where TTenant : Tenant {
-        var builder = services.AddMultiTenancyCore<TTenant>();
-        services.AddHttpContextAccessor();
-        services.AddDistributedMemoryCache();
-        services.AddTransient<ITenantAccessor<TTenant>, TenantAccessorHttpContext<TTenant>>();
-        services.AddTransient<IAuthorizationHandler, BeTenantMemberHandler<TTenant>>();
         services.AddTenantMiddleware<TTenant>();
         return builder;
     }

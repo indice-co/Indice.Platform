@@ -13,9 +13,11 @@ public static class IApplicationBuilderExtensions
     /// <summary>Registers multi-tenancy middleware.</summary>
     /// <typeparam name="TTenant">The type of the tenant.</typeparam>
     /// <param name="builder">The builder used to configure the multi-tenancy feature.</param>
-    public static IApplicationBuilder UseMultiTenancy<TTenant>(this IApplicationBuilder builder) where TTenant : Tenant => builder.UseMiddleware<TenantMiddleware<TTenant>>();
+    [Obsolete("AddMultiTenancy already adds the TenantMiddleware so this is not required any more")]
+    public static IApplicationBuilder UseMultiTenancy<TTenant>(this IApplicationBuilder builder) where TTenant : Tenant => builder;
 
     /// <summary>Registers multi-tenancy middleware.</summary>
     /// <param name="builder">The builder used to configure the multi-tenancy feature.</param>
-    public static IApplicationBuilder UseMultiTenancy(this IApplicationBuilder builder) => builder.UseMiddleware<TenantMiddleware<Tenant>>();
+    [Obsolete("AddMultiTenancy already adds the TenantMiddleware so this is not required any more")]
+    public static IApplicationBuilder UseMultiTenancy(this IApplicationBuilder builder) => builder;
 }
