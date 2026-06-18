@@ -1,6 +1,5 @@
 ﻿@inject IWebHostEnvironment Environment
 @inject IOptions<GeneralSettings> GeneralSettingsWrapper
-@inject IOptions<IdentityUIOptions> IdentityUIOptionsWrapper
 @inject ExtendedSignInManager<User> SignInManager
 @inject ExtendedUserManager<User> UserManager
 @inject IdentityUILocalizer Localizer
@@ -8,12 +7,10 @@
 @{
     var displayMenu = SignInManager.IsSignedIn(User) && !User.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationScheme);
     var generalSettings = GeneralSettingsWrapper.Value;
-    var showRibbon = !Environment.IsProduction();
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
     var user = await UserManager.GetUserAsync(User);
 
-    var UiOptions = IdentityUIOptionsWrapper.Value;
 }
 
 @if (displayMenu)

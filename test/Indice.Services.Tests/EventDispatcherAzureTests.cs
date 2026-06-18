@@ -29,7 +29,7 @@ public class EventDispatcherAzureTests
         var queueClient = await EnsureExistsAsync("test");
         var message = await queueClient.ReceiveMessageAsync();
         var messageBody = await CompressionUtils.DecompressToString(message.Value.Body.ToArray());
-        var json = JsonSerializer.Deserialize<JsonElement>(messageBody);
+        JsonSerializer.Deserialize<JsonElement>(messageBody);
     }
 
     private async Task<QueueClient> EnsureExistsAsync(string queueName) {

@@ -16,7 +16,7 @@ public class EnvelopeTests
         var message = Envelope.Create(user, payload);
         var json = JsonSerializer.Serialize(message);
         var messageResult = JsonSerializer.Deserialize<Envelope>(json)!;
-        var data = messageResult.ReadAs<DummyPayload>();
+        messageResult.ReadAs<DummyPayload>();
     }
 
     public class DummyPayload

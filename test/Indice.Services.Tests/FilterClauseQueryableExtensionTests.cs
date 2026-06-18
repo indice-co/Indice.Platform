@@ -57,13 +57,13 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
     public async Task ToResultset_Translates_DynamicJsonPaths_Sort_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
         var query = dbContext.Dummies;
-        var results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName,name" });
-        results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName" });
-        results = await query.ToResultSetAsync(new ListOptions { Sort = "(integer)data.order" });
-        results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.period.from+" });
-        results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.birthDate-" });
-        results = await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
-        results = await query.ToResultSetAsync(new ListOptions { Sort = "(boolean)data.enabled-" });
+        await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName,name" });
+        await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName" });
+        await query.ToResultSetAsync(new ListOptions { Sort = "(integer)data.order" });
+        await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.period.from+" });
+        await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.birthDate-" });
+        await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
+        await query.ToResultSetAsync(new ListOptions { Sort = "(boolean)data.enabled-" });
         Assert.True(true);
     }
 
@@ -75,7 +75,7 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
         foreach (var sorting in options.GetSortings()) {
             query = query.OrderBy(sorting, append: true);
         }
-        var results = await query.ToResultSetAsync(options.Page ?? 1, options.Size ?? 100);
+        await query.ToResultSetAsync(options.Page ?? 1, options.Size ?? 100);
         Assert.True(true);
     }
 

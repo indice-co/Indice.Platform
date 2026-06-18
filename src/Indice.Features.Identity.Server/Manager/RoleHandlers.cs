@@ -50,7 +50,7 @@ internal static class RoleHandlers
             Name = request.Name,
             Description = request.Description
         };
-        var result = await roleManager.CreateAsync(role);
+        await roleManager.CreateAsync(role);
         return TypedResults.CreatedAtRoute(new RoleInfo {
             Id = role.Id,
             Name = role.Name,

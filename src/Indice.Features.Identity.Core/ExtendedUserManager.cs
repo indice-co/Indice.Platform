@@ -362,7 +362,6 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
-        var changed = user.Blocked != blocked;
         user.Blocked = blocked;
         var result = await UpdateAsync(user);
         if (result.Succeeded && blocked) {
