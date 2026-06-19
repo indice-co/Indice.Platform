@@ -5,24 +5,24 @@
     <!--<TargetFramework></TargetFramework>-->
 
     <VersionPrefixMajor>8</VersionPrefixMajor>
-    <VersionPrefixBase>$(VersionPrefixMajor).49</VersionPrefixBase>
+    <VersionPrefixBase>$(VersionPrefixMajor).50</VersionPrefixBase>
 
-    <VersionPrefixCore>$(VersionPrefixBase).1</VersionPrefixCore>
-    <VersionPrefixIdentity>$(VersionPrefixBase).1</VersionPrefixIdentity>
-    <VersionPrefixIdentityUI>$(VersionPrefixBase).1</VersionPrefixIdentityUI>
+    <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
+    <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
+    <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
     <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
-    <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
+    <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
     <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
     <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
     <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
     <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
     <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
-    <VersionPrefixAspNet>$(VersionPrefixBase).1</VersionPrefixAspNet>
+    <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
     <VersionPrefixActivityLogs>$(VersionPrefixBase).0</VersionPrefixActivityLogs>
     <VersionPrefixFtpServer>$(VersionPrefixBase).0</VersionPrefixFtpServer>
     <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 
-    <!--<VersionSuffix>rc06</VersionSuffix>-->
+    <VersionSuffix>rc01</VersionSuffix>
     <Authors>Constantinos Leftheris</Authors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>Latest</LangVersion>
