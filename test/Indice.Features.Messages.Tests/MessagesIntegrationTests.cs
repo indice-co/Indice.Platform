@@ -96,7 +96,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             }
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+        using var createTemplateContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
+        await _httpClient.PostAsync("/api/templates", createTemplateContent);
 
         //action
         var createCampaignRequest = new CreateCampaignRequest {
@@ -110,7 +111,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             MessageTemplateId = new GuidOrAlias(templateAlias)
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent);
         var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
         if (!createCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
@@ -158,7 +160,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             }
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+        using var createTemplateContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
+        await _httpClient.PostAsync("/api/templates", createTemplateContent);
 
         //action
         var createCampaignRequest = new CreateCampaignRequest {
@@ -173,7 +176,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.PushNotification]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent);
         var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
         if (!createCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
@@ -221,7 +225,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             }
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+        using var createTemplateHttpContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
+        await _httpClient.PostAsync("/api/templates", createTemplateHttpContent);
 
         //action
         var createCampaignRequest = new CreateCampaignRequest {
@@ -236,7 +241,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.Inbox]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        using var createCampaignHttpContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignHttpContent);
         var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
         if (!createCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
@@ -283,7 +289,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             }
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+        using var createTemplateHttpContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
+        await _httpClient.PostAsync("/api/templates", createTemplateHttpContent);
 
         //action
         var createCampaignRequest = new CreateCampaignRequest {
@@ -298,7 +305,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             MessageTemplateChannels = [MessageChannelKind.Inbox, MessageChannelKind.SMS]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        using var createCampaignHttpContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignHttpContent);
         var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
         if (!createCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
