@@ -382,10 +382,10 @@
     <value>This email was sent to {0}.</value>
   </data>
   <data name="OrganizationLegalName" xml:space="preserve">
-    <value>Indice S.A.</value>
+    <value />
   </data>
   <data name="OrganizationAddress" xml:space="preserve">
-    <value>22, Iakchou Str, Athens 11854</value>
+    <value />
   </data>
   <data name="EmailFooter_RegistryNumber" xml:space="preserve">
     <value>GEMH: {0}</value>

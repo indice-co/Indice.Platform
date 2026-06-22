@@ -381,11 +381,12 @@
   <data name="EmailFooter_SentTo" xml:space="preserve">
     <value>Este e-mail foi enviado para {0}.</value>
   </data>
-  <data name="OrganizationLegalName" xml:space="preserve">
-    <value>Indice S.A.</value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="OrganizationLegalName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
   </data>
-  <data name="OrganizationAddress" xml:space="preserve">
-    <value>22, Iakchou Str, Athens 11854</value>
+  <data name="OrganizationAddress" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
   </data>
   <data name="EmailFooter_RegistryNumber" xml:space="preserve">
     <value>GEMH: {0}</value>

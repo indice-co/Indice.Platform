@@ -379,13 +379,14 @@
     <value>{0}</value>
   </data>
   <data name="EmailFooter_SentTo" xml:space="preserve">
-    <value>Αυτό το email στάλθηκε στη διεύθυνση {0}.</value>
+    <value>Παραλήπτης αυτού του email: {0}.</value>
   </data>
-  <data name="OrganizationLegalName" xml:space="preserve">
-    <value>Indice A.E.</value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="OrganizationLegalName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
   </data>
-  <data name="OrganizationAddress" xml:space="preserve">
-    <value>22, Ιάκχου, Αθήνα 11854</value>
+  <data name="OrganizationAddress" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
   </data>
   <data name="EmailFooter_RegistryNumber" xml:space="preserve">
     <value>ΓΕΜΗ: {0}</value>

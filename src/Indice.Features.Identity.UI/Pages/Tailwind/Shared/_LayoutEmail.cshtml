@@ -12,9 +12,9 @@
     var supportEmail = legalEntity["OrganizationSupportEmail"] ?? "";
     var culture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
     var recipientEmail = GetSafeRecipientEmail();
-    var organizationLegalName = (Localizer.OrganizationLegalName() ?? legalEntity["OrganizationLegalName"])!.ToString();
-    var organizationAddress = (Localizer.OrganizationAddress() ?? legalEntity["OrganizationAddress"])!.ToString();
-    var organizationRegistryNumber =  legalEntity["OrganizationRegistryNumber"]!.ToString();
+    var organizationLegalName = Localizer.OrganizationLegalName(legalEntity["OrganizationLegalName"]);
+    var organizationAddress = Localizer.OrganizationAddress(legalEntity["OrganizationAddress"]);
+    var organizationRegistryNumber = legalEntity["OrganizationRegistryNumber"];
 }
 
 @functions {
@@ -60,12 +60,15 @@
                     }
                     <tr>
                         <td align="center" style="padding: 2px 0 0; font-size: 11px; color: #595959;">
-                            &copy; @ui.CopyYear @organizationLegalName
-                            @if (!string.IsNullOrWhiteSpace(organizationAddress)) {
-                                <text>&bull; @organizationAddress</text>
+                            &copy; @ui.CopyYear
+                            @if (!string.IsNullOrWhiteSpace(organizationLegalName.Value)) {
+                                <text> @organizationLegalName</text>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(organizationAddress.Value)) {
+                                <text> &bull; @organizationAddress</text>
                             }
                             @if (!string.IsNullOrWhiteSpace(organizationRegistryNumber)) {
-                                <text>&bull; @Localizer.EmailFooter_RegistryNumber(organizationRegistryNumber)</text>
+                                <text> &bull; @Localizer.EmailFooter_RegistryNumber(organizationRegistryNumber)</text>
                             }
                         </td>
                     </tr>
@@ -93,7 +96,7 @@
                         </tr>
                     }
                     <tr>
-                        <td align="center" style="padding: 0 0 8px; font-size: 11px; color: #8a8a8a;">
+                        <td align="center" style="padding: 2px 0 4px; font-size: 11px; color: #8a8a8a;">
                             @Localizer.ConfirmEmail_DoNotReply
                             @Localizer.ConfirmEmail_ServiceEmailInfo
                         </td>

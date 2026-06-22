@@ -842,70 +842,7 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Email_Body_Organization_Signature", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to This email was sent to {0}..
-        /// </summary>
-        public static string EmailFooter_SentTo {
-            get {
-                return ResourceManager.GetString("EmailFooter_SentTo", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Indice S.A..
-        /// </summary>
-        public static string OrganizationLegalName {
-            get {
-                return ResourceManager.GetString("OrganizationLegalName", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to 22, Iakchou Str, Athens 11854.
-        /// </summary>
-        public static string OrganizationAddress {
-            get {
-                return ResourceManager.GetString("OrganizationAddress", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to GEMH: {0}.
-        /// </summary>
-        public static string EmailFooter_RegistryNumber {
-            get {
-                return ResourceManager.GetString("EmailFooter_RegistryNumber", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Need help?.
-        /// </summary>
-        public static string EmailFooter_NeedHelp {
-            get {
-                return ResourceManager.GetString("EmailFooter_NeedHelp", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Call {0}.
-        /// </summary>
-        public static string EmailFooter_CallSupport {
-            get {
-                return ResourceManager.GetString("EmailFooter_CallSupport", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Email {0}.
-        /// </summary>
-        public static string EmailFooter_EmailSupport {
-            get {
-                return ResourceManager.GetString("EmailFooter_EmailSupport", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Sincerely.
         /// </summary>
@@ -993,6 +930,51 @@ namespace Indice.Features.Identity.UI {
         public static string Email_ResetPassword_RequestInfo {
             get {
                 return ResourceManager.GetString("Email_ResetPassword_RequestInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Call {0}.
+        /// </summary>
+        public static string EmailFooter_CallSupport {
+            get {
+                return ResourceManager.GetString("EmailFooter_CallSupport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email {0}.
+        /// </summary>
+        public static string EmailFooter_EmailSupport {
+            get {
+                return ResourceManager.GetString("EmailFooter_EmailSupport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Need help?.
+        /// </summary>
+        public static string EmailFooter_NeedHelp {
+            get {
+                return ResourceManager.GetString("EmailFooter_NeedHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GEMH: {0}.
+        /// </summary>
+        public static string EmailFooter_RegistryNumber {
+            get {
+                return ResourceManager.GetString("EmailFooter_RegistryNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This email was sent to {0}..
+        /// </summary>
+        public static string EmailFooter_SentTo {
+            get {
+                return ResourceManager.GetString("EmailFooter_SentTo", resourceCulture);
             }
         }
         
@@ -1166,7 +1148,7 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("EmailSecurity_Subject", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Go back home.
         /// </summary>
@@ -1823,31 +1805,13 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Mfa_EnterCodeFromAuthenticatorApp", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Recovery Code.
-        /// </summary>
-        public static string Mfa_RecoveryCode {
-            get {
-                return ResourceManager.GetString("Mfa_RecoveryCode", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to You have requested to log in with a recovery code. This login will not be remembered until you provide an authenticator app code at log in or disable 2FA and log in again..
         /// </summary>
         public static string Mfa_EnterRecoveryCode {
             get {
                 return ResourceManager.GetString("Mfa_EnterRecoveryCode", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid recovery code entered..
-        /// </summary>
-        public static string Mfa_InvalidRecoveryCode {
-            get {
-                return ResourceManager.GetString("Mfa_InvalidRecoveryCode", resourceCulture);
             }
         }
         
@@ -1857,6 +1821,15 @@ namespace Indice.Features.Identity.UI {
         public static string Mfa_IdentityVerificationWasDenied {
             get {
                 return ResourceManager.GetString("Mfa_IdentityVerificationWasDenied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid recovery code entered..
+        /// </summary>
+        public static string Mfa_InvalidRecoveryCode {
+            get {
+                return ResourceManager.GetString("Mfa_InvalidRecoveryCode", resourceCulture);
             }
         }
         
@@ -1911,6 +1884,15 @@ namespace Indice.Features.Identity.UI {
         public static string Mfa_PageTitle {
             get {
                 return ResourceManager.GetString("Mfa_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recovery Code.
+        /// </summary>
+        public static string Mfa_RecoveryCode {
+            get {
+                return ResourceManager.GetString("Mfa_RecoveryCode", resourceCulture);
             }
         }
         
@@ -2334,6 +2316,24 @@ namespace Indice.Features.Identity.UI {
         public static string MfaOnBoardingVerifyPhone_Save {
             get {
                 return ResourceManager.GetString("MfaOnBoardingVerifyPhone_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string OrganizationAddress {
+            get {
+                return ResourceManager.GetString("OrganizationAddress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string OrganizationLegalName {
+            get {
+                return ResourceManager.GetString("OrganizationLegalName", resourceCulture);
             }
         }
         
