@@ -88,6 +88,7 @@ public class LockManagerAzureTests
         var bytes = await _FileService.GetAsync($"messages/{operation}.json");
         var message = JsonSerializer.Deserialize<(string LeaseId, string Name)>(Encoding.UTF8.GetString(bytes), JsonSerializerOptionDefaults.GetDefaultSettings());
         var @lock = await _LockManager.Renew(message.Name, message.LeaseId);
+        Assert.NotNull(@lock);
         await Task.Delay(TimeSpan.FromSeconds(10));
     }
 
