@@ -54,12 +54,12 @@ public static class OpenApiExtensions
             }
             return Task.CompletedTask;
         });
-        options.AddNullableTransformer();
+        options.AddJsonConverterTransformer();
         options.AddMappedTypeTransformer();
         options.AddFluentValidationTransformer();
         options.AddConventionsTransformer();
-        options.AddJsonConverterTransformer();
         options.AddEnumTransformer();
+        options.AddNullableTransformer();
         options.AddEndpointSecurityRequirementsTransformer();
         options.AddDocumentTransformer<CanonicalDocumentTransformer>();
         options.AddExamplesTransformer();
