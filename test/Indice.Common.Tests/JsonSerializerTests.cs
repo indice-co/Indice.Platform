@@ -146,6 +146,8 @@ public class JsonSerializerTests
         var json = JsonSerializer.Serialize(model, options);
         Assert.Equal(jsonExpected, json);
         var output = JsonSerializer.Deserialize<MusicLibrary>(json, options);
+        Assert.NotNull(output);
+        Assert.Equal(json, JsonSerializer.Serialize(output, options));
     }
 
     [Fact]
@@ -159,13 +161,15 @@ public class JsonSerializerTests
         var sourceModel = new PocoValue<bool> { Value = true };
         var json = JsonSerializer.Serialize(sourceModel, options);
         var targetModel = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
+        Assert.Equal("true", targetModel!.Value);
         var sourceModel1 = new PocoValue<TheMystery> { Value = new TheMystery { FirstName = "Gus", LastName = "Coin" } };
         json = JsonSerializer.Serialize(sourceModel1, options);
         var targetModel1 = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
+        Assert.Equal("{\"firstName\":\"Gus\",\"lastName\":\"Coin\"}", targetModel1!.Value);
         var sourceModel2 = new PocoValue<double> { Value = 1010.45 };
         json = JsonSerializer.Serialize(sourceModel2, options);
         var targetModel2 = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
-
+        Assert.Equal("1010.45", targetModel2!.Value);
     }
 
     [Fact]
