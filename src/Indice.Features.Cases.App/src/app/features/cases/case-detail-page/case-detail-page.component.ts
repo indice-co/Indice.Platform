@@ -1,10 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToasterService, ToastType } from '@indice/ng-components';
+import { ToastType } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { iif, Observable, ReplaySubject, of } from 'rxjs';
 import { filter, map, shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import { CaseActions, Case, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage, CasePartial } from 'src/app/core/services/cases-api.service';
+import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 
 @Component({
     selector: 'app-case-detail-page',
@@ -37,14 +39,21 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
   /** shows the warning modal conditionally */
   public showWarningModal: boolean = false;
-  public warningModalState = { title: 'Έγκριση υπόθεσης', description: 'Δεν έχετε τυπώσει το PDF της υπόθεσης, θέλετε να προχωρήσετε στην έγκρισή της;' };
+  /** Built fresh on each read so it re-translates live when the language changes. */
+  public get warningModalState() {
+    return {
+      title: this._translate.instant('caseDetails.approveWarning.title'),
+      description: this._translate.instant('caseDetails.approveWarning.description')
+    };
+  }
 
   constructor(
     private api: CasesApiService,
     private caseDetailsService: CaseDetailsService,
     private route: ActivatedRoute,
     private router: Router,
-    private toaster: ToasterService) { }
+    private _translate: TranslateService,
+    private toaster: TranslatedToasterService) { }
 
   ngOnInit(): void {
     this.route.params.pipe(
@@ -116,7 +125,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   }
 
   onCaseDiscarded() {
-    this.toaster.show(ToastType.Info, 'Ακύρωση υπόθεσης', 'Η υπόθεση έχει ακυρωθεί');
+    this.toaster.show(ToastType.Info, 'caseDetails.discardDraft.title', 'toasts.caseDiscarded.body');
     this.router.navigate(['/cases']);
   }
 

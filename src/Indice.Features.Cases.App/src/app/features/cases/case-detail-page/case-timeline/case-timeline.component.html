@@ -1,5 +1,5 @@
 <div class="mt-auto pt-1 space-y-1 pl-1">
-  <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Ιστορικό</h3>
+  <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">{{ 'caseDetails.timeline.title' | translate }}</h3>
   <ol class="relative border-l border-gray-200">
     @for (entry of timelineEntries; track entry) {
       <li
@@ -51,10 +51,10 @@
                   <span>{{entry.checkpoint?.checkpointType?.title ?? entry.checkpoint?.checkpointType?.code}}</span>
                 }
                 @if (entry.comment && !entry.comment.attachment?.id) {
-                  <span>Σχόλιο</span>
+                  <span>{{ 'common.comment' | translate }}</span>
                 }
                 @if (entry.comment && entry.comment.attachment?.id) {
-                  <span>Επισύναψη Αρχείου</span>
+                  <span>{{ 'caseDetails.timeline.attachment' | translate }}</span>
                 }
                 @if (entry.checkpoint?.checkpointType?.private) {
                   <span
@@ -62,7 +62,7 @@
                 }
                 @if (entry.comment?.isCustomer) {
                   <span
-                  class="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded ml-3">Πελάτης</span>
+                  class="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded ml-3">{{ 'caseDetails.timeline.customer' | translate }}</span>
                 }
                 <ng-container *ngTemplateOutlet="publicStatus;context:{status: entry.checkpoint?.checkpointType?.status, index: $index}">
                 </ng-container>
@@ -98,7 +98,7 @@
                     <path fill-rule="evenodd"
                       d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z"
                     clip-rule="evenodd"></path>
-                  </svg> Download </button>
+                  </svg> {{ 'common.download' | translate }} </button>
                 </div>
               </div>
             }
@@ -119,11 +119,11 @@
         }"
           class="ml-2 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded"
           [attr.data-tooltip-target]="'tooltip-public-status-' + index"
-        title="Δημόσιο Status">{{status}}</span>
+        [title]="'caseDetails.timeline.publicStatus' | translate">{{status}}</span>
         <div [attr.id]="'tooltip-public-status-' + index"
           role="tooltip"
           class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-dark-green rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip ">
-          Δημόσιο Status
+          {{ 'caseDetails.timeline.publicStatus' | translate }}
           <div class="tooltip-arrow"
           data-popper-arrow></div>
         </div>

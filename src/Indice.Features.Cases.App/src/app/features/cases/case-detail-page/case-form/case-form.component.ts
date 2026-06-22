@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, OnDestroy } from '@angular/core';
-import { ToasterService, ToastType } from '@indice/ng-components';
+import { ToastType } from '@indice/ng-components';
+import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 import { EMPTY, forkJoin, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Case, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDetails } from 'src/app/core/services/cases-api.service';
@@ -76,7 +77,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
 
     constructor(
         private router: Router,
-        private _toaster: ToasterService,
+        private _toaster: TranslatedToasterService,
         private _api: CasesApiService,
         private _fileUploadService: FileUploadService,
         private changeDetector: ChangeDetectorRef
@@ -170,11 +171,11 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                                 .pipe(
                                     tap(() => {
                                         this._fileUploadService.reset();
-                                        this._toaster.show(ToastType.Success, 'Επιτυχής Καταχώριση', `Η αρχική καταχώριση της υπόθεσης ολοκληρώθηκε.`, 5000);
+                                        this._toaster.show(ToastType.Success, 'toasts.caseSubmitted.title', 'toasts.caseSubmitted.body', 5000);
                                         this.updateDataEvent.emit({ draft: true });
                                     }),
                                     catchError((err: ProblemDetails) => { // error during case submit
-                                        this._toaster.show(ToastType.Error, 'Αποτυχία Καταχώρισης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της υπόθεσής σας.`, 5000);
+                                        this._toaster.show(ToastType.Error, 'toasts.caseSubmitError.title', err.detail || 'toasts.caseSubmitError.body', 5000);
                                         this.router.navigate(['/cases']);
                                         return EMPTY;
                                     })
@@ -189,11 +190,11 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                                         this.formIsDirty = false;
                                         this.unSavedChanges.emit(this.formIsDirty);
                                         this.updateDataEvent.emit({ draft: false });
-                                        this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Οι αλλαγές σας αποθηκεύτηκαν με επιτυχία.`, 5000);
+                                        this._toaster.show(ToastType.Success, 'toasts.saveSuccess.title', 'toasts.saveSuccess.body', 5000);
                                         this._fileUploadService.reset();
                                     }),
                                     catchError(() => {
-                                        this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Δεν κατέστη εφικτό να αποθηκευτούν οι αλλαγές σας.`, 5000);
+                                        this._toaster.show(ToastType.Error, 'toasts.saveError.title', 'toasts.saveError.body', 5000);
                                         return EMPTY;
                                     })
                                 )
@@ -201,7 +202,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                         }
                     }),
                 catchError(() => { // error during attachments upload
-                    this._toaster.show(ToastType.Error, 'Αποτυχία Καταχώρισης', `Προέκυψε πρόβλημα κατά την αποθήκευση των εγγράφων.`, 5000);
+                    this._toaster.show(ToastType.Error, 'toasts.caseSubmitError.title', 'toasts.attachmentsError.body', 5000);
                     return EMPTY;
                 }))
             .subscribe();

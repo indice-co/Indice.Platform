@@ -197,6 +197,7 @@ public class UserHandlersTests : IAsyncLifetime
                 new() { Type = "locale", Value = "el" }
             ],
         });
+        Assert.IsType<Ok<SingleUserInfo>>(result.Result);
 
         // Verify phone number was cleared
         var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
@@ -235,6 +236,7 @@ public class UserHandlersTests : IAsyncLifetime
             PhoneNumber = "   ",
             PhoneNumberConfirmed = false
         });
+        Assert.IsType<Ok<SingleUserInfo>>(result.Result);
 
         // Verify phone number was cleared
         var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
@@ -304,6 +306,7 @@ public class UserHandlersTests : IAsyncLifetime
             Email = "test.user4@indice.gr",
             PhoneNumber = "  +306912345678  "
         });
+        Assert.IsType<Ok<SingleUserInfo>>(result.Result);
 
         // Verify phone number was formatted and stored
         var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);

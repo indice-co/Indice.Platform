@@ -1,5 +1,5 @@
 @if (model$ | async; as model) {
-  <lib-view-layout [title]="'Λεπτομέρειες Υπόθεσης'"
+  <lib-view-layout [title]="'caseDetails.title' | translate"
     >
     @if (caseActions$ | async; as caseActions) {
       <main class="details-view-container">
@@ -8,7 +8,7 @@
             <section aria-labelledby="menu"
               class="min-w-full">
               <div class="bg-white shadow rounded-sm">
-                <app-case-detail-info [title]="'Βασικά στοιχεία υπόθεσης'"
+                <app-case-detail-info [title]="'caseDetails.basicInfo' | translate"
                                                   [keyValuePairs]="{
                                                     'caseDetails.caseId': model?.id,
                                                     'caseDetails.referenceNumber': model?.referenceNumber?.toString(),
@@ -18,7 +18,7 @@
                                                     'caseDetails.checkpoint':model?.checkpointType?.title ??model?.checkpointType?.code,
                                                     'caseDetails.assignedTo':model?.assignedToName || ' - '}">
                 </app-case-detail-info>
-                <app-case-detail-info [title]="'Στοιχεία Πελάτη/Επαφής'"
+                <app-case-detail-info [title]="'caseDetails.customerInfo' | translate"
                                                   [keyValuePairs]="{
                                                     'caseDetails.customerId': model?.ownerId,
                                                     'caseDetails.customerName': model?.ownerName,
@@ -27,7 +27,7 @@
                 </app-case-detail-info>
                 @if (model?.metadata?.UserRole) {
                   <app-case-detail-info
-                    [title]="'Στοιχεία Χρήστη'"
+                    [title]="'caseDetails.userInfo' | translate"
                                                   [keyValuePairs]="{
                                                     'caseDetails.userSurname': model?.metadata?.UserSurname,
                                                     'caseDetails.userFirstName': model?.metadata?.UserFirstName,

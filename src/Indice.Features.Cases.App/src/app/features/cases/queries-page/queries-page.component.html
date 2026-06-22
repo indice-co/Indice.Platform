@@ -1,4 +1,4 @@
-<lib-side-view-layout [title]="'Οι αναζητήσεις μου'"
+<lib-side-view-layout [title]="'cases.mySearches' | translate"
   [ok-show]="false"
   [cancel-show]="false">
   @if ((queries$ | async); as queries) {
@@ -19,9 +19,9 @@
                           <td
                             class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-2">
                             <a (click)="openDeleteQueryModal(query)"
-                            class="cursor-pointer text-red-600 hover:text-red-900 pr-5">Διαγραφή</a>
+                            class="cursor-pointer text-red-600 hover:text-red-900 pr-5">{{ 'common.delete' | translate }}</a>
                             <a (click)="applyQuery(query)"
-                            class="cursor-pointer text-indigo-600 hover:text-indigo-900 pr-2">Εφαρμογή</a>
+                            class="cursor-pointer text-indigo-600 hover:text-indigo-900 pr-2">{{ 'common.apply' | translate }}</a>
                           </td>
                         </tr>
                       }
@@ -34,7 +34,7 @@
         </form>
       } @else {
         <h3 class="pt-5 text-lg leading-6 font-medium text-gray-900">
-          Δεν έχετε αποθηκευμένες αναζητήσεις!
+          {{ 'cases.noSavedSearches' | translate }}
         </h3>
       }
     </div>

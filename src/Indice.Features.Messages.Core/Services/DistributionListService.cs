@@ -34,20 +34,20 @@ public class DistributionListService : IDistributionListService
         // External contact resolution by recipient id is not needed here.
         // It will happen down the line when this is published.
         if (contacts?.Any() == true) {
-            var recipientIds = contacts.Where(x => !string.IsNullOrEmpty(x.RecipientId)).Select(x => x.RecipientId).ToArray();
-            var emails = contacts.Where(x => !string.IsNullOrEmpty(x.Email)).Select(x => x.Email).ToArray();
+            var recipientIds = contacts.Where(x => !string.IsNullOrEmpty(x.RecipientId)).Select(x => x.RecipientId!.ToLower()).ToArray();
+            var emails = contacts.Where(x => !string.IsNullOrEmpty(x.Email)).Select(x => x.Email!.ToLower()).ToArray();
             var phones = contacts.Where(x => !string.IsNullOrEmpty(x.PhoneNumber)).Select(x => x.PhoneNumber).ToArray();
             var existingContacts = new Dictionary<string, List<DbContact>>();
             foreach (var item in contacts) {
                 var dbContact = default(DbContact);
                 if (!string.IsNullOrWhiteSpace(item.RecipientId)) {
                     if (!existingContacts.ContainsKey(nameof(item.RecipientId))) {
-                        existingContacts[nameof(item.RecipientId)] = await DbContext.Contacts.Where(x => recipientIds.Contains(x.RecipientId)).ToListAsync();
+                        existingContacts[nameof(item.RecipientId)] = await DbContext.Contacts.Where(x => recipientIds.Contains(x.RecipientId!.ToLower())).ToListAsync();
                     }
-                    dbContact = existingContacts[nameof(item.RecipientId)].FirstOrDefault(x => x.RecipientId == item.RecipientId);
+                    dbContact = existingContacts[nameof(item.RecipientId)].FirstOrDefault(x => string.Equals(x.RecipientId, item.RecipientId, StringComparison.OrdinalIgnoreCase));
                 } else if (!string.IsNullOrWhiteSpace(item.Email)) {
                     if (!existingContacts.ContainsKey(nameof(item.Email))) {
-                        existingContacts[nameof(item.Email)] = await DbContext.Contacts.Where(x => emails.Contains(x.Email)).ToListAsync();
+                        existingContacts[nameof(item.Email)] = await DbContext.Contacts.Where(x => emails.Contains(x.Email!.ToLower())).ToListAsync();
                     }
                     dbContact = existingContacts[nameof(item.Email)].FirstOrDefault(x => x.Email!.ToLower() == item.Email.ToLower());
                 } else if (!string.IsNullOrWhiteSpace(item.PhoneNumber)) {

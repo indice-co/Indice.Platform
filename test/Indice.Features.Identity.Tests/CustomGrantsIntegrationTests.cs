@@ -363,7 +363,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
     [Fact(Skip = "Needs configuration change")]
     public async Task Register_More_Devices_Than_Allowed_Fails() {
         var hasAnyError = false;
-        foreach (var item in Enumerable.Range(0, 5)) {
+        for (var i = 0; i < 5; i++) {
             var deviceId = Guid.NewGuid().ToString();
             var response = await RegisterDeviceUsingBiometric(deviceId);
             if (!response.IsSuccessStatusCode) {

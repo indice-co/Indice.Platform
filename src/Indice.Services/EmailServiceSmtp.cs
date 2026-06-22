@@ -66,8 +66,6 @@ public class EmailServiceSmtp : IEmailService
             message.Body = bodyPart;
         }
         using (var client = new SmtpClient()) {
-            // If UseSSL = true then you need to provide certificate in order to send the email, or else you get security exception.
-            var useSSL = Settings.UseSSL && client.ClientCertificates != null && client.ClientCertificates.Count > 0;
             // For demo-purposes, accept all SSL certificates (in case the server supports STARTTLS).
             client.ServerCertificateValidationCallback = (s, c, h, e) => true;
             client.CheckCertificateRevocation = Settings.CheckCertificateRevocation;
