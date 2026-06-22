@@ -46,6 +46,7 @@ public static class MessageFeatureExtensions
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.ManagementGroupName;
             options.FileUploadLimit = apiOptions.FileUploadLimit;
+            options.MapTranslations = apiOptions.MapTranslations;
         })
         .AddMessageInbox(options => {
             options.PathPrefix = apiOptions.PathPrefix;
@@ -54,12 +55,6 @@ public static class MessageFeatureExtensions
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.InboxGroupName;
             options.AnalyticsOptions = apiOptions.AnalyticsOptions;
-        }).AddTranslationGraph(options => {
-            options.DefaultTranslationsBaseName = "Messages.Ui.TranslationApi";
-            options.DefaultTranslationsLocation = "Indice.Features.Messages.AspNetCore";
-            options.DefaultEndpointRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/msg-i18n.{lang:culture}.json";
-            options.ConfigureCachePolicy = new Action<OutputCachePolicyBuilder>(policy => { policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag(); });
-            options.AvailableLanguagesRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/languages";
         });
     }
 
@@ -89,11 +84,19 @@ public static class MessageFeatureExtensions
             options.RequiredScope = apiOptions.RequiredScope;
             options.GroupName = apiOptions.GroupName;
             options.FileUploadLimit = apiOptions.FileUploadLimit;
+            options.MapTranslations = apiOptions.MapTranslations;
         });
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
         // Register framework services.
         services.AddHttpContextAccessor();
         services.TryAddSingleton<MediaBaseHrefResolver>();
+        services.AddTranslationGraph(options => {
+            options.DefaultTranslationsBaseName = "Messages.Ui.TranslationApi";
+            options.DefaultTranslationsLocation = "Indice.Features.Messages.AspNetCore";
+            options.DefaultEndpointRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/msg-i18n.{lang:culture}.json";
+            options.ConfigureCachePolicy = new Action<OutputCachePolicyBuilder>(policy => { policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag(); });
+            options.AvailableLanguagesRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/languages";
+        });
         return services;
     }
 

@@ -18,4 +18,12 @@
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
     <InternalsVisibleTo Include="Indice.Features.Cases.Server" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Cases.Ui.TranslationApi.el.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Cases.Ui.TranslationApi.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

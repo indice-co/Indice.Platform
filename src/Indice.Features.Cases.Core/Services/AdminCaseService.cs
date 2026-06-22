@@ -418,8 +418,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (options.Filter.Data?.Length > 0) {
             // Execute the query with all the previous filters and 
             // select the case Ids
-            var caseIds = (await query.ToListAsync()).Select(x => x.Id);
-
+            var caseIds = await query.Select(x => x.Id).ToListAsync();
             // For those Ids, execute a second query to filter the cases by caseData json filter
             var caseData = await DbContext.CaseData
                 .AsNoTracking()

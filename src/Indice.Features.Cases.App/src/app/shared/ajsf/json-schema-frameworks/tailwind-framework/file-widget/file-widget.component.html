@@ -24,7 +24,7 @@
         [readonly]="options?.readonly ? 'readonly' : null"
         (change)="onFileSelect($event)">
     }
-    <p class="text-sm text-gray-900">Δεν έχει υποβληθεί κάποιο έγγραφο.</p>
+    <p class="text-sm text-gray-900">{{ 'common.noDocumentSubmitted' | translate }}</p>
   }
   @if (isGuid(controlValue!)) {
     <div class="flex align-items-center justify-content-center align-middle">
@@ -36,14 +36,14 @@
           viewBox="0 0 20 20">
           <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
         </svg>
-        <span>Download</span>
+        <span>{{ 'common.download' | translate }}</span>
       </button>
       @if (!this.options.readonly) {
         <button (click)="onRemove()" type="button" class="ml-2 bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
           <svg class="w-6 h-6 text-gray-800 text-black" style="color: rgb(31 41 55 / 1) !important" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
           </svg>
-          <span class="sr-only">Remove attachment</span>
+          <span class="sr-only">{{ 'common.removeAttachment' | translate }}</span>
         </button>
       }
     </div>
