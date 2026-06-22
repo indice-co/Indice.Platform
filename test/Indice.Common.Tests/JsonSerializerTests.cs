@@ -145,7 +145,9 @@ public class JsonSerializerTests
         var jsonExpected = "{\"tracks\":{\"Metal\":[{\"name\":\"For whoom the bell tolls\",\"genre\":\"Metal\",\"artist\":\"Metallica\",\"releaseDate\":\"2021-04-15T18:36:09.2769853+03:00\"},{\"name\":\"Tornado of souls\",\"genre\":\"Metal\",\"artist\":\"Megadeth\",\"releaseDate\":\"2021-04-15T18:36:09.2769853+03:00\"}],\"Pop\":[{\"name\":\"Saturday night fever\",\"genre\":\"Pop\",\"artist\":\"BGs\",\"releaseDate\":\"2021-04-15T18:36:09.2769853+03:00\"}],\"Rock\":[{\"name\":\"Rock of ages\",\"genre\":\"Rock\",\"artist\":\"Def Leppard\",\"releaseDate\":\"2021-04-15T18:36:09.2769853+03:00\"}]}}";
         var json = JsonSerializer.Serialize(model, options);
         Assert.Equal(jsonExpected, json);
-        JsonSerializer.Deserialize<MusicLibrary>(json, options);
+        var output = JsonSerializer.Deserialize<MusicLibrary>(json, options);
+        Assert.NotNull(output);
+        Assert.Equal(json, JsonSerializer.Serialize(output, options));
     }
 
     [Fact]
@@ -158,14 +160,16 @@ public class JsonSerializerTests
         options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         var sourceModel = new PocoValue<bool> { Value = true };
         var json = JsonSerializer.Serialize(sourceModel, options);
-        JsonSerializer.Deserialize<PocoValue<string>>(json, options);
+        var targetModel = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
+        Assert.Equal("true", targetModel!.Value);
         var sourceModel1 = new PocoValue<TheMystery> { Value = new TheMystery { FirstName = "Gus", LastName = "Coin" } };
         json = JsonSerializer.Serialize(sourceModel1, options);
-        JsonSerializer.Deserialize<PocoValue<string>>(json, options);
+        var targetModel1 = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
+        Assert.Equal("{\"firstName\":\"Gus\",\"lastName\":\"Coin\"}", targetModel1!.Value);
         var sourceModel2 = new PocoValue<double> { Value = 1010.45 };
         json = JsonSerializer.Serialize(sourceModel2, options);
-        JsonSerializer.Deserialize<PocoValue<string>>(json, options);
-
+        var targetModel2 = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
+        Assert.Equal("1010.45", targetModel2!.Value);
     }
 
     [Fact]

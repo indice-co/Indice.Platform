@@ -87,7 +87,8 @@ public class LockManagerAzureTests
         var operation = "MasterProductImport"; // using a random name :)
         var bytes = await _FileService.GetAsync($"messages/{operation}.json");
         var message = JsonSerializer.Deserialize<(string LeaseId, string Name)>(Encoding.UTF8.GetString(bytes), JsonSerializerOptionDefaults.GetDefaultSettings());
-        await _LockManager.Renew(message.Name, message.LeaseId);
+        var @lock = await _LockManager.Renew(message.Name, message.LeaseId);
+        Assert.NotNull(@lock);
         await Task.Delay(TimeSpan.FromSeconds(10));
     }
 

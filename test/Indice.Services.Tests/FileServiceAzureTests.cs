@@ -63,10 +63,12 @@ public class FileServiceAzureTests
         await _FileService.SaveAsync($"listing/{folder}/{new Base64Id(Guid.NewGuid())}.txt", Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}"));
         await _FileService.SaveAsync($"listing/{folder}/{new Base64Id(Guid.NewGuid())}.txt", Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}"));
         var list = await _FileService.SearchAsync($"listing/{folder}/");
-        await _FileService.SearchAsync($"listing/{folder}");
-        await _FileService.SearchAsync($"listing");
+        var list2 = await _FileService.SearchAsync($"listing/{folder}");
+        var list3 = await _FileService.SearchAsync($"listing");
         await _FileService.DeleteAsync($"listing");
         Assert.Equal(4, list.Count());
+        Assert.Equal(4, list2.Count());
+        Assert.Equal(4, list3.Count());
     }
     [Fact(Skip = "Should integrate azurite on build yaml")]
     public async Task MoveFilesTest() {

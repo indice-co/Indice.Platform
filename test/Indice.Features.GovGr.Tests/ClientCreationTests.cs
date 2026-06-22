@@ -52,6 +52,7 @@ public class ClientCreationTests : IDisposable
     public void CreateKycClient() {
         /// TODO do something meaningful
         var govGR = ServiceProvider.GetRequiredService<GovGrClient>();
+        //var configuration = ServiceProvider.GetRequiredService<IConfiguration>();
         //var data = await govGR.Kyc().GetDataAsync(configuration["GovGr:Kyc:Code"]);
         var data = govGR.Kyc().GetAvailableScopes();
         Assert.NotNull(data);

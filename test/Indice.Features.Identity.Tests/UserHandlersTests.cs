@@ -187,7 +187,7 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.NotNull(createdUser.PhoneNumber); // Ensure it starts with a phone number
 
         // Update user with null phone number
-        await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
+        var result = await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
             UserName = "test.user@indice.gr",
             Email = "test.user@indice.gr",
             PhoneNumber = null,
@@ -197,6 +197,7 @@ public class UserHandlersTests : IAsyncLifetime
                 new() { Type = "locale", Value = "el" }
             ],
         });
+        Assert.IsType<Ok<SingleUserInfo>>(result.Result);
 
         // Verify phone number was cleared
         var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
@@ -229,12 +230,13 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.NotNull(createdUser.PhoneNumber); // Ensure it starts with a phone number
 
         // Update user with whitespace-only phone number
-        await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
+        var result = await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
             UserName = "test.user2@indice.gr",
             Email = "test.user2@indice.gr",
             PhoneNumber = "   ",
             PhoneNumberConfirmed = false
         });
+        Assert.IsType<Ok<SingleUserInfo>>(result.Result);
 
         // Verify phone number was cleared
         var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
@@ -299,11 +301,12 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.NotNull(createdUser);
 
         // Update user with valid phone number that has surrounding whitespace
-        await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
+        var result = await UserHandlers.UpdateUser(identityDbContext, userManager, createdUser.Id, new UpdateUserRequest {
             UserName = "test.user4@indice.gr",
             Email = "test.user4@indice.gr",
             PhoneNumber = "  +306912345678  "
         });
+        Assert.IsType<Ok<SingleUserInfo>>(result.Result);
 
         // Verify phone number was formatted and stored
         var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);

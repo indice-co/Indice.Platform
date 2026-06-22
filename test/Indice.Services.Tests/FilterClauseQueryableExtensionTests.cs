@@ -57,14 +57,20 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
     public async Task ToResultset_Translates_DynamicJsonPaths_Sort_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
         var query = dbContext.Dummies;
-        await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName,name" });
-        await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName" });
-        await query.ToResultSetAsync(new ListOptions { Sort = "(integer)data.order" });
-        await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.period.from+" });
-        await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.birthDate-" });
-        await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
-        await query.ToResultSetAsync(new ListOptions { Sort = "(boolean)data.enabled-" });
-        Assert.True(true);
+        var results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName,name" });
+        Assert.Equal(3, results.Count);
+        results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName" });
+        Assert.Equal(3, results.Count);
+        results = await query.ToResultSetAsync(new ListOptions { Sort = "(integer)data.order" });
+        Assert.Equal(3, results.Count);
+        results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.period.from+" });
+        Assert.Equal(3, results.Count);
+        results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.birthDate-" });
+        Assert.Equal(3, results.Count);
+        results = await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
+        Assert.Equal(3, results.Count);
+        results = await query.ToResultSetAsync(new ListOptions { Sort = "(boolean)data.enabled-" });
+        Assert.Equal(3, results.Count);
     }
 
     [Fact]
@@ -75,8 +81,8 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
         foreach (var sorting in options.GetSortings()) {
             query = query.OrderBy(sorting, append: true);
         }
-        await query.ToResultSetAsync(options.Page ?? 1, options.Size ?? 100);
-        Assert.True(true);
+        var results = await query.ToResultSetAsync(options.Page ?? 1, options.Size ?? 100);
+        Assert.Equal(3, results.Count);
     }
 
     public async Task InitializeAsync() {

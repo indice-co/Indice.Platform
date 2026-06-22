@@ -97,7 +97,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         using var createTemplateContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
-        await _httpClient.PostAsync("/api/templates", createTemplateContent);
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateContent);
+        createTemplateResponse.EnsureSuccessStatusCode();
 
         //action
         var createCampaignRequest = new CreateCampaignRequest {
@@ -161,7 +162,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         using var createTemplateContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
-        await _httpClient.PostAsync("/api/templates", createTemplateContent);
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateContent);
+        createTemplateResponse.EnsureSuccessStatusCode();
 
         //action
         var createCampaignRequest = new CreateCampaignRequest {
@@ -226,7 +228,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         using var createTemplateHttpContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
-        await _httpClient.PostAsync("/api/templates", createTemplateHttpContent);
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateHttpContent);
+        createTemplateResponse.EnsureSuccessStatusCode();
 
         //action
         var createCampaignRequest = new CreateCampaignRequest {
@@ -290,7 +293,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         using var createTemplateHttpContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
-        await _httpClient.PostAsync("/api/templates", createTemplateHttpContent);
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateHttpContent);
+        createTemplateResponse.EnsureSuccessStatusCode();
 
         //action
         var createCampaignRequest = new CreateCampaignRequest {
@@ -402,7 +406,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             { byteArrayContent, "File", "contacts.csv" }
         };
 
-        await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/import", form);
+        var response = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/import", form);
+        Assert.True(response.IsSuccessStatusCode);
 
         var context = _serviceProvider.GetRequiredService<CampaignsDbContext>();
         var contactInDb = await context.Contacts.FirstOrDefaultAsync(c => c.RecipientId == "ABC123");

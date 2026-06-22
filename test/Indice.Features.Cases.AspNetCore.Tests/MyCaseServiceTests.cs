@@ -47,7 +47,8 @@ public class MyCaseServiceTests : IDisposable
             // seed here.
             await dbContext.SeedAsync();
         }
-        await dbContext.Cases.ToListAsync();
+        var allCases = await dbContext.Cases.ToListAsync();
+        Assert.NotEmpty(allCases);
         var mockCaseEventService = new Mock<IPlatformEventService>();
         var mockMyCaseMessageService = new Mock<IMyCaseMessageService>();
         var mockJsonTranslationService = new Mock<IJsonTranslationService>();
