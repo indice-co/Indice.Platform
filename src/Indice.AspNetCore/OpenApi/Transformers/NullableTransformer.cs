@@ -71,13 +71,13 @@ public static class NullableTransformer
             }
             // If only one branch survives, collapse it into the parent so renderers don't show "oneOf [X]"
             if (schema.OneOf.Count == 1 && schema.OneOf[0] is OpenApiSchema only) {
-                schema.Type ??= only.Type;
-                schema.Items ??= only.Items;
-                schema.Format ??= only.Format;
-                schema.Enum ??= only.Enum;
-                schema.Metadata ??= only.Metadata;
-                schema.AnyOf ??= only.AnyOf;
-                schema.OneOf ??= only.OneOf;
+                schema.Type = only.Type;
+                schema.Items = only.Items;
+                schema.Format = only.Format;
+                schema.Enum = only.Enum;
+                schema.Metadata = only.Metadata;
+                schema.AnyOf = only.AnyOf;
+                schema.OneOf = only.OneOf;
             }
         }
         schema.Metadata?.Remove("x-is-nullable-property");
