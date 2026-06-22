@@ -67,6 +67,8 @@ public class FileServiceAzureTests
         var list3 = await _FileService.SearchAsync($"listing");
         await _FileService.DeleteAsync($"listing");
         Assert.Equal(4, list.Count());
+        Assert.Equal(4, list2.Count());
+        Assert.Equal(4, list3.Count());
     }
     [Fact(Skip = "Should integrate azurite on build yaml")]
     public async Task MoveFilesTest() {

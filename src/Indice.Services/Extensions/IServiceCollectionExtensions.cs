@@ -352,7 +352,7 @@ public static class IndiceServicesServiceCollectionExtensions
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         var options = new SmsServiceKapaTELSettings();
         configure?.Invoke(options);
-        var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceKapaTEL>()
+        services.AddHttpClient<ISmsService, SmsServiceKapaTEL>()
                                         .ConfigureHttpClient(httpClient => {
                                             httpClient.BaseAddress = new Uri("https://api2.smsmobile.gr/receiver_rest.php");
                                         })
@@ -369,7 +369,7 @@ public static class IndiceServicesServiceCollectionExtensions
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         var options = new SmsServiceMstatSettings();
         configure?.Invoke(options);
-        var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceMstat>()
+        services.AddHttpClient<ISmsService, SmsServiceMstat>()
                                         .ConfigureHttpClient(httpClient => {
                                             httpClient.BaseAddress = new Uri("https://backend.tms.m-stat.gr/api/v1/messages");
                                         })
