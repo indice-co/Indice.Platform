@@ -23,7 +23,7 @@
     <VersionPrefixAgents>8.0.0</VersionPrefixAgents>
     <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 
-    <!--<VersionSuffix>rc06</VersionSuffix>-->
+    <!--<VersionSuffix>rc01</VersionSuffix>-->
     <Authors>Constantinos Leftheris</Authors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>Latest</LangVersion>
