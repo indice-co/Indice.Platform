@@ -1,0 +1,33 @@
+using Indice.Types;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+
+namespace Indice.Features.Agents.Server.Endpoints;
+
+/// <summary>HTTP surface for the caller's application-local user profile: get, update preferences.</summary>
+public static class MyProfileApi
+{
+    /// <summary>Maps the <c>/api/my/profile</c> endpoint group.</summary>
+    public static RouteGroupBuilder MapMyProfile(this IEndpointRouteBuilder routes) {
+        var group = routes.MapGroup("/api/my/profile").WithTags("MyProfile");
+        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser());
+        group.WithOpenApiSecurityRequirement("oauth2");
+        group.WithHandledException<BusinessException>()
+             .ProducesProblem(StatusCodes.Status401Unauthorized)
+             .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet("/", MyProfileHandlers.GetMe)
+             .WithName(nameof(MyProfileHandlers.GetMe))
+             .WithSummary("Get the caller's profile.")
+             .WithDescription("Returns the caller's application-local profile, creating it on first access (just-in-time) from the IdP claims. The IdP stays the source of truth for identity; this row holds app-specific preferences plus a cached snapshot of name/email/locale.");
+
+        group.MapPut("/", MyProfileHandlers.UpdateMe)
+             .WithParameterValidation<UpdateUserRequest>()
+             .WithName(nameof(MyProfileHandlers.UpdateMe))
+             .WithSummary("Update the caller's preferences.")
+             .WithDescription("Updates the caller's app-specific preferences (preferred answer language, response style). The language is validated against the configured taxonomy — an unknown value returns 400.");
+
+        return group;
+    }
+}

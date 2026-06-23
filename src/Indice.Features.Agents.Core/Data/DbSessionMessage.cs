@@ -1,0 +1,34 @@
+using Indice.Features.Agents.Core.Models;
+
+namespace Indice.Features.Agents.Core.Data;
+
+/// <summary>A single turn (user or assistant) within a <see cref="DbSession"/>.</summary>
+public class DbSessionMessage
+{
+    /// <summary>Primary key.</summary>
+    public Guid Id { get; set; }
+
+    /// <summary>Foreign key → <see cref="DbSession.Id"/>.</summary>
+    public Guid SessionId { get; set; }
+
+    /// <summary>Author role of this message.</summary>
+    public ChatMessageRole Role { get; set; }
+
+    /// <summary>Message body.</summary>
+    public string Content { get; set; } = string.Empty;
+
+    /// <summary>Creation timestamp.</summary>
+    public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>Prompt-token cost attributed to this turn (assistant rows only).</summary>
+    public int? PromptTokens { get; set; }
+
+    /// <summary>Completion-token cost attributed to this turn (assistant rows only).</summary>
+    public int? CompletionTokens { get; set; }
+
+    /// <summary>Model deployment that produced the assistant message.</summary>
+    public string? ModelUsed { get; set; }
+
+    /// <summary>Optional per-message metadata (JSON) — e.g. citations, retrieved candidate IDs, intent classification.</summary>
+    public string? MetadataJson { get; set; }
+}
