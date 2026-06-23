@@ -58,13 +58,19 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
         var query = dbContext.Dummies;
         var results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName,name" });
+        Assert.Equal(3, results.Count);
         results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName" });
+        Assert.Equal(3, results.Count);
         results = await query.ToResultSetAsync(new ListOptions { Sort = "(integer)data.order" });
+        Assert.Equal(3, results.Count);
         results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.period.from+" });
+        Assert.Equal(3, results.Count);
         results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.birthDate-" });
+        Assert.Equal(3, results.Count);
         results = await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
+        Assert.Equal(3, results.Count);
         results = await query.ToResultSetAsync(new ListOptions { Sort = "(boolean)data.enabled-" });
-        Assert.True(true);
+        Assert.Equal(3, results.Count);
     }
 
     [Fact]
@@ -76,7 +82,7 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
             query = query.OrderBy(sorting, append: true);
         }
         var results = await query.ToResultSetAsync(options.Page ?? 1, options.Size ?? 100);
-        Assert.True(true);
+        Assert.Equal(3, results.Count);
     }
 
     public async Task InitializeAsync() {
