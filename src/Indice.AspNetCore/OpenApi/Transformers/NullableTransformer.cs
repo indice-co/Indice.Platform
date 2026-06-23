@@ -48,8 +48,11 @@ public static class NullableTransformer
             if (schema.Enum is not null && schema.Enum.Any(x => x is null)) {
                 schema.Enum = schema.Enum.FilterOutNulls().ToList();
             }
-            if (context.ParameterDescription != null && context.ParameterDescription.IsRequired && context.ParameterDescription.Source.Id == "Path") {
-                ClearNullableMetadata(schema);
+            if (context.ParameterDescription != null && context.ParameterDescription.Source.Id == "Path") {
+                if (context.ParameterDescription.IsRequired) {
+                    ClearNullableMetadata(schema);
+                }
+                ClearStringMetadata(schema);
             }
             return Task.CompletedTask;
         });
@@ -58,6 +61,17 @@ public static class NullableTransformer
         options.CreateSchemaReferenceId = chainedDelegate.Invoke;
 
         return options;
+    }
+
+    private static void ClearStringMetadata(OpenApiSchema schema) {
+        if (schema.Type is not null &&
+            schema.Type.Value.HasFlag(JsonSchemaType.String) &&
+            (schema.Type.Value.HasFlag(JsonSchemaType.Integer) ||
+             schema.Type.Value.HasFlag(JsonSchemaType.Boolean) ||
+             schema.Type.Value.HasFlag(JsonSchemaType.Number))) {
+            schema.Type &= ~JsonSchemaType.String;
+            schema.Pattern = null;
+        }
     }
 
     private static void ClearNullableMetadata(OpenApiSchema schema) {
