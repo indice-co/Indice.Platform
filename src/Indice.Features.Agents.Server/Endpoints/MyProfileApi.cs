@@ -1,12 +1,12 @@
+using Indice.Features.Agents.Server.Endpoints;
 using Indice.Types;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace Indice.Features.Agents.Server.Endpoints;
+namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>HTTP surface for the caller's application-local user profile: get, update preferences.</summary>
-public static class MyProfileApi
+internal static class MyProfileApi
 {
     /// <summary>Maps the <c>/api/my/profile</c> endpoint group.</summary>
     public static RouteGroupBuilder MapMyProfile(this IEndpointRouteBuilder routes) {

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Agents.Server.Endpoints;
 
-/// <summary>Logic-free handlers for <see cref="Endpoints.MyProfileApi"/>.</summary>
+/// <summary>Logic-free handlers for the MyProfileApi.</summary>
 internal static class MyProfileHandlers
 {
     /// <summary>GET /api/my/profile — returns the caller's profile, provisioning it on first access.</summary>

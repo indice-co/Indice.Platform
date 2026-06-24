@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Agents.Server.Endpoints;
 
-/// <summary>Logic-free handlers for <see cref="IngestionApi"/>.</summary>
+/// <summary>Logic-free handlers for the IngestionApi.</summary>
 internal static class IngestionHandlers
 {
     /// <summary>POST /api/ingest/faq — multipart upload of a single FAQ-format Markdown file.</summary>

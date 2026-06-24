@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Routing;
 namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>HTTP surface for the caller's chat sessions: create with first question, post follow-ups, list, get, delete.</summary>
-public static class MyChatsApi
+internal static class MyChatsApi
 {
     /// <summary>Maps the <c>/api/my/chats</c> endpoint group.</summary>
     public static RouteGroupBuilder MapMyChats(this IEndpointRouteBuilder routes) {

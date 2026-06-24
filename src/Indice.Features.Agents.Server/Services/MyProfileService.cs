@@ -12,7 +12,7 @@ using static Indice.Features.Agents.Core.AgentsOptions;
 namespace Indice.Features.Agents.Server.Services;
 
 /// <inheritdoc/>
-internal class MyProfileService
+internal class MyProfileService : IMyProfileService
 {
     /// <summary>Trailing window for the rolling usage figure surfaced on the profile.</summary>
     private const int UsageWindowDays = 7;
@@ -21,7 +21,7 @@ internal class MyProfileService
     private readonly ISessionsStore _sessions;
     private readonly TaxonomyOptions _taxonomy;
 
-    /// <summary>Creates a new <see cref="UsersService"/>.</summary>
+    /// <summary>Creates a new <see cref="MyProfileService"/>.</summary>
     public MyProfileService(IUsersService store, ISessionsStore sessions, IOptions<AgentsOptions> options) {
         _store = store;
         _sessions = sessions;

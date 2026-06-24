@@ -12,9 +12,10 @@ public class AgentsUIOptions : SpaUIOptions
 
     /// <summary>Creates a new instance <see cref="AgentsUIOptions"/>.</summary>
     public AgentsUIOptions() {
-        ClientId = "agents-ui";
-        Scope = "openid profile role email agents";
-        DocumentTitle = "Agents UI";
+        ClientId = "dex-ui";
+        Scope = "openid profile role email chat";
+        DocumentTitle = "Dex";
+        ApiBase = "/api";
         ConfigureIndexParameters = args => {
             args[$"%({nameof(Lang)})"] = Lang;
         };

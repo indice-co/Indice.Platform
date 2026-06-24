@@ -1,22 +1,27 @@
+using Indice.Features.Agents.Server;
+using Indice.Features.Agents.Server.Endpoints;
 using Indice.Security;
 using Indice.Types;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
-namespace Indice.Features.Agents.Server.Endpoints;
+namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>HTTP surface for ingestion: single-file Markdown upload.</summary>
-public static class IngestionApi
+internal static class IngestionApi
 {
     /// <summary>Maps the <c>/api/ingest</c> endpoint group.</summary>
     public static RouteGroupBuilder MapIngestion(this IEndpointRouteBuilder routes) {
-        var apiSettings = routes.ServiceProvider.GetRequiredService<IConfiguration>().GetApiSettings();
-        var allowedScopes = new[] { apiSettings?.ResourceName, "dex:ingest" }.Where(x => x is not null).Cast<string>().ToArray();
+        var options = routes.ServiceProvider.GetRequiredService<IOptions<AgentsServerOptions>>().Value;
 
-        var group = routes.MapGroup("/api/ingest").WithTags("Ingestion");
+        var allowedScopes = new[] { options.IngestRequiredScope }.FilterOutNulls().ToArray();
+
+        var group = routes.MapGroup($"{options.PathPrefix.Value?.TrimEnd('/')}/ingest")
+                          .WithName(options.GroupName)
+                          .WithTags("Ingestion");
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
         group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);

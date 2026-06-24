@@ -1,4 +1,7 @@
-﻿namespace Indice.Features.Agents.Core;
+﻿using Indice.Features.Agents.Core.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace Indice.Features.Agents.Core;
 
 /// <summary>Root options for the Dex RAG template. Bound from the <c>Dex</c> configuration section.</summary>
 public class AgentsOptions
@@ -27,7 +30,10 @@ public class AgentsOptions
     /// <summary>Allowed categorical/language values constrained by the host application.</summary>
     public TaxonomyOptions Taxonomy { get; set; } = new();
 
-
+    /// <summary>
+    /// Optional callback to configure the <see cref="DbContextOptionsBuilder"/> for the <see cref="AgentsDbContext"/>.
+    /// </summary>
+    public Action<IServiceProvider, DbContextOptionsBuilder>? ConfigureDbContext { get; set; }
     /// <summary>Azure OpenAI service endpoint, credentials, and per-role deployment names.</summary>
     public class AzureOpenAIOptions
     {
@@ -139,6 +145,9 @@ public class AgentsOptions
 
         /// <summary>Delays between retry attempts.</summary>
         public TimeSpan[] RetryDelays { get; set; } = new[] { TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(4) };
+
+        /// <summary>When false, ingestion is skipped and the database is left as-is.</summary>
+        public bool Enabled { get; set; } = true;
     }
 
     /// <summary>
