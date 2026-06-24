@@ -53,6 +53,15 @@ Comprehensive messaging system with campaign management and delivery
 | Indice.Features.Messages.Worker | Background message processing | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Messages.Worker?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Messages.Worker/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Messages.Worker)](https://www.nuget.org/packages/Indice.Features.Messages.Worker/) | n/a |
 | Indice.Features.Messages.Worker.Azure | Azure-specific message workers | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Messages.Worker.Azure?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Messages.Worker.Azure/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Messages.Worker.Azure)](https://www.nuget.org/packages/Indice.Features.Messages.Worker.Azure/) | n/a |
 
+### Agents
+AI agents platform with core workflows, server APIs, and UI components
+
+| Package | Description | Version | Downloads | CHANGELOG |
+|---------|-------------|---------|-----------|-----------|
+| Indice.Features.Agents.Core | Core agents functionality and workflows | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Agents.Core?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Agents.Core/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Agents.Core)](https://www.nuget.org/packages/Indice.Features.Agents.Core/) | n/a |
+| Indice.Features.Agents.Server | Agents server implementation and APIs | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Agents.Server?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Agents.Server/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Agents.Server)](https://www.nuget.org/packages/Indice.Features.Agents.Server/) | n/a |
+| Indice.Features.Agents.UI | Agents user interface components | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Agents.UI?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Agents.UI/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Agents.UI)](https://www.nuget.org/packages/Indice.Features.Agents.UI/) | n/a |
+
 ### Case Management
 Business process and case management system
 
