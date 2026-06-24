@@ -1,4 +1,32 @@
-﻿@inject IdentityUILocalizer Localizer
+@using Indice.Features.Identity.Server.Manager.Models
+@inject IOptions<GeneralSettings> GeneralSettings
+@inject IOptions<IdentityUIOptions> UIOptions
+@inject IConfiguration Configuration
+@inject IdentityUILocalizer Localizer
+@{
+    var settings = GeneralSettings.Value;
+    var ui = UIOptions.Value;
+    var linkColor = ui.EmailLinkColorHex;
+    var legalEntity = Configuration.GetSection("General");
+    var supportPhone = legalEntity["OrganizationSupportPhone"] ?? "";
+    var supportEmail = legalEntity["OrganizationSupportEmail"] ?? "";
+    var culture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+    var recipientEmail = GetSafeRecipientEmail();
+    var organizationLegalName = Localizer.OrganizationLegalName(legalEntity["OrganizationLegalName"]);
+    var organizationAddress = Localizer.OrganizationAddress(legalEntity["OrganizationAddress"]);
+    var organizationRegistryNumber = legalEntity["OrganizationRegistryNumber"];
+}
+
+@functions {
+    public string? GetSafeRecipientEmail() => Model switch
+    {
+        IIdentityEmailModelMetadata metadata => metadata.RecipientEmail,
+        IDictionary<string, object> dictionary
+            when dictionary.TryGetValue(nameof(IIdentityEmailModelMetadata.RecipientEmail), out var recipient)
+                => recipient?.ToString(),
+        _ => null
+    };
+}
 
 <html>
 <head>
@@ -15,14 +43,65 @@
                 </p>
                 <p>
                     @RenderBody()
-                    <br />
-                    <br />
-                    <br />
                 </p>
-                <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
-                    @Localizer.ConfirmEmail_DoNotReply
-                    @Localizer.ConfirmEmail_ServiceEmailInfo
-                </p>
+            </td>
+        </tr>
+        @* Email footer *@
+        <tr>
+            <td bgcolor="#ffffff" style="padding: 24px 30px 30px; border-top: 1px solid #ececec; font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 11px; color: #8a8a8a; line-height: 150%;">
+                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+                    
+                    @if (!string.IsNullOrWhiteSpace(recipientEmail)) {
+                        <tr>
+                            <td align="center" style="padding: 0 0 8px; font-size: 11px; color: #8a8a8a;">
+                                @Localizer.EmailFooter_SentTo(recipientEmail)
+                            </td>
+                        </tr>
+                    }
+                    <tr>
+                        <td align="center" style="padding: 2px 0 0; font-size: 11px; color: #595959;">
+                            &copy; @ui.CopyYear
+                            @if (!string.IsNullOrWhiteSpace(organizationLegalName.Value)) {
+                                <text> @organizationLegalName</text>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(organizationAddress.Value)) {
+                                <text> &bull; @organizationAddress</text>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(organizationRegistryNumber)) {
+                                <text> &bull; @Localizer.EmailFooter_RegistryNumber(organizationRegistryNumber)</text>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding: 4px 0 0; font-size: 11px;">
+                            <a href="@(settings.Host)/privacy?culture=@culture" target="_blank" style="color: #@linkColor; text-decoration: underline; margin: 0 6px;">@Localizer.Footer_Privacy</a>
+                            <span style="color: #cccccc;">|</span>
+                            <a href="@(settings.Host)/terms?culture=@culture" target="_blank" style="color: #@linkColor; text-decoration: underline; margin: 0 6px;">@Localizer.Footer_Terms</a>
+                        </td>
+                    </tr>
+                    @if (!string.IsNullOrWhiteSpace(supportPhone) || !string.IsNullOrWhiteSpace(supportEmail)) {
+                        <tr>
+                            <td align="center" style="padding: 2px 0 0; font-size: 11px; color: #8a8a8a;">
+                                <strong style="color: #595959;">@Localizer.EmailFooter_NeedHelp</strong>
+                                @if (!string.IsNullOrWhiteSpace(supportPhone)) {
+                                    <text> @Localizer.EmailFooter_CallSupport($"<a href=\"tel:{supportPhone.Replace(" ", string.Empty)}\" style=\"color:#{linkColor};text-decoration:underline;\">{supportPhone}</a>")</text>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(supportPhone) && !string.IsNullOrWhiteSpace(supportEmail)) {
+                                    <text> &bull; </text>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(supportEmail)) {
+                                    <text>@Localizer.EmailFooter_EmailSupport($"<a href=\"mailto:{supportEmail}\" style=\"color:#{linkColor};text-decoration:underline;\">{supportEmail}</a>")</text>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    <tr>
+                        <td align="center" style="padding: 2px 0 4px; font-size: 11px; color: #8a8a8a;">
+                            @Localizer.ConfirmEmail_DoNotReply
+                            @Localizer.ConfirmEmail_ServiceEmailInfo
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
     </table>
