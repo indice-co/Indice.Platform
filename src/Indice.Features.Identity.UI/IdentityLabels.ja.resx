@@ -379,13 +379,12 @@
     <value>{0}</value>
   </data>
   <data name="EmailFooter_SentTo" xml:space="preserve">
-    <value>このメールは {0} に送信されました。</value>
+    <value>このメールは  &lt;strong&gt;{0}&lt;/strong&gt; に送信されました。</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="OrganizationLegalName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+  <data name="OrganizationLegalName" xml:space="preserve">
     <value />
   </data>
-  <data name="OrganizationAddress" type="System.Resources.ResXNullRef, System.Windows.Forms">
+  <data name="OrganizationAddress" xml:space="preserve">
     <value />
   </data>
   <data name="EmailFooter_RegistryNumber" xml:space="preserve">

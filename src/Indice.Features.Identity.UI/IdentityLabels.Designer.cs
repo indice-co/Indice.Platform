@@ -970,7 +970,7 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This email was sent to {0}..
+        ///   Looks up a localized string similar to This email was sent to &lt;strong&gt;{0}&lt;/strong&gt;..
         /// </summary>
         public static string EmailFooter_SentTo {
             get {

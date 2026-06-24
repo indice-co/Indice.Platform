@@ -379,7 +379,7 @@
     <value>{0}</value>
   </data>
   <data name="EmailFooter_SentTo" xml:space="preserve">
-    <value>This email was sent to {0}.</value>
+    <value>This email was sent to &lt;strong&gt;{0}&lt;/strong&gt;.</value>
   </data>
   <data name="OrganizationLegalName" xml:space="preserve">
     <value />
