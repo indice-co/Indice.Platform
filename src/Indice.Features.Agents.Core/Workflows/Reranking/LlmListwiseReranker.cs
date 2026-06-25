@@ -35,11 +35,8 @@ public class LlmListwiseReranker : ILlmReranker
     }
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyList<RetrievedChunk>> RerankAsync(
-        string question,
-        IReadOnlyList<RetrievedChunk> candidates,
-        int topN,
-        CancellationToken cancellationToken) {
+    public async Task<IReadOnlyList<RetrievedChunk>> RerankAsync(string question, IReadOnlyList<RetrievedChunk> candidates,
+        int topN, CancellationToken cancellationToken) {
         if (candidates.Count == 0) {
             return Array.Empty<RetrievedChunk>();
         }

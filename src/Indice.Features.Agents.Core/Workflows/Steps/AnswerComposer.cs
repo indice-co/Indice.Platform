@@ -50,10 +50,9 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<PipelineStepContext<RagPipelineOutput>> HandleAsync(
-        PipelineStepContext<RerankOutput> envelope,
-        IWorkflowContext context,
-        CancellationToken cancellationToken = default) {
+    public override async ValueTask<PipelineStepContext<RagPipelineOutput>> HandleAsync(PipelineStepContext<RerankOutput> envelope,
+        IWorkflowContext context, CancellationToken cancellationToken = default) {
+
         var candidates = envelope.Payload.RerankedCandidates;
         var prompt = BuildPrompt(envelope.State.Question, envelope.State.History, candidates);
 

@@ -27,13 +27,9 @@ public sealed class Reranker : Executor<PipelineStepContext<RetrievalOutput>, Pi
         var topN = _options.Retrieval.TopN;
         var candidates = envelope.Payload.Candidates;
 
-        IReadOnlyList<RetrievedChunk> reranked;
-        if (!_options.Pipeline.EnableRerank || candidates.Count <= topN) {
-            reranked = candidates.OrderByDescending(c => c.Score).Take(topN).ToList();
-        } 
-        else {
-            reranked = await _reranker.RerankAsync(envelope.State.Question, candidates, topN, cancellationToken);
-        }
+        IReadOnlyList<RetrievedChunk> reranked = !_options.Pipeline.EnableRerank || candidates.Count <= topN
+            ? candidates.OrderByDescending(c => c.Score).Take(topN).ToList()
+            : await _reranker.RerankAsync(envelope.State.Question, candidates, topN, cancellationToken);
 
         return envelope.Next(new RerankOutput {
             Intent = envelope.Payload.Intent,

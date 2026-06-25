@@ -37,10 +37,8 @@ public sealed class UsageTrackingChatClient : DelegatingChatClient
         // The streaming path: AIAgent.RunStreamingAsync (used by AnswerComposer). Usage arrives as a
         // trailing UsageContent on the final update(s); accumulate it without altering the stream.
         await foreach (var update in base.GetStreamingResponseAsync(messages, options, cancellationToken)) {
-            foreach (var content in update.Contents) {
-                if (content is UsageContent usage) {
-                    _accumulator.Add(usage.Details, _model);
-                }
+            foreach (var usage in update.Contents.OfType<UsageContent>()) {
+                _accumulator.Add(usage.Details, _model);
             }
             yield return update;
         }

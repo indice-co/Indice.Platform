@@ -16,13 +16,13 @@ public sealed class FileSystemPromptTemplateRenderer : IPromptTemplateRenderer
 
     /// <summary>Creates a new <see cref="FileSystemPromptTemplateRenderer"/>.</summary>
     public FileSystemPromptTemplateRenderer(IHostEnvironment env) {
-        _baseDir = Path.Combine(env.ContentRootPath, "Prompts");
+        _baseDir = Path.Join(env.ContentRootPath, "Prompts");
     }
 
     /// <inheritdoc/>
     public string Render(string templateName, object? values = null) {
         var compiled = _cache.GetOrAdd(templateName, name => {
-            var path = Path.Combine(_baseDir, $"{name}.txt");
+            var path = Path.Join(_baseDir, $"{name}.txt");
             if (!File.Exists(path)) {
                 throw new InvalidOperationException($"Prompt template '{name}' not found at '{path}'.");
             }

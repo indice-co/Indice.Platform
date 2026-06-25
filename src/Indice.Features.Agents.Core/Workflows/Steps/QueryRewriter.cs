@@ -59,7 +59,11 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
                     if (queries.Count >= expansion) break;
                 }
                 // Fast-model usage is intentionally not tracked — only reasoning-model tokens are persisted.
-            } catch {
+            } 
+            catch (OperationCanceledException) {
+                throw;
+            }
+            catch {
                 // Fall back to just the original question.
             }
         }
