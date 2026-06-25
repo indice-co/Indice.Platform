@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 #if NET9_0_OR_GREATER
 using Duende.IdentityModel;
 using Duende.IdentityServer;
@@ -89,6 +88,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         RememberExpirationType = configuration.GetIdentityOption<MfaExpirationType>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberExpirationType));
         RequireMfaWhenUserHasTrustedBrowserButExpiredPassword = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa:RequireWhen", "UserHasTrustedBrowserButExpiredPassword") ?? true;
         MfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Optional;
+        MfaImplicitLoginProviders = configuration.GetIdentityOption<string[]>($"{nameof(IdentityOptions.SignIn)}:Mfa", "ImplicitLoginProviders") ?? [];  
         TermsLastModifiedDate = configuration.GetIdentityOption<DateTimeOffset?>(nameof(IdentityOptions.SignIn), nameof(TermsLastModifiedDate));
     }
 
@@ -107,6 +107,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     public bool PersistTrustedBrowsers { get; }
     /// <summary>Defines the number of days that the browser will remember the MFA action and will not require re-authentication.</summary>
     public int MfaRememberDurationInDays { get; }
+    /// <summary>Defines the list of authentication providers that are considered as implicitly passing MFA.</summary>
+    public string[] MfaImplicitLoginProviders { get; }
     /// <summary>Defines whether to remember device even if a relevant cookie does not exist.</summary>
     public bool RememberTrustedBrowserAcrossSessions { get; }
     /// <summary>Type of expiration for <see cref="IdentityConstants.TwoFactorRememberMeScheme"/> cookie.</summary>
@@ -162,7 +164,15 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
 
         var mfaImplicitlyPassed = false;
-        if (!bypassTwoFactor && await IsTfaEnabled(user)) {
+
+        // if the provider satisfies the requirements then we can consider MFA as implicitly passed and we can proceed with the sign-in.
+        // Check against a list of preconfigured as safe providers.
+        // For example, if the user has already signed in with a FIDO2 device and the provider is FIDO2 then we can consider MFA as implicitly passed.
+        // Microsoft Entra Id authentication provider is also considered as a safe provider since it can be configured to require MFA.
+        if (loginProvider is not null && MfaImplicitLoginProviders.Contains(loginProvider)) {
+            mfaImplicitlyPassed = true;
+        }
+        if (!bypassTwoFactor && !mfaImplicitlyPassed && await IsTfaEnabled(user)) {
             if (result.Warning == SignInWarning.ImpossibleTravel || !await IsTwoFactorClientRememberedAsync(user)) {
                 var userId = await ExtendedUserManager.GetUserIdAsync(user);
                 await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, ClaimsPrincipalFromTwoFactorInfo(userId, deviceId, loginProvider));
