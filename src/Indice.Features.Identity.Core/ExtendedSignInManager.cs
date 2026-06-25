@@ -89,7 +89,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         RequireMfaWhenUserHasTrustedBrowserButExpiredPassword = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa:RequireWhen", "UserHasTrustedBrowserButExpiredPassword") ?? true;
         MfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Optional;
         MfaImplicitLoginProviders = new HashSet<string>(
-            configuration.GetIdentityOption<string[]>($"{nameof(IdentityOptions.SignIn)}:Mfa", "ImplicitLoginProviders") ?? [],
+            configuration.GetIdentitySection<string[]>($"{nameof(IdentityOptions.SignIn)}:Mfa", "ImplicitLoginProviders") ?? [],
             StringComparer.OrdinalIgnoreCase);  
         TermsLastModifiedDate = configuration.GetIdentityOption<DateTimeOffset?>(nameof(IdentityOptions.SignIn), nameof(TermsLastModifiedDate));
     }
@@ -165,15 +165,12 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return SignInResult.Failed;
         }
 
-        var mfaImplicitlyPassed = false;
-
         // if the provider satisfies the requirements then we can consider MFA as implicitly passed and we can proceed with the sign-in.
         // Check against a list of preconfigured as safe providers.
         // For example, if the user has already signed in with a FIDO2 device and the provider is FIDO2 then we can consider MFA as implicitly passed.
         // Microsoft Entra Id authentication provider is also considered as a safe provider since it can be configured to require MFA.
-        if (loginProvider is not null && MfaImplicitLoginProviders.Contains(loginProvider)) {
-            mfaImplicitlyPassed = true;
-        }
+        var mfaImplicitlyPassed = loginProvider is not null && MfaImplicitLoginProviders.Contains(loginProvider);
+
         if (!bypassTwoFactor && !mfaImplicitlyPassed && await IsTfaEnabled(user)) {
             if (result.Warning == SignInWarning.ImpossibleTravel || !await IsTwoFactorClientRememberedAsync(user)) {
                 var userId = await ExtendedUserManager.GetUserIdAsync(user);
