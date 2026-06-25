@@ -88,7 +88,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         RememberExpirationType = configuration.GetIdentityOption<MfaExpirationType>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberExpirationType));
         RequireMfaWhenUserHasTrustedBrowserButExpiredPassword = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa:RequireWhen", "UserHasTrustedBrowserButExpiredPassword") ?? true;
         MfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Optional;
-        MfaImplicitLoginProviders = configuration.GetIdentityOption<string[]>($"{nameof(IdentityOptions.SignIn)}:Mfa", "ImplicitLoginProviders") ?? [];  
+        MfaImplicitLoginProviders = new HashSet<string>(
+            configuration.GetIdentityOption<string[]>($"{nameof(IdentityOptions.SignIn)}:Mfa", "ImplicitLoginProviders") ?? [],
+            StringComparer.OrdinalIgnoreCase);  
         TermsLastModifiedDate = configuration.GetIdentityOption<DateTimeOffset?>(nameof(IdentityOptions.SignIn), nameof(TermsLastModifiedDate));
     }
 
@@ -108,7 +110,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <summary>Defines the number of days that the browser will remember the MFA action and will not require re-authentication.</summary>
     public int MfaRememberDurationInDays { get; }
     /// <summary>Defines the list of authentication providers that are considered as implicitly passing MFA.</summary>
-    public string[] MfaImplicitLoginProviders { get; }
+    public HashSet<string> MfaImplicitLoginProviders { get; }
     /// <summary>Defines whether to remember device even if a relevant cookie does not exist.</summary>
     public bool RememberTrustedBrowserAcrossSessions { get; }
     /// <summary>Type of expiration for <see cref="IdentityConstants.TwoFactorRememberMeScheme"/> cookie.</summary>
