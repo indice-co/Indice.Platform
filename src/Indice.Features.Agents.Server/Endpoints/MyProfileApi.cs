@@ -24,12 +24,12 @@ internal static class MyProfileApi
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("/", MyProfileHandlers.GetMe)
+        group.MapGet(string.Empty, MyProfileHandlers.GetMe)
              .WithName(nameof(MyProfileHandlers.GetMe))
              .WithSummary("Get the caller's profile.")
              .WithDescription("Returns the caller's application-local profile, creating it on first access (just-in-time) from the IdP claims. The IdP stays the source of truth for identity; this row holds app-specific preferences plus a cached snapshot of name/email/locale.");
 
-        group.MapPut("/", MyProfileHandlers.UpdateMe)
+        group.MapPut(string.Empty, MyProfileHandlers.UpdateMe)
              .WithParameterValidation<UpdateUserRequest>()
              .WithName(nameof(MyProfileHandlers.UpdateMe))
              .WithSummary("Update the caller's preferences.")

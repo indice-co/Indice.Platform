@@ -6,12 +6,13 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 // UseAgentsUI(); otherwise the hardcoded `environment` is used (ng serve / production build).
 function createAppSettings(): IAppSettings {
   const isTemplate = environment.isTemplate;
-  let authority = '', clientId = '', host = '', culture = '', version = '', scopes = '', path = '';
+  let authority = '', clientId = '', host = '', api = '', culture = '', version = '', scopes = '', path = '';
   if (isTemplate) {
     const appRoot = document.getElementsByTagName('app-root')[0];
     authority = appRoot.getAttribute('authority') || '';
     clientId = appRoot.getAttribute('clientId') || '';
     host = appRoot.getAttribute('host') || '';
+    api = appRoot.getAttribute('api') || '';
     path = appRoot.getAttribute('path') || '';
     culture = appRoot.getAttribute('culture') || '';
     version = appRoot.getAttribute('version') || '';
@@ -22,6 +23,7 @@ function createAppSettings(): IAppSettings {
     appRoot.attributes.removeNamedItem('authority');
     appRoot.attributes.removeNamedItem('clientId');
     appRoot.attributes.removeNamedItem('host');
+    appRoot.attributes.removeNamedItem('api');
     appRoot.attributes.removeNamedItem('path');
     appRoot.attributes.removeNamedItem('culture');
     appRoot.attributes.removeNamedItem('version');
@@ -30,7 +32,7 @@ function createAppSettings(): IAppSettings {
   return {
     // The generated DexApiService / ChatStreamService append "/api/..." to this base, so it must be the
     // origin (no "/api" suffix) — same shape as the dev environment. Embedded = same origin as the host.
-    api_url: !isTemplate ? environment.api_url : host.replace(/\/$/su, ''),
+    api_url: !isTemplate ? environment.api_url : (api || [host.replace(/\/$/su, ""), 'api'].join('/')),
     auth_settings: {
       accessTokenExpiringNotificationTime: environment.auth_settings.accessTokenExpiringNotificationTime,
       authority: !isTemplate ? environment.auth_settings.authority : authority,
