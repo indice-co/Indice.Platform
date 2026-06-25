@@ -7,8 +7,8 @@
     <VersionSuffix>beta00</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore.Builder" Version="$(VersionPrefixAspNet)" />
-    <PackageReference Include="Indice.Features.Agents.Core" Version="$(VersionPrefixAgents)" />
+    <PackageReference Include="Indice.AspNetCore.Builder" Version="$(VersionPrefixAspNet)-*" />
+    <PackageReference Include="Indice.Features.Agents.Core" Version="$(VersionPrefixAgents)-*" />
   </ItemGroup>
 
   <ItemGroup>

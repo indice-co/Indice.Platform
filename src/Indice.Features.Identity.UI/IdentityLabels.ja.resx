@@ -378,6 +378,27 @@
   <data name="Email_Body_Organization_Signature" xml:space="preserve">
     <value>{0}</value>
   </data>
+  <data name="EmailFooter_SentTo" xml:space="preserve">
+    <value>このメールは  &lt;strong&gt;{0}&lt;/strong&gt; に送信されました。</value>
+  </data>
+  <data name="OrganizationLegalName" xml:space="preserve">
+    <value />
+  </data>
+  <data name="OrganizationAddress" xml:space="preserve">
+    <value />
+  </data>
+  <data name="EmailFooter_RegistryNumber" xml:space="preserve">
+    <value>GEMH: {0}</value>
+  </data>
+  <data name="EmailFooter_NeedHelp" xml:space="preserve">
+    <value>お困りですか？</value>
+  </data>
+  <data name="EmailFooter_CallSupport" xml:space="preserve">
+    <value>{0} までお電話ください</value>
+  </data>
+  <data name="EmailFooter_EmailSupport" xml:space="preserve">
+    <value>{0} までメールでお問い合わせください</value>
+  </data>
   <data name="Email_Reset_Password_FieldLabel" xml:space="preserve">
     <value>パスワードをリセット</value>
   </data>

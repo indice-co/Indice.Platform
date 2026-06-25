@@ -34,7 +34,7 @@ public sealed class UserClaimsAIContextProvider : AIContextProvider {
     /// <inheritdoc/>
     protected override async ValueTask<AIContext> ProvideAIContextAsync(InvokingContext context, CancellationToken cancellationToken = default) {
         var principal = _claimsPrincipalSelector();
-        if (principal is null || principal?.Identity?.IsAuthenticated != true) {
+        if (principal is null || principal.Identity?.IsAuthenticated != true) {
             return new AIContext();
         }
         var gender = principal.FindFirst(BasicClaimTypes.Gender)?.Value;
