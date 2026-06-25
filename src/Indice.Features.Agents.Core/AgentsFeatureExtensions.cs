@@ -1,5 +1,4 @@
 ﻿using System.ClientModel;
-using System.Security.Claims;
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
@@ -7,7 +6,6 @@ using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Abstractions;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.Usage;
-using Indice.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
@@ -63,9 +61,7 @@ public static class AgentsFeatureExtensions
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();
         services.TryAddTransient<IDexRunner, DexRunner>();
         services.TryAddSingleton<WorkflowClaimsPrincipalSelector>(sp =>
-            () => new ClaimsPrincipal(
-                new ClaimsIdentity([new Claim(BasicClaimTypes.Name, "Guest")],"DexInternal", BasicClaimTypes.Name, BasicClaimTypes.Role)
-            )
+            () => null
         );
 
         services.AddDefaultDexPipeline();

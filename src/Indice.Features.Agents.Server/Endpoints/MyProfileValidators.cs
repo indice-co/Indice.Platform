@@ -1,12 +1,10 @@
 using FluentValidation;
-using Indice.Features.Agents.Core.Services;
 
 namespace Indice.Features.Agents.Server.Endpoints;
 
 /// <summary>
-/// Validates <see cref="UpdateUserRequest"/>. Wired via <c>WithParameterValidation&lt;UpdateUserRequest&gt;()</c>.
-/// The config-driven <c>PreferredLanguage</c>-against-taxonomy check lives in <see cref="IUsersService"/>
-/// (it needs runtime <c>DexOptions</c>), keeping this validator dependency-free.
+/// The config-driven <c>PreferredLanguage</c>-against-taxonomy check lives in <c>MyProfileService</c>
+/// (it needs runtime <see cref="Core.AgentsOptions"/>), keeping this validator dependency-free.
 /// </summary>
 public class MyProfileValidators : AbstractValidator<UpdateUserRequest>
 {

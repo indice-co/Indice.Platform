@@ -1,3 +1,4 @@
+using System.ClientModel;
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -37,37 +38,25 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<PipelineStepContext<QueryRewriteOutput>> HandleAsync(
-        PipelineStepContext<IntentOutput> envelope,
-        IWorkflowContext context,
-        CancellationToken cancellationToken = default) {
+    public override async ValueTask<PipelineStepContext<QueryRewriteOutput>> HandleAsync(PipelineStepContext<IntentOutput> envelope,
+        IWorkflowContext context, CancellationToken cancellationToken = default) {
         var question = envelope.State.Question;
         var expansion = _options.Retrieval.QueryExpansion;
         var enabled = _options.Pipeline.EnableQueryRewrite && expansion > 1;
 
         var queries = new List<string> { question };
         if (enabled) {
-            try {
-                var history = ChatHistoryFormatter.Format(envelope.State.History);
-                var historyBlock = history.Length == 0 ? string.Empty : $"HISTORY:\n{history}\n";
-                var prompt = $"{historyBlock}Question: {question}\n\nProduce {expansion - 1} alternative rewrite(s).";
-                var response = await _agent.RunAsync<RewriteResult>(prompt, cancellationToken: cancellationToken);
-                foreach (var q in response.Result.Queries) {
-                    if (!string.IsNullOrWhiteSpace(q) && !queries.Contains(q, StringComparer.OrdinalIgnoreCase)) {
-                        queries.Add(q);
-                    }
-                    if (queries.Count >= expansion) break;
+            var history = ChatHistoryFormatter.Format(envelope.State.History);
+            var historyBlock = history.Length == 0 ? string.Empty : $"HISTORY:\n{history}\n";
+            var prompt = $"{historyBlock}Question: {question}\n\nProduce {expansion - 1} alternative rewrite(s).";
+            var response = await _agent.RunAsync<RewriteResult>(prompt, cancellationToken: cancellationToken);
+            foreach (var q in response.Result.Queries) {
+                if (!string.IsNullOrWhiteSpace(q) && !queries.Contains(q, StringComparer.OrdinalIgnoreCase)) {
+                    queries.Add(q);
                 }
-                // Fast-model usage is intentionally not tracked — only reasoning-model tokens are persisted.
-            } 
-            catch (OperationCanceledException) {
-                throw;
-            }
-            catch {
-                // Fall back to just the original question.
+                if (queries.Count >= expansion) break;
             }
         }
-
         return envelope.Next(new QueryRewriteOutput {
             Intent = envelope.Payload.Intent,
             Filters = envelope.Payload.Filters,

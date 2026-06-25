@@ -1,7 +1,11 @@
+using Indice.Features.Agents.Server;
 using Indice.Features.Agents.Server.Endpoints;
+using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -10,8 +14,15 @@ internal static class MyChatsApi
 {
     /// <summary>Maps the <c>/api/my/chats</c> endpoint group.</summary>
     public static RouteGroupBuilder MapMyChats(this IEndpointRouteBuilder routes) {
-        var group = routes.MapGroup("/api/my/chats").WithTags("MyChats");
-        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser());
+        var options = routes.ServiceProvider.GetRequiredService<IOptions<AgentsServerOptions>>().Value;
+        var allowedScopes = new[] { options.ChatRequiredScope }.FilterOutNulls().ToArray();
+
+        var group = routes.MapGroup($"{options.PathPrefix.Value?.TrimEnd('/')}/my/chats")
+                          .WithName(options.GroupName)
+                          .WithTags("Chats");
+
+        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
+                                           .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
         group.WithOpenApiSecurityRequirement("oauth2");
         group.WithHandledException<BusinessException>()
              .ProducesProblem(StatusCodes.Status401Unauthorized)

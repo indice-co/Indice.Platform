@@ -1,4 +1,6 @@
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Models.Requests;
+using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -9,18 +11,14 @@ namespace Indice.Features.Agents.Server.Endpoints;
 /// <summary>Logic-free handlers for the IngestionApi.</summary>
 internal static class IngestionHandlers
 {
-    /// <summary>POST /api/ingest/faq — multipart upload of a single FAQ-format Markdown file.</summary>
-    public static async Task<Results<Ok<IngestionReport>, ValidationProblem>> UploadFaq(
-        IFormFile file,
-        IIngestionPipeline pipeline,
-        CancellationToken cancellationToken,
-        [FromForm] string? category = null,
-        [FromForm] string? language = null) {
-        if (ValidateUpload(file) is { } problem) {
+    /// <summary></summary>
+    public static async Task<Results<Ok<IngestionReport>, ValidationProblem>> DocumentIngest( IIngestionPipeline pipeline,
+        CancellationToken cancellationToken, DocumentIngestRequest request) {
+        if (ValidateUpload(request.File) is { } problem) {
             return problem;
         }
-        await using var stream = file.OpenReadStream();
-        var report = await pipeline.IngestAsync(stream, file.FileName, category, language, cancellationToken);
+        await using var stream = request.File.OpenReadStream();
+        var report = await pipeline.IngestAsync(stream, request.File.FileName, request.Category, request.Language, cancellationToken);
         return TypedResults.Ok(report);
     }
 
@@ -32,5 +30,10 @@ internal static class IngestionHandlers
             return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Only .md files are supported."));
         }
         return null;
+    }
+
+    public static async Task<Results<NoContent, ValidationProblem>> Clear(IDocumentsService store, CancellationToken cancellationToken) {
+        await store.ClearAsync();
+        return TypedResults.NoContent();
     }
 }

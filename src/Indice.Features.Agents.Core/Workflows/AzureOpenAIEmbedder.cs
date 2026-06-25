@@ -35,7 +35,7 @@ public class AzureOpenAIEmbedder : IEmbedder
     }
 
     private async Task<GeneratedEmbeddings<Embedding<float>>> GenerateWithRetryAsync(IReadOnlyList<string> batch, CancellationToken cancellationToken) {
-        for (var attempt = 0; attempt < _options.MaxRetries ; attempt++) {
+        for (var attempt = 0; attempt <= _options.MaxRetries ; attempt++) {
             try {
                 return await _generator.GenerateAsync(batch, options: null, cancellationToken);
             } 

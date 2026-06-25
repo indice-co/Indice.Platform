@@ -102,4 +102,10 @@ public class DocumentsService : IDocumentsService
             .Where(x => x.Score > minScore)
             .ToListAsync(cancellationToken);
     }
+
+    /// <inheritdoc/>
+    public async Task ClearAsync() {
+        throw new NotImplementedException();
+    }
+
 }

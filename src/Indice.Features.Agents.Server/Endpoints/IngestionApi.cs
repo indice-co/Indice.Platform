@@ -4,7 +4,6 @@ using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -16,24 +15,31 @@ internal static class IngestionApi
     /// <summary>Maps the <c>/api/ingest</c> endpoint group.</summary>
     public static RouteGroupBuilder MapIngestion(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<AgentsServerOptions>>().Value;
-
         var allowedScopes = new[] { options.IngestRequiredScope }.FilterOutNulls().ToArray();
 
-        var group = routes.MapGroup($"{options.PathPrefix.Value?.TrimEnd('/')}/ingest")
+        var group = routes.MapGroup($"{options.PathPrefix.Value?.TrimEnd('/')}/documents")
                           .WithName(options.GroupName)
-                          .WithTags("Ingestion");
+                          .WithTags("Documents");
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-                                           .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
+                                           .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+                                           .RequireAssertion(context => context.User.IsInRole(BasicRoleNames.AgentsAdmin) ||
+                                                                        context.User.IsAdmin()));
+        
         group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.WithHandledException<BusinessException>()
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden)
              .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
-        group.MapPost("/faq", IngestionHandlers.UploadFaq).DisableAntiforgery().AllowAnonymous()
-             .WithName(nameof(IngestionHandlers.UploadFaq))
-             .WithSummary("Upload a single FAQ-format Markdown file for ingestion.")
-             .WithDescription("Accepts multipart/form-data with a `file` part containing FAQ-shaped Markdown (`# Category` separates segments, `## Question` introduces each question, the body until the next `##`/`#`/EOF is the answer). Each Q&A pair becomes one retrieval chunk; HeadingPath surfaces as 'Category > Question'. The file's first `#` is used as the document category — the form-data `category` is used only when the file has none.");
+        group.MapPost("/ingest", IngestionHandlers.DocumentIngest).DisableAntiforgery()
+             .WithName(nameof(IngestionHandlers.DocumentIngest))
+             .WithSummary("Ingests a document into the knowledge base.")
+             .WithDescription("Uploads a single Markdown file and processes it into the knowledge base.");
+
+        group.MapPost("/clear",IngestionHandlers.Clear)
+            .WithName(nameof(IngestionHandlers.Clear))
+            .WithSummary("Clears the knowledge base.")
+            .WithDescription("Clears all documents and their chunks from the knowledge base.");
 
         return group;
     }

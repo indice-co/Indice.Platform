@@ -97,17 +97,16 @@ public class DefaultIngestionPipeline : IIngestionPipeline
         var pendingAnswer = new StringBuilder();
         var chunkIndex = 0;
 
-        foreach (var line in body.Split('\n').Select(rawLine => rawLine.TrimEnd('\r'))) {
-            var trimmed = line.TrimStart();
-
-            if (trimmed.StartsWith("## ", StringComparison.Ordinal)) {
+        foreach (var line in body.Split('\n', '\r', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)) {
+            
+            if (line.StartsWith("## ", StringComparison.Ordinal)) {
                 Flush();
-                pendingQuestion = trimmed[3..].Trim();
+                pendingQuestion = line[3..].TrimStart();
                 continue;
             }
-            if (trimmed.StartsWith("# ", StringComparison.Ordinal)) {
+            if (line.StartsWith("# ", StringComparison.Ordinal)) {
                 Flush();
-                currentCategory = trimmed[2..].Trim();
+                currentCategory = line[2..].TrimStart();
                 firstCategory ??= currentCategory;
                 continue;
             }

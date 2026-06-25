@@ -24,4 +24,7 @@ public interface IDocumentsService
     /// filtered by category/language (null = no filter; chunks with NULL category/language always match).
     /// </summary>
     Task<IReadOnlyList<RetrievedChunk>> SearchAsync(ReadOnlyMemory<float> queryVector, RetrievalFilters filters, int topK, double minScore, CancellationToken cancellationToken);
+
+    ///<summary> Deletes all documents and chunks.</summary>
+    Task ClearAsync();
 }

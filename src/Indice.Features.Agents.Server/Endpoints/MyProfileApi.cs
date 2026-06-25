@@ -1,7 +1,10 @@
+using Indice.Features.Agents.Server;
 using Indice.Features.Agents.Server.Endpoints;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -10,7 +13,11 @@ internal static class MyProfileApi
 {
     /// <summary>Maps the <c>/api/my/profile</c> endpoint group.</summary>
     public static RouteGroupBuilder MapMyProfile(this IEndpointRouteBuilder routes) {
-        var group = routes.MapGroup("/api/my/profile").WithTags("MyProfile");
+        var options = routes.ServiceProvider.GetRequiredService<IOptions<AgentsServerOptions>>().Value;
+        var group = routes.MapGroup($"{options.PathPrefix.Value?.TrimEnd('/')}/my/profile")
+                          .WithName(options.GroupName)
+                          .WithTags("MyProfile");
+
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser());
         group.WithOpenApiSecurityRequirement("oauth2");
         group.WithHandledException<BusinessException>()

@@ -10,10 +10,5 @@ public interface IIngestionPipeline
     /// override any values read from YAML front-matter. Returns a report describing whether the file was
     /// ingested, replaced an existing one, or skipped as a duplicate.
     /// </summary>
-    Task<IngestionReport> IngestAsync(
-        Stream content,
-        string fileName,
-        string? category,
-        string? language,
-        CancellationToken cancellationToken);
+    Task<IngestionReport> IngestAsync(Stream content, string fileName, string? category, string? language, CancellationToken cancellationToken);
 }

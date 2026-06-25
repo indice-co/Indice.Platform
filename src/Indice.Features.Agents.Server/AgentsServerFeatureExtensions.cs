@@ -20,11 +20,15 @@ public static class AgentsServerFeatureExtensions
     /// Registers the Agents feature with the specified configuration options.
     /// </summary>
     /// <param name="services">The service collection to add the feature to.</param>
+    /// <param name="configuration">The configuration.</param>
     /// <param name="configureOptions">A delegate to configure the feature options.</param>
     /// <returns>The updated service collection.</returns>
     public static IServiceCollection AddAgents(this IServiceCollection services, IConfiguration configuration, Action<AgentsServerOptions>? configureOptions = null) {
         var options = new AgentsServerOptions();
         configureOptions?.Invoke(options);
+        if(configureOptions is not null) { 
+            services.Configure(configureOptions);
+        }
         services.AddAgentsCore(configuration, options.ConfigureAgents);
 
         services.AddMyProfileFeature();
