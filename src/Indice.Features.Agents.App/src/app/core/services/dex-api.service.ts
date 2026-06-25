@@ -16,14 +16,14 @@ export const DEX_API_BASE_URL = new InjectionToken<string>('DEX_API_BASE_URL');
 
 export interface IDexApiService {
     /**
-     * POST /api/ingest/faq — multipart upload of a single FAQ-format Markdown file.
+     * POST /ingest/faq — multipart upload of a single FAQ-format Markdown file.
      * @param category (optional) 
      * @param language (optional) 
      * @return OK
      */
     uploadFaq(category: string | null | undefined, language: string | null | undefined): Observable<IngestionReport>;
     /**
-     * GET /api/my/chats — paged list of the caller's sessions.
+     * GET /my/chats — paged list of the caller's sessions.
      * @param page (optional) The current page of the list. Default is 1.
      * @param size (optional) The size of the list. Default is 100
      * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
@@ -32,42 +32,42 @@ export interface IDexApiService {
      */
     list(page: number | null | undefined, size: number | null | undefined, sort: string | null | undefined, search: string | null | undefined): Observable<SessionListItemResultSet>;
     /**
-     * POST /api/my/chats — creates a session with the first question.
+     * POST /my/chats — creates a session with the first question.
      * @return Created
      */
     create(body: ChatRequest): Observable<ChatResponse>;
     /**
-     * GET /api/my/chats/{id} — session detail with recent messages.
+     * GET /my/chats/{id} — session detail with recent messages.
      * @return OK
      */
     get(id: string): Observable<Session>;
     /**
-     * DELETE /api/my/chats/{id} — removes a session and its messages.
+     * DELETE /my/chats/{id} — removes a session and its messages.
      * @return No Content
      */
     delete(id: string): Observable<void>;
     /**
-     * POST /api/my/chats/{id}/messages — posts a follow-up turn.
+     * POST /my/chats/{id}/messages — posts a follow-up turn.
      * @return OK
      */
     sendMessage(id: string, body: ChatRequest): Observable<ChatResponse>;
     /**
-     * POST /api/my/chats/{id}/messages/stream — streams a follow-up turn over SSE.
+     * POST /my/chats/{id}/messages/stream — streams a follow-up turn over SSE.
      * @return OK
      */
     streamMessage(id: string, body: ChatRequest): Observable<SseItemOfChatStreamEvent>;
     /**
-     * POST /api/my/chats/stream — creates a session and streams the first turn over SSE.
+     * POST /my/chats/stream — creates a session and streams the first turn over SSE.
      * @return OK
      */
     streamCreate(body: ChatRequest): Observable<SseItemOfChatStreamEvent>;
     /**
-     * GET /api/my/profile — returns the caller's profile, provisioning it on first access.
+     * GET /my/profile — returns the caller's profile, provisioning it on first access.
      * @return OK
      */
     getMe(): Observable<Profile>;
     /**
-     * PUT /api/my/profile — updates the caller's app-specific preferences.
+     * PUT /my/profile — updates the caller's app-specific preferences.
      * @return OK
      */
     updateMe(body: UpdateUserRequest): Observable<Profile>;
@@ -87,13 +87,13 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * POST /api/ingest/faq — multipart upload of a single FAQ-format Markdown file.
+     * POST /ingest/faq — multipart upload of a single FAQ-format Markdown file.
      * @param category (optional) 
      * @param language (optional) 
      * @return OK
      */
     uploadFaq(category: string | null | undefined, language: string | null | undefined): Observable<IngestionReport> {
-        let url_ = this.baseUrl + "/api/ingest/faq";
+        let url_ = this.baseUrl + "/ingest/faq";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
@@ -176,7 +176,7 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * GET /api/my/chats — paged list of the caller's sessions.
+     * GET /my/chats — paged list of the caller's sessions.
      * @param page (optional) The current page of the list. Default is 1.
      * @param size (optional) The size of the list. Default is 100
      * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
@@ -184,7 +184,7 @@ export class DexApiService implements IDexApiService {
      * @return OK
      */
     list(page: number | null | undefined, size: number | null | undefined, sort: string | null | undefined, search: string | null | undefined): Observable<SessionListItemResultSet> {
-        let url_ = this.baseUrl + "/api/my/chats?";
+        let url_ = this.baseUrl + "/my/chats?";
         if (page !== undefined && page !== null)
             url_ += "Page=" + encodeURIComponent("" + page) + "&";
         if (size !== undefined && size !== null)
@@ -261,11 +261,11 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * POST /api/my/chats — creates a session with the first question.
+     * POST /my/chats — creates a session with the first question.
      * @return Created
      */
     create(body: ChatRequest): Observable<ChatResponse> {
-        let url_ = this.baseUrl + "/api/my/chats";
+        let url_ = this.baseUrl + "/my/chats";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -338,11 +338,11 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * GET /api/my/chats/{id} — session detail with recent messages.
+     * GET /my/chats/{id} — session detail with recent messages.
      * @return OK
      */
     get(id: string): Observable<Session> {
-        let url_ = this.baseUrl + "/api/my/chats/{id}";
+        let url_ = this.baseUrl + "/my/chats/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -418,11 +418,11 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * DELETE /api/my/chats/{id} — removes a session and its messages.
+     * DELETE /my/chats/{id} — removes a session and its messages.
      * @return No Content
      */
     delete(id: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/my/chats/{id}";
+        let url_ = this.baseUrl + "/my/chats/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -494,11 +494,11 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * POST /api/my/chats/{id}/messages — posts a follow-up turn.
+     * POST /my/chats/{id}/messages — posts a follow-up turn.
      * @return OK
      */
     sendMessage(id: string, body: ChatRequest): Observable<ChatResponse> {
-        let url_ = this.baseUrl + "/api/my/chats/{id}/messages";
+        let url_ = this.baseUrl + "/my/chats/{id}/messages";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -578,11 +578,11 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * POST /api/my/chats/{id}/messages/stream — streams a follow-up turn over SSE.
+     * POST /my/chats/{id}/messages/stream — streams a follow-up turn over SSE.
      * @return OK
      */
     streamMessage(id: string, body: ChatRequest): Observable<SseItemOfChatStreamEvent> {
-        let url_ = this.baseUrl + "/api/my/chats/{id}/messages/stream";
+        let url_ = this.baseUrl + "/my/chats/{id}/messages/stream";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -662,11 +662,11 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * POST /api/my/chats/stream — creates a session and streams the first turn over SSE.
+     * POST /my/chats/stream — creates a session and streams the first turn over SSE.
      * @return OK
      */
     streamCreate(body: ChatRequest): Observable<SseItemOfChatStreamEvent> {
-        let url_ = this.baseUrl + "/api/my/chats/stream";
+        let url_ = this.baseUrl + "/my/chats/stream";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -739,11 +739,11 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * GET /api/my/profile — returns the caller's profile, provisioning it on first access.
+     * GET /my/profile — returns the caller's profile, provisioning it on first access.
      * @return OK
      */
     getMe(): Observable<Profile> {
-        let url_ = this.baseUrl + "/api/my/profile";
+        let url_ = this.baseUrl + "/my/profile";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -812,11 +812,11 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * PUT /api/my/profile — updates the caller's app-specific preferences.
+     * PUT /my/profile — updates the caller's app-specific preferences.
      * @return OK
      */
     updateMe(body: UpdateUserRequest): Observable<Profile> {
-        let url_ = this.baseUrl + "/api/my/profile";
+        let url_ = this.baseUrl + "/my/profile";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -947,7 +947,7 @@ export interface IChatMessage {
     createdAt?: Date;
 }
 
-/** Body accepted by both `POST /api/my/chats` (creates the session inline) and `POST /api/my/chats/{id}/messages`. */
+/** Body accepted by both `POST /my/chats` (creates the session inline) and `POST /my/chats/{id}/messages`. */
 export class ChatRequest implements IChatRequest {
     /** The end-user message text. */
     text?: string;
@@ -981,13 +981,13 @@ export class ChatRequest implements IChatRequest {
     }
 }
 
-/** Body accepted by both `POST /api/my/chats` (creates the session inline) and `POST /api/my/chats/{id}/messages`. */
+/** Body accepted by both `POST /my/chats` (creates the session inline) and `POST /my/chats/{id}/messages`. */
 export interface IChatRequest {
     /** The end-user message text. */
     text?: string;
 }
 
-/** Response returned by both `POST /api/my/chats` and `POST /api/my/chats/{id}/messages`. */
+/** Response returned by both `POST /my/chats` and `POST /my/chats/{id}/messages`. */
 export class ChatResponse implements IChatResponse {
     /** Identifier of the session this turn belongs to. */
     sessionId?: string;
@@ -1049,7 +1049,7 @@ export class ChatResponse implements IChatResponse {
     }
 }
 
-/** Response returned by both `POST /api/my/chats` and `POST /api/my/chats/{id}/messages`. */
+/** Response returned by both `POST /my/chats` and `POST /my/chats/{id}/messages`. */
 export interface IChatResponse {
     /** Identifier of the session this turn belongs to. */
     sessionId?: string;
@@ -1804,7 +1804,7 @@ export interface ISseItemOfChatStreamEvent {
     [key: string]: any;
 }
 
-/** Body accepted by `PUT /api/my/profile` to update the caller's app-specific preferences. */
+/** Body accepted by `PUT /my/profile` to update the caller's app-specific preferences. */
 export class UpdateUserRequest implements IUpdateUserRequest {
     /** Preferred answer language; `null`/empty clears it. Validated against `Taxonomy.Languages`. */
     preferredLanguage?: string | undefined;
@@ -1842,7 +1842,7 @@ export class UpdateUserRequest implements IUpdateUserRequest {
     }
 }
 
-/** Body accepted by `PUT /api/my/profile` to update the caller's app-specific preferences. */
+/** Body accepted by `PUT /my/profile` to update the caller's app-specific preferences. */
 export interface IUpdateUserRequest {
     /** Preferred answer language; `null`/empty clears it. Validated against `Taxonomy.Languages`. */
     preferredLanguage?: string | undefined;

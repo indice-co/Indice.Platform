@@ -31,12 +31,12 @@ internal static class IngestionApi
              .ProducesProblem(StatusCodes.Status403Forbidden)
              .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
-        group.MapPost("/ingest", IngestionHandlers.DocumentIngest).DisableAntiforgery()
+        group.MapPost("ingest", IngestionHandlers.DocumentIngest).DisableAntiforgery()
              .WithName(nameof(IngestionHandlers.DocumentIngest))
              .WithSummary("Ingests a document into the knowledge base.")
              .WithDescription("Uploads a single Markdown file and processes it into the knowledge base.");
 
-        group.MapPost("/clear",IngestionHandlers.Clear)
+        group.MapPost("clear",IngestionHandlers.Clear)
             .WithName(nameof(IngestionHandlers.Clear))
             .WithSummary("Clears the knowledge base.")
             .WithDescription("Clears all documents and their chunks from the knowledge base.");

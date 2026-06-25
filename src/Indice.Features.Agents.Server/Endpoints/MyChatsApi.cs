@@ -23,24 +23,24 @@ internal static class MyChatsApi
 
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
-        group.WithOpenApiSecurityRequirement("oauth2");
+        group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.WithHandledException<BusinessException>()
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPost("/", MyChatsHandlers.Create)
+        group.MapPost(string.Empty, MyChatsHandlers.Create)
              .WithParameterValidation<ChatRequest>()
              .WithName(nameof(MyChatsHandlers.Create))
              .WithSummary("Create a chat session with the first question.")
              .WithDescription("Creates a new chat session for the calling user and runs the first question through the RAG pipeline in one round-trip. Returns 201 with the grounded answer, citations, usage, and the new session id.");
 
-        group.MapPost("/{chatId:guid}/messages", MyChatsHandlers.SendMessage)
+        group.MapPost("{chatId:guid}/messages", MyChatsHandlers.SendMessage)
              .WithParameterValidation<ChatRequest>()
              .WithName(nameof(MyChatsHandlers.SendMessage))
              .WithSummary("Post a follow-up message to an existing chat session.")
              .WithDescription("Loads bounded conversation history, runs the message through the RAG pipeline, persists the user/assistant turn, and returns the grounded answer + cumulative session token totals.");
 
-        group.MapPost("/stream", MyChatsHandlers.StreamCreate)
+        group.MapPost("stream", MyChatsHandlers.StreamCreate)
              .WithParameterValidation<ChatRequest>()
              .WithName(nameof(MyChatsHandlers.StreamCreate))
              .WithSummary("Create a chat session and stream the first turn over Server-Sent Events.")
@@ -55,7 +55,7 @@ internal static class MyChatsApi
                 The turn is persisted when the stream completes. (SwaggerUI cannot render SSE — use a streaming client, e.g. `curl -N`.)
                 """);
 
-        group.MapPost("/{chatId:guid}/messages/stream", MyChatsHandlers.StreamMessage)
+        group.MapPost("{chatId:guid}/messages/stream", MyChatsHandlers.StreamMessage)
              .WithParameterValidation<ChatRequest>()
              .WithName(nameof(MyChatsHandlers.StreamMessage))
              .WithSummary("Stream a follow-up turn over Server-Sent Events.")
@@ -66,17 +66,17 @@ internal static class MyChatsApi
                 (SwaggerUI cannot render SSE — use a streaming client, e.g. `curl -N`.)
                 """);
 
-        group.MapGet("/", MyChatsHandlers.List)
+        group.MapGet(string.Empty, MyChatsHandlers.List)
              .WithName(nameof(MyChatsHandlers.List))
              .WithSummary("List the caller's chat sessions, paged.")
              .WithDescription("Returns a paged list of sessions owned by the caller, ordered by most recent activity.");
 
-        group.MapGet("/{chatId:guid}", MyChatsHandlers.GetChatSession)
+        group.MapGet("{chatId:guid}", MyChatsHandlers.GetChatSession)
              .WithName(nameof(MyChatsHandlers.GetChatSession))
              .WithSummary("Get a chat session with its recent messages.")
              .WithDescription("Returns session metadata (title, timestamps, cumulative token totals) plus the most recent messages in chronological order.");
 
-        group.MapDelete("/{chatId:guid}", MyChatsHandlers.Delete)
+        group.MapDelete("{chatId:guid}", MyChatsHandlers.Delete)
              .WithName(nameof(MyChatsHandlers.Delete))
              .WithSummary("Delete a chat session and its messages.")
              .WithDescription("Permanently deletes the session and all its messages. Returns 204 on success, 404 when the session does not exist for the calling user.");

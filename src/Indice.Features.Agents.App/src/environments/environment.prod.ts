@@ -4,7 +4,7 @@ export const environment = {
   production: true,
   isTemplate: false,
   culture: 'el',
-  api_url: 'https://localhost:2001',
+  api_url: 'https://localhost:2001/api',
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
     authority: 'https://my.indice.gr',
