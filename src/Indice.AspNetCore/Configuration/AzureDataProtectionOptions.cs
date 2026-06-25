@@ -21,7 +21,7 @@ public class AzureDataProtectionOptions
     /// precedence over <see cref="ConnectionStringName"/> in the options consumption path.
     /// </summary>
     [Obsolete("Use ConnectionStringName instead.")]
-    public string StorageConnectionString { get; set; }
+    public string StorageConnectionString { get; set; } = null!;
     /// <summary>The name of the container that will be used within the data protection system.</summary>
     public string ContainerName { get; set; } = null!;
     /// <summary>Sets the unique name of this application within the data protection system.</summary>

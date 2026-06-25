@@ -1,0 +1,139 @@
+@import 'tailwindcss';
+@plugin 'daisyui';
+
+/* Scan our component templates (inline + .html) for utility classes. */
+@source './app/**/*.{html,ts}';
+@source './index.html';
+
+/* ── Dex theme — Indice red on white: white surfaces, ink text, Dex-logo red primary ── */
+@plugin 'daisyui/theme' {
+  name: 'dex';
+  default: true;
+  color-scheme: light;
+
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97.2% 0.002 270);
+  --color-base-300: oklch(92% 0.004 270);
+  --color-base-content: oklch(24% 0.012 270);
+
+  --color-primary: oklch(58.5% 0.214 27);
+  --color-primary-content: oklch(99% 0 0);
+  --color-secondary: oklch(30% 0.012 270);
+  --color-secondary-content: oklch(98% 0 0);
+  --color-accent: oklch(52% 0.2 26);
+  --color-accent-content: oklch(98% 0 0);
+  --color-neutral: oklch(26% 0.012 270);
+  --color-neutral-content: oklch(97% 0 0);
+
+  --color-info: oklch(62% 0.1 232);
+  --color-info-content: oklch(98% 0.01 232);
+  --color-success: oklch(62% 0.13 150);
+  --color-success-content: oklch(98% 0.01 150);
+  --color-warning: oklch(76% 0.15 80);
+  --color-warning-content: oklch(28% 0.05 80);
+  --color-error: oklch(55% 0.2 25);
+  --color-error-content: oklch(98% 0.01 25);
+
+  --radius-selector: 1.2rem;
+  --radius-field: 0.6rem;
+  --radius-box: 1rem;
+  --border: 1px;
+}
+
+/* Register fonts as Tailwind theme tokens (font-sans / font-mono). */
+@theme {
+  --font-sans: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Subtle dotted "graph paper" atmosphere for the conversation canvas. */
+.dex-canvas {
+  background-color: var(--color-base-200);
+  background-image: radial-gradient(
+    color-mix(in oklch, var(--color-base-content) 6%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+}
+
+/* Blinking caret appended to the streaming answer. */
+.dex-caret::after {
+  content: '';
+  display: inline-block;
+  width: 0.55ch;
+  height: 1.05em;
+  margin-left: 1px;
+  vertical-align: -0.15em;
+  background-color: currentColor;
+  border-radius: 1px;
+  animation: dex-blink 1.05s steps(1, end) infinite;
+}
+
+@keyframes dex-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Staggered entrance for message bubbles. */
+@keyframes dex-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dex-rise {
+  animation: dex-rise 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Flow builder: the node currently "running" during a simulated pass. */
+.dex-node-active {
+  animation: dex-node-pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes dex-node-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-primary) 38%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 7px color-mix(in oklch, var(--color-primary) 0%, transparent);
+  }
+}
+
+/* Thin, refined scrollbar that matches the paper aesthetic. */
+.dex-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--color-base-content) 22%, transparent) transparent;
+}
+.dex-scroll::-webkit-scrollbar {
+  width: 9px;
+}
+.dex-scroll::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklch, var(--color-base-content) 20%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}

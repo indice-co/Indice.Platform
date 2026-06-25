@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>    
+    <TargetFrameworks></TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
+    <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
+    <VersionSuffix>beta00</VersionSuffix>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.AspNetCore.Builder" Version="$(VersionPrefixAspNet)-*" />
+    <PackageReference Include="Indice.Features.Agents.Core" Version="$(VersionPrefixAgents)-*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.AspNetCore.Builder\Indice.AspNetCore.Builder.csproj" />
+    <ProjectReference Include="..\Indice.Features.Agents.Core\Indice.Features.Agents.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -20,6 +20,7 @@
     <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
     <VersionPrefixActivityLogs>$(VersionPrefixBase).0</VersionPrefixActivityLogs>
     <VersionPrefixFtpServer>$(VersionPrefixBase).0</VersionPrefixFtpServer>
+    <VersionPrefixAgents>8.0.0</VersionPrefixAgents>
     <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 
     <!--<VersionSuffix>rc01</VersionSuffix>-->

@@ -1,0 +1,270 @@
+<div class="dex-scroll h-full overflow-y-auto bg-base-200">
+  <div class="mx-auto w-full max-w-3xl px-5 py-8 sm:px-8 sm:py-12">
+    <!-- Page heading -->
+    <header class="dex-rise mb-7">
+      <p class="font-mono text-xs uppercase tracking-[0.22em] text-primary">Account</p>
+      <h1 class="mt-1 text-3xl font-semibold tracking-tight text-base-content">Profile</h1>
+    </header>
+
+    <!-- Identity hero -->
+    <section
+      class="dex-rise overflow-hidden rounded-box border border-base-300 bg-base-100 shadow-sm"
+      style="animation-delay: 60ms"
+    >
+      <div class="h-1.5 bg-gradient-to-r from-primary to-accent"></div>
+
+      <div class="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:gap-6 sm:p-7">
+        <span
+          class="grid size-20 shrink-0 place-items-center rounded-full bg-primary/10 text-2xl
+                 font-semibold text-primary ring-4 ring-primary/5"
+        >
+          {{ initials }}
+        </span>
+
+        <div class="min-w-0 flex-1">
+          <h2 class="truncate text-2xl font-semibold tracking-tight text-base-content">
+            {{ displayName }}
+          </h2>
+
+          @if (email) {
+            <p class="mt-1 flex items-center gap-1.5 text-base-content/70">
+              <span class="truncate">{{ email }}</span>
+              @if (emailVerified) {
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  class="size-4 shrink-0 text-success"
+                  aria-label="Email verified"
+                >
+                  <path
+                    d="M20 6 9 17l-5-5"
+                    stroke="currentColor"
+                    stroke-width="2.4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              }
+            </p>
+          }
+
+          <div class="mt-3 flex flex-wrap items-center gap-1.5">
+            @if (isAdmin) {
+              <span class="badge badge-primary badge-sm font-medium">Admin</span>
+            }
+            @for (role of roles; track role) {
+              <span class="badge badge-ghost badge-sm border-base-300 font-mono text-[0.68rem]">
+                {{ role }}
+              </span>
+            }
+            @if (!isAdmin && roles.length === 0) {
+              <span class="text-xs text-base-content/45">No roles assigned</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Identity meta -->
+      <dl class="grid grid-cols-1 gap-px border-t border-base-300 bg-base-300 sm:grid-cols-2">
+        <div class="bg-base-100 px-6 py-3.5 sm:px-7">
+          <dt class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-base-content/45">
+            Username
+          </dt>
+          <dd class="mt-0.5 truncate text-sm text-base-content">{{ userName || '—' }}</dd>
+        </div>
+        <div class="bg-base-100 px-6 py-3.5 sm:px-7">
+          <dt class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-base-content/45">
+            Subject ID
+          </dt>
+          <dd class="mt-0.5 truncate font-mono text-xs text-base-content/80">
+            {{ subjectId || '—' }}
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Preferences (GET /api/my/profile) -->
+    @if (profileLoading()) {
+      <section class="dex-rise mt-8" style="animation-delay: 90ms">
+        <h3 class="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-base-content/45">
+          Preferences
+        </h3>
+        <div class="h-20 animate-pulse rounded-box border border-base-300 bg-base-100"></div>
+      </section>
+    } @else if (profile(); as p) {
+      <section class="dex-rise mt-8" style="animation-delay: 90ms">
+        <h3 class="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-base-content/45">
+          Preferences
+        </h3>
+        <dl
+          class="grid grid-cols-1 gap-px overflow-hidden rounded-box border border-base-300
+                 bg-base-300 shadow-sm sm:grid-cols-2"
+        >
+          <div class="flex items-center gap-3 bg-base-100 px-6 py-4">
+            <svg viewBox="0 0 24 24" fill="none" class="size-5 shrink-0 text-base-content/40" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" />
+              <path
+                d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"
+                stroke="currentColor"
+                stroke-width="1.6"
+              />
+            </svg>
+            <div>
+              <dt class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-base-content/45">
+                Answer language
+              </dt>
+              <dd class="mt-0.5 text-sm font-medium text-base-content">
+                {{ langLabel(p.preferredLanguage) }}
+              </dd>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 bg-base-100 px-6 py-4">
+            <svg viewBox="0 0 24 24" fill="none" class="size-5 shrink-0 text-base-content/40" aria-hidden="true">
+              <path
+                d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+              />
+            </svg>
+            <div>
+              <dt class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-base-content/45">
+                Response style
+              </dt>
+              <dd class="mt-0.5 text-sm font-medium text-base-content">
+                {{ styleLbl(p.responseStyle) }}
+              </dd>
+            </div>
+          </div>
+        </dl>
+      </section>
+    }
+
+    <!-- Usage -->
+    <section class="dex-rise mt-8" style="animation-delay: 120ms">
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <h3 class="font-mono text-xs uppercase tracking-[0.2em] text-base-content/45">Usage</h3>
+        @if (statsFailed()) {
+          <button type="button" class="btn btn-ghost btn-xs gap-1.5" (click)="reload()">
+            <svg viewBox="0 0 24 24" fill="none" class="size-3.5" aria-hidden="true">
+              <path
+                d="M3 12a9 9 0 1 0 3-6.7L3 8m0-5v5h5"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Retry
+          </button>
+        } @else if (lastSeen(); as ls) {
+          <span class="font-mono text-[0.62rem] text-base-content/45">
+            last seen {{ ls | date: 'MMM d · HH:mm' }}
+          </span>
+        }
+      </div>
+
+      @if (statsLoading()) {
+        <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          @for (i of [1, 2, 3, 4]; track i) {
+            <div class="h-24 animate-pulse rounded-box border border-base-300 bg-base-100"></div>
+          }
+        </div>
+      } @else if (statsFailed()) {
+        <div class="rounded-box border border-base-300 bg-base-100 px-5 py-6 text-center">
+          <p class="text-sm text-base-content/60">
+            Couldn't load your usage right now.
+          </p>
+          <p class="mt-1 text-xs text-base-content/45">
+            Your identity is shown above; usage needs an authenticated session.
+          </p>
+        </div>
+      } @else if (stats(); as s) {
+        @if (s.totalConversations === 0) {
+          <div class="rounded-box border border-base-300 bg-base-100 px-5 py-10 text-center">
+            <p class="text-sm text-base-content/60">No conversations yet.</p>
+            <a routerLink="/" class="btn btn-primary btn-sm mt-3">Start a chat</a>
+          </div>
+        } @else {
+        <!-- Stat cards -->
+        <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div class="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
+            <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-base-content/45">
+              Conversations
+            </p>
+            <p class="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-base-content">
+              {{ s.totalConversations }}
+            </p>
+          </div>
+
+          <div class="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
+            <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-base-content/45">
+              Total tokens
+            </p>
+            <p class="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-primary">
+              {{ fmt(s.totalTokens) }}
+            </p>
+            <p class="mt-1 font-mono text-[0.64rem] text-base-content/45">
+              {{ fmt(s.totalPromptTokens) }} in · {{ fmt(s.totalCompletionTokens) }} out
+            </p>
+          </div>
+
+          <div class="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
+            <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-base-content/45">
+              Reasoning · 7d
+            </p>
+            <p class="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-base-content">
+              {{ reasoning7d() !== null ? fmt(reasoning7d()!) : '—' }}
+            </p>
+            <p class="mt-1 font-mono text-[0.64rem] text-base-content/45">tokens, last 7 days</p>
+          </div>
+
+          <div class="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
+            <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-base-content/45">
+              Member since
+            </p>
+            <p class="mt-2 text-xl font-semibold tracking-tight text-base-content">
+              {{ memberSince() ? (memberSince() | date: 'MMM y') : '—' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Recent conversations -->
+        @if (s.recent.length > 0) {
+          <div class="mt-4 overflow-hidden rounded-box border border-base-300 bg-base-100 shadow-sm">
+            <div class="flex items-center justify-between border-b border-base-300 px-5 py-3">
+              <h4 class="text-sm font-semibold text-base-content">Recent conversations</h4>
+              <a routerLink="/" class="text-xs font-medium text-primary hover:underline">
+                Open chat →
+              </a>
+            </div>
+            <ul class="divide-y divide-base-200">
+              @for (c of s.recent; track c.id) {
+                <li>
+                  <a
+                    routerLink="/"
+                    class="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-base-200"
+                  >
+                    <span class="size-1.5 shrink-0 rounded-full bg-primary/50"></span>
+                    <span class="min-w-0 flex-1">
+                      <span class="block truncate text-sm font-medium text-base-content">
+                        {{ c.title || 'Untitled conversation' }}
+                      </span>
+                      <span class="mt-0.5 block font-mono text-[0.66rem] text-base-content/45">
+                        {{ c.lastActivityAt | date: 'MMM d · HH:mm' }}
+                      </span>
+                    </span>
+                    <span class="shrink-0 font-mono text-[0.66rem] text-base-content/45">
+                      {{ fmt((c.totalPromptTokens ?? 0) + (c.totalCompletionTokens ?? 0)) }} tok
+                    </span>
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+        }
+      }
+    </section>
+  </div>
+</div>
