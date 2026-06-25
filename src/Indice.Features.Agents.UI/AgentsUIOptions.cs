@@ -17,7 +17,7 @@ public class AgentsUIOptions : SpaUIOptions
         DocumentTitle = "Dex";
         ApiBase = "/api";
         ConfigureIndexParameters = args => {
-            args[$"%({nameof(Lang)})"] = Lang;
+            args[$"%({nameof(Lang)})"] = Lang ?? System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         };
     }
 }
