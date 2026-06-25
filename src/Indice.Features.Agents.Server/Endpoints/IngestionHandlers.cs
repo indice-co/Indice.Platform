@@ -13,7 +13,7 @@ internal static class IngestionHandlers
 {
     /// <summary></summary>
     public static async Task<Results<Ok<IngestionReport>, ValidationProblem>> DocumentIngest( IIngestionPipeline pipeline,
-        CancellationToken cancellationToken, DocumentIngestRequest request) {
+        CancellationToken cancellationToken, [FromForm] DocumentIngestRequest request) {
         if (ValidateUpload(request.File) is { } problem) {
             return problem;
         }

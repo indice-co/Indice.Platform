@@ -41,28 +41,24 @@ public class LlmListwiseReranker : ILlmReranker
             return Array.Empty<RetrievedChunk>();
         }
         var prompt = BuildPrompt(question, candidates, _snippetLength);
-        try {
-            var response = await _agent.RunAsync<RerankScores>(prompt, cancellationToken: cancellationToken);
-            var scoreByIndex = response.Result.Scores
-                .Where(s => s.Index >= 0 && s.Index < candidates.Count)
-                .ToDictionary(s => s.Index, s => s.Score);
-            var reranked = candidates
-                .Select((c, i) => new RetrievedChunk {
-                    ChunkId = c.ChunkId,
-                    DocumentId = c.DocumentId,
-                    Title = c.Title,
-                    HeadingPath = c.HeadingPath,
-                    Content = c.Content,
-                    TokenCount = c.TokenCount,
-                    Score = scoreByIndex.TryGetValue(i, out var s) ? s : c.Score,
-                })
-                .OrderByDescending(c => c.Score)
-                .Take(topN)
-                .ToList();
-            return reranked;
-        } catch {
-            return candidates.Take(topN).ToList();
-        }
+        var response = await _agent.RunAsync<RerankScores>(prompt, cancellationToken: cancellationToken);
+        var scoreByIndex = response.Result.Scores
+            .Where(s => s.Index >= 0 && s.Index < candidates.Count)
+            .ToDictionary(s => s.Index, s => s.Score);
+        var reranked = candidates
+            .Select((c, i) => new RetrievedChunk {
+                ChunkId = c.ChunkId,
+                DocumentId = c.DocumentId,
+                Title = c.Title,
+                HeadingPath = c.HeadingPath,
+                Content = c.Content,
+                TokenCount = c.TokenCount,
+                Score = scoreByIndex.TryGetValue(i, out var s) ? s : c.Score,
+            })
+            .OrderByDescending(c => c.Score)
+            .Take(topN)
+            .ToList();
+        return reranked;
     }
 
     private static string BuildPrompt(string question, IReadOnlyList<RetrievedChunk> candidates, int snippetLength) {

@@ -44,12 +44,22 @@ public static class AgentsServerFeatureExtensions
         return services;
     }
 
+    /// <summary>
+    /// Registers the Chats feature.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
     public static IServiceCollection AddChatsFeature(this IServiceCollection services) {
         services.TryAddTransient<IChatsService, ChatsService>();
         services.TryAddTransient<ISessionsStore, SessionsStore>();
         return services;
     }
 
+    /// <summary>
+    /// Registers the Ingestion feature, including the embedder, ingestion pipeline, and documents service.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
     public static IServiceCollection AddIngestionFeature(this IServiceCollection services) {
         services.TryAddTransient<IEmbedder, AzureOpenAIEmbedder>();
         services.TryAddTransient<IIngestionPipeline, DefaultIngestionPipeline>();
@@ -57,6 +67,11 @@ public static class AgentsServerFeatureExtensions
         return services;
     }
 
+    /// <summary>
+    /// Registers the Users feature, including the user claims provider and the users service.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
     public static IServiceCollection AddUsersFeature(this IServiceCollection services) {
         services.AddHttpContextAccessor();
         services.Replace(ServiceDescriptor.Transient<WorkflowClaimsPrincipalSelector>(sp => {
