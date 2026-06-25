@@ -11,7 +11,7 @@ namespace Indice.Features.Agents.Server.Endpoints;
 /// <summary>Logic-free handlers for the IngestionApi.</summary>
 internal static class IngestionHandlers
 {
-    /// <summary></summary>
+    /// <summary>Ingests an uploaded markdown document and returns an ingestion report.</summary>
     public static async Task<Results<Ok<IngestionReport>, ValidationProblem>> DocumentIngest( IIngestionPipeline pipeline,
         CancellationToken cancellationToken, [FromForm] DocumentIngestRequest request) {
         if (ValidateUpload(request.File) is { } problem) {
