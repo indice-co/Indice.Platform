@@ -109,8 +109,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     public bool PersistTrustedBrowsers { get; }
     /// <summary>Defines the number of days that the browser will remember the MFA action and will not require re-authentication.</summary>
     public int MfaRememberDurationInDays { get; }
-    /// <summary>Defines the list of authentication providers that are considered as implicitly passing MFA.</summary>
-    public HashSet<string> MfaImplicitLoginProviders { get; }
+/// <summary>Defines the list of authentication providers that are considered as implicitly passing MFA.</summary>
+public IReadOnlySet<string> MfaImplicitLoginProviders { get; }
     /// <summary>Defines whether to remember device even if a relevant cookie does not exist.</summary>
     public bool RememberTrustedBrowserAcrossSessions { get; }
     /// <summary>Type of expiration for <see cref="IdentityConstants.TwoFactorRememberMeScheme"/> cookie.</summary>
