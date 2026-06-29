@@ -20,14 +20,14 @@ export class ChatStreamService {
     '',
   );
 
-  /** POST /api/my/chats/stream — create a session and stream the first turn. */
+  /** POST /my/chats/stream — create a session and stream the first turn. */
   streamCreate(text: string): Observable<IChatStreamEvent> {
-    return this.stream(`${this.baseUrl}/api/my/chats/stream`, text);
+    return this.stream(`${this.baseUrl}/my/chats/stream`, text);
   }
 
-  /** POST /api/my/chats/{id}/messages/stream — stream a follow-up turn in an existing session. */
+  /** POST /my/chats/{id}/messages/stream — stream a follow-up turn in an existing session. */
   streamMessage(sessionId: string, text: string): Observable<IChatStreamEvent> {
-    return this.stream(`${this.baseUrl}/api/my/chats/${sessionId}/messages/stream`, text);
+    return this.stream(`${this.baseUrl}/my/chats/${sessionId}/messages/stream`, text);
   }
 
   private stream(url: string, text: string): Observable<IChatStreamEvent> {
