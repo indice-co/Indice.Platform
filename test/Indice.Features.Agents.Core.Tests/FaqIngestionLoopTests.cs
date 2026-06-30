@@ -18,7 +18,7 @@ public class FaqIngestionLoopTests
     }
 
     private List<DocumentChunk> FaqIngestionLoop(Stream stream) {
-        var reader = new StreamReader(stream);
+        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true);
         var body = reader.ReadToEnd();
         var chunks = new List<DocumentChunk>();
         string? firstCategory = null;
