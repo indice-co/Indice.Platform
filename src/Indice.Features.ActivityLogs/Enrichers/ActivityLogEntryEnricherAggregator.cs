@@ -16,12 +16,11 @@ internal class ActivityLogEntryEnricherAggregator
     }
 
     public async Task<EnrichResult> EnrichAsync(ActivityLogEntry logEntry, ActivityLogEnricherRunType? dependencyType = null) {
-        var discard = false;
         if (logEntry is null) {
             return EnrichResult.Failed;
         }
-        discard = await MustDiscardAsync(logEntry);
-        if (discard) {
+        // Pre-enrichment filters discard on data already set by the converter (e.g. Category), before any enrichment work.
+        if (await MustDiscardAsync(logEntry, ActivityLogFilterPhase.PreEnrichment)) {
             return EnrichResult.MustDiscard;
         }
         var enrichersToRun = _enrichers; // Local copy
@@ -31,19 +30,21 @@ internal class ActivityLogEntryEnricherAggregator
         foreach (var enricher in enrichersToRun.OrderBy(x => x.Order)) {
             await enricher.EnrichAsync(logEntry);
         }
+        // Post-enrichment filters discard on enriched data (e.g. a SubjectId populated by an enricher).
+        if (await MustDiscardAsync(logEntry, ActivityLogFilterPhase.PostEnrichment)) {
+            return EnrichResult.MustDiscard;
+        }
         return EnrichResult.Success;
     }
 
-    private async Task<bool> MustDiscardAsync(ActivityLogEntry logEntry) {
-        var discard = false;
-        foreach (var filter in _filters) {
-            discard = await filter.Discard(logEntry);
+    private async Task<bool> MustDiscardAsync(ActivityLogEntry logEntry, ActivityLogFilterPhase phase) {
+        foreach (var filter in _filters.Where(filter => filter.Phase == phase)) {
             // If one of the filters dictates that we must discard the log entry then do not proceed with other filters.
-            if (discard) {
-                break;
+            if (await filter.Discard(logEntry)) {
+                return true;
             }
         }
-        return discard;
+        return false;
     }
 }
 

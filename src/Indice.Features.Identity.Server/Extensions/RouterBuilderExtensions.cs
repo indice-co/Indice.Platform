@@ -31,7 +31,7 @@ public static class IdentityServerEndpointRouteBuilderExtensions
         builder.MapTotps();
         // Sign in logs API.
         builder.MapSignInLogs();
-        // Acitivty logs API.
+        // Activity logs API.
         builder.MapActivityLogs();
         // Database settings endpoints.
         builder.MapDatabaseSettings();

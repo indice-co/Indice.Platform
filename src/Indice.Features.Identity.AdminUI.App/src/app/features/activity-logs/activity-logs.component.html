@@ -16,15 +16,23 @@
                         <td>{{ selectedLogEntry?.createdAt | date:'medium' }}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Subject Name</th>
+                        <td [class.text-danger]="selectedLogEntry?.subjectUnknown">{{ selectedLogEntry?.subjectName || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Action Name</th>
+                        <td>{{ selectedLogEntry?.actionName || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ selectedLogEntry?.description || '-' }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Succeeded</th>
                         <td>
                             <span *ngIf="selectedLogEntry?.succeeded" class="badge text-success border bg-light">Succeeded</span>
                             <span *ngIf="!selectedLogEntry?.succeeded" class="badge text-danger border bg-light">Failed</span>
                         </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Action Name</th>
-                        <td>{{ selectedLogEntry?.actionName || '-' }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Event Type</th>
@@ -33,10 +41,6 @@
                     <tr>
                         <th scope="row">Category</th>
                         <td>{{ selectedLogEntry?.category || '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Description</th>
-                        <td>{{ selectedLogEntry?.description || '-' }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Application Id</th>
@@ -53,10 +57,6 @@
                     <tr>
                         <th scope="row">Subject Id</th>
                         <td>{{ selectedLogEntry?.subjectId || '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Subject Name</th>
-                        <td [class.text-danger]="selectedLogEntry?.subjectUnknown">{{ selectedLogEntry?.subjectName || '-' }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Subject Exists</th>
@@ -205,14 +205,14 @@
 <div class="row">
     <div class="col-12">
         <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count"
-                       [rowsPerPage]="defaultPageSize" [defaultSortField]="defaultSortField"
+                       [rowsPerPage]="defaultPageSize" [rowHeight]="rowHeight" [defaultSortField]="defaultSortField"
                        [defaultSortDirection]="defaultSortDirection" [filter]="filter"
                        (search)="getLogs($event)" #ActivityLogsList>
         </app-list-view>
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #optionalTemplate>
-    <span *ngIf="value" [title]="value">{{ value }}</span>
+    <span *ngIf="value" [title]="value" style="white-space: normal; overflow-wrap: anywhere; line-height: 1.3;">{{ value }}</span>
     <span *ngIf="!value">-</span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #actionsTemplate>

@@ -1,4 +1,4 @@
-﻿using Indice.Features.ActivityLogs;
+using Indice.Features.ActivityLogs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -7,7 +7,7 @@ namespace Indice.Features.Identity.Server.ActivityLog;
 /// <summary>
 /// Options for configuring the activity logs feature in Indice Identity Server.
 /// </summary>
-public class ActivityLogIdentityOptions
+public class ActivityLogIdentityOptions : ActivityLogOptions
 {
     /// <summary>
     /// Constructs the <see cref="ActivityLogIdentityOptions"/> passing the service collection and configuration.
@@ -18,6 +18,7 @@ public class ActivityLogIdentityOptions
         Services = services;
         Configuration = configuration;
     }
+
     /// <summary>
     /// The service collection used to register services for the activity logs feature.
     /// </summary>
@@ -32,4 +33,5 @@ public class ActivityLogIdentityOptions
     /// Additional options for configuring the activity logs feature.
     /// </summary>
     public Action<ActivityLogOptions>? Configure { get; set; } = null;
+
 }

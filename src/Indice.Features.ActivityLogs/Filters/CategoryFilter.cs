@@ -10,6 +10,10 @@ internal class CategoryFilter : IActivityLogEntryFilter
     public CategoryFilter(IOptions<ActivityLogOptions> activityLogOptions) {
         _activityLogOptions = activityLogOptions.Value ?? throw new ArgumentNullException(nameof(activityLogOptions));
     }
+
+    // Category is set by the converter before any enrichment, so discard early and skip enrichment work for excluded entries.
+    public ActivityLogFilterPhase Phase => ActivityLogFilterPhase.PreEnrichment;
+
     public Task<bool> Discard(ActivityLogEntry logEntry) {
         if(_activityLogOptions.Categories.Count == 0) {
             return Task.FromResult(false);
