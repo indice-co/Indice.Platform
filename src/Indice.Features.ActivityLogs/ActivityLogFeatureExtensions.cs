@@ -21,12 +21,12 @@ public static class ActivityLogFeatureExtensions
     /// <param name="configuration">The configuration to use for the activity log services.</param>
     /// <param name="configureAction">An optional action to configure the activity log options.</param>
     /// <returns></returns>
-    public static IActivityLogBuilder AddActivityLogs(this IServiceCollection services,IConfiguration configuration, Action<ActivityLogOptions>? configureAction = null) {
-        var options = new ActivityLogOptions();
+    public static IActivityLogBuilder AddActivityLogs<TActivityLogOptions>(this IServiceCollection services,IConfiguration configuration, Action<TActivityLogOptions>? configureAction = null) where TActivityLogOptions : ActivityLogOptions, new() {
+        var options = new TActivityLogOptions();
         configureAction?.Invoke(options);
         var activityLogBuilder = new ActivityLogBuilder(services, configuration);
         if (configureAction != null) {
-            services.Configure<ActivityLogOptions>(configureAction);
+            services.Configure<TActivityLogOptions>(configureAction);
         }
         if (!options.Enable) {
             return activityLogBuilder;
@@ -98,8 +98,22 @@ public static class ActivityLogFeatureExtensions
         return services;
     }
 
-    private static IActivityLogBuilder AddFilter(this IActivityLogBuilder builder, Type type) {
+    /// <summary>Adds a custom filter.</summary>
+    /// <param name="builder">The host application builder.</param>
+    /// <param name="type">The type of the filter to add.</param>
+    public static IActivityLogBuilder AddFilter(this IActivityLogBuilder builder, Type type) {
         builder.Services.AddTransient(typeof(IActivityLogEntryFilter), type);
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds a custom filter of type <typeparamref name="TFilter"/> to the activity log builder.
+    /// </summary>
+    /// <typeparam name="TFilter"></typeparam>
+    /// <param name="builder"></param>
+    /// <returns></returns>
+    public static IActivityLogBuilder AddFilter<TFilter>(this IActivityLogBuilder builder) where TFilter : class, IActivityLogEntryFilter {
+        builder.Services.AddTransient<IActivityLogEntryFilter, TFilter>();
         return builder;
     }
 
@@ -109,8 +123,7 @@ public static class ActivityLogFeatureExtensions
     /// <remarks>This method ensures that the database for storing activity logs is created if it does not
     /// already exist. It uses a scoped service to access the <see cref="ActivityLogDbContext"/> and calls EnsureCreated.</remarks>
     /// <param name="app">The <see cref="IApplicationBuilder"/> instance used to configure the application.</param>
-    /// <returns>The same <see cref="IApplicationBuilder"/> instance passed as the <paramref name="app"/> parameter, allowing for
-    /// method chaining.</returns>
+    /// <returns>The same <see cref="IApplicationBuilder"/> instance passed as the <paramref name="app"/> parameter, allowing for method chaining.</returns>
     public static IApplicationBuilder ActivityStoreSetup(this IApplicationBuilder app) {
         using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var dbContext = serviceScope.ServiceProvider.GetRequiredService<ActivityLogDbContext>();

@@ -2,7 +2,7 @@
 
 namespace Indice.Features.ActivityLogs;
 
-internal interface IActivityLogEntryFilter
+public interface IActivityLogEntryFilter
 {
     Task<bool> Discard(ActivityLogEntry logEntry);
 }

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.ActivityLogs.EntityFrameworkCore;
 
 /// <summary><see cref="DbContext"/> for the Entity Framework Core that stores all user activity log data.</summary>
-internal class ActivityLogDbContext : DbContext
+public class ActivityLogDbContext : DbContext
 {
     /// <summary>Constructs the <see cref="ActivityLogDbContext"/> passing the configured options.</summary>
     /// <param name="options">The options to be used by a <see cref="ActivityLogDbContext"/>.</param>

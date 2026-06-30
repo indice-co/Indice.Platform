@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Identity.Server;
+using Indice.Features.Identity.Server.ActivityLog;
 using Indice.Features.Identity.Server.Options;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
