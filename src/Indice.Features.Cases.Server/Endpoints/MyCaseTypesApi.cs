@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Endpoints;
+using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -30,7 +31,7 @@ internal static class MyCaseTypesApi
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
-            .RequireCasesAccess()
+            .RequireClaim(BasicClaimTypes.Subject)
         ).WithHandledException<BusinessException>();
 
         group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
