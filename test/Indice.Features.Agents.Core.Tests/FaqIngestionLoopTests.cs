@@ -13,7 +13,7 @@ public class FaqIngestionLoopTests
     }
     [Fact]
     public void FaqIngestionLoopFromFileTest() {
-        var chunks = FaqIngestionLoop(File.OpenRead(Path.Combine(Directory.GetCurrentDirectory(), "FAQ.md")));
+        var chunks = FaqIngestionLoop(File.OpenRead(Path.Join(Directory.GetCurrentDirectory(), "FAQ.md")));
         Assert.Equal(20, chunks.Count);
     }
 
