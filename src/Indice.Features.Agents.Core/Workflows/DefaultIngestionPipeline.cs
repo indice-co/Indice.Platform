@@ -97,7 +97,7 @@ public class DefaultIngestionPipeline : IIngestionPipeline
         var pendingAnswer = new StringBuilder();
         var chunkIndex = 0;
 
-        foreach (var line in body.Split('\n', '\r', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)) {
+        foreach (var line in body.Split(['\n', '\r'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)) {
             
             if (line.StartsWith("## ", StringComparison.Ordinal)) {
                 Flush();

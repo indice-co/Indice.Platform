@@ -8,13 +8,25 @@ public class FaqIngestionLoopTests
 {
     [Fact]
     public void FaqIngestionLoopTest() {
+        var chunks = FaqIngestionLoop(new MemoryStream(Encoding.UTF8.GetBytes(SAMPLE_FAQ_BODY)));
+        Assert.Equal(5, chunks.Count);
+    }
+    [Fact]
+    public void FaqIngestionLoopFromFileTest() {
+        var chunks = FaqIngestionLoop(File.OpenRead(Path.Combine(Directory.GetCurrentDirectory(), "FAQ.md")));
+        Assert.Equal(20, chunks.Count);
+    }
+
+    private List<DocumentChunk> FaqIngestionLoop(Stream stream) {
+        var reader = new StreamReader(stream);
+        var body = reader.ReadToEnd();
         var chunks = new List<DocumentChunk>();
         string? firstCategory = null;
         string? currentCategory = null;
         string? pendingQuestion = null;
         var pendingAnswer = new StringBuilder();
         var chunkIndex = 0;
-        foreach (var line in SAMPLE_FAQ_BODY.Split('\n', '\r', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)) {
+        foreach (var line in body.Split(['\n', '\r'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)) {
 
             if (line.StartsWith("## ", StringComparison.Ordinal)) {
                 Flush();
@@ -66,7 +78,7 @@ public class FaqIngestionLoopTests
             pendingAnswer.Clear();
         }
 
-        Assert.Equal(5, chunks.Count);
+        return chunks;
     }
 
     private static string Sha256Hex(string input) {
