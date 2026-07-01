@@ -86,6 +86,7 @@
     <Project Path="test/Indice.Common.Tests/Indice.Common.Tests.csproj" />
     <Project Path="test/Indice.EcmaScript.Tests/Indice.EcmaScript.Tests.csproj" />
     <Project Path="test/Indice.Feature.GeoIP.Tests/Indice.Feature.GeoIP.Tests.csproj" Id="4ea7be00-fe08-43cc-ad90-02ebc3d82b1b" />
+    <Project Path="test/Indice.Features.Agents.Core.Tests/Indice.Features.Agents.Core.Tests.csproj" Id="1eb2677f-15e9-422e-b733-fff82a89a3f2" />
     <Project Path="test/Indice.Features.Cases.AspNetCore.Tests/Indice.Features.Cases.Tests.csproj" />
     <Project Path="test/Indice.Features.GovGr.Tests/Indice.Features.GovGr.Tests.csproj" />
     <Project Path="test/Indice.Features.Identity.Tests/Indice.Features.Identity.Tests.csproj" />
