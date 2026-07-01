@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '@indice/ng-auth';
+import { AuthService, ImgUserPictureDirective } from '@indice/ng-auth';
 
 import { DexApiService, Profile } from '../../core/services/dex-api.service';
 import {
@@ -25,7 +25,7 @@ import {
 @Component({
   selector: 'app-profile-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, RouterLink, ImgUserPictureDirective],
   templateUrl: './profile-page.component.html',
 })
 export class ProfilePageComponent {
