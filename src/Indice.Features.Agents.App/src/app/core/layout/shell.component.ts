@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService } from '@indice/ng-auth';
+import { AuthService, ImgUserPictureDirective } from '@indice/ng-auth';
 
 import { NAV_ITEMS } from './nav';
 
@@ -8,7 +8,7 @@ import { NAV_ITEMS } from './nav';
 @Component({
   selector: 'app-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, ImgUserPictureDirective],
   template: `
     <div class="flex h-screen flex-col bg-base-200">
       <header
@@ -60,12 +60,19 @@ import { NAV_ITEMS } from './nav';
             role="button"
             class="flex items-center gap-2 rounded-full py-1 pl-1 pr-1 transition hover:bg-base-200"
           >
-            <span
+            <!--<span
               class="grid size-9 place-items-center rounded-full bg-primary/10 text-sm font-semibold
                      text-primary"
             >
               {{ initials }}
-            </span>
+            </span>-->
+            <img
+              [userPicture]="subjectId || ''"
+              [displayName]="initials"
+              [size]="64"
+              class="grid size-9 place-items-center rounded-full bg-primary/10 text-sm font-semibold
+                     text-primary"
+            />
             <span class="hidden max-w-32 truncate pr-1 text-sm font-medium sm:block">
               {{ displayName }}
             </span>
@@ -108,6 +115,7 @@ export class ShellComponent {
   protected readonly navItems = NAV_ITEMS;
   protected readonly displayName = this.auth.getDisplayName() || 'You';
   protected readonly initials = this.computeInitials(this.displayName);
+  protected readonly subjectId = this.auth.getSubjectId() || '';
 
   protected logout(): void {
     this.auth.signoutRedirect();
