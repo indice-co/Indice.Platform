@@ -9,7 +9,7 @@
 
     <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
     <VersionPrefixIdentity>$(VersionPrefixBase).1</VersionPrefixIdentity>
-    <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
+    <VersionPrefixIdentityUI>$(VersionPrefixBase).2</VersionPrefixIdentityUI>
     <VersionPrefixCases>$(VersionPrefixBase).1</VersionPrefixCases>
     <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
     <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>

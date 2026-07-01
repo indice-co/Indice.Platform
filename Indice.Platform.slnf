@@ -42,6 +42,7 @@
       "test\\Indice.AspNetCore.Tests\\Indice.AspNetCore.Tests.csproj",
       "test\\Indice.AspNetCore.Views\\Indice.AspNetCore.Views.csproj",
       "test\\Indice.Common.Tests\\Indice.Common.Tests.csproj",
+      "test\\Indice.Features.Agents.Core.Tests\\Indice.Features.Agents.Core.Tests.csproj",
       "test\\Indice.Features.Cases.AspNetCore.Tests\\Indice.Features.Cases.Tests.csproj",
       "test\\Indice.Features.GovGr.Tests\\Indice.Features.GovGr.Tests.csproj",
       "test\\Indice.Features.Identity.Tests\\Indice.Features.Identity.Tests.csproj",
