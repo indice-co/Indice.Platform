@@ -7,7 +7,7 @@ namespace Indice.Features.Identity.Server.ActivityLog;
 /// <summary>
 /// Options for configuring the activity logs feature in Indice Identity Server.
 /// </summary>
-public class ActivityLogIdentityOptions : ActivityLogOptions
+public class ActivityLogIdentityOptions
 {
     /// <summary>
     /// Constructs the <see cref="ActivityLogIdentityOptions"/> passing the service collection and configuration.

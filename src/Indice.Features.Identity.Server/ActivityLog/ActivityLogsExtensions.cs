@@ -25,7 +25,8 @@ public static class ActivityLogsExtensions
     public static TBuilder AddActivityLogs<TBuilder>(this TBuilder builder, IConfiguration configuration, Action<ActivityLogIdentityOptions>? configure = null) where TBuilder : IIdentityServerBuilder {
         var options = new ActivityLogIdentityOptions(builder.Services, configuration);
         configure?.Invoke(options);
-        builder.Services.AddActivityLogs<ActivityLogOptions>(configuration, options.Configure);
+        builder.Services.AddActivityLogs(configuration, options.Configure);
+        options.AddFilter<SubjectFilter>();
         return builder;
     }
 
@@ -59,17 +60,15 @@ public static class ActivityLogsExtensions
     /// <typeparam name="TEnricher">The type of the enricher to add.</typeparam>
     /// <param name="options">The activity log options.</param>
     public static void AddEnricher<TEnricher>(this ActivityLogIdentityOptions options) where TEnricher : class, IActivityLogEntryEnricher =>
-        options.Services.AddTransient<IActivityLogEntryEnricher, TEnricher>();
+        options.Services.TryAddEnumerable(
+            ServiceDescriptor.Transient<IActivityLogEntryEnricher, TEnricher>()
+        );
 
     /// <summary>Adds a custom filter to the activity log pipeline.</summary>
     /// <typeparam name="TFilter">The type of the filter to add.</typeparam>
     /// <param name="options">The activity log options.</param>
     public static void AddFilter<TFilter>(this ActivityLogIdentityOptions options) where TFilter : class, IActivityLogEntryFilter =>
-        options.Services.AddTransient<IActivityLogEntryFilter, TFilter>();
-
-    /// <summary>Adds a custom filter to the activity log pipeline.</summary>
-    /// <param name="options">The activity log options.</param>
-    /// <param name="type">The type of the filter to add.</param>
-    public static void AddFilter(this ActivityLogIdentityOptions options, Type type) =>
-        options.Services.AddTransient(typeof(IActivityLogEntryFilter), type);
+        options.Services.TryAddEnumerable(
+            ServiceDescriptor.Transient<IActivityLogEntryFilter, TFilter>() !
+        );
 }

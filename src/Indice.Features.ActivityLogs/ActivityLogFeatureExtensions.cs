@@ -21,12 +21,12 @@ public static class ActivityLogFeatureExtensions
     /// <param name="configuration">The configuration to use for the activity log services.</param>
     /// <param name="configureAction">An optional action to configure the activity log options.</param>
     /// <returns></returns>
-    public static IActivityLogBuilder AddActivityLogs<TActivityLogOptions>(this IServiceCollection services,IConfiguration configuration, Action<TActivityLogOptions>? configureAction = null) where TActivityLogOptions : ActivityLogOptions, new() {
-        var options = new TActivityLogOptions();
+    public static IActivityLogBuilder AddActivityLogs(this IServiceCollection services,IConfiguration configuration, Action<ActivityLogOptions>? configureAction = null) {
+        var options = new ActivityLogOptions();
         configureAction?.Invoke(options);
         var activityLogBuilder = new ActivityLogBuilder(services, configuration);
         if (configureAction != null) {
-            services.Configure<TActivityLogOptions>(configureAction);
+            services.Configure(configureAction);
         }
         if (!options.Enable) {
             return activityLogBuilder;
@@ -78,7 +78,9 @@ public static class ActivityLogFeatureExtensions
     }
 
     private static IServiceCollection AddActivityLogEnricher(this IServiceCollection services, Type type) {
-        services.AddTransient(typeof(IActivityLogEntryEnricher), type);
+        services.TryAddEnumerable(
+            ServiceDescriptor.Transient(typeof(IActivityLogEntryEnricher), type)
+        );
         return services;
     }
 
@@ -93,7 +95,9 @@ public static class ActivityLogFeatureExtensions
     private static IServiceCollection AddDefaultFilters(this IServiceCollection services) {
         var filters = AssemblyInternalExtensions.GetClassesAssignableFrom<IActivityLogEntryFilter>(Assembly.GetExecutingAssembly());
         foreach (var filter in filters) {
-            services.AddTransient(typeof(IActivityLogEntryFilter), filter);
+            services.TryAddEnumerable(
+                ServiceDescriptor.Transient(typeof(IActivityLogEntryFilter), filter)
+            );
         }
         return services;
     }
@@ -102,7 +106,9 @@ public static class ActivityLogFeatureExtensions
     /// <param name="builder">The host application builder.</param>
     /// <param name="type">The type of the filter to add.</param>
     public static IActivityLogBuilder AddFilter(this IActivityLogBuilder builder, Type type) {
-        builder.Services.AddTransient(typeof(IActivityLogEntryFilter), type);
+        builder.Services.TryAddEnumerable(
+            ServiceDescriptor.Transient(typeof(IActivityLogEntryFilter), type)
+        );
         return builder;
     }
 
@@ -113,7 +119,9 @@ public static class ActivityLogFeatureExtensions
     /// <param name="builder"></param>
     /// <returns></returns>
     public static IActivityLogBuilder AddFilter<TFilter>(this IActivityLogBuilder builder) where TFilter : class, IActivityLogEntryFilter {
-        builder.Services.AddTransient<IActivityLogEntryFilter, TFilter>();
+        builder.Services.TryAddEnumerable(
+            ServiceDescriptor.Transient<IActivityLogEntryFilter, TFilter>()
+        );
         return builder;
     }
 
