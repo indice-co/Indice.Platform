@@ -3,7 +3,7 @@ using Indice.Features.ActivityLogs.Models;
 
 namespace Indice.Features.Identity.Server.ActivityLog;
 /// <summary>
-/// Discard events that do not have a subject
+/// Discard events that do not have a subject.
 /// </summary>
 public sealed class SubjectFilter : IActivityLogEntryFilter
 {
@@ -13,5 +13,5 @@ public sealed class SubjectFilter : IActivityLogEntryFilter
 
     /// <inheritdoc />
     public Task<bool> Discard(ActivityLogEntry logEntry) =>
-        Task.FromResult(string.IsNullOrWhiteSpace(logEntry?.SubjectId));
+        Task.FromResult(string.IsNullOrWhiteSpace(logEntry.SubjectId));
 }

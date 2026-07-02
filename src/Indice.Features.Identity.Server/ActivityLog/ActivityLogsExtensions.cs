@@ -15,7 +15,7 @@ namespace Indice.Features.Identity.Server.ActivityLog;
 public static class ActivityLogsExtensions
 {
     /// <summary>
-    /// Registers the required services for managing user's sign log activity for IdentityServer.
+    /// Registers the required services for managing activity logs for IdentityServer.
     /// </summary>
     /// <typeparam name="TBuilder"></typeparam>
     /// <param name="builder"></param>
@@ -69,6 +69,6 @@ public static class ActivityLogsExtensions
     /// <param name="options">The activity log options.</param>
     public static void AddFilter<TFilter>(this ActivityLogIdentityOptions options) where TFilter : class, IActivityLogEntryFilter =>
         options.Services.TryAddEnumerable(
-            ServiceDescriptor.Transient<IActivityLogEntryFilter, TFilter>() !
+            ServiceDescriptor.Transient<IActivityLogEntryFilter, TFilter>()
         );
 }

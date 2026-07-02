@@ -1,3 +1,5 @@
+using Indice.Features.ActivityLogs;
+
 namespace Indice.Features.ActivityLogs.Models;
 
 /// <summary>Determines when an <see cref="IActivityLogEntryFilter"/> runs relative to enrichment.</summary>

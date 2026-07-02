@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-/// <summary>Extension methods used to register the required services for managing user's sign log activity for IdentityServer.</summary>
+/// <summary>Extension methods used to register the required services for managing activity logs for IdentityServer.</summary>
 public static class ActivityLogFeatureExtensions
 {
     /// <summary>
