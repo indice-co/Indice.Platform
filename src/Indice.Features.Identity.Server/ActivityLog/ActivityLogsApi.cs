@@ -1,14 +1,14 @@
 ﻿using System.Security.Claims;
 using Indice.Features.ActivityLogs;
 using Indice.Features.ActivityLogs.Models;
-using Indice.Features.Identity.Server;
 using Indice.Security;
 using Indice.Types;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.AspNetCore.Builder;
+namespace Indice.Features.Identity.Server.ActivityLog;
 
 /// <summary>The activity logs API.</summary>
 public static class ActivityLogsApi

@@ -42,6 +42,8 @@ export class ActivityLogsComponent implements OnInit {
     public defaultPageSize: number = 15;
     public defaultSortField: string = 'createdAt';
     public defaultSortDirection: string = 'desc';
+    // Taller than the default 50px so wrapped descriptions (~2 lines) stay fully visible instead of being clipped.
+    public rowHeight: number = 64;
     public isLoading = true;
     public filter = {
         dateFrom: undefined,
@@ -57,16 +59,16 @@ export class ActivityLogsComponent implements OnInit {
 
     public ngOnInit(): void {
         this.columns = [
-            { prop: 'createdAt', name: 'Created At', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._actionsTemplate, width: 160 },
-            { prop: 'actionName', name: 'Action', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._eventTypeCellTemplate, width: 250 },
+            { prop: 'createdAt', name: 'Created At', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._actionsTemplate, width: 170 },
             { prop: 'subjectName', name: 'Subject', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._subjectNameTemplate, width: 200 },
-            { prop: 'resourceType', name: 'Resource Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
-            { prop: 'resourceId', name: 'Resource Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate, width: 300 },
-            { prop: 'category', name: 'Category', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
-            { prop: 'applicationName', name: 'App Name', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate },
-            { prop: 'ipAddress', name: 'IP Address', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._ipCellTemplate },
-            { prop: 'extraData.device.displayName', name: 'Device', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._deviceTemplate },
-            { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate },
+            { prop: 'actionName', name: 'Action', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._eventTypeCellTemplate, width: 220 },
+            { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate, width: 360 },
+            { prop: 'category', name: 'Category', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate, width: 150 },
+            { prop: 'resourceType', name: 'Resource Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate, width: 160 },
+            { prop: 'resourceId', name: 'Resource Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate, width: 280 },
+            { prop: 'applicationName', name: 'App Name', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate, width: 170 },
+            { prop: 'ipAddress', name: 'IP Address', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._ipCellTemplate, width: 170 },
+            { prop: 'extraData.device.displayName', name: 'Device', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._deviceTemplate, width: 200 },
         ];
     }
 
