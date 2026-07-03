@@ -86,8 +86,9 @@ public class DocumentsService : IDocumentsService
     public async Task<IReadOnlyList<RetrievedChunk>> SearchAsync(ReadOnlyMemory<float> queryVector, RetrievalFilters filters, int topK, double minScore, CancellationToken cancellationToken) {
         var sqlVector = new SqlVector<float>(queryVector);
         return await _db.Set<DbChunk>()
-            .Where(c => filters.Category == null || c.Category == null || c.Category == filters.Category)
-            .Where(c => filters.Language == null || c.Language == null || c.Language == filters.Language)
+            // placeholder for 
+            //.Where(c => filters.Category == null || c.Category == null || c.Category == filters.Category)
+            //.Where(c => filters.Language == null || c.Language == null || c.Language == filters.Language)
             .OrderBy(c => EF.Functions.VectorDistance("cosine", c.Embedding, sqlVector))
             .Take(topK)
             .Select(c => new RetrievedChunk {
