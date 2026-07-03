@@ -33,6 +33,7 @@ public class DexRunner : IDexRunner
         ["Retriever"]           = "Retrieving relevant context",
         ["Reranker"]            = "Ranking results",
         ["AnswerComposer"]      = "Composing answer",
+        ["PurposeResponder"]    = "Answering",
         ["OutOfScopeResponder"] = "Preparing response",
     };
 
