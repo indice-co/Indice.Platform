@@ -22,6 +22,7 @@ public static class DefaultDexPipelineExtensions
         services.TryAddTransient<Reranker>();
         services.TryAddTransient<AnswerComposer>();
         services.TryAddTransient<OutOfScopeResponder>();
+        services.TryAddTransient<PurposeResponder>();
         services.TryAddTransient<ILlmReranker, LlmListwiseReranker>();
 
         // Register the workflow, which will resolve the steps and link them together. Step failures are not
@@ -33,15 +34,17 @@ public static class DefaultDexPipelineExtensions
             var rerank          = sp.GetRequiredService<Reranker>();
             var compose         = sp.GetRequiredService<AnswerComposer>();
             var outOfScopeReply = sp.GetRequiredService<OutOfScopeResponder>();
+            var purposeResponder = sp.GetRequiredService<PurposeResponder>();
 
             var builder = new WorkflowBuilder(intent);
             builder.AddSwitch(intent, sw => sw
+                .AddCase<PipelineStepContext<IntentOutput>>(env => env!.Payload.Intent.Category == "purpose_of_agent", purposeResponder)
                 .AddCase<PipelineStepContext<IntentOutput>>(env => env!.Payload.Intent.IsInScope, rewrite)
                 .WithDefault(outOfScopeReply));
             builder.AddEdge(rewrite,  retrieve);
             builder.AddEdge(retrieve, rerank);
             builder.AddEdge(rerank,   compose);
-            builder.WithOutputFrom(compose, outOfScopeReply);
+            builder.WithOutputFrom(compose, outOfScopeReply, purposeResponder);
             return builder.Build();
         });
         return services;

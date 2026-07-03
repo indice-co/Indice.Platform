@@ -106,7 +106,9 @@ public class DocumentsService : IDocumentsService
 
     /// <inheritdoc/>
     public async Task ClearAsync() {
-        throw new NotImplementedException();
+
+        await _db.Set<DbChunk>().ExecuteDeleteAsync();
+        await _db.Set<DbDocument>().ExecuteDeleteAsync();
     }
 
 }
