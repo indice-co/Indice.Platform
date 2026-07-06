@@ -85,20 +85,14 @@ public class DefaultIngestionPipeline : IIngestionPipeline
 
     /// <summary>
     /// Embeds <paramref name="texts"/> in batches of <c>IngestionOptions.EmbedBatchSize</c>. Transient 429/5xx
-    /// failures are retried by the Azure OpenAI client pipeline; anything that still throws surfaces as a
-    /// <see cref="BusinessException"/> so the endpoint responds 422 instead of 500.
+    /// failures are retried by the Azure OpenAI client pipeline; anything that still throws propagates to the
+    /// global exception handler.
     /// </summary>
     private async Task<IReadOnlyList<ReadOnlyMemory<float>>> EmbedAsync(IReadOnlyList<string> texts, CancellationToken cancellationToken) {
         var result = new ReadOnlyMemory<float>[texts.Count];
         for (var offset = 0; offset < texts.Count; offset += _options.Ingestion.EmbedBatchSize) {
             var batch = texts.Skip(offset).Take(_options.Ingestion.EmbedBatchSize).ToList();
-            GeneratedEmbeddings<Embedding<float>> embeddings;
-            try {
-                embeddings = await _generator.GenerateAsync(batch, cancellationToken: cancellationToken);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException) {
-                throw new BusinessException("Embedding service unavailable.", "EMBEDDING_FAILED", [ex.Message]);
-            }
+            var embeddings = await _generator.GenerateAsync(batch, cancellationToken: cancellationToken);
             for (var i = 0; i < embeddings.Count; i++) {
                 result[offset + i] = embeddings[i].Vector;
             }

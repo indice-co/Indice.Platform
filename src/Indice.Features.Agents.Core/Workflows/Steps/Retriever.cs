@@ -28,7 +28,7 @@ public sealed class Retriever : Executor<PipelineStepContext<QueryRewriteOutput>
 
     /// <inheritdoc/>
     public override async ValueTask<PipelineStepContext<RetrievalOutput>> HandleAsync(
-        PipelineStepContext<QueryRewriteOutput> envelope,IWorkflowContext context, CancellationToken cancellationToken = default) {
+        PipelineStepContext<QueryRewriteOutput> envelope, IWorkflowContext context, CancellationToken cancellationToken = default) {
         var filters = envelope.Payload.Filters;
         var topK = _options.Retrieval.NumberOfCandidates;
 

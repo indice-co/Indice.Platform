@@ -15,7 +15,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// <summary>
 /// Composes the final grounded answer from the reranked candidates. Instructs the model to ground only
 /// in the provided context and cite chunk IDs in <c>[#chunkId]</c> form. Projects the candidates into
-/// <see cref="Citation"/> records on the output payload.
+/// <see cref="Models.Citation"/> records on the output payload.
 /// </summary>
 public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>, PipelineStepContext<RagPipelineOutput>>
 {
