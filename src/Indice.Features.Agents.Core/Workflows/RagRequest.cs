@@ -1,4 +1,4 @@
-using Indice.Features.Agents.Core.Models;
+using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Workflows;
 

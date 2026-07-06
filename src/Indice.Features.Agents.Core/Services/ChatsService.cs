@@ -5,6 +5,8 @@ using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Abstractions;
 using Indice.Types;
 using Microsoft.Extensions.Options;
+using AIChatMessage = Microsoft.Extensions.AI.ChatMessage;
+using ChatRole = Microsoft.Extensions.AI.ChatRole;
 
 namespace Indice.Features.Agents.Core.Services;
 
@@ -29,7 +31,7 @@ public class ChatsService : IChatsService
             return null;
         }
         var result = await _runner.RunAsync(
-            new RagRequest { Question = text, History = session.Messages },
+            new RagRequest { Question = text, History = ToAIMessages(session.Messages) },
             cancellationToken);
 
         var now = DateTimeOffset.UtcNow;
@@ -48,8 +50,9 @@ public class ChatsService : IChatsService
             CreatedAt = now,
         };
 
-        var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage, promptTokens: result.PromptTokens,
-            completionTokens: result.CompletionTokens, modelUsed: result.ModelUsed ?? _deployments.Reasoning, cancellationToken);
+        var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
+            promptTokens: result.Usage?.InputTokenCount ?? 0, completionTokens: result.Usage?.OutputTokenCount ?? 0,
+            modelUsed: result.ModelUsed ?? _deployments.Reasoning, cancellationToken);
 
         return new ChatResponse {
             SessionId = session.Id,
@@ -73,7 +76,7 @@ public class ChatsService : IChatsService
     /// <summary>Maps the runner's stream to SSE items, then persists the turn and emits the terminal <c>complete</c> event.</summary>
     private async IAsyncEnumerable<SseItem<ChatStreamEvent>> StreamTurnAsync(
         Session session, string text, [EnumeratorCancellation] CancellationToken cancellationToken) {
-        var request = new RagRequest { Question = text, History = session.Messages };
+        var request = new RagRequest { Question = text, History = ToAIMessages(session.Messages) };
         DexFinalEvent? final = null;
         await foreach (var evt in _runner.RunStreamingAsync(request, cancellationToken)) {
             switch (evt) {
@@ -102,7 +105,7 @@ public class ChatsService : IChatsService
         var assistantMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatRole.Assistant, Content = assistantText, CreatedAt = now };
 
         var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
-            promptTokens: final?.PromptTokens ?? 0, completionTokens: final?.CompletionTokens ?? 0,
+            promptTokens: final?.Usage?.InputTokenCount ?? 0, completionTokens: final?.Usage?.OutputTokenCount ?? 0,
             modelUsed: final?.ModelUsed ?? _deployments.Reasoning, cancellationToken);
 
         return new ChatStreamEvent {
@@ -115,6 +118,10 @@ public class ChatsService : IChatsService
             FailureReason = final?.FailureReason,
         };
     }
+
+    /// <summary>Projects the persisted session turns into the framework message shape the pipeline consumes.</summary>
+    private static IReadOnlyList<AIChatMessage> ToAIMessages(IReadOnlyList<ChatMessage> messages)
+        => messages.Select(m => new AIChatMessage(m.Role, m.Content)).ToList();
 
     /// <inheritdoc/>
     public Task<Session?> GetAsync(string userId, Guid sessionId, CancellationToken cancellationToken)

@@ -60,7 +60,7 @@ public class SessionsStore : ISessionsStore
                     .OrderBy(m => m.CreatedAt)
                     .Select(m => new ChatMessage {
                         Id = m.Id,
-                        Role = (ChatRole)(int)m.Role,
+                        Role = m.Role,
                         Content = m.Content,
                         CreatedAt = m.CreatedAt,
                     })
@@ -108,7 +108,7 @@ public class SessionsStore : ISessionsStore
 
         return new ChatMessage {
             Id = assistantRow.Id,
-            Role = (ChatRole)(int)assistantRow.Role,
+            Role = assistantRow.Role,
             Content = assistantRow.Content,
             CreatedAt = assistantRow.CreatedAt,
         };
@@ -148,7 +148,7 @@ public class SessionsStore : ISessionsStore
     private static DbSessionMessage ToDb(Guid sessionId, ChatMessage m, int? prompt, int? completion, string? model) => new() {
         Id = m.Id == Guid.Empty ? Guid.NewGuid() : m.Id,
         SessionId = sessionId,
-        Role = (ChatMessageRole)(int)m.Role,
+        Role = m.Role,
         Content = m.Content,
         CreatedAt = m.CreatedAt == default ? DateTimeOffset.UtcNow : m.CreatedAt,
         PromptTokens = prompt,

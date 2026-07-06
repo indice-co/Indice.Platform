@@ -5,7 +5,6 @@ using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Abstractions;
 using Indice.Features.Agents.Core.Workflows.Prompts;
-using Indice.Features.Agents.Core.Workflows.Usage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
@@ -40,7 +39,7 @@ public static class AgentsFeatureExtensions
             var client = sp.GetRequiredService<AzureOpenAIClient>();
             return client
                 .GetEmbeddingClient(opts.Deployments.Embedding!)
-                .AsIEmbeddingGenerator();
+                .AsIEmbeddingGenerator(opts.EmbeddingDimensions);
         });
 
         services.AddDbContext<AgentsDbContext>((sp, options) => {
@@ -54,9 +53,6 @@ public static class AgentsFeatureExtensions
             configureDbContext.Invoke(sp, options);
         });
 
-        // Request-scoped: the reasoning steps (which wrap their chat client with UsageTrackingChatClient) and
-        // DexRunner resolve the same instance within a request, so DexRunner reads the run's accumulated usage.
-        services.TryAddScoped<TokenUsageAccumulator>();
         services.TryAddTransient<UserClaimsAIContextProvider>();
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();
         services.TryAddTransient<IDexRunner, DexRunner>();

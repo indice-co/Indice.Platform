@@ -28,17 +28,14 @@ public sealed class Retriever : Executor<PipelineStepContext<QueryRewriteOutput>
 
     /// <inheritdoc/>
     public override async ValueTask<PipelineStepContext<RetrievalOutput>> HandleAsync(
-        PipelineStepContext<QueryRewriteOutput> envelope,
-        IWorkflowContext context,
-        CancellationToken cancellationToken = default) {
+        PipelineStepContext<QueryRewriteOutput> envelope,IWorkflowContext context, CancellationToken cancellationToken = default) {
         var filters = envelope.Payload.Filters;
-        var topK = _options.Retrieval.TopK;
+        var topK = _options.Retrieval.NumberOfCandidates;
 
         var relevantAnswers = new Dictionary<Guid, RetrievedChunk>();
         foreach (var query in envelope.Payload.RewrittenQueries) {
-            var vector = await _embedder.GenerateVectorAsync(query, new EmbeddingGenerationOptions() {
-                Dimensions = AgentsOptions.EmbeddingDimensionsDefault
-            } , cancellationToken: cancellationToken);
+            // Embedding dimensions are configured once on the generator registration (AddAgentsCore).
+            var vector = await _embedder.GenerateVectorAsync(query, cancellationToken: cancellationToken);
             var hits = await _documentsService.SearchAsync(vector, filters, topK, _options.Retrieval.MinScore, cancellationToken);
             //kinda optional , but if the same chunk is returned for multiple rewrites, we want to keep the highest score
             //could also become a weighted function of the score and the rewrite rank, but let's keep it simple for now

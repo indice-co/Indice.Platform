@@ -22,14 +22,12 @@ public class LlmListwiseReranker : ILlmReranker
     public LlmListwiseReranker(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options, IPromptTemplateRenderer prompts) {
         var opts = options.Value;
         _snippetLength = opts.Retrieval.RerankSnippetLength;
+        var chatOptions = opts.Models.Fast.Clone();
+        chatOptions.Instructions = prompts.Render("Reranker");
         _agent = openAIClient
             .GetChatClient(opts.AzureOpenAI.Deployments.Fast!)
             .AsAIAgent(options: new ChatClientAgentOptions() {
-                ChatOptions = new ChatOptions {
-                    Temperature = opts.Models.Fast.Temperature,
-                    MaxOutputTokens = opts.Models.Fast.MaxOutputTokens,
-                    Instructions = prompts.Render("Reranker"),
-                },
+                ChatOptions = chatOptions,
                 Name = "DexReranker",
             });
     }

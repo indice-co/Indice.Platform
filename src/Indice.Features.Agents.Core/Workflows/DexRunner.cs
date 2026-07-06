@@ -1,12 +1,11 @@
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using Microsoft.Agents.AI.Workflows;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Indice.Features.Agents.Core.Workflows.State;
 using Indice.Features.Agents.Core.Workflows.Events;
-using Indice.Features.Agents.Core.Workflows.Usage;
 using Indice.Features.Agents.Core.Workflows.Abstractions;
-using Indice.Features.Agents.Core.Models;
 
 namespace Indice.Features.Agents.Core.Workflows;
 
@@ -14,16 +13,13 @@ namespace Indice.Features.Agents.Core.Workflows;
 public class DexRunner : IDexRunner
 {
     private readonly Workflow? workflow;
-    private readonly TokenUsageAccumulator usage;
 
     /// <summary>
     /// Creates a new <see cref="DexRunner"/> instance.
     /// </summary>
     /// <param name="workflow">The workflow instance to execute.</param>
-    /// <param name="usage">The token usage accumulator.</param>
-    public DexRunner ([FromKeyedServices("Default")] Workflow? workflow, TokenUsageAccumulator usage) {
+    public DexRunner ([FromKeyedServices("Default")] Workflow? workflow) {
         this.workflow = workflow;
-        this.usage = usage;
     }
 
     /// <summary>Human-friendly progress labels keyed by executor id, surfaced as SSE <c>step</c> events.</summary>
@@ -43,12 +39,19 @@ public class DexRunner : IDexRunner
         await using var run = await InProcessExecution.RunAsync(workflow!, initial, cancellationToken: cancellationToken);
         PipelineStepContext<RagPipelineOutput>? final = null;
         string? failure = null;
+        UsageDetails? usage = null;
+        string? modelUsed = null;
         foreach (var evt in run.NewEvents) {
             switch (evt) {
                 // The terminal executors (compose / out-of-scope) are registered via WithOutputFrom, so their
                 // returned envelope is yielded as a WorkflowOutputEvent — MAF's dedicated terminal-output channel.
                 case WorkflowOutputEvent { Data: PipelineStepContext<RagPipelineOutput> env }:
                     final = env;
+                    break;
+                // Each LLM step reports its own call usage; fold into a single run total.
+                case UsageEvent usageEvent:
+                    (usage ??= new UsageDetails()).Add(usageEvent.Details);
+                    modelUsed = usageEvent.Model;
                     break;
                 // A throwing step halts the run; MAF surfaces the original exception here, followed by a
                 // WorkflowErrorEvent wrapping it — keep the first (richer) message.
@@ -68,12 +71,11 @@ public class DexRunner : IDexRunner
         }
         return new RagResult {
             Answer = final?.Payload?.Answer,
-            Citations = final?.Payload?.Citations ?? Array.Empty<Citation>(),
+            Citations = final?.Payload?.Citations ?? Array.Empty<Models.Citation>(),
             Failed = failure is not null,
             FailureReason = failure,
-            PromptTokens = usage.PromptTokens,
-            CompletionTokens = usage.CompletionTokens,
-            ModelUsed = usage.Model,
+            Usage = usage,
+            ModelUsed = modelUsed,
         };
     }
 
@@ -84,11 +86,18 @@ public class DexRunner : IDexRunner
         await using var run = await InProcessExecution.RunStreamingAsync(workflow!, initial, cancellationToken: cancellationToken);
         PipelineStepContext<RagPipelineOutput>? final = null;
         string? failure = null;
+        UsageDetails? usage = null;
+        string? modelUsed = null;
         await foreach (var evt in run.WatchStreamAsync().WithCancellation(cancellationToken)) {
             switch (evt) {
                 // One progress event per step start; unmapped executor ids are skipped.
                 case ExecutorInvokedEvent invoked when StepLabels.TryGetValue(invoked.ExecutorId, out var label):
                     yield return new DexStepEvent(invoked.ExecutorId, label);
+                    break;
+                // Each LLM step reports its own call usage; fold into a single run total.
+                case UsageEvent usageEvent:
+                    (usage ??= new UsageDetails()).Add(usageEvent.Details);
+                    modelUsed = usageEvent.Model;
                     break;
                 // Answer text deltas emitted by AnswerComposer as the reasoning model streams.
                 case AnswerDeltaEvent delta when delta.Delta.Length > 0:
@@ -111,12 +120,11 @@ public class DexRunner : IDexRunner
         cancellationToken.ThrowIfCancellationRequested();
         yield return new DexFinalEvent {
             Answer = final?.Payload?.Answer,
-            Citations = final?.Payload?.Citations ?? Array.Empty<Citation>(),
+            Citations = final?.Payload?.Citations ?? Array.Empty<Models.Citation>(),
             Failed = failure is not null,
             FailureReason = failure,
-            PromptTokens = usage.PromptTokens,
-            CompletionTokens = usage.CompletionTokens,
-            ModelUsed = usage.Model,
+            Usage = usage,
+            ModelUsed = modelUsed,
         };
     }
 

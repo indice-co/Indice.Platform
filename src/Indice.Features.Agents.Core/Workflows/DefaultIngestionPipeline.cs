@@ -3,6 +3,7 @@ using System.Text;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Indice.Types;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core.Workflows;
@@ -10,18 +11,16 @@ namespace Indice.Features.Agents.Core.Workflows;
 /// <inheritdoc/>
 public class DefaultIngestionPipeline : IIngestionPipeline
 {
-    private readonly IEmbedder _embedder;
     private readonly IDocumentsService _store;
     private readonly AgentsOptions _options;
+    private readonly IEmbeddingGenerator<string, Embedding<float>> _generator;
 
     /// <summary>Creates a new <see cref="DefaultIngestionPipeline"/>.</summary>
-    public DefaultIngestionPipeline(
-        IEmbedder embedder,
-        IDocumentsService store,
-        IOptions<AgentsOptions> options) {
-        _embedder = embedder;
+    public DefaultIngestionPipeline(IDocumentsService store,
+        IOptions<AgentsOptions> options, IEmbeddingGenerator<string, Embedding<float>> generator) {
         _store = store;
         _options = options.Value;
+        _generator = generator;
     }
 
     /// <inheritdoc/>
@@ -69,7 +68,7 @@ public class DefaultIngestionPipeline : IIngestionPipeline
             throw new BusinessException("No content to ingest.", "EMPTY_DOCUMENT");
         }
 
-        var embeddings = await _embedder.EmbedAsync(chunks.Select(c => c.Content).ToList(), cancellationToken);
+        var embeddings = await EmbedAsync(chunks.Select(c => c.Content).ToList(), cancellationToken);
         var embedded = chunks.Zip(embeddings, (c, v) => new EmbeddedChunk { Chunk = c, Embedding = v }).ToList();
 
         var newId = await _store.ReplaceAsync(existing?.Id, document, embedded, cancellationToken);
@@ -82,6 +81,29 @@ public class DefaultIngestionPipeline : IIngestionPipeline
             SkippedReason = null,
             Replaced = existing.HasValue,
         };
+    }
+
+    /// <summary>
+    /// Embeds <paramref name="texts"/> in batches of <c>IngestionOptions.EmbedBatchSize</c>. Transient 429/5xx
+    /// failures are retried by the Azure OpenAI client pipeline; anything that still throws surfaces as a
+    /// <see cref="BusinessException"/> so the endpoint responds 422 instead of 500.
+    /// </summary>
+    private async Task<IReadOnlyList<ReadOnlyMemory<float>>> EmbedAsync(IReadOnlyList<string> texts, CancellationToken cancellationToken) {
+        var result = new ReadOnlyMemory<float>[texts.Count];
+        for (var offset = 0; offset < texts.Count; offset += _options.Ingestion.EmbedBatchSize) {
+            var batch = texts.Skip(offset).Take(_options.Ingestion.EmbedBatchSize).ToList();
+            GeneratedEmbeddings<Embedding<float>> embeddings;
+            try {
+                embeddings = await _generator.GenerateAsync(batch, cancellationToken: cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException) {
+                throw new BusinessException("Embedding service unavailable.", "EMBEDDING_FAILED", [ex.Message]);
+            }
+            for (var i = 0; i < embeddings.Count; i++) {
+                result[offset + i] = embeddings[i].Vector;
+            }
+        }
+        return result;
     }
 
     /// <summary>
