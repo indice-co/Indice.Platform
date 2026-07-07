@@ -1,7 +1,8 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/forms";
 @import "../node_modules/@indice/ng-components/src/styles.css";
 @import "../node_modules/highlight.js/styles/github.css";
+@source "../node_modules/@indice/ng-components/**/*.{html,ts}";
+@plugin "@tailwindcss/forms";
 
 :root {
   --ng-progress-color: #ffc107;
