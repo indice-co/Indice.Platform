@@ -24,4 +24,7 @@
     <PackageReference Include="FluentValidation" Version="12.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />
+  </ItemGroup>
 </Project>
