@@ -7,6 +7,7 @@ import {
 import { provideRouter } from '@angular/router';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { AUTH_SETTINGS, AuthHttpInterceptor, IndiceAuthModule } from '@indice/ng-auth';
+import { provideMarkdown } from 'ngx-markdown';
 
 import { routes } from './app.routes';
 import { settings } from './core/models/settings';
@@ -24,5 +25,7 @@ export const appConfig: ApplicationConfig = {
     // AuthHttpInterceptor attaches the bearer token to HttpClient calls (not fetch — see ChatStreamService).
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
     { provide: DEX_API_BASE_URL, useFactory: () => settings.api_url },
+    // Provide markdown service for rendering markdown content in chat messages.
+    provideMarkdown(),
   ],
 };
