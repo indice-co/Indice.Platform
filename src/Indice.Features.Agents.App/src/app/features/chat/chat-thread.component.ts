@@ -7,6 +7,8 @@ import {
   output,
   viewChild,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MarkdownModule } from 'ngx-markdown';
 
 import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
 
@@ -14,6 +16,7 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
 @Component({
   selector: 'app-chat-thread',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, MarkdownModule],
   template: `
     <div #scroller class="dex-scroll dex-canvas h-full overflow-y-auto">
       <div class="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
@@ -67,12 +70,12 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                   />
                   <div class="min-w-0 flex-1">
                     <div
-                      class="whitespace-pre-wrap break-words rounded-box rounded-tl-sm border
+                      class="markdown whitespace-pre-wrap break-words rounded-box rounded-tl-sm border
                              border-base-300 bg-base-100 px-4 py-3 text-[0.95rem] leading-relaxed
                              text-base-content shadow-sm"
-                    >
-                      {{ message.content }}
-                    </div>
+                      markdown
+                      [data]="message.content"
+                    ></div>
                     @if (message.citations && message.citations.length > 0) {
                       <div class="mt-2 flex flex-wrap gap-1.5">
                         @for (citation of message.citations; track citation.chunkId) {
@@ -113,12 +116,12 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                     </div>
                   } @else {
                     <div
-                      class="dex-caret whitespace-pre-wrap break-words rounded-box rounded-tl-sm border
+                      class="markdown dex-caret whitespace-pre-wrap break-words rounded-box rounded-tl-sm border
                              border-base-300 bg-base-100 px-4 py-3 text-[0.95rem] leading-relaxed
                              text-base-content shadow-sm"
-                    >
-                      {{ streamingText() }}
-                    </div>
+                      markdown
+                      [data]="streamingText()"
+                    ></div>
                   }
                 </div>
               </div>

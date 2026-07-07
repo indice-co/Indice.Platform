@@ -47,7 +47,7 @@ public static class DateTimeExtensions
 
     /// <summary>Converts the <paramref name="dateTime"/> to <see cref="DateTimeOffset"/> in the given <paramref name="timeZoneId"/></summary>
     /// <param name="dateTime">The source <see cref="DateTime"/></param>
-    /// <param name="timeZoneId">The time zone identifier. For example, "Europe/Athens".
+    /// <param name="timeZoneId">The time zone identifier. For example, "Europe/Athens".</param>
     public static DateTimeOffset ToDateTimeOffset(this DateTime dateTime, string timeZoneId) {
         var zone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
         var utc = dateTime.ToUniversalTime();
@@ -58,7 +58,7 @@ public static class DateTimeExtensions
 
     /// <summary>Converts the <paramref name="dateTimeOffset"/> to <see cref="DateTimeOffset"/> in the given <paramref name="timeZoneId"/></summary>
     /// <param name="dateTimeOffset">The source <see cref="DateTimeOffset"/></param>
-    /// <param name="timeZoneId">The time zone identifier. For example, "Europe/Athens".
+    /// <param name="timeZoneId">The time zone identifier. For example, "Europe/Athens".</param>
     public static DateTimeOffset Convert(this DateTimeOffset dateTimeOffset, string timeZoneId) {
         var zone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
         var offset = zone.GetUtcOffset(dateTimeOffset);

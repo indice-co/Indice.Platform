@@ -4,14 +4,14 @@
     <TargetFrameworks></TargetFrameworks>
     <TargetFramework>net10.0</TargetFramework>
     <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
-    <VersionSuffix>beta04</VersionSuffix>
+    <VersionSuffix>beta05</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.9" />
     <PackageReference Include="Microsoft.Agents.AI" Version="1.11.0" />
     <PackageReference Include="Microsoft.Agents.AI.Abstractions" Version="1.11.0" />
     <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.11.0" />
@@ -25,6 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Requests\" />
+    <ProjectReference Include="..\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />
   </ItemGroup>
 </Project>
