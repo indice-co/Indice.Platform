@@ -1,4 +1,4 @@
-using Microsoft.Extensions.AI;
+using Indice.Features.Agents.Core.Models;
 
 namespace Indice.Features.Agents.Core.Data;
 
@@ -12,7 +12,7 @@ public class DbSessionMessage
     public Guid SessionId { get; set; }
 
     /// <summary>Author role of this message. Persisted as the role's string value (e.g. <c>user</c>).</summary>
-    public ChatRole Role { get; set; } = ChatRole.User;
+    public ChatMessageRole Role { get; set; } = ChatMessageRole.User;
 
     /// <summary>Message body.</summary>
     public string Content { get; set; } = string.Empty;

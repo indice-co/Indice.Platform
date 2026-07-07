@@ -1,7 +1,7 @@
 using Indice.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.AI;
+using Indice.Features.Agents.Core.Models;
 
 namespace Indice.Features.Agents.Core.Data.Mappings;
 
@@ -13,7 +13,9 @@ public class DbSessionMessageMap : IEntityTypeConfiguration<DbSessionMessage>
         builder.ToTable("SessionMessage", "dex");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Role)
-               .HasConversion(role => role.Value, value => new ChatRole(value))
+               .HasConversion(
+                    role => role.ToString().ToLowerInvariant(),
+                    value => Enum.Parse<ChatMessageRole>(value, ignoreCase: true))
                .HasMaxLength(TextSizePresets.S32)
                .IsRequired();
         builder.Property(x => x.Content).IsRequired();

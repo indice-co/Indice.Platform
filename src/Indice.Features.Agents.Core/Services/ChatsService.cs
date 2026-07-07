@@ -6,7 +6,7 @@ using Indice.Features.Agents.Core.Workflows.Abstractions;
 using Indice.Types;
 using Microsoft.Extensions.Options;
 using AIChatMessage = Microsoft.Extensions.AI.ChatMessage;
-using ChatRole = Microsoft.Extensions.AI.ChatRole;
+using AIChatRole = Microsoft.Extensions.AI.ChatRole;
 
 namespace Indice.Features.Agents.Core.Services;
 
@@ -37,7 +37,7 @@ public class ChatsService : IChatsService
         var now = DateTimeOffset.UtcNow;
         var userMessage = new ChatMessage {
             Id = Guid.NewGuid(),
-            Role = ChatRole.User,
+            Role = ChatMessageRole.User,
             Content = text,
             CreatedAt = now,
         };
@@ -45,7 +45,7 @@ public class ChatsService : IChatsService
         var assistantText = result.Answer ?? string.Empty;
         var assistantMessage = new ChatMessage {
             Id = Guid.NewGuid(),
-            Role = ChatRole.Assistant,
+            Role = ChatMessageRole.Assistant,
             Content = assistantText,
             CreatedAt = now,
         };
@@ -101,8 +101,8 @@ public class ChatsService : IChatsService
     private async Task<ChatStreamEvent> PersistTurnAsync(Session session, string text, DexFinalEvent? final, CancellationToken cancellationToken) {
         var now = DateTimeOffset.UtcNow;
         var assistantText = final?.Answer ?? string.Empty;
-        var userMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatRole.User, Content = text, CreatedAt = now };
-        var assistantMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatRole.Assistant, Content = assistantText, CreatedAt = now };
+        var userMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatMessageRole.User, Content = text, CreatedAt = now };
+        var assistantMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatMessageRole.Assistant, Content = assistantText, CreatedAt = now };
 
         var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
             promptTokens: final?.Usage?.InputTokenCount ?? 0, completionTokens: final?.Usage?.OutputTokenCount ?? 0,
@@ -121,7 +121,16 @@ public class ChatsService : IChatsService
 
     /// <summary>Projects the persisted session turns into the framework message shape the pipeline consumes.</summary>
     private static IReadOnlyList<AIChatMessage> ToAIMessages(IReadOnlyList<ChatMessage> messages)
-        => messages.Select(m => new AIChatMessage(m.Role, m.Content)).ToList();
+        => messages.Select(m => new AIChatMessage(ToAIChatRole(m.Role), m.Content)).ToList();
+
+    /// <summary>Maps the persisted <see cref="ChatMessageRole"/> onto the framework role the MAF pipeline consumes.</summary>
+    private static AIChatRole ToAIChatRole(ChatMessageRole role) => role switch {
+        ChatMessageRole.User => AIChatRole.User,
+        ChatMessageRole.Assistant => AIChatRole.Assistant,
+        ChatMessageRole.System => AIChatRole.System,
+        ChatMessageRole.Tool => AIChatRole.Tool,
+        _ => AIChatRole.User,
+    };
 
     /// <inheritdoc/>
     public Task<Session?> GetAsync(string userId, Guid sessionId, CancellationToken cancellationToken)
