@@ -7,21 +7,21 @@
     <VersionPrefixMajor>8</VersionPrefixMajor>
     <VersionPrefixBase>$(VersionPrefixMajor).50</VersionPrefixBase>
 
-    <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
-    <VersionPrefixIdentity>$(VersionPrefixBase).1</VersionPrefixIdentity>
-    <VersionPrefixIdentityUI>$(VersionPrefixBase).2</VersionPrefixIdentityUI>
-    <VersionPrefixCases>$(VersionPrefixBase).1</VersionPrefixCases>
-    <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
-    <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
-    <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
-    <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
-    <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
-    <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
-    <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
+    <VersionPrefixCore>$(VersionPrefixBase).1</VersionPrefixCore>
+    <VersionPrefixIdentity>$(VersionPrefixBase).2</VersionPrefixIdentity>
+    <VersionPrefixIdentityUI>$(VersionPrefixBase).3</VersionPrefixIdentityUI>
+    <VersionPrefixCases>$(VersionPrefixBase).2</VersionPrefixCases>
+    <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
+    <VersionPrefixMultitenancy>$(VersionPrefixBase).1</VersionPrefixMultitenancy>
+    <VersionPrefixRisk>$(VersionPrefixBase).1</VersionPrefixRisk>
+    <VersionPrefixMedia>$(VersionPrefixBase).1</VersionPrefixMedia>
+    <VersionPrefixGeoIP>$(VersionPrefixBase).1</VersionPrefixGeoIP>
+    <VersionPrefixGovGr>$(VersionPrefixBase).1</VersionPrefixGovGr>
+    <VersionPrefixAspNet>$(VersionPrefixBase).1</VersionPrefixAspNet>
     <VersionPrefixActivityLogs>$(VersionPrefixBase).1</VersionPrefixActivityLogs>
-    <VersionPrefixFtpServer>$(VersionPrefixBase).0</VersionPrefixFtpServer>
+    <VersionPrefixFtpServer>$(VersionPrefixBase).1</VersionPrefixFtpServer>
     <VersionPrefixAgents>8.0.0</VersionPrefixAgents>
-    <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
+    <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
 
     <!--<VersionSuffix>rc01</VersionSuffix>-->
     <Authors>Constantinos Leftheris</Authors>
