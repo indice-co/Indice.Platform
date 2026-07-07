@@ -30,16 +30,16 @@ public class ChatsService : IChatsService
         if (session is null) {
             return null;
         }
+        var userNow = DateTimeOffset.UtcNow;
         var result = await _runner.RunAsync(
             new RagRequest { Question = text, History = ToAIMessages(session.Messages) },
             cancellationToken);
-
-        var now = DateTimeOffset.UtcNow;
+        var assistantNow = DateTimeOffset.UtcNow;
         var userMessage = new ChatMessage {
             Id = Guid.NewGuid(),
             Role = ChatMessageRole.User,
             Content = text,
-            CreatedAt = now,
+            CreatedAt = userNow,
         };
         // Out-of-scope refusal text comes through on Answer (from OutOfScopeResponder); Failed signals a step failure, surfaced via FailureReason on the response.
         var assistantText = result.Answer ?? string.Empty;
@@ -47,7 +47,7 @@ public class ChatsService : IChatsService
             Id = Guid.NewGuid(),
             Role = ChatMessageRole.Assistant,
             Content = assistantText,
-            CreatedAt = now,
+            CreatedAt = assistantNow,
         };
 
         var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
