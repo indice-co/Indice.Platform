@@ -99,10 +99,11 @@ public class ChatsService : IChatsService
 
     /// <summary>Persists the user/assistant turn (mirroring <see cref="SendAsync"/>) and builds the terminal <c>complete</c> event.</summary>
     private async Task<ChatStreamEvent> PersistTurnAsync(Session session, string text, DexFinalEvent? final, CancellationToken cancellationToken) {
-        var now = DateTimeOffset.UtcNow;
+        var userNow = DateTimeOffset.UtcNow;
         var assistantText = final?.Answer ?? string.Empty;
-        var userMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatMessageRole.User, Content = text, CreatedAt = now };
-        var assistantMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatMessageRole.Assistant, Content = assistantText, CreatedAt = now };
+        var assistantNow = DateTimeOffset.UtcNow;
+        var userMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatMessageRole.User, Content = text, CreatedAt = userNow };
+        var assistantMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatMessageRole.Assistant, Content = assistantText, CreatedAt = assistantNow };
 
         var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
             promptTokens: final?.Usage?.InputTokenCount ?? 0, completionTokens: final?.Usage?.OutputTokenCount ?? 0,
