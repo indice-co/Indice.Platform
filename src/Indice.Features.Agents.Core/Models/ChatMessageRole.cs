@@ -1,17 +1,21 @@
+using System.Text.Json.Serialization;
+
 namespace Indice.Features.Agents.Core.Models;
 
-/// <summary>Author role of a chat session message.</summary>
+/// <summary>Author role of a chat message. Exposed at the service boundary and persisted per turn; serializes as its lowercase value (e.g. <c>user</c>).</summary>
+[JsonConverter(typeof(JsonStringEnumConverter<ChatMessageRole>))]
 public enum ChatMessageRole
 {
-    /// <summary>End-user message.</summary>
-    User = 0,
-
-    /// <summary>Assistant (LLM) response.</summary>
-    Assistant = 1,
-
-    /// <summary>System / instructions message.</summary>
-    System = 2,
-
-    /// <summary>Tool call or tool result.</summary>
-    Tool = 3,
+    /// <summary>Message authored by the end user.</summary>
+    [JsonStringEnumMemberName("user")]
+    User,
+    /// <summary>Message authored by the assistant.</summary>
+    [JsonStringEnumMemberName("assistant")]
+    Assistant,
+    /// <summary>System / developer instruction message.</summary>
+    [JsonStringEnumMemberName("system")]
+    System,
+    /// <summary>Tool invocation or tool result message.</summary>
+    [JsonStringEnumMemberName("tool")]
+    Tool
 }

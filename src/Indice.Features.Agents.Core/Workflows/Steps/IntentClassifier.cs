@@ -1,12 +1,13 @@
 using Azure.AI.OpenAI;
+using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
-using Indice.Features.Agents.Core.Workflows.Usage;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
+using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -22,24 +23,20 @@ public sealed class IntentClassifier : Executor<PipelineStepContext<RagPipelineI
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="IntentClassifier"/>.</summary>
-    public IntentClassifier(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options, IPromptTemplateRenderer prompts, TokenUsageAccumulator usage) : base("IntentClassifier") {
+    public IntentClassifier(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts) : base("IntentClassifier") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
-        var instructions = prompts.Render("IntentClassifier", new {
+        var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
+        chatOptions.Instructions = prompts.Render("IntentClassifier", new {
             categories = _options.Taxonomy.Categories,
             languages = _options.Taxonomy.Languages,
         });
         _agent = openAIClient.GetChatClient(_model)
-            .AsAIAgent(
-                options: new ChatClientAgentOptions() {
-                    ChatOptions = new ChatOptions {
-                        Temperature = _options.Models.Reasoning.Temperature,
-                        MaxOutputTokens = _options.Models.Reasoning.MaxOutputTokens,
-                        Instructions = instructions,
-                    },
-                    Name = "DexIntentClassifier"
-                },
-                clientFactory: inner => new UsageTrackingChatClient(inner, usage, _model));
+            .AsAIAgent(options: new ChatClientAgentOptions() {
+                ChatOptions = chatOptions,
+                Name = "DexIntentClassifier"
+            });
     }
 
     /// <inheritdoc/>
@@ -51,6 +48,9 @@ public sealed class IntentClassifier : Executor<PipelineStepContext<RagPipelineI
         var history = ChatHistoryFormatter.Format(envelope.State.History);
         var prompt = history.Length == 0 ? question : $"HISTORY:\n{history}\nQUESTION: {question}";
         var response = await _agent.RunAsync<IntentResult>(prompt, cancellationToken: cancellationToken);
+        if (response.Usage is not null) {
+            await context.AddEventAsync(new UsageEvent(response.Usage, _model), cancellationToken);
+        }
         var result = response.Result;
 
         var category = _options.Taxonomy.Categories.Contains(result.Category ?? "", StringComparer.OrdinalIgnoreCase) ? result.Category : null;
@@ -64,7 +64,6 @@ public sealed class IntentClassifier : Executor<PipelineStepContext<RagPipelineI
             OutOfScopeReason = result.OutOfScopeReason,
         };
 
-        // Token usage is captured by UsageTrackingChatClient (reasoning client) and read by DexRunner after the run.
         return envelope.Next(new IntentOutput {
             Intent = intent,
             Filters = new RetrievalFilters { Category = category, Language = language },

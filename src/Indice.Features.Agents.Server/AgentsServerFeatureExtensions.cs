@@ -56,12 +56,11 @@ public static class AgentsServerFeatureExtensions
     }
 
     /// <summary>
-    /// Registers the Ingestion feature, including the embedder, ingestion pipeline, and documents service.
+    /// Registers the Ingestion feature, including the ingestion pipeline and documents service.
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
     public static IServiceCollection AddIngestionFeature(this IServiceCollection services) {
-        services.TryAddTransient<IEmbedder, AzureOpenAIEmbedder>();
         services.TryAddTransient<IIngestionPipeline, DefaultIngestionPipeline>();
         services.TryAddTransient<IDocumentsService, DocumentsService>();
         return services;

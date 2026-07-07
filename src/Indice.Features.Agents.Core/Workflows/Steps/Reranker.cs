@@ -24,12 +24,12 @@ public sealed class Reranker : Executor<PipelineStepContext<RetrievalOutput>, Pi
     /// <inheritdoc/>
     public override async ValueTask<PipelineStepContext<RerankOutput>> HandleAsync(PipelineStepContext<RetrievalOutput> envelope, IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-        var topN = _options.Retrieval.TopN;
+        var topResults = _options.Retrieval.NumberOfResults;
         var candidates = envelope.Payload.Candidates;
 
-        IReadOnlyList<RetrievedChunk> reranked = !_options.Pipeline.EnableRerank || candidates.Count <= topN
-            ? candidates.OrderByDescending(c => c.Score).Take(topN).ToList()
-            : await _reranker.RerankAsync(envelope.State.Question, candidates, topN, cancellationToken);
+        IReadOnlyList<RetrievedChunk> reranked = !_options.Pipeline.EnableRerank || candidates.Count <= topResults
+            ? candidates.OrderByDescending(c => c.Score).Take(topResults).ToList()
+            : await _reranker.RerankAsync(envelope.State.Question, candidates, topResults, cancellationToken);
 
         return envelope.Next(new RerankOutput {
             Intent = envelope.Payload.Intent,

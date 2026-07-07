@@ -1,5 +1,6 @@
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows.Abstractions;
+using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Workflows;
 
@@ -21,11 +22,8 @@ public class RagResult
     /// <summary>Error message from the step that threw, prefixed with its executor id; <c>null</c> when <see cref="Failed"/> is false.</summary>
     public string? FailureReason { get; init; }
 
-    /// <summary>Prompt (input) tokens consumed by the reasoning model across this run. Captured by <c>UsageTrackingChatClient</c>; persisted to the session, not returned to the caller.</summary>
-    public long PromptTokens { get; init; }
-
-    /// <summary>Completion (output) tokens produced by the reasoning model across this run.</summary>
-    public long CompletionTokens { get; init; }
+    /// <summary>Total reasoning-model token usage across this run, folded from the steps' <c>UsageEvent</c>s. Persisted to the session, not returned to the caller; <c>null</c> when no reasoning call ran.</summary>
+    public UsageDetails? Usage { get; init; }
 
     /// <summary>The reasoning-model deployment the tokens were billed against; <c>null</c> when no reasoning call ran.</summary>
     public string? ModelUsed { get; init; }

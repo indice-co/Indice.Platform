@@ -1065,11 +1065,12 @@ export interface IChatResponse {
     failureReason?: string | undefined;
 }
 
-/** Author role of a chat message exposed at the service boundary. Mirrors ChatMessageRole. */
+/** Author role of a chat message exposed at the service boundary. Values match Microsoft.Extensions.AI.ChatRole (lowercase on the wire). */
 export enum ChatRole {
-    User = "User",
-    Assistant = "Assistant",
-    System = "System",
+    User = "user",
+    Assistant = "assistant",
+    System = "system",
+    Tool = "tool",
 }
 
 /** Wire model for a single Server-Sent Event emitted while streaming a chat turn. The string ChatStreamEvent.Type    discriminator mirrors the SSE `event:` name and tells the client which fields are populated:    * stepstring? ChatStreamEvent.Step — a pipeline-progress label. * deltastring? ChatStreamEvent.Text — an incremental chunk of the answer. * completeGuid? ChatStreamEvent.SessionId, Guid? ChatStreamEvent.MessageId, string? ChatStreamEvent.Answer, IReadOnlyList&lt;Citation&gt;? ChatStreamEvent.Citations, bool? ChatStreamEvent.Failed, string? ChatStreamEvent.FailureReason. */

@@ -1,10 +1,8 @@
 using System.Text;
 using Azure.AI.OpenAI;
-using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
-using Indice.Features.Agents.Core.Workflows.Usage;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -16,7 +14,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// <summary>
 /// Composes the final grounded answer from the reranked candidates. Instructs the model to ground only
 /// in the provided context and cite chunk IDs in <c>[#chunkId]</c> form. Projects the candidates into
-/// <see cref="Citation"/> records on the output payload.
+/// <see cref="Models.Citation"/> records on the output payload.
 /// </summary>
 public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>, PipelineStepContext<RagPipelineOutput>>
 {
@@ -25,12 +23,14 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="AnswerComposer"/>.</summary>
-    public AnswerComposer(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options, IPromptTemplateRenderer prompts,
-        UserClaimsAIContextProvider userClaimsProvider, TokenUsageAccumulator usage) : base("AnswerComposer") {
+    public AnswerComposer(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
+        UserClaimsAIContextProvider userClaimsProvider) : base("AnswerComposer") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
 
-        var instructions = prompts.Render("AnswerComposer", new {
+        var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
+        chatOptions.Instructions = prompts.Render("AnswerComposer", new {
             strictGrounding = _options.Pipeline.StrictGrounding,
         });
 
@@ -38,15 +38,10 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
             .GetChatClient(_model)
             .AsAIAgent(
                 options: new ChatClientAgentOptions() {
-                    ChatOptions = new ChatOptions {
-                        Temperature = _options.Models.Reasoning.Temperature,
-                        MaxOutputTokens = _options.Models.Reasoning.MaxOutputTokens,
-                        Instructions = instructions,
-                    },
+                    ChatOptions = chatOptions,
                     AIContextProviders = [userClaimsProvider],
                     Name = "DexAnswerComposer"
-                },
-                clientFactory: inner => new UsageTrackingChatClient(inner, usage, _model));
+                });
     }
 
     /// <inheritdoc/>
@@ -57,17 +52,25 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
         var prompt = BuildPrompt(envelope.State.Question, envelope.State.History, candidates);
 
         // Stream the answer: emit each text delta as a workflow event (surfaced as an SSE `delta` by the
-        // streaming runner; ignored by the non-streaming runner) while accumulating the full text.
+        // streaming runner; ignored by the non-streaming runner) while accumulating the full text. Token
+        // usage arrives as trailing UsageContent on the final update(s); fold it and report it once.
         var answer = new StringBuilder();
+        UsageDetails? usage = null;
         await foreach (var update in _agent.RunStreamingAsync(prompt, cancellationToken: cancellationToken)) {
             if (!string.IsNullOrEmpty(update.Text)) {
                 answer.Append(update.Text);
                 await context.AddEventAsync(new AnswerDeltaEvent(update.Text), cancellationToken);
             }
+            foreach (var usageContent in update.Contents.OfType<UsageContent>()) {
+                (usage ??= new UsageDetails()).Add(usageContent.Details);
+            }
+        }
+        if (usage is not null) {
+            await context.AddEventAsync(new UsageEvent(usage, _model), cancellationToken);
         }
 
         var citations = candidates
-            .Select(c => new Citation {
+            .Select(c => new Models.Citation {
                 ChunkId = c.ChunkId,
                 DocumentId = c.DocumentId,
                 Title = c.Title,
@@ -76,14 +79,13 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
             })
             .ToList();
 
-        // Token usage is captured by UsageTrackingChatClient (reasoning client) and read by DexRunner after the run.
         return envelope.Next(new RagPipelineOutput {
             Answer = answer.ToString(),
             Citations = citations,
         });
     }
 
-    private static string BuildPrompt(string question, IReadOnlyList<Models.ChatMessage> history, IReadOnlyList<RetrievedChunk> candidates) {
+    private static string BuildPrompt(string question, IReadOnlyList<Microsoft.Extensions.AI.ChatMessage> history, IReadOnlyList<RetrievedChunk> candidates) {
         var sb = new StringBuilder();
         var historyText = ChatHistoryFormatter.Format(history);
         if (historyText.Length > 0) {

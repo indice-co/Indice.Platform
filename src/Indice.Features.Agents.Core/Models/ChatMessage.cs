@@ -6,8 +6,8 @@ public class ChatMessage
     /// <summary>Message identifier.</summary>
     public Guid Id { get; init; }
 
-    /// <summary>Author role of this message.</summary>
-    public ChatRole Role { get; init; }
+    /// <summary>Author role of this message. Serializes as the role's lowercase value (e.g. <c>user</c>).</summary>
+    public ChatMessageRole Role { get; init; } = ChatMessageRole.User;
 
     /// <summary>Message body.</summary>
     public string Content { get; init; } = string.Empty;

@@ -1,6 +1,6 @@
 namespace Indice.Features.Agents.Core.Workflows;
 
-/// <summary>A <see cref="DocumentChunk"/> paired with the embedding vector produced by <see cref="IEmbedder"/>.</summary>
+/// <summary>A <see cref="DocumentChunk"/> paired with the embedding vector produced by the embedding generator.</summary>
 public class EmbeddedChunk
 {
     /// <summary>The source chunk (text, hash, heading metadata, token count).</summary>

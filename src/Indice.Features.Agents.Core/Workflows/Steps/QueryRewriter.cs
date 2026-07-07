@@ -12,7 +12,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 
 /// <summary>
 /// Produces up to <c>RetrievalOptions.QueryExpansion</c> alternative phrasings of the user's question to
-/// broaden retrieval recall. Disabled by <c>PipelineOptions.EnableQueryRewrite = false</c>; on any LLM
+/// broaden retrieval recall. Disabled by <c>DefaultPipelineOptions.EnableQueryRewrite = false</c>; on any LLM
 /// failure, falls back to the original question.
 /// </summary>
 public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, PipelineStepContext<QueryRewriteOutput>>
@@ -22,17 +22,16 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="QueryRewriter"/>.</summary>
-    public QueryRewriter(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options, IPromptTemplateRenderer prompts) : base("QueryRewriter") {
+    public QueryRewriter(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts) : base("QueryRewriter") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Fast!;
+        var chatOptions = models.Value.BaseFastModelOptions.Clone();
+        chatOptions.Instructions = prompts.Render("QueryRewriter");
         _agent = openAIClient
             .GetChatClient(_model)
             .AsAIAgent(options: new ChatClientAgentOptions() {
-                ChatOptions = new ChatOptions {
-                    Temperature = _options.Models.Fast.Temperature,
-                    MaxOutputTokens = _options.Models.Fast.MaxOutputTokens,
-                    Instructions = prompts.Render("QueryRewriter"),
-                },
+                ChatOptions = chatOptions,
                 Name = "DexQueryRewriter",
             });
     }
