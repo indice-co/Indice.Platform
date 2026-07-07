@@ -25,12 +25,13 @@ internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, Pi
 
 
     /// <summary>Creates a new <see cref="PurposeResponder"/>.</summary>
-    public PurposeResponder(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options, IPromptTemplateRenderer prompts,
+    public PurposeResponder(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider) : base("PurposeResponder") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
 
-        var chatOptions = _options.Models.Reasoning.Clone();
+        var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("PurposeResponder", new {
             strictGrounding = _options.Pipeline.StrictGrounding,
         });

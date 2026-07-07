@@ -27,12 +27,6 @@ public sealed class AgentsOptionsValidator : IValidateOptions<AgentsOptions>
             failures.Add("Dex:Taxonomy:Categories must contain at least one non-empty string.");
         if (options.Taxonomy.Languages.Count == 0 || options.Taxonomy.Languages.Any(string.IsNullOrWhiteSpace))
             failures.Add("Dex:Taxonomy:Languages must contain at least one non-empty string.");
-        foreach (var (role, parameters) in new[] { ("Reasoning", options.Models.Reasoning), ("Fast", options.Models.Fast) }) {
-            if (parameters.Temperature is < 0f or > 2f)
-                failures.Add($"Dex:Models:{role}:Temperature must be between 0 and 2.");
-            if (parameters.MaxOutputTokens is <= 0)
-                failures.Add($"Dex:Models:{role}:MaxOutputTokens must be positive when set.");
-        }
         if (options.Retrieval.RerankSnippetLength <= 0)
             failures.Add("Dex:Retrieval:RerankSnippetLength must be positive.");
 

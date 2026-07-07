@@ -35,7 +35,7 @@ public class Profile
     public DateTimeOffset LastSeenAt { get; init; }
 
     /// <summary>
-    /// Reasoning-model tokens (prompt + completion) the user consumed in the trailing 7 days.
+    /// BaseReasoningModelOptions-model tokens (prompt + completion) the user consumed in the trailing 7 days.
     /// Computed on read and populated by <c>UsersService</c>
     /// </summary>
     public long ReasoningTokensLast7Days { get; set; }

@@ -22,10 +22,11 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="QueryRewriter"/>.</summary>
-    public QueryRewriter(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options, IPromptTemplateRenderer prompts) : base("QueryRewriter") {
+    public QueryRewriter(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts) : base("QueryRewriter") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Fast!;
-        var chatOptions = _options.Models.Fast.Clone();
+        var chatOptions = models.Value.BaseFastModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("QueryRewriter");
         _agent = openAIClient
             .GetChatClient(_model)

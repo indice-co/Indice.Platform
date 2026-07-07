@@ -10,6 +10,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -28,6 +29,11 @@ public static class AgentsFeatureExtensions
         }
         services.AddSingleton<IValidateOptions<AgentsOptions>, AgentsOptionsValidator>();
         optionsBuilder.ValidateOnStart();
+
+        services.AddOptions<ModelsOptions>()
+            .BindConfiguration("Dex:Models").Configure<IOptions<AgentsOptions>>((models, agents) => {
+                agents.Value.ConfigureModelOptions?.Invoke(models);
+            });
 
         services.TryAddSingleton(sp => {
             var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI;

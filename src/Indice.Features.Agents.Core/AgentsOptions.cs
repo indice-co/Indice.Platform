@@ -13,9 +13,6 @@ public class AgentsOptions
     /// <summary>Azure OpenAI connection and deployment configuration.</summary>
     public AzureOpenAIOptions AzureOpenAI { get; set; } = new();
 
-    /// <summary>Per-role model invocation parameters (temperature, output token cap).</summary>
-    public ModelsOptions Models { get; set; } = new();
-
     /// <summary>Retrieval-time knobs (NumberOfCandidates, NumberOfResults, query expansion, etc).</summary>
     public RetrievalOptions Retrieval { get; set; } = new();
 
@@ -35,6 +32,14 @@ public class AgentsOptions
     /// Optional callback to configure the <see cref="DbContextOptionsBuilder"/> for the <see cref="AgentsDbContext"/>.
     /// </summary>
     public Action<IServiceProvider, DbContextOptionsBuilder>? ConfigureDbContext { get; set; }
+
+    /// <summary>
+    /// Optional callback to configure the standalone <see cref="ModelsOptions"/> (per-role <see cref="ChatOptions"/>
+    /// and universal tools). Applied after <c>Dex:Models</c> configuration binding when <see cref="ModelsOptions"/>
+    /// is resolved. Use it to register tools shared across pipeline steps.
+    /// </summary>
+    public Action<ModelsOptions>? ConfigureModelOptions { get; set; }
+
     /// <summary>Azure OpenAI service endpoint, credentials, and per-role deployment names.</summary>
     public class AzureOpenAIOptions
     {
@@ -63,22 +68,6 @@ public class AgentsOptions
         /// <summary>Embedding deployment used for chunk and query vectorization.</summary>
         public string? Embedding { get; set; }
     }
-
-    /// <summary>
-    /// Per-role model invocation parameters applied by the pipeline steps when calling their chat model.
-    /// Each role is a <see cref="ChatOptions"/>: <c>Temperature</c> and <c>MaxOutputTokens</c> bind from
-    /// configuration; <c>Tools</c> and the remaining knobs are set in code. Steps <see cref="ChatOptions.Clone"/>
-    /// the role options before adding per-step instructions.
-    /// </summary>
-    public class ModelsOptions
-    {
-        /// <summary>Options for the reasoning deployment (intent classification, answer composition). Temperature defaults to 0 to keep pipeline outputs as deterministic as the model allows.</summary>
-        public ChatOptions Reasoning { get; set; } = new() { Temperature = 0.0f };
-
-        /// <summary>Options for the fast deployment (query rewriting, reranking). Temperature defaults to 0 to keep pipeline outputs as deterministic as the model allows.</summary>
-        public ChatOptions Fast { get; set; } = new() { Temperature = 0.0f };
-    }
-
     /// <summary>Retrieval-time knobs.</summary>
     public class RetrievalOptions
     {
@@ -151,5 +140,21 @@ public class AgentsOptions
         public IReadOnlyList<string> Languages { get; set; } = ["en", "el", "de", "fr", "es"];
     }
 }
+
+/// <summary>
+/// Per-role model invocation parameters applied by the pipeline steps when calling their chat model.
+/// Each role is a <see cref="ChatOptions"/>: <c>Temperature</c> and <c>MaxOutputTokens</c> bind from
+/// configuration; <c>Tools</c> and the remaining knobs are set in code. Steps <see cref="ChatOptions.Clone"/>
+/// the role options before adding per-step instructions.
+/// </summary>
+public class ModelsOptions
+{
+    /// <summary>Options for the reasoning deployment (intent classification, answer composition). Temperature defaults to 0 to keep pipeline outputs as deterministic as the model allows.</summary>
+    public ChatOptions BaseReasoningModelOptions { get; set; } = new() { Temperature = 0.0f };
+
+    /// <summary>Options for the fast deployment (query rewriting, reranking). Temperature defaults to 0 to keep pipeline outputs as deterministic as the model allows.</summary>
+    public ChatOptions BaseFastModelOptions { get; set; } = new() { Temperature = 0.0f };
+}
+
 
 

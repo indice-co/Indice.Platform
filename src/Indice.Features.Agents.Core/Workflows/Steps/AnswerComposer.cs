@@ -8,7 +8,6 @@ using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
-using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -24,12 +23,13 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="AnswerComposer"/>.</summary>
-    public AnswerComposer(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options, IPromptTemplateRenderer prompts,
+    public AnswerComposer(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider) : base("AnswerComposer") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
 
-        var chatOptions = _options.Models.Reasoning.Clone();
+        var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("AnswerComposer", new {
             strictGrounding = _options.Pipeline.StrictGrounding,
         });
@@ -85,7 +85,7 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
         });
     }
 
-    private static string BuildPrompt(string question, IReadOnlyList<ChatMessage> history, IReadOnlyList<RetrievedChunk> candidates) {
+    private static string BuildPrompt(string question, IReadOnlyList<Microsoft.Extensions.AI.ChatMessage> history, IReadOnlyList<RetrievedChunk> candidates) {
         var sb = new StringBuilder();
         var historyText = ChatHistoryFormatter.Format(history);
         if (historyText.Length > 0) {

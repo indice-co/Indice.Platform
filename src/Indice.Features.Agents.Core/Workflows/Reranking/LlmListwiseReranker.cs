@@ -19,10 +19,11 @@ public class LlmListwiseReranker : ILlmReranker
     private readonly int _snippetLength;
 
     /// <summary>Creates a new <see cref="LlmListwiseReranker"/>.</summary>
-    public LlmListwiseReranker(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options, IPromptTemplateRenderer prompts) {
+    public LlmListwiseReranker(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts) {
         var opts = options.Value;
         _snippetLength = opts.Retrieval.RerankSnippetLength;
-        var chatOptions = opts.Models.Fast.Clone();
+        var chatOptions = models.Value.BaseFastModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("Reranker");
         _agent = openAIClient
             .GetChatClient(opts.AzureOpenAI.Deployments.Fast!)

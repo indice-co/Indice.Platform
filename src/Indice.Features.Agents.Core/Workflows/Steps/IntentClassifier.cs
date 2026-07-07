@@ -7,6 +7,7 @@ using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
+using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -22,10 +23,11 @@ public sealed class IntentClassifier : Executor<PipelineStepContext<RagPipelineI
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="IntentClassifier"/>.</summary>
-    public IntentClassifier(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options, IPromptTemplateRenderer prompts) : base("IntentClassifier") {
+    public IntentClassifier(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts) : base("IntentClassifier") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
-        var chatOptions = _options.Models.Reasoning.Clone();
+        var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("IntentClassifier", new {
             categories = _options.Taxonomy.Categories,
             languages = _options.Taxonomy.Languages,
