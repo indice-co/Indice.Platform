@@ -150,7 +150,7 @@ public class AgentsOptions
 public class ModelsOptions
 {
     /// <summary>Options for the reasoning deployment (intent classification, answer composition). Temperature defaults to 0 to keep pipeline outputs as deterministic as the model allows.</summary>
-    public ChatOptions BaseReasoningModelOptions { get; set; } = new() { Temperature = 0.0f };
+    public ChatOptions BaseReasoningModelOptions { get; set; } = new() { Temperature = 0.0f, ToolMode = AutoChatToolMode.Auto, MaxOutputTokens = 2048, Tools = Array.Empty<AITool>() };
 
     /// <summary>Options for the fast deployment (query rewriting, reranking). Temperature defaults to 0 to keep pipeline outputs as deterministic as the model allows.</summary>
     public ChatOptions BaseFastModelOptions { get; set; } = new() { Temperature = 0.0f };
