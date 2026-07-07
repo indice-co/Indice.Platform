@@ -12,7 +12,7 @@
     <InternalsVisibleTo Include="Indice.Features.Identity.Tests" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Open.ChannelExtensions" Version="9.2.0" />
+    <PackageReference Include="Open.ChannelExtensions" Version="9.3.0" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Indice.Features.GeoIP" Version="$(VersionPrefixGeoIP)-*" />
   </ItemGroup>
