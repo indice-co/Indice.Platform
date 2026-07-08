@@ -10,4 +10,7 @@ public class RagRequest
 
     /// <summary>Optional conversation history (oldest-first) providing context for multi-turn interactions.</summary>
     public IReadOnlyList<ChatMessage>? History { get; init; }
+
+    /// <summary>Timestamp of when the request was created.</summary>
+    public DateTimeOffset TimeStamp { get; init; } = DateTimeOffset.UtcNow;
 }
