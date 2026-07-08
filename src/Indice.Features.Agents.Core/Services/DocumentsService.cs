@@ -57,6 +57,7 @@ public class DocumentsService : IDocumentsService
             Status = DocumentStatus.Ingested,
             ChunkCount = chunks.Count,
             IngestedAt = now,
+            IsPrivate = document.IsPrivate,
             Blob = new DbDocumentBlob {
                 ContentType = document.ContentType,
                 ContentLength = document.ContentLength,

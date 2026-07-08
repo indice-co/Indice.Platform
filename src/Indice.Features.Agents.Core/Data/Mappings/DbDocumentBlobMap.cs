@@ -13,6 +13,8 @@ public class DbDocumentBlobMap : IEntityTypeConfiguration<DbDocumentBlob>
         builder.HasKey(x => x.DocumentId);
         builder.Property(x => x.FileName).HasMaxLength(TextSizePresets.M512).IsRequired();
         builder.Property(x => x.ContentType).HasMaxLength(TextSizePresets.M128).IsRequired();
+        builder.Property(x => x.ETag).HasMaxLength(TextSizePresets.S64).IsFixedLength().IsRequired();
+        builder.Property(x => x.LastModified).IsConcurrencyToken().IsRequired();
         builder.HasOne(x => x.Document)
                .WithOne(x => x.Blob)
                .HasForeignKey<DbDocumentBlob>(x => x.DocumentId)

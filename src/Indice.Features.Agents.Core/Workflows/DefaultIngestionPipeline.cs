@@ -25,8 +25,7 @@ public class DefaultIngestionPipeline : IIngestionPipeline
 
     /// <inheritdoc/>
     public async Task<IngestionReport> IngestAsync(IngestRequest request, CancellationToken cancellationToken) {
-        using var contentStream = request.OpenContentStream();
-        using var reader = new StreamReader(contentStream, Encoding.UTF8, leaveOpen: true);
+        using var reader = new StreamReader(request.OpenMarkdownSourceStream(), Encoding.UTF8, leaveOpen: false);
         var body = await reader.ReadToEndAsync(cancellationToken);
         var (firstCategory, chunks) = ParseFaq(body);
 
@@ -47,16 +46,18 @@ public class DefaultIngestionPipeline : IIngestionPipeline
         var title = Path.GetFileNameWithoutExtension(request.FileName);
 
         byte[]? data = null;
-        if (request.OpenSourceStream is not null) {
-            using var sourceStream = request.OpenSourceStream();
+        var toByteArray = (Stream stream) => {
             using var memoryStream = new MemoryStream();
-            await sourceStream.CopyToAsync(memoryStream, cancellationToken);
-            data = memoryStream.ToArray();
-        } else if (request.Source.StartsWith("local://")) {
-            contentStream.Seek(0, SeekOrigin.Begin);
-            using var memoryStream = new MemoryStream();
-            await contentStream.CopyToAsync(memoryStream, cancellationToken);
-            data = memoryStream.ToArray();
+            stream.CopyTo(memoryStream);
+            return memoryStream.ToArray();
+        };
+
+        if (request.OpenActualSourceStream is not null) {
+            using var sourceStream = request.OpenActualSourceStream();
+            data = toByteArray(sourceStream);
+        } else if (request.Source.StartsWith("local://", StringComparison.OrdinalIgnoreCase)) {
+            using var markdownStream = request.OpenMarkdownSourceStream();
+            data = toByteArray(markdownStream);
         }
 
         var document = new IngestedDocument {
