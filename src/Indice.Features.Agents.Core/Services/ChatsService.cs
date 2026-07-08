@@ -44,9 +44,8 @@ public class ChatsService : IChatsService
                 QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
             };
         }
-        var userNow = DateTimeOffset.UtcNow;
-        var result = await _runner.RunAsync( new RagRequest { Question = text, SessionId = session.Id }, cancellationToken);
-        var assistantNow = DateTimeOffset.UtcNow;
+        var request = new RagRequest { Question = text, SessionId = session.Id };
+        var result = await _runner.RunAsync(request, cancellationToken);
         var userMessage = new ChatMessage {
             Id = Guid.NewGuid(),
             Role = ChatMessageRole.User,
