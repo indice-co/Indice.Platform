@@ -21,7 +21,7 @@ public class UsageGuardService : IUsageGuardService
 
     /// <inheritdoc/>
     public UsageGuardResult Check(Session session) {
-        if (_sessionOptions.MaxMessagesPerSession > 0 && session.MessageCount >= _sessionOptions.MaxMessagesPerSession) {
+        if (_sessionOptions.MaxMessagesPerSession > 0 && session.MessageCount + 2 > _sessionOptions.MaxMessagesPerSession) {
             return UsageGuardResult.Deny(_sessionOptions.LimitReachedMessage);
         }
         if (_sessionOptions.MaxTokensPerSession > 0 && session.TotalPromptTokens + session.TotalCompletionTokens >= _sessionOptions.MaxTokensPerSession) {

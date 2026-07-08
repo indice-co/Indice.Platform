@@ -41,7 +41,7 @@ public class SessionsStore : ISessionsStore
         // pipeline's chat-history provider.
         return await _db.Set<DbSession>()
             .AsNoTracking()
-            .Where(s => s.Id == sessionId.Value && s.UserId == userId)
+            .Where(s => s.Id == sessionId!.Value && s.UserId == userId)
             .Select(s => new Session {
                 Id = s.Id,
                 Title = s.Title,
