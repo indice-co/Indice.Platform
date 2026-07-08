@@ -24,7 +24,8 @@ public sealed class IntentClassifier : Executor<PipelineStepContext<RagPipelineI
 
     /// <summary>Creates a new <see cref="IntentClassifier"/>.</summary>
     public IntentClassifier(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
-        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts) : base("IntentClassifier") {
+        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
+        SessionStoreChatHistoryProvider historyProvider) : base("IntentClassifier") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
         var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
@@ -35,7 +36,8 @@ public sealed class IntentClassifier : Executor<PipelineStepContext<RagPipelineI
         _agent = openAIClient.GetChatClient(_model)
             .AsAIAgent(options: new ChatClientAgentOptions() {
                 ChatOptions = chatOptions,
-                Name = "DexIntentClassifier"
+                Name = "DexIntentClassifier",
+                ChatHistoryProvider = historyProvider,
             });
     }
 
@@ -45,9 +47,9 @@ public sealed class IntentClassifier : Executor<PipelineStepContext<RagPipelineI
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         var question = envelope.State.Question;
-        var history = ChatHistoryFormatter.Format(envelope.State.History);
-        var prompt = history.Length == 0 ? question : $"HISTORY:\n{history}\nQUESTION: {question}";
-        var response = await _agent.RunAsync<IntentResult>(prompt, cancellationToken: cancellationToken);
+        var agentSession = await _agent.CreateSessionAsync(cancellationToken);
+        SessionStoreChatHistoryProvider.SetSessionId(agentSession, envelope.State.SessionId);
+        var response = await _agent.RunAsync<IntentResult>(question, agentSession, cancellationToken: cancellationToken);
         if (response.Usage is not null) {
             await context.AddEventAsync(new UsageEvent(response.Usage, _model), cancellationToken);
         }

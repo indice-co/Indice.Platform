@@ -108,6 +108,21 @@ public class AgentsOptions
 
         /// <summary>When true, the session title is auto-generated from the first user message.</summary>
         public bool TitleAutoGenerate { get; set; } = true;
+
+        /// <summary>Maximum number of messages allowed in a session. Each turn persists two messages (user + assistant). Zero or negative disables the limit.</summary>
+        public int MaxMessagesPerSession { get; set; } = 10;
+
+        /// <summary>Maximum number of sessions allowed per user. Zero or negative disables the limit.</summary>
+        public int MaxSessionsPerUser { get; set; } = 20;
+
+        /// <summary>Maximum number of tokens (prompt + completion) allowed per session. Zero or negative disables the limit.</summary>
+        public int MaxTokensPerSession { get; set; } = 40000;
+
+        /// <summary>Reply returned in place of an answer when a session hits <see cref="MaxMessagesPerSession"/> or <see cref="MaxTokensPerSession"/>. Not persisted to the transcript.</summary>
+        public string LimitReachedMessage { get; set; } = "This conversation has reached its usage limit. Please start a new conversation or contact support.";
+
+        /// <summary>Error detail returned when session creation is blocked by <see cref="MaxSessionsPerUser"/>.</summary>
+        public string MaxSessionsReachedMessage { get; set; } = "You have reached the maximum number of conversations. Please delete an existing conversation or contact support.";
     }
 
     /// <summary>Ingestion-time knobs.</summary>

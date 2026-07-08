@@ -20,4 +20,7 @@ public class ChatResponse
 
     /// <summary>Error message from the step that threw; <c>null</c> when <see cref="Failed"/> is false.</summary>
     public string? FailureReason { get; init; }
+
+    /// <summary>True when the turn was blocked by a session usage limit — <see cref="Answer"/> carries the predefined limit message, nothing was persisted, and <see cref="MessageId"/> is empty.</summary>
+    public bool LimitReached { get; init; }
 }

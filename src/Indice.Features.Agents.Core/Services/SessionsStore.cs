@@ -37,7 +37,21 @@ public class SessionsStore : ISessionsStore
             return ToDto(entity, messages: []);
         }
 
-        return await GetAsync(sessionId.Value, userId, cancellationToken);
+        // Metadata only: the send paths need identity/ownership; history is loaded during the run by the
+        // pipeline's chat-history provider.
+        return await _db.Set<DbSession>()
+            .AsNoTracking()
+            .Where(s => s.Id == sessionId.Value && s.UserId == userId)
+            .Select(s => new Session {
+                Id = s.Id,
+                Title = s.Title,
+                CreatedAt = s.CreatedAt,
+                LastActivityAt = s.LastActivityAt,
+                TotalPromptTokens = s.TotalPromptTokens,
+                TotalCompletionTokens = s.TotalCompletionTokens,
+                MessageCount = s.MessageCount,
+            })
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -54,6 +68,7 @@ public class SessionsStore : ISessionsStore
                 LastActivityAt = s.LastActivityAt,
                 TotalPromptTokens = s.TotalPromptTokens,
                 TotalCompletionTokens = s.TotalCompletionTokens,
+                MessageCount = s.MessageCount,
                 Messages = s.Messages
                     .OrderByDescending(m => m.CreatedAt)
                     .Take(messageTake)
@@ -68,6 +83,25 @@ public class SessionsStore : ISessionsStore
             })
             .FirstOrDefaultAsync(cancellationToken);
         return session;
+    }
+
+    /// <inheritdoc/>
+    public async Task<IReadOnlyList<ChatMessage>> GetHistoryAsync(Guid sessionId, CancellationToken cancellationToken) {
+        // HistoryWindow counts turns (user+assistant pairs); each turn is two persisted rows.
+        var messageTake = _sessionOptions.HistoryWindow * 2;
+        return await _db.Set<DbSessionMessage>()
+            .AsNoTracking()
+            .Where(m => m.SessionId == sessionId)
+            .OrderByDescending(m => m.CreatedAt)
+            .Take(messageTake)
+            .OrderBy(m => m.CreatedAt)
+            .Select(m => new ChatMessage {
+                Id = m.Id,
+                Role = m.Role,
+                Content = m.Content,
+                CreatedAt = m.CreatedAt,
+            })
+            .ToListAsync(cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -100,6 +134,7 @@ public class SessionsStore : ISessionsStore
         session.LastActivityAt = assistantMessage.CreatedAt;
         session.TotalPromptTokens += promptTokens;
         session.TotalCompletionTokens += completionTokens;
+        session.MessageCount += 2;
         if (session.Title is null && _sessionOptions.TitleAutoGenerate) {
             session.Title = DeriveTitle(userMessage.Content);
         }
@@ -134,6 +169,12 @@ public class SessionsStore : ISessionsStore
     }
 
     /// <inheritdoc/>
+    public Task<int> CountSessionsAsync(string userId, CancellationToken cancellationToken)
+        => _db.Set<DbSession>()
+            .AsNoTracking()
+            .CountAsync(s => s.UserId == userId, cancellationToken);
+
+    /// <inheritdoc/>
     public async Task<long> GetUsageTokensAsync(string userId, DateTimeOffset since, CancellationToken cancellationToken) {
         // Per-turn reasoning tokens live on the assistant message rows; sum them across the user's sessions
         // within the window. Nullable sum so an empty window materializes as 0 rather than throwing.
@@ -164,6 +205,7 @@ public class SessionsStore : ISessionsStore
         LastActivityAt = s.LastActivityAt,
         TotalPromptTokens = s.TotalPromptTokens,
         TotalCompletionTokens = s.TotalCompletionTokens,
+        MessageCount = s.MessageCount,
         Messages = messages,
     };
 

@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -136,7 +135,7 @@ public class DexRunner : IDexRunner
         }
         var initialState = new RagState {
             Question = request.Question,
-            History = request.History?.ToImmutableList() ?? ImmutableList<ChatMessage>.Empty,
+            SessionId = request.SessionId,
         };
         return PipelineStepContext<RagPipelineInput>.From(new RagPipelineInput(), initialState);
     }

@@ -21,6 +21,9 @@ public class Session
     /// <summary>Cumulative completion-token usage across all turns in this session.</summary>
     public long TotalCompletionTokens { get; init; }
 
+    /// <summary>Number of persisted messages in this session. Each turn appends two rows (user + assistant).</summary>
+    public int MessageCount { get; init; }
+
     /// <summary>Recent messages in chronological order (oldest first), capped at the configured history window.</summary>
     public IReadOnlyList<ChatMessage> Messages { get; init; } = Array.Empty<ChatMessage>();
 }
