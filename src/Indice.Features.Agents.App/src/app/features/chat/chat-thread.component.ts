@@ -70,9 +70,8 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                   />
                   <div class="min-w-0 flex-1">
                     <div
-                      class="markdown whitespace-pre-wrap break-words rounded-box rounded-tl-sm border
-                             border-base-300 bg-base-100 px-4 py-3 text-[0.95rem] leading-relaxed
-                             text-base-content shadow-sm"
+                      class="markdown rounded-box rounded-tl-sm border border-base-300 bg-base-100 px-4 py-2.5
+                             text-[0.95rem] text-base-content shadow-sm"
                       markdown
                       [data]="message.content"
                     ></div>
@@ -116,9 +115,8 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                     </div>
                   } @else {
                     <div
-                      class="markdown dex-caret whitespace-pre-wrap break-words rounded-box rounded-tl-sm border
-                             border-base-300 bg-base-100 px-4 py-3 text-[0.95rem] leading-relaxed
-                             text-base-content shadow-sm"
+                      class="markdown dex-caret rounded-box rounded-tl-sm border border-base-300 bg-base-100 px-4 py-2.5
+                             text-[0.95rem] text-base-content shadow-sm"
                       markdown
                       [data]="streamingText()"
                     ></div>

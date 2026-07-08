@@ -139,6 +139,11 @@ body {
 }
 
 /* ── Markdown content styling for chat bubbles ── */
+.markdown {
+  line-height: 1.38;
+  overflow-wrap: anywhere;
+}
+
 /* Headings */
 .markdown h1,
 .markdown h2,
@@ -187,8 +192,8 @@ body {
 
 /* Paragraphs and text flow */
 .markdown p {
-  margin-bottom: 0;
-  line-height: 1.5;
+  margin-bottom: 1em;
+  line-height: 1.38;
   margin-top: 0;
 }
 
@@ -203,7 +208,7 @@ body {
 /* Lists */
 .markdown ul,
 .markdown ol {
-  margin-bottom: 0;
+  margin-bottom: 1em;
   margin-top: 0;
   margin-left: 1.25em;
   list-style-position: outside;
@@ -229,13 +234,13 @@ body {
 }
 
 .markdown li {
-  margin-bottom: 0.2em;
-  line-height: 1;
+  margin-bottom: 0.18em;
+  line-height: 1.35;
   margin-top: 0;
 }
 
 .markdown li > p {
-  margin-bottom: 0;
+  margin-bottom: 0.18em;
   margin-top: 0;
 }
 
