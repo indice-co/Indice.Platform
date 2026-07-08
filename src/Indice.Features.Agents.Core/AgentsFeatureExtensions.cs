@@ -2,6 +2,7 @@
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
+using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Abstractions;
 using Indice.Features.Agents.Core.Workflows.Prompts;
@@ -60,6 +61,9 @@ public static class AgentsFeatureExtensions
         });
 
         services.TryAddTransient<UserClaimsAIContextProvider>();
+        services.TryAddTransient<ISessionsStore, SessionsStore>();
+        services.TryAddTransient<IUsageGuardService, UsageGuardService>();
+        services.TryAddTransient<SessionStoreChatHistoryProvider>();
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();
         services.TryAddTransient<IDexRunner, DexRunner>();
         services.TryAddSingleton<WorkflowClaimsPrincipalSelector>(sp =>

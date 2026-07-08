@@ -23,7 +23,8 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
 
     /// <summary>Creates a new <see cref="QueryRewriter"/>.</summary>
     public QueryRewriter(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
-        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts) : base("QueryRewriter") {
+        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
+        SessionStoreChatHistoryProvider historyProvider) : base("QueryRewriter") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Fast!;
         var chatOptions = models.Value.BaseFastModelOptions.Clone();
@@ -33,6 +34,7 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
             .AsAIAgent(options: new ChatClientAgentOptions() {
                 ChatOptions = chatOptions,
                 Name = "DexQueryRewriter",
+                ChatHistoryProvider = historyProvider,
             });
     }
 
@@ -45,10 +47,10 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
 
         var queries = new List<string> { question };
         if (enabled) {
-            var history = ChatHistoryFormatter.Format(envelope.State.History);
-            var historyBlock = history.Length == 0 ? string.Empty : $"HISTORY:\n{history}\n";
-            var prompt = $"{historyBlock}Question: {question}\n\nProduce {expansion - 1} alternative rewrite(s).";
-            var response = await _agent.RunAsync<RewriteResult>(prompt, cancellationToken: cancellationToken);
+            var agentSession = await _agent.CreateSessionAsync(cancellationToken);
+            SessionStoreChatHistoryProvider.SetSessionId(agentSession, envelope.State.SessionId);
+            var prompt = $"Question: {question}\n\nProduce {expansion - 1} alternative rewrite(s).";
+            var response = await _agent.RunAsync<RewriteResult>(prompt, agentSession, cancellationToken: cancellationToken);
             foreach (var q in response.Result.Queries) {
                 if (!string.IsNullOrWhiteSpace(q) && !queries.Contains(q, StringComparer.OrdinalIgnoreCase)) {
                     queries.Add(q);

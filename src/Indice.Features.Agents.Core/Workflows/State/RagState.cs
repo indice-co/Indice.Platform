@@ -1,6 +1,3 @@
-using System.Collections.Immutable;
-using Microsoft.Extensions.AI;
-
 namespace Indice.Features.Agents.Core.Workflows.State;
 
 /// <summary>
@@ -13,6 +10,9 @@ public class RagState
     /// <summary>The current user question that initiated this pipeline run.</summary>
     public string Question { get; init; } = string.Empty;
 
-    /// <summary>Conversation history (oldest-first) providing context for follow-up questions and multi-turn interactions.</summary>
-    public ImmutableList<ChatMessage> History { get; init; } = ImmutableList<ChatMessage>.Empty;
+    /// <summary>
+    /// The chat session this run belongs to. History-aware steps stamp it on their per-run
+    /// <c>AgentSession</c> so the <see cref="SessionStoreChatHistoryProvider"/> can load the conversation.
+    /// </summary>
+    public Guid SessionId { get; init; }
 }
