@@ -27,6 +27,13 @@ const MAX_LENGTH = 2000;
             aria-label="Message Dex"
           ></textarea>
 
+          <span
+            class="self-end pb-3 font-mono text-[0.7rem] tabular-nums text-base-content/40"
+            [class.text-warning]="text().length > maxLength - 100"
+          >
+            {{ text().length }}/{{ maxLength }}
+          </span>
+
           @if (streaming()) {
             <button
               type="button"
@@ -59,11 +66,8 @@ const MAX_LENGTH = 2000;
           }
         </div>
 
-        <div class="mt-1.5 flex items-center justify-between px-1 text-[0.7rem] text-base-content/45">
+        <div class="mt-1.5 px-1 text-[0.7rem] text-base-content/45">
           <span>Enter to send · Shift + Enter for a new line</span>
-          <span class="font-mono tabular-nums" [class.text-warning]="text().length > maxLength - 100">
-            {{ text().length }}/{{ maxLength }}
-          </span>
         </div>
       </div>
     </div>

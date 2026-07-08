@@ -58,6 +58,8 @@ public class SessionsStore : ISessionsStore
     public async Task<Session?> GetAsync(Guid sessionId, string userId, CancellationToken cancellationToken) {
         // HistoryWindow counts turns (user+assistant pairs); each turn is two persisted rows.
         var messageTake = _sessionOptions.HistoryWindow * 2;
+        // Inlined (not SessionOptions.GetQuestionsUsed) because EF cannot translate the helper call.
+        var questionsTotal = _sessionOptions.GetQuestionsTotal();
         var session = await _db.Set<DbSession>()
             .AsNoTracking()
             .Where(s => s.Id == sessionId && s.UserId == userId)
@@ -69,6 +71,8 @@ public class SessionsStore : ISessionsStore
                 TotalPromptTokens = s.TotalPromptTokens,
                 TotalCompletionTokens = s.TotalCompletionTokens,
                 MessageCount = s.MessageCount,
+                QuestionsUsed = questionsTotal == null ? null : (s.MessageCount / 2 < questionsTotal ? s.MessageCount / 2 : questionsTotal),
+                QuestionsTotal = questionsTotal,
                 Messages = s.Messages
                     .OrderByDescending(m => m.CreatedAt)
                     .Take(messageTake)
@@ -198,7 +202,7 @@ public class SessionsStore : ISessionsStore
         MetadataJson = null,
     };
 
-    private static Session ToDto(DbSession s, IReadOnlyList<ChatMessage> messages) => new() {
+    private Session ToDto(DbSession s, IReadOnlyList<ChatMessage> messages) => new() {
         Id = s.Id,
         Title = s.Title,
         CreatedAt = s.CreatedAt,
@@ -206,6 +210,8 @@ public class SessionsStore : ISessionsStore
         TotalPromptTokens = s.TotalPromptTokens,
         TotalCompletionTokens = s.TotalCompletionTokens,
         MessageCount = s.MessageCount,
+        QuestionsUsed = _sessionOptions.GetQuestionsUsed(s.MessageCount),
+        QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
         Messages = messages,
     };
 

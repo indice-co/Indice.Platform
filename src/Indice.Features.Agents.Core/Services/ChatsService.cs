@@ -15,6 +15,7 @@ public class ChatsService : IChatsService
     private readonly IDexRunner _runner;
     private readonly IUsageGuardService _usageGuard;
     private readonly AgentsOptions.AzureOpenAIDeployments _deployments;
+    private readonly AgentsOptions.SessionOptions _sessionOptions;
 
     /// <summary>Creates a new <see cref="ChatsService"/>.</summary>
     public ChatsService(ISessionsStore store, IDexRunner runner, IUsageGuardService usageGuard, IOptions<AgentsOptions> options) {
@@ -22,6 +23,7 @@ public class ChatsService : IChatsService
         _runner = runner;
         _usageGuard = usageGuard;
         _deployments = options.Value.AzureOpenAI.Deployments;
+        _sessionOptions = options.Value.Session;
     }
 
     /// <inheritdoc/>
@@ -38,6 +40,8 @@ public class ChatsService : IChatsService
                 MessageId = Guid.Empty,
                 Answer = turnCheck.Message,
                 LimitReached = true,
+                QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount),
+                QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
             };
         }
         var userNow = DateTimeOffset.UtcNow;
@@ -68,6 +72,8 @@ public class ChatsService : IChatsService
             Citations = result.Citations,
             Failed = result.Failed,
             FailureReason = result.FailureReason,
+            QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount + 2),
+            QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
         };
     }
 
@@ -80,7 +86,7 @@ public class ChatsService : IChatsService
         }
         var turnCheck = _usageGuard.Check(session);
         if (!turnCheck.Allowed) {
-            return LimitReachedStream(session.Id, turnCheck.Message);
+            return LimitReachedStream(session, turnCheck.Message);
         }
         return StreamTurnAsync(session, text, cancellationToken);
     }
@@ -97,14 +103,16 @@ public class ChatsService : IChatsService
     }
 
     /// <summary>Single-event stream carrying the guard's predefined reply for a blocked turn. Nothing is persisted.</summary>
-    private static async IAsyncEnumerable<SseItem<ChatStreamEvent>> LimitReachedStream(Guid sessionId, string? message) {
+    private async IAsyncEnumerable<SseItem<ChatStreamEvent>> LimitReachedStream(Session session, string? message) {
         yield return new SseItem<ChatStreamEvent>(new ChatStreamEvent {
             Type = "complete",
-            SessionId = sessionId,
+            SessionId = session.Id,
             MessageId = Guid.Empty,
             Answer = message,
             Citations = Array.Empty<Citation>(),
             LimitReached = true,
+            QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount),
+            QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
         }, eventType: "complete");
         await Task.CompletedTask;
     }
@@ -151,6 +159,8 @@ public class ChatsService : IChatsService
             Citations = final?.Citations ?? Array.Empty<Citation>(),
             Failed = final?.Failed ?? false,
             FailureReason = final?.FailureReason,
+            QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount + 2),
+            QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
         };
     }
 
