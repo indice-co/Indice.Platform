@@ -14,9 +14,12 @@ public class DocumentIngestRequest
 
     /// <summary>The language of the document.</summary>
     public string Language { get; set; } = string.Empty;
-
-    /// <summary>The file to be ingested.</summary>
-    public IFormFile File { get; set; } = default!;
+    /// <summary>The content to be ingested.</summary>
+    public IFormFile ContentMarkdown { get; set; } = default!;
+    /// <summary>The file to be archived.</summary>
+    public IFormFile? SourceFile { get; set; }
+    /// <summary>The source URL of the document. This can be used for provenance and traceability. It can be an external URL and it is mutually exclusive with the SourceFile property.</summary>
+    public string? SourceUrl { get; set; }
 }
 
 

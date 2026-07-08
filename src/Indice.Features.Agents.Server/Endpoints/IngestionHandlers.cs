@@ -1,3 +1,4 @@
+using Indice.Extensions;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Models.Requests;
 using Indice.Features.Agents.Core.Services;
@@ -14,11 +15,21 @@ internal static class IngestionHandlers
     /// <summary>Ingests an uploaded markdown document and returns an ingestion report.</summary>
     public static async Task<Results<Ok<IngestionReport>, ValidationProblem>> DocumentIngest( IIngestionPipeline pipeline,
         CancellationToken cancellationToken, [FromForm] DocumentIngestRequest request) {
-        if (ValidateUpload(request.File) is { } problem) {
+        if (ValidateUpload(request.ContentMarkdown) is { } problem) {
             return problem;
         }
-        await using var stream = request.File.OpenReadStream();
-        var report = await pipeline.IngestAsync(stream, request.File.FileName, request.Category, request.Language, cancellationToken);
+        
+        var report = await pipeline.IngestAsync(new IngestRequest {
+            OpenContentStream = () => request.ContentMarkdown.OpenReadStream(),
+            OpenSourceStream = request.SourceFile is not null ? () => request.SourceFile.OpenReadStream() : null,
+            Source = !string.IsNullOrWhiteSpace(request.SourceUrl) ? request.SourceUrl :
+                      $"local://{request.SourceFile?.FileName ?? request.ContentMarkdown.FileName}",
+            FileName = !string.IsNullOrWhiteSpace(request.SourceUrl) ? Path.GetFileName(request.SourceUrl) : request.SourceFile?.FileName ?? request.ContentMarkdown.FileName,
+            ContentType = !string.IsNullOrWhiteSpace(request.SourceUrl) ? FileExtensions.GetMimeType( Path.GetExtension(request.SourceUrl)) : request.SourceFile?.ContentType ?? request.ContentMarkdown.ContentType,
+            ContentLength = !string.IsNullOrWhiteSpace(request.SourceUrl) ? -1 : request.SourceFile?.Length ?? request.ContentMarkdown.Length,     
+            Category = request.Category,
+            Language = request.Language
+        }, cancellationToken);
         return TypedResults.Ok(report);
     }
 

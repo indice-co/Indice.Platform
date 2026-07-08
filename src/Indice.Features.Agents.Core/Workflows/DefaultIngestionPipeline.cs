@@ -24,13 +24,14 @@ public class DefaultIngestionPipeline : IIngestionPipeline
     }
 
     /// <inheritdoc/>
-    public async Task<IngestionReport> IngestAsync(Stream content, string fileName, string? category, string? language, CancellationToken cancellationToken) {
-        using var reader = new StreamReader(content, Encoding.UTF8, leaveOpen: true);
+    public async Task<IngestionReport> IngestAsync(IngestRequest request, CancellationToken cancellationToken) {
+        using var contentStream = request.OpenContentStream();
+        using var reader = new StreamReader(contentStream, Encoding.UTF8, leaveOpen: true);
         var body = await reader.ReadToEndAsync(cancellationToken);
         var (firstCategory, chunks) = ParseFaq(body);
 
-        var effectiveCategory = firstCategory ?? (string.IsNullOrWhiteSpace(category) ? null : category.Trim());
-        var effectiveLanguage = string.IsNullOrWhiteSpace(language) ? null : language.Trim();
+        var effectiveCategory = firstCategory ?? (string.IsNullOrWhiteSpace(request.Category) ? null : request.Category.Trim());
+        var effectiveLanguage = string.IsNullOrWhiteSpace(request.Language) ? null : request.Language.Trim();
 
         if (effectiveCategory is not null && !_options.Taxonomy.Categories.Contains(effectiveCategory, StringComparer.OrdinalIgnoreCase)) {
             throw new BusinessException($"Unknown category '{effectiveCategory}'.", "TAXONOMY_INVALID", [
@@ -43,13 +44,31 @@ public class DefaultIngestionPipeline : IIngestionPipeline
             ]);
         }
 
-        var title = Path.GetFileNameWithoutExtension(fileName);
+        var title = Path.GetFileNameWithoutExtension(request.FileName);
+
+        byte[]? data = null;
+        if (request.OpenSourceStream is not null) {
+            using var sourceStream = request.OpenSourceStream();
+            using var memoryStream = new MemoryStream();
+            await sourceStream.CopyToAsync(memoryStream, cancellationToken);
+            data = memoryStream.ToArray();
+        } else if (request.Source.StartsWith("local://")) {
+            contentStream.Seek(0, SeekOrigin.Begin);
+            using var memoryStream = new MemoryStream();
+            await contentStream.CopyToAsync(memoryStream, cancellationToken);
+            data = memoryStream.ToArray();
+        }
+
         var document = new IngestedDocument {
             Title = title,
-            Source = fileName,
+            Source = request.Source,
             Category = effectiveCategory,
             Language = effectiveLanguage,
             ContentHash = Sha256Hex(string.Concat(title, "\0", effectiveCategory ?? "", "\0", effectiveLanguage ?? "", "\0", body)),
+            FileName = request.FileName,
+            ContentType = request.ContentType,
+            ContentLength = request.ContentLength,
+            FileData = data
         };
 
         var existing = await _store.FindBySourceAsync(document.Source, cancellationToken);

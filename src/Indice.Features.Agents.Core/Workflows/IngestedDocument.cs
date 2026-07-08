@@ -19,4 +19,12 @@ public class IngestedDocument
 
     /// <summary>SHA-256 of <c>Title|Category|Language|Body</c> (upper-hex, 64 chars). Drives re-upload dedup.</summary>
     public string ContentHash { get; init; } = string.Empty;
+    /// <summary>binary payload and file metadata.</summary>
+    public string ContentType { get; set; } = null!;
+    /// <summary>Size of the file in bytes.</summary>
+    public long ContentLength { get; set; }
+    /// <summary>Original filename.</summary>
+    public string FileName { get; set; } = null!;
+    /// <summary>Binary data of the file. Not loaded by default.</summary>
+    public byte[]? FileData { get; set; }
 }

@@ -40,4 +40,7 @@ public class DbDocument
 
     /// <summary>Navigation: chunks belonging to this document.</summary>
     public ICollection<DbChunk> Chunks { get; set; } = [];
+
+    /// <summary>Navigation: optional binary payload and file metadata. Not loaded by default.</summary>
+    public DbDocumentBlob? Blob { get; set; }
 }

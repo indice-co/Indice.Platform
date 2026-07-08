@@ -57,6 +57,13 @@ public class DocumentsService : IDocumentsService
             Status = DocumentStatus.Ingested,
             ChunkCount = chunks.Count,
             IngestedAt = now,
+            Blob = new DbDocumentBlob {
+                ContentType = document.ContentType,
+                ContentLength = document.ContentLength,
+                FileName = document.FileName,
+                Data = document.FileData,
+                ETag = document.ContentHash,
+            }
         });
 
         foreach (var ec in chunks) {
