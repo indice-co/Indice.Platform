@@ -37,4 +37,13 @@ public class ChatStreamEvent
 
     /// <summary>Error message from the step that threw; populated on <c>complete</c> when <see cref="Failed"/> is true.</summary>
     public string? FailureReason { get; init; }
+
+    /// <summary>True when the turn was blocked by a session usage limit — <see cref="Answer"/> carries the predefined limit message and nothing was persisted; populated on <c>complete</c>.</summary>
+    public bool? LimitReached { get; init; }
+
+    /// <summary>Questions used in this session so far, for a <c>used/total</c> display; populated on <c>complete</c>. <c>null</c> when the message limit is disabled.</summary>
+    public int? QuestionsUsed { get; init; }
+
+    /// <summary>Total questions allowed per session, for a <c>used/total</c> display; populated on <c>complete</c>. <c>null</c> when the message limit is disabled.</summary>
+    public int? QuestionsTotal { get; init; }
 }

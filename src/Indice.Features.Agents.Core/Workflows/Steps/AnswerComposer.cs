@@ -25,7 +25,8 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
     /// <summary>Creates a new <see cref="AnswerComposer"/>.</summary>
     public AnswerComposer(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
-        UserClaimsAIContextProvider userClaimsProvider) : base("AnswerComposer") {
+        UserClaimsAIContextProvider userClaimsProvider,
+        SessionStoreChatHistoryProvider historyProvider) : base("AnswerComposer") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
 
@@ -40,7 +41,8 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
                 options: new ChatClientAgentOptions() {
                     ChatOptions = chatOptions,
                     AIContextProviders = [userClaimsProvider],
-                    Name = "DexAnswerComposer"
+                    Name = "DexAnswerComposer",
+                    ChatHistoryProvider = historyProvider,
                 });
     }
 
@@ -49,14 +51,16 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
         IWorkflowContext context, CancellationToken cancellationToken = default) {
 
         var candidates = envelope.Payload.RerankedCandidates;
-        var prompt = BuildPrompt(envelope.State.Question, envelope.State.History, candidates);
+        var prompt = BuildPrompt(envelope.State.Question, candidates);
+        var agentSession = await _agent.CreateSessionAsync(cancellationToken);
+        SessionStoreChatHistoryProvider.SetSessionId(agentSession, envelope.State.SessionId);
 
         // Stream the answer: emit each text delta as a workflow event (surfaced as an SSE `delta` by the
         // streaming runner; ignored by the non-streaming runner) while accumulating the full text. Token
         // usage arrives as trailing UsageContent on the final update(s); fold it and report it once.
         var answer = new StringBuilder();
         UsageDetails? usage = null;
-        await foreach (var update in _agent.RunStreamingAsync(prompt, cancellationToken: cancellationToken)) {
+        await foreach (var update in _agent.RunStreamingAsync(prompt, agentSession, cancellationToken: cancellationToken)) {
             if (!string.IsNullOrEmpty(update.Text)) {
                 answer.Append(update.Text);
                 await context.AddEventAsync(new AnswerDeltaEvent(update.Text), cancellationToken);
@@ -85,12 +89,8 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
         });
     }
 
-    private static string BuildPrompt(string question, IReadOnlyList<Microsoft.Extensions.AI.ChatMessage> history, IReadOnlyList<RetrievedChunk> candidates) {
+    private static string BuildPrompt(string question, IReadOnlyList<RetrievedChunk> candidates) {
         var sb = new StringBuilder();
-        var historyText = ChatHistoryFormatter.Format(history);
-        if (historyText.Length > 0) {
-            sb.AppendLine("HISTORY:").Append(historyText).AppendLine();
-        }
         sb.AppendLine("CONTEXT:");
         if (candidates.Count == 0) {
             sb.AppendLine("(no candidates retrieved)");
