@@ -24,7 +24,14 @@ public sealed class FileSystemPromptTemplateRenderer : IPromptTemplateRenderer
         var compiled = _cache.GetOrAdd(templateName, name => {
             var path = Path.Join(_baseDir, $"{name}.txt");
             if (!File.Exists(path)) {
-                throw new InvalidOperationException($"Prompt template '{name}' not found at '{path}'.");
+                return templateName switch {
+                    nameof(AgentsConstants.PromptDefaults.AnswerComposer) => _handlebars.Compile(AgentsConstants.PromptDefaults.AnswerComposer),
+                    nameof(AgentsConstants.PromptDefaults.Reranker) => _handlebars.Compile(AgentsConstants.PromptDefaults.Reranker),
+                    nameof(AgentsConstants.PromptDefaults.IntentClassifier) => _handlebars.Compile(AgentsConstants.PromptDefaults.IntentClassifier),
+                    nameof(AgentsConstants.PromptDefaults.PurposeResponder) => _handlebars.Compile(AgentsConstants.PromptDefaults.PurposeResponder),
+                    nameof(AgentsConstants.PromptDefaults.QueryRewriter) => _handlebars.Compile(AgentsConstants.PromptDefaults.QueryRewriter),
+                    _ => throw new InvalidOperationException($"Prompt template '{name}' not found at '{path}'."),
+                };
             }
             return _handlebars.Compile(File.ReadAllText(path));
         });
