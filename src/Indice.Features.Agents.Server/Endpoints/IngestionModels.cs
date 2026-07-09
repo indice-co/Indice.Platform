@@ -1,17 +1,15 @@
-﻿
+﻿using Indice.Features.Agents.Core.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace Indice.Features.Agents.Core.Models.Requests;
+namespace Indice.Features.Agents.Server.Endpoints;
 
 /// <summary>Represents a request to ingest a document into the system.</summary>
 public class DocumentIngestRequest
 {
     /// <summary>The type of the document.</summary>
     public DocumentType DocumentType { get; set; }
-
     /// <summary>The category of the document.</summary>
     public string Category { get; set; } = string.Empty;
-
     /// <summary>The two letter ISO language code of the document.</summary>
     public string Language { get; set; } = string.Empty;
     /// <summary>The content to be ingested.</summary>
@@ -23,5 +21,3 @@ public class DocumentIngestRequest
     /// <summary>Indicates whether the document is private and should not be exposed to unauthorized users.</summary>
     public bool? IsPrivate { get; set; }
 }
-
-

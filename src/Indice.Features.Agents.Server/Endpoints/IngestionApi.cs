@@ -1,7 +1,5 @@
 using System.Net.Mime;
 using System.Text.Json.Nodes;
-using Indice.Features.Agents.Core.Models;
-using Indice.Features.Agents.Core.Models.Requests;
 using Indice.Features.Agents.Server;
 using Indice.Features.Agents.Server.Endpoints;
 using Indice.Security;

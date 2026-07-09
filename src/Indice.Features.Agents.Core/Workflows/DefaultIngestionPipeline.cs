@@ -72,10 +72,10 @@ public class DefaultIngestionPipeline : IIngestionPipeline
             FileData = data
         };
 
-        var existing = await _store.FindBySourceAsync(document.Source, cancellationToken);
-        if (existing.HasValue && string.Equals(existing.Value.ContentHash, document.ContentHash, StringComparison.Ordinal)) {
+        var existing = await _store.FindBySourceAsync(document.Source, includeData: false, cancellationToken);
+        if (existing is not null && string.Equals(existing.ContentHash, document.ContentHash, StringComparison.Ordinal)) {
             return new IngestionReport {
-                DocumentId = existing.Value.Id,
+                DocumentId = existing.Id,
                 Source = document.Source,
                 ChunksCreated = 0,
                 Skipped = true,
@@ -99,7 +99,7 @@ public class DefaultIngestionPipeline : IIngestionPipeline
             ChunksCreated = embedded.Count,
             Skipped = false,
             SkippedReason = null,
-            Replaced = existing.HasValue,
+            Replaced = existing is not null,
         };
     }
 

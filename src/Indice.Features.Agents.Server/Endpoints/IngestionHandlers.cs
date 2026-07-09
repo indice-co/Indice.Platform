@@ -1,7 +1,6 @@
 using System.Globalization;
 using Indice.Extensions;
 using Indice.Features.Agents.Core.Models;
-using Indice.Features.Agents.Core.Models.Requests;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Microsoft.AspNetCore.Http;
