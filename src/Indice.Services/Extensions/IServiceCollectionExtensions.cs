@@ -226,7 +226,7 @@ public static class IndiceServicesServiceCollectionExtensions
                     break;
                 case "kapatel":
                 case "kapa_tel":
-                    services.AddSmsServiceApifonIM(configuration);
+                    services.AddSmsServiceKapaTEL(configuration);
                     break;
                 case "mstat":
                     services.AddSmsServiceMstat(configuration);
