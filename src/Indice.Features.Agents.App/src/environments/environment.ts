@@ -8,7 +8,7 @@ export const environment = {
   // UI culture (two-letter). Unused today; reserved for future i18n.
   culture: 'el',
   // Dex REST API base URL (no trailing slash — the generated client appends `/api/...`).
-  api_url: 'https://localhost:2001/api',// 'https://agents.indice.gr/api',
+  api_url: 'https://localhost:2002/api',// 'https://agents.indice.gr/api',
   // OAuth2 authorization-code + PKCE against the Indice identity server.
   // NOTE: the `dex-ui` SPA client must be registered with the redirect URIs below
   // and allowed the `dex`/`dex:chat` scopes, or login will fail.

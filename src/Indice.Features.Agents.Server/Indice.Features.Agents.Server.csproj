@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Indice.AspNetCore.Builder" Version="$(VersionPrefixAspNet)-*" />
     <PackageReference Include="Indice.Features.Agents.Core" Version="$(VersionPrefixAgents)-*" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="1.4.0" />
   </ItemGroup>
 
   <ItemGroup>

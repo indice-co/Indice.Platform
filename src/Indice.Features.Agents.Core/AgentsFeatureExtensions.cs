@@ -4,6 +4,7 @@ using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Abstractions;
+using Indice.Features.Agents.Core.Workflows.Mcp;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
@@ -62,6 +63,8 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<UserClaimsAIContextProvider>();
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();
         services.TryAddTransient<IDexRunner, DexRunner>();
+
+        services.TryAddSingleton<IMcpToolsRegistry, McpToolsRegistry>();
         services.TryAddSingleton<WorkflowClaimsPrincipalSelector>(sp =>
             () => null
         );

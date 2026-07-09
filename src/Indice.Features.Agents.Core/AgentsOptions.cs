@@ -28,6 +28,9 @@ public class AgentsOptions
     /// <summary>Allowed categorical/language values constrained by the host application.</summary>
     public TaxonomyOptions Taxonomy { get; set; } = new();
 
+    /// <summary>External MCP server endpoints whose tools are injected into the answer-composer step.</summary>
+    public ExternalMcpOptions ExternalMcp { get; set; } = new();
+
     /// <summary>
     /// Optional callback to configure the <see cref="DbContextOptionsBuilder"/> for the <see cref="AgentsDbContext"/>.
     /// </summary>
@@ -134,10 +137,37 @@ public class AgentsOptions
     public class TaxonomyOptions
     {
         /// <summary>Allowed document categories. Used as the retrieval filter domain and to constrain the intent classifier's category output.</summary>
-        public IReadOnlyList<string> Categories { get; set; } = ["policy", "faq", "identity", "purpose_of_agent"];
+        public IReadOnlyList<string> Categories { get; set; } = ["policy", "faq", "identity", "purpose_of_agent", "message"];
 
         /// <summary>Allowed ISO-639-1 (or BCP-47) language codes.</summary>
         public IReadOnlyList<string> Languages { get; set; } = ["en", "el", "de", "fr", "es"];
+    }
+
+    /// <summary>
+    /// External MCP server endpoints whose tools are injected into the answer-composer step.
+    /// Leave <see cref="Servers"/> empty to disable external tool calling.
+    /// </summary>
+    public class ExternalMcpOptions
+    {
+        /// <summary>
+        /// Streamable-HTTP MCP servers to connect to. Leave empty to disable external tool calling.
+        /// </summary>
+        public IReadOnlyList<ExternalMcpServer> Servers { get; set; } = [];
+    }
+
+    /// <summary>Describes a single external MCP server to connect to.</summary>
+    public class ExternalMcpServer
+    {
+        /// <summary>
+        /// Streamable-HTTP endpoint URL of the external MCP server (e.g. <c>https://server/mcp</c>).
+        /// </summary>
+        public required string Url { get; set; }
+
+        /// <summary>
+        /// Optional static bearer token sent as <c>Authorization: Bearer &lt;token&gt;</c> on every request.
+        /// Leave <see langword="null"/> for unauthenticated servers.
+        /// </summary>
+        public string? BearerToken { get; set; }
     }
 }
 

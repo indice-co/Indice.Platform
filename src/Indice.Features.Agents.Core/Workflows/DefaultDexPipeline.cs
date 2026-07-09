@@ -35,9 +35,12 @@ public static class DefaultDexPipelineExtensions
             var compose         = sp.GetRequiredService<AnswerComposer>();
             var outOfScopeReply = sp.GetRequiredService<OutOfScopeResponder>();
             var purposeResponder = sp.GetRequiredService<PurposeResponder>();
-
+            var messageAgent = sp.GetRequiredService<MessageAgent>();
+            
             var builder = new WorkflowBuilder(intent);
             builder.AddSwitch(intent, sw => sw
+            
+                .AddCase<PipelineStepContext<IntentOutput>>(env => env!.Payload.Intent.Category == "message", messageAgent)
                 .AddCase<PipelineStepContext<IntentOutput>>(env => env!.Payload.Intent.Category == "purpose_of_agent", purposeResponder)
                 .AddCase<PipelineStepContext<IntentOutput>>(env => env!.Payload.Intent.IsInScope, rewrite)
                 .WithDefault(outOfScopeReply));
