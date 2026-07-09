@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,13 +18,15 @@ public sealed class McpToolsRegistry : IMcpToolsRegistry, IAsyncDisposable
 {
     private readonly IReadOnlyList<AgentsOptions.ExternalMcpServer> _servers;
     private readonly ILogger<McpToolsRegistry> _logger;
+    private readonly IHttpContextAccessor contextAccessor;
     private readonly SemaphoreSlim _initLock = new(1, 1);
     private IReadOnlyList<AITool>? _cached;
     private List<McpClient>? _clients;
 
     /// <summary>Creates a new <see cref="McpToolsRegistry"/>.</summary>
-    public McpToolsRegistry(IOptions<AgentsOptions> options, ILogger<McpToolsRegistry> logger)
+    public McpToolsRegistry(IOptions<AgentsOptions> options, IHttpContextAccessor httpContextAccessor, ILogger<McpToolsRegistry> logger)
     {
+        contextAccessor = httpContextAccessor;
         _servers = options.Value.ExternalMcp.Servers;
         _logger = logger;
     }
@@ -46,26 +49,29 @@ public sealed class McpToolsRegistry : IMcpToolsRegistry, IAsyncDisposable
             {
                 try
                 {
-                    var transportOptions = new HttpClientTransportOptions {
-                        Endpoint = new Uri(server.Url),
-                        TransportMode = HttpTransportMode.StreamableHttp,
-                        //OAuth = new ModelContextProtocol.Authentication.ClientOAuthOptions() {
-                        //    RedirectUri = new Uri(server.Url),
-                        //    ClientId = "mcp-tools-registry",
-                        //    ClientSecret = "mcp-tools-registry",
-                        //    Scopes = new[] { "mcp.tools.read" },
-                        //}
-                    };
+                    HttpClientTransport transport;
 
-                    if (server.BearerToken is { Length: > 0 } token)
-                    {
-                        transportOptions.AdditionalHeaders = new Dictionary<string, string>
-                        {
-                            ["Authorization"] = $"Bearer {token}"
+                    if (server.OAuth is { } oauth) {
+                        var handler = new ClientCredentialsBearerHandler(oauth.TokenEndpoint, oauth.ClientId, oauth.ClientSecret, oauth.Scope);
+                        var http = new HttpClient(handler);
+                        transport = new HttpClientTransport(
+                            new HttpClientTransportOptions {
+                                Endpoint = new Uri(server.Url),
+                                TransportMode = HttpTransportMode.StreamableHttp,
+                            },
+                            http,
+                            ownsHttpClient: true); // transport disposes the client
+                    } else {
+                        var opts = new HttpClientTransportOptions {
+                            Endpoint = new Uri(server.Url),
+                            TransportMode = HttpTransportMode.StreamableHttp,
                         };
+                        if (server.BearerToken is { Length: > 0 } token)
+                            opts.AdditionalHeaders = new Dictionary<string, string> { ["Authorization"] = $"Bearer {token}" };
+
+                        transport = new HttpClientTransport(opts);
                     }
 
-                    var transport = new HttpClientTransport(transportOptions);
                     var client = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
                     clients.Add(client);
 

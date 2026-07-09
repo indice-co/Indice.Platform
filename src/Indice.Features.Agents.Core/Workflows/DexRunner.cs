@@ -28,8 +28,9 @@ public class DexRunner : IDexRunner
         ["QueryRewriter"]       = "Rewriting query",
         ["Retriever"]           = "Retrieving relevant context",
         ["Reranker"]            = "Ranking results",
+        ["MessageAgent"] = "Message tools",
         ["AnswerComposer"]      = "Composing answer",
-        ["PurposeResponder"]    = "Answering",
+        ["PurposeResponder"] = "Answering",
         ["OutOfScopeResponder"] = "Preparing response",
     };
 

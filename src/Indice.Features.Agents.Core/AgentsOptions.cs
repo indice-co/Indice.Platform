@@ -168,6 +168,21 @@ public class AgentsOptions
         /// Leave <see langword="null"/> for unauthenticated servers.
         /// </summary>
         public string? BearerToken { get; set; }
+        /// OAuth2 client-credentials config. Takes precedence over BearerToken when set.
+        public ClientCredentialsOptions? OAuth { get; set; }
+
+        /// <summary>Oauth client credentials configuration for the external MCP server. Takes precedence over <see cref="BearerToken"/> when set.</summary>
+        public class ClientCredentialsOptions
+        {
+            /// <summary>OAuth2 token endpoint URL (e.g. <c>https://server/oauth2/token</c>).</summary>
+            public required string TokenEndpoint { get; set; }
+            /// <summary>OAuth2 client ID.</summary>
+            public required string ClientId { get; set; }
+            /// <summary>OAuth2 client secret.</summary>
+            public required string ClientSecret { get; set; }
+            /// <summary>OAuth2 scope.</summary>
+            public string? Scope { get; set; }
+        }
     }
 }
 

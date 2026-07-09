@@ -17,7 +17,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// in the provided context and cite chunk IDs in <c>[#chunkId]</c> form. Projects the candidates into
 /// <see cref="Models.Citation"/> records on the output payload.
 /// </summary>
-public sealed class MessageAgent : Executor<PipelineStepContext<RerankOutput>, PipelineStepContext<RagPipelineOutput>>
+public sealed class MessageAgent : Executor<PipelineStepContext<IntentOutput>, PipelineStepContext<RagPipelineOutput>>
 {
     private readonly AzureOpenAIClient _openAIClient;
     private readonly AgentsOptions _options;
@@ -41,7 +41,7 @@ public sealed class MessageAgent : Executor<PipelineStepContext<RerankOutput>, P
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<PipelineStepContext<RagPipelineOutput>> HandleAsync(PipelineStepContext<RerankOutput> envelope,
+    public override async ValueTask<PipelineStepContext<RagPipelineOutput>> HandleAsync(PipelineStepContext<IntentOutput> envelope,
         IWorkflowContext context, CancellationToken cancellationToken = default) {
 
         var mcpTools = await _mcpToolsRegistry.GetToolsAsync(cancellationToken);
