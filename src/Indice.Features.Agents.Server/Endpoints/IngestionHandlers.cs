@@ -1,3 +1,4 @@
+using System.Globalization;
 using Indice.Extensions;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Models.Requests;
@@ -47,16 +48,37 @@ internal static class IngestionHandlers
         if (request.MarkdownSourceFile is not null && !request.MarkdownSourceFile.FileName.EndsWith(".md", StringComparison.OrdinalIgnoreCase)) {
             errors.AddError(nameof(request.MarkdownSourceFile), "Only .md files are supported.");
         }
-        if (request.ActualSourceUrl is not null && !Uri.IsWellFormedUriString(request.ActualSourceUrl, UriKind.Absolute)) {
+        if (!string.IsNullOrWhiteSpace(request.ActualSourceUrl) && !Uri.IsWellFormedUriString(request.ActualSourceUrl, UriKind.Absolute)) {
             errors.AddError(nameof(request.ActualSourceUrl), "Invalid URL format.");
         }
-        if (request.ActualSourceFile is not null && request.ActualSourceUrl is not null) {
+        if (request.ActualSourceFile is not null && !string.IsNullOrWhiteSpace(request.ActualSourceUrl)) {
             errors.AddError(nameof(request.ActualSourceFile), "Either provide an actual source file or a source URL, not both.");
         }
         if (request.ActualSourceFile is not null && request.ActualSourceFile.Length == 0) {
             errors.AddError(nameof(request.ActualSourceFile), "The actual source file was provided but is empty.");
         }
+        if (!string.IsNullOrWhiteSpace(request.Language) && !IsValidCulture(request.Language)) {
+            errors.AddError(nameof(request.Language), "Invalid or unsupported language.");
+        }
         return errors.Count > 0 ? TypedResults.ValidationProblem(errors) : null;
+    }
+
+    /// <summary>
+    /// Checks if the provided culture name is valid.
+    /// </summary>
+    /// <param name="cultureName">Culture code (e.g., "en-US", "fr-FR").</param>
+    /// <returns>True if valid, false otherwise.</returns>
+    private static bool IsValidCulture(string cultureName) {
+        if (string.IsNullOrWhiteSpace(cultureName))
+            return false;
+
+        try {
+            // Attempt to get the CultureInfo object
+            CultureInfo.GetCultureInfo(cultureName);
+            return true;
+        } catch (CultureNotFoundException) {
+            return false;
+        }
     }
 
     public static async Task<Results<NoContent, ValidationProblem>> Clear(IDocumentsService store, CancellationToken cancellationToken) {
