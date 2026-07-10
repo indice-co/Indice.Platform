@@ -55,6 +55,8 @@ public static partial class IdentityEndpoints
         public const string DashboardMetrics = nameof(DashboardMetrics);
         /// <summary>Enables API for public registration API.</summary>
         public const string RssFeed = nameof(RssFeed);
+        /// <summary>Disables the account blocking API. When not set, account blocking is enabled by default.</summary>
+        public const string DisableAccountBlocking = nameof(DisableAccountBlocking);
     }
 
 }
