@@ -14,4 +14,7 @@ public class ChatMessage
 
     /// <summary>Creation timestamp.</summary>
     public DateTimeOffset CreatedAt { get; init; }
+
+    /// <summary>References to chunks.</summary>
+    public List<Citation> Citations { get; set; } = new List<Citation>();
 }

@@ -74,12 +74,13 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
         }
 
         var citations = candidates
-            .Select(c => new Models.Citation {
+            .Select((c, index) => new Models.Citation {
                 ChunkId = c.ChunkId,
                 DocumentId = c.DocumentId,
                 Title = c.Title,
                 HeadingPath = c.HeadingPath,
                 Score = c.Score,
+                Number = index + 1,
             })
             .ToList();
 
@@ -95,8 +96,9 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
         if (candidates.Count == 0) {
             sb.AppendLine("(no candidates retrieved)");
         }
-        foreach (var c in candidates) {
-            sb.Append("[#").Append(c.ChunkId).Append("] ");
+        for (var i = 0; i < candidates.Count; i++) {
+            var c = candidates[i];
+            sb.Append($"[{i + 1}](#{c.ChunkId}) ");
             if (!string.IsNullOrWhiteSpace(c.Title)) {
                 sb.Append(c.Title).Append(" — ");
             }

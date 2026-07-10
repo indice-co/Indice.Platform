@@ -1,3 +1,5 @@
+using System.Net.Mime;
+using System.Text.Json.Nodes;
 using Indice.Features.Agents.Server;
 using Indice.Features.Agents.Server.Endpoints;
 using Indice.Security;
@@ -34,7 +36,16 @@ internal static class IngestionApi
         group.MapPost("ingest", IngestionHandlers.DocumentIngest).DisableAntiforgery()
              .WithName(nameof(IngestionHandlers.DocumentIngest))
              .WithSummary("Ingests a document into the knowledge base.")
-             .WithDescription("Uploads a single Markdown file and processes it into the knowledge base.");
+             .WithDescription("Uploads a single Markdown file and processes it into the knowledge base.")
+             .WithExampleRequestBody(JsonNode.Parse("""
+                 {
+                   "language": "el",
+                   "isPrivate": false,
+                   "category": "FAQ",
+                   "actualSourceUrl": "",
+                   "documentType": "MarkdownFaq"
+                 }
+                 """)!, contentType: MediaTypeNames.Multipart.FormData);
 
         group.MapPost("clear",IngestionHandlers.Clear)
             .WithName(nameof(IngestionHandlers.Clear))

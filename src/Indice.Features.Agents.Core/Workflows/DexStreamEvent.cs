@@ -10,6 +10,8 @@ namespace Indice.Features.Agents.Core.Workflows;
 /// </summary>
 public abstract class DexStreamEvent
 {
+    /// <summary>Timestamp of when the event was created.</summary>
+    public DateTimeOffset TimeStamp { get; set; } = DateTimeOffset.UtcNow;
 }
 
 /// <summary>Signals that a pipeline step has started executing.</summary>
