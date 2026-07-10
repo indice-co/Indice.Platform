@@ -181,7 +181,7 @@ public class AgentsOptions
             /// <summary>OAuth2 client secret.</summary>
             public required string ClientSecret { get; set; }
             /// <summary>OAuth2 scope.</summary>
-            public string? Scope { get; set; }
+            public required string Scope { get; set; }
         }
     }
 }

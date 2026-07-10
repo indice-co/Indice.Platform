@@ -1,6 +1,9 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json.Serialization;
+using Azure;
+using Indice.Security;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Distributed;
 
 internal sealed class ClientCredentialsBearerHandler : DelegatingHandler
 {
@@ -8,17 +11,20 @@ internal sealed class ClientCredentialsBearerHandler : DelegatingHandler
     private readonly string _clientId;
     private readonly string _clientSecret;
     private readonly string _scope;
+    private readonly IHttpContextAccessor _contextAccessor;
 
-    private string? _token;
-    private DateTimeOffset _expiry;
+
     private readonly SemaphoreSlim _lock = new(1, 1);
+    private readonly IDistributedCache _cache;
 
     public ClientCredentialsBearerHandler(
-        string tokenEndpoint, string clientId, string clientSecret, string? scope = null)
+        string tokenEndpoint, string clientId, string clientSecret, string scope, IHttpContextAccessor contextAccessor, IDistributedCache cache)
     : base(new HttpClientHandler()) {
         _tokenEndpoint = tokenEndpoint;
         _clientId = clientId;
         _clientSecret = clientSecret;
+        _contextAccessor = contextAccessor;
+        _cache = cache;
         _scope = scope ?? string.Empty;
     }
 
@@ -30,34 +36,49 @@ internal sealed class ClientCredentialsBearerHandler : DelegatingHandler
     }
 
     private async Task<string> GetTokenAsync(CancellationToken ct) {
-        if (_token is not null && DateTimeOffset.UtcNow < _expiry)
-            return _token;
 
         await _lock.WaitAsync(ct);
         try {
             // double-check after acquiring the lock
-            if (_token is not null && DateTimeOffset.UtcNow < _expiry)
-                return _token;
-
+            var currentAccessToken = ResolveAuthorizationHeaderValue();
+            var currentSubjectId = _contextAccessor.HttpContext?.User.FindSubjectId();
+            var userPresent = !string.IsNullOrWhiteSpace(currentAccessToken) && !string.IsNullOrWhiteSpace(currentSubjectId);
+            var grantType = userPresent ? "delegation" : "client_credentials";
+            var cacheKey = $"{_clientId}|{grantType}|sub|{currentSubjectId}";
+            var accessToken = await _cache.GetStringAsync(cacheKey);
+            if (accessToken != null) {
+                return accessToken;
+            }
             using var req = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint);
             var form = new Dictionary<string, string> {
-                ["grant_type"] = "client_credentials",
+                ["grant_type"] = grantType,
                 ["client_id"] = _clientId,
                 ["client_secret"] = _clientSecret,
+                ["scope"] = _scope
             };
-            if (_scope.Length > 0) form["scope"] = _scope;
             req.Content = new FormUrlEncodedContent(form);
 
             using var resp = await base.SendAsync(req, ct);
             resp.EnsureSuccessStatusCode();
 
             var json = await resp.Content.ReadFromJsonAsync<TokenResponse>(ct);
-            _token = json!.AccessToken;
-            _expiry = DateTimeOffset.UtcNow.AddSeconds(json.ExpiresIn - 30); // 30 s safety margin
-            return _token;
+            await _cache.SetStringAsync(cacheKey, json!.AccessToken, new DistributedCacheEntryOptions {
+                AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(json.ExpiresIn - 30)
+            });
+            return json.AccessToken!;
         } finally { _lock.Release(); }
     }
 
+    /// <summary>
+    /// Gets the access token from the current value of the <strong>Authorization</strong> header next to the scheme.
+    /// </summary>
+    private string? ResolveAuthorizationHeaderValue() {
+        var authHeader = _contextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
+        if (authHeader != null && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)) {
+            return authHeader["Bearer ".Length..];
+        }
+        return null;
+    }
     private sealed record TokenResponse(
         [property: JsonPropertyName("access_token")] string AccessToken,
         [property: JsonPropertyName("expires_in")] int ExpiresIn);

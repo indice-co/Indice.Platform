@@ -24,7 +24,7 @@ export const environment = {
     redirect_uri: 'http://localhost:4200/auth-callback',
     response_type: 'code',
     revokeAccessTokenOnSignout: true,
-    scope: 'openid profile role email agents chat',
+    scope: 'openid profile role email agents chat messages https://localhost:2001/mcp mcp',
     silent_redirect_uri: 'http://localhost:4200/auth-renew',
     useRefreshToken: true,
     extraQueryParams: {},
