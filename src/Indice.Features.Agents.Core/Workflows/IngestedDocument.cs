@@ -21,7 +21,7 @@ public class IngestedDocument
     public string ContentHash { get; init; } = string.Empty;
     /// <summary>Indicates whether the document is private and should not be exposed to unauthorized users.</summary>
     public bool IsPrivate { get; set; }
-    /// <summary>binary payload and file metadata.</summary>
+    /// <summary>MIME / media type of the file.</summary>
     public string ContentType { get; set; } = null!;
     /// <summary>Size of the file in bytes.</summary>
     public long ContentLength { get; set; }

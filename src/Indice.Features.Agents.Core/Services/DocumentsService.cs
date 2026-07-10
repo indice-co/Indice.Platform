@@ -35,7 +35,8 @@ public class DocumentsService : IDocumentsService
                 ContentType = d.Blob == null ? "application/markdown" : d.Blob.ContentType,
                 ContentLength = d.Blob == null ? -1 : d.Blob.ContentLength,
                 FileName = d.Blob == null ? d.Title : d.Blob.FileName,
-                Data = includeData && d.Blob != null ? d.Blob.Data : null,
+                LastModified = d.Blob == null ? null : d.Blob.LastModified,
+                Data = includeData && d.Blob != null ? d.Blob.Data : null
             });
         var hit = await query.FirstOrDefaultAsync(cancellationToken);
         return hit;

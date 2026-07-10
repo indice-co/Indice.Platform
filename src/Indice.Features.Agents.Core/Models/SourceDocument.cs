@@ -7,7 +7,7 @@ public class SourceDocument
     public Guid Id { get; set; }
     /// <summary>The source uri/alias of the source document.</summary>
     public string Source { get; set; } = null!;
-    /// <summary>The type of the source document.</summary>
+    /// <summary>Content hash of the source document (used for dedup/versioning).</summary>
     public string ContentHash { get; set; } = null!;
     /// <summary>The content type of the source document.</summary>
     public string ContentType { get; set; } = null!;
@@ -15,7 +15,7 @@ public class SourceDocument
     public long ContentLength { get; set; }
     /// <summary>The name of the source document file.</summary>
     public string FileName { get; set; } = null!;
-    /// <summary>The title of the source document.</summary>
+    /// <summary>Timestamp indicating when the source document was last modified.</summary>
     public DateTimeOffset? LastModified { get; set; }
     /// <summary>The binary data of the source document.</summary>
     public byte[]? Data { get; set; }
@@ -26,7 +26,7 @@ public class SourceDocument
 /// <summary>
 /// Represents a link to a source document without including the binary data.
 /// </summary>
-public class  SourceDocumentLink
+public class SourceDocumentLink
 {
     /// <summary>The unique identifier of the source document.</summary>
     public Guid Id { get; set; }

@@ -69,7 +69,8 @@ public class DefaultIngestionPipeline : IIngestionPipeline
             FileName = request.FileName,
             ContentType = request.ContentType,
             ContentLength = request.ContentLength,
-            FileData = data
+            FileData = data,
+            IsPrivate = request.IsPrivate,
         };
 
         var existing = await _store.FindBySourceAsync(document.Source, includeData: false, cancellationToken);

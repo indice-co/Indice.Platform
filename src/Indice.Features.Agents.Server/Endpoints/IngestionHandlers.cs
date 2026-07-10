@@ -20,8 +20,11 @@ internal static class IngestionHandlers
         }
 
         var filename = request.ActualSourceFile?.FileName ?? request.MarkdownSourceFile.FileName;
-        if (!string.IsNullOrWhiteSpace(request.ActualSourceUrl) && Uri.TryCreate(request.ActualSourceUrl, UriKind.Absolute, out var actualSourceUri)) { 
-            filename = Path.GetFileName(actualSourceUri.AbsolutePath);
+        if (!string.IsNullOrWhiteSpace(request.ActualSourceUrl) && Uri.TryCreate(request.ActualSourceUrl, UriKind.Absolute, out var actualSourceUri)) {
+            var urlFileName = Path.GetFileName(actualSourceUri.AbsolutePath);
+            if (!string.IsNullOrWhiteSpace(urlFileName)) {
+                filename = urlFileName;
+            }
         }
         var report = await pipeline.IngestAsync(new IngestRequest {
             OpenMarkdownSourceStream = () => request.MarkdownSourceFile.OpenReadStream(),
