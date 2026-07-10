@@ -8,14 +8,14 @@ namespace Indice.Features.Agents.Server.Endpoints;
 
 internal static class SourcesHandlers
 {
-    public static async Task<Results<FileContentHttpResult, NotFound, UnauthorizedHttpResult>> GetActualSource(string path, bool? download, ClaimsPrincipal currentUser, IDocumentsService documentsService) {
-        var document = await documentsService.FindBySourceAsync($"local://{path}", includeData: true, CancellationToken.None);
+    public static async Task<Results<FileContentHttpResult, NotFound, UnauthorizedHttpResult>> GetActualSource(string path, bool? download, ClaimsPrincipal currentUser, IDocumentsService documentsService, CancellationToken cancellationToken) {
+        var document = await documentsService.FindBySourceAsync($"local://{path}", includeData: true, cancellationToken: cancellationToken);
         
         if (document == null || document.Data == null) {
             return TypedResults.NotFound();
         }
         
-        if (document.IsPrivate && !currentUser.Identity?.IsAuthenticated == true) {
+        if (document.IsPrivate && (currentUser.Identity?.IsAuthenticated != true)) {
             return TypedResults.Unauthorized();
         }
         

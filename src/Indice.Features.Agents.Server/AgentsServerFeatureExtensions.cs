@@ -35,7 +35,6 @@ public static class AgentsServerFeatureExtensions
         services.AddChatsFeature();
         services.AddIngestionFeature();
         services.AddUsersFeature();
-        services.AddUsersFeature();
         return services;
     }
 
