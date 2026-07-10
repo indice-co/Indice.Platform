@@ -25,10 +25,13 @@ export interface IDexApiService {
      * @param documentType (optional) 
      * @param category (optional) 
      * @param language (optional) 
-     * @param file (optional) 
+     * @param markdownSourceFile (optional) 
+     * @param actualSourceFile (optional) 
+     * @param actualSourceUrl (optional) 
+     * @param isPrivate (optional) 
      * @return OK
      */
-    documentIngest(documentType: DocumentType | undefined, category: string | undefined, language: string | undefined, file: FileParameter | undefined): Observable<IngestionReport>;
+    documentIngest(documentType: DocumentType | undefined, category: string | undefined, language: string | undefined, markdownSourceFile: FileParameter | undefined, actualSourceFile: FileParameter | undefined, actualSourceUrl: string | null | undefined, isPrivate: boolean | null | undefined): Observable<IngestionReport>;
     /**
      * List the caller's chat sessions, paged.
      * @param page (optional) The current page of the list. Default is 1.
@@ -78,6 +81,11 @@ export interface IDexApiService {
      * @return OK
      */
     updateMe(body: UpdateUserRequest): Observable<Profile>;
+    /**
+     * Retrieves the actual source document.
+     * @param download (optional) 
+     */
+    getActualSource(path: string, download: boolean | null | undefined): Observable<void>;
 }
 
 @Injectable({
@@ -174,10 +182,13 @@ export class DexApiService implements IDexApiService {
      * @param documentType (optional) 
      * @param category (optional) 
      * @param language (optional) 
-     * @param file (optional) 
+     * @param markdownSourceFile (optional) 
+     * @param actualSourceFile (optional) 
+     * @param actualSourceUrl (optional) 
+     * @param isPrivate (optional) 
      * @return OK
      */
-    documentIngest(documentType: DocumentType | undefined, category: string | undefined, language: string | undefined, file: FileParameter | undefined): Observable<IngestionReport> {
+    documentIngest(documentType: DocumentType | undefined, category: string | undefined, language: string | undefined, markdownSourceFile: FileParameter | undefined, actualSourceFile: FileParameter | undefined, actualSourceUrl: string | null | undefined, isPrivate: boolean | null | undefined): Observable<IngestionReport> {
         let url_ = this.baseUrl + "/documents/ingest";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -194,10 +205,18 @@ export class DexApiService implements IDexApiService {
             throw new globalThis.Error("The parameter 'language' cannot be null.");
         else if (language !== undefined)
             content_ += encodeURIComponent("language") + "=" + encodeURIComponent("" + language) + "&";
-        if (file === null)
-            throw new globalThis.Error("The parameter 'file' cannot be null.");
-        else if (file !== undefined)
-            content_ += encodeURIComponent("file") + "=" + encodeURIComponent("" + file) + "&";
+        if (markdownSourceFile === null)
+            throw new globalThis.Error("The parameter 'markdownSourceFile' cannot be null.");
+        else if (markdownSourceFile !== undefined)
+            content_ += encodeURIComponent("markdownSourceFile") + "=" + encodeURIComponent("" + markdownSourceFile) + "&";
+        if (actualSourceFile === null)
+            throw new globalThis.Error("The parameter 'actualSourceFile' cannot be null.");
+        else if (actualSourceFile !== undefined)
+            content_ += encodeURIComponent("actualSourceFile") + "=" + encodeURIComponent("" + actualSourceFile) + "&";
+        if (actualSourceUrl !== undefined)
+            content_ += encodeURIComponent("actualSourceUrl") + "=" + encodeURIComponent("" + actualSourceUrl) + "&";
+        if (isPrivate !== undefined)
+            content_ += encodeURIComponent("isPrivate") + "=" + encodeURIComponent("" + isPrivate) + "&";
         content_ = content_.replace(/&$/, "");
 
         let options_ : any = {
@@ -986,6 +1005,80 @@ export class DexApiService implements IDexApiService {
         }
         return _observableOf(null as any);
     }
+
+    /**
+     * Retrieves the actual source document.
+     * @param download (optional) 
+     */
+    getActualSource(path: string, download: boolean | null | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/sources/{path}?";
+        if (path === undefined || path === null)
+            throw new globalThis.Error("The parameter 'path' must be defined.");
+        url_ = url_.replace("{path}", encodeURIComponent("" + path));
+        if (download !== undefined && download !== null)
+            url_ += "download=" + encodeURIComponent("" + download) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetActualSource(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetActualSource(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processGetActualSource(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 export class ChatMessage implements IChatMessage {
@@ -993,6 +1086,7 @@ export class ChatMessage implements IChatMessage {
     role?: ChatMessageRole;
     content?: string;
     createdAt?: Date;
+    citations?: Citation[];
 
     constructor(data?: IChatMessage) {
         if (data) {
@@ -1009,6 +1103,11 @@ export class ChatMessage implements IChatMessage {
             this.role = _data["role"];
             this.content = _data["content"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
+            if (Array.isArray(_data["citations"])) {
+                this.citations = [] as any;
+                for (let item of _data["citations"])
+                    this.citations!.push(Citation.fromJS(item));
+            }
         }
     }
 
@@ -1025,6 +1124,11 @@ export class ChatMessage implements IChatMessage {
         data["role"] = this.role;
         data["content"] = this.content;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
+        if (Array.isArray(this.citations)) {
+            data["citations"] = [];
+            for (let item of this.citations)
+                data["citations"].push(item ? item.toJSON() : undefined as any);
+        }
         return data;
     }
 }
@@ -1034,6 +1138,7 @@ export interface IChatMessage {
     role?: ChatMessageRole;
     content?: string;
     createdAt?: Date;
+    citations?: Citation[];
 }
 
 export enum ChatMessageRole {
@@ -1248,6 +1353,7 @@ export class Citation implements ICitation {
     documentId?: string;
     title?: string | undefined;
     headingPath?: string | undefined;
+    number?: number;
     score?: number;
 
     constructor(data?: ICitation) {
@@ -1265,6 +1371,7 @@ export class Citation implements ICitation {
             this.documentId = _data["documentId"];
             this.title = _data["title"];
             this.headingPath = _data["headingPath"];
+            this.number = _data["number"];
             this.score = _data["score"];
         }
     }
@@ -1282,6 +1389,7 @@ export class Citation implements ICitation {
         data["documentId"] = this.documentId;
         data["title"] = this.title;
         data["headingPath"] = this.headingPath;
+        data["number"] = this.number;
         data["score"] = this.score;
         return data;
     }
@@ -1292,6 +1400,7 @@ export interface ICitation {
     documentId?: string;
     title?: string | undefined;
     headingPath?: string | undefined;
+    number?: number;
     score?: number;
 }
 
@@ -1299,7 +1408,10 @@ export class DocumentIngestRequest implements IDocumentIngestRequest {
     documentType?: DocumentType;
     category?: string;
     language?: string;
-    file?: string;
+    markdownSourceFile?: string;
+    actualSourceFile?: string;
+    actualSourceUrl?: string | undefined;
+    isPrivate?: boolean | undefined;
 
     constructor(data?: IDocumentIngestRequest) {
         if (data) {
@@ -1315,7 +1427,10 @@ export class DocumentIngestRequest implements IDocumentIngestRequest {
             this.documentType = _data["documentType"];
             this.category = _data["category"];
             this.language = _data["language"];
-            this.file = _data["file"];
+            this.markdownSourceFile = _data["markdownSourceFile"];
+            this.actualSourceFile = _data["actualSourceFile"];
+            this.actualSourceUrl = _data["actualSourceUrl"];
+            this.isPrivate = _data["isPrivate"];
         }
     }
 
@@ -1331,7 +1446,10 @@ export class DocumentIngestRequest implements IDocumentIngestRequest {
         data["documentType"] = this.documentType;
         data["category"] = this.category;
         data["language"] = this.language;
-        data["file"] = this.file;
+        data["markdownSourceFile"] = this.markdownSourceFile;
+        data["actualSourceFile"] = this.actualSourceFile;
+        data["actualSourceUrl"] = this.actualSourceUrl;
+        data["isPrivate"] = this.isPrivate;
         return data;
     }
 }
@@ -1340,7 +1458,10 @@ export interface IDocumentIngestRequest {
     documentType?: DocumentType;
     category?: string;
     language?: string;
-    file?: string;
+    markdownSourceFile?: string;
+    actualSourceFile?: string;
+    actualSourceUrl?: string | undefined;
+    isPrivate?: boolean | undefined;
 }
 
 export enum DocumentType {
@@ -1950,6 +2071,6 @@ function blobToText(blob: any): Observable<string> {
     });
 }
 export interface FileParameter {
-    data: any;
-    fileName: string;
+  data: any;
+  fileName: string;
 }

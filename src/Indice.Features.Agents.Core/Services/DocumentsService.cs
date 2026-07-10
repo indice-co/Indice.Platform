@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows;
@@ -22,13 +23,23 @@ public class DocumentsService : IDocumentsService
     }
 
     /// <inheritdoc/>
-    public async Task<(Guid Id, string ContentHash)?> FindBySourceAsync(string source, CancellationToken cancellationToken) {
-        var hit = await _db.Set<DbDocument>()
+    public async Task<SourceDocument?> FindBySourceAsync(string source, bool includeData, CancellationToken cancellationToken) {
+        var query = _db.Set<DbDocument>()
             .AsNoTracking()
             .Where(d => d.Source == source)
-            .Select(d => new { d.Id, d.ContentHash })
-            .FirstOrDefaultAsync(cancellationToken);
-        return hit is null ? null : (hit.Id, hit.ContentHash);
+            .Select(d => new SourceDocument { 
+                Id = d.Id, 
+                ContentHash = d.ContentHash, 
+                Source = d.Source,
+                IsPrivate = d.IsPrivate,
+                ContentType = d.Blob == null ? "application/markdown" : d.Blob.ContentType,
+                ContentLength = d.Blob == null ? -1 : d.Blob.ContentLength,
+                FileName = d.Blob == null ? d.Title : d.Blob.FileName,
+                LastModified = d.Blob == null ? null : d.Blob.LastModified,
+                Data = includeData && d.Blob != null ? d.Blob.Data : null
+            });
+        var hit = await query.FirstOrDefaultAsync(cancellationToken);
+        return hit;
     }
 
     /// <inheritdoc/>
@@ -57,6 +68,14 @@ public class DocumentsService : IDocumentsService
             Status = DocumentStatus.Ingested,
             ChunkCount = chunks.Count,
             IngestedAt = now,
+            IsPrivate = document.IsPrivate,
+            Blob = new DbDocumentBlob {
+                ContentType = document.ContentType,
+                ContentLength = document.ContentLength,
+                FileName = document.FileName,
+                Data = document.FileData,
+                ETag = document.ContentHash,
+            }
         });
 
         foreach (var ec in chunks) {

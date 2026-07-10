@@ -24,13 +24,13 @@ public class DefaultIngestionPipeline : IIngestionPipeline
     }
 
     /// <inheritdoc/>
-    public async Task<IngestionReport> IngestAsync(Stream content, string fileName, string? category, string? language, CancellationToken cancellationToken) {
-        using var reader = new StreamReader(content, Encoding.UTF8, leaveOpen: true);
+    public async Task<IngestionReport> IngestAsync(IngestRequest request, CancellationToken cancellationToken) {
+        using var reader = new StreamReader(request.OpenMarkdownSourceStream(), Encoding.UTF8, leaveOpen: false);
         var body = await reader.ReadToEndAsync(cancellationToken);
         var (firstCategory, chunks) = ParseFaq(body);
 
-        var effectiveCategory = firstCategory ?? (string.IsNullOrWhiteSpace(category) ? null : category.Trim());
-        var effectiveLanguage = string.IsNullOrWhiteSpace(language) ? null : language.Trim();
+        var effectiveCategory = firstCategory ?? (string.IsNullOrWhiteSpace(request.Category) ? null : request.Category.Trim());
+        var effectiveLanguage = string.IsNullOrWhiteSpace(request.Language) ? null : request.Language.Trim();
 
         if (effectiveCategory is not null && !_options.Taxonomy.Categories.Contains(effectiveCategory, StringComparer.OrdinalIgnoreCase)) {
             throw new BusinessException($"Unknown category '{effectiveCategory}'.", "TAXONOMY_INVALID", [
@@ -43,19 +43,40 @@ public class DefaultIngestionPipeline : IIngestionPipeline
             ]);
         }
 
-        var title = Path.GetFileNameWithoutExtension(fileName);
+        var title = Path.GetFileNameWithoutExtension(request.FileName);
+
+        byte[]? data = null;
+        var toByteArray = (Stream stream) => {
+            using var memoryStream = new MemoryStream();
+            stream.CopyTo(memoryStream);
+            return memoryStream.ToArray();
+        };
+
+        if (request.OpenActualSourceStream is not null) {
+            using var sourceStream = request.OpenActualSourceStream();
+            data = toByteArray(sourceStream);
+        } else if (request.Source.StartsWith("local://", StringComparison.OrdinalIgnoreCase)) {
+            using var markdownStream = request.OpenMarkdownSourceStream();
+            data = toByteArray(markdownStream);
+        }
+
         var document = new IngestedDocument {
             Title = title,
-            Source = fileName,
+            Source = request.Source,
             Category = effectiveCategory,
             Language = effectiveLanguage,
             ContentHash = Sha256Hex(string.Concat(title, "\0", effectiveCategory ?? "", "\0", effectiveLanguage ?? "", "\0", body)),
+            FileName = request.FileName,
+            ContentType = request.ContentType,
+            ContentLength = request.ContentLength,
+            FileData = data,
+            IsPrivate = request.IsPrivate,
         };
 
-        var existing = await _store.FindBySourceAsync(document.Source, cancellationToken);
-        if (existing.HasValue && string.Equals(existing.Value.ContentHash, document.ContentHash, StringComparison.Ordinal)) {
+        var existing = await _store.FindBySourceAsync(document.Source, includeData: false, cancellationToken);
+        if (existing is not null && string.Equals(existing.ContentHash, document.ContentHash, StringComparison.Ordinal)) {
             return new IngestionReport {
-                DocumentId = existing.Value.Id,
+                DocumentId = existing.Id,
                 Source = document.Source,
                 ChunksCreated = 0,
                 Skipped = true,
@@ -79,7 +100,7 @@ public class DefaultIngestionPipeline : IIngestionPipeline
             ChunksCreated = embedded.Count,
             Skipped = false,
             SkippedReason = null,
-            Replaced = existing.HasValue,
+            Replaced = existing is not null,
         };
     }
 

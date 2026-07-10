@@ -20,7 +20,7 @@ export function toThreadMessage(message: ChatMessage): ThreadMessage {
     role: message.role === ChatMessageRole.User ? 'User' : 'Assistant',
     content: message.content ?? '',
     createdAt: message.createdAt,
-    citations: [],
+    citations: message.citations ?? [],
   };
 }
 

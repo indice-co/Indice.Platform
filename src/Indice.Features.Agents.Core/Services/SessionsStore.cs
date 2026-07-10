@@ -39,7 +39,7 @@ public class SessionsStore : ISessionsStore
 
         // Metadata only: the send paths need identity/ownership; history is loaded during the run by the
         // pipeline's chat-history provider.
-        return await _db.Set<DbSession>()
+        return await _db.Sessions
             .AsNoTracking()
             .Where(s => s.Id == sessionId!.Value && s.UserId == userId)
             .Select(s => new Session {
@@ -60,7 +60,7 @@ public class SessionsStore : ISessionsStore
         var messageTake = _sessionOptions.HistoryWindow * 2;
         // Inlined (not SessionOptions.GetQuestionsUsed) because EF cannot translate the helper call.
         var questionsTotal = _sessionOptions.GetQuestionsTotal();
-        var session = await _db.Set<DbSession>()
+        var session = await _db.Sessions
             .AsNoTracking()
             .Where(s => s.Id == sessionId && s.UserId == userId)
             .Select(s => new Session {
@@ -82,6 +82,14 @@ public class SessionsStore : ISessionsStore
                         Role = m.Role,
                         Content = m.Content,
                         CreatedAt = m.CreatedAt,
+                        Citations = m.Citations.Select(c => new Citation {
+                            ChunkId = c.ChunkId,
+                            DocumentId = c.Chunk.DocumentId,
+                            Title = c.Chunk.Title,
+                            HeadingPath = c.Chunk.HeadingPath,
+                            Number = c.Number,
+                            Score = c.Score,
+                        }).ToList(),
                     })
                     .ToList(),
             })
@@ -93,7 +101,7 @@ public class SessionsStore : ISessionsStore
     public async Task<IReadOnlyList<ChatMessage>> GetHistoryAsync(Guid sessionId, CancellationToken cancellationToken) {
         // HistoryWindow counts turns (user+assistant pairs); each turn is two persisted rows.
         var messageTake = _sessionOptions.HistoryWindow * 2;
-        return await _db.Set<DbSessionMessage>()
+        return await _db.SessionMessages
             .AsNoTracking()
             .Where(m => m.SessionId == sessionId)
             .OrderByDescending(m => m.CreatedAt)
@@ -104,13 +112,21 @@ public class SessionsStore : ISessionsStore
                 Role = m.Role,
                 Content = m.Content,
                 CreatedAt = m.CreatedAt,
+                Citations = m.Citations.Select(c => new Citation {
+                    ChunkId = c.ChunkId,
+                    DocumentId = c.Chunk.DocumentId,
+                    Title = c.Chunk.Title,
+                    HeadingPath = c.Chunk.HeadingPath,
+                    Number = c.Number,
+                    Score = c.Score,
+                }).ToList(),
             })
             .ToListAsync(cancellationToken);
     }
 
     /// <inheritdoc/>
     public async Task<ResultSet<SessionListItem>> ListAsync(string userId, ListOptions options, CancellationToken cancellationToken) {
-        var query = _db.Set<DbSession>()
+        var query = _db.Sessions
             .AsNoTracking()
             .Where(s => s.UserId == userId)
             .OrderByDescending(s => s.LastActivityAt)
@@ -129,7 +145,7 @@ public class SessionsStore : ISessionsStore
     public async Task<ChatMessage> AppendTurnAsync(Guid sessionId, ChatMessage userMessage, ChatMessage assistantMessage,
         long promptTokens, long completionTokens, string? modelUsed, CancellationToken cancellationToken) {
 
-        var session = await _db.Set<DbSession>().FirstAsync(s => s.Id == sessionId, cancellationToken);
+        var session = await _db.Sessions.FirstAsync(s => s.Id == sessionId, cancellationToken);
         var userRow = ToDb(sessionId, userMessage, prompt: null, completion: null, model: null);
         var assistantRow = ToDb(sessionId, assistantMessage, prompt: (int)promptTokens, completion: (int)completionTokens, model: modelUsed);
         _db.Add(userRow);
@@ -155,17 +171,17 @@ public class SessionsStore : ISessionsStore
 
     /// <inheritdoc/>
     public async Task<int> DeleteAsync(Guid sessionId, string userId, CancellationToken cancellationToken) {
-        var owned = await _db.Set<DbSession>()
+        var owned = await _db.Sessions
             .AsNoTracking()
             .AnyAsync(s => s.Id == sessionId && s.UserId == userId, cancellationToken);
         if (!owned) {
             return 0;
         }
         await using var tx = await _db.Database.BeginTransactionAsync(cancellationToken);
-        await _db.Set<DbSessionMessage>()
+        await _db.SessionMessages
             .Where(m => m.SessionId == sessionId)
             .ExecuteDeleteAsync(cancellationToken);
-        var deleted = await _db.Set<DbSession>()
+        var deleted = await _db.Sessions
             .Where(s => s.Id == sessionId && s.UserId == userId)
             .ExecuteDeleteAsync(cancellationToken);
         await tx.CommitAsync(cancellationToken);
@@ -174,7 +190,7 @@ public class SessionsStore : ISessionsStore
 
     /// <inheritdoc/>
     public Task<int> CountSessionsAsync(string userId, CancellationToken cancellationToken)
-        => _db.Set<DbSession>()
+        => _db.Sessions
             .AsNoTracking()
             .CountAsync(s => s.UserId == userId, cancellationToken);
 
@@ -182,8 +198,8 @@ public class SessionsStore : ISessionsStore
     public async Task<long> GetUsageTokensAsync(string userId, DateTimeOffset since, CancellationToken cancellationToken) {
         // Per-turn reasoning tokens live on the assistant message rows; sum them across the user's sessions
         // within the window. Nullable sum so an empty window materializes as 0 rather than throwing.
-        var userSessionIds = _db.Set<DbSession>().Where(s => s.UserId == userId).Select(s => s.Id);
-        return await _db.Set<DbSessionMessage>()
+        var userSessionIds = _db.Sessions.Where(s => s.UserId == userId).Select(s => s.Id);
+        return await _db.SessionMessages
             .AsNoTracking()
             .Where(m => m.CreatedAt >= since && userSessionIds.Contains(m.SessionId))
             .Select(m => (long?)((m.PromptTokens ?? 0) + (m.CompletionTokens ?? 0)))
@@ -200,6 +216,11 @@ public class SessionsStore : ISessionsStore
         CompletionTokens = completion,
         ModelUsed = model,
         MetadataJson = null,
+        Citations = m.Citations.Select(c => new DbCitation {
+            ChunkId = c.ChunkId,
+            Number = c.Number,
+            Score = c.Score,
+        }).ToList(),
     };
 
     private Session ToDto(DbSession s, IReadOnlyList<ChatMessage> messages) => new() {

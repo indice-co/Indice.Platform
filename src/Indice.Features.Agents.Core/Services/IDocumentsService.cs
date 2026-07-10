@@ -1,3 +1,4 @@
+using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows;
 
 namespace Indice.Features.Agents.Core.Services;
@@ -5,8 +6,8 @@ namespace Indice.Features.Agents.Core.Services;
 /// <summary>Persistence boundary for ingested documents. Only consumer of <see cref="Data.DbDocument"/> / <see cref="Data.DbChunk"/>.</summary>
 public interface IDocumentsService
 {
-    /// <summary>Returns <c>(Id, ContentHash)</c> for the document with this <paramref name="source"/>, or <c>null</c> when none exists.</summary>
-    Task<(Guid Id, string ContentHash)?> FindBySourceAsync(string source, CancellationToken cancellationToken);
+    /// <summary>Returns <c>SourceDocument</c> for the document with this <paramref name="source"/>, or <c>null</c> when none exists.</summary>
+    Task<SourceDocument?> FindBySourceAsync(string source, bool includeData, CancellationToken cancellationToken);
 
     /// <summary>
     /// Atomic insert (and optional replace) in one transaction. When <paramref name="existingDocumentId"/> is
