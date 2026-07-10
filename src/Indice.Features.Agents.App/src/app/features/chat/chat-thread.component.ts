@@ -85,7 +85,7 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                                    text-[0.7rem] text-base-content/70"
                             [title]="citation.title || citation.headingPath || ''"
                           >
-                            <span class="text-accent">#</span>
+                            <span class="footnote text-accent">{{citation.number}}.</span>
                             <span class="truncate">
                               {{ citation.headingPath || citation.title || 'Source' }}
                             </span>

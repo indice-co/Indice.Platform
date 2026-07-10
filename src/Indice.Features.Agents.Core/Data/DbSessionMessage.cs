@@ -31,4 +31,7 @@ public class DbSessionMessage
 
     /// <summary>Optional per-message metadata (JSON) — e.g. citations, retrieved candidate IDs, intent classification.</summary>
     public string? MetadataJson { get; set; }
+
+    /// <summary>Navigation property to the citations associated with this session message.</summary>
+    public ICollection<DbCitation> Citations { get; set; } = [];
 }

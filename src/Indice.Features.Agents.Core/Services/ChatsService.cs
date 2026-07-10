@@ -58,6 +58,7 @@ public class ChatsService : IChatsService
             Role = ChatMessageRole.Assistant,
             Content = assistantText,
             CreatedAt = DateTimeOffset.UtcNow,
+            Citations = result.Citations?.ToList() ?? [],
         };
 
         var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
@@ -68,7 +69,7 @@ public class ChatsService : IChatsService
             SessionId = session.Id,
             MessageId = persistedAssistant.Id,
             Answer = assistantText,
-            Citations = result.Citations,
+            Citations = result.Citations ?? [],
             Failed = result.Failed,
             FailureReason = result.FailureReason,
             QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount + 2),
@@ -144,7 +145,13 @@ public class ChatsService : IChatsService
     private async Task<ChatStreamEvent> PersistTurnAsync(Session session, RagRequest request, DexFinalEvent? final, CancellationToken cancellationToken) {
         var assistantText = final?.Answer ?? string.Empty;
         var userMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatMessageRole.User, Content = request.Question, CreatedAt = request.TimeStamp };
-        var assistantMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatMessageRole.Assistant, Content = assistantText, CreatedAt = final?.TimeStamp ?? DateTimeOffset.UtcNow };
+        var assistantMessage = new ChatMessage { 
+            Id = Guid.NewGuid(), 
+            Role = ChatMessageRole.Assistant, 
+            Content = assistantText, 
+            CreatedAt = final?.TimeStamp ?? DateTimeOffset.UtcNow,
+            Citations = final?.Citations?.ToList() ?? [],
+        };
 
         var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
             promptTokens: final?.Usage?.InputTokenCount ?? 0, completionTokens: final?.Usage?.OutputTokenCount ?? 0,
