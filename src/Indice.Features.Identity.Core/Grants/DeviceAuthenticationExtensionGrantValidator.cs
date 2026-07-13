@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
+using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.Extensions;
@@ -22,6 +23,7 @@ using Indice.Features.Identity.Core.DeviceAuthentication.Services;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.MobileSessions;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -34,6 +36,7 @@ internal class DeviceAuthenticationExtensionGrantValidator(
     IUserDeviceStore userDeviceStore,
     ExtendedUserManager<User> userManager,
     IEventService eventService,
+    ITokenValidator tokenValidator,
     IHttpContextAccessor httpContextAccessor) : RequestChallengeValidator, IExtensionGrantValidator
 {
     public string GrantType => CustomGrantTypes.DeviceAuthentication;
@@ -45,6 +48,7 @@ internal class DeviceAuthenticationExtensionGrantValidator(
     public IUserDeviceStore UserDeviceStore { get; } = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
     public ExtendedUserManager<User> UserManager { get; } = userManager ?? throw new ArgumentNullException(nameof(userManager));
     public IEventService EventService { get; } = eventService ?? throw new ArgumentNullException(nameof(eventService));
+    public ITokenValidator TokenValidator { get; } = tokenValidator ?? throw new ArgumentNullException(nameof(tokenValidator));
     public IHttpContextAccessor HttpContextAccessor { get; } = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 
     public async Task ValidateAsync(ExtensionGrantValidationContext context) {
@@ -134,7 +138,8 @@ internal class DeviceAuthenticationExtensionGrantValidator(
                 return;
             }
             await UserDeviceStore.UpdatePublicKey(device, publicKey);
-            // Grant access token.
+            var sessionId = await ResolveSessionIdAsync(parameters.Get("token"), authorizationCode.Subject.GetSubjectId());
+            claims.Add(new Claim(JwtClaimTypes.SessionId, sessionId));
             context.Result = new GrantValidationResult(authorizationCode.Subject.GetSubjectId(), GrantType, claims: claims);
         }
         // If pin is present we are heading towards a 4-Pin login.
@@ -144,6 +149,8 @@ internal class DeviceAuthenticationExtensionGrantValidator(
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Wrong pin.");
                 return;
             }
+            var sessionId = await ResolveSessionIdAsync(parameters.Get("token"), device.UserId);
+            claims.Add(new Claim(JwtClaimTypes.SessionId, sessionId));
             context.Result = new GrantValidationResult(device.UserId, GrantType, claims: claims);
         }
         await UserDeviceStore.UpdateLastSignInDate(device);
@@ -155,12 +162,33 @@ internal class DeviceAuthenticationExtensionGrantValidator(
         }
     }
 
+    /// <summary>
+    /// Resolves the session id for a successful device login when the client gives current access token.
+    /// In every other case a new session starts.
+    /// </summary>
+    private async Task<string> ResolveSessionIdAsync(string? originalToken, string expectedSubjectId) {
+        if (string.IsNullOrWhiteSpace(originalToken)) {
+            return MobileSessionIds.Create();
+        }
+        var validationResult = await TokenValidator.ValidateAccessTokenAsync(originalToken);
+        if (validationResult.IsError) {
+            return MobileSessionIds.Create();
+        }
+        var originalSubject = validationResult.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject)?.Value;
+        if (!string.Equals(originalSubject, expectedSubjectId, StringComparison.Ordinal)) {
+            return MobileSessionIds.Create();
+        }
+        
+        return MobileSessionIds.Find(validationResult.Claims) ?? MobileSessionIds.Create();
+    }
+
     private Task RaiseUserLoginSuccessEvent(User user, ExtensionGrantValidationContext context) => EventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
         user!.UserName!,
         user.Id,
         user!.UserName!,
         clientId: context.Request.ClientId,
         clientName: context.Request.Client.ClientName,
+        sessionId: context.Result.Subject?.FindFirst(JwtClaimTypes.SessionId)?.Value,
         authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
     ));
 
