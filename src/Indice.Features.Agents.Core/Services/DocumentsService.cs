@@ -12,12 +12,14 @@ namespace Indice.Features.Agents.Core.Services;
 public class DocumentsService : IDocumentsService
 {
     private readonly AgentsDbContext _db;
+    private readonly ISourceLinkGenerator _sourceLinkGenerator;
     private readonly string _embeddingModel;
     private readonly int _embeddingDimensions;
 
     /// <summary>Creates a new <see cref="DocumentsService"/>.</summary>
-    public DocumentsService(AgentsDbContext db, IOptions<AgentsOptions> options) {
-        _db = db;
+    public DocumentsService(AgentsDbContext db, IOptions<AgentsOptions> options, ISourceLinkGenerator sourceLinkGenerator) {
+        _db = db ?? throw new ArgumentNullException(nameof(db));
+        _sourceLinkGenerator = sourceLinkGenerator ?? throw new ArgumentNullException(nameof(sourceLinkGenerator));
         _embeddingModel = options.Value.AzureOpenAI.Deployments.Embedding ?? string.Empty;
         _embeddingDimensions = options.Value.AzureOpenAI.EmbeddingDimensions;
     }
@@ -119,7 +121,7 @@ public class DocumentsService : IDocumentsService
                 Source = new SourceDocumentLink {
                     Id = c.DocumentId,
                     SourceTitle = c.Document.Title,
-                    SourceUrl = c.Document.Source,
+                    SourceUrl = _sourceLinkGenerator.GenerateLink(c.Document.Source),
                     IsPrivate = c.Document.IsPrivate,
                     ContentHash = c.Document.ContentHash,
                     ContentType = c.Document.Blob == null ? "application/markdown" : c.Document.Blob.ContentType,

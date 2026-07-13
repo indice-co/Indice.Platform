@@ -11,11 +11,13 @@ namespace Indice.Features.Agents.Core.Services;
 public class SessionsStore : ISessionsStore
 {
     private readonly AgentsDbContext _db;
+    private readonly ISourceLinkGenerator _sourceLinkGenerator;
     private readonly SessionOptions _sessionOptions;
 
     /// <summary>Creates a new <see cref="SessionsStore"/>.</summary>
-    public SessionsStore(AgentsDbContext db, IOptions<AgentsOptions> options) {
-        _db = db;
+    public SessionsStore(AgentsDbContext db, IOptions<AgentsOptions> options, ISourceLinkGenerator sourceLinkGenerator) {
+        _db = db ?? throw new ArgumentNullException(nameof(db));
+        _sourceLinkGenerator = sourceLinkGenerator ?? throw new ArgumentNullException(nameof(sourceLinkGenerator));
         _sessionOptions = options.Value.Session;
     }
 
@@ -93,7 +95,7 @@ public class SessionsStore : ISessionsStore
                         Sources = m.Citations.Select(c => new SourceDocumentLink {
                             Id = c.Chunk.DocumentId,
                             SourceTitle = c.Chunk.Document.Title,
-                            SourceUrl = c.Chunk.Document.Source,
+                            SourceUrl = _sourceLinkGenerator.GenerateLink(c.Chunk.Document.Source),
                             IsPrivate = c.Chunk.Document.IsPrivate,
                             ContentHash = c.Chunk.Document.ContentHash,
                             ContentType = c.Chunk.Document.Blob == null ? "application/markdown" : c.Chunk.Document.Blob.ContentType,
@@ -138,7 +140,7 @@ public class SessionsStore : ISessionsStore
                 Sources = m.Citations.Select(c => new SourceDocumentLink {
                     Id = c.Chunk.DocumentId,
                     SourceTitle = c.Chunk.Document.Title,
-                    SourceUrl = c.Chunk.Document.Source,
+                    SourceUrl = _sourceLinkGenerator.GenerateLink(c.Chunk.Document.Source),
                     IsPrivate = c.Chunk.Document.IsPrivate,
                     ContentHash = c.Chunk.Document.ContentHash,
                     ContentType = c.Chunk.Document.Blob == null ? "application/markdown" : c.Chunk.Document.Blob.ContentType,

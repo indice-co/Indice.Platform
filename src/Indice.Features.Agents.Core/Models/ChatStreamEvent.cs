@@ -9,7 +9,7 @@ namespace Indice.Features.Agents.Core.Models;
 ///   <item><term>complete</term><description><see cref="SessionId"/>, <see cref="MessageId"/>, <see cref="Answer"/>, <see cref="Citations"/>, <see cref="Failed"/>, <see cref="FailureReason"/>.</description></item>
 /// </list>
 /// </summary>
-public class ChatStreamEvent
+public record ChatStreamEvent
 {
     /// <summary>Event discriminator: <c>step</c>, <c>delta</c>, or <c>complete</c>.</summary>
     public string Type { get; init; } = string.Empty;

@@ -29,8 +29,8 @@ public static class AgentsServerFeatureExtensions
         if(configureOptions is not null) { 
             services.Configure(configureOptions);
         }
+        services.AddTransient<ISourceLinkGenerator, SourceLinkGenerator>();
         services.AddAgentsCore(configuration, options.ConfigureAgents);
-
         services.AddMyProfileFeature();
         services.AddChatsFeature();
         services.AddIngestionFeature();
