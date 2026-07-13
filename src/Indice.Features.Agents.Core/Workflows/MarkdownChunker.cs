@@ -9,7 +9,7 @@ namespace Indice.Features.Agents.Core.Workflows;
 
 /// <summary>
 /// Structural, heading-aware chunker for general Markdown. Walks the Markdig AST in source order, tracking a
-/// heading breadcrumb, and emits one chunk per heading section — splitting oversized sections by a token budget
+/// heading breadcrumb, and emits one chunk per heading section — splitting oversized sections by a character budget
 /// with overlap. Content with no enclosing heading (a flat file, or intro prose above the first heading) is
 /// anchored to <c>documentTitle</c>. Original source text is sliced verbatim, so code fences, tables, and lists
 /// survive intact.
@@ -24,7 +24,7 @@ public static class MarkdownChunker
     /// <summary>Splits <paramref name="body"/> into structural chunks.</summary>
     /// <param name="body">The raw Markdown text.</param>
     /// <param name="documentTitle">Breadcrumb root for content that has no heading above it.</param>
-    /// <param name="options">Ingestion knobs (<see cref="AgentsOptions.IngestionOptions.ChunkTargetTokens"/> / <see cref="AgentsOptions.IngestionOptions.ChunkOverlapTokens"/>).</param>
+    /// <param name="options">Ingestion knobs (<see cref="AgentsOptions.IngestionOptions.ChunkTargetChars"/> / <see cref="AgentsOptions.IngestionOptions.ChunkOverlapChars"/>).</param>
     public static IReadOnlyList<DocumentChunk> Chunk(string body, string documentTitle, AgentsOptions.IngestionOptions options) {
         var chunks = new List<DocumentChunk>();
         if (string.IsNullOrWhiteSpace(body)) {
@@ -62,17 +62,15 @@ public static class MarkdownChunker
             if (sectionStart is null) {
                 return;
             }
-            var text = body.Substring(sectionStart.Value, sectionEnd - sectionStart.Value + 1).Trim();
+            var text = body.Substring(sectionStart.Value, sectionEnd - sectionStart.Value + 1).Trim('\r', '\n');
             sectionStart = null;
             if (text.Length == 0) {
                 return;
             }
             var breadcrumb = headings.Count > 0 ? string.Join(" > ", headings.Select(h => h.Text)) : documentTitle;
             var title = headings.Count > 0 ? headings[^1].Text : documentTitle;
-            foreach (var piece in SplitText(text, options)) {
-                if (piece.Length > 0) {
-                    Emit(breadcrumb, title, piece);
-                }
+            foreach (var piece in SplitText(text, options).Where(piece => piece.Length > 0)) {
+                Emit(breadcrumb, title, piece);
             }
         }
 
@@ -85,7 +83,7 @@ public static class MarkdownChunker
                 HeadingPath = headingPath,
                 Title = title,
                 Category = null,
-                TokenCount = EstimateTokens(text),
+                TokenCount = EstimateTokens(content),
             });
         }
     }
@@ -103,7 +101,7 @@ public static class MarkdownChunker
         foreach (var inline in heading.Inline.Descendants()) {
             switch (inline) {
                 case LiteralInline literal:
-                    builder.Append(literal.Content.ToString());
+                    builder.Append(literal.Content);
                     break;
                 case CodeInline code:
                     builder.Append(code.Content);
@@ -117,19 +115,17 @@ public static class MarkdownChunker
     }
 
     /// <summary>
-    /// Splits <paramref name="text"/> into windows of at most <see cref="AgentsOptions.IngestionOptions.ChunkTargetTokens"/>,
-    /// each seeded with a ~<see cref="AgentsOptions.IngestionOptions.ChunkOverlapTokens"/> tail of the previous one. Cuts fall on
+    /// Splits <paramref name="text"/> into windows of at most <see cref="AgentsOptions.IngestionOptions.ChunkTargetChars"/> characters,
+    /// each seeded with a ~<see cref="AgentsOptions.IngestionOptions.ChunkOverlapChars"/>-character tail of the previous one. Cuts fall on
     /// whitespace-run boundaries — which coincide with paragraph, sentence, and word boundaries — preferring the furthest one
     /// that fits the budget; a hard character limit guarantees a bounded chunk even for an unbroken wall of text.
     /// </summary>
     private static IReadOnlyList<string> SplitText(string text, AgentsOptions.IngestionOptions options) {
-        var target = Math.Max(1, options.ChunkTargetTokens);
-        if (EstimateTokens(text) <= target) {
+        var target = Math.Max(1, options.ChunkTargetChars);
+        if (text.Length <= target) {
             return [text];
         }
-        var overlap = Math.Clamp(options.ChunkOverlapTokens, 0, target - 1);
-        var targetChars = target * CharsPerToken;
-        var overlapChars = overlap * CharsPerToken;
+        var overlap = Math.Clamp(options.ChunkOverlapChars, 0, target - 1);
 
         // Candidate cut offsets: the position after each maximal whitespace run, plus the end of the text.
         var breaks = new List<int>();
@@ -146,6 +142,35 @@ public static class MarkdownChunker
             breaks.Add(text.Length);
         }
 
+        var windows = new List<string>();
+        var start = 0;
+        while (start < text.Length) {
+            int end;
+            if (start + target >= text.Length) {
+                end = text.Length;
+            } else {
+                var boundary = FloorBreak(start, start + target);
+                end = boundary > start ? boundary : Math.Min(start + target, text.Length);
+            }
+            var slice = text[start..end].Trim('\r', '\n');
+            if (slice.Length > 0) {
+                windows.Add(slice);
+            }
+            if (end >= text.Length) {
+                break;
+            }
+            // Back up ~overlap characters to a boundary to seed the next window; never regress past start.
+            var nextStart = end;
+            if (overlap > 0) {
+                var boundary = FloorBreak(start, end - overlap);
+                if (boundary > start) {
+                    nextStart = boundary;
+                }
+            }
+            start = nextStart > start ? nextStart : end;
+        }
+        return windows;
+
         // Largest break in (start, ceiling]; -1 when none exists.
         int FloorBreak(int start, int ceiling) {
             var found = -1;
@@ -160,39 +185,15 @@ public static class MarkdownChunker
             return found;
         }
 
-        var windows = new List<string>();
-        var start = 0;
-        while (start < text.Length) {
-            int end;
-            if (start + targetChars >= text.Length) {
-                end = text.Length;
-            } else {
-                var boundary = FloorBreak(start, start + targetChars);
-                end = boundary > start ? boundary : Math.Min(start + targetChars, text.Length);
-            }
-            var slice = text[start..end].Trim();
-            if (slice.Length > 0) {
-                windows.Add(slice);
-            }
-            if (end >= text.Length) {
-                break;
-            }
-            // Back up ~overlapChars to a boundary to seed the next window; never regress past start.
-            var nextStart = end;
-            if (overlapChars > 0) {
-                var boundary = FloorBreak(start, end - overlapChars);
-                if (boundary > start) {
-                    nextStart = boundary;
-                }
-            }
-            start = nextStart > start ? nextStart : end;
-        }
-        return windows;
     }
 
     private const int CharsPerToken = 4;
 
-    /// <summary>Approximate token count (~4 chars per token). Documented as an estimate; a precise tokenizer can replace this without changing the contract.</summary>
+    /// <summary>
+    /// Approximate token count (~4 chars per token), used only to populate the observability
+    /// <see cref="DocumentChunk.TokenCount"/> field — sizing is character-based and does not use this. A precise
+    /// tokenizer can replace this without changing the contract.
+    /// </summary>
     private static int EstimateTokens(string text) => Math.Max(1, (int)Math.Ceiling((double)text.Length / CharsPerToken));
 
     private static string Sha256Hex(string input) {

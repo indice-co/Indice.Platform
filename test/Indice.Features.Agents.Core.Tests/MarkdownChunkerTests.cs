@@ -6,7 +6,7 @@ namespace Indice.Features.Agents.Core.Tests;
 public class MarkdownChunkerTests
 {
     private static AgentsOptions.IngestionOptions Options(int target = 800, int overlap = 100) =>
-        new() { ChunkTargetTokens = target, ChunkOverlapTokens = overlap };
+        new() { ChunkTargetChars = target, ChunkOverlapChars = overlap };
 
     [Fact]
     public void BuildsHeadingBreadcrumbsFromNestedHeadings() {
@@ -34,7 +34,7 @@ public class MarkdownChunkerTests
 
     [Fact]
     public void SplitsOversizedSectionIntoMultipleOverlappingChunks() {
-        // Each paragraph is ~33 chars (~9 tokens). target 18 (~2 paragraphs), overlap 9 (~1 paragraph).
+        // Each paragraph is ~33 chars. target 72 chars (~2 paragraphs), overlap 36 chars (~1 paragraph).
         var body = """
             # Doc
 
@@ -48,7 +48,7 @@ public class MarkdownChunkerTests
             """;
         var markers = new[] { "MARKER_A", "MARKER_B", "MARKER_C", "MARKER_D" };
 
-        var chunks = MarkdownChunker.Chunk(body, "doc", Options(target: 18, overlap: 9));
+        var chunks = MarkdownChunker.Chunk(body, "doc", Options(target: 72, overlap: 36));
 
         Assert.True(chunks.Count >= 2, $"expected split, got {chunks.Count}");
         Assert.All(chunks, c => Assert.Equal("Doc", c.HeadingPath));
@@ -58,23 +58,23 @@ public class MarkdownChunkerTests
         // Overlap: at least one paragraph is carried into an adjacent chunk.
         Assert.True(markers.Any(m => chunks.Count(c => c.Content.Contains(m)) >= 2),
             "expected overlap to duplicate at least one paragraph across chunks");
-        // Bounded: no chunk wildly exceeds the target.
-        Assert.All(chunks, c => Assert.True(c.TokenCount <= 18 * 2, $"chunk too big: {c.TokenCount} tokens"));
+        // Bounded: no chunk wildly exceeds the target (breadcrumb prefix + a ≤target-char window).
+        Assert.All(chunks, c => Assert.True(c.Content.Length <= 72 * 2, $"chunk too big: {c.Content.Length} chars"));
     }
 
     [Fact]
-    public void FlatFileWithNoHeadingsDegradesToTokenWindowsAnchoredToDocumentTitle() {
+    public void FlatFileWithNoHeadingsDegradesToCharacterWindowsAnchoredToDocumentTitle() {
         // A docx/pdf->md dump: one wall of text, no headings, no blank lines.
         var body = "This is a converted document with no markdown headings at all just flat prose "
                  + "that runs on and on describing the system and its behavior across many clauses "
                  + "until it is clearly longer than the configured chunk target size and must split.";
 
-        var chunks = MarkdownChunker.Chunk(body, "converted-report", Options(target: 20, overlap: 5));
+        var chunks = MarkdownChunker.Chunk(body, "converted-report", Options(target: 80, overlap: 20));
 
-        Assert.True(chunks.Count >= 2, $"expected token-window split, got {chunks.Count}");
+        Assert.True(chunks.Count >= 2, $"expected character-window split, got {chunks.Count}");
         Assert.All(chunks, c => Assert.Equal("converted-report", c.HeadingPath));
         Assert.All(chunks, c => Assert.Equal("converted-report", c.Title));
-        Assert.All(chunks, c => Assert.True(c.TokenCount <= 20 * 2, $"chunk too big: {c.TokenCount} tokens"));
+        Assert.All(chunks, c => Assert.True(c.Content.Length <= 80 * 2, $"chunk too big: {c.Content.Length} chars"));
         Assert.Contains(chunks, c => c.Content.Contains("This is a converted document"));
         Assert.Contains(chunks, c => c.Content.Contains("must split."));
     }
