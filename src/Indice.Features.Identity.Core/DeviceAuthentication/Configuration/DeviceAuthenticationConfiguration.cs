@@ -7,6 +7,7 @@ using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Grants;
+using Indice.Features.Identity.Core.MobileSessions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -38,6 +39,7 @@ public static class DeviceAuthenticationConfiguration
         options.AddUserDeviceStoreInMemory();
         // Register custom grant validator.
         builder.AddExtensionGrantValidator<DeviceAuthenticationExtensionGrantValidator>();
+        builder.AddCustomTokenRequestValidator<MobileSessionIdTokenRequestValidator>();
         // Register core services.
         options.AddDefaultPasswordHasher();
         options.RegisterCoreServices();

@@ -19,6 +19,7 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.ImpossibleTravel;
+using Indice.Features.Identity.Core.MobileSessions;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Security;
 using Indice.Services;
@@ -96,6 +97,7 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
                 user.UserName!,
                 clientId: context.Request.ClientId,
                 clientName: context.Request.Client.ClientName,
+                sessionId: context.Result.Subject?.FindFirst(JwtClaimTypes.SessionId)?.Value,
                 authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
             ));
         await _userManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
@@ -255,6 +257,7 @@ public class IdentityResourceOwnerPasswordValidator<TUser>(
         if (!string.IsNullOrWhiteSpace(context.Device?.DeviceId)) {
             claims.Add(new Claim(BasicClaimTypes.DeviceId, context.Device.DeviceId));
         }
+        claims.Add(new Claim(JwtClaimTypes.SessionId, MobileSessionIds.Create()));
         context.Result = new GrantValidationResult(subject, OidcConstants.AuthenticationMethods.Password, claims);
     }
 
@@ -315,7 +318,9 @@ public class IdentityResourceOwnerPasswordValidator<TUser>(
             return;
         }
         // Return token to user.
-        context.Result = new GrantValidationResult(context.User!.Id, CustomGrantTypes.Mfa);
+        context.Result = new GrantValidationResult(context.User!.Id, CustomGrantTypes.Mfa, [
+            new Claim(JwtClaimTypes.SessionId, MobileSessionIds.Create())
+        ]);
     }
 }
 
