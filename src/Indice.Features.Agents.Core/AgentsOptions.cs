@@ -137,11 +137,11 @@ public class AgentsOptions
     /// <summary>Ingestion-time knobs.</summary>
     public class IngestionOptions
     {
-        /// <summary>Target chunk size in tokens.</summary>
-        public int ChunkTargetTokens { get; set; } = 256;
+        /// <summary>Target chunk size in characters.</summary>
+        public int ChunkTargetChars { get; set; } = 1024;
 
-        /// <summary>Overlap between adjacent chunks in tokens.</summary>
-        public int ChunkOverlapTokens { get; set; } = 50;
+        /// <summary>Overlap between adjacent chunks in characters.</summary>
+        public int ChunkOverlapChars { get; set; } = 200;
 
         /// <summary>Maximum inputs per embedding call.</summary>
         public int EmbedBatchSize { get; set; } = 10;
