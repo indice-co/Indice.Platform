@@ -5,6 +5,8 @@
 /// </summary>
 public class IngestRequest
 {
+    /// <summary>The type of the document, selecting the parsing/chunking strategy.</summary>
+    public DocumentType DocumentType { get; set; }
     /// <summary>Opens a UTF-8 text based content stream. Can consume markdown.</summary>
     /// <remarks>This is used as the tokenization input</remarks>
     public Func<Stream> OpenMarkdownSourceStream { get; set; } = null!;

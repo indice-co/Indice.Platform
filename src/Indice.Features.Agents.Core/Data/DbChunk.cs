@@ -52,4 +52,7 @@ public class DbChunk
 
     /// <summary>Creation timestamp.</summary>
     public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>Navigation: parent document.</summary>
+    public virtual DbDocument Document { get; set; } = null!;
 }

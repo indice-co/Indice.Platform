@@ -27,7 +27,12 @@ public class DefaultIngestionPipeline : IIngestionPipeline
     public async Task<IngestionReport> IngestAsync(IngestRequest request, CancellationToken cancellationToken) {
         using var reader = new StreamReader(request.OpenMarkdownSourceStream(), Encoding.UTF8, leaveOpen: false);
         var body = await reader.ReadToEndAsync(cancellationToken);
-        var (firstCategory, chunks) = ParseFaq(body);
+        var title = Path.GetFileNameWithoutExtension(request.FileName);
+        var (firstCategory, chunks) = request.DocumentType switch {
+            DocumentType.MarkdownFaq => ParseFaq(body),
+            DocumentType.Markdown => (null, MarkdownChunker.Chunk(body, title, _options.Ingestion)),
+            _ => throw new BusinessException($"Unsupported document type '{request.DocumentType}'.", "UNSUPPORTED_DOCUMENT_TYPE"),
+        };
 
         var effectiveCategory = firstCategory ?? (string.IsNullOrWhiteSpace(request.Category) ? null : request.Category.Trim());
         var effectiveLanguage = string.IsNullOrWhiteSpace(request.Language) ? null : request.Language.Trim();
@@ -42,8 +47,6 @@ public class DefaultIngestionPipeline : IIngestionPipeline
                 $"Allowed languages: {string.Join(", ", _options.Taxonomy.Languages)}.",
             ]);
         }
-
-        var title = Path.GetFileNameWithoutExtension(request.FileName);
 
         byte[]? data = null;
         var toByteArray = (Stream stream) => {

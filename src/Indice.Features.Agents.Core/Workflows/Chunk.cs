@@ -1,13 +1,15 @@
+using Indice.Features.Agents.Core.Models;
+
 namespace Indice.Features.Agents.Core.Workflows;
 
 /// <summary>Read-only projection of a stored chunk surfaced from the store to the RAG pipeline.</summary>
 public class Chunk
 {
     /// <summary>Primary key of the chunk (<c>dex.Chunks.Id</c>).</summary>
-    public Guid ChunkId { get; init; }
+    public Guid Id { get; init; }
 
     /// <summary>Primary key of the parent document (<c>dex.Documents.Id</c>).</summary>
-    public Guid DocumentId { get; init; }
+    public SourceDocumentLink Source { get; init; } = null!;
 
     /// <summary>Optional display title (heading or document title).</summary>
     public string? Title { get; init; }
