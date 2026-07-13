@@ -46,8 +46,8 @@ public class LlmListwiseReranker : ILlmReranker
             .ToDictionary(s => s.Index, s => s.Score);
         var reranked = candidates
             .Select((c, i) => new RetrievedChunk {
-                ChunkId = c.ChunkId,
-                DocumentId = c.DocumentId,
+                Id = c.Id,
+                Source = c.Source,
                 Title = c.Title,
                 HeadingPath = c.HeadingPath,
                 Content = c.Content,

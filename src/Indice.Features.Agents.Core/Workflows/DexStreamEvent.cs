@@ -50,7 +50,10 @@ public sealed class DexFinalEvent : DexStreamEvent
     public string? Answer { get; init; }
 
     /// <summary>Citations supporting the answer; empty for out-of-scope responses and on error.</summary>
-    public IReadOnlyList<Citation> Citations { get; init; } = Array.Empty<Citation>();
+    public IReadOnlyList<Citation> Citations { get; init; } = [];
+
+    /// <summary>Links to the source documents that were retrieved and used to compose the answer; empty for out-of-scope responses and on error.</summary>
+    public IReadOnlyList<SourceDocumentLink> Sources { get; init; } = [];
 
     /// <summary>True when a step threw and the workflow halted. Out-of-scope is NOT a failure.</summary>
     public bool Failed { get; init; }

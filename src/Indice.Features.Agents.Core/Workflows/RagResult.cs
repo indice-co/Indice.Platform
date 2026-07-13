@@ -14,7 +14,10 @@ public class RagResult
     public string? Answer { get; init; }
 
     /// <summary>Citations accumulated across retrieval/rerank/compose, surfaced from the final payload.</summary>
-    public IReadOnlyList<Citation> Citations { get; init; } = Array.Empty<Citation>();
+    public IReadOnlyList<Citation> Citations { get; init; } = [];
+
+    /// <summary>Links to the source documents that were retrieved and used to compose the answer, surfaced from the final payload.</summary>
+    public IReadOnlyList<SourceDocumentLink> Sources { get; init; } = [];
 
     /// <summary>True when a step threw and the workflow halted (surfaced via MAF's <c>ExecutorFailedEvent</c>). Out-of-scope is NOT a failure — it flows through <c>OutOfScopeResponder</c> and produces a regular <see cref="Answer"/>.</summary>
     public bool Failed { get; init; }

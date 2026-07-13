@@ -22,9 +22,5 @@ public class DbDocumentMap : IEntityTypeConfiguration<DbDocument>
         builder.Property(x => x.ChunkCount).HasDefaultValue(0);
         builder.Property(x => x.IsPrivate).HasDefaultValue(false);
         builder.HasIndex(x => x.Source).IsUnique();
-        builder.HasMany(x => x.Chunks)
-               .WithOne()
-               .HasForeignKey(c => c.DocumentId)
-               .OnDelete(DeleteBehavior.Cascade);
     }
 }
