@@ -4,7 +4,7 @@
     <TargetFrameworks></TargetFrameworks>
     <TargetFramework>net10.0</TargetFramework>
     <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
-    <VersionSuffix>beta07</VersionSuffix>
+    <VersionSuffix>beta08</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
