@@ -171,18 +171,15 @@ public static class MarkdownChunker
         }
         return windows;
 
-        // Largest break in (start, ceiling]; -1 when none exists.
+        // Largest break in (start, ceiling]; -1 when none exists. Binary search over the sorted
+        // breaks list keeps splitting ~O(n log n) instead of O(breaks × windows).
         int FloorBreak(int start, int ceiling) {
-            var found = -1;
-            foreach (var b in breaks) {
-                if (b > ceiling) {
-                    break;
-                }
-                if (b > start) {
-                    found = b;
-                }
+            var index = breaks.BinarySearch(ceiling);
+            if (index < 0) {
+                index = ~index - 1; // largest break strictly less than ceiling (~index is the first break above it)
             }
-            return found;
+            // breaks[index] is now the largest break <= ceiling (index is -1 when every break exceeds ceiling).
+            return index >= 0 && breaks[index] > start ? breaks[index] : -1;
         }
 
     }

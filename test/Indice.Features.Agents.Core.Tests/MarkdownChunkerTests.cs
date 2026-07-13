@@ -80,6 +80,19 @@ public class MarkdownChunkerTests
     }
 
     [Fact]
+    public void CutsFallOnExactWordBoundaries() {
+        // 5 four-char words, single spaces. With target 9 the next word boundary (10 chars in)
+        // never fits, so each window ends on a word boundary. Pins the exact cut offsets so any
+        // off-by-one in the boundary search is caught.
+        var body = "# H\n\naaaa bbbb cccc dddd eeee";
+
+        var chunks = MarkdownChunker.Chunk(body, "doc", Options(target: 9, overlap: 0));
+
+        var pieces = chunks.Select(c => c.Content.Split("\n\n")[1].Trim()).ToArray();
+        Assert.Equal(["aaaa", "bbbb", "cccc", "dddd eeee"], pieces);
+    }
+
+    [Fact]
     public void PreservesCodeFenceVerbatimAndDoesNotSplitOnHashLinesInsideIt() {
         var body = """
             # API
