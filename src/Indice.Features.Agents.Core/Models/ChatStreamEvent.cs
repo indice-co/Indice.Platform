@@ -26,6 +26,9 @@ public class ChatStreamEvent
     /// <summary>Citations supporting the answer; populated on <c>complete</c>.</summary>
     public IReadOnlyList<Citation>? Citations { get; init; }
 
+    /// <summary>Citations supporting the answer; populated on <c>complete</c>.</summary>
+    public IReadOnlyList<SourceDocumentLink>? Sources { get; init; }
+
     /// <summary>Identifier of the session this turn belongs to; populated on <c>complete</c>.</summary>
     public Guid? SessionId { get; init; }
 

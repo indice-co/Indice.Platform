@@ -12,5 +12,8 @@ public class RagPipelineOutput
     public string? Answer { get; init; }
 
     /// <summary>Citations the answer was grounded against, projected from the reranked candidates.</summary>
-    public IReadOnlyList<Citation> Citations { get; init; } = Array.Empty<Citation>();
+    public IReadOnlyList<Citation> Citations { get; init; } = [];
+
+    /// <summary>Links to the source documents that were retrieved and used to compose the answer; empty for out-of-scope responses and on error.</summary>
+    public IReadOnlyList<SourceDocumentLink> Sources { get; init; } = [];
 }

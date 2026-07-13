@@ -1,4 +1,4 @@
-using System.Net.Mime;
+using System.Linq.Expressions;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows;
@@ -24,9 +24,13 @@ public class DocumentsService : IDocumentsService
 
     /// <inheritdoc/>
     public async Task<SourceDocument?> FindBySourceAsync(string source, bool includeData, CancellationToken cancellationToken) {
+        Expression<Func<DbDocument, bool>> predicate = d => d.Source == source;
+        if (Guid.TryParse(source, out var documentId)) {
+            predicate = d => d.Id == documentId;
+        }
         var query = _db.Set<DbDocument>()
             .AsNoTracking()
-            .Where(d => d.Source == source)
+            .Where(predicate)
             .Select(d => new SourceDocument { 
                 Id = d.Id, 
                 ContentHash = d.ContentHash, 
@@ -111,8 +115,17 @@ public class DocumentsService : IDocumentsService
             .OrderBy(c => EF.Functions.VectorDistance("cosine", c.Embedding, sqlVector))
             .Take(topK)
             .Select(c => new RetrievedChunk {
-                ChunkId = c.Id,
-                DocumentId = c.DocumentId,
+                Id = c.Id,
+                Source = new SourceDocumentLink {
+                    Id = c.DocumentId,
+                    SourceTitle = c.Document.Title,
+                    SourceUrl = c.Document.Source,
+                    IsPrivate = c.Document.IsPrivate,
+                    ContentHash = c.Document.ContentHash,
+                    ContentType = c.Document.Blob == null ? "application/markdown" : c.Document.Blob.ContentType,
+                    Length = c.Document.Blob == null ? -1 : c.Document.Blob.ContentLength,
+                    FileName = c.Document.Blob == null ? c.Document.Title : c.Document.Blob.FileName,
+                },
                 Title = c.Title,
                 HeadingPath = c.HeadingPath,
                 Content = c.Content,

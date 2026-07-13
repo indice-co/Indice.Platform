@@ -71,6 +71,7 @@ public class DexRunner : IDexRunner
         return new RagResult {
             Answer = final?.Payload?.Answer,
             Citations = final?.Payload?.Citations ?? [],
+            Sources = final?.Payload?.Sources ?? [],
             Failed = failure is not null,
             FailureReason = failure,
             Usage = usage,
@@ -120,6 +121,7 @@ public class DexRunner : IDexRunner
         yield return new DexFinalEvent {
             Answer = final?.Payload?.Answer,
             Citations = final?.Payload?.Citations ?? [],
+            Sources = final?.Payload?.Sources ?? [],
             Failed = failure is not null,
             FailureReason = failure,
             Usage = usage,

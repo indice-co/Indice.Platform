@@ -90,10 +90,25 @@ public class SessionsStore : ISessionsStore
                             Number = c.Number,
                             Score = c.Score,
                         }).ToList(),
-                    })
+                        Sources = m.Citations.Select(c => new SourceDocumentLink {
+                            Id = c.Chunk.DocumentId,
+                            SourceTitle = c.Chunk.Document.Title,
+                            SourceUrl = c.Chunk.Document.Source,
+                            IsPrivate = c.Chunk.Document.IsPrivate,
+                            ContentHash = c.Chunk.Document.ContentHash,
+                            ContentType = c.Chunk.Document.Blob == null ? "application/markdown" : c.Chunk.Document.Blob.ContentType,
+                            Length = c.Chunk.Document.Blob == null ? -1 : c.Chunk.Document.Blob.ContentLength,
+                            FileName = c.Chunk.Document.Blob == null ? c.Chunk.Document.Title : c.Chunk.Document.Blob.FileName,
+                        }).ToList()
+                    })   
                     .ToList(),
             })
             .FirstOrDefaultAsync(cancellationToken);
+        if (session is not null) { 
+            foreach (var message in session.Messages) {
+                message.Sources = message.Sources.DistinctBy(s => s.Id).ToList();
+            }
+        }
         return session;
     }
 
@@ -101,7 +116,7 @@ public class SessionsStore : ISessionsStore
     public async Task<IReadOnlyList<ChatMessage>> GetHistoryAsync(Guid sessionId, CancellationToken cancellationToken) {
         // HistoryWindow counts turns (user+assistant pairs); each turn is two persisted rows.
         var messageTake = _sessionOptions.HistoryWindow * 2;
-        return await _db.SessionMessages
+        var messages = await _db.SessionMessages
             .AsNoTracking()
             .Where(m => m.SessionId == sessionId)
             .OrderByDescending(m => m.CreatedAt)
@@ -120,8 +135,22 @@ public class SessionsStore : ISessionsStore
                     Number = c.Number,
                     Score = c.Score,
                 }).ToList(),
+                Sources = m.Citations.Select(c => new SourceDocumentLink {
+                    Id = c.Chunk.DocumentId,
+                    SourceTitle = c.Chunk.Document.Title,
+                    SourceUrl = c.Chunk.Document.Source,
+                    IsPrivate = c.Chunk.Document.IsPrivate,
+                    ContentHash = c.Chunk.Document.ContentHash,
+                    ContentType = c.Chunk.Document.Blob == null ? "application/markdown" : c.Chunk.Document.Blob.ContentType,
+                    Length = c.Chunk.Document.Blob == null ? -1 : c.Chunk.Document.Blob.ContentLength,
+                    FileName = c.Chunk.Document.Blob == null ? c.Chunk.Document.Title : c.Chunk.Document.Blob.FileName,
+                }).ToList()
             })
             .ToListAsync(cancellationToken);
+        foreach (var message in messages) {
+            message.Sources = message.Sources.DistinctBy(s => s.Id).ToList();
+        }
+        return messages;
     }
 
     /// <inheritdoc/>
