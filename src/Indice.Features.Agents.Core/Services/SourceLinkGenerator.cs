@@ -8,7 +8,7 @@ public interface ISourceLinkGenerator
 }
 
 /// <summary>A no-op implementation of <see cref="ISourceLinkGenerator"/> that returns the source URL as-is.</summary>
-public interface NoOpSourceLinkGenerator : ISourceLinkGenerator
+public class NoOpSourceLinkGenerator : ISourceLinkGenerator
 {
     /// <inheritdoc/>
     public string GenerateLink(string sourceUrl) => sourceUrl;
