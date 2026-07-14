@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using Indice.Features.Agents.Core.Services;
-using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -18,9 +17,12 @@ internal static class SourcesHandlers
         if (document.IsPrivate && (currentUser.Identity?.IsAuthenticated != true)) {
             return TypedResults.Unauthorized();
         }
+        var contentType = document.ContentType.StartsWith("text", StringComparison.OrdinalIgnoreCase) ? 
+                          $"{document.ContentType}; charset=utf-8" : 
+                          document.ContentType;
         
         // Implementation for retrieving the actual source document
-        return TypedResults.File(document.Data, document.ContentType, 
+        return TypedResults.File(document.Data, contentType: contentType,
                                  fileDownloadName: download == true ? document.FileName : null,  // trigger download with content disposition if 'download' query parameter is true
                                  lastModified: document.LastModified);
     }
