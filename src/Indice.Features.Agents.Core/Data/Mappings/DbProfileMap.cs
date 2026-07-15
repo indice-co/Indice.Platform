@@ -17,7 +17,7 @@ public class DbProfileMap : IEntityTypeConfiguration<DbProfile>
         builder.Property(x => x.Locale).HasMaxLength(TextSizePresets.S16);
         builder.Property(x => x.PreferredLanguage).HasMaxLength(TextSizePresets.S16);
         builder.Property(x => x.ResponseStyle).HasMaxLength(TextSizePresets.S32);
-        builder.PrimitiveCollection(b => b.PreferredCategories).HasColumnType("json");  // Or other options
+        builder.PrimitiveCollection(b => b.PreferredCategories);  // Or other options
         builder.HasIndex(x => x.SubjectId).IsUnique();
     }
 }

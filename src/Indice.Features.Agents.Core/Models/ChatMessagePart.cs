@@ -1,5 +1,6 @@
 ﻿using System.Buffers.Text;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Indice.Features.Agents.Core.Models;
 
@@ -15,7 +16,9 @@ public class ChatMessageContent
         AddPart(content, contentType);
     }
 
+
     /// <summary>Parts of the message content.</summary>
+    [JsonPropertyName("parts")]
     public List<ChatMessagePart> Parts { get; set; } = [];
 
     /// <summary>
@@ -32,8 +35,10 @@ public class ChatMessageContent
 public class ChatMessagePart
 {
     /// <summary>The value of the message part.</summary>
+    [JsonPropertyName("value")]
     public string Value { get; set; } = null!;
     /// <summary>The content type of the message part (e.g., "text/plain", "text/html").</summary>
+    [JsonPropertyName("contentType")]
     public string ContentType { get; set; } = null!;
 
     /// <summary>Creates a new <see cref="ChatMessagePart"/> from HTML content.</summary>
