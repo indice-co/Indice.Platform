@@ -86,6 +86,8 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                               }
                             }
 
+                  </div>
+
                             @if (turn.message.citations && turn.message.citations.length > 0) {
                               <div class="mt-2 flex flex-wrap gap-1.5">
                                 @for (citation of turn.message.citations; track citation.chunkId) {
@@ -116,7 +118,6 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                                 {{ turn.questionNumber }}/{{ questionsTotal() }}
                               </div>
                             }
-                  </div>
                 </div>
                 </div>
               }
