@@ -1,13 +1,11 @@
 using System.Text;
-using Azure.AI.OpenAI;
+using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.Events;
-using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
-using OpenAI.Chat;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -23,27 +21,16 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="AnswerComposer"/>.</summary>
-    public AnswerComposer(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
-        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
-        UserClaimsAIContextProvider userClaimsProvider,
-        SessionStoreChatHistoryProvider historyProvider) : base("AnswerComposer") {
+    public AnswerComposer(IAgentsFactory agents, IOptions<AgentsOptions> options) : base("AnswerComposer") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
-
-        var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
-        chatOptions.Instructions = prompts.Render("AnswerComposer", new {
-            strictGrounding = _options.Pipeline.StrictGrounding,
+        _agent = agents.Create(new AgentDescriptor {
+            Name = "DexAnswerComposer",
+            Role = AgentModelRole.Reasoning,
+            PromptTemplate = "AnswerComposer",
+            PromptValues = new Dictionary<string, object?> { ["strictGrounding"] = _options.Pipeline.StrictGrounding },
+            IncludeUserContext = true,
         });
-
-        _agent = openAIClient
-            .GetChatClient(_model)
-            .AsAIAgent(
-                options: new ChatClientAgentOptions() {
-                    ChatOptions = chatOptions,
-                    AIContextProviders = [userClaimsProvider],
-                    Name = "DexAnswerComposer",
-                    ChatHistoryProvider = historyProvider,
-                });
     }
 
     /// <inheritdoc/>

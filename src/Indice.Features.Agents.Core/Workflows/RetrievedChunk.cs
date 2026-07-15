@@ -1,3 +1,5 @@
+using Indice.Features.Agents.Core.Models;
+
 namespace Indice.Features.Agents.Core.Workflows;
 
 /// <summary>A <see cref="Chunk"/> paired with a relevance score (cosine similarity from retrieval, 0..1 from rerank).</summary>

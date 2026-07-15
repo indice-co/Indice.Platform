@@ -1,12 +1,8 @@
-using System.ClientModel;
-using Azure.AI.OpenAI;
-using Indice.Features.Agents.Core.Workflows.Prompts;
+using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
-using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
-using OpenAI.Chat;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -19,23 +15,15 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
 {
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
-    private readonly string _model;
 
     /// <summary>Creates a new <see cref="QueryRewriter"/>.</summary>
-    public QueryRewriter(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
-        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
-        SessionStoreChatHistoryProvider historyProvider) : base("QueryRewriter") {
+    public QueryRewriter(IAgentsFactory agents, IOptions<AgentsOptions> options) : base("QueryRewriter") {
         _options = options.Value;
-        _model = _options.AzureOpenAI.Deployments.Fast!;
-        var chatOptions = models.Value.BaseFastModelOptions.Clone();
-        chatOptions.Instructions = prompts.Render("QueryRewriter");
-        _agent = openAIClient
-            .GetChatClient(_model)
-            .AsAIAgent(options: new ChatClientAgentOptions() {
-                ChatOptions = chatOptions,
-                Name = "DexQueryRewriter",
-                ChatHistoryProvider = historyProvider,
-            });
+        _agent = agents.Create(new AgentDescriptor {
+            Name = "DexQueryRewriter",
+            Role = AgentModelRole.Fast,
+            PromptTemplate = "QueryRewriter",
+        });
     }
 
     /// <inheritdoc/>
@@ -49,7 +37,7 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
         if (enabled) {
             var agentSession = await _agent.CreateSessionAsync(cancellationToken);
             SessionStoreChatHistoryProvider.SetSessionId(agentSession, envelope.State.SessionId);
-            var prompt = $"Question: {question}\n\nProduce {expansion - 1} alternative rewrite(s).";
+            var prompt = $"Question: {question}\n\nProduce {expansion - 1} alternative rewrite(s). Use the provided History to inform your rewrites.";
             var response = await _agent.RunAsync<RewriteResult>(prompt, agentSession, cancellationToken: cancellationToken);
             foreach (var q in response.Result.Queries) {
                 if (!string.IsNullOrWhiteSpace(q) && !queries.Contains(q, StringComparer.OrdinalIgnoreCase)) {

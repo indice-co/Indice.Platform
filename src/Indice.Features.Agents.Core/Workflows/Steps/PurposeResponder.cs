@@ -1,14 +1,11 @@
 ﻿using System.Text;
-using Azure;
-using Azure.AI.OpenAI;
+using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.Events;
-using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
-using OpenAI.Chat;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -24,27 +21,16 @@ internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, Pi
 
 
     /// <summary>Creates a new <see cref="PurposeResponder"/>.</summary>
-    public PurposeResponder(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
-        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
-        UserClaimsAIContextProvider userClaimsProvider,
-        SessionStoreChatHistoryProvider historyProvider) : base("PurposeResponder") {
+    public PurposeResponder(IAgentsFactory agents, IOptions<AgentsOptions> options) : base("PurposeResponder") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
-
-        var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
-        chatOptions.Instructions = prompts.Render("PurposeResponder", new {
-            strictGrounding = _options.Pipeline.StrictGrounding,
+        _agent = agents.Create(new AgentDescriptor {
+            Name = "DexPurposeResponder",
+            Role = AgentModelRole.Reasoning,
+            PromptTemplate = "PurposeResponder",
+            PromptValues = new Dictionary<string, object?> { ["strictGrounding"] = _options.Pipeline.StrictGrounding },
+            IncludeUserContext = true,
         });
-
-        _agent = openAIClient
-            .GetChatClient(_model)
-            .AsAIAgent(
-                options: new ChatClientAgentOptions() {
-                    ChatOptions = chatOptions,
-                    AIContextProviders = [userClaimsProvider],
-                    Name = "DexPurposeResponder",
-                    ChatHistoryProvider = historyProvider,
-                });
     }
 
     /// <inheritdoc/>

@@ -61,6 +61,9 @@ public static class AgentsFeatureExtensions
         });
 
         services.TryAddTransient<UserClaimsAIContextProvider>();
+        // Transient (not singleton): it depends on the transient chat-history / user-context providers below,
+        // which a singleton would captively capture.
+        services.TryAddTransient<IAgentsFactory, AgentsFactory>();
         services.TryAddTransient<ISessionsStore, SessionsStore>();
         services.TryAddTransient<IUsageGuardService, UsageGuardService>();
         services.TryAddTransient<SessionStoreChatHistoryProvider>();

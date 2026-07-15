@@ -1,13 +1,9 @@
-using Azure.AI.OpenAI;
+using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.Events;
-using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
-using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
-using OpenAI.Chat;
-using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -23,22 +19,18 @@ public sealed class IntentClassifier : Executor<PipelineStepContext<RagPipelineI
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="IntentClassifier"/>.</summary>
-    public IntentClassifier(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
-        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
-        SessionStoreChatHistoryProvider historyProvider) : base("IntentClassifier") {
+    public IntentClassifier(IAgentsFactory agents, IOptions<AgentsOptions> options) : base("IntentClassifier") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
-        var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
-        chatOptions.Instructions = prompts.Render("IntentClassifier", new {
-            categories = _options.Taxonomy.Categories,
-            languages = _options.Taxonomy.Languages,
+        _agent = agents.Create(new AgentDescriptor {
+            Name = "DexIntentClassifier",
+            Role = AgentModelRole.Reasoning,
+            PromptTemplate = "IntentClassifier",
+            PromptValues = new Dictionary<string, object?> {
+                ["categories"] = _options.Taxonomy.Categories,
+                ["languages"] = _options.Taxonomy.Languages,
+            },
         });
-        _agent = openAIClient.GetChatClient(_model)
-            .AsAIAgent(options: new ChatClientAgentOptions() {
-                ChatOptions = chatOptions,
-                Name = "DexIntentClassifier",
-                ChatHistoryProvider = historyProvider,
-            });
     }
 
     /// <inheritdoc/>

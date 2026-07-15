@@ -1,11 +1,8 @@
 using System.Text;
-using Azure.AI.OpenAI;
+using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.Abstractions;
-using Indice.Features.Agents.Core.Workflows.Prompts;
 using Microsoft.Agents.AI;
-using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
-using OpenAI.Chat;
 
 namespace Indice.Features.Agents.Core.Workflows.Reranking;
 
@@ -19,18 +16,14 @@ public class LlmListwiseReranker : ILlmReranker
     private readonly int _snippetLength;
 
     /// <summary>Creates a new <see cref="LlmListwiseReranker"/>.</summary>
-    public LlmListwiseReranker(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
-        IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts) {
-        var opts = options.Value;
-        _snippetLength = opts.Retrieval.RerankSnippetLength;
-        var chatOptions = models.Value.BaseFastModelOptions.Clone();
-        chatOptions.Instructions = prompts.Render("Reranker");
-        _agent = openAIClient
-            .GetChatClient(opts.AzureOpenAI.Deployments.Fast!)
-            .AsAIAgent(options: new ChatClientAgentOptions() {
-                ChatOptions = chatOptions,
-                Name = "DexReranker",
-            });
+    public LlmListwiseReranker(IAgentsFactory agents, IOptions<AgentsOptions> options) {
+        _snippetLength = options.Value.Retrieval.RerankSnippetLength;
+        _agent = agents.Create(new AgentDescriptor {
+            Name = "DexReranker",
+            Role = AgentModelRole.Fast,
+            PromptTemplate = "Reranker",
+            IncludeChatHistory = false,
+        });
     }
 
     /// <inheritdoc/>
