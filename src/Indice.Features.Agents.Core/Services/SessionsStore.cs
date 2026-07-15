@@ -118,7 +118,7 @@ public class SessionsStore : ISessionsStore
     public async Task<IReadOnlyList<ChatMessage>> GetHistoryAsync(Guid sessionId, CancellationToken cancellationToken) {
         // HistoryWindow counts turns (user+assistant pairs); each turn is two persisted rows.
         var messageTake = _sessionOptions.HistoryWindow * 2;
-        var messages = await _db.SessionMessages
+        var messages = await _db.Messages
             .AsNoTracking()
             .Where(m => m.SessionId == sessionId)
             .OrderByDescending(m => m.CreatedAt)
@@ -209,7 +209,7 @@ public class SessionsStore : ISessionsStore
             return 0;
         }
         await using var tx = await _db.Database.BeginTransactionAsync(cancellationToken);
-        await _db.SessionMessages
+        await _db.Messages
             .Where(m => m.SessionId == sessionId)
             .ExecuteDeleteAsync(cancellationToken);
         var deleted = await _db.Sessions
@@ -230,7 +230,7 @@ public class SessionsStore : ISessionsStore
         // Per-turn reasoning tokens live on the assistant message rows; sum them across the user's sessions
         // within the window. Nullable sum so an empty window materializes as 0 rather than throwing.
         var userSessionIds = _db.Sessions.Where(s => s.UserId == userId).Select(s => s.Id);
-        return await _db.SessionMessages
+        return await _db.Messages
             .AsNoTracking()
             .Where(m => m.CreatedAt >= since && userSessionIds.Contains(m.SessionId))
             .Select(m => (long?)((m.PromptTokens ?? 0) + (m.CompletionTokens ?? 0)))

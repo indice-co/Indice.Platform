@@ -21,7 +21,7 @@ public class AgentsDbContext : DbContext
     public DbSet<DbSession> Sessions => Set<DbSession>();
 
     /// <summary>Individual chat session messages.</summary>
-    public DbSet<DbMessage> SessionMessages => Set<DbMessage>();
+    public DbSet<DbMessage> Messages => Set<DbMessage>();
 
     /// <summary>Application-local user profiles (augmenting the IdP).</summary>
     public DbSet<DbProfile> Profiles => Set<DbProfile>();
