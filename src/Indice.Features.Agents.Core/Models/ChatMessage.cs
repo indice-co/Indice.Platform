@@ -1,6 +1,8 @@
+using OpenAI.Assistants;
+
 namespace Indice.Features.Agents.Core.Models;
 
-/// <summary>A single turn (user or assistant) in a chat session. DTO exposed at the service boundary; mirrors <see cref="Data.DbSessionMessage"/>.</summary>
+/// <summary>A single turn (user or assistant) in a chat session. DTO exposed at the service boundary; mirrors <see cref="Data.DbMessage"/>.</summary>
 public class ChatMessage
 {
     /// <summary>Message identifier.</summary>
@@ -10,7 +12,7 @@ public class ChatMessage
     public ChatMessageRole Role { get; init; } = ChatMessageRole.User;
 
     /// <summary>Message body.</summary>
-    public string Content { get; init; } = string.Empty;
+    public ChatMessageContent Content { get; init; } = new();
 
     /// <summary>Creation timestamp.</summary>
     public DateTimeOffset CreatedAt { get; init; }

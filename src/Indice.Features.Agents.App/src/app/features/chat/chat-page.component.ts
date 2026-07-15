@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 
-import { DexApiService, IChatStreamEvent, SessionListItem } from '../../core/services/dex-api.service';
+import { ChatMessagePart, DexApiService, IChatStreamEvent, SessionListItem } from '../../core/services/dex-api.service';
 import { ChatStreamService } from '../../core/services/chat-stream.service';
 import { ChatComposerComponent } from './chat-composer.component';
 import { ChatSidebarComponent } from './chat-sidebar.component';
@@ -98,7 +98,7 @@ export class ChatPageComponent {
     }
     this.cancelStream();
     this.error.set(null);
-    this.messages.update((list) => [...list, { role: 'User', content: value, createdAt: new Date() }]);
+    this.messages.update((list) => [...list, { role: 'User', content: { parts: [new ChatMessagePart({ value: value, contentType: 'text/markdown' })] }, createdAt: new Date() }]);
     this.isStreaming.set(true);
     this.streamingText.set('');
     this.currentStep.set('Working…');
@@ -146,7 +146,7 @@ export class ChatPageComponent {
     if (answer) {
       this.messages.update((list) => [
         ...list,
-        { role: 'Assistant', content: answer, createdAt: new Date(), citations: event.citations ?? [] },
+        { role: 'Assistant', content: { parts: [new ChatMessagePart({ value: answer, contentType: 'text/markdown' })] }, createdAt: new Date(), citations: event.citations ?? [] },
       ]);
     }
     if (!this.activeSessionId() && event.sessionId) {
@@ -166,7 +166,7 @@ export class ChatPageComponent {
     }
     const answer = this.streamingText();
     if (answer) {
-      this.messages.update((list) => [...list, { role: 'Assistant', content: answer, createdAt: new Date() }]);
+      this.messages.update((list) => [...list, { role: 'Assistant', content: { parts: [new ChatMessagePart({ value: answer, contentType: 'text/markdown' })] }, createdAt: new Date() }]);
     }
     this.isStreaming.set(false);
     this.streamingText.set('');

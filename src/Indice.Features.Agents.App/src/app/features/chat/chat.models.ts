@@ -1,4 +1,4 @@
-import { ChatMessage, ChatMessageRole, ICitation } from '../../core/services/dex-api.service';
+import { ChatMessage, ChatMessageContent, ChatMessagePart, ChatMessageRole, ICitation, IChatMessageContent } from '../../core/services/dex-api.service';
 
 /** The two roles we render in the conversation thread. */
 export type ChatTurnRole = 'User' | 'Assistant';
@@ -9,7 +9,7 @@ export type ChatTurnRole = 'User' | 'Assistant';
  */
 export interface ThreadMessage {
   role: ChatTurnRole;
-  content: string;
+  content: IChatMessageContent;
   createdAt?: Date;
   citations?: ICitation[];
 }
@@ -18,7 +18,7 @@ export interface ThreadMessage {
 export function toThreadMessage(message: ChatMessage): ThreadMessage {
   return {
     role: message.role === ChatMessageRole.User ? 'User' : 'Assistant',
-    content: message.content ?? '',
+    content: message.content ?? new ChatMessageContent({ parts: [new ChatMessagePart({ value: '', contentType: 'text/markdown' }) ] }),
     createdAt: message.createdAt,
     citations: message.citations ?? [],
   };

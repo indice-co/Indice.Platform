@@ -3,7 +3,7 @@ using Indice.Features.Agents.Core.Models;
 namespace Indice.Features.Agents.Core.Data;
 
 /// <summary>A single turn (user or assistant) within a <see cref="DbSession"/>.</summary>
-public class DbSessionMessage
+public class DbMessage
 {
     /// <summary>Primary key.</summary>
     public Guid Id { get; set; }
@@ -15,7 +15,7 @@ public class DbSessionMessage
     public ChatMessageRole Role { get; set; } = ChatMessageRole.User;
 
     /// <summary>Message body.</summary>
-    public string Content { get; set; } = string.Empty;
+    public ChatMessageContent Content { get; set; } = new ();
 
     /// <summary>Creation timestamp.</summary>
     public DateTimeOffset CreatedAt { get; set; }

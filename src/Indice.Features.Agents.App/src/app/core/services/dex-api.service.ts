@@ -1084,9 +1084,10 @@ export class DexApiService implements IDexApiService {
 export class ChatMessage implements IChatMessage {
     id?: string;
     role?: ChatMessageRole;
-    content?: string;
+    content?: ChatMessageContent;
     createdAt?: Date;
     citations?: Citation[];
+    sources?: SourceDocumentLink[];
 
     constructor(data?: IChatMessage) {
         if (data) {
@@ -1101,12 +1102,17 @@ export class ChatMessage implements IChatMessage {
         if (_data) {
             this.id = _data["id"];
             this.role = _data["role"];
-            this.content = _data["content"];
+            this.content = _data["content"] ? ChatMessageContent.fromJS(_data["content"]) : undefined as any;
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
             if (Array.isArray(_data["citations"])) {
                 this.citations = [] as any;
                 for (let item of _data["citations"])
                     this.citations!.push(Citation.fromJS(item));
+            }
+            if (Array.isArray(_data["sources"])) {
+                this.sources = [] as any;
+                for (let item of _data["sources"])
+                    this.sources!.push(SourceDocumentLink.fromJS(item));
             }
         }
     }
@@ -1122,12 +1128,17 @@ export class ChatMessage implements IChatMessage {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["role"] = this.role;
-        data["content"] = this.content;
+        data["content"] = this.content ? this.content.toJSON() : undefined as any;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
         if (Array.isArray(this.citations)) {
             data["citations"] = [];
             for (let item of this.citations)
                 data["citations"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.sources)) {
+            data["sources"] = [];
+            for (let item of this.sources)
+                data["sources"].push(item ? item.toJSON() : undefined as any);
         }
         return data;
     }
@@ -1136,9 +1147,94 @@ export class ChatMessage implements IChatMessage {
 export interface IChatMessage {
     id?: string;
     role?: ChatMessageRole;
-    content?: string;
+    content?: ChatMessageContent;
     createdAt?: Date;
     citations?: Citation[];
+    sources?: SourceDocumentLink[];
+}
+
+export class ChatMessageContent implements IChatMessageContent {
+    parts?: ChatMessagePart[];
+
+    constructor(data?: IChatMessageContent) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["parts"])) {
+                this.parts = [] as any;
+                for (let item of _data["parts"])
+                    this.parts!.push(ChatMessagePart.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ChatMessageContent {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChatMessageContent();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.parts)) {
+            data["parts"] = [];
+            for (let item of this.parts)
+                data["parts"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IChatMessageContent {
+    parts?: ChatMessagePart[];
+}
+
+export class ChatMessagePart implements IChatMessagePart {
+    value?: string;
+    contentType?: string;
+
+    constructor(data?: IChatMessagePart) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.value = _data["value"];
+            this.contentType = _data["contentType"];
+        }
+    }
+
+    static fromJS(data: any): ChatMessagePart {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChatMessagePart();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value;
+        data["contentType"] = this.contentType;
+        return data;
+    }
+}
+
+export interface IChatMessagePart {
+    value?: string;
+    contentType?: string;
 }
 
 export enum ChatMessageRole {
@@ -1189,6 +1285,7 @@ export class ChatResponse implements IChatResponse {
     messageId?: string;
     answer?: string | undefined;
     citations?: Citation[];
+    sources?: SourceDocumentLink[];
     failed?: boolean;
     failureReason?: string | undefined;
     limitReached?: boolean;
@@ -1213,6 +1310,11 @@ export class ChatResponse implements IChatResponse {
                 this.citations = [] as any;
                 for (let item of _data["citations"])
                     this.citations!.push(Citation.fromJS(item));
+            }
+            if (Array.isArray(_data["sources"])) {
+                this.sources = [] as any;
+                for (let item of _data["sources"])
+                    this.sources!.push(SourceDocumentLink.fromJS(item));
             }
             this.failed = _data["failed"];
             this.failureReason = _data["failureReason"];
@@ -1239,6 +1341,11 @@ export class ChatResponse implements IChatResponse {
             for (let item of this.citations)
                 data["citations"].push(item ? item.toJSON() : undefined as any);
         }
+        if (Array.isArray(this.sources)) {
+            data["sources"] = [];
+            for (let item of this.sources)
+                data["sources"].push(item ? item.toJSON() : undefined as any);
+        }
         data["failed"] = this.failed;
         data["failureReason"] = this.failureReason;
         data["limitReached"] = this.limitReached;
@@ -1253,6 +1360,7 @@ export interface IChatResponse {
     messageId?: string;
     answer?: string | undefined;
     citations?: Citation[];
+    sources?: SourceDocumentLink[];
     failed?: boolean;
     failureReason?: string | undefined;
     limitReached?: boolean;
@@ -1266,6 +1374,7 @@ export class ChatStreamEvent implements IChatStreamEvent {
     text?: string | undefined;
     answer?: string | undefined;
     citations?: Citation[] | undefined;
+    sources?: SourceDocumentLink[] | undefined;
     sessionId?: string | undefined;
     messageId?: string | undefined;
     failed?: boolean | undefined;
@@ -1293,6 +1402,11 @@ export class ChatStreamEvent implements IChatStreamEvent {
                 this.citations = [] as any;
                 for (let item of _data["citations"])
                     this.citations!.push(Citation.fromJS(item));
+            }
+            if (Array.isArray(_data["sources"])) {
+                this.sources = [] as any;
+                for (let item of _data["sources"])
+                    this.sources!.push(SourceDocumentLink.fromJS(item));
             }
             this.sessionId = _data["sessionId"];
             this.messageId = _data["messageId"];
@@ -1322,6 +1436,11 @@ export class ChatStreamEvent implements IChatStreamEvent {
             for (let item of this.citations)
                 data["citations"].push(item ? item.toJSON() : undefined as any);
         }
+        if (Array.isArray(this.sources)) {
+            data["sources"] = [];
+            for (let item of this.sources)
+                data["sources"].push(item ? item.toJSON() : undefined as any);
+        }
         data["sessionId"] = this.sessionId;
         data["messageId"] = this.messageId;
         data["failed"] = this.failed;
@@ -1339,6 +1458,7 @@ export interface IChatStreamEvent {
     text?: string | undefined;
     answer?: string | undefined;
     citations?: Citation[] | undefined;
+    sources?: SourceDocumentLink[] | undefined;
     sessionId?: string | undefined;
     messageId?: string | undefined;
     failed?: boolean | undefined;
@@ -1466,6 +1586,7 @@ export interface IDocumentIngestRequest {
 
 export enum DocumentType {
     MarkdownFaq = "MarkdownFaq",
+    Markdown = "Markdown",
 }
 
 export class HttpValidationProblemDetails implements IHttpValidationProblemDetails {
@@ -1922,6 +2043,70 @@ export class SessionListItemResultSet implements ISessionListItemResultSet {
 export interface ISessionListItemResultSet {
     count?: number;
     items?: SessionListItem[];
+}
+
+export class SourceDocumentLink implements ISourceDocumentLink {
+    id?: string;
+    contentHash?: string;
+    contentType?: string;
+    length?: number;
+    fileName?: string;
+    sourceTitle?: string;
+    sourceUrl?: string;
+    isPrivate?: boolean;
+
+    constructor(data?: ISourceDocumentLink) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.contentHash = _data["contentHash"];
+            this.contentType = _data["contentType"];
+            this.length = _data["length"];
+            this.fileName = _data["fileName"];
+            this.sourceTitle = _data["sourceTitle"];
+            this.sourceUrl = _data["sourceUrl"];
+            this.isPrivate = _data["isPrivate"];
+        }
+    }
+
+    static fromJS(data: any): SourceDocumentLink {
+        data = typeof data === 'object' ? data : {};
+        let result = new SourceDocumentLink();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["contentHash"] = this.contentHash;
+        data["contentType"] = this.contentType;
+        data["length"] = this.length;
+        data["fileName"] = this.fileName;
+        data["sourceTitle"] = this.sourceTitle;
+        data["sourceUrl"] = this.sourceUrl;
+        data["isPrivate"] = this.isPrivate;
+        return data;
+    }
+}
+
+export interface ISourceDocumentLink {
+    id?: string;
+    contentHash?: string;
+    contentType?: string;
+    length?: number;
+    fileName?: string;
+    sourceTitle?: string;
+    sourceUrl?: string;
+    isPrivate?: boolean;
 }
 
 export class SseItemOfChatStreamEvent implements ISseItemOfChatStreamEvent {

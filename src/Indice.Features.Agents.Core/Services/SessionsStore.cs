@@ -237,7 +237,7 @@ public class SessionsStore : ISessionsStore
             .SumAsync(cancellationToken) ?? 0;
     }
 
-    private static DbSessionMessage ToDb(Guid sessionId, ChatMessage m, int? prompt, int? completion, string? model) => new() {
+    private static DbMessage ToDb(Guid sessionId, ChatMessage m, int? prompt, int? completion, string? model) => new() {
         Id = m.Id == Guid.Empty ? Guid.NewGuid() : m.Id,
         SessionId = sessionId,
         Role = m.Role,
@@ -267,8 +267,8 @@ public class SessionsStore : ISessionsStore
         Messages = messages,
     };
 
-    private static string DeriveTitle(string firstUserMessage) {
-        var normalized = firstUserMessage.Replace('\r', ' ').Replace('\n', ' ').Trim();
+    private static string DeriveTitle(ChatMessageContent firstUserMessage) {
+        var normalized = firstUserMessage.Parts.FirstOrDefault()?.Value.Replace('\r', ' ').Replace('\n', ' ').Trim() ?? string.Empty;
         return normalized.Length <= 80 ? normalized : normalized[..80];
     }
 }

@@ -12,7 +12,7 @@ public class AgentsDbContext : DbContext
     public DbSet<DbDocument> Documents => Set<DbDocument>();
 
     /// <summary>Optional binary payloads and file metadata for ingested documents.</summary>
-    public DbSet<DbDocumentBlob> DocumentBlobs => Set<DbDocumentBlob>();
+    public DbSet<DbBlob> DocumentBlobs => Set<DbBlob>();
 
     /// <summary>Per-document content chunks with their dense embeddings.</summary>
     public DbSet<DbChunk> Chunks => Set<DbChunk>();
@@ -21,7 +21,7 @@ public class AgentsDbContext : DbContext
     public DbSet<DbSession> Sessions => Set<DbSession>();
 
     /// <summary>Individual chat session messages.</summary>
-    public DbSet<DbSessionMessage> SessionMessages => Set<DbSessionMessage>();
+    public DbSet<DbMessage> SessionMessages => Set<DbMessage>();
 
     /// <summary>Application-local user profiles (augmenting the IdP).</summary>
     public DbSet<DbProfile> Profiles => Set<DbProfile>();

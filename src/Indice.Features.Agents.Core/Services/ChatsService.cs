@@ -49,14 +49,14 @@ public class ChatsService : IChatsService
         var userMessage = new ChatMessage {
             Id = Guid.NewGuid(),
             Role = ChatMessageRole.User,
-            Content = request.Question,
+            Content = new ChatMessageContent { Parts = [new () { Value = request.Question, ContentType = "text" }] },
             CreatedAt = request.TimeStamp,
         };
         var assistantText = result.Answer ?? string.Empty;
         var assistantMessage = new ChatMessage {
             Id = Guid.NewGuid(),
             Role = ChatMessageRole.Assistant,
-            Content = assistantText,
+            Content = new ChatMessageContent { Parts = [new () { Value = assistantText, ContentType = "text" }] },
             CreatedAt = DateTimeOffset.UtcNow,
             Citations = result.Citations?.ToList() ?? [],
             Sources = result.Sources?.ToList() ?? [],
@@ -147,11 +147,11 @@ public class ChatsService : IChatsService
     /// <summary>Persists the user/assistant turn (mirroring <see cref="SendAsync"/>) and builds the terminal <c>complete</c> event.</summary>
     private async Task<ChatStreamEvent> PersistTurnAsync(Session session, RagRequest request, DexFinalEvent? final, CancellationToken cancellationToken) {
         var assistantText = final?.Answer ?? string.Empty;
-        var userMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatMessageRole.User, Content = request.Question, CreatedAt = request.TimeStamp };
+        var userMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatMessageRole.User, Content = new ChatMessageContent(request.Question), CreatedAt = request.TimeStamp };
         var assistantMessage = new ChatMessage { 
             Id = Guid.NewGuid(), 
             Role = ChatMessageRole.Assistant, 
-            Content = assistantText, 
+            Content = new ChatMessageContent(assistantText), 
             CreatedAt = final?.TimeStamp ?? DateTimeOffset.UtcNow,
             Citations = final?.Citations?.ToList() ?? [],
             Sources = final?.Sources?.ToList() ?? [],

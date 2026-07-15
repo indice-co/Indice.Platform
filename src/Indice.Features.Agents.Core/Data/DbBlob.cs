@@ -2,7 +2,7 @@ namespace Indice.Features.Agents.Core.Data;
 
 /// <summary>Optional binary payload and file metadata for a <see cref="DbDocument"/>.</summary>
 /// <remarks>Shares the primary key with <see cref="DbDocument"/> and is not loaded by default.</remarks>
-public class DbDocumentBlob
+public class DbBlob
 {
     /// <summary>Primary key – shared with the parent <see cref="DbDocument"/>.</summary>
     public Guid DocumentId { get; set; }

@@ -75,7 +75,7 @@ public class DocumentsService : IDocumentsService
             ChunkCount = chunks.Count,
             IngestedAt = now,
             IsPrivate = document.IsPrivate,
-            Blob = new DbDocumentBlob {
+            Blob = new DbBlob {
                 ContentType = document.ContentType,
                 ContentLength = document.ContentLength,
                 FileName = document.FileName,

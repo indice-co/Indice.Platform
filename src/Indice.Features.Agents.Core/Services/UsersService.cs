@@ -16,7 +16,7 @@ public class UsersService : IUsersService
 
     /// <inheritdoc/>
     public async Task<Profile?> GetAsync(string subjectId, CancellationToken cancellationToken) {
-        return await _db.Set<DbProfile>()
+        return await _db.Profiles
             .AsNoTracking()
             .Where(u => u.SubjectId == subjectId)
             .Select(u => new Profile {
@@ -35,7 +35,7 @@ public class UsersService : IUsersService
 
     /// <inheritdoc/>
     public async Task<Profile> UpsertFromClaimsAsync(string subjectId, string? displayName, string? email, string? locale, CancellationToken cancellationToken) {
-        var user = await _db.Set<DbProfile>().FirstOrDefaultAsync(u => u.SubjectId == subjectId, cancellationToken);
+        var user = await _db.Profiles.FirstOrDefaultAsync(u => u.SubjectId == subjectId, cancellationToken);
         var now = DateTimeOffset.UtcNow;
         if (user is null) {
             user = new DbProfile {
@@ -47,6 +47,7 @@ public class UsersService : IUsersService
                 CreatedAt = now,
                 UpdatedAt = now,
                 LastSeenAt = now,
+                PreferredCategories = []
             };
             _db.Add(user);
         } else {
@@ -66,7 +67,7 @@ public class UsersService : IUsersService
 
     /// <inheritdoc/>
     public async Task<Profile> UpdatePreferencesAsync(string subjectId, string? preferredLanguage, string? responseStyle, CancellationToken cancellationToken) {
-        var user = await _db.Set<DbProfile>().FirstAsync(u => u.SubjectId == subjectId, cancellationToken);
+        var user = await _db.Profiles.FirstAsync(u => u.SubjectId == subjectId, cancellationToken);
         user.PreferredLanguage = preferredLanguage;
         user.ResponseStyle = responseStyle;
         user.UpdatedAt = DateTimeOffset.UtcNow;
@@ -80,6 +81,7 @@ public class UsersService : IUsersService
         Email = u.Email,
         Locale = u.Locale,
         PreferredLanguage = u.PreferredLanguage,
+        PreferredCategories = u.PreferredCategories ?? [],
         ResponseStyle = u.ResponseStyle,
         CreatedAt = u.CreatedAt,
         UpdatedAt = u.UpdatedAt,

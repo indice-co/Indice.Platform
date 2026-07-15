@@ -2,7 +2,7 @@ using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Data;
 
-/// <summary>A chat session belonging to a single user. Aggregates <see cref="DbSessionMessage"/> turns and running token totals.</summary>
+/// <summary>A chat session belonging to a single user. Aggregates <see cref="DbMessage"/> turns and running token totals.</summary>
 public class DbSession
 {
     /// <summary>Primary key.</summary>
@@ -33,5 +33,5 @@ public class DbSession
     public string? MetadataJson { get; set; }
 
     /// <summary>Navigation: messages belonging to this session.</summary>
-    public ICollection<DbSessionMessage> Messages { get; set; } = [];
+    public ICollection<DbMessage> Messages { get; set; } = [];
 }

@@ -1,3 +1,4 @@
+using AITextContent = Microsoft.Extensions.AI.TextContent;
 using AIChatMessage = Microsoft.Extensions.AI.ChatMessage;
 using AIChatRole = Microsoft.Extensions.AI.ChatRole;
 
@@ -7,7 +8,7 @@ namespace Indice.Features.Agents.Core.Models;
 internal static class ChatMessageMappings
 {
     /// <summary>Projects a persisted session turn into the framework message shape.</summary>
-    public static AIChatMessage ToAIChatMessage(this ChatMessage message) => new(ToAIChatRole(message.Role), message.Content);
+    public static AIChatMessage ToAIChatMessage(this ChatMessage message) => new(ToAIChatRole(message.Role), message.Content.Parts.Select(p => new AITextContent(p.Value) { AdditionalProperties = new() { ["contentType"] = p.ContentType } }).ToArray());
 
     /// <summary>Maps the persisted <see cref="ChatMessageRole"/> onto the framework role the MAF pipeline consumes.</summary>
     public static AIChatRole ToAIChatRole(ChatMessageRole role) => role switch {
