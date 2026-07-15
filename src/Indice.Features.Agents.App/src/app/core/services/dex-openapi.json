@@ -1368,9 +1368,9 @@
         "description": "Identity Server OAuth2",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://my.indice.gr/connect/authorize",
-            "tokenUrl": "https://my.indice.gr/connect/token",
-            "refreshUrl": "https://my.indice.gr/connect/token",
+            "authorizationUrl": "https://localhost:2000/connect/authorize",
+            "tokenUrl": "https://localhost:2000/connect/token",
+            "refreshUrl": "https://localhost:2000/connect/token",
             "scopes": {
               "dex": "Access to Dex REST API",
               "dex:chat": "Provides access to Chat API",

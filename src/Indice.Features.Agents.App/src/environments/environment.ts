@@ -14,7 +14,7 @@ export const environment = {
   // and allowed the `dex`/`dex:chat` scopes, or login will fail.
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
-    authority: 'https://my.indice.gr',
+    authority: 'https://localhost:2000',
     automaticSilentRenew: true,
     client_id: 'dex-ui',
     filterProtocolClaims: true,
@@ -24,7 +24,7 @@ export const environment = {
     redirect_uri: 'http://localhost:4200/auth-callback',
     response_type: 'code',
     revokeAccessTokenOnSignout: true,
-    scope: 'openid profile role email agents chat messages https://localhost:2001/mcp mcp',
+    scope: 'openid profile role email agents chat messages https://localhost:2001/mcp mcp identity',
     silent_redirect_uri: 'http://localhost:4200/auth-renew',
     useRefreshToken: true,
     extraQueryParams: {},

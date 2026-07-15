@@ -24,7 +24,10 @@ public static class DefaultDexPipelineExtensions
         services.TryAddTransient<OutOfScopeResponder>();
         services.TryAddTransient<PurposeResponder>();
         services.TryAddTransient<MessageAgent>();
+        services.TryAddTransient<IdentityAgent>();
         
+
+
         services.TryAddTransient<ILlmReranker, LlmListwiseReranker>();
 
         // Register the workflow, which will resolve the steps and link them together. Step failures are not
@@ -38,9 +41,11 @@ public static class DefaultDexPipelineExtensions
             var outOfScopeReply = sp.GetRequiredService<OutOfScopeResponder>();
             var purposeResponder = sp.GetRequiredService<PurposeResponder>();
             var messageAgent    = sp.GetRequiredService<MessageAgent>();
-            
+            var identityAgent   = sp.GetRequiredService<IdentityAgent>();
+
             var builder = new WorkflowBuilder(intent);
             builder.AddSwitch(intent, sw => sw
+                .AddCase<PipelineStepContext<IntentOutput>>(env => env!.Payload.Intent.Category == "identity", identityAgent)
                 .AddCase<PipelineStepContext<IntentOutput>>(env => env!.Payload.Intent.Category == "message", messageAgent)
                 .AddCase<PipelineStepContext<IntentOutput>>(env => env!.Payload.Intent.Category == "purpose_of_agent", purposeResponder)
                 .AddCase<PipelineStepContext<IntentOutput>>(env => env!.Payload.Intent.IsInScope, rewrite)
@@ -48,7 +53,7 @@ public static class DefaultDexPipelineExtensions
             builder.AddEdge(rewrite,  retrieve);
             builder.AddEdge(retrieve, rerank);
             builder.AddEdge(rerank,   compose);
-            builder.WithOutputFrom(compose, outOfScopeReply, purposeResponder, messageAgent);
+            builder.WithOutputFrom(compose, outOfScopeReply, purposeResponder, messageAgent, identityAgent);
             return builder.Build();
         });
         return services;

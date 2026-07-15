@@ -102,7 +102,7 @@ public static class WebApplicationBuilderExtensions
             // Base address of the Identity Server.
             options.Authority = builder.Configuration.GetAuthority(tryInternal: true);
             options.DiscoveryPolicy = new DiscoveryPolicy() {
-                Authority = builder.Configuration.GetAuthority(tryInternal: true)!,
+                Authority = builder.Configuration.GetAuthority(tryInternal: true)!
                 AdditionalEndpointBaseAddresses = [builder.Configuration.GetAuthority()!],
                 ValidateIssuerName = false,
                 RequireHttps = false,

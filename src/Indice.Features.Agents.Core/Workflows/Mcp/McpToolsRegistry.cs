@@ -34,11 +34,11 @@ public sealed class McpToolsRegistry : IMcpToolsRegistry, IAsyncDisposable
 
     /// <inheritdoc/>
     public async Task<IReadOnlyList<AITool>> GetToolsAsync(CancellationToken cancellationToken = default) {
-        //if (_cached is not null) return _cached;
+        if (_cached is not null) return _cached;
         if (_servers.Count == 0) return _cached = [];
         await _initLock.WaitAsync(cancellationToken);
         try {
-            //if (_cached is not null) return _cached;
+            if (_cached is not null) return _cached;
             var allTools = new List<AITool>();
             var clients = new List<McpClient>();
             foreach (var server in _servers) {

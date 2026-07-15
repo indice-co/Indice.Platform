@@ -7,7 +7,7 @@ export const environment = {
   api_url: 'https://localhost:2002/api',
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
-    authority: 'https://my.indice.gr',
+    authority: 'https://localhost:2000',
     automaticSilentRenew: true,
     client_id: 'dex-ui',
     filterProtocolClaims: true,
