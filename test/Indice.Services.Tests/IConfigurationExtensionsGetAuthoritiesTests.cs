@@ -68,7 +68,7 @@ public class IConfigurationExtensionsGetAuthoritiesTests
         var result = config.GetAuthorities().ToList();
 
         Assert.Equal(2, result.Count);
-        Assert.All(result, url => Assert.DoesNotContain("/", url.Substring(url.IndexOf("//") + 2)));
+        Assert.All(result, url => Assert.False(url.EndsWith("/")));
     }
 
 

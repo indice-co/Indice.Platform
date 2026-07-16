@@ -152,12 +152,14 @@ public static class IConfigurationExtensions
         // Array form: General:Authority:0, General:Authority:1, ...
         var array = section.Get<string[]>();
         if (array is { Length: > 0 }) {
-            return array.Select(x => x.TrimEnd('/')).ToList();
+            return array.Where(x => !string.IsNullOrWhiteSpace(x))
+                        .Select(x => x.Trim().TrimEnd('/'))
+                        .ToList();
         }
         // Scalar form: General:Authority = "https://idp.example.com"
-        var scalar = configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority));
-        if (scalar is not null) {
-            return [scalar.TrimEnd('/')];
+        var scalar = section.Value;
+        if (!string.IsNullOrWhiteSpace(scalar)) {
+            return [scalar.Trim().TrimEnd('/')];
         }
         return [];
     }
