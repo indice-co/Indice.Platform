@@ -139,7 +139,7 @@ public static class IConfigurationExtensions
     /// <summary>Retrieves all authority URLs configured for this application.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>
-    /// A collection of authority URL strings. Supports both a single string value and an array of strings
+    /// An array of authority URL strings. Supports both a single string value and an array of strings
     /// configured under <strong>General:Authority</strong>.
     /// </returns>
     /// <remarks>
@@ -147,14 +147,14 @@ public static class IConfigurationExtensions
     /// (e.g. <c>"https://idp.example.com"</c>) or an array of strings
     /// (e.g. <c>["https://idp1.example.com", "https://idp2.example.com"]</c>).
     /// </remarks>
-    public static List<string> GetAuthorities(this IConfiguration configuration) {
+    public static string[] GetAuthorities(this IConfiguration configuration) {
         var section = configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Authority)}");
         // Array form: General:Authority:0, General:Authority:1, ...
         var array = section.Get<string[]>();
         if (array is { Length: > 0 }) {
             return array.Where(x => !string.IsNullOrWhiteSpace(x))
                         .Select(x => x.Trim().TrimEnd('/'))
-                        .ToList();
+                        .ToArray();
         }
         // Scalar form: General:Authority = "https://idp.example.com"
         var scalar = section.Value;
