@@ -1,4 +1,5 @@
 ﻿using System.ClientModel;
+using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Services;
@@ -38,22 +39,22 @@ public static class AgentsFeatureExtensions
 
         services.AddSingleton(sp => {
             var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI;
-            return new OpenAIClient(new ApiKeyCredential(opts.ApiKey!), new OpenAIClientOptions { Endpoint = new Uri(opts.Endpoint!) });
+            return new AzureOpenAIClient(new Uri(opts.Endpoint!), new ApiKeyCredential(opts.ApiKey!));
         });
         services.AddKeyedChatClient(nameof(AzureOpenAIDeployments.Reasoning), sp => {
             var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI.Deployments;
-            var innerClient = sp.GetRequiredService<OpenAIClient>();
+            var innerClient = sp.GetRequiredService<AzureOpenAIClient>();
             return innerClient.GetChatClient(opts.Reasoning).AsIChatClient();
         });
         services.AddKeyedChatClient(nameof(AzureOpenAIDeployments.Fast), sp => {
             var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI.Deployments;
-            var innerClient = sp.GetRequiredService<OpenAIClient>();
+            var innerClient = sp.GetRequiredService<AzureOpenAIClient>();
             return innerClient.GetChatClient(opts.Fast).AsIChatClient();
         });
 
         services.AddEmbeddingGenerator(sp => {
             var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI;
-            var innerClient = sp.GetRequiredService<OpenAIClient>();
+            var innerClient = sp.GetRequiredService<AzureOpenAIClient>();
             return innerClient.GetEmbeddingClient(opts.Deployments.Embedding!).AsIEmbeddingGenerator(opts.EmbeddingDimensions);
         });
 
