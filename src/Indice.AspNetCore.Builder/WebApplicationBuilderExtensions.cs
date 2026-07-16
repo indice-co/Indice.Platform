@@ -121,16 +121,17 @@ public static class WebApplicationBuilderExtensions
 
     private static Action<JwtBearerOptions> ConfigureJwtBearer(IHostApplicationBuilder builder) {
         return options => {
-            options.Authority = builder.Configuration.GetAuthority();
+            var authorities = builder.Configuration.GetAuthorities();
+            options.Authority = authorities.First();
+            if (authorities is { Count: > 1 }) {
+                options.TokenValidationParameters.ValidIssuers = authorities;
+            }
             options.MetadataAddress = builder.Configuration.GetAuthorityMetadata(tryInternal: true);
             options.Audience = builder.Configuration.GetApiResourceName() ?? "api1";
             options.TokenValidationParameters.RoleClaimType = JwtClaimTypes.Role;
             options.TokenValidationParameters.NameClaimType = JwtClaimTypes.Name;
             options.RequireHttpsMetadata = false;
             options.MapInboundClaims = false;
-            if (builder.Configuration.GetAuthorities() is { Count: > 1 } authorities) {
-                options.TokenValidationParameters.ValidIssuers = authorities;
-            }
             // if token does not contain a dot, it is a reference token.
             options.ForwardDefaultSelector = BearerSelector.ForwardReferenceToken("Introspection");
         };
