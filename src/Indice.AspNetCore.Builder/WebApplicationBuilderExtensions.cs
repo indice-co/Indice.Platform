@@ -128,6 +128,9 @@ public static class WebApplicationBuilderExtensions
             options.TokenValidationParameters.NameClaimType = JwtClaimTypes.Name;
             options.RequireHttpsMetadata = false;
             options.MapInboundClaims = false;
+            if (builder.Configuration.GetAuthorities() is { Count: > 1 } authorities) {
+                options.TokenValidationParameters.ValidIssuers = authorities;
+            }
             // if token does not contain a dot, it is a reference token.
             options.ForwardDefaultSelector = BearerSelector.ForwardReferenceToken("Introspection");
         };
@@ -158,7 +161,7 @@ public static class WebApplicationBuilderExtensions
             };
         })
         // Reference tokens.
-        .AddOAuth2Introspection(SignalRProxyAuthentication.SignalRNegotiationAuthenticationScheme + ".Introspection", options => { 
+        .AddOAuth2Introspection(SignalRProxyAuthentication.SignalRNegotiationAuthenticationScheme + ".Introspection", options => {
             ConfigureIntrospection(builder)(options);
             options.TokenRetriever = SignalRProxyAuthentication.SignalRNegotiateTokenRetriever(
                    defaultTokenRetriever: TokenRetrieval.FromAuthorizationHeader()

@@ -136,14 +136,41 @@ public static class IConfigurationExtensions
     /// <remarks>Checks for the <strong>General:Host</strong> option in appsettings.json file.</remarks>
     public static string? GetHost(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Host))?.TrimEnd('/');
 
+    /// <summary>Retrieves all authority URLs configured for this application.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>
+    /// A collection of authority URL strings. Supports both a single string value and an array of strings
+    /// configured under <strong>General:Authority</strong>.
+    /// </returns>
+    /// <remarks>
+    /// The <strong>General:Authority</strong> option in appsettings.json can be either a single string
+    /// (e.g. <c>"https://idp.example.com"</c>) or an array of strings
+    /// (e.g. <c>["https://idp1.example.com", "https://idp2.example.com"]</c>).
+    /// </remarks>
+    public static List<string> GetAuthorities(this IConfiguration configuration) {
+        var section = configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Authority)}");
+        // Array form: General:Authority:0, General:Authority:1, ...
+        var array = section.Get<string[]>();
+        if (array is { Length: > 0 }) {
+            return array.Select(x => x.TrimEnd('/')).ToList();
+        }
+        // Scalar form: General:Authority = "https://idp.example.com"
+        var scalar = configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority));
+        if (scalar is not null) {
+            return [scalar.TrimEnd('/')];
+        }
+        return [];
+    }
+
     /// <summary>A string that represents the default host name binding for the identity provider (aka authority) for this application <see cref="GeneralSettings.Authority"/>.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="tryInternal">Try to retrieve the internal network base address URL for the IdentityServer. Fallsback to Authority if not set. Defaults to false.</param>
     /// <returns>Example can be https://idp.example.com</returns>
     /// <remarks>Checks either the <strong>General:AuthorityInternal</strong> or <strong>General:Authority</strong> option in appsettings.json file. Depends up on the <paramref name="tryInternal"/> parameter.</remarks>
     public static string? GetAuthority(this IConfiguration configuration, bool tryInternal = false) => tryInternal
-        ? configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.AuthorityInternal))?.TrimEnd('/') ?? configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority))?.TrimEnd('/')
-        : configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority))?.TrimEnd('/');
+        ? configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.AuthorityInternal))?.TrimEnd('/') ?? 
+          configuration.GetAuthorities().FirstOrDefault()
+        : configuration.GetAuthorities().FirstOrDefault();
 
     /// <summary>A string that represents the default host name binding for the identity provider (aka authority) for this application <see cref="GeneralSettings.Authority"/>.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
