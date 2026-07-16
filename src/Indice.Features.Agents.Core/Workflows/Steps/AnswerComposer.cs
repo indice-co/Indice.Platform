@@ -74,18 +74,20 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
         }
 
         var citations = candidates
-            .Select(c => new Models.Citation {
-                ChunkId = c.ChunkId,
-                DocumentId = c.DocumentId,
+            .Select((c, index) => new Models.Citation {
+                ChunkId = c.Id,
+                DocumentId = c.Source.Id,
                 Title = c.Title,
                 HeadingPath = c.HeadingPath,
                 Score = c.Score,
+                Number = index + 1,
             })
             .ToList();
-
+        var sources = candidates.Select(c => c.Source).DistinctBy(x => x.Id).ToList();
         return envelope.Next(new RagPipelineOutput {
             Answer = answer.ToString(),
             Citations = citations,
+            Sources = sources,
         });
     }
 
@@ -95,8 +97,9 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
         if (candidates.Count == 0) {
             sb.AppendLine("(no candidates retrieved)");
         }
-        foreach (var c in candidates) {
-            sb.Append("[#").Append(c.ChunkId).Append("] ");
+        for (var i = 0; i < candidates.Count; i++) {
+            var c = candidates[i];
+            sb.Append($"[{i + 1}](#{c.Id}) ");
             if (!string.IsNullOrWhiteSpace(c.Title)) {
                 sb.Append(c.Title).Append(" — ");
             }

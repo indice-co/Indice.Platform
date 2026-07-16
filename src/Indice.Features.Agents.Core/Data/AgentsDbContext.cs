@@ -11,6 +11,9 @@ public class AgentsDbContext : DbContext
     /// <summary>Ingested source documents.</summary>
     public DbSet<DbDocument> Documents => Set<DbDocument>();
 
+    /// <summary>Optional binary payloads and file metadata for ingested documents.</summary>
+    public DbSet<DbDocumentBlob> DocumentBlobs => Set<DbDocumentBlob>();
+
     /// <summary>Per-document content chunks with their dense embeddings.</summary>
     public DbSet<DbChunk> Chunks => Set<DbChunk>();
 

@@ -29,8 +29,8 @@ public static class AgentsServerFeatureExtensions
         if(configureOptions is not null) { 
             services.Configure(configureOptions);
         }
+        services.AddTransient<ISourceLinkGenerator, SourceLinkGenerator>();
         services.AddAgentsCore(configuration, options.ConfigureAgents);
-
         services.AddMyProfileFeature();
         services.AddChatsFeature();
         services.AddIngestionFeature();
@@ -85,7 +85,7 @@ public static class AgentsServerFeatureExtensions
     }
 
     /// <summary>
-    /// Maps the endpoints for the Agents feature, including MyProfile, MyChats, and Ingestion.
+    /// Maps the endpoints for the Agents feature, including MyProfile, MyChats, Sources, and Ingestion.
     /// </summary>
     /// <param name="routes"></param>
     /// <returns></returns>
@@ -93,6 +93,7 @@ public static class AgentsServerFeatureExtensions
         var options = routes.ServiceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value;
         routes.MapMyProfile();
         routes.MapMyChats();
+        routes.MapSources();
         if (options.Ingestion.Enabled) { 
             routes.MapIngestion();
         }

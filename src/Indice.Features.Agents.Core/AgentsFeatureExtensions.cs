@@ -69,7 +69,7 @@ public static class AgentsFeatureExtensions
         services.TryAddSingleton<WorkflowClaimsPrincipalSelector>(sp =>
             () => null
         );
-
+        services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
         services.AddDefaultDexPipeline();
         return services;
     }

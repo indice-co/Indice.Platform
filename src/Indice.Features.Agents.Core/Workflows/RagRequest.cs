@@ -6,6 +6,9 @@ public class RagRequest
     /// <summary>The end-user question being asked.</summary>
     public string Question { get; init; } = string.Empty;
 
+    /// <summary>Timestamp of when the request was created.</summary>
+    public DateTimeOffset TimeStamp { get; init; } = DateTimeOffset.UtcNow;
+  
     /// <summary>
     /// The chat session this question belongs to. The pipeline's <see cref="SessionStoreChatHistoryProvider"/>
     /// loads the windowed conversation history for it during the run.

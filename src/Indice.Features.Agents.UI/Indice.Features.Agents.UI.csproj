@@ -4,7 +4,7 @@
     <TargetFrameworks></TargetFrameworks>
     <TargetFramework>net10.0</TargetFramework>    
     <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
-    <VersionSuffix>beta06</VersionSuffix>
+    <VersionSuffix>beta08</VersionSuffix>
     
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaProjectName>browser</SpaProjectName>
