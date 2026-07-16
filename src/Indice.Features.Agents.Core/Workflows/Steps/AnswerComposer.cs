@@ -1,13 +1,14 @@
 using System.Text;
-using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
+using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -23,7 +24,7 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="AnswerComposer"/>.</summary>
-    public AnswerComposer(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+    public AnswerComposer([FromKeyedServices(nameof(AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
         SessionStoreChatHistoryProvider historyProvider) : base("AnswerComposer") {
@@ -35,9 +36,7 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
             strictGrounding = _options.Pipeline.StrictGrounding,
         });
 
-        _agent = openAIClient
-            .GetChatClient(_model)
-            .AsAIAgent(
+        _agent = chatClient.AsAIAgent(
                 options: new ChatClientAgentOptions() {
                     ChatOptions = chatOptions,
                     AIContextProviders = [userClaimsProvider],
@@ -63,7 +62,7 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
         await foreach (var update in _agent.RunStreamingAsync(prompt, agentSession, cancellationToken: cancellationToken)) {
             if (!string.IsNullOrEmpty(update.Text)) {
                 answer.Append(update.Text);
-                await context.AddEventAsync(new AnswerDeltaEvent(update.Text), cancellationToken);
+                await context.AddEventAsync(new AnswerDeltaEvent(Id, update.Text), cancellationToken);
             }
             foreach (var usageContent in update.Contents.OfType<UsageContent>()) {
                 (usage ??= new UsageDetails()).Add(usageContent.Details);

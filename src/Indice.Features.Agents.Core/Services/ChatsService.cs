@@ -3,7 +3,9 @@ using System.Runtime.CompilerServices;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Abstractions;
+using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Types;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core.Services;
@@ -27,7 +29,7 @@ public class ChatsService : IChatsService
     }
 
     /// <inheritdoc/>
-    public async Task<ChatResponse?> SendAsync(string userId, Guid? sessionId, string text, CancellationToken cancellationToken) {
+    public async Task<ChatResponse?> SendAsync(string userId, Guid? sessionId, ChatRequest chatRequest, CancellationToken cancellationToken) {
         await EnsureSessionCreationAllowedAsync(userId, sessionId, cancellationToken);
         var session = await _store.LoadOrCreateAsync(userId, sessionId, cancellationToken);
         if (session is null) {
@@ -35,31 +37,38 @@ public class ChatsService : IChatsService
         }
         var turnCheck = _usageGuard.Check(session);
         if (!turnCheck.Allowed) {
-            return new ChatResponse {
-                SessionId = session.Id,
-                MessageId = Guid.Empty,
-                Answer = turnCheck.Message,
-                LimitReached = true,
-                QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount),
-                QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
+            return new ChatResponse(new ChatMessage(ChatRole.Assistant, turnCheck.Message)) {
+                ConversationId = session.Id.ToString(),
+                ResponseId = Guid.NewGuid().ToString(),
+                Usage = new () {
+                    AdditionalCounts = new() {
+                        ["questionsUsed"] = _sessionOptions.GetQuestionsUsed(session.MessageCount) ?? 0,
+                        ["questionsTotal"] = _sessionOptions.GetQuestionsTotal() ?? 0
+                    }
+                },
+                AdditionalProperties = new() {
+                    ["limitReached"] = true
+                }
             };
         }
-        var request = new RagRequest { Question = text, SessionId = session.Id };
+        var request = new RagRequest { Question = chatRequest.Text, SessionId = session.Id };
         var result = await _runner.RunAsync(request, cancellationToken);
-        var userMessage = new ChatMessage {
-            Id = Guid.NewGuid(),
-            Role = ChatMessageRole.User,
-            Content = new ChatMessageContent { Parts = [new () { Value = request.Question, ContentType = "text" }] },
-            CreatedAt = request.TimeStamp,
+        var userMessage = new ChatMessage(ChatRole.User, request.Question) { 
+            MessageId = Guid.NewGuid().ToString(),
+            CreatedAt = request.TimeStamp
         };
-        var assistantText = result.Answer ?? string.Empty;
-        var assistantMessage = new ChatMessage {
-            Id = Guid.NewGuid(),
-            Role = ChatMessageRole.Assistant,
-            Content = new ChatMessageContent { Parts = [new () { Value = assistantText, ContentType = "text" }] },
+        var assistantText = new TextContent(result.Answer ?? string.Empty) {
+            Annotations = result.Citations?.Select(c => (AIAnnotation)new CitationAnnotation {
+                FileId = c.DocumentId.ToString(),
+                Title = result.Sources.First(x => x.Id == c.DocumentId).SourceTitle,
+                Url = new Uri(result.Sources.First(x => x.Id == c.DocumentId).SourceUrl),
+                Snippet = c.Title
+                // Other metadata like page number, confidence, etc.
+            }).ToList() ?? []
+        };
+        var assistantMessage = new ChatMessage(ChatRole.Assistant, [assistantText]) {
+            MessageId = Guid.NewGuid().ToString(),
             CreatedAt = DateTimeOffset.UtcNow,
-            Citations = result.Citations?.ToList() ?? [],
-            Sources = result.Sources?.ToList() ?? [],
         };
 
         var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
@@ -67,15 +76,23 @@ public class ChatsService : IChatsService
             modelUsed: result.ModelUsed ?? _deployments.Reasoning, cancellationToken);
 
         return new ChatResponse {
-            SessionId = session.Id,
-            MessageId = persistedAssistant.Id,
-            Answer = assistantText,
-            Citations = result.Citations ?? [],
-            Sources = result.Sources ?? [],
-            Failed = result.Failed,
-            FailureReason = result.FailureReason,
-            QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount + 2),
-            QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
+            ConversationId = session.Id.ToString(),
+            ResponseId = persistedAssistant.MessageId,
+            Messages = [assistantMessage],
+            ModelId = result.ModelUsed ?? _deployments.Reasoning,
+            Usage = new() {
+                InputTokenCount = result.Usage?.InputTokenCount ?? 0,
+                OutputTokenCount = result.Usage?.OutputTokenCount ?? 0,
+                AdditionalCounts = new() {
+                    ["questionsUsed"] = _sessionOptions.GetQuestionsUsed(session.MessageCount) ?? 0,
+                    ["questionsTotal"] = _sessionOptions.GetQuestionsTotal() ?? 0
+                }
+            },
+            AdditionalProperties = new() {
+                ["failed"] = result.Failed.ToString().ToLower(),
+                ["failureReason"] = result.FailureReason,
+                ["sources"] = result.Sources ?? [],
+            }
         };
     }
 
@@ -109,7 +126,7 @@ public class ChatsService : IChatsService
         yield return new SseItem<ChatStreamEvent>(new ChatStreamEvent {
             Type = "complete",
             SessionId = session.Id,
-            MessageId = Guid.Empty,
+            MessageId = Guid.Empty.ToString(),
             Answer = message,
             Citations = [],
             Sources = [],
@@ -146,15 +163,23 @@ public class ChatsService : IChatsService
 
     /// <summary>Persists the user/assistant turn (mirroring <see cref="SendAsync"/>) and builds the terminal <c>complete</c> event.</summary>
     private async Task<ChatStreamEvent> PersistTurnAsync(Session session, RagRequest request, DexFinalEvent? final, CancellationToken cancellationToken) {
-        var assistantText = final?.Answer ?? string.Empty;
-        var userMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatMessageRole.User, Content = new ChatMessageContent(request.Question), CreatedAt = request.TimeStamp };
-        var assistantMessage = new ChatMessage { 
-            Id = Guid.NewGuid(), 
-            Role = ChatMessageRole.Assistant, 
-            Content = new ChatMessageContent(assistantText), 
-            CreatedAt = final?.TimeStamp ?? DateTimeOffset.UtcNow,
-            Citations = final?.Citations?.ToList() ?? [],
-            Sources = final?.Sources?.ToList() ?? [],
+        var userMessage = new ChatMessage(ChatRole.User, request.Question) {
+            MessageId = Guid.NewGuid().ToString(),
+            CreatedAt = request.TimeStamp
+        };
+
+        var assistantText = new TextContent(final?.Answer ?? string.Empty) {
+            Annotations = final?.Citations?.Select(c => (AIAnnotation)new CitationAnnotation {
+                FileId = c.DocumentId.ToString(),
+                Title = final?.Sources.First(x => x.Id == c.DocumentId).SourceTitle,
+                Url = new Uri(final!.Sources.First(x => x.Id == c.DocumentId).SourceUrl),
+                Snippet = c.Title
+                // Other metadata like page number, confidence, etc.
+            }).ToList() ?? []
+        };
+        var assistantMessage = new ChatMessage(ChatRole.Assistant, [assistantText]) {
+            MessageId = Guid.NewGuid().ToString(),
+            CreatedAt = DateTimeOffset.UtcNow,
         };
 
         var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
@@ -164,8 +189,8 @@ public class ChatsService : IChatsService
         return new ChatStreamEvent {
             Type = "complete",
             SessionId = session.Id,
-            MessageId = persistedAssistant.Id,
-            Answer = assistantText,
+            MessageId = persistedAssistant.MessageId,
+            Answer = assistantText.Text,
             Citations = final?.Citations ?? [],
             Sources = final?.Sources ?? [],
             Failed = final?.Failed ?? false,

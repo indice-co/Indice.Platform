@@ -1,6 +1,7 @@
 using System.Net.ServerSentEvents;
 using Indice.Features.Agents.Core.Models;
 using Indice.Types;
+using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Services;
 
@@ -11,7 +12,7 @@ public interface IChatsService
     /// Posts a turn. When <paramref name="sessionId"/> is <c>null</c>, the session is created inline as part of this call.
     /// Returns <c>null</c> when <paramref name="sessionId"/> is supplied but no session matches <paramref name="userId"/>.
     /// </summary>
-    Task<ChatResponse?> SendAsync(string userId, Guid? sessionId, string text, CancellationToken cancellationToken);
+    Task<ChatResponse?> SendAsync(string userId, Guid? sessionId, ChatRequest chatRequest, CancellationToken cancellationToken);
 
     /// <summary>
     /// Streaming counterpart of <see cref="SendAsync"/>: posts a turn and returns the live SSE event stream

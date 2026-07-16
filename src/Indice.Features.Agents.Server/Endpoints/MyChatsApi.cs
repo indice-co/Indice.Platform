@@ -1,3 +1,4 @@
+using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Server;
 using Indice.Features.Agents.Server.Endpoints;
 using Indice.Security;

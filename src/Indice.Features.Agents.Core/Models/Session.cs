@@ -1,3 +1,5 @@
+using Microsoft.Extensions.AI;
+
 namespace Indice.Features.Agents.Core.Models;
 
 /// <summary>Detail view of a chat session, including the most recent messages.</summary>

@@ -1,14 +1,14 @@
 ﻿using System.Text;
-using Azure;
-using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
+using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -24,7 +24,7 @@ internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, Pi
 
 
     /// <summary>Creates a new <see cref="PurposeResponder"/>.</summary>
-    public PurposeResponder(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+    public PurposeResponder([FromKeyedServices(nameof(AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
         SessionStoreChatHistoryProvider historyProvider) : base("PurposeResponder") {
@@ -36,8 +36,7 @@ internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, Pi
             strictGrounding = _options.Pipeline.StrictGrounding,
         });
 
-        _agent = openAIClient
-            .GetChatClient(_model)
+        _agent = chatClient
             .AsAIAgent(
                 options: new ChatClientAgentOptions() {
                     ChatOptions = chatOptions,
@@ -64,7 +63,7 @@ internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, Pi
         await foreach (var update in _agent.RunStreamingAsync(prompt, agentSession, cancellationToken: cancellationToken)) {
             if (!string.IsNullOrEmpty(update.Text)) {
                 answer.Append(update.Text);
-                await context.AddEventAsync(new AnswerDeltaEvent(update.Text), cancellationToken);
+                await context.AddEventAsync(new AnswerDeltaEvent(Id, update.Text), cancellationToken);
             }
             foreach (var usageContent in update.Contents.OfType<UsageContent>()) {
                 (usage ??= new UsageDetails()).Add(usageContent.Details);

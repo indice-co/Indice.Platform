@@ -33,7 +33,7 @@ public record ChatStreamEvent
     public Guid? SessionId { get; init; }
 
     /// <summary>Identifier of the persisted assistant message; populated on <c>complete</c>.</summary>
-    public Guid? MessageId { get; init; }
+    public string? MessageId { get; init; }
 
     /// <summary>True when a pipeline step threw and the workflow halted; populated on <c>complete</c>.</summary>
     public bool? Failed { get; init; }

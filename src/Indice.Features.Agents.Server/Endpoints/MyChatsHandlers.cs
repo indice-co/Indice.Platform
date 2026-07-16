@@ -5,6 +5,7 @@ using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Server.Endpoints;
 
@@ -16,15 +17,15 @@ internal static class MyChatsHandlers
     /// <summary>POST /api/my/chats — creates a session with the first question.</summary>
     public static async Task<CreatedAtRoute<ChatResponse>> Create(ChatRequest request, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
-        var response = await chats.SendAsync(userId, sessionId: null, request.Text, cancellationToken);
-        return TypedResults.CreatedAtRoute(response, nameof(GetChatSession), new { chatId = response!.SessionId });
+        var response = await chats.SendAsync(userId, sessionId: null, request, cancellationToken);
+        return TypedResults.CreatedAtRoute(response, nameof(GetChatSession), new { chatId = Guid.Parse(response!.ConversationId!) });
     }
 
     /// <summary>POST /api/my/chats/{chatId}/messages — posts a follow-up turn.</summary>
     public static async Task<Results<Ok<ChatResponse>, NotFound>> SendMessage(Guid chatId, ChatRequest request, ClaimsPrincipal user,
         IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
-        var response = await chats.SendAsync(userId, chatId, request.Text, cancellationToken);
+        var response = await chats.SendAsync(userId, chatId, request, cancellationToken);
         return response is null ? TypedResults.NotFound() : TypedResults.Ok(response);
     }
 

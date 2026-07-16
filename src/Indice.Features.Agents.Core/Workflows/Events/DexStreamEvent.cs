@@ -1,7 +1,7 @@
 using Indice.Features.Agents.Core.Models;
 using Microsoft.Extensions.AI;
 
-namespace Indice.Features.Agents.Core.Workflows;
+namespace Indice.Features.Agents.Core.Workflows.Events;
 
 /// <summary>
 /// Base type for the real-time events <see cref="Abstractions.IDexRunner.RunStreamingAsync"/> yields as
@@ -38,6 +38,21 @@ public sealed class DexDeltaEvent : DexStreamEvent
 
     /// <summary>The incremental answer text.</summary>
     public string Text { get; }
+}
+
+/// <summary>Signals that a pipeline step threw an exception. The pipeline will halt and yield a single <see cref="DexFinalEvent"/> with <see cref="DexFinalEvent.Failed"/> set to true.</summary>
+public sealed class DexErrorEvent : DexStreamEvent
+{
+    /// <summary>Creates a new <see cref="DexErrorEvent"/>.</summary>
+    public DexErrorEvent(string stepId, string errorMessage) {
+        StepId = stepId;
+        ErrorMessage = errorMessage;
+    }
+    /// <summary>The executor id of the step that threw (e.g. <c>Retriever</c>).</summary>
+    public string StepId { get; }
+
+    /// <summary>The error message from the step that threw.</summary>
+    public string ErrorMessage { get; }
 }
 
 /// <summary>

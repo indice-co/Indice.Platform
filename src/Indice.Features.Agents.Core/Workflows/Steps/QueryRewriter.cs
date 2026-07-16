@@ -1,12 +1,12 @@
-using System.ClientModel;
-using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
+using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -22,15 +22,14 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="QueryRewriter"/>.</summary>
-    public QueryRewriter(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+    public QueryRewriter([FromKeyedServices(nameof(AzureOpenAIDeployments.Fast))] IChatClient chatClient, IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         SessionStoreChatHistoryProvider historyProvider) : base("QueryRewriter") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Fast!;
         var chatOptions = models.Value.BaseFastModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("QueryRewriter");
-        _agent = openAIClient
-            .GetChatClient(_model)
+        _agent = chatClient
             .AsAIAgent(options: new ChatClientAgentOptions() {
                 ChatOptions = chatOptions,
                 Name = "DexQueryRewriter",

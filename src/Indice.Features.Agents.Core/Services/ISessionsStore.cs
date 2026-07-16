@@ -1,5 +1,6 @@
 using Indice.Features.Agents.Core.Models;
 using Indice.Types;
+using Microsoft.Extensions.AI;
 using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Services;

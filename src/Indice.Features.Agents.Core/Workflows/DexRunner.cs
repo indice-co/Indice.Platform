@@ -11,14 +11,14 @@ namespace Indice.Features.Agents.Core.Workflows;
 /// <inheritdoc/>
 public class DexRunner : IDexRunner
 {
-    private readonly Workflow? workflow;
+    private readonly Workflow _workflow;
 
     /// <summary>
     /// Creates a new <see cref="DexRunner"/> instance.
     /// </summary>
     /// <param name="workflow">The workflow instance to execute.</param>
-    public DexRunner ([FromKeyedServices("Default")] Workflow? workflow) {
-        this.workflow = workflow;
+    public DexRunner ([FromKeyedServices("Default")] Workflow workflow) {
+        _workflow = workflow;
     }
 
     /// <summary>Human-friendly progress labels keyed by executor id, surfaced as SSE <c>step</c> events.</summary>
@@ -35,7 +35,7 @@ public class DexRunner : IDexRunner
     /// <inheritdoc/>
     public async Task<RagResult> RunAsync(RagRequest request, CancellationToken cancellationToken) {
         var initial = CreateInitialEnvelope(request);
-        await using var run = await InProcessExecution.RunAsync(workflow!, initial, cancellationToken: cancellationToken);
+        await using var run = await InProcessExecution.RunAsync(_workflow, initial, cancellationToken: cancellationToken);
         PipelineStepContext<RagPipelineOutput>? final = null;
         string? failure = null;
         UsageDetails? usage = null;
@@ -83,7 +83,7 @@ public class DexRunner : IDexRunner
     public async IAsyncEnumerable<DexStreamEvent> RunStreamingAsync(
         RagRequest request, [EnumeratorCancellation] CancellationToken cancellationToken) {
         var initial = CreateInitialEnvelope(request);
-        await using var run = await InProcessExecution.RunStreamingAsync(workflow!, initial, cancellationToken: cancellationToken);
+        await using var run = await InProcessExecution.RunStreamingAsync(_workflow!, initial, cancellationToken: cancellationToken);
         PipelineStepContext<RagPipelineOutput>? final = null;
         string? failure = null;
         UsageDetails? usage = null;
@@ -131,7 +131,7 @@ public class DexRunner : IDexRunner
 
     /// <summary>Validates a workflow is registered and builds the initial pipeline envelope from <paramref name="request"/>.</summary>
     private PipelineStepContext<RagPipelineInput> CreateInitialEnvelope(RagRequest request) {
-        if (workflow is null) {
+        if (_workflow is null) {
             throw new InvalidOperationException(
                 "No RAG workflow registered. Call services.AddDefaultDexPipeline() or register a Microsoft.Agents.AI.Workflows.Workflow manually.");
         }
