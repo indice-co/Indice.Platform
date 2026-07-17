@@ -67,10 +67,10 @@ public sealed class IntentClassifier : Executor<ConversationState, IntentOutput>
             OutOfScopeReason = result.OutOfScopeReason,
         };
         await context.SetIntentStateAsync(new IntentState(intent, new RetrievalFilters { Category = category, Language = language }), cancellationToken);
-        return new IntentOutput {
-            Intent = intent,
-            Filters = new RetrievalFilters { Category = category, Language = language },
-        };
+        return new IntentOutput (
+            intent,
+            new RetrievalFilters { Category = category, Language = language }
+        );
     }
 
     private sealed class IntentResult
@@ -82,3 +82,7 @@ public sealed class IntentClassifier : Executor<ConversationState, IntentOutput>
         public string? OutOfScopeReason { get; set; }
     }
 }
+/// <summary>Output payload of <c>IntentClassifier</c>.</summary>
+/// <param name="Intent">The classified intent.</param>
+/// <param name="Filters">Retrieval filters derived from the intent (category, language).</param>
+public record IntentOutput(Intent Intent, RetrievalFilters Filters);
