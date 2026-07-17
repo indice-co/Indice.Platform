@@ -121,11 +121,8 @@ public static class WebApplicationBuilderExtensions
 
     private static Action<JwtBearerOptions> ConfigureJwtBearer(IHostApplicationBuilder builder) {
         return options => {
-            var authorities = builder.Configuration.GetAuthorities();
-            options.Authority = authorities.FirstOrDefault();
-            if (authorities is { Length: > 1 }) {
-                options.TokenValidationParameters.ValidIssuers = authorities;
-            }
+            options.Authority = builder.Configuration.GetAuthority();
+            options.TokenValidationParameters.ValidIssuers = builder.Configuration.GetAuthorities().ToArray();
             options.MetadataAddress = builder.Configuration.GetAuthorityMetadata(tryInternal: true);
             options.Audience = builder.Configuration.GetApiResourceName() ?? "api1";
             options.TokenValidationParameters.RoleClaimType = JwtClaimTypes.Role;

@@ -147,19 +147,17 @@ public static class IConfigurationExtensions
     /// (e.g. <c>"https://idp.example.com"</c>) or an array of strings
     /// (e.g. <c>["https://idp1.example.com", "https://idp2.example.com"]</c>).
     /// </remarks>
-    public static string[] GetAuthorities(this IConfiguration configuration) {
+    public static IEnumerable<string> GetAuthorities(this IConfiguration configuration) {
         var section = configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Authority)}");
-        // Array form: General:Authority:0, General:Authority:1, ...
-        var array = section.Get<string[]>();
-        if (array is { Length: > 0 }) {
-            return array.Where(x => !string.IsNullOrWhiteSpace(x))
-                        .Select(x => x.Trim().TrimEnd('/'))
-                        .ToArray();
+        if (!section.Exists()) {
+            return [];
         }
-        // Scalar form: General:Authority = "https://idp.example.com"
-        var scalar = section.Value;
-        var authorities = scalar?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-        return authorities?.Select(x => x.Trim().TrimEnd('/')).ToArray() ?? Array.Empty<string>();
+        return section.GetChildren()
+               .Select(x => x.Value)
+               .Prepend(section.Value)
+               .Where(x => !string.IsNullOrWhiteSpace(x))
+               .SelectMany(x => x?.Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [])
+               .Select(x => x.TrimEnd('/'));
     }
 
     /// <summary>A string that represents the default host name binding for the identity provider (aka authority) for this application <see cref="GeneralSettings.Authority"/>.</summary>

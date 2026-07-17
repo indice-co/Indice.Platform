@@ -26,7 +26,7 @@ public class IConfigurationExtensionsGetAuthoritiesTests
         var result = config.GetAuthorities();
 
         Assert.Single(result);
-        Assert.Equal("https://idp.example.com", result[0]);
+        Assert.Equal("https://idp.example.com", result.First());
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class IConfigurationExtensionsGetAuthoritiesTests
         var result = config.GetAuthorities();
 
         Assert.Single(result);
-        Assert.Equal("https://idp.example.com", result[0]);
+        Assert.Equal("https://idp.example.com", result.First());
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class IConfigurationExtensionsGetAuthoritiesTests
 
         var result = config.GetAuthorities();
 
-        Assert.Equal(2, result.Length);
+        Assert.Equal(2, result.Count());
         Assert.Contains("https://idp1.example.com", result);
         Assert.Contains("https://idp2.example.com", result);
     }
@@ -62,7 +62,7 @@ public class IConfigurationExtensionsGetAuthoritiesTests
 
         var result = config.GetAuthorities();
 
-        Assert.Equal(2, result.Length);
+        Assert.Equal(2, result.Count());
         Assert.Contains("https://idp1.example.com", result);
         Assert.Contains("https://idp2.example.com", result);
     }
@@ -75,7 +75,7 @@ public class IConfigurationExtensionsGetAuthoritiesTests
 
         var result = config.GetAuthorities();
 
-        Assert.Equal(2, result.Length);
+        Assert.Equal(2, result.Count());
         Assert.All(result, url => Assert.False(url.EndsWith("/")));
     }
 
@@ -88,7 +88,7 @@ public class IConfigurationExtensionsGetAuthoritiesTests
 
         var result = config.GetAuthorities();
 
-        Assert.Equal(2, result.Length);
+        Assert.Equal(2, result.Count());
         Assert.Contains("https://idp1.example.com", result);
         Assert.Contains("https://idp2.example.com", result);
     }
@@ -102,7 +102,21 @@ public class IConfigurationExtensionsGetAuthoritiesTests
 
         var result = config.GetAuthorities();
 
-        Assert.Equal(2, result.Length);
+        Assert.Equal(2, result.Count());
+        Assert.All(result, url => Assert.False(url.EndsWith("/")));
+    }
+
+    [Fact]
+    public void GetAuthorities_WhenArrayValueWithTrailingSlashes_TrimsAllTrailingSlashes2() {
+        var config = BuildConfiguration(new() {
+            ["General:Authority"] = "https://idp1.example.com/,https://idp2.example.com/; https://idp2.example.com/",
+            ["General:Authority:0"] = "https://idp1.example.com/,https://idp2.example.com/",
+            ["General:Authority:1"] = "https://idp2.example.com/"
+        });
+
+        var result = config.GetAuthorities().Distinct();
+
+        Assert.Equal(2, result.Count());
         Assert.All(result, url => Assert.False(url.EndsWith("/")));
     }
 
