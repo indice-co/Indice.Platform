@@ -4,7 +4,7 @@ using Microsoft.Extensions.AI;
 namespace Indice.Features.Agents.Core.Workflows.Events;
 
 /// <summary>
-/// Base type for the real-time events <see cref="Abstractions.IDexRunner.RunStreamingAsync"/> yields as
+/// Base type for the real-time events <see cref="Abstractions.IDexChatClient.RunStreamingAsync"/> yields as
 /// the pipeline executes: per-step progress (<see cref="DexStepEvent"/>), answer text deltas
 /// (<see cref="DexDeltaEvent"/>), and a single terminal <see cref="DexFinalEvent"/>.
 /// </summary>
@@ -56,7 +56,7 @@ public sealed class DexErrorEvent : DexStreamEvent
 }
 
 /// <summary>
-/// Terminal event yielded once after the run completes. Mirrors the fields of <see cref="RagResult"/>:
+/// Terminal event yielded once after the run completes. 
 /// the full answer, citations, failure state, and reasoning-model token totals.
 /// </summary>
 public sealed class DexFinalEvent : DexStreamEvent

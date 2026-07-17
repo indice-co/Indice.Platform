@@ -15,7 +15,7 @@ public static class DefaultDexPipelineExtensions
     /// Registers the five default steps, the default <see cref="ILlmReranker"/>, and a scoped
     /// <see cref="Workflow"/> wiring them in order. Call after <c>AddDex(...)</c>.
     /// </summary>
-    public static IServiceCollection AddDefaultDexPipeline(this IServiceCollection services) {
+    public static IServiceCollection AddAgentsDefaultPipeline(this IServiceCollection services) {
         services.TryAddTransient<IntentClassifier>();
         services.TryAddTransient<QueryRewriter>();
         services.TryAddTransient<Retriever>();
@@ -38,8 +38,8 @@ public static class DefaultDexPipelineExtensions
 
             var builder = new WorkflowBuilder(intent);
             builder.AddSwitch(intent, sw => sw
-                .AddCase<PipelineStepContext<IntentOutput>>(env => env!.Payload.Intent.Category == "purpose_of_agent", purposeResponder)
-                .AddCase<PipelineStepContext<IntentOutput>>(env => env!.Payload.Intent.IsInScope, rewrite)
+                .AddCase<IntentOutput>(env => env!.Intent.Category == "purpose_of_agent", purposeResponder)
+                .AddCase<IntentOutput>(env => env!.Intent.IsInScope, rewrite)
                 .WithDefault(outOfScopeReply));
             builder.AddEdge(rewrite,  retrieve);
             builder.AddEdge(retrieve, rerank);

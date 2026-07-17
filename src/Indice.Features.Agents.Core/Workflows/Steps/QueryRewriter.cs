@@ -15,7 +15,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// broaden retrieval recall. Disabled by <c>DefaultPipelineOptions.EnableQueryRewrite = false</c>; on any LLM
 /// failure, falls back to the original question.
 /// </summary>
-public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, PipelineStepContext<QueryRewriteOutput>>
+public sealed class QueryRewriter : Executor<IntentOutput, QueryRewriteOutput>
 {
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
@@ -38,17 +38,17 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<PipelineStepContext<QueryRewriteOutput>> HandleAsync(PipelineStepContext<IntentOutput> envelope,
+    public override async ValueTask<QueryRewriteOutput> HandleAsync(IntentOutput intentResult,
         IWorkflowContext context, CancellationToken cancellationToken = default) {
-        var question = envelope.State.Question;
+        var state = await context.GetConversationStateAsync(cancellationToken);
         var expansion = _options.Retrieval.QueryExpansion;
         var enabled = _options.Pipeline.EnableQueryRewrite && expansion > 1;
 
-        var queries = new List<string> { question };
+        var queries = new List<string> { state.Message.Text };
         if (enabled) {
             var agentSession = await _agent.CreateSessionAsync(cancellationToken);
-            SessionStoreChatHistoryProvider.SetSessionId(agentSession, envelope.State.SessionId);
-            var prompt = $"Question: {question}\n\nProduce {expansion - 1} alternative rewrite(s).";
+            SessionStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(state.ConversationId));
+            var prompt = $"Question: {state.Message.Text}\n\nProduce {expansion - 1} alternative rewrite(s).";
             var response = await _agent.RunAsync<RewriteResult>(prompt, agentSession, cancellationToken: cancellationToken);
             foreach (var q in response.Result.Queries) {
                 if (!string.IsNullOrWhiteSpace(q) && !queries.Contains(q, StringComparer.OrdinalIgnoreCase)) {
@@ -57,11 +57,11 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
                 if (queries.Count >= expansion) break;
             }
         }
-        return envelope.Next(new QueryRewriteOutput {
-            Intent = envelope.Payload.Intent,
-            Filters = envelope.Payload.Filters,
+        return new QueryRewriteOutput {
+            Intent = intentResult.Intent,
+            Filters = intentResult.Filters,
             RewrittenQueries = queries,
-        });
+        };
     }
 
     private sealed class RewriteResult

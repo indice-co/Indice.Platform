@@ -17,7 +17,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// in the provided context and cite chunk IDs in <c>[#chunkId]</c> form. Projects the candidates into
 /// <see cref="Models.Citation"/> records on the output payload.
 /// </summary>
-public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>, PipelineStepContext<RagPipelineOutput>>
+public sealed class AnswerComposer : Executor<RerankOutput, RagPipelineOutput>
 {
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
@@ -35,7 +35,6 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
         chatOptions.Instructions = prompts.Render("AnswerComposer", new {
             strictGrounding = _options.Pipeline.StrictGrounding,
         });
-
         _agent = chatClient.AsAIAgent(
                 options: new ChatClientAgentOptions() {
                     ChatOptions = chatOptions,
@@ -46,13 +45,13 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<PipelineStepContext<RagPipelineOutput>> HandleAsync(PipelineStepContext<RerankOutput> envelope,
+    public override async ValueTask<RagPipelineOutput> HandleAsync(RerankOutput message,
         IWorkflowContext context, CancellationToken cancellationToken = default) {
-
-        var candidates = envelope.Payload.RerankedCandidates;
-        var prompt = BuildPrompt(envelope.State.Question, candidates);
+        var state = await context.GetConversationStateAsync(cancellationToken);
+        var candidates = message.RerankedCandidates;
+        var prompt = BuildPrompt(state.Message.Text, candidates);
         var agentSession = await _agent.CreateSessionAsync(cancellationToken);
-        SessionStoreChatHistoryProvider.SetSessionId(agentSession, envelope.State.SessionId);
+        SessionStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(state.ConversationId));
 
         // Stream the answer: emit each text delta as a workflow event (surfaced as an SSE `delta` by the
         // streaming runner; ignored by the non-streaming runner) while accumulating the full text. Token
@@ -83,11 +82,11 @@ public sealed class AnswerComposer : Executor<PipelineStepContext<RerankOutput>,
             })
             .ToList();
         var sources = candidates.Select(c => c.Source).DistinctBy(x => x.Id).ToList();
-        return envelope.Next(new RagPipelineOutput {
+        return new RagPipelineOutput {
             Answer = answer.ToString(),
             Citations = citations,
             Sources = sources,
-        });
+        };
     }
 
     private static string BuildPrompt(string question, IReadOnlyList<RetrievedChunk> candidates) {

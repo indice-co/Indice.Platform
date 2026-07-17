@@ -16,7 +16,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// Terminal branch of the pipeline when <c>IntentClassifier</c> decides the \
 /// question is a general question about the capabilities of the agent.
 /// </summary>
-internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, PipelineStepContext<RagPipelineOutput>>
+internal class PurposeResponder : Executor<IntentOutput, RagPipelineOutput>
 {
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
@@ -47,13 +47,13 @@ internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, Pi
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<PipelineStepContext<RagPipelineOutput>> HandleAsync(
-        PipelineStepContext<IntentOutput> envelope,IWorkflowContext context,
+    public override async ValueTask<RagPipelineOutput> HandleAsync(
+        IntentOutput intentResult, IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-
-        var prompt = envelope.State.Question;
+        var state = await context.GetConversationStateAsync(cancellationToken);
+        var prompt = state.Message.Text;
         var agentSession = await _agent.CreateSessionAsync(cancellationToken);
-        SessionStoreChatHistoryProvider.SetSessionId(agentSession, envelope.State.SessionId);
+        SessionStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(state.ConversationId));
 
         // Stream the answer: emit each text delta as a workflow event (surfaced as an SSE `delta` by the
         // streaming runner; ignored by the non-streaming runner) while accumulating the full text. Token
@@ -73,9 +73,9 @@ internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, Pi
             await context.AddEventAsync(new UsageEvent(usage, _model), cancellationToken);
         }
 
-        return envelope.Next(new RagPipelineOutput {
+        return new RagPipelineOutput {
             Answer = answer.ToString()
-        });
+        };
     }
 }
 

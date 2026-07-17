@@ -22,7 +22,7 @@ public static class AgentsFeatureExtensions
     /// <summary>
     /// Registers Dex core services: <see cref="AgentsOptions"/> (bound from the <c>Dex</c> configuration section),
     /// <see cref="OpenAIClient"/> (singleton — each pipeline step builds its own role-bound agent from it),
-    /// the embedding generator, the <see cref="AgentsDbContext"/> wired to SQL Server, and <see cref="IDexRunner"/>.
+    /// the embedding generator, the <see cref="AgentsDbContext"/> wired to SQL Server, and <see cref="IDexChatClient"/>.
     /// </summary>
     public static IServiceCollection AddAgentsCore(this IServiceCollection services, IConfiguration configuration, Action<AgentsOptions>? configureAction = null) {
         var optionsBuilder = services.AddOptions<AgentsOptions>().BindConfiguration("Dex");
@@ -74,12 +74,12 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<IUsageGuardService, UsageGuardService>();
         services.TryAddTransient<SessionStoreChatHistoryProvider>();
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();
-        services.TryAddTransient<IDexRunner, DexRunner>();
+        services.TryAddTransient<IDexChatClient, DexChatClient>();
         services.TryAddSingleton<WorkflowClaimsPrincipalSelector>(sp =>
             () => null
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
-        services.AddDefaultDexPipeline();
+        services.AddAgentsDefaultPipeline();
         return services;
     }
 
