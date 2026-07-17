@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows.Abstractions;
 using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -156,15 +157,7 @@ public class DexChatClient : IDexChatClient
 
 
         yield return new ChatResponseUpdate(ChatRole.Assistant, final?.Answer ?? "") {
-            RawRepresentation = new DexFinalEvent {
-                Answer = final?.Answer,
-                Citations = final?.Citations ?? [],
-                Sources = final?.Sources ?? [],
-                Failed = failure is not null,
-                FailureReason = failure,
-                Usage = usage,
-                ModelUsed = modelUsed,
-            },
+            RawRepresentation = "Final",
             ConversationId = state.ConversationId,
             ResponseId = messageId,
             MessageId = messageId,
@@ -173,6 +166,7 @@ public class DexChatClient : IDexChatClient
                 ["failed"] = failure is not null,
                 ["failureReason"] = failure,
                 ["sources"] = final?.Sources ?? [],
+                ["citations"] = final?.Citations ?? [],
             }
         };
 
