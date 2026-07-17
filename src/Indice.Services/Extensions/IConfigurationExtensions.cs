@@ -158,10 +158,8 @@ public static class IConfigurationExtensions
         }
         // Scalar form: General:Authority = "https://idp.example.com"
         var scalar = section.Value;
-        if (!string.IsNullOrWhiteSpace(scalar)) {
-            return [scalar.Trim().TrimEnd('/')];
-        }
-        return [];
+        var authorities = scalar?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        return authorities?.Select(x => x.Trim().TrimEnd('/')).ToArray() ?? Array.Empty<string>();
     }
 
     /// <summary>A string that represents the default host name binding for the identity provider (aka authority) for this application <see cref="GeneralSettings.Authority"/>.</summary>
@@ -170,7 +168,7 @@ public static class IConfigurationExtensions
     /// <returns>Example can be https://idp.example.com</returns>
     /// <remarks>Checks either the <strong>General:AuthorityInternal</strong> or <strong>General:Authority</strong> option in appsettings.json file. Depends up on the <paramref name="tryInternal"/> parameter.</remarks>
     public static string? GetAuthority(this IConfiguration configuration, bool tryInternal = false) => tryInternal
-        ? configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.AuthorityInternal))?.TrimEnd('/') ?? 
+        ? configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.AuthorityInternal))?.TrimEnd('/') ??
           configuration.GetAuthorities().FirstOrDefault()
         : configuration.GetAuthorities().FirstOrDefault();
 
