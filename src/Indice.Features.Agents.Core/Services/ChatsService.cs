@@ -89,7 +89,7 @@ public class ChatsService : IChatsService
                 }
             },
             AdditionalProperties = new() {
-                ["failed"] = result.Failed.ToString().ToLower(),
+                ["failed"] = result.Failed,
                 ["failureReason"] = result.FailureReason,
                 ["sources"] = result.Sources ?? [],
             }
