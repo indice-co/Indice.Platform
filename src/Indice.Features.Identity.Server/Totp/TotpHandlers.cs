@@ -29,10 +29,10 @@ internal static class TotpHandlers
         string? tokenProvider = null;
         if (!string.IsNullOrWhiteSpace(request.AuthenticationMethod)) {
             var authenticationMethod = (await authenticationMethodProvider.GetAllMethodsAsync())
-                .Where(x => x.DisplayName.Equals(request.AuthenticationMethod, StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.Code.Equals(request.AuthenticationMethod, StringComparison.OrdinalIgnoreCase))
                 .FirstOrDefault();
             if (authenticationMethod is null) {
-                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method '{request.AuthenticationMethod}' is not configured in the system."));
+                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method code '{request.AuthenticationMethod}' is not configured in the system."));
             }
             if (!authenticationMethod.SupportsDeliveryChannel() || !authenticationMethod.SupportsTokenProvider()) {
                 return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method '{request.AuthenticationMethod}' must support a delivery channel and a token provider."));
@@ -98,10 +98,10 @@ internal static class TotpHandlers
         string? tokenProvider = null;
         if (!string.IsNullOrWhiteSpace(request.AuthenticationMethod)) {
             var authenticationMethod = (await authenticationMethodProvider.GetAllMethodsAsync())
-                .Where(x => x.DisplayName.Equals(request.AuthenticationMethod, StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.Code.Equals(request.AuthenticationMethod, StringComparison.OrdinalIgnoreCase))
                 .FirstOrDefault();
             if (authenticationMethod is null) {
-                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method '{request.AuthenticationMethod}' is not configured in the system."));
+                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method code '{request.AuthenticationMethod}' is not configured in the system."));
             }
             if (!authenticationMethod.SupportsTokenProvider()) {
                 return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method '{request.AuthenticationMethod}' must support a token provider."));
