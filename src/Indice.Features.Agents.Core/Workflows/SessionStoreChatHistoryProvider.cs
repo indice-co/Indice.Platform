@@ -1,4 +1,3 @@
-using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Microsoft.Agents.AI;
 
@@ -46,7 +45,7 @@ public sealed class SessionStoreChatHistoryProvider : ChatHistoryProvider
             return [];
         }
         var history = await _store.GetHistoryAsync(sessionId, cancellationToken);
-        return history.Select(message => message.ToAIChatMessage());
+        return history;
     }
 
     /// <inheritdoc/>

@@ -1,14 +1,14 @@
 ﻿using System.Text;
-using Azure;
-using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
+using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -16,7 +16,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// Terminal branch of the pipeline when <c>IntentClassifier</c> decides the \
 /// question is a general question about the capabilities of the agent.
 /// </summary>
-internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, PipelineStepContext<RagPipelineOutput>>
+internal class PurposeResponder : Executor<IntentOutput, RagPipelineOutput>
 {
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
@@ -24,7 +24,7 @@ internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, Pi
 
 
     /// <summary>Creates a new <see cref="PurposeResponder"/>.</summary>
-    public PurposeResponder(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+    public PurposeResponder([FromKeyedServices(nameof(AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
         SessionStoreChatHistoryProvider historyProvider) : base("PurposeResponder") {
@@ -36,8 +36,7 @@ internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, Pi
             strictGrounding = _options.Pipeline.StrictGrounding,
         });
 
-        _agent = openAIClient
-            .GetChatClient(_model)
+        _agent = chatClient
             .AsAIAgent(
                 options: new ChatClientAgentOptions() {
                     ChatOptions = chatOptions,
@@ -48,13 +47,13 @@ internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, Pi
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<PipelineStepContext<RagPipelineOutput>> HandleAsync(
-        PipelineStepContext<IntentOutput> envelope,IWorkflowContext context,
+    public override async ValueTask<RagPipelineOutput> HandleAsync(
+        IntentOutput intentResult, IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-
-        var prompt = envelope.State.Question;
+        var state = await context.GetConversationStateAsync(cancellationToken);
+        var prompt = state.Message.Text;
         var agentSession = await _agent.CreateSessionAsync(cancellationToken);
-        SessionStoreChatHistoryProvider.SetSessionId(agentSession, envelope.State.SessionId);
+        SessionStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(state.ConversationId));
 
         // Stream the answer: emit each text delta as a workflow event (surfaced as an SSE `delta` by the
         // streaming runner; ignored by the non-streaming runner) while accumulating the full text. Token
@@ -64,7 +63,7 @@ internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, Pi
         await foreach (var update in _agent.RunStreamingAsync(prompt, agentSession, cancellationToken: cancellationToken)) {
             if (!string.IsNullOrEmpty(update.Text)) {
                 answer.Append(update.Text);
-                await context.AddEventAsync(new AnswerDeltaEvent(update.Text), cancellationToken);
+                await context.AddEventAsync(new AnswerDeltaEvent(Id, update.Text), cancellationToken);
             }
             foreach (var usageContent in update.Contents.OfType<UsageContent>()) {
                 (usage ??= new UsageDetails()).Add(usageContent.Details);
@@ -74,9 +73,9 @@ internal class PurposeResponder : Executor<PipelineStepContext<IntentOutput>, Pi
             await context.AddEventAsync(new UsageEvent(usage, _model), cancellationToken);
         }
 
-        return envelope.Next(new RagPipelineOutput {
+        return new RagPipelineOutput {
             Answer = answer.ToString()
-        });
+        };
     }
 }
 

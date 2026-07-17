@@ -11,6 +11,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using OpenAI;
 using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -20,8 +21,8 @@ public static class AgentsFeatureExtensions
 {
     /// <summary>
     /// Registers Dex core services: <see cref="AgentsOptions"/> (bound from the <c>Dex</c> configuration section),
-    /// <see cref="AzureOpenAIClient"/> (singleton — each pipeline step builds its own role-bound agent from it),
-    /// the embedding generator, the <see cref="AgentsDbContext"/> wired to SQL Server, and <see cref="IDexRunner"/>.
+    /// <see cref="OpenAIClient"/> (singleton — each pipeline step builds its own role-bound agent from it),
+    /// the embedding generator, the <see cref="AgentsDbContext"/> wired to SQL Server, and <see cref="IDexChatClient"/>.
     /// </summary>
     public static IServiceCollection AddAgentsCore(this IServiceCollection services, IConfiguration configuration, Action<AgentsOptions>? configureAction = null) {
         var optionsBuilder = services.AddOptions<AgentsOptions>().BindConfiguration("Dex");
@@ -36,17 +37,25 @@ public static class AgentsFeatureExtensions
                 agents.Value.ConfigureModelOptions?.Invoke(models);
             });
 
-        services.TryAddSingleton(sp => {
+        services.AddSingleton(sp => {
             var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI;
             return new AzureOpenAIClient(new Uri(opts.Endpoint!), new ApiKeyCredential(opts.ApiKey!));
         });
+        services.AddKeyedChatClient(nameof(AzureOpenAIDeployments.Reasoning), sp => {
+            var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI.Deployments;
+            var innerClient = sp.GetRequiredService<AzureOpenAIClient>();
+            return innerClient.GetChatClient(opts.Reasoning).AsIChatClient();
+        });
+        services.AddKeyedChatClient(nameof(AzureOpenAIDeployments.Fast), sp => {
+            var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI.Deployments;
+            var innerClient = sp.GetRequiredService<AzureOpenAIClient>();
+            return innerClient.GetChatClient(opts.Fast).AsIChatClient();
+        });
 
-        services.TryAddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(sp => {
+        services.AddEmbeddingGenerator(sp => {
             var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI;
-            var client = sp.GetRequiredService<AzureOpenAIClient>();
-            return client
-                .GetEmbeddingClient(opts.Deployments.Embedding!)
-                .AsIEmbeddingGenerator(opts.EmbeddingDimensions);
+            var innerClient = sp.GetRequiredService<AzureOpenAIClient>();
+            return innerClient.GetEmbeddingClient(opts.Deployments.Embedding!).AsIEmbeddingGenerator(opts.EmbeddingDimensions);
         });
 
         services.AddDbContext<AgentsDbContext>((sp, options) => {
@@ -65,12 +74,12 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<IUsageGuardService, UsageGuardService>();
         services.TryAddTransient<SessionStoreChatHistoryProvider>();
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();
-        services.TryAddTransient<IDexRunner, DexRunner>();
+        services.TryAddTransient<IDexChatClient, DexChatClient>();
         services.TryAddSingleton<WorkflowClaimsPrincipalSelector>(sp =>
             () => null
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
-        services.AddDefaultDexPipeline();
+        services.AddAgentsDefaultPipeline();
         return services;
     }
 

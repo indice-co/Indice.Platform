@@ -2,6 +2,7 @@ using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Models;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 using static Indice.Features.Agents.Core.AgentsOptions;
 
@@ -11,13 +12,11 @@ namespace Indice.Features.Agents.Core.Services;
 public class SessionsStore : ISessionsStore
 {
     private readonly AgentsDbContext _db;
-    private readonly ISourceLinkGenerator _sourceLinkGenerator;
     private readonly SessionOptions _sessionOptions;
 
     /// <summary>Creates a new <see cref="SessionsStore"/>.</summary>
-    public SessionsStore(AgentsDbContext db, IOptions<AgentsOptions> options, ISourceLinkGenerator sourceLinkGenerator) {
+    public SessionsStore(AgentsDbContext db, IOptions<AgentsOptions> options) {
         _db = db ?? throw new ArgumentNullException(nameof(db));
-        _sourceLinkGenerator = sourceLinkGenerator ?? throw new ArgumentNullException(nameof(sourceLinkGenerator));
         _sessionOptions = options.Value.Session;
     }
 
@@ -80,37 +79,14 @@ public class SessionsStore : ISessionsStore
                     .Take(messageTake)
                     .OrderBy(m => m.CreatedAt)
                     .Select(m => new ChatMessage {
-                        Id = m.Id,
+                        MessageId = m.Id.ToString(),
                         Role = m.Role,
-                        Content = m.Content,
-                        CreatedAt = m.CreatedAt,
-                        Citations = m.Citations.Select(c => new Citation {
-                            ChunkId = c.ChunkId,
-                            DocumentId = c.Chunk.DocumentId,
-                            Title = c.Chunk.Title,
-                            HeadingPath = c.Chunk.HeadingPath,
-                            Number = c.Number,
-                            Score = c.Score,
-                        }).ToList(),
-                        Sources = m.Citations.Select(c => new SourceDocumentLink {
-                            Id = c.Chunk.DocumentId,
-                            SourceTitle = c.Chunk.Document.Title,
-                            SourceUrl = _sourceLinkGenerator.GenerateLink(c.Chunk.Document.Source),
-                            IsPrivate = c.Chunk.Document.IsPrivate,
-                            ContentHash = c.Chunk.Document.ContentHash,
-                            ContentType = c.Chunk.Document.Blob == null ? "application/markdown" : c.Chunk.Document.Blob.ContentType,
-                            Length = c.Chunk.Document.Blob == null ? -1 : c.Chunk.Document.Blob.ContentLength,
-                            FileName = c.Chunk.Document.Blob == null ? c.Chunk.Document.Title : c.Chunk.Document.Blob.FileName,
-                        }).ToList()
-                    })   
+                        Contents = m.Contents,
+                        CreatedAt = m.CreatedAt
+                    })
                     .ToList(),
             })
             .FirstOrDefaultAsync(cancellationToken);
-        if (session is not null) { 
-            foreach (var message in session.Messages) {
-                message.Sources = message.Sources.DistinctBy(s => s.Id).ToList();
-            }
-        }
         return session;
     }
 
@@ -125,33 +101,12 @@ public class SessionsStore : ISessionsStore
             .Take(messageTake)
             .OrderBy(m => m.CreatedAt)
             .Select(m => new ChatMessage {
-                Id = m.Id,
+                MessageId = m.Id.ToString(),
                 Role = m.Role,
-                Content = m.Content,
+                Contents = m.Contents,
                 CreatedAt = m.CreatedAt,
-                Citations = m.Citations.Select(c => new Citation {
-                    ChunkId = c.ChunkId,
-                    DocumentId = c.Chunk.DocumentId,
-                    Title = c.Chunk.Title,
-                    HeadingPath = c.Chunk.HeadingPath,
-                    Number = c.Number,
-                    Score = c.Score,
-                }).ToList(),
-                Sources = m.Citations.Select(c => new SourceDocumentLink {
-                    Id = c.Chunk.DocumentId,
-                    SourceTitle = c.Chunk.Document.Title,
-                    SourceUrl = _sourceLinkGenerator.GenerateLink(c.Chunk.Document.Source),
-                    IsPrivate = c.Chunk.Document.IsPrivate,
-                    ContentHash = c.Chunk.Document.ContentHash,
-                    ContentType = c.Chunk.Document.Blob == null ? "application/markdown" : c.Chunk.Document.Blob.ContentType,
-                    Length = c.Chunk.Document.Blob == null ? -1 : c.Chunk.Document.Blob.ContentLength,
-                    FileName = c.Chunk.Document.Blob == null ? c.Chunk.Document.Title : c.Chunk.Document.Blob.FileName,
-                }).ToList()
             })
             .ToListAsync(cancellationToken);
-        foreach (var message in messages) {
-            message.Sources = message.Sources.DistinctBy(s => s.Id).ToList();
-        }
         return messages;
     }
 
@@ -182,20 +137,20 @@ public class SessionsStore : ISessionsStore
         _db.Add(userRow);
         _db.Add(assistantRow);
 
-        session.LastActivityAt = assistantMessage.CreatedAt;
+        session.LastActivityAt = assistantMessage.CreatedAt ?? DateTimeOffset.UtcNow;
         session.TotalPromptTokens += promptTokens;
         session.TotalCompletionTokens += completionTokens;
         session.MessageCount += 2;
         if (session.Title is null && _sessionOptions.TitleAutoGenerate) {
-            session.Title = DeriveTitle(userMessage.Content);
+            session.Title = DeriveTitle(userMessage);
         }
 
         await _db.SaveChangesAsync(cancellationToken);
 
         return new ChatMessage {
-            Id = assistantRow.Id,
+            MessageId = assistantRow.Id.ToString(),
             Role = assistantRow.Role,
-            Content = assistantRow.Content,
+            Contents = assistantRow.Contents,
             CreatedAt = assistantRow.CreatedAt,
         };
     }
@@ -238,20 +193,15 @@ public class SessionsStore : ISessionsStore
     }
 
     private static DbMessage ToDb(Guid sessionId, ChatMessage m, int? prompt, int? completion, string? model) => new() {
-        Id = m.Id == Guid.Empty ? Guid.NewGuid() : m.Id,
+        Id = string.IsNullOrWhiteSpace(m.MessageId) || !Guid.TryParse(m.MessageId, out var parsedId) ? Guid.NewGuid() : parsedId,
         SessionId = sessionId,
         Role = m.Role,
-        Content = m.Content,
-        CreatedAt = m.CreatedAt == default ? DateTimeOffset.UtcNow : m.CreatedAt,
+        Contents = m.Contents.ToList(),
+        CreatedAt = m.CreatedAt ?? DateTimeOffset.UtcNow,
         PromptTokens = prompt,
         CompletionTokens = completion,
         ModelUsed = model,
-        MetadataJson = null,
-        Citations = m.Citations.Select(c => new DbCitation {
-            ChunkId = c.ChunkId,
-            Number = c.Number,
-            Score = c.Score,
-        }).ToList(),
+        MetadataJson = null
     };
 
     private Session ToDto(DbSession s, IReadOnlyList<ChatMessage> messages) => new() {
@@ -267,8 +217,8 @@ public class SessionsStore : ISessionsStore
         Messages = messages,
     };
 
-    private static string DeriveTitle(ChatMessageContent firstUserMessage) {
-        var normalized = firstUserMessage.Parts.FirstOrDefault()?.Value.Replace('\r', ' ').Replace('\n', ' ').Trim() ?? string.Empty;
+    private static string DeriveTitle(ChatMessage firstUserMessage) {
+        var normalized = firstUserMessage.Text.Replace('\r', ' ').Replace('\n', ' ').Trim() ?? string.Empty;
         return normalized.Length <= 80 ? normalized : normalized[..80];
     }
 }

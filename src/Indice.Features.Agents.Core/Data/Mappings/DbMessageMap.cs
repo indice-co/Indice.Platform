@@ -1,11 +1,7 @@
-using System.Data;
-using System.Text.Json;
 using Indice.Configuration;
-using Indice.Features.Agents.Core.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Data.Mappings;
 
@@ -18,14 +14,14 @@ public class DbMessageMap : IEntityTypeConfiguration<DbMessage>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Role)
                .HasConversion(
-                    role => role.ToString().ToLowerInvariant(),
-                    value => Enum.Parse<ChatMessageRole>(value, ignoreCase: true))
+                    role => role.ToString(),
+                    value => new ChatRole(value))
                .HasMaxLength(TextSizePresets.S32)
                .IsRequired();
 
         //TODO: check whats going on here with this version. builder.ComplexProperty(b => b.Content, b => b.ToJson().IsRequired());
-        builder.ComplexProperty(b => b.Content, b => b.ToJson().IsRequired());
-        //builder.Property(x => x.Content).HasRequiredJsonConversion();
+        //builder.ComplexProperty(b => b.Contents, b => b.ToJson().IsRequired());
+        builder.Property(x => x.Contents).HasRequiredJsonConversion();
 
         builder.Property(x => x.ModelUsed).HasMaxLength(TextSizePresets.M128);
         builder.HasIndex(x => new { x.SessionId, x.CreatedAt });

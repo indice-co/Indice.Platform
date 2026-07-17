@@ -1,12 +1,12 @@
-using System.ClientModel;
-using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
+using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -15,22 +15,21 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// broaden retrieval recall. Disabled by <c>DefaultPipelineOptions.EnableQueryRewrite = false</c>; on any LLM
 /// failure, falls back to the original question.
 /// </summary>
-public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, PipelineStepContext<QueryRewriteOutput>>
+public sealed class QueryRewriter : Executor<IntentOutput, QueryRewriteOutput>
 {
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="QueryRewriter"/>.</summary>
-    public QueryRewriter(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+    public QueryRewriter([FromKeyedServices(nameof(AzureOpenAIDeployments.Fast))] IChatClient chatClient, IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         SessionStoreChatHistoryProvider historyProvider) : base("QueryRewriter") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Fast!;
         var chatOptions = models.Value.BaseFastModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("QueryRewriter");
-        _agent = openAIClient
-            .GetChatClient(_model)
+        _agent = chatClient
             .AsAIAgent(options: new ChatClientAgentOptions() {
                 ChatOptions = chatOptions,
                 Name = "DexQueryRewriter",
@@ -39,17 +38,17 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<PipelineStepContext<QueryRewriteOutput>> HandleAsync(PipelineStepContext<IntentOutput> envelope,
+    public override async ValueTask<QueryRewriteOutput> HandleAsync(IntentOutput intentResult,
         IWorkflowContext context, CancellationToken cancellationToken = default) {
-        var question = envelope.State.Question;
+        var state = await context.GetConversationStateAsync(cancellationToken);
         var expansion = _options.Retrieval.QueryExpansion;
         var enabled = _options.Pipeline.EnableQueryRewrite && expansion > 1;
 
-        var queries = new List<string> { question };
+        var queries = new List<string> { state.Message.Text };
         if (enabled) {
             var agentSession = await _agent.CreateSessionAsync(cancellationToken);
-            SessionStoreChatHistoryProvider.SetSessionId(agentSession, envelope.State.SessionId);
-            var prompt = $"Question: {question}\n\nProduce {expansion - 1} alternative rewrite(s).";
+            SessionStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(state.ConversationId));
+            var prompt = $"Question: {state.Message.Text}\n\nProduce {expansion - 1} alternative rewrite(s).";
             var response = await _agent.RunAsync<RewriteResult>(prompt, agentSession, cancellationToken: cancellationToken);
             foreach (var q in response.Result.Queries) {
                 if (!string.IsNullOrWhiteSpace(q) && !queries.Contains(q, StringComparer.OrdinalIgnoreCase)) {
@@ -58,11 +57,11 @@ public sealed class QueryRewriter : Executor<PipelineStepContext<IntentOutput>, 
                 if (queries.Count >= expansion) break;
             }
         }
-        return envelope.Next(new QueryRewriteOutput {
-            Intent = envelope.Payload.Intent,
-            Filters = envelope.Payload.Filters,
+        return new QueryRewriteOutput {
+            Intent = intentResult.Intent,
+            Filters = intentResult.Filters,
             RewrittenQueries = queries,
-        });
+        };
     }
 
     private sealed class RewriteResult
