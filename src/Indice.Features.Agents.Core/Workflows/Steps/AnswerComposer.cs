@@ -1,4 +1,5 @@
 using System.Text;
+using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -7,8 +8,6 @@ using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OpenAI.Chat;
-using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -17,14 +16,15 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// in the provided context and cite chunk IDs in <c>[#chunkId]</c> form. Projects the candidates into
 /// <see cref="Models.Citation"/> records on the output payload.
 /// </summary>
-public sealed class AnswerComposer : Executor<RerankOutput, RagPipelineOutput>
+public sealed class AnswerComposer : Executor<RerankOutput, GroundedAnswerOutput>
 {
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="AnswerComposer"/>.</summary>
-    public AnswerComposer([FromKeyedServices(nameof(AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, IOptions<AgentsOptions> options,
+    public AnswerComposer([FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, 
+        IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
         SessionStoreChatHistoryProvider historyProvider) : base("AnswerComposer") {
@@ -45,7 +45,7 @@ public sealed class AnswerComposer : Executor<RerankOutput, RagPipelineOutput>
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<RagPipelineOutput> HandleAsync(RerankOutput message,
+    public override async ValueTask<GroundedAnswerOutput> HandleAsync(RerankOutput message,
         IWorkflowContext context, CancellationToken cancellationToken = default) {
         var state = await context.GetConversationStateAsync(cancellationToken);
         var candidates = message.RerankedCandidates;
@@ -82,11 +82,11 @@ public sealed class AnswerComposer : Executor<RerankOutput, RagPipelineOutput>
             })
             .ToList();
         var sources = candidates.Select(c => c.Source).DistinctBy(x => x.Id).ToList();
-        return new RagPipelineOutput {
-            Answer = answer.ToString(),
-            Citations = citations,
-            Sources = sources,
-        };
+        return new GroundedAnswerOutput(
+            answer.ToString(),
+            citations,
+            sources
+        );
     }
 
     private static string BuildPrompt(string question, IReadOnlyList<RetrievedChunk> candidates) {
@@ -109,3 +109,12 @@ public sealed class AnswerComposer : Executor<RerankOutput, RagPipelineOutput>
         return sb.ToString();
     }
 }
+
+/// <summary>
+/// The canonical output of the last step of a Dex RAG pipeline. Carries the grounded answer and the
+/// citations the answer was grounded against.
+/// </summary>
+/// <param name="Answer">The final answer composed by the model, or <c>null</c> if the model was unable to produce a grounded answer.</param>
+/// <param name="Citations">The citations the answer was grounded against, projected from the reranked candidates.</param>
+/// <param name="Sources">Links to the source documents that were retrieved and used to compose the answer; empty for out-of-scope responses and on error.</param>
+public record GroundedAnswerOutput(string? Answer, IReadOnlyList<Citation> Citations, IReadOnlyList<SourceDocumentLink> Sources);

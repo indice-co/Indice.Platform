@@ -2,7 +2,6 @@ using Indice.Features.Agents.Core.Services;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
-using Indice.Features.Agents.Core.Workflows.State;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 

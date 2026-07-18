@@ -6,7 +6,6 @@ using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -22,7 +21,9 @@ public sealed class IntentClassifier : Executor<ConversationState, IntentOutput>
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="IntentClassifier"/>.</summary>
-    public IntentClassifier([FromKeyedServices(nameof(AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, IOptions<AgentsOptions> options,
+    public IntentClassifier(
+        [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, 
+        IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         SessionStoreChatHistoryProvider historyProvider) : base("IntentClassifier") {
         _options = options.Value;

@@ -5,8 +5,6 @@ using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OpenAI.Chat;
-using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -22,7 +20,9 @@ public sealed class QueryRewriter : Executor<IntentOutput, QueryRewriteOutput>
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="QueryRewriter"/>.</summary>
-    public QueryRewriter([FromKeyedServices(nameof(AzureOpenAIDeployments.Fast))] IChatClient chatClient, IOptions<AgentsOptions> options,
+    public QueryRewriter(
+        [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Fast))] IChatClient chatClient, 
+        IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         SessionStoreChatHistoryProvider historyProvider) : base("QueryRewriter") {
         _options = options.Value;
@@ -57,11 +57,11 @@ public sealed class QueryRewriter : Executor<IntentOutput, QueryRewriteOutput>
                 if (queries.Count >= expansion) break;
             }
         }
-        return new QueryRewriteOutput {
-            Intent = intentResult.Intent,
-            Filters = intentResult.Filters,
-            RewrittenQueries = queries,
-        };
+        return new QueryRewriteOutput(
+            intentResult.Intent,
+            intentResult.Filters,
+            queries
+        );
     }
 
     private sealed class RewriteResult
@@ -69,3 +69,9 @@ public sealed class QueryRewriter : Executor<IntentOutput, QueryRewriteOutput>
         public List<string> Queries { get; set; } = new();
     }
 }
+
+/// <summary>Output payload of <c>QueryRewriter</c>.</summary>
+/// <param name="Intent">The classified intent, forwarded from upstream.</param>
+/// <param name="Filters">Retrieval filters, forwarded from upstream.</param>
+/// <param name="RewrittenQueries">One or more reworded versions of the original question to be embedded and searched. Always contains at least the original.</param>
+public record QueryRewriteOutput(Intent Intent, RetrievalFilters Filters, IReadOnlyList<string> RewrittenQueries);

@@ -1,8 +1,8 @@
 using System.Runtime.CompilerServices;
-using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows.Abstractions;
 using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.State;
+using Indice.Features.Agents.Core.Workflows.Steps;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,20 +10,13 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Indice.Features.Agents.Core.Workflows;
 
 /// <inheritdoc/>
-public class DexChatClient : IDexChatClient
+/// <summary>
+/// Creates a new <see cref="DexChatClient"/> instance.
+/// </summary>
+/// <param name="workflow">The workflow instance to execute.</param>
+/// <param name="serviceProvider">The service provider for resolving dependencies.</param>
+public class DexChatClient([FromKeyedServices("Default")] Workflow workflow, IServiceProvider serviceProvider) : IDexChatClient
 {
-    private readonly Workflow _workflow;
-    private readonly IServiceProvider _serviceProvider;
-
-    /// <summary>
-    /// Creates a new <see cref="DexChatClient"/> instance.
-    /// </summary>
-    /// <param name="workflow">The workflow instance to execute.</param>
-    /// <param name="serviceProvider"></param>
-    public DexChatClient ([FromKeyedServices("Default")] Workflow workflow, IServiceProvider serviceProvider) {
-        _workflow = workflow;
-        _serviceProvider = serviceProvider;
-    }
 
     /// <summary>Human-friendly progress labels keyed by executor id, surfaced as SSE <c>step</c> events.</summary>
     private static readonly IReadOnlyDictionary<string, string> StepLabels = new Dictionary<string, string>(StringComparer.Ordinal) {
@@ -43,8 +36,8 @@ public class DexChatClient : IDexChatClient
         }
         var message = messages.First();
         var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());
-        await using var run = await InProcessExecution.RunAsync(_workflow, state, sessionId: state.ConversationId, cancellationToken: cancellationToken);
-        RagPipelineOutput? final = null;
+        await using var run = await InProcessExecution.RunAsync(workflow, state, sessionId: state.ConversationId, cancellationToken: cancellationToken);
+        GroundedAnswerOutput? final = null;
         string? failure = null;
         UsageDetails usage = new UsageDetails();
         string? modelUsed = null;
@@ -52,7 +45,7 @@ public class DexChatClient : IDexChatClient
             switch (evt) {
                 // The terminal executors (compose / out-of-scope) are registered via WithOutputFrom, so their
                 // returned envelope is yielded as a WorkflowOutputEvent — MAF's dedicated terminal-output channel.
-                case WorkflowOutputEvent { Data: RagPipelineOutput env }:
+                case WorkflowOutputEvent { Data: GroundedAnswerOutput env }:
                     final = env;
                     break;
                 // Each LLM step reports its own call usage; fold into a single run total.
@@ -115,8 +108,8 @@ public class DexChatClient : IDexChatClient
         }
         var message = messages.First();
         var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());
-        await using var run = await InProcessExecution.RunStreamingAsync(_workflow, state, sessionId: state.ConversationId, cancellationToken: cancellationToken);
-        RagPipelineOutput? final = null;
+        await using var run = await InProcessExecution.RunStreamingAsync(workflow, state, sessionId: state.ConversationId, cancellationToken: cancellationToken);
+        GroundedAnswerOutput? final = null;
         string? failure = null;
         UsageDetails usage = new UsageDetails();
         string? modelUsed = null;
@@ -138,7 +131,7 @@ public class DexChatClient : IDexChatClient
                     yield return new ChatResponseUpdate(ChatRole.Assistant, delta.Delta) { ConversationId = state.ConversationId, MessageId = messageId, RawRepresentation = "Delta" };
                     break;
                 // Terminal output from compose / out-of-scope (registered via WithOutputFrom).
-                case WorkflowOutputEvent { Data: RagPipelineOutput env }:
+                case WorkflowOutputEvent { Data: GroundedAnswerOutput env }:
                     final = env;
                     break;
                 // A throwing step halts the run; keep the first (richer) message.
@@ -173,7 +166,7 @@ public class DexChatClient : IDexChatClient
     }
 
     /// <inheritdoc/>
-    public object? GetService(Type serviceType, object? serviceKey = null) => serviceKey is null ? _serviceProvider.GetService(serviceType) : _serviceProvider.GetKeyedService(serviceType, serviceKey);
+    public object? GetService(Type serviceType, object? serviceKey = null) => serviceKey is null ? serviceProvider.GetService(serviceType) : serviceProvider.GetKeyedService(serviceType, serviceKey);
 
     /// <inheritdoc/>
     public void Dispose() {

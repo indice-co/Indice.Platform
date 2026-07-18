@@ -7,8 +7,6 @@ using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OpenAI.Chat;
-using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -16,7 +14,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// Terminal branch of the pipeline when <c>IntentClassifier</c> decides the \
 /// question is a general question about the capabilities of the agent.
 /// </summary>
-internal class PurposeResponder : Executor<IntentOutput, RagPipelineOutput>
+internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
 {
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
@@ -24,7 +22,9 @@ internal class PurposeResponder : Executor<IntentOutput, RagPipelineOutput>
 
 
     /// <summary>Creates a new <see cref="PurposeResponder"/>.</summary>
-    public PurposeResponder([FromKeyedServices(nameof(AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, IOptions<AgentsOptions> options,
+    public PurposeResponder(
+        [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, 
+        IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
         SessionStoreChatHistoryProvider historyProvider) : base("PurposeResponder") {
@@ -47,7 +47,7 @@ internal class PurposeResponder : Executor<IntentOutput, RagPipelineOutput>
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<RagPipelineOutput> HandleAsync(
+    public override async ValueTask<GroundedAnswerOutput> HandleAsync(
         IntentOutput intentResult, IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         var state = await context.GetConversationStateAsync(cancellationToken);
@@ -73,9 +73,7 @@ internal class PurposeResponder : Executor<IntentOutput, RagPipelineOutput>
             await context.AddEventAsync(new UsageEvent(usage, _model), cancellationToken);
         }
 
-        return new RagPipelineOutput {
-            Answer = answer.ToString()
-        };
+        return new GroundedAnswerOutput(answer.ToString(), [], []);
     }
 }
 
