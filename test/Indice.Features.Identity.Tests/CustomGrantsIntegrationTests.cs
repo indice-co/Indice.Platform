@@ -467,11 +467,17 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         AssertSidClaimExists(tokenResponse);
     }
 
-    private static void AssertSidClaimExists(TokenResponse tokenResponse) {
-        var handler = new JwtSecurityTokenHandler();
-        Assert.Contains(handler.ReadJwtToken(tokenResponse.AccessToken).Claims, c => c.Type == BasicClaimTypes.SessionId);
-        Assert.Contains(handler.ReadJwtToken(tokenResponse.IdentityToken).Claims, c => c.Type == BasicClaimTypes.SessionId);
-    }
+private static void AssertSidClaimExists(TokenResponse tokenResponse) {
+    Assert.False(string.IsNullOrWhiteSpace(tokenResponse.AccessToken));
+    Assert.False(string.IsNullOrWhiteSpace(tokenResponse.IdentityToken));
+
+    var handler = new JwtSecurityTokenHandler();
+    var accessJwt = handler.ReadJwtToken(tokenResponse.AccessToken);
+    var idJwt = handler.ReadJwtToken(tokenResponse.IdentityToken);
+
+    Assert.Contains(accessJwt.Claims, c => c.Type == BasicClaimTypes.SessionId);
+    Assert.Contains(idJwt.Claims, c => c.Type == BasicClaimTypes.SessionId);
+}
 
     [Fact]
     public async Task Can_Authenticate_Existing_Device_Using_Pin() {
