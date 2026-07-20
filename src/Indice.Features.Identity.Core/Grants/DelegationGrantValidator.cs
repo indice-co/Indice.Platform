@@ -1,5 +1,4 @@
-﻿  using System.Security.Claims;
-#if NET9_0_OR_GREATER
+﻿#if NET9_0_OR_GREATER
 using Duende.IdentityModel;
 #else
 using IdentityModel;
