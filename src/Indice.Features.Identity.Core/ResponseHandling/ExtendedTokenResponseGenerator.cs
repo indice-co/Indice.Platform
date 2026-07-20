@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Security.Claims;
-using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
@@ -126,9 +124,9 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
         var validated = request.ValidatedRequest;
         if (string.IsNullOrEmpty(validated.SessionId)) {
 #if NET9_0_OR_GREATER
-            validated.SessionId = validated.RefreshToken?.GetAccessToken()?.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId)?.Value;
+            validated.SessionId = validated.RefreshToken?.GetAccessToken()?.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.SessionId)?.Value;
 #else
-            validated.SessionId = validated.RefreshToken?.AccessToken?.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId)?.Value;
+            validated.SessionId = validated.RefreshToken?.AccessToken?.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.SessionId)?.Value;
 #endif
         }
         return base.ProcessRefreshTokenRequestAsync(request);
