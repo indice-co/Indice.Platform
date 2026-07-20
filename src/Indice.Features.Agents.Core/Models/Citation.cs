@@ -12,6 +12,12 @@ public class Citation
     /// <summary>Optional display title (heading or document title).</summary>
     public string? Title { get; init; }
 
+    /// <summary>Optional snippet of the chunk content for display.</summary>
+    public string? Snippet { get; init; }
+
+    /// <summary>Optional URL to the source document for display.</summary>
+    public string? SourceUrl { get; set; }
+
     /// <summary>Optional heading breadcrumb for display, e.g. <c>H1 &gt; H2 &gt; H3</c>.</summary>
     public string? HeadingPath { get; init; }
 

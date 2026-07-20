@@ -14,7 +14,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// <summary>
 /// Composes the final grounded answer from the reranked candidates. Instructs the model to ground only
 /// in the provided context and cite chunk IDs in <c>[#chunkId]</c> form. Projects the candidates into
-/// <see cref="Models.Citation"/> records on the output payload.
+/// <see cref="Models.Citation"/> records on the Output payload.
 /// </summary>
 public sealed class AnswerComposer : Executor<RerankOutput, GroundedAnswerOutput>
 {
@@ -57,18 +57,11 @@ public sealed class AnswerComposer : Executor<RerankOutput, GroundedAnswerOutput
         // streaming runner; ignored by the non-streaming runner) while accumulating the full text. Token
         // usage arrives as trailing UsageContent on the final update(s); fold it and report it once.
         var answer = new StringBuilder();
-        UsageDetails? usage = null;
         await foreach (var update in _agent.RunStreamingAsync(prompt, agentSession, cancellationToken: cancellationToken)) {
             if (!string.IsNullOrEmpty(update.Text)) {
                 answer.Append(update.Text);
-                await context.AddEventAsync(new AnswerDeltaEvent(Id, update.Text), cancellationToken);
             }
-            foreach (var usageContent in update.Contents.OfType<UsageContent>()) {
-                (usage ??= new UsageDetails()).Add(usageContent.Details);
-            }
-        }
-        if (usage is not null) {
-            await context.AddEventAsync(new UsageEvent(usage, _model), cancellationToken);
+            await context.AddEventAsync(new AgentResponseUpdateEvent(Id, update), cancellationToken);
         }
 
         var citations = candidates
@@ -76,6 +69,7 @@ public sealed class AnswerComposer : Executor<RerankOutput, GroundedAnswerOutput
                 ChunkId = c.Id,
                 DocumentId = c.Source.Id,
                 Title = c.Title,
+                SourceUrl = c.Source.SourceUrl,
                 HeadingPath = c.HeadingPath,
                 Score = c.Score,
                 Number = index + 1,
@@ -111,7 +105,7 @@ public sealed class AnswerComposer : Executor<RerankOutput, GroundedAnswerOutput
 }
 
 /// <summary>
-/// The canonical output of the last step of a Dex RAG pipeline. Carries the grounded answer and the
+/// The canonical Output of the last step of a Dex RAG pipeline. Carries the grounded answer and the
 /// citations the answer was grounded against.
 /// </summary>
 /// <param name="Answer">The final answer composed by the model, or <c>null</c> if the model was unable to produce a grounded answer.</param>

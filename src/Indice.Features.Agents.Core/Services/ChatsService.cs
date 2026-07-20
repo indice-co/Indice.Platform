@@ -1,7 +1,6 @@
 using System.Net.ServerSentEvents;
 using System.Runtime.CompilerServices;
 using Indice.Features.Agents.Core.Models;
-using Indice.Features.Agents.Core.Workflows;
 using Indice.Types;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
@@ -119,22 +118,25 @@ public class ChatsService : IChatsService
         UsageContent? usageContent = null;
         string? failure = null;
         await foreach (var evt in _dexClient.GetStreamingResponseAsync(userMessage, new ChatOptions { ConversationId = session.Id.ToString() }, cancellationToken)) {
-            switch (evt.RawRepresentation) {
-                case "Step":
-                    yield return new SseItem<ChatStreamEvent>(new ChatStreamEvent { Type = "step", Step = evt.Text }, eventType: "step");
-                    break;
-                case "Delta":
-                    yield return new SseItem<ChatStreamEvent>(new ChatStreamEvent { Type = "delta", Text = evt.Text }, eventType: "delta");
-                    break;
-                case "Usage":
-                    usageContent = evt.Contents.FirstOrDefault() as UsageContent;
-                    break;
-                case "Failure":
-                    failure = evt.Text;
-                    break;
-                case "Final":
-                    final = evt;
-                    break;
+            // Progress/"thinking" updates carry TextReasoningContent; they are never part of the answer text.
+            if (evt.Contents.OfType<TextReasoningContent>().FirstOrDefault() is { } reasoning) {
+                yield return new SseItem<ChatStreamEvent>(new ChatStreamEvent { Type = "step", Step = reasoning.Text }, eventType: "step");
+                continue;
+            }
+            if (evt.Contents.OfType<UsageContent>().FirstOrDefault() is { } usage) {
+                usageContent = usage;
+                continue;
+            }
+            if (evt.Contents.OfType<ErrorContent>().FirstOrDefault() is { } error) {
+                failure = error.Message;
+                continue;
+            }
+            if (evt.FinishReason is not null) {
+                final = evt;
+                continue;
+            }
+            if (!string.IsNullOrEmpty(evt.Text)) {
+                yield return new SseItem<ChatStreamEvent>(new ChatStreamEvent { Type = "delta", Text = evt.Text }, eventType: "delta");
             }
         }
 

@@ -76,7 +76,7 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<IUsageGuardService, UsageGuardService>();
         services.TryAddTransient<SessionStoreChatHistoryProvider>();
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();
-        services.TryAddTransient<IDexChatClient, DexChatClient>();
+        services.TryAddTransient<IDexChatClient, AgentsChatClient>();
         services.TryAddSingleton<WorkflowClaimsPrincipalSelector>(sp =>
             () => null
         );

@@ -63,7 +63,7 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
         await foreach (var update in _agent.RunStreamingAsync(prompt, agentSession, cancellationToken: cancellationToken)) {
             if (!string.IsNullOrEmpty(update.Text)) {
                 answer.Append(update.Text);
-                await context.AddEventAsync(new AnswerDeltaEvent(Id, update.Text), cancellationToken);
+                await context.AddEventAsync(new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, update.Text)), cancellationToken);
             }
             foreach (var usageContent in update.Contents.OfType<UsageContent>()) {
                 (usage ??= new UsageDetails()).Add(usageContent.Details);

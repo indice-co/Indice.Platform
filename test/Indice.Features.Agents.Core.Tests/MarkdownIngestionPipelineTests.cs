@@ -1,8 +1,7 @@
 using System.Text;
-using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
-using Indice.Features.Agents.Core.Workflows;
+using Indice.Features.Agents.Core.Workflows.Ingestion;
 using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Tests;
@@ -24,7 +23,7 @@ public class MarkdownIngestionPipelineTests
         var options = Microsoft.Extensions.Options.Options.Create(new AgentsOptions {
             Taxonomy = new AgentsOptions.TaxonomyOptions { Categories = ["general"], Languages = ["en"] },
         });
-        var pipeline = new DefaultIngestionPipeline(store, options, new StubEmbeddingGenerator());
+        var pipeline = new IngestionPipeline(store, options, new StubEmbeddingGenerator());
 
         var report = await pipeline.IngestAsync(Request(body, DocumentType.Markdown), CancellationToken.None);
 
