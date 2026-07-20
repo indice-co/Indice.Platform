@@ -8,7 +8,6 @@ using IdentityServer4.Models;
 using IdentityServer4.Validation;
 #endif
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.MobileSessions;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Security;
 
@@ -58,10 +57,7 @@ public class TotpGrantValidator : IExtensionGrantValidator
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant);
             return;
         }
-        var claims = new List<Claim> {
-            new(JwtClaimTypes.SessionId, MobileSessionIds.Find(validationResult.Claims) ?? MobileSessionIds.Create())
-        };
-        context.Result = new GrantValidationResult(sub, GrantType, claims);
+        context.Result = new GrantValidationResult(sub, GrantType);
         return;
     }
 }

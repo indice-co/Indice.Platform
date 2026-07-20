@@ -1,5 +1,4 @@
 ﻿  using System.Security.Claims;
-using Indice.Features.Identity.Core.MobileSessions;
 #if NET9_0_OR_GREATER
 using Duende.IdentityModel;
 #else
@@ -42,9 +41,6 @@ public class DelegationGrantValidator : IExtensionGrantValidator
             return;
         }
         var subject = result.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject)?.Value;
-        var claims = new List<Claim> {
-            new(JwtClaimTypes.SessionId, MobileSessionIds.Find(result.Claims) ?? MobileSessionIds.Create())
-        };
-        context.Result = new GrantValidationResult(subject, GrantType, claims);
+        context.Result = new GrantValidationResult(subject, GrantType);
     }
 }
