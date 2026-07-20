@@ -12,8 +12,8 @@ public sealed class TotpServiceSecurityTokenParametersBuilder : TotpServiceSecur
         return new TotpServiceSecurityTokenMessageBuilder(this);
     }
 
-    /// <summary>Creates a new <see cref="TotpServiceSecurityTokenParameters"/> instance.</summary>
-    public TotpServiceSecurityTokenParameters Build() => this;
+/// <summary>Returns the configured <see cref="TotpServiceSecurityTokenParameters"/> instance.</summary>
+public TotpServiceSecurityTokenParameters Build() => this;
 }
 
 /// <summary>Builder class.</summary>
