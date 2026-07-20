@@ -113,16 +113,23 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
             !string.IsNullOrWhiteSpace(phoneNumber) ? phoneNumber :
                 email ?? throw new SecurityException("No recipient was provided.");
 
-    private (bool IsValid, string ErrorMessage) ValidateChannel(TotpDeliveryChannel channel, string? phoneNumber, string? email, User? user) {
-        if (user == null && channel == TotpDeliveryChannel.PushNotification) {
-            return (false, _localizer["User is required for PushNotification channel."]);
-        }
-        if ((channel == TotpDeliveryChannel.Sms || channel == TotpDeliveryChannel.Viber) && string.IsNullOrWhiteSpace(phoneNumber)) {
-            return (false, _localizer["Phone number is required for SMS and Viber channels."]);
-        } else if (channel == TotpDeliveryChannel.Email && string.IsNullOrWhiteSpace(email)) {
-            return (false, _localizer["Email is required for Email channel."]);
-        }
-        return (true, string.Empty);
+private (bool IsValid, string ErrorMessage) ValidateChannel(TotpDeliveryChannel channel, string? phoneNumber, string? email, User? user) {
+    if (channel is TotpDeliveryChannel.None or TotpDeliveryChannel.Telephone or TotpDeliveryChannel.EToken) {
+        return (false, _localizer["Delivery channel '{0}' is not supported.", channel]);
+    }
+    if (user == null && string.IsNullOrWhiteSpace(phoneNumber) && string.IsNullOrWhiteSpace(email)) {
+        return (false, _localizer["No recipient was provided."]);
+    }
+    if (user == null && channel == TotpDeliveryChannel.PushNotification) {
+        return (false, _localizer["User is required for PushNotification channel."]);
+    }
+    if ((channel == TotpDeliveryChannel.Sms || channel == TotpDeliveryChannel.Viber) && string.IsNullOrWhiteSpace(phoneNumber)) {
+        return (false, _localizer["Phone number is required for SMS and Viber channels."]);
+    } else if (channel == TotpDeliveryChannel.Email && string.IsNullOrWhiteSpace(email)) {
+        return (false, _localizer["Email is required for Email channel."]);
+    }
+    return (true, string.Empty);
+}
     }
 
     /// <summary>Verifies the TOTP received for the given user.</summary>
