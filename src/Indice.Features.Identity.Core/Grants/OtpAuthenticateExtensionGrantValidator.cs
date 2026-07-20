@@ -12,7 +12,6 @@ using IdentityServer4.Models;
 using IdentityServer4.Validation;
 #endif
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.MobileSessions;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
@@ -115,9 +114,6 @@ public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantVali
         }
         /* If OTP verification code is valid add the same claims that were present in the token and a new one to mark that OTP verification has been successfully completed. */
         var claims = tokenValidationResult.Claims?.ToList();
-        if (MobileSessionIds.Find(claims) is null) {
-            claims?.Add(new Claim(JwtClaimTypes.SessionId, MobileSessionIds.Create()));
-        }
         context.Result = new GrantValidationResult(subject, GrantType, claims);
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using System.Security.Claims;
+using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
@@ -86,6 +88,7 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
 
     /// <inheritdoc />
     protected override async Task<TokenResponse> ProcessPasswordRequestAsync(TokenRequestValidationResult request) {
+        request.ValidatedRequest.SessionId = Guid.NewGuid().ToString("N");
         var tokenResponse = await base.ProcessPasswordRequestAsync(request);
         var config = ServiceProvider.GetService<ResourceOwnerPasswordValidatorOptions>();
         if (config?.IncludeIdToken == false) {
@@ -117,9 +120,23 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
         }
         return tokenResponse;
     }
+    
+    /// <inheritdoc/>
+    protected override Task<TokenResponse> ProcessRefreshTokenRequestAsync(TokenRequestValidationResult request) {
+        var validated = request.ValidatedRequest;
+        if (string.IsNullOrEmpty(validated.SessionId)) {
+#if NET9_0_OR_GREATER
+            validated.SessionId = validated.RefreshToken?.GetAccessToken()?.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId)?.Value;
+#else
+            validated.SessionId = validated.RefreshToken?.AccessToken?.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId)?.Value;
+#endif
+        }
+        return base.ProcessRefreshTokenRequestAsync(request);
+    }
 
     /// <inheritdoc/>
     protected override async Task<TokenResponse> ProcessExtensionGrantRequestAsync(TokenRequestValidationResult request) {
+        request.ValidatedRequest.SessionId = Guid.NewGuid().ToString("N");
         var httpContext = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext!;
         var ip = httpContext.GetClientIpAddress();
         request.ValidatedRequest.Subject!.AddIdentity(new(claims: [
