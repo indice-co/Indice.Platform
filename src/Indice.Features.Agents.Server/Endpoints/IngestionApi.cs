@@ -23,9 +23,7 @@ internal static class IngestionApi
                           .WithName(options.GroupName)
                           .WithTags("Documents");
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-                                           .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-                                           .RequireAssertion(context => context.User.IsInRole(BasicRoleNames.AgentsAdmin) ||
-                                                                        context.User.IsAdmin()));
+                                           .RequireAssertion(context =>  (!string.IsNullOrEmpty(options.IngestRequiredScope) && context.User.HasScope(options.IngestRequiredScope)) || context.User.IsInRole(BasicRoleNames.AgentsAdmin) || context.User.IsAdmin()));
         
         group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.WithHandledException<BusinessException>()
