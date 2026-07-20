@@ -372,28 +372,6 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         Assert.False(string.IsNullOrWhiteSpace(sessionId));
     }
 
-    [Fact(Skip = "Needs rechecking")]
-    public async Task Mfa_Grant_Preserves_SessionId_From_Token() {
-        var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
-        var loginSessionId = GetSessionId(loginResponse);
-
-        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
-        var mfaResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
-            Address = discoveryDocument.TokenEndpoint,
-            ClientId = CLIENT_ID,
-            ClientSecret = CLIENT_SECRET,
-            GrantType = CustomGrantTypes.Mfa,
-            Parameters = {
-                { "token", loginResponse.AccessToken! },
-                { "otp", "123456" },
-                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
-            }
-        });
-        
-        Assert.Equal(loginSessionId, GetSessionId(mfaResponse));
-    }
-    
-
     [Fact]
     public async Task Refresh_Token_Preserves_SessionId() {
         var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx", requestOfflineAccess: true);
@@ -417,37 +395,6 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         });
         
         Assert.Equal(loginSessionId, GetSessionId(secondRefresh));
-    }
-
-    [Fact(Skip = "Needs rechecking")]
-    public async Task Refresh_Token_After_Mfa_Preserves_SessionId() {
-        var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
-        var loginSessionId = GetSessionId(loginResponse);
-        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
-        var mfaResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
-            Address = discoveryDocument.TokenEndpoint,
-            ClientId = CLIENT_ID,
-            ClientSecret = CLIENT_SECRET,
-            GrantType = CustomGrantTypes.Mfa,
-            Parameters = {
-                { "token", loginResponse.AccessToken! },
-                { "otp", "123456" }, {
-                    "scope",
-                    $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.OfflineAccess} scope1"
-                }
-            }
-        });
-        
-        Assert.Equal(loginSessionId, GetSessionId(mfaResponse));
-        
-        var refreshResponse = await _httpClient.RequestRefreshTokenAsync(new RefreshTokenRequest {
-            Address = discoveryDocument.TokenEndpoint,
-            ClientId = CLIENT_ID,
-            ClientSecret = CLIENT_SECRET,
-            RefreshToken = mfaResponse.RefreshToken!
-        });
-        
-        Assert.Equal(loginSessionId, GetSessionId(refreshResponse));
     }
     
     [Fact]
@@ -517,8 +464,8 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
 
     private static void AssertSidClaimExists(TokenResponse tokenResponse) {
         var handler = new JwtSecurityTokenHandler();
-        var jwt = handler.ReadJwtToken(tokenResponse.AccessToken);
-        Assert.Contains(jwt.Claims, c => c.Type == BasicClaimTypes.SessionId);
+        Assert.Contains(handler.ReadJwtToken(tokenResponse.AccessToken).Claims, c => c.Type == BasicClaimTypes.SessionId);
+        Assert.Contains(handler.ReadJwtToken(tokenResponse.IdentityToken).Claims, c => c.Type == BasicClaimTypes.SessionId);
     }
 
     [Fact]
@@ -1160,6 +1107,11 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             RequirePkce = false,
             RequireClientSecret = true,
             AllowOfflineAccess = true,
+            AlwaysSendClientClaims = true,
+            Claims = {
+                new ClientClaim(BasicClaimTypes.TrustedDevice, "true", ClaimValueTypes.Boolean),
+                new ClientClaim(BasicClaimTypes.MobileClient, "true", ClaimValueTypes.Boolean)
+            },
             UpdateAccessTokenClaimsOnRefresh = true
         }
     };

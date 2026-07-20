@@ -118,19 +118,6 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
         }
         return tokenResponse;
     }
-    
-    /// <inheritdoc/>
-    protected override Task<TokenResponse> ProcessRefreshTokenRequestAsync(TokenRequestValidationResult request) {
-        var validated = request.ValidatedRequest;
-        if (string.IsNullOrEmpty(validated.SessionId)) {
-#if NET9_0_OR_GREATER
-            validated.SessionId = validated.RefreshToken?.GetAccessToken()?.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.SessionId)?.Value;
-#else
-            validated.SessionId = validated.RefreshToken?.AccessToken?.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.SessionId)?.Value;
-#endif
-        }
-        return base.ProcessRefreshTokenRequestAsync(request);
-    }
 
     /// <inheritdoc/>
     protected override async Task<TokenResponse> ProcessExtensionGrantRequestAsync(TokenRequestValidationResult request) {
