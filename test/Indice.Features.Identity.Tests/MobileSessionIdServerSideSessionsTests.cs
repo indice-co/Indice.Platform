@@ -86,11 +86,10 @@ public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
             .AddInMemoryPersistedGrants()
             .AddExtendedResourceOwnerPasswordValidator()
             .AddServerSideSessions()
-            .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
-            .AddDelegationGrantValidator()
-            .AddExtensionGrantValidator<TotpGrantValidator>()
-            .AddOtpAuthenticateGrantValidator()
-            .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
+.AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
+.AddDelegationGrantValidator()
+.AddExtensionGrantValidator<TotpGrantValidator>()
+.AddOtpAuthenticateGrantValidator()
             .AddDeveloperSigningCredential(persistKey: false)
             .AddSignInLogs(options => {
                 options.UseEntityFrameworkCoreStore(dbBuilder => dbBuilder.UseInMemoryDatabase(_signInLogDatabaseName));
