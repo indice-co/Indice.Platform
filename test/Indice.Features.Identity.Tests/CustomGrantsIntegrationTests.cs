@@ -354,7 +354,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationResult.RegistrationId);
         var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
         var signature = SignMessage(challenge, GetX509SigningCredentials());
-        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+        using var tokenRequest = new TokenRequest {
             Address = discoveryDocument.TokenEndpoint,
             ClientId = CLIENT_ID,
             ClientSecret = CLIENT_SECRET,
@@ -367,7 +367,8 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 { "public_key", CERTIFICATE_PUBLIC_KEY },
                 { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
             }
-        });
+        };
+        var tokenResponse = await _httpClient.RequestTokenAsync(tokenRequest);
         var sessionId = GetSessionId(tokenResponse);
         Assert.False(string.IsNullOrWhiteSpace(sessionId));
     }
@@ -378,21 +379,23 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var loginSessionId = GetSessionId(loginResponse);
         
         var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
-        var firstRefresh = await _httpClient.RequestRefreshTokenAsync(new RefreshTokenRequest {
+        using var firstRefreshRequest = new RefreshTokenRequest {
             Address = discoveryDocument.TokenEndpoint,
             ClientId = CLIENT_ID,
             ClientSecret = CLIENT_SECRET,
             RefreshToken = loginResponse.RefreshToken!
-        });
+        };
+        var firstRefresh = await _httpClient.RequestRefreshTokenAsync(firstRefreshRequest);
         Assert.Equal(loginSessionId, GetSessionId(firstRefresh));
         
         // refresh again
-        var secondRefresh = await _httpClient.RequestRefreshTokenAsync(new RefreshTokenRequest {
+        using var secondRefreshRequest = new RefreshTokenRequest {
             Address = discoveryDocument.TokenEndpoint,
             ClientId = CLIENT_ID,
             ClientSecret = CLIENT_SECRET,
             RefreshToken = firstRefresh.RefreshToken ?? loginResponse.RefreshToken!
-        });
+        };
+        var secondRefresh = await _httpClient.RequestRefreshTokenAsync(secondRefreshRequest);
         
         Assert.Equal(loginSessionId, GetSessionId(secondRefresh));
     }
@@ -403,12 +406,13 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var loginSessionId = GetSessionId(loginResponse);
         
         var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
-        var refreshResponse = await _httpClient.RequestRefreshTokenAsync(new RefreshTokenRequest {
+        using var refreshTokenRequest = new RefreshTokenRequest {
             Address = discoveryDocument.TokenEndpoint,
             ClientId = "ppk-client-update-claims",
             ClientSecret = CLIENT_SECRET,
             RefreshToken = loginResponse.RefreshToken!
-        });
+        };
+        var refreshResponse = await _httpClient.RequestRefreshTokenAsync(refreshTokenRequest);
         
         Assert.Equal(loginSessionId, GetSessionId(refreshResponse));
     }
@@ -423,7 +427,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
 
     private async Task<TokenResponse> LoginWithDevicePin(Guid registrationId) {
         var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
-        return await _httpClient.RequestTokenAsync(new TokenRequest {
+        using var tokenRequest = new TokenRequest {
             Address = discoveryDocument.TokenEndpoint,
             ClientId = CLIENT_ID,
             ClientSecret = CLIENT_SECRET,
@@ -433,7 +437,8 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 { "pin", DEVICE_PIN },
                 { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
             }
-        });
+        };
+        return await _httpClient.RequestTokenAsync(tokenRequest);
     }
 
     [Fact]
