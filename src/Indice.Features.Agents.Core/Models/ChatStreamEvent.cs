@@ -9,7 +9,7 @@ namespace Indice.Features.Agents.Core.Models;
 ///   <item><term>complete</term><description><see cref="SessionId"/>, <see cref="MessageId"/>, <see cref="Answer"/>, <see cref="Citations"/>, <see cref="Failed"/>, <see cref="FailureReason"/>.</description></item>
 /// </list>
 /// </summary>
-public class ChatStreamEvent
+public record ChatStreamEvent
 {
     /// <summary>Event discriminator: <c>step</c>, <c>delta</c>, or <c>complete</c>.</summary>
     public string Type { get; init; } = string.Empty;
@@ -25,6 +25,9 @@ public class ChatStreamEvent
 
     /// <summary>Citations supporting the answer; populated on <c>complete</c>.</summary>
     public IReadOnlyList<Citation>? Citations { get; init; }
+
+    /// <summary>Links to the source documents supporting the answer; populated on <c>complete</c>.</summary>
+    public IReadOnlyList<SourceDocumentLink>? Sources { get; init; }
 
     /// <summary>Identifier of the session this turn belongs to; populated on <c>complete</c>.</summary>
     public Guid? SessionId { get; init; }

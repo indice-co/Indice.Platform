@@ -27,6 +27,7 @@ internal static class IngestionHandlers
             }
         }
         var report = await pipeline.IngestAsync(new IngestRequest {
+            DocumentType = request.DocumentType,
             OpenMarkdownSourceStream = () => request.MarkdownSourceFile.OpenReadStream(),
             OpenActualSourceStream = request.ActualSourceFile is not null ? () => request.ActualSourceFile.OpenReadStream() : null,
             Source = !string.IsNullOrWhiteSpace(request.ActualSourceUrl) ? request.ActualSourceUrl :

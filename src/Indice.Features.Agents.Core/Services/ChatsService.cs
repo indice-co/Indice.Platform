@@ -59,6 +59,7 @@ public class ChatsService : IChatsService
             Content = assistantText,
             CreatedAt = DateTimeOffset.UtcNow,
             Citations = result.Citations?.ToList() ?? [],
+            Sources = result.Sources?.ToList() ?? [],
         };
 
         var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
@@ -70,6 +71,7 @@ public class ChatsService : IChatsService
             MessageId = persistedAssistant.Id,
             Answer = assistantText,
             Citations = result.Citations ?? [],
+            Sources = result.Sources ?? [],
             Failed = result.Failed,
             FailureReason = result.FailureReason,
             QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount + 2),
@@ -109,7 +111,8 @@ public class ChatsService : IChatsService
             SessionId = session.Id,
             MessageId = Guid.Empty,
             Answer = message,
-            Citations = Array.Empty<Citation>(),
+            Citations = [],
+            Sources = [],
             LimitReached = true,
             QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount),
             QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
@@ -151,6 +154,7 @@ public class ChatsService : IChatsService
             Content = assistantText, 
             CreatedAt = final?.TimeStamp ?? DateTimeOffset.UtcNow,
             Citations = final?.Citations?.ToList() ?? [],
+            Sources = final?.Sources?.ToList() ?? [],
         };
 
         var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
@@ -162,7 +166,8 @@ public class ChatsService : IChatsService
             SessionId = session.Id,
             MessageId = persistedAssistant.Id,
             Answer = assistantText,
-            Citations = final?.Citations ?? Array.Empty<Citation>(),
+            Citations = final?.Citations ?? [],
+            Sources = final?.Sources ?? [],
             Failed = final?.Failed ?? false,
             FailureReason = final?.FailureReason,
             QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount + 2),

@@ -23,5 +23,10 @@ public class DbChunkMap : IEntityTypeConfiguration<DbChunk>
         builder.Property(x => x.Embedding)
                .HasColumnType($"vector({AgentsOptions.EmbeddingDimensionsDefault})")
                .IsRequired();
+
+        builder.HasOne(x => x.Document)
+               .WithMany()
+               .HasForeignKey(c => c.DocumentId)
+               .OnDelete(DeleteBehavior.Cascade);
     }
 }
