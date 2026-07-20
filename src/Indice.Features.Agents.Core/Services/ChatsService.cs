@@ -1,7 +1,7 @@
 using System.Net.ServerSentEvents;
 using System.Runtime.CompilerServices;
 using Indice.Features.Agents.Core.Models;
-using Indice.Features.Agents.Core.Workflows.Abstractions;
+using Indice.Features.Agents.Core.Workflows;
 using Indice.Types;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
@@ -54,7 +54,6 @@ public class ChatsService : IChatsService
             CreatedAt = DateTimeOffset.UtcNow
         };
         var result = await _dexClient.GetResponseAsync(userMessage, new ChatOptions { ConversationId = session.Id.ToString() }, cancellationToken);
-        
         var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, result.Messages.First(),
             promptTokens: result.Usage?.InputTokenCount ?? 0, completionTokens: result.Usage?.OutputTokenCount ?? 0,
             modelUsed: result.ModelId ?? _deployments.Reasoning, cancellationToken);

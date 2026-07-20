@@ -1,5 +1,5 @@
 using System.Text;
-using Indice.Features.Agents.Core.Workflows.Abstractions;
+using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
@@ -9,6 +9,13 @@ using OpenAI.Chat;
 using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Reranking;
+
+/// <summary>Reorders retrieval candidates by relevance to a question, trimming to a target size.</summary>
+public interface ILlmReranker
+{
+    /// <summary>Rerank the supplied candidates and return the top N by descending relevance score.</summary>
+    Task<IReadOnlyList<RetrievedChunk>> RerankAsync(string question, IReadOnlyList<RetrievedChunk> candidates, int topN, CancellationToken cancellationToken);
+}
 
 /// <summary>
 /// Default <see cref="ILlmReranker"/> implementation: scores all candidates in a single fast-model call,

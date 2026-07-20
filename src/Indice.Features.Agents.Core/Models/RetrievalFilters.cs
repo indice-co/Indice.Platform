@@ -1,4 +1,4 @@
-namespace Indice.Features.Agents.Core.Workflows;
+namespace Indice.Features.Agents.Core.Models;
 
 /// <summary>Optional filters applied at retrieval time, derived from the classified <see cref="Intent"/>.</summary>
 public class RetrievalFilters

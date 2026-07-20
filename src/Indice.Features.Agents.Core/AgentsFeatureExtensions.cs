@@ -4,7 +4,6 @@ using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
-using Indice.Features.Agents.Core.Workflows.Abstractions;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.Reranking;
 using Indice.Features.Agents.Core.Workflows.Steps;

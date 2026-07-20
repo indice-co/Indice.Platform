@@ -1,4 +1,4 @@
-namespace Indice.Features.Agents.Core.Workflows;
+namespace Indice.Features.Agents.Core.Workflows.Ingestion;
 
 /// <summary>A <see cref="DocumentChunk"/> paired with the embedding vector produced by the embedding generator.</summary>
 public class EmbeddedChunk

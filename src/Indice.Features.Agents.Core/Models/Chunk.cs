@@ -1,6 +1,4 @@
-using Indice.Features.Agents.Core.Models;
-
-namespace Indice.Features.Agents.Core.Workflows;
+namespace Indice.Features.Agents.Core.Models;
 
 /// <summary>Read-only projection of a stored chunk surfaced from the store to the RAG pipeline.</summary>
 public class Chunk

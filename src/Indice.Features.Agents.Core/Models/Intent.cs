@@ -1,4 +1,4 @@
-namespace Indice.Features.Agents.Core.Workflows;
+namespace Indice.Features.Agents.Core.Models;
 
 /// <summary>Classified intent of a user question. Drives early-exit on out-of-scope and supplies retrieval filters.</summary>
 public class Intent

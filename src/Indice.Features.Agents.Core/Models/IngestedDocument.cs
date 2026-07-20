@@ -1,6 +1,6 @@
 using Indice.Features.Agents.Core.Services;
 
-namespace Indice.Features.Agents.Core.Workflows;
+namespace Indice.Features.Agents.Core.Models;
 
 /// <summary>Document metadata at the store boundary — what <see cref="IDocumentsService.ReplaceAsync"/> needs to write a <see cref="Data.DbDocument"/> row.</summary>
 public class IngestedDocument

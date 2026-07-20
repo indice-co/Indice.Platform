@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using System.Text;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
@@ -6,17 +5,28 @@ using Indice.Types;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Features.Agents.Core.Workflows;
+namespace Indice.Features.Agents.Core.Workflows.Ingestion;
+
+/// <summary>End-to-end ingestion orchestrator: Read → optional skip → Chunk → Embed → atomic Replace.</summary>
+public interface IIngestionPipeline
+{
+    /// <summary>
+    /// Ingests a document optionally overriding the category and language. 
+    /// If a document with the same source already exists, it will be replaced if the content hash differs; 
+    /// otherwise, it will be skipped as a duplicate. Returns a report describing whether the file was ingested, replaced an existing one, or skipped as a duplicate
+    /// </summary>
+    Task<IngestionReport> IngestAsync(IngestRequest request, CancellationToken cancellationToken);
+}
 
 /// <inheritdoc/>
-public class DefaultIngestionPipeline : IIngestionPipeline
+public class IngestionPipeline : IIngestionPipeline
 {
     private readonly IDocumentsService _store;
     private readonly AgentsOptions _options;
     private readonly IEmbeddingGenerator<string, Embedding<float>> _generator;
 
-    /// <summary>Creates a new <see cref="DefaultIngestionPipeline"/>.</summary>
-    public DefaultIngestionPipeline(IDocumentsService store,
+    /// <summary>Creates a new <see cref="IngestionPipeline"/>.</summary>
+    public IngestionPipeline(IDocumentsService store,
         IOptions<AgentsOptions> options, IEmbeddingGenerator<string, Embedding<float>> generator) {
         _store = store;
         _options = options.Value;
@@ -29,7 +39,7 @@ public class DefaultIngestionPipeline : IIngestionPipeline
         var body = await reader.ReadToEndAsync(cancellationToken);
         var title = Path.GetFileNameWithoutExtension(request.FileName);
         var (firstCategory, chunks) = request.DocumentType switch {
-            DocumentType.MarkdownFaq => ParseFaq(body),
+            DocumentType.MarkdownFaq => FaqChunker.ParseFaq(body),
             DocumentType.Markdown => (null, MarkdownChunker.Chunk(body, title, _options.Ingestion)),
             _ => throw new BusinessException($"Unsupported document type '{request.DocumentType}'.", "UNSUPPORTED_DOCUMENT_TYPE"),
         };
@@ -68,7 +78,7 @@ public class DefaultIngestionPipeline : IIngestionPipeline
             Source = request.Source,
             Category = effectiveCategory,
             Language = effectiveLanguage,
-            ContentHash = Sha256Hex(string.Concat(title, "\0", effectiveCategory ?? "", "\0", effectiveLanguage ?? "", "\0", body)),
+            ContentHash = FaqChunker.Sha256Hex(string.Concat(title, "\0", effectiveCategory ?? "", "\0", effectiveLanguage ?? "", "\0", body)),
             FileName = request.FileName,
             ContentType = request.ContentType,
             ContentLength = request.ContentLength,
@@ -124,77 +134,4 @@ public class DefaultIngestionPipeline : IIngestionPipeline
         return result;
     }
 
-    /// <summary>
-    /// Walks <paramref name="body"/> line by line, recognizing ATX <c># </c> as a category boundary and
-    /// <c>## </c> as a question boundary. Body until the next <c>##</c>/<c>#</c>/EOF is the answer.
-    /// Returns the first <c>#</c> (document-level category) and one chunk per Q&amp;A pair.
-    /// </summary>
-    private static (string? FirstCategory, IReadOnlyList<DocumentChunk> Chunks) ParseFaq(string body) {
-        var chunks = new List<DocumentChunk>();
-        string? firstCategory = null;
-        string? currentCategory = null;
-        string? pendingQuestion = null;
-        var pendingAnswer = new StringBuilder();
-        var chunkIndex = 0;
-
-        foreach (var line in body.Split(['\n', '\r'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)) {
-            
-            if (line.StartsWith("## ", StringComparison.Ordinal)) {
-                Flush();
-                pendingQuestion = line[3..].TrimStart();
-                continue;
-            }
-            if (line.StartsWith("# ", StringComparison.Ordinal)) {
-                Flush();
-                currentCategory = line[2..].TrimStart();
-                firstCategory ??= currentCategory;
-                continue;
-            }
-            // Lines before any `##` are silently discarded.
-            if (pendingQuestion is null) {
-                continue;
-            }
-            if (pendingAnswer.Length > 0) {
-                pendingAnswer.Append('\n');
-            }
-            pendingAnswer.Append(line);
-        }
-        Flush();
-
-        return (firstCategory, chunks);
-
-        void Flush() {
-            if (string.IsNullOrWhiteSpace(pendingQuestion)) {
-                pendingQuestion = null;
-                pendingAnswer.Clear();
-                return;
-            }
-            var answer = pendingAnswer.ToString().Trim();
-            if (answer.Length == 0) {
-                pendingQuestion = null;
-                pendingAnswer.Clear();
-                return;
-            }
-            var embedded = $"Q: {pendingQuestion}\nA: {answer}";
-            var headingPath = string.IsNullOrEmpty(currentCategory)
-                ? pendingQuestion!
-                : $"{currentCategory} > {pendingQuestion}";
-            chunks.Add(new DocumentChunk {
-                ChunkIndex = chunkIndex++,
-                Content = embedded,
-                ContentHash = Sha256Hex(embedded),
-                HeadingPath = headingPath,
-                Title = pendingQuestion,
-                Category = currentCategory,
-                TokenCount = 0,
-            });
-            pendingQuestion = null;
-            pendingAnswer.Clear();
-        }
-    }
-
-    private static string Sha256Hex(string input) {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
-        return Convert.ToHexString(bytes);
-    }
 }

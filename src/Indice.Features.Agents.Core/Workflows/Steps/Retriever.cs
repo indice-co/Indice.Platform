@@ -1,3 +1,4 @@
+using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;

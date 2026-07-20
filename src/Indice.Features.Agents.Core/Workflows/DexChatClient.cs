@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using Indice.Features.Agents.Core.Workflows.Abstractions;
 using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.State;
 using Indice.Features.Agents.Core.Workflows.Steps;
@@ -8,6 +7,11 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Agents.Core.Workflows;
+
+/// <summary>Entry point for executing the Dex RAG pipeline against a single user question.</summary>
+public interface IDexChatClient : IChatClient
+{
+}
 
 /// <inheritdoc/>
 /// <summary>

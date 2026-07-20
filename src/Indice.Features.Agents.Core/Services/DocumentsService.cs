@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Models;
-using Indice.Features.Agents.Core.Workflows;
+using Indice.Features.Agents.Core.Workflows.Ingestion;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;

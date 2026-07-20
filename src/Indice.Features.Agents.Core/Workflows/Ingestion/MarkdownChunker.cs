@@ -5,7 +5,7 @@ using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 
-namespace Indice.Features.Agents.Core.Workflows;
+namespace Indice.Features.Agents.Core.Workflows.Ingestion;
 
 /// <summary>
 /// Structural, heading-aware chunker for general Markdown. Walks the Markdig AST in source order, tracking a

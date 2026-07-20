@@ -1,4 +1,4 @@
-namespace Indice.Features.Agents.Core.Workflows;
+namespace Indice.Features.Agents.Core.Workflows.Ingestion;
 
 /// <summary>A single chunk produced by the ingestion pipeline parser; carries its own content hash + heading breadcrumb.</summary>
 public class DocumentChunk

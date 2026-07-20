@@ -1,5 +1,5 @@
 using Indice.Features.Agents.Core.Models;
-using Indice.Features.Agents.Core.Workflows;
+using Indice.Features.Agents.Core.Workflows.Ingestion;
 
 namespace Indice.Features.Agents.Core.Services;
 

@@ -1,3 +1,4 @@
+using Indice.Features.Agents.Core.Models;
 using Microsoft.Agents.AI.Workflows;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
