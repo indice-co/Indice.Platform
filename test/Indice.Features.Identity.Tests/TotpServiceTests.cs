@@ -287,7 +287,7 @@ public class TotpServiceTests
                     .AddIdentityMessageDescriber<IdentityMessageDescriber>();
         });
         builder.Configure(app => { });
-        var testServer = new TestServer(builder);
+        using var testServer = new TestServer(builder);
 
         var totpServiceFactory = testServer.Services.GetRequiredService<TotpServiceFactory>();
 
