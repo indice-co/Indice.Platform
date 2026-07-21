@@ -106,8 +106,8 @@ public abstract class TotpServiceBase
 
     /// <summary>Gets a modifier for the TOTP.</summary>
     /// <param name="purpose">The purpose.</param>
-    /// <param name="phoneNumber">The phone number.</param>
-    protected static string GetModifier(string purpose, string phoneNumber) => $"{purpose}:{phoneNumber}";
+    /// <param name="recipient">The recipient. Could be a phone number, email, or user ID.</param>
+    protected static string GetModifier(string purpose, string? recipient) => $"{purpose}:{recipient}";
 }
 
 /// <summary>Supported TOTP delivery factors.</summary>
