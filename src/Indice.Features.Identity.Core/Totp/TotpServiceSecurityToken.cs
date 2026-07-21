@@ -75,9 +75,8 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
             phoneNumber = resolvedUser.PhoneNumber;
             email = resolvedUser.Email;
         }
-        var result = ValidateChannel(channel, phoneNumber, email, resolvedUser);
-        if (!result.IsValid) {
-            return TotpResult.ErrorResult(result.ErrorMessage);
+        if (!ValidateChannel(channel, phoneNumber, email, resolvedUser, out var error)) {
+            return TotpResult.ErrorResult(error);
         }
 
         purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
@@ -114,22 +113,28 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
             !string.IsNullOrWhiteSpace(phoneNumber) ? phoneNumber :
                 email ?? throw new SecurityException("No recipient was provided.");
 
-    private (bool IsValid, string ErrorMessage) ValidateChannel(TotpDeliveryChannel channel, string? phoneNumber, string? email, User? user) {
+    private bool ValidateChannel(TotpDeliveryChannel channel, string? phoneNumber, string? email, User? user, out string Error) {
         if (channel is TotpDeliveryChannel.None or TotpDeliveryChannel.Telephone or TotpDeliveryChannel.EToken) {
-            return (false, _localizer["Delivery channel '{0}' is not supported.", channel]);
+            Error = _localizer["Delivery channel '{0}' is not supported.", channel];
+            return false;
         }
         if (user == null && string.IsNullOrWhiteSpace(phoneNumber) && string.IsNullOrWhiteSpace(email)) {
-            return (false, _localizer["No recipient was provided."]);
+            Error = _localizer["No recipient was provided."];
+            return false;
         }
         if (user == null && channel == TotpDeliveryChannel.PushNotification) {
-            return (false, _localizer["User is required for PushNotification channel."]);
+            Error = _localizer["User is required for PushNotification channel."];
+            return false;
         }
         if ((channel == TotpDeliveryChannel.Sms || channel == TotpDeliveryChannel.Viber) && string.IsNullOrWhiteSpace(phoneNumber)) {
-            return (false, _localizer["Phone number is required for SMS and Viber channels."]);
+            Error = _localizer["Phone number is required for SMS and Viber channels."];
+            return false;
         } else if (channel == TotpDeliveryChannel.Email && string.IsNullOrWhiteSpace(email)) {
-            return (false, _localizer["Email is required for Email channel."]);
+            Error = _localizer["Email is required for Email channel."];
+            return false;
         }
-        return (true, string.Empty);
+        Error = string.Empty;
+        return true;
     }
 
 
