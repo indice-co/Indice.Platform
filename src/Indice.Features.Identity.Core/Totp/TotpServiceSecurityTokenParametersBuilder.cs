@@ -121,10 +121,10 @@ public sealed class TotpServiceSecurityTokenOptionalParametersBuilder
         _builder.Subject = subject;
         return new TotpServiceSecurityTokenOptionalParametersBuilder(_builder);
     }
-    /// <summary>Sets the <see cref="TotpServiceSecurityTokenParameters.EmailTemplate"/> property.</summary>
-    /// <param name="emailTemplate">The email template.</param>
-    public TotpServiceSecurityTokenOptionalParametersBuilder WithEmailTemplate(string emailTemplate) {
-        _builder.EmailTemplate = emailTemplate;
+    /// <summary>Sets the <see cref="TotpServiceSecurityTokenParameters.Template"/> property.</summary>
+    /// <param name="template">The template to use.</param>
+    public TotpServiceSecurityTokenOptionalParametersBuilder WithTemplate(string template) {
+        _builder.Template = template;
         return new TotpServiceSecurityTokenOptionalParametersBuilder(_builder);
     }
 
@@ -159,6 +159,6 @@ public class TotpServiceSecurityTokenParameters
     public string? PhoneNumber { get; internal set; }
     /// <summary>The receiver's email address.</summary>
     public string? Email { get; internal set; }
-    /// <summary>The email template.</summary>
-    public string? EmailTemplate { get; internal set; }
+    /// <summary>The template to use.</summary>
+    public string? Template { get; internal set; }
 }
