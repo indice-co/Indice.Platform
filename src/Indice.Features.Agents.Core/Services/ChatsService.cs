@@ -4,7 +4,6 @@ using Indice.Features.Agents.Core.Models;
 using Indice.Types;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Indice.Features.Agents.Core.Services;
 
@@ -51,30 +50,33 @@ public class ChatsService : IChatsService
             MessageId = Guid.NewGuid().ToString(),
             CreatedAt = DateTimeOffset.UtcNow
         };
-        var result = await _dexClient.GetResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString() }, cancellationToken);
-        var persistedAssistant = await _store.AppendTurnAsync(conversation.Id, userMessage, result.Messages.First(),
-            promptTokens: result.Usage?.InputTokenCount ?? 0, completionTokens: result.Usage?.OutputTokenCount ?? 0,
-            modelUsed: string.IsNullOrWhiteSpace(result.ModelId) ? _deployments.Reasoning : result.ModelId, cancellationToken);
-        result.Usage ??= new UsageDetails();
-        result.Usage.AdditionalCounts = new() {
+        //userMessage, response.Messages.First(), responseId
+            //promptTokens: response.Usage?.InputTokenCount ?? 0, completionTokens: response.Usage?.OutputTokenCount ?? 0,
+            //modelUsed: string.IsNullOrWhiteSpace(response.ModelId) ? _deployments.Reasoning : response.ModelId
+
+        var response = await _dexClient.GetResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString() }, cancellationToken);
+        var persistedAssistant = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
+        
+        response.Usage ??= new UsageDetails();
+        response.Usage.AdditionalCounts = new() {
             ["questionsUsed"] = _sessionOptions.GetQuestionsUsed(conversation.MessageCount) ?? 0,
             ["questionsTotal"] = _sessionOptions.GetQuestionsTotal() ?? 0
         };
-        return result;
+        return response;
     }
 
     /// <inheritdoc/>
     public async Task<IAsyncEnumerable<SseItem<ChatStreamEvent>>?> SendStreamAsync(string userId, Guid? conversationId, string text, CancellationToken cancellationToken) {
         await EnsureSessionCreationAllowedAsync(userId, conversationId, cancellationToken);
-        var session = await _store.LoadOrCreateAsync(userId, conversationId, cancellationToken);
-        if (session is null) {
+        var conversation = await _store.LoadOrCreateAsync(userId, conversationId, cancellationToken);
+        if (conversation is null) {
             return null;
         }
-        var turnCheck = _usageGuard.Check(session);
+        var turnCheck = _usageGuard.Check(conversation);
         if (!turnCheck.Allowed) {
-            return LimitReachedStream(session, turnCheck.Message);
+            return LimitReachedStream(conversation, turnCheck.Message);
         }
-        return StreamTurnAsync(session, text, cancellationToken);
+        return StreamTurnAsync(conversation, text, cancellationToken);
     }
 
     /// <summary>Throws a <see cref="BusinessException"/> when a new conversation is requested but the user's conversation cap is hit. No-op for existing sessions.</summary>
@@ -106,32 +108,21 @@ public class ChatsService : IChatsService
 
     /// <summary>Maps the runner's stream to SSE items, then persists the turn and emits the terminal <c>complete</c> event.</summary>
     private async IAsyncEnumerable<SseItem<ChatStreamEvent>> StreamTurnAsync(
-        Conversation session, string text, [EnumeratorCancellation] CancellationToken cancellationToken) {
-
+        Conversation conversation, string text, [EnumeratorCancellation] CancellationToken cancellationToken) {
 
         var userMessage = new ChatMessage(ChatRole.User, text) {
             MessageId = Guid.NewGuid().ToString(),
             CreatedAt = DateTimeOffset.UtcNow
         };
-        ChatResponseUpdate? final = null;
-        UsageContent? usageContent = null;
-        string? failure = null;
-        await foreach (var evt in _dexClient.GetStreamingResponseAsync(userMessage, new ChatOptions { ConversationId = session.Id.ToString() }, cancellationToken)) {
+        var stream = _dexClient.GetStreamingResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString() }, cancellationToken);
+        var updates = new List<ChatResponseUpdate>();
+        await foreach (var evt in stream) {
+            if (!evt.Contents.Any(x => x is StepProgressContent)) {
+                updates.Add(evt);
+            }
             // Progress/"thinking" updates carry TextReasoningContent; they are never part of the answer text.
-            if (evt.Contents.OfType<TextReasoningContent>().FirstOrDefault() is { } reasoning) {
-                yield return new SseItem<ChatStreamEvent>(new ChatStreamEvent { Type = "step", Step = reasoning.Text }, eventType: "step");
-                continue;
-            }
-            if (evt.Contents.OfType<UsageContent>().FirstOrDefault() is { } usage) {
-                usageContent = usage;
-                continue;
-            }
-            if (evt.Contents.OfType<ErrorContent>().FirstOrDefault() is { } error) {
-                failure = error.Message;
-                continue;
-            }
-            if (evt.FinishReason is not null) {
-                final = evt;
+            if (evt.Contents.OfType<StepProgressContent>().FirstOrDefault() is { } stepUpdate) {
+                yield return new SseItem<ChatStreamEvent>(new ChatStreamEvent { Type = "step", Step = stepUpdate.Label }, eventType: "step");
                 continue;
             }
             if (!string.IsNullOrEmpty(evt.Text)) {
@@ -139,25 +130,20 @@ public class ChatsService : IChatsService
             }
         }
 
-        var assistantMessage = new ChatMessage(ChatRole.Assistant, final?.Text ?? "") {
-            MessageId = final?.MessageId ?? Guid.NewGuid().ToString(),
-            CreatedAt = DateTimeOffset.UtcNow
-        };
+        var response = updates.ToChatResponse();
 
-        var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
-            promptTokens: usageContent?.Details?.InputTokenCount ?? 0, completionTokens: usageContent?.Details?.OutputTokenCount ?? 0,
-            modelUsed: final?.ModelId ?? _deployments.Reasoning, cancellationToken);
+        await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
 
         var finalEvent = new ChatStreamEvent {
             Type = "complete",
-            ConversationId = session.Id,
-            MessageId = persistedAssistant.MessageId,
-            Answer = assistantMessage.Text,
-            Citations = final?.AdditionalProperties?["citations"] as IReadOnlyList<Citation> ?? [],
-            Sources = final?.AdditionalProperties?["sources"] as IReadOnlyList<SourceDocumentLink> ?? [],
-            Failed = failure != null,
-            FailureReason = failure,
-            QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount + 2),
+            ConversationId = conversation.Id,
+            MessageId = response.Messages.First().MessageId,
+            Answer = response.Text,
+            //Citations = final?.AdditionalProperties?["citations"] as IReadOnlyList<Citation> ?? [],
+            //Sources = final?.AdditionalProperties?["sources"] as IReadOnlyList<SourceDocumentLink> ?? [],
+            //Failed = failure != null,
+            //FailureReason = failure,
+            QuestionsUsed = _sessionOptions.GetQuestionsUsed(conversation.MessageCount + 2),
             QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
         };
         yield return new SseItem<ChatStreamEvent>(finalEvent, eventType: "complete");

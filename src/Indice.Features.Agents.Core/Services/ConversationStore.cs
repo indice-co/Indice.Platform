@@ -128,18 +128,23 @@ public class ConversationStore : IConversationStore
     }
 
     /// <inheritdoc/>
-    public async Task<ChatMessage> AppendTurnAsync(Guid conversationId, ChatMessage userMessage, ChatMessage assistantMessage,
-        long promptTokens, long completionTokens, string? modelUsed, CancellationToken cancellationToken) {
+    public async Task<ChatMessage> AppendTurnAsync(Guid conversationId, ChatMessage userMessage, ChatResponse response,
+        CancellationToken cancellationToken) {
 
         var session = await _db.Sessions.FirstAsync(s => s.Id == conversationId, cancellationToken);
-        var userRow = ToDb(conversationId, userMessage, prompt: null, completion: null, model: null);
-        var assistantRow = ToDb(conversationId, assistantMessage, prompt: (int)promptTokens, completion: (int)completionTokens, model: modelUsed);
+        var userRow = ToDb(conversationId, userMessage, responseId: null, prompt: null, completion: null, model: null);
+        var assistantRow = ToDb(conversationId, 
+                                response.Messages.First(), 
+                                responseId: response.ResponseId, 
+                                prompt: (int)(response.Usage?.InputTokenCount ?? 0), 
+                                completion: (int)(response.Usage?.OutputTokenCount ?? 0), 
+                                model: string.IsNullOrWhiteSpace(response.ModelId) ? null : response.ModelId);
         _db.Add(userRow);
         _db.Add(assistantRow);
 
-        session.LastActivityAt = assistantMessage.CreatedAt ?? DateTimeOffset.UtcNow;
-        session.TotalPromptTokens += promptTokens;
-        session.TotalCompletionTokens += completionTokens;
+        session.LastActivityAt = assistantRow.CreatedAt;
+        session.TotalPromptTokens += response.Usage?.InputTokenCount ?? 0;
+        session.TotalCompletionTokens += response.Usage?.OutputTokenCount ?? 0;
         session.MessageCount += 2;
         if (session.Title is null && _sessionOptions.TitleAutoGenerate) {
             session.Title = DeriveTitle(userMessage);
@@ -192,9 +197,10 @@ public class ConversationStore : IConversationStore
             .SumAsync(cancellationToken) ?? 0;
     }
 
-    private static DbMessage ToDb(Guid sessionId, ChatMessage m, int? prompt, int? completion, string? model) => new() {
+    private static DbMessage ToDb(Guid conversationId, ChatMessage m, string? responseId, int? prompt, int? completion, string? model) => new() {
         Id = string.IsNullOrWhiteSpace(m.MessageId) || !Guid.TryParse(m.MessageId, out var parsedId) ? Guid.NewGuid() : parsedId,
-        ConversationId = sessionId,
+        ConversationId = conversationId,
+        ResponseId = responseId,
         Role = m.Role,
         Contents = m.Contents.ToList(),
         CreatedAt = m.CreatedAt ?? DateTimeOffset.UtcNow,

@@ -11,6 +11,9 @@ public class DbMessage
     /// <summary>Foreign key.</summary>
     public Guid ConversationId { get; set; }
 
+    /// <summary>Optional ID grouping messages as part of a reply chain.</summary>
+    public string? ResponseId { get; set; }
+
     /// <summary>Author role of this message. Persisted as the role's string value (e.g. <c>user</c>).</summary>
     public ChatRole Role { get; set; } = ChatRole.User;
 

@@ -39,14 +39,7 @@ public interface IConversationStore
     /// conversation title is still <c>null</c> and the title-auto-generate option is enabled — derives a title from
     /// the user message. Returns the persisted assistant <see cref="ChatMessage"/>.
     /// </summary>
-    Task<ChatMessage> AppendTurnAsync(
-        Guid conversationId,
-        ChatMessage userMessage,
-        ChatMessage assistantMessage,
-        long promptTokens,
-        long completionTokens,
-        string? modelUsed,
-        CancellationToken cancellationToken);
+    Task<ChatMessage> AppendTurnAsync(Guid conversationId, ChatMessage userMessage, ChatResponse response, CancellationToken cancellationToken);
 
     /// <summary>Deletes a session and its messages. Returns affected row count (0 ⇒ not found / not owned).</summary>
     Task<int> DeleteAsync(Guid conversationId, string userId, CancellationToken cancellationToken);
