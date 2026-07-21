@@ -184,10 +184,6 @@ public class TotpServiceTests
         );
 
         Assert.True(sendResult.Success);
-
-        // Extract the generated code from the send result (assuming it's available in the result)
-        // Note: This test demonstrates the pattern - in a real scenario you'd need access to the generated code
-        // For now, we just verify that the send operation succeeded
         Assert.NotNull(sendResult);
     }
 
@@ -241,12 +237,11 @@ public class TotpServiceTests
         // Assert
         Assert.True(firstResult.Success);
         Assert.NotNull(secondResult);
-        // Second request might be rate-limited depending on implementation
+        Assert.True(secondResult.IsRateLimited);
     }
 
     [Fact]
     public void TotpServiceFactory_Constructor_Throws_On_Null_ServiceProvider() {
-        // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new TotpServiceFactory(null!));
     }
 
