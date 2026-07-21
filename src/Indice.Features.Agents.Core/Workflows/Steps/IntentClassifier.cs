@@ -26,7 +26,7 @@ public sealed class IntentClassifier : Executor<ConversationState, IntentOutput>
         [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, 
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
-        SessionStoreChatHistoryProvider historyProvider) : base("IntentClassifier") {
+        ConversationStoreChatHistoryProvider historyProvider) : base("IntentClassifier") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
         var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
@@ -38,6 +38,8 @@ public sealed class IntentClassifier : Executor<ConversationState, IntentOutput>
                 ChatOptions = chatOptions,
                 Name = "DexIntentClassifier",
                 ChatHistoryProvider = historyProvider,
+                // Chat completions is stateless; the echoed request ConversationId must not be treated as server-side history.
+                ThrowOnChatHistoryProviderConflict = false,
             });
     }
 
@@ -51,10 +53,10 @@ public sealed class IntentClassifier : Executor<ConversationState, IntentOutput>
         await context.SetConversationStateAsync(message, cancellationToken);
         var agentSession = await _agent.CreateSessionAsync(cancellationToken);
         
-        SessionStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(conversationId));
+        ConversationStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(conversationId));
         var response = await _agent.RunAsync<IntentResult>(question, agentSession, cancellationToken: cancellationToken);
         if (response.Usage is not null) {
-            await context.AddEventAsync(new UsageEvent(response.Usage, _model), cancellationToken);
+            await context.AddEventAsync(new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [new UsageContent(response.Usage)])), cancellationToken);
         }
         var result = response.Result;
 

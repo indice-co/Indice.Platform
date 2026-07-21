@@ -52,7 +52,7 @@ public static class AgentsServerFeatureExtensions
     /// <returns></returns>
     public static IServiceCollection AddChatsFeature(this IServiceCollection services) {
         services.TryAddTransient<IChatsService, ChatsService>();
-        services.TryAddTransient<ISessionsStore, SessionsStore>();
+        services.TryAddTransient<IConversationStore, ConversationStore>();
         return services;
     }
 

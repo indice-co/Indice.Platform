@@ -6,7 +6,7 @@ namespace Indice.Features.Agents.Core.Models;
 /// <list type="bullet">
 ///   <item><term>step</term><description><see cref="Step"/> — a pipeline-progress label.</description></item>
 ///   <item><term>delta</term><description><see cref="Text"/> — an incremental chunk of the answer.</description></item>
-///   <item><term>complete</term><description><see cref="SessionId"/>, <see cref="MessageId"/>, <see cref="Answer"/>, <see cref="Citations"/>, <see cref="Failed"/>, <see cref="FailureReason"/>.</description></item>
+///   <item><term>complete</term><description><see cref="ConversationId"/>, <see cref="MessageId"/>, <see cref="Answer"/>, <see cref="Citations"/>, <see cref="Failed"/>, <see cref="FailureReason"/>.</description></item>
 /// </list>
 /// </summary>
 public record ChatStreamEvent
@@ -30,7 +30,7 @@ public record ChatStreamEvent
     public IReadOnlyList<SourceDocumentLink>? Sources { get; init; }
 
     /// <summary>Identifier of the session this turn belongs to; populated on <c>complete</c>.</summary>
-    public Guid? SessionId { get; init; }
+    public Guid? ConversationId { get; init; }
 
     /// <summary>Identifier of the persisted assistant message; populated on <c>complete</c>.</summary>
     public string? MessageId { get; init; }

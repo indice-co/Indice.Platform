@@ -18,7 +18,7 @@ public class AgentsDbContext : DbContext
     public DbSet<DbChunk> Chunks => Set<DbChunk>();
 
     /// <summary>Chat sessions.</summary>
-    public DbSet<DbSession> Sessions => Set<DbSession>();
+    public DbSet<DbConversation> Sessions => Set<DbConversation>();
 
     /// <summary>Individual chat session messages.</summary>
     public DbSet<DbMessage> Messages => Set<DbMessage>();

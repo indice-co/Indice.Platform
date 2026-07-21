@@ -2,10 +2,10 @@ using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Models;
 
-/// <summary>Detail view of a chat session, including the most recent messages.</summary>
-public class Session
+/// <summary>Detail view of a conversation, including the most recent messages.</summary>
+public class Conversation
 {
-    /// <summary>Session identifier.</summary>
+    /// <summary>Conversation identifier.</summary>
     public Guid Id { get; init; }
 
     /// <summary>Optional display title; auto-generated from the first user message when the title-auto-generate option is enabled.</summary>

@@ -4,7 +4,7 @@ using Microsoft.Agents.AI;
 namespace Indice.Features.Agents.Core.Workflows;
 
 /// <summary>
-/// Read-only <see cref="ChatHistoryProvider"/> over <see cref="ISessionsStore"/>. Loads the windowed
+/// Read-only <see cref="ChatHistoryProvider"/> over <see cref="IConversationStore"/>. Loads the windowed
 /// conversation history (last <c>Session:HistoryWindow</c> turns, oldest-first) for the Dex session stamped
 /// on the per-run <see cref="AgentSession"/> via <see cref="SetSessionId"/>, so prior turns reach the model
 /// as real chat messages prepended to the request instead of a formatted <c>HISTORY:</c> text block.
@@ -14,19 +14,19 @@ namespace Indice.Features.Agents.Core.Workflows;
 /// several internal agents sharing one user-facing conversation, so per-agent request/response pairs are not
 /// conversation turns (the composer's request carries <c>CONTEXT:</c> chunks, the classifier's response is a
 /// classification). The clean user/assistant turn — with token accounting and title auto-generation — is
-/// persisted by <see cref="ChatsService"/> via <see cref="ISessionsStore.AppendTurnAsync"/> after the run,
+/// persisted by <see cref="ChatsService"/> via <see cref="IConversationStore.AppendTurnAsync"/> after the run,
 /// which also guarantees the in-flight question is never double-fed through history.
 /// </remarks>
-public sealed class SessionStoreChatHistoryProvider : ChatHistoryProvider
+public sealed class ConversationStoreChatHistoryProvider : ChatHistoryProvider
 {
     private static readonly ProviderSessionState<State> _sessionState = new(
         stateInitializer: _ => new State(),
-        stateKey: nameof(SessionStoreChatHistoryProvider));
+        stateKey: nameof(ConversationStoreChatHistoryProvider));
 
-    private readonly ISessionsStore _store;
+    private readonly IConversationStore _store;
 
-    /// <summary>Creates a new <see cref="SessionStoreChatHistoryProvider"/>.</summary>
-    public SessionStoreChatHistoryProvider(ISessionsStore store) {
+    /// <summary>Creates a new <see cref="ConversationStoreChatHistoryProvider"/>.</summary>
+    public ConversationStoreChatHistoryProvider(IConversationStore store) {
         _store = store;
     }
 
@@ -35,16 +35,16 @@ public sealed class SessionStoreChatHistoryProvider : ChatHistoryProvider
     /// live in the session's state bag (a provider instance serves any session), so this is the only channel
     /// telling the provider which conversation to load.
     /// </summary>
-    public static void SetSessionId(AgentSession agentSession, Guid sessionId)
-        => _sessionState.SaveState(agentSession, new State { SessionId = sessionId });
+    public static void SetSessionId(AgentSession agentSession, Guid conversationId)
+        => _sessionState.SaveState(agentSession, new State { ConversationId = conversationId });
 
     /// <inheritdoc/>
     protected override async ValueTask<IEnumerable<Microsoft.Extensions.AI.ChatMessage>> ProvideChatHistoryAsync(InvokingContext context, CancellationToken cancellationToken = default) {
-        var sessionId = _sessionState.GetOrInitializeState(context.Session).SessionId;
-        if (sessionId == Guid.Empty) {
+        var conversationId = _sessionState.GetOrInitializeState(context.Session).ConversationId;
+        if (conversationId == Guid.Empty) {
             return [];
         }
-        var history = await _store.GetHistoryAsync(sessionId, cancellationToken);
+        var history = await _store.GetHistoryAsync(conversationId, cancellationToken);
         return history;
     }
 
@@ -54,6 +54,6 @@ public sealed class SessionStoreChatHistoryProvider : ChatHistoryProvider
 
     private sealed class State
     {
-        public Guid SessionId { get; set; }
+        public Guid ConversationId { get; set; }
     }
 }

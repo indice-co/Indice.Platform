@@ -25,7 +25,7 @@ public sealed class QueryRewriter : Executor<IntentOutput, QueryRewriteOutput>
         [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Fast))] IChatClient chatClient, 
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
-        SessionStoreChatHistoryProvider historyProvider) : base("QueryRewriter") {
+        ConversationStoreChatHistoryProvider historyProvider) : base("QueryRewriter") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Fast!;
         var chatOptions = models.Value.BaseFastModelOptions.Clone();
@@ -35,6 +35,8 @@ public sealed class QueryRewriter : Executor<IntentOutput, QueryRewriteOutput>
                 ChatOptions = chatOptions,
                 Name = "DexQueryRewriter",
                 ChatHistoryProvider = historyProvider,
+                // Chat completions is stateless; the echoed request ConversationId must not be treated as server-side history.
+                ThrowOnChatHistoryProviderConflict = false,
             });
     }
 
@@ -48,7 +50,7 @@ public sealed class QueryRewriter : Executor<IntentOutput, QueryRewriteOutput>
         var queries = new List<string> { state.Message.Text };
         if (enabled) {
             var agentSession = await _agent.CreateSessionAsync(cancellationToken);
-            SessionStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(state.ConversationId));
+            ConversationStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(state.ConversationId));
             var prompt = $"Question: {state.Message.Text}\n\nProduce {expansion - 1} alternative rewrite(s).";
             var response = await _agent.RunAsync<RewriteResult>(prompt, agentSession, cancellationToken: cancellationToken);
             foreach (var q in response.Result.Queries) {

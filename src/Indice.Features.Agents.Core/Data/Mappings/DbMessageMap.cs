@@ -24,6 +24,6 @@ public class DbMessageMap : IEntityTypeConfiguration<DbMessage>
         builder.Property(x => x.Contents).HasRequiredJsonConversion();
 
         builder.Property(x => x.ModelUsed).HasMaxLength(TextSizePresets.M128);
-        builder.HasIndex(x => new { x.SessionId, x.CreatedAt });
+        builder.HasIndex(x => new { x.ConversationId, x.CreatedAt });
     }
 }

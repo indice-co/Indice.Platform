@@ -18,11 +18,11 @@ internal class MyProfileService : IMyProfileService
     private const int UsageWindowDays = 7;
 
     private readonly IUsersService _store;
-    private readonly ISessionsStore _sessions;
+    private readonly IConversationStore _sessions;
     private readonly TaxonomyOptions _taxonomy;
 
     /// <summary>Creates a new <see cref="MyProfileService"/>.</summary>
-    public MyProfileService(IUsersService store, ISessionsStore sessions, IOptions<AgentsOptions> options) {
+    public MyProfileService(IUsersService store, IConversationStore sessions, IOptions<AgentsOptions> options) {
         _store = store;
         _sessions = sessions;
         _taxonomy = options.Value.Taxonomy;

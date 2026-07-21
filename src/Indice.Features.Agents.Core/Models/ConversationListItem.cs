@@ -1,7 +1,7 @@
 namespace Indice.Features.Agents.Core.Models;
 
 /// <summary>Lightweight row used in paged session listings; messages are not included.</summary>
-public class SessionListItem
+public class ConversationListItem
 {
     /// <summary>Session identifier.</summary>
     public Guid Id { get; init; }

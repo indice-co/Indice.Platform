@@ -14,10 +14,10 @@ namespace Indice.Features.Agents.Server.Endpoints;
 /// So Union types are used to represent multiple possible outcomes and <see cref="TypedResults"/> are always prefered over raw results.</remarks>
 internal static class MyChatsHandlers
 {
-    /// <summary>POST /api/my/chats — creates a session with the first question.</summary>
+    /// <summary>POST /api/my/chats — creates a conversation with the first question.</summary>
     public static async Task<CreatedAtRoute<ChatResponse>> Create(ChatRequest request, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
-        var response = await chats.SendAsync(userId, sessionId: null, request, cancellationToken);
+        var response = await chats.SendAsync(userId, conversationId: null, request, cancellationToken);
         return TypedResults.CreatedAtRoute(response, nameof(GetChatSession), new { chatId = Guid.Parse(response!.ConversationId!) });
     }
 
@@ -29,12 +29,12 @@ internal static class MyChatsHandlers
         return response is null ? TypedResults.NotFound() : TypedResults.Ok(response);
     }
 
-    /// <summary>POST /api/my/chats/stream — creates a session and streams the first turn over SSE.</summary>
+    /// <summary>POST /api/my/chats/stream — creates a conversation and streams the first turn over SSE.</summary>
     public static async Task<ServerSentEventsResult<ChatStreamEvent>> StreamCreate(ChatRequest request, ClaimsPrincipal user,
         IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
-        // sessionId null ⇒ the session is created inline, so the stream is never null here.
-        var stream = await chats.SendStreamAsync(userId, sessionId: null, request.Text, cancellationToken);
+        // conversationId null ⇒ the conversation is created inline, so the stream is never null here.
+        var stream = await chats.SendStreamAsync(userId, conversationId: null, request.Text, cancellationToken);
         return TypedResults.ServerSentEvents(stream!);
     }
 
@@ -47,17 +47,17 @@ internal static class MyChatsHandlers
     }
 
     /// <summary>GET /api/my/chats — paged list of the caller's sessions.</summary>
-    public static async Task<Ok<ResultSet<SessionListItem>>> List([AsParameters] ListOptions options, ClaimsPrincipal user,
+    public static async Task<Ok<ResultSet<ConversationListItem>>> List([AsParameters] ListOptions options, ClaimsPrincipal user,
         IChatsService chats, CancellationToken cancellationToken)
         => TypedResults.Ok(await chats.ListAsync(user.FindSubjectId()!, options, cancellationToken));
 
-    /// <summary>GET /api/my/chats/{chatId} — session detail with recent messages.</summary>
-    public static async Task<Results<Ok<Session>, NotFound>> GetChatSession(Guid chatId, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
-        var session = await chats.GetAsync(user.FindSubjectId()!, chatId, cancellationToken);
-        return session is null ? TypedResults.NotFound() : TypedResults.Ok(session);
+    /// <summary>GET /api/my/chats/{chatId} — conversation detail with recent messages.</summary>
+    public static async Task<Results<Ok<Conversation>, NotFound>> GetChatSession(Guid chatId, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
+        var conversation = await chats.GetAsync(user.FindSubjectId()!, chatId, cancellationToken);
+        return conversation is null ? TypedResults.NotFound() : TypedResults.Ok(conversation);
     }
 
-    /// <summary>DELETE /api/my/chats/{chatId} — removes a session and its messages.</summary>
+    /// <summary>DELETE /api/my/chats/{chatId} — removes a conversation and its messages.</summary>
     public static async Task<Results<NoContent, NotFound>> Delete(Guid chatId, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken)
         => (await chats.DeleteAsync(user.FindSubjectId()!, chatId, cancellationToken))
             ? TypedResults.NoContent()

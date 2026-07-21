@@ -64,9 +64,14 @@ public class AgentsChatClient([FromKeyedServices("Default")] Workflow workflow, 
                 case ExecutorInvokedEvent invoked when StepLabels.TryGetValue(invoked.ExecutorId, out var label):
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = state.ConversationId };
                     break;
-                // A throwing step halts the run; keep the first (richer) message.
+                // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor
+                // exceptions ("Error invoking handler for ..."), so walk to the innermost exception for the real cause.
                 case WorkflowErrorEvent error:
-                    failure ??= (error.Data as Exception)?.Message ?? "Workflow failed without exception details.";
+                    var exception = error.Data as Exception;
+                    while (exception?.InnerException is not null) {
+                        exception = exception.InnerException;
+                    }
+                    failure ??= exception?.Message ?? "Workflow failed without exception details.";
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(failure)]) { ConversationId = state.ConversationId };
                     break;
                 default:

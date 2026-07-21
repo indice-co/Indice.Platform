@@ -2,14 +2,14 @@ using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Data;
 
-/// <summary>A single turn (user or assistant) within a <see cref="DbSession"/>.</summary>
+/// <summary>A single turn (user or assistant) within a <see cref="DbConversation"/>.</summary>
 public class DbMessage
 {
     /// <summary>Primary key.</summary>
     public Guid Id { get; set; }
 
-    /// <summary>Foreign key → <see cref="DbSession.Id"/>.</summary>
-    public Guid SessionId { get; set; }
+    /// <summary>Foreign key.</summary>
+    public Guid ConversationId { get; set; }
 
     /// <summary>Author role of this message. Persisted as the role's string value (e.g. <c>user</c>).</summary>
     public ChatRole Role { get; set; } = ChatRole.User;

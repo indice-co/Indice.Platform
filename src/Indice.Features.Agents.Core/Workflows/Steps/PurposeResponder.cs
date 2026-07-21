@@ -27,7 +27,7 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
-        SessionStoreChatHistoryProvider historyProvider) : base("PurposeResponder") {
+        ConversationStoreChatHistoryProvider historyProvider) : base("PurposeResponder") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
 
@@ -43,6 +43,8 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
                     AIContextProviders = [userClaimsProvider],
                     Name = "DexPurposeResponder",
                     ChatHistoryProvider = historyProvider,
+                    // Chat completions is stateless; the echoed request ConversationId must not be treated as server-side history.
+                    ThrowOnChatHistoryProviderConflict = false,
                 });
     }
 
@@ -53,24 +55,17 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
         var state = await context.GetConversationStateAsync(cancellationToken);
         var prompt = state.Message.Text;
         var agentSession = await _agent.CreateSessionAsync(cancellationToken);
-        SessionStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(state.ConversationId));
+        ConversationStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(state.ConversationId));
 
         // Stream the answer: emit each text delta as a workflow event (surfaced as an SSE `delta` by the
         // streaming runner; ignored by the non-streaming runner) while accumulating the full text. Token
         // usage arrives as trailing UsageContent on the final update(s); fold it and report it once.
         var answer = new StringBuilder();
-        UsageDetails? usage = null;
         await foreach (var update in _agent.RunStreamingAsync(prompt, agentSession, cancellationToken: cancellationToken)) {
             if (!string.IsNullOrEmpty(update.Text)) {
                 answer.Append(update.Text);
-                await context.AddEventAsync(new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, update.Text)), cancellationToken);
             }
-            foreach (var usageContent in update.Contents.OfType<UsageContent>()) {
-                (usage ??= new UsageDetails()).Add(usageContent.Details);
-            }
-        }
-        if (usage is not null) {
-            await context.AddEventAsync(new UsageEvent(usage, _model), cancellationToken);
+            await context.AddEventAsync(new AgentResponseUpdateEvent(Id, update), cancellationToken);
         }
 
         return new GroundedAnswerOutput(answer.ToString(), [], []);

@@ -4,7 +4,7 @@ namespace Indice.Features.Agents.Core.Models;
 //public class ChatMessage
 //{
 //    /// <summary>Identifier of the session this turn belongs to.</summary>
-//    public Guid SessionId { get; init; }
+//    public Guid ConversationId { get; init; }
 
 //    /// <summary>Identifier of the assistant message persisted for this turn.</summary>
 //    public Guid MessageId { get; init; }

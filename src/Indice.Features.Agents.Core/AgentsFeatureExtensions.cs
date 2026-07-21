@@ -72,9 +72,9 @@ public static class AgentsFeatureExtensions
         });
 
         services.TryAddTransient<UserClaimsAIContextProvider>();
-        services.TryAddTransient<ISessionsStore, SessionsStore>();
+        services.TryAddTransient<IConversationStore, ConversationStore>();
         services.TryAddTransient<IUsageGuardService, UsageGuardService>();
-        services.TryAddTransient<SessionStoreChatHistoryProvider>();
+        services.TryAddTransient<ConversationStoreChatHistoryProvider>();
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();
         services.TryAddTransient<IDexChatClient, AgentsChatClient>();
         services.TryAddSingleton<WorkflowClaimsPrincipalSelector>(sp =>

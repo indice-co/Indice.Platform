@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Agents.Core.Data.Mappings;
 
-/// <summary>EF Core configuration for <see cref="DbSession"/>.</summary>
-public class DbSessionMap : IEntityTypeConfiguration<DbSession>
+/// <summary>EF Core configuration for <see cref="DbConversation"/>.</summary>
+public class DbConversationMap : IEntityTypeConfiguration<DbConversation>
 {
     /// <inheritdoc/>
-    public void Configure(EntityTypeBuilder<DbSession> builder) {
-        builder.ToTable("Session", "dex");
+    public void Configure(EntityTypeBuilder<DbConversation> builder) {
+        builder.ToTable("Conversation", "dex");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.UserId).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M256);
@@ -20,7 +20,7 @@ public class DbSessionMap : IEntityTypeConfiguration<DbSession>
                .IsDescending(false, true);
         builder.HasMany(x => x.Messages)
                .WithOne()
-               .HasForeignKey(m => m.SessionId)
+               .HasForeignKey(m => m.ConversationId)
                .OnDelete(DeleteBehavior.Cascade);
     }
 }
