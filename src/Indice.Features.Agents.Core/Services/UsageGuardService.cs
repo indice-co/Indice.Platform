@@ -24,7 +24,7 @@ public class UsageGuardService : IUsageGuardService
         if (_sessionOptions.MaxMessagesPerSession > 0 && conversation.MessageCount + 2 > _sessionOptions.MaxMessagesPerSession) {
             return UsageGuardResult.Deny(_sessionOptions.LimitReachedMessage);
         }
-        if (_sessionOptions.MaxTokensPerSession > 0 && conversation.TotalPromptTokens + conversation.TotalCompletionTokens >= _sessionOptions.MaxTokensPerSession) {
+        if (_sessionOptions.MaxTokensPerSession > 0 && conversation.InputTokenCount + conversation.OutputTokenCount >= _sessionOptions.MaxTokensPerSession) {
             return UsageGuardResult.Deny(_sessionOptions.LimitReachedMessage);
         }
         return UsageGuardResult.Allow();

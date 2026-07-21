@@ -5,7 +5,6 @@ using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Server.Endpoints;
 
@@ -15,14 +14,14 @@ namespace Indice.Features.Agents.Server.Endpoints;
 internal static class MyChatsHandlers
 {
     /// <summary>POST /api/my/chats — creates a conversation with the first question.</summary>
-    public static async Task<CreatedAtRoute<ChatResponse>> Create(ChatRequest request, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
+    public static async Task<CreatedAtRoute<DexChatResponse>> Create(ChatRequest request, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
         var response = await chats.SendAsync(userId, conversationId: null, request, cancellationToken);
-        return TypedResults.CreatedAtRoute(response, nameof(GetChatSession), new { chatId = Guid.Parse(response!.ConversationId!) });
+        return TypedResults.CreatedAtRoute(response, nameof(GetChatSession), new { chatId = response!.ConversationId });
     }
 
     /// <summary>POST /api/my/chats/{chatId}/messages — posts a follow-up turn.</summary>
-    public static async Task<Results<Ok<ChatResponse>, NotFound>> SendMessage(Guid chatId, ChatRequest request, ClaimsPrincipal user,
+    public static async Task<Results<Ok<DexChatResponse>, NotFound>> SendMessage(Guid chatId, ChatRequest request, ClaimsPrincipal user,
         IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
         var response = await chats.SendAsync(userId, chatId, request, cancellationToken);
@@ -52,7 +51,7 @@ internal static class MyChatsHandlers
         => TypedResults.Ok(await chats.ListAsync(user.FindSubjectId()!, options, cancellationToken));
 
     /// <summary>GET /api/my/chats/{chatId} — conversation detail with recent messages.</summary>
-    public static async Task<Results<Ok<Conversation>, NotFound>> GetChatSession(Guid chatId, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
+    public static async Task<Results<Ok<DexConversation>, NotFound>> GetChatSession(Guid chatId, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
         var conversation = await chats.GetAsync(user.FindSubjectId()!, chatId, cancellationToken);
         return conversation is null ? TypedResults.NotFound() : TypedResults.Ok(conversation);
     }

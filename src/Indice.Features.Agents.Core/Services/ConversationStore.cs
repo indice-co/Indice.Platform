@@ -30,8 +30,8 @@ public class ConversationStore : IConversationStore
                 Title = null,
                 CreatedAt = now,
                 LastActivityAt = now,
-                TotalPromptTokens = 0,
-                TotalCompletionTokens = 0,
+                InputTokenCount = 0,
+                OutputTokenCount = 0,
             };
             _db.Add(entity);
             await _db.SaveChangesAsync(cancellationToken);
@@ -48,8 +48,8 @@ public class ConversationStore : IConversationStore
                 Title = s.Title,
                 CreatedAt = s.CreatedAt,
                 LastActivityAt = s.LastActivityAt,
-                TotalPromptTokens = s.TotalPromptTokens,
-                TotalCompletionTokens = s.TotalCompletionTokens,
+                InputTokenCount = s.InputTokenCount,
+                OutputTokenCount = s.OutputTokenCount,
                 MessageCount = s.MessageCount,
             })
             .FirstOrDefaultAsync(cancellationToken);
@@ -69,11 +69,11 @@ public class ConversationStore : IConversationStore
                 Title = s.Title,
                 CreatedAt = s.CreatedAt,
                 LastActivityAt = s.LastActivityAt,
-                TotalPromptTokens = s.TotalPromptTokens,
-                TotalCompletionTokens = s.TotalCompletionTokens,
+                InputTokenCount = s.InputTokenCount,
+                OutputTokenCount = s.OutputTokenCount,
                 MessageCount = s.MessageCount,
-                QuestionsUsed = questionsTotal == null ? null : (s.MessageCount / 2 < questionsTotal ? s.MessageCount / 2 : questionsTotal),
-                QuestionsTotal = questionsTotal,
+                QuestionsUsedCount = questionsTotal == null ? null : (s.MessageCount / 2 < questionsTotal ? s.MessageCount / 2 : questionsTotal),
+                QuestionsLimitCount = questionsTotal,
                 Messages = s.Messages
                     .OrderByDescending(m => m.CreatedAt)
                     .Take(messageTake)
@@ -121,8 +121,8 @@ public class ConversationStore : IConversationStore
                 Title = s.Title,
                 CreatedAt = s.CreatedAt,
                 LastActivityAt = s.LastActivityAt,
-                TotalPromptTokens = s.TotalPromptTokens,
-                TotalCompletionTokens = s.TotalCompletionTokens,
+                TotalPromptTokens = s.InputTokenCount,
+                TotalCompletionTokens = s.OutputTokenCount,
             });
         return await query.ToResultSetAsync(options, cancellationToken);
     }
@@ -143,8 +143,8 @@ public class ConversationStore : IConversationStore
         _db.Add(assistantRow);
 
         session.LastActivityAt = assistantRow.CreatedAt;
-        session.TotalPromptTokens += response.Usage?.InputTokenCount ?? 0;
-        session.TotalCompletionTokens += response.Usage?.OutputTokenCount ?? 0;
+        session.InputTokenCount += response.Usage?.InputTokenCount ?? 0;
+        session.OutputTokenCount += response.Usage?.OutputTokenCount ?? 0;
         session.MessageCount += 2;
         if (session.Title is null && _sessionOptions.TitleAutoGenerate) {
             session.Title = DeriveTitle(userMessage);
@@ -215,11 +215,11 @@ public class ConversationStore : IConversationStore
         Title = s.Title,
         CreatedAt = s.CreatedAt,
         LastActivityAt = s.LastActivityAt,
-        TotalPromptTokens = s.TotalPromptTokens,
-        TotalCompletionTokens = s.TotalCompletionTokens,
+        InputTokenCount = s.InputTokenCount,
+        OutputTokenCount = s.OutputTokenCount,
         MessageCount = s.MessageCount,
-        QuestionsUsed = _sessionOptions.GetQuestionsUsed(s.MessageCount),
-        QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
+        QuestionsUsedCount = _sessionOptions.GetQuestionsUsed(s.MessageCount),
+        QuestionsLimitCount = _sessionOptions.GetQuestionsTotal(),
         Messages = messages,
     };
 

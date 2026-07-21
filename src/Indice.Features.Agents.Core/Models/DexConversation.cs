@@ -1,9 +1,7 @@
-using Microsoft.Extensions.AI;
-
-namespace Indice.Features.Agents.Core.Models;
+﻿namespace Indice.Features.Agents.Core.Models;
 
 /// <summary>Detail view of a conversation, including the most recent messages.</summary>
-public class Conversation
+public class DexConversation
 {
     /// <summary>Conversation identifier.</summary>
     public Guid Id { get; init; }
@@ -33,5 +31,6 @@ public class Conversation
     public int? QuestionsLimitCount { get; init; }
 
     /// <summary>Recent messages in chronological order (oldest first), capped at the configured history window.</summary>
-    public IReadOnlyList<ChatMessage> Messages { get; init; } = Array.Empty<ChatMessage>();
+    public IReadOnlyList<DexChatMessage> Messages { get; init; } = Array.Empty<DexChatMessage>();
 }
+

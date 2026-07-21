@@ -21,10 +21,10 @@ public class DbConversation
     public DateTimeOffset LastActivityAt { get; set; }
 
     /// <summary>Cumulative prompt-token usage across all turns in this session.</summary>
-    public long TotalPromptTokens { get; set; }
+    public long InputTokenCount { get; set; }
 
     /// <summary>Cumulative completion-token usage across all turns in this session.</summary>
-    public long TotalCompletionTokens { get; set; }
+    public long OutputTokenCount { get; set; }
 
     /// <summary>Number of persisted messages in this session. Each turn appends two rows (user + assistant).</summary>
     public int MessageCount { get; set; }

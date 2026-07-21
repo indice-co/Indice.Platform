@@ -1,7 +1,6 @@
 using System.Net.ServerSentEvents;
 using Indice.Features.Agents.Core.Models;
 using Indice.Types;
-using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Services;
 
@@ -12,7 +11,7 @@ public interface IChatsService
     /// Posts a turn. When <paramref name="conversationId"/> is <c>null</c>, the conversation is created inline as part of this call.
     /// Returns <c>null</c> when <paramref name="conversationId"/> is supplied but no conversation matches <paramref name="userId"/>.
     /// </summary>
-    Task<ChatResponse?> SendAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken);
+    Task<DexChatResponse?> SendAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken);
 
     /// <summary>
     /// Streaming counterpart of <see cref="SendAsync"/>: posts a turn and returns the live SSE event stream
@@ -23,7 +22,7 @@ public interface IChatsService
     Task<IAsyncEnumerable<SseItem<ChatStreamEvent>>?> SendStreamAsync(string userId, Guid? conversationId, string text, CancellationToken cancellationToken);
 
     /// <summary>Returns a conversation detail (metadata + recent messages) or <c>null</c> when not found / not owned.</summary>
-    Task<Conversation?> GetAsync(string userId, Guid conversationId, CancellationToken cancellationToken);
+    Task<DexConversation?> GetAsync(string userId, Guid conversationId, CancellationToken cancellationToken);
 
     /// <summary>Returns a paged listing of the caller's conversations, most-recently-active first.</summary>
     Task<ResultSet<ConversationListItem>> ListAsync(string userId, ListOptions options, CancellationToken cancellationToken);

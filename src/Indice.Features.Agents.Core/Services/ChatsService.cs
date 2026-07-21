@@ -26,7 +26,7 @@ public class ChatsService : IChatsService
     }
 
     /// <inheritdoc/>
-    public async Task<ChatResponse?> SendAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken) {
+    public async Task<DexChatResponse?> SendAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken) {
         await EnsureSessionCreationAllowedAsync(userId, conversationId, cancellationToken);
         var conversation = await _store.LoadOrCreateAsync(userId, conversationId, cancellationToken);
         if (conversation is null) {
@@ -34,35 +34,31 @@ public class ChatsService : IChatsService
         }
         var turnCheck = _usageGuard.Check(conversation);
         if (!turnCheck.Allowed) {
-            return new ChatResponse(new ChatMessage(ChatRole.Assistant, turnCheck.Message)) {
-                ConversationId = conversation.Id.ToString(),
+            return new DexChatResponse {
+                ConversationId = conversation.Id,
                 ResponseId = Guid.NewGuid().ToString(),
-                Usage = new() {
-                    AdditionalCounts = new() {
-                        ["questionsUsed"] = _sessionOptions.GetQuestionsUsed(conversation.MessageCount) ?? 0,
-                        ["questionsTotal"] = _sessionOptions.GetQuestionsTotal() ?? 0
-                    }
-                },
-                FinishReason = new ChatFinishReason("Limit")
+                Messages = [new DexChatMessage {
+                    MessageId = Guid.Empty.ToString(),
+                    Role = DexChatRole.Assistant,
+                    Content = new ChatMessageContent(turnCheck.Message ?? string.Empty),
+                    CreatedAt = DateTimeOffset.UtcNow
+                }],
+                FinishReason = DexChatFinishReason.Limit
             };
         }
         var userMessage = new ChatMessage(ChatRole.User, chatRequest.Text) {
             MessageId = Guid.NewGuid().ToString(),
             CreatedAt = DateTimeOffset.UtcNow
         };
-        //userMessage, response.Messages.First(), responseId
-            //promptTokens: response.Usage?.InputTokenCount ?? 0, completionTokens: response.Usage?.OutputTokenCount ?? 0,
-            //modelUsed: string.IsNullOrWhiteSpace(response.ModelId) ? _deployments.Reasoning : response.ModelId
-
         var response = await _dexClient.GetResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString() }, cancellationToken);
-        var persistedAssistant = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
-        
-        response.Usage ??= new UsageDetails();
-        response.Usage.AdditionalCounts = new() {
-            ["questionsUsed"] = _sessionOptions.GetQuestionsUsed(conversation.MessageCount) ?? 0,
-            ["questionsTotal"] = _sessionOptions.GetQuestionsTotal() ?? 0
-        };
-        return response;
+        await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
+
+        var dexResponse = response.ToDexChatResponse();
+        dexResponse.ConversationId ??= conversation.Id;
+        dexResponse.Usage ??= new DexChatUsage();
+        dexResponse.Usage.QuestionsUsedCount = _sessionOptions.GetQuestionsUsed(conversation.MessageCount);
+        dexResponse.Usage.QuestionsLimitCount = _sessionOptions.GetQuestionsTotal();
+        return dexResponse;
     }
 
     /// <inheritdoc/>
@@ -151,8 +147,24 @@ public class ChatsService : IChatsService
 
 
     /// <inheritdoc/>
-    public Task<Conversation?> GetAsync(string userId, Guid conversationId, CancellationToken cancellationToken)
-        => _store.GetAsync(conversationId, userId, cancellationToken);
+    public async Task<DexConversation?> GetAsync(string userId, Guid conversationId, CancellationToken cancellationToken) {
+        var conversation = await _store.GetAsync(conversationId, userId, cancellationToken);
+        if (conversation is null) {
+            return null;
+        }
+        return new DexConversation {
+            Id = conversation.Id,
+            Title = conversation.Title,
+            CreatedAt = conversation.CreatedAt,
+            LastActivityAt = conversation.LastActivityAt,
+            InputTokenCount = conversation.InputTokenCount,
+            OutputTokenCount = conversation.OutputTokenCount,
+            MessageCount = conversation.MessageCount,
+            QuestionsUsedCount = _sessionOptions.GetQuestionsUsed(conversation.MessageCount),
+            QuestionsLimitCount = _sessionOptions.GetQuestionsTotal(),
+            Messages = conversation.Messages.Select(message => message.ToDexChatMessage()).ToList()
+        };
+    }
 
     /// <inheritdoc/>
     public Task<ResultSet<ConversationListItem>> ListAsync(string userId, ListOptions options, CancellationToken cancellationToken)
