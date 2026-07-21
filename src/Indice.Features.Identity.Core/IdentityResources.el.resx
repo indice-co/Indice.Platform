@@ -495,4 +495,7 @@
   <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
     <value>Έχετε ζητήσει να συνδεθείτε με κωδικό ανάκτησης. Αυτή η σύνδεση δεν θα απομνημονευτεί έως ότου παρέχετε μια μέθοδο MFA.</value>
   </data>
+  <data name="MfaTokenNotExpired" xml:space="preserve">
+    <value>Ο κωδικός που λάβατε δεν έχει λήξει ακόμα. Παρακαλώ δοκιμάστε σε μερικά δευτερόλεπτα.</value>
+  </data>
 </root>

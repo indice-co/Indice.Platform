@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-/// <summary>Extension methods used to register the required services for managing user's sign log activity for IdentityServer.</summary>
+/// <summary>Extension methods used to register the required services for managing activity logs for IdentityServer.</summary>
 public static class ActivityLogFeatureExtensions
 {
     /// <summary>
@@ -26,7 +26,7 @@ public static class ActivityLogFeatureExtensions
         configureAction?.Invoke(options);
         var activityLogBuilder = new ActivityLogBuilder(services, configuration);
         if (configureAction != null) {
-            services.Configure<ActivityLogOptions>(configureAction);
+            services.Configure(configureAction);
         }
         if (!options.Enable) {
             return activityLogBuilder;
@@ -78,7 +78,9 @@ public static class ActivityLogFeatureExtensions
     }
 
     private static IServiceCollection AddActivityLogEnricher(this IServiceCollection services, Type type) {
-        services.AddTransient(typeof(IActivityLogEntryEnricher), type);
+        services.TryAddEnumerable(
+            ServiceDescriptor.Transient(typeof(IActivityLogEntryEnricher), type)
+        );
         return services;
     }
 
@@ -93,13 +95,33 @@ public static class ActivityLogFeatureExtensions
     private static IServiceCollection AddDefaultFilters(this IServiceCollection services) {
         var filters = AssemblyInternalExtensions.GetClassesAssignableFrom<IActivityLogEntryFilter>(Assembly.GetExecutingAssembly());
         foreach (var filter in filters) {
-            services.AddTransient(typeof(IActivityLogEntryFilter), filter);
+            services.TryAddEnumerable(
+                ServiceDescriptor.Transient(typeof(IActivityLogEntryFilter), filter)
+            );
         }
         return services;
     }
 
-    private static IActivityLogBuilder AddFilter(this IActivityLogBuilder builder, Type type) {
-        builder.Services.AddTransient(typeof(IActivityLogEntryFilter), type);
+    /// <summary>Adds a custom filter.</summary>
+    /// <param name="builder">The host application builder.</param>
+    /// <param name="type">The type of the filter to add.</param>
+    public static IActivityLogBuilder AddFilter(this IActivityLogBuilder builder, Type type) {
+        builder.Services.TryAddEnumerable(
+            ServiceDescriptor.Transient(typeof(IActivityLogEntryFilter), type)
+        );
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds a custom filter of type <typeparamref name="TFilter"/> to the activity log builder.
+    /// </summary>
+    /// <typeparam name="TFilter"></typeparam>
+    /// <param name="builder"></param>
+    /// <returns></returns>
+    public static IActivityLogBuilder AddFilter<TFilter>(this IActivityLogBuilder builder) where TFilter : class, IActivityLogEntryFilter {
+        builder.Services.TryAddEnumerable(
+            ServiceDescriptor.Transient<IActivityLogEntryFilter, TFilter>()
+        );
         return builder;
     }
 
@@ -109,8 +131,7 @@ public static class ActivityLogFeatureExtensions
     /// <remarks>This method ensures that the database for storing activity logs is created if it does not
     /// already exist. It uses a scoped service to access the <see cref="ActivityLogDbContext"/> and calls EnsureCreated.</remarks>
     /// <param name="app">The <see cref="IApplicationBuilder"/> instance used to configure the application.</param>
-    /// <returns>The same <see cref="IApplicationBuilder"/> instance passed as the <paramref name="app"/> parameter, allowing for
-    /// method chaining.</returns>
+    /// <returns>The same <see cref="IApplicationBuilder"/> instance passed as the <paramref name="app"/> parameter, allowing for method chaining.</returns>
     public static IApplicationBuilder ActivityStoreSetup(this IApplicationBuilder app) {
         using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var dbContext = serviceScope.ServiceProvider.GetRequiredService<ActivityLogDbContext>();

@@ -1,5 +1,6 @@
 ﻿using Indice.Features.GeoIP;
 using Indice.Features.GeoIP.GeoLite2;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -14,9 +15,10 @@ public static class GeoIPFeatureExtensions
     /// <param name="services">The service collection to add the services to.</param>
     /// <returns></returns>
     public static IServiceCollection AddGeoIPResolver(this IServiceCollection services) {
-        services.AddSingleton<CityDatabaseReader>();
-        services.AddSingleton<CountryDatabaseReader>();
-        services.AddScoped<IPAddressLocator>();
+        services.TryAddSingleton<CityDatabaseReader>();
+        services.TryAddSingleton<CountryDatabaseReader>();
+        services.TryAddSingleton<AsnDatabaseReader>();
+        services.TryAddScoped<IPAddressLocator>();
         return services;
     }
 }

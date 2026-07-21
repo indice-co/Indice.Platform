@@ -1,0 +1,462 @@
+@import 'tailwindcss';
+@plugin 'daisyui';
+
+/* Scan our component templates (inline + .html) for utility classes. */
+@source './app/**/*.{html,ts}';
+@source './index.html';
+
+/* ── Dex theme — Indice red on white: white surfaces, ink text, Dex-logo red primary ── */
+@plugin 'daisyui/theme' {
+  name: 'dex';
+  default: true;
+  color-scheme: light;
+
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97.2% 0.002 270);
+  --color-base-300: oklch(92% 0.004 270);
+  --color-base-content: oklch(24% 0.012 270);
+
+  --color-primary: oklch(58.5% 0.214 27);
+  --color-primary-content: oklch(99% 0 0);
+  --color-secondary: oklch(30% 0.012 270);
+  --color-secondary-content: oklch(98% 0 0);
+  --color-accent: oklch(52% 0.2 26);
+  --color-accent-content: oklch(98% 0 0);
+  --color-neutral: oklch(26% 0.012 270);
+  --color-neutral-content: oklch(97% 0 0);
+
+  --color-info: oklch(62% 0.1 232);
+  --color-info-content: oklch(98% 0.01 232);
+  --color-success: oklch(62% 0.13 150);
+  --color-success-content: oklch(98% 0.01 150);
+  --color-warning: oklch(76% 0.15 80);
+  --color-warning-content: oklch(28% 0.05 80);
+  --color-error: oklch(55% 0.2 25);
+  --color-error-content: oklch(98% 0.01 25);
+
+  --radius-selector: 1.2rem;
+  --radius-field: 0.6rem;
+  --radius-box: 1rem;
+  --border: 1px;
+}
+
+/* Register fonts as Tailwind theme tokens (font-sans / font-mono). */
+@theme {
+  --font-sans: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Subtle dotted "graph paper" atmosphere for the conversation canvas. */
+.dex-canvas {
+  background-color: var(--color-base-200);
+  background-image: radial-gradient(
+    color-mix(in oklch, var(--color-base-content) 6%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+}
+
+/* Blinking caret appended to the streaming answer. */
+.dex-caret::after {
+  content: '';
+  display: inline-block;
+  width: 0.55ch;
+  height: 1.05em;
+  margin-left: 1px;
+  vertical-align: -0.15em;
+  background-color: currentColor;
+  border-radius: 1px;
+  animation: dex-blink 1.05s steps(1, end) infinite;
+}
+
+@keyframes dex-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Staggered entrance for message bubbles. */
+@keyframes dex-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dex-rise {
+  animation: dex-rise 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Flow builder: the node currently "running" during a simulated pass. */
+.dex-node-active {
+  animation: dex-node-pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes dex-node-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-primary) 38%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 7px color-mix(in oklch, var(--color-primary) 0%, transparent);
+  }
+}
+
+/* Thin, refined scrollbar that matches the paper aesthetic. */
+.dex-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--color-base-content) 22%, transparent) transparent;
+}
+.dex-scroll::-webkit-scrollbar {
+  width: 9px;
+}
+.dex-scroll::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklch, var(--color-base-content) 20%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* ── Markdown content styling for chat bubbles ── */
+.markdown {
+  line-height: 1.38;
+  overflow-wrap: anywhere;
+}
+
+/* Headings */
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin-top: 0.5em;
+  margin-bottom: 0.25em;
+  font-weight: 600;
+  color: var(--color-base-content);
+}
+
+.markdown h1 {
+  font-size: 1.5rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--color-base-content) 15%, transparent);
+  padding-bottom: 0.2em;
+  margin-bottom: 0.3em;
+}
+
+.markdown h2 {
+  font-size: 1.3rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--color-base-content) 15%, transparent);
+  padding-bottom: 0.2em;
+  margin-bottom: 0.3em;
+}
+
+.markdown h3 {
+  font-size: 1.1rem;
+  margin-top: 0.4em;
+  margin-bottom: 0.2em;
+}
+
+.markdown h4 {
+  font-size: 1rem;
+  margin-top: 0.3em;
+  margin-bottom: 0.15em;
+}
+
+.markdown h5,
+.markdown h6 {
+  font-size: 0.95rem;
+  margin-top: 0.3em;
+  margin-bottom: 0.15em;
+}
+
+/* Paragraphs and text flow */
+.markdown p {
+  margin-bottom: 1em;
+  line-height: 1.38;
+  margin-top: 0;
+}
+
+.markdown p:first-child {
+  margin-top: 0;
+}
+
+.markdown p:last-child {
+  margin-bottom: 0;
+}
+
+/* Lists */
+.markdown ul,
+.markdown ol {
+  margin-bottom: 1em;
+  margin-top: 0;
+  margin-left: 1.25em;
+  list-style-position: outside;
+  padding: 0;
+}
+
+.markdown ul {
+  list-style-type: disc;
+}
+
+.markdown ul ul {
+  list-style-type: circle;
+  margin-top: 0.15em;
+  margin-bottom: 0.15em;
+}
+
+.markdown ul ul ul {
+  list-style-type: square;
+}
+
+.markdown ol {
+  list-style-type: decimal;
+}
+
+.markdown li {
+  margin-bottom: 0.18em;
+  line-height: 1.35;
+  margin-top: 0;
+}
+
+.markdown li > p {
+  margin-bottom: 0.18em;
+  margin-top: 0;
+}
+
+.markdown li > p:first-child {
+  margin-top: 0;
+}
+
+/* Inline code */
+.markdown code {
+  background-color: color-mix(in oklch, var(--color-base-content) 8%, transparent);
+  color: var(--color-accent);
+  padding: 0.1em 0.3em;
+  border-radius: 0.25em;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  overflow-x: auto;
+}
+
+/* Code blocks (pre + code) */
+.markdown pre {
+  background-color: color-mix(in oklch, var(--color-base-content) 6%, transparent);
+  border-left: 3px solid var(--color-primary);
+  border-radius: 0.5em;
+  padding: 0.8em;
+  margin-bottom: 0.1em;
+  margin-top: 0.1em;
+  overflow-x: auto;
+  line-height: 1.2;
+  font-size: 0.9em;
+}
+
+.markdown pre code {
+  background-color: transparent;
+  color: var(--color-base-content);
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.9em;
+}
+
+/* Blockquotes */
+.markdown blockquote {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 0.75em;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0.1em;
+  margin-top: 0;
+  color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
+  font-style: italic;
+}
+
+.markdown blockquote p {
+  margin-bottom: 0.1em;
+  margin-top: 0;
+}
+
+/* Links */
+.markdown a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.markdown a:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+/* Horizontal rule */
+.markdown hr {
+  border: none;
+  border-top: 1px solid color-mix(in oklch, var(--color-base-content) 15%, transparent);
+  margin: 0.6em 0;
+}
+
+/* Tables */
+.markdown table {
+  border-collapse: collapse;
+  margin-bottom: 0.4em;
+  margin-top: 0.2em;
+  width: 100%;
+  font-size: 0.95em;
+}
+
+.markdown table thead {
+  background-color: color-mix(in oklch, var(--color-base-content) 5%, transparent);
+  border-bottom: 1px solid color-mix(in oklch, var(--color-base-content) 15%, transparent);
+}
+
+.markdown table th,
+.markdown table td {
+  border: 1px solid color-mix(in oklch, var(--color-base-content) 15%, transparent);
+  padding: 0.4em 0.6em;
+  text-align: left;
+}
+
+.markdown table tbody tr:hover {
+  background-color: color-mix(in oklch, var(--color-base-content) 3%, transparent);
+}
+
+/* Strong and emphasis */
+.markdown strong {
+  font-weight: 700;
+  color: var(--color-base-content);
+}
+
+.markdown em {
+  font-style: italic;
+  color: color-mix(in oklch, var(--color-base-content) 85%, transparent);
+}
+
+/* Images */
+.markdown img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.4em;
+  margin: 0.4em 0;
+  display: block;
+}
+
+/* Strikethrough */
+.markdown del {
+  color: color-mix(in oklch, var(--color-base-content) 50%, transparent);
+  text-decoration: line-through;
+}
+
+/* ── Prism.js syntax highlighting theme ── */
+.markdown code[class*='language-'],
+.markdown pre[class*='language-'] {
+  color: var(--color-base-content);
+  background-color: color-mix(in oklch, var(--color-base-content) 6%, transparent);
+  text-shadow: none;
+  font-family: var(--font-mono);
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  -moz-tab-size: 2;
+  -o-tab-size: 2;
+  tab-size: 2;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+.markdown pre[class*='language-'] {
+  background-color: color-mix(in oklch, var(--color-base-content) 6%, transparent);
+  border-left: 3px solid var(--color-primary);
+  padding: 1em;
+  margin-bottom: 0.8em;
+  border-radius: 0.5em;
+  overflow-x: auto;
+}
+
+.markdown code[class*='language-'] {
+  background-color: transparent;
+  color: var(--color-base-content);
+  padding: 0;
+  border-radius: 0;
+}
+
+/* Prism tokens */
+.markdown .token.comment,
+.markdown .token.prolog,
+.markdown .token.doctype,
+.markdown .token.cdata {
+  color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+}
+
+.markdown .token.punctuation {
+  color: var(--color-base-content);
+}
+
+.markdown .token.property,
+.markdown .token.tag,
+.markdown .token.boolean,
+.markdown .token.number,
+.markdown .token.constant,
+.markdown .token.symbol,
+.markdown .token.deleted {
+  color: var(--color-accent);
+}
+
+.markdown .token.selector,
+.markdown .token.attr-name,
+.markdown .token.string,
+.markdown .token.char,
+.markdown .token.builtin,
+.markdown .token.inserted {
+  color: color-mix(in oklch, var(--color-success) 100%, transparent);
+}
+
+.markdown .token.operator,
+.markdown .token.entity,
+.markdown .token.url,
+.markdown .language-css .token.string,
+.markdown .style .token.string {
+  color: var(--color-primary);
+}
+
+.markdown .token.atrule,
+.markdown .token.attr-value,
+.markdown .token.keyword {
+  color: color-mix(in oklch, var(--color-primary) 80%, transparent);
+}
+
+.markdown .token.function,
+.markdown .token.class-name {
+  color: var(--color-primary);
+}
+
+.markdown .token.regex,
+.markdown .token.important,
+.markdown .token.variable {
+  color: var(--color-warning);
+}

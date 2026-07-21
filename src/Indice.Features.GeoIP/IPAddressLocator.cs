@@ -12,13 +12,18 @@ public sealed class IPAddressLocator
 {
     private readonly CityDatabaseReader _cityDatabaseReader;
     private readonly CountryDatabaseReader _countryDatabaseReader;
+    private readonly AsnDatabaseReader _asnDatabaseReader;
 
-    /// <summary></summary>
-    /// <param name="cityDatabaseReader"></param>
-    /// <param name="countryDatabaseReader"></param>
-    public IPAddressLocator(CityDatabaseReader cityDatabaseReader, CountryDatabaseReader countryDatabaseReader) {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="IPAddressLocator"/> class.
+    /// </summary>
+    /// <param name="cityDatabaseReader">The city database reader.</param>
+    /// <param name="countryDatabaseReader">The country database reader.</param>
+    /// <param name="asnDatabaseReader">The ASN database reader.</param>
+    public IPAddressLocator(CityDatabaseReader cityDatabaseReader, CountryDatabaseReader countryDatabaseReader, AsnDatabaseReader asnDatabaseReader) {
         _cityDatabaseReader = cityDatabaseReader ?? throw new ArgumentNullException(nameof(cityDatabaseReader));
         _countryDatabaseReader = countryDatabaseReader ?? throw new ArgumentNullException(nameof(countryDatabaseReader));
+        _asnDatabaseReader = asnDatabaseReader ?? throw new ArgumentNullException(nameof(asnDatabaseReader));
     }
 
     /// <summary>Gets various geolocation data for the given <see cref="IPAddress"/>.</summary>
@@ -46,6 +51,10 @@ public sealed class IPAddressLocator
             result.CountryName = countryResponse?.Country?.Name;
             result.CountryIsoCode = countryResponse?.Country?.IsoCode;
             result.Continent = countryResponse?.Continent?.Name;
+        }
+        if (_asnDatabaseReader.TryAsn(ipAddress, out var asnResponse)) {
+            result.Asn = asnResponse?.AutonomousSystemNumber;
+            result.AsOrganization = asnResponse?.AutonomousSystemOrganization;
         }
         return result;
     }

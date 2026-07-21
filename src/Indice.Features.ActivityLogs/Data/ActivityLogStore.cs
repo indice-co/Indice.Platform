@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.ActivityLogs.EntityFrameworkCore;
 
 /// <summary>An implementation of <see cref="IActivityLogStore"/>, using Entity Framework Core as a persistence mechanism.</summary>
-internal class ActivityLogStore : IActivityLogStore
+public class ActivityLogStore : IActivityLogStore
 {
     private readonly ActivityLogDbContext _dbContext;
     private readonly ActivityLogOptions _activityLogOptions;

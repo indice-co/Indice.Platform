@@ -378,6 +378,27 @@
   <data name="Email_Body_Organization_Signature" xml:space="preserve">
     <value>{0}</value>
   </data>
+  <data name="EmailFooter_SentTo" xml:space="preserve">
+    <value>Diese E-Mail wurde an &lt;strong&gt;{0}&lt;/strong&gt;gesendet.</value>
+  </data>
+  <data name="OrganizationLegalName" xml:space="preserve">
+    <value />
+  </data>
+  <data name="OrganizationAddress" xml:space="preserve">
+    <value />
+  </data>
+  <data name="EmailFooter_RegistryNumber" xml:space="preserve">
+    <value>GEMH: {0}</value>
+  </data>
+  <data name="EmailFooter_NeedHelp" xml:space="preserve">
+    <value>Brauchen Sie Hilfe?</value>
+  </data>
+  <data name="EmailFooter_CallSupport" xml:space="preserve">
+    <value>Rufen Sie {0} an</value>
+  </data>
+  <data name="EmailFooter_EmailSupport" xml:space="preserve">
+    <value>Schreiben Sie an {0}</value>
+  </data>
   <data name="Email_Reset_Password_FieldLabel" xml:space="preserve">
     <value>Passwort zurücksetzen</value>
   </data>

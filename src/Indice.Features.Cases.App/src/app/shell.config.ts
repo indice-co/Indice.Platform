@@ -9,5 +9,6 @@ export class ShellConfig implements IShellConfig {
     public showUserNameOnHeader = true;
     public breadcrumb = true;
     public layout = ShellLayoutType.Sidebar;
+    public showLangsOnHeader = true;
     public showPictureOnHeader = true;
 }

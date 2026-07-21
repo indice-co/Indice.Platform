@@ -34,6 +34,9 @@ dotnet pack src/Indice.Features.Multitenancy.Worker.Azure/Indice.Features.Multit
 dotnet pack src/Indice.Features.Risk.Core/Indice.Features.Risk.Core.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Risk.Server/Indice.Features.Risk.Server.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Risk.UI/Indice.Features.Risk.UI.csproj --no-restore --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Features.Agents.Server/Indice.Features.Agents.Server.csproj --no-restore --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Features.Agents.Core/Indice.Features.Agents.Core.csproj --no-restore --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Features.Agents.UI/Indice.Features.Agents.UI.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Functions.Builder/Indice.Functions.Builder.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Hosting/Indice.Hosting.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Services/Indice.Services.csproj --no-restore --no-build -c Release -o ./artifacts

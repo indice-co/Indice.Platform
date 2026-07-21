@@ -4,7 +4,7 @@ using NetTopologySuite.Geometries;
 namespace Indice.Features.ActivityLogs.Data;
 
 /// <summary>A database entity representing a user's activity log entry.</summary>
-internal class DbActivityLogEntry
+public class DbActivityLogEntry
 {
     /// <summary>The unique id of the user's activity log entry.</summary>
     public Guid Id { get; set; }

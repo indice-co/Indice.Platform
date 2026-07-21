@@ -39,25 +39,7 @@ public static class NullableTransformer
                     if (property.Value is OpenApiSchema propSchema) {
                         // Remove the null type for required properties
                         if (schema.Required?.Contains(property.Key) == true) {
-                            if (propSchema.Type is not null) {
-                                propSchema.Type &= ~JsonSchemaType.Null;
-                            }
-                            if (propSchema.OneOf is not null) {
-                                var nullBranch = propSchema.OneOf.FirstOrDefault(s => s.Type == JsonSchemaType.Null);
-                                if (nullBranch is not null) {
-                                    propSchema.OneOf.Remove(nullBranch);
-                                }
-                                // If only one branch survives, collapse it into the parent so renderers don't show "oneOf [X]"
-                                if (propSchema.OneOf.Count == 1 && propSchema.OneOf[0] is OpenApiSchema only) {
-                                    propSchema.Type ??= only.Type;
-                                    propSchema.Items ??= only.Items;
-                                    propSchema.Format ??= only.Format;
-                                    propSchema.Enum ??= only.Enum;
-                                    propSchema.Metadata ??= only.Metadata;
-                                    propSchema.OneOf.Clear();
-                                }
-                            }
-                            propSchema.Metadata?.Remove("x-is-nullable-property");
+                            ClearNullableMetadata(propSchema);
                         }
                     }
                 }
@@ -66,6 +48,12 @@ public static class NullableTransformer
             if (schema.Enum is not null && schema.Enum.Any(x => x is null)) {
                 schema.Enum = schema.Enum.FilterOutNulls().ToList();
             }
+            if (context.ParameterDescription != null && context.ParameterDescription.Source.Id == "Path") {
+                if (context.ParameterDescription.IsRequired) {
+                    ClearNullableMetadata(schema);
+                }
+                ClearStringMetadata(schema);
+            }
             return Task.CompletedTask;
         });
 
@@ -73,6 +61,40 @@ public static class NullableTransformer
         options.CreateSchemaReferenceId = chainedDelegate.Invoke;
 
         return options;
+    }
+
+    private static void ClearStringMetadata(OpenApiSchema schema) {
+        if (schema.Type is not null &&
+            schema.Type.Value.HasFlag(JsonSchemaType.String) &&
+            (schema.Type.Value.HasFlag(JsonSchemaType.Integer) ||
+             schema.Type.Value.HasFlag(JsonSchemaType.Boolean) ||
+             schema.Type.Value.HasFlag(JsonSchemaType.Number))) {
+            schema.Type &= ~JsonSchemaType.String;
+            schema.Pattern = null;
+        }
+    }
+
+    private static void ClearNullableMetadata(OpenApiSchema schema) {
+        if (schema.Type is not null) {
+            schema.Type &= ~JsonSchemaType.Null;
+        }
+        if (schema.OneOf is not null) {
+            var nullBranch = schema.OneOf.FirstOrDefault(s => s.Type == JsonSchemaType.Null);
+            if (nullBranch is not null) {
+                schema.OneOf.Remove(nullBranch);
+            }
+            // If only one branch survives, collapse it into the parent so renderers don't show "oneOf [X]"
+            if (schema.OneOf.Count == 1 && schema.OneOf[0] is OpenApiSchema only) {
+                schema.Type = only.Type;
+                schema.Items = only.Items;
+                schema.Format = only.Format;
+                schema.Enum = only.Enum;
+                schema.Metadata = only.Metadata;
+                schema.AnyOf = only.AnyOf;
+                schema.OneOf = only.OneOf;
+            }
+        }
+        schema.Metadata?.Remove("x-is-nullable-property");
     }
 }
 #endif

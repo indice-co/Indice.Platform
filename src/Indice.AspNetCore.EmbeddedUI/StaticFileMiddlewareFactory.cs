@@ -43,7 +43,7 @@ internal class StaticFileMiddlewareFactory
             staticFileOptions.OnPrepareResponse = options.OnPrepareResponse;
         }
         var middleware = new StaticFileMiddleware(next, _hostingEnvironment, Options.Create(staticFileOptions), _loggerFactory);
-        var _ = _cache.TryAdd(requestPath, middleware);
+        _cache.TryAdd(requestPath, middleware);
         return middleware;
     }
 }

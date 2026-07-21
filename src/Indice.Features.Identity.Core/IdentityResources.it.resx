@@ -417,14 +417,14 @@
   <data name="AccountLockedEventDescription" xml:space="preserve">
     <value>Il tuo account è stato temporaneamente bloccato a causa di molteplici tentativi di accesso non riusciti. Questo blocco è una misura di sicurezza per proteggere le tue informazioni. Si prega di riprovare più tardi.</value>
   </data>
+  <data name="PasswordChangedEventDescription" xml:space="preserve">
+    <value>La tua password è stata modificata con successo.</value>
+  </data>
   <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
     <value>Metodo di autenticazione a due fattori modificato</value>
   </data>
   <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
     <value>Il tuo metodo di autenticazione a due fattori è stato aggiornato a: {0}.</value>
-  </data>
-  <data name="PasswordChangedEventDescription" xml:space="preserve">
-    <value>La tua password è stata modificata con successo.</value>
   </data>
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
     <value>Per favore, scegli la tua nuova password per continuare.</value>
@@ -486,13 +486,16 @@
   <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
     <value>Ricevi una notifica push tramite un dispositivo attendibile.</value>
   </data>
+  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
+    <value>Il campo 'Fuso orario' ha un formato non valido.</value>
+  </data>
   <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
     <value>Verifica con codice di recupero</value>
   </data>
   <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
     <value>Hai richiesto di accedere con un codice di recupero. Questo accesso non verrà ricordato finché non fornisci un metodo MFA.</value>
   </data>
-  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
-    <value>Il campo 'Fuso orario' ha un formato non valido.</value>
+  <data name="MfaTokenNotExpired" xml:space="preserve">
+    <value>Il codice attuale non è ancora scaduto. Attendere prima di richiederne uno nuovo.</value>
   </data>
 </root>

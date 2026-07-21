@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="%(Lang)" data-theme="dex">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
+    <title>%(DocumentTitle)</title>
+    <base href="%(Path)/" />
+    <link rel="icon" type="image/png" href="%(Path)/dex-logo.png" />
+    <link rel="shortcut icon" type="image/x-icon" href="%(Path)/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="%(Path)/styles-*.css" />
+    %(HeadContent)
+</head>
+<body class="bg-base-200 text-base-content">
+    <app-root host="%(Host)"
+              authority="%(Authority)"
+              clientId="%(ClientId)"
+              path="%(Path)"
+              api="%(ApiBase)"
+              culture="%(Culture)"
+              version="%(ProductVersion)"
+              scopes="%(Scopes)">
+    </app-root>
+    <script src="%(Path)/main-*.js" type="module"></script>
+</body>
+</html>

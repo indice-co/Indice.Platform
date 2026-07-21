@@ -9,6 +9,7 @@ using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.TokenProviders;
+using Indice.Features.Identity.SignInLogs.Events;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -58,9 +59,12 @@ public static class IdentityBuilderExtensions
     /// <typeparam name="TUser">The type of <see cref="User"/> used by the identity system.</typeparam>
     /// <param name="builder">The type of builder for configuring identity services.</param>
     public static IdentityBuilder AddExtendedUserManager<TUser>(this IdentityBuilder builder) where TUser : User, new() {
+        builder.Services.AddGeoIPResolver();
         builder.Services.AddPlatformEventHandler<UserBlockedEvent, UserBlockedEventHandler>();
         builder.Services.AddPlatformEventHandler<UserLoginEvent, UserLoginEventHandler>();
         builder.Services.AddPlatformEventHandler<UserPasswordLoginEvent, UserPasswordLoginEventHandler>();
+        builder.Services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
+        builder.Services.AddPlatformEventHandler<TwoFactorPreferenceChangedEvent, TwoFactorPreferenceChangedEventHandler>();
         builder.AddEntityFrameworkStores<ExtendedIdentityDbContext<TUser, Role>>()
                .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<TUser, Role>, TUser, Role>>()
                .AddUserManager<ExtendedUserManager<TUser>>();

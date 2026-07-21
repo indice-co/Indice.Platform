@@ -295,3 +295,5 @@ package-lock.json
 nuget.exe
 /CLAUDE.md
 /.claude
+# LLM-maintained wiki (second brain) — local for now, will be committed once mature
+/docs/wiki/

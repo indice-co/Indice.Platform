@@ -103,8 +103,15 @@ public abstract class BaseMfaModel : BasePageModel
         }
         if (Input.ResendOtp) {
             var otpResult = await SendOtpAsync();
-            if (!otpResult.Success) {
-                ModelState.AddModelError(string.Empty, otpResult.Error!);
+            switch (otpResult) {
+                case { Success: false, IsRateLimited: true }:
+                    ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.MfaTokenNotExpired);
+                    break;
+                case { Success: false }:
+                    ModelState.AddModelError(string.Empty, otpResult.Error!);
+                    break;
+                default:
+                    break;
             }
             return Page();
         }

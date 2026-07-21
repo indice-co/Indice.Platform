@@ -45,8 +45,10 @@ internal class MediaFolderStore : IMediaFolderStore
             .ToListAsync();
     }
     /// <inheritdoc/>
-    public async Task<Guid> Create(DbMediaFolder folder) {
-        folder.Path = await FindPathAsync(_dbContext, folder.ParentId, folder.Name);
+    public async Task<Guid> Create(DbMediaFolder folder, bool normalizePath = true) {
+        if (normalizePath) { 
+            folder.Path = await FindPathAsync(_dbContext, folder.ParentId, folder.Name);
+        }
         _dbContext.Folders.Add(folder);
         await _dbContext.SaveChangesAsync();
         return folder.Id;
