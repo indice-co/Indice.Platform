@@ -31,6 +31,7 @@ namespace Indice.Features.Identity.Tests;
 public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
 {
     private readonly HttpClient _httpClient;
+    private readonly TestServer _server;
     private readonly ITestOutputHelper _output;
     private IServiceProvider _serviceProvider;
     private string _identityDatabaseName = $"IdentityDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
@@ -45,7 +46,11 @@ public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
         TestUser = await InitTestUserAsync();
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public Task DisposeAsync() {
+        _httpClient.Dispose();
+        _server.Dispose();
+        return Task.CompletedTask;
+    }
     
     public MobileSessionIdServerSideSessionsTests(ITestOutputHelper output) {
         _output = output;
@@ -108,6 +113,7 @@ public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
             app.IdentityStoreSetup();
         });
         var server = new TestServer(builder);
+        _server = server;
         var handler = server.CreateHandler();
         _serviceProvider = server.Services;
         _httpClient = new HttpClient(handler) {

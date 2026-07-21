@@ -216,6 +216,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         """;
     // Private fields
     private readonly HttpClient _httpClient;
+    private readonly TestServer _server;
     private readonly ITestOutputHelper _output;
     private IServiceProvider _serviceProvider;
     private string _identityDatabaseName = $"IdentityDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
@@ -284,6 +285,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             app.IdentityStoreSetup();
         });
         var server = new TestServer(builder);
+        _server = server;
         var handler = server.CreateHandler();
         _serviceProvider = server.Services;
         _httpClient = new HttpClient(handler) {
@@ -297,7 +299,11 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         TestUser = await InitTestUserAsync();
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public Task DisposeAsync() {
+        _httpClient.Dispose();
+        _server.Dispose();
+        return Task.CompletedTask;
+    }
 
     #region Device Authentication Tests
     [Fact]
