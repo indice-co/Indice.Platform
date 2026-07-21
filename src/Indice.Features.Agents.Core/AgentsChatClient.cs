@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using Azure;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
