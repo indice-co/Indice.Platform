@@ -36,6 +36,10 @@ public class AgentsChatClient([FromKeyedServices("Default")] Workflow workflow, 
     public async Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default) {
         var stream = GetStreamingResponseAsync(messages, options, cancellationToken);
         var response = await stream.ToChatResponseAsync();
+        // Step progress contents are ephemeral (streaming UI only) and must not survive in the composed response.
+        foreach (var message in response.Messages) {
+            message.Contents = message.Contents.Where(content => content is not StepProgressContent).ToList();
+        }
         return response;
     }
 
@@ -56,9 +60,9 @@ public class AgentsChatClient([FromKeyedServices("Default")] Workflow workflow, 
                     update.ConversationId = state.ConversationId;
                     yield return update;
                     break;
-                // One progress event per step start; unmapped executor ids are skipped.
+                // One progress event per step start; unmapped executor ids are skipped. Emitted as ephemeral content, stripped from the composed response.
                 case ExecutorInvokedEvent invoked when StepLabels.TryGetValue(invoked.ExecutorId, out var label):
-                    yield return new ChatResponseUpdate(ChatRole.Assistant, [new TextReasoningContent(label)]) { ConversationId = state.ConversationId };
+                    yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = state.ConversationId };
                     break;
                 // A throwing step halts the run; keep the first (richer) message.
                 case WorkflowErrorEvent error:
