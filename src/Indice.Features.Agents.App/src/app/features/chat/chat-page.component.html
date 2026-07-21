@@ -21,9 +21,14 @@
         [step]="currentStep()"
         [error]="error()"
         [busy]="threadLoading()"
+        [questionsTotal]="questionsTotal()"
         (examplePick)="send($event)"
       />
     </div>
-    <app-chat-composer [streaming]="isStreaming()" (send)="send($event)" (stop)="stop()" />
+    <app-chat-composer
+      [streaming]="isStreaming()"
+      (send)="send($event)"
+      (stop)="stop()"
+    />
   </main>
 </div>

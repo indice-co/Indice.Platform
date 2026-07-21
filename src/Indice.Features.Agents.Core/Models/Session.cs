@@ -21,6 +21,15 @@ public class Session
     /// <summary>Cumulative completion-token usage across all turns in this session.</summary>
     public long TotalCompletionTokens { get; init; }
 
+    /// <summary>Number of persisted messages in this session. Each turn appends two rows (user + assistant).</summary>
+    public int MessageCount { get; init; }
+
+    /// <summary>Questions used in this session so far, for a <c>used/total</c> display. <c>null</c> when the message limit is disabled.</summary>
+    public int? QuestionsUsed { get; init; }
+
+    /// <summary>Total questions allowed per session, for a <c>used/total</c> display. <c>null</c> when the message limit is disabled.</summary>
+    public int? QuestionsTotal { get; init; }
+
     /// <summary>Recent messages in chronological order (oldest first), capped at the configured history window.</summary>
     public IReadOnlyList<ChatMessage> Messages { get; init; } = Array.Empty<ChatMessage>();
 }

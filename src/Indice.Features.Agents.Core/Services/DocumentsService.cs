@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows;
@@ -11,24 +12,40 @@ namespace Indice.Features.Agents.Core.Services;
 public class DocumentsService : IDocumentsService
 {
     private readonly AgentsDbContext _db;
+    private readonly ISourceLinkGenerator _sourceLinkGenerator;
     private readonly string _embeddingModel;
     private readonly int _embeddingDimensions;
 
     /// <summary>Creates a new <see cref="DocumentsService"/>.</summary>
-    public DocumentsService(AgentsDbContext db, IOptions<AgentsOptions> options) {
-        _db = db;
+    public DocumentsService(AgentsDbContext db, IOptions<AgentsOptions> options, ISourceLinkGenerator sourceLinkGenerator) {
+        _db = db ?? throw new ArgumentNullException(nameof(db));
+        _sourceLinkGenerator = sourceLinkGenerator ?? throw new ArgumentNullException(nameof(sourceLinkGenerator));
         _embeddingModel = options.Value.AzureOpenAI.Deployments.Embedding ?? string.Empty;
         _embeddingDimensions = options.Value.AzureOpenAI.EmbeddingDimensions;
     }
 
     /// <inheritdoc/>
-    public async Task<(Guid Id, string ContentHash)?> FindBySourceAsync(string source, CancellationToken cancellationToken) {
-        var hit = await _db.Set<DbDocument>()
+    public async Task<SourceDocument?> FindBySourceAsync(string source, bool includeData, CancellationToken cancellationToken) {
+        Expression<Func<DbDocument, bool>> predicate = d => d.Source == source;
+        if (Guid.TryParse(source, out var documentId)) {
+            predicate = d => d.Id == documentId;
+        }
+        var query = _db.Set<DbDocument>()
             .AsNoTracking()
-            .Where(d => d.Source == source)
-            .Select(d => new { d.Id, d.ContentHash })
-            .FirstOrDefaultAsync(cancellationToken);
-        return hit is null ? null : (hit.Id, hit.ContentHash);
+            .Where(predicate)
+            .Select(d => new SourceDocument { 
+                Id = d.Id, 
+                ContentHash = d.ContentHash, 
+                Source = d.Source,
+                IsPrivate = d.IsPrivate,
+                ContentType = d.Blob == null ? "application/markdown" : d.Blob.ContentType,
+                ContentLength = d.Blob == null ? -1 : d.Blob.ContentLength,
+                FileName = d.Blob == null ? d.Title : d.Blob.FileName,
+                LastModified = d.Blob == null ? null : d.Blob.LastModified,
+                Data = includeData && d.Blob != null ? d.Blob.Data : null
+            });
+        var hit = await query.FirstOrDefaultAsync(cancellationToken);
+        return hit;
     }
 
     /// <inheritdoc/>
@@ -57,6 +74,14 @@ public class DocumentsService : IDocumentsService
             Status = DocumentStatus.Ingested,
             ChunkCount = chunks.Count,
             IngestedAt = now,
+            IsPrivate = document.IsPrivate,
+            Blob = new DbDocumentBlob {
+                ContentType = document.ContentType,
+                ContentLength = document.ContentLength,
+                FileName = document.FileName,
+                Data = document.FileData,
+                ETag = document.ContentHash,
+            }
         });
 
         foreach (var ec in chunks) {
@@ -92,8 +117,17 @@ public class DocumentsService : IDocumentsService
             .OrderBy(c => EF.Functions.VectorDistance("cosine", c.Embedding, sqlVector))
             .Take(topK)
             .Select(c => new RetrievedChunk {
-                ChunkId = c.Id,
-                DocumentId = c.DocumentId,
+                Id = c.Id,
+                Source = new SourceDocumentLink {
+                    Id = c.DocumentId,
+                    SourceTitle = c.Document.Title,
+                    SourceUrl = _sourceLinkGenerator.GenerateLink(c.Document.Source),
+                    IsPrivate = c.Document.IsPrivate,
+                    ContentHash = c.Document.ContentHash,
+                    ContentType = c.Document.Blob == null ? "application/markdown" : c.Document.Blob.ContentType,
+                    Length = c.Document.Blob == null ? -1 : c.Document.Blob.ContentLength,
+                    FileName = c.Document.Blob == null ? c.Document.Title : c.Document.Blob.FileName,
+                },
                 Title = c.Title,
                 HeadingPath = c.HeadingPath,
                 Content = c.Content,

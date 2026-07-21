@@ -15,6 +15,10 @@ public class Citation
     /// <summary>Optional heading breadcrumb for display, e.g. <c>H1 &gt; H2 &gt; H3</c>.</summary>
     public string? HeadingPath { get; init; }
 
+    /// <summary>Order number of the citation within the message for display. 
+    /// Normalized relevance score. Starts from 1 and increments. Higher numbers indicate lower relevance.</summary>
+    public int Number { get; set; }
+
     /// <summary>Relevance score (cosine similarity for retrieval, 0..1 for rerank).</summary>
     public double Score { get; init; }
 }

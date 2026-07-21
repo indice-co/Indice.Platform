@@ -19,4 +19,14 @@ public class IngestedDocument
 
     /// <summary>SHA-256 of <c>Title|Category|Language|Body</c> (upper-hex, 64 chars). Drives re-upload dedup.</summary>
     public string ContentHash { get; init; } = string.Empty;
+    /// <summary>Indicates whether the document is private and should not be exposed to unauthorized users.</summary>
+    public bool IsPrivate { get; set; }
+    /// <summary>MIME / media type of the file.</summary>
+    public string ContentType { get; set; } = null!;
+    /// <summary>Size of the file in bytes.</summary>
+    public long ContentLength { get; set; }
+    /// <summary>Original filename.</summary>
+    public string FileName { get; set; } = null!;
+    /// <summary>Binary data of the file. Not loaded by default.</summary>
+    public byte[]? FileData { get; set; }
 }

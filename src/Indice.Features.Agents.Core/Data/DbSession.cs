@@ -26,6 +26,9 @@ public class DbSession
     /// <summary>Cumulative completion-token usage across all turns in this session.</summary>
     public long TotalCompletionTokens { get; set; }
 
+    /// <summary>Number of persisted messages in this session. Each turn appends two rows (user + assistant).</summary>
+    public int MessageCount { get; set; }
+
     /// <summary>Optional per-session metadata (JSON) — e.g. default filters or language preferences.</summary>
     public string? MetadataJson { get; set; }
 

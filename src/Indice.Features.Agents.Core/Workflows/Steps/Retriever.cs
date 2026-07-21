@@ -39,8 +39,8 @@ public sealed class Retriever : Executor<PipelineStepContext<QueryRewriteOutput>
             var hits = await _documentsService.SearchAsync(vector, filters, topK, _options.Retrieval.MinScore, cancellationToken);
             //kinda optional , but if the same chunk is returned for multiple rewrites, we want to keep the highest score
             //could also become a weighted function of the score and the rewrite rank, but let's keep it simple for now
-            foreach (var hit in hits.Where(hit => !relevantAnswers.TryGetValue(hit.ChunkId, out var prior) || hit.Score > prior.Score)) {
-                relevantAnswers[hit.ChunkId] = hit;
+            foreach (var hit in hits.Where(hit => !relevantAnswers.TryGetValue(hit.Id, out var prior) || hit.Score > prior.Score)) {
+                relevantAnswers[hit.Id] = hit;
             }
         }
         var candidates = relevantAnswers.Values

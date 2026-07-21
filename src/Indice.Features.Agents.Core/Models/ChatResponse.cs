@@ -13,11 +13,23 @@ public class ChatResponse
     public string? Answer { get; init; }
 
     /// <summary>Citations supporting the answer; empty for out-of-scope responses and on error.</summary>
-    public IReadOnlyList<Citation> Citations { get; init; } = Array.Empty<Citation>();
+    public IReadOnlyList<Citation> Citations { get; init; } = [];
+
+    /// <summary>Links to the source documents that were retrieved and used to compose the answer; empty for out-of-scope responses and on error.</summary>
+    public IReadOnlyList<SourceDocumentLink> Sources { get; init; } = [];
 
     /// <summary>True when a pipeline step threw and the workflow halted. Out-of-scope is NOT a failure — its refusal text flows through <see cref="Answer"/>.</summary>
     public bool Failed { get; init; }
 
     /// <summary>Error message from the step that threw; <c>null</c> when <see cref="Failed"/> is false.</summary>
     public string? FailureReason { get; init; }
+
+    /// <summary>True when the turn was blocked by a session usage limit — <see cref="Answer"/> carries the predefined limit message, nothing was persisted, and <see cref="MessageId"/> is empty.</summary>
+    public bool LimitReached { get; init; }
+
+    /// <summary>Questions used in this session so far, for a <c>used/total</c> display. <c>null</c> when the message limit is disabled.</summary>
+    public int? QuestionsUsed { get; init; }
+
+    /// <summary>Total questions allowed per session, for a <c>used/total</c> display. <c>null</c> when the message limit is disabled.</summary>
+    public int? QuestionsTotal { get; init; }
 }

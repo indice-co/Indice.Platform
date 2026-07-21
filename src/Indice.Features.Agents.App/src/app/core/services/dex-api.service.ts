@@ -16,14 +16,24 @@ export const DEX_API_BASE_URL = new InjectionToken<string>('DEX_API_BASE_URL');
 
 export interface IDexApiService {
     /**
-     * POST /ingest/faq — multipart upload of a single FAQ-format Markdown file.
+     * Clears the knowledge base.
+     * @return No Content
+     */
+    clear(): Observable<void>;
+    /**
+     * Ingests a document into the knowledge base.
+     * @param documentType (optional) 
      * @param category (optional) 
      * @param language (optional) 
+     * @param markdownSourceFile (optional) 
+     * @param actualSourceFile (optional) 
+     * @param actualSourceUrl (optional) 
+     * @param isPrivate (optional) 
      * @return OK
      */
-    uploadFaq(category: string | null | undefined, language: string | null | undefined): Observable<IngestionReport>;
+    documentIngest(documentType: DocumentType | undefined, category: string | undefined, language: string | undefined, markdownSourceFile: FileParameter | undefined, actualSourceFile: FileParameter | undefined, actualSourceUrl: string | null | undefined, isPrivate: boolean | null | undefined): Observable<IngestionReport>;
     /**
-     * GET /my/chats — paged list of the caller's sessions.
+     * List the caller's chat sessions, paged.
      * @param page (optional) The current page of the list. Default is 1.
      * @param size (optional) The size of the list. Default is 100
      * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
@@ -32,45 +42,50 @@ export interface IDexApiService {
      */
     list(page: number | null | undefined, size: number | null | undefined, sort: string | null | undefined, search: string | null | undefined): Observable<SessionListItemResultSet>;
     /**
-     * POST /my/chats — creates a session with the first question.
+     * Create a chat session with the first question.
      * @return Created
      */
     create(body: ChatRequest): Observable<ChatResponse>;
     /**
-     * GET /my/chats/{id} — session detail with recent messages.
+     * Get a chat session with its recent messages.
      * @return OK
      */
-    get(id: string): Observable<Session>;
+    getChatSession(chatId: string): Observable<Session>;
     /**
-     * DELETE /my/chats/{id} — removes a session and its messages.
+     * Delete a chat session and its messages.
      * @return No Content
      */
-    delete(id: string): Observable<void>;
+    delete(chatId: string): Observable<void>;
     /**
-     * POST /my/chats/{id}/messages — posts a follow-up turn.
+     * Post a follow-up message to an existing chat session.
      * @return OK
      */
-    sendMessage(id: string, body: ChatRequest): Observable<ChatResponse>;
+    sendMessage(chatId: string, body: ChatRequest): Observable<ChatResponse>;
     /**
-     * POST /my/chats/{id}/messages/stream — streams a follow-up turn over SSE.
+     * Stream a follow-up turn over Server-Sent Events.
      * @return OK
      */
-    streamMessage(id: string, body: ChatRequest): Observable<SseItemOfChatStreamEvent>;
+    streamMessage(chatId: string, body: ChatRequest): Observable<SseItemOfChatStreamEvent>;
     /**
-     * POST /my/chats/stream — creates a session and streams the first turn over SSE.
+     * Create a chat session and stream the first turn over Server-Sent Events.
      * @return OK
      */
     streamCreate(body: ChatRequest): Observable<SseItemOfChatStreamEvent>;
     /**
-     * GET /my/profile — returns the caller's profile, provisioning it on first access.
+     * Get the caller's profile.
      * @return OK
      */
     getMe(): Observable<Profile>;
     /**
-     * PUT /my/profile — updates the caller's app-specific preferences.
+     * Update the caller's preferences.
      * @return OK
      */
     updateMe(body: UpdateUserRequest): Observable<Profile>;
+    /**
+     * Retrieves the actual source document.
+     * @param download (optional) 
+     */
+    getActualSource(path: string, download: boolean | null | undefined): Observable<void>;
 }
 
 @Injectable({
@@ -87,36 +102,139 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * POST /ingest/faq — multipart upload of a single FAQ-format Markdown file.
-     * @param category (optional) 
-     * @param language (optional) 
-     * @return OK
+     * Clears the knowledge base.
+     * @return No Content
      */
-    uploadFaq(category: string | null | undefined, language: string | null | undefined): Observable<IngestionReport> {
-        let url_ = this.baseUrl + "/ingest/faq";
+    clear(): Observable<void> {
+        let url_ = this.baseUrl + "/documents/clear";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = new FormData();
-        if (category !== null && category !== undefined)
-            content_.append("category", category.toString());
-        if (language !== null && language !== undefined)
-            content_.append("language", language.toString());
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processClear(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processClear(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processClear(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 422) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result422: any = null;
+            let resultData422 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result422 = ProblemDetails.fromJS(resultData422);
+            return throwException("Unprocessable Entity", status, _responseText, _headers, result422);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Ingests a document into the knowledge base.
+     * @param documentType (optional) 
+     * @param category (optional) 
+     * @param language (optional) 
+     * @param markdownSourceFile (optional) 
+     * @param actualSourceFile (optional) 
+     * @param actualSourceUrl (optional) 
+     * @param isPrivate (optional) 
+     * @return OK
+     */
+    documentIngest(documentType: DocumentType | undefined, category: string | undefined, language: string | undefined, markdownSourceFile: FileParameter | undefined, actualSourceFile: FileParameter | undefined, actualSourceUrl: string | null | undefined, isPrivate: boolean | null | undefined): Observable<IngestionReport> {
+        let url_ = this.baseUrl + "/documents/ingest";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let content_ = "";
+        if (documentType === null)
+            throw new globalThis.Error("The parameter 'documentType' cannot be null.");
+        else if (documentType !== undefined)
+            content_ += encodeURIComponent("documentType") + "=" + encodeURIComponent("" + documentType) + "&";
+        if (category === null)
+            throw new globalThis.Error("The parameter 'category' cannot be null.");
+        else if (category !== undefined)
+            content_ += encodeURIComponent("category") + "=" + encodeURIComponent("" + category) + "&";
+        if (language === null)
+            throw new globalThis.Error("The parameter 'language' cannot be null.");
+        else if (language !== undefined)
+            content_ += encodeURIComponent("language") + "=" + encodeURIComponent("" + language) + "&";
+        if (markdownSourceFile === null)
+            throw new globalThis.Error("The parameter 'markdownSourceFile' cannot be null.");
+        else if (markdownSourceFile !== undefined)
+            content_ += encodeURIComponent("markdownSourceFile") + "=" + encodeURIComponent("" + markdownSourceFile) + "&";
+        if (actualSourceFile === null)
+            throw new globalThis.Error("The parameter 'actualSourceFile' cannot be null.");
+        else if (actualSourceFile !== undefined)
+            content_ += encodeURIComponent("actualSourceFile") + "=" + encodeURIComponent("" + actualSourceFile) + "&";
+        if (actualSourceUrl !== undefined)
+            content_ += encodeURIComponent("actualSourceUrl") + "=" + encodeURIComponent("" + actualSourceUrl) + "&";
+        if (isPrivate !== undefined)
+            content_ += encodeURIComponent("isPrivate") + "=" + encodeURIComponent("" + isPrivate) + "&";
+        content_ = content_.replace(/&$/, "");
 
         let options_ : any = {
             body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "multipart/form-data",
                 "Accept": "application/json"
             })
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUploadFaq(response_);
+            return this.processDocumentIngest(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processUploadFaq(response_ as any);
+                    return this.processDocumentIngest(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<IngestionReport>;
                 }
@@ -125,7 +243,7 @@ export class DexApiService implements IDexApiService {
         }));
     }
 
-    protected processUploadFaq(response: HttpResponseBase): Observable<IngestionReport> {
+    protected processDocumentIngest(response: HttpResponseBase): Observable<IngestionReport> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -176,7 +294,7 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * GET /my/chats — paged list of the caller's sessions.
+     * List the caller's chat sessions, paged.
      * @param page (optional) The current page of the list. Default is 1.
      * @param size (optional) The size of the list. Default is 100
      * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
@@ -261,7 +379,7 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * POST /my/chats — creates a session with the first question.
+     * Create a chat session with the first question.
      * @return Created
      */
     create(body: ChatRequest): Observable<ChatResponse> {
@@ -338,14 +456,14 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * GET /my/chats/{id} — session detail with recent messages.
+     * Get a chat session with its recent messages.
      * @return OK
      */
-    get(id: string): Observable<Session> {
-        let url_ = this.baseUrl + "/my/chats/{id}";
-        if (id === undefined || id === null)
-            throw new globalThis.Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    getChatSession(chatId: string): Observable<Session> {
+        let url_ = this.baseUrl + "/my/chats/{chatId}";
+        if (chatId === undefined || chatId === null)
+            throw new globalThis.Error("The parameter 'chatId' must be defined.");
+        url_ = url_.replace("{chatId}", encodeURIComponent("" + chatId));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -357,11 +475,11 @@ export class DexApiService implements IDexApiService {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGet(response_);
+            return this.processGetChatSession(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGet(response_ as any);
+                    return this.processGetChatSession(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<Session>;
                 }
@@ -370,7 +488,7 @@ export class DexApiService implements IDexApiService {
         }));
     }
 
-    protected processGet(response: HttpResponseBase): Observable<Session> {
+    protected processGetChatSession(response: HttpResponseBase): Observable<Session> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -418,14 +536,14 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * DELETE /my/chats/{id} — removes a session and its messages.
+     * Delete a chat session and its messages.
      * @return No Content
      */
-    delete(id: string): Observable<void> {
-        let url_ = this.baseUrl + "/my/chats/{id}";
-        if (id === undefined || id === null)
-            throw new globalThis.Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    delete(chatId: string): Observable<void> {
+        let url_ = this.baseUrl + "/my/chats/{chatId}";
+        if (chatId === undefined || chatId === null)
+            throw new globalThis.Error("The parameter 'chatId' must be defined.");
+        url_ = url_.replace("{chatId}", encodeURIComponent("" + chatId));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -494,14 +612,14 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * POST /my/chats/{id}/messages — posts a follow-up turn.
+     * Post a follow-up message to an existing chat session.
      * @return OK
      */
-    sendMessage(id: string, body: ChatRequest): Observable<ChatResponse> {
-        let url_ = this.baseUrl + "/my/chats/{id}/messages";
-        if (id === undefined || id === null)
-            throw new globalThis.Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    sendMessage(chatId: string, body: ChatRequest): Observable<ChatResponse> {
+        let url_ = this.baseUrl + "/my/chats/{chatId}/messages";
+        if (chatId === undefined || chatId === null)
+            throw new globalThis.Error("The parameter 'chatId' must be defined.");
+        url_ = url_.replace("{chatId}", encodeURIComponent("" + chatId));
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -578,14 +696,14 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * POST /my/chats/{id}/messages/stream — streams a follow-up turn over SSE.
+     * Stream a follow-up turn over Server-Sent Events.
      * @return OK
      */
-    streamMessage(id: string, body: ChatRequest): Observable<SseItemOfChatStreamEvent> {
-        let url_ = this.baseUrl + "/my/chats/{id}/messages/stream";
-        if (id === undefined || id === null)
-            throw new globalThis.Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    streamMessage(chatId: string, body: ChatRequest): Observable<SseItemOfChatStreamEvent> {
+        let url_ = this.baseUrl + "/my/chats/{chatId}/messages/stream";
+        if (chatId === undefined || chatId === null)
+            throw new globalThis.Error("The parameter 'chatId' must be defined.");
+        url_ = url_.replace("{chatId}", encodeURIComponent("" + chatId));
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -662,7 +780,7 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * POST /my/chats/stream — creates a session and streams the first turn over SSE.
+     * Create a chat session and stream the first turn over Server-Sent Events.
      * @return OK
      */
     streamCreate(body: ChatRequest): Observable<SseItemOfChatStreamEvent> {
@@ -739,7 +857,7 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * GET /my/profile — returns the caller's profile, provisioning it on first access.
+     * Get the caller's profile.
      * @return OK
      */
     getMe(): Observable<Profile> {
@@ -812,7 +930,7 @@ export class DexApiService implements IDexApiService {
     }
 
     /**
-     * PUT /my/profile — updates the caller's app-specific preferences.
+     * Update the caller's preferences.
      * @return OK
      */
     updateMe(body: UpdateUserRequest): Observable<Profile> {
@@ -887,18 +1005,88 @@ export class DexApiService implements IDexApiService {
         }
         return _observableOf(null as any);
     }
+
+    /**
+     * Retrieves the actual source document.
+     * @param download (optional) 
+     */
+    getActualSource(path: string, download: boolean | null | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/sources/{path}?";
+        if (path === undefined || path === null)
+            throw new globalThis.Error("The parameter 'path' must be defined.");
+        url_ = url_.replace("{path}", encodeURIComponent("" + path));
+        if (download !== undefined && download !== null)
+            url_ += "download=" + encodeURIComponent("" + download) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetActualSource(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetActualSource(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processGetActualSource(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
-/** A single turn (user or assistant) in a chat session. DTO exposed at the service boundary; mirrors DbSessionMessage. */
 export class ChatMessage implements IChatMessage {
-    /** Message identifier. */
     id?: string;
-    /** Author role of this message. */
-    role?: ChatRole;
-    /** Message body. */
+    role?: ChatMessageRole;
     content?: string;
-    /** Creation timestamp. */
     createdAt?: Date;
+    citations?: Citation[];
 
     constructor(data?: IChatMessage) {
         if (data) {
@@ -915,6 +1103,11 @@ export class ChatMessage implements IChatMessage {
             this.role = _data["role"];
             this.content = _data["content"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
+            if (Array.isArray(_data["citations"])) {
+                this.citations = [] as any;
+                for (let item of _data["citations"])
+                    this.citations!.push(Citation.fromJS(item));
+            }
         }
     }
 
@@ -931,25 +1124,31 @@ export class ChatMessage implements IChatMessage {
         data["role"] = this.role;
         data["content"] = this.content;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
+        if (Array.isArray(this.citations)) {
+            data["citations"] = [];
+            for (let item of this.citations)
+                data["citations"].push(item ? item.toJSON() : undefined as any);
+        }
         return data;
     }
 }
 
-/** A single turn (user or assistant) in a chat session. DTO exposed at the service boundary; mirrors DbSessionMessage. */
 export interface IChatMessage {
-    /** Message identifier. */
     id?: string;
-    /** Author role of this message. */
-    role?: ChatRole;
-    /** Message body. */
+    role?: ChatMessageRole;
     content?: string;
-    /** Creation timestamp. */
     createdAt?: Date;
+    citations?: Citation[];
 }
 
-/** Body accepted by both `POST /my/chats` (creates the session inline) and `POST /my/chats/{id}/messages`. */
+export enum ChatMessageRole {
+    User = "user",
+    Assistant = "assistant",
+    System = "system",
+    Tool = "tool",
+}
+
 export class ChatRequest implements IChatRequest {
-    /** The end-user message text. */
     text?: string;
 
     constructor(data?: IChatRequest) {
@@ -981,26 +1180,20 @@ export class ChatRequest implements IChatRequest {
     }
 }
 
-/** Body accepted by both `POST /my/chats` (creates the session inline) and `POST /my/chats/{id}/messages`. */
 export interface IChatRequest {
-    /** The end-user message text. */
     text?: string;
 }
 
-/** Response returned by both `POST /my/chats` and `POST /my/chats/{id}/messages`. */
 export class ChatResponse implements IChatResponse {
-    /** Identifier of the session this turn belongs to. */
     sessionId?: string;
-    /** Identifier of the assistant message persisted for this turn. */
     messageId?: string;
-    /** The pipeline's answer — grounded when in-scope, or the polite out-of-scope refusal text when not. */
     answer?: string | undefined;
-    /** Citations supporting the answer; empty for out-of-scope responses and on error. */
     citations?: Citation[];
-    /** True when a pipeline step threw and the workflow halted. Out-of-scope is NOT a failure — its refusal text flows through string? ChatResponse.Answer. */
     failed?: boolean;
-    /** Error message from the step that threw; `null` when bool ChatResponse.Failed is false. */
     failureReason?: string | undefined;
+    limitReached?: boolean;
+    questionsUsed?: number | undefined;
+    questionsTotal?: number | undefined;
 
     constructor(data?: IChatResponse) {
         if (data) {
@@ -1023,6 +1216,9 @@ export class ChatResponse implements IChatResponse {
             }
             this.failed = _data["failed"];
             this.failureReason = _data["failureReason"];
+            this.limitReached = _data["limitReached"];
+            this.questionsUsed = _data["questionsUsed"];
+            this.questionsTotal = _data["questionsTotal"];
         }
     }
 
@@ -1045,54 +1241,38 @@ export class ChatResponse implements IChatResponse {
         }
         data["failed"] = this.failed;
         data["failureReason"] = this.failureReason;
+        data["limitReached"] = this.limitReached;
+        data["questionsUsed"] = this.questionsUsed;
+        data["questionsTotal"] = this.questionsTotal;
         return data;
     }
 }
 
-/** Response returned by both `POST /my/chats` and `POST /my/chats/{id}/messages`. */
 export interface IChatResponse {
-    /** Identifier of the session this turn belongs to. */
     sessionId?: string;
-    /** Identifier of the assistant message persisted for this turn. */
     messageId?: string;
-    /** The pipeline's answer — grounded when in-scope, or the polite out-of-scope refusal text when not. */
     answer?: string | undefined;
-    /** Citations supporting the answer; empty for out-of-scope responses and on error. */
     citations?: Citation[];
-    /** True when a pipeline step threw and the workflow halted. Out-of-scope is NOT a failure — its refusal text flows through string? ChatResponse.Answer. */
     failed?: boolean;
-    /** Error message from the step that threw; `null` when bool ChatResponse.Failed is false. */
     failureReason?: string | undefined;
+    limitReached?: boolean;
+    questionsUsed?: number | undefined;
+    questionsTotal?: number | undefined;
 }
 
-/** Author role of a chat message exposed at the service boundary. Values match Microsoft.Extensions.AI.ChatRole (lowercase on the wire). */
-export enum ChatRole {
-    User = "user",
-    Assistant = "assistant",
-    System = "system",
-    Tool = "tool",
-}
-
-/** Wire model for a single Server-Sent Event emitted while streaming a chat turn. The string ChatStreamEvent.Type    discriminator mirrors the SSE `event:` name and tells the client which fields are populated:    * stepstring? ChatStreamEvent.Step — a pipeline-progress label. * deltastring? ChatStreamEvent.Text — an incremental chunk of the answer. * completeGuid? ChatStreamEvent.SessionId, Guid? ChatStreamEvent.MessageId, string? ChatStreamEvent.Answer, IReadOnlyList&lt;Citation&gt;? ChatStreamEvent.Citations, bool? ChatStreamEvent.Failed, string? ChatStreamEvent.FailureReason. */
 export class ChatStreamEvent implements IChatStreamEvent {
-    /** Event discriminator: `step`, `delta`, or `complete`. */
     type?: string;
-    /** Human-friendly progress label; populated on `step` events. */
     step?: string | undefined;
-    /** Incremental answer text; populated on `delta` events. */
     text?: string | undefined;
-    /** The full answer; populated on the terminal `complete` event. */
     answer?: string | undefined;
-    /** Citations supporting the answer; populated on `complete`. */
     citations?: Citation[] | undefined;
-    /** Identifier of the session this turn belongs to; populated on `complete`. */
     sessionId?: string | undefined;
-    /** Identifier of the persisted assistant message; populated on `complete`. */
     messageId?: string | undefined;
-    /** True when a pipeline step threw and the workflow halted; populated on `complete`. */
     failed?: boolean | undefined;
-    /** Error message from the step that threw; populated on `complete` when bool? ChatStreamEvent.Failed is true. */
     failureReason?: string | undefined;
+    limitReached?: boolean | undefined;
+    questionsUsed?: number | undefined;
+    questionsTotal?: number | undefined;
 
     constructor(data?: IChatStreamEvent) {
         if (data) {
@@ -1118,6 +1298,9 @@ export class ChatStreamEvent implements IChatStreamEvent {
             this.messageId = _data["messageId"];
             this.failed = _data["failed"];
             this.failureReason = _data["failureReason"];
+            this.limitReached = _data["limitReached"];
+            this.questionsUsed = _data["questionsUsed"];
+            this.questionsTotal = _data["questionsTotal"];
         }
     }
 
@@ -1143,43 +1326,34 @@ export class ChatStreamEvent implements IChatStreamEvent {
         data["messageId"] = this.messageId;
         data["failed"] = this.failed;
         data["failureReason"] = this.failureReason;
+        data["limitReached"] = this.limitReached;
+        data["questionsUsed"] = this.questionsUsed;
+        data["questionsTotal"] = this.questionsTotal;
         return data;
     }
 }
 
-/** Wire model for a single Server-Sent Event emitted while streaming a chat turn. The string ChatStreamEvent.Type    discriminator mirrors the SSE `event:` name and tells the client which fields are populated:    * stepstring? ChatStreamEvent.Step — a pipeline-progress label. * deltastring? ChatStreamEvent.Text — an incremental chunk of the answer. * completeGuid? ChatStreamEvent.SessionId, Guid? ChatStreamEvent.MessageId, string? ChatStreamEvent.Answer, IReadOnlyList&lt;Citation&gt;? ChatStreamEvent.Citations, bool? ChatStreamEvent.Failed, string? ChatStreamEvent.FailureReason. */
 export interface IChatStreamEvent {
-    /** Event discriminator: `step`, `delta`, or `complete`. */
     type?: string;
-    /** Human-friendly progress label; populated on `step` events. */
     step?: string | undefined;
-    /** Incremental answer text; populated on `delta` events. */
     text?: string | undefined;
-    /** The full answer; populated on the terminal `complete` event. */
     answer?: string | undefined;
-    /** Citations supporting the answer; populated on `complete`. */
     citations?: Citation[] | undefined;
-    /** Identifier of the session this turn belongs to; populated on `complete`. */
     sessionId?: string | undefined;
-    /** Identifier of the persisted assistant message; populated on `complete`. */
     messageId?: string | undefined;
-    /** True when a pipeline step threw and the workflow halted; populated on `complete`. */
     failed?: boolean | undefined;
-    /** Error message from the step that threw; populated on `complete` when bool? ChatStreamEvent.Failed is true. */
     failureReason?: string | undefined;
+    limitReached?: boolean | undefined;
+    questionsUsed?: number | undefined;
+    questionsTotal?: number | undefined;
 }
 
-/** A reference to a retrieved chunk that supports an assistant answer. */
 export class Citation implements ICitation {
-    /** Primary key of the cited chunk (`dex.Chunks.Id`). */
     chunkId?: string;
-    /** Primary key of the parent document (`dex.Documents.Id`). */
     documentId?: string;
-    /** Optional display title (heading or document title). */
     title?: string | undefined;
-    /** Optional heading breadcrumb for display, e.g. `H1 &gt; H2 &gt; H3`. */
     headingPath?: string | undefined;
-    /** Relevance score (cosine similarity for retrieval, 0..1 for rerank). */
+    number?: number;
     score?: number;
 
     constructor(data?: ICitation) {
@@ -1197,6 +1371,7 @@ export class Citation implements ICitation {
             this.documentId = _data["documentId"];
             this.title = _data["title"];
             this.headingPath = _data["headingPath"];
+            this.number = _data["number"];
             this.score = _data["score"];
         }
     }
@@ -1214,23 +1389,83 @@ export class Citation implements ICitation {
         data["documentId"] = this.documentId;
         data["title"] = this.title;
         data["headingPath"] = this.headingPath;
+        data["number"] = this.number;
         data["score"] = this.score;
         return data;
     }
 }
 
-/** A reference to a retrieved chunk that supports an assistant answer. */
 export interface ICitation {
-    /** Primary key of the cited chunk (`dex.Chunks.Id`). */
     chunkId?: string;
-    /** Primary key of the parent document (`dex.Documents.Id`). */
     documentId?: string;
-    /** Optional display title (heading or document title). */
     title?: string | undefined;
-    /** Optional heading breadcrumb for display, e.g. `H1 &gt; H2 &gt; H3`. */
     headingPath?: string | undefined;
-    /** Relevance score (cosine similarity for retrieval, 0..1 for rerank). */
+    number?: number;
     score?: number;
+}
+
+export class DocumentIngestRequest implements IDocumentIngestRequest {
+    documentType?: DocumentType;
+    category?: string;
+    language?: string;
+    markdownSourceFile?: string;
+    actualSourceFile?: string;
+    actualSourceUrl?: string | undefined;
+    isPrivate?: boolean | undefined;
+
+    constructor(data?: IDocumentIngestRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.documentType = _data["documentType"];
+            this.category = _data["category"];
+            this.language = _data["language"];
+            this.markdownSourceFile = _data["markdownSourceFile"];
+            this.actualSourceFile = _data["actualSourceFile"];
+            this.actualSourceUrl = _data["actualSourceUrl"];
+            this.isPrivate = _data["isPrivate"];
+        }
+    }
+
+    static fromJS(data: any): DocumentIngestRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new DocumentIngestRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["documentType"] = this.documentType;
+        data["category"] = this.category;
+        data["language"] = this.language;
+        data["markdownSourceFile"] = this.markdownSourceFile;
+        data["actualSourceFile"] = this.actualSourceFile;
+        data["actualSourceUrl"] = this.actualSourceUrl;
+        data["isPrivate"] = this.isPrivate;
+        return data;
+    }
+}
+
+export interface IDocumentIngestRequest {
+    documentType?: DocumentType;
+    category?: string;
+    language?: string;
+    markdownSourceFile?: string;
+    actualSourceFile?: string;
+    actualSourceUrl?: string | undefined;
+    isPrivate?: boolean | undefined;
+}
+
+export enum DocumentType {
+    MarkdownFaq = "MarkdownFaq",
 }
 
 export class HttpValidationProblemDetails implements IHttpValidationProblemDetails {
@@ -1313,19 +1548,12 @@ export interface IHttpValidationProblemDetails {
     [key: string]: any;
 }
 
-/** The endpoint response shape for a single-file ingest. */
 export class IngestionReport implements IIngestionReport {
-    /** Identifier of the persisted document; `null` when the upload was skipped. */
     documentId?: string | undefined;
-    /** The uploaded file name (echoed for client convenience). */
     source?: string;
-    /** Number of chunks inserted for this document; 0 when skipped. */
     chunksCreated?: number;
-    /** True when the upload matched an existing document hash and no work was performed. */
     skipped?: boolean;
-    /** Reason for skipping; populated only when bool IngestionReport.Skipped is true (e.g. `"unchanged"`). */
     skippedReason?: string | undefined;
-    /** True when an existing document with the same source was deleted before inserting the new one. */
     replaced?: boolean;
 
     constructor(data?: IIngestionReport) {
@@ -1367,19 +1595,12 @@ export class IngestionReport implements IIngestionReport {
     }
 }
 
-/** The endpoint response shape for a single-file ingest. */
 export interface IIngestionReport {
-    /** Identifier of the persisted document; `null` when the upload was skipped. */
     documentId?: string | undefined;
-    /** The uploaded file name (echoed for client convenience). */
     source?: string;
-    /** Number of chunks inserted for this document; 0 when skipped. */
     chunksCreated?: number;
-    /** True when the upload matched an existing document hash and no work was performed. */
     skipped?: boolean;
-    /** Reason for skipping; populated only when bool IngestionReport.Skipped is true (e.g. `"unchanged"`). */
     skippedReason?: string | undefined;
-    /** True when an existing document with the same source was deleted before inserting the new one. */
     replaced?: boolean;
 }
 
@@ -1447,28 +1668,16 @@ export interface IProblemDetails {
     [key: string]: any;
 }
 
-/** Application-local user profile DTO exposed at the store boundary; mirrors DbUser. Consumed by the Users feature (API) and the RAG personalization provider. The internal `SubjectId` key is not surfaced. */
 export class Profile implements IProfile {
-    /** Profile identifier. */
     id?: string;
-    /** Cached display name (from the `name` claim). */
     displayName?: string | undefined;
-    /** Cached email (from the `email` claim). */
     email?: string | undefined;
-    /** Cached locale (from the `locale` claim). */
     locale?: string | undefined;
-    /** Preferred answer language; when set, the composer answers in this language. */
     preferredLanguage?: string | undefined;
-    /** Preferred answer style fed to the composer (e.g. `concise` / `detailed` / `formal`). */
     responseStyle?: string | undefined;
-    /** Creation timestamp. */
     createdAt?: Date;
-    /** Timestamp of the last change to profile data. */
     updatedAt?: Date;
-    /** Timestamp of the most recent just-in-time touch. */
     lastSeenAt?: Date;
-    /** Reasoning-model tokens (prompt + completion) the user consumed in the trailing 7 days.
-Computed on read and populated by `UsersService` */
     reasoningTokensLast7Days?: number;
 
     constructor(data?: IProfile) {
@@ -1518,46 +1727,29 @@ Computed on read and populated by `UsersService` */
     }
 }
 
-/** Application-local user profile DTO exposed at the store boundary; mirrors DbUser. Consumed by the Users feature (API) and the RAG personalization provider. The internal `SubjectId` key is not surfaced. */
 export interface IProfile {
-    /** Profile identifier. */
     id?: string;
-    /** Cached display name (from the `name` claim). */
     displayName?: string | undefined;
-    /** Cached email (from the `email` claim). */
     email?: string | undefined;
-    /** Cached locale (from the `locale` claim). */
     locale?: string | undefined;
-    /** Preferred answer language; when set, the composer answers in this language. */
     preferredLanguage?: string | undefined;
-    /** Preferred answer style fed to the composer (e.g. `concise` / `detailed` / `formal`). */
     responseStyle?: string | undefined;
-    /** Creation timestamp. */
     createdAt?: Date;
-    /** Timestamp of the last change to profile data. */
     updatedAt?: Date;
-    /** Timestamp of the most recent just-in-time touch. */
     lastSeenAt?: Date;
-    /** Reasoning-model tokens (prompt + completion) the user consumed in the trailing 7 days.
-Computed on read and populated by `UsersService` */
     reasoningTokensLast7Days?: number;
 }
 
-/** Detail view of a chat session, including the most recent messages. */
 export class Session implements ISession {
-    /** Session identifier. */
     id?: string;
-    /** Optional display title; auto-generated from the first user message when the title-auto-generate option is enabled. */
     title?: string | undefined;
-    /** Creation timestamp. */
     createdAt?: Date;
-    /** Timestamp of the most recent appended message. */
     lastActivityAt?: Date;
-    /** Cumulative prompt-token usage across all turns in this session. */
     totalPromptTokens?: number;
-    /** Cumulative completion-token usage across all turns in this session. */
     totalCompletionTokens?: number;
-    /** Recent messages in chronological order (oldest first), capped at the configured history window. */
+    messageCount?: number;
+    questionsUsed?: number | undefined;
+    questionsTotal?: number | undefined;
     messages?: ChatMessage[];
 
     constructor(data?: ISession) {
@@ -1577,6 +1769,9 @@ export class Session implements ISession {
             this.lastActivityAt = _data["lastActivityAt"] ? new Date(_data["lastActivityAt"].toString()) : undefined as any;
             this.totalPromptTokens = _data["totalPromptTokens"];
             this.totalCompletionTokens = _data["totalCompletionTokens"];
+            this.messageCount = _data["messageCount"];
+            this.questionsUsed = _data["questionsUsed"];
+            this.questionsTotal = _data["questionsTotal"];
             if (Array.isArray(_data["messages"])) {
                 this.messages = [] as any;
                 for (let item of _data["messages"])
@@ -1600,6 +1795,9 @@ export class Session implements ISession {
         data["lastActivityAt"] = this.lastActivityAt ? this.lastActivityAt.toISOString() : undefined as any;
         data["totalPromptTokens"] = this.totalPromptTokens;
         data["totalCompletionTokens"] = this.totalCompletionTokens;
+        data["messageCount"] = this.messageCount;
+        data["questionsUsed"] = this.questionsUsed;
+        data["questionsTotal"] = this.questionsTotal;
         if (Array.isArray(this.messages)) {
             data["messages"] = [];
             for (let item of this.messages)
@@ -1609,37 +1807,25 @@ export class Session implements ISession {
     }
 }
 
-/** Detail view of a chat session, including the most recent messages. */
 export interface ISession {
-    /** Session identifier. */
     id?: string;
-    /** Optional display title; auto-generated from the first user message when the title-auto-generate option is enabled. */
     title?: string | undefined;
-    /** Creation timestamp. */
     createdAt?: Date;
-    /** Timestamp of the most recent appended message. */
     lastActivityAt?: Date;
-    /** Cumulative prompt-token usage across all turns in this session. */
     totalPromptTokens?: number;
-    /** Cumulative completion-token usage across all turns in this session. */
     totalCompletionTokens?: number;
-    /** Recent messages in chronological order (oldest first), capped at the configured history window. */
+    messageCount?: number;
+    questionsUsed?: number | undefined;
+    questionsTotal?: number | undefined;
     messages?: ChatMessage[];
 }
 
-/** Lightweight row used in paged session listings; messages are not included. */
 export class SessionListItem implements ISessionListItem {
-    /** Session identifier. */
     id?: string;
-    /** Optional display title. */
     title?: string | undefined;
-    /** Creation timestamp. */
     createdAt?: Date;
-    /** Timestamp of the most recent appended message. */
     lastActivityAt?: Date;
-    /** Cumulative prompt-token usage across all turns in this session. */
     totalPromptTokens?: number;
-    /** Cumulative completion-token usage across all turns in this session. */
     totalCompletionTokens?: number;
 
     constructor(data?: ISessionListItem) {
@@ -1681,19 +1867,12 @@ export class SessionListItem implements ISessionListItem {
     }
 }
 
-/** Lightweight row used in paged session listings; messages are not included. */
 export interface ISessionListItem {
-    /** Session identifier. */
     id?: string;
-    /** Optional display title. */
     title?: string | undefined;
-    /** Creation timestamp. */
     createdAt?: Date;
-    /** Timestamp of the most recent appended message. */
     lastActivityAt?: Date;
-    /** Cumulative prompt-token usage across all turns in this session. */
     totalPromptTokens?: number;
-    /** Cumulative completion-token usage across all turns in this session. */
     totalCompletionTokens?: number;
 }
 
@@ -1805,11 +1984,8 @@ export interface ISseItemOfChatStreamEvent {
     [key: string]: any;
 }
 
-/** Body accepted by `PUT /my/profile` to update the caller's app-specific preferences. */
 export class UpdateUserRequest implements IUpdateUserRequest {
-    /** Preferred answer language; `null`/empty clears it. Validated against `Taxonomy.Languages`. */
     preferredLanguage?: string | undefined;
-    /** Preferred answer style; `null`/empty clears it. One of `concise` / `detailed` / `formal`. */
     responseStyle?: string | undefined;
 
     constructor(data?: IUpdateUserRequest) {
@@ -1843,11 +2019,8 @@ export class UpdateUserRequest implements IUpdateUserRequest {
     }
 }
 
-/** Body accepted by `PUT /my/profile` to update the caller's app-specific preferences. */
 export interface IUpdateUserRequest {
-    /** Preferred answer language; `null`/empty clears it. Validated against `Taxonomy.Languages`. */
     preferredLanguage?: string | undefined;
-    /** Preferred answer style; `null`/empty clears it. One of `concise` / `detailed` / `formal`. */
     responseStyle?: string | undefined;
 }
 
@@ -1896,4 +2069,8 @@ function blobToText(blob: any): Observable<string> {
             reader.readAsText(blob);
         }
     });
+}
+export interface FileParameter {
+  data: any;
+  fileName: string;
 }

@@ -285,7 +285,7 @@ internal static partial class MyAccountHandlers
         ClaimsPrincipal currentUser,
         SetUserBlockRequest request
     ) {
-        if (!await featureManager.IsEnabledAsync(IdentityEndpoints.Features.PublicRegistration)) {
+        if (await featureManager.IsEnabledAsync(IdentityEndpoints.Features.DisableAccountBlocking)) {
             return TypedResults.NotFound();
         }
         var user = await userManager.GetUserAsync(currentUser);

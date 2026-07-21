@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   afterRenderEffect,
+  computed,
   input,
   output,
   viewChild,
@@ -50,15 +51,15 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
           </div>
         } @else {
           <div class="flex flex-col gap-6">
-            @for (message of messages(); track $index) {
-              @if (message.role === 'User') {
+            @for (turn of turns(); track $index) {
+              @if (turn.message.role === 'User') {
                 <div class="dex-rise flex justify-end">
                   <div
                     class="max-w-[85%] whitespace-pre-wrap break-words rounded-box rounded-br-sm
                            bg-primary px-4 py-2.5 text-[0.95rem] leading-relaxed text-primary-content
                            shadow-sm"
                   >
-                    {{ message.content }}
+                    {{ turn.message.content }}
                   </div>
                 </div>
               } @else {
@@ -70,27 +71,39 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                   />
                   <div class="min-w-0 flex-1">
                     <div
-                      class="markdown whitespace-pre-wrap break-words rounded-box rounded-tl-sm border
-                             border-base-300 bg-base-100 px-4 py-3 text-[0.95rem] leading-relaxed
-                             text-base-content shadow-sm"
+                      class="markdown rounded-box rounded-tl-sm border border-base-300 bg-base-100 px-4 py-2.5
+                             text-[0.95rem] text-base-content shadow-sm"
                       markdown
-                      [data]="message.content"
+                      [data]="turn.message.content"
                     ></div>
-                    @if (message.citations && message.citations.length > 0) {
+                    @if (turn.message.citations && turn.message.citations.length > 0) {
                       <div class="mt-2 flex flex-wrap gap-1.5">
-                        @for (citation of message.citations; track citation.chunkId) {
+                        @for (citation of turn.message.citations; track citation.chunkId) {
                           <span
                             class="inline-flex max-w-full items-center gap-1.5 rounded-selector
                                    border border-base-300 bg-base-100 py-1 pl-2 pr-2.5 font-mono
                                    text-[0.7rem] text-base-content/70"
                             [title]="citation.title || citation.headingPath || ''"
                           >
-                            <span class="text-accent">#</span>
+                            <span class="footnote text-accent">{{citation.number}}.</span>
                             <span class="truncate">
                               {{ citation.headingPath || citation.title || 'Source' }}
                             </span>
                           </span>
                         }
+                      </div>
+                    }
+                    @if (turn.questionNumber !== null && questionsTotal() !== null) {
+                      <div
+                        class="mt-1.5 flex items-center justify-end gap-1.5 font-mono text-[0.7rem]
+                               tabular-nums text-base-content/45"
+                        title="Questions used in this conversation"
+                      >
+                        <span
+                          class="inline-block size-2 rounded-full"
+                          [style.background-color]="turn.dotColor"
+                        ></span>
+                        {{ turn.questionNumber }}/{{ questionsTotal() }}
                       </div>
                     }
                   </div>
@@ -116,9 +129,8 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                     </div>
                   } @else {
                     <div
-                      class="markdown dex-caret whitespace-pre-wrap break-words rounded-box rounded-tl-sm border
-                             border-base-300 bg-base-100 px-4 py-3 text-[0.95rem] leading-relaxed
-                             text-base-content shadow-sm"
+                      class="markdown dex-caret rounded-box rounded-tl-sm border border-base-300 bg-base-100 px-4 py-2.5
+                             text-[0.95rem] text-base-content shadow-sm"
                       markdown
                       [data]="streamingText()"
                     ></div>
@@ -151,10 +163,37 @@ export class ChatThreadComponent {
   readonly step = input<string | null>(null);
   readonly error = input<string | null>(null);
   readonly busy = input(false);
+  readonly questionsTotal = input<number | null>(null);
 
   readonly examplePick = output<string>();
 
   protected readonly examplePrompts = EXAMPLE_PROMPTS;
+
+  /**
+   * Messages annotated with usage: only the latest assistant answer carries the counter — the
+   * questions used so far, clamped to the total so the non-persisted limit-reached reply reads as
+   * the cap (5/5, not 6/5). The dot hue runs green (fresh) → red (at the cap): 120 → 0 by used/total.
+   */
+  protected readonly turns = computed(() => {
+    const total = this.questionsTotal();
+    const messages = this.messages();
+    let lastAssistantIndex = -1;
+    let answered = 0;
+    messages.forEach((message, index) => {
+      if (message.role === 'Assistant') {
+        lastAssistantIndex = index;
+        answered++;
+      }
+    });
+    return messages.map((message, index) => {
+      if (index !== lastAssistantIndex || total === null || total === 0) {
+        return { message, questionNumber: null, dotColor: null };
+      }
+      const questionNumber = Math.min(answered, total);
+      const hue = Math.round(120 * (1 - questionNumber / total));
+      return { message, questionNumber, dotColor: `hsl(${hue} 70% 45%)` };
+    });
+  });
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
 

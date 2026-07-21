@@ -31,6 +31,7 @@ export class ChatPageComponent {
   protected readonly streamingText = signal('');
   protected readonly currentStep = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
+  protected readonly questionsTotal = signal<number | null>(null);
 
   private streamSub?: Subscription;
 
@@ -48,12 +49,13 @@ export class ChatPageComponent {
     this.streamingText.set('');
     this.currentStep.set(null);
     this.dex
-      .get(id)
+      .getChatSession(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (session) => {
           this.activeSessionId.set(id);
           this.messages.set((session.messages ?? []).map(toThreadMessage));
+          this.questionsTotal.set(session.questionsTotal ?? null);
           this.threadLoading.set(false);
         },
         error: () => {
@@ -71,6 +73,7 @@ export class ChatPageComponent {
     this.currentStep.set(null);
     this.error.set(null);
     this.isStreaming.set(false);
+    this.questionsTotal.set(null);
   }
 
   protected deleteSession(id: string): void {
@@ -149,6 +152,7 @@ export class ChatPageComponent {
     if (!this.activeSessionId() && event.sessionId) {
       this.activeSessionId.set(event.sessionId);
     }
+    this.questionsTotal.set(event.questionsTotal ?? null);
     this.isStreaming.set(false);
     this.streamingText.set('');
     this.currentStep.set(null);

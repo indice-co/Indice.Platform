@@ -15,6 +15,7 @@ public class DbSessionMap : IEntityTypeConfiguration<DbSession>
         builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M256);
         builder.Property(x => x.TotalPromptTokens).HasDefaultValue(0L);
         builder.Property(x => x.TotalCompletionTokens).HasDefaultValue(0L);
+        builder.Property(x => x.MessageCount).HasDefaultValue(0);
         builder.HasIndex(x => new { x.UserId, x.LastActivityAt })
                .IsDescending(false, true);
         builder.HasMany(x => x.Messages)

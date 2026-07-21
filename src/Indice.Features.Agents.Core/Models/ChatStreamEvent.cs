@@ -9,7 +9,7 @@ namespace Indice.Features.Agents.Core.Models;
 ///   <item><term>complete</term><description><see cref="SessionId"/>, <see cref="MessageId"/>, <see cref="Answer"/>, <see cref="Citations"/>, <see cref="Failed"/>, <see cref="FailureReason"/>.</description></item>
 /// </list>
 /// </summary>
-public class ChatStreamEvent
+public record ChatStreamEvent
 {
     /// <summary>Event discriminator: <c>step</c>, <c>delta</c>, or <c>complete</c>.</summary>
     public string Type { get; init; } = string.Empty;
@@ -26,6 +26,9 @@ public class ChatStreamEvent
     /// <summary>Citations supporting the answer; populated on <c>complete</c>.</summary>
     public IReadOnlyList<Citation>? Citations { get; init; }
 
+    /// <summary>Links to the source documents supporting the answer; populated on <c>complete</c>.</summary>
+    public IReadOnlyList<SourceDocumentLink>? Sources { get; init; }
+
     /// <summary>Identifier of the session this turn belongs to; populated on <c>complete</c>.</summary>
     public Guid? SessionId { get; init; }
 
@@ -37,4 +40,13 @@ public class ChatStreamEvent
 
     /// <summary>Error message from the step that threw; populated on <c>complete</c> when <see cref="Failed"/> is true.</summary>
     public string? FailureReason { get; init; }
+
+    /// <summary>True when the turn was blocked by a session usage limit — <see cref="Answer"/> carries the predefined limit message and nothing was persisted; populated on <c>complete</c>.</summary>
+    public bool? LimitReached { get; init; }
+
+    /// <summary>Questions used in this session so far, for a <c>used/total</c> display; populated on <c>complete</c>. <c>null</c> when the message limit is disabled.</summary>
+    public int? QuestionsUsed { get; init; }
+
+    /// <summary>Total questions allowed per session, for a <c>used/total</c> display; populated on <c>complete</c>. <c>null</c> when the message limit is disabled.</summary>
+    public int? QuestionsTotal { get; init; }
 }
