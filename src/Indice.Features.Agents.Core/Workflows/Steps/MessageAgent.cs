@@ -63,7 +63,7 @@ public sealed class MessageAgent : Executor<PipelineStepContext<IntentOutput>, P
                     Name = "DexMessageAgent"
                 });
 
-        var prompt = BuildPrompt(envelope.State.Question, envelope.State.History);
+        var prompt = BuildPrompt(envelope.State.Question);
 
         // Stream the answer: emit each text delta as a workflow event (surfaced as an SSE `delta` by the
         // streaming runner; ignored by the non-streaming runner) while accumulating the full text. Token
@@ -88,15 +88,8 @@ public sealed class MessageAgent : Executor<PipelineStepContext<IntentOutput>, P
         });
     }
 
-    private static string BuildPrompt(string question, IReadOnlyList<Microsoft.Extensions.AI.ChatMessage> history) {
+    private static string BuildPrompt(string question) {
         var sb = new StringBuilder();
-        var historyText = ChatHistoryFormatter.Format(history);
-        if (historyText.Length > 0) {
-            sb.AppendLine("HISTORY:").Append(historyText).AppendLine();
-        }
-        sb.AppendLine("CONTEXT:");
-        sb.AppendLine("(no candidates retrieved)");
-        sb.AppendLine();
         sb.Append("QUESTION: ").AppendLine(question);
         return sb.ToString();
     }
