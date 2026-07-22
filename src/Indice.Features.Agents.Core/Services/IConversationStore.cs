@@ -41,6 +41,14 @@ public interface IConversationStore
     /// </summary>
     Task<ChatMessage> AppendTurnAsync(Guid conversationId, ChatMessage userMessage, ChatResponse response, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Persists only the user message of a failed turn (the pipeline produced no assistant answer): inserts the row,
+    /// bumps <c>LastActivityAt</c>, increments <c>MessageCount</c> by one, and — when the conversation title is still
+    /// <c>null</c> and the title-auto-generate option is enabled — derives a title from the user message. The
+    /// unanswered question still counts toward the session's question limit.
+    /// </summary>
+    Task AppendFailedTurnAsync(Guid conversationId, ChatMessage userMessage, CancellationToken cancellationToken);
+
     /// <summary>Deletes a session and its messages. Returns affected row count (0 ⇒ not found / not owned).</summary>
     Task<int> DeleteAsync(Guid conversationId, string userId, CancellationToken cancellationToken);
 

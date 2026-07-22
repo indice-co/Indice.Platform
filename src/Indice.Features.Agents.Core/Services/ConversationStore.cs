@@ -73,7 +73,7 @@ public class ConversationStore : IConversationStore
                 InputTokenCount = s.InputTokenCount,
                 OutputTokenCount = s.OutputTokenCount,
                 MessageCount = s.MessageCount,
-                QuestionsUsedCount = questionsTotal == null ? null : (s.MessageCount / 2 < questionsTotal ? s.MessageCount / 2 : questionsTotal),
+                QuestionsUsedCount = questionsTotal == null ? null : ((s.MessageCount + 1) / 2 < questionsTotal ? (s.MessageCount + 1) / 2 : questionsTotal),
                 QuestionsLimitCount = questionsTotal,
                 Pin = s.Pin,
                 Messages = s.Messages
@@ -169,6 +169,19 @@ public class ConversationStore : IConversationStore
             CreatedAt = assistantRow.CreatedAt,
             AuthorName = assistantRow.AuthorName,
         };
+    }
+
+    /// <inheritdoc/>
+    public async Task AppendFailedTurnAsync(Guid conversationId, ChatMessage userMessage, CancellationToken cancellationToken) {
+        var session = await _db.Conversations.FirstAsync(s => s.Id == conversationId, cancellationToken);
+        var userRow = ToDb(conversationId, userMessage, responseId: null, prompt: null, completion: null, model: null);
+        _db.Add(userRow);
+        session.LastActivityAt = userRow.CreatedAt;
+        session.MessageCount += 1;
+        if (session.Title is null && _sessionOptions.TitleAutoGenerate) {
+            session.Title = DeriveTitle(userMessage);
+        }
+        await _db.SaveChangesAsync(cancellationToken);
     }
 
     /// <inheritdoc/>

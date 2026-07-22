@@ -29,7 +29,7 @@ internal static class MyChatsHandlers
     }
 
     /// <summary>POST /api/my/chats/stream — creates a conversation and streams the first turn over SSE.</summary>
-    public static async Task<ServerSentEventsResult<ChatStreamEvent>> StreamCreate(ChatRequest request, ClaimsPrincipal user,
+    public static async Task<ServerSentEventsResult<DexChatResponseUpdate>> StreamCreate(ChatRequest request, ClaimsPrincipal user,
         IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
         // conversationId null ⇒ the conversation is created inline, so the stream is never null here.
@@ -38,7 +38,7 @@ internal static class MyChatsHandlers
     }
 
     /// <summary>POST /api/my/chats/{chatId}/messages/stream — streams a follow-up turn over SSE.</summary>
-    public static async Task<Results<ServerSentEventsResult<ChatStreamEvent>, NotFound>> StreamMessage(Guid chatId, ChatRequest request,
+    public static async Task<Results<ServerSentEventsResult<DexChatResponseUpdate>, NotFound>> StreamMessage(Guid chatId, ChatRequest request,
         ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
         var stream = await chats.SendStreamAsync(userId, chatId, request.Text, cancellationToken);

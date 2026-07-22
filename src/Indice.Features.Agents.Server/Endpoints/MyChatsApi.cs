@@ -46,14 +46,23 @@ internal static class MyChatsApi
              .WithName(nameof(MyChatsHandlers.StreamCreate))
              .WithSummary("Create a chat session and stream the first turn over Server-Sent Events.")
              .WithDescription("""
-                Streaming counterpart of `POST /api/my/chats`. Creates a session and runs the first question through
-                the RAG pipeline, emitting `text/event-stream` events as it executes:
+                Streaming counterpart of `POST /api/my/chats`. Creates a session and streams the first turn as
+                `text/event-stream` frames of the Dex message/delta protocol. Answer text rides the `delta` SSE event
+                (`{"type":"delta","text":"…"}` — append chunks in arrival order); every other frame rides the default
+                `message` event, discriminated by `type`:
 
-                - `event: step` — `{ "type":"step", "step":"Retrieving relevant context" }` (one per pipeline step).
-                - `event: delta` — `{ "type":"delta", "text":"…" }` (repeated; the answer streamed token-by-token).
-                - `event: complete` — `{ "type":"complete", "sessionId":"…", "messageId":"…", "answer":"…", "citations":[…], "failed":false, "failureReason":null }`.
+                - `start` — first frame; carries the `conversationId` of the session.
+                - `status` — pipeline progress label; ephemeral UI hint.
+                - `citations` / `sources` — discrete parts of the completed answer; emitted only when non-empty.
+                - `usage` — token totals and question counters for the turn.
+                - `done` — terminal on success; carries the persisted assistant `messageId`, `responseId`, `modelId`,
+                  `createdAt`, `finishReason` and `limitReached`. Limit-blocked turns stream the same grammar with the
+                  predefined limit reply as a single delta and `finishReason` `limit` (nothing persisted).
+                - `error` — terminal on failure; a safe generic `reason` (the question is recorded and counted; no
+                  answer is persisted).
 
-                The turn is persisted when the stream completes. (SwaggerUI cannot render SSE — use a streaming client, e.g. `curl -N`.)
+                The turn is persisted before the completion frames; assembling the deltas plus the part frames yields the
+                same data as the non-streaming response. (SwaggerUI cannot render SSE — use a streaming client, e.g. `curl -N`.)
                 """);
 
         group.MapPost("{chatId:guid}/messages/stream", MyChatsHandlers.StreamMessage)
@@ -61,10 +70,11 @@ internal static class MyChatsApi
              .WithName(nameof(MyChatsHandlers.StreamMessage))
              .WithSummary("Stream a follow-up turn over Server-Sent Events.")
              .WithDescription("""
-                Streaming counterpart of `POST /api/my/chats/{chatId}/messages`. Emits `event: step`, then `event: delta`
-                (answer token-by-token), then a terminal `event: complete` carrying the citations and persisted
-                `messageId`. Returns 404 before any event is sent when the session does not exist for the caller.
-                (SwaggerUI cannot render SSE — use a streaming client, e.g. `curl -N`.)
+                Streaming counterpart of `POST /api/my/chats/{chatId}/messages`. Emits the same message/delta frames as
+                `POST /api/my/chats/stream` — `start`, `status` progress, `delta` text chunks, then the completion parts
+                (`citations`/`sources`/`usage`) and the terminal `done` (or `error`). Returns 404 before any frame is sent
+                when the session does not exist for the caller. (SwaggerUI cannot render SSE — use a streaming client,
+                e.g. `curl -N`.)
                 """);
 
         group.MapGet(string.Empty, MyChatsHandlers.List)
