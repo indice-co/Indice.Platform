@@ -40,10 +40,10 @@ public class ExtendedPhoneNumberTokenProvider<TUser> : PhoneNumberTokenProvider<
         if (purpose != "TwoFactor") {
             return securityToken;
         }
-        if(user.LastSignInDate == null) {
+        if (user.LastSignInDate == null) {
             return securityToken;
         }
-        var timeStamp = Encoding.Unicode.GetBytes(user.LastSignInDate.Value.ToString("yyyyMMddHHmmsss"));
+        var timeStamp = Encoding.UTF8.GetBytes(user.LastSignInDate.Value.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture));
         byte[] token = new byte[securityToken.Length + timeStamp.Length];
 
         Buffer.BlockCopy(securityToken, 0, token, 0, securityToken.Length);
