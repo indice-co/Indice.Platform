@@ -19,7 +19,7 @@ public interface IChatsService
     /// once the stream completes. Returns <c>null</c> when <paramref name="conversationId"/> is supplied but no
     /// session matches <paramref name="userId"/> — letting the caller respond 404 before any event is sent.
     /// </summary>
-    Task<IAsyncEnumerable<SseItem<ChatStreamEvent>>?> SendStreamAsync(string userId, Guid? conversationId, string text, CancellationToken cancellationToken);
+    Task<IAsyncEnumerable<SseItem<DexChatResponseUpdate>>?> SendStreamAsync(string userId, Guid? conversationId, string text, CancellationToken cancellationToken);
 
     /// <summary>Returns a conversation detail (metadata + recent messages) or <c>null</c> when not found / not owned.</summary>
     Task<DexConversation?> GetAsync(string userId, Guid conversationId, CancellationToken cancellationToken);

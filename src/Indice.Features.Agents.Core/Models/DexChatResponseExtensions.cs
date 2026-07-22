@@ -68,7 +68,7 @@ public static class DexChatResponseExtensions
         "system" => DexChatRole.System,
         "tool" => DexChatRole.Tool,
         "user" => DexChatRole.User,
-        _ => DexChatRole.System
+        _ => DexChatRole.User
     };
 
     /// <summary>Maps a <see cref="ChatFinishReason"/> to the boundary <see cref="DexChatFinishReason"/>; <c>null</c> and unknown reasons map to <c>null</c>.</summary>

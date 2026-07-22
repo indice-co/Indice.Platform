@@ -127,10 +127,10 @@ public class AgentsOptions
         /// <summary>Total questions (turns) allowed per session, derived from <see cref="MaxMessagesPerSession"/> — each question persists two messages. <c>null</c> when the limit is disabled.</summary>
         public int? GetQuestionsTotal() => MaxMessagesPerSession > 0 ? MaxMessagesPerSession / 2 : null;
 
-        /// <summary>Questions already used in a session holding <paramref name="messageCount"/> persisted messages, capped at <see cref="GetQuestionsTotal"/> (covers limits lowered after the fact). <c>null</c> when the limit is disabled.</summary>
+        /// <summary>Questions already used in a session holding <paramref name="messageCount"/> persisted messages, capped at <see cref="GetQuestionsTotal"/> (covers limits lowered after the fact). A trailing unanswered user message (failed turn) counts as a used question. <c>null</c> when the limit is disabled.</summary>
         public int? GetQuestionsUsed(int messageCount) {
             var total = GetQuestionsTotal();
-            return total is null ? null : int.Min(messageCount / 2, total.Value);
+            return total is null ? null : int.Min((messageCount + 1) / 2, total.Value);
         }
     }
 
