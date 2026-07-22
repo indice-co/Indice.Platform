@@ -15,20 +15,11 @@ public class DexConversation
     /// <summary>Timestamp of the most recent appended message.</summary>
     public DateTimeOffset LastActivityAt { get; init; }
 
-    /// <summary>Cumulative prompt-token usage across all turns in this session.</summary>
-    public long InputTokenCount { get; init; }
-
-    /// <summary>Cumulative completion-token usage across all turns in this session.</summary>
-    public long OutputTokenCount { get; init; }
-
     /// <summary>Number of persisted messages in this session. Each turn appends two rows (user + assistant).</summary>
     public int MessageCount { get; init; }
 
-    /// <summary>Questions used in this session so far, for a <c>used/total</c> display. <c>null</c> when the message limit is disabled.</summary>
-    public int? QuestionsUsedCount { get; init; }
-
-    /// <summary>Total questions allowed per session, for a <c>used/total</c> display. <c>null</c> when the message limit is disabled.</summary>
-    public int? QuestionsLimitCount { get; init; }
+    /// <summary>Cumulative token and question usage across all turns in this session.</summary>
+    public DexChatUsage Usage { get; init; } = new();
 
     /// <summary>Recent messages in chronological order (oldest first), capped at the configured history window.</summary>
     public IReadOnlyList<DexChatMessage> Messages { get; init; } = Array.Empty<DexChatMessage>();

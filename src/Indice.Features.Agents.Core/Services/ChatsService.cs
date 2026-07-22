@@ -157,11 +157,14 @@ public class ChatsService : IChatsService
             Title = conversation.Title,
             CreatedAt = conversation.CreatedAt,
             LastActivityAt = conversation.LastActivityAt,
-            InputTokenCount = conversation.InputTokenCount,
-            OutputTokenCount = conversation.OutputTokenCount,
             MessageCount = conversation.MessageCount,
-            QuestionsUsedCount = _sessionOptions.GetQuestionsUsed(conversation.MessageCount),
-            QuestionsLimitCount = _sessionOptions.GetQuestionsTotal(),
+            Usage = new DexChatUsage {
+                InputTokenCount = conversation.InputTokenCount,
+                OutputTokenCount = conversation.OutputTokenCount,
+                TotalTokenCount = conversation.InputTokenCount + conversation.OutputTokenCount,
+                QuestionsUsedCount = _sessionOptions.GetQuestionsUsed(conversation.MessageCount),
+                QuestionsLimitCount = _sessionOptions.GetQuestionsTotal()
+            },
             Messages = conversation.Messages.Select(message => message.ToDexChatMessage()).ToList()
         };
     }

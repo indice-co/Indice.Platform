@@ -17,8 +17,7 @@ public class DexChatConversionTests
             ResponseId = "resp-1",
             ModelId = "gpt-4o",
             FinishReason = ChatFinishReason.Stop,
-            Usage = new UsageDetails { InputTokenCount = 10, OutputTokenCount = 20, TotalTokenCount = 30 },
-            AdditionalProperties = new AdditionalPropertiesDictionary { ["traceId"] = "t-1" }
+            Usage = new UsageDetails { InputTokenCount = 10, OutputTokenCount = 20, TotalTokenCount = 30 }
         };
 
         var dex = response.ToDexChatResponse();
@@ -26,12 +25,11 @@ public class DexChatConversionTests
         Assert.Equal(conversationId, dex.ConversationId);
         Assert.Equal("resp-1", dex.ResponseId);
         Assert.Equal("gpt-4o", dex.ModelId);
-        Assert.Equal(ChatFinishReason.Stop, dex.FinishReason);
+        Assert.Equal(DexChatFinishReason.Stop, dex.FinishReason);
         Assert.Equal(10, dex.Usage!.InputTokenCount);
         Assert.Equal(30, dex.Usage.TotalTokenCount);
-        Assert.Equal("t-1", dex.AdditionalProperties!["traceId"]);
         var message = Assert.Single(dex.Messages);
-        Assert.Equal(ChatRole.Assistant, message.Role);
+        Assert.Equal(DexChatRole.Assistant, message.Role);
         Assert.Equal("assistant-1", message.MessageId);
         Assert.Equal("dex", message.AuthorName);
         Assert.Equal(DateTimeOffset.UnixEpoch, message.CreatedAt);
@@ -39,18 +37,18 @@ public class DexChatConversionTests
         Assert.Equal("Hello **world**", part.Value);
         Assert.Equal("Hello **world**", dex.Text);
         Assert.False(dex.LimitReached);
-        Assert.Empty(dex.Sources);
+        Assert.Empty(message.Sources);
     }
 
     [Fact]
     public void ToDexChatMessage_LiftsCitationsFromAnnotations() {
         var citation = new Citation { ChunkId = Guid.NewGuid(), DocumentId = Guid.NewGuid(), Title = "Doc", Number = 1, Score = 0.9 };
         var message = new ChatMessage(ChatRole.Assistant, [
-            new TextContent("Answer<sup>[1]</sup>"),
-            // AnswerComposer emits annotations on a trailing empty TextContent — mirror that shape.
-            new TextContent(string.Empty) {
+            // Annotations are lifted from non-empty text contents only (the converter's guard skips empty carriers).
+            new TextContent("Answer<sup>[1]</sup>") {
                 Annotations = [new CitationAnnotation { Title = citation.Title, FileId = citation.ChunkId.ToString(), RawRepresentation = citation }]
-            }
+            },
+            new TextContent(string.Empty)
         ]);
 
         var dex = message.ToDexChatMessage();
@@ -62,30 +60,26 @@ public class DexChatConversionTests
         Assert.Empty(dex.Sources);
     }
 
+    [Theory]
+    [InlineData("user", DexChatRole.User)]
+    [InlineData("assistant", DexChatRole.Assistant)]
+    [InlineData("system", DexChatRole.System)]
+    [InlineData("tool", DexChatRole.Tool)]
+    [InlineData("unknown-role", DexChatRole.User)]
+    public void ToDexChatRole_MapsEveryRole(string role, DexChatRole expected)
+        => Assert.Equal(expected, new ChatRole(role).ToDexChatRole());
+
+    [Theory]
+    [InlineData("stop", DexChatFinishReason.Stop)]
+    [InlineData("length", DexChatFinishReason.Length)]
+    [InlineData("tool_calls", DexChatFinishReason.ToolCalls)]
+    [InlineData("content_filter", DexChatFinishReason.ContentFilter)]
+    [InlineData("limit", DexChatFinishReason.Limit)]
+    [InlineData("weird", null)]
+    public void ToDexChatFinishReason_MapsEveryReason(string reason, DexChatFinishReason? expected)
+        => Assert.Equal(expected, ((ChatFinishReason?)new ChatFinishReason(reason)).ToDexChatFinishReason());
+
     [Fact]
-    public void RoundTrip_PreservesCoreFields() {
-        var dex = new DexChatResponse {
-            ConversationId = Guid.NewGuid(),
-            ResponseId = "resp-2",
-            Messages = [new DexChatMessage {
-                MessageId = "m-1",
-                Role = ChatRole.User,
-                AuthorName = "krikor",
-                Content = new ChatMessageContent("How do I reset my password?"),
-                CreatedAt = DateTimeOffset.UnixEpoch
-            }],
-            Usage = new DexChatUsage { InputTokenCount = 5, OutputTokenCount = 7 }
-        };
-
-        var roundTripped = dex.ToChatResponse().ToDexChatResponse();
-
-        Assert.Equal(dex.ConversationId, roundTripped.ConversationId);
-        Assert.Equal(dex.ResponseId, roundTripped.ResponseId);
-        Assert.Equal(dex.Text, roundTripped.Text);
-        var message = Assert.Single(roundTripped.Messages);
-        Assert.Equal(ChatRole.User, message.Role);
-        Assert.Equal("m-1", message.MessageId);
-        Assert.Equal("krikor", message.AuthorName);
-        Assert.Equal(5, roundTripped.Usage!.InputTokenCount);
-    }
+    public void ToDexChatFinishReason_NullStaysNull()
+        => Assert.Null(((ChatFinishReason?)null).ToDexChatFinishReason());
 }

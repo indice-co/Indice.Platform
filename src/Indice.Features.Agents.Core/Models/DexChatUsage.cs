@@ -2,7 +2,7 @@ using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Models;
 
-/// <summary>Token usage for a single chat turn. Mirrors <see cref="UsageDetails"/>. Product counters (questions used/total) live on <see cref="DexChatResponse"/>, not in <see cref="AdditionalCounts"/>.</summary>
+/// <summary>Token and question usage — for a single chat turn (on <see cref="DexChatResponse"/>) or cumulative across a session (on <see cref="DexConversation"/>). Mirrors <see cref="UsageDetails"/> token counts and adds the product question counters.</summary>
 public class DexChatUsage
 {
     /// <summary>Number of tokens in the prompt / input.</summary>

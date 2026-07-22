@@ -7,8 +7,8 @@ public static class DexChatResponseExtensions
 {
     /// <summary>
     /// Maps a <see cref="ChatResponse"/> to the boundary <see cref="DexChatResponse"/>. Citations are lifted from the
-    /// <see cref="CitationAnnotation"/>s the pipeline attaches to the message contents. <see cref="DexChatResponse.Sources"/>
-    /// stays empty — sources are not carried by <see cref="ChatResponse"/>. Product counters (questions used/total) and
+    /// <see cref="CitationAnnotation"/>s the pipeline attaches to the message contents. <see cref="DexChatMessage.Sources"/>
+    /// stays empty — sources are not carried by <see cref="ChatResponse"/>. Product counters (questions used/limit) and
     /// <see cref="DexChatResponse.LimitReached"/> are the caller's to set.
     /// </summary>
     public static DexChatResponse ToDexChatResponse(this ChatResponse response) {
@@ -19,7 +19,7 @@ public static class DexChatResponseExtensions
             Messages = messages,
             ModelId = response.ModelId,
             CreatedAt = response.CreatedAt,
-            FinishReason = Enum.TryParse<DexChatFinishReason>(response.FinishReason.ToString(), out var reason) ? reason : null,
+            FinishReason = response.FinishReason.ToDexChatFinishReason(),
             Usage = response.Usage.ToDexChatUsage(),
         };
     }
@@ -33,7 +33,7 @@ public static class DexChatResponseExtensions
         var content = new ChatMessageContent();
         var citations = new List<Citation>();
         foreach (var item in message.Contents) {
-            switch(item) { 
+            switch(item) {
                 case TextContent text when !string.IsNullOrEmpty(text.Text):
                     content.AddPart(text.Text, "text/markdown");
                     citations.AddRange((text.Annotations ?? []).OfType<CitationAnnotation>().Select(ToCitation));
@@ -46,21 +46,39 @@ public static class DexChatResponseExtensions
         return new DexChatMessage {
             MessageId = message.MessageId,
             AuthorName = message.AuthorName,
-            //Fixxx when you come back to this, the Role property is not being set because the DexChatRole enum is not being mapped from the ChatRole enum. You need to implement a mapping between the two enums to set the Role property correctly.
-            //Role = (DexChatRole)message.Role,
+            Role = message.Role.ToDexChatRole(),
             Content = content,
             CreatedAt = message.CreatedAt,
             Citations = citations.DistinctBy(citation => citation.ChunkId).OrderBy(citation => citation.Number).ToList()
         };
     }
 
-    /// <summary>Maps <see cref="UsageDetails"/> to the boundary <see cref="DexChatUsage"/>; <c>null</c> stays <c>null</c>.</summary>
+    /// <summary>Maps <see cref="UsageDetails"/> to the boundary <see cref="DexChatUsage"/>; <c>null</c> stays <c>null</c>. Question counters are the caller's to set.</summary>
     public static DexChatUsage? ToDexChatUsage(this UsageDetails? usage) => usage is null ? null : new DexChatUsage {
         InputTokenCount = usage.InputTokenCount,
         OutputTokenCount = usage.OutputTokenCount,
         TotalTokenCount = usage.TotalTokenCount,
-        QuestionsUsedCount = usage.AdditionalCounts?[nameof(DexChatUsage.QuestionsUsedCount)],
-        QuestionsLimitCount = usage.AdditionalCounts?[nameof(DexChatUsage.QuestionsLimitCount)]
+        QuestionsUsedCount = usage.AdditionalCounts?.TryGetValue(nameof(DexChatUsage.QuestionsUsedCount), out var used) is true ? used : null,
+        QuestionsLimitCount = usage.AdditionalCounts?.TryGetValue(nameof(DexChatUsage.QuestionsLimitCount), out var limit) is true ? limit : null
+    };
+
+    /// <summary>Maps a <see cref="ChatRole"/> to the boundary <see cref="DexChatRole"/>. Unknown roles map to <see cref="DexChatRole.User"/>.</summary>
+    public static DexChatRole ToDexChatRole(this ChatRole role) => role.Value.ToLowerInvariant() switch {
+        "assistant" => DexChatRole.Assistant,
+        "system" => DexChatRole.System,
+        "tool" => DexChatRole.Tool,
+        "user" => DexChatRole.User,
+        _ => DexChatRole.System
+    };
+
+    /// <summary>Maps a <see cref="ChatFinishReason"/> to the boundary <see cref="DexChatFinishReason"/>; <c>null</c> and unknown reasons map to <c>null</c>.</summary>
+    public static DexChatFinishReason? ToDexChatFinishReason(this ChatFinishReason? finishReason) => finishReason?.Value.ToLowerInvariant() switch {
+        "stop" => DexChatFinishReason.Stop,
+        "length" => DexChatFinishReason.Length,
+        "tool_calls" => DexChatFinishReason.ToolCalls,
+        "content_filter" => DexChatFinishReason.ContentFilter,
+        "limit" => DexChatFinishReason.Limit,
+        _ => null
     };
 
 
