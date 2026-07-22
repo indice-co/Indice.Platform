@@ -76,11 +76,21 @@ public class UsersService : IUsersService
 
     /// <inheritdoc/>
     public async Task<Profile> UpdatePreferencesAsync(string userId, string? preferredLanguage, string? responseStyle, List<string>? preferredCategories, CancellationToken cancellationToken) {
-        var user = await _db.Profiles.FirstAsync(u => u.UserId == userId, cancellationToken);
+        var user = await _db.Profiles.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken);
+        var now = DateTimeOffset.UtcNow;
+        if (user is null) {
+            user = new DbProfile() {
+                CreatedAt = now,
+                LastSeenAt = now,
+                UpdatedAt = now,
+                UserId = userId
+            };
+            _db.Profiles.Add(user);
+        }
         user.PreferredLanguage = preferredLanguage;
         user.ResponseStyle = responseStyle;
         user.PreferredCategories = preferredCategories ?? [];
-        user.UpdatedAt = DateTimeOffset.UtcNow;
+        user.UpdatedAt = now;
         await _db.SaveChangesAsync(cancellationToken);
         return ToDto(user);
     }

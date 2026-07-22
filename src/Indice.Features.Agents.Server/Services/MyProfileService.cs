@@ -30,7 +30,7 @@ internal class MyProfileService : IMyProfileService
 
     /// <inheritdoc/>
     public async Task<Profile> GetMeAsync(ClaimsPrincipal user, CancellationToken cancellationToken) {
-        var (subjectId, _, email, locale, displayName) = ReadClaims(user);
+        var (subjectId, _, email, locale, displayName) = user.ReadProfile();
         var profile = await _store.UpsertFromClaimsAsync(subjectId, displayName, email, locale, cancellationToken);
         return await WithUsageAsync(profile, subjectId, cancellationToken);
     }
@@ -42,7 +42,7 @@ internal class MyProfileService : IMyProfileService
             throw new BusinessException($"Unknown language '{request.PreferredLanguage}'.", "TAXONOMY_INVALID", [$"Allowed languages: {string.Join(", ", _taxonomy.Languages)}"]);
         }
 
-        var (subjectId, _, email, locale, displayName) = ReadClaims(user);
+        var (subjectId, _, email, locale, displayName) = user.ReadProfile();
         
         await _store.UpsertFromClaimsAsync(subjectId, displayName, email, locale, cancellationToken);
         var profile = await _store.UpdatePreferencesAsync(subjectId, request.PreferredLanguage, request.ResponseStyle, request.PreferredCategories, cancellationToken);
@@ -55,19 +55,4 @@ internal class MyProfileService : IMyProfileService
             subjectId, DateTimeOffset.UtcNow.AddDays(-UsageWindowDays), cancellationToken);
         return profile;
     }
-
-    private static (string subjectId, string? name, string? email, string? locale, string? displayName) ReadClaims(ClaimsPrincipal user) {
-        var name = user.FindFirstValue(BasicClaimTypes.Name);
-        var givenName = user.FindFirstValue(BasicClaimTypes.GivenName);
-        var familyName = user.FindFirstValue(BasicClaimTypes.FamilyName);
-        var displayName = $"{givenName} {familyName}".Trim();
-        if (!string.IsNullOrWhiteSpace(displayName) && displayName != name) {
-            displayName = name;
-        }
-        return (user.FindSubjectId()!,
-                name,
-                user.FindFirstValue(BasicClaimTypes.Email),
-                user.FindFirstValue(BasicClaimTypes.Locale),
-                displayName);
-    } 
 }
