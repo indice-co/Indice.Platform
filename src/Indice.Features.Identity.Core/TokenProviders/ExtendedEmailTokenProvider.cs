@@ -31,7 +31,7 @@ public class ExtendedEmailTokenProvider<TUser> : EmailTokenProvider<TUser> where
     }
 
     private static async Task<byte[]> GetSecurityToken(string purpose, UserManager<TUser> userManager, TUser user) {
-        var securityToken = await userManager.CreateSecurityTokenAsync(user);
+        var securityToken = await userManager.CreateSecurityTokenAsync(user).ConfigureAwait(false);
         if (!string.Equals(purpose, "TwoFactor", StringComparison.Ordinal)) {
             return securityToken;
         }
