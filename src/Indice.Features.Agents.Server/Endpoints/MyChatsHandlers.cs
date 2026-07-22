@@ -16,6 +16,7 @@ internal static class MyChatsHandlers
     /// <summary>POST /api/my/chats — creates a conversation with the first question.</summary>
     public static async Task<CreatedAtRoute<DexChatResponse>> Create(ChatRequest request, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
+        request.AuthorName ??= user.FindDisplayName();
         var response = await chats.SendAsync(userId, conversationId: null, request, cancellationToken);
         return TypedResults.CreatedAtRoute(response, nameof(GetChatSession), new { chatId = response!.ConversationId });
     }
@@ -24,6 +25,7 @@ internal static class MyChatsHandlers
     public static async Task<Results<Ok<DexChatResponse>, NotFound>> SendMessage(Guid chatId, ChatRequest request, ClaimsPrincipal user,
         IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
+        request.AuthorName ??= user.FindDisplayName();
         var response = await chats.SendAsync(userId, chatId, request, cancellationToken);
         return response is null ? TypedResults.NotFound() : TypedResults.Ok(response);
     }
@@ -32,6 +34,7 @@ internal static class MyChatsHandlers
     public static async Task<ServerSentEventsResult<DexChatResponseUpdate>> StreamCreate(ChatRequest request, ClaimsPrincipal user,
         IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
+        request.AuthorName ??= user.FindDisplayName();
         // conversationId null ⇒ the conversation is created inline, so the stream is never null here.
         var stream = await chats.SendStreamAsync(userId, conversationId: null, request, cancellationToken);
         return TypedResults.ServerSentEvents(stream!);
@@ -41,6 +44,7 @@ internal static class MyChatsHandlers
     public static async Task<Results<ServerSentEventsResult<DexChatResponseUpdate>, NotFound>> StreamMessage(Guid chatId, ChatRequest request,
         ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
+        request.AuthorName ??= user.FindDisplayName();
         var stream = await chats.SendStreamAsync(userId, chatId, request, cancellationToken);
         return stream is null ? TypedResults.NotFound() : TypedResults.ServerSentEvents(stream);
     }
