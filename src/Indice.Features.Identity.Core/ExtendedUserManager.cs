@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Diagnostics;
+using System.Security.Claims;
 #if NET9_0_OR_GREATER
 using Duende.IdentityModel;
 #else
@@ -700,12 +701,29 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         await extendedStore!.SetTwoFactorPreferenceAsync(user, null).ConfigureAwait(false);
 
         cancellationToken.ThrowIfCancellationRequested();
-        result = await ResetAuthenticatorKeyAsync(user);
+
+        result = await RemoveAuthenticatorKeyAsync(user);
         if (!result.Succeeded) {
             return result;
         }
         return result;
     }
+
+
+
+    /// <summary>
+    /// Resets the authenticator key for the user.
+    /// </summary>
+    /// <param name="user">The user.</param>
+    /// <returns>Whether the user was successfully updated.</returns>
+    public virtual async Task<IdentityResult> RemoveAuthenticatorKeyAsync(TUser user) {
+        ArgumentNullException.ThrowIfNull(user);
+        var extendedStore = GetUserStore();
+        await extendedStore!.RemoveAuthenticatorKeyAsync(user).ConfigureAwait(false);
+        return await this.UpdateSecurityStampAsync(user).ConfigureAwait(false);
+    }
+
+
     /// <summary>
     /// Resets the two-factor authentication for the specified user by disabling it, clearing any two-factor preferences, and resetting the authenticator key.
     /// </summary>

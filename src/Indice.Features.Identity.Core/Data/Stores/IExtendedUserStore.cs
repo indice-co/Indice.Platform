@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using System.Security.Claims;
 using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.AspNetCore.Identity;
@@ -75,4 +76,12 @@ public interface IExtendedUserStore<TUser> where TUser : User
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>The authentication method code preference or null</returns>
     Task<string?> GetTwoFactorPreferenceAsync(TUser user, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Remove user authenticator key
+    /// </summary>
+    /// <param name="user">The user for whom to get the two factor authentication preference.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    Task RemoveAuthenticatorKeyAsync(TUser user, CancellationToken cancellationToken = default);
+    
 }

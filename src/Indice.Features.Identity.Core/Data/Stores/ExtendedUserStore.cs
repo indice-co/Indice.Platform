@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -48,7 +49,7 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
     public ExtendedUserStore(TContext context, IConfiguration configuration, IdentityErrorDescriber? describer = null) : base(context, describer) {
         PasswordHistoryLimit = configuration.GetIdentityOption<int?>(nameof(IdentityOptions.Password), nameof(PasswordHistoryLimit));
         PasswordExpirationPolicy = configuration.GetIdentityOption<PasswordExpirationPolicy?>(nameof(IdentityOptions.Password), nameof(PasswordExpirationPolicy));
-        StorePictureAsClaim = configuration.GetIdentityOption<bool?> (nameof(IdentityOptions.User), nameof(StorePictureAsClaim)) ?? false;
+        StorePictureAsClaim = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.User), nameof(StorePictureAsClaim)) ?? false;
         TwoFactorPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy");
     }
 
@@ -351,8 +352,8 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
             }
         } else {
             var picture = await UserPictureSet.Where(x => x.UserId == user.Id).FirstOrDefaultAsync(cancellationToken);
-            if (picture is null) {  
-                return (null, string.Empty); 
+            if (picture is null) {
+                return (null, string.Empty);
             }
             return await GetUserPictureInternalAsync(picture.ContentType, new MemoryStream(picture.Data), contentType, size, cancellationToken);
         }
@@ -483,6 +484,13 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
         return await base.GetTokenAsync(user, InternalLoginProvider, TwoFactorPreferenceTokenName, cancellationToken);
     }
 
+
+    /// <inheritdoc/>
+    public async Task RemoveAuthenticatorKeyAsync(TUser user, CancellationToken cancellationToken = default) {
+        await base.SetTokenAsync(user, InternalLoginProvider, AuthenticatorKeyTokenName, null, cancellationToken);
+    }
     private const string InternalLoginProvider = "[AspNetUserStore]";
     private const string TwoFactorPreferenceTokenName = "TwoFactorPreference";
+    private const string AuthenticatorKeyTokenName = "AuthenticatorKey";
+
 }
