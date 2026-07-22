@@ -4,20 +4,19 @@
     <TargetFrameworks></TargetFrameworks>
     <TargetFramework>net10.0</TargetFramework>
     <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
-    <VersionSuffix>beta09</VersionSuffix>
+    <VersionSuffix>beta10</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.10" />
     <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.13.0" />
     <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.13.0" />
     <PackageReference Include="Microsoft.Extensions.AI" Version="10.8.0" />
     <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.8.0" />
     <PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" />
-
     <!-- 3rd Party -->
     <PackageReference Include="Duende.IdentityModel" Version="8.1.0" />
     <PackageReference Include="Handlebars.Net" Version="2.1.6" />

@@ -32,6 +32,7 @@ public class TotpServiceTests
             services.AddTransient<IUserRequirementProvider<User>, UserRequirementProviderNoOp>();
             services.AddTotpServiceFactory(configuration)
                     .AddSmsServiceNoop()
+                    .AddEmailServiceNoop()
                     .AddPushNotificationServiceNoop()
                     .AddLocalization()
                     .AddDistributedMemoryCache()
@@ -105,5 +106,255 @@ public class TotpServiceTests
             .WithSubject("OTP")
         );
         Assert.True(totpResult.Success);
+    }
+
+    [Fact]
+    public void TotpServiceFactory_Create_Without_User_Returns_TotpServiceSecurityToken() {
+        // Arrange
+        var totpServiceFactory = TestServer.Services.GetRequiredService<TotpServiceFactory>();
+
+        // Act
+        var totpService = totpServiceFactory.Create();
+
+        // Assert
+        Assert.NotNull(totpService);
+        Assert.IsType<TotpServiceSecurityToken>(totpService);
+    }
+
+    [Fact]
+    public async Task TotpServiceFactory_Create_SecurityToken_Can_Send_Via_Sms() {
+        // Arrange
+        var totpServiceFactory = TestServer.Services.GetRequiredService<TotpServiceFactory>();
+        var totpService = totpServiceFactory.Create();
+        var securityToken = Guid.NewGuid().ToString();
+        var phoneNumber = "+306991234567";
+
+        // Act
+        var result = await totpService.SendAsync(totp => totp
+            .UseSecurityToken(securityToken)
+            .WithMessage("Your verification code is {0}")
+            .ToPhoneNumber(phoneNumber)
+            .UsingSms()
+            .WithSubject("Verification")
+        );
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+    }
+
+    [Fact]
+    public async Task TotpServiceFactory_Create_SecurityToken_Can_Send_Via_Email() {
+        // Arrange
+        var totpServiceFactory = TestServer.Services.GetRequiredService<TotpServiceFactory>();
+        var totpService = totpServiceFactory.Create();
+        var securityToken = Guid.NewGuid().ToString();
+        var email = "test@example.com";
+
+        // Act
+        var result = await totpService.SendAsync(totp => totp
+            .UseSecurityToken(securityToken)
+            .WithMessage("Your verification code is {0}")
+            .ToEmail(email)
+            .UsingEmail()
+            .WithSubject("Verification")
+        );
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+    }
+
+    [Fact]
+    public async Task TotpServiceFactory_Create_SecurityToken_Can_Verify_Code() {
+        // Arrange
+        var totpServiceFactory = TestServer.Services.GetRequiredService<TotpServiceFactory>();
+        var totpService = totpServiceFactory.Create();
+        var securityToken = Guid.NewGuid().ToString();
+        var phoneNumber = "+306991234567";
+
+        // Act - Send the code first
+        var sendResult = await totpService.SendAsync(totp => totp
+            .UseSecurityToken(securityToken)
+            .WithMessage("Your verification code is {0}")
+            .ToPhoneNumber(phoneNumber)
+            .UsingSms()
+            .WithSubject("Verification")
+            
+        );
+
+        Assert.True(sendResult.Success);
+        Assert.NotNull(sendResult);
+    }
+
+    [Fact]
+    public async Task TotpServiceFactory_Create_SecurityToken_Returns_Error_For_Invalid_Channel() {
+        // Arrange
+        var totpServiceFactory = TestServer.Services.GetRequiredService<TotpServiceFactory>();
+        var totpService = totpServiceFactory.Create();
+        var securityToken = Guid.NewGuid().ToString();
+
+        // Act - Try to send without specifying phone or email
+        var result = await totpService.SendAsync(totp => totp
+            .UseSecurityToken(securityToken)
+            .WithMessage("Your verification code is {0}")
+            .ToPhoneNumber("") // Empty phone number
+            .UsingSms()
+            .WithSubject("Verification")
+        );
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+    }
+
+    [Fact]
+    public async Task TotpServiceFactory_Create_SecurityToken_Handles_Multiple_Requests() {
+        // Arrange
+        var totpServiceFactory = TestServer.Services.GetRequiredService<TotpServiceFactory>();
+        var totpService = totpServiceFactory.Create();
+        var securityToken = Guid.NewGuid().ToString();
+        var phoneNumber = "+306991234567";
+
+        // Act - Send first code
+        var firstResult = await totpService.SendAsync(totp => totp
+            .UseSecurityToken(securityToken)
+            .WithMessage("Your verification code is {0}")
+            .ToPhoneNumber(phoneNumber)
+            .UsingSms()
+            .WithSubject("Verification")
+        );
+
+        // Act - Try to send second code immediately (should be rate limited)
+        var secondResult = await totpService.SendAsync(totp => totp
+            .UseSecurityToken(securityToken)
+            .WithMessage("Your verification code is {0}")
+            .ToPhoneNumber(phoneNumber)
+            .UsingSms()
+            .WithSubject("Verification")
+        );
+
+        // Assert
+        Assert.True(firstResult.Success);
+        Assert.NotNull(secondResult);
+        Assert.True(secondResult.IsRateLimited);
+    }
+
+    [Fact]
+    public void TotpServiceFactory_Constructor_Throws_On_Null_ServiceProvider() {
+        Assert.Throws<ArgumentNullException>(() => new TotpServiceFactory(null!));
+    }
+
+    [Fact]
+    public void TotpServiceFactory_Create_With_User_Returns_TotpServiceDeveloper_When_EnableDeveloperTotp_Is_True() {
+        // Arrange - The TestServer is configured with EnableDeveloperTotp = true
+        var totpServiceFactory = TestServer.Services.GetRequiredService<TotpServiceFactory>();
+
+        // Act
+        var totpService = totpServiceFactory.Create<User>();
+
+        // Assert
+        Assert.NotNull(totpService);
+        Assert.IsType<TotpServiceDeveloper<User>>(totpService);
+    }
+
+    [Fact]
+    public void TotpServiceFactory_Create_With_User_Returns_TotpServiceUser_When_EnableDeveloperTotp_Is_False() {
+        // Arrange - Create a new TestServer with EnableDeveloperTotp = false
+        var builder = new WebHostBuilder();
+        builder.ConfigureAppConfiguration(builder => {
+            builder.AddInMemoryCollection(new Dictionary<string, string?> {
+                ["Totp:EnableDeveloperTotp"] = "false"
+            });
+        });
+        builder.ConfigureServices(services => {
+            services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
+            var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
+            services.AddTransient<IUserRequirementProvider<User>, UserRequirementProviderNoOp>();
+            services.AddTotpServiceFactory(configuration)
+                    .AddSmsServiceNoop()
+                    .AddEmailServiceNoop()
+                    .AddPushNotificationServiceNoop()
+                    .AddLocalization()
+                    .AddDistributedMemoryCache()
+                    .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                    .AddIdentity<User, Role>()
+                    .AddExtendedUserManager()
+                    .AddExtendedSignInManager()
+                    .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
+                    .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
+                    .AddExtendedPhoneNumberTokenProvider(configuration)
+                    .AddIdentityMessageDescriber<IdentityMessageDescriber>();
+        });
+        builder.Configure(app => { });
+        using var testServer = new TestServer(builder);
+
+        var totpServiceFactory = testServer.Services.GetRequiredService<TotpServiceFactory>();
+
+        // Act
+        var totpService = totpServiceFactory.Create<User>();
+
+        // Assert
+        Assert.NotNull(totpService);
+        Assert.IsType<TotpServiceUser<User>>(totpService);
+    }
+
+    [Fact]
+    public async Task TotpServiceFactory_Create_With_UserId_Resolves_User_And_Sends_Code() {
+        // Arrange
+        var random = new Random(Guid.NewGuid().GetHashCode()).Next();
+        var email = $"user_{random}@example.com";
+        var user = new User {
+            CreateDate = DateTimeOffset.UtcNow,
+            Email = email,
+            Id = Guid.NewGuid().ToString(),
+            SecurityStamp = Guid.NewGuid().ToString(),
+            UserName = email,
+            PhoneNumber = "+306991234567"
+        };
+
+        var userManager = TestServer.Services.GetRequiredService<ExtendedUserManager<User>>();
+        var createResult = await userManager.CreateAsync(user);
+        Assert.True(createResult.Succeeded);
+
+        var totpServiceFactory = TestServer.Services.GetRequiredService<TotpServiceFactory>();
+        var totpService = totpServiceFactory.Create();
+        var securityToken = Guid.NewGuid().ToString();
+
+        // Act
+        var result = await totpService.SendAsync(totp => totp
+            .UseSecurityToken(securityToken)
+            .WithMessage("Your verification code is {0}")
+            .ToUser(user.Id)
+            .UsingSms()
+            .WithSubject("Verification")
+            
+        );
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+    }
+
+    [Fact]
+    public async Task TotpServiceFactory_Create_Returns_Error_For_NonExistent_User() {
+        // Arrange
+        var totpServiceFactory = TestServer.Services.GetRequiredService<TotpServiceFactory>();
+        var totpService = totpServiceFactory.Create();
+        var securityToken = Guid.NewGuid().ToString();
+        var nonExistentUserId = Guid.NewGuid().ToString();
+
+        // Act
+        var result = await totpService.SendAsync(totp => totp
+            .UseSecurityToken(securityToken)
+            .WithMessage("Your verification code is {0}")
+            .ToUser(nonExistentUserId)
+            .UsingSms()
+            .WithSubject("Verification")
+        );
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.False(result.Success);
     }
 }

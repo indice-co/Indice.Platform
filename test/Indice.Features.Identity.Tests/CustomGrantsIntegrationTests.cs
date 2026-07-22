@@ -14,6 +14,7 @@ using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
 #else
 using IdentityServer4;
 using IdentityServer4.Models;
@@ -25,6 +26,7 @@ using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.Grants;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.ResponseHandling;
 using Indice.Features.Identity.Tests.Models;
@@ -214,6 +216,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         """;
     // Private fields
     private readonly HttpClient _httpClient;
+    private readonly TestServer _server;
     private readonly ITestOutputHelper _output;
     private IServiceProvider _serviceProvider;
     private string _identityDatabaseName = $"IdentityDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
@@ -257,7 +260,10 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             .AddAspNetIdentity<User>()
             .AddInMemoryPersistedGrants()
             .AddExtendedResourceOwnerPasswordValidator()
-            .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
+.AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
+.AddDelegationGrantValidator()
+.AddExtensionGrantValidator<TotpGrantValidator>()
+.AddOtpAuthenticateGrantValidator()
             .AddDeveloperSigningCredential(persistKey: false)
             .AddSignInLogs(options => {
                 options.UseEntityFrameworkCoreStore(dbBuilder => dbBuilder.UseInMemoryDatabase(_signInLogDatabaseName));
@@ -279,6 +285,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             app.IdentityStoreSetup();
         });
         var server = new TestServer(builder);
+        _server = server;
         var handler = server.CreateHandler();
         _serviceProvider = server.Services;
         _httpClient = new HttpClient(handler) {
@@ -292,7 +299,11 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         TestUser = await InitTestUserAsync();
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public Task DisposeAsync() {
+        _httpClient.Dispose();
+        _server.Dispose();
+        return Task.CompletedTask;
+    }
 
     #region Device Authentication Tests
     [Fact]
@@ -317,6 +328,124 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
     [Fact]
     public Task Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin_Test() => RegisterDeviceUsingFingerprintWhenAlreadySupportsPin();
 
+    #region Session Id Tests
+
+    [Fact]
+    public async Task Password_Grant_Issues_New_SessionId() {
+        var tokenResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
+        var sessionId = GetSessionId(tokenResponse);
+        Assert.False(string.IsNullOrWhiteSpace(sessionId));
+    }
+
+    [Fact]
+    public async Task Password_Grant_Issues_Different_SessionId_Per_Login() {
+        var firstLogin = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
+        var secondLogin = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
+        Assert.NotEqual(GetSessionId(firstLogin), GetSessionId(secondLogin));
+    }
+
+    [Fact]
+    public async Task DeviceAuthentication_Pin_Issues_New_SessionId() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var tokenResponse = await LoginWithDevicePin(registrationResult.RegistrationId);
+        var sessionId = GetSessionId(tokenResponse);
+        Assert.False(string.IsNullOrWhiteSpace(sessionId));
+    }
+
+    [Fact]
+    public async Task DeviceAuthentication_Fingerprint_Issues_New_SessionId() {
+        var registrationResult = await RegisterDeviceUsingFingerprintWhenAlreadySupportsPin();
+        var codeVerifier = GenerateCodeVerifier();
+        var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationResult.RegistrationId);
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var signature = SignMessage(challenge, GetX509SigningCredentials());
+        using var tokenRequest = new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "code", challenge },
+                { "code_signature", signature },
+                { "code_verifier", codeVerifier },
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "public_key", CERTIFICATE_PUBLIC_KEY },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+            }
+        };
+        var tokenResponse = await _httpClient.RequestTokenAsync(tokenRequest);
+        var sessionId = GetSessionId(tokenResponse);
+        Assert.False(string.IsNullOrWhiteSpace(sessionId));
+    }
+
+    [Fact]
+    public async Task Refresh_Token_Preserves_SessionId() {
+        var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx", requestOfflineAccess: true);
+        var loginSessionId = GetSessionId(loginResponse);
+        
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        using var firstRefreshRequest = new RefreshTokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            RefreshToken = loginResponse.RefreshToken!
+        };
+        var firstRefresh = await _httpClient.RequestRefreshTokenAsync(firstRefreshRequest);
+        Assert.Equal(loginSessionId, GetSessionId(firstRefresh));
+        
+        // refresh again
+        using var secondRefreshRequest = new RefreshTokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            RefreshToken = firstRefresh.RefreshToken ?? loginResponse.RefreshToken!
+        };
+        var secondRefresh = await _httpClient.RequestRefreshTokenAsync(secondRefreshRequest);
+        
+        Assert.Equal(loginSessionId, GetSessionId(secondRefresh));
+    }
+    
+    [Fact(Skip = "Known discrepancy between IS4 and Duende on handling of UpdateAccessTokenClaimsOnRefresh with SessionId.")]
+    public async Task Refresh_Token_Preserves_SessionId_When_Client_Updates_Claims_On_Refresh() {
+        var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx", requestOfflineAccess: true, clientId: "ppk-client-update-claims");
+        var loginSessionId = GetSessionId(loginResponse);
+        
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        using var refreshTokenRequest = new RefreshTokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = "ppk-client-update-claims",
+            ClientSecret = CLIENT_SECRET,
+            RefreshToken = loginResponse.RefreshToken!
+        };
+        var refreshResponse = await _httpClient.RequestRefreshTokenAsync(refreshTokenRequest);
+        
+        Assert.Equal(loginSessionId, GetSessionId(refreshResponse));
+    }
+
+    #endregion
+
+    private static string? GetSessionId(TokenResponse tokenResponse) {
+        Assert.False(tokenResponse.IsError, tokenResponse.ErrorDescription ?? tokenResponse.Error);
+        var accessToken = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(tokenResponse.AccessToken);
+        return accessToken.TryGetClaim(BasicClaimTypes.SessionId, out var sessionId) ? sessionId.Value : null;
+    }
+
+    private async Task<TokenResponse> LoginWithDevicePin(Guid registrationId) {
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        using var tokenRequest = new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+            }
+        };
+        return await _httpClient.RequestTokenAsync(tokenRequest);
+    }
+
     [Fact]
     public async Task Can_Authenticate_Existing_Device_Using_Fingerprint() {
         var registrationResult = await RegisterDeviceUsingFingerprintWhenAlreadySupportsPin();
@@ -340,7 +469,20 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             }
         });
         Assert.False(tokenResponse.IsError);
+        AssertSidClaimExists(tokenResponse);
     }
+
+private static void AssertSidClaimExists(TokenResponse tokenResponse) {
+    Assert.False(string.IsNullOrWhiteSpace(tokenResponse.AccessToken));
+    Assert.False(string.IsNullOrWhiteSpace(tokenResponse.IdentityToken));
+
+    var handler = new JwtSecurityTokenHandler();
+    var accessJwt = handler.ReadJwtToken(tokenResponse.AccessToken);
+    var idJwt = handler.ReadJwtToken(tokenResponse.IdentityToken);
+
+    Assert.Contains(accessJwt.Claims, c => c.Type == BasicClaimTypes.SessionId);
+    Assert.Contains(idJwt.Claims, c => c.Type == BasicClaimTypes.SessionId);
+}
 
     [Fact]
     public async Task Can_Authenticate_Existing_Device_Using_Pin() {
@@ -358,6 +500,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             }
         });
         Assert.False(tokenResponse.IsError);
+        AssertSidClaimExists(tokenResponse);
     }
 
     [Fact(Skip = "Needs configuration change")]
@@ -438,6 +581,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         // 7. Login again with fingerprint. This is expected to succeed.
         tokenResponse = await LoginWithFingerprint(responseDto.RegistrationId);
         Assert.False(tokenResponse.IsError);
+        AssertSidClaimExists(tokenResponse);
     }
     #endregion
 
@@ -460,6 +604,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             }
         });
         Assert.False(tokenResponse.IsError);
+        AssertSidClaimExists(tokenResponse);
     }
 
     [Fact]
@@ -479,6 +624,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             }
         });
         Assert.False(tokenResponse.IsError);
+        AssertSidClaimExists(tokenResponse);
     }
 
     [Fact]
@@ -549,6 +695,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var access_token = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(access_token_base64);
         var iat = access_token.IssuedAt;
         Assert.NotEqual(default(DateTime), iat);
+        AssertSidClaimExists(tokenResponse);
     }
 
     [Fact]
@@ -774,13 +921,17 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         return result.Challenge;
     }
 
-    private async Task<TokenResponse> LoginWithPasswordGrant(string userName, string password, string? deviceId = null, string? ipAddress = null) {
+    private async Task<TokenResponse> LoginWithPasswordGrant(string userName, string password, string? deviceId = null, string? ipAddress = null, bool requestOfflineAccess = false, string clientId = CLIENT_ID) {
         var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1";
+        if (requestOfflineAccess) {
+            scope = $"{scope} {IdentityServerConstants.StandardScopes.OfflineAccess}";
+        }
         var request = new PasswordTokenRequest {
             Address = discoveryDocument.TokenEndpoint,
-            ClientId = CLIENT_ID,
+            ClientId = clientId,
             ClientSecret = CLIENT_SECRET,
-            Scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1",
+            Scope = scope,
             UserName = userName,
             Password = password
         };
@@ -929,7 +1080,10 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             AllowedGrantTypes = {
                 CustomGrantTypes.DeviceAuthentication,
                 GrantType.ClientCredentials,
-                GrantType.ResourceOwnerPassword
+                GrantType.ResourceOwnerPassword,
+                CustomGrantTypes.Mfa,
+                CustomGrantTypes.Delegation,
+                TotpConstants.GrantType.Totp
             },
             ClientSecrets = {
                 new Secret(CLIENT_SECRET.ToSha256())
@@ -948,6 +1102,33 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 new ClientClaim(BasicClaimTypes.TrustedDevice, "true", ClaimValueTypes.Boolean),
                 new ClientClaim(BasicClaimTypes.MobileClient, "true", ClaimValueTypes.Boolean)
             }
+        },
+        new Client {
+            ClientId = "ppk-client-update-claims",
+            ClientName = "Public/Private key client (updates access token claims on refresh)",
+            AccessTokenType = AccessTokenType.Jwt,
+            AllowAccessTokensViaBrowser = false,
+            AllowedGrantTypes = {
+                GrantType.ResourceOwnerPassword
+            },
+            ClientSecrets = {
+                new Secret(CLIENT_SECRET.ToSha256())
+            },
+            AllowedScopes = {
+                IdentityServerConstants.StandardScopes.OpenId,
+                IdentityServerConstants.StandardScopes.Phone,
+                "scope1"
+            },
+            RequireConsent = false,
+            RequirePkce = false,
+            RequireClientSecret = true,
+            AllowOfflineAccess = true,
+            AlwaysSendClientClaims = true,
+            Claims = {
+                new ClientClaim(BasicClaimTypes.TrustedDevice, "true", ClaimValueTypes.Boolean),
+                new ClientClaim(BasicClaimTypes.MobileClient, "true", ClaimValueTypes.Boolean)
+            },
+            UpdateAccessTokenClaimsOnRefresh = true
         }
     };
 
