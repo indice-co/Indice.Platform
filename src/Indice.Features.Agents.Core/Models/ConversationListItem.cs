@@ -20,4 +20,7 @@ public class ConversationListItem
 
     /// <summary>Cumulative completion-token usage across all turns in this session.</summary>
     public long TotalCompletionTokens { get; init; }
+
+    /// <summary>Whether the session is pinned to the top of the list.</summary>
+    public bool Pin { get; set; }
 }

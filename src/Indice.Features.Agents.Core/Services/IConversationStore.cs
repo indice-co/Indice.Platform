@@ -49,4 +49,8 @@ public interface IConversationStore
 
     /// <summary>Sums the reasoning-model tokens (prompt + completion) on the user's turns since <paramref name="since"/>.</summary>
     Task<long> GetUsageTokensAsync(string userId, DateTimeOffset since, CancellationToken cancellationToken);
+
+    /// <summary>Likes or dislikes a conversation message.</summary>
+    /// <returns><c>true</c> when the message exists and the like/dislike was persisted.</returns>
+    Task<bool> SetLikeAsync(string userId, Guid conversationId, Guid messageId, bool? liked, CancellationToken cancellationToken);
 }

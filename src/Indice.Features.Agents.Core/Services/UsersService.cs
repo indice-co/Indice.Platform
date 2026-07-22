@@ -15,10 +15,10 @@ public class UsersService : IUsersService
     }
 
     /// <inheritdoc/>
-    public async Task<Profile?> GetAsync(string subjectId, CancellationToken cancellationToken) {
+    public async Task<Profile?> GetAsync(string userId, CancellationToken cancellationToken) {
         return await _db.Profiles
             .AsNoTracking()
-            .Where(u => u.SubjectId == subjectId)
+            .Where(u => u.UserId == userId)
             .Select(u => new Profile {
                 Id = u.Id,
                 DisplayName = u.DisplayName,
@@ -34,13 +34,22 @@ public class UsersService : IUsersService
     }
 
     /// <inheritdoc/>
-    public async Task<Profile> UpsertFromClaimsAsync(string subjectId, string? displayName, string? email, string? locale, CancellationToken cancellationToken) {
-        var user = await _db.Profiles.FirstOrDefaultAsync(u => u.SubjectId == subjectId, cancellationToken);
+    public async Task<string?> GetDisplayNameAsync(string userId, CancellationToken cancellationToken) {
+        return await _db.Profiles
+            .AsNoTracking()
+            .Where(u => u.UserId == userId)
+            .Select(u => u.DisplayName)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<Profile> UpsertFromClaimsAsync(string userId, string? displayName, string? email, string? locale, CancellationToken cancellationToken) {
+        var user = await _db.Profiles.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken);
         var now = DateTimeOffset.UtcNow;
         if (user is null) {
             user = new DbProfile {
                 Id = Guid.NewGuid(),
-                SubjectId = subjectId,
+                UserId = userId,
                 DisplayName = displayName,
                 Email = email,
                 Locale = locale,
@@ -66,10 +75,11 @@ public class UsersService : IUsersService
     }
 
     /// <inheritdoc/>
-    public async Task<Profile> UpdatePreferencesAsync(string subjectId, string? preferredLanguage, string? responseStyle, CancellationToken cancellationToken) {
-        var user = await _db.Profiles.FirstAsync(u => u.SubjectId == subjectId, cancellationToken);
+    public async Task<Profile> UpdatePreferencesAsync(string userId, string? preferredLanguage, string? responseStyle, List<string>? preferredCategories, CancellationToken cancellationToken) {
+        var user = await _db.Profiles.FirstAsync(u => u.UserId == userId, cancellationToken);
         user.PreferredLanguage = preferredLanguage;
         user.ResponseStyle = responseStyle;
+        user.PreferredCategories = preferredCategories ?? [];
         user.UpdatedAt = DateTimeOffset.UtcNow;
         await _db.SaveChangesAsync(cancellationToken);
         return ToDto(user);

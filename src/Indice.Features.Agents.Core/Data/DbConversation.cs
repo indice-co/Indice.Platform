@@ -29,6 +29,9 @@ public class DbConversation
     /// <summary>Number of persisted messages in this session. Each turn appends two rows (user + assistant).</summary>
     public int MessageCount { get; set; }
 
+    /// <summary>Optional pinning of this session to the top of the user's list.</summary>
+    public bool Pin { get; set; }
+
     /// <summary>Optional per-session metadata (JSON) — e.g. default filters or language preferences.</summary>
     public string? MetadataJson { get; set; }
 

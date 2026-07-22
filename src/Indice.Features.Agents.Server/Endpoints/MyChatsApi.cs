@@ -82,6 +82,12 @@ internal static class MyChatsApi
              .WithSummary("Delete a chat session and its messages.")
              .WithDescription("Permanently deletes the session and all its messages. Returns 204 on success, 404 when the session does not exist for the calling user.");
 
+        group.MapPut("{chatId:guid}/messages/{messageId:guid}/like", MyChatsHandlers.Like)
+             .WithParameterValidation<LikeRequest>()
+             .WithName(nameof(MyChatsHandlers.Like))
+             .WithSummary("Like or unlike a message in a chat session.")
+             .WithDescription("Marks the message as liked or unliked by the caller. Returns 204 on success, 404 when the session or message does not exist for the calling user.");
+
         return group;
     }
 }

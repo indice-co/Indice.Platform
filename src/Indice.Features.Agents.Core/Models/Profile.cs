@@ -3,7 +3,7 @@ namespace Indice.Features.Agents.Core.Models;
 /// <summary>
 /// Application-local user profile DTO exposed at the store boundary.
 /// Consumed by the Users feature (API) and the RAG personalization provider. The internal
-/// <c>SubjectId</c> key is not surfaced.
+/// <c>UserId</c> key is not surfaced.
 /// </summary>
 public class Profile
 {

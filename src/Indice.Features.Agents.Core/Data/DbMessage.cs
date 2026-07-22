@@ -29,6 +29,12 @@ public class DbMessage
     /// <summary>Completion-token cost attributed to this turn (assistant rows only).</summary>
     public int? CompletionTokens { get; set; }
 
+    /// <summary>Optional user feedback on the assistant message.</summary>
+    public bool? Liked { get; set; }
+
+    /// <summary>Optional name of the author of this message. For user messages, this is typically the display name of the authenticated user; for assistant messages, this is typically the name of the model deployment that produced the message.</summary>
+    public string? AuthorName { get; set; }
+
     /// <summary>Model deployment that produced the assistant message.</summary>
     public string? ModelUsed { get; set; }
 

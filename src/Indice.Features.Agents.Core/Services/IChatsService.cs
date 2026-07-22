@@ -29,4 +29,8 @@ public interface IChatsService
 
     /// <summary>Deletes a conversation and its messages. Returns <c>true</c> when the conversation existed and was deleted.</summary>
     Task<bool> DeleteAsync(string userId, Guid conversationId, CancellationToken cancellationToken);
+
+    /// <summary>Likes or dislikes a conversation message.</summary>
+    /// <returns><c>true</c> when the message exists and the like/dislike was persisted.</returns>
+    Task<bool> SetLikeAsync(string userId, Guid conversationId, Guid messageId, bool? liked, CancellationToken cancellationToken);
 }

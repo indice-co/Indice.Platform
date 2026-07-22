@@ -11,7 +11,7 @@ public class DbProfile
     public Guid Id { get; set; }
 
     /// <summary>The IdP subject claim (<c>sub</c>) this profile belongs to.</summary>
-    public string SubjectId { get; set; } = string.Empty;
+    public string UserId { get; set; } = string.Empty;
 
     /// <summary>Cached display name from the <c>name</c> claim.</summary>
     public string? DisplayName { get; set; }

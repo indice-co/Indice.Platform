@@ -30,8 +30,8 @@ internal class MyProfileService : IMyProfileService
 
     /// <inheritdoc/>
     public async Task<Profile> GetMeAsync(ClaimsPrincipal user, CancellationToken cancellationToken) {
-        var (subjectId, name, email, locale) = ReadClaims(user);
-        var profile = await _store.UpsertFromClaimsAsync(subjectId, name, email, locale, cancellationToken);
+        var (subjectId, _, email, locale, displayName) = ReadClaims(user);
+        var profile = await _store.UpsertFromClaimsAsync(subjectId, displayName, email, locale, cancellationToken);
         return await WithUsageAsync(profile, subjectId, cancellationToken);
     }
 
@@ -41,9 +41,11 @@ internal class MyProfileService : IMyProfileService
         if (!string.IsNullOrWhiteSpace(request.PreferredLanguage) && !_taxonomy.Languages.Contains(request.PreferredLanguage)) {
             throw new BusinessException($"Unknown language '{request.PreferredLanguage}'.", "TAXONOMY_INVALID", [$"Allowed languages: {string.Join(", ", _taxonomy.Languages)}"]);
         }
-        var (subjectId, name, email, locale) = ReadClaims(user);
-        await _store.UpsertFromClaimsAsync(subjectId, name, email, locale, cancellationToken);
-        var profile = await _store.UpdatePreferencesAsync(subjectId, request.PreferredLanguage, request.ResponseStyle, cancellationToken);
+
+        var (subjectId, _, email, locale, displayName) = ReadClaims(user);
+        
+        await _store.UpsertFromClaimsAsync(subjectId, displayName, email, locale, cancellationToken);
+        var profile = await _store.UpdatePreferencesAsync(subjectId, request.PreferredLanguage, request.ResponseStyle, request.PreferredCategories, cancellationToken);
         return await WithUsageAsync(profile, subjectId, cancellationToken);
     }
 
@@ -54,9 +56,18 @@ internal class MyProfileService : IMyProfileService
         return profile;
     }
 
-    private static (string subjectId, string? name, string? email, string? locale) ReadClaims(ClaimsPrincipal user)
-        => (user.FindSubjectId()!,
-            user.FindFirstValue(BasicClaimTypes.Name),
-            user.FindFirstValue(BasicClaimTypes.Email),
-            user.FindFirstValue(BasicClaimTypes.Locale));
+    private static (string subjectId, string? name, string? email, string? locale, string? displayName) ReadClaims(ClaimsPrincipal user) {
+        var name = user.FindFirstValue(BasicClaimTypes.Name);
+        var givenName = user.FindFirstValue(BasicClaimTypes.GivenName);
+        var familyName = user.FindFirstValue(BasicClaimTypes.FamilyName);
+        var displayName = $"{givenName} {familyName}".Trim();
+        if (!string.IsNullOrWhiteSpace(displayName) && displayName != name) {
+            displayName = name;
+        }
+        return (user.FindSubjectId()!,
+                name,
+                user.FindFirstValue(BasicClaimTypes.Email),
+                user.FindFirstValue(BasicClaimTypes.Locale),
+                displayName);
+    } 
 }

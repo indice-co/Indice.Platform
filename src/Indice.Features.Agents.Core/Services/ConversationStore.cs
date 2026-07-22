@@ -39,8 +39,8 @@ public class ConversationStore : IConversationStore
         }
 
         // Metadata only: the send paths need identity/ownership; history is loaded during the run by the
-        // pipeline's chat-history provider.
-        return await _db.Sessions
+        // pipeline'c chat-history provider.
+        return await _db.Conversations
             .AsNoTracking()
             .Where(s => s.Id == conversationId!.Value && s.UserId == userId)
             .Select(s => new Conversation {
@@ -51,6 +51,7 @@ public class ConversationStore : IConversationStore
                 InputTokenCount = s.InputTokenCount,
                 OutputTokenCount = s.OutputTokenCount,
                 MessageCount = s.MessageCount,
+                Pin = s.Pin
             })
             .FirstOrDefaultAsync(cancellationToken);
     }
@@ -61,7 +62,7 @@ public class ConversationStore : IConversationStore
         var messageTake = _sessionOptions.HistoryWindow * 2;
         // Inlined (not SessionOptions.GetQuestionsUsed) because EF cannot translate the helper call.
         var questionsTotal = _sessionOptions.GetQuestionsTotal();
-        var conversation = await _db.Sessions
+        var conversation = await _db.Conversations
             .AsNoTracking()
             .Where(s => s.Id == conversationId && s.UserId == userId)
             .Select(s => new Conversation {
@@ -74,6 +75,7 @@ public class ConversationStore : IConversationStore
                 MessageCount = s.MessageCount,
                 QuestionsUsedCount = questionsTotal == null ? null : (s.MessageCount / 2 < questionsTotal ? s.MessageCount / 2 : questionsTotal),
                 QuestionsLimitCount = questionsTotal,
+                Pin = s.Pin,
                 Messages = s.Messages
                     .OrderByDescending(m => m.CreatedAt)
                     .Take(messageTake)
@@ -82,7 +84,9 @@ public class ConversationStore : IConversationStore
                         MessageId = m.Id.ToString(),
                         Role = m.Role,
                         Contents = m.Contents,
-                        CreatedAt = m.CreatedAt
+                        CreatedAt = m.CreatedAt,
+                        AuthorName = m.AuthorName,
+                        AdditionalProperties = GetMessageAdditionalProperties(m.Liked)
                     })
                     .ToList(),
             })
@@ -105,6 +109,8 @@ public class ConversationStore : IConversationStore
                 Role = m.Role,
                 Contents = m.Contents,
                 CreatedAt = m.CreatedAt,
+                AuthorName = m.AuthorName,
+                AdditionalProperties = GetMessageAdditionalProperties(m.Liked)
             })
             .ToListAsync(cancellationToken);
         return messages;
@@ -112,17 +118,19 @@ public class ConversationStore : IConversationStore
 
     /// <inheritdoc/>
     public async Task<ResultSet<ConversationListItem>> ListAsync(string userId, ListOptions options, CancellationToken cancellationToken) {
-        var query = _db.Sessions
+        var query = _db.Conversations
             .AsNoTracking()
-            .Where(s => s.UserId == userId)
-            .OrderByDescending(s => s.LastActivityAt)
-            .Select(s => new ConversationListItem {
-                Id = s.Id,
-                Title = s.Title,
-                CreatedAt = s.CreatedAt,
-                LastActivityAt = s.LastActivityAt,
-                TotalPromptTokens = s.InputTokenCount,
-                TotalCompletionTokens = s.OutputTokenCount,
+            .Where(c => c.UserId == userId)
+            .OrderByDescending(c => c.Pin)
+            .ThenByDescending(c => c.LastActivityAt)
+            .Select(c => new ConversationListItem {
+                Id = c.Id,
+                Title = c.Title,
+                CreatedAt = c.CreatedAt,
+                LastActivityAt = c.LastActivityAt,
+                TotalPromptTokens = c.InputTokenCount,
+                TotalCompletionTokens = c.OutputTokenCount,
+                Pin = c.Pin
             });
         return await query.ToResultSetAsync(options, cancellationToken);
     }
@@ -131,7 +139,9 @@ public class ConversationStore : IConversationStore
     public async Task<ChatMessage> AppendTurnAsync(Guid conversationId, ChatMessage userMessage, ChatResponse response,
         CancellationToken cancellationToken) {
 
-        var session = await _db.Sessions.FirstAsync(s => s.Id == conversationId, cancellationToken);
+        var conversation = await _db.Conversations.FirstAsync(s => s.Id == conversationId, cancellationToken);
+        var userDisplayName = await _db.Profiles.Where(x => x.UserId == conversation.UserId).Select(x => x.DisplayName).FirstOrDefaultAsync(cancellationToken);
+        userMessage.AuthorName ??= userDisplayName;
         var userRow = ToDb(conversationId, userMessage, responseId: null, prompt: null, completion: null, model: null);
         var assistantRow = ToDb(conversationId, 
                                 response.Messages.First(), 
@@ -142,12 +152,12 @@ public class ConversationStore : IConversationStore
         _db.Add(userRow);
         _db.Add(assistantRow);
 
-        session.LastActivityAt = assistantRow.CreatedAt;
-        session.InputTokenCount += response.Usage?.InputTokenCount ?? 0;
-        session.OutputTokenCount += response.Usage?.OutputTokenCount ?? 0;
-        session.MessageCount += 2;
-        if (session.Title is null && _sessionOptions.TitleAutoGenerate) {
-            session.Title = DeriveTitle(userMessage);
+        conversation.LastActivityAt = assistantRow.CreatedAt;
+        conversation.InputTokenCount += response.Usage?.InputTokenCount ?? 0;
+        conversation.OutputTokenCount += response.Usage?.OutputTokenCount ?? 0;
+        conversation.MessageCount += 2;
+        if (conversation.Title is null && _sessionOptions.TitleAutoGenerate) {
+            conversation.Title = DeriveTitle(userMessage);
         }
 
         await _db.SaveChangesAsync(cancellationToken);
@@ -157,12 +167,13 @@ public class ConversationStore : IConversationStore
             Role = assistantRow.Role,
             Contents = assistantRow.Contents,
             CreatedAt = assistantRow.CreatedAt,
+            AuthorName = assistantRow.AuthorName,
         };
     }
 
     /// <inheritdoc/>
     public async Task<int> DeleteAsync(Guid conversationId, string userId, CancellationToken cancellationToken) {
-        var owned = await _db.Sessions
+        var owned = await _db.Conversations
             .AsNoTracking()
             .AnyAsync(s => s.Id == conversationId && s.UserId == userId, cancellationToken);
         if (!owned) {
@@ -172,7 +183,7 @@ public class ConversationStore : IConversationStore
         await _db.Messages
             .Where(m => m.ConversationId == conversationId)
             .ExecuteDeleteAsync(cancellationToken);
-        var deleted = await _db.Sessions
+        var deleted = await _db.Conversations
             .Where(s => s.Id == conversationId && s.UserId == userId)
             .ExecuteDeleteAsync(cancellationToken);
         await tx.CommitAsync(cancellationToken);
@@ -181,20 +192,34 @@ public class ConversationStore : IConversationStore
 
     /// <inheritdoc/>
     public Task<int> CountSessionsAsync(string userId, CancellationToken cancellationToken)
-        => _db.Sessions
+        => _db.Conversations
             .AsNoTracking()
             .CountAsync(s => s.UserId == userId, cancellationToken);
 
     /// <inheritdoc/>
     public async Task<long> GetUsageTokensAsync(string userId, DateTimeOffset since, CancellationToken cancellationToken) {
-        // Per-turn reasoning tokens live on the assistant message rows; sum them across the user's sessions
+        // Per-turn reasoning tokens live on the assistant message rows; sum them across the user'c sessions
         // within the window. Nullable sum so an empty window materializes as 0 rather than throwing.
-        var userSessionIds = _db.Sessions.Where(s => s.UserId == userId).Select(s => s.Id);
+        var userConversationIds = _db.Conversations.Where(s => s.UserId == userId).Select(s => s.Id);
         return await _db.Messages
             .AsNoTracking()
-            .Where(m => m.CreatedAt >= since && userSessionIds.Contains(m.ConversationId))
+            .Where(m => m.CreatedAt >= since && userConversationIds.Contains(m.ConversationId))
             .Select(m => (long?)((m.PromptTokens ?? 0) + (m.CompletionTokens ?? 0)))
             .SumAsync(cancellationToken) ?? 0;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> SetLikeAsync(string userId, Guid conversationId, Guid messageId, bool? liked, CancellationToken cancellationToken) {
+        var owned = await _db.Conversations
+            .AsNoTracking()
+            .AnyAsync(s => s.Id == conversationId && s.UserId == userId, cancellationToken);
+        if (!owned) {
+            return false;
+        }
+        var affectedRows = await _db.Messages
+            .Where(m => m.ConversationId == conversationId && m.Id == messageId && m.Role == ChatRole.Assistant)
+            .ExecuteUpdateAsync(m => m.SetProperty(msg => msg.Liked, liked), cancellationToken);
+        return affectedRows > 0;
     }
 
     private static DbMessage ToDb(Guid conversationId, ChatMessage m, string? responseId, int? prompt, int? completion, string? model) => new() {
@@ -207,6 +232,7 @@ public class ConversationStore : IConversationStore
         PromptTokens = prompt,
         CompletionTokens = completion,
         ModelUsed = model,
+        AuthorName = m.AuthorName,
         MetadataJson = null
     };
 
@@ -226,5 +252,11 @@ public class ConversationStore : IConversationStore
     private static string DeriveTitle(ChatMessage firstUserMessage) {
         var normalized = firstUserMessage.Text.Replace('\r', ' ').Replace('\n', ' ').Trim() ?? string.Empty;
         return normalized.Length <= 80 ? normalized : normalized[..80];
+    }
+
+    private static AdditionalPropertiesDictionary GetMessageAdditionalProperties(bool? liked) { 
+        return new AdditionalPropertiesDictionary() {
+            [nameof(DbMessage.Liked)] = liked
+        };
     }
 }

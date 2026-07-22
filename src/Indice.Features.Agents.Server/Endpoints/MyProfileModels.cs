@@ -8,4 +8,7 @@ public class UpdateUserRequest
 
     /// <summary>Preferred answer style; <c>null</c>/empty clears it. One of <c>concise</c> / <c>detailed</c> / <c>formal</c>.</summary>
     public string? ResponseStyle { get; init; }
+
+    /// <summary>Preferred answer categories; <c>null</c>/empty clears it. Validated against <c>Taxonomy.Categories</c>.</summary>
+    public List<string>? PreferredCategories { get; init; }
 }

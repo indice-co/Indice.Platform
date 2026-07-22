@@ -178,4 +178,9 @@ public class ChatsService : IChatsService
         var deleted = await _store.DeleteAsync(conversationId, userId, cancellationToken);
         return deleted > 0;
     }
+
+    /// <inheritdoc/>
+    public Task<bool> SetLikeAsync(string userId, Guid conversationId, Guid messageId, bool? liked, CancellationToken cancellationToken) {
+        return _store.SetLikeAsync(userId, conversationId, messageId, liked, cancellationToken);
+    }
 }

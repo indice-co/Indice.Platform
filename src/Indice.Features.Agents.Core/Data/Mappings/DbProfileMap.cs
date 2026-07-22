@@ -11,13 +11,13 @@ public class DbProfileMap : IEntityTypeConfiguration<DbProfile>
     public void Configure(EntityTypeBuilder<DbProfile> builder) {
         builder.ToTable("Profile", "dex");
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M128).IsRequired();
+        builder.Property(x => x.UserId).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.DisplayName).HasMaxLength(TextSizePresets.M256);
         builder.Property(x => x.Email).HasMaxLength(TextSizePresets.M256);
         builder.Property(x => x.Locale).HasMaxLength(TextSizePresets.S16);
         builder.Property(x => x.PreferredLanguage).HasMaxLength(TextSizePresets.S16);
         builder.Property(x => x.ResponseStyle).HasMaxLength(TextSizePresets.S32);
         builder.PrimitiveCollection(b => b.PreferredCategories);  // Or other options
-        builder.HasIndex(x => x.SubjectId).IsUnique();
+        builder.HasIndex(x => x.UserId).IsUnique();
     }
 }

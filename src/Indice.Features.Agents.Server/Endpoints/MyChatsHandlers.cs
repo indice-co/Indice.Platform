@@ -61,4 +61,10 @@ internal static class MyChatsHandlers
         => (await chats.DeleteAsync(user.FindSubjectId()!, chatId, cancellationToken))
             ? TypedResults.NoContent()
             : TypedResults.NotFound();
+
+    /// <summary>POST /api/my/chats/{chatId}/messages/{messageId}/like — likes or dislikes a message.</summary>
+    public static async Task<Results<NoContent, NotFound>> Like(Guid chatId, Guid messageId, LikeRequest request, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken)
+        => (await chats.SetLikeAsync(user.FindSubjectId()!, chatId, messageId, request.Like, cancellationToken))
+            ? TypedResults.NoContent()
+            : TypedResults.NotFound();
 }

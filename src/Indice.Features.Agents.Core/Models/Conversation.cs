@@ -26,6 +26,9 @@ public class Conversation
     /// <summary>Number of persisted messages in this session. Each turn appends two rows (user + assistant).</summary>
     public int MessageCount { get; init; }
 
+    /// <summary>Whether the session is pinned to the top of the list.</summary>
+    public bool Pin { get; set; }
+
     /// <summary>Questions used in this session so far, for a <c>used/total</c> display. <c>null</c> when the message limit is disabled.</summary>
     public int? QuestionsUsedCount { get; init; }
 
