@@ -362,6 +362,7 @@ public class TotpServiceTests
     [Theory]
     [InlineData(TokenOptions.DefaultPhoneProvider)]
     [InlineData(TokenOptions.DefaultEmailProvider)]
+    public async Task TwoFactorToken_Can_Be_Verified_After_User_Reload(string tokenProvider) {
         var userManager = TestServer.Services.GetRequiredService<ExtendedUserManager<User>>();
         var lastSignInDate = DateTimeOffset.UtcNow.AddMinutes(-5);
         var user = await CreateTwoFactorUserAsync(userManager, tokenProvider, lastSignInDate);
