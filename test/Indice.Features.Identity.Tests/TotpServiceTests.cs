@@ -378,6 +378,7 @@ public class TotpServiceTests
     [Theory]
     [InlineData(TokenOptions.DefaultPhoneProvider)]
     [InlineData(TokenOptions.DefaultEmailProvider)]
+    public async Task TwoFactorToken_Is_Invalid_When_LastSignInDate_Changes(string tokenProvider) {
         var userManager = TestServer.Services.GetRequiredService<ExtendedUserManager<User>>();
         var lastSignInDate = DateTimeOffset.UtcNow.AddMinutes(-5);
         var user = await CreateTwoFactorUserAsync(userManager, tokenProvider, lastSignInDate);
