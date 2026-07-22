@@ -44,7 +44,8 @@ public class ChatsService : IChatsService
         }
         var userMessage = new ChatMessage(ChatRole.User, chatRequest.Text) {
             MessageId = Guid.NewGuid().ToString(),
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            AuthorName = chatRequest.AuthorName
         };
         var response = await _dexClient.GetResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString() }, cancellationToken);
         var persisted = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
@@ -83,7 +84,7 @@ public class ChatsService : IChatsService
     }
 
     /// <inheritdoc/>
-    public async Task<IAsyncEnumerable<SseItem<DexChatResponseUpdate>>?> SendStreamAsync(string userId, Guid? conversationId, string text, CancellationToken cancellationToken) {
+    public async Task<IAsyncEnumerable<SseItem<DexChatResponseUpdate>>?> SendStreamAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken) {
         await EnsureSessionCreationAllowedAsync(userId, conversationId, cancellationToken);
         var conversation = await _store.LoadOrCreateAsync(userId, conversationId, cancellationToken);
         if (conversation is null) {
@@ -93,7 +94,7 @@ public class ChatsService : IChatsService
         if (!turnCheck.Allowed) {
             return LimitReachedStream(conversation, turnCheck.Message);
         }
-        return StreamTurnAsync(conversation, text, cancellationToken);
+        return StreamTurnAsync(conversation, chatRequest, cancellationToken);
     }
 
     /// <summary>Throws a <see cref="BusinessException"/> when a new conversation is requested but the user's conversation cap is hit. No-op for existing sessions.</summary>
@@ -122,11 +123,12 @@ public class ChatsService : IChatsService
 
     /// <summary>Streams the turn as message/delta frames: <c>start</c>, a <c>status</c> per pipeline step, a <c>delta</c> per token, then the completion parts (<c>citations</c>/<c>sources</c>/<c>usage</c>) and terminal <c>done</c> — or a terminal <c>error</c> on failure (user message persisted, question counted).</summary>
     private async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> StreamTurnAsync(
-        Conversation conversation, string text, [EnumeratorCancellation] CancellationToken cancellationToken) {
+        Conversation conversation, ChatRequest chatRequest, [EnumeratorCancellation] CancellationToken cancellationToken) {
 
-        var userMessage = new ChatMessage(ChatRole.User, text) {
+        var userMessage = new ChatMessage(ChatRole.User, chatRequest.Text) {
             MessageId = Guid.NewGuid().ToString(),
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            AuthorName = chatRequest.AuthorName
         };
         var stream = _dexClient.GetStreamingResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString() }, cancellationToken);
         var updates = new List<ChatResponseUpdate>();

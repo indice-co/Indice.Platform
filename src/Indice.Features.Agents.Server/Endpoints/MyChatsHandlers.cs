@@ -33,7 +33,7 @@ internal static class MyChatsHandlers
         IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
         // conversationId null ⇒ the conversation is created inline, so the stream is never null here.
-        var stream = await chats.SendStreamAsync(userId, conversationId: null, request.Text, cancellationToken);
+        var stream = await chats.SendStreamAsync(userId, conversationId: null, request, cancellationToken);
         return TypedResults.ServerSentEvents(stream!);
     }
 
@@ -41,7 +41,7 @@ internal static class MyChatsHandlers
     public static async Task<Results<ServerSentEventsResult<DexChatResponseUpdate>, NotFound>> StreamMessage(Guid chatId, ChatRequest request,
         ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
-        var stream = await chats.SendStreamAsync(userId, chatId, request.Text, cancellationToken);
+        var stream = await chats.SendStreamAsync(userId, chatId, request, cancellationToken);
         return stream is null ? TypedResults.NotFound() : TypedResults.ServerSentEvents(stream);
     }
 
