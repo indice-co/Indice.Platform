@@ -360,9 +360,8 @@ public class TotpServiceTests
     }
 
     [Theory]
-    [InlineData("Phone")]
-    [InlineData("Email")]
-    public async Task TwoFactorToken_Validates_When_LastSignInDate_Is_Unchanged(string tokenProvider) {
+    [InlineData(TokenOptions.DefaultPhoneProvider)]
+    [InlineData(TokenOptions.DefaultEmailProvider)]
         var userManager = TestServer.Services.GetRequiredService<ExtendedUserManager<User>>();
         var lastSignInDate = DateTimeOffset.UtcNow.AddMinutes(-5);
         var user = await CreateTwoFactorUserAsync(userManager, tokenProvider, lastSignInDate);
@@ -376,9 +375,8 @@ public class TotpServiceTests
     }
 
     [Theory]
-    [InlineData("Phone")]
-    [InlineData("Email")]
-    public async Task TwoFactorToken_Is_Invalidated_When_LastSignInDate_Changes(string tokenProvider) {
+    [InlineData(TokenOptions.DefaultPhoneProvider)]
+    [InlineData(TokenOptions.DefaultEmailProvider)]
         var userManager = TestServer.Services.GetRequiredService<ExtendedUserManager<User>>();
         var lastSignInDate = DateTimeOffset.UtcNow.AddMinutes(-5);
         var user = await CreateTwoFactorUserAsync(userManager, tokenProvider, lastSignInDate);
