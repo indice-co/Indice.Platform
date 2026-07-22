@@ -360,8 +360,8 @@ public class TotpServiceTests
     }
 
     [Theory]
-    [InlineData(TokenOptions.DefaultPhoneProvider)]
-    [InlineData(TokenOptions.DefaultEmailProvider)]
+    [InlineData("Phone")]
+    [InlineData("Email")]
     public async Task TwoFactorToken_Can_Be_Verified_After_User_Reload(string tokenProvider) {
         var userManager = TestServer.Services.GetRequiredService<ExtendedUserManager<User>>();
         var lastSignInDate = DateTimeOffset.UtcNow.AddMinutes(-5);
@@ -376,8 +376,8 @@ public class TotpServiceTests
     }
 
     [Theory]
-    [InlineData(TokenOptions.DefaultPhoneProvider)]
-    [InlineData(TokenOptions.DefaultEmailProvider)]
+    [InlineData("Phone")]
+    [InlineData("Email")]
     public async Task TwoFactorToken_Is_Invalid_When_LastSignInDate_Changes(string tokenProvider) {
         var userManager = TestServer.Services.GetRequiredService<ExtendedUserManager<User>>();
         var lastSignInDate = DateTimeOffset.UtcNow.AddMinutes(-5);
