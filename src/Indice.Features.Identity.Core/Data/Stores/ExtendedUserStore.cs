@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 using Indice.Extensions;

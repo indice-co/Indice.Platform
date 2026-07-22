@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 #if NET9_0_OR_GREATER
 using Duende.IdentityModel;
 #else
@@ -715,11 +714,12 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// Resets the authenticator key for the user.
     /// </summary>
     /// <param name="user">The user.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>Whether the user was successfully updated.</returns>
-    public virtual async Task<IdentityResult> RemoveAuthenticatorKeyAsync(TUser user) {
+    public virtual async Task<IdentityResult> RemoveAuthenticatorKeyAsync(TUser user, CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(user);
         var extendedStore = GetUserStore();
-        await extendedStore!.RemoveAuthenticatorKeyAsync(user).ConfigureAwait(false);
+        await extendedStore!.RemoveAuthenticatorKeyAsync(user, cancellationToken).ConfigureAwait(false);
         return await this.UpdateSecurityStampAsync(user).ConfigureAwait(false);
     }
 
