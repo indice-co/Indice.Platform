@@ -80,10 +80,12 @@ public class UsersService : IUsersService
         var now = DateTimeOffset.UtcNow;
         if (user is null) {
             user = new DbProfile() {
+                Id = Guid.NewGuid(),
                 CreatedAt = now,
                 LastSeenAt = now,
                 UpdatedAt = now,
-                UserId = userId
+                UserId = userId,
+                PreferredCategories = []
             };
             _db.Profiles.Add(user);
         }
