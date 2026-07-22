@@ -43,6 +43,7 @@ public class TotpServiceTests
                     .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                     .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                     .AddExtendedPhoneNumberTokenProvider(configuration)
+                    .AddExtendedEmailTokenProvider(configuration)
                     .AddIdentityMessageDescriber<IdentityMessageDescriber>();
         });
         builder.Configure(app => { });
@@ -356,5 +357,68 @@ public class TotpServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.False(result.Success);
+    }
+
+    [Theory]
+    [InlineData("Phone")]
+    [InlineData("Email")]
+    public async Task TwoFactorToken_Validates_When_LastSignInDate_Is_Unchanged(string tokenProvider) {
+        var userManager = TestServer.Services.GetRequiredService<ExtendedUserManager<User>>();
+        var lastSignInDate = DateTimeOffset.UtcNow.AddMinutes(-5);
+        var user = await CreateTwoFactorUserAsync(userManager, tokenProvider, lastSignInDate);
+
+        var token = await userManager.GenerateTwoFactorTokenAsync(user, tokenProvider);
+        var reloadedUser = await userManager.FindByIdAsync(user.Id);
+
+        var isValid = await userManager.VerifyTwoFactorTokenAsync(reloadedUser!, tokenProvider, token);
+
+        Assert.True(isValid);
+    }
+
+    [Theory]
+    [InlineData("Phone")]
+    [InlineData("Email")]
+    public async Task TwoFactorToken_Is_Invalidated_When_LastSignInDate_Changes(string tokenProvider) {
+        var userManager = TestServer.Services.GetRequiredService<ExtendedUserManager<User>>();
+        var lastSignInDate = DateTimeOffset.UtcNow.AddMinutes(-5);
+        var user = await CreateTwoFactorUserAsync(userManager, tokenProvider, lastSignInDate);
+
+        var token = await userManager.GenerateTwoFactorTokenAsync(user, tokenProvider);
+        user.LastSignInDate = lastSignInDate.AddMinutes(1);
+        var updateResult = await userManager.UpdateAsync(user);
+        Assert.True(updateResult.Succeeded);
+        var reloadedUser = await userManager.FindByIdAsync(user.Id);
+
+        var isValid = await userManager.VerifyTwoFactorTokenAsync(reloadedUser!, tokenProvider, token);
+
+        Assert.False(isValid);
+    }
+
+    private static async Task<User> CreateTwoFactorUserAsync(ExtendedUserManager<User> userManager, string tokenProvider, DateTimeOffset lastSignInDate) {
+        var random = new Random(Guid.NewGuid().GetHashCode()).Next();
+        var email = $"user_{random}@example.com";
+        var user = new User {
+            CreateDate = DateTimeOffset.UtcNow,
+            Email = email,
+            EmailConfirmed = true,
+            Id = Guid.NewGuid().ToString(),
+            LastSignInDate = lastSignInDate,
+            PhoneNumber = "+306991234567",
+            PhoneNumberConfirmed = true,
+            SecurityStamp = Guid.NewGuid().ToString(),
+            TwoFactorEnabled = true,
+            UserName = email
+        };
+
+        if (tokenProvider == TokenOptions.DefaultEmailProvider) {
+            user.PhoneNumber = null;
+            user.PhoneNumberConfirmed = false;
+        } else {
+            user.EmailConfirmed = false;
+        }
+
+        var createResult = await userManager.CreateAsync(user);
+        Assert.True(createResult.Succeeded);
+        return user;
     }
 }
