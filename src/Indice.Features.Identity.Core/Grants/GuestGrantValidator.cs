@@ -33,16 +33,7 @@ public class GuestGrantValidator : IExtensionGrantValidator
 
     /// <inheritdoc />
     public virtual async Task ValidateAsync(ExtensionGrantValidationContext context) {
-        var rawSubject = context.Request.Raw.Get("sub");
-        string subject;
-        if (string.IsNullOrWhiteSpace(rawSubject)) {
-            subject = Guid.NewGuid().ToString();
-        } else if (Guid.TryParse(rawSubject, out var parsedSubject)) {
-            subject = parsedSubject.ToString();
-        } else {
-            context.Result = new GrantValidationResult(TokenRequestErrors.InvalidRequest, "The 'sub' parameter must be a valid GUID.");
-            return;
-        }
+        string subject = Guid.NewGuid().ToString();
         IEnumerable<Claim> claims;
         try {
             claims = [.. GetProfileClaims(context), .. await GetClaimsAsync(context, subject) ?? []];

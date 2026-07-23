@@ -56,13 +56,10 @@ public class GuestGrantIntegrationTests
         };
     }
 
-    private static Task<TokenResponse> RequestGuestTokenAsync(HttpClient httpClient, string? sub = null, IDictionary<string, string>? extraParameters = null) {
+    private static Task<TokenResponse> RequestGuestTokenAsync(HttpClient httpClient, IDictionary<string, string>? extraParameters = null) {
         var parameters = new Parameters {
             { "scope", "chat" }
         };
-        if (sub is not null) {
-            parameters.Add("sub", sub);
-        }
         if (extraParameters is not null) {
             foreach (var parameter in extraParameters) {
                 parameters.Add(parameter.Key, parameter.Value);
@@ -94,23 +91,6 @@ public class GuestGrantIntegrationTests
         Assert.Equal(subject, token.Claims.First(claim => claim.Type == "sub").Value);
         Assert.Equal(GuestGrantValidator.IdentityProviderName, token.Claims.First(claim => claim.Type == "idp").Value);
         Assert.Contains(token.Claims, claim => claim.Type == "scope" && claim.Value == "chat");
-    }
-
-    [Fact]
-    public async Task Guest_Grant_With_Explicit_Sub_Honors_It() {
-        using var httpClient = CreateServer();
-        var subject = Guid.NewGuid().ToString();
-        var response = await RequestGuestTokenAsync(httpClient, subject);
-        Assert.False(response.IsError, response.Error);
-        Assert.Equal(subject, response.Json?.TryGetString("sub"));
-    }
-
-    [Fact]
-    public async Task Guest_Grant_With_Invalid_Sub_Is_Rejected() {
-        using var httpClient = CreateServer();
-        var response = await RequestGuestTokenAsync(httpClient, "not-a-guid");
-        Assert.True(response.IsError);
-        Assert.Equal("invalid_request", response.Error);
     }
 
     [Fact]
