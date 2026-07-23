@@ -100,7 +100,7 @@ export class UserStore {
       }));
   }
 
-    public resetPassword(userId: string, password: string, changePasswordAfterFirstSignIn: boolean, bypassPasswordValidation: boolean, suppressNotification: boolean,): Observable<void> {
+    public resetPassword(userId: string, password: string, changePasswordAfterFirstSignIn: boolean, bypassPasswordValidation: boolean, suppressNotification: boolean): Observable<void> {
     return this._api.setPassword(userId, {
       password,
       changePasswordAfterFirstSignIn,

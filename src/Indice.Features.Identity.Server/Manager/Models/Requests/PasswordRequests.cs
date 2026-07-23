@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.Azure.NotificationHubs;
 
 namespace Indice.Features.Identity.Server.Manager.Models;
 

@@ -3,15 +3,15 @@ using Indice.Features.Identity.Core.Events.Models;
 
 namespace Indice.Features.Identity.Core.Events;
 
-/// <summary>An event that is raised when a user's password is changed through <see cref="ExtendedUserManager{User}"/>.</summary>
+/// <summary>An event that is raised when a user's password is set from an admin user through <see cref="ExtendedUserManager{User}"/>.</summary>
 /// <remarks>Creates a new instance of <see cref="PasswordSetEvent"/>.</remarks>
 /// <param name="user">The user context.</param>
-/// <param name="suppressNotification">Whether to suppress notification.</param>
+/// <param name="suppressNotification">Whether to suppress the security notification.</param>
 public class PasswordSetEvent(UserEventContext user, bool suppressNotification) : IPlatformEvent
 {
     /// <summary>The user context.</summary>
     public UserEventContext User { get; } = user;
 
-    /// <summary>Whether to suppress notification.</summary>
+    /// <summary>Whether to suppress the security notification.</summary>
     public bool SuppressNotification { get; } = suppressNotification;
 }
