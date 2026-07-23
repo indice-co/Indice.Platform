@@ -26,6 +26,7 @@ internal class GuestTokenService : IGuestTokenService
             }
             tokenEndpoint = $"{authority}/connect/token";
         }
+        var form = new Dictionary<string, string> {
             ["grant_type"] = guestTokenOptions.GrantType,
             ["scope"] = guestTokenOptions.Scope ?? _options.ChatRequiredScope,
             ["client_id"] = guestTokenOptions.ClientId ?? throw new InvalidOperationException($"{nameof(GuestTokenOptions)}.{nameof(GuestTokenOptions.ClientId)} is not configured."),
