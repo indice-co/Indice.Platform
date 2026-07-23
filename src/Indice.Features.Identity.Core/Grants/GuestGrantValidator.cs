@@ -17,7 +17,6 @@ namespace Indice.Features.Identity.Core.Grants;
 
 /// <summary>A custom <see cref="IExtensionGrantValidator"/> that issues short-lived tokens for anonymous (guest) users.</summary>
 /// <remarks>
-/// The grant accepts an optional <c>sub</c> parameter. When omitted, a new <see cref="Guid"/> subject is generated on the fly.
 /// The effective subject is echoed back through the token response custom field <c>sub</c>, so callers do not need to parse the access token.
 /// Issued identities are discriminated by the <c>idp</c> claim with value <c>guest</c>.
 /// Subclass and override <see cref="GetClaimsAsync"/> to validate additional request data and enrich the issued claims,

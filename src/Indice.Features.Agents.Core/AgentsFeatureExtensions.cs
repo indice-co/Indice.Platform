@@ -22,9 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class AgentsFeatureExtensions
 {
     /// <summary>
-    /// Registers Dex core services: <see cref="AgentsOptions"/> (bound from the <c>Dex</c> configuration section),
-    /// <see cref="OpenAIClient"/> (singleton — each pipeline step builds its own role-bound agent from it),
-    /// the embedding generator, the <see cref="AgentsDbContext"/> wired to SQL Server, and <see cref="IDexChatClient"/>.
+    /// Registers Dex core services: <see cref="AgentsOptions"/> (bound from the <c>Dex</c> configuration section).
     /// </summary>
     public static IServiceCollection AddAgentsCore(this IServiceCollection services, IConfiguration configuration, Action<AgentsOptions>? configureAction = null) {
         var optionsBuilder = services.AddOptions<AgentsOptions>().BindConfiguration("Dex");
