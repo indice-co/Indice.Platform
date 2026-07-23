@@ -1,11 +1,9 @@
 ﻿using System.Security.Claims;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Models;
-using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 #else
 using IdentityServer4.Models;
-using IdentityServer4.Services;
 using IdentityServer4.Stores;
 #endif
 using Indice.Events;
@@ -29,14 +27,12 @@ public sealed class UserPasswordSetEventHandler : IPlatformEventHandler<Password
     private readonly IPlatformEventService _platformEvents;
 
     /// <summary>Creates a new instance of <see cref="UserPasswordSetEventHandler"/>.</summary>
-    /// <param name="eventService">Interface for the event service.</param>
     /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
     /// <param name="signInManager">The signin manager used to facilitate the discovery of the current device.</param>
     /// <param name="clientStore">Retrieval of client configuration.</param>
     /// <param name="ipAddressLocator">The ip locator service</param>
     /// <param name="platformEvents">Platform event service</param>
     public UserPasswordSetEventHandler(
-        IEventService eventService,
         IHttpContextAccessor httpContextAccessor,
         ExtendedSignInManager<User> signInManager,
         IClientStore clientStore,
