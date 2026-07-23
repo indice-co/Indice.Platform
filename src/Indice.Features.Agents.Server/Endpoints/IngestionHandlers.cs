@@ -2,7 +2,7 @@ using System.Globalization;
 using Indice.Extensions;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
-using Indice.Features.Agents.Core.Workflows;
+using Indice.Features.Agents.Core.Workflows.Ingestion;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +13,7 @@ namespace Indice.Features.Agents.Server.Endpoints;
 internal static class IngestionHandlers
 {
     /// <summary>Ingests an uploaded markdown document and returns an ingestion report.</summary>
-    public static async Task<Results<Ok<IngestionReport>, ValidationProblem>> DocumentIngest( IIngestionPipeline pipeline,
+    public static async Task<Results<Ok<IngestionReport>, ValidationProblem>> DocumentIngest(IIngestionPipeline pipeline,
         CancellationToken cancellationToken, [FromForm] DocumentIngestRequest request) {
         if (ValidateUpload(request) is { } problem) {
             return problem;

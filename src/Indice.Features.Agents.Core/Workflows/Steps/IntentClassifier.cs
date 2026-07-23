@@ -1,13 +1,12 @@
-using Azure.AI.OpenAI;
+using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OpenAI.Chat;
-using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -16,16 +15,18 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// On out-of-scope the workflow routes to <see cref="OutOfScopeResponder"/> via a conditional edge; otherwise
 /// downstream steps receive validated <see cref="Intent"/> and <see cref="RetrievalFilters"/>.
 /// </summary>
-public sealed class IntentClassifier : Executor<PipelineStepContext<RagPipelineInput>, PipelineStepContext<IntentOutput>>
+public sealed class IntentClassifier : Executor<ConversationState, IntentOutput>
 {
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="IntentClassifier"/>.</summary>
-    public IntentClassifier(AzureOpenAIClient openAIClient, IOptions<AgentsOptions> options,
+    public IntentClassifier(
+        [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, 
+        IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
-        SessionStoreChatHistoryProvider historyProvider) : base("IntentClassifier") {
+        ConversationStoreChatHistoryProvider historyProvider) : base("IntentClassifier") {
         _options = options.Value;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
         var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
@@ -33,25 +34,29 @@ public sealed class IntentClassifier : Executor<PipelineStepContext<RagPipelineI
             categories = _options.Taxonomy.Categories,
             languages = _options.Taxonomy.Languages,
         });
-        _agent = openAIClient.GetChatClient(_model)
-            .AsAIAgent(options: new ChatClientAgentOptions() {
+        _agent = chatClient.AsAIAgent(options: new ChatClientAgentOptions() {
                 ChatOptions = chatOptions,
                 Name = "DexIntentClassifier",
                 ChatHistoryProvider = historyProvider,
+                // Chat completions is stateless; the echoed request ConversationId must not be treated as server-side history.
+                ThrowOnChatHistoryProviderConflict = false,
             });
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<PipelineStepContext<IntentOutput>> HandleAsync(
-        PipelineStepContext<RagPipelineInput> envelope,
+    public override async ValueTask<IntentOutput> HandleAsync(
+        ConversationState message,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-        var question = envelope.State.Question;
+        var question = message.Message.Text; 
+        var conversationId = message.ConversationId;
+        await context.SetConversationStateAsync(message, cancellationToken);
         var agentSession = await _agent.CreateSessionAsync(cancellationToken);
-        SessionStoreChatHistoryProvider.SetSessionId(agentSession, envelope.State.SessionId);
+        
+        ConversationStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(conversationId));
         var response = await _agent.RunAsync<IntentResult>(question, agentSession, cancellationToken: cancellationToken);
         if (response.Usage is not null) {
-            await context.AddEventAsync(new UsageEvent(response.Usage, _model), cancellationToken);
+            await context.AddEventAsync(new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [new UsageContent(response.Usage)])), cancellationToken);
         }
         var result = response.Result;
 
@@ -65,11 +70,11 @@ public sealed class IntentClassifier : Executor<PipelineStepContext<RagPipelineI
             IsInScope = result.IsInScope,
             OutOfScopeReason = result.OutOfScopeReason,
         };
-
-        return envelope.Next(new IntentOutput {
-            Intent = intent,
-            Filters = new RetrievalFilters { Category = category, Language = language },
-        });
+        await context.SetIntentStateAsync(new IntentState(intent, new RetrievalFilters { Category = category, Language = language }), cancellationToken);
+        return new IntentOutput (
+            intent,
+            new RetrievalFilters { Category = category, Language = language }
+        );
     }
 
     private sealed class IntentResult
@@ -81,3 +86,7 @@ public sealed class IntentClassifier : Executor<PipelineStepContext<RagPipelineI
         public string? OutOfScopeReason { get; set; }
     }
 }
+/// <summary>Output payload of <c>IntentClassifier</c>.</summary>
+/// <param name="Intent">The classified intent.</param>
+/// <param name="Filters">Retrieval filters derived from the intent (category, language).</param>
+public record IntentOutput(Intent Intent, RetrievalFilters Filters);

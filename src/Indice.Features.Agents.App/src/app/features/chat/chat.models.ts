@@ -1,27 +1,36 @@
-import { ChatMessage, ChatMessageRole, ICitation } from '../../core/services/dex-api.service';
+import { ChatMessageContent, ChatMessagePart, DexChatMessage, DexChatResponse, DexChatRole, ICitation, IChatMessageContent } from '../../core/services/dex-api.service';
 
 /** The two roles we render in the conversation thread. */
 export type ChatTurnRole = 'User' | 'Assistant';
 
 /**
- * View model for a single turn in the thread. Mirrors the API's ChatMessage but also carries the
- * citations that arrive on the streaming `complete` event (the persisted history does not include them).
+ * View model for a single turn in the thread. Mirrors the API's DexChatMessage but also carries the
+ * citations that arrive as streaming tail patches (the persisted history does not include them).
  */
 export interface ThreadMessage {
   role: ChatTurnRole;
-  content: string;
+  content: IChatMessageContent;
   createdAt?: Date;
   citations?: ICitation[];
 }
 
-/** Map an API ChatMessage (session history) to a thread view model. */
-export function toThreadMessage(message: ChatMessage): ThreadMessage {
+/** Map an API DexChatMessage (session history) to a thread view model. */
+export function toThreadMessage(message: DexChatMessage): ThreadMessage {
   return {
-    role: message.role === ChatMessageRole.User ? 'User' : 'Assistant',
-    content: message.content ?? '',
+    role: message.role === DexChatRole.User ? 'User' : 'Assistant',
+    content: message.content ?? new ChatMessageContent({ parts: [new ChatMessagePart({ value: '', contentType: 'text/markdown' }) ] }),
     createdAt: message.createdAt,
     citations: message.citations ?? [],
   };
+}
+
+/**
+ * Project the DexChatResponse a stream is assembling into a thread view model — its first message
+ * is the assistant answer. Returns `null` until the message skeleton patch has arrived.
+ */
+export function responseToThreadMessage(response: DexChatResponse | null): ThreadMessage | null {
+  const message = response?.messages?.[0];
+  return message ? toThreadMessage(message) : null;
 }
 
 /** Starter prompts shown on the empty conversation canvas. */

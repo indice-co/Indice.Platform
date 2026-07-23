@@ -12,13 +12,13 @@ public interface IUsageGuardService
     /// <summary>
     /// Checks whether a new turn may run on <paramref name="session"/> against
     /// <see cref="SessionOptions.MaxMessagesPerSession"/> and <see cref="SessionOptions.MaxTokensPerSession"/>.
-    /// Pure metadata check — the session's counters are already loaded by the send paths.
+    /// Pure metadata check — the conversation's counters are already loaded by the send paths.
     /// </summary>
-    UsageGuardResult Check(Session session);
+    UsageGuardResult Check(Conversation conversation);
 
     /// <summary>
-    /// Checks whether <paramref name="userId"/> may create a new session against
+    /// Checks whether <paramref name="userId"/> may create a new conversation against
     /// <see cref="SessionOptions.MaxSessionsPerUser"/>.
     /// </summary>
-    Task<UsageGuardResult> CheckSessionCreationAsync(string userId, CancellationToken cancellationToken);
+    Task<UsageGuardResult> CheckConversationCreationAsync(string userId, CancellationToken cancellationToken);
 }

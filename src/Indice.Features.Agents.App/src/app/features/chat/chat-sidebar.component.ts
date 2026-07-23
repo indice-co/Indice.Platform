@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 
-import { SessionListItem } from '../../core/services/dex-api.service';
+import { ConversationListItem } from '../../core/services/dex-api.service';
 
 /** Conversation rail: new-chat action, search, and the caller's session list. */
 @Component({
@@ -106,7 +106,7 @@ import { SessionListItem } from '../../core/services/dex-api.service';
   `,
 })
 export class ChatSidebarComponent {
-  readonly sessions = input<SessionListItem[]>([]);
+  readonly sessions = input<ConversationListItem[]>([]);
   readonly activeId = input<string | null>(null);
   readonly loading = input(false);
 
@@ -128,13 +128,13 @@ export class ChatSidebarComponent {
     this.search.set((event.target as HTMLInputElement).value);
   }
 
-  protected choose(item: SessionListItem): void {
+  protected choose(item: ConversationListItem): void {
     if (item.id) {
       this.select.emit(item.id);
     }
   }
 
-  protected onRemove(event: MouseEvent, item: SessionListItem): void {
+  protected onRemove(event: MouseEvent, item: ConversationListItem): void {
     event.stopPropagation();
     if (item.id) {
       this.removed.emit(item.id);

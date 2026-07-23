@@ -1,8 +1,8 @@
+using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
-using Indice.Features.Agents.Core.Workflows.State;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -10,7 +10,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// Embeds each rewritten query and retrieves the top-K most cosine-similar chunks via <see cref="IDocumentsService"/>.
 /// Unions and deduplicates across rewrites by <c>ChunkId</c>, keeping the highest score.
 /// </summary>
-public sealed class Retriever : Executor<PipelineStepContext<QueryRewriteOutput>, PipelineStepContext<RetrievalOutput>>
+public sealed class Retriever : Executor<QueryRewriteOutput, RetrievalOutput>
 {
     private readonly IDocumentsService _documentsService;
     private readonly IEmbeddingGenerator<string, Embedding<float>> _embedder;
@@ -27,13 +27,13 @@ public sealed class Retriever : Executor<PipelineStepContext<QueryRewriteOutput>
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<PipelineStepContext<RetrievalOutput>> HandleAsync(
-        PipelineStepContext<QueryRewriteOutput> envelope, IWorkflowContext context, CancellationToken cancellationToken = default) {
-        var filters = envelope.Payload.Filters;
+    public override async ValueTask<RetrievalOutput> HandleAsync(
+        QueryRewriteOutput queryRewriteOutput, IWorkflowContext context, CancellationToken cancellationToken = default) {
+        var filters = queryRewriteOutput.Filters;
         var topK = _options.Retrieval.NumberOfCandidates;
 
         var relevantAnswers = new Dictionary<Guid, RetrievedChunk>();
-        foreach (var query in envelope.Payload.RewrittenQueries) {
+        foreach (var query in queryRewriteOutput.RewrittenQueries) {
             // Embedding dimensions are configured once on the generator registration (AddAgentsCore).
             var vector = await _embedder.GenerateVectorAsync(query, cancellationToken: cancellationToken);
             var hits = await _documentsService.SearchAsync(vector, filters, topK, _options.Retrieval.MinScore, cancellationToken);
@@ -46,9 +46,16 @@ public sealed class Retriever : Executor<PipelineStepContext<QueryRewriteOutput>
         var candidates = relevantAnswers.Values
             .OrderByDescending(c => c.Score)
             .ToList();
-        return envelope.Next(new RetrievalOutput {
-            Intent = envelope.Payload.Intent,
-            Candidates = candidates,
-        });
+        return new RetrievalOutput(
+            queryRewriteOutput.Intent,
+            candidates
+        );
     }
 }
+
+
+/// <summary>Output payload of <c>Retriever</c>.</summary>
+/// <param name="Intent">The classified intent, forwarded from upstream.</param>
+/// <param name="Candidates">Top candidates union'd and deduped across all rewritten queries, ordered by cosine similarity.</param>
+public record RetrievalOutput(Intent Intent, IReadOnlyList<RetrievedChunk> Candidates);
+

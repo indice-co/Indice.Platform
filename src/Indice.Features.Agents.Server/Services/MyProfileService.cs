@@ -18,11 +18,11 @@ internal class MyProfileService : IMyProfileService
     private const int UsageWindowDays = 7;
 
     private readonly IUsersService _store;
-    private readonly ISessionsStore _sessions;
+    private readonly IConversationStore _sessions;
     private readonly TaxonomyOptions _taxonomy;
 
     /// <summary>Creates a new <see cref="MyProfileService"/>.</summary>
-    public MyProfileService(IUsersService store, ISessionsStore sessions, IOptions<AgentsOptions> options) {
+    public MyProfileService(IUsersService store, IConversationStore sessions, IOptions<AgentsOptions> options) {
         _store = store;
         _sessions = sessions;
         _taxonomy = options.Value.Taxonomy;
@@ -30,8 +30,8 @@ internal class MyProfileService : IMyProfileService
 
     /// <inheritdoc/>
     public async Task<Profile> GetMeAsync(ClaimsPrincipal user, CancellationToken cancellationToken) {
-        var (subjectId, name, email, locale) = ReadClaims(user);
-        var profile = await _store.UpsertFromClaimsAsync(subjectId, name, email, locale, cancellationToken);
+        var (subjectId, _, email, locale, displayName) = user.ReadProfile();
+        var profile = await _store.UpsertFromClaimsAsync(subjectId, displayName, email, locale, cancellationToken);
         return await WithUsageAsync(profile, subjectId, cancellationToken);
     }
 
@@ -41,9 +41,11 @@ internal class MyProfileService : IMyProfileService
         if (!string.IsNullOrWhiteSpace(request.PreferredLanguage) && !_taxonomy.Languages.Contains(request.PreferredLanguage)) {
             throw new BusinessException($"Unknown language '{request.PreferredLanguage}'.", "TAXONOMY_INVALID", [$"Allowed languages: {string.Join(", ", _taxonomy.Languages)}"]);
         }
-        var (subjectId, name, email, locale) = ReadClaims(user);
-        await _store.UpsertFromClaimsAsync(subjectId, name, email, locale, cancellationToken);
-        var profile = await _store.UpdatePreferencesAsync(subjectId, request.PreferredLanguage, request.ResponseStyle, cancellationToken);
+
+        var (subjectId, _, email, locale, displayName) = user.ReadProfile();
+        
+        await _store.UpsertFromClaimsAsync(subjectId, displayName, email, locale, cancellationToken);
+        var profile = await _store.UpdatePreferencesAsync(subjectId, request.PreferredLanguage, request.ResponseStyle, request.PreferredCategories, cancellationToken);
         return await WithUsageAsync(profile, subjectId, cancellationToken);
     }
 
@@ -53,10 +55,4 @@ internal class MyProfileService : IMyProfileService
             subjectId, DateTimeOffset.UtcNow.AddDays(-UsageWindowDays), cancellationToken);
         return profile;
     }
-
-    private static (string subjectId, string? name, string? email, string? locale) ReadClaims(ClaimsPrincipal user)
-        => (user.FindSubjectId()!,
-            user.FindFirstValue(BasicClaimTypes.Name),
-            user.FindFirstValue(BasicClaimTypes.Email),
-            user.FindFirstValue(BasicClaimTypes.Locale));
 }
