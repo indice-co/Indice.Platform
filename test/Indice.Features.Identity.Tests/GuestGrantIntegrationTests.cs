@@ -65,13 +65,14 @@ public class GuestGrantIntegrationTests
                 parameters.Add(parameter.Key, parameter.Value);
             }
         }
-        return httpClient.RequestTokenAsync(new TokenRequest {
+        using var tokenRequest = new TokenRequest {
             Address = $"{BASE_URL}/connect/token",
             GrantType = CustomGrantTypes.Guest,
             ClientId = CLIENT_ID,
             ClientSecret = CLIENT_SECRET,
             Parameters = parameters
-        });
+        };
+        return httpClient.RequestTokenAsync(tokenRequest);
     }
 
     private static string HashSecret(string secret) {

@@ -37,7 +37,7 @@ public class GuestGrantValidator : IExtensionGrantValidator
         IEnumerable<Claim> claims;
         try {
             claims = [.. GetProfileClaims(context), .. await GetClaimsAsync(context, subject) ?? []];
-        } catch (Exception exception) {
+        } catch (InvalidOperationException exception) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, exception.Message);
             return;
         }

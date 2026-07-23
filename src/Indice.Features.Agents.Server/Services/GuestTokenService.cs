@@ -25,7 +25,8 @@ internal class GuestTokenService : IGuestTokenService
             ["client_id"] = guestTokenOptions.ClientId ?? throw new InvalidOperationException($"{nameof(GuestTokenOptions)}.{nameof(GuestTokenOptions.ClientId)} is not configured."),
             ["client_secret"] = guestTokenOptions.ClientSecret ?? throw new InvalidOperationException($"{nameof(GuestTokenOptions)}.{nameof(GuestTokenOptions.ClientSecret)} is not configured.")
         };
-        using var response = await _httpClient.PostAsync(tokenEndpoint, new FormUrlEncodedContent(form), cancellationToken);
+        using var requestContent = new FormUrlEncodedContent(form);
+        using var response = await _httpClient.PostAsync(tokenEndpoint, requestContent, cancellationToken);
         var payload = await response.Content.ReadAsStringAsync(cancellationToken);
         if (!response.IsSuccessStatusCode) {
             throw new InvalidOperationException($"Guest token request failed with status {(int)response.StatusCode}: {payload}");

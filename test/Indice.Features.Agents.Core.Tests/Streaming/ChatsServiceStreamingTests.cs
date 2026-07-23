@@ -67,8 +67,8 @@ public class ChatsServiceStreamingTests
         var (streaming, _) = CreateService();
         var document = new JsonObject();
         var applier = new JsonPointerPatch(); // per-stream instance — inflates compacted frames
-        foreach (var item in await Collect(streaming)) {
-            if (item.Data is DexChatStreamDelta patch) { applier.Apply(document, patch, Json); }
+        foreach (var patch in (await Collect(streaming)).Select(item => item.Data).OfType<DexChatStreamDelta>()) {
+            applier.Apply(document, patch, Json);
         }
         var (nonStreaming, _) = CreateService(); // identical fixture, fresh store ⇒ same canonical response
         var canonical = await nonStreaming.SendAsync("user-1", null, new ChatRequest { Text = "hi" }, CancellationToken.None);

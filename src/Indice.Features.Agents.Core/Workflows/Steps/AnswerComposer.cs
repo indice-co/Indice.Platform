@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Indice.Features.Agents.Core.Models;
@@ -110,8 +111,9 @@ public sealed class AnswerComposer : Executor<RerankOutput, GroundedAnswerOutput
         var citationsByChunkId = citations.ToDictionary(c => c.ChunkId);
         // Outer match: a whole <sup>...</sup> group (tolerates a malformed closing tag like </su>).
         // Inner match: each [n] token with an optional (#chunkId) markdown link target.
-        foreach (Match group in Regex.Matches(answer, @"<sup>(.*?)</su\w*>", RegexOptions.Singleline)) {
-            var inner = group.Groups[1];
+        foreach (var inner in Regex.Matches(answer, @"<sup>(.*?)</su\w*>", RegexOptions.Singleline)
+                                 .Cast<Match>()
+                                 .Select(group => group.Groups[1])) {
             foreach (Match marker in Regex.Matches(inner.Value, @"\[(\d+)\](?:\(#([0-9a-fA-F\-]{36})\))?")) {
                 Models.Citation? citation = null;
                 if (marker.Groups[2].Success && Guid.TryParse(marker.Groups[2].Value, out var chunkId)) {
