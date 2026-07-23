@@ -10,7 +10,7 @@ namespace Indice.Features.Agents.Core.Services;
 public interface IUsageGuardService
 {
     /// <summary>
-    /// Checks whether a new turn may run on <paramref name="session"/> against
+    /// Checks whether a new turn may run on <paramref name="conversation"/> against
     /// <see cref="SessionOptions.MaxMessagesPerSession"/> and <see cref="SessionOptions.MaxTokensPerSession"/>.
     /// Pure metadata check — the conversation's counters are already loaded by the send paths.
     /// </summary>
