@@ -637,6 +637,24 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your password has been successfully changed..
+        /// </summary>
+        internal static string PasswordSetEventDescription {
+            get {
+                return ResourceManager.GetString("PasswordSetEventDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your Password has been changed.
+        /// </summary>
+        internal static string PasswordSetEventSubject {
+            get {
+                return ResourceManager.GetString("PasswordSetEventSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES..
         /// </summary>
         internal static string PhoneChangeVerificationSmsBody {

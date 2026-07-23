@@ -9,17 +9,15 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 #endif
 using Indice.Events;
-using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Events.Models;
-using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Features.GeoIP;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 
-namespace Indice.Features.Identity.SignInLogs.EventHandlers;
+namespace Indice.Features.Identity.Core;
 
 /// <summary>An event that is raised when a user is locked out.</summary>
 public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLockedEvent>

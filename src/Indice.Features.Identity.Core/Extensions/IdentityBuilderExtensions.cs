@@ -9,7 +9,6 @@ using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.TokenProviders;
-using Indice.Features.Identity.SignInLogs.Events;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -65,6 +64,9 @@ public static class IdentityBuilderExtensions
         builder.Services.AddPlatformEventHandler<UserPasswordLoginEvent, UserPasswordLoginEventHandler>();
         builder.Services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
         builder.Services.AddPlatformEventHandler<TwoFactorPreferenceChangedEvent, TwoFactorPreferenceChangedEventHandler>();
+        builder.Services.AddPlatformEventHandler<PasswordChangedEvent, UserPasswordChangedEventHandler>();
+        builder.Services.AddPlatformEventHandler<AccountLockedEvent, AccountLockedEventHandler>();
+        builder.Services.AddPlatformEventHandler<PasswordSetEvent, UserPasswordSetEventHandler>();
         builder.AddEntityFrameworkStores<ExtendedIdentityDbContext<TUser, Role>>()
                .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<TUser, Role>, TUser, Role>>()
                .AddUserManager<ExtendedUserManager<TUser>>();
