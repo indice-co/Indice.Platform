@@ -1,10 +1,14 @@
+using System.Net.ServerSentEvents;
 using System.Security.Claims;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
+using Indice.Features.Agents.Server.Services;
 using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Server.Endpoints;
 
@@ -14,10 +18,28 @@ namespace Indice.Features.Agents.Server.Endpoints;
 internal static class MyChatsHandlers
 {
     /// <summary>POST /api/my/chats — creates a conversation with the first question.</summary>
-    public static async Task<CreatedAtRoute<DexChatResponse>> Create(ChatRequest request, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
-        var userId = user.FindSubjectId()!;
-        request.AuthorName ??= user.FindDisplayName();
+    public static async Task<Results<CreatedAtRoute<DexChatResponse>, UnauthorizedHttpResult>> Create(ChatRequest request, ClaimsPrincipal user, IChatsService chats,
+        IOptions<AgentsServerOptions> options, HttpContext httpContext, CancellationToken cancellationToken) {
+        string userId;
+        GuestAccessToken? guestToken = null;
+        if (user.Identity?.IsAuthenticated == true) {
+            userId = user.FindSubjectId()!;
+            request.AuthorName ??= user.FindDisplayName();
+        } else if (options.Value.AllowAnonymousChatCreation) {
+            guestToken = await httpContext.RequestServices.GetRequiredService<IGuestTokenService>().CreateTokenAsync(cancellationToken);
+            userId = guestToken.Subject;
+        } else {
+            return TypedResults.Unauthorized();
+        }
         var response = await chats.SendAsync(userId, conversationId: null, request, cancellationToken);
+        if (guestToken is not null) {
+            response!.GuestSession = new GuestSession {
+                AccessToken = guestToken.AccessToken,
+                TokenType = guestToken.TokenType,
+                ExpiresIn = guestToken.ExpiresIn,
+                Subject = guestToken.Subject
+            };
+        }
         return TypedResults.CreatedAtRoute(response, nameof(GetChatSession), new { chatId = response!.ConversationId });
     }
 
@@ -31,13 +53,40 @@ internal static class MyChatsHandlers
     }
 
     /// <summary>POST /api/my/chats/stream — creates a conversation and streams the first turn over SSE.</summary>
-    public static async Task<ServerSentEventsResult<DexChatResponseUpdate>> StreamCreate(ChatRequest request, ClaimsPrincipal user,
-        IChatsService chats, CancellationToken cancellationToken) {
-        var userId = user.FindSubjectId()!;
-        request.AuthorName ??= user.FindDisplayName();
+    public static async Task<Results<ServerSentEventsResult<DexChatResponseUpdate>, UnauthorizedHttpResult>> StreamCreate(ChatRequest request, ClaimsPrincipal user,
+        IChatsService chats, IOptions<AgentsServerOptions> options, HttpContext httpContext, CancellationToken cancellationToken) {
+        string userId;
+        GuestAccessToken? guestToken = null;
+        if (user.Identity?.IsAuthenticated == true) {
+            userId = user.FindSubjectId()!;
+            request.AuthorName ??= user.FindDisplayName();
+        } else if (options.Value.AllowAnonymousChatCreation) {
+            guestToken = await httpContext.RequestServices.GetRequiredService<IGuestTokenService>().CreateTokenAsync(cancellationToken);
+            userId = guestToken.Subject;
+        } else {
+            return TypedResults.Unauthorized();
+        }
         // conversationId null ⇒ the conversation is created inline, so the stream is never null here.
         var stream = await chats.SendStreamAsync(userId, conversationId: null, request, cancellationToken);
+        if (guestToken is not null) {
+            stream = AttachGuestSession(stream!, guestToken);
+        }
         return TypedResults.ServerSentEvents(stream!);
+    }
+
+    /// <summary>Decorates the stream by attaching the guest credentials to the <c>start</c> frame.</summary>
+    private static async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> AttachGuestSession(IAsyncEnumerable<SseItem<DexChatResponseUpdate>> stream, GuestAccessToken guestToken) {
+        await foreach (var item in stream) {
+            if (item.Data is DexChatStreamStart start) {
+                start.GuestSession = new GuestSession {
+                    AccessToken = guestToken.AccessToken,
+                    TokenType = guestToken.TokenType,
+                    ExpiresIn = guestToken.ExpiresIn,
+                    Subject = guestToken.Subject
+                };
+            }
+            yield return item;
+        }
     }
 
     /// <summary>POST /api/my/chats/{chatId}/messages/stream — streams a follow-up turn over SSE.</summary>

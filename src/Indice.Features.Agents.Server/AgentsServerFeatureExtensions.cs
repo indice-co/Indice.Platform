@@ -36,6 +36,9 @@ public static class AgentsServerFeatureExtensions
         services.AddChatsFeature();
         services.AddIngestionFeature();
         services.AddUsersFeature();
+        if (options.AllowAnonymousChatCreation) {
+            services.AddHttpClient<IGuestTokenService, GuestTokenService>();
+        }
         return services;
     }
 

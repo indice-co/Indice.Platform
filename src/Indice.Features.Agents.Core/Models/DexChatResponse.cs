@@ -1,4 +1,5 @@
 using Microsoft.Extensions.AI;
+using System.Text.Json.Serialization;
 
 namespace Indice.Features.Agents.Core.Models;
 
@@ -28,6 +29,10 @@ public class DexChatResponse
 
     /// <summary>True when the turn was blocked by a session usage limit — <see cref="Text"/> carries the predefined limit message and nothing was persisted.</summary>
     public bool LimitReached { get; set; }
+
+    /// <summary>Ephemeral guest credentials, present only when the session was created anonymously. The client must use the token as bearer on subsequent calls.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GuestSession? GuestSession { get; set; }
 
     /// <summary>Concatenated text of all messages, like <see cref="ChatResponse.Text"/>. Serialized as a convenience for consumers.</summary>
     public string Text => string.Concat(Messages.Select(message => message.Text));

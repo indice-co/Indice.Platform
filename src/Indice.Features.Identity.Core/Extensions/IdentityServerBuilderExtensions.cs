@@ -39,6 +39,23 @@ public static class IdentityServerBuilderExtensions
         return builder;
     }
 
+    /// <summary>Adds support for anonymous guest access tokens through the <c>urn:indice:guest</c> grant.</summary>
+    /// <typeparam name="TIdentityServerBuilder">The type of the builder.</typeparam>
+    /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
+    public static TIdentityServerBuilder AddGuestGrantValidator<TIdentityServerBuilder>(this TIdentityServerBuilder builder) where TIdentityServerBuilder : IIdentityServerBuilder =>
+        builder.AddGuestGrantValidator<TIdentityServerBuilder, GuestGrantValidator>();
+
+    /// <summary>Adds support for anonymous guest access tokens through the <c>urn:indice:guest</c> grant, using a custom validator.</summary>
+    /// <typeparam name="TIdentityServerBuilder">The type of the builder.</typeparam>
+    /// <typeparam name="TValidator">A <see cref="GuestGrantValidator"/> subclass that overrides <c>GetClaimsAsync</c> to validate additional request data and enrich the issued claims.</typeparam>
+    /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
+    public static TIdentityServerBuilder AddGuestGrantValidator<TIdentityServerBuilder, TValidator>(this TIdentityServerBuilder builder)
+        where TIdentityServerBuilder : IIdentityServerBuilder
+        where TValidator : GuestGrantValidator {
+        builder.AddExtensionGrantValidator<TValidator>();
+        return builder;
+    }
+
     /// <summary>Registers <see cref="OtpAuthenticateExtensionGrantValidator"/> custom grant.</summary>
     /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
     public static IIdentityServerBuilder AddOtpAuthenticateGrantValidator(this IIdentityServerBuilder builder) {

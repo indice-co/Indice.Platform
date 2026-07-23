@@ -29,6 +29,10 @@ public class DexChatStreamStart : DexChatResponseUpdate
 {
     /// <summary>Identifier of the conversation this turn belongs to.</summary>
     public Guid ConversationId { get; set; }
+
+    /// <summary>Ephemeral guest credentials, present only when the session was created anonymously. The client must use the token as bearer on subsequent calls.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GuestSession? GuestSession { get; set; }
 }
 
 /// <summary>Pipeline progress label. Ephemeral streaming UI hint — never part of the assembled answer.</summary>
