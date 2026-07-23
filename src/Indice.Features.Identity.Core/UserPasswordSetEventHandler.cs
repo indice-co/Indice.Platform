@@ -19,7 +19,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace Indice.Features.Identity.Core;
 
-/// <summary>An event that is raised when a user successfully sets their password.</summary>
+/// <summary>An event handler that publishes a security notification when an administrator sets/resets a user's password.</summary>
 public sealed class UserPasswordSetEventHandler : IPlatformEventHandler<PasswordSetEvent>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
