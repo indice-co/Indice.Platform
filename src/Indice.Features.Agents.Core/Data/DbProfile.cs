@@ -28,7 +28,7 @@ public class DbProfile
     /// <summary>App preference: desired answer style (e.g. <c>concise</c> / <c>detailed</c> / <c>formal</c>); feeds composer tone.</summary>
     public string? ResponseStyle { get; set; }
 
-    /// <summary>List of prefered category names. Empty if none sellected</summary>
+    /// <summary>List of preferred category names. Empty if none selected.</summary>
     public List<string> PreferredCategories { get; set; } = [];
 
     /// <summary>Creation timestamp.</summary>

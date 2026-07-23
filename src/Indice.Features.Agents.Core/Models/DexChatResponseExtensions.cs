@@ -93,7 +93,7 @@ public static class DexChatResponseExtensions
     };
 
     /// <summary>Maps a <see cref="ChatFinishReason"/> to the boundary <see cref="DexChatFinishReason"/>; <c>null</c> and unknown reasons map to <c>null</c>.</summary>
-    public static DexChatFinishReason? ToDexChatFinishReason(this ChatFinishReason? finishReason) => finishReason?.Value.ToLowerInvariant() switch {
+    public static DexChatFinishReason? ToDexChatFinishReason(this ChatFinishReason? finishReason) => finishReason?.Value?.ToLowerInvariant() switch {
         "stop" => DexChatFinishReason.Stop,
         "length" => DexChatFinishReason.Length,
         "tool_calls" => DexChatFinishReason.ToolCalls,

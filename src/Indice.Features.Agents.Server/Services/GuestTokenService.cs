@@ -18,8 +18,14 @@ internal class GuestTokenService : IGuestTokenService
     /// <inheritdoc />
     public async Task<GuestAccessToken> CreateTokenAsync(CancellationToken cancellationToken = default) {
         var guestTokenOptions = _options.GuestToken;
-        var tokenEndpoint = guestTokenOptions.TokenEndpoint ?? $"{guestTokenOptions.Authority?.TrimEnd('/')}/connect/token";
-        var form = new Dictionary<string, string> {
+        var tokenEndpoint = guestTokenOptions.TokenEndpoint;
+        if (string.IsNullOrWhiteSpace(tokenEndpoint)) {
+            var authority = guestTokenOptions.Authority?.TrimEnd('/');
+            if (string.IsNullOrWhiteSpace(authority)) {
+                throw new InvalidOperationException($"{nameof(GuestTokenOptions)}.{nameof(GuestTokenOptions.Authority)} or {nameof(GuestTokenOptions.TokenEndpoint)} must be configured.");
+            }
+            tokenEndpoint = $"{authority}/connect/token";
+        }
             ["grant_type"] = guestTokenOptions.GrantType,
             ["scope"] = guestTokenOptions.Scope ?? _options.ChatRequiredScope,
             ["client_id"] = guestTokenOptions.ClientId ?? throw new InvalidOperationException($"{nameof(GuestTokenOptions)}.{nameof(GuestTokenOptions.ClientId)} is not configured."),
