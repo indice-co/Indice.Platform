@@ -15,7 +15,7 @@ public class DocumentIngestRequest
     /// <summary>The content to be ingested.</summary>
     public IFormFile MarkdownSourceFile { get; set; } = default!;
     /// <summary>The file to be archived.</summary>
-    public IFormFile ActualSourceFile { get; set; } = default!;
+    public IFormFile? ActualSourceFile { get; set; } = default!;
     /// <summary>The source URL of the document. This can be used for provenance and traceability. It can be an external URL and it is mutually exclusive with the SourceFile property.</summary>
     public string? ActualSourceUrl { get; set; }
     /// <summary>Indicates whether the document is private and should not be exposed to unauthorized users.</summary>

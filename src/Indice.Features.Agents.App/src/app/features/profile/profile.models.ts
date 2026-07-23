@@ -1,4 +1,4 @@
-import { SessionListItem } from '../../core/services/dex-api.service';
+import { ConversationListItem } from '../../core/services/dex-api.service';
 
 /** Aggregated, display-ready usage figures derived from the caller's chat sessions. */
 export interface UsageStats {
@@ -12,11 +12,11 @@ export interface UsageStats {
   /** Most recent activity across sessions. `null` when there are no sessions. */
   lastActivity: Date | null;
   /** A handful of the most recently active sessions, for a quick-glance list. */
-  recent: SessionListItem[];
+  recent: ConversationListItem[];
 }
 
 /** Reduce a page of sessions + the server-side total into the profile's usage view model. */
-export function toUsageStats(items: SessionListItem[], total: number): UsageStats {
+export function toUsageStats(items: ConversationListItem[], total: number): UsageStats {
   let prompt = 0;
   let completion = 0;
   let since: Date | null = null;

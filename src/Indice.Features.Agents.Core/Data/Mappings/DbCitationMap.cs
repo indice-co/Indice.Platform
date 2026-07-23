@@ -11,7 +11,7 @@ public class DbCitationMap : IEntityTypeConfiguration<DbCitation>
         builder.ToTable("Citation", "dex");
         builder.HasKey(x => new { x.SessionMessageId, x.Number });
         
-        builder.HasOne<DbSessionMessage>().WithMany(x => x.Citations)
+        builder.HasOne<DbMessage>().WithMany(x => x.Citations)
             .HasForeignKey(x => x.SessionMessageId)
             .OnDelete(DeleteBehavior.Cascade);
 

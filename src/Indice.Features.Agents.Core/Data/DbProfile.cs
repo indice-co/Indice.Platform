@@ -11,7 +11,7 @@ public class DbProfile
     public Guid Id { get; set; }
 
     /// <summary>The IdP subject claim (<c>sub</c>) this profile belongs to.</summary>
-    public string SubjectId { get; set; } = string.Empty;
+    public string UserId { get; set; } = string.Empty;
 
     /// <summary>Cached display name from the <c>name</c> claim.</summary>
     public string? DisplayName { get; set; }
@@ -27,6 +27,9 @@ public class DbProfile
 
     /// <summary>App preference: desired answer style (e.g. <c>concise</c> / <c>detailed</c> / <c>formal</c>); feeds composer tone.</summary>
     public string? ResponseStyle { get; set; }
+
+    /// <summary>List of preferred category names. Empty if none selected.</summary>
+    public List<string> PreferredCategories { get; set; } = [];
 
     /// <summary>Creation timestamp.</summary>
     public DateTimeOffset CreatedAt { get; set; }

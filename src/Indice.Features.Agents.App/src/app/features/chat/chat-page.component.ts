@@ -1,13 +1,14 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 
-import { DexApiService, IChatStreamEvent, SessionListItem } from '../../core/services/dex-api.service';
-import { ChatStreamService } from '../../core/services/chat-stream.service';
+import { ChatMessagePart, ConversationListItem, DexApiService, DexChatResponse } from '../../core/services/dex-api.service';
+import { ChatStreamFrame, ChatStreamService } from '../../core/services/chat-stream.service';
+import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
 import { ChatComposerComponent } from './chat-composer.component';
 import { ChatSidebarComponent } from './chat-sidebar.component';
 import { ChatThreadComponent } from './chat-thread.component';
-import { ThreadMessage, toThreadMessage } from './chat.models';
+import { ThreadMessage, responseToThreadMessage, toThreadMessage } from './chat.models';
 
 /** The Dex chat surface: session rail + conversation thread + composer, wired to the streaming API. */
 @Component({
@@ -21,18 +22,23 @@ export class ChatPageComponent {
   private readonly streamSvc = inject(ChatStreamService);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly sessions = signal<SessionListItem[]>([]);
+  protected readonly sessions = signal<ConversationListItem[]>([]);
   protected readonly sessionsLoading = signal(false);
   protected readonly activeSessionId = signal<string | null>(null);
   protected readonly messages = signal<ThreadMessage[]>([]);
   protected readonly threadLoading = signal(false);
 
   protected readonly isStreaming = signal(false);
-  protected readonly streamingText = signal('');
+  /** The DexChatResponse the stream is assembling — the invariant says the patched document IS one. */
+  protected readonly streamResponse = signal<DexChatResponse | null>(null);
+  protected readonly streamingMessage = computed(() => responseToThreadMessage(this.streamResponse()));
   protected readonly currentStep = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly questionsTotal = signal<number | null>(null);
 
+  /** The raw patch target for the turn's `delta` frames — plain JSON; `streamResponse` is its typed projection. */
+  private streamDocument: Record<string, any> = {};
+  private patcher = new JsonPointerPatch();
   private streamSub?: Subscription;
 
   constructor() {
@@ -46,7 +52,7 @@ export class ChatPageComponent {
     this.cancelStream();
     this.threadLoading.set(true);
     this.error.set(null);
-    this.streamingText.set('');
+    this.streamResponse.set(null);
     this.currentStep.set(null);
     this.dex
       .getChatSession(id)
@@ -55,7 +61,7 @@ export class ChatPageComponent {
         next: (session) => {
           this.activeSessionId.set(id);
           this.messages.set((session.messages ?? []).map(toThreadMessage));
-          this.questionsTotal.set(session.questionsTotal ?? null);
+          this.questionsTotal.set(session.usage?.questionsLimitCount ?? null);
           this.threadLoading.set(false);
         },
         error: () => {
@@ -69,7 +75,7 @@ export class ChatPageComponent {
     this.cancelStream();
     this.activeSessionId.set(null);
     this.messages.set([]);
-    this.streamingText.set('');
+    this.streamResponse.set(null);
     this.currentStep.set(null);
     this.error.set(null);
     this.isStreaming.set(false);
@@ -98,10 +104,12 @@ export class ChatPageComponent {
     }
     this.cancelStream();
     this.error.set(null);
-    this.messages.update((list) => [...list, { role: 'User', content: value, createdAt: new Date() }]);
+    this.messages.update((list) => [...list, { role: 'User', content: { parts: [new ChatMessagePart({ value: value, contentType: 'text/markdown' })] }, createdAt: new Date() }]);
     this.isStreaming.set(true);
-    this.streamingText.set('');
+    this.streamResponse.set(null);
     this.currentStep.set('Working…');
+    this.streamDocument = {};
+    this.patcher = new JsonPointerPatch();
 
     const sessionId = this.activeSessionId();
     const stream$ = sessionId
@@ -109,7 +117,7 @@ export class ChatPageComponent {
       : this.streamSvc.streamCreate(value);
 
     this.streamSub = stream$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (event) => this.onEvent(event),
+      next: (frame) => this.onFrame(frame),
       error: (err: unknown) => {
         this.isStreaming.set(false);
         this.currentStep.set(null);
@@ -124,52 +132,58 @@ export class ChatPageComponent {
     this.finalizeIfStreaming();
   }
 
-  private onEvent(event: IChatStreamEvent): void {
-    switch (event.type) {
-      case 'step':
-        this.currentStep.set(event.step ?? null);
+  private onFrame(frame: ChatStreamFrame): void {
+    switch (frame.type) {
+      case 'start':
+        if (!this.activeSessionId() && frame.conversationId) {
+          this.activeSessionId.set(frame.conversationId);
+        }
+        break;
+      case 'status':
+        this.currentStep.set(frame.value ?? null);
         break;
       case 'delta':
-        this.streamingText.update((text) => text + (event.text ?? ''));
+        this.patcher.apply(this.streamDocument, frame);
+        this.streamResponse.set(DexChatResponse.fromJS(this.streamDocument));
         break;
-      case 'complete':
-        this.finalize(event);
+      case 'error':
+        // The document is abandoned per protocol — the server persisted no answer.
+        this.error.set(frame.reason ?? 'The assistant could not complete the answer.');
+        this.resetStreamingState();
+        break;
+      case 'done':
+        this.finalize();
         break;
     }
   }
 
-  private finalize(event: IChatStreamEvent): void {
-    const answer = event.answer ?? this.streamingText();
-    if (event.failed) {
-      this.error.set(event.failureReason ?? 'The assistant could not complete the answer.');
-    }
+  /** Terminal success: the assembled document is complete — settle it into the thread. */
+  private finalize(): void {
+    const answer = this.streamingMessage();
     if (answer) {
-      this.messages.update((list) => [
-        ...list,
-        { role: 'Assistant', content: answer, createdAt: new Date(), citations: event.citations ?? [] },
-      ]);
+      this.messages.update((list) => [...list, answer]);
     }
-    if (!this.activeSessionId() && event.sessionId) {
-      this.activeSessionId.set(event.sessionId);
-    }
-    this.questionsTotal.set(event.questionsTotal ?? null);
-    this.isStreaming.set(false);
-    this.streamingText.set('');
-    this.currentStep.set(null);
+    this.questionsTotal.set(this.streamResponse()?.usage?.questionsLimitCount ?? null);
+    this.resetStreamingState();
     // Refresh the rail so the new/updated session and its title appear in order.
     this.loadSessions();
   }
 
+  /** Stream ended without `done` (stop pressed / connection closed): keep the partial answer visible. */
   private finalizeIfStreaming(): void {
     if (!this.isStreaming()) {
       return;
     }
-    const answer = this.streamingText();
-    if (answer) {
-      this.messages.update((list) => [...list, { role: 'Assistant', content: answer, createdAt: new Date() }]);
+    const partial = this.streamingMessage();
+    if (partial?.content.parts?.some((part) => part.value)) {
+      this.messages.update((list) => [...list, partial]);
     }
+    this.resetStreamingState();
+  }
+
+  private resetStreamingState(): void {
     this.isStreaming.set(false);
-    this.streamingText.set('');
+    this.streamResponse.set(null);
     this.currentStep.set(null);
   }
 

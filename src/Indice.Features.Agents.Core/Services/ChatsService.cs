@@ -1,9 +1,9 @@
 using System.Net.ServerSentEvents;
 using System.Runtime.CompilerServices;
 using Indice.Features.Agents.Core.Models;
-using Indice.Features.Agents.Core.Workflows;
-using Indice.Features.Agents.Core.Workflows.Abstractions;
 using Indice.Types;
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core.Services;
@@ -11,181 +11,271 @@ namespace Indice.Features.Agents.Core.Services;
 /// <inheritdoc/>
 public class ChatsService : IChatsService
 {
-    private readonly ISessionsStore _store;
-    private readonly IDexRunner _runner;
+    private readonly IConversationStore _store;
+    private readonly IDexChatClient _dexClient;
     private readonly IUsageGuardService _usageGuard;
     private readonly AgentsOptions.AzureOpenAIDeployments _deployments;
     private readonly AgentsOptions.SessionOptions _sessionOptions;
+    private readonly ILogger<ChatsService> _logger;
+
+    // User-displayable reason for the terminal error event. Exception details never reach the wire — they are logged.
+    private const string GenericFailureReason = "The assistant could not complete this request. Please try again.";
 
     /// <summary>Creates a new <see cref="ChatsService"/>.</summary>
-    public ChatsService(ISessionsStore store, IDexRunner runner, IUsageGuardService usageGuard, IOptions<AgentsOptions> options) {
+    public ChatsService(IConversationStore store, IDexChatClient dexClient, IUsageGuardService usageGuard, IOptions<AgentsOptions> options, ILogger<ChatsService> logger) {
         _store = store;
-        _runner = runner;
+        _dexClient = dexClient;
         _usageGuard = usageGuard;
         _deployments = options.Value.AzureOpenAI.Deployments;
         _sessionOptions = options.Value.Session;
+        _logger = logger;
     }
 
     /// <inheritdoc/>
-    public async Task<ChatResponse?> SendAsync(string userId, Guid? sessionId, string text, CancellationToken cancellationToken) {
-        await EnsureSessionCreationAllowedAsync(userId, sessionId, cancellationToken);
-        var session = await _store.LoadOrCreateAsync(userId, sessionId, cancellationToken);
-        if (session is null) {
+    public async Task<DexChatResponse?> SendAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken) {
+        await EnsureSessionCreationAllowedAsync(userId, conversationId, cancellationToken);
+        var conversation = await _store.LoadOrCreateAsync(userId, conversationId, cancellationToken);
+        if (conversation is null) {
             return null;
         }
-        var turnCheck = _usageGuard.Check(session);
+        var turnCheck = _usageGuard.Check(conversation);
         if (!turnCheck.Allowed) {
-            return new ChatResponse {
-                SessionId = session.Id,
-                MessageId = Guid.Empty,
-                Answer = turnCheck.Message,
-                LimitReached = true,
-                QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount),
-                QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
-            };
+            return CreateLimitReachedResponse(conversation, turnCheck.Message);
         }
-        var request = new RagRequest { Question = text, SessionId = session.Id };
-        var result = await _runner.RunAsync(request, cancellationToken);
-        var userMessage = new ChatMessage {
-            Id = Guid.NewGuid(),
-            Role = ChatMessageRole.User,
-            Content = request.Question,
-            CreatedAt = request.TimeStamp,
-        };
-        var assistantText = result.Answer ?? string.Empty;
-        var assistantMessage = new ChatMessage {
-            Id = Guid.NewGuid(),
-            Role = ChatMessageRole.Assistant,
-            Content = assistantText,
+        var userMessage = new ChatMessage(ChatRole.User, chatRequest.Text) {
+            MessageId = Guid.NewGuid().ToString(),
             CreatedAt = DateTimeOffset.UtcNow,
-            Citations = result.Citations?.ToList() ?? [],
-            Sources = result.Sources?.ToList() ?? [],
+            AuthorName = chatRequest.AuthorName
         };
+        var response = await _dexClient.GetResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString() }, cancellationToken);
+        var persisted = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
+        return CreateTurnResponse(conversation, response, persisted);
+    }
 
-        var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
-            promptTokens: result.Usage?.InputTokenCount ?? 0, completionTokens: result.Usage?.OutputTokenCount ?? 0,
-            modelUsed: result.ModelUsed ?? _deployments.Reasoning, cancellationToken);
+    /// <summary>Builds the canonical limit-blocked response shared by the streaming and non-streaming paths.</summary>
+    private DexChatResponse CreateLimitReachedResponse(Conversation conversation, string? message) => new() {
+        ConversationId = conversation.Id,
+        ResponseId = Guid.NewGuid().ToString(),
+        Messages = [new DexChatMessage {
+            MessageId = Guid.Empty.ToString(),
+            Role = DexChatRole.Assistant,
+            Content = new ChatMessageContent(message ?? string.Empty),
+            CreatedAt = DateTimeOffset.UtcNow
+        }],
+        FinishReason = DexChatFinishReason.Limit,
+        LimitReached = true,
+        Usage = new DexChatUsage {
+            QuestionsUsedCount = _sessionOptions.GetQuestionsUsed(conversation.MessageCount),
+            QuestionsLimitCount = _sessionOptions.GetQuestionsTotal()
+        }
+    };
 
-        return new ChatResponse {
-            SessionId = session.Id,
-            MessageId = persistedAssistant.Id,
-            Answer = assistantText,
-            Citations = result.Citations ?? [],
-            Sources = result.Sources ?? [],
-            Failed = result.Failed,
-            FailureReason = result.FailureReason,
-            QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount + 2),
-            QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
-        };
+    /// <summary>Maps a completed turn to the canonical boundary response: stamps the conversation id, the persisted assistant message id, and the question counters.</summary>
+    private DexChatResponse CreateTurnResponse(Conversation conversation, ChatResponse response, ChatMessage persisted) {
+        var dexResponse = response.ToDexChatResponse();
+        dexResponse.ConversationId ??= conversation.Id;
+        //debateable
+        if (dexResponse.Messages.LastOrDefault() is { } lastMessage) {
+            lastMessage.MessageId = persisted.MessageId;
+        }
+        dexResponse.Usage ??= new DexChatUsage();
+        dexResponse.Usage.QuestionsUsedCount = _sessionOptions.GetQuestionsUsed(conversation.MessageCount + 2);
+        dexResponse.Usage.QuestionsLimitCount = _sessionOptions.GetQuestionsTotal();
+        return dexResponse;
     }
 
     /// <inheritdoc/>
-    public async Task<IAsyncEnumerable<SseItem<ChatStreamEvent>>?> SendStreamAsync(string userId, Guid? sessionId, string text, CancellationToken cancellationToken) {
-        await EnsureSessionCreationAllowedAsync(userId, sessionId, cancellationToken);
-        var session = await _store.LoadOrCreateAsync(userId, sessionId, cancellationToken);
-        if (session is null) {
+    public async Task<IAsyncEnumerable<SseItem<DexChatResponseUpdate>>?> SendStreamAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken) {
+        await EnsureSessionCreationAllowedAsync(userId, conversationId, cancellationToken);
+        var conversation = await _store.LoadOrCreateAsync(userId, conversationId, cancellationToken);
+        if (conversation is null) {
             return null;
         }
-        var turnCheck = _usageGuard.Check(session);
+        var turnCheck = _usageGuard.Check(conversation);
         if (!turnCheck.Allowed) {
-            return LimitReachedStream(session, turnCheck.Message);
+            return LimitReachedStream(conversation, turnCheck.Message);
         }
-        return StreamTurnAsync(session, text, cancellationToken);
+        return StreamTurnAsync(conversation, chatRequest, cancellationToken);
     }
 
-    /// <summary>Throws a <see cref="BusinessException"/> when a new session is requested but the user's session cap is hit. No-op for existing sessions.</summary>
+    /// <summary>Throws a <see cref="BusinessException"/> when a new conversation is requested but the user's conversation cap is hit. No-op for existing sessions.</summary>
     private async Task EnsureSessionCreationAllowedAsync(string userId, Guid? sessionId, CancellationToken cancellationToken) {
         if (sessionId is not null) {
             return;
         }
-        var creationCheck = await _usageGuard.CheckSessionCreationAsync(userId, cancellationToken);
+        var creationCheck = await _usageGuard.CheckConversationCreationAsync(userId, cancellationToken);
         if (!creationCheck.Allowed) {
             throw new BusinessException(creationCheck.Message, "SESSIONS_LIMIT_REACHED");
         }
     }
 
-    /// <summary>Single-event stream carrying the guard's predefined reply for a blocked turn. Nothing is persisted.</summary>
-    private async IAsyncEnumerable<SseItem<ChatStreamEvent>> LimitReachedStream(Session session, string? message) {
-        yield return new SseItem<ChatStreamEvent>(new ChatStreamEvent {
-            Type = "complete",
-            SessionId = session.Id,
-            MessageId = Guid.Empty,
-            Answer = message,
-            Citations = [],
-            Sources = [],
-            LimitReached = true,
-            QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount),
-            QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
-        }, eventType: "complete");
+    /// <summary>Streams a blocked turn through the normal grammar — <c>start</c>, the projected response as patch frames, then the bare <c>done</c>. Nothing is persisted.</summary>
+    private async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> LimitReachedStream(Conversation conversation, string? message) {
+        var response = CreateLimitReachedResponse(conversation, message);
+        yield return Message(new DexChatStreamStart { ConversationId = conversation.Id });
+        var compactor = new DeltaCompactor();
+        foreach (var frame in new DexChatStreamProjector().ProjectResponse(response)) {
+            yield return compactor.Compact(frame);
+        }
+        yield return Message(new DexChatStreamDone());
         await Task.CompletedTask;
     }
 
-    /// <summary>Maps the runner's stream to SSE items, then persists the turn and emits the terminal <c>complete</c> event.</summary>
-    private async IAsyncEnumerable<SseItem<ChatStreamEvent>> StreamTurnAsync(
-        Session session, string text, [EnumeratorCancellation] CancellationToken cancellationToken) {
-        var request = new RagRequest { Question = text, SessionId = session.Id };
-        DexFinalEvent? final = null;
-        await foreach (var evt in _runner.RunStreamingAsync(request, cancellationToken)) {
-            switch (evt) {
-                case DexStepEvent step:
-                    yield return new SseItem<ChatStreamEvent>(new ChatStreamEvent { Type = "step", Step = step.Label }, eventType: "step");
+    /// <summary>
+    /// Streams the turn as message/delta frames: <c>start</c>, a <c>status</c> per pipeline progress hint, patch frames
+    /// building the response document (token appends, atomic parts, then the completion tail after persistence), and the
+    /// terminal bare <c>done</c> — or a terminal <c>error</c> on failure. Whatever ends the stream without a persisted
+    /// turn (fault, disconnect), the user message is salvaged as a failed turn so the question stays in the conversation
+    /// and counts toward the limit.
+    /// </summary>
+    private async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> StreamTurnAsync(
+        Conversation conversation, ChatRequest chatRequest, [EnumeratorCancellation] CancellationToken cancellationToken) {
+
+        var userMessage = new ChatMessage(ChatRole.User, chatRequest.Text) {
+            MessageId = Guid.NewGuid().ToString(),
+            CreatedAt = DateTimeOffset.UtcNow,
+            AuthorName = chatRequest.AuthorName
+        };
+        var stream = _dexClient.GetStreamingResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString() }, cancellationToken);
+        var updates = new List<ChatResponseUpdate>();
+        var projector = new DexChatStreamProjector();
+        var compactor = new DeltaCompactor();
+        var failed = false;
+        var turnPersisted = false;
+
+        yield return Message(new DexChatStreamStart { ConversationId = conversation.Id });
+
+        try {
+            foreach (var frame in projector.Begin(conversation.Id)) {
+                yield return compactor.Compact(frame);
+            }
+
+            await using var enumerator = stream.GetAsyncEnumerator(cancellationToken);
+            while (!failed) {
+                ChatResponseUpdate evt;
+                try {
+                    if (!await enumerator.MoveNextAsync()) {
+                        break;
+                    }
+                    evt = enumerator.Current;
+                } catch (OperationCanceledException) {
+                    throw; // The client went away — the finally below salvages the turn.
+                } catch (Exception exception) {
+                    _logger.LogError(exception, "Chat pipeline stream faulted for conversation {ConversationId}.", conversation.Id);
+                    failed = true;
                     break;
-                case DexDeltaEvent delta:
-                    yield return new SseItem<ChatStreamEvent>(new ChatStreamEvent { Type = "delta", Text = delta.Text }, eventType: "delta");
+                }
+                if (evt.Contents.OfType<ErrorContent>().FirstOrDefault() is { } error) {
+                    _logger.LogError("Chat pipeline failed for conversation {ConversationId}: {Reason}", conversation.Id, error.Message);
+                    failed = true;
                     break;
-                case DexFinalEvent f:
-                    final = f;
-                    break;
+                }
+                // Progress labels are ephemeral UI hints: surface them, then strip them so they are neither aggregated nor persisted.
+                foreach (var step in evt.Contents.OfType<StepProgressContent>().ToList()) {
+                    yield return Message(new DexChatStreamStatus { Value = step.Label });
+                    evt.Contents.Remove(step);
+                }
+                updates.Add(evt);
+                foreach (var content in evt.Contents) {
+                    switch (content) {
+                        case TextContent text when !string.IsNullOrEmpty(text.Text):
+                            foreach (var frame in projector.AppendText(text.Text)) {
+                                yield return compactor.Compact(frame);
+                            }
+                            break;
+                        case DataContent data:
+                            foreach (var frame in projector.AddPart(ChatMessagePart.FromText(data.Uri, data.MediaType))) {
+                                yield return compactor.Compact(frame);
+                            }
+                            break;
+                    }
+                }
+            }
+
+            var response = failed ? null : updates.ToChatResponse();
+            if (response is not null && response.Messages.Count == 0) {
+                _logger.LogError("Chat pipeline produced no assistant message for conversation {ConversationId}.", conversation.Id);
+                response = null;
+            }
+
+            if (response is null) {
+                await _store.AppendFailedTurnAsync(conversation.Id, userMessage, cancellationToken);
+                turnPersisted = true;
+                yield return Message(new DexChatStreamError { Reason = GenericFailureReason });
+                yield break;
+            }
+
+            var persisted = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
+            turnPersisted = true;
+            foreach (var frame in projector.Complete(CreateTurnResponse(conversation, response, persisted))) {
+                yield return compactor.Compact(frame);
+            }
+            yield return Message(new DexChatStreamDone());
+        } 
+        finally {
+            if (!turnPersisted) {
+                // Disconnect or fault before persistence: keep the user's question in the conversation and count it.
+                await _store.AppendFailedTurnAsync(conversation.Id, userMessage, CancellationToken.None);
             }
         }
-        // The runner yields exactly one terminal DexFinalEvent on success or failure; a mid-stream cancellation
-        // throws out of the foreach above (the run just stops), so we only reach here on a completed run.
-        var complete = await PersistTurnAsync(session, request, final, cancellationToken);
-        yield return new SseItem<ChatStreamEvent>(complete, eventType: "complete");
     }
 
-    /// <summary>Persists the user/assistant turn (mirroring <see cref="SendAsync"/>) and builds the terminal <c>complete</c> event.</summary>
-    private async Task<ChatStreamEvent> PersistTurnAsync(Session session, RagRequest request, DexFinalEvent? final, CancellationToken cancellationToken) {
-        var assistantText = final?.Answer ?? string.Empty;
-        var userMessage = new ChatMessage { Id = Guid.NewGuid(), Role = ChatMessageRole.User, Content = request.Question, CreatedAt = request.TimeStamp };
-        var assistantMessage = new ChatMessage { 
-            Id = Guid.NewGuid(), 
-            Role = ChatMessageRole.Assistant, 
-            Content = assistantText, 
-            CreatedAt = final?.TimeStamp ?? DateTimeOffset.UtcNow,
-            Citations = final?.Citations?.ToList() ?? [],
-            Sources = final?.Sources?.ToList() ?? [],
-        };
+    /// <summary>Wraps a non-delta frame for the default <c>message</c> SSE event.</summary>
+    private static SseItem<DexChatResponseUpdate> Message(DexChatResponseUpdate frame) => new(frame);
 
-        var persistedAssistant = await _store.AppendTurnAsync(session.Id, userMessage, assistantMessage,
-            promptTokens: final?.Usage?.InputTokenCount ?? 0, completionTokens: final?.Usage?.OutputTokenCount ?? 0,
-            modelUsed: final?.ModelUsed ?? _deployments.Reasoning, cancellationToken);
+    /// <summary>
+    /// Per-stream frame compaction (wire concern only): nulls a delta's <c>path</c>/<c>op</c> when identical to the
+    /// previous delta's effective values, so consecutive token appends shrink to <c>{"type":"delta","value":…}</c>.
+    /// The first delta always goes out full. Clients inflate by carrying the last effective path/op forward.
+    /// </summary>
+    private sealed class DeltaCompactor
+    {
+        private string? _path;
+        private DexChatPatchOp? _op;
 
-        return new ChatStreamEvent {
-            Type = "complete",
-            SessionId = session.Id,
-            MessageId = persistedAssistant.Id,
-            Answer = assistantText,
-            Citations = final?.Citations ?? [],
-            Sources = final?.Sources ?? [],
-            Failed = final?.Failed ?? false,
-            FailureReason = final?.FailureReason,
-            QuestionsUsed = _sessionOptions.GetQuestionsUsed(session.MessageCount + 2),
-            QuestionsTotal = _sessionOptions.GetQuestionsTotal(),
+        public SseItem<DexChatResponseUpdate> Compact(DexChatStreamDelta frame) {
+            if (frame.Path == _path) { frame.Path = null; } else { _path = frame.Path; }
+            if (frame.Op == _op) { frame.Op = null; } else { _op = frame.Op; }
+            return new SseItem<DexChatResponseUpdate>(frame, "delta");
+        }
+    }
+
+
+    /// <inheritdoc/>
+    public async Task<DexConversation?> GetAsync(string userId, Guid conversationId, CancellationToken cancellationToken) {
+        var conversation = await _store.GetAsync(conversationId, userId, cancellationToken);
+        if (conversation is null) {
+            return null;
+        }
+        return new DexConversation {
+            Id = conversation.Id,
+            Title = conversation.Title,
+            CreatedAt = conversation.CreatedAt,
+            LastActivityAt = conversation.LastActivityAt,
+            MessageCount = conversation.MessageCount,
+            Usage = new DexChatUsage {
+                InputTokenCount = conversation.InputTokenCount,
+                OutputTokenCount = conversation.OutputTokenCount,
+                TotalTokenCount = conversation.InputTokenCount + conversation.OutputTokenCount,
+                QuestionsUsedCount = _sessionOptions.GetQuestionsUsed(conversation.MessageCount),
+                QuestionsLimitCount = _sessionOptions.GetQuestionsTotal()
+            },
+            Messages = conversation.Messages.Select(message => message.ToDexChatMessage()).ToList()
         };
     }
 
     /// <inheritdoc/>
-    public Task<Session?> GetAsync(string userId, Guid sessionId, CancellationToken cancellationToken)
-        => _store.GetAsync(sessionId, userId, cancellationToken);
-
-    /// <inheritdoc/>
-    public Task<ResultSet<SessionListItem>> ListAsync(string userId, ListOptions options, CancellationToken cancellationToken)
+    public Task<ResultSet<ConversationListItem>> ListAsync(string userId, ListOptions options, CancellationToken cancellationToken)
         => _store.ListAsync(userId, options, cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<bool> DeleteAsync(string userId, Guid sessionId, CancellationToken cancellationToken) {
-        var deleted = await _store.DeleteAsync(sessionId, userId, cancellationToken);
+    public async Task<bool> DeleteAsync(string userId, Guid conversationId, CancellationToken cancellationToken) {
+        var deleted = await _store.DeleteAsync(conversationId, userId, cancellationToken);
         return deleted > 0;
+    }
+
+    /// <inheritdoc/>
+    public Task<bool> SetLikeAsync(string userId, Guid conversationId, Guid messageId, bool? liked, CancellationToken cancellationToken) {
+        return _store.SetLikeAsync(userId, conversationId, messageId, liked, cancellationToken);
     }
 }
