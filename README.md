@@ -13,7 +13,7 @@ To install any of the platform packages, run the dotnet add command. Or download
 
 ## 1. NuGet Packages
 
-### Core Framework
+### 🛠️Core Framework
 Foundation packages providing common functionality and utilities
 
 | Package | Description | Version | Downloads | CHANGELOG |
@@ -28,7 +28,7 @@ Foundation packages providing common functionality and utilities
 | Indice.Services | Common services and implementations | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Services?logo=nuget)](https://www.nuget.org/packages/Indice.Services/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Services)](https://www.nuget.org/packages/Indice.Services/) | n/a |
 | Indice.Functions.Builder | Azure Functions builder utilities | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Functions.Builder?logo=nuget)](https://www.nuget.org/packages/Indice.Functions.Builder/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Functions.Builder)](https://www.nuget.org/packages/Indice.Functions.Builder/) | n/a |
 
-### Authentication & Authorization
+### 🛡️Authentication & Authorization
 Identity management, authentication providers, and authorization features
 
 | Package | Description | Version | Downloads | CHANGELOG |
@@ -42,7 +42,7 @@ Identity management, authentication providers, and authorization features
 | Indice.AspNetCore.Authentication.Apple | Apple authentication provider | [![Nuget](https://img.shields.io/nuget/vpre/Indice.AspNetCore.Authentication.Apple?logo=nuget)](https://www.nuget.org/packages/Indice.AspNetCore.Authentication.Apple/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.AspNetCore.Authentication.Apple)](https://www.nuget.org/packages/Indice.AspNetCore.Authentication.Apple/) | n/a |
 | Indice.AspNetCore.Authentication.GovGr | Greek government authentication provider | [![Nuget](https://img.shields.io/nuget/vpre/Indice.AspNetCore.Authentication.GovGr?logo=nuget)](https://www.nuget.org/packages/Indice.AspNetCore.Authentication.GovGr/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.AspNetCore.Authentication.GovGr)](https://www.nuget.org/packages/Indice.AspNetCore.Authentication.GovGr/) | n/a |
 
-### Messaging Platform
+### 📨Messaging Platform
 Comprehensive messaging system with campaign management and delivery
 
 | Package | Description | Version | Downloads | CHANGELOG |
@@ -53,7 +53,7 @@ Comprehensive messaging system with campaign management and delivery
 | Indice.Features.Messages.Worker | Background message processing | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Messages.Worker?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Messages.Worker/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Messages.Worker)](https://www.nuget.org/packages/Indice.Features.Messages.Worker/) | n/a |
 | Indice.Features.Messages.Worker.Azure | Azure-specific message workers | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Messages.Worker.Azure?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Messages.Worker.Azure/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Messages.Worker.Azure)](https://www.nuget.org/packages/Indice.Features.Messages.Worker.Azure/) | n/a |
 
-### Agents
+### 🤖 Agents
 AI agents platform with core workflows, server APIs, and UI components
 
 | Package | Description | Version | Downloads | CHANGELOG |
@@ -62,7 +62,7 @@ AI agents platform with core workflows, server APIs, and UI components
 | Indice.Features.Agents.Server | Agents server implementation and APIs | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Agents.Server?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Agents.Server/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Agents.Server)](https://www.nuget.org/packages/Indice.Features.Agents.Server/) | n/a |
 | Indice.Features.Agents.UI | Agents user interface components | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Agents.UI?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Agents.UI/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Agents.UI)](https://www.nuget.org/packages/Indice.Features.Agents.UI/) | n/a |
 
-### Case Management
+### 📋Case Management
 Business process and case management system
 
 | Package | Description | Version | Downloads | CHANGELOG |
@@ -72,7 +72,7 @@ Business process and case management system
 | Indice.Features.Cases.UI | Case management user interface | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Cases.UI?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Cases.UI/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Cases.UI)](https://www.nuget.org/packages/Indice.Features.Cases.UI/) | [CHANGELOG.md](src/Indice.Features.Cases.UI/CHANGELOG.md) |
 | Indice.Features.Cases.Workflows | Workflow engine for case processing | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Cases.Workflows?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Cases.Workflows/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Cases.Workflows)](https://www.nuget.org/packages/Indice.Features.Cases.Workflows/) | n/a |
 
-### Risk Management
+### 🔍Risk Management
 Risk assessment and fraud detection capabilities
 
 | Package | Description | Version | Downloads | CHANGELOG |
@@ -81,7 +81,7 @@ Risk assessment and fraud detection capabilities
 | Indice.Features.Risk.Server | Risk assessment server | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Risk.Server?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Risk.Server/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Risk.Server)](https://www.nuget.org/packages/Indice.Features.Risk.Server/) | n/a |
 | Indice.Features.Risk.UI | Risk management user interface | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Risk.UI?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Risk.UI/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Risk.UI)](https://www.nuget.org/packages/Indice.Features.Risk.UI/) | n/a |
 
-### Multitenancy
+### 🏢Multitenancy
 Multi-tenant application support and tenant management
 
 | Package | Description | Version | Downloads | CHANGELOG |
@@ -90,7 +90,7 @@ Multi-tenant application support and tenant management
 | Indice.Features.Multitenancy.AspNetCore | ASP.NET Core multitenancy integration | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Multitenancy.AspNetCore?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Multitenancy.AspNetCore/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Multitenancy.AspNetCore)](https://www.nuget.org/packages/Indice.Features.Multitenancy.AspNetCore/) | n/a |
 | Indice.Features.Multitenancy.Worker.Azure | Azure-specific tenant workers | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Multitenancy.Worker.Azure?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Multitenancy.Worker.Azure/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Multitenancy.Worker.Azure)](https://www.nuget.org/packages/Indice.Features.Multitenancy.Worker.Azure/) | n/a |
 
-### Specialized Features
+### 💎Specialized Features
 Additional specialized functionality and integrations
 
 | Package | Description | Version | Downloads | CHANGELOG |
