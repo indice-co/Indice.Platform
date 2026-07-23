@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Indice.Security;
 #if NET9_0_OR_GREATER
 using Duende.IdentityModel;
 #else
@@ -51,7 +52,7 @@ public class GuestGrantValidator : IExtensionGrantValidator
         }
         context.Result = new GrantValidationResult(
             subject: subject,
-            authenticationMethod: IdentityProviderName,
+            authenticationMethod: CustomGrantTypes.Guest,
             claims: claims,
             identityProvider: IdentityProviderName,
             customResponse: new Dictionary<string, object> {
@@ -82,6 +83,10 @@ public class GuestGrantValidator : IExtensionGrantValidator
         var phoneNumber = raw.Get(JwtClaimTypes.PhoneNumber);
         if (!string.IsNullOrWhiteSpace(phoneNumber)) {
             yield return new Claim(JwtClaimTypes.PhoneNumber, phoneNumber);
+        }
+        var device_id = raw.Get(BasicClaimTypes.DeviceId);
+        if (!string.IsNullOrWhiteSpace(device_id)) {
+            yield return new Claim(BasicClaimTypes.DeviceId, device_id);
         }
     }
 
