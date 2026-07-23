@@ -498,4 +498,10 @@
   <data name="MfaTokenNotExpired" xml:space="preserve">
     <value>現在のコードはまだ有効です。新しいコードをリクエストする前にしばらくお待ちください。</value>
   </data>
+  <data name="PasswordSetEventSubject" xml:space="preserve">
+    <value>パスワードが変更されました</value>
+  </data>
+  <data name="PasswordSetEventDescription" xml:space="preserve">
+    <value>パスワードが正常に変更されました。</value>
+  </data>
 </root>

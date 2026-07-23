@@ -32,4 +32,6 @@ public class SecurityNotificationModel : IIdentityEmailModelMetadata
     public string? Subject { get; set; }
     /// <summary>The email description.</summary>
     public string? Description { get; set; }
+    /// <summary>The activity performed by the user that triggered the notification, e.g., "AccountLockedEvent", "TwoFactorPreferenceChangedEvent", "PasswordChangedEvent", "PasswordSetEvent".</summary> 
+    public string? Activity { get; set; }
 }

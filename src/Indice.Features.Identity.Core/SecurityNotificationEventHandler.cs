@@ -1,10 +1,9 @@
 ﻿using Indice.Events;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Core.Models;
-using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Localization;
 using Indice.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Identity.Core;
@@ -60,6 +59,7 @@ public class SecurityNotificationEventHandler : IPlatformEventHandler<SecurityNo
                         DisplayName = @event.User.UserName,
                         Subject = subject,
                         Description = description,
+                        Activity = @event.Activity
                     })
                     .UsingTemplate("EmailSecurityNotification");
             });
