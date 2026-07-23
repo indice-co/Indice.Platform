@@ -44,11 +44,12 @@ public class DexChatConversionTests
     public void ToDexChatMessage_LiftsCitationsFromAnnotations() {
         var citation = new Citation { ChunkId = Guid.NewGuid(), DocumentId = Guid.NewGuid(), Title = "Doc", Number = 1, Score = 0.9 };
         var message = new ChatMessage(ChatRole.Assistant, [
-            // Annotations are lifted from non-empty text contents only (the converter's guard skips empty carriers).
-            new TextContent("Answer<sup>[1]</sup>") {
+            new TextContent("Answer<sup>[1]</sup>"),
+            // The pipeline's live shape: citations arrive on a trailing annotations-only empty carrier
+            // (AnswerComposer stamps them once the full text and exact offsets are known).
+            new TextContent(string.Empty) {
                 Annotations = [new CitationAnnotation { Title = citation.Title, FileId = citation.ChunkId.ToString(), RawRepresentation = citation }]
-            },
-            new TextContent(string.Empty)
+            }
         ]);
 
         var dex = message.ToDexChatMessage();
@@ -58,6 +59,28 @@ public class DexChatConversionTests
         var part = Assert.Single(dex.Content.Parts); // the empty annotation carrier must not become a part
         Assert.Equal("Answer<sup>[1]</sup>", part.Value);
         Assert.Empty(dex.Sources);
+    }
+
+    [Fact]
+    public void ToDexChatMessage_NumbersRoundTrippedCitationsSequentially() {
+        // Persisted contents lose RawRepresentation (it does not serialize), so rebuilt citations carry no Number.
+        var first = Guid.NewGuid();
+        var second = Guid.NewGuid();
+        var message = new ChatMessage(ChatRole.Assistant, [
+            new TextContent("Answer<sup>[1][2]</sup>"),
+            new TextContent(string.Empty) {
+                Annotations = [
+                    new CitationAnnotation { Title = "First", FileId = first.ToString() },
+                    new CitationAnnotation { Title = "Second", FileId = second.ToString() }
+                ]
+            }
+        ]);
+
+        var citations = message.ToDexChatMessage().Citations;
+
+        Assert.Equal(2, citations.Count);
+        Assert.Equal((first, 1), (citations[0].ChunkId, citations[0].Number));
+        Assert.Equal((second, 2), (citations[1].ChunkId, citations[1].Number));
     }
 
     [Theory]

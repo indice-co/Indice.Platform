@@ -131,7 +131,7 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                   class="mt-0.5 size-8 shrink-0 rounded-full ring-1 ring-base-300"
                 />
                 <div class="min-w-0 flex-1">
-                  @if (step() && !streamingText()) {
+                  @if (step() && !hasStreamContent()) {
                     <div
                       class="inline-flex items-center gap-2 rounded-selector bg-base-100 px-3 py-1.5
                              text-sm text-base-content/60 ring-1 ring-base-300"
@@ -139,13 +139,38 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                       <span class="loading loading-dots loading-xs text-primary"></span>
                       {{ step() }}
                     </div>
-                  } @else {
+                  } @else if (streamingMessage(); as live) {
                     <div
-                      class="markdown dex-caret rounded-box rounded-tl-sm border border-base-300 bg-base-100 px-4 py-2.5
+                      class="dex-caret rounded-box rounded-tl-sm border border-base-300 bg-base-100 px-4 py-2.5
                              text-[0.95rem] text-base-content shadow-sm"
-                      markdown
-                      [data]="streamingText()"
-                    ></div>
+                    >
+                      @for (contentPart of live.content.parts; track $index) {
+                        @if (contentPart.contentType != 'text/markdown' && contentPart.contentType != 'text') {
+                          <div class="{{contentPart.contentType}}">
+                          {{ contentPart.value }}
+                          </div>
+                        } @else {
+                          <div class="markdown" markdown [data]="contentPart.value"></div>
+                        }
+                      }
+                    </div>
+                    @if (live.citations && live.citations.length > 0) {
+                      <div class="mt-2 flex flex-wrap gap-1.5">
+                        @for (citation of live.citations; track citation.chunkId) {
+                          <span
+                            class="inline-flex max-w-full items-center gap-1.5 rounded-selector
+                                   border border-base-300 bg-base-100 py-1 pl-2 pr-2.5 font-mono
+                                   text-[0.7rem] text-base-content/70"
+                            [title]="citation.title || citation.headingPath || ''"
+                          >
+                            <span class="footnote text-accent">{{citation.number}}.</span>
+                            <span class="truncate">
+                              {{ citation.headingPath || citation.title || 'Source' }}
+                            </span>
+                          </span>
+                        }
+                      </div>
+                    }
                   }
                 </div>
               </div>
@@ -171,7 +196,7 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
 export class ChatThreadComponent {
   readonly messages = input<ThreadMessage[]>([]);
   readonly streaming = input(false);
-  readonly streamingText = input('');
+  readonly streamingMessage = input<ThreadMessage | null>(null);
   readonly step = input<string | null>(null);
   readonly error = input<string | null>(null);
   readonly busy = input(false);
@@ -180,6 +205,11 @@ export class ChatThreadComponent {
   readonly examplePick = output<string>();
 
   protected readonly examplePrompts = EXAMPLE_PROMPTS;
+
+  /** Whether the streaming answer has any visible content yet — until then the step chip shows. */
+  protected readonly hasStreamContent = computed(
+    () => this.streamingMessage()?.content.parts?.some((part) => part.value) ?? false,
+  );
 
   /**
    * Messages annotated with usage: only the latest assistant answer carries the counter — the
@@ -214,7 +244,7 @@ export class ChatThreadComponent {
     afterRenderEffect(() => {
       // Track the signals that grow the thread.
       this.messages().length;
-      this.streamingText();
+      this.streamingMessage();
       this.step();
       this.streaming();
       const element = this.scroller()?.nativeElement;

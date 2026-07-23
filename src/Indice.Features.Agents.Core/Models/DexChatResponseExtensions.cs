@@ -25,22 +25,43 @@ public static class DexChatResponseExtensions
     }
 
     /// <summary>
-    /// Maps a <see cref="ChatMessage"/> to the boundary <see cref="DexChatMessage"/>: non-empty textual contents flatten
-    /// to <see cref="ChatMessagePart"/>s and <see cref="CitationAnnotation"/>s lift to <see cref="Citation"/>s
-    /// (deduplicated per cited chunk — annotations carry one entry per marker occurrence).
+    /// Maps a <see cref="ChatMessage"/> to the boundary <see cref="DexChatMessage"/>: adjacent non-empty textual
+    /// contents merge into a single <c>text/markdown</c> <see cref="ChatMessagePart"/> (a data part closes the open
+    /// text part), and <see cref="CitationAnnotation"/>s lift to <see cref="Citation"/>s (deduplicated per cited
+    /// chunk — annotations carry one entry per marker occurrence). Mirrors the streaming projector, so the patched
+    /// document and the non-streaming response share one canonical parts shape.
     /// </summary>
     public static DexChatMessage ToDexChatMessage(this ChatMessage message) {
         var content = new ChatMessageContent();
         var citations = new List<Citation>();
+        ChatMessagePart? openTextPart = null;
         foreach (var item in message.Contents) {
             switch(item) {
-                case TextContent text when !string.IsNullOrEmpty(text.Text):
-                    content.AddPart(text.Text, "text/markdown");
+                case TextContent text:
+                    if (!string.IsNullOrEmpty(text.Text)) {
+                        if (openTextPart is null) {
+                            openTextPart = ChatMessagePart.FromText(text.Text, "text/markdown");
+                            content.Parts.Add(openTextPart);
+                        } else {
+                            openTextPart.Value += text.Text;
+                        }
+                    }
+                    // Annotations lift even from empty carriers — the pipeline emits citations on a trailing
+                    // annotations-only empty text content once the full answer (and exact offsets) are known.
                     citations.AddRange((text.Annotations ?? []).OfType<CitationAnnotation>().Select(ToCitation));
                     break;
                 case DataContent data:
                     content.AddPart(data.Uri, data.MediaType);
+                    openTextPart = null;
                     break;
+            }
+        }
+        var distinctCitations = citations.DistinctBy(citation => citation.ChunkId).OrderBy(citation => citation.Number).ToList();
+        // Round-tripped annotations (persisted history) lose RawRepresentation and with it the citation Number —
+        // stamp 1..n in appearance order so the markers stay renderable.
+        if (distinctCitations.Count > 0 && distinctCitations.All(citation => citation.Number == 0)) {
+            for (var i = 0; i < distinctCitations.Count; i++) {
+                distinctCitations[i].Number = i + 1;
             }
         }
         return new DexChatMessage {
@@ -49,7 +70,7 @@ public static class DexChatResponseExtensions
             Role = message.Role.ToDexChatRole(),
             Content = content,
             CreatedAt = message.CreatedAt,
-            Citations = citations.DistinctBy(citation => citation.ChunkId).OrderBy(citation => citation.Number).ToList()
+            Citations = distinctCitations
         };
     }
 

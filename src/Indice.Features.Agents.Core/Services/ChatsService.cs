@@ -74,6 +74,7 @@ public class ChatsService : IChatsService
     private DexChatResponse CreateTurnResponse(Conversation conversation, ChatResponse response, ChatMessage persisted) {
         var dexResponse = response.ToDexChatResponse();
         dexResponse.ConversationId ??= conversation.Id;
+        //debateable
         if (dexResponse.Messages.LastOrDefault() is { } lastMessage) {
             lastMessage.MessageId = persisted.MessageId;
         }
@@ -108,20 +109,25 @@ public class ChatsService : IChatsService
         }
     }
 
-    /// <summary>Streams a blocked turn through the normal grammar — <c>start</c>, one <c>delta</c> carrying the guard's predefined reply, <c>usage</c>, then <c>done</c> with <c>finishReason</c> <c>limit</c>. Nothing is persisted.</summary>
+    /// <summary>Streams a blocked turn through the normal grammar — <c>start</c>, the projected response as patch frames, then the bare <c>done</c>. Nothing is persisted.</summary>
     private async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> LimitReachedStream(Conversation conversation, string? message) {
         var response = CreateLimitReachedResponse(conversation, message);
         yield return Message(new DexChatStreamStart { ConversationId = conversation.Id });
-        if (response.Text is { Length: > 0 } text) {
-            yield return Delta(text);
+        var compactor = new DeltaCompactor();
+        foreach (var frame in new DexChatStreamProjector().ProjectResponse(response)) {
+            yield return compactor.Compact(frame);
         }
-        foreach (var frame in CompletionFrames(response)) {
-            yield return frame;
-        }
+        yield return Message(new DexChatStreamDone());
         await Task.CompletedTask;
     }
 
-    /// <summary>Streams the turn as message/delta frames: <c>start</c>, a <c>status</c> per pipeline step, a <c>delta</c> per token, then the completion parts (<c>citations</c>/<c>sources</c>/<c>usage</c>) and terminal <c>done</c> — or a terminal <c>error</c> on failure (user message persisted, question counted).</summary>
+    /// <summary>
+    /// Streams the turn as message/delta frames: <c>start</c>, a <c>status</c> per pipeline progress hint, patch frames
+    /// building the response document (token appends, atomic parts, then the completion tail after persistence), and the
+    /// terminal bare <c>done</c> — or a terminal <c>error</c> on failure. Whatever ends the stream without a persisted
+    /// turn (fault, disconnect), the user message is salvaged as a failed turn so the question stays in the conversation
+    /// and counts toward the limit.
+    /// </summary>
     private async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> StreamTurnAsync(
         Conversation conversation, ChatRequest chatRequest, [EnumeratorCancellation] CancellationToken cancellationToken) {
 
@@ -132,85 +138,106 @@ public class ChatsService : IChatsService
         };
         var stream = _dexClient.GetStreamingResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString() }, cancellationToken);
         var updates = new List<ChatResponseUpdate>();
+        var projector = new DexChatStreamProjector();
+        var compactor = new DeltaCompactor();
         var failed = false;
+        var turnPersisted = false;
 
         yield return Message(new DexChatStreamStart { ConversationId = conversation.Id });
 
-        await using var enumerator = stream.GetAsyncEnumerator(cancellationToken);
-        while (!failed) {
-            ChatResponseUpdate evt;
-            try {
-                if (!await enumerator.MoveNextAsync()) {
+        try {
+            foreach (var frame in projector.Begin(conversation.Id)) {
+                yield return compactor.Compact(frame);
+            }
+
+            await using var enumerator = stream.GetAsyncEnumerator(cancellationToken);
+            while (!failed) {
+                ChatResponseUpdate evt;
+                try {
+                    if (!await enumerator.MoveNextAsync()) {
+                        break;
+                    }
+                    evt = enumerator.Current;
+                } catch (OperationCanceledException) {
+                    throw; // The client went away — the finally below salvages the turn.
+                } catch (Exception exception) {
+                    _logger.LogError(exception, "Chat pipeline stream faulted for conversation {ConversationId}.", conversation.Id);
+                    failed = true;
                     break;
                 }
-                evt = enumerator.Current;
-            } catch (OperationCanceledException) {
-                throw; // The client went away — nothing left to emit.
-            } catch (Exception exception) {
-                _logger.LogError(exception, "Chat pipeline stream faulted for conversation {ConversationId}.", conversation.Id);
-                failed = true;
-                break;
+                if (evt.Contents.OfType<ErrorContent>().FirstOrDefault() is { } error) {
+                    _logger.LogError("Chat pipeline failed for conversation {ConversationId}: {Reason}", conversation.Id, error.Message);
+                    failed = true;
+                    break;
+                }
+                // Progress labels are ephemeral UI hints: surface them, then strip them so they are neither aggregated nor persisted.
+                foreach (var step in evt.Contents.OfType<StepProgressContent>().ToList()) {
+                    yield return Message(new DexChatStreamStatus { Value = step.Label });
+                    evt.Contents.Remove(step);
+                }
+                updates.Add(evt);
+                foreach (var content in evt.Contents) {
+                    switch (content) {
+                        case TextContent text when !string.IsNullOrEmpty(text.Text):
+                            foreach (var frame in projector.AppendText(text.Text)) {
+                                yield return compactor.Compact(frame);
+                            }
+                            break;
+                        case DataContent data:
+                            foreach (var frame in projector.AddPart(ChatMessagePart.FromText(data.Uri, data.MediaType))) {
+                                yield return compactor.Compact(frame);
+                            }
+                            break;
+                    }
+                }
             }
-            if (evt.Contents.OfType<ErrorContent>().FirstOrDefault() is { } error) {
-                _logger.LogError("Chat pipeline failed for conversation {ConversationId}: {Reason}", conversation.Id, error.Message);
-                failed = true;
-                break;
-            }
-            // Progress updates are ephemeral streaming UI hints and never part of the aggregated answer.
-            if (evt.Contents.OfType<StepProgressContent>().FirstOrDefault() is { } stepUpdate) {
-                yield return Message(new DexChatStreamStatus { Value = stepUpdate.Label });
-                continue;
-            }
-            updates.Add(evt);
-            if (!string.IsNullOrEmpty(evt.Text)) {
-                yield return Delta(evt.Text);
-            }
-        }
 
-        var response = failed ? null : updates.ToChatResponse();
-        if (response is not null && response.Messages.Count == 0) {
-            _logger.LogError("Chat pipeline produced no assistant message for conversation {ConversationId}.", conversation.Id);
-            response = null;
-        }
+            var response = failed ? null : updates.ToChatResponse();
+            if (response is not null && response.Messages.Count == 0) {
+                _logger.LogError("Chat pipeline produced no assistant message for conversation {ConversationId}.", conversation.Id);
+                response = null;
+            }
 
-        if (response is null) {
-            await _store.AppendFailedTurnAsync(conversation.Id, userMessage, cancellationToken);
-            yield return Message(new DexChatStreamError { Reason = GenericFailureReason });
-            yield break;
-        }
+            if (response is null) {
+                await _store.AppendFailedTurnAsync(conversation.Id, userMessage, cancellationToken);
+                turnPersisted = true;
+                yield return Message(new DexChatStreamError { Reason = GenericFailureReason });
+                yield break;
+            }
 
-        var persisted = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
-        foreach (var frame in CompletionFrames(CreateTurnResponse(conversation, response, persisted))) {
-            yield return frame;
+            var persisted = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
+            turnPersisted = true;
+            foreach (var frame in projector.Complete(CreateTurnResponse(conversation, response, persisted))) {
+                yield return compactor.Compact(frame);
+            }
+            yield return Message(new DexChatStreamDone());
+        } 
+        finally {
+            if (!turnPersisted) {
+                // Disconnect or fault before persistence: keep the user's question in the conversation and count it.
+                await _store.AppendFailedTurnAsync(conversation.Id, userMessage, CancellationToken.None);
+            }
         }
     }
 
     /// <summary>Wraps a non-delta frame for the default <c>message</c> SSE event.</summary>
     private static SseItem<DexChatResponseUpdate> Message(DexChatResponseUpdate frame) => new(frame);
 
-    /// <summary>Wraps answer text for the <c>delta</c> SSE event.</summary>
-    private static SseItem<DexChatResponseUpdate> Delta(string text) => new(new DexChatStreamDelta { Text = text }, "delta");
+    /// <summary>
+    /// Per-stream frame compaction (wire concern only): nulls a delta's <c>path</c>/<c>op</c> when identical to the
+    /// previous delta's effective values, so consecutive token appends shrink to <c>{"type":"delta","value":…}</c>.
+    /// The first delta always goes out full. Clients inflate by carrying the last effective path/op forward.
+    /// </summary>
+    private sealed class DeltaCompactor
+    {
+        private string? _path;
+        private DexChatPatchOp? _op;
 
-    /// <summary>Decomposes a canonical response into its completion frames: <c>citations</c>/<c>sources</c> when non-empty, <c>usage</c>, then the terminal <c>done</c> with the metadata that was not streamed as text.</summary>
-    private static IEnumerable<SseItem<DexChatResponseUpdate>> CompletionFrames(DexChatResponse response) {
-        var message = response.Messages.LastOrDefault();
-        if (message?.Citations is { Count: > 0 } citations) {
-            yield return Message(new DexChatStreamCitations { Value = citations });
+        public SseItem<DexChatResponseUpdate> Compact(DexChatStreamDelta frame) {
+            if (frame.Path == _path) { frame.Path = null; } else { _path = frame.Path; }
+            if (frame.Op == _op) { frame.Op = null; } else { _op = frame.Op; }
+            return new SseItem<DexChatResponseUpdate>(frame, "delta");
         }
-        if (message?.Sources is { Count: > 0 } sources) {
-            yield return Message(new DexChatStreamSources { Value = sources });
-        }
-        if (response.Usage is not null) {
-            yield return Message(new DexChatStreamUsage { Value = response.Usage });
-        }
-        yield return Message(new DexChatStreamDone {
-            MessageId = message?.MessageId,
-            ResponseId = response.ResponseId,
-            ModelId = response.ModelId,
-            CreatedAt = response.CreatedAt,
-            FinishReason = response.FinishReason,
-            LimitReached = response.LimitReached
-        });
     }
 
 
