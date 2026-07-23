@@ -20,6 +20,7 @@ public class IdentityEventsActivityLogConverter : IActivityLogFromEventConverter
         UserEmailChangedEvent e => CreateUserEntry(e.User, nameof(UserEmailChangedEvent), ActivityLogCategories.User, $"Email changed from '{e.PreviousValue}'", attributeSubject: true),
         AccountLockedEvent e => CreateUserEntry(e.User, nameof(AccountLockedEvent), ActivityLogCategories.User, "Account locked", attributeSubject: true),
         // Authentication events
+        PasswordSetEvent e => CreateUserEntry(e.User, nameof(PasswordSetEvent), ActivityLogCategories.Authentication, "Password set for user"),
         PasswordChangedEvent e => CreateUserEntry(e.User, nameof(PasswordChangedEvent), ActivityLogCategories.Authentication, "Password changed"),
         EmailConfirmedEvent e => CreateUserEntry(e.User, nameof(EmailConfirmedEvent), ActivityLogCategories.Authentication, "Email confirmed", attributeSubject: true),
         PhoneNumberConfirmedEvent e => CreateUserEntry(e.User, nameof(PhoneNumberConfirmedEvent), ActivityLogCategories.Authentication, "Phone number confirmed", attributeSubject: true),

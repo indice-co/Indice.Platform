@@ -9,20 +9,18 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 #endif
 using Indice.Events;
-using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Events.Models;
-using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Features.GeoIP;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 
-namespace Indice.Features.Identity.SignInLogs.EventHandlers;
+namespace Indice.Features.Identity.Core;
 
-/// <summary>An event that is raised when a user successfully changes their password.</summary>
-public sealed class UserPasswordChangedEventHandler : IPlatformEventHandler<PasswordChangedEvent>
+/// <summary>An event that is raised when a user is locked out.</summary>
+public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLockedEvent>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ExtendedSignInManager<User> _signInManager;
@@ -30,14 +28,14 @@ public sealed class UserPasswordChangedEventHandler : IPlatformEventHandler<Pass
     private readonly IPAddressLocator _ipAddressLocator;
     private readonly IPlatformEventService _platformEvents;
 
-    /// <summary>Creates a new instance of <see cref="UserPasswordChangedEventHandler"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="AccountLockedEventHandler"/>.</summary>
     /// <param name="eventService">Interface for the event service.</param>
     /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
     /// <param name="signInManager">The signin manager used to facilitate the discovery of the current device.</param>
     /// <param name="clientStore">Retrieval of client configuration.</param>
     /// <param name="ipAddressLocator">The ip locator service</param>
     /// <param name="platformEvents">Platform event service</param>
-    public UserPasswordChangedEventHandler(
+    public AccountLockedEventHandler(
         IEventService eventService,
         IHttpContextAccessor httpContextAccessor,
         ExtendedSignInManager<User> signInManager,
@@ -52,7 +50,7 @@ public sealed class UserPasswordChangedEventHandler : IPlatformEventHandler<Pass
     }
 
     /// <inheritdoc />
-    public async Task Handle(PasswordChangedEvent @event, PlatformEventArgs args) {
+    public async Task Handle(AccountLockedEvent @event, PlatformEventArgs args) {
         var clientId = _httpContextAccessor?.HttpContext?.GetClientIdFromReturnUrl() ?? _httpContextAccessor?.HttpContext?.User.FindFirstValue(BasicClaimTypes.ClientId);
         var userManager = (ExtendedUserManager<User>)_signInManager.UserManager;
         var user = await _signInManager.UserManager.FindByIdAsync(@event.User.Id);
@@ -71,12 +69,11 @@ public sealed class UserPasswordChangedEventHandler : IPlatformEventHandler<Pass
                 userDevice = UserDevice.FromUserAgent(userAgentHeader!, deviceId, @event.User.Id, 0);
             }
         }
-
         Client? client = null;
         if (!string.IsNullOrWhiteSpace(clientId)) {
             client = await _clientStore.FindClientByIdAsync(clientId);
         }
-        await _platformEvents.Publish(new SecurityNotificationEvent(nameof(PasswordChangedEvent), UserEventContext.InitializeFromUser(user!), ipLocation) {
+        await _platformEvents.Publish(new SecurityNotificationEvent(nameof(AccountLockedEvent), UserEventContext.InitializeFromUser(user!), ipLocation) {
             UserDevice = userDevice is not null ? UserDeviceEventContext.InitializeFromUserDevice(userDevice) : null,
             Device = DeviceEventContext.FromUserAgent(userAgentHeader),
             Client = client is not null ? ClientEventContext.InitializeFromClient(client) : null,

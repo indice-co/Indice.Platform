@@ -4,7 +4,7 @@ using Indice.Features.Identity.Core.Events.Models;
 using Indice.Globalization;
 using Indice.Security;
 
-namespace Indice.Features.Identity.SignInLogs.Events;
+namespace Indice.Features.Identity.Core.Events;
 /// <summary>
 /// Represents the data model used for constructing an email notification when a user's password is changed.
 /// </summary>

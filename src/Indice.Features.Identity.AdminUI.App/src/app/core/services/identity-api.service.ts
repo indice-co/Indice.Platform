@@ -93,17 +93,17 @@ export interface IIdentityApiService {
      * Gets an application setting by it's key.
      * @return OK
      */
-    getSettingByKey(key: string | null): Observable<AppSettingInfo>;
+    getSettingByKey(key: string): Observable<AppSettingInfo>;
     /**
      * Updates an existing application setting.
      * @return OK
      */
-    updateSetting(key: string | null, body: UpdateAppSettingRequest): Observable<AppSettingInfo>;
+    updateSetting(key: string, body: UpdateAppSettingRequest): Observable<AppSettingInfo>;
     /**
      * Permanently deletes an application setting.
      * @return No Content
      */
-    deleteSetting(key: string | null): Observable<void>;
+    deleteSetting(key: string): Observable<void>;
     /**
      * Loads the appsettings.json file and saves the configuration in the database.
      * @param hardRefresh (optional) 
@@ -130,17 +130,17 @@ export interface IIdentityApiService {
      * Gets a claim type by it's unique id.
      * @return OK
      */
-    getClaimType(claimTypeId: string | null): Observable<ClaimTypeInfo>;
+    getClaimType(claimTypeId: string): Observable<ClaimTypeInfo>;
     /**
      * Updates an existing claim type.
      * @return OK
      */
-    updateClaimType(claimTypeId: string | null, body: UpdateClaimTypeRequest): Observable<ClaimTypeInfo>;
+    updateClaimType(claimTypeId: string, body: UpdateClaimTypeRequest): Observable<ClaimTypeInfo>;
     /**
      * Permanently deletes an existing claim type.
      * @return No Content
      */
-    deleteClaimType(claimTypeId: string | null): Observable<void>;
+    deleteClaimType(claimTypeId: string): Observable<void>;
     /**
      * Returns a list of ClientInfo objects containing the total number of claim types in the database and the data filtered according to the provided ListOptions.
      * @param page (optional) The current page of the list. Default is 1.
@@ -159,84 +159,84 @@ export interface IIdentityApiService {
      * Gets a client by it's unique id.
      * @return OK
      */
-    getClient(clientId: string | null): Observable<SingleClientInfo>;
+    getClient(clientId: string): Observable<SingleClientInfo>;
     /**
      * Updates an existing client.
      * @return No Content
      */
-    updateClient(clientId: string | null, body: UpdateClientRequest): Observable<void>;
+    updateClient(clientId: string, body: UpdateClientRequest): Observable<void>;
     /**
      * Permanently deletes an existing client.
      * @return No Content
      */
-    deleteClient(clientId: string | null): Observable<void>;
+    deleteClient(clientId: string): Observable<void>;
     /**
      * Adds a new secret, from a certificate, to an existing client.
      * @param file (optional) 
      * @param password (optional) 
      * @return OK
      */
-    uploadCertificate(clientId: string | null, file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfo>;
+    uploadCertificate(clientId: string, file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfo>;
     /**
      * Downloads a client secret if it is a certificate.
      * @return OK
      */
-    getCertificate(clientId: string | null, secretId: number): Observable<FileResponse>;
+    getCertificate(clientId: string, secretId: number): Observable<FileResponse>;
     /**
      * Adds a claim for the specified client.
      * @return OK
      */
-    addClientClaim(clientId: string | null, body: CreateClaimRequest): Observable<ClaimInfo>;
+    addClientClaim(clientId: string, body: CreateClaimRequest): Observable<ClaimInfo>;
     /**
      * Removes an identity resource from the specified client.
      * @return No Content
      */
-    deleteClientClaim(clientId: string | null, claimId: number): Observable<void>;
+    deleteClientClaim(clientId: string, claimId: number): Observable<void>;
     /**
      * Adds a grant type to the specified client.
      * @return OK
      */
-    addClientGrantType(clientId: string | null, grantType: string | null): Observable<GrantTypeInfo>;
+    addClientGrantType(clientId: string, grantType: string): Observable<GrantTypeInfo>;
     /**
      * Removes a grant type from the specified client.
      * @return No Content
      */
-    deleteClientGrantType(clientId: string | null, grantType: string | null): Observable<void>;
+    deleteClientGrantType(clientId: string, grantType: string): Observable<void>;
     /**
      * Adds an identity resource to the specified client.
      * @return No Content
      */
-    addClientResources(clientId: string | null, body: string[]): Observable<void>;
+    addClientResources(clientId: string, body: string[]): Observable<void>;
     /**
      * Removes a range of identity resources from the specified client.
      * @return No Content
      */
-    deleteClientResource(clientId: string | null, resources: string[]): Observable<void>;
+    deleteClientResource(clientId: string, resources: string[]): Observable<void>;
     /**
      * Adds a new secret to an existing client.
      * @return OK
      */
-    addClientSecret(clientId: string | null, body: CreateSecretRequest): Observable<SecretInfo>;
+    addClientSecret(clientId: string, body: CreateSecretRequest): Observable<SecretInfo>;
     /**
      * Removes a specified secret from a client.
      * @return No Content
      */
-    deleteClientSecret(clientId: string | null, secretId: number): Observable<void>;
+    deleteClientSecret(clientId: string, secretId: number): Observable<void>;
     /**
      * Gets the UI configuration for the specified client.
      * @return OK
      */
-    getClientTheme(clientId: string | null): Observable<ClientThemeConfigResponse>;
+    getClientTheme(clientId: string): Observable<ClientThemeConfigResponse>;
     /**
      * Creates or updates the ui configuration for the specified client.
      * @return No Content
      */
-    createOrUpdateClientTheme(clientId: string | null, body: ClientThemeConfigRequest): Observable<void>;
+    createOrUpdateClientTheme(clientId: string, body: ClientThemeConfigRequest): Observable<void>;
     /**
      * Renews the list of client urls (redirect cors etc).
      * @return No Content
      */
-    updateClientUrls(clientId: string | null, body: UpdateClientUrls): Observable<void>;
+    updateClientUrls(clientId: string, body: UpdateClientUrls): Observable<void>;
     /**
      * Gets the metadata of a certificate for display.
      * @param file (optional) 
@@ -341,7 +341,7 @@ export interface IIdentityApiService {
      * Revokes all a user's consents and grants for a client.
      * @return No Content
      */
-    revokeConsents(clientId: string | null): Observable<void>;
+    revokeConsents(clientId: string): Observable<void>;
     /**
      * Updates the max devices count.
      * @return No Content
@@ -455,28 +455,28 @@ export interface IIdentityApiService {
      * Gets a device by it's unique id.
      * @return OK
      */
-    getDeviceById(deviceId: string | null): Observable<DeviceInfo>;
+    getDeviceById(deviceId: string): Observable<DeviceInfo>;
     /**
      * Updates a device.
      * @return No Content
      */
-    updateDevice(deviceId: string | null, body: UpdateDeviceRequest): Observable<void>;
+    updateDevice(deviceId: string, body: UpdateDeviceRequest): Observable<void>;
     /**
      * Deletes the device.
      * @return No Content
      */
-    deleteDevice(deviceId: string | null): Observable<void>;
+    deleteDevice(deviceId: string): Observable<void>;
     /**
      * Starts the process of trusting a device.
      * @param x_TOTP (optional) The TOTP code
      * @return No Content
      */
-    trustDevice(deviceId: string | null, body: TrustDeviceRequest, x_TOTP?: string | undefined): Observable<void>;
+    trustDevice(deviceId: string, body: TrustDeviceRequest, x_TOTP?: string | undefined): Observable<void>;
     /**
      * Sets a device as untrusted.
      * @return No Content
      */
-    untrustDevice(deviceId: string | null): Observable<void>;
+    untrustDevice(deviceId: string): Observable<void>;
     /**
      * Gets the list of sign in logs for the current user.
      * @param page (optional) The current page of the list. Default is 1.
@@ -528,7 +528,7 @@ export interface IIdentityApiService {
      * Removes a specified claim from an identity resource.
      * @return No Content
      */
-    deleteIdentityResourceClaim(resourceId: number, claim: string | null): Observable<void>;
+    deleteIdentityResourceClaim(resourceId: number, claim: string): Observable<void>;
     /**
      * Returns a list of ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided ListOptions.
      * @param page (optional) The current page of the list. Default is 1.
@@ -567,7 +567,7 @@ export interface IIdentityApiService {
      * Removes a specified claim from an API resource.
      * @return No Content
      */
-    deleteApiResourceClaim(resourceId: number, claim: string | null): Observable<void>;
+    deleteApiResourceClaim(resourceId: number, claim: string): Observable<void>;
     /**
      * Adds a new scope to an existing API resource.
      * @return OK
@@ -592,7 +592,7 @@ export interface IIdentityApiService {
      * Deletes a claim from an API scope of a protected resource.
      * @return No Content
      */
-    deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string | null): Observable<void>;
+    deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string): Observable<void>;
     /**
      * Adds a new scope to an existing API resource.
      * @return OK
@@ -604,7 +604,7 @@ export interface IIdentityApiService {
      */
     deleteApiResourceSecret(resourceId: number, secretId: number): Observable<void>;
     /**
-     * Returns a list of ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided ListOptions.
+     * Returns a list of API scopes.
      * @param page (optional) The current page of the list. Default is 1.
      * @param size (optional) The size of the list. Default is 100
      * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
@@ -612,6 +612,31 @@ export interface IIdentityApiService {
      * @return OK
      */
     getApiScopes(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<ApiScopeInfoResultSet>;
+    /**
+     * Creates a new API scope.
+     * @return OK
+     */
+    createApiScope(body: CreateApiScopeRequest): Observable<ApiScopeInfo>;
+    /**
+     * Updates a specified API scope.
+     * @return No Content
+     */
+    updateApiScope(scopeName: string, body: UpdateApiScopeRequest): Observable<void>;
+    /**
+     * Deletes an existing API scope.
+     * @return No Content
+     */
+    deleteApiScope(scopeName: string): Observable<void>;
+    /**
+     * Adds claims to an API Scope.
+     * @return No Content
+     */
+    addApiScopeClaims(scopeName: string, body: string[]): Observable<void>;
+    /**
+     * Removes a specified claim from an API Scope.
+     * @return No Content
+     */
+    deleteApiScopeClaim(scopeName: string, claim: string): Observable<void>;
     /**
      * Returns a list of RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided ListOptions.
      * @param page (optional) The current page of the list. Default is 1.
@@ -630,17 +655,17 @@ export interface IIdentityApiService {
      * Gets a role by it's unique id.
      * @return OK
      */
-    getRole(roleId: string | null): Observable<RoleInfo>;
+    getRole(roleId: string): Observable<RoleInfo>;
     /**
      * Updates an existing role.
      * @return OK
      */
-    updateRole(roleId: string | null, body: UpdateRoleRequest): Observable<RoleInfo>;
+    updateRole(roleId: string, body: UpdateRoleRequest): Observable<RoleInfo>;
     /**
      * Permanently deletes an existing role.
      * @return No Content
      */
-    deleteRole(roleId: string | null): Observable<void>;
+    deleteRole(roleId: string): Observable<void>;
     /**
      * Gets the list of sign in logs produced by the Identity system.
      * @param page (optional) The current page of the list. Default is 1.
@@ -702,103 +727,103 @@ export interface IIdentityApiService {
      * Gets a user by it's unique id.
      * @return OK
      */
-    getUser(userId: string | null): Observable<SingleUserInfo>;
+    getUser(userId: string): Observable<SingleUserInfo>;
     /**
      * Updates an existing user.
      * @return OK
      */
-    updateUser(userId: string | null, body: UpdateUserRequest): Observable<SingleUserInfo>;
+    updateUser(userId: string, body: UpdateUserRequest): Observable<SingleUserInfo>;
     /**
      * Permanently deletes an existing user.
      * @return No Content
      */
-    deleteUser(userId: string | null): Observable<void>;
+    deleteUser(userId: string): Observable<void>;
     /**
      * Gets a list of the applications the user has given consent to or currently has IdentityServer side tokens for.
      * @return OK
      */
-    getUserApplications(userId: string | null): Observable<UserClientInfoResultSet>;
+    getUserApplications(userId: string): Observable<UserClientInfoResultSet>;
     /**
      * Revokes all a user's consents and grants for all clients.
      * @return No Content
      */
-    revokeAllUserApplicationAccess(userId: string | null): Observable<void>;
+    revokeAllUserApplicationAccess(userId: string): Observable<void>;
     /**
      * Revokes all a user's consents and grants for a client.
      * @return No Content
      */
-    revokeUserApplicationAccess(userId: string | null, clientId: string | null): Observable<void>;
+    revokeUserApplicationAccess(userId: string, clientId: string): Observable<void>;
     /**
      * Toggles user block state.
      * @return No Content
      */
-    setUserBlock(userId: string | null, body: SetUserBlockRequest): Observable<void>;
+    setUserBlock(userId: string, body: SetUserBlockRequest): Observable<void>;
     /**
      * Adds a claim for the specified user.
      * @return Created
      */
-    addUserClaim(userId: string | null, body: CreateClaimRequest): Observable<ClaimInfo>;
+    addUserClaim(userId: string, body: CreateClaimRequest): Observable<ClaimInfo>;
     /**
      * Gets a specified claim for a given user.
      * @return OK
      */
-    getUserClaim(userId: string | null, claimId: number): Observable<BasicClaimInfo>;
+    getUserClaim(userId: string, claimId: number): Observable<BasicClaimInfo>;
     /**
      * Updates an existing user claim.
      * @return OK
      */
-    updateUserClaim(userId: string | null, claimId: number, body: UpdateUserClaimRequest): Observable<ClaimInfo>;
+    updateUserClaim(userId: string, claimId: number, body: UpdateUserClaimRequest): Observable<ClaimInfo>;
     /**
      * Permanently deletes a specified claim from a user.
      * @return No Content
      */
-    deleteUserClaim(claimId: number, userId: string | null): Observable<void>;
+    deleteUserClaim(claimId: number, userId: string): Observable<void>;
     /**
      * Gets a list of the devices of the specified user.
      * @return OK
      */
-    getUserDevices(userId: string | null): Observable<DeviceInfoResultSet>;
+    getUserDevices(userId: string): Observable<DeviceInfoResultSet>;
     /**
      * Permanently deletes a registered device from a user.
      * @return No Content
      */
-    deleteUserDevice(userId: string | null, deviceId: string | null): Observable<void>;
+    deleteUserDevice(userId: string, deviceId: string): Observable<void>;
     /**
      * Get the secrets for a user device.
      * @return OK
      */
-    getUserDeviceSecrets(userId: string | null, deviceId: string | null): Observable<JsonWebKey[]>;
+    getUserDeviceSecrets(userId: string, deviceId: string): Observable<JsonWebKey[]>;
     /**
      * Resends the confirmation email for a given user.
      * @return No Content
      */
-    resendConfirmationEmail(userId: string | null): Observable<void>;
+    resendConfirmationEmail(userId: string): Observable<void>;
     /**
      * Gets a list of the external login providers for the specified user.
      * @return OK
      */
-    getUserExternalLogins(userId: string | null): Observable<UserLoginProviderInfoResultSet>;
+    getUserExternalLogins(userId: string): Observable<UserLoginProviderInfoResultSet>;
     /**
      * Permanently deletes a specified login provider association from a user.
      * @return No Content
      */
-    deleteUserExternalLogin(userId: string | null, provider: string | null, providerKey: string | null): Observable<void>;
+    deleteUserExternalLogin(userId: string, provider: string, providerKey: string): Observable<void>;
     /**
      * Resets the multi-factor authentication for the given user.
      * @return No Content
      */
-    resetMfa(userId: string | null): Observable<void>;
+    resetMfa(userId: string): Observable<void>;
     /**
      * Removes the last password for the given user.
      * @return No Content
      */
-    removePassword(userId: string | null): Observable<void>;
+    removePassword(userId: string): Observable<void>;
     /**
      * Get user's profile picture.
      * @param size (optional) 
      * @param d (optional) 
      */
-    getUserPicture(userId: string | null, size?: number | null | undefined, d?: string | null | undefined): Observable<void>;
+    getUserPicture(userId: string, size?: number | null | undefined, d?: string | null | undefined): Observable<void>;
     /**
      * Create or update profile picture of the given user.
      * @param file (optional) 
@@ -808,58 +833,58 @@ export interface IIdentityApiService {
      * @param viewPort (optional) 
      * @return No Content
      */
-    saveUserPicture(userId: string | null, file?: FileParameter | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void>;
+    saveUserPicture(userId: string, file?: FileParameter | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void>;
     /**
      * Clear profile picture from the given user.
      * @return No Content
      */
-    clearUserPicture(userId: string | null): Observable<void>;
+    clearUserPicture(userId: string): Observable<void>;
     /**
      * Get user's profile picture.
      * @param size (optional) 
      * @param d (optional) 
      */
-    getUserPictureFormat(userId: string | null, format: string, size?: number | null | undefined, d?: string | null | undefined): Observable<void>;
+    getUserPictureFormat(userId: string, format: string, size?: number | null | undefined, d?: string | null | undefined): Observable<void>;
     /**
      * Get user's profile picture.
      * @param d (optional) 
      */
-    getUserPictureSize(userId: string | null, size: number, d?: string | null | undefined): Observable<void>;
+    getUserPictureSize(userId: string, size: number, d?: string | null | undefined): Observable<void>;
     /**
      * Get user's profile picture.
      * @param d (optional) 
      */
-    getUserPictureSizeFormat(userId: string | null, size: number, format: string, d?: string | null | undefined): Observable<void>;
+    getUserPictureSizeFormat(userId: string, size: number, format: string, d?: string | null | undefined): Observable<void>;
     /**
      * Adds a new role to the specified user.
      * @return No Content
      */
-    addUserRole(userId: string | null, roleId: string | null): Observable<void>;
+    addUserRole(userId: string, roleId: string): Observable<void>;
     /**
      * Removes an existing role from the specified user.
      * @return No Content
      */
-    deleteUserRole(userId: string | null, roleId: string | null): Observable<void>;
+    deleteUserRole(userId: string, roleId: string): Observable<void>;
     /**
      * Gets a list of server side sessions for the specified user.
      * @return OK
      */
-    getUserSessions(userId: string | null): Observable<ServerSideSessionInfoResultSet>;
+    getUserSessions(userId: string): Observable<ServerSideSessionInfoResultSet>;
     /**
      * Permanently removes an active session.
      * @return No Content
      */
-    removeUserSession(userId: string | null, sessionId: string | null): Observable<void>;
+    removeUserSession(userId: string, sessionId: string): Observable<void>;
     /**
      * Sets the password for a given user.
      * @return No Content
      */
-    setPassword(userId: string | null, body: SetPasswordRequest): Observable<void>;
+    setPassword(userId: string, body: SetPasswordRequest): Observable<void>;
     /**
      * Unlocks a user.
      * @return No Content
      */
-    unlockUser(userId: string | null): Observable<void>;
+    unlockUser(userId: string): Observable<void>;
 }
 
 @Injectable({
@@ -1777,7 +1802,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Gets an application setting by it's key.
      * @return OK
      */
-    getSettingByKey(key: string | null): Observable<AppSettingInfo> {
+    getSettingByKey(key: string): Observable<AppSettingInfo> {
         let url_ = this.baseUrl + "/api/app-settings/{key}";
         if (key === undefined || key === null)
             throw new globalThis.Error("The parameter 'key' must be defined.");
@@ -1850,7 +1875,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Updates an existing application setting.
      * @return OK
      */
-    updateSetting(key: string | null, body: UpdateAppSettingRequest): Observable<AppSettingInfo> {
+    updateSetting(key: string, body: UpdateAppSettingRequest): Observable<AppSettingInfo> {
         let url_ = this.baseUrl + "/api/app-settings/{key}";
         if (key === undefined || key === null)
             throw new globalThis.Error("The parameter 'key' must be defined.");
@@ -1934,7 +1959,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Permanently deletes an application setting.
      * @return No Content
      */
-    deleteSetting(key: string | null): Observable<void> {
+    deleteSetting(key: string): Observable<void> {
         let url_ = this.baseUrl + "/api/app-settings/{key}";
         if (key === undefined || key === null)
             throw new globalThis.Error("The parameter 'key' must be defined.");
@@ -2242,7 +2267,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Gets a claim type by it's unique id.
      * @return OK
      */
-    getClaimType(claimTypeId: string | null): Observable<ClaimTypeInfo> {
+    getClaimType(claimTypeId: string): Observable<ClaimTypeInfo> {
         let url_ = this.baseUrl + "/api/claim-types/{claimTypeId}";
         if (claimTypeId === undefined || claimTypeId === null)
             throw new globalThis.Error("The parameter 'claimTypeId' must be defined.");
@@ -2315,7 +2340,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Updates an existing claim type.
      * @return OK
      */
-    updateClaimType(claimTypeId: string | null, body: UpdateClaimTypeRequest): Observable<ClaimTypeInfo> {
+    updateClaimType(claimTypeId: string, body: UpdateClaimTypeRequest): Observable<ClaimTypeInfo> {
         let url_ = this.baseUrl + "/api/claim-types/{claimTypeId}";
         if (claimTypeId === undefined || claimTypeId === null)
             throw new globalThis.Error("The parameter 'claimTypeId' must be defined.");
@@ -2399,7 +2424,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Permanently deletes an existing claim type.
      * @return No Content
      */
-    deleteClaimType(claimTypeId: string | null): Observable<void> {
+    deleteClaimType(claimTypeId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/claim-types/{claimTypeId}";
         if (claimTypeId === undefined || claimTypeId === null)
             throw new globalThis.Error("The parameter 'claimTypeId' must be defined.");
@@ -2630,7 +2655,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Gets a client by it's unique id.
      * @return OK
      */
-    getClient(clientId: string | null): Observable<SingleClientInfo> {
+    getClient(clientId: string): Observable<SingleClientInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -2703,7 +2728,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Updates an existing client.
      * @return No Content
      */
-    updateClient(clientId: string | null, body: UpdateClientRequest): Observable<void> {
+    updateClient(clientId: string, body: UpdateClientRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -2783,7 +2808,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Permanently deletes an existing client.
      * @return No Content
      */
-    deleteClient(clientId: string | null): Observable<void> {
+    deleteClient(clientId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -2861,7 +2886,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param password (optional) 
      * @return OK
      */
-    uploadCertificate(clientId: string | null, file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfo> {
+    uploadCertificate(clientId: string, file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/certificates";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -2950,7 +2975,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Downloads a client secret if it is a certificate.
      * @return OK
      */
-    getCertificate(clientId: string | null, secretId: number): Observable<FileResponse> {
+    getCertificate(clientId: string, secretId: number): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/certificates/{secretId}";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -3037,7 +3062,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Adds a claim for the specified client.
      * @return OK
      */
-    addClientClaim(clientId: string | null, body: CreateClaimRequest): Observable<ClaimInfo> {
+    addClientClaim(clientId: string, body: CreateClaimRequest): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/claims";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -3121,7 +3146,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes an identity resource from the specified client.
      * @return No Content
      */
-    deleteClientClaim(clientId: string | null, claimId: number): Observable<void> {
+    deleteClientClaim(clientId: string, claimId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/claims/{claimId}";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -3200,7 +3225,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Adds a grant type to the specified client.
      * @return OK
      */
-    addClientGrantType(clientId: string | null, grantType: string | null): Observable<GrantTypeInfo> {
+    addClientGrantType(clientId: string, grantType: string): Observable<GrantTypeInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/grant-types/{grantType}";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -3283,7 +3308,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes a grant type from the specified client.
      * @return No Content
      */
-    deleteClientGrantType(clientId: string | null, grantType: string | null): Observable<void> {
+    deleteClientGrantType(clientId: string, grantType: string): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/grant-types/{grantType}";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -3362,7 +3387,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Adds an identity resource to the specified client.
      * @return No Content
      */
-    addClientResources(clientId: string | null, body: string[]): Observable<void> {
+    addClientResources(clientId: string, body: string[]): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/resources";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -3442,7 +3467,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes a range of identity resources from the specified client.
      * @return No Content
      */
-    deleteClientResource(clientId: string | null, resources: string[]): Observable<void> {
+    deleteClientResource(clientId: string, resources: string[]): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/resources?";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -3522,7 +3547,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Adds a new secret to an existing client.
      * @return OK
      */
-    addClientSecret(clientId: string | null, body: CreateSecretRequest): Observable<SecretInfo> {
+    addClientSecret(clientId: string, body: CreateSecretRequest): Observable<SecretInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/secrets";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -3606,7 +3631,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes a specified secret from a client.
      * @return No Content
      */
-    deleteClientSecret(clientId: string | null, secretId: number): Observable<void> {
+    deleteClientSecret(clientId: string, secretId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/secrets/{secretId}";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -3685,7 +3710,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Gets the UI configuration for the specified client.
      * @return OK
      */
-    getClientTheme(clientId: string | null): Observable<ClientThemeConfigResponse> {
+    getClientTheme(clientId: string): Observable<ClientThemeConfigResponse> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/theme";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -3761,7 +3786,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Creates or updates the ui configuration for the specified client.
      * @return No Content
      */
-    createOrUpdateClientTheme(clientId: string | null, body: ClientThemeConfigRequest): Observable<void> {
+    createOrUpdateClientTheme(clientId: string, body: ClientThemeConfigRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/theme";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -3837,7 +3862,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Renews the list of client urls (redirect cors etc).
      * @return No Content
      */
-    updateClientUrls(clientId: string | null, body: UpdateClientUrls): Observable<void> {
+    updateClientUrls(clientId: string, body: UpdateClientUrls): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/urls";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -5285,7 +5310,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Revokes all a user's consents and grants for a client.
      * @return No Content
      */
-    revokeConsents(clientId: string | null): Observable<void> {
+    revokeConsents(clientId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/my/account/grants/{clientId}";
         if (clientId === undefined || clientId === null)
             throw new globalThis.Error("The parameter 'clientId' must be defined.");
@@ -6677,7 +6702,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Gets a device by it's unique id.
      * @return OK
      */
-    getDeviceById(deviceId: string | null): Observable<DeviceInfo> {
+    getDeviceById(deviceId: string): Observable<DeviceInfo> {
         let url_ = this.baseUrl + "/api/my/devices/{deviceId}";
         if (deviceId === undefined || deviceId === null)
             throw new globalThis.Error("The parameter 'deviceId' must be defined.");
@@ -6750,7 +6775,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Updates a device.
      * @return No Content
      */
-    updateDevice(deviceId: string | null, body: UpdateDeviceRequest): Observable<void> {
+    updateDevice(deviceId: string, body: UpdateDeviceRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/my/devices/{deviceId}";
         if (deviceId === undefined || deviceId === null)
             throw new globalThis.Error("The parameter 'deviceId' must be defined.");
@@ -6830,7 +6855,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Deletes the device.
      * @return No Content
      */
-    deleteDevice(deviceId: string | null): Observable<void> {
+    deleteDevice(deviceId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/my/devices/{deviceId}";
         if (deviceId === undefined || deviceId === null)
             throw new globalThis.Error("The parameter 'deviceId' must be defined.");
@@ -6900,7 +6925,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param x_TOTP (optional) The TOTP code
      * @return No Content
      */
-    trustDevice(deviceId: string | null, body: TrustDeviceRequest, x_TOTP?: string | undefined): Observable<void> {
+    trustDevice(deviceId: string, body: TrustDeviceRequest, x_TOTP?: string | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/my/devices/{deviceId}/trust";
         if (deviceId === undefined || deviceId === null)
             throw new globalThis.Error("The parameter 'deviceId' must be defined.");
@@ -6981,7 +7006,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Sets a device as untrusted.
      * @return No Content
      */
-    untrustDevice(deviceId: string | null): Observable<void> {
+    untrustDevice(deviceId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/my/devices/{deviceId}/untrust";
         if (deviceId === undefined || deviceId === null)
             throw new globalThis.Error("The parameter 'deviceId' must be defined.");
@@ -7624,7 +7649,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes a specified claim from an identity resource.
      * @return No Content
      */
-    deleteIdentityResourceClaim(resourceId: number, claim: string | null): Observable<void> {
+    deleteIdentityResourceClaim(resourceId: number, claim: string): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/identity/{resourceId}/claims/{claim}";
         if (resourceId === undefined || resourceId === null)
             throw new globalThis.Error("The parameter 'resourceId' must be defined.");
@@ -8153,7 +8178,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes a specified claim from an API resource.
      * @return No Content
      */
-    deleteApiResourceClaim(resourceId: number, claim: string | null): Observable<void> {
+    deleteApiResourceClaim(resourceId: number, claim: string): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/claims/{claim}";
         if (resourceId === undefined || resourceId === null)
             throw new globalThis.Error("The parameter 'resourceId' must be defined.");
@@ -8547,7 +8572,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Deletes a claim from an API scope of a protected resource.
      * @return No Content
      */
-    deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string | null): Observable<void> {
+    deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}/claims/{claim}";
         if (resourceId === undefined || resourceId === null)
             throw new globalThis.Error("The parameter 'resourceId' must be defined.");
@@ -8775,7 +8800,7 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * Returns a list of ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided ListOptions.
+     * Returns a list of API scopes.
      * @param page (optional) The current page of the list. Default is 1.
      * @param size (optional) The size of the list. Default is 100
      * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
@@ -8836,6 +8861,398 @@ export class IdentityApiService implements IIdentityApiService {
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Creates a new API scope.
+     * @return OK
+     */
+    createApiScope(body: CreateApiScopeRequest): Observable<ApiScopeInfo> {
+        let url_ = this.baseUrl + "/api/resources/protected/scopes";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateApiScope(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateApiScope(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ApiScopeInfo>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ApiScopeInfo>;
+        }));
+    }
+
+    protected processCreateApiScope(response: HttpResponseBase): Observable<ApiScopeInfo> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ApiScopeInfo.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Updates a specified API scope.
+     * @return No Content
+     */
+    updateApiScope(scopeName: string, body: UpdateApiScopeRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/protected/scopes/{scopeName}";
+        if (scopeName === undefined || scopeName === null)
+            throw new globalThis.Error("The parameter 'scopeName' must be defined.");
+        url_ = url_.replace("{scopeName}", encodeURIComponent("" + scopeName));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateApiScope(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateApiScope(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateApiScope(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Deletes an existing API scope.
+     * @return No Content
+     */
+    deleteApiScope(scopeName: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/protected/scopes/{scopeName}";
+        if (scopeName === undefined || scopeName === null)
+            throw new globalThis.Error("The parameter 'scopeName' must be defined.");
+        url_ = url_.replace("{scopeName}", encodeURIComponent("" + scopeName));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteApiScope(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteApiScope(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteApiScope(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Adds claims to an API Scope.
+     * @return No Content
+     */
+    addApiScopeClaims(scopeName: string, body: string[]): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/protected/scopes/{scopeName}/claims";
+        if (scopeName === undefined || scopeName === null)
+            throw new globalThis.Error("The parameter 'scopeName' must be defined.");
+        url_ = url_.replace("{scopeName}", encodeURIComponent("" + scopeName));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddApiScopeClaims(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddApiScopeClaims(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processAddApiScopeClaims(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Removes a specified claim from an API Scope.
+     * @return No Content
+     */
+    deleteApiScopeClaim(scopeName: string, claim: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/protected/scopes/{scopeName}/claims/{claim}";
+        if (scopeName === undefined || scopeName === null)
+            throw new globalThis.Error("The parameter 'scopeName' must be defined.");
+        url_ = url_.replace("{scopeName}", encodeURIComponent("" + scopeName));
+        if (claim === undefined || claim === null)
+            throw new globalThis.Error("The parameter 'claim' must be defined.");
+        url_ = url_.replace("{claim}", encodeURIComponent("" + claim));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteApiScopeClaim(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteApiScopeClaim(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteApiScopeClaim(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
             }));
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9011,7 +9428,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Gets a role by it's unique id.
      * @return OK
      */
-    getRole(roleId: string | null): Observable<RoleInfo> {
+    getRole(roleId: string): Observable<RoleInfo> {
         let url_ = this.baseUrl + "/api/roles/{roleId}";
         if (roleId === undefined || roleId === null)
             throw new globalThis.Error("The parameter 'roleId' must be defined.");
@@ -9084,7 +9501,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Updates an existing role.
      * @return OK
      */
-    updateRole(roleId: string | null, body: UpdateRoleRequest): Observable<RoleInfo> {
+    updateRole(roleId: string, body: UpdateRoleRequest): Observable<RoleInfo> {
         let url_ = this.baseUrl + "/api/roles/{roleId}";
         if (roleId === undefined || roleId === null)
             throw new globalThis.Error("The parameter 'roleId' must be defined.");
@@ -9168,7 +9585,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Permanently deletes an existing role.
      * @return No Content
      */
-    deleteRole(roleId: string | null): Observable<void> {
+    deleteRole(roleId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/roles/{roleId}";
         if (roleId === undefined || roleId === null)
             throw new globalThis.Error("The parameter 'roleId' must be defined.");
@@ -9879,7 +10296,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Gets a user by it's unique id.
      * @return OK
      */
-    getUser(userId: string | null): Observable<SingleUserInfo> {
+    getUser(userId: string): Observable<SingleUserInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -9959,7 +10376,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Updates an existing user.
      * @return OK
      */
-    updateUser(userId: string | null, body: UpdateUserRequest): Observable<SingleUserInfo> {
+    updateUser(userId: string, body: UpdateUserRequest): Observable<SingleUserInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -10050,7 +10467,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Permanently deletes an existing user.
      * @return No Content
      */
-    deleteUser(userId: string | null): Observable<void> {
+    deleteUser(userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -10133,7 +10550,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Gets a list of the applications the user has given consent to or currently has IdentityServer side tokens for.
      * @return OK
      */
-    getUserApplications(userId: string | null): Observable<UserClientInfoResultSet> {
+    getUserApplications(userId: string): Observable<UserClientInfoResultSet> {
         let url_ = this.baseUrl + "/api/users/{userId}/applications";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -10209,7 +10626,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Revokes all a user's consents and grants for all clients.
      * @return No Content
      */
-    revokeAllUserApplicationAccess(userId: string | null): Observable<void> {
+    revokeAllUserApplicationAccess(userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/applications";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -10285,7 +10702,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Revokes all a user's consents and grants for a client.
      * @return No Content
      */
-    revokeUserApplicationAccess(userId: string | null, clientId: string | null): Observable<void> {
+    revokeUserApplicationAccess(userId: string, clientId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/applications/{clientId}";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -10364,7 +10781,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Toggles user block state.
      * @return No Content
      */
-    setUserBlock(userId: string | null, body: SetUserBlockRequest): Observable<void> {
+    setUserBlock(userId: string, body: SetUserBlockRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/block";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -10451,7 +10868,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Adds a claim for the specified user.
      * @return Created
      */
-    addUserClaim(userId: string | null, body: CreateClaimRequest): Observable<ClaimInfo> {
+    addUserClaim(userId: string, body: CreateClaimRequest): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -10542,7 +10959,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Gets a specified claim for a given user.
      * @return OK
      */
-    getUserClaim(userId: string | null, claimId: number): Observable<BasicClaimInfo> {
+    getUserClaim(userId: string, claimId: number): Observable<BasicClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims/{claimId}";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -10625,7 +11042,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Updates an existing user claim.
      * @return OK
      */
-    updateUserClaim(userId: string | null, claimId: number, body: UpdateUserClaimRequest): Observable<ClaimInfo> {
+    updateUserClaim(userId: string, claimId: number, body: UpdateUserClaimRequest): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims/{claimId}";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -10712,7 +11129,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Permanently deletes a specified claim from a user.
      * @return No Content
      */
-    deleteUserClaim(claimId: number, userId: string | null): Observable<void> {
+    deleteUserClaim(claimId: number, userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims/{claimId}";
         if (claimId === undefined || claimId === null)
             throw new globalThis.Error("The parameter 'claimId' must be defined.");
@@ -10791,7 +11208,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Gets a list of the devices of the specified user.
      * @return OK
      */
-    getUserDevices(userId: string | null): Observable<DeviceInfoResultSet> {
+    getUserDevices(userId: string): Observable<DeviceInfoResultSet> {
         let url_ = this.baseUrl + "/api/users/{userId}/devices";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -10867,7 +11284,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Permanently deletes a registered device from a user.
      * @return No Content
      */
-    deleteUserDevice(userId: string | null, deviceId: string | null): Observable<void> {
+    deleteUserDevice(userId: string, deviceId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/devices/{deviceId}";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -10946,7 +11363,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Get the secrets for a user device.
      * @return OK
      */
-    getUserDeviceSecrets(userId: string | null, deviceId: string | null): Observable<JsonWebKey[]> {
+    getUserDeviceSecrets(userId: string, deviceId: string): Observable<JsonWebKey[]> {
         let url_ = this.baseUrl + "/api/users/{userId}/devices/{deviceId}/secrets";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11036,7 +11453,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Resends the confirmation email for a given user.
      * @return No Content
      */
-    resendConfirmationEmail(userId: string | null): Observable<void> {
+    resendConfirmationEmail(userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/email/confirmation";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11119,7 +11536,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Gets a list of the external login providers for the specified user.
      * @return OK
      */
-    getUserExternalLogins(userId: string | null): Observable<UserLoginProviderInfoResultSet> {
+    getUserExternalLogins(userId: string): Observable<UserLoginProviderInfoResultSet> {
         let url_ = this.baseUrl + "/api/users/{userId}/external-logins";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11195,7 +11612,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Permanently deletes a specified login provider association from a user.
      * @return No Content
      */
-    deleteUserExternalLogin(userId: string | null, provider: string | null, providerKey: string | null): Observable<void> {
+    deleteUserExternalLogin(userId: string, provider: string, providerKey: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/external-logins/{provider}/{providerKey}";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11284,7 +11701,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Resets the multi-factor authentication for the given user.
      * @return No Content
      */
-    resetMfa(userId: string | null): Observable<void> {
+    resetMfa(userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/mfa";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11367,7 +11784,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes the last password for the given user.
      * @return No Content
      */
-    removePassword(userId: string | null): Observable<void> {
+    removePassword(userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/password";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11451,7 +11868,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param size (optional) 
      * @param d (optional) 
      */
-    getUserPicture(userId: string | null, size?: number | null | undefined, d?: string | null | undefined): Observable<void> {
+    getUserPicture(userId: string, size?: number | null | undefined, d?: string | null | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/picture?";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11539,7 +11956,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param viewPort (optional) 
      * @return No Content
      */
-    saveUserPicture(userId: string | null, file?: FileParameter | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void> {
+    saveUserPicture(userId: string, file?: FileParameter | undefined, scale?: number | null | undefined, translateX?: number | null | undefined, translateY?: number | null | undefined, viewPort?: number | null | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/picture";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11637,7 +12054,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Clear profile picture from the given user.
      * @return No Content
      */
-    clearUserPicture(userId: string | null): Observable<void> {
+    clearUserPicture(userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/picture";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11721,7 +12138,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param size (optional) 
      * @param d (optional) 
      */
-    getUserPictureFormat(userId: string | null, format: string, size?: number | null | undefined, d?: string | null | undefined): Observable<void> {
+    getUserPictureFormat(userId: string, format: string, size?: number | null | undefined, d?: string | null | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/picture.{format}?";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11807,7 +12224,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Get user's profile picture.
      * @param d (optional) 
      */
-    getUserPictureSize(userId: string | null, size: number, d?: string | null | undefined): Observable<void> {
+    getUserPictureSize(userId: string, size: number, d?: string | null | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/picture/{size}?";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11891,7 +12308,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Get user's profile picture.
      * @param d (optional) 
      */
-    getUserPictureSizeFormat(userId: string | null, size: number, format: string, d?: string | null | undefined): Observable<void> {
+    getUserPictureSizeFormat(userId: string, size: number, format: string, d?: string | null | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/picture/{size}.{format}?";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -11978,7 +12395,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Adds a new role to the specified user.
      * @return No Content
      */
-    addUserRole(userId: string | null, roleId: string | null): Observable<void> {
+    addUserRole(userId: string, roleId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/roles/{roleId}";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -12064,7 +12481,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes an existing role from the specified user.
      * @return No Content
      */
-    deleteUserRole(userId: string | null, roleId: string | null): Observable<void> {
+    deleteUserRole(userId: string, roleId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/roles/{roleId}";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -12150,7 +12567,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Gets a list of server side sessions for the specified user.
      * @return OK
      */
-    getUserSessions(userId: string | null): Observable<ServerSideSessionInfoResultSet> {
+    getUserSessions(userId: string): Observable<ServerSideSessionInfoResultSet> {
         let url_ = this.baseUrl + "/api/users/{userId}/sessions";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -12226,7 +12643,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Permanently removes an active session.
      * @return No Content
      */
-    removeUserSession(userId: string | null, sessionId: string | null): Observable<void> {
+    removeUserSession(userId: string, sessionId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/sessions/{sessionId}";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -12312,7 +12729,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Sets the password for a given user.
      * @return No Content
      */
-    setPassword(userId: string | null, body: SetPasswordRequest): Observable<void> {
+    setPassword(userId: string, body: SetPasswordRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/set-password";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -12399,7 +12816,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Unlocks a user.
      * @return No Content
      */
-    unlockUser(userId: string | null): Observable<void> {
+    unlockUser(userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/unlock";
         if (userId === undefined || userId === null)
             throw new globalThis.Error("The parameter 'userId' must be defined.");
@@ -13393,7 +13810,7 @@ export class CallingCode implements ICallingCode {
     displayName?: string;
     twoLetterCountryCode?: string;
     countryName!: string;
-    pattern!: string | undefined;
+    pattern!: string;
 
     constructor(data?: ICallingCode) {
         if (data) {
@@ -13437,7 +13854,7 @@ export interface ICallingCode {
     displayName?: string;
     twoLetterCountryCode?: string;
     countryName: string;
-    pattern: string | undefined;
+    pattern: string;
 }
 
 export class CertificateUploadRequest implements ICertificateUploadRequest {
@@ -13481,8 +13898,8 @@ export interface ICertificateUploadRequest {
 }
 
 export class ChangePasswordRequest implements IChangePasswordRequest {
-    oldPassword!: string | undefined;
-    newPassword!: string | undefined;
+    oldPassword!: string;
+    newPassword!: string;
     newPasswordConfirmation?: string | undefined;
 
     constructor(data?: IChangePasswordRequest) {
@@ -13519,8 +13936,8 @@ export class ChangePasswordRequest implements IChangePasswordRequest {
 }
 
 export interface IChangePasswordRequest {
-    oldPassword: string | undefined;
-    newPassword: string | undefined;
+    oldPassword: string;
+    newPassword: string;
     newPasswordConfirmation?: string | undefined;
 }
 
@@ -14177,7 +14594,7 @@ export interface IConfirmEmailChangeRequest {
 }
 
 export class ConfirmEmailRequest implements IConfirmEmailRequest {
-    token!: string | undefined;
+    token!: string;
 
     constructor(data?: IConfirmEmailRequest) {
         if (data) {
@@ -14209,7 +14626,7 @@ export class ConfirmEmailRequest implements IConfirmEmailRequest {
 }
 
 export interface IConfirmEmailRequest {
-    token: string | undefined;
+    token: string;
 }
 
 export class ConfirmPhoneNumberChangeRequest implements IConfirmPhoneNumberChangeRequest {
@@ -14253,7 +14670,7 @@ export interface IConfirmPhoneNumberChangeRequest {
 }
 
 export class ConfirmPhoneNumberRequest implements IConfirmPhoneNumberRequest {
-    token!: string | undefined;
+    token!: string;
 
     constructor(data?: IConfirmPhoneNumberRequest) {
         if (data) {
@@ -14285,7 +14702,7 @@ export class ConfirmPhoneNumberRequest implements IConfirmPhoneNumberRequest {
 }
 
 export interface IConfirmPhoneNumberRequest {
-    token: string | undefined;
+    token: string;
 }
 
 export class CreateApiScopeRequest implements ICreateApiScopeRequest {
@@ -14377,8 +14794,8 @@ export interface ICreateApiScopeRequest {
 }
 
 export class CreateAppSettingRequest implements ICreateAppSettingRequest {
-    key!: string | undefined;
-    value!: string | undefined;
+    key!: string;
+    value!: string;
 
     constructor(data?: ICreateAppSettingRequest) {
         if (data) {
@@ -14412,8 +14829,8 @@ export class CreateAppSettingRequest implements ICreateAppSettingRequest {
 }
 
 export interface ICreateAppSettingRequest {
-    key: string | undefined;
-    value: string | undefined;
+    key: string;
+    value: string;
 }
 
 export class CreateClaimRequest implements ICreateClaimRequest {
@@ -14713,7 +15130,7 @@ export interface ICreateResourceRequest {
 }
 
 export class CreateRoleRequest implements ICreateRoleRequest {
-    name!: string | undefined;
+    name!: string;
     description?: string | undefined;
 
     constructor(data?: ICreateRoleRequest) {
@@ -14748,7 +15165,7 @@ export class CreateRoleRequest implements ICreateRoleRequest {
 }
 
 export interface ICreateRoleRequest {
-    name: string | undefined;
+    name: string;
     description?: string | undefined;
 }
 
@@ -15275,9 +15692,9 @@ export interface IExternalProviderResultSet {
 }
 
 export class ForgotPasswordConfirmationRequest implements IForgotPasswordConfirmationRequest {
-    email!: string | undefined;
-    newPassword!: string | undefined;
-    newPasswordConfirmation!: string | undefined;
+    email!: string;
+    newPassword!: string;
+    newPasswordConfirmation!: string;
     returnUrl?: string | undefined;
     token?: string | undefined;
 
@@ -15319,9 +15736,9 @@ export class ForgotPasswordConfirmationRequest implements IForgotPasswordConfirm
 }
 
 export interface IForgotPasswordConfirmationRequest {
-    email: string | undefined;
-    newPassword: string | undefined;
-    newPasswordConfirmation: string | undefined;
+    email: string;
+    newPassword: string;
+    newPasswordConfirmation: string;
     returnUrl?: string | undefined;
     token?: string | undefined;
 }
@@ -15689,6 +16106,8 @@ export class JsonWebKey implements IJsonWebKey {
     x5t_S256?: string | undefined;
     x5u?: string | undefined;
     y?: string | undefined;
+    pub?: string | undefined;
+    priv?: string | undefined;
 
     [key: string]: any;
 
@@ -15741,6 +16160,8 @@ export class JsonWebKey implements IJsonWebKey {
             this.x5t_S256 = _data["x5t#S256"];
             this.x5u = _data["x5u"];
             this.y = _data["y"];
+            this.pub = _data["pub"];
+            this.priv = _data["priv"];
         }
     }
 
@@ -15791,6 +16212,8 @@ export class JsonWebKey implements IJsonWebKey {
         data["x5t#S256"] = this.x5t_S256;
         data["x5u"] = this.x5u;
         data["y"] = this.y;
+        data["pub"] = this.pub;
+        data["priv"] = this.priv;
         return data;
     }
 }
@@ -15818,6 +16241,8 @@ export interface IJsonWebKey {
     x5t_S256?: string | undefined;
     x5u?: string | undefined;
     y?: string | undefined;
+    pub?: string | undefined;
+    priv?: string | undefined;
 
     [key: string]: any;
 }
@@ -16101,9 +16526,9 @@ export class RegisterRequest implements IRegisterRequest {
     firstName?: string | undefined;
     lastName?: string | undefined;
     userName!: string;
-    password!: string | undefined;
+    password!: string;
     passwordConfirmation?: string | undefined;
-    email!: string | undefined;
+    email!: string;
     phoneNumber?: string | undefined;
     hasReadPrivacyPolicy?: boolean;
     hasAcceptedTerms?: boolean;
@@ -16171,9 +16596,9 @@ export interface IRegisterRequest {
     firstName?: string | undefined;
     lastName?: string | undefined;
     userName: string;
-    password: string | undefined;
+    password: string;
     passwordConfirmation?: string | undefined;
-    email: string | undefined;
+    email: string;
     phoneNumber?: string | undefined;
     hasReadPrivacyPolicy?: boolean;
     hasAcceptedTerms?: boolean;
@@ -16570,9 +16995,10 @@ export interface IServerSideSessionInfoResultSet {
 }
 
 export class SetPasswordRequest implements ISetPasswordRequest {
-    password!: string | undefined;
+    password!: string;
     changePasswordAfterFirstSignIn?: boolean | undefined;
     bypassPasswordValidation?: boolean | undefined;
+    suppressNotification?: boolean | undefined;
 
     constructor(data?: ISetPasswordRequest) {
         if (data) {
@@ -16588,6 +17014,7 @@ export class SetPasswordRequest implements ISetPasswordRequest {
             this.password = _data["password"];
             this.changePasswordAfterFirstSignIn = _data["changePasswordAfterFirstSignIn"];
             this.bypassPasswordValidation = _data["bypassPasswordValidation"];
+            this.suppressNotification = _data["suppressNotification"];
         }
     }
 
@@ -16603,14 +17030,16 @@ export class SetPasswordRequest implements ISetPasswordRequest {
         data["password"] = this.password;
         data["changePasswordAfterFirstSignIn"] = this.changePasswordAfterFirstSignIn;
         data["bypassPasswordValidation"] = this.bypassPasswordValidation;
+        data["suppressNotification"] = this.suppressNotification;
         return data;
     }
 }
 
 export interface ISetPasswordRequest {
-    password: string | undefined;
+    password: string;
     changePasswordAfterFirstSignIn?: boolean | undefined;
     bypassPasswordValidation?: boolean | undefined;
+    suppressNotification?: boolean | undefined;
 }
 
 export class SetUserBlockRequest implements ISetUserBlockRequest {
@@ -18149,7 +18578,7 @@ export interface IUpdateApiScopeRequest {
 }
 
 export class UpdateAppSettingRequest implements IUpdateAppSettingRequest {
-    value!: string | undefined;
+    value!: string;
 
     constructor(data?: IUpdateAppSettingRequest) {
         if (data) {
@@ -18181,7 +18610,7 @@ export class UpdateAppSettingRequest implements IUpdateAppSettingRequest {
 }
 
 export interface IUpdateAppSettingRequest {
-    value: string | undefined;
+    value: string;
 }
 
 export class UpdateClaimTypeRequest implements IUpdateClaimTypeRequest {
@@ -18770,7 +19199,7 @@ export interface IUpdateUserClaimRequest {
 
 export class UpdateUserEmailRequest implements IUpdateUserEmailRequest {
     returnUrl?: string | undefined;
-    email!: string | undefined;
+    email!: string;
 
     constructor(data?: IUpdateUserEmailRequest) {
         if (data) {
@@ -18805,11 +19234,11 @@ export class UpdateUserEmailRequest implements IUpdateUserEmailRequest {
 
 export interface IUpdateUserEmailRequest {
     returnUrl?: string | undefined;
-    email: string | undefined;
+    email: string;
 }
 
 export class UpdateUserNameRequest implements IUpdateUserNameRequest {
-    userName!: string | undefined;
+    userName!: string;
 
     constructor(data?: IUpdateUserNameRequest) {
         if (data) {
@@ -18841,7 +19270,7 @@ export class UpdateUserNameRequest implements IUpdateUserNameRequest {
 }
 
 export interface IUpdateUserNameRequest {
-    userName: string | undefined;
+    userName: string;
 }
 
 export class UpdateUserPhoneNumberRequest implements IUpdateUserPhoneNumberRequest {
@@ -19578,7 +20007,7 @@ export interface IValidatePasswordRequest {
 }
 
 export class ValidateUserNameRequest implements IValidateUserNameRequest {
-    userName!: string | undefined;
+    userName!: string;
 
     constructor(data?: IValidateUserNameRequest) {
         if (data) {
@@ -19610,7 +20039,7 @@ export class ValidateUserNameRequest implements IValidateUserNameRequest {
 }
 
 export interface IValidateUserNameRequest {
-    userName: string | undefined;
+    userName: string;
 }
 
 export interface FileResponse {

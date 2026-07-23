@@ -32,6 +32,12 @@
                     <label class="custom-control-label" for="bypass-password-validation">Bypass password validation</label>
                 </div>
             </div>
+            <div class="mb-3">
+                <div class="form-check col-form-label custom-control custom-checkbox">
+                    <input class="form-check-input custom-control-input" type="checkbox" id="suppress-notification" name="suppress-notification" [(ngModel)]="suppressNotification" #suppressNotificationInput="ngModel" />
+                    <label class="custom-control-label" for="suppress-notification">Suppress user notification</label>
+                </div>
+            </div>
             <button type="submit" class="btn btn-primary">Reset</button>
         </form>
     </div>

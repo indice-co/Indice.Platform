@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.Azure.NotificationHubs;
 
 namespace Indice.Features.Identity.Server.Manager.Models;
 
@@ -26,6 +27,8 @@ public class SetPasswordRequest
     public bool? ChangePasswordAfterFirstSignIn { get; set; }
     /// <summary>Bypasses all password validation rules.</summary>
     public bool? BypassPasswordValidation { get; set; }
+    /// <summary>Suppresses notification after password change.</summary>
+    public bool? SuppressNotification { get; set; }
 }
 
 /// <summary>Triggers the initiation for a password reset.</summary>

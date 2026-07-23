@@ -498,4 +498,10 @@
   <data name="MfaTokenNotExpired" xml:space="preserve">
     <value>Ο κωδικός που λάβατε δεν έχει λήξει ακόμα. Παρακαλώ δοκιμάστε σε μερικά δευτερόλεπτα.</value>
   </data>
+  <data name="PasswordSetEventSubject" xml:space="preserve">
+    <value>Ο κωδικός πρόσβασής σας έχει αλλάξει</value>
+  </data>
+  <data name="PasswordSetEventDescription" xml:space="preserve">
+    <value>Ο κωδικός πρόσβασής σας έχει αλλάξει επιτυχώς.</value>
+  </data>
 </root>

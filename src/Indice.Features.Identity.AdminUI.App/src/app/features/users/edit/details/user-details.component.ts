@@ -41,6 +41,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     public newPassword = '';
     public changePasswordAfterFirstSignIn = false;
     public bypassPasswordValidation = false;
+    public suppressNotification = false;
     public bypassEmailAsUserNamePolicy = false;
     public resetPasswordProblemDetails: ProblemDetails;
     public updateUserProblemDetails: ProblemDetails;
@@ -120,7 +121,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     public resetPassword() {
         this.resetPasswordProblemDetails = null;
         this._userStore
-            .resetPassword(this.user.id, this.newPassword, this.changePasswordAfterFirstSignIn, this.bypassPasswordValidation)
+            .resetPassword(this.user.id, this.newPassword, this.changePasswordAfterFirstSignIn, this.bypassPasswordValidation, this.suppressNotification)
             .subscribe(_ => {
                 this.userPasswordExpirationPolicy = this.user.passwordExpirationPolicy ? this.user.passwordExpirationPolicy : '';
                 this._toast.showSuccess(`Password for user '${this.user.userName}' was reset successfully.`);

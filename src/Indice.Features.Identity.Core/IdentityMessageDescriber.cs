@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Humanizer;
+﻿using Humanizer;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Grants;
@@ -82,6 +81,7 @@ public class IdentityMessageDescriber
     /// <summary>Security event subject.</summary>
     public virtual string SecurityEventSubject(string activity) =>
         activity switch {
+            nameof(PasswordSetEvent) => IdentityResources.PasswordSetEventSubject,
             nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventSubject,
             nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventSubject,
             nameof(TwoFactorPreferenceChangedEvent) => IdentityResources.TwoFactorPreferenceChangedEventSubject,
@@ -91,6 +91,7 @@ public class IdentityMessageDescriber
     /// <summary>Security event descriptions.</summary>
     public virtual string SecurityEventDescription(string activity, string? description) =>
         activity switch {
+            nameof(PasswordSetEvent) => IdentityResources.PasswordSetEventDescription,
             nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventDescription,
             nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventDescription,
             nameof(TwoFactorPreferenceChangedEvent) => string.Format(IdentityResources.TwoFactorPreferenceChangedEventDescription, description),

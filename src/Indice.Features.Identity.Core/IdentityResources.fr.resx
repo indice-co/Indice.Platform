@@ -498,4 +498,10 @@
   <data name="MfaTokenNotExpired" xml:space="preserve">
     <value>Votre code actuel n'a pas encore expiré. Veuillez patienter avant d'en demander un nouveau.</value>
   </data>
+  <data name="PasswordSetEventSubject" xml:space="preserve">
+    <value>Votre mot de passe a ete modifie</value>
+  </data>
+  <data name="PasswordSetEventDescription" xml:space="preserve">
+    <value>Votre mot de passe a ete modifie avec succes.</value>
+  </data>
 </root>
