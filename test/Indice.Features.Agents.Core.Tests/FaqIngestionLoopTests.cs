@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using Indice.Features.Agents.Core.Workflows;
+using Indice.Features.Agents.Core.Workflows.Ingestion;
 
 namespace Indice.Features.Agents.Core.Tests;
 

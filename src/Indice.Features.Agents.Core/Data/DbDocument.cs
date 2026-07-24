@@ -39,7 +39,7 @@ public class DbDocument
     public DateTimeOffset IngestedAt { get; set; }
 
     /// <summary>Navigation: optional binary payload and file metadata. Not loaded by default.</summary>
-    public DbDocumentBlob? Blob { get; set; }
+    public DbBlob? Blob { get; set; }
     /// <summary>Indicates whether the document is private and should not be exposed to unauthorized users.</summary>
     public bool IsPrivate { get; set; }
 }

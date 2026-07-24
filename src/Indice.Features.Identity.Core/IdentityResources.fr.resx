@@ -214,10 +214,10 @@
     <value>Bienvenue sur {0}! Veuillez confirmer votre e-mail pour commencer.</value>
   </data>
   <data name="PasswordChangedEventSubject" xml:space="preserve">
-    <value>Votre mot de passe a ete modifie</value>
+    <value>Votre mot de passe a été modifié</value>
   </data>
   <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
-    <value>Notification de securite {0}</value>
+    <value>Notification de sécurité {0}</value>
   </data>
   <data name="AddEmailValidationEmailEmpty" xml:space="preserve">
     <value>Veuillez saisir votre adresse e-mail afin que nous puissions la verifier avant de continuer.</value>
@@ -418,7 +418,7 @@
     <value>Votre compte a ete temporairement verrouille en raison de plusieurs tentatives de connexion infructueuses. Ce verrouillage est une mesure de securite pour proteger vos informations. Veuillez reessayer plus tard.</value>
   </data>
   <data name="PasswordChangedEventDescription" xml:space="preserve">
-    <value>Votre mot de passe a ete modifie avec succes.</value>
+    <value>Votre mot de passe a été modifié avec succès.</value>
   </data>
   <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
     <value>Méthode d'authentification à deux facteurs modifiée</value>
@@ -497,5 +497,11 @@
   </data>
   <data name="MfaTokenNotExpired" xml:space="preserve">
     <value>Votre code actuel n'a pas encore expiré. Veuillez patienter avant d'en demander un nouveau.</value>
+  </data>
+  <data name="PasswordSetEventSubject" xml:space="preserve">
+    <value>Votre mot de passe a été modifié</value>
+  </data>
+  <data name="PasswordSetEventDescription" xml:space="preserve">
+    <value>Votre mot de passe a été modifié avec succès.</value>
   </data>
 </root>

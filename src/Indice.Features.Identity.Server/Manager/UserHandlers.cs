@@ -270,7 +270,7 @@ internal static class UserHandlers
             var errors = ValidationErrors.AddError(nameof(request.PhoneNumber), "The provided phone number is not valid.");
             return TypedResults.ValidationProblem(errors);
         }
-        if(string.IsNullOrWhiteSpace(trimmedPhoneNumber) && request.PhoneNumberConfirmed) {
+        if (string.IsNullOrWhiteSpace(trimmedPhoneNumber) && request.PhoneNumberConfirmed) {
             var errors = ValidationErrors.AddError(nameof(request.PhoneNumberConfirmed), "The phone number cannot be confirmed as it is not a valid phone number.");
             return TypedResults.ValidationProblem(errors);
         }
@@ -665,7 +665,7 @@ internal static class UserHandlers
         string sessionId,
         CancellationToken cancellationToken) {
 #if !NET9_0_OR_GREATER
-        return TypedResults.ValidationProblem(ValidationErrors.Create(), detail:"Not supported");
+        return TypedResults.ValidationProblem(ValidationErrors.Create(), detail: "Not supported");
 #else
         if (sessionManagement is null) {
             return TypedResults.ValidationProblem(ValidationErrors.Create(), detail: "Not supported");
@@ -731,7 +731,7 @@ internal static class UserHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var result = await userManager.ResetPasswordAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault());
+        var result = await userManager.ResetPasswordAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault(), suppressNotification: request.SuppressNotification.GetValueOrDefault());
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }

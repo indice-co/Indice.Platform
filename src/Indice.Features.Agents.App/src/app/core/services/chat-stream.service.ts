@@ -2,7 +2,51 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from '@indice/ng-auth';
 
-import { DEX_API_BASE_URL, IChatStreamEvent } from './dex-api.service';
+import { DEX_API_BASE_URL, DexChatPatchOp } from './dex-api.service';
+
+/** First frame of every stream; carries the session id. */
+export interface ChatStreamStartFrame {
+  type: 'start';
+  conversationId?: string;
+}
+
+/** Pipeline progress label — ephemeral UI hint, never part of the document. */
+export interface ChatStreamStatusFrame {
+  type: 'status';
+  value?: string;
+}
+
+/**
+ * A document mutation (JSON Pointer patch). An omitted `path`/`op` inherits the previous delta's
+ * effective value (frame compaction) — `JsonPointerPatch` handles the inflation.
+ */
+export interface ChatStreamDeltaFrame {
+  type: 'delta';
+  op?: DexChatPatchOp;
+  path?: string;
+  value?: unknown;
+}
+
+/** Terminal failure: safe generic reason; the assembled document is abandoned. */
+export interface ChatStreamErrorFrame {
+  type: 'error';
+  reason?: string;
+}
+
+/** Terminal success — bare commit marker; everything already arrived as patches. */
+export interface ChatStreamDoneFrame {
+  type: 'done';
+}
+
+/** The streaming patch protocol v2 frame union. Dispatch on `type` alone. */
+export type ChatStreamFrame =
+  | ChatStreamStartFrame
+  | ChatStreamStatusFrame
+  | ChatStreamDeltaFrame
+  | ChatStreamErrorFrame
+  | ChatStreamDoneFrame;
+
+const KNOWN_FRAME_TYPES: ReadonlySet<string> = new Set(['start', 'status', 'delta', 'error', 'done']);
 
 /**
  * Streaming client for the Dex SSE chat endpoints.
@@ -21,17 +65,17 @@ export class ChatStreamService {
   );
 
   /** POST /my/chats/stream — create a session and stream the first turn. */
-  streamCreate(text: string): Observable<IChatStreamEvent> {
+  streamCreate(text: string): Observable<ChatStreamFrame> {
     return this.stream(`${this.baseUrl}/my/chats/stream`, text);
   }
 
   /** POST /my/chats/{id}/messages/stream — stream a follow-up turn in an existing session. */
-  streamMessage(sessionId: string, text: string): Observable<IChatStreamEvent> {
+  streamMessage(sessionId: string, text: string): Observable<ChatStreamFrame> {
     return this.stream(`${this.baseUrl}/my/chats/${sessionId}/messages/stream`, text);
   }
 
-  private stream(url: string, text: string): Observable<IChatStreamEvent> {
-    return new Observable<IChatStreamEvent>((subscriber) => {
+  private stream(url: string, text: string): Observable<ChatStreamFrame> {
+    return new Observable<ChatStreamFrame>((subscriber) => {
       const controller = new AbortController();
 
       void (async () => {
@@ -104,19 +148,26 @@ export class ChatStreamService {
     });
   }
 
-  /** Extract the JSON payload from an SSE frame's `data:` line(s) and parse it into an event. */
-  private parseFrame(frame: string): IChatStreamEvent | null {
+  /**
+   * Extract the JSON payload from an SSE frame's `data:` line(s) and parse it into a protocol
+   * frame. Payloads whose `type` is not part of the v2 grammar are dropped — the protocol's
+   * forward-compatibility rule (new frame types MUST be ignored by clients).
+   */
+  private parseFrame(frame: string): ChatStreamFrame | null {
     const payload = frame
       .split('\n')
       .filter((line) => line.startsWith('data:'))
       .map((line) => line.slice('data:'.length).trimStart())
       .join('\n');
 
-    if (!payload || payload === '[DONE]') {
+    if (!payload) {
       return null;
     }
     try {
-      return JSON.parse(payload) as IChatStreamEvent;
+      const parsed = JSON.parse(payload) as { type?: string };
+      return typeof parsed?.type === 'string' && KNOWN_FRAME_TYPES.has(parsed.type)
+        ? (parsed as ChatStreamFrame)
+        : null;
     } catch {
       return null;
     }

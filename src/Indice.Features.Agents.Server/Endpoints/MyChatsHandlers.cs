@@ -1,10 +1,14 @@
+using System.Net.ServerSentEvents;
 using System.Security.Claims;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
+using Indice.Features.Agents.Server.Services;
 using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Server.Endpoints;
 
@@ -13,52 +17,107 @@ namespace Indice.Features.Agents.Server.Endpoints;
 /// So Union types are used to represent multiple possible outcomes and <see cref="TypedResults"/> are always prefered over raw results.</remarks>
 internal static class MyChatsHandlers
 {
-    /// <summary>POST /api/my/chats — creates a session with the first question.</summary>
-    public static async Task<CreatedAtRoute<ChatResponse>> Create(ChatRequest request, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
-        var userId = user.FindSubjectId()!;
-        var response = await chats.SendAsync(userId, sessionId: null, request.Text, cancellationToken);
-        return TypedResults.CreatedAtRoute(response, nameof(GetChatSession), new { chatId = response!.SessionId });
+    /// <summary>POST /api/my/chats — creates a conversation with the first question.</summary>
+    public static async Task<Results<CreatedAtRoute<DexChatResponse>, UnauthorizedHttpResult>> Create(ChatRequest request, ClaimsPrincipal user, IChatsService chats,
+        IOptions<AgentsServerOptions> options, HttpContext httpContext, CancellationToken cancellationToken) {
+        string userId;
+        GuestAccessToken? guestToken = null;
+        if (user.Identity?.IsAuthenticated == true) {
+            userId = user.FindSubjectId()!;
+            request.AuthorName ??= user.FindDisplayName();
+        } else if (options.Value.AllowAnonymousChatCreation) {
+            guestToken = await httpContext.RequestServices.GetRequiredService<IGuestTokenService>().CreateTokenAsync(cancellationToken);
+            userId = guestToken.Subject;
+        } else {
+            return TypedResults.Unauthorized();
+        }
+        var response = await chats.SendAsync(userId, conversationId: null, request, cancellationToken);
+        if (guestToken is not null) {
+            response!.GuestSession = new GuestSession {
+                AccessToken = guestToken.AccessToken,
+                TokenType = guestToken.TokenType,
+                ExpiresIn = guestToken.ExpiresIn,
+                Subject = guestToken.Subject
+            };
+        }
+        return TypedResults.CreatedAtRoute(response, nameof(GetChatSession), new { chatId = response!.ConversationId });
     }
 
     /// <summary>POST /api/my/chats/{chatId}/messages — posts a follow-up turn.</summary>
-    public static async Task<Results<Ok<ChatResponse>, NotFound>> SendMessage(Guid chatId, ChatRequest request, ClaimsPrincipal user,
+    public static async Task<Results<Ok<DexChatResponse>, NotFound>> SendMessage(Guid chatId, ChatRequest request, ClaimsPrincipal user,
         IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
-        var response = await chats.SendAsync(userId, chatId, request.Text, cancellationToken);
+        request.AuthorName ??= user.FindDisplayName();
+        var response = await chats.SendAsync(userId, chatId, request, cancellationToken);
         return response is null ? TypedResults.NotFound() : TypedResults.Ok(response);
     }
 
-    /// <summary>POST /api/my/chats/stream — creates a session and streams the first turn over SSE.</summary>
-    public static async Task<ServerSentEventsResult<ChatStreamEvent>> StreamCreate(ChatRequest request, ClaimsPrincipal user,
-        IChatsService chats, CancellationToken cancellationToken) {
-        var userId = user.FindSubjectId()!;
-        // sessionId null ⇒ the session is created inline, so the stream is never null here.
-        var stream = await chats.SendStreamAsync(userId, sessionId: null, request.Text, cancellationToken);
+    /// <summary>POST /api/my/chats/stream — creates a conversation and streams the first turn over SSE.</summary>
+    public static async Task<Results<ServerSentEventsResult<DexChatResponseUpdate>, UnauthorizedHttpResult>> StreamCreate(ChatRequest request, ClaimsPrincipal user,
+        IChatsService chats, IOptions<AgentsServerOptions> options, HttpContext httpContext, CancellationToken cancellationToken) {
+        string userId;
+        GuestAccessToken? guestToken = null;
+        if (user.Identity?.IsAuthenticated == true) {
+            userId = user.FindSubjectId()!;
+            request.AuthorName ??= user.FindDisplayName();
+        } else if (options.Value.AllowAnonymousChatCreation) {
+            guestToken = await httpContext.RequestServices.GetRequiredService<IGuestTokenService>().CreateTokenAsync(cancellationToken);
+            userId = guestToken.Subject;
+        } else {
+            return TypedResults.Unauthorized();
+        }
+        // conversationId null ⇒ the conversation is created inline, so the stream is never null here.
+        var stream = await chats.SendStreamAsync(userId, conversationId: null, request, cancellationToken);
+        if (guestToken is not null) {
+            stream = AttachGuestSession(stream!, guestToken);
+        }
         return TypedResults.ServerSentEvents(stream!);
     }
 
+    /// <summary>Decorates the stream by attaching the guest credentials to the <c>start</c> frame.</summary>
+    private static async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> AttachGuestSession(IAsyncEnumerable<SseItem<DexChatResponseUpdate>> stream, GuestAccessToken guestToken) {
+        await foreach (var item in stream) {
+            if (item.Data is DexChatStreamStart start) {
+                start.GuestSession = new GuestSession {
+                    AccessToken = guestToken.AccessToken,
+                    TokenType = guestToken.TokenType,
+                    ExpiresIn = guestToken.ExpiresIn,
+                    Subject = guestToken.Subject
+                };
+            }
+            yield return item;
+        }
+    }
+
     /// <summary>POST /api/my/chats/{chatId}/messages/stream — streams a follow-up turn over SSE.</summary>
-    public static async Task<Results<ServerSentEventsResult<ChatStreamEvent>, NotFound>> StreamMessage(Guid chatId, ChatRequest request,
+    public static async Task<Results<ServerSentEventsResult<DexChatResponseUpdate>, NotFound>> StreamMessage(Guid chatId, ChatRequest request,
         ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
         var userId = user.FindSubjectId()!;
-        var stream = await chats.SendStreamAsync(userId, chatId, request.Text, cancellationToken);
+        request.AuthorName ??= user.FindDisplayName();
+        var stream = await chats.SendStreamAsync(userId, chatId, request, cancellationToken);
         return stream is null ? TypedResults.NotFound() : TypedResults.ServerSentEvents(stream);
     }
 
     /// <summary>GET /api/my/chats — paged list of the caller's sessions.</summary>
-    public static async Task<Ok<ResultSet<SessionListItem>>> List([AsParameters] ListOptions options, ClaimsPrincipal user,
+    public static async Task<Ok<ResultSet<ConversationListItem>>> List([AsParameters] ListOptions options, ClaimsPrincipal user,
         IChatsService chats, CancellationToken cancellationToken)
         => TypedResults.Ok(await chats.ListAsync(user.FindSubjectId()!, options, cancellationToken));
 
-    /// <summary>GET /api/my/chats/{chatId} — session detail with recent messages.</summary>
-    public static async Task<Results<Ok<Session>, NotFound>> GetChatSession(Guid chatId, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
-        var session = await chats.GetAsync(user.FindSubjectId()!, chatId, cancellationToken);
-        return session is null ? TypedResults.NotFound() : TypedResults.Ok(session);
+    /// <summary>GET /api/my/chats/{chatId} — conversation detail with recent messages.</summary>
+    public static async Task<Results<Ok<DexConversation>, NotFound>> GetChatSession(Guid chatId, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken) {
+        var conversation = await chats.GetAsync(user.FindSubjectId()!, chatId, cancellationToken);
+        return conversation is null ? TypedResults.NotFound() : TypedResults.Ok(conversation);
     }
 
-    /// <summary>DELETE /api/my/chats/{chatId} — removes a session and its messages.</summary>
+    /// <summary>DELETE /api/my/chats/{chatId} — removes a conversation and its messages.</summary>
     public static async Task<Results<NoContent, NotFound>> Delete(Guid chatId, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken)
         => (await chats.DeleteAsync(user.FindSubjectId()!, chatId, cancellationToken))
+            ? TypedResults.NoContent()
+            : TypedResults.NotFound();
+
+    /// <summary>POST /api/my/chats/{chatId}/messages/{messageId}/like — likes or dislikes a message.</summary>
+    public static async Task<Results<NoContent, NotFound>> Like(Guid chatId, Guid messageId, LikeRequest request, ClaimsPrincipal user, IChatsService chats, CancellationToken cancellationToken)
+        => (await chats.SetLikeAsync(user.FindSubjectId()!, chatId, messageId, request.Like, cancellationToken))
             ? TypedResults.NoContent()
             : TypedResults.NotFound();
 }

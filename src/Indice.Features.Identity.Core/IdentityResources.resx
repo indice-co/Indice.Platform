@@ -542,4 +542,10 @@
   <data name="MfaTokenNotExpired" xml:space="preserve">
     <value>Last token has not expired yet. Please wait a few seconds and try again.</value>
   </data>
+  <data name="PasswordSetEventSubject" xml:space="preserve">
+    <value>Your Password has been changed</value>
+  </data>
+  <data name="PasswordSetEventDescription" xml:space="preserve">
+    <value>Your password has been successfully changed.</value>
+  </data>
 </root>

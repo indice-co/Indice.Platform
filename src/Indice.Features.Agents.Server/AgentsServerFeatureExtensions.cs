@@ -1,6 +1,7 @@
 using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
+using Indice.Features.Agents.Core.Workflows.Ingestion;
 using Indice.Features.Agents.Server;
 using Indice.Features.Agents.Server.Services;
 using Microsoft.AspNetCore.Builder;
@@ -35,6 +36,9 @@ public static class AgentsServerFeatureExtensions
         services.AddChatsFeature();
         services.AddIngestionFeature();
         services.AddUsersFeature();
+        if (options.AllowAnonymousChatCreation) {
+            services.AddHttpClient<IGuestTokenService, GuestTokenService>();
+        }
         return services;
     }
 
@@ -51,7 +55,7 @@ public static class AgentsServerFeatureExtensions
     /// <returns></returns>
     public static IServiceCollection AddChatsFeature(this IServiceCollection services) {
         services.TryAddTransient<IChatsService, ChatsService>();
-        services.TryAddTransient<ISessionsStore, SessionsStore>();
+        services.TryAddTransient<IConversationStore, ConversationStore>();
         return services;
     }
 
@@ -61,7 +65,7 @@ public static class AgentsServerFeatureExtensions
     /// <param name="services"></param>
     /// <returns></returns>
     public static IServiceCollection AddIngestionFeature(this IServiceCollection services) {
-        services.TryAddTransient<IIngestionPipeline, DefaultIngestionPipeline>();
+        services.TryAddTransient<IIngestionPipeline, IngestionPipeline>();
         services.TryAddTransient<IDocumentsService, DocumentsService>();
         return services;
     }

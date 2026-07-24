@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using System.Security;
-using System.Text;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.AspNetCore.Identity;
@@ -25,41 +24,21 @@ public class ExtendedPhoneNumberTokenProvider<TUser> : PhoneNumberTokenProvider<
 
     /// <inheritdoc />
     public override async Task<string> GenerateAsync(string purpose, UserManager<TUser> userManager, TUser user) {
-        if (userManager is null) {
-            throw new ArgumentNullException(nameof(userManager));
-        }
-
-        var securityToken = await GetSecurityToken(purpose, userManager, user).ConfigureAwait(false);
+        ArgumentNullException.ThrowIfNull(userManager);
+        ArgumentNullException.ThrowIfNull(user);
+        var securityToken = await user.GetSecurityToken(purpose, userManager).ConfigureAwait(false);
         var modifier = await GetUserModifierAsync(purpose, userManager, user).ConfigureAwait(false);
         return _rfc6238AuthenticationService.GenerateCode(securityToken, modifier).ToString("D6", CultureInfo.InvariantCulture);
     }
 
-
-    private static async Task<byte[]> GetSecurityToken(string purpose, UserManager<TUser> userManager, TUser user) {
-        var securityToken = await userManager.CreateSecurityTokenAsync(user).ConfigureAwait(false);
-        if (!string.Equals(purpose, "TwoFactor", StringComparison.Ordinal)) {
-            return securityToken;
-        }
-        if (user.LastSignInDate == null) {
-            return securityToken;
-        }
-        var timeStamp = Encoding.UTF8.GetBytes(user.LastSignInDate.Value.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture));
-        byte[] token = new byte[securityToken.Length + timeStamp.Length];
-
-        Buffer.BlockCopy(securityToken, 0, token, 0, securityToken.Length);
-        Buffer.BlockCopy(timeStamp, 0, token, securityToken.Length, timeStamp.Length);
-        return token;
-    }
-
     /// <inheritdoc />
     public override async Task<bool> ValidateAsync(string purpose, string token, UserManager<TUser> userManager, TUser user) {
-        if (userManager is null) {
-            throw new ArgumentNullException(nameof(userManager));
-        }
+        ArgumentNullException.ThrowIfNull(userManager);
+        ArgumentNullException.ThrowIfNull(user);
         if (!int.TryParse(token, out var code)) {
             return false;
         }
-        var securityToken = await GetSecurityToken(purpose, userManager, user).ConfigureAwait(false);
+        var securityToken = await user.GetSecurityToken(purpose, userManager).ConfigureAwait(false);
         var modifier = await GetUserModifierAsync(purpose, userManager, user).ConfigureAwait(false);
         return securityToken is not null && _rfc6238AuthenticationService.ValidateCode(securityToken, code, modifier);
     }

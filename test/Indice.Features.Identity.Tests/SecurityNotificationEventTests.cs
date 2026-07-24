@@ -1,7 +1,7 @@
 using Indice.Features.GeoIP;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Events.Models;
-using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 using Xunit;

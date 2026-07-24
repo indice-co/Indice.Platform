@@ -3,7 +3,7 @@ namespace Indice.Features.Agents.Core.Models;
 /// <summary>
 /// Application-local user profile DTO exposed at the store boundary.
 /// Consumed by the Users feature (API) and the RAG personalization provider. The internal
-/// <c>SubjectId</c> key is not surfaced.
+/// <c>UserId</c> key is not surfaced.
 /// </summary>
 public class Profile
 {
@@ -21,6 +21,9 @@ public class Profile
 
     /// <summary>Preferred answer language; when set, the composer answers in this language.</summary>
     public string? PreferredLanguage { get; init; }
+
+    /// <summary>Preferred answer categories; when set, the composer answers in these categories.</summary>
+    public List<string> PreferredCategories { get; init; } = []; 
 
     /// <summary>Preferred answer style fed to the composer (e.g. <c>concise</c> / <c>detailed</c> / <c>formal</c>).</summary>
     public string? ResponseStyle { get; init; }

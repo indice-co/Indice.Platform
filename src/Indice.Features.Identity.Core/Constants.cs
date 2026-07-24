@@ -47,6 +47,8 @@ public class CustomGrantTypes
     public const string DeviceAuthentication = "device_authentication";
     /// <summary>OTP authenticate.</summary>
     public const string Mfa = "mfa";
+    /// <summary>Anonymous guest access.</summary>
+    public const string Guest = "urn:indice:guest";
 }
 
 /// <summary>Contains constants for client property keys.</summary>

@@ -1,4 +1,5 @@
 using FluentValidation;
+using Indice.Features.Agents.Core.Models;
 
 namespace Indice.Features.Agents.Server.Endpoints;
 
