@@ -111,13 +111,10 @@ public class DocumentsService : IDocumentsService
     public async Task<IReadOnlyList<RetrievedChunk>> SearchAsync(ReadOnlyMemory<float> queryVector, RetrievalFilters filters, int topK, double minScore, CancellationToken cancellationToken) {
         var sqlVector = new SqlVector<float>(queryVector);
         var maxDistance = 1 - minScore;
-        var rows = await _db.Chunks            
+        var rows = await _db.Chunks
             // placeholder for 
             //.Where(c => filters.Category == null || c.Category == null || c.Category == filters.Category)
             //.Where(c => filters.Language == null || c.Language == null || c.Language == filters.Language)
-            .Where(c => EF.Functions.VectorDistance("cosine", c.Embedding, sqlVector) <= maxDistance)
-            .OrderBy(c => EF.Functions.VectorDistance("cosine", c.Embedding, sqlVector))
-            .Take(topK)
             .Select(c => new {
                 c.Id,
                 c.DocumentId,
@@ -132,8 +129,11 @@ public class DocumentsService : IDocumentsService
                 c.HeadingPath,
                 c.Content,
                 c.TokenCount,
-                Score = 1 - EF.Functions.VectorDistance("cosine", c.Embedding, sqlVector),
+                Distance = EF.Functions.VectorDistance("cosine", c.Embedding, sqlVector),
             })
+            .Where(c => c.Distance <= maxDistance)
+            .OrderBy(c => c.Distance)
+            .Take(topK)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
@@ -153,7 +153,7 @@ public class DocumentsService : IDocumentsService
             HeadingPath = r.HeadingPath,
             Content = r.Content,
             TokenCount = r.TokenCount,
-            Score = r.Score,
+            Score = 1 - r.Distance,
         }).ToList();
     }
 
