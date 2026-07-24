@@ -39,7 +39,7 @@ public class ConversationStore : IConversationStore
                 OutputTokenCount = 0,
             };
             _db.Add(entity);
-            if (!_db.Profiles.Any(p => p.UserId == userId)) {
+            if (!await _db.Profiles.AsNoTracking().AnyAsync(p => p.UserId == userId, cancellationToken)) {
                 var claimsPrincipal = _claimsPrincipalSelector();
                 _db.Profiles.Add(new DbProfile {
                     UserId = userId,
