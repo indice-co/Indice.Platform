@@ -23,6 +23,7 @@
         [busy]="threadLoading()"
         [questionsTotal]="questionsTotal()"
         (examplePick)="send($event)"
+        (likeChanged)="setLike($event)"
       />
     </div>
     <app-chat-composer
