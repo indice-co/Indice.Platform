@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 
-import { ChatMessagePart, ConversationListItem, DexApiService, DexChatResponse } from '../../core/services/dex-api.service';
+import { ChatMessagePart, ConversationListItem, DexApiService, DexChatResponse, LikeRequest } from '../../core/services/dex-api.service';
 import { ChatStreamFrame, ChatStreamService } from '../../core/services/chat-stream.service';
 import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
 import { ChatComposerComponent } from './chat-composer.component';
@@ -94,6 +94,27 @@ export class ChatPageComponent {
           }
         },
         error: () => this.error.set('Could not delete the conversation.'),
+      });
+  }
+
+  protected setLike(change: { messageId: string; like: boolean | null }): void {
+    const sessionId = this.activeSessionId();
+    if (!sessionId) {
+      return;
+    }
+    const previous = this.messages();
+    // Optimistic: reflect the rating immediately, roll back if the server rejects it.
+    this.messages.update((list) =>
+      list.map((message) => (message.messageId === change.messageId ? { ...message, liked: change.like } : message)),
+    );
+    this.dex
+      .like(sessionId, change.messageId, new LikeRequest({ like: change.like ?? undefined }))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => {
+          this.messages.set(previous);
+          this.error.set('Could not save your feedback.');
+        },
       });
   }
 

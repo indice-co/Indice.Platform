@@ -8,19 +8,27 @@ export type ChatTurnRole = 'User' | 'Assistant';
  * citations that arrive as streaming tail patches (the persisted history does not include them).
  */
 export interface ThreadMessage {
+  messageId?: string;
   role: ChatTurnRole;
   content: IChatMessageContent;
   createdAt?: Date;
   citations?: ICitation[];
+  /** User feedback on the assistant message: true liked, false disliked, null/undefined none. */
+  liked?: boolean | null;
 }
+
+/** Sentinel id of a never-persisted message (e.g. the limit-blocked reply) — carries no likeable identity. */
+const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
 
 /** Map an API DexChatMessage (session history) to a thread view model. */
 export function toThreadMessage(message: DexChatMessage): ThreadMessage {
   return {
+    messageId: message.messageId && message.messageId !== EMPTY_GUID ? message.messageId : undefined,
     role: message.role === DexChatRole.User ? 'User' : 'Assistant',
     content: message.content ?? new ChatMessageContent({ parts: [new ChatMessagePart({ value: '', contentType: 'text/markdown' }) ] }),
     createdAt: message.createdAt,
     citations: message.citations ?? [],
+    liked: message.liked,
   };
 }
 

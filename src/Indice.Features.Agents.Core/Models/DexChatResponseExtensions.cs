@@ -70,6 +70,7 @@ public static class DexChatResponseExtensions
             Role = message.Role.ToDexChatRole(),
             Content = content,
             CreatedAt = message.CreatedAt,
+            Liked = message.AdditionalProperties?.TryGetValue(nameof(DexChatMessage.Liked), out var liked) is true ? liked as bool? : null,
             Citations = distinctCitations
         };
     }

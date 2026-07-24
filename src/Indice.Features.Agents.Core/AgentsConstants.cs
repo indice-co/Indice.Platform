@@ -3,6 +3,18 @@
 /// <summary>Constants used in the Agents feature.</summary>
 public static class AgentsConstants
 {
+    /// <summary>
+    /// The name of the default agent used in the Dex template. This agent is responsible for handling user queries and providing answers based on the context of the conversation.
+    /// </summary>
+    public static class AgentNames
+    {
+        /// <summary>The name of the agent that handles knowledge-based queries and provides answers based on a knowledge base.</summary>
+        public const string Knowledge = "knowledge";
+
+        /// <summary>The name of the agent that handles intent classification and routes user queries to the appropriate sub-agent.</summary>
+        public const string Auto = "auto";
+    }
+
     /// <summary>Default prompt templates for various agent tasks.</summary>
     public static class PromptDefaults
     {

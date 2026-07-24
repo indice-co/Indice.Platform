@@ -21,6 +21,9 @@ public class DexChatMessage
     /// <summary>Creation timestamp.</summary>
     public DateTimeOffset? CreatedAt { get; set; }
 
+    /// <summary>User feedback on the assistant message: <c>true</c> liked, <c>false</c> disliked, <c>null</c> none.</summary>
+    public bool? Liked { get; set; }
+
     /// <summary>Citations referenced by the message text, ordered by citation number.</summary>
     public List<Citation> Citations { get; set; } = [];
 

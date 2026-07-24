@@ -99,7 +99,7 @@ public static class AgentsFeatureExtensions
 
         // Register the workflow, which will resolve the steps and link them together. Step failures are not
         // handled here — a throwing executor halts the run and DexRunner reads the ExecutorFailedEvent.
-        services.AddKeyedScoped<Workflow>("Default", (sp, key) => {
+        services.AddKeyedScoped(AgentsConstants.AgentNames.Knowledge, (sp, key) => {
             var intent = sp.GetRequiredService<IntentClassifier>();
             var rewrite = sp.GetRequiredService<QueryRewriter>();
             var retrieve = sp.GetRequiredService<Retriever>();

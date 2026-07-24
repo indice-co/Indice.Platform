@@ -11,13 +11,14 @@ import {
 import { CommonModule } from '@angular/common';
 import { MarkdownModule } from 'ngx-markdown';
 
+import { ChatCitationsComponent } from './chat-citations.component';
 import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
 
 /** The scrolling conversation: message bubbles, live streaming answer, citations and empty state. */
 @Component({
   selector: 'app-chat-thread',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MarkdownModule],
+  imports: [CommonModule, MarkdownModule, ChatCitationsComponent],
   template: `
     <div #scroller class="dex-scroll dex-canvas h-full overflow-y-auto">
       <div class="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
@@ -67,7 +68,7 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                   </div>
                 </div>
               } @else {
-                <div class="dex-rise flex gap-3">
+                <div class="group dex-rise flex gap-3">
                   <img
                     src="dex-logo.png"
                     alt="Dex"
@@ -88,31 +89,64 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
 
                   </div>
 
-                            @if (turn.message.citations && turn.message.citations.length > 0) {
-                              <div class="mt-2 flex flex-wrap gap-1.5">
-                                @for (citation of turn.message.citations; track citation.chunkId) {
-                                  <span
-                                    class="inline-flex max-w-full items-center gap-1.5 rounded-selector
-                                           border border-base-300 bg-base-100 py-1 pl-2 pr-2.5 font-mono
-                                           text-[0.7rem] text-base-content/70"
-                                    [title]="citation.title || citation.headingPath || ''"
+                            @if ((turn.message.citations ?? []).length > 0 || turn.message.messageId) {
+                              <app-chat-citations [citations]="turn.message.citations ?? []">
+                                @if (turn.message.messageId) {
+                                  <!-- -mr compensates the circle buttons' padding so the icons end flush with the counter. -->
+                                  <div
+                                    class="-mr-[5px] flex items-center gap-0.5 transition"
+                                    [ngClass]="turn.message.liked != null ? 'opacity-100' : 'opacity-0 focus-within:opacity-100 group-hover:opacity-100'"
                                   >
-                                    <span class="footnote text-accent">{{citation.number}}.</span>
-                                    <span class="truncate">
-                                      {{ citation.headingPath || citation.title || 'Source' }}
-                                    </span>
-                                  </span>
+                                    <button
+                                      type="button"
+                                      class="btn btn-ghost btn-xs btn-circle"
+                                      [class]="turn.message.liked === true ? 'text-primary' : 'text-base-content/40 hover:text-primary'"
+                                      (click)="toggleLike(turn.message, true)"
+                                      [attr.aria-pressed]="turn.message.liked === true"
+                                      aria-label="Good answer"
+                                      title="Good answer"
+                                    >
+                                      <svg viewBox="0 0 24 24" fill="none" class="size-3.5" aria-hidden="true">
+                                        <path
+                                          d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
+                                          stroke="currentColor"
+                                          stroke-width="2"
+                                          stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                        />
+                                      </svg>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      class="btn btn-ghost btn-xs btn-circle"
+                                      [class]="turn.message.liked === false ? 'text-error' : 'text-base-content/40 hover:text-error'"
+                                      (click)="toggleLike(turn.message, false)"
+                                      [attr.aria-pressed]="turn.message.liked === false"
+                                      aria-label="Bad answer"
+                                      title="Bad answer"
+                                    >
+                                      <svg viewBox="0 0 24 24" fill="none" class="size-3.5" aria-hidden="true">
+                                        <path
+                                          d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zM17 2h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"
+                                          stroke="currentColor"
+                                          stroke-width="2"
+                                          stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                        />
+                                      </svg>
+                                    </button>
+                                  </div>
                                 }
-                              </div>
+                              </app-chat-citations>
                             }
                             @if (turn.questionNumber !== null && questionsTotal() !== null) {
                               <div
-                                class="mt-1.5 flex items-center justify-end gap-1.5 font-mono text-[0.7rem]
+                                class="mt-1 flex items-center justify-end gap-1.5 font-mono text-sm
                                        tabular-nums text-base-content/45"
                                 title="Questions used in this conversation"
                               >
                                 <span
-                                  class="inline-block size-2 rounded-full"
+                                  class="inline-block size-2.5 rounded-full"
                                   [style.background-color]="turn.dotColor"
                                 ></span>
                                 {{ turn.questionNumber }}/{{ questionsTotal() }}
@@ -154,22 +188,8 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                         }
                       }
                     </div>
-                    @if (live.citations && live.citations.length > 0) {
-                      <div class="mt-2 flex flex-wrap gap-1.5">
-                        @for (citation of live.citations; track citation.chunkId) {
-                          <span
-                            class="inline-flex max-w-full items-center gap-1.5 rounded-selector
-                                   border border-base-300 bg-base-100 py-1 pl-2 pr-2.5 font-mono
-                                   text-[0.7rem] text-base-content/70"
-                            [title]="citation.title || citation.headingPath || ''"
-                          >
-                            <span class="footnote text-accent">{{citation.number}}.</span>
-                            <span class="truncate">
-                              {{ citation.headingPath || citation.title || 'Source' }}
-                            </span>
-                          </span>
-                        }
-                      </div>
+                    @if ((live.citations ?? []).length > 0) {
+                      <app-chat-citations [citations]="live.citations ?? []" />
                     }
                   }
                 </div>
@@ -203,8 +223,18 @@ export class ChatThreadComponent {
   readonly questionsTotal = input<number | null>(null);
 
   readonly examplePick = output<string>();
+  /** Emits when the user rates an assistant answer: `like` true/false, or null to clear the rating. */
+  readonly likeChanged = output<{ messageId: string; like: boolean | null }>();
 
   protected readonly examplePrompts = EXAMPLE_PROMPTS;
+
+  /** Like/dislike toggle — clicking the active thumb again clears the rating. */
+  protected toggleLike(message: ThreadMessage, like: boolean): void {
+    if (!message.messageId) {
+      return;
+    }
+    this.likeChanged.emit({ messageId: message.messageId, like: message.liked === like ? null : like });
+  }
 
   /** Whether the streaming answer has any visible content yet — until then the step chip shows. */
   protected readonly hasStreamContent = computed(

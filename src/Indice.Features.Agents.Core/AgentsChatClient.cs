@@ -16,9 +16,8 @@ public interface IDexChatClient : IChatClient
 /// <summary>
 /// Creates a new <see cref="AgentsChatClient"/> instance.
 /// </summary>
-/// <param name="workflow">The workflow instance to execute.</param>
 /// <param name="serviceProvider">The service provider for resolving dependencies.</param>
-public class AgentsChatClient([FromKeyedServices("Default")] Workflow workflow, IServiceProvider serviceProvider) : IDexChatClient
+public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
 {
 
     /// <summary>Human-friendly progress labels keyed by executor id, surfaced as SSE <c>step</c> events.</summary>
@@ -50,6 +49,16 @@ public class AgentsChatClient([FromKeyedServices("Default")] Workflow workflow, 
         }
         var message = messages.First();
         var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());
+        // Use options.Instructions as the agent/workflow selector passed from the HTTP layer (ChatRequest.AgentName).
+        // Supported selectors: "auto", "knowledge". Unknown or missing values fall back to "knowledge".
+
+        var agenticWorkflowName = options?.Instructions?.Trim().ToLowerInvariant() switch {
+            AgentsConstants.AgentNames.Auto => AgentsConstants.AgentNames.Auto,
+            AgentsConstants.AgentNames.Knowledge => AgentsConstants.AgentNames.Knowledge,
+            _ => AgentsConstants.AgentNames.Knowledge
+        };
+        var workflow = serviceProvider.GetKeyedService<Workflow>(agenticWorkflowName) ?? serviceProvider.GetRequiredKeyedService<Workflow>(AgentsConstants.AgentNames.Knowledge);
+
         await using var run = await InProcessExecution.RunStreamingAsync(workflow, state, sessionId: state.ConversationId, cancellationToken: cancellationToken);
 
         string? failure = null;
