@@ -30,7 +30,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.18" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.18" />
     <PackageReference Include="System.Text.Json" Version="9.0.18" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.29" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.4" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.18" />

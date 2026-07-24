@@ -169,13 +169,14 @@ internal sealed class FakeDexChatClient(List<ChatResponseUpdate> updates) : IDex
     public void Dispose() { }
 }
 
-internal sealed class FakeConversationStore(Guid conversationId, string persistedMessageId) : IConversationStore
+internal sealed class FakeConversationStore(Guid persistedConversationId, string persistedMessageId) : IConversationStore
 {
     public bool TurnPersisted { get; private set; }
     public bool FailedTurnPersisted { get; private set; }
 
-    public Task<Conversation?> LoadOrCreateAsync(string userId, Guid? id, CancellationToken cancellationToken)
-        => Task.FromResult<Conversation?>(new Conversation { Id = conversationId });
+    public Task<Conversation?> LoadOrCreateAsync(string userId, string? authorName,
+        Guid? conversationId, CancellationToken cancellationToken)
+        => Task.FromResult<Conversation?>(new Conversation { Id = persistedConversationId });
 
     public Task<ChatMessage> AppendTurnAsync(Guid id, ChatMessage userMessage, ChatResponse response, CancellationToken cancellationToken) {
         TurnPersisted = true;
