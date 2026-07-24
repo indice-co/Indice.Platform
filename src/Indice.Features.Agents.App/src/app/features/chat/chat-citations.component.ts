@@ -31,6 +31,9 @@ import { ICitation } from '../../core/services/dex-api.service';
               <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             {{ citations().length }} {{ citations().length === 1 ? 'source' : 'sources' }}
+            @for (favico of sourceFavicons; track $index){
+              <img src="{{favico}}" width="16" height="16">
+              }
           </button>
         }
         <div class="ml-auto">
@@ -59,7 +62,10 @@ import { ICitation } from '../../core/services/dex-api.service';
 })
 export class ChatCitationsComponent {
   readonly citations = input<ICitation[]>([]);
-
+  // Convert Map to array of distinct values
+  get sources(): string[] { return Array.from(new Set(this.citations().map(x => x.sourceUrl!))); }
+  get sourceFavicons() { return this.sources.map(x => `${new URL(x).origin}/favicon.ico`) }
+  // new URL("https://www.google.gr/test/test2?v=3")
   /** Collapsed by default; the chips render only on demand. */
   protected readonly expanded = signal(false);
 }
