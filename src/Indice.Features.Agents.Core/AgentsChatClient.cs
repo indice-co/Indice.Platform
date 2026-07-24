@@ -49,13 +49,10 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         }
         var message = messages.First();
         var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());
-        // The workflow name is either specified in the options or defaults to "Default" which is out of the box registered workflow of type knowledgebase retrieval.
-        // Any other workflow can be registered and used by specifying its name in the options.
-        // TODO: We should validate the workflow name and provide a meaningful error if it's not found.
-        //       And we should extract this logic to a factory interface that can be used
-        //       to create the workflow and validate the name.
+        // Use options.Instructions as the agent/workflow selector passed from the HTTP layer (ChatRequest.AgentName).
+        // Supported selectors: "auto", "knowledge". Unknown or missing values fall back to "knowledge".
 
-        var agenticWorkflowName = options?.Instructions?.ToLowerInvariant() switch { 
+        var agenticWorkflowName = options?.Instructions?.Trim().ToLowerInvariant() switch {
             AgentsConstants.AgentNames.Auto => AgentsConstants.AgentNames.Auto,
             AgentsConstants.AgentNames.Knowledge => AgentsConstants.AgentNames.Knowledge,
             _ => AgentsConstants.AgentNames.Knowledge

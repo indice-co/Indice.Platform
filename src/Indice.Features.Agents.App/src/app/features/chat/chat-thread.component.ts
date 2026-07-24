@@ -95,7 +95,7 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                                   <!-- -mr compensates the circle buttons' padding so the icons end flush with the counter. -->
                                   <div
                                     class="-mr-[5px] flex items-center gap-0.5 transition"
-                                    [class]="turn.message.liked != null ? 'opacity-100' : 'opacity-0 focus-within:opacity-100 group-hover:opacity-100'"
+                                    [ngClass]="turn.message.liked != null ? 'opacity-100' : 'opacity-0 focus-within:opacity-100 group-hover:opacity-100'"
                                   >
                                     <button
                                       type="button"
