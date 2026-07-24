@@ -26,7 +26,11 @@ internal static class MyChatsHandlers
             userId = user.FindSubjectId()!;
             request.AuthorName ??= user.FindDisplayName();
         } else if (options.Value.AllowAnonymousChatCreation) {
-            guestToken = await httpContext.RequestServices.GetRequiredService<IGuestTokenService>().CreateTokenAsync(cancellationToken);
+            try { 
+                guestToken = await httpContext.RequestServices.GetRequiredService<IGuestTokenService>().CreateTokenAsync(cancellationToken);
+            } catch (InvalidOperationException) {
+                return TypedResults.Unauthorized();
+            }
             userId = guestToken.Subject;
         } else {
             return TypedResults.Unauthorized();
