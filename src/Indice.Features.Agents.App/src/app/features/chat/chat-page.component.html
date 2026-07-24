@@ -28,6 +28,8 @@
     </div>
     <app-chat-composer
       [streaming]="isStreaming()"
+      [agents]="agents()"
+      [(selectedAgent)]="selectedAgentName"
       (send)="send($event)"
       (stop)="stop()"
     />

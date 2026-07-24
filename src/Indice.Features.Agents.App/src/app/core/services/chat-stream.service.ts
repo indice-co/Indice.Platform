@@ -65,16 +65,16 @@ export class ChatStreamService {
   );
 
   /** POST /my/chats/stream — create a session and stream the first turn. */
-  streamCreate(text: string): Observable<ChatStreamFrame> {
-    return this.stream(`${this.baseUrl}/my/chats/stream`, text);
+  streamCreate(text: string, agentName?: string | null): Observable<ChatStreamFrame> {
+    return this.stream(`${this.baseUrl}/my/chats/stream`, text, agentName);
   }
 
   /** POST /my/chats/{id}/messages/stream — stream a follow-up turn in an existing session. */
-  streamMessage(sessionId: string, text: string): Observable<ChatStreamFrame> {
-    return this.stream(`${this.baseUrl}/my/chats/${sessionId}/messages/stream`, text);
+  streamMessage(sessionId: string, text: string, agentName?: string | null): Observable<ChatStreamFrame> {
+    return this.stream(`${this.baseUrl}/my/chats/${sessionId}/messages/stream`, text, agentName);
   }
 
-  private stream(url: string, text: string): Observable<ChatStreamFrame> {
+  private stream(url: string, text: string, agentName?: string | null): Observable<ChatStreamFrame> {
     return new Observable<ChatStreamFrame>((subscriber) => {
       const controller = new AbortController();
 
@@ -88,7 +88,8 @@ export class ChatStreamService {
               Accept: 'text/event-stream',
               Authorization: this.auth.getAuthorizationHeaderValue(),
             },
-            body: JSON.stringify({ text }),
+            // Omit agentName when unset so the server picks its default agent.
+            body: JSON.stringify(agentName ? { text, agentName } : { text }),
             signal: controller.signal,
           });
         } catch (err) {

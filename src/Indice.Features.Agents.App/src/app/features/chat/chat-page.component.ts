@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 
-import { ChatMessagePart, ConversationListItem, DexApiService, DexChatResponse, LikeRequest } from '../../core/services/dex-api.service';
+import { AgentInfo, ChatMessagePart, ConversationListItem, DexApiService, DexChatResponse, LikeRequest } from '../../core/services/dex-api.service';
 import { ChatStreamFrame, ChatStreamService } from '../../core/services/chat-stream.service';
 import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
 import { ChatComposerComponent } from './chat-composer.component';
@@ -36,6 +36,11 @@ export class ChatPageComponent {
   protected readonly error = signal<string | null>(null);
   protected readonly questionsTotal = signal<number | null>(null);
 
+  /** The modes discovered from GET /agents; empty (picker hidden) when discovery fails. */
+  protected readonly agents = signal<AgentInfo[]>([]);
+  /** The composer's picked mode; `null` falls back to the first discovered agent. */
+  protected readonly selectedAgentName = signal<string | null>(null);
+
   /** The raw patch target for the turn's `delta` frames — plain JSON; `streamResponse` is its typed projection. */
   private streamDocument: Record<string, any> = {};
   private patcher = new JsonPointerPatch();
@@ -43,6 +48,7 @@ export class ChatPageComponent {
 
   constructor() {
     this.loadSessions();
+    this.loadAgents();
   }
 
   protected selectSession(id: string): void {
@@ -133,9 +139,10 @@ export class ChatPageComponent {
     this.patcher = new JsonPointerPatch();
 
     const sessionId = this.activeSessionId();
+    const agentName = this.selectedAgentName() ?? this.agents()[0]?.name ?? null;
     const stream$ = sessionId
-      ? this.streamSvc.streamMessage(sessionId, value)
-      : this.streamSvc.streamCreate(value);
+      ? this.streamSvc.streamMessage(sessionId, value, agentName)
+      : this.streamSvc.streamCreate(value, agentName);
 
     this.streamSub = stream$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (frame) => this.onFrame(frame),
@@ -206,6 +213,17 @@ export class ChatPageComponent {
     this.isStreaming.set(false);
     this.streamResponse.set(null);
     this.currentStep.set(null);
+  }
+
+  private loadAgents(): void {
+    this.dex
+      .discovery()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (agents) => this.agents.set(agents ?? []),
+        // Non-fatal: without a modes list the picker stays hidden and requests carry no agentName.
+        error: () => this.agents.set([]),
+      });
   }
 
   private loadSessions(): void {
