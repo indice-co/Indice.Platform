@@ -2,12 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, input, output, signal } f
 import { DatePipe } from '@angular/common';
 
 import { ConversationListItem } from '../../core/services/dex-api.service';
+import { PoweredByComponent } from '../../core/layout/powered-by.component';
 
 /** Conversation rail: new-chat action, search, and the caller's session list. */
 @Component({
   selector: 'app-chat-sidebar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe],
+  imports: [DatePipe, PoweredByComponent],
   template: `
     <aside class="flex h-full w-full flex-col bg-base-100">
       <div class="px-3 pt-3">
@@ -102,6 +103,10 @@ import { ConversationListItem } from '../../core/services/dex-api.service';
           </ul>
         }
       </nav>
+
+      <div class="shrink-0 border-t border-base-300 px-3 py-2">
+        <app-powered-by />
+      </div>
     </aside>
   `,
 })
