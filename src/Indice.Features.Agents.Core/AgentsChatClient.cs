@@ -16,9 +16,8 @@ public interface IDexChatClient : IChatClient
 /// <summary>
 /// Creates a new <see cref="AgentsChatClient"/> instance.
 /// </summary>
-/// <param name="workflow">The workflow instance to execute.</param>
 /// <param name="serviceProvider">The service provider for resolving dependencies.</param>
-public class AgentsChatClient([FromKeyedServices("Default")] Workflow workflow, IServiceProvider serviceProvider) : IDexChatClient
+public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
 {
 
     /// <summary>Human-friendly progress labels keyed by executor id, surfaced as SSE <c>step</c> events.</summary>
@@ -50,6 +49,14 @@ public class AgentsChatClient([FromKeyedServices("Default")] Workflow workflow, 
         }
         var message = messages.First();
         var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());
+        // The workflow name is either specified in the options or defaults to "Default" which is out of the box registered workflow of type knowledgebase retrieval.
+        // Any other workflow can be registered and used by specifying its name in the options.
+        // TODO: We should validate the workflow name and provide a meaningful error if it's not found.
+        //       And we should extract this logic to a factory interface that can be used
+        //       to create the workflow and validate the name.
+        var agenticWorkflowName = options?.Instructions is not null ? options.Instructions : "Default";
+        var workflow = serviceProvider.GetKeyedService<Workflow>(agenticWorkflowName) ?? serviceProvider.GetRequiredKeyedService<Workflow>("Default");
+
         await using var run = await InProcessExecution.RunStreamingAsync(workflow, state, sessionId: state.ConversationId, cancellationToken: cancellationToken);
 
         string? failure = null;
