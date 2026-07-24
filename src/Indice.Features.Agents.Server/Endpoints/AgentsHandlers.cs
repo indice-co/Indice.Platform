@@ -7,7 +7,7 @@ namespace Indice.Features.Agents.Server.Endpoints;
 internal static class AgentsHandlers
 {
     /// <summary>Handles the discovery of available agents.</summary>
-    public static async Task<Ok<List<AgentInfo>>> Discovery() {
+    public static Ok<List<AgentInfo>> Discovery() {
         // Implementation for discovering agents goes here.
         return TypedResults.Ok(new List<AgentInfo>() { 
             new AgentInfo(
