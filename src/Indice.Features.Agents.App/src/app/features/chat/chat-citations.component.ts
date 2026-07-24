@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 
 import { ICitation } from '../../core/services/dex-api.service';
 
@@ -31,9 +31,9 @@ import { ICitation } from '../../core/services/dex-api.service';
               <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             {{ citations().length }} {{ citations().length === 1 ? 'source' : 'sources' }}
-            @for (favico of sourceFavicons; track $index){
-              <img src="{{favico}}" width="16" height="16">
-              }
+            @for (favicon of sourceFavicons(); track favicon) {
+              <img [src]="favicon" alt="" width="16" height="16" class="rounded-sm" />
+            }
           </button>
         }
         <div class="ml-auto">
@@ -53,6 +53,26 @@ import { ICitation } from '../../core/services/dex-api.service';
               <span class="truncate">
                 {{ citation.headingPath || citation.title || 'Source' }}
               </span>
+              @if (citation.sourceUrl) {
+                <a
+                  [href]="citation.sourceUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="shrink-0 text-base-content/40 transition hover:text-accent"
+                  [attr.aria-label]="'Open source ' + citation.number"
+                  title="Open source"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" class="size-3" aria-hidden="true">
+                    <path
+                      d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </a>
+              }
             </span>
           }
         </div>
@@ -62,10 +82,23 @@ import { ICitation } from '../../core/services/dex-api.service';
 })
 export class ChatCitationsComponent {
   readonly citations = input<ICitation[]>([]);
-  // Convert Map to array of distinct values
-  get sources(): string[] { return Array.from(new Set(this.citations().map(x => x.sourceUrl!))); }
-  get sourceFavicons() { return this.sources.map(x => `${new URL(x).origin}/favicon.ico`) }
-  // new URL("https://www.google.gr/test/test2?v=3")
+
+  /** Favicons of the distinct source origins, for the collapsed row; citations without a parseable URL are skipped. */
+  protected readonly sourceFavicons = computed(() => {
+    const origins = new Set<string>();
+    for (const citation of this.citations()) {
+      if (!citation.sourceUrl) {
+        continue;
+      }
+      try {
+        origins.add(new URL(citation.sourceUrl).origin);
+      } catch {
+        // Relative or malformed source URLs carry no origin to resolve a favicon from.
+      }
+    }
+    return Array.from(origins, (origin) => `${origin}/favicon.ico`);
+  });
+
   /** Collapsed by default; the chips render only on demand. */
   protected readonly expanded = signal(false);
 }
