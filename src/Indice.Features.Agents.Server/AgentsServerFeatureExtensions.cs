@@ -98,6 +98,7 @@ public static class AgentsServerFeatureExtensions
         routes.MapMyProfile();
         routes.MapMyChats();
         routes.MapSources();
+        routes.MapAgents();
         if (options.Ingestion.Enabled) { 
             routes.MapIngestion();
         }

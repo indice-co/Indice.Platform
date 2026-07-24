@@ -54,8 +54,13 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         // TODO: We should validate the workflow name and provide a meaningful error if it's not found.
         //       And we should extract this logic to a factory interface that can be used
         //       to create the workflow and validate the name.
-        var agenticWorkflowName = options?.Instructions is not null ? options.Instructions : "Default";
-        var workflow = serviceProvider.GetKeyedService<Workflow>(agenticWorkflowName) ?? serviceProvider.GetRequiredKeyedService<Workflow>("Default");
+
+        var agenticWorkflowName = options?.Instructions?.ToLowerInvariant() switch { 
+            AgentsConstants.AgentNames.Auto => AgentsConstants.AgentNames.Auto,
+            AgentsConstants.AgentNames.Knowledge => AgentsConstants.AgentNames.Knowledge,
+            _ => AgentsConstants.AgentNames.Knowledge
+        };
+        var workflow = serviceProvider.GetKeyedService<Workflow>(agenticWorkflowName) ?? serviceProvider.GetRequiredKeyedService<Workflow>(AgentsConstants.AgentNames.Knowledge);
 
         await using var run = await InProcessExecution.RunStreamingAsync(workflow, state, sessionId: state.ConversationId, cancellationToken: cancellationToken);
 

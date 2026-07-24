@@ -8,4 +8,7 @@ public class ChatRequest
 
     /// <summary>Optional display name of the end-user. If not provided, the system will use a default name.</summary>
     public string? AuthorName { get; set; }
+
+    /// <summary>Optional name of the agent to use for this chat. If not provided, the system will use a default agent.</summary>
+    public string? AgentName { get; set; }
 }

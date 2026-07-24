@@ -47,7 +47,7 @@ public class ChatsService : IChatsService
             CreatedAt = DateTimeOffset.UtcNow,
             AuthorName = chatRequest.AuthorName
         };
-        var response = await _dexClient.GetResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString() }, cancellationToken);
+        var response = await _dexClient.GetResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString(), Instructions = chatRequest.AgentName }, cancellationToken);
         var persisted = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
         return CreateTurnResponse(conversation, response, persisted);
     }
@@ -136,7 +136,7 @@ public class ChatsService : IChatsService
             CreatedAt = DateTimeOffset.UtcNow,
             AuthorName = chatRequest.AuthorName
         };
-        var stream = _dexClient.GetStreamingResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString() }, cancellationToken);
+        var stream = _dexClient.GetStreamingResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString(), Instructions = chatRequest.AgentName }, cancellationToken);
         var updates = new List<ChatResponseUpdate>();
         var projector = new DexChatStreamProjector();
         var compactor = new DeltaCompactor();
