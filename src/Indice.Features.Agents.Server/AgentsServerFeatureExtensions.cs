@@ -77,7 +77,7 @@ public static class AgentsServerFeatureExtensions
     /// <returns></returns>
     public static IServiceCollection AddUsersFeature(this IServiceCollection services) {
         services.AddHttpContextAccessor();
-        services.Replace(ServiceDescriptor.Transient<WorkflowClaimsPrincipalSelector>(sp => {
+        services.Replace(ServiceDescriptor.Transient<AgentsClaimsPrincipalSelector>(sp => {
             return () => {
                 var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
                 return httpContextAccessor.HttpContext?.User;

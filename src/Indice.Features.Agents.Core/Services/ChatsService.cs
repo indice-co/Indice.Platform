@@ -34,7 +34,7 @@ public class ChatsService : IChatsService
     /// <inheritdoc/>
     public async Task<DexChatResponse?> SendAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken) {
         await EnsureSessionCreationAllowedAsync(userId, conversationId, cancellationToken);
-        var conversation = await _store.LoadOrCreateAsync(userId, conversationId, cancellationToken);
+        var conversation = await _store.LoadOrCreateAsync(userId, chatRequest.AuthorName, conversationId, cancellationToken);
         if (conversation is null) {
             return null;
         }
@@ -87,7 +87,7 @@ public class ChatsService : IChatsService
     /// <inheritdoc/>
     public async Task<IAsyncEnumerable<SseItem<DexChatResponseUpdate>>?> SendStreamAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken) {
         await EnsureSessionCreationAllowedAsync(userId, conversationId, cancellationToken);
-        var conversation = await _store.LoadOrCreateAsync(userId, conversationId, cancellationToken);
+        var conversation = await _store.LoadOrCreateAsync(userId, chatRequest.AuthorName, conversationId, cancellationToken);
         if (conversation is null) {
             return null;
         }

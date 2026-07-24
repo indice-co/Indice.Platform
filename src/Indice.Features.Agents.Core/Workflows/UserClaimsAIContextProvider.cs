@@ -11,22 +11,22 @@ namespace Indice.Features.Agents.Core.Workflows;
 /// invoked lazily inside <c>ProvideAIContextAsync</c>, so a single provider instance is safe to attach to any agent.
 /// </summary>
 /// <returns>The current <see cref="ClaimsPrincipal"/> or <c>null</c> if no user is authenticated.</returns>
-public delegate ClaimsPrincipal? WorkflowClaimsPrincipalSelector();
+public delegate ClaimsPrincipal? AgentsClaimsPrincipalSelector();
 
 /// <summary>
 /// Contributes the caller's profile as additional instructions on every agent invocation. Reads the ambient
-/// <see cref="ClaimsPrincipal"/> (name / gender / locale) via <see cref="WorkflowClaimsPrincipalSelector"/> and augments
+/// <see cref="ClaimsPrincipal"/> (name / gender / locale) via <see cref="AgentsClaimsPrincipalSelector"/> and augments
 /// it with the application-local profile (<see cref="IUsersService"/>): a stored preferred language and response
 /// style override/extend the claim snapshot. Resolves both lazily inside <c>ProvideAIContextAsync</c>, so a
 /// single provider instance is safe to attach to any agent. Returns an empty <see cref="AIContext"/> when the
 /// request is anonymous or nothing personalizable is present; falls back to claims when no profile row exists.
 /// </summary>
 public sealed class UserClaimsAIContextProvider : AIContextProvider {
-    private readonly WorkflowClaimsPrincipalSelector _claimsPrincipalSelector;
+    private readonly AgentsClaimsPrincipalSelector _claimsPrincipalSelector;
     private readonly IUsersService _usersService;
 
     /// <summary>Creates a new <see cref="UserClaimsAIContextProvider"/>.</summary>
-    public UserClaimsAIContextProvider(WorkflowClaimsPrincipalSelector claimsPrincipalSelector, IUsersService usersService) : base(null, null) {
+    public UserClaimsAIContextProvider(AgentsClaimsPrincipalSelector claimsPrincipalSelector, IUsersService usersService) : base(null, null) {
         _claimsPrincipalSelector = claimsPrincipalSelector;
         _usersService = usersService;
     }

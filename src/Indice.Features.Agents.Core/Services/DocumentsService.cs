@@ -110,32 +110,51 @@ public class DocumentsService : IDocumentsService
     /// <inheritdoc/>
     public async Task<IReadOnlyList<RetrievedChunk>> SearchAsync(ReadOnlyMemory<float> queryVector, RetrievalFilters filters, int topK, double minScore, CancellationToken cancellationToken) {
         var sqlVector = new SqlVector<float>(queryVector);
-        return await _db.Set<DbChunk>()
+        var maxDistance = 1 - minScore;
+        var rows = await _db.Chunks
             // placeholder for 
             //.Where(c => filters.Category == null || c.Category == null || c.Category == filters.Category)
             //.Where(c => filters.Language == null || c.Language == null || c.Language == filters.Language)
-            .OrderBy(c => EF.Functions.VectorDistance("cosine", c.Embedding, sqlVector))
-            .Take(topK)
-            .Select(c => new RetrievedChunk {
-                Id = c.Id,
-                Source = new SourceDocumentLink {
-                    Id = c.DocumentId,
-                    SourceTitle = c.Document.Title,
-                    SourceUrl = _sourceLinkGenerator.GenerateLink(c.Document.Source),
-                    IsPrivate = c.Document.IsPrivate,
-                    ContentHash = c.Document.ContentHash,
-                    ContentType = c.Document.Blob == null ? "application/markdown" : c.Document.Blob.ContentType,
-                    Length = c.Document.Blob == null ? -1 : c.Document.Blob.ContentLength,
-                    FileName = c.Document.Blob == null ? c.Document.Title : c.Document.Blob.FileName,
-                },
-                Title = c.Title,
-                HeadingPath = c.HeadingPath,
-                Content = c.Content,
-                TokenCount = c.TokenCount,
-                Score = 1 - EF.Functions.VectorDistance("cosine", c.Embedding, sqlVector),
+            .Select(c => new {
+                c.Id,
+                c.DocumentId,
+                DocumentTitle = c.Document.Title,
+                DocumentSource = c.Document.Source,
+                DocumentIsPrivate = c.Document.IsPrivate,
+                DocumentContentHash = c.Document.ContentHash,
+                BlobContentType = c.Document.Blob == null ? "application/markdown" : c.Document.Blob.ContentType,
+                BlobLength = c.Document.Blob == null ? -1 : c.Document.Blob.ContentLength,
+                BlobFileName = c.Document.Blob == null ? c.Document.Title : c.Document.Blob.FileName,
+                c.Title,
+                c.HeadingPath,
+                c.Content,
+                c.TokenCount,
+                Distance = EF.Functions.VectorDistance("cosine", c.Embedding, sqlVector),
             })
-            .Where(x => x.Score > minScore)
+            .Where(c => c.Distance <= maxDistance)
+            .OrderBy(c => c.Distance)
+            .Take(topK)
+            .AsNoTracking()
             .ToListAsync(cancellationToken);
+
+        return rows.Select(r => new RetrievedChunk {
+            Id = r.Id,
+            Source = new SourceDocumentLink {
+                Id = r.DocumentId,
+                SourceTitle = r.DocumentTitle,
+                SourceUrl = _sourceLinkGenerator.GenerateLink(r.DocumentSource),
+                IsPrivate = r.DocumentIsPrivate,
+                ContentHash = r.DocumentContentHash,
+                ContentType = r.BlobContentType,
+                Length = r.BlobLength,
+                FileName = r.BlobFileName,
+            },
+            Title = r.Title,
+            HeadingPath = r.HeadingPath,
+            Content = r.Content,
+            TokenCount = r.TokenCount,
+            Score = 1 - r.Distance,
+        }).ToList();
     }
 
     /// <inheritdoc/>

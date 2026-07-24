@@ -5,7 +5,7 @@ public interface IGuestTokenService
 {
     /// <summary>Requests a new guest access token. The identity provider generates a fresh guest subject and echoes it back.</summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    Task<GuestAccessToken> CreateTokenAsync(CancellationToken cancellationToken = default);
+    Task<GuestAccessToken> CreateTokenAsync(string? authorName = null, CancellationToken cancellationToken = default);
 }
 
 /// <summary>An ephemeral guest access token issued by the identity provider.</summary>

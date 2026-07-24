@@ -27,7 +27,7 @@ internal static class MyChatsHandlers
             request.AuthorName ??= user.FindDisplayName();
         } else if (options.Value.AllowAnonymousChatCreation) {
             try { 
-                guestToken = await httpContext.RequestServices.GetRequiredService<IGuestTokenService>().CreateTokenAsync(cancellationToken);
+                guestToken = await httpContext.RequestServices.GetRequiredService<IGuestTokenService>().CreateTokenAsync(authorName: request.AuthorName, cancellationToken: cancellationToken);
             } catch (InvalidOperationException) {
                 return TypedResults.Unauthorized();
             }
@@ -65,7 +65,7 @@ internal static class MyChatsHandlers
             userId = user.FindSubjectId()!;
             request.AuthorName ??= user.FindDisplayName();
         } else if (options.Value.AllowAnonymousChatCreation) {
-            guestToken = await httpContext.RequestServices.GetRequiredService<IGuestTokenService>().CreateTokenAsync(cancellationToken);
+            guestToken = await httpContext.RequestServices.GetRequiredService<IGuestTokenService>().CreateTokenAsync(authorName: request.AuthorName, cancellationToken: cancellationToken);
             userId = guestToken.Subject;
         } else {
             return TypedResults.Unauthorized();

@@ -75,7 +75,7 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<ConversationStoreChatHistoryProvider>();
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();
         services.TryAddTransient<IDexChatClient, AgentsChatClient>();
-        services.TryAddSingleton<WorkflowClaimsPrincipalSelector>(sp =>
+        services.TryAddSingleton<AgentsClaimsPrincipalSelector>(sp =>
             () => null
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
