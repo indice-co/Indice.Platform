@@ -16,7 +16,7 @@ public interface IConversationStore
     /// Returns <c>null</c> when <paramref name="conversationId"/> is supplied but no conversation matches <paramref name="userId"/>.
     /// </summary>
     Task<Conversation?> LoadOrCreateAsync(
-        string userId,
+        string userId, string? authorName,
         Guid? conversationId,
         CancellationToken cancellationToken);
 

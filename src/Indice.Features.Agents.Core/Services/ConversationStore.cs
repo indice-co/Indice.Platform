@@ -1,5 +1,8 @@
+using System.Globalization;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Workflows;
+using Indice.Security;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
@@ -13,15 +16,17 @@ public class ConversationStore : IConversationStore
 {
     private readonly AgentsDbContext _db;
     private readonly SessionOptions _sessionOptions;
+    private readonly AgentsClaimsPrincipalSelector _claimsPrincipalSelector;
 
     /// <summary>Creates a new <see cref="ConversationStore"/>.</summary>
-    public ConversationStore(AgentsDbContext db, IOptions<AgentsOptions> options) {
+    public ConversationStore(AgentsDbContext db, IOptions<AgentsOptions> options, AgentsClaimsPrincipalSelector claimsPrincipalSelector) {
         _db = db ?? throw new ArgumentNullException(nameof(db));
         _sessionOptions = options.Value.Session;
+        _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
     }
 
     /// <inheritdoc/>
-    public async Task<Conversation?> LoadOrCreateAsync(string userId, Guid? conversationId, CancellationToken cancellationToken) {
+    public async Task<Conversation?> LoadOrCreateAsync(string userId, string? authorName, Guid? conversationId, CancellationToken cancellationToken) {
         if (conversationId is null) {
             var now = DateTimeOffset.UtcNow;
             var entity = new DbConversation {
@@ -34,6 +39,19 @@ public class ConversationStore : IConversationStore
                 OutputTokenCount = 0,
             };
             _db.Add(entity);
+            if (!_db.Profiles.Any(p => p.UserId == userId)) {
+                var claimsPrincipal = _claimsPrincipalSelector();
+                _db.Profiles.Add(new DbProfile {
+                    UserId = userId,
+                    Locale = claimsPrincipal?.FindFirst(BasicClaimTypes.Locale)?.Value ?? CultureInfo.CurrentCulture.TwoLetterISOLanguageName, 
+                    DisplayName = authorName ?? claimsPrincipal?.FindDisplayName() ?? "Guest",
+                    Email = claimsPrincipal?.FindFirst(BasicClaimTypes.Email)?.Value,
+                    CreatedAt = now,
+                    UpdatedAt = now,
+                    LastSeenAt = now
+                });
+            }
+
             await _db.SaveChangesAsync(cancellationToken);
             return ToDto(entity, messages: []);
         }

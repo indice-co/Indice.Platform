@@ -8,7 +8,7 @@ namespace Indice.Features.Agents.Core.Data;
 public class DbProfile
 {
     /// <summary>Primary key.</summary>
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>The IdP subject claim (<c>sub</c>) this profile belongs to.</summary>
     public string UserId { get; set; } = string.Empty;

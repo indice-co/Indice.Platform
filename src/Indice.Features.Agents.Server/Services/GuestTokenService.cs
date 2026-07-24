@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 
@@ -16,7 +17,7 @@ internal class GuestTokenService : IGuestTokenService
     }
 
     /// <inheritdoc />
-    public async Task<GuestAccessToken> CreateTokenAsync(CancellationToken cancellationToken = default) {
+    public async Task<GuestAccessToken> CreateTokenAsync(string? authorName = null, CancellationToken cancellationToken = default) {
         var guestTokenOptions = _options.GuestToken;
         var tokenEndpoint = guestTokenOptions.TokenEndpoint;
         if (string.IsNullOrWhiteSpace(tokenEndpoint)) {
@@ -30,8 +31,11 @@ internal class GuestTokenService : IGuestTokenService
             ["grant_type"] = guestTokenOptions.GrantType,
             ["scope"] = guestTokenOptions.Scope ?? _options.ChatRequiredScope,
             ["client_id"] = guestTokenOptions.ClientId ?? throw new InvalidOperationException($"{nameof(GuestTokenOptions)}.{nameof(GuestTokenOptions.ClientId)} is not configured."),
-            ["client_secret"] = guestTokenOptions.ClientSecret ?? throw new InvalidOperationException($"{nameof(GuestTokenOptions)}.{nameof(GuestTokenOptions.ClientSecret)} is not configured.")
+            ["client_secret"] = guestTokenOptions.ClientSecret ?? throw new InvalidOperationException($"{nameof(GuestTokenOptions)}.{nameof(GuestTokenOptions.ClientSecret)} is not configured."),
         };
+        if (!string.IsNullOrWhiteSpace(authorName)) {
+            form.Add("given_name", authorName);
+        }
         using var requestContent = new FormUrlEncodedContent(form);
         using var response = await _httpClient.PostAsync(tokenEndpoint, requestContent, cancellationToken);
         var payload = await response.Content.ReadAsStringAsync(cancellationToken);
