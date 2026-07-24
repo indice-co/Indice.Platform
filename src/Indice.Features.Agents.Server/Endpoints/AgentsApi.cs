@@ -15,7 +15,7 @@ internal static class AgentsApi
 {
 
     /// <summary>Maps the <c>/api/agents</c> endpoint group.</summary>
-    public static RouteGroupBuilder MapAgents(this IEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapAgentsDiscovery(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<AgentsServerOptions>>().Value;
         var allowedScopes = new[] { options.ChatRequiredScope }.FilterOutNulls().ToArray();
 
