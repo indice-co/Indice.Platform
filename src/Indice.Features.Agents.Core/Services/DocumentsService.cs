@@ -33,9 +33,9 @@ public class DocumentsService : IDocumentsService
         var query = _db.Set<DbDocument>()
             .AsNoTracking()
             .Where(predicate)
-            .Select(d => new SourceDocument { 
-                Id = d.Id, 
-                ContentHash = d.ContentHash, 
+            .Select(d => new SourceDocument {
+                Id = d.Id,
+                ContentHash = d.ContentHash,
                 Source = d.Source,
                 IsPrivate = d.IsPrivate,
                 ContentType = d.Blob == null ? "application/markdown" : d.Blob.ContentType,
@@ -111,32 +111,56 @@ public class DocumentsService : IDocumentsService
     public async Task<IReadOnlyList<RetrievedChunk>> SearchAsync(ReadOnlyMemory<float> queryVector, RetrievalFilters filters, int topK, double minScore, CancellationToken cancellationToken) {
         var sqlVector = new SqlVector<float>(queryVector);
         var maxDistance = 1 - minScore;
-        var rows = await _db.Chunks
-            // placeholder for 
-            //.Where(c => filters.Category == null || c.Category == null || c.Category == filters.Category)
-            //.Where(c => filters.Language == null || c.Language == null || c.Language == filters.Language)
-            .Select(c => new {
-                c.Id,
-                c.DocumentId,
-                DocumentTitle = c.Document.Title,
-                DocumentSource = c.Document.Source,
-                DocumentIsPrivate = c.Document.IsPrivate,
-                DocumentContentHash = c.Document.ContentHash,
-                BlobContentType = c.Document.Blob == null ? "application/markdown" : c.Document.Blob.ContentType,
-                BlobLength = c.Document.Blob == null ? -1 : c.Document.Blob.ContentLength,
-                BlobFileName = c.Document.Blob == null ? c.Document.Title : c.Document.Blob.FileName,
-                c.Title,
-                c.HeadingPath,
-                c.Content,
-                c.TokenCount,
-                Distance = EF.Functions.VectorDistance("cosine", c.Embedding, sqlVector),
-            })
-            .Where(c => c.Distance <= maxDistance)
-            .OrderBy(c => c.Distance)
-            .Take(topK)
+
+        // CTE-based approach: CROSS APPLY for vector distance, then join only top K results
+        var sql = @"
+            ;WITH RankedChunks AS (
+                SELECT TOP({0})
+                    c.Id,
+                    dist.Distance
+                FROM [dex].[Chunk] c
+                CROSS APPLY (
+                    SELECT VECTOR_DISTANCE('cosine', c.Embedding, {1}) AS Distance
+                ) dist
+                WHERE dist.Distance <= {2}
+                ORDER BY dist.Distance
+            )
+            SELECT 
+                c.Id, 
+                c.DocumentId, 
+                c.HeadingPath, 
+                c.Title, 
+                c.Content, 
+                c.TokenCount, 
+                d.Title AS DocumentTitle, 
+                d.Source AS DocumentSource, 
+                d.IsPrivate AS DocumentIsPrivate, 
+                d.ContentHash AS DocumentContentHash, 
+                CASE
+                    WHEN b.DocumentId IS NULL THEN N'application/markdown'
+                    ELSE b.ContentType
+                END AS BlobContentType, 
+                CASE
+                    WHEN b.DocumentId IS NULL THEN CAST(-1 AS bigint)
+                    ELSE b.ContentLength
+                END AS BlobLength, 
+                CASE
+                    WHEN b.DocumentId IS NULL THEN d.Title
+                    ELSE b.FileName
+                END AS BlobFileName,
+                rc.Distance
+            FROM [dex].[Chunk] AS c
+            INNER JOIN RankedChunks AS rc ON c.Id = rc.Id
+            INNER JOIN [dex].[Document] AS d ON c.DocumentId = d.Id
+            LEFT JOIN [dex].[Blob] AS b ON d.Id = b.DocumentId
+            ORDER BY rc.Distance";
+
+        var rows = await _db.Database
+            .SqlQueryRaw<SearchResultDto>(sql, topK, sqlVector, maxDistance)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
+        // Client-side transformation with SourceLinkGenerator
         return rows.Select(r => new RetrievedChunk {
             Id = r.Id,
             Source = new SourceDocumentLink {
@@ -155,6 +179,25 @@ public class DocumentsService : IDocumentsService
             TokenCount = r.TokenCount,
             Score = 1 - r.Distance,
         }).ToList();
+    }
+
+    // DTO for CTE query results
+    private class SearchResultDto
+    {
+        public Guid Id { get; set; }
+        public Guid DocumentId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? HeadingPath { get; set; }
+        public string Content { get; set; } = string.Empty;
+        public int TokenCount { get; set; }
+        public string DocumentTitle { get; set; } = string.Empty;
+        public string DocumentSource { get; set; } = string.Empty;
+        public bool DocumentIsPrivate { get; set; }
+        public string DocumentContentHash { get; set; } = string.Empty;
+        public string BlobContentType { get; set; } = string.Empty;
+        public long BlobLength { get; set; }
+        public string BlobFileName { get; set; } = string.Empty;
+        public double Distance { get; set; }
     }
 
     /// <inheritdoc/>
