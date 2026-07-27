@@ -4,7 +4,7 @@
     <TargetFrameworks></TargetFrameworks>
     <TargetFramework>net10.0</TargetFramework>
     <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
-    <VersionSuffix>beta13</VersionSuffix>
+    <VersionSuffix>beta14</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.AspNetCore.Builder" Version="$(VersionPrefixAspNet)-*" />
