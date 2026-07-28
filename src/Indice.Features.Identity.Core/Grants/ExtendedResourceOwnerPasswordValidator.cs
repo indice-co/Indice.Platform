@@ -35,6 +35,7 @@ namespace Indice.Features.Identity.Core.Grants;
 /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
 /// <param name="logger">Represents a type used to perform logging.</param>
 /// <param name="eventService">Interface for the event service.</param>
+/// <param name="httpContextAccessor">Used to access the <see cref="HttpContext"/> through the <see cref="IHttpContextAccessor"/> interface and its default implementation <see cref="HttpContextAccessor"/>.</param>
 /// <exception cref="ArgumentNullException"></exception>
 public class ExtendedResourceOwnerPasswordValidator<TUser>(
     IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> filters,
