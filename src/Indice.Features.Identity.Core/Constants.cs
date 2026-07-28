@@ -209,8 +209,7 @@ public static partial class RateLimiterPolicies
 public static class HttpContextItemKeys
 {
     /// <summary>
-    /// Key for the session id generated during the device authentication grant (biometric / 4-pin mobile login),
-    /// flowed into the issued token's <c>SessionId</c>.
+    /// Key for the sign-in session id used to correlate login-related events and flowed into the issued token's <c>SessionId</c>.
     /// </summary>
     public const string DeviceSessionId = "device_session_id";
 }
