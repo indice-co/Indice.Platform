@@ -18,6 +18,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Security;
@@ -39,12 +40,14 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
     IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> filters,
     ExtendedUserManager<TUser> userManager,
     ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> logger,
-    IEventService eventService) : IResourceOwnerPasswordValidator where TUser : User
+    IEventService eventService,
+    IHttpContextAccessor httpContextAccessor) : IResourceOwnerPasswordValidator where TUser : User
 {
     private readonly ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IEventService _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
     private readonly IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> _filters = filters ?? throw new ArgumentNullException(nameof(filters));
     private readonly ExtendedUserManager<TUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 
     private readonly IDictionary<string, string> _errors = new Dictionary<string, string> {
         [ResourceOwnerPasswordErrorCodes.LockedOut] = "User is locked out.",
@@ -90,15 +93,17 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
         }
         if (!isError) {
             context.Result = extendedContext.Result;
+            _httpContextAccessor.HttpContext!.Items[HttpContextItemKeys.DeviceSessionId] = Guid.NewGuid().ToString("N");
             await _eventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
                 user.UserName!,
                 user.Id,
                 user.UserName!,
                 clientId: context.Request.ClientId,
                 clientName: context.Request.Client.ClientName,
+                sessionId: _httpContextAccessor.HttpContext.ResolveDeviceSessionId(),
                 authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
             ));
-        await _userManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
+            await _userManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
         } 
         else {
             await _eventService.RaiseAsync(new ExtendedUserLoginFailureEvent(

@@ -22,6 +22,7 @@ using Indice.Features.Identity.Core.DeviceAuthentication.Services;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Extensions;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -151,6 +152,7 @@ internal class DeviceAuthenticationExtensionGrantValidator(
         if (context.Result.IsError) {
             await RaiseUserLoginFailureEvent(user, context);
         } else {
+            HttpContextAccessor.HttpContext!.Items[HttpContextItemKeys.DeviceSessionId] = Guid.NewGuid().ToString("N");
             await RaiseUserLoginSuccessEvent(user, context);
         }
     }
@@ -161,6 +163,7 @@ internal class DeviceAuthenticationExtensionGrantValidator(
         user!.UserName!,
         clientId: context.Request.ClientId,
         clientName: context.Request.Client.ClientName,
+        sessionId: HttpContextAccessor.HttpContext.ResolveDeviceSessionId(),
         authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
     ));
 

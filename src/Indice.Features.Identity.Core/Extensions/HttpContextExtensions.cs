@@ -20,6 +20,10 @@ public static class HttpContextExtensions
         return MfaDeviceIdentifier.Empty;
     }
 
+    /// <summary>Tries to resolve the custom device-login session id from the current http request.</summary>
+    public static string? ResolveDeviceSessionId(this HttpContext? httpContext) =>
+        httpContext?.Items.TryGetValue(HttpContextItemKeys.DeviceSessionId, out var value) == true ? value?.ToString() : null;
+
     private static string? FindDeviceId(HttpContext httpContext) {
         ArgumentNullException.ThrowIfNull(httpContext);
         var deviceId = default(StringValues);
