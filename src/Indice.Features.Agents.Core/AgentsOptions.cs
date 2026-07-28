@@ -28,6 +28,9 @@ public class AgentsOptions
     /// <summary>Allowed categorical/language values constrained by the host application.</summary>
     public TaxonomyOptions Taxonomy { get; set; } = new();
 
+    /// <summary>MCP (Model Context Protocol) integrations for external services like OTP delivery.</summary>
+    public McpOptions Mcp { get; set; } = new();
+
     /// <summary>
     /// Optional callback to configure the <see cref="DbContextOptionsBuilder"/> for the <see cref="AgentsDbContext"/>.
     /// </summary>
@@ -158,10 +161,41 @@ public class AgentsOptions
     public class TaxonomyOptions
     {
         /// <summary>Allowed document categories. Used as the retrieval filter domain and to constrain the intent classifier's category Output.</summary>
-        public IReadOnlyList<string> Categories { get; set; } = ["policy", "faq", "identity", "purpose_of_agent"];
+        public IReadOnlyList<string> Categories { get; set; } = ["policy", "faq", "identity", "purpose_of_agent", "message", "identity"];
 
         /// <summary>Allowed ISO-639-1 (or BCP-47) language codes.</summary>
         public IReadOnlyList<string> Languages { get; set; } = ["en", "el", "de", "fr", "es"];
+    }
+
+    /// <summary>
+    /// MCP (Model Context Protocol) integrations configuration.
+    /// Contains keyed sections for different MCP services (e.g., OTP, Case Data Retrieval).
+    /// </summary>
+    public class McpOptions
+    {
+        /// <summary>Collection of MCP service configurations keyed by service name (e.g., "otp", "caseretrieval").</summary>
+        public IDictionary<string, McpServiceOptions> Services { get; set; } = new Dictionary<string, McpServiceOptions>(StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Configuration for a single MCP service endpoint.
+    /// </summary>
+    public class McpServiceOptions
+    {
+        /// <summary>The MCP server endpoint URL (e.g., http://localhost:9000).</summary>
+        public string Endpoint { get; set; } = null!;
+
+        /// <summary>Authentication method: "none", "apikey", "bearer", "basic", or custom.</summary>
+        public string AuthenticationMethod { get; set; } = "none";
+
+        /// <summary>Authentication value (e.g., API key, bearer token). Stored securely in configuration (use env vars / Key Vault in production).</summary>
+        public string? AuthenticationValue { get; set; }
+
+        /// <summary>Optional timeout in milliseconds for MCP service calls. Defaults to 30000 (30 seconds).</summary>
+        public int TimeoutMilliseconds { get; set; } = 30000;
+
+        /// <summary>Optional number of retries on transient failures. Defaults to 1 (no retries).</summary>
+        public int MaxRetries { get; set; } = 1;
     }
 }
 

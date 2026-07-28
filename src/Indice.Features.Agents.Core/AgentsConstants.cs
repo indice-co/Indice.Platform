@@ -8,6 +8,9 @@ public static class AgentsConstants
     /// </summary>
     public static class AgentNames
     {
+        /// <summary>The name of the agent that handles case-based queries with OTP verification.</summary>
+        public const string Cases = "cases";
+
         /// <summary>The name of the agent that handles knowledge-based queries and provides answers based on a knowledge base.</summary>
         public const string Knowledge = "knowledge";
 

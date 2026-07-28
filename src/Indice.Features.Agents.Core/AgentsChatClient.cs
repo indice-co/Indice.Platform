@@ -55,6 +55,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         var agenticWorkflowName = options?.Instructions?.Trim().ToLowerInvariant() switch {
             AgentsConstants.AgentNames.Auto => AgentsConstants.AgentNames.Auto,
             AgentsConstants.AgentNames.Knowledge => AgentsConstants.AgentNames.Knowledge,
+            AgentsConstants.AgentNames.Cases => AgentsConstants.AgentNames.Cases,
             _ => AgentsConstants.AgentNames.Knowledge
         };
         var workflow = serviceProvider.GetKeyedService<Workflow>(agenticWorkflowName) ?? serviceProvider.GetRequiredKeyedService<Workflow>(AgentsConstants.AgentNames.Knowledge);

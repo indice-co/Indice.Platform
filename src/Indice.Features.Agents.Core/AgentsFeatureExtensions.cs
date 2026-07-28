@@ -2,11 +2,14 @@
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
+using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.Reranking;
+using Indice.Features.Agents.Core.Workflows.State;
 using Indice.Features.Agents.Core.Workflows.Steps;
+using Indice.Features.Agents.Core.Workflows.Steps.Cases;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
@@ -69,6 +72,7 @@ public static class AgentsFeatureExtensions
             configureDbContext.Invoke(sp, options);
         });
 
+        services.TryAddSingleton<IMcpToolsRegistry, McpToolsRegistry>();
         services.TryAddTransient<UserClaimsAIContextProvider>();
         services.TryAddTransient<IConversationStore, ConversationStore>();
         services.TryAddTransient<IUsageGuardService, UsageGuardService>();
@@ -119,6 +123,50 @@ public static class AgentsFeatureExtensions
             builder.WithOutputFrom(compose, outOfScopeReply, purposeResponder);
             return builder.Build();
         });
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the Cases workflow steps and the composed Cases workflow.
+    /// <para>
+    /// The OTP verification leg is handled by a single LLM-powered <see cref="OtpAgent"/> step
+    /// that uses the <c>"otp"</c> MCP service tools at runtime, guided by the
+    /// <c>CasesOtpAgent</c> prompt template. There are no hardcoded send/validate steps.
+    /// </para>
+    /// Call after <c>AddAgentsCore(...)</c>.
+    /// </summary>
+    public static IServiceCollection AddCasesWorkflow(this IServiceCollection services)
+    {
+        services.TryAddTransient<CaseDataRetriever>();
+        services.TryAddTransient<OwnershipVerifier>();
+        services.TryAddTransient<UserInputValidator>();
+        services.TryAddTransient<OtpAgent>();
+        services.TryAddTransient<OwnershipVerificationFailureHandler>();
+
+        // Cases workflow:
+        //   CaseDataRetriever → OwnershipVerifier → UserInputValidator
+        //       ├─ [valid]   → OtpAgent  (LLM drives full OTP flow via MCP tools — terminal)
+        //       └─ [invalid] → OwnershipVerificationFailureHandler         (terminal)
+        services.AddKeyedScoped(AgentsConstants.AgentNames.Cases, (sp, key) =>
+        {
+            var retriever    = sp.GetRequiredService<CaseDataRetriever>();
+            var verifier     = sp.GetRequiredService<OwnershipVerifier>();
+            var validator    = sp.GetRequiredService<UserInputValidator>();
+            var otpAgent     = sp.GetRequiredService<OtpAgent>();
+            var ownershipErr = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
+
+            var builder = new WorkflowBuilder(retriever);
+            builder.AddEdge(retriever, verifier);
+            builder.AddEdge(verifier,  validator);
+
+            builder.AddSwitch(validator, sw => sw
+                .AddCase<UserInputValidationOutput>(env => env!.IsValid, otpAgent)
+                .WithDefault(ownershipErr));
+
+            builder.WithOutputFrom(otpAgent, ownershipErr);
+            return builder.Build();
+        });
+
         return services;
     }
 }
