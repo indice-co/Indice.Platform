@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Indice.Features.Agents.Core.Services;
+using Indice.Features.Agents.Server.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -25,5 +26,21 @@ internal static class SourcesHandlers
         return TypedResults.File(document.Data, contentType: contentType,
                                  fileDownloadName: download == true ? document.FileName : null,  // trigger download with content disposition if 'download' query parameter is true
                                  lastModified: document.LastModified);
+    }
+
+    public static async Task<Results<FileContentHttpResult, NotFound, RedirectHttpResult>> GetActualSourceFavicon(Guid sourceId, ClaimsPrincipal currentUser, IDocumentsService documentsService, IHttpClientFactory httpClientFactory, CancellationToken cancellationToken) {
+        var document = await documentsService.FindBySourceAsync(sourceId.ToString(), includeData: false, cancellationToken: cancellationToken);
+        
+        if (document is null) {
+            return TypedResults.NotFound();
+        }
+
+        if (document.Source.StartsWith("local://", StringComparison.OrdinalIgnoreCase)) {
+            return TypedResults.Redirect("/favicon.ico"); // Favicon retrieval is not supported for local sources
+        }
+        var httpClient = httpClientFactory.CreateClient("favicon");
+        var faviconUrl = await httpClient.GetFaviconUrlAsync(document.Source, cancellationToken: cancellationToken);
+        // Implementation for retrieving the favicon of the actual source document
+        return TypedResults.Redirect(faviconUrl, permanent: true);
     }
 }
