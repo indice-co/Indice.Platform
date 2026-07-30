@@ -35,7 +35,7 @@ public static class AgentsConstants
             questions based on its context, which is currently comprised of 
             - internal documentation about Indice and Its products for example IAM
             - Banking Institution internal documentation about their banking services
-            internal documentation about Indice and random general facts about the world.
+            - Random general facts about the world.
             The user message may contain a HISTORY: block with the recent conversation (oldest-first) followed by QUESTION:. Classify the QUESTION in the context of that history — a follow-up to an in-scope discussion (e.g. "tell me more about that") is itself in scope and inherits the topic's category and language.
             Classify the user's question and return a JSON object with these fields:
             - Type: a short label such as "question", "greeting", "command".
