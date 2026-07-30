@@ -293,10 +293,10 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="newPassword">The new password.</param>
     /// <param name="validatePassword">Whether to validate the password.</param>
     /// <param name="suppressNotification">Whether to suppress the security notification triggered after an administrator password reset.</param>
-    /// <param name="isAdminOperation">Whether the reset was executed by an administrator.</param>
+    /// <param name="isSelfServiceReset"> Whether the reset was executed by the user themselves</param>
     /// <returns>Whether the password was successfully updated.</returns>
     /// <remarks>This overload is used for administrator reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
-    public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true, bool suppressNotification = false, bool isAdminOperation = false) {
+    public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true, bool suppressNotification = false, bool isSelfServiceReset = true) {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         var result = await base.UpdatePasswordHash(user, newPassword, validatePassword);
@@ -310,10 +310,10 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         if (await IsLockedOutAsync(user)) {
             result = await SetLockoutEndDateAsync(user, null);
         }
-        if (isAdminOperation) {
-            await _eventService.Publish(new PasswordSetEvent(UserEventContext.InitializeFromUser(user), suppressNotification));
-        } else {
+        if (isSelfServiceReset) {
             await _eventService.Publish(new PasswordChangedEvent(UserEventContext.InitializeFromUser(user)));
+        } else {
+            await _eventService.Publish(new PasswordSetEvent(UserEventContext.InitializeFromUser(user), suppressNotification));
         }
         return result;
     }
