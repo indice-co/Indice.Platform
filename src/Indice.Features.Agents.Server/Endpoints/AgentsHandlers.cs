@@ -28,6 +28,16 @@ internal static class AgentsHandlers
                 Capabilities: [ new AgentCapability("Knowledge retrieval", "Answers questions based on a knowledge base.") ],
                 Domains: [],
                 Tags: ["Knowledge", "FAQ"],
+                Links: []),
+
+            new AgentInfo(
+                Name: AgentsConstants.AgentNames.Cases,
+                Description: "This is an agent that can handle cases and provide solutions based on predefined rules.",
+                InputContentTypes: ["text/plain" ],
+                OutputContentTypes: ["text/plain" ],
+                Capabilities: [ new AgentCapability("Case management", "Handles cases and provides solutions based on predefined rules.") ],
+                Domains: [],
+                Tags: ["Cases"],
                 Links: [])
         });
     }

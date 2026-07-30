@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ModelContextProtocol.Client;
@@ -22,14 +23,17 @@ public sealed class McpToolsRegistry : IMcpToolsRegistry, IAsyncDisposable
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<McpToolsRegistry> _logger;
     private readonly SemaphoreSlim _initLock = new(1, 1);
+    private readonly IDistributedCache _cache;
 
     /// <summary>Creates a new <see cref="McpToolsRegistry"/>.</summary>
     /// <param name="options">The options for configuring the MCP services.</param>
     /// <param name="httpContextAccessor">The HTTP context accessor.</param>
+    /// <param name="cache">The distributed cache instance.</param>
     /// <param name="logger">The logger instance.</param>
-    public McpToolsRegistry(IOptions<AgentsOptions> options, IHttpContextAccessor httpContextAccessor, ILogger<McpToolsRegistry> logger) {
+    public McpToolsRegistry(IOptions<AgentsOptions> options, IHttpContextAccessor httpContextAccessor, IDistributedCache cache, ILogger<McpToolsRegistry> logger) {
         _httpContextAccessor = httpContextAccessor;
         _servers = options.Value.Mcp.Services;
+        _cache = cache;
         _logger = logger;
     }
 
@@ -37,7 +41,6 @@ public sealed class McpToolsRegistry : IMcpToolsRegistry, IAsyncDisposable
     public async Task<IReadOnlyList<AITool>> GetToolsAsync(string service, CancellationToken cancellationToken = default) {
 
         if (_servers.Count == 0) return [];
-
         _servers.TryGetValue(service, out var mcpServiceOptions);
 
         if (mcpServiceOptions is null) return [];
@@ -45,29 +48,30 @@ public sealed class McpToolsRegistry : IMcpToolsRegistry, IAsyncDisposable
         await _initLock.WaitAsync(cancellationToken);
         try {
 
-            if (_serverTools.TryGetValue(service, out var tools)) return tools;
+            if (_serverTools.TryGetValue(service, out var tools))
+                return tools;
             try {
                 HttpClientTransport transport;
-                //if (server.OAuth is { } oauth) {
-                //    var handler = new ClientCredentialsBearerHandler(oauth.TokenEndpoint, oauth.ClientId, oauth.ClientSecret, oauth.Scope, _httpContextAccessor, _cache);
-                //    var http = new HttpClient(handler);
-                //    transport = new HttpClientTransport(
-                //        new HttpClientTransportOptions {
-                //            Endpoint = new Uri(server.Url),
-                //            TransportMode = HttpTransportMode.StreamableHttp,
-                //        },
-                //        http,
-                //        ownsHttpClient: true); // transport disposes the client
-                //} else {
+                if (mcpServiceOptions.OAuth is { } oauth) {
+                    var handler = new ClientCredentialsBearerHandler(oauth.TokenEndpoint, oauth.ClientId, oauth.ClientSecret, oauth.Scope, _httpContextAccessor, _cache);
+                    var http = new HttpClient(handler);
+                    transport = new HttpClientTransport(
+                        new HttpClientTransportOptions {
+                            Endpoint = new Uri(mcpServiceOptions.Endpoint),
+                            TransportMode = HttpTransportMode.StreamableHttp,
+                        },
+                        http,
+                        ownsHttpClient: true); // transport disposes the client
+                } else {
+                    var opts = new HttpClientTransportOptions {
+                        Endpoint = new Uri(mcpServiceOptions.Endpoint),
+                        TransportMode = HttpTransportMode.StreamableHttp,
+                    };
+                    var header = _httpContextAccessor.HttpContext.Request.Headers["Authorization"]!;
+                    opts.AdditionalHeaders = new Dictionary<string, string> { ["Authorization"] = header };
+                    transport = new HttpClientTransport(opts);
+                }
 
-                //}
-                var opts = new HttpClientTransportOptions {
-                    Endpoint = new Uri(mcpServiceOptions.Endpoint),
-                    TransportMode = HttpTransportMode.StreamableHttp,
-                };
-                var header = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
-                opts.AdditionalHeaders = new Dictionary<string, string> { ["Authorization"] = header };
-                transport = new HttpClientTransport(opts);
 
                 var client = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
                 var clietnTools = await client.ListToolsAsync(cancellationToken: cancellationToken);

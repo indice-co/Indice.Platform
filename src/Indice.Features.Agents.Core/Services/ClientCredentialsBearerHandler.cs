@@ -46,12 +46,13 @@ internal sealed class ClientCredentialsBearerHandler : DelegatingHandler
             var currentSubjectId = _contextAccessor.HttpContext?.User.FindSubjectId();
             var userPresent = !string.IsNullOrWhiteSpace(currentAccessToken) && !string.IsNullOrWhiteSpace(currentSubjectId);
             var grantType = userPresent ? "delegation" : "client_credentials";
-            var cacheKey = $"{_clientId}|{grantType}|sub|{currentSubjectId}";
+            grantType = "client_credentials";
+            var cacheKey = $"{_clientId}|{grantType}|sub|{currentSubjectId}|{_scope.GetHashCode()}";
             var accessToken = await _cache.GetStringAsync(cacheKey);
             if (accessToken != null) {
                 return accessToken;
             }
-            using var req = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint);
+            using var req = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint + "/connect/token");
             var form = new Dictionary<string, string> {
                 ["grant_type"] = grantType,
                 ["client_id"] = _clientId,
@@ -61,9 +62,11 @@ internal sealed class ClientCredentialsBearerHandler : DelegatingHandler
             req.Content = new FormUrlEncodedContent(form);
 
             using var resp = await base.SendAsync(req, ct);
-            resp.EnsureSuccessStatusCode();
 
             var json = await resp.Content.ReadFromJsonAsync<TokenResponse>(ct);
+            resp.EnsureSuccessStatusCode();
+
+            //var json = await resp.Content.ReadFromJsonAsync<TokenResponse>(ct);
             await _cache.SetStringAsync(cacheKey, json!.AccessToken, new DistributedCacheEntryOptions {
                 AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(json.ExpiresIn - 30)
             });

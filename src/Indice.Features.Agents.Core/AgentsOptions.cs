@@ -185,7 +185,7 @@ public class AgentsOptions
         /// <summary>The MCP server endpoint URL (e.g., http://localhost:9000).</summary>
         public string Endpoint { get; set; } = null!;
 
-        /// <summary>Authentication method: "none", "apikey", "bearer", "basic", or custom.</summary>
+        /// <summary>Authentication method: "none", "apikey", "bearer", "basic", or "oAuth".</summary>
         public string AuthenticationMethod { get; set; } = "none";
 
         /// <summary>Authentication value (e.g., API key, bearer token). Stored securely in configuration (use env vars / Key Vault in production).</summary>
@@ -196,6 +196,22 @@ public class AgentsOptions
 
         /// <summary>Optional number of retries on transient failures. Defaults to 1 (no retries).</summary>
         public int MaxRetries { get; set; } = 1;
+
+        /// OAuth2 client-credentials config. Takes precedence over BearerToken when set.
+        public ClientCredentialsOptions? OAuth { get; set; }
+
+        /// <summary>Oauth client credentials configuration for the external MCP server. Takes precedence over <see cref="BearerToken"/> when set.</summary>
+        public class ClientCredentialsOptions
+        {
+            /// <summary>OAuth2 token endpoint URL (e.g. <c>https://server/oauth2/token</c>).</summary>
+            public required string TokenEndpoint { get; set; }
+            /// <summary>OAuth2 client ID.</summary>
+            public required string ClientId { get; set; }
+            /// <summary>OAuth2 client secret.</summary>
+            public required string ClientSecret { get; set; }
+            /// <summary>OAuth2 scope.</summary>
+            public required string Scope { get; set; }
+        }
     }
 }
 

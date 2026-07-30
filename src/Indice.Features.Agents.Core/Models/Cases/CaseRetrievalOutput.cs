@@ -10,9 +10,10 @@ namespace Indice.Features.Agents.Core.Models.Cases;
 /// <param name="UserIdentifier">The user's identifier from claims or context.</param>
 /// <param name="PhoneNumber">The phone number from case data for OTP delivery (primary channel).</param>
 /// <param name="Email">The email from case data (fallback channel if phone unavailable).</param>
+/// <param name="VerificationValue">The value the user must use to verify their identity.</param>
 public record CaseRetrievalOutput(
     JsonNode CaseData,
     string CaseId,
-    string UserIdentifier,
     string? PhoneNumber,
-    string? Email);
+    string? Email,
+    string? VerificationValue);

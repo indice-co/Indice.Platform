@@ -1,16 +1,18 @@
 using Indice.Features.Agents.Core.Models.Cases;
+using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI.Workflows;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 
 /// <summary>
 /// Step 3 of the Cases workflow: Validates user's ownership confirmation input.
-/// Compares user input with the actual case data field. Supports up to 2 validation attempts.
-/// Note: User input is retrieved from the chat message history available in the workflow context.
+/// Receives the user's reply through the ownership confirmation request port (external input) and
+/// compares it with the actual case data field. Supports up to 2 validation attempts.
 /// </summary>
-public sealed class UserInputValidator : Executor<OwnershipVerificationOutput, UserInputValidationOutput>
+public sealed class UserInputValidator : Executor<OwnershipConfirmationResponse, UserInputValidationOutput>
 {
     private const int MaxValidationAttempts = 2;
+    private const string AttemptStateKey = "OwnershipValidationAttempt";
 
     /// <summary>Creates a new <see cref="UserInputValidator"/>.</summary>
     public UserInputValidator() : base(nameof(UserInputValidator))
@@ -19,22 +21,20 @@ public sealed class UserInputValidator : Executor<OwnershipVerificationOutput, U
 
     /// <inheritdoc/>
     public override async ValueTask<UserInputValidationOutput> HandleAsync(
-        OwnershipVerificationOutput verificationData,
+        OwnershipConfirmationResponse confirmation,
         IWorkflowContext context,
         CancellationToken cancellationToken = default)
     {
-        if (verificationData is null)
-            throw new ArgumentNullException(nameof(verificationData));
+        if (confirmation is null)
+            throw new ArgumentNullException(nameof(confirmation));
 
-        // In a real scenario, user input would be captured from the chat message in the conversation.
-        // For now, we simulate getting it from a placeholder; actual implementation would parse
-        // the next user message in the conversation flow.
-        // 
-        // For demonstration purposes, this returns ValidationAttempt 1.
-        // In production, you'd increment based on previous attempts stored in workflow state.
+        var verificationData = confirmation.VerificationData;
+        var userInput = confirmation.UserInput ?? string.Empty;
 
-        var userInput = string.Empty; // Would be populated from chat message queue
-        var attempt = 1; // In production: read from context state to support retries
+        // Track validation attempts in workflow state to support retries across resumes.
+        var previousAttempts = await context.ReadStateAsync<int?>(AttemptStateKey, scopeName: IWorkflowContextStateExtensions.ConversationScope, cancellationToken: cancellationToken) ?? 0;
+        var attempt = previousAttempts + 1;
+        await context.QueueStateUpdateAsync<int?>(AttemptStateKey, attempt, scopeName: IWorkflowContextStateExtensions.ConversationScope, cancellationToken: cancellationToken);
 
         // Validate the input against the actual case field value
         var isValid = CompareInputWithCaseField(

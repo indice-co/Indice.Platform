@@ -18,6 +18,12 @@ public static class AgentsConstants
         public const string Auto = "auto";
     }
 
+    /// <summary>The id of the request port where the Cases workflow halts awaiting the user's ownership confirmation.</summary>
+    public const string OwnershipConfirmationPortId = "OwnershipConfirmationPort";
+
+    /// <summary>The id of the request port where the Cases workflow halts awaiting the user's OTP code.</summary>
+    public const string OtpVerificationPortId = "OtpVerificationPort";
+
     /// <summary>Default prompt templates for various agent tasks.</summary>
     public static class PromptDefaults
     {

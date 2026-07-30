@@ -13,17 +13,10 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 
 /// <summary>
-/// LLM-powered step that handles the full OTP verification flow for the Cases workflow.
-/// Replaces the mechanical <c>OtpSender</c> + <c>OtpValidator</c> pair.
-/// <para>
-/// The step attaches all tools discovered from the configured <c>"otp"</c> MCP service and
-/// delegates the entire multi-turn conversation (ask phone → send OTP → ask code → validate)
-/// to the model, guided by the <c>CasesOtpAgent</c> prompt template. The prompt receives the
-/// phone number and email already retrieved from the case data so the LLM can act immediately
-/// without asking the user for contact details it already has.
-/// </para>
+/// Sends an OTP using MCP tools and produces a challenge prompt.
+/// The workflow pauses after this step and waits for the user OTP input on a request port.
 /// </summary>
-public sealed class OtpAgent : Executor<UserInputValidationOutput, RagPipelineOutput>
+public sealed class OtpAgent : Executor<UserInputValidationOutput, OtpChallengeOutput>
 {
     private readonly AzureOpenAIClient _openAIClient;
     private readonly AgentsOptions _options;
@@ -51,27 +44,27 @@ public sealed class OtpAgent : Executor<UserInputValidationOutput, RagPipelineOu
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<RagPipelineOutput> HandleAsync(
+    public override async ValueTask<OtpChallengeOutput> HandleAsync(
         UserInputValidationOutput validationData,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
 
+        ArgumentNullException.ThrowIfNull(validationData);
         var caseData = validationData.OwnershipVerificationData.CaseRetrievalData;
 
-        // Fetch OTP tools from the "otp" MCP server at runtime — no compile-time coupling.
-        var mcpTools = await _mcpToolsRegistry.GetToolsAsync("otp", cancellationToken);
+        // Fetch OTP tools from the Identity MCP server at runtime.
+        var mcpTools = await _mcpToolsRegistry.GetToolsAsync("Identity", cancellationToken);
+        if (mcpTools.Count == 0) {
+            throw new InvalidOperationException("No MCP tools discovered for service 'Identity'.");
+        }
 
         var chatOptions = _models.BaseReasoningModelOptions.Clone();
-        // Render prompt template, injecting case contact details so the LLM uses them directly
-        // instead of asking the user for information already retrieved from the case data.
         chatOptions.Instructions = _prompts.Render("CasesOtpAgent", new {
             phoneNumber = caseData.PhoneNumber,
             email = caseData.Email,
             caseId = caseData.CaseId,
         });
-        if (mcpTools.Count > 0) {
-            chatOptions.Tools = [..(chatOptions.Tools ?? []), ..mcpTools];
-        }
+        chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. mcpTools];
 
         var agent = _openAIClient
             .GetChatClient(_model)
@@ -82,27 +75,29 @@ public sealed class OtpAgent : Executor<UserInputValidationOutput, RagPipelineOu
                 Name = "DexOtpAgent"
             });
 
-        // The conversation state holds the user's current message; this is the entry point
-        // into the multi-turn OTP flow managed autonomously by the LLM + MCP tools.
-        var conversationState = await context.GetConversationStateAsync(cancellationToken);
-        var prompt = conversationState.Message.Text ?? string.Empty;
+        // Execute only the send leg now; OTP code collection is done by the workflow host via RequestPort.
+        var sendPrompt = $"""
+            Send an OTP now by calling SendTotp with the configured fixed values.
+            Use phone number: {caseData.PhoneNumber}
+            And securityToken: {caseData.CaseId}
+            Do not verify now.
+            """;
+        _ = await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
 
-        // Stream the answer so the client receives live deltas.
-        var answer = new StringBuilder();
-        UsageDetails? usage = null;
-        await foreach (var update in agent.RunStreamingAsync(prompt, cancellationToken: cancellationToken)) {
-            if (!string.IsNullOrEmpty(update.Text)) {
-                answer.Append(update.Text);
-                await context.AddEventAsync(new AnswerDeltaEvent(update.Text), cancellationToken);
-            }
-            foreach (var usageContent in update.Contents.OfType<UsageContent>()) {
-                (usage ??= new UsageDetails()).Add(usageContent.Details);
-            }
-        }
-        if (usage is not null) {
-            await context.AddEventAsync(new Events.UsageEvent(usage, _model), cancellationToken);
-        }
+        var maskedPhone = MaskPhone(caseData.PhoneNumber);
+        return new OtpChallengeOutput(
+            ValidationData: validationData,
+            Prompt: $"I sent a verification code to {maskedPhone}. Please enter the OTP you received.",
+            PhoneNumber: caseData.PhoneNumber,
+            Email: caseData.Email,
+            CaseId: caseData.CaseId);
+    }
 
-        return new RagPipelineOutput { Answer = answer.ToString() };
+    private static string MaskPhone(string? phone) {
+        if (string.IsNullOrWhiteSpace(phone)) {
+            return "your registered phone";
+        }
+        var digits = System.Text.RegularExpressions.Regex.Replace(phone, @"\D", "");
+        return digits.Length < 4 ? "your registered phone" : $"***{digits[^4..]}";
     }
 }

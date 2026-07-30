@@ -84,6 +84,7 @@ public static class AgentsFeatureExtensions
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
         services.AddAgentsDefaultPipeline();
+        services.AddCasesWorkflow();
         return services;
     }
 
@@ -141,29 +142,44 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<OwnershipVerifier>();
         services.TryAddTransient<UserInputValidator>();
         services.TryAddTransient<OtpAgent>();
+        services.TryAddTransient<OtpCodeValidator>();
+        services.TryAddTransient<CaseDataPresenter>();
         services.TryAddTransient<OwnershipVerificationFailureHandler>();
+        // Checkpointing infrastructure so the workflow can halt awaiting user input and resume on the next message.
+        services.TryAddSingleton<DistributedCacheCheckpointStore>();
+        services.TryAddSingleton(sp => CheckpointManager.CreateJson(sp.GetRequiredService<DistributedCacheCheckpointStore>()));
 
         // Cases workflow:
-        //   CaseDataRetriever → OwnershipVerifier → UserInputValidator
-        //       ├─ [valid]   → OtpAgent  (LLM drives full OTP flow via MCP tools — terminal)
-        //       └─ [invalid] → OwnershipVerificationFailureHandler         (terminal)
+        //   CaseDataRetriever → OwnershipVerifier → [OwnershipConfirmationPort: halts, asks user] → UserInputValidator
+        //       ├─ [valid]   → OtpAgent → [OtpVerificationPort: halts, asks user] → OtpCodeValidator → CaseDataPresenter (terminal)
+        //       └─ [invalid] → OwnershipVerificationFailureHandler                                                  (terminal)
         services.AddKeyedScoped(AgentsConstants.AgentNames.Cases, (sp, key) =>
         {
             var retriever    = sp.GetRequiredService<CaseDataRetriever>();
             var verifier     = sp.GetRequiredService<OwnershipVerifier>();
             var validator    = sp.GetRequiredService<UserInputValidator>();
-            var otpAgent     = sp.GetRequiredService<OtpAgent>();
-            var ownershipErr = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
+            var otpAgent      = sp.GetRequiredService<OtpAgent>();
+            var otpValidator   = sp.GetRequiredService<OtpCodeValidator>();
+            var casePresenter  = sp.GetRequiredService<CaseDataPresenter>();
+            var ownershipErr   = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
+            // External input ports: workflow pauses and host resumes with user responses.
+            var confirmationPort = RequestPort.Create<OwnershipVerificationOutput, OwnershipConfirmationResponse>(AgentsConstants.OwnershipConfirmationPortId);
+            var otpPort = RequestPort.Create<OtpChallengeOutput, OtpCodeResponse>(AgentsConstants.OtpVerificationPortId);
 
             var builder = new WorkflowBuilder(retriever);
             builder.AddEdge(retriever, verifier);
-            builder.AddEdge(verifier,  validator);
+            builder.AddEdge(verifier, confirmationPort);
+            builder.AddEdge(confirmationPort, validator);
 
             builder.AddSwitch(validator, sw => sw
                 .AddCase<UserInputValidationOutput>(env => env!.IsValid, otpAgent)
                 .WithDefault(ownershipErr));
 
-            builder.WithOutputFrom(otpAgent, ownershipErr);
+            builder.AddEdge(otpAgent, otpPort);
+            builder.AddEdge(otpPort, otpValidator);
+            builder.AddEdge(otpValidator, casePresenter);
+
+            builder.WithOutputFrom(casePresenter, ownershipErr);
             return builder.Build();
         });
 

@@ -309,6 +309,9 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         if (await IsLockedOutAsync(user)) {
             result = await SetLockoutEndDateAsync(user, null);
         }
+        //
+
+        await _eventService.Publish(new PasswordChangedEvent(UserEventContext.InitializeFromUser(user)));
         await _eventService.Publish(new PasswordSetEvent(UserEventContext.InitializeFromUser(user), suppressNotification));
         return result;
     }

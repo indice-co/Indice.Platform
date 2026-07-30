@@ -1,0 +1,126 @@
+using System.Text.Json.Nodes;
+using Azure.AI.OpenAI;
+using Indice.Features.Agents.Core.Models.Cases;
+using Indice.Features.Agents.Core.Services;
+using Indice.Features.Agents.Core.Workflows.Mcp;
+using Microsoft.Agents.AI;
+using Microsoft.Agents.AI.Workflows;
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Options;
+
+namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
+
+/// <summary>
+/// Verifies a user-provided OTP code using MCP tools and produces the terminal response.
+/// </summary>
+public sealed class OtpCodeValidator : Executor<OtpCodeResponse, OtpValidationOutput>
+{
+    private const string McpServiceKey = "Identity";
+
+    private readonly AzureOpenAIClient _openAIClient;
+    private readonly AgentsOptions _options;
+    private readonly ModelsOptions _models;
+    private readonly UserClaimsAIContextProvider _userClaimsProvider;
+    private readonly IMcpToolsRegistry _mcpToolsRegistry;
+    private readonly string _model;
+
+    /// <summary>Creates a new <see cref="OtpCodeValidator"/>.</summary>
+    public OtpCodeValidator(
+        AzureOpenAIClient openAIClient,
+        IOptions<AgentsOptions> options,
+        IOptions<ModelsOptions> models,
+        UserClaimsAIContextProvider userClaimsProvider,
+        IMcpToolsRegistry mcpToolsRegistry) : base(nameof(OtpCodeValidator)) {
+        _openAIClient = openAIClient;
+        _options = options.Value;
+        _models = models.Value;
+        _userClaimsProvider = userClaimsProvider;
+        _mcpToolsRegistry = mcpToolsRegistry;
+        _model = _options.AzureOpenAI.Deployments.Reasoning!;
+    }
+
+    /// <inheritdoc/>
+    public override async ValueTask<OtpValidationOutput> HandleAsync(
+        OtpCodeResponse response,
+        IWorkflowContext context,
+        CancellationToken cancellationToken = default) {
+
+        ArgumentNullException.ThrowIfNull(response);
+
+        var code = response.Code?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(code)) {
+            return new OtpValidationOutput(
+                OtpResponse: response,
+                IsValid: false,
+                Message: "I didn't receive an OTP code. Please start again and provide the code when asked.");
+        }
+
+        var mcpTools = await _mcpToolsRegistry.GetToolsAsync(McpServiceKey, cancellationToken);
+        if (mcpTools.Count == 0) {
+            throw new InvalidOperationException($"No MCP tools discovered for service '{McpServiceKey}'.");
+        }
+
+        var chatOptions = _models.BaseReasoningModelOptions.Clone();
+        chatOptions.Instructions = """
+            You are an OTP verifier.
+            You MUST call the VerifyTotp tool exactly once.
+            Use:
+            - securityToken: get securityToken from prompt
+            - purpose: "Velmar totp"
+            - phoneNumber: get phoneNumber from prompt
+            - email: null
+            - user: null
+            - code: user code from the prompt
+            Return true if response indicates TOTP was verified successfully.
+            """;
+        chatOptions.Tools = [..(chatOptions.Tools ?? []), ..mcpTools];
+
+        var agent = _openAIClient
+            .GetChatClient(_model)
+            .AsIChatClient()
+            .AsAIAgent(options: new ChatClientAgentOptions {
+                ChatOptions = chatOptions,
+                AIContextProviders = [_userClaimsProvider],
+                Name = "DexOtpCodeValidatorAgent"
+            });
+
+        var prompt = $"Verify this OTP code: {code}, with securityToken:{response.Challenge.CaseId}, phoneNumber: {response.Challenge.PhoneNumber}";
+        var result = await agent.RunAsync<string>(prompt, cancellationToken: cancellationToken);
+        var payload = ExtractJson(result.Result ?? string.Empty);
+
+        var isValid = false;
+        string message = "OTP verification failed. Please try again.";
+        try {
+            var node = JsonNode.Parse(payload) ?? throw new InvalidOperationException("Empty JSON payload.");
+            isValid = node["isValid"]?.GetValue<bool>() ?? false;
+            message = node["message"]?.GetValue<string>() ?? message;
+        } catch {
+            if (payload.Contains("true", StringComparison.OrdinalIgnoreCase) ||
+                payload.Contains("valid", StringComparison.OrdinalIgnoreCase)) {
+                isValid = true;
+                message = "OTP verified successfully.";
+            }
+        }
+
+        var finalMessage = isValid ? message : "The OTP code is invalid or expired. Please restart and try again.";
+
+        await context.AddEventAsync(new AnswerDeltaEvent(message), cancellationToken);
+
+        return new OtpValidationOutput(
+            OtpResponse: response,
+            IsValid: isValid,
+            Message: finalMessage);
+    }
+
+    private static string ExtractJson(string value) {
+        var trimmed = value.Trim();
+        if (trimmed.StartsWith("```") && trimmed.Contains('\n')) {
+            var firstLineEnd = trimmed.IndexOf('\n');
+            var lastFence = trimmed.LastIndexOf("```");
+            if (firstLineEnd >= 0 && lastFence > firstLineEnd) {
+                return trimmed[(firstLineEnd + 1)..lastFence].Trim();
+            }
+        }
+        return trimmed;
+    }
+}
