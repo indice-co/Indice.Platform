@@ -65,7 +65,7 @@ public abstract class BasePasswordExpiredModel : BasePageModel
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.ResetPasswordAsync(user, Input.NewPassword!, isSelfServiceReset: true);
+        var result = await UserManager.ResetPasswordAsync(user, Input.NewPassword!, selfServicePasswordReset: true);
         if (!result.Succeeded) {
             AddModelErrors(result);
             return Page();
