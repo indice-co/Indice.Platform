@@ -38,11 +38,18 @@ internal static class SourcesApi
              .WithSummary("Retrieves the actual source document.")
              .WithDescription("Retrieves the actual source document. Used for citations and references.");
 
-        group.MapGet("sources/{sourceId}/favicon.ico", SourcesHandlers.GetActualSourceFavicon)
+        group.MapGet("sources/{sourceId}/favicon", SourcesHandlers.GetActualSourceFavicon)
              .WithName(nameof(SourcesHandlers.GetActualSourceFavicon))
              .AllowAnonymous()
              .WithSummary("Retrieves the favicon of the actual source document.")
              .WithDescription("Retrieves the favicon of the actual source document. Used for citations and references.");
+
+        group.MapGet("favicons", SourcesHandlers.GetFaviconFor)
+             .WithName(nameof(SourcesHandlers.GetFaviconFor))
+             .AllowAnonymous()
+             .CacheOutput()
+             .WithSummary("Retrieves the favicon for the specified domain.")
+             .WithDescription("Retrieves the favicon for the specified domain. Used for citations and references.");
 
 
         return group;

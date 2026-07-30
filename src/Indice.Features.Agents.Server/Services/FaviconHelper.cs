@@ -15,12 +15,12 @@ public static class FaviconHelper
     /// <param name="pageUrl">The URL of the page for which to retrieve the favicon.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>The URL of the favicon.</returns>
-    public static async Task<string> GetFaviconUrlAsync(this HttpClient httpClient, string pageUrl, CancellationToken cancellationToken = default) {
+    public static async Task<string?> GetFaviconUrlAsync(this HttpClient httpClient, string pageUrl, CancellationToken cancellationToken = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(pageUrl);
         var baseUri = new Uri(new Uri(pageUrl).GetLeftPart(UriPartial.Authority));
         var response = await httpClient.GetAsync(baseUri, cancellationToken);
         if (!response.IsSuccessStatusCode) {
-            return new Uri(baseUri, "/favicon.ico").ToString(); // Favicon retrieval failed, redirect to default favicon
+            return null; // Favicon retrieval failed, redirect to default favicon
         }
         // Load the page
         HtmlDocument doc = new HtmlDocument();
@@ -41,8 +41,7 @@ public static class FaviconHelper
             }
         }
 
-        // Fallback: classic /favicon.ico
-        return new Uri(baseUri, "/favicon.ico").ToString();
+        return null;
     }
 
     private static string MakeAbsoluteUrl(Uri baseUri, string href) {
