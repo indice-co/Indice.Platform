@@ -152,18 +152,17 @@ internal class DeviceAuthenticationExtensionGrantValidator(
         if (context.Result.IsError) {
             await RaiseUserLoginFailureEvent(user, context);
         } else {
-            HttpContextAccessor.HttpContext!.Items[HttpContextItemKeys.DeviceSessionId] = Guid.NewGuid().ToString("N");
             await RaiseUserLoginSuccessEvent(user, context);
         }
     }
 
-    private Task RaiseUserLoginSuccessEvent(User user, ExtensionGrantValidationContext context) => EventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
+    private async Task RaiseUserLoginSuccessEvent(User user, ExtensionGrantValidationContext context) => await EventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
         user!.UserName!,
         user.Id,
         user!.UserName!,
         clientId: context.Request.ClientId,
         clientName: context.Request.Client.ClientName,
-        sessionId: HttpContextAccessor.HttpContext.ResolveDeviceSessionId(),
+        sessionId: await HttpContextAccessor.HttpContext!.GetOrCreateSessionId(SessionIdPrefixes.DeviceAuthentication),
         authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
     ));
 

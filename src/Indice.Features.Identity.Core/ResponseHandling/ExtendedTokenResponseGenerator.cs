@@ -88,7 +88,7 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
     /// <inheritdoc />
     protected override async Task<TokenResponse> ProcessPasswordRequestAsync(TokenRequestValidationResult request) {
         var httpContext = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext!;
-        request.ValidatedRequest.SessionId ??= httpContext.ResolveDeviceSessionId() ?? Guid.NewGuid().ToString("N");
+        request.ValidatedRequest.SessionId ??= httpContext.GetSessionId();
         var tokenResponse = await base.ProcessPasswordRequestAsync(request);
         var config = ServiceProvider.GetService<ResourceOwnerPasswordValidatorOptions>();
         if (config?.IncludeIdToken == false) {
@@ -124,7 +124,7 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
     /// <inheritdoc/>
     protected override async Task<TokenResponse> ProcessExtensionGrantRequestAsync(TokenRequestValidationResult request) {
         var httpContext = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext!;
-        request.ValidatedRequest.SessionId ??= httpContext.ResolveDeviceSessionId() ?? Guid.NewGuid().ToString("N");
+        request.ValidatedRequest.SessionId ??= httpContext.GetSessionId();
         var ip = httpContext.GetClientIpAddress();
         request.ValidatedRequest.Subject!.AddIdentity(new(claims: [
             new(BasicClaimTypes.IPAddress, ip == IPAddress.None ? string.Empty : ip.ToString())

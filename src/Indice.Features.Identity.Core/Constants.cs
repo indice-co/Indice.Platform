@@ -211,5 +211,14 @@ public static class HttpContextItemKeys
     /// <summary>
     /// Key for the sign-in session id used to correlate login-related events and flowed into the issued token's <c>SessionId</c>.
     /// </summary>
-    public const string DeviceSessionId = "device_session_id";
+    public const string SessionId = "__session_id__";
+}
+
+/// <summary>Functional prefixes for the sign-in session id, identifying the auth flow that created it.</summary>
+public static class SessionIdPrefixes
+{
+    /// <summary>Resource owner password (ROPC) flow.</summary>
+    public const string Password = "pwd";
+    /// <summary>Device authentication (biometric/pin) flow.</summary>
+    public const string DeviceAuthentication = "dv";
 }

@@ -94,14 +94,13 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
         }
         if (!isError) {
             context.Result = extendedContext.Result;
-            _httpContextAccessor.HttpContext!.Items[HttpContextItemKeys.DeviceSessionId] = Guid.NewGuid().ToString("N");
             await _eventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
                 user.UserName!,
                 user.Id,
                 user.UserName!,
                 clientId: context.Request.ClientId,
                 clientName: context.Request.Client.ClientName,
-                sessionId: _httpContextAccessor.HttpContext.ResolveDeviceSessionId(),
+                sessionId: await _httpContextAccessor.HttpContext!.GetOrCreateSessionId(SessionIdPrefixes.Password),
                 authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
             ));
             await _userManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
