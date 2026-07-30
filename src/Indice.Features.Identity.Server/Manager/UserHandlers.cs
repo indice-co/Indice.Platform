@@ -731,7 +731,7 @@ internal static class UserHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var result = await userManager.ResetPasswordAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault(), suppressNotification: request.SuppressNotification.GetValueOrDefault(), true);
+        var result = await userManager.ResetPasswordAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault(), suppressNotification: request.SuppressNotification.GetValueOrDefault(), isAdminOperation: true);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
