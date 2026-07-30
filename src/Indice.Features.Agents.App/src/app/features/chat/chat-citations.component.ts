@@ -96,8 +96,23 @@ export class ChatCitationsComponent {
         // Relative or malformed source URLs carry no origin to resolve a favicon from.
       }
     }
-    return Array.from(origins, (origin) => `${origin}/favicon.ico`);
+    return Array.from(origins, (origin) => this.getFaviconUrl(origin) || `${origin}/favicon.ico`);
   });
+
+  /**
+   * Get favicon URL from a domain using Google's favicon service
+   * @param {string} domain - The domain name or full URL
+   * @returns {string} - Direct favicon URL
+   */
+  getFaviconUrl(domain: string) : string | null {
+    try {
+      // Extract hostname if a full URL is provided
+      const hostname = new URL(domain).hostname;
+      return `https://www.google.com/s2/favicons?sz=64&domain=${hostname}`;
+    } catch (error) {
+      return null;
+    }
+  }
 
   /** Collapsed by default; the chips render only on demand. */
   protected readonly expanded = signal(false);

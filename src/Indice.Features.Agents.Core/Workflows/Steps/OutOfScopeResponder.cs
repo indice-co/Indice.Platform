@@ -1,5 +1,7 @@
 using Indice.Features.Agents.Core.Models;
+using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
+using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps;
 
@@ -14,11 +16,14 @@ public sealed class OutOfScopeResponder : Executor<IntentOutput, GroundedAnswerO
     public OutOfScopeResponder() : base("OutOfScopeResponder") { }
 
     /// <inheritdoc/>
-    public override ValueTask<GroundedAnswerOutput> HandleAsync(
+    public override async ValueTask<GroundedAnswerOutput> HandleAsync(
         IntentOutput intentResult,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         var reason = intentResult.Intent.OutOfScopeReason ?? "Sorry, that question is outside the scope of what I can answer here.";
-        return ValueTask.FromResult(new GroundedAnswerOutput(reason, [], []));
+        await context.AddEventAsync(new AgentResponseUpdateEvent(Id, 
+                                        new AgentResponseUpdate(ChatRole.Assistant, reason)
+                                    ), cancellationToken);
+        return new GroundedAnswerOutput(reason, [], []);
     }
 }
