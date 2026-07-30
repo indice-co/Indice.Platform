@@ -1,12 +1,9 @@
-﻿using System.Runtime.Intrinsics.Arm;
 using System.Security.Claims;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Server.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Rewrite;
-using SixLabors.ImageSharp.Drawing;
 
 namespace Indice.Features.Agents.Server.Endpoints;
 

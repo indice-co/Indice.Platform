@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using System.Linq;
 
 namespace Indice.Features.Agents.Server.Services;
 
@@ -17,10 +18,13 @@ public static class FaviconHelper
     /// <returns>The URL of the favicon.</returns>
     public static async Task<string?> GetFaviconUrlAsync(this HttpClient httpClient, string pageUrl, CancellationToken cancellationToken = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(pageUrl);
-        var baseUri = new Uri(new Uri(pageUrl).GetLeftPart(UriPartial.Authority));
-        var response = await httpClient.GetAsync(baseUri, cancellationToken);
+        if (!Uri.TryCreate(pageUrl, UriKind.Absolute, out var pageUri)) {
+            return null;
+        }
+        var baseUri = new Uri(pageUri.GetLeftPart(UriPartial.Authority));
+        using var response = await httpClient.GetAsync(baseUri, cancellationToken);
         if (!response.IsSuccessStatusCode) {
-            return null; // Favicon retrieval failed, redirect to default favicon
+            return new Uri(baseUri, "/favicon.ico").ToString();
         }
         // Load the page
         HtmlDocument doc = new HtmlDocument();
@@ -32,12 +36,12 @@ public static class FaviconHelper
 
         if (iconNodes != null) {
             // Prefer the first one that has an href
-            foreach (var node in iconNodes) {
-                var href = node.GetAttributeValue("href", string.Empty);
-                if (!string.IsNullOrWhiteSpace(href)) {
-                    // Convert relative → absolute
-                    return MakeAbsoluteUrl(baseUri, href);
-                }
+            var href = iconNodes
+                .Select(node => node.GetAttributeValue("href", string.Empty))
+                .FirstOrDefault(href => !string.IsNullOrWhiteSpace(href));
+            if (!string.IsNullOrWhiteSpace(href)) {
+                // Convert relative → absolute
+                return MakeAbsoluteUrl(baseUri, href);
             }
         }
 
