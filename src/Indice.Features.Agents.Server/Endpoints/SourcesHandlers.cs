@@ -50,14 +50,18 @@ internal static class SourcesHandlers
     }
 
     public static async Task<Results<ContentHttpResult, RedirectHttpResult>> GetFaviconFor([FromQuery] string? domain, IHttpClientFactory httpClientFactory, CancellationToken cancellationToken) {
-        if (string.IsNullOrWhiteSpace(domain) || 
-            domain.Contains("localhost", StringComparison.OrdinalIgnoreCase)) {
+        if (string.IsNullOrWhiteSpace(domain)) {
             return TypedResults.Content(content: GlobeSvg, contentType: "image/svg+xml", contentEncoding: System.Text.Encoding.UTF8);
         }
-        var uriBuilder = new UriBuilder(domain) {
-            Scheme = "https", // Ensure HTTPS scheme
-            Port = 443
-        };
+
+        var input = domain.Contains("://", StringComparison.Ordinal) ? domain : $"https://{domain}";
+        if (!Uri.TryCreate(input, UriKind.Absolute, out var uri) || string.IsNullOrWhiteSpace(uri.Host) ||
+            uri.Host.Contains("localhost", StringComparison.OrdinalIgnoreCase) ||
+            System.Net.IPAddress.TryParse(uri.Host, out _)) {
+            return TypedResults.Content(content: GlobeSvg, contentType: "image/svg+xml", contentEncoding: System.Text.Encoding.UTF8);
+        }
+
+        var uriBuilder = new UriBuilder(uri) { Scheme = "https", Port = 443, Path = string.Empty, Query = string.Empty, Fragment = string.Empty };
         var httpClient = httpClientFactory.CreateClient("favicon");
         var faviconUrl = await httpClient.GetFaviconUrlAsync(uriBuilder.ToString(), cancellationToken: cancellationToken);
         if (faviconUrl == null) {
