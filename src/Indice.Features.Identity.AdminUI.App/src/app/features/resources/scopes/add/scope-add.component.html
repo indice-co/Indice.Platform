@@ -1,0 +1,66 @@
+<div class="row">
+    <div class="col-sm-12">
+        <div class="page-title-box">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="page-title m-0">Add Scope</h4>
+                    <p class="text-muted font-14">Create a new API scope.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form class="needs-validation" (ngSubmit)="submit()" novalidate #scopeForm="ngForm">
+                    <div class="form-group">
+                        <label for="name">Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" [(ngModel)]="scope.name" required placeholder="Enter scope name">
+                        <small class="form-text text-muted">The unique name of the scope. This will be used in access tokens.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="displayName">Display Name</label>
+                        <input type="text" class="form-control" id="displayName" name="displayName" [(ngModel)]="scope.displayName" placeholder="Enter display name">
+                        <small class="form-text text-muted">Display name for the scope (used in consent screen).</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" id="description" name="description" [(ngModel)]="scope.description" rows="3" placeholder="Enter description"></textarea>
+                        <small class="form-text text-muted">Description of the scope (used in consent screen).</small>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="required" name="required" [(ngModel)]="scope.required">
+                            <label class="form-check-label" for="required">Required</label>
+                        </div>
+                        <small class="form-text text-muted">Determines whether this scope is required or not.</small>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="emphasize" name="emphasize" [(ngModel)]="scope.emphasize">
+                            <label class="form-check-label" for="emphasize">Emphasize</label>
+                        </div>
+                        <small class="form-text text-muted">Determines whether this scope should be displayed emphasized or not.</small>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="showInDiscoveryDocument" name="showInDiscoveryDocument" [(ngModel)]="scope.showInDiscoveryDocument">
+                            <label class="form-check-label" for="showInDiscoveryDocument">Show in Discovery Document</label>
+                        </div>
+                        <small class="form-text text-muted">Determines whether this scope should be displayed in the discovery document or not.</small>
+                    </div>
+                    <div class="form-group mb-0">
+                        <button type="submit" class="btn btn-primary" [disabled]="!scopeForm.valid">
+                            <i class="material-icons align-middle">save</i> Save
+                        </button>
+                        <button type="button" class="btn btn-secondary ml-1" (click)="cancel()">
+                            <i class="material-icons align-middle">cancel</i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+<p *ngIf="!scope">Loading scope details...</p>
+<div class="card" *ngIf="scope">
+    <div class="card-body">
+        <h5 class="card-title">Scope Details</h5>
+        <form class="needs-validation" (ngSubmit)="submit()" novalidate #scopeForm="ngForm">
+            <div class="form-group">
+                <label for="displayName">Display Name</label>
+                <input type="text" class="form-control" id="displayName" name="displayName" [(ngModel)]="scope.displayName" [disabled]="!canEdit" placeholder="Enter display name">
+                <small class="form-text text-muted">Display name for the scope (used in consent screen).</small>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" name="description" [(ngModel)]="scope.description" [disabled]="!canEdit" rows="3" placeholder="Enter description"></textarea>
+                <small class="form-text text-muted">Description of the scope (used in consent screen).</small>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="emphasize" name="emphasize" [(ngModel)]="scope.emphasize" [disabled]="!canEdit">
+                    <label class="form-check-label" for="emphasize">Emphasize</label>
+                </div>
+                <small class="form-text text-muted">Determines whether this scope should be displayed emphasized or not.</small>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="showInDiscoveryDocument" name="showInDiscoveryDocument" [(ngModel)]="scope.showInDiscoveryDocument" [disabled]="!canEdit">
+                    <label class="form-check-label" for="showInDiscoveryDocument">Show in Discovery Document</label>
+                </div>
+                <small class="form-text text-muted">Determines whether this scope should be displayed in the discovery document or not.</small>
+            </div>
+            <div class="form-group mb-0" *ngIf="canEdit">
+                <button type="submit" class="btn btn-primary">
+                    <i class="material-icons align-middle">save</i> Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,42 @@
+<div class="row">
+    <div class="col-sm-12">
+        <div class="page-title-box">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="page-title m-0">{{ scopeName }}</h4>
+                    <p class="text-muted font-14">Manage scope details and claims.</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="float-end d-md-block">
+                        <button type="button" class="btn btn-danger" (click)="deleteScope()" *ngIf="canEdit">
+                            <i class="material-icons align-middle">delete</i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <ul class="nav nav-pills nav-fill">
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="details" routerLinkActive="active">
+                            <i class="material-icons align-middle">info</i>
+                            <span class="d-none d-sm-inline-block ml-1">Details</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="claims" routerLinkActive="active">
+                            <i class="material-icons align-middle">perm_identity</i>
+                            <span class="d-none d-sm-inline-block ml-1">Claims</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <router-outlet></router-outlet>
+    </div>
+</div>
