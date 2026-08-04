@@ -14,50 +14,127 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form class="needs-validation" (ngSubmit)="submit()" novalidate #scopeForm="ngForm">
-                    <div class="form-group">
-                        <label for="name">Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="name" name="name" [(ngModel)]="scope.name" required placeholder="Enter scope name">
-                        <small class="form-text text-muted">The unique name of the scope. This will be used in access tokens.</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="displayName">Display Name</label>
-                        <input type="text" class="form-control" id="displayName" name="displayName" [(ngModel)]="scope.displayName" placeholder="Enter display name">
-                        <small class="form-text text-muted">Display name for the scope (used in consent screen).</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Description</label>
-                        <textarea class="form-control" id="description" name="description" [(ngModel)]="scope.description" rows="3" placeholder="Enter description"></textarea>
-                        <small class="form-text text-muted">Description of the scope (used in consent screen).</small>
-                    </div>
-                    <div class="form-group">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="required" name="required" [(ngModel)]="scope.required">
-                            <label class="form-check-label" for="required">Required</label>
+                <form class="needs-validation"
+                      [ngClass]="{ 'was-validated': scopeForm.submitted }"
+                      (ngSubmit)="scopeForm.form.valid && submit()"
+                      novalidate
+                      #scopeForm="ngForm">
+                    <div class="mb-3 row">
+                        <label for="scope-name"
+                               class="col-sm-2 col-form-label">
+                            Name <span class="text-danger">*</span>
+                        </label>
+                        <div class="col-sm-10">
+                            <input class="form-control"
+                                   type="text"
+                                   id="scope-name"
+                                   name="scope-name"
+                                   [(ngModel)]="scope.name"
+                                   required
+                                   maxlength="200"
+                                   #name="ngModel" />
                         </div>
-                        <small class="form-text text-muted">Determines whether this scope is required or not.</small>
                     </div>
-                    <div class="form-group">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="emphasize" name="emphasize" [(ngModel)]="scope.emphasize">
-                            <label class="form-check-label" for="emphasize">Emphasize</label>
+                    <div class="mb-3 row">
+                        <label for="scope-display-name"
+                               class="col-sm-2 col-form-label">
+                            Display Name
+                        </label>
+                        <div class="col-sm-10">
+                            <input class="form-control"
+                                   type="text"
+                                   id="scope-display-name"
+                                   name="scope-display-name"
+                                   [(ngModel)]="scope.displayName"
+                                   maxlength="200"
+                                   #displayName="ngModel" />
                         </div>
-                        <small class="form-text text-muted">Determines whether this scope should be displayed emphasized or not.</small>
                     </div>
-                    <div class="form-group">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="showInDiscoveryDocument" name="showInDiscoveryDocument" [(ngModel)]="scope.showInDiscoveryDocument">
-                            <label class="form-check-label" for="showInDiscoveryDocument">Show in Discovery Document</label>
+                    <div class="mb-3 row">
+                        <label for="scope-description"
+                               class="col-sm-2 col-form-label">
+                            Description
+                        </label>
+                        <div class="col-sm-10">
+                            <textarea id="scope-description"
+                                      name="scope-description"
+                                      class="form-control"
+                                      rows="3"
+                                      maxlength="1000"
+                                      [(ngModel)]="scope.description"
+                                      #description="ngModel">
+                            </textarea>
                         </div>
-                        <small class="form-text text-muted">Determines whether this scope should be displayed in the discovery document or not.</small>
                     </div>
-                    <div class="form-group mb-0">
-                        <button type="submit" class="btn btn-primary" [disabled]="!scopeForm.valid">
-                            <i class="material-icons align-middle">save</i> Save
-                        </button>
-                        <button type="button" class="btn btn-secondary ml-1" (click)="cancel()">
-                            <i class="material-icons align-middle">cancel</i> Cancel
-                        </button>
+                    <div class="mb-3 row">
+                        <label for="scope-required"
+                               class="col-sm-2 col-form-label">
+                            Required
+                        </label>
+                        <div class="col-sm-10">
+                            <div class="form-check col-form-label custom-control custom-checkbox">
+                                <input class="form-check-input custom-control-input"
+                                       type="checkbox"
+                                       id="scope-required"
+                                       name="scope-required"
+                                       [(ngModel)]="scope.required"
+                                       #required="ngModel" />
+                                <label class="custom-control-label"
+                                       for="scope-required">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="scope-emphasize"
+                               class="col-sm-2 col-form-label">
+                            Emphasize
+                        </label>
+                        <div class="col-sm-10">
+                            <div class="form-check col-form-label custom-control custom-checkbox">
+                                <input class="form-check-input custom-control-input"
+                                       type="checkbox"
+                                       id="scope-emphasize"
+                                       name="scope-emphasize"
+                                       [(ngModel)]="scope.emphasize"
+                                       #emphasize="ngModel" />
+                                <label class="custom-control-label"
+                                       for="scope-emphasize">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="scope-show-in-discovery"
+                               class="col-sm-2 col-form-label">
+                            Show in Discovery Document
+                        </label>
+                        <div class="col-sm-10">
+                            <div class="form-check col-form-label custom-control custom-checkbox">
+                                <input class="form-check-input custom-control-input"
+                                       type="checkbox"
+                                       id="scope-show-in-discovery"
+                                       name="scope-show-in-discovery"
+                                       [(ngModel)]="scope.showInDiscoveryDocument"
+                                       #showInDiscovery="ngModel" />
+                                <label class="custom-control-label"
+                                       for="scope-show-in-discovery">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div>
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                <i class="material-icons align-middle">save</i> Save
+                            </button>
+                            <button type="button"
+                                    class="btn btn-secondary ml-1"
+                                    (click)="cancel()">
+                                <i class="material-icons align-middle">cancel</i> Cancel
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
