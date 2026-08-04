@@ -1,10 +1,13 @@
 ﻿using System.Data;
+using System.Data.Common;
 using System.Text;
 using System.Text.Json;
 using Indice.Hosting.Data;
 using Indice.Hosting.Data.Models;
 using Indice.Hosting.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Indice.Hosting.Services;
 
@@ -81,20 +84,28 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
     }
 
     /// <inheritdoc/>
-    public async Task EnqueueRange(IEnumerable<QMessage<T>> items) {
+    public Task EnqueueRange(IEnumerable<QMessage<T>> items) 
+        => EnqueueOnInternal(_dbContext.Database, items as IReadOnlyList<QMessage<T>> ?? items.ToList());
+    
+    internal Task EnqueueOn(DatabaseFacade database, IReadOnlyList<QMessage<T>> items) 
+        => EnqueueOnInternal(database, items, database.CurrentTransaction?.GetDbTransaction());
+    
+    private async Task EnqueueOnInternal(DatabaseFacade database, IReadOnlyList<QMessage<T>> items, DbTransaction? transaction = null) {
         var query = new StringBuilder(_queryDescriptor.EnqueueRangeInsertStatement);
-        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
+        var dbConnection = await database.EnsureOpenConnectionAsync();
         const double maxBatchSize = 1000d;
-        var batches = Math.Ceiling(items.Count() / maxBatchSize);
+        var batches = Math.Ceiling(items.Count / maxBatchSize);
         for (var i = 0; i < batches; i++) {
-            var remainingItemsCount = items.Count() - i * maxBatchSize;
+            var remainingItemsCount = items.Count - i * maxBatchSize;
             var iterationLength = remainingItemsCount >= maxBatchSize ? maxBatchSize : remainingItemsCount;
+            var offset = (int)(i * maxBatchSize);
             await using var command = dbConnection.CreateCommand();
+            command.Transaction = transaction;
             for (var j = 0; j < iterationLength; j++) {
                 query.AppendFormat(_queryDescriptor.EnqueueRangeValuesStatement, j);
                 var isLastItem = j == iterationLength - 1;
                 query.Append(!isLastItem ? ", " : ";");
-                var currentItem = items.ElementAt(j);
+                var currentItem = items[offset + j];
                 command.AddParameterWithValue($"@Id{j}", Guid.Parse(currentItem.Id), DbType.Guid);
                 command.AddParameterWithValue($"@QueueName{j}", _queueNameResolver.Resolve(), DbType.String);
                 command.AddParameterWithValue($"@Payload{j}", JsonSerializer.Serialize(currentItem.Value, _jsonSerializerOptions), DbType.String);
