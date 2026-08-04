@@ -7,8 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- Added transactional outbox support via `DbContext.SaveAndEnqueueAsync()`, which saves your changes and enqueues the message in a single transaction. Requires the relational store and a `DbContext` targeting the same database as the worker.
+- Added an `OutboxBatch` overload of `SaveAndEnqueueAsync()` for publishing messages of different types in one transaction.
+
+### Fixed
+- `EnqueueRange` no longer re-sends the first 1000 items on every batch after the first.
+
+## [8.29.0] - 2025-12-15
+### Added
+Added PostgreSQL-specific handling for the RowVersion concurrency token using the bytea column type with a custom default value expression. Also updated both SQL Server and PostgreSQL dequeue queries to explicitly list all returned columns instead of using wildcards.
+- Added DbQMessagePostgreSQLMap to configure PostgreSQL-specific RowVersion handling with bytea type and default value generation
+- TaskDbContext now conditionally applies PostgreSQL mapping when using Npgsql provider
+- Updated SQL Server and PostgreSQL dequeue queries to explicitly specify all returned columns
+
+## [8.0.0] - 2025-03-06
+### Added
 - Added the ability to configure the `MaxRetryCount` for a failed message when using Queue Triggers to specify the number of times the message is re-enqueued before being moved to the poison queue.
 - Added the ability to configure `WaitJobsToCompleteOnShutdown` on `AddWorkerHost` to specify whether the server should wait for all jobs to complete before shutting down.
+- Added support for `ScheduledTaskStoreInMemory`.
 
 ### Fixed
 - Trying to resolve an unregistered service dependency from the DI in a job will now throw an exception instead of returning null. Make sure no unregistered dependencies are used in your Jobs.
