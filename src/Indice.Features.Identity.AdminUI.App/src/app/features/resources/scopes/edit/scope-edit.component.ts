@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { IdentityApiService, ApiScopeInfo } from 'src/app/core/services/identity-api.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({
@@ -44,7 +45,7 @@ export class ScopeEditComponent implements OnInit {
             this.scope = result.items?.find(s => s.name === this.scopeName);
             if (!this.scope) {
                 this._toast.showDanger(`Scope '${this.scopeName}' not found.`);
-                this._router.navigate(['app/scopes']);
+                this._router.navigate(['app/resources/scopes']);
             }
         });
     }

@@ -37,10 +37,9 @@ export class ScopeDetailsComponent implements OnInit {
         const request = new UpdateApiScopeRequest({
             displayName: this.scope.displayName,
             description: this.scope.description,
-            required: this.scope.emphasize,
             emphasize: this.scope.emphasize,
             showInDiscoveryDocument: this.scope.showInDiscoveryDocument,
-            translations: {}
+            translations: this.scope.translations
         });
         this._api.updateApiScope(this.scopeName, request).subscribe(() => {
             this._toast.showSuccess(`Scope '${this.scopeName}' was updated successfully.`);

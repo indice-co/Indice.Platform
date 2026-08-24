@@ -14,7 +14,6 @@ import { ApiResourceScopeAddComponent } from './api/edit/scopes/add/api-resource
 import { ApiResourceSecretsComponent } from './api/edit/secrets/api-resource-secrets.component';
 import { ResourceAddComponent } from './add/resource-add.component';
 import { ScopesComponent } from './scopes/scopes.component';
-import { ScopeAddComponent } from './scopes/add/scope-add.component';
 import { ScopeEditComponent } from './scopes/edit/scope-edit.component';
 import { ScopeDetailsComponent } from './scopes/edit/details/scope-details.component';
 import { ScopeClaimsComponent } from './scopes/edit/claims/scope-claims.component';
