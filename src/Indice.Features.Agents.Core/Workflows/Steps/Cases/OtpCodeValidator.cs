@@ -49,10 +49,16 @@ public sealed class OtpCodeValidator : Executor<OtpCodeResponse, OtpValidationOu
 
         var code = response.Code?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(code)) {
+            var blankCodeMessage = "I didn't receive an OTP code. Please enter the OTP sent to your phone.";
+            await context.AddEventAsync(new AnswerDeltaEvent(blankCodeMessage), cancellationToken);
             return new OtpValidationOutput(
                 OtpResponse: response,
                 IsValid: false,
-                Message: "I didn't receive an OTP code. Please start again and provide the code when asked.");
+                Message: blankCodeMessage,
+                ShouldRetry: true,
+                ShouldResendOtp: false,
+                FailedAttempts: response.Challenge.FailedAttempts,
+                MaxFailedAttempts: response.Challenge.MaxFailedAttempts);
         }
 
         var mcpTools = await _mcpToolsRegistry.GetToolsAsync(McpServiceKey, cancellationToken);
@@ -89,28 +95,58 @@ public sealed class OtpCodeValidator : Executor<OtpCodeResponse, OtpValidationOu
         var payload = ExtractJson(result.Result ?? string.Empty);
 
         var isValid = false;
-        string message = "OTP verification failed. Please try again.";
+        var verifyMessage = "OTP verification failed. Please try again.";
         try {
             var node = JsonNode.Parse(payload) ?? throw new InvalidOperationException("Empty JSON payload.");
             isValid = node["isValid"]?.GetValue<bool>() ?? false;
-            message = node["message"]?.GetValue<string>() ?? message;
+            verifyMessage = node["message"]?.GetValue<string>() ?? verifyMessage;
         } catch {
             if (payload.Contains("true", StringComparison.OrdinalIgnoreCase) ||
                 payload.Contains("valid", StringComparison.OrdinalIgnoreCase)) {
                 isValid = true;
-                message = "OTP verified successfully.";
+                verifyMessage = "OTP verified successfully.";
             }
         }
 
-        var finalMessage = isValid ? message : "The OTP code is invalid or expired. Please restart and try again.";
+        if (isValid) {
+            await context.AddEventAsync(new AnswerDeltaEvent(verifyMessage), cancellationToken);
+            return new OtpValidationOutput(
+                OtpResponse: response,
+                IsValid: true,
+                Message: verifyMessage,
+                ShouldRetry: false,
+                ShouldResendOtp: false,
+                FailedAttempts: response.Challenge.FailedAttempts,
+                MaxFailedAttempts: response.Challenge.MaxFailedAttempts);
+        }
 
-        await context.AddEventAsync(new AnswerDeltaEvent(finalMessage), cancellationToken);
+        var isExpired = IsExpiredMessage(verifyMessage) || IsExpiredMessage(payload);
+        var failedAttempts = response.Challenge.FailedAttempts + (isExpired ? 0 : 1);
+        var maxFailedAttempts = response.Challenge.MaxFailedAttempts;
+        var shouldRetry = isExpired || failedAttempts <= maxFailedAttempts;
+        var finalMessage = shouldRetry
+            ? (isExpired
+                ? "Your OTP has expired. I will send you a new code now."
+                : $"That OTP was not valid. Please try again ({Math.Max(maxFailedAttempts - failedAttempts + 1, 0)} attempt(s) left).")
+            : "The OTP code is invalid. You have reached the maximum number of attempts. Please start again.";
+
+        if (!shouldRetry) {
+            await context.AddEventAsync(new AnswerDeltaEvent(finalMessage), cancellationToken);
+        }
 
         return new OtpValidationOutput(
             OtpResponse: response,
-            IsValid: isValid,
-            Message: finalMessage);
+            IsValid: false,
+            Message: finalMessage,
+            ShouldRetry: shouldRetry,
+            ShouldResendOtp: isExpired,
+            FailedAttempts: failedAttempts,
+            MaxFailedAttempts: maxFailedAttempts);
     }
+
+    private static bool IsExpiredMessage(string value) =>
+        value.Contains("expire", StringComparison.OrdinalIgnoreCase) ||
+        value.Contains("expired", StringComparison.OrdinalIgnoreCase);
 
     private static string ExtractJson(string value) {
         var trimmed = value.Trim();

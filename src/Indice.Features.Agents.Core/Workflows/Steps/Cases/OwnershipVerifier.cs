@@ -29,7 +29,7 @@ public sealed class OwnershipVerifier : Executor<CaseRetrievalOutput, OwnershipV
 
         // Extract the ownership verification field name and value from case data
         // The field name is determined by the prompt configuration for this case type
-        var verificationFieldName = "please Confrim your license plate";
+        var verificationFieldName = "license plate";
 
         var verificationFieldValue = caseData.VerificationValue 
             ?? throw new InvalidOperationException($"Verification field '{verificationFieldName}' not found in case data.");

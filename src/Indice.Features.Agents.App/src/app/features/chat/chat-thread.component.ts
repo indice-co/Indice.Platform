@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  SecurityContext,
   afterRenderEffect,
   computed,
   input,
@@ -9,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer } from '@angular/platform-browser';
 import { MarkdownModule } from 'ngx-markdown';
 
 import { ChatCitationsComponent } from './chat-citations.component';
@@ -78,8 +80,10 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                     <div class="rounded-box rounded-tl-sm border border-base-300 bg-base-100 px-4 py-2.5
                                 text-[0.95rem] text-base-content shadow-sm">
                             @for (contentPart of turn.message.content.parts; track $index) {
-                              @if (contentPart.contentType != 'text/markdown' && contentPart.contentType != 'text') {
-                                <div class="{{contentPart.contentType}}">
+                              @if (isHtmlCard(contentPart.contentType, contentPart.value)) {
+                                <div class="dex-html-card" [innerHTML]="sanitizeHtml(contentPart.value)"></div>
+                              } @else if (contentPart.contentType != 'text/markdown' && contentPart.contentType != 'text') {
+                                <div>
                                 {{ contentPart.value }}
                                 </div>
                               } @else {
@@ -179,8 +183,10 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                              text-[0.95rem] text-base-content shadow-sm"
                     >
                       @for (contentPart of live.content.parts; track $index) {
-                        @if (contentPart.contentType != 'text/markdown' && contentPart.contentType != 'text') {
-                          <div class="{{contentPart.contentType}}">
+                        @if (isHtmlCard(contentPart.contentType, contentPart.value)) {
+                          <div class="dex-html-card" [innerHTML]="sanitizeHtml(contentPart.value)"></div>
+                        } @else if (contentPart.contentType != 'text/markdown' && contentPart.contentType != 'text') {
+                          <div>
                           {{ contentPart.value }}
                           </div>
                         } @else {
@@ -269,7 +275,32 @@ export class ChatThreadComponent {
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
 
-  constructor() {
+  protected isHtmlCard(contentType?: string, value?: string): boolean {
+    return contentType === 'application/vnd.indice.html-card' || (value?.startsWith('data:application/vnd.indice.html-card') ?? false);
+  }
+
+  protected sanitizeHtml(value?: string): string {
+    const raw = value ?? '';
+    const dataPrefix = 'data:application/vnd.indice.html-card';
+    if (raw.startsWith(dataPrefix)) {
+      const separatorIndex = raw.indexOf(',');
+      if (separatorIndex > 0) {
+        const header = raw.slice(0, separatorIndex).toLowerCase();
+        const payload = raw.slice(separatorIndex + 1);
+        try {
+          const html = header.includes(';base64')
+            ? new TextDecoder().decode(Uint8Array.from(atob(payload), (ch) => ch.charCodeAt(0)))
+            : decodeURIComponent(payload);
+          return this.sanitizer.sanitize(SecurityContext.HTML, html) ?? '';
+        } catch {
+          return '';
+        }
+      }
+    }
+    return this.sanitizer.sanitize(SecurityContext.HTML, raw) ?? '';
+  }
+
+  constructor(private readonly sanitizer: DomSanitizer) {
     // Keep the view pinned to the latest content as messages stream in.
     afterRenderEffect(() => {
       // Track the signals that grow the thread.

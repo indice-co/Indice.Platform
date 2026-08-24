@@ -143,6 +143,7 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<UserInputValidator>();
         services.TryAddTransient<OtpAgent>();
         services.TryAddTransient<OtpCodeValidator>();
+        services.TryAddTransient<OtpRetryChallengeBuilder>();
         services.TryAddTransient<CaseDataPresenter>();
         services.TryAddTransient<OwnershipVerificationFailureHandler>();
         // Checkpointing infrastructure so the workflow can halt awaiting user input and resume on the next message.
@@ -151,8 +152,11 @@ public static class AgentsFeatureExtensions
 
         // Cases workflow:
         //   CaseDataRetriever → OwnershipVerifier → [OwnershipConfirmationPort: halts, asks user] → UserInputValidator
-        //       ├─ [valid]   → OtpAgent → [OtpVerificationPort: halts, asks user] → OtpCodeValidator → CaseDataPresenter (terminal)
-        //       └─ [invalid] → OwnershipVerificationFailureHandler                                                  (terminal)
+        //       ├─ [valid]   → OtpAgent → [OtpVerificationPort: halts, asks user] → OtpCodeValidator
+        //       │                ├─ [valid]                   → CaseDataPresenter (terminal)
+        //       │                ├─ [invalid/expired retry]   → OtpRetryChallengeBuilder → [OtpVerificationPort]
+        //       │                └─ [max attempts reached]    → CaseDataPresenter (terminal)
+        //       └─ [invalid] → OwnershipVerificationFailureHandler (terminal)
         services.AddKeyedScoped(AgentsConstants.AgentNames.Cases, (sp, key) =>
         {
             var retriever    = sp.GetRequiredService<CaseDataRetriever>();
@@ -160,6 +164,7 @@ public static class AgentsFeatureExtensions
             var validator    = sp.GetRequiredService<UserInputValidator>();
             var otpAgent      = sp.GetRequiredService<OtpAgent>();
             var otpValidator   = sp.GetRequiredService<OtpCodeValidator>();
+            var otpRetry       = sp.GetRequiredService<OtpRetryChallengeBuilder>();
             var casePresenter  = sp.GetRequiredService<CaseDataPresenter>();
             var ownershipErr   = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
             // External input ports: workflow pauses and host resumes with user responses.
@@ -177,7 +182,11 @@ public static class AgentsFeatureExtensions
 
             builder.AddEdge(otpAgent, otpPort);
             builder.AddEdge(otpPort, otpValidator);
-            builder.AddEdge(otpValidator, casePresenter);
+            builder.AddSwitch(otpValidator, sw => sw
+                .AddCase<OtpValidationOutput>(env => env!.IsValid, casePresenter)
+                .AddCase<OtpValidationOutput>(env => env!.ShouldRetry, otpRetry)
+                .WithDefault(casePresenter));
+            builder.AddEdge(otpRetry, otpPort);
 
             builder.WithOutputFrom(casePresenter, ownershipErr);
             return builder.Build();

@@ -38,6 +38,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         ["OwnershipVerifier"] = "Verify ownership of Case Data",
         ["OtpAgent"] = "Send OTP",
         ["OtpCodeValidator"] = "Verify OTP code",
+        ["OtpRetryChallengeBuilder"] = "Prepare OTP retry",
         ["CaseDataPresenter"] = "Present case details"
     };
 
