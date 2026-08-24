@@ -104,7 +104,7 @@ public sealed class OtpCodeValidator : Executor<OtpCodeResponse, OtpValidationOu
 
         var finalMessage = isValid ? message : "The OTP code is invalid or expired. Please restart and try again.";
 
-        await context.AddEventAsync(new AnswerDeltaEvent(message), cancellationToken);
+        await context.AddEventAsync(new AnswerDeltaEvent(finalMessage), cancellationToken);
 
         return new OtpValidationOutput(
             OtpResponse: response,
