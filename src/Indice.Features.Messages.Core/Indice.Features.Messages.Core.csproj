@@ -14,7 +14,7 @@
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="FluentValidation" Version="12.0.0" />
-    <PackageReference Include="Handlebars.Net" Version="2.4.3" />
+    <PackageReference Include="Handlebars.Net" Version="2.1.6" />
     <PackageReference Include="Handlebars.Net.Extension.Json" Version="1.0.0" />
     <PackageReference Include="Duende.IdentityModel" Version="8.1.0" />
     <PackageReference Include="Open.ChannelExtensions" Version="10.0.0" />
