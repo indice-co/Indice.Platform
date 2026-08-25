@@ -123,7 +123,7 @@ public class BankingDbContext : DbContext, ITaskDbContext
 
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
-        builder.ApplyWorkerStoreConfiguration(Database.ProviderName); <-- this is required
+        builder.ApplyWorkerConfiguration(Database.ProviderName); <-- this is required
     }
 }
 ```

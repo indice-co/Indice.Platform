@@ -104,11 +104,11 @@ public static class WorkerHostConfiguration
     /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
     /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
     public static WorkerHostOptions UseStoreRelational<TContext>(this WorkerHostOptions options, Action<DbContextOptionsBuilder>? configureAction = null) where TContext : DbContext, ITaskDbContext {
-        var connectionString = options.Services.BuildServiceProvider().GetRequiredService<IConfiguration>().GetConnectionString("WorkerDb");
-        void sqlServerConfiguration(DbContextOptionsBuilder builder) => builder.UseSqlServer(connectionString);
-        configureAction ??= sqlServerConfiguration;
-        options.Services.AddDbContext<TContext>(configureAction);
-        options.Services.AddDbContext<LockDbContext>(configureAction);
+        Action<IServiceProvider, DbContextOptionsBuilder> configureDatabase = configureAction is not null
+            ? (_, builder) => configureAction(builder)
+            : (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("WorkerDb"));
+        options.Services.AddDbContext<TContext>(configureDatabase);
+        options.Services.AddDbContext<LockDbContext>(configureDatabase);
         options.Services.TryAddScoped<ITaskDbContext>(sp => sp.GetRequiredService<TContext>());
         options.ScheduledTaskStoreType = typeof(ScheduledTaskStoreEF<>);
         options.QueueStoreType = typeof(MessageQueueRelational<>);

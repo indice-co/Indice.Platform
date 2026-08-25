@@ -81,21 +81,22 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
 
     /// <inheritdoc/>
     public async Task EnqueueRange(IEnumerable<QMessage<T>> items) {
+        var messages = items as IList<QMessage<T>> ?? items.ToList();
+        var queueName = _queueNameResolver.Resolve();
         var query = new StringBuilder(_queryDescriptor.EnqueueRangeInsertStatement);
-        const double maxBatchSize = 1000d;
-        var batches = Math.Ceiling(items.Count() / maxBatchSize);
+        const int maxBatchSize = 1000;
+        var batches = (int)Math.Ceiling(messages.Count / (double)maxBatchSize);
         for (var i = 0; i < batches; i++) {
-            var remainingItemsCount = items.Count() - i * maxBatchSize;
-            var iterationLength = remainingItemsCount >= maxBatchSize ? maxBatchSize : remainingItemsCount;
-            var offset = (int)(i * maxBatchSize);
+            var offset = i * maxBatchSize;
+            var iterationLength = Math.Min(maxBatchSize, messages.Count - offset);
             await using var command = await CreateCommandAsync();
             for (var j = 0; j < iterationLength; j++) {
                 query.AppendFormat(_queryDescriptor.EnqueueRangeValuesStatement, j);
                 var isLastItem = j == iterationLength - 1;
                 query.Append(!isLastItem ? ", " : ";");
-                var currentItem = items.ElementAt(offset + j);
+                var currentItem = messages[offset + j];
                 command.AddParameterWithValue($"@Id{j}", Guid.Parse(currentItem.Id), DbType.Guid);
-                command.AddParameterWithValue($"@QueueName{j}", _queueNameResolver.Resolve(), DbType.String);
+                command.AddParameterWithValue($"@QueueName{j}", queueName, DbType.String);
                 command.AddParameterWithValue($"@Payload{j}", JsonSerializer.Serialize(currentItem.Value, _jsonSerializerOptions), DbType.String);
                 command.AddParameterWithValue($"@Date{j}", currentItem.Date, DbType.DateTime);
                 command.AddParameterWithValue($"@DequeueCount{j}", currentItem.DequeueCount, DbType.Int32);

@@ -17,11 +17,11 @@ namespace Indice.Hosting.Data;
 ///
 ///     protected override void OnModelCreating(ModelBuilder builder) {
 ///         base.OnModelCreating(builder);
-///         builder.ApplyWorkerStoreConfiguration(Database.ProviderName);
+///         builder.ApplyWorkerConfiguration(Database.ProviderName);
 ///     }
 /// }
 /// </code>
-/// The <c>ApplyWorkerStoreConfiguration</c> call is required.
+/// The <c>ApplyWorkerConfiguration</c> call is required.
 /// </remarks>
 public interface ITaskDbContext
 {
