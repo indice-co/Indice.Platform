@@ -61,7 +61,7 @@ public class RequestResponseLoggingTests : IAsyncLifetime
     #region generic tests
     [Fact]
     public async Task Can_Get() {
-        _ = await _httpClient.GetAsync(new Uri($"{BASE_URL}/tests/time"));
+        _ = await _httpClient.GetAsync(new Uri($"{BASE_URL}/tests/time"), TestContext.Current.CancellationToken);
     }
     #endregion
 }

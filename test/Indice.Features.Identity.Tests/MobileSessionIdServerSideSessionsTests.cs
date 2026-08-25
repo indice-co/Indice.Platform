@@ -130,7 +130,7 @@ public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
         await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         var sessionStore = _serviceProvider.GetRequiredService<IServerSideSessionStore>();
-        var sessions = await sessionStore.GetSessionsAsync(new SessionFilter { SubjectId = TestUser.Id });
+        var sessions = await sessionStore.GetSessionsAsync(new SessionFilter { SubjectId = TestUser.Id }, TestContext.Current.CancellationToken);
         Assert.Empty(sessions);
     }
 
@@ -139,13 +139,13 @@ public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
         var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx", requestOfflineAccess: true);
         var loginSessionId = GetSessionId(loginResponse);
         
-        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
         var refreshResponse = await _httpClient.RequestRefreshTokenAsync(new RefreshTokenRequest {
             Address = discoveryDocument.TokenEndpoint,
             ClientId = CLIENT_ID,
             ClientSecret = CLIENT_SECRET,
             RefreshToken = loginResponse.RefreshToken!
-        });
+        }, cancellationToken: TestContext.Current.CancellationToken);
         
         Assert.Equal(loginSessionId, GetSessionId(refreshResponse));
     }
@@ -155,13 +155,13 @@ public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
         var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx", requestOfflineAccess: true, clientId: "mobile-coordinating-client");
         Assert.False(loginResponse.IsError);
         
-        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
         var refreshResponse = await _httpClient.RequestRefreshTokenAsync(new RefreshTokenRequest {
             Address = discoveryDocument.TokenEndpoint,
             ClientId = "mobile-coordinating-client",
             ClientSecret = CLIENT_SECRET,
             RefreshToken = loginResponse.RefreshToken!
-        });
+        }, cancellationToken: TestContext.Current.CancellationToken);
         
         Assert.True(refreshResponse.IsError);
         Assert.Equal("invalid_grant", refreshResponse.Error);

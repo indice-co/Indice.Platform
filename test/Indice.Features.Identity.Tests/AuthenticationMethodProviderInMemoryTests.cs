@@ -106,7 +106,7 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
             Name = "Test device",
             ClientType = DeviceClientType.Native,
             IsTrusted = true,
-        });
+        }, TestContext.Current.CancellationToken);
 
         var methods = await authenticationMethodProvider.GetAllMethodsForUserAsync(user);
         Assert.Single(methods);
@@ -145,7 +145,7 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
             Name = "Test device",
             ClientType = DeviceClientType.Native,
             IsTrusted = true,
-        });
+        }, TestContext.Current.CancellationToken);
 
         var methods = await authenticationMethodProvider.GetAllMethodsForUserAsync(user);
         Assert.Equal(2, methods.Length);
@@ -186,7 +186,7 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
             Name = "Test device",
             ClientType = DeviceClientType.Native,
             IsTrusted = true,
-        });
+        }, TestContext.Current.CancellationToken);
 
         var methods = await authenticationMethodProvider.GetAllMethodsForUserAsync(user);
         Assert.Equal(4, methods.Length);

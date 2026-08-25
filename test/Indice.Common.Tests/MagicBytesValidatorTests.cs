@@ -30,7 +30,7 @@ public class MagicBytesValidatorTests
     [InlineData(".pptx", new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x00 }, true)]
     public async Task IsValid_ValidMagicBytes_ReturnsValid(string extension, byte[] bytes, bool expected) {
         using var stream = bytes.ToStream();
-        Assert.Equal(expected, (await _validator.IsValid(stream, extension)).IsValid);
+        Assert.Equal(expected, (await _validator.IsValid(stream, extension, TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Theory]
@@ -45,7 +45,7 @@ public class MagicBytesValidatorTests
     [InlineData(".pptx", new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x00 }, true)]
     public async Task IsValidAsync_ValidMagicBytes_ReturnsValid(string extension, byte[] bytes, bool expected) {
         await using var stream = bytes.ToStream();
-        Assert.Equal(expected, (await _validator.IsValid(stream, extension)).IsValid);
+        Assert.Equal(expected, (await _validator.IsValid(stream, extension, TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Theory]
@@ -54,7 +54,7 @@ public class MagicBytesValidatorTests
     [InlineData(".pdf", new byte[] { 0x50, 0x4B, 0x03, 0x04 })]
     public async Task IsValid_InvalidMagicBytes_ReturnsFailure(string extension, byte[] bytes) {
         using var stream = bytes.ToStream();
-        Assert.False((await _validator.IsValid(stream, extension)).IsValid);
+        Assert.False((await _validator.IsValid(stream, extension, TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Theory]
@@ -63,19 +63,19 @@ public class MagicBytesValidatorTests
     [InlineData(".pdf", new byte[] { 0x50, 0x4B, 0x03, 0x04 })]
     public async Task IsValidAsync_InvalidMagicBytes_ReturnsFailure(string extension, byte[] bytes) {
         await using var stream = bytes.ToStream();
-        Assert.False((await _validator.IsValid(stream, extension)).IsValid);
+        Assert.False((await _validator.IsValid(stream, extension, TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Fact]
     public async Task IsValid_UnknownExtension_ReturnsUnknownExtension() {
         using var stream = new byte[] { 0x00, 0x01, 0x02, 0x03 }.ToStream();
-        Assert.False((await _validator.IsValid(stream, ".xyz")).IsValid);
+        Assert.False((await _validator.IsValid(stream, ".xyz", TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Fact]
     public async Task IsValidAsync_UnknownExtension_ReturnsUnknownExtension() {
         await using var stream = new byte[] { 0x00, 0x01, 0x02, 0x03 }.ToStream();
-        Assert.False((await _validator.IsValid(stream, ".xyz")).IsValid);
+        Assert.False((await _validator.IsValid(stream, ".xyz", TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Theory]
@@ -83,7 +83,7 @@ public class MagicBytesValidatorTests
     [InlineData(".gif", new byte[] { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61 })]
     public async Task IsValid_GifVariants_ReturnsValid(string extension, byte[] bytes) {
         using var stream = bytes.ToStream();
-        Assert.True((await _validator.IsValid(stream, extension)).IsValid);
+        Assert.True((await _validator.IsValid(stream, extension, TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Theory]
@@ -91,31 +91,31 @@ public class MagicBytesValidatorTests
     [InlineData(".gif", new byte[] { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61 })]
     public async Task IsValidAsync_GifVariants_ReturnsValid(string extension, byte[] bytes) {
         await using var stream = bytes.ToStream();
-        Assert.True((await _validator.IsValid(stream, extension)).IsValid);
+        Assert.True((await _validator.IsValid(stream, extension, TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Fact]
     public async Task IsValid_ValidWebP_ReturnsValid() {
         using var stream = BuildWebPBytes().ToStream();
-        Assert.True((await _validator.IsValid(stream, ".webp")).IsValid);
+        Assert.True((await _validator.IsValid(stream, ".webp", TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Fact]
     public async Task IsValidAsync_ValidWebP_ReturnsValid() {
         await using var stream = BuildWebPBytes().ToStream();
-        Assert.True((await _validator.IsValid(stream, ".webp")).IsValid);
+        Assert.True((await _validator.IsValid(stream, ".webp", TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Fact]
     public async Task IsValid_WebPWithRiffButNoWebpMarker_ReturnsFailure() {
         using var stream = BuildWaveBytes().ToStream();
-        Assert.False((await _validator.IsValid(stream, ".webp")).IsValid);
+        Assert.False((await _validator.IsValid(stream, ".webp", TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Fact]
     public async Task IsValidAsync_WebPWithRiffButNoWebpMarker_ReturnsFailure() {
         await using var stream = BuildWaveBytes().ToStream();
-        Assert.False((await _validator.IsValid(stream, ".webp")).IsValid);
+        Assert.False((await _validator.IsValid(stream, ".webp", TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Theory]
@@ -123,7 +123,7 @@ public class MagicBytesValidatorTests
     [InlineData("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\"></svg>")]
     public async Task IsValid_ValidSvg_ReturnsValid(string svgContent) {
         using var stream = Encoding.UTF8.GetBytes(svgContent).ToStream();
-        Assert.True((await _validator.IsValid(stream, ".svg")).IsValid);
+        Assert.True((await _validator.IsValid(stream, ".svg", TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Theory]
@@ -131,59 +131,59 @@ public class MagicBytesValidatorTests
     [InlineData("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\"></svg>")]
     public async Task IsValidAsync_ValidSvg_ReturnsValid(string svgContent) {
         await using var stream = Encoding.UTF8.GetBytes(svgContent).ToStream();
-        var result = await _validator.IsValid(stream, ".svg");
+        var result = await _validator.IsValid(stream, ".svg", TestContext.Current.CancellationToken);
         Assert.True(result.IsValid);
     }
 
     [Fact]
     public async Task IsValid_SvgWithBom_ReturnsValid() {
         using var stream = new byte[] { 0xEF, 0xBB, 0xBF }.Concat(Encoding.UTF8.GetBytes("<svg></svg>")).ToArray().ToStream();
-        Assert.True((await _validator.IsValid(stream, ".svg")).IsValid);
+        Assert.True((await _validator.IsValid(stream, ".svg", TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Fact]
     public async Task IsValidAsync_SvgWithBom_ReturnsValid() {
         await using var stream = Encoding.UTF8.GetBytes("<svg></svg>").ToStream();
-        var result = await _validator.IsValid(stream, ".svg");
+        var result = await _validator.IsValid(stream, ".svg", TestContext.Current.CancellationToken);
         Assert.True(result.IsValid);
     }
 
     [Fact]
     public async Task IsValid_InvalidSvg_ReturnsFailure() {
         using var stream = new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 }.ToStream();
-        Assert.False((await _validator.IsValid(stream, ".svg")).IsValid);
+        Assert.False((await _validator.IsValid(stream, ".svg", TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Fact]
     public async Task IsValidAsync_InvalidSvg_ReturnsFailure() {
         await using var stream = new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 }.ToStream();
-        var result = await _validator.IsValid(stream, ".svg");
+        var result = await _validator.IsValid(stream, ".svg", TestContext.Current.CancellationToken);
         Assert.False(result.IsValid);
     }
 
     [Fact]
     public async Task IsValid_ExtensionWithoutLeadingDot_StillValidates() {
         using var stream = new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 }.ToStream();
-        Assert.True((await _validator.IsValid(stream, "jpg")).IsValid);
+        Assert.True((await _validator.IsValid(stream, "jpg", TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Fact]
     public async Task IsValidAsync_ExtensionWithoutLeadingDot_StillValidates() {
         await using var stream = new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 }.ToStream();
-        var result = await _validator.IsValid(stream, "jpg");
+        var result = await _validator.IsValid(stream, "jpg", TestContext.Current.CancellationToken);
         Assert.True(result.IsValid);
     }
 
     [Fact]
     public async Task IsValid_NullOrEmptyExtension_ReturnsValid() {
         using var stream = new byte[] { 0x00, 0x01 }.ToStream();
-        Assert.True((await _validator.IsValid(stream, "")).IsValid);
+        Assert.True((await _validator.IsValid(stream, "", TestContext.Current.CancellationToken)).IsValid);
     }
 
     [Fact]
     public async Task IsValidAsync_NullOrEmptyExtension_ReturnsValid() {
         await using var stream = new byte[] { 0x00, 0x01 }.ToStream();
-        var result = await _validator.IsValid(stream, "");
+        var result = await _validator.IsValid(stream, "", TestContext.Current.CancellationToken);
         Assert.True(result.IsValid);
     }
 

@@ -81,13 +81,13 @@ public class MediaLibraryTests : IAsyncLifetime
         // Upload the files
         _ = await PostFileAsync<UploadFileResponse>(HttpMethod.Post, "media/upload", Encoding.UTF8.GetBytes("This is the file contents.!"), "test file 1.txt", new NameValueCollection {
                 { "FolderId", level2folderId.ToString() }
-            });
+            }, TestContext.Current.CancellationToken);
         _ = await PostFileAsync<UploadFileResponse>(HttpMethod.Post, "media/upload", Encoding.UTF8.GetBytes("This is the file contents 2.!"), "test file 2.txt", new NameValueCollection {
                 { "FolderId", level2folderId.ToString() }
-            });
+            }, TestContext.Current.CancellationToken);
         _ = await PostFileAsync<UploadFileResponse>(HttpMethod.Post, "media/upload", Encoding.UTF8.GetBytes("This is the file contents 3.!"), "test file 3.txt", new NameValueCollection {
                 { "FolderId", root2folderId.ToString() }
-            });
+            }, TestContext.Current.CancellationToken);
 
         var fileService = _serviceProvider.GetRequiredKeyedService<IFileService>("Media:FileServiceKey");
         _ = await fileService.SearchAsync("media/elmai-assets");
@@ -96,7 +96,7 @@ public class MediaLibraryTests : IAsyncLifetime
         // rename the folder
 
         await UpdateFolderAction(rootfolderId, "Email Assets");
-        await Task.Delay(TimeSpan.FromMilliseconds(400));
+        await Task.Delay(TimeSpan.FromMilliseconds(400), TestContext.Current.CancellationToken);
         file1Data = await fileService.GetAsync("media/email-assets/fotografies/fakelos/test-file-1.txt");
         Assert.Equal("This is the file contents.!", Encoding.UTF8.GetString(file1Data));
 

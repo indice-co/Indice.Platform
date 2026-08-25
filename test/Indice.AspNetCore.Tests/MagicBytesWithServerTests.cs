@@ -53,14 +53,14 @@ public class MagicBytesUploadTests : IAsyncLifetime
             _output.WriteLine($"Skipping — file not found: {filePath}");
             return;
         }
-        var originalBytes = await File.ReadAllBytesAsync(filePath);
+        var originalBytes = await File.ReadAllBytesAsync(filePath, TestContext.Current.CancellationToken);
         var response = await PostFileAsync(filePath);
 
         if (!response.IsSuccessStatusCode)
-            _output.WriteLine(await response.Content.ReadAsStringAsync());
+            _output.WriteLine(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
         Assert.True(response.IsSuccessStatusCode);
-        var returnedBytes = await response.Content.ReadAsByteArrayAsync();
+        var returnedBytes = await response.Content.ReadAsByteArrayAsync(TestContext.Current.CancellationToken);
         Assert.Equal(originalBytes, returnedBytes);
     }
 

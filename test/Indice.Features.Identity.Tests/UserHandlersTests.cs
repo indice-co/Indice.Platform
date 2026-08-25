@@ -54,7 +54,7 @@ public class UserHandlersTests : IAsyncLifetime
 
         //seed database
         identityDbContext.Roles.Add(new Role("Developer") { NormalizedName = "DEVELOPER" });
-        await identityDbContext.SaveChangesAsync();
+        await identityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // execute
         _ = await UserHandlers.CreateUser(userManager, identityDbContext, new Server.Manager.Models.CreateUserRequest {
@@ -82,7 +82,7 @@ public class UserHandlersTests : IAsyncLifetime
 
         //seed database
         identityDbContext.Roles.Add(new Role("Developer") { NormalizedName = "DEVELOPER" });
-        await identityDbContext.SaveChangesAsync();
+        await identityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // execute
         _ = await UserHandlers.CreateUser(userManager, identityDbContext, new Server.Manager.Models.CreateUserRequest {
@@ -181,7 +181,7 @@ public class UserHandlersTests : IAsyncLifetime
             ],
         });
 
-        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user@indice.gr");
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user@indice.gr", cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(createdUser);
         Assert.NotNull(createdUser.PhoneNumber); // Ensure it starts with a phone number
 
@@ -199,7 +199,7 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.IsType<Ok<SingleUserInfo>>(result.Result);
 
         // Verify phone number was cleared
-        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
+        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(updatedUser);
         Assert.Null(updatedUser.PhoneNumber);
     }
@@ -224,7 +224,7 @@ public class UserHandlersTests : IAsyncLifetime
             ],
         });
 
-        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user2@indice.gr");
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user2@indice.gr", cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(createdUser);
         Assert.NotNull(createdUser.PhoneNumber); // Ensure it starts with a phone number
 
@@ -238,7 +238,7 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.IsType<Ok<SingleUserInfo>>(result.Result);
 
         // Verify phone number was cleared
-        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
+        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(updatedUser);
         Assert.Null(updatedUser.PhoneNumber);
     }
@@ -262,7 +262,7 @@ public class UserHandlersTests : IAsyncLifetime
             ],
         });
 
-        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user3@indice.gr");
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user3@indice.gr", cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(createdUser);
 
         // Update user with invalid phone number
@@ -296,7 +296,7 @@ public class UserHandlersTests : IAsyncLifetime
             ],
         });
 
-        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user4@indice.gr");
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user4@indice.gr", cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(createdUser);
 
         // Update user with valid phone number that has surrounding whitespace
@@ -308,7 +308,7 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.IsType<Ok<SingleUserInfo>>(result.Result);
 
         // Verify phone number was formatted and stored
-        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
+        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(updatedUser);
         Assert.NotNull(updatedUser.PhoneNumber);
         Assert.Equal(PhoneNumber.Parse("+306912345678").ToString(), updatedUser.PhoneNumber); // Should be trimmed/formatted
@@ -339,7 +339,7 @@ public class UserHandlersTests : IAsyncLifetime
                 new() { Type = "locale", Value = "el" }
             ],
         });
-        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user5@indice.gr");
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user5@indice.gr", cancellationToken: TestContext.Current.CancellationToken);
         var orgiginalPasswordHash = createdUser?.PasswordHash;
         Assert.NotNull(createdUser);
 
@@ -348,13 +348,13 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.IsType<NoContent>(result.Result);
 
         // Verify the user has null password hash stored in database
-        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
+        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(updatedUser);
         Assert.Null(updatedUser.PasswordHash);
 
         // check password history after removal
         if (configuration.GetIdentityOption<int?>("Password", "PasswordHistoryLimit").GetValueOrDefault() > 0) {
-            bool isOriginalPasswordInHistory = await identityDbContext.UserPasswordHistory.AnyAsync(u => u.UserId == createdUser.Id && u.PasswordHash == orgiginalPasswordHash);
+            bool isOriginalPasswordInHistory = await identityDbContext.UserPasswordHistory.AnyAsync(u => u.UserId == createdUser.Id && u.PasswordHash == orgiginalPasswordHash, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(isOriginalPasswordInHistory, "Password removed should be in userPassword history");
         }
 

@@ -154,7 +154,7 @@ public class UserAvatarApiTest : IAsyncLifetime
         _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + tokenResponse.AccessToken);
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("multipart/form-data"));
 
-        var response = await _httpClient.PutAsync("/api/my/account/picture", multipartContent);
+        var response = await _httpClient.PutAsync("/api/my/account/picture", multipartContent, TestContext.Current.CancellationToken);
         Assert.True(response.IsSuccessStatusCode);
     }
 

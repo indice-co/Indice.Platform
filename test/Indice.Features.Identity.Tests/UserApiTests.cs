@@ -105,8 +105,8 @@ public class UserApiTests : IAsyncLifetime
                 new() { Type = "locale", Value = "el" }
             ],
             Roles = ["Developer"]
-        }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
-        var responseJson = await response.Content.ReadAsStringAsync();
+        }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web), cancellationToken: TestContext.Current.CancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         Assert.True(response.IsSuccessStatusCode, responseJson);
     }
 

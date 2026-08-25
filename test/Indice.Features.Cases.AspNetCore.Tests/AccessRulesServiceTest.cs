@@ -136,7 +136,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
                 }
             ]);
 
-        Assert.Equal(3, await dbContext.CaseAccessRules.CountAsync());
+        Assert.Equal(3, await dbContext.CaseAccessRules.CountAsync(cancellationToken: TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -151,7 +151,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
                 MemberUserId = Guid.NewGuid().ToString(),
                 RuleCaseId = @case?.Id
             });
-        var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
+        var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         var updatedCase = await caseMembersService.Update(Admin().UserToActor(options.Value), caseRule!.Id, 100);
         Assert.Equal(100, updatedCase.AccessLevel);
     }
@@ -161,14 +161,14 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
-        var caseType = await dbContext.CaseTypes.FirstOrDefaultAsync();
+        var caseType = await dbContext.CaseTypes.FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 110,
                 MemberRole = BasicRoleNames.Administrator,
                 RuleCaseTypeId = caseType?.Id
             });
-        var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
+        var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         var updatedRule = await caseMembersService.Update(Admin().UserToActor(options.Value), caseRule!.Id, 100);
         Assert.Equal(100, updatedRule.AccessLevel);
     }
@@ -178,14 +178,14 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
-        var caseType = await dbContext.CaseTypes.FirstOrDefaultAsync();
+        var caseType = await dbContext.CaseTypes.FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 110,
                 MemberRole = BasicRoleNames.Administrator,
                 RuleCaseTypeId = caseType?.Id
             });
-        var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
+        var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         var updatedRule = await caseMembersService.Update(Admin().UserToActor(options.Value), caseRule!.Id, 100);
         Assert.Equal(100, updatedRule.AccessLevel);
     }
@@ -195,14 +195,14 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
-        var caseType = await dbContext.CaseTypes.FirstOrDefaultAsync();
+        var caseType = await dbContext.CaseTypes.FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 110,
                 MemberRole = BasicRoleNames.Administrator,
                 RuleCaseTypeId = caseType?.Id
             });
-        var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
+        var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         try {
             _ = await caseMembersService.Update(NonAdmin().UserToActor(options.Value), caseRule!.Id, 100);
         } catch (UnauthorizedAccessException) {
@@ -228,7 +228,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
                 RuleCaseId = @case?.Id
             });
 
-        var rule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
+        var rule = await dbContext.CaseAccessRules.FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         await caseMembersService.Delete(Admin().UserToActor(options.Value), rule!.Id);
 
         Assert.True(true);
