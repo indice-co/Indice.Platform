@@ -309,8 +309,8 @@ public class MessageService : IMessageService
                         ? JsonSerializer.Deserialize<ExpandoObject>(message.CampaignData, JsonSerializerOptionDefaults.GetDefaultSettings())
                         : null
             };
-            message.Title = handlebars.Compile(message.Title)(templateData);
-            message.Content = handlebars.Compile(message.Content)(templateData);
+            message.Title = handlebars.Compile(message.Title!)(templateData);
+            message.Content = handlebars.Compile(message.Content!)(templateData);
         }
     }
 
@@ -327,8 +327,8 @@ public class MessageService : IMessageService
                         ? JsonSerializer.Deserialize<ExpandoObject>(userMessage.CampaignData, JsonSerializerOptionDefaults.GetDefaultSettings())
                         : null
         };
-        userMessage.Title = handlebars.Compile(userMessage.Title)(templateData);
-        userMessage.Content = handlebars.Compile(userMessage.Content)(templateData);
+        userMessage.Title = handlebars.Compile(userMessage.Title!)(templateData);
+        userMessage.Content = handlebars.Compile(userMessage.Content!)(templateData);
     }
 
     private MessageContentDictionary GetMessageContent(DbCampaign dbCampaign, Contact? contact) {
@@ -345,8 +345,8 @@ public class MessageService : IMessageService
                             : null
             };
             var messageContent = dbCampaign.Content[MessageChannelKind.Inbox.ToString()];
-            messageContent.Title = handlebars.Compile(messageContent.Title)(templateData);
-            messageContent.Body = handlebars.Compile(messageContent.Body)(templateData);
+            messageContent.Title = handlebars.Compile(messageContent.Title!)(templateData);
+            messageContent.Body = handlebars.Compile(messageContent.Body!)(templateData);
         }
         return dbCampaign.Content;
     }

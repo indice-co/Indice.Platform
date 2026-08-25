@@ -250,19 +250,6 @@ public class JsonSerializerTests
         Assert.Equal(new DateTime(1981, 01, 27, 22, 0, 0, DateTimeKind.Utc), result);
     }
 
-    [Fact(Skip = "Not ready")]
-    public void DateTime_UTC_JsonSupport_Newtonsoft() {
-        var options = new Newtonsoft.Json.JsonSerializerSettings() {
-            DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc,
-        };
-        var source = new DateTime(1981, 01, 28, 0, 0, 0, DateTimeKind.Unspecified);
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(source, options);
-        Assert.Equal("\"1981-01-28T00:00:00Z\"", json);
-        var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DateTime>("\"1981-01-27T22:00:00Z\"", options);
-        Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
-        result = Newtonsoft.Json.JsonConvert.DeserializeObject<DateTime>("\"1981-01-27T22:00:00\"", options);
-        Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
-    }
     [Fact]
     public void DynamicTypeSerializationGetsPropertyNameConventionApplied() {
         var settings = JsonSerializerOptionDefaults.GetDefaultSettings();

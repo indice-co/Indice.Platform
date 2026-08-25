@@ -341,7 +341,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
         // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
-        if (options.Filter.CaseTypeCodes?.Length > 0) {
+        if (options.Filter!.CaseTypeCodes?.Length > 0) {
             // Create a different expression based on the filter operator
             var expressionsEq = options.Filter.CaseTypeCodes
                 .Where(x => x.Operator == FilterOperator.Eq)

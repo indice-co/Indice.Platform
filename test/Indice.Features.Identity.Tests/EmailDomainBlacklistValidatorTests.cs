@@ -16,7 +16,7 @@ public class EmailDomainBlacklistValidatorTests
         var userStore = new Mock<IUserStore<User>>();
         _userManager = new Mock<UserManager<User>>(
             userStore.Object,
-            null, null, null, null, null, null, null, null
+            null!, null!, null!, null!, null!, null!, null!, null!
         );
     }
 

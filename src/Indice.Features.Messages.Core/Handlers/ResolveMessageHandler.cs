@@ -133,8 +133,8 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
                     : null
             };
             var messageContent = campaign.Content[content.Key];
-            messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);
-            messageContent.Body = handlebars.Compile(content.Value.Body)(templateData);
+            messageContent.Title = handlebars.Compile(content.Value.Title!)(templateData);
+            messageContent.Body = handlebars.Compile(content.Value.Body!)(templateData);
         }
     }
 
