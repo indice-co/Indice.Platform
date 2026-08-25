@@ -4,7 +4,7 @@
     <TargetFrameworks></TargetFrameworks>
     <TargetFramework>net10.0</TargetFramework>
     <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
-    <VersionSuffix>beta15</VersionSuffix>
+    <VersionSuffix>beta16</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />

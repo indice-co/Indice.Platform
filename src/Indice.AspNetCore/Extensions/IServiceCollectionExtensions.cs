@@ -262,7 +262,11 @@ public static class ServiceCollectionExtensions
             return services;
         }
         services.Configure<ForwardedHeadersOptions>(options => {
+#if NET10_0_OR_GREATER
+            options.KnownIPNetworks.Clear();
+#else
             options.KnownNetworks.Clear();
+#endif
             options.KnownProxies.Clear();
             var forwardLimit = configuration.GetProxyForwardLimit();
             var knownNetworks = configuration.GetProxyKnownNetworks();
@@ -273,9 +277,15 @@ public static class ServiceCollectionExtensions
                 : forwardLimit;
 
             foreach (var entry in knownNetworks) {
+#if NET10_0_OR_GREATER
+                if (System.Net.IPNetwork.TryParse(entry, out var network)) {
+                    options.KnownIPNetworks.Add(network);
+                }
+#else
                 if (AspNetCore.HttpOverrides.IPNetwork.TryParse(entry, out var network)) {
                     options.KnownNetworks.Add(network);
                 }
+#endif
             }
 
             foreach (var entry in knownProxies) {

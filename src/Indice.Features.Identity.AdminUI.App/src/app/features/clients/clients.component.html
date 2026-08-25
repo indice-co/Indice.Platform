@@ -12,7 +12,7 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <app-list-view [trackByProp]="'clientId'" [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'clientId'" [defaultSortDirection]="'asc'" (search)="getClients($event)" #clientsList></app-list-view>
+        <app-list-view [trackByProp]="'clientId'" [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'clientId'" [defaultSortDirection]="'asc'" (search)="getClients($event)" [canFilter]="true" #clientsList></app-list-view>
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #actionsTemplate>

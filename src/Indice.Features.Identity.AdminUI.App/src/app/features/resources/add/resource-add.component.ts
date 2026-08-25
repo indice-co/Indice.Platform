@@ -22,6 +22,8 @@ import {
   IdentityApiService,
   ApiResourceInfo,
   CreateResourceRequest,
+  CreateApiScopeRequest,
+  ApiScopeInfo,
 } from "src/app/core/services/identity-api.service";
 import { ToastService } from "src/app/layout/services/app-toast.service";
 import { ApiResourceStore } from "../api/api-resource-store.service";
@@ -142,6 +144,26 @@ export class ResourceAddComponent implements OnInit {
             `Identity resource '${resource.name}' was created successfully.`
           );
           this._router.navigate(["../identity"], { relativeTo: this._route });
+        });
+    }
+    if (resourceType === "scope") {
+      const scopeRequest = {
+        name: this.form.get("name").value,
+        displayName: this.form.get("displayName").value,
+        description: this.form.get("description").value,
+        userClaims: this.form.get("userClaims").value,
+        required: false,
+        emphasize: false,
+        showInDiscoveryDocument: true,
+        translations: {}
+      } as CreateApiScopeRequest;
+      this._api
+        .createApiScope(scopeRequest)
+        .subscribe((scope: ApiScopeInfo) => {
+          this._toast.showSuccess(
+            `API scope '${scope.name}' was created successfully.`
+          );
+          this._router.navigate(["/app/resources/scopes"]);
         });
     }
   }

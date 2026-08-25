@@ -13,7 +13,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.5.3" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.5.4" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="Humanizer.Core" Version="3.0.10" />
@@ -26,23 +26,23 @@
     <PackageReference Include="Duende.IdentityModel" Version="8.1.0" />
     <PackageReference Include="MiniValidation" Version="0.10.0" />
     <PackageReference Include="UAParser" Version="3.1.47" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.19.2" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.22.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.29" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.29" />
-    <PackageReference Include="Microsoft.OpenApi" Version="1.6.29" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.30" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.30" />
+    <PackageReference Include="Microsoft.OpenApi" Version="1.6.31" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.3" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.18" />
-    <PackageReference Include="Microsoft.OpenApi" Version="1.6.29" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.18" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.19" />
+    <PackageReference Include="Microsoft.OpenApi" Version="1.6.31" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.19" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.10" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
-    <PackageReference Include="Microsoft.OpenApi" Version="2.10.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
+    <PackageReference Include="Microsoft.OpenApi" Version="2.12.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />

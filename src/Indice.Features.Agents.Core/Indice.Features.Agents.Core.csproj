@@ -4,18 +4,18 @@
     <TargetFrameworks></TargetFrameworks>
     <TargetFramework>net10.0</TargetFramework>
     <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
-    <VersionSuffix>beta15</VersionSuffix>
+    <VersionSuffix>beta16</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.10" />
-    <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.13.0" />
-    <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.13.0" />
-    <PackageReference Include="Microsoft.Extensions.AI" Version="10.8.0" />
-    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.8.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.19.0" />
+    <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.19.0" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="10.9.0" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.9.0" />
     <PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" />
     <PackageReference Include="ModelContextProtocol.Core" Version="1.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.11" />

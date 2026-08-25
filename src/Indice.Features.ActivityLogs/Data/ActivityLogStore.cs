@@ -86,6 +86,7 @@ public class ActivityLogStore : IActivityLogStore
         return await query.Select(ObjectMapping.ToActivityLogEntry).ToResultSetAsync(options, cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<int> UpdateAsync(Guid id, ActivityLogEntryRequest model, CancellationToken cancellationToken = default) {
         var query = _dbContext.ActivityLogs.Where(x => x.Id == id);
         return await query.ExecuteUpdateAsync(updates => updates.SetProperty(x => x.Review, model.Review));
