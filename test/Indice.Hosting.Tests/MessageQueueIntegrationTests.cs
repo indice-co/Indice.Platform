@@ -180,11 +180,6 @@ public class MessageQueueIntegrationTests : IAsyncLifetime
         return (businessEntities, events);
     }
     
-    public class Order
-    {
-        public Guid Id { get; set; }
-    }
-
     public record TestEvent(Guid BusinessId);
 
     public class TestState

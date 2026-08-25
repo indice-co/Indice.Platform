@@ -55,7 +55,7 @@ For Schedule triggers no queue item is injected.
 ```csharp
 public class EtlPipelineHandler
 {
-    public async Task Process(Dbcontext dbContext, ILogger<EtlPipelineHandler> logger, CancellationToken cancellationToken) {
+    public async Task Process(DbContext dbContext, ILogger<EtlPipelineHandler> logger, CancellationToken cancellationToken) {
         ...
     }
 }
@@ -82,7 +82,7 @@ Inject `IMessageQueue<T>` for any type registered with `WithQueueTrigger<T>`:
 public class AlertService(IMessageQueue<Alert> queue)
 {
     await queue.Enqueue(alert);
-    await queue.Enqueue(alert, enqueueAt: TimeSpan.FromHours(1));
+    await queue.Enqueue(alert, visibilityWindow: TimeSpan.FromHours(1));
     await queue.EnqueueRange(alerts);
 }
 ```

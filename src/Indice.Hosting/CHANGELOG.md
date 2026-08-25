@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `EnqueueRange` no longer re-sends the first 1000 items on every batch after the first.
-- `UseStoreRelational<TContext>()` with a custom context no longer constructs a second instance of it when resolving `TaskDbContext`.
+- `UseStoreRelational<TContext>()` with a custom context no longer constructs a second instance of it when resolving `ITaskDbContext`.
 
 ### Changed
 - Integrator's dbContext now has the Indice.Hosting migrations applied correctly.

@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Indice.Hosting.Data;
 
-/// <summary>
-/// <summary>A <see cref="DbContext"/> for hosting multiple <see cref="IMessageQueue{T}"/>.</summary>
+/// <summary>A <see cref="DbContext"/> for hosting multiple <see cref="IMessageQueue{T}"/>.
 /// Implement it on your own <see cref="DbContext"/> and register it through <c>UseStoreRelational&lt;TContext&gt;()</c>.
 /// </summary>
 /// <remarks>
