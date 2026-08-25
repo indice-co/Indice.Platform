@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { IdentityApiService, ApiScopeInfo } from 'src/app/core/services/identity-api.service';
-import { AuthService } from 'src/app/core/services/auth.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({

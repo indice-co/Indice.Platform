@@ -9,7 +9,7 @@
     <div class="mb-3 row">
         <label for="scope-name"
                class="col-sm-2 col-form-label">
-            Scope Name
+            Scope Id
         </label>
         <div class="col-sm-10 col-form-label">
             <span class="col-form-label"
@@ -51,25 +51,6 @@
         </div>
     </div>
     <div class="mb-3 row">
-        <label for="scope-emphasize"
-               class="col-sm-2 col-form-label">
-            Emphasize
-        </label>
-        <div class="col-sm-10">
-            <div class="form-check col-form-label custom-control custom-checkbox">
-                <input class="form-check-input custom-control-input"
-                       type="checkbox"
-                       id="scope-emphasize"
-                       name="scope-emphasize"
-                       [(ngModel)]="scope.emphasize"
-                       #emphasize="ngModel" />
-                <label class="custom-control-label"
-                       for="scope-emphasize">
-                </label>
-            </div>
-        </div>
-    </div>
-    <div class="mb-3 row">
         <label for="scope-show-in-discovery"
                class="col-sm-2 col-form-label">
             Show in Discovery Document
@@ -84,6 +65,25 @@
                        #showInDiscovery="ngModel" />
                 <label class="custom-control-label"
                        for="scope-show-in-discovery">
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label for="scope-emphasize"
+               class="col-sm-2 col-form-label">
+            Emphasize
+        </label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input"
+                       type="checkbox"
+                       id="scope-emphasize"
+                       name="scope-emphasize"
+                       [(ngModel)]="scope.emphasize"
+                       #emphasize="ngModel" />
+                <label class="custom-control-label"
+                       for="scope-emphasize">
                 </label>
             </div>
         </div>
