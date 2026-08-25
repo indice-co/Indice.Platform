@@ -161,7 +161,7 @@ public class AgentsOptions
     public class TaxonomyOptions
     {
         /// <summary>Allowed document categories. Used as the retrieval filter domain and to constrain the intent classifier's category Output.</summary>
-        public IReadOnlyList<string> Categories { get; set; } = ["policy", "faq", "identity", "purpose_of_agent", "message", "identity"];
+        public IReadOnlyList<string> Categories { get; set; } = ["policy", "faq", "identity", "purpose_of_agent", "message"];
 
         /// <summary>Allowed ISO-639-1 (or BCP-47) language codes.</summary>
         public IReadOnlyList<string> Languages { get; set; } = ["en", "el", "de", "fr", "es"];
