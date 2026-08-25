@@ -111,7 +111,7 @@ public static class WorkerHostConfiguration
         options.Services.AddDbContext<TContext>(configureAction);
         options.Services.AddDbContext<LockDbContext>(configureAction);
         if (!isDefaultContext) {
-            options.Services.TryAddScoped<TaskDbContext, TContext>();
+            options.Services.TryAddScoped<TaskDbContext>(serviceProvider => serviceProvider.GetRequiredService<TContext>());
         }
         options.ScheduledTaskStoreType = typeof(ScheduledTaskStoreEF<>);
         options.QueueStoreType = typeof(MessageQueueRelational<>);

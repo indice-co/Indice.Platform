@@ -6,7 +6,6 @@ using Indice.Hosting.Data;
 using Indice.Hosting.Data.Models;
 using Indice.Hosting.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Indice.Hosting.Services;
@@ -31,14 +30,34 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
         _queryDescriptor = new MessageQueueQueryDescriptor(dbContext);
     }
 
+    /// <summary>
+    /// Creates the command to execute, enlisted in the ambient transaction of the underlying <see cref="DbContext"/> when there is one.
+    /// When there is none <see cref="DbCommand.Transaction"/> is left null, which is the behavior of a stand alone worker store.
+    /// </summary>
+    private async Task<DbCommand> CreateCommandAsync() {
+        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
+        var command = dbConnection.CreateCommand();
+        command.Transaction = _dbContext.Database.CurrentTransaction?.GetDbTransaction();
+        return command;
+    }
+
+    /// <summary>Creates the entity to persist for the given payload. Used by the outbox to stage a message on the caller's change tracker.</summary>
+    internal DbQMessage CreateMessage(T payload, DateTime enqueueAt) => new() {
+        Id = Guid.NewGuid(),
+        QueueName = _queueNameResolver.Resolve(),
+        Payload = JsonSerializer.Serialize(payload, _jsonSerializerOptions),
+        Date = enqueueAt,
+        DequeueCount = 0,
+        State = QMessageState.New
+    };
+
     /* We do not need to implement this method here, since when an item is dequeued it is also removed at the same time. */
     /// <inheritdoc/>
     public Task Cleanup(int? batchSize = null) => Task.CompletedTask;
 
     /// <inheritdoc/>
     public async Task<int> Count() {
-        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-        await using var command = dbConnection.CreateCommand();
+        await using var command = await CreateCommandAsync();
         command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
         command.CommandText = _queryDescriptor.Count;
         command.CommandType = CommandType.Text;
@@ -48,8 +67,7 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
 
     /// <inheritdoc/>
     public async Task<QMessage<T>?> Dequeue() {
-        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-        await using var command = dbConnection.CreateCommand();
+        await using var command = await CreateCommandAsync();
         command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
         command.CommandText = _queryDescriptor.Dequeue;
         command.CommandType = CommandType.Text;
@@ -71,8 +89,7 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
 
     /// <inheritdoc/>
     public async Task Enqueue(QMessage<T> item, bool isPoison) {
-        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-        await using var command = dbConnection.CreateCommand();
+        await using var command = await CreateCommandAsync();
         command.AddParameterWithValue("@Id", Guid.Parse(item.Id), DbType.Guid);
         command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(isPoison), DbType.String);
         command.AddParameterWithValue("@Payload", JsonSerializer.Serialize(item.Value, _jsonSerializerOptions), DbType.String);
@@ -84,23 +101,18 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
     }
 
     /// <inheritdoc/>
-    public Task EnqueueRange(IEnumerable<QMessage<T>> items) 
-        => EnqueueOnInternal(_dbContext.Database, items as IReadOnlyList<QMessage<T>> ?? items.ToList());
-    
-    internal Task EnqueueOn(DatabaseFacade database, IReadOnlyList<QMessage<T>> items) 
-        => EnqueueOnInternal(database, items, database.CurrentTransaction?.GetDbTransaction());
-    
-    private async Task EnqueueOnInternal(DatabaseFacade database, IReadOnlyList<QMessage<T>> items, DbTransaction? transaction = null) {
+    public Task EnqueueRange(IEnumerable<QMessage<T>> items)
+        => EnqueueRangeInternal(items as IReadOnlyList<QMessage<T>> ?? items.ToList());
+
+    private async Task EnqueueRangeInternal(IReadOnlyList<QMessage<T>> items) {
         var query = new StringBuilder(_queryDescriptor.EnqueueRangeInsertStatement);
-        var dbConnection = await database.EnsureOpenConnectionAsync();
         const double maxBatchSize = 1000d;
         var batches = Math.Ceiling(items.Count / maxBatchSize);
         for (var i = 0; i < batches; i++) {
             var remainingItemsCount = items.Count - i * maxBatchSize;
             var iterationLength = remainingItemsCount >= maxBatchSize ? maxBatchSize : remainingItemsCount;
             var offset = (int)(i * maxBatchSize);
-            await using var command = dbConnection.CreateCommand();
-            command.Transaction = transaction;
+            await using var command = await CreateCommandAsync();
             for (var j = 0; j < iterationLength; j++) {
                 query.AppendFormat(_queryDescriptor.EnqueueRangeValuesStatement, j);
                 var isLastItem = j == iterationLength - 1;
@@ -122,15 +134,14 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
 
     /// <inheritdoc/>
     public async Task<T?> Peek() {
-        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-        await using var command = dbConnection.CreateCommand();
+        await using var command = await CreateCommandAsync();
         command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
         command.CommandText = _queryDescriptor.Peek;
         command.CommandType = CommandType.Text;
         await using var dataReader = await command.ExecuteReaderAsync();
         string? payload = null;
         while (dataReader.Read()) {
-            payload = dataReader.IsDBNull(0) ? default : dataReader.GetString(2);
+            payload = dataReader.IsDBNull(0) ? default : dataReader.GetString(0);
         }
         return !string.IsNullOrEmpty(payload) ? JsonSerializer.Deserialize<T>(payload, _jsonSerializerOptions) : default;
     }

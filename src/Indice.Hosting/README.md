@@ -103,62 +103,78 @@ await _db.SaveChangesAsync();
 await _queue.Enqueue(new Alert(alert.Id));   // if this fails, the business row is saved and nothing is sent
 ```
 
-Use `SaveAndEnqueueAsync` if you want Outbox behavior.
+Use `AddAndEnqueue` if you want Outbox behavior.
 
 ### Requirements
 
 Your `DbContext` must target the same database as the worker store.
 
-### Normal use
+### 1. Derive your `DbContext` from `TaskDbContext`
 
 ```csharp
-public class OrdersService(BankingDbContext dbContext, IMessageQueue<OrderCreatedEvent> queue)
+public class BankingDbContext : TaskDbContext
 {
-    public async Task Create(Order order, CancellationToken cancellationToken) {
-        dbContext.Order.Add(order);
-        await dbContext.SaveAndEnqueueAsync(queue, new OrderCreatedEvent(order.Id), cancellationToken: cancellationToken);
+    public BankingDbContext(DbContextOptions<BankingDbContext> options) : base(options) { }
+
+    public DbSet<Order> Orders { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder) {
+        base.OnModelCreating(builder);
+        // ...
     }
 }
 ```
 
-Multiple events of the same type as well as Delayed publishing as with normal `Enqueue`:
+### 2. Register it as the store
+
 ```csharp
-await dbContext.SaveAndEnqueueAsync(queue, new OrderCreatedEvent(order.Id), DateTime.UtcNow.AddHours(24), cancellationToken);
-await dbContext.SaveAndEnqueueAsync(queue, new OrderCreatedEvent(order.Id), TimeSpan.FromHours(24), cancellationToken);
-await dbContext.SaveAndEnqueueAsync(queue, orders.Select(x => new OrderCreatedEvent(x.Id)), cancellationToken: cancellationToken);
+services.AddWorkerHost(options => options.UseStoreRelational<BankingDbContext>(builder => builder.UseSqlServer(connectionString)))
+    .AddJob<OrderCreatedHandler>()
+        .WithQueueTrigger<OrderCreatedEvent>(options => options.QueueName = "order-created");
+```
+
+### 3. Use it
+
+```csharp
+public class OrdersService(BankingDbContext dbContext)
+{
+    public async Task Create(Order order, CancellationToken cancellationToken) {
+        dbContext.AddAndEnqueue(order, new OrderCreatedEvent(order.Id));
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}
+```
+
+Delayed publishing works as with normal `Enqueue`:
+```csharp
+dbContext.AddAndEnqueue(order, new OrderCreatedEvent(order.Id), DateTime.UtcNow.AddHours(24));
+dbContext.AddAndEnqueue(order, new OrderCreatedEvent(order.Id), TimeSpan.FromHours(24));
+dbContext.EnqueueRange(orders.Select(x => new OrderCreatedEvent(x.Id)));
+```
+
+### Several queues in one unit of work
+
+Just stage them all before saving:
+```csharp
+dbContext.Orders.Add(order);
+dbContext.Enqueue(new OrderCreatedEvent(order.Id));
+dbContext.Enqueue(new AuditEntryCreatedEvent(order));
+dbContext.Enqueue(new NotifyUserEvent(order.Id), DateTime.UtcNow.AddMinutes(1));
+await dbContext.SaveChangesAsync(cancellationToken);
 ```
 
 ### When the Integrator owns the transaction
-If a transaction is already open, `SaveAndEnqueueAsync` joins it and **does not commit** — you are responsible for that:
+
+Nothing special is needed — the staged messages are written by your `SaveChangesAsync()` and commit or roll
+back with your transaction:
 
 ```csharp
 await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-dbContext.Orders.Add(order);
-await dbContext.SaveAndEnqueueAsync(queue, new OrderCreatedEvent(alert.Id), cancellationToken: cancellationToken);
+dbContext.AddAndEnqueue(order, new OrderCreatedEvent(order.Id));
+await dbContext.SaveChangesAsync(cancellationToken);
 await someOtherService.DoWork(cancellationToken);
 await transaction.CommitAsync(cancellationToken);
-```
-
-Or with different queues:
-```csharp
-await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-await dbContext.SaveAndEnqueueAsync(orderQueue, new OrderCreatedEvent(order.Id), cancellationToken: cancellationToken);
-await dbContext.SaveAndEnqueueAsync(notifyUserQueue, new NotifyUserEvent(order.Id), cancellationToken: cancellationToken);
-await transaction.CommitAsync(cancellationToken);
-```
-
-### With `OutboxBatch`
-
-The same thing in one call, when you do not manage the transaction yourself:
-
-```csharp
-dbContext.Orders.Add(order);
-await dbContext.SaveAndEnqueueAsync(batch => batch
-    .Add(orderQueue, new OrderCreatedEvent(order.Id))
-    .Add(auditQueue, new AuditEntryCreatedEvent(order))
-    .Add(notifyUserQueue, new NotifyUserEvent(alert.Id), DateTime.UtcNow.AddMinutes(1)),
-    cancellationToken: cancellationToken);
 ```
 
 **Keep transactions short.** The message insert holds row locks until commit.

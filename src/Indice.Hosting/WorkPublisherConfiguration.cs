@@ -44,7 +44,7 @@ public static class WorkPublisherConfiguration
         configureAction ??= sqlServerConfiguration;
         options.Services.AddDbContext<TContext>(configureAction);
         if (!isDefaultContext) {
-            options.Services.TryAddScoped<TaskDbContext, TContext>();
+            options.Services.TryAddScoped<TaskDbContext>(serviceProvider => serviceProvider.GetRequiredService<TContext>());
         }
         options.QueueStoreType = typeof(MessageQueueRelational<>);
         return options;

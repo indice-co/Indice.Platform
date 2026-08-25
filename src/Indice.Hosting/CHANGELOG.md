@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
-- Added transactional outbox support via `DbContext.SaveAndEnqueueAsync()`, which saves your changes and enqueues the message in a single transaction. Requires the relational store and a `DbContext` targeting the same database as the worker.
-- Added an `OutboxBatch` overload of `SaveAndEnqueueAsync()` for publishing messages of different types in one transaction.
+- Added transactional outbox support via `AddAndEnqueue()`, `Enqueue()` and `EnqueueRange()` on your own `TaskDbContext` derived context. These stage the message on the change tracker, so a single `SaveChangesAsync()` persists the business entity and the events it produced atomically. Publishing to several queues in one unit of work is just several `Enqueue()` calls before one save. Register your context with `UseStoreRelational<TContext>()`.
 
 ### Fixed
 - `EnqueueRange` no longer re-sends the first 1000 items on every batch after the first.
+- `UseStoreRelational<TContext>()` with a custom context no longer constructs a second instance of it when resolving `TaskDbContext`. The queue and the scheduled task store now share the caller's instance, and therefore its connection and change tracker.
+
+### Changed
+- Queue commands are now inside the transaction of the integrator's context when there is one e.g with `BeginTransactionAsync()`.
+- Integrator's dbContext now has the Indice.Hosting migrations applied correctly.
 
 ## [8.29.0] - 2025-12-15
 ### Added
