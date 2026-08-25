@@ -85,12 +85,12 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
         Assert.Equal(3, results.Count);
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
         await dbContext.SeedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
         await dbContext.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();

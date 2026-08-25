@@ -21,8 +21,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using Xunit.Abstractions;
 using TokenResponse = Duende.IdentityModel.Client.TokenResponse;
 
 
@@ -42,14 +40,14 @@ public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
     private const string CLIENT_SECRET = "JUEKX2XugFv5XrX3";
     public User TestUser { get; set; } = null!;
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         TestUser = await InitTestUserAsync();
     }
 
-    public Task DisposeAsync() {
+    public ValueTask DisposeAsync() {
         _httpClient.Dispose();
         _server.Dispose();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
     
     public MobileSessionIdServerSideSessionsTests(ITestOutputHelper output) {

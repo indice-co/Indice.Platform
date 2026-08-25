@@ -18,8 +18,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
-using Xunit.Abstractions;
 using static Indice.AspNetCore.Tests.OpenApiTestsModels;
 
 namespace Indice.AspNetCore.Tests;
@@ -82,12 +80,12 @@ public class OpenApiTests : IAsyncLifetime
         _host = builder.Build();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         await _serviceProvider.DisposeAsync();
         await ((IAsyncDisposable)_host).DisposeAsync();
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         await _host.StartAsync();
         var server = _host.GetTestServer();
         var handler = server.CreateHandler();

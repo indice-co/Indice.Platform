@@ -5,7 +5,6 @@ using Indice.Features.Identity.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.SignalR;
 using Indice.Features.Identity.Core.Hubs;
@@ -196,10 +195,10 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
         Assert.Equal(TotpDeliveryChannel.Viber, selectedMethod?.GetDeliveryChannel());
     }
 
-    public Task InitializeAsync() {
-        return Task.CompletedTask;
+    public ValueTask InitializeAsync() {
+        return ValueTask.CompletedTask;
     }
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         await ServiceProvider.DisposeAsync();
     }
 }

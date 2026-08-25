@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using Xunit.Abstractions;
 using Microsoft.AspNetCore.Routing;
 using System.Text.Json.Nodes;
 using Indice.AspNetCore.Views;
@@ -126,10 +124,10 @@ public class EndpointTests : IAsyncLifetime
     #endregion
 
 
-    public Task InitializeAsync() {
-        return Task.CompletedTask;
+    public ValueTask InitializeAsync() {
+        return ValueTask.CompletedTask;
     }
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         await _serviceProvider.DisposeAsync();
     }
 }

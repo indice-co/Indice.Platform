@@ -5,16 +5,13 @@ using Microsoft.Extensions.Logging;
 
 using Microsoft.EntityFrameworkCore;
 using Indice.Security;
-using Indice.Features.Cases;
-using Indice.Features.Cases.Tests;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
-using Indice.Features.Cases.Core.Models.Requests;
 using Indice.Features.Cases.Core.Services;
 using Indice.Features.Cases.Core;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Features.Messages.Tests;
+namespace Indice.Features.Cases.Tests;
 
 public class AccessRulesServiceTest : IAsyncLifetime
 {
@@ -316,7 +313,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
     }
 
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
             // seed here.
@@ -324,7 +321,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         }
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         await dbContext.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();

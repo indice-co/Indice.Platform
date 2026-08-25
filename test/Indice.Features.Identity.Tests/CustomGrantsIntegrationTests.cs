@@ -46,8 +46,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Xunit;
-using Xunit.Abstractions;
 using TokenResponse = Duende.IdentityModel.Client.TokenResponse;
 
 namespace Indice.Features.Identity.Tests;
@@ -306,14 +304,14 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
 
     public User TestUser { get; set; } = null!;
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         TestUser = await InitTestUserAsync();
     }
 
-    public Task DisposeAsync() {
+    public ValueTask DisposeAsync() {
         _httpClient.Dispose();
         _server.Dispose();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     #region Device Authentication Tests

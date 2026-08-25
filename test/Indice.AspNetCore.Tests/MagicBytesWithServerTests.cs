@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Indice.AspNetCore.Tests;
 
@@ -43,8 +41,8 @@ public class MagicBytesUploadTests : IAsyncLifetime
         _serviceProvider = (ServiceProvider)server.Services;
     }
 
-    public async Task DisposeAsync() => await _serviceProvider.DisposeAsync();
-    public Task InitializeAsync() => Task.CompletedTask;
+    public async ValueTask DisposeAsync() => await _serviceProvider.DisposeAsync();
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
 
     [Theory]
     [MemberData(nameof(GetValidFilePaths))]

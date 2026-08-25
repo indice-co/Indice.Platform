@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Xunit;
 
 namespace Indice.Features.Identity.Tests;
 public class UserApiTests : IAsyncLifetime
@@ -111,14 +110,14 @@ public class UserApiTests : IAsyncLifetime
         Assert.True(response.IsSuccessStatusCode, responseJson);
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         await _serviceProvider.DisposeAsync();
     }
 
-    public Task InitializeAsync() {
+    public ValueTask InitializeAsync() {
         var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
         dbContext.SeedInitialData();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     public class UserCreatedAssertionHanbdler : IPlatformEventHandler<UserCreatedEvent>

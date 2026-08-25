@@ -17,8 +17,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Indice.Features.Messages.Tests;
 public class MediaLibraryTests : IAsyncLifetime
@@ -229,12 +227,12 @@ public class MediaLibraryTests : IAsyncLifetime
         return mappings.ContainsKey(extension) ? mappings[extension] : string.Empty;
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var db = _serviceProvider.GetRequiredService<MediaDbContext>();
         await db.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var db = _serviceProvider.GetRequiredService<MediaDbContext>();
         await db.Database.EnsureDeletedAsync();
         await _serviceProvider.DisposeAsync();

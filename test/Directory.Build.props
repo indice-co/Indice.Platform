@@ -6,7 +6,8 @@
       <Nullable>enable</Nullable>
       <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
       <!--<TargetFramework></TargetFramework>-->
-      <IsTestProject>true</IsTestProject>
+      <OutputType>Exe</OutputType>
+      <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
     </PropertyGroup>
     <PropertyGroup Label="Package Common">
       <IsPackable>false</IsPackable>

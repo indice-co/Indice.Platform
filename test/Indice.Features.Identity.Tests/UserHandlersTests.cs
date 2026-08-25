@@ -17,7 +17,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Xunit;
 
 namespace Indice.Features.Identity.Tests;
 public class UserHandlersTests : IAsyncLifetime
@@ -151,12 +150,12 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.NotNull(jwk);
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
         await dbContext.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
         await dbContext.Database.EnsureDeletedAsync();
         await _serviceProvider.DisposeAsync();

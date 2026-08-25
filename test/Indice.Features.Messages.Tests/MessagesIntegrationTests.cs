@@ -21,8 +21,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Indice.Features.Messages.Tests;
 
@@ -711,12 +709,12 @@ public class MessagesIntegrationTests : IAsyncLifetime
         Assert.False(createCampaignResponse.IsSuccessStatusCode);
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
         await _serviceProvider.DisposeAsync();

@@ -14,7 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
-using Xunit;
 
 namespace Indice.Features.Messages.Tests;
 
@@ -227,12 +226,12 @@ public class MergeContactTests : IAsyncLifetime
         public string Resolve() => "static";
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();

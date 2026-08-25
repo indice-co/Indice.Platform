@@ -55,12 +55,12 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         ServiceProvider = services.BuildServiceProvider();
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();
