@@ -21,7 +21,10 @@ internal sealed class DbBackedPartialTemplateResolver : IPartialTemplateResolver
         _channel = channel;
     }
     /// <inheritdoc />
-    public bool TryRegisterPartial(IHandlebars handlebars, string partialName, string templatePath) {
+    public bool TryRegisterPartial(IHandlebars handlebars, string? partialName, string? templatePath) {
+        if (string.IsNullOrEmpty(partialName)) {
+            return false;
+        }
         var template = LoadTemplate(partialName);
         if (template == null) {
             handlebars.RegisterTemplate(partialName, string.Empty);

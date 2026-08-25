@@ -1231,11 +1231,11 @@ input.password:placeholder-shown ~ .reveal-icon {
   --tw-contain-paint:  ;
   --tw-contain-style:  ;
 }
-/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/
-/*
+/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*//*
 1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)
 2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)
 */
+
 *,
 ::before,
 ::after {
@@ -1244,10 +1244,12 @@ input.password:placeholder-shown ~ .reveal-icon {
   border-style: solid; /* 2 */
   border-color: #e5e7eb; /* 2 */
 }
+
 ::before,
 ::after {
   --tw-content: '';
 }
+
 /*
 1. Use a consistent sensible line-height in all browsers.
 2. Prevent adjustments of font size after orientation changes in iOS.
@@ -1257,6 +1259,7 @@ input.password:placeholder-shown ~ .reveal-icon {
 6. Use the user's configured `sans` font-variation-settings by default.
 7. Disable tap highlights on iOS
 */
+
 html,
 :host {
   line-height: 1.5; /* 1 */
@@ -1269,34 +1272,42 @@ html,
   font-variation-settings: normal; /* 6 */
   -webkit-tap-highlight-color: transparent; /* 7 */
 }
+
 /*
 1. Remove the margin in all browsers.
 2. Inherit line-height from `html` so users can set them as a class directly on the `html` element.
 */
+
 body {
   margin: 0; /* 1 */
   line-height: inherit; /* 2 */
 }
+
 /*
 1. Add the correct height in Firefox.
 2. Correct the inheritance of border color in Firefox. (https://bugzilla.mozilla.org/show_bug.cgi?id=190655)
 3. Ensure horizontal rules are visible by default.
 */
+
 hr {
   height: 0; /* 1 */
   color: inherit; /* 2 */
   border-top-width: 1px; /* 3 */
 }
+
 /*
 Add the correct text decoration in Chrome, Edge, and Safari.
 */
+
 abbr:where([title]) {
   -webkit-text-decoration: underline dotted;
           text-decoration: underline dotted;
 }
+
 /*
 Remove the default font size and weight for headings.
 */
+
 h1,
 h2,
 h3,
@@ -1306,26 +1317,32 @@ h6 {
   font-size: inherit;
   font-weight: inherit;
 }
+
 /*
 Reset links to optimize for opt-in styling instead of opt-out.
 */
+
 a {
   color: inherit;
   text-decoration: inherit;
 }
+
 /*
 Add the correct font weight in Edge and Safari.
 */
+
 b,
 strong {
   font-weight: bolder;
 }
+
 /*
 1. Use the user's configured `mono` font-family by default.
 2. Use the user's configured `mono` font-feature-settings by default.
 3. Use the user's configured `mono` font-variation-settings by default.
 4. Correct the odd `em` font sizing in all browsers.
 */
+
 code,
 kbd,
 samp,
@@ -1335,15 +1352,19 @@ pre {
   font-variation-settings: normal; /* 3 */
   font-size: 1em; /* 4 */
 }
+
 /*
 Add the correct font size in all browsers.
 */
+
 small {
   font-size: 80%;
 }
+
 /*
 Prevent `sub` and `sup` elements from affecting the line height in all browsers.
 */
+
 sub,
 sup {
   font-size: 75%;
@@ -1351,27 +1372,33 @@ sup {
   position: relative;
   vertical-align: baseline;
 }
+
 sub {
   bottom: -0.25em;
 }
+
 sup {
   top: -0.5em;
 }
+
 /*
 1. Remove text indentation from table contents in Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=999088, https://bugs.webkit.org/show_bug.cgi?id=201297)
 2. Correct table border color inheritance in all Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=935729, https://bugs.webkit.org/show_bug.cgi?id=195016)
 3. Remove gaps between table borders by default.
 */
+
 table {
   text-indent: 0; /* 1 */
   border-color: inherit; /* 2 */
   border-collapse: collapse; /* 3 */
 }
+
 /*
 1. Change the font styles in all browsers.
 2. Remove the margin in Firefox and Safari.
 3. Remove default padding in all browsers.
 */
+
 button,
 input,
 optgroup,
@@ -1388,17 +1415,21 @@ textarea {
   margin: 0; /* 2 */
   padding: 0; /* 3 */
 }
+
 /*
 Remove the inheritance of text transform in Edge and Firefox.
 */
+
 button,
 select {
   text-transform: none;
 }
+
 /*
 1. Correct the inability to style clickable types in iOS and Safari.
 2. Remove default button styles.
 */
+
 button,
 input:where([type='button']),
 input:where([type='reset']),
@@ -1407,62 +1438,80 @@ input:where([type='submit']) {
   background-color: transparent; /* 2 */
   background-image: none; /* 2 */
 }
+
 /*
 Use the modern Firefox focus style for all focusable elements.
 */
+
 :-moz-focusring {
   outline: auto;
 }
+
 /*
 Remove the additional `:invalid` styles in Firefox. (https://github.com/mozilla/gecko-dev/blob/2f9eacd9d3d995c937b4251a5557d95d494c9be1/layout/style/res/forms.css#L728-L737)
 */
+
 :-moz-ui-invalid {
   box-shadow: none;
 }
+
 /*
 Add the correct vertical alignment in Chrome and Firefox.
 */
+
 progress {
   vertical-align: baseline;
 }
+
 /*
 Correct the cursor style of increment and decrement buttons in Safari.
 */
+
 ::-webkit-inner-spin-button,
 ::-webkit-outer-spin-button {
   height: auto;
 }
+
 /*
 1. Correct the odd appearance in Chrome and Safari.
 2. Correct the outline style in Safari.
 */
+
 [type='search'] {
   -webkit-appearance: textfield; /* 1 */
   outline-offset: -2px; /* 2 */
 }
+
 /*
 Remove the inner padding in Chrome and Safari on macOS.
 */
+
 ::-webkit-search-decoration {
   -webkit-appearance: none;
 }
+
 /*
 1. Correct the inability to style clickable types in iOS and Safari.
 2. Change font properties to `inherit` in Safari.
 */
+
 ::-webkit-file-upload-button {
   -webkit-appearance: button; /* 1 */
   font: inherit; /* 2 */
 }
+
 /*
 Add the correct display in Chrome and Safari.
 */
+
 summary {
   display: list-item;
 }
+
 /*
 Removes the default spacing and border for appropriate elements.
 */
+
 blockquote,
 dl,
 dd,
@@ -1478,13 +1527,16 @@ p,
 pre {
   margin: 0;
 }
+
 fieldset {
   margin: 0;
   padding: 0;
 }
+
 legend {
   padding: 0;
 }
+
 ol,
 ul,
 menu {
@@ -1492,49 +1544,60 @@ menu {
   margin: 0;
   padding: 0;
 }
+
 /*
 Reset default styling for dialogs.
 */
 dialog {
   padding: 0;
 }
+
 /*
 Prevent resizing textareas horizontally by default.
 */
+
 textarea {
   resize: vertical;
 }
+
 /*
 1. Reset the default placeholder opacity in Firefox. (https://github.com/tailwindlabs/tailwindcss/issues/3300)
 2. Set the default placeholder color to the user's configured gray 400 color.
 */
+
 input::-moz-placeholder, textarea::-moz-placeholder {
   opacity: 1; /* 1 */
   color: #9ca3af; /* 2 */
 }
+
 input::placeholder,
 textarea::placeholder {
   opacity: 1; /* 1 */
   color: #9ca3af; /* 2 */
 }
+
 /*
 Set the default cursor for buttons.
 */
+
 button,
 [role="button"] {
   cursor: pointer;
 }
+
 /*
 Make sure disabled buttons don't get the pointer cursor.
 */
 :disabled {
   cursor: default;
 }
+
 /*
 1. Make replaced elements `display: block` by default. (https://github.com/mozdevs/cssremedy/issues/14)
 2. Add `vertical-align: middle` to align replaced elements more sensibly by default. (https://github.com/jensimmons/cssremedy/issues/14#issuecomment-634934210)
    This can trigger a poorly considered lint error in some tools but is included by design.
 */
+
 img,
 svg,
 video,
@@ -1546,14 +1609,17 @@ object {
   display: block; /* 1 */
   vertical-align: middle; /* 2 */
 }
+
 /*
 Constrain images and videos to the parent width and preserve their intrinsic aspect ratio. (https://github.com/mozdevs/cssremedy/issues/14)
 */
+
 img,
 video {
   max-width: 100%;
   height: auto;
 }
+
 /* Make elements with the HTML hidden attribute stay hidden by default */
 [hidden]:where(:not([hidden="until-found"])) {
   display: none;
@@ -1948,7 +2014,7 @@ input:checked + .toggle-bg{
   background: var(--color-blue-600);
   border-color: var(--color-blue-600);
 }
-body{
+  body{
   position: relative;
   margin: 0px;
   display: flex;
@@ -1963,7 +2029,7 @@ body{
   background-repeat: no-repeat;
     font-family: "Manrope", system-ui, sans-serif;
 }
-main{
+  main{
   position: relative;
   display: block;
   display: flex;
@@ -1974,7 +2040,7 @@ main{
   flex-direction: column;
   flex-wrap: nowrap;
 }
-footer{
+  footer{
   bottom: 0px;
   left: 0px;
   z-index: 40;
@@ -1995,7 +2061,7 @@ footer{
   transition-duration: 150ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
-@media (min-width: 1024px){
+  @media (min-width: 1024px){
   footer{
     margin-top: 0.75rem;
     margin-bottom: 0.75rem;
@@ -2006,43 +2072,43 @@ footer{
     padding-right: 8rem;
   }
 }
-article,
+  article,
   aside,
   header,
   main,
   section{
   display: block;
 }
-p{
+  p{
   font-size: 1rem;
   line-height: 1.5rem;
   font-weight: 400;
   --tw-text-opacity: 1;
   color: rgb(60 60 59 / var(--tw-text-opacity, 1));
 }
-h1{
+  h1{
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
   font-size: 1.875rem;
   line-height: 2.25rem;
   font-weight: 400;
 }
-h3{
+  h3{
   font-weight: 700;
   color: var(--tenant900);
 }
-a{
+  a{
   color: var(--tenant900);
   text-decoration-line: underline;
 }
-label{
+  label{
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 500;
   --tw-text-opacity: 1;
   color: rgb(206 206 205 / var(--tw-text-opacity, 1));
 }
-hr{
+  hr{
   margin-top: 0.625rem;
   margin-bottom: 0.625rem;
   height: 1px;
@@ -2050,7 +2116,7 @@ hr{
   --tw-bg-opacity: 1;
   background-color: rgb(206 206 205 / var(--tw-bg-opacity, 1));
 }
-textarea,
+  textarea,
   select,
   input[type]:not([type=checkbox]){
   margin-top: 0.25rem;
@@ -2068,88 +2134,61 @@ textarea,
   --tw-text-opacity: 1;
   color: rgb(29 29 27 / var(--tw-text-opacity, 1));
 }
-textarea:focus.tooltip > .tooltip-arrow::-moz-placeholder:before, select:focus.tooltip > .tooltip-arrow::-moz-placeholder:before, input[type]:not([type=checkbox]):focus.tooltip > .tooltip-arrow::-moz-placeholder:before{
+  textarea:focus.tooltip > .tooltip-arrow::-moz-placeholder:before, select:focus.tooltip > .tooltip-arrow::-moz-placeholder:before, input[type]:not([type=checkbox]):focus.tooltip > .tooltip-arrow::-moz-placeholder:before{
   visibility: hidden;
 }
-textarea:focus.tooltip > .tooltip-arrow::placeholder:before,
+  textarea:focus.tooltip > .tooltip-arrow::placeholder:before,
   select:focus.tooltip > .tooltip-arrow::placeholder:before,
   input[type]:not([type=checkbox]):focus.tooltip > .tooltip-arrow::placeholder:before{
   visibility: hidden;
 }
-textarea:focus[role="tooltip"] > [data-popper-arrow]::-moz-placeholder:before, select:focus[role="tooltip"] > [data-popper-arrow]::-moz-placeholder:before, input[type]:not([type=checkbox]):focus[role="tooltip"] > [data-popper-arrow]::-moz-placeholder:before{
+  textarea:focus[role="tooltip"] > [data-popper-arrow]::-moz-placeholder:before, select:focus[role="tooltip"] > [data-popper-arrow]::-moz-placeholder:before, input[type]:not([type=checkbox]):focus[role="tooltip"] > [data-popper-arrow]::-moz-placeholder:before{
   visibility: hidden;
 }
-textarea:focus[role="tooltip"] > [data-popper-arrow]::placeholder:before,
+  textarea:focus[role="tooltip"] > [data-popper-arrow]::placeholder:before,
   select:focus[role="tooltip"] > [data-popper-arrow]::placeholder:before,
   input[type]:not([type=checkbox]):focus[role="tooltip"] > [data-popper-arrow]::placeholder:before{
   visibility: hidden;
 }
-textarea:focus[role="tooltip"] > [data-popper-arrow]::-moz-placeholder:after, select:focus[role="tooltip"] > [data-popper-arrow]::-moz-placeholder:after, input[type]:not([type=checkbox]):focus[role="tooltip"] > [data-popper-arrow]::-moz-placeholder:after{
+  textarea:focus[role="tooltip"] > [data-popper-arrow]::-moz-placeholder:after, select:focus[role="tooltip"] > [data-popper-arrow]::-moz-placeholder:after, input[type]:not([type=checkbox]):focus[role="tooltip"] > [data-popper-arrow]::-moz-placeholder:after{
   visibility: hidden;
 }
-textarea:focus[role="tooltip"] > [data-popper-arrow]::placeholder:after,
+  textarea:focus[role="tooltip"] > [data-popper-arrow]::placeholder:after,
   select:focus[role="tooltip"] > [data-popper-arrow]::placeholder:after,
   input[type]:not([type=checkbox]):focus[role="tooltip"] > [data-popper-arrow]::placeholder:after{
   visibility: hidden;
 }
-textarea:focus::-moz-placeholder, select:focus::-moz-placeholder, input[type]:not([type=checkbox]):focus::-moz-placeholder{
+  textarea:focus::-moz-placeholder, select:focus::-moz-placeholder, input[type]:not([type=checkbox]):focus::-moz-placeholder{
   visibility: hidden;
 }
-textarea:focus::placeholder,
+  textarea:focus::placeholder,
   select:focus::placeholder,
   input[type]:not([type=checkbox]):focus::placeholder{
   visibility: hidden;
 }
-textarea,
+  textarea,
   select,
   input[type]:not([type=checkbox]) {
     float: clear;
     font-size: inherit;
   }
-input[readonly],
+  input[readonly],
   textarea[readonly],
   select[readonly]{
   cursor: not-allowed;
   --tw-bg-opacity: 1;
   background-color: rgb(206 206 205 / var(--tw-bg-opacity, 1));
 }
-input.tooltip[type]:not([type=checkbox]) + label > .tooltip-arrow:before{
+  input.tooltip[type]:not([type=checkbox]) + label > .tooltip-arrow:before{
   visibility: hidden;
 }
-[role="tooltip"]input[type]:not([type=checkbox]) + label > [data-popper-arrow]:before{
+  [role="tooltip"]input[type]:not([type=checkbox]) + label > [data-popper-arrow]:before{
   visibility: hidden;
 }
-[role="tooltip"]input[type]:not([type=checkbox]) + label > [data-popper-arrow]:after{
+  [role="tooltip"]input[type]:not([type=checkbox]) + label > [data-popper-arrow]:after{
   visibility: hidden;
 }
-input[type]:not([type=checkbox]) + label{
-  visibility: hidden;
-  left: 1.25rem;
-  top: 0px;
-  align-self: flex-start;
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
-  padding-top: 0.125rem;
-  padding-bottom: 0.125rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: var(--tenant900);
-  transition-property: transform;
-  transition-duration: 200ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-select.tooltip + label > .tooltip-arrow:before{
-  visibility: hidden;
-}
-[role="tooltip"]select + label > [data-popper-arrow]:before{
-  visibility: hidden;
-}
-[role="tooltip"]select + label > [data-popper-arrow]:after{
-  visibility: hidden;
-}
-select + label{
+  input[type]:not([type=checkbox]) + label{
   visibility: hidden;
   left: 1.25rem;
   top: 0px;
@@ -2167,7 +2206,34 @@ select + label{
   transition-duration: 200ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
-input[type=checkbox]{
+  select.tooltip + label > .tooltip-arrow:before{
+  visibility: hidden;
+}
+  [role="tooltip"]select + label > [data-popper-arrow]:before{
+  visibility: hidden;
+}
+  [role="tooltip"]select + label > [data-popper-arrow]:after{
+  visibility: hidden;
+}
+  select + label{
+  visibility: hidden;
+  left: 1.25rem;
+  top: 0px;
+  align-self: flex-start;
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--tenant900);
+  transition-property: transform;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+  input[type=checkbox]{
   margin-left: 0.5rem;
   margin-right: 0.5rem;
   height: 1.25rem;
@@ -2176,15 +2242,15 @@ input[type=checkbox]{
   border-color: rgb(206 206 205 / var(--tw-border-opacity, 1));
   color: var(--tenant900);
 }
-input[type=checkbox]:focus{
+  input[type=checkbox]:focus{
   border-color: var(--tenant500);
   --tw-ring-color: var(--tenant500);
 }
-input[type=checkbox] + label{
+  input[type=checkbox] + label{
   --tw-text-opacity: 1;
   color: rgb(60 60 59 / var(--tw-text-opacity, 1));
 }
-input[type=range]{
+  input[type=range]{
   position: absolute;
   width: 100%;
   -webkit-appearance: none;
@@ -2193,15 +2259,15 @@ input[type=range]{
   border-radius: 9999px;
   background-color: transparent;
 }
-input::-webkit-slider-thumb{
+  input::-webkit-slider-thumb{
   -webkit-appearance: none;
           appearance: none;
 }
-input::-moz-range-thumb{
+  input::-moz-range-thumb{
   -moz-appearance: none;
        appearance: none;
 }
-textarea:focus:focus,
+  textarea:focus:focus,
   select:focus:focus,
   input:focus:focus{
   outline: 2px solid transparent;
@@ -2211,50 +2277,50 @@ textarea:focus:focus,
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
   --tw-ring-color: var(--tenant900);
 }
-input[type=range]::-webkit-slider-runnable-track{
+  input[type=range]::-webkit-slider-runnable-track{
   height: 1.25rem;
   width: 100%;
 }
-input[type=range]::-moz-range-track{
+  input[type=range]::-moz-range-track{
   height: 1.25rem;
   width: 100%;
 }
-input[type=number] {
+  input[type=number] {
     -webkit-appearance: textfield !important;
     -moz-appearance: textfield !important;
     appearance: textfield !important;
   }
-input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-inner-spin-button,
   input[type=number]::-webkit-outer-spin-button{
   -webkit-appearance: none;
           appearance: none;
 }
-::-webkit-scrollbar{
+  ::-webkit-scrollbar{
   margin-left: 1.25rem;
   width: 0.25rem;
 }
-::-webkit-scrollbar-track{
+  ::-webkit-scrollbar-track{
   border-radius: 9999px;
 }
-::-webkit-scrollbar-thumb{
+  ::-webkit-scrollbar-thumb{
   border-radius: 9999px;
   background-color: var(--tenant900);
 }
-::-webkit-scrollbar-thumb:hover{
+  ::-webkit-scrollbar-thumb:hover{
   background-color: var(--tenant900);
 }
-/* Hide IE password reveal/clear */
-input[type=password]::-ms-reveal,
+  /* Hide IE password reveal/clear */
+  input[type=password]::-ms-reveal,
   input[type=password]::-ms-clear{
   display: none;
 }
-.btn-password-show{
+  .btn-password-show{
   border-width: 0px;
   background-color: transparent;
   padding-right: 0.25rem;
   color: inherit;
 }
-.btn-password-show::before {
+  .btn-password-show::before {
     content: "";
     background-image: url("../img/view-on.svg");
     background-size: 100%;
@@ -2264,7 +2330,7 @@ input[type=password]::-ms-reveal,
     height: 36px;
     display: block;
   }
-.btn-password-show.active::before {
+  .btn-password-show.active::before {
     background-image: url("../img/view-off.svg");
   }
 .container{
@@ -2705,38 +2771,38 @@ input[type=password]::-ms-reveal,
 .dark .apexcharts-gridline, .dark .apexcharts-xcrosshairs, .dark .apexcharts-ycrosshairs{
   stroke: var(--color-gray-700) !important;
 }
-.form{
+  .form{
   margin-top: 1.75rem;
   overflow-y: scroll;
   padding-left: 2rem;
   padding-right: 2rem;
 }
-@media (min-width: 1024px){
+  @media (min-width: 1024px){
   .form{
     max-height: 30rem;
   }
 }
-input:visited,
+  input:visited,
   input:focus,
   select:focus,
   input:active {
     border: 1px solid #005b96;
   }
-::-moz-placeholder {
+  ::-moz-placeholder {
     color: #cacaca;
     opacity: 1;
   }
-::placeholder {
+  ::placeholder {
     color: #cacaca;
     opacity: 1;
   }
-:-ms-input-placeholder {
+  :-ms-input-placeholder {
     color: #cacaca;
   }
-::-ms-input-placeholder {
+  ::-ms-input-placeholder {
     color: #cacaca;
   }
-.footer-links{
+  .footer-links{
   display: flex;
   width: 100%;
   flex-direction: row;
@@ -2746,13 +2812,13 @@ input:visited,
   border-bottom-width: 1px;
   border-bottom-color: var(--tenant900);
 }
-@media (min-width: 1024px){
+  @media (min-width: 1024px){
   .footer-links{
     justify-content: flex-start;
     border-bottom-color: transparent;
   }
 }
-.footer-links a{
+  .footer-links a{
   margin-left: 0.25rem;
   margin-right: 0.25rem;
   cursor: pointer;
@@ -2763,21 +2829,21 @@ input:visited,
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
   text-decoration-line: none;
 }
-@media (min-width: 640px){
+  @media (min-width: 640px){
   .footer-links a{
     text-align: center;
   }
 }
-.footer-links span{
+  .footer-links span{
   font-weight: 700;
   color: var(--tenant900);
 }
-.hr-sect{
+  .hr-sect{
   display: flex;
   flex-basis: 100%;
   align-items: center;
 }
-.hr-sect:before, .hr-sect:after{
+  .hr-sect:before, .hr-sect:after{
   --tw-bg-opacity: 1;
   background-color: rgb(206 206 205 / var(--tw-bg-opacity, 1));
     content: "";
@@ -2787,45 +2853,45 @@ input:visited,
     font-size: 0px;
     line-height: 0px;
 }
-.hr-sect span{
+  .hr-sect span{
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   text-transform: lowercase;
   --tw-text-opacity: 1;
   color: rgb(206 206 205 / var(--tw-text-opacity, 1));
 }
-.mini-menu-icon{
+  .mini-menu-icon{
   height: 22px;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
-.text-danger{
+  .text-danger{
   text-align: left;
   font-size: 0.875rem;
   line-height: 1.25rem;
   --tw-text-opacity: 1;
   color: rgb(220 38 38 / var(--tw-text-opacity, 1));
 }
-.input-group{
+  .input-group{
   position: relative;
   grid-column: span 12 / span 12;
 }
-@media (min-width: 1024px){
+  @media (min-width: 1024px){
   .input-group{
     grid-column: span 6 / span 6;
   }
 }
-.input-group-w-full{
+  .input-group-w-full{
   position: relative;
   grid-column: span 12 / span 12;
 }
-.row{
+  .row{
   margin-bottom: 1.25rem;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 1.25rem;
 }
-@media (min-width: 768px){
+  @media (min-width: 768px){
   .row{
     margin-bottom: 1.75rem;
     gap: 1.75rem;
