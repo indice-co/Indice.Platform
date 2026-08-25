@@ -61,7 +61,7 @@ public sealed class CaseDataPresenter : Executor<OtpValidationOutput, RagPipelin
         $"""
         <article class=\"rounded-box border border-base-300 bg-base-100 p-4 shadow-sm\">
           <h3 class=\"text-base font-semibold text-base-content\">{WebUtility.HtmlEncode(message)}</h3>
-          <p>ABARTH Βελμάρ – Ν. Ερυθραία<p>
+          <p>ABARTH Βελμάρ – Ν. Ερυθραία</p>
           <p>
             <img src="https://www.stock-center.gr/sites/default/files/styles/car_gallery/public/car/2026-08/RENAULT%20ARKANA%20XZB-9950%20%283%29.webp?itok=n0z71Awe" width="215" height="142">
             </p>

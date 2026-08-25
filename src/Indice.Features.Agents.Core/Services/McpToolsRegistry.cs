@@ -67,19 +67,25 @@ public sealed class McpToolsRegistry : IMcpToolsRegistry, IAsyncDisposable
                         Endpoint = new Uri(mcpServiceOptions.Endpoint),
                         TransportMode = HttpTransportMode.StreamableHttp,
                     };
-                    var header = _httpContextAccessor.HttpContext.Request.Headers["Authorization"]!;
-                    opts.AdditionalHeaders = new Dictionary<string, string> { ["Authorization"] = header };
+                    var header = _httpContextAccessor.HttpContext?.Request?.Headers["Authorization"].ToString();
+                    if (!string.IsNullOrWhiteSpace(header)) {
+                        opts.AdditionalHeaders = new Dictionary<string, string> { ["Authorization"] = header };
+                    }
                     transport = new HttpClientTransport(opts);
                 }
 
+                await using var transportScope = transport;
+                await using var client = await McpClient.CreateAsync(transportScope, cancellationToken: cancellationToken);
+                var clientTools = await client.ListToolsAsync(cancellationToken: cancellationToken);
 
-                var client = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
-                var clietnTools = await client.ListToolsAsync(cancellationToken: cancellationToken);
-
-                _serverTools.TryAdd(service, clietnTools.AsReadOnly());
-                _logger.LogInformation("External MCP {Url}: discovered {Count} tool(s).", mcpServiceOptions.Endpoint, clietnTools.Count);
-                return clietnTools.AsReadOnly();
-            } catch (Exception ex) {
+                _serverTools.TryAdd(service, clientTools.AsReadOnly());
+                _logger.LogInformation("External MCP {Url}: discovered {Count} tool(s).", mcpServiceOptions.Endpoint, clientTools.Count);
+                return clientTools.AsReadOnly();
+            } catch (UriFormatException ex) {
+                _logger.LogWarning(ex, "External MCP {Url}: failed to connect or list tools; skipping.", mcpServiceOptions.Endpoint);
+            } catch (HttpRequestException ex) {
+                _logger.LogWarning(ex, "External MCP {Url}: failed to connect or list tools; skipping.", mcpServiceOptions.Endpoint);
+            } catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested) {
                 _logger.LogWarning(ex, "External MCP {Url}: failed to connect or list tools; skipping.", mcpServiceOptions.Endpoint);
             }
             return [];

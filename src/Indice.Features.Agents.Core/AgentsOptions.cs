@@ -197,10 +197,13 @@ public class AgentsOptions
         /// <summary>Optional number of retries on transient failures. Defaults to 1 (no retries).</summary>
         public int MaxRetries { get; set; } = 1;
 
-        /// OAuth2 client-credentials config. Takes precedence over BearerToken when set.
+        /// <summary>
+        /// OAuth2 client-credentials config. When set, the MCP client uses the configured client credentials flow
+        /// instead of forwarding the caller's <c>Authorization</c> header.
+        /// </summary>
         public ClientCredentialsOptions? OAuth { get; set; }
 
-        /// <summary>Oauth client credentials configuration for the external MCP server. Takes precedence over <see cref="BearerToken"/> when set.</summary>
+        /// <summary>OAuth client credentials configuration for the external MCP server.</summary>
         public class ClientCredentialsOptions
         {
             /// <summary>OAuth2 token endpoint URL (e.g. <c>https://server/oauth2/token</c>).</summary>
