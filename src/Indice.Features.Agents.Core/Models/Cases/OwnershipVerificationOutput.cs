@@ -6,7 +6,7 @@ namespace Indice.Features.Agents.Core.Models.Cases;
 /// </summary>
 /// <param name="CaseRetrievalData">The original case retrieval output forwarded from previous step.</param>
 /// <param name="VerificationFieldName">The name of the field the user must verify (e.g., "email", "last4digits").</param>
-/// <param name="VerificationFieldValue">The masked or partial value shown to the user for verification.</param>
+/// <param name="VerificationFieldValue">The value for verification.</param>
 /// <param name="VerificationPrompt">The formatted prompt requesting user confirmation.</param>
 public record OwnershipVerificationOutput(
     CaseRetrievalOutput CaseRetrievalData,

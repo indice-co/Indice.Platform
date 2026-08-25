@@ -2,7 +2,6 @@ using System.Text;
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Services;
-using Indice.Features.Agents.Core.Workflows.Mcp;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
@@ -16,7 +15,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 /// Sends an OTP using MCP tools and produces a challenge prompt.
 /// The workflow pauses after this step and waits for the user OTP input on a request port.
 /// </summary>
-public sealed class OtpAgent : Executor<UserInputValidationOutput, OtpChallengeOutput>
+public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpChallengeOutput>
 {
     private readonly AzureOpenAIClient _openAIClient;
     private readonly AgentsOptions _options;
@@ -26,14 +25,14 @@ public sealed class OtpAgent : Executor<UserInputValidationOutput, OtpChallengeO
     private readonly IMcpToolsRegistry _mcpToolsRegistry;
     private readonly string _model;
 
-    /// <summary>Creates a new <see cref="OtpAgent"/>.</summary>
-    public OtpAgent(
+    /// <summary>Creates a new <see cref="OtpCodeSendStep"/>.</summary>
+    public OtpCodeSendStep(
         AzureOpenAIClient openAIClient,
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models,
         IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
-        IMcpToolsRegistry mcpToolsRegistry) : base(nameof(OtpAgent)) {
+        IMcpToolsRegistry mcpToolsRegistry) : base(nameof(OtpCodeSendStep)) {
         _openAIClient = openAIClient;
         _options = options.Value;
         _models = models.Value;

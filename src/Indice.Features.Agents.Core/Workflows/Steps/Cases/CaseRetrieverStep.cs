@@ -15,7 +15,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 /// Step 1 of the Cases workflow: Retrieves case data from the configured MCP service.
 /// The MCP service key is fixed, while the model decides which discovered tool to call.
 /// </summary>
-public sealed class CaseDataRetriever : Executor<ConversationState, CaseRetrievalOutput>
+public sealed class CaseRetrieverStep : Executor<ConversationState, CaseRetrievalOutput>
 {
     private const string McpServiceKey = "Cases";
 
@@ -26,13 +26,13 @@ public sealed class CaseDataRetriever : Executor<ConversationState, CaseRetrieva
     private readonly IMcpToolsRegistry _mcpToolsRegistry;
     private readonly string _model;
 
-    /// <summary>Creates a new <see cref="CaseDataRetriever"/>.</summary>
-    public CaseDataRetriever(
+    /// <summary>Creates a new <see cref="CaseRetrieverStep"/>.</summary>
+    public CaseRetrieverStep(
         AzureOpenAIClient openAIClient,
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models,
         UserClaimsAIContextProvider userClaimsProvider,
-        IMcpToolsRegistry mcpToolsRegistry) : base(nameof(CaseDataRetriever)) {
+        IMcpToolsRegistry mcpToolsRegistry) : base(nameof(CaseRetrieverStep)) {
         _openAIClient = openAIClient;
         _options = options.Value;
         _models = models.Value;

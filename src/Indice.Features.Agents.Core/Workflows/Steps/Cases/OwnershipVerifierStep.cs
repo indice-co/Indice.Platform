@@ -8,12 +8,12 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 /// Step 2 of the Cases workflow: Requests user to verify ownership of the case by confirming a specific field.
 /// Uses a prompt template to generate the verification request with the field name and masked value.
 /// </summary>
-public sealed class OwnershipVerifier : Executor<CaseRetrievalOutput, OwnershipVerificationOutput>
+public sealed class OwnershipVerifierStep : Executor<CaseRetrievalOutput, OwnershipVerificationOutput>
 {
     private readonly IPromptTemplateRenderer _promptRenderer;
 
-    /// <summary>Creates a new <see cref="OwnershipVerifier"/>.</summary>
-    public OwnershipVerifier(IPromptTemplateRenderer promptRenderer) : base(nameof(OwnershipVerifier))
+    /// <summary>Creates a new <see cref="OwnershipVerifierStep"/>.</summary>
+    public OwnershipVerifierStep(IPromptTemplateRenderer promptRenderer) : base(nameof(OwnershipVerifierStep))
     {
         _promptRenderer = promptRenderer ?? throw new ArgumentNullException(nameof(promptRenderer));
     }
@@ -41,7 +41,7 @@ public sealed class OwnershipVerifier : Executor<CaseRetrievalOutput, OwnershipV
         var verificationPrompt = _promptRenderer.Render("CasesOwnershipVerifier", new
         {
             fieldName = verificationFieldName,
-            maskedValue = maskedValue
+            maskedValue
         });
 
         return new OwnershipVerificationOutput(

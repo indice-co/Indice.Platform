@@ -30,6 +30,8 @@ public sealed class FileSystemPromptTemplateRenderer : IPromptTemplateRenderer
                     nameof(AgentsConstants.PromptDefaults.IntentClassifier) => _handlebars.Compile(AgentsConstants.PromptDefaults.IntentClassifier),
                     nameof(AgentsConstants.PromptDefaults.PurposeResponder) => _handlebars.Compile(AgentsConstants.PromptDefaults.PurposeResponder),
                     nameof(AgentsConstants.PromptDefaults.QueryRewriter) => _handlebars.Compile(AgentsConstants.PromptDefaults.QueryRewriter),
+                    //TODO add default templates for the rest of the built-in prompt types
+
                     _ => throw new InvalidOperationException($"Prompt template '{name}' not found at '{path}'."),
                 };
             }

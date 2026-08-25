@@ -13,7 +13,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 /// <summary>
 /// Verifies a user-provided OTP code using MCP tools and produces the terminal response.
 /// </summary>
-public sealed class OtpCodeValidator : Executor<OtpCodeResponse, OtpValidationOutput>
+public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidationOutput>
 {
     private const string McpServiceKey = "Identity";
 
@@ -24,13 +24,13 @@ public sealed class OtpCodeValidator : Executor<OtpCodeResponse, OtpValidationOu
     private readonly IMcpToolsRegistry _mcpToolsRegistry;
     private readonly string _model;
 
-    /// <summary>Creates a new <see cref="OtpCodeValidator"/>.</summary>
-    public OtpCodeValidator(
+    /// <summary>Creates a new <see cref="OtpCodeValidatorStep"/>.</summary>
+    public OtpCodeValidatorStep(
         AzureOpenAIClient openAIClient,
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models,
         UserClaimsAIContextProvider userClaimsProvider,
-        IMcpToolsRegistry mcpToolsRegistry) : base(nameof(OtpCodeValidator)) {
+        IMcpToolsRegistry mcpToolsRegistry) : base(nameof(OtpCodeValidatorStep)) {
         _openAIClient = openAIClient;
         _options = options.Value;
         _models = models.Value;

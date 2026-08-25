@@ -9,13 +9,13 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 /// Receives the user's reply through the ownership confirmation request port (external input) and
 /// compares it with the actual case data field. Supports up to 2 validation attempts.
 /// </summary>
-public sealed class UserInputValidator : Executor<OwnershipConfirmationResponse, UserInputValidationOutput>
+public sealed class UserInputValidatorStep : Executor<OwnershipConfirmationResponse, UserInputValidationOutput>
 {
     private const int MaxValidationAttempts = 2;
     private const string AttemptStateKey = "OwnershipValidationAttempt";
 
-    /// <summary>Creates a new <see cref="UserInputValidator"/>.</summary>
-    public UserInputValidator() : base(nameof(UserInputValidator))
+    /// <summary>Creates a new <see cref="UserInputValidatorStep"/>.</summary>
+    public UserInputValidatorStep() : base(nameof(UserInputValidatorStep))
     {
     }
 

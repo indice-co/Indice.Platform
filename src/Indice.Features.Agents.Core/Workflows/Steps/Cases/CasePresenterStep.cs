@@ -11,10 +11,10 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 /// <summary>
 /// Presents selected case data after OTP verification completes.
 /// </summary>
-public sealed class CaseDataPresenter : Executor<OtpValidationOutput, RagPipelineOutput>
+public sealed class CasePresenterStep : Executor<OtpValidationOutput, RagPipelineOutput>
 {
-    /// <summary>Creates a new <see cref="CaseDataPresenter"/>.</summary>
-    public CaseDataPresenter() : base(nameof(CaseDataPresenter)) {
+    /// <summary>Creates a new <see cref="CasePresenterStep"/>.</summary>
+    public CasePresenterStep() : base(nameof(CasePresenterStep)) {
     }
 
     /// <inheritdoc/>

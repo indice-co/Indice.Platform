@@ -46,8 +46,7 @@ internal sealed class ClientCredentialsBearerHandler : DelegatingHandler
             var currentSubjectId = _contextAccessor.HttpContext?.User.FindSubjectId();
             var userPresent = !string.IsNullOrWhiteSpace(currentAccessToken) && !string.IsNullOrWhiteSpace(currentSubjectId);
             var grantType = userPresent ? "delegation" : "client_credentials";
-            grantType = "client_credentials";
-            var cacheKey = $"{_clientId}|{grantType}|sub|{currentSubjectId}|{_scope.GetHashCode()}";
+            var cacheKey = $"{_clientId}|{grantType}|sub|{currentSubjectId}|scope|{_scope}";
             var accessToken = await _cache.GetStringAsync(cacheKey);
             if (accessToken != null) {
                 return accessToken;
@@ -84,6 +83,14 @@ internal sealed class ClientCredentialsBearerHandler : DelegatingHandler
         }
         return null;
     }
+
+    protected override void Dispose(bool disposing) {
+        if (disposing) {
+            _lock.Dispose();
+        }
+        base.Dispose(disposing);
+    }
+
     private sealed record TokenResponse(
         [property: JsonPropertyName("access_token")] string AccessToken,
         [property: JsonPropertyName("expires_in")] int ExpiresIn);
