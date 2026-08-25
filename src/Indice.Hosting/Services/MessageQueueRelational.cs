@@ -14,7 +14,7 @@ namespace Indice.Hosting.Services;
 /// <typeparam name="T">The type of message.</typeparam>
 public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
 {
-    private readonly TaskDbContext _dbContext;
+    private readonly ITaskDbContext _dbContext;
     private readonly IQueueNameResolver<T> _queueNameResolver;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly MessageQueueQueryDescriptor _queryDescriptor;
@@ -23,33 +23,12 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
     /// <param name="dbContext">A <see cref="DbContext"/> for hosting multiple <see cref="IMessageQueue{T}"/>.</param>
     /// <param name="queueNameResolver">Resolves the queue name.</param>
     /// <param name="workerJsonOptions">These are the options regarding json Serialization. They are used internally for persisting payloads.</param>
-    public MessageQueueRelational(TaskDbContext dbContext, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
+    public MessageQueueRelational(ITaskDbContext dbContext, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _queueNameResolver = queueNameResolver ?? throw new ArgumentNullException(nameof(queueNameResolver));
         _jsonSerializerOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));
         _queryDescriptor = new MessageQueueQueryDescriptor(dbContext);
     }
-
-    /// <summary>
-    /// Creates the command to execute, enlisted in the ambient transaction of the underlying <see cref="DbContext"/> when there is one.
-    /// When there is none <see cref="DbCommand.Transaction"/> is left null, which is the behavior of a stand alone worker store.
-    /// </summary>
-    private async Task<DbCommand> CreateCommandAsync() {
-        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-        var command = dbConnection.CreateCommand();
-        command.Transaction = _dbContext.Database.CurrentTransaction?.GetDbTransaction();
-        return command;
-    }
-
-    /// <summary>Creates the entity to persist for the given payload. Used by the outbox to stage a message on the caller's change tracker.</summary>
-    internal DbQMessage CreateMessage(T payload, DateTime enqueueAt) => new() {
-        Id = Guid.NewGuid(),
-        QueueName = _queueNameResolver.Resolve(),
-        Payload = JsonSerializer.Serialize(payload, _jsonSerializerOptions),
-        Date = enqueueAt,
-        DequeueCount = 0,
-        State = QMessageState.New
-    };
 
     /* We do not need to implement this method here, since when an item is dequeued it is also removed at the same time. */
     /// <inheritdoc/>
@@ -101,15 +80,12 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
     }
 
     /// <inheritdoc/>
-    public Task EnqueueRange(IEnumerable<QMessage<T>> items)
-        => EnqueueRangeInternal(items as IReadOnlyList<QMessage<T>> ?? items.ToList());
-
-    private async Task EnqueueRangeInternal(IReadOnlyList<QMessage<T>> items) {
+    public async Task EnqueueRange(IEnumerable<QMessage<T>> items) {
         var query = new StringBuilder(_queryDescriptor.EnqueueRangeInsertStatement);
         const double maxBatchSize = 1000d;
-        var batches = Math.Ceiling(items.Count / maxBatchSize);
+        var batches = Math.Ceiling(items.Count() / maxBatchSize);
         for (var i = 0; i < batches; i++) {
-            var remainingItemsCount = items.Count - i * maxBatchSize;
+            var remainingItemsCount = items.Count() - i * maxBatchSize;
             var iterationLength = remainingItemsCount >= maxBatchSize ? maxBatchSize : remainingItemsCount;
             var offset = (int)(i * maxBatchSize);
             await using var command = await CreateCommandAsync();
@@ -117,7 +93,7 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
                 query.AppendFormat(_queryDescriptor.EnqueueRangeValuesStatement, j);
                 var isLastItem = j == iterationLength - 1;
                 query.Append(!isLastItem ? ", " : ";");
-                var currentItem = items[offset + j];
+                var currentItem = items.ElementAt(offset + j);
                 command.AddParameterWithValue($"@Id{j}", Guid.Parse(currentItem.Id), DbType.Guid);
                 command.AddParameterWithValue($"@QueueName{j}", _queueNameResolver.Resolve(), DbType.String);
                 command.AddParameterWithValue($"@Payload{j}", JsonSerializer.Serialize(currentItem.Value, _jsonSerializerOptions), DbType.String);
@@ -145,11 +121,27 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
         }
         return !string.IsNullOrEmpty(payload) ? JsonSerializer.Deserialize<T>(payload, _jsonSerializerOptions) : default;
     }
+    
+    internal DbQMessage CreateMessage(T payload, DateTime enqueueAt) => new() {
+        Id = Guid.NewGuid(),
+        QueueName = _queueNameResolver.Resolve(),
+        Payload = JsonSerializer.Serialize(payload, _jsonSerializerOptions),
+        Date = enqueueAt,
+        DequeueCount = 0,
+        State = QMessageState.New
+    };
+    
+    private async Task<DbCommand> CreateCommandAsync() {
+        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
+        var command = dbConnection.CreateCommand();
+        command.Transaction = _dbContext.Database.CurrentTransaction?.GetDbTransaction();
+        return command;
+    }
 }
 
 internal class MessageQueueQueryDescriptor
 {
-    public MessageQueueQueryDescriptor(DbContext context) {
+    public MessageQueueQueryDescriptor(ITaskDbContext context) {
         switch (context.Database.ProviderName) {
             case "Npgsql.EntityFrameworkCore.PostgreSQL":
                 Count = PostgreSqlMessageQueueQueries.Count;

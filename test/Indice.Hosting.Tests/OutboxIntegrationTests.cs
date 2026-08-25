@@ -9,6 +9,9 @@ using Xunit;
 
 namespace Indice.Hosting.Tests;
 
+/// <summary>
+/// Outbox tests with and without using the Outbox.
+/// </summary>
 public class OutboxIntegrationTests : IAsyncLifetime
 {
     private readonly string _connectionString = $"Server=(localdb)\\MSSQLLocalDB;Database=WorkerDb.Test_{Environment.Version.Major}_{Guid.NewGuid():N};Trusted_Connection=True;MultipleActiveResultSets=true";
@@ -19,7 +22,7 @@ public class OutboxIntegrationTests : IAsyncLifetime
     
     private readonly IHost _host;
     private IServiceScope _scope = null!;
-    private TestDbContext _testDbContext = null!;
+    private IntegratorDbContext _integratorDbContext = null!;
     private IMessageQueue<TestEvent> _queue = null!;
     private IMessageQueue<TestEvent2> _queue2 = null!;
 
@@ -34,7 +37,8 @@ public class OutboxIntegrationTests : IAsyncLifetime
             .ConfigureServices(services => {
                 services.AddWorkerHost(options => {
                         options.WaitJobsToCompleteOnShutdown = true;
-                        options.UseStoreRelational<TestDbContext>(builder => builder.UseSqlServer(_connectionString));
+                        // use Outbox and register the integrator's DbContext as the TaskDbContext
+                        options.UseStoreRelational<IntegratorDbContext>(builder => builder.UseSqlServer(_connectionString));
                     })
                     .AddJob<TestEventHandler>()
                     .WithQueueTrigger<TestEvent>(options => {
@@ -52,7 +56,7 @@ public class OutboxIntegrationTests : IAsyncLifetime
             .Build();
     }
 
-    #region Regression
+    #region No Outbox
 
     [Fact]
     public async Task EnqueueSingleSuccess() {
@@ -75,42 +79,67 @@ public class OutboxIntegrationTests : IAsyncLifetime
         Assert.Equal(1, events.Count(x => x.QueueName == QueueName && x.Payload.Contains(_businessId.ToString())));
         Assert.Equal(1, events.Count(x => x.QueueName == QueueName && x.Payload.Contains(_businessId2.ToString())));
     }
-    #endregion
     
-    #region Outbox
-
+    /// <summary>
+    /// Regression when publishing a message inside a transaction.
+    /// Now the message is published transactionally.
+    /// </summary>
     [Fact]
     public async Task OutboxSingleCallerOwnsTransaction() {
-        await using (var transaction = await _testDbContext.Database.BeginTransactionAsync()) {
+        await using (var transaction = await _integratorDbContext.Database.BeginTransactionAsync()) {
+            _integratorDbContext.Add(new TestEntity { Id = _businessId });
             await _queue.Enqueue(new TestEvent(_businessId));
+            await _integratorDbContext.SaveChangesAsync();
             await transaction.CommitAsync();
         }
 
-        await AssertDatabaseData(_businessId, expectedEntities: 0, expectedEvents: 1);
+        await AssertDatabaseData(_businessId, expectedEntities: 1, expectedEvents: 1);
     }
-
-    // todo: changed behaviour
+    
+    /// <summary>
+    /// Regression when publishing a message inside a transaction.
+    /// Now the message is rollbacked transactionally.
+    /// </summary>
     [Fact]
-    public async Task OutboxSingleCallerOwnsTransactionRollsBack() {
-        await using (var transaction = await _testDbContext.Database.BeginTransactionAsync()) {
+    public async Task OutboxSingleCallerOwnsTransactionRollback() {
+        await using (var transaction = await _integratorDbContext.Database.BeginTransactionAsync()) {
+            _integratorDbContext.Add(new TestEntity { Id = _businessId });
             await _queue.Enqueue(new TestEvent(_businessId));
+            await _integratorDbContext.SaveChangesAsync();
             await transaction.RollbackAsync();
         }
 
         await AssertDatabaseData(_businessId, expectedEntities: 0, expectedEvents: 0);
     }
     
+    #endregion
+    
+    #region Outbox
+    
     [Fact]
-    public async Task AddAndEnqueueSingle() {
-        _testDbContext.AddAndEnqueue(new TestEntity { Id = _businessId }, new TestEvent(_businessId));
-
-        Assert.Equal(2, await _testDbContext.SaveChangesAsync());
+    public async Task OutboxSingleOk() {
+        _integratorDbContext.Add(new TestEntity { Id = _businessId });
+        _integratorDbContext.Enqueue(new TestEvent(_businessId));
+        var count = await _integratorDbContext.SaveChangesAsync();
+        
+        Assert.Equal(2, count);
         await AssertDatabaseData(_businessId, expectedEntities: 1, expectedEvents: 1);
     }
-
+    
     [Fact]
-    public async Task AddAndEnqueueNothingIsWrittenBeforeSaveChanges() {
-        _testDbContext.AddAndEnqueue(new TestEntity { Id = _businessId }, new TestEvent(_businessId));
+    public async Task AddAndEnqueueSingle() {
+        _integratorDbContext.AddAndEnqueue(new TestEntity { Id = _businessId }, new TestEvent(_businessId));
+        var count = await _integratorDbContext.SaveChangesAsync();
+
+        Assert.Equal(2, count);
+        await AssertDatabaseData(_businessId, expectedEntities: 1, expectedEvents: 1);
+    }
+    
+    [Fact]
+    public async Task OutboxSingleErrorInSaveChangesWritesNothing() {
+        _integratorDbContext.Add(new TestEntity { Id = _businessId });
+        _integratorDbContext.Enqueue(new TestEvent(_businessId));
+        await Assert.ThrowsAsync<NotImplementedException>(() => _integratorDbContext.SaveChangesAsyncThrows());
 
         await AssertDatabaseData(_businessId, expectedEntities: 0, expectedEvents: 0);
     }
@@ -118,23 +147,23 @@ public class OutboxIntegrationTests : IAsyncLifetime
     [Fact]
     public async Task AddAndEnqueueDuplicateThrowsDbUpdateException() {
         using (var scope = _host.Services.CreateScope()) {
-            var testDbContext = scope.ServiceProvider.GetRequiredService<TestDbContext>();
-            testDbContext.TestEntities.Add(new TestEntity { Id = _businessId });
-            await testDbContext.SaveChangesAsync();
+            var integratorDbContext = scope.ServiceProvider.GetRequiredService<IntegratorDbContext>();
+            integratorDbContext.TestEntities.Add(new TestEntity { Id = _businessId });
+            await integratorDbContext.SaveChangesAsync();
         }
 
-        _testDbContext.AddAndEnqueue(new TestEntity { Id = _businessId }, new TestEvent(_businessId));
+        _integratorDbContext.AddAndEnqueue(new TestEntity { Id = _businessId }, new TestEvent(_businessId));
 
-        await Assert.ThrowsAnyAsync<DbUpdateException>(() => _testDbContext.SaveChangesAsync());
+        await Assert.ThrowsAnyAsync<DbUpdateException>(() => _integratorDbContext.SaveChangesAsync());
         
         await AssertDatabaseData(_businessId, expectedEntities: 1, expectedEvents: 0);
     }
 
     [Fact]
     public async Task AddAndEnqueueTransactionRollsBack() {
-        await using (var transaction = await _testDbContext.Database.BeginTransactionAsync()) {
-            _testDbContext.AddAndEnqueue(new TestEntity { Id = _businessId }, new TestEvent(_businessId));
-            await _testDbContext.SaveChangesAsync();
+        await using (var transaction = await _integratorDbContext.Database.BeginTransactionAsync()) {
+            _integratorDbContext.AddAndEnqueue(new TestEntity { Id = _businessId }, new TestEvent(_businessId));
+            await _integratorDbContext.SaveChangesAsync();
             await transaction.RollbackAsync();
         }
 
@@ -142,8 +171,8 @@ public class OutboxIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task AddAndEnqueueRangeIsAtomic() {
-        _testDbContext.AddAndEnqueueRange(
+    public async Task AddAndEnqueueRange() {
+        _integratorDbContext.AddAndEnqueueRange(
             [
                 new TestEntity { Id = _businessId },
                 new TestEntity { Id = _businessId2 }
@@ -154,7 +183,7 @@ public class OutboxIntegrationTests : IAsyncLifetime
             ]
         );
 
-        Assert.Equal(4, await _testDbContext.SaveChangesAsync());
+        Assert.Equal(4, await _integratorDbContext.SaveChangesAsync());
 
         var (businessEntities, events) = await GetDatabaseEntities();
         Assert.Equal(2, businessEntities.Count);
@@ -166,10 +195,10 @@ public class OutboxIntegrationTests : IAsyncLifetime
     
     [Fact]
     public async Task AddAndEnqueueRangeWithSecondQueueInOneSave() {
-        _testDbContext.AddAndEnqueueRange([new TestEntity { Id = _businessId }], [new TestEvent(_businessId)]);
-        _testDbContext.EnqueueRange([new TestEvent2(_businessId2)]);
+        _integratorDbContext.AddAndEnqueueRange([new TestEntity { Id = _businessId }], [new TestEvent(_businessId)]);
+        _integratorDbContext.EnqueueRange([new TestEvent2(_businessId2)]);
 
-        await _testDbContext.SaveChangesAsync();
+        await _integratorDbContext.SaveChangesAsync();
 
         var (businessEntities, events) = await GetDatabaseEntities();
         Assert.Single(businessEntities);
@@ -180,11 +209,11 @@ public class OutboxIntegrationTests : IAsyncLifetime
 
     [Fact]
     public async Task EnqueueDifferentQueuesInOneSave() {
-        _testDbContext.Add(new TestEntity { Id = _businessId });
-        _testDbContext.Enqueue(new TestEvent(_businessId));
-        _testDbContext.Enqueue(new TestEvent2(_businessId2));
+        _integratorDbContext.Add(new TestEntity { Id = _businessId });
+        _integratorDbContext.Enqueue(new TestEvent(_businessId));
+        _integratorDbContext.Enqueue(new TestEvent2(_businessId2));
 
-        await _testDbContext.SaveChangesAsync();
+        await _integratorDbContext.SaveChangesAsync();
 
         var (businessEntities, events) = await GetDatabaseEntities();
         Assert.Single(businessEntities);
@@ -195,9 +224,9 @@ public class OutboxIntegrationTests : IAsyncLifetime
 
     [Fact]
     public async Task EnqueueRangeOk() {
-        _testDbContext.EnqueueRange([new TestEvent(_businessId), new TestEvent(_businessId2)]);
+        _integratorDbContext.EnqueueRange([new TestEvent(_businessId), new TestEvent(_businessId2)]);
 
-        await _testDbContext.SaveChangesAsync();
+        await _integratorDbContext.SaveChangesAsync();
 
         var (_, events) = await GetDatabaseEntities();
         Assert.Equal(2, events.Count);
@@ -206,8 +235,8 @@ public class OutboxIntegrationTests : IAsyncLifetime
 
     [Fact]
     public async Task AddAndEnqueueDelayedMessageNotVisible() {
-        _testDbContext.AddAndEnqueue(new TestEntity { Id = _businessId }, new TestEvent(_businessId), DateTime.UtcNow.AddHours(1));
-        await _testDbContext.SaveChangesAsync();
+        _integratorDbContext.AddAndEnqueue(new TestEntity { Id = _businessId }, new TestEvent(_businessId), DateTime.UtcNow.AddHours(1));
+        await _integratorDbContext.SaveChangesAsync();
 
         await AssertDatabaseData(_businessId, expectedEntities: 1, expectedEvents: 1);
         Assert.Null(await _queue.Dequeue());
@@ -215,9 +244,9 @@ public class OutboxIntegrationTests : IAsyncLifetime
 
     [Fact]
     public async Task EnqueueVisibilityWindowNotVisible() {
-        _testDbContext.Enqueue(new TestEvent(_businessId), TimeSpan.FromHours(1));
-        _testDbContext.Enqueue(new TestEvent2(_businessId2));
-        await _testDbContext.SaveChangesAsync();
+        _integratorDbContext.Enqueue(new TestEvent(_businessId), TimeSpan.FromHours(1));
+        _integratorDbContext.Enqueue(new TestEvent2(_businessId2));
+        await _integratorDbContext.SaveChangesAsync();
 
         Assert.Null(await _queue.Dequeue());
         Assert.NotNull(await _queue2.Dequeue());
@@ -227,9 +256,9 @@ public class OutboxIntegrationTests : IAsyncLifetime
 
     private async Task<(List<TestEntity> entities, List<DbQMessage> events)> GetDatabaseEntities() {
         using var scope = _host.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<IntegratorDbContext>();
         var businessEntities = await dbContext.TestEntities.AsNoTracking().ToListAsync();
-        var events = await dbContext.Queue.AsNoTracking().ToListAsync();
+        var events = await dbContext.Set<DbQMessage>().AsNoTracking().ToListAsync();
 
         return (businessEntities, events);
     }
@@ -257,28 +286,41 @@ public class OutboxIntegrationTests : IAsyncLifetime
         public Guid Id { get; set; }
     }
 
-    /// <summary>The integrator's context.</summary>
-    public class TestDbContext : TaskDbContext
+    public abstract class AnotherBaseDbContext : DbContext
     {
-        public TestDbContext(DbContextOptions<TestDbContext> options) : base(options) { }
+        protected AnotherBaseDbContext(DbContextOptions options) : base(options) { }
+    }
+
+    public class IntegratorDbContext : AnotherBaseDbContext, ITaskDbContext
+    {
+        public IntegratorDbContext(DbContextOptions<IntegratorDbContext> options) : base(options) { }
 
         public DbSet<TestEntity> TestEntities => Set<TestEntity>();
+
+        public Task<int> SaveChangesAsyncThrows(CancellationToken cancellationToken = default) {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder) {
+            base.OnModelCreating(builder);
+            builder.ApplyWorkerConfiguration(providerName: Database.ProviderName);
+        }
     }
 
     public async Task InitializeAsync() {
         await _host.StartAsync();
         _scope = _host.Services.CreateScope();
-        _testDbContext = _scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        _integratorDbContext = _scope.ServiceProvider.GetRequiredService<IntegratorDbContext>();
         _queue = _scope.ServiceProvider.GetRequiredService<IMessageQueue<TestEvent>>();
         _queue2 = _scope.ServiceProvider.GetRequiredService<IMessageQueue<TestEvent2>>();
 
-        await _testDbContext.Database.EnsureCreatedAsync();
+        await _integratorDbContext.Database.EnsureCreatedAsync();
     }
 
     public async Task DisposeAsync() {
         _scope.Dispose();
         using (var scope = _host.Services.CreateScope()) {
-            await scope.ServiceProvider.GetRequiredService<TestDbContext>().Database.EnsureDeletedAsync();
+            await scope.ServiceProvider.GetRequiredService<IntegratorDbContext>().Database.EnsureDeletedAsync();
         }
         await _host.StopAsync();
         _host.Dispose();

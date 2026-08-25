@@ -7,8 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 /// <summary>OutboxDbContextExtensions</summary>
 public static class OutboxDbContextExtensions
 {
-    /// <summary><inheritdoc cref="AddAndEnqueue{TEntity, TEvent}(TaskDbContext, TEntity, TEvent, DateTime?)"/></summary>
-    public static void AddAndEnqueue<TEntity, TEvent>(this TaskDbContext dbContext, TEntity entity, TEvent @event, TimeSpan visibilityWindow)
+    /// <summary><inheritdoc cref="AddAndEnqueue{TEntity, TEvent}(ITaskDbContext,TEntity, TEvent, DateTime?)"/></summary>
+    public static void AddAndEnqueue<TEntity, TEvent>(this ITaskDbContext dbContext, TEntity entity, TEvent @event, TimeSpan visibilityWindow)
         where TEntity : class where TEvent : class
         => dbContext.AddAndEnqueue(entity, @event, DateTime.UtcNow.Add(visibilityWindow));
 
@@ -18,9 +18,9 @@ public static class OutboxDbContextExtensions
     /// </summary>
     /// <param name="dbContext">The integrator's context.</param>
     /// <param name="entity">The business entity to add.</param>
-    /// <param name="event">The event to publish once the entity is persisted.</param>
+    /// <param name="event">The event to publish.</param>
     /// <param name="enqueueAt">When the message becomes visible to consumers. Defaults to now.</param>
-    public static void AddAndEnqueue<TEntity, TEvent>(this TaskDbContext dbContext, TEntity entity, TEvent @event, DateTime? enqueueAt = null) 
+    public static void AddAndEnqueue<TEntity, TEvent>(this ITaskDbContext dbContext, TEntity entity, TEvent @event, DateTime? enqueueAt = null) 
         where TEntity : class where TEvent : class {
         ArgumentNullException.ThrowIfNull(dbContext);
         ArgumentNullException.ThrowIfNull(entity);
@@ -28,8 +28,8 @@ public static class OutboxDbContextExtensions
         dbContext.EnqueueRange([@event], enqueueAt);
     }
 
-    /// <summary><inheritdoc cref="AddAndEnqueueRange{TEntity, TEvent}(TaskDbContext, IEnumerable{TEntity}, IEnumerable{TEvent}, DateTime?)" path="/summary"/></summary>
-    public static void AddAndEnqueueRange<TEntity, TEvent>(this TaskDbContext dbContext, IEnumerable<TEntity> entities, IEnumerable<TEvent> events, TimeSpan visibilityWindow)
+    /// <summary><inheritdoc cref="AddAndEnqueueRange{TEntity, TEvent}(ITaskDbContext,IEnumerable{TEntity}, IEnumerable{TEvent}, DateTime?)" path="/summary"/></summary>
+    public static void AddAndEnqueueRange<TEntity, TEvent>(this ITaskDbContext dbContext, IEnumerable<TEntity> entities, IEnumerable<TEvent> events, TimeSpan visibilityWindow)
         where TEntity : class where TEvent : class
         => dbContext.AddAndEnqueueRange(entities, events, DateTime.UtcNow.Add(visibilityWindow));
 
@@ -38,14 +38,13 @@ public static class OutboxDbContextExtensions
     /// The integrator is responsible for calling <see cref="DbContext.SaveChangesAsync(CancellationToken)"/>.
     /// </summary>
     /// <remarks>
-    /// Every event is published to the queue of <typeparamref name="TEvent"/>. To publish to another queue in the same transaction,
-    /// add an <see cref="EnqueueRange{TEvent}(TaskDbContext, IEnumerable{TEvent}, DateTime?)"/> call before saving.
+    /// Every event is published to the queue of <typeparamref name="TEvent"/>. You can chain multiple calls to publish to another queue in the same transaction.
     /// </remarks>
     /// <param name="dbContext">The integrator's context.</param>
     /// <param name="entities">The business entities to add.</param>
-    /// <param name="events">The events to publish once the entities are persisted.</param>
+    /// <param name="events">The events to publish.</param>
     /// <param name="enqueueAt">When the messages become visible to consumers. Defaults to now.</param>
-    public static void AddAndEnqueueRange<TEntity, TEvent>(this TaskDbContext dbContext, IEnumerable<TEntity> entities, IEnumerable<TEvent> events, DateTime? enqueueAt = null)
+    public static void AddAndEnqueueRange<TEntity, TEvent>(this ITaskDbContext dbContext, IEnumerable<TEntity> entities, IEnumerable<TEvent> events, DateTime? enqueueAt = null)
         where TEntity : class where TEvent : class {
         ArgumentNullException.ThrowIfNull(dbContext);
         ArgumentNullException.ThrowIfNull(entities);
@@ -53,26 +52,26 @@ public static class OutboxDbContextExtensions
         dbContext.EnqueueRange(events, enqueueAt);
     }
 
-    /// <summary><inheritdoc cref="EnqueueRange{TEvent}(TaskDbContext, IEnumerable{TEvent}, DateTime?)" path="/summary"/></summary>
-    public static void Enqueue<TEvent>(this TaskDbContext dbContext, TEvent @event, DateTime? enqueueAt = null) where TEvent : class
+    /// <summary><inheritdoc cref="EnqueueRange{TEvent}(ITaskDbContext,IEnumerable{TEvent}, DateTime?)" path="/summary"/></summary>
+    public static void Enqueue<TEvent>(this ITaskDbContext dbContext, TEvent @event, DateTime? enqueueAt = null) where TEvent : class
         => dbContext.EnqueueRange([@event], enqueueAt);
 
-    /// <summary><inheritdoc cref="EnqueueRange{TEvent}(TaskDbContext, IEnumerable{TEvent}, DateTime?)" path="/summary"/></summary>
-    public static void Enqueue<TEvent>(this TaskDbContext dbContext, TEvent @event, TimeSpan visibilityWindow) where TEvent : class
+    /// <summary><inheritdoc cref="EnqueueRange{TEvent}(ITaskDbContext,IEnumerable{TEvent}, DateTime?)" path="/summary"/></summary>
+    public static void Enqueue<TEvent>(this ITaskDbContext dbContext, TEvent @event, TimeSpan visibilityWindow) where TEvent : class
         => dbContext.EnqueueRange([@event], DateTime.UtcNow.Add(visibilityWindow));
 
-    /// <summary><inheritdoc cref="EnqueueRange{TEvent}(TaskDbContext, IEnumerable{TEvent}, DateTime?)" path="/summary"/></summary>
-    public static void EnqueueRange<TEvent>(this TaskDbContext dbContext, IEnumerable<TEvent> events, TimeSpan visibilityWindow) where TEvent : class
+    /// <summary><inheritdoc cref="EnqueueRange{TEvent}(ITaskDbContext,IEnumerable{TEvent}, DateTime?)" path="/summary"/></summary>
+    public static void EnqueueRange<TEvent>(this ITaskDbContext dbContext, IEnumerable<TEvent> events, TimeSpan visibilityWindow) where TEvent : class
         => dbContext.EnqueueRange(events, DateTime.UtcNow.Add(visibilityWindow));
 
     /// <summary>
-    /// Enqueue a range of events.
+    /// Enqueues a range of events.
     /// The integrator is responsible for calling <see cref="DbContext.SaveChangesAsync(CancellationToken)"/>.
     /// </summary>
     /// <param name="dbContext">The integrator's context.</param>
     /// <param name="events">The events to publish.</param>
     /// <param name="enqueueAt">When the messages become visible to consumers. Defaults to now.</param>
-    public static void EnqueueRange<TEvent>(this TaskDbContext dbContext, IEnumerable<TEvent> events, DateTime? enqueueAt = null) where TEvent : class {
+    public static void EnqueueRange<TEvent>(this ITaskDbContext dbContext, IEnumerable<TEvent> events, DateTime? enqueueAt = null) where TEvent : class {
         ArgumentNullException.ThrowIfNull(dbContext);
         ArgumentNullException.ThrowIfNull(events);
         

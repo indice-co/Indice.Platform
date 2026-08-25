@@ -37,15 +37,12 @@ public static class WorkPublisherConfiguration
     /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
     /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
     /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-    public static WorkPublisherOptions UseStoreRelational<TContext>(this WorkPublisherOptions options, Action<DbContextOptionsBuilder>? configureAction = null) where TContext : TaskDbContext {
-        var isDefaultContext = typeof(TContext) == typeof(TaskDbContext);
+    public static WorkPublisherOptions UseStoreRelational<TContext>(this WorkPublisherOptions options, Action<DbContextOptionsBuilder>? configureAction = null) where TContext : DbContext, ITaskDbContext {
         var connectionString = options.Services.BuildServiceProvider().GetRequiredService<IConfiguration>().GetConnectionString("WorkerDb");
         void sqlServerConfiguration(DbContextOptionsBuilder builder) => builder.UseSqlServer(connectionString);
         configureAction ??= sqlServerConfiguration;
         options.Services.AddDbContext<TContext>(configureAction);
-        if (!isDefaultContext) {
-            options.Services.TryAddScoped<TaskDbContext>(serviceProvider => serviceProvider.GetRequiredService<TContext>());
-        }
+        options.Services.TryAddScoped<ITaskDbContext>(sp => sp.GetRequiredService<TContext>());
         options.QueueStoreType = typeof(MessageQueueRelational<>);
         return options;
     }

@@ -107,12 +107,15 @@ Use `AddAndEnqueue` if you want Outbox behavior.
 
 ### Requirements
 
-Your `DbContext` must target the same database as the worker store.
+Your `DbContext` must target the same database and more restrictively be on the same DbContext as the worker store.
+```csharp
+services.AddWorkerHost(options => options.UseStoreRelational<BankingDbContext>(builder => builder.UseSqlServer(connectionString)));
+```
 
-### 1. Derive your `DbContext` from `TaskDbContext`
+### 1. Implement `ITaskDbContext` on your `DbContext`
 
 ```csharp
-public class BankingDbContext : TaskDbContext
+public class BankingDbContext : DbContext, ITaskDbContext
 {
     public BankingDbContext(DbContextOptions<BankingDbContext> options) : base(options) { }
 
@@ -120,7 +123,7 @@ public class BankingDbContext : TaskDbContext
 
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
-        // ...
+        builder.ApplyWorkerStoreConfiguration(Database.ProviderName); <-- this is required
     }
 }
 ```
@@ -152,18 +155,17 @@ dbContext.AddAndEnqueue(order, new OrderCreatedEvent(order.Id), TimeSpan.FromHou
 dbContext.EnqueueRange(orders.Select(x => new OrderCreatedEvent(x.Id)));
 ```
 
-### Several queues in one unit of work
-
-Just stage them all before saving:
+### Different queues in one transaction
+Only events of one message queue type are supported in one `AddAndEnqueueRange` call. If you want multiple commands published, specify them separately, like so:
 ```csharp
 dbContext.Orders.Add(order);
-dbContext.Enqueue(new OrderCreatedEvent(order.Id));
-dbContext.Enqueue(new AuditEntryCreatedEvent(order));
-dbContext.Enqueue(new NotifyUserEvent(order.Id), DateTime.UtcNow.AddMinutes(1));
+dbContext.Enqueue(new ProcessOrderCommand(order.Id));
+dbContext.Enqueue(new CreateAuditEntryCommand(order));
+dbContext.Enqueue(new NotifyUserCommand(order.Id), DateTime.UtcNow.AddMinutes(1));
 await dbContext.SaveChangesAsync(cancellationToken);
 ```
 
-### When the Integrator owns the transaction
+### When you own the transaction
 
 Nothing special is needed — the staged messages are written by your `SaveChangesAsync()` and commit or roll
 back with your transaction:
@@ -177,4 +179,4 @@ await someOtherService.DoWork(cancellationToken);
 await transaction.CommitAsync(cancellationToken);
 ```
 
-**Keep transactions short.** The message insert holds row locks until commit.
+Note: Any IMessageQueue<T> inside a transaction will be committed/rollbacked with the transaction.
