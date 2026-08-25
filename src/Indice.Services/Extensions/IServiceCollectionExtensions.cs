@@ -191,7 +191,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <remarks>Automatically discovers the correct provider using the configuration setting <strong>Sms:Provider</strong> to automatically load the correct configuration.
     /// <br />Acceptable values:
-    /// <strong>yuboto, yuboto_viber, vonage, twilio, smsup, apifon, apifon_im, kapatel, mstat, none</strong>
+    /// <strong>yuboto, yuboto_viber, vonage, twilio, smsup, apifon, apifon_im, kapatel, mstat, konecta, none</strong>
     /// </remarks>
     public static IServiceCollection AddSmsService(this IServiceCollection services, IConfiguration configuration) {
         var providerNamesText = configuration.GetSection(SmsServiceSettings.Name).GetValue<string>("Provider");
@@ -230,6 +230,9 @@ public static class IndiceServicesServiceCollectionExtensions
                     break;
                 case "mstat":
                     services.AddSmsServiceMstat(configuration);
+                    break;
+                case "konecta":
+                    services.AddSmsServiceKonecta(configuration);
                     break;
                 case "noop":
                 case "none":
@@ -374,6 +377,19 @@ public static class IndiceServicesServiceCollectionExtensions
                                             httpClient.BaseAddress = new Uri("https://backend.tms.m-stat.gr/api/v1/messages");
                                         })
                                         .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        return services;
+    }
+
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Konecta.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddSmsServiceKonecta(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceKonectaSettings>? configure = null) {
+        services.Configure<SmsServiceKonectaSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+        var options = new SmsServiceKonectaSettings();
+        configure?.Invoke(options);
+        services.AddHttpClient<ISmsService, SmsServiceKonecta>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
     }
 

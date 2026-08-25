@@ -270,6 +270,15 @@ public static class WorkerHostBuilderExtensions
         return options;
     }
 
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Konecta from sending regular SMS messages.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static MessageJobsOptions UseSmsServiceKonecta(this MessageJobsOptions options, IConfiguration configuration, Action<SmsServiceKonectaSettings>? configure = null) {
+        options.Services.AddSmsServiceKonecta(configuration, configure);
+        return options;
+    }
+
     /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configure">Delegate used to configure <see cref="ContactResolverIdentity"/> service.</param>
