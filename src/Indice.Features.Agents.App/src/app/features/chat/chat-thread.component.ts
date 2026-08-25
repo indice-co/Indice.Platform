@@ -9,16 +9,16 @@ import {
   viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MarkdownModule } from 'ngx-markdown';
 
 import { ChatCitationsComponent } from './chat-citations.component';
+import { ChatMessagePartComponent } from './chat-message-part.component';
 import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
 
 /** The scrolling conversation: message bubbles, live streaming answer, citations and empty state. */
 @Component({
   selector: 'app-chat-thread',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MarkdownModule, ChatCitationsComponent],
+  imports: [CommonModule, ChatCitationsComponent, ChatMessagePartComponent],
   template: `
     <div #scroller class="dex-scroll dex-canvas h-full overflow-y-auto">
       <div class="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
@@ -78,13 +78,11 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                     <div class="rounded-box rounded-tl-sm border border-base-300 bg-base-100 px-4 py-2.5
                                 text-[0.95rem] text-base-content shadow-sm">
                             @for (contentPart of turn.message.content.parts; track $index) {
-                              @if (contentPart.contentType != 'text/markdown' && contentPart.contentType != 'text') {
-                                <div class="{{contentPart.contentType}}">
-                                {{ contentPart.value }}
-                                </div>
-                              } @else {
-                                <div class="markdown" markdown [data]="contentPart.value"></div>
-                              }
+                              <app-chat-message-part
+                                [part]="contentPart"
+                                [interactive]="turn.isLatest && !streaming()"
+                                (optionPick)="optionPick.emit($event)"
+                              />
                             }
 
                   </div>
@@ -178,14 +176,9 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                       class="dex-caret rounded-box rounded-tl-sm border border-base-300 bg-base-100 px-4 py-2.5
                              text-[0.95rem] text-base-content shadow-sm"
                     >
+                      <!-- Nothing on a still-streaming answer is actionable yet — interactive defaults to false. -->
                       @for (contentPart of live.content.parts; track $index) {
-                        @if (contentPart.contentType != 'text/markdown' && contentPart.contentType != 'text') {
-                          <div class="{{contentPart.contentType}}">
-                          {{ contentPart.value }}
-                          </div>
-                        } @else {
-                          <div class="markdown" markdown [data]="contentPart.value"></div>
-                        }
+                        <app-chat-message-part [part]="contentPart" />
                       }
                     </div>
                     @if ((live.citations ?? []).length > 0) {
@@ -223,6 +216,8 @@ export class ChatThreadComponent {
   readonly questionsTotal = input<number | null>(null);
 
   readonly examplePick = output<string>();
+  /** Emits the option the user picked from a multiple-choice part, to be sent as the next user message. */
+  readonly optionPick = output<string>();
   /** Emits when the user rates an assistant answer: `like` true/false, or null to clear the rating. */
   readonly likeChanged = output<{ messageId: string; like: boolean | null }>();
 
@@ -245,6 +240,10 @@ export class ChatThreadComponent {
    * Messages annotated with usage: only the latest assistant answer carries the counter — the
    * questions used so far, clamped to the total so the non-persisted limit-reached reply reads as
    * the cap (5/5, not 6/5). The dot hue runs green (fresh) → red (at the cap): 120 → 0 by used/total.
+   *
+   * `isLatest` marks the last message in the thread, which is what keeps an interactive part (a
+   * multiple-choice list) actionable: picking an option appends a user message, so the list stops
+   * being last and disables itself — no per-part "spent" flag to track or persist.
    */
   protected readonly turns = computed(() => {
     const total = this.questionsTotal();
@@ -258,12 +257,13 @@ export class ChatThreadComponent {
       }
     });
     return messages.map((message, index) => {
+      const isLatest = index === messages.length - 1;
       if (index !== lastAssistantIndex || total === null || total === 0) {
-        return { message, questionNumber: null, dotColor: null };
+        return { message, isLatest, questionNumber: null, dotColor: null };
       }
       const questionNumber = Math.min(answered, total);
       const hue = Math.round(120 * (1 - questionNumber / total));
-      return { message, questionNumber, dotColor: `hsl(${hue} 70% 45%)` };
+      return { message, isLatest, questionNumber, dotColor: `hsl(${hue} 70% 45%)` };
     });
   });
 

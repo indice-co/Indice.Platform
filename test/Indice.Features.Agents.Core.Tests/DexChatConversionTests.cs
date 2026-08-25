@@ -1,3 +1,4 @@
+using System.Text;
 using Indice.Features.Agents.Core.Models;
 using Microsoft.Extensions.AI;
 
@@ -81,6 +82,45 @@ public class DexChatConversionTests
         Assert.Equal(2, citations.Count);
         Assert.Equal((first, 1), (citations[0].ChunkId, citations[0].Number));
         Assert.Equal((second, 2), (citations[1].ChunkId, citations[1].Number));
+    }
+
+    [Fact]
+    public void ToChatMessagePart_JsonPayloadCarriesRawJson() {
+        var json = """{"options":["one","two"]}""";
+        var data = new DataContent(Encoding.UTF8.GetBytes(json), AgentsConstants.MediaTypes.MultipleChoice);
+
+        var part = data.ToChatMessagePart();
+
+        Assert.Equal(AgentsConstants.MediaTypes.MultipleChoice, part.ContentType);
+        Assert.Equal(json, part.Value); // the client parses this directly — never a base64 data: URI
+    }
+
+    [Fact]
+    public void ToChatMessagePart_BinaryPayloadKeepsTheDataUri() {
+        var data = new DataContent(new byte[] { 1, 2, 3 }, "image/png");
+
+        var part = data.ToChatMessagePart();
+
+        Assert.Equal("image/png", part.ContentType);
+        Assert.StartsWith("data:image/png;base64,", part.Value);
+    }
+
+    [Fact]
+    public void ToDexChatMessage_MultipleChoiceDataContentBecomesItsOwnPart() {
+        var json = """{"options":["What can you tell me about faq?"]}""";
+        var message = new ChatMessage(ChatRole.Assistant, [
+            new TextContent("That is outside what I cover."),
+            new DataContent(Encoding.UTF8.GetBytes(json), AgentsConstants.MediaTypes.MultipleChoice),
+            new TextContent("Anything else?")
+        ]);
+
+        var parts = message.ToDexChatMessage().Content.Parts;
+
+        // The data part closes the open text part, so the trailing prose opens a new one rather than merging back.
+        Assert.Equal(3, parts.Count);
+        Assert.Equal(("text/markdown", "That is outside what I cover."), (parts[0].ContentType, parts[0].Value));
+        Assert.Equal((AgentsConstants.MediaTypes.MultipleChoice, json), (parts[1].ContentType, parts[1].Value));
+        Assert.Equal(("text/markdown", "Anything else?"), (parts[2].ContentType, parts[2].Value));
     }
 
     [Theory]

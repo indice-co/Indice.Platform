@@ -41,6 +41,32 @@ export function responseToThreadMessage(response: DexChatResponse | null): Threa
   return message ? toThreadMessage(message) : null;
 }
 
+/**
+ * Media type of a content part carrying a list of options the user can pick from. Mirrors
+ * `AgentsConstants.MediaTypes.MultipleChoice`; the payload is `{ "options": ["…", "…"] }` and each option
+ * string is both the label shown and the message posted when it is picked.
+ */
+export const MULTIPLE_CHOICE_MEDIA_TYPE = 'application/vnd.indice.multiple-choice+json';
+
+/**
+ * Reads the options out of a multiple-choice part value. The value is opaque JSON to the generated client, and a
+ * malformed payload must never take the thread down — anything unexpected yields an empty list, which the renderer
+ * treats as "nothing to show".
+ */
+export function parseMultipleChoice(value: string | undefined): string[] {
+  if (!value) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(value) as { options?: unknown };
+    return Array.isArray(parsed?.options)
+      ? parsed.options.filter((option): option is string => typeof option === 'string' && option.trim().length > 0)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 /** Starter prompts shown on the empty conversation canvas. */
 export const EXAMPLE_PROMPTS: readonly string[] = [
   'What can you help me with?',

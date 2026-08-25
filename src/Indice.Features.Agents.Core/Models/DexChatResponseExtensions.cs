@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Models;
@@ -51,7 +52,7 @@ public static class DexChatResponseExtensions
                     citations.AddRange((text.Annotations ?? []).OfType<CitationAnnotation>().Select(ToCitation));
                     break;
                 case DataContent data:
-                    content.AddPart(data.Uri, data.MediaType);
+                    content.Parts.Add(data.ToChatMessagePart());
                     openTextPart = null;
                     break;
             }
@@ -74,6 +75,19 @@ public static class DexChatResponseExtensions
             Citations = distinctCitations
         };
     }
+
+    /// <summary>
+    /// Projects a <see cref="DataContent"/> into a boundary <see cref="ChatMessagePart"/>. A JSON payload (media type
+    /// ending in <c>+json</c>, e.g. <see cref="AgentsConstants.MediaTypes.MultipleChoice"/>) carries its decoded UTF-8
+    /// text so the client can parse it directly; anything else (images, embedded binaries) carries the base64
+    /// <c>data:</c> URI. Shared by the streaming projection (<c>ChatsService.StreamTurnAsync</c>) and the aggregated
+    /// one (<see cref="ToDexChatMessage"/>) so the two cannot drift.
+    /// </summary>
+    /// <param name="data">The data content to project.</param>
+    public static ChatMessagePart ToChatMessagePart(this DataContent data) =>
+        data.MediaType.EndsWith("+json", StringComparison.OrdinalIgnoreCase) && !data.Data.IsEmpty
+            ? ChatMessagePart.FromText(Encoding.UTF8.GetString(data.Data.Span), data.MediaType)
+            : ChatMessagePart.FromText(data.Uri, data.MediaType);
 
     /// <summary>Maps <see cref="UsageDetails"/> to the boundary <see cref="DexChatUsage"/>; <c>null</c> stays <c>null</c>. Question counters are the caller's to set.</summary>
     public static DexChatUsage? ToDexChatUsage(this UsageDetails? usage) => usage is null ? null : new DexChatUsage {

@@ -15,6 +15,18 @@ public static class AgentsConstants
         public const string Auto = "auto";
     }
 
+    /// <summary>Media types of the alternative (non-prose) content parts an assistant turn can carry.</summary>
+    /// <remarks>
+    /// Each one is a rendering contract between the pipeline and the chat UI: a part with this media type carries a
+    /// JSON payload the UI renders with a dedicated component instead of markdown. Media types ending in <c>+json</c>
+    /// carry their payload as raw JSON text (see <see cref="Models.DexChatResponseExtensions.ToChatMessagePart"/>).
+    /// </remarks>
+    public static class MediaTypes
+    {
+        /// <summary>A list of options the user can pick from; picking one posts it verbatim as the next user message. Payload: <see cref="Models.MultipleChoice"/>.</summary>
+        public const string MultipleChoice = "application/vnd.indice.multiple-choice+json";
+    }
+
     /// <summary>Default prompt templates for various agent tasks.</summary>
     public static class PromptDefaults
     {
