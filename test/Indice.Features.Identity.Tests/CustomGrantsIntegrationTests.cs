@@ -15,13 +15,16 @@ using Duende.IdentityServer.Models;
 using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Events;
 #else
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core.TokenCreation;
+using IdentityServer4.Events;
 #endif
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -221,6 +224,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
     private IServiceProvider _serviceProvider;
     private string _identityDatabaseName = $"IdentityDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
     private string _signInLogDatabaseName = $"SignInLogDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
+    private readonly List<Event> _raisedEvents = [];
 
     public CustomGrantsIntegrationTests(ITestOutputHelper output) {
         _output = output;
@@ -272,6 +276,13 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 options.ImpossibleTravel.AcceptableSpeed = 90d;
                 options.ImpossibleTravel.FlowType = ImpossibleTravelFlowType.PromptMfa;
             });
+            // Replace the default event sink with a composite one that captures events for testing purposes.
+            var sinkDescriptor = services.Last(d => d.ServiceType == typeof(IEventSink));
+            services.Remove(sinkDescriptor);
+            services.Add(new ServiceDescriptor(typeof(IEventSink), sp => {
+                var inner = (IEventSink)ActivatorUtilities.CreateInstance(sp, sinkDescriptor.ImplementationType!);
+                return new CompositeEventSink(inner, _raisedEvents);
+            }, sinkDescriptor.Lifetime));
             services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
 #if !NET9_0_OR_GREATER
             services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
@@ -335,6 +346,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var tokenResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         var sessionId = GetSessionId(tokenResponse);
         Assert.False(string.IsNullOrWhiteSpace(sessionId));
+        Assert.Contains(_raisedEvents.OfType<ExtendedUserLoginSuccessEvent>(), loginEvent => loginEvent.SessionId == sessionId);
     }
 
     [Fact]
@@ -342,6 +354,8 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var firstLogin = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         var secondLogin = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         Assert.NotEqual(GetSessionId(firstLogin), GetSessionId(secondLogin));
+        Assert.Contains(_raisedEvents.OfType<ExtendedUserLoginSuccessEvent>(), loginEvent => loginEvent.SessionId == GetSessionId(firstLogin));
+        Assert.Contains(_raisedEvents.OfType<ExtendedUserLoginSuccessEvent>(), loginEvent => loginEvent.SessionId == GetSessionId(secondLogin));
     }
 
     [Fact]
@@ -350,6 +364,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var tokenResponse = await LoginWithDevicePin(registrationResult.RegistrationId);
         var sessionId = GetSessionId(tokenResponse);
         Assert.False(string.IsNullOrWhiteSpace(sessionId));
+        Assert.Contains(_raisedEvents.OfType<ExtendedUserLoginSuccessEvent>(), loginEvent => loginEvent.SessionId == sessionId);
     }
 
     [Fact]
@@ -376,6 +391,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var tokenResponse = await _httpClient.RequestTokenAsync(tokenRequest);
         var sessionId = GetSessionId(tokenResponse);
         Assert.False(string.IsNullOrWhiteSpace(sessionId));
+        Assert.Contains(_raisedEvents.OfType<ExtendedUserLoginSuccessEvent>(), loginEvent => loginEvent.SessionId == sessionId);
     }
 
     [Fact]
@@ -403,6 +419,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var secondRefresh = await _httpClient.RequestRefreshTokenAsync(secondRefreshRequest);
         
         Assert.Equal(loginSessionId, GetSessionId(secondRefresh));
+        Assert.Contains(_raisedEvents.OfType<ExtendedUserLoginSuccessEvent>(), loginEvent => loginEvent.SessionId == loginSessionId);
     }
     
     [Fact(Skip = "Known discrepancy between IS4 and Duende on handling of UpdateAccessTokenClaimsOnRefresh with SessionId.")]
@@ -1170,6 +1187,14 @@ private static void AssertSidClaimExists(TokenResponse tokenResponse) {
         public string DeviceId { get; set; } = null!;
         [JsonPropertyName("registrationId")]
         public Guid RegistrationId { get; set; }
+    }
+    
+    private sealed class CompositeEventSink(IEventSink inner, List<Event> captured) : IEventSink
+    {
+        public async Task PersistAsync(Event @event) {
+            captured.Add(@event);
+            await inner.PersistAsync(@event);
+        }
     }
     #endregion
 }
