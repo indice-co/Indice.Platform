@@ -68,7 +68,7 @@ jobs:
      
     # TEST 
     - name: Test with dotnet
-      run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
+      run: dotnet test --no-build --configuration Release --report-trx --results-directory "${{ github.workspace }}/TestResults"
     
     # TEST REPORT
     - name: Test Reporter

@@ -59,7 +59,7 @@ jobs:
     
     - name: dotnet test
       shell: pwsh
-      run: dotnet test Indice.Platform.slnf --no-build --configuration Release --logger trx --results-directory "TestResults"
+      run: dotnet test Indice.Platform.slnf --no-build --configuration Release --report-trx --results-directory "${{ github.workspace }}/TestResults"
     
     - name: Test Reporter
       uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
