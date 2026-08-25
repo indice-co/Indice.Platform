@@ -44,11 +44,11 @@ public sealed class OwnershipVerifierStep : Executor<CaseRetrievalOutput, Owners
             maskedValue
         });
 
-        return new OwnershipVerificationOutput(
+        return await ValueTask.FromResult(new OwnershipVerificationOutput(
             CaseRetrievalData: caseData,
             VerificationFieldName: verificationFieldName,
             VerificationFieldValue: verificationFieldValue,
-            VerificationPrompt: verificationPrompt);
+            VerificationPrompt: verificationPrompt));
     }
 
     /// <summary>

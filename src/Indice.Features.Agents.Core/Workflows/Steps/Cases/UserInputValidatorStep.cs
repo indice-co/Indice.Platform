@@ -45,14 +45,9 @@ public sealed class UserInputValidatorStep : Executor<OwnershipConfirmationRespo
         string? errorMessage = null;
         if (!isValid)
         {
-            if (attempt >= MaxValidationAttempts)
-            {
-                errorMessage = $"Verification failed. Maximum {MaxValidationAttempts} attempts reached. Please try again later.";
-            }
-            else
-            {
-                errorMessage = $"The information provided does not match our records. Attempt {attempt} of {MaxValidationAttempts}. Please try again.";
-            }
+            errorMessage = attempt >= MaxValidationAttempts
+                ? $"Verification failed. Maximum {MaxValidationAttempts} attempts reached. Please try again later."
+                : $"The information provided does not match our records. Attempt {attempt} of {MaxValidationAttempts}. Please try again.";
         }
 
         return await ValueTask.FromResult(new UserInputValidationOutput(

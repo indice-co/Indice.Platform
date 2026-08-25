@@ -101,11 +101,8 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
             isValid = node["isValid"]?.GetValue<bool>() ?? false;
             verifyMessage = node["message"]?.GetValue<string>() ?? verifyMessage;
         } catch {
-            if (payload.Contains("true", StringComparison.OrdinalIgnoreCase) ||
-                payload.Contains("valid", StringComparison.OrdinalIgnoreCase)) {
-                isValid = true;
-                verifyMessage = "OTP verified successfully.";
-            }
+            // Be conservative: if the model doesn't return valid JSON, treat as verification failure.
+            isValid = false;
         }
 
         if (isValid) {
