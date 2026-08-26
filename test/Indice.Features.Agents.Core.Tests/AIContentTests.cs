@@ -13,7 +13,7 @@ public class AIContentTests
         var jsonText = "{\"test\": \"this is value\"}";
         var dataContentPlainText = new DataContent($"data:,{Uri.EscapeDataString(plainText)}");
         var dataContentJson = new DataContent($"data:,{Uri.EscapeDataString(jsonText)}", MediaTypeNames.Application.Json);
-        var dataContentImage = await DataContent.LoadFromAsync(Path.Combine(Directory.GetCurrentDirectory(), "favicon-16.png"), cancellationToken: TestContext.Current.CancellationToken);
+        var dataContentImage = await DataContent.LoadFromAsync(Path.Join(Directory.GetCurrentDirectory(), "favicon-16.png"), cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(Encoding.UTF8.GetBytes(plainText).SequenceEqual(dataContentPlainText.Data.ToArray()));
         Assert.Equal(jsonText, Encoding.UTF8.GetString(dataContentJson.Data.ToArray()));
         Assert.Equal(MediaTypeNames.Application.Json, dataContentJson.MediaType);
