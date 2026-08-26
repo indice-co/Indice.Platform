@@ -1,9 +1,9 @@
 <Project>
-  <ItemGroup Condition=" '$(IsTestProject)' != 'false' ">
+  <ItemGroup Condition=" '$(OutputType)' == 'Exe' ">
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(IsTestProject)' != 'false' ">
+  <ItemGroup Condition=" '$(OutputType)' == 'Exe' ">
     <PackageReference Include="xunit.v3.mtp-v2" Version="4.0.0" />
     <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="2.3.3" />
   </ItemGroup>

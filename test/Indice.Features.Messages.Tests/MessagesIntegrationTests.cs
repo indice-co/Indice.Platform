@@ -337,7 +337,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             )
         };
         var payload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(payload, Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", requestContent, TestContext.Current.CancellationToken);
         var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
@@ -367,7 +368,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"]
         };
         var payload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(payload, Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", requestContent, TestContext.Current.CancellationToken);
 
         Assert.False(createCampaignResponse.IsSuccessStatusCode);
         Assert.Equal(System.Net.HttpStatusCode.BadRequest, createCampaignResponse.StatusCode);
@@ -380,7 +382,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Name = "Test-Distribution-List"
         };
         var createDistributionListPayload = JsonSerializer.Serialize(createDistributionListRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        using var requestContent = new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json");
+        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", requestContent, TestContext.Current.CancellationToken);
         var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(createDistributionListResponseJson);
@@ -507,7 +510,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Name = "Test Distribution List"
         };
         var createDistributionListPayload = JsonSerializer.Serialize(createDistributionListRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        using var createDistributionListContent = new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json");
+        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", createDistributionListContent, TestContext.Current.CancellationToken);
         var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(createDistributionListResponseJson);
@@ -524,7 +528,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             //CommunicationPreferences = ContactChannelKind.Any | ContactChannelKind.Email
         };
         var addContactPayload = JsonSerializer.Serialize(addContactRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        using var addContactContent = new StringContent(addContactPayload, Encoding.UTF8, "application/json");
+        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", addContactContent, TestContext.Current.CancellationToken);
         var addContactResponseJson = await addContactResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!addContactResponse.IsSuccessStatusCode) {
             _output.WriteLine(addContactResponseJson);
@@ -554,7 +559,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Name = "Test Distribution List"
         };
         var createDistributionListPayload = JsonSerializer.Serialize(createDistributionListRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        using var createDistributionListContent = new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json");
+        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", createDistributionListContent, TestContext.Current.CancellationToken);
         var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(createDistributionListResponseJson);
@@ -570,7 +576,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Salutation = "Mr"
         };
         var addContactPayload = JsonSerializer.Serialize(addContactRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        using var addContactContent = new StringContent(addContactPayload, Encoding.UTF8, "application/json");
+        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", addContactContent, TestContext.Current.CancellationToken);
         var addContactResponseJson = await addContactResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!addContactResponse.IsSuccessStatusCode) {
             _output.WriteLine(addContactResponseJson);
@@ -610,7 +617,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             }
         };
         var payload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(payload, Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        using var createTemplateContent = new StringContent(payload, Encoding.UTF8, "application/json");
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateContent, TestContext.Current.CancellationToken);
         var createCampaignResponseJson = await createTemplateResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createTemplateResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
