@@ -35,9 +35,9 @@ public class DbBackedPartialTemplateResolverTests : IAsyncLifetime
 
     public ServiceProvider ServiceProvider { get; }
 
-    public Task InitializeAsync() => Task.CompletedTask;
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();
