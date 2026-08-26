@@ -33,7 +33,12 @@ public class SmsServiceKonecta : ISmsService
         }
 
         if (!_httpClient.DefaultRequestHeaders.Contains("Authorization")) {
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _settings.ApiKey);
+            if (string.IsNullOrWhiteSpace(_settings.Username) || string.IsNullOrWhiteSpace(_settings.Password)) {
+                throw new InvalidOperationException("Username and Password are required for Konecta SMS service.");
+            }
+            var credentials = $"{_settings.Username}:{_settings.Password}";
+            var encodedCredentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
         }
 
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -202,6 +207,12 @@ public class SmsServiceKonectaSettings : SmsServiceSettings
 {
     /// <summary>The base URL for the Konecta API. Defaults to https://service.comdatagroup.fr/rcs/api/v1/</summary>
     public string? BaseUrl { get; set; }
+
+    /// <summary>The username for Basic authentication</summary>
+    public string? Username { get; set; }
+
+    /// <summary>The password for Basic authentication</summary>
+    public string? Password { get; set; }
 
     /// <summary>The operation identifier for SMS campaigns</summary>
     public string? Operation { get; set; }
