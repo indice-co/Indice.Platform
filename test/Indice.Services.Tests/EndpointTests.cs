@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using Xunit.Abstractions;
 using Microsoft.AspNetCore.Routing;
 using System.Text.Json.Nodes;
 using Indice.AspNetCore.Views;
@@ -56,8 +54,8 @@ public class EndpointTests : IAsyncLifetime
     #region Facts
     [Fact]
     public async Task Test_GetTranslatio_English() {
-        var translationResponse = await _httpClient.GetAsync("/translations.en.json");
-        var translationResponseJson = await translationResponse.Content.ReadAsStringAsync();
+        var translationResponse = await _httpClient.GetAsync("/translations.en.json", TestContext.Current.CancellationToken);
+        var translationResponseJson = await translationResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!translationResponse.IsSuccessStatusCode) {
             _output.WriteLine(translationResponseJson);
         }
@@ -67,8 +65,8 @@ public class EndpointTests : IAsyncLifetime
     }
     [Fact]
     public async Task Test_GetTranslation_Greek() {
-        var translationResponse = await _httpClient.GetAsync("/translations.el.json");
-        var translationResponseJson = await translationResponse.Content.ReadAsStringAsync();
+        var translationResponse = await _httpClient.GetAsync("/translations.el.json", TestContext.Current.CancellationToken);
+        var translationResponseJson = await translationResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!translationResponse.IsSuccessStatusCode) {
             _output.WriteLine(translationResponseJson);
         }
@@ -78,8 +76,8 @@ public class EndpointTests : IAsyncLifetime
     }
     [Fact]
     public async Task Test_GetTranslation_For_Culture_Not_Exists() {
-        var translationResponse = await _httpClient.GetAsync("/translations.ru.json");
-        var translationResponseJson = await translationResponse.Content.ReadAsStringAsync();
+        var translationResponse = await _httpClient.GetAsync("/translations.ru.json", TestContext.Current.CancellationToken);
+        var translationResponseJson = await translationResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!translationResponse.IsSuccessStatusCode) {
             _output.WriteLine(translationResponseJson);
         }
@@ -89,7 +87,7 @@ public class EndpointTests : IAsyncLifetime
     }
     [Fact]
     public async Task Test_GetTranslation_For_Invalid_Culture() {
-        var translationResponse = await _httpClient.GetAsync("/translations.invalid.json");
+        var translationResponse = await _httpClient.GetAsync("/translations.invalid.json", TestContext.Current.CancellationToken);
         Assert.False(translationResponse.IsSuccessStatusCode);
     }
 
@@ -126,10 +124,10 @@ public class EndpointTests : IAsyncLifetime
     #endregion
 
 
-    public Task InitializeAsync() {
-        return Task.CompletedTask;
+    public ValueTask InitializeAsync() {
+        return ValueTask.CompletedTask;
     }
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         await _serviceProvider.DisposeAsync();
     }
 }

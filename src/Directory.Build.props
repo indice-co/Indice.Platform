@@ -5,11 +5,11 @@
     <!--<TargetFramework></TargetFramework>-->
 
     <VersionPrefixMajor>8</VersionPrefixMajor>
-    <VersionPrefixBase>$(VersionPrefixMajor).54</VersionPrefixBase>
+    <VersionPrefixBase>$(VersionPrefixMajor).55</VersionPrefixBase>
 
     <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
-    <VersionPrefixIdentity>$(VersionPrefixBase).1</VersionPrefixIdentity>
-    <VersionPrefixIdentityUI>$(VersionPrefixBase).1</VersionPrefixIdentityUI>
+    <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
+    <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
     <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
     <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
     <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>

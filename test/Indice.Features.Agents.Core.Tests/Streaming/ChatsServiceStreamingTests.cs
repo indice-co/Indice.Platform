@@ -120,7 +120,7 @@ public class ChatsServiceStreamingTests
     public async Task Disconnect_mid_stream_salvages_the_user_message() {
         var (service, store) = CreateService();
         var stream = await service.SendStreamAsync("user-1", null, new ChatRequest { Text = "hi" }, CancellationToken.None);
-        var enumerator = stream!.GetAsyncEnumerator();
+        var enumerator = stream!.GetAsyncEnumerator(TestContext.Current.CancellationToken);
         await enumerator.MoveNextAsync(); // start
         await enumerator.MoveNextAsync(); // first patch
         await enumerator.DisposeAsync();  // client went away
