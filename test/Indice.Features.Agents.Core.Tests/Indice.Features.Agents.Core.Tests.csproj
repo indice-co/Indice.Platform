@@ -23,8 +23,4 @@
     <ProjectReference Include="..\..\src\Indice.Features.Agents.Core\Indice.Features.Agents.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Using Include="Xunit" />
-  </ItemGroup>
-
 </Project>

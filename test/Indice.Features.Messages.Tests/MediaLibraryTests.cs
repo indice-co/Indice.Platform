@@ -17,8 +17,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Indice.Features.Messages.Tests;
 public class MediaLibraryTests : IAsyncLifetime
@@ -83,13 +81,13 @@ public class MediaLibraryTests : IAsyncLifetime
         // Upload the files
         _ = await PostFileAsync<UploadFileResponse>(HttpMethod.Post, "media/upload", Encoding.UTF8.GetBytes("This is the file contents.!"), "test file 1.txt", new NameValueCollection {
                 { "FolderId", level2folderId.ToString() }
-            });
+            }, TestContext.Current.CancellationToken);
         _ = await PostFileAsync<UploadFileResponse>(HttpMethod.Post, "media/upload", Encoding.UTF8.GetBytes("This is the file contents 2.!"), "test file 2.txt", new NameValueCollection {
                 { "FolderId", level2folderId.ToString() }
-            });
+            }, TestContext.Current.CancellationToken);
         _ = await PostFileAsync<UploadFileResponse>(HttpMethod.Post, "media/upload", Encoding.UTF8.GetBytes("This is the file contents 3.!"), "test file 3.txt", new NameValueCollection {
                 { "FolderId", root2folderId.ToString() }
-            });
+            }, TestContext.Current.CancellationToken);
 
         var fileService = _serviceProvider.GetRequiredKeyedService<IFileService>("Media:FileServiceKey");
         _ = await fileService.SearchAsync("media/elmai-assets");
@@ -98,7 +96,7 @@ public class MediaLibraryTests : IAsyncLifetime
         // rename the folder
 
         await UpdateFolderAction(rootfolderId, "Email Assets");
-        await Task.Delay(TimeSpan.FromMilliseconds(400));
+        await Task.Delay(TimeSpan.FromMilliseconds(400), TestContext.Current.CancellationToken);
         file1Data = await fileService.GetAsync("media/email-assets/fotografies/fakelos/test-file-1.txt");
         Assert.Equal("This is the file contents.!", Encoding.UTF8.GetString(file1Data));
 
@@ -229,12 +227,12 @@ public class MediaLibraryTests : IAsyncLifetime
         return mappings.ContainsKey(extension) ? mappings[extension] : string.Empty;
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var db = _serviceProvider.GetRequiredService<MediaDbContext>();
         await db.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var db = _serviceProvider.GetRequiredService<MediaDbContext>();
         await db.Database.EnsureDeletedAsync();
         await _serviceProvider.DisposeAsync();

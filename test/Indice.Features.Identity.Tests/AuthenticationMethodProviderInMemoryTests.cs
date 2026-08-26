@@ -5,7 +5,6 @@ using Indice.Features.Identity.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.SignalR;
 using Indice.Features.Identity.Core.Hubs;
@@ -107,7 +106,7 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
             Name = "Test device",
             ClientType = DeviceClientType.Native,
             IsTrusted = true,
-        });
+        }, TestContext.Current.CancellationToken);
 
         var methods = await authenticationMethodProvider.GetAllMethodsForUserAsync(user);
         Assert.Single(methods);
@@ -146,7 +145,7 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
             Name = "Test device",
             ClientType = DeviceClientType.Native,
             IsTrusted = true,
-        });
+        }, TestContext.Current.CancellationToken);
 
         var methods = await authenticationMethodProvider.GetAllMethodsForUserAsync(user);
         Assert.Equal(2, methods.Length);
@@ -187,7 +186,7 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
             Name = "Test device",
             ClientType = DeviceClientType.Native,
             IsTrusted = true,
-        });
+        }, TestContext.Current.CancellationToken);
 
         var methods = await authenticationMethodProvider.GetAllMethodsForUserAsync(user);
         Assert.Equal(4, methods.Length);
@@ -196,10 +195,10 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
         Assert.Equal(TotpDeliveryChannel.Viber, selectedMethod?.GetDeliveryChannel());
     }
 
-    public Task InitializeAsync() {
-        return Task.CompletedTask;
+    public ValueTask InitializeAsync() {
+        return ValueTask.CompletedTask;
     }
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         await ServiceProvider.DisposeAsync();
     }
 }

@@ -27,7 +27,7 @@ public class EventDispatcherAzureTests
     public async Task CanSendCompressedPayload() {
         await EventDispatcher.RaiseEventAsync(new { FirstName = "Giorgos", LastName = "Gavalas" }, options => options.WrapInEnvelope(false).WithQueueName("test").PrependEnvironmentInQueueName(false));
         var queueClient = await EnsureExistsAsync("test");
-        var message = await queueClient.ReceiveMessageAsync();
+        var message = await queueClient.ReceiveMessageAsync(cancellationToken: TestContext.Current.CancellationToken);
         var messageBody = await CompressionUtils.DecompressToString(message.Value.Body.ToArray());
         var json = JsonSerializer.Deserialize<JsonElement>(messageBody);
         Assert.Equal(JsonValueKind.Object, json.ValueKind);

@@ -32,16 +32,16 @@ public class TestIpRestrictions
                         app.UseClientIpRestrictions();
                     });
             })
-            .StartAsync();
+            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         var client = host.GetTestClient();
-        var response = await client.GetAsync("/");
+        var response = await client.GetAsync("/", TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        response = await client.GetAsync("/login");
+        response = await client.GetAsync("/login", TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-        response = await client.GetAsync("/admin");
+        response = await client.GetAsync("/admin", TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-        response = await client.GetAsync("/admin/home");
+        response = await client.GetAsync("/admin/home", TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 
         var server = host.GetTestServer();
@@ -51,7 +51,7 @@ public class TestIpRestrictions
             c.Request.Method = HttpMethods.Post;
             c.Request.Path = "/login";
             c.Request.QueryString = new QueryString("?returnUrl=/docs");
-        });
+        }, TestContext.Current.CancellationToken);
 
         Assert.Equal(404, context.Response.StatusCode);
     }

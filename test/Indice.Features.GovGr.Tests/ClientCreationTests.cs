@@ -109,8 +109,8 @@ public class ClientCreationTests : IDisposable
 
         // Get Public Certificate
         var client = new HttpClient();
-        var httpResponse = await client.GetAsync(@protected!.X5u);
-        var certificatePemString = await httpResponse.Content.ReadAsStringAsync();
+        var httpResponse = await client.GetAsync(@protected!.X5u, TestContext.Current.CancellationToken);
+        var certificatePemString = await httpResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         // convert certificate string into X509 certificate
         // https://stackoverflow.com/a/65352811/19162333
