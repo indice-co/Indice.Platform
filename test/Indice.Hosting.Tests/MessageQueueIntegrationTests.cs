@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Indice.Hosting.Tests;
 
@@ -62,13 +61,13 @@ public class MessageQueueIntegrationTests : IAsyncLifetime
         var integratorDbContext = _scope.ServiceProvider.GetRequiredService<IntegratorDbContext>();
 
         integratorDbContext.TestEntities.Add(new TestEntity { Id = _businessId });
-        await Assert.ThrowsAsync<NotImplementedException>(() => integratorDbContext.SaveChangesAsyncThrows());
+        await Assert.ThrowsAsync<NotImplementedException>(() => integratorDbContext.SaveChangesAsyncThrows(TestContext.Current.CancellationToken));
         await _queue.Enqueue(new TestEvent(_businessId));
 
         var message = await _queue.Dequeue();
         Assert.NotNull(message);
         Assert.Equal(_businessId, message.Value.BusinessId);
-        Assert.Empty(await integratorDbContext.TestEntities.AsNoTracking().ToListAsync());
+        Assert.Empty(await integratorDbContext.TestEntities.AsNoTracking().ToListAsync(cancellationToken: TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -105,7 +104,7 @@ public class MessageQueueIntegrationTests : IAsyncLifetime
         await eventDispatcher.RaiseEventAsync(new TestEvent(_businessId));
 
         var taskDbContext = _scope.ServiceProvider.GetRequiredService<TaskDbContext>();
-        var messages = await taskDbContext.Queue.AsNoTracking().ToListAsync();
+        var messages = await taskDbContext.Queue.AsNoTracking().ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         var message = Assert.Single(messages);
         Assert.Equal(QueueName, message.QueueName);
         Assert.Contains(_businessId.ToString(), message.Payload);
@@ -131,7 +130,7 @@ public class MessageQueueIntegrationTests : IAsyncLifetime
     public async Task EnqueueWritesToTheWorkerDatabase() {
         await _queue.Enqueue(new TestEvent(_businessId));
         
-        var workerMessages = await _scope.ServiceProvider.GetRequiredService<TaskDbContext>().Queue.AsNoTracking().ToListAsync();
+        var workerMessages = await _scope.ServiceProvider.GetRequiredService<TaskDbContext>().Queue.AsNoTracking().ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         var message = Assert.Single(workerMessages);
         Assert.Equal(QueueName, message.QueueName);
         Assert.Contains(_businessId.ToString(), message.Payload);
@@ -143,7 +142,7 @@ public class MessageQueueIntegrationTests : IAsyncLifetime
 
         await eventDispatcher.RaiseEventAsync(new TestEvent(_businessId));
 
-        var workerMessages = await _scope.ServiceProvider.GetRequiredService<TaskDbContext>().Queue.AsNoTracking().ToListAsync();
+        var workerMessages = await _scope.ServiceProvider.GetRequiredService<TaskDbContext>().Queue.AsNoTracking().ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Single(workerMessages);
     }
     
@@ -192,7 +191,7 @@ public class MessageQueueIntegrationTests : IAsyncLifetime
         public Task Process(TestEvent @event) => Task.CompletedTask;
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         await _host.StartAsync();
         _scope = _host.Services.CreateScope();
         _taskDbContext = _scope.ServiceProvider.GetRequiredService<TaskDbContext>();
@@ -203,7 +202,7 @@ public class MessageQueueIntegrationTests : IAsyncLifetime
         await _integratorDbContext.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         _scope.Dispose();
         using (var scope = _host.Services.CreateScope()) {
             await scope.ServiceProvider.GetRequiredService<TaskDbContext>().Database.EnsureDeletedAsync();
