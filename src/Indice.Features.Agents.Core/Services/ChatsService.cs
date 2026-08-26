@@ -188,6 +188,11 @@ public class ChatsService : IChatsService
                                 yield return compactor.Compact(frame);
                             }
                             break;
+                        case UriContent uri:
+                            foreach (var frame in projector.AddPart(uri.ToChatMessagePart())) {
+                                yield return compactor.Compact(frame);
+                            }
+                            break;
                     }
                 }
             }

@@ -180,6 +180,52 @@ public class ChatsServiceStreamingTests
             $"assembled:\n{document.ToJsonString()}\nexpected:\n{expected.ToJsonString()}");
     }
 
+    /// <summary>A hosted-image shape: prose, an image referenced by URL, then more prose.</summary>
+    private static List<ChatResponseUpdate> HostedImageUpdates() => [
+        new ChatResponseUpdate(ChatRole.Assistant, [
+            new TextContent("Here is the enrolment flow."),
+            new UriContent("https://cdn.example.com/figures/enrolment.png", "image/png"),
+            new TextContent("Anything else?")
+        ]),
+        new ChatResponseUpdate(ChatRole.Assistant, [new UsageContent(new UsageDetails { TotalTokenCount = 5 })]) {
+            ResponseId = "resp-1", ModelId = "gpt-test", FinishReason = ChatFinishReason.Stop, CreatedAt = DateTimeOffset.UnixEpoch
+        }
+    ];
+
+    [Fact]
+    public async Task Hosted_image_part_streams_as_its_url_and_splits_the_prose_around_it() {
+        var (service, _) = CreateService(HostedImageUpdates());
+        // A repeated path is nulled on the wire, so inflate by carrying the last effective one forward — exactly what a
+        // client does. Three consecutive part-adds would otherwise look like one.
+        string? path = null;
+        var parts = new List<ChatMessagePart>();
+        foreach (var delta in (await Collect(service)).Select(item => item.Data).OfType<DexChatStreamDelta>()) {
+            path = delta.Path ?? path;
+            if (path == "/messages/0/content/parts/-") { parts.Add(Assert.IsType<ChatMessagePart>(delta.Value)); }
+        }
+        Assert.Equal(3, parts.Count);                                  // prose, the atomic image part, then fresh prose
+        Assert.Equal("text/markdown", parts[0].ContentType);
+        Assert.Equal("image/png", parts[1].ContentType);
+        Assert.Equal("https://cdn.example.com/figures/enrolment.png", parts[1].Value);  // the URL, never base64 bytes
+        Assert.Equal("text/markdown", parts[2].ContentType);
+    }
+
+    [Fact]
+    public async Task Hosted_image_invariant_streamed_parts_equal_the_nonstreaming_ones() {
+        var (streaming, _) = CreateService(HostedImageUpdates());
+        var document = new JsonObject();
+        var applier = new JsonPointerPatch();
+        foreach (var patch in (await Collect(streaming)).Select(item => item.Data).OfType<DexChatStreamDelta>()) {
+            applier.Apply(document, patch, Json);
+        }
+        var (nonStreaming, _) = CreateService(HostedImageUpdates());
+        var canonical = await nonStreaming.SendAsync("user-1", null, new ChatRequest { Text = "hi" }, CancellationToken.None);
+        var expected = Normalize(JsonSerializer.SerializeToNode(canonical, Json)!.AsObject());
+        expected.Remove("text");
+        Assert.True(JsonNode.DeepEquals(Normalize(document), expected),
+            $"assembled:\n{document.ToJsonString()}\nexpected:\n{expected.ToJsonString()}");
+    }
+
     /// <summary>Strips null-valued members recursively — the profile only patches non-null members.</summary>
     private static JsonObject Normalize(JsonObject node) {
         foreach (var key in node.Where(pair => pair.Value is null).Select(pair => pair.Key).ToList()) { node.Remove(key); }

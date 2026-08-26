@@ -19,12 +19,21 @@ public static class AgentsConstants
     /// <remarks>
     /// Each one is a rendering contract between the pipeline and the chat UI: a part with this media type carries a
     /// JSON payload the UI renders with a dedicated component instead of markdown. Media types ending in <c>+json</c>
-    /// carry their payload as raw JSON text (see <see cref="Models.DexChatResponseExtensions.ToChatMessagePart"/>).
+    /// carry their payload as raw JSON text (see <see cref="Models.DexChatResponseExtensions.ToChatMessagePart(Microsoft.Extensions.AI.DataContent)"/>).
     /// </remarks>
     public static class MediaTypes
     {
         /// <summary>A list of options the user can pick from; picking one posts it verbatim as the next user message. Payload: <see cref="Models.MultipleChoice"/>.</summary>
         public const string MultipleChoice = "application/vnd.indice.multiple-choice+json";
+
+        /// <summary>A single image rendered as a figure, with optional alt text and caption. Payload: <see cref="Models.ImageReference"/>.</summary>
+        public const string Image = "application/vnd.indice.image+json";
+
+        /// <summary>A short highlighted notice (info, success, warning, error) rendered as an alert. Payload: <see cref="Models.Callout"/>.</summary>
+        public const string Callout = "application/vnd.indice.callout+json";
+
+        /// <summary>A two-way confirmation; picking a button posts its label verbatim as the next user message. Payload: <see cref="Models.Confirmation"/>.</summary>
+        public const string Confirmation = "application/vnd.indice.confirm+json";
     }
 
     /// <summary>Default prompt templates for various agent tasks.</summary>

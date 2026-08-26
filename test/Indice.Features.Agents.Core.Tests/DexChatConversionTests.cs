@@ -1,4 +1,6 @@
 using System.Text;
+using System.Text.Json;
+using Indice.EntityFrameworkCore.ValueConversion;
 using Indice.Features.Agents.Core.Models;
 using Microsoft.Extensions.AI;
 
@@ -145,4 +147,45 @@ public class DexChatConversionTests
     [Fact]
     public void ToDexChatFinishReason_NullStaysNull()
         => Assert.Null(((ChatFinishReason?)null).ToDexChatFinishReason());
+
+    [Fact]
+    public void ToChatMessagePart_UriContentCarriesTheAbsoluteUrl() {
+        var uri = new UriContent("https://cdn.example.com/figures/enrolment.png", "image/png");
+
+        var part = uri.ToChatMessagePart();
+
+        Assert.Equal("image/png", part.ContentType);
+        Assert.Equal("https://cdn.example.com/figures/enrolment.png", part.Value); // never base64 — the bytes stay on the CDN
+    }
+
+    [Fact]
+    public void ToDexChatMessage_UriContentBecomesItsOwnPart() {
+        var message = new ChatMessage(ChatRole.Assistant, [
+            new TextContent("Here is the enrolment flow."),
+            new UriContent("https://cdn.example.com/figures/enrolment.png", "image/png"),
+            new TextContent("Anything else?")
+        ]);
+
+        var parts = message.ToDexChatMessage().Content.Parts;
+
+        // Like a data part, the uri part closes the open text part so the trailing prose opens a new one.
+        Assert.Equal(3, parts.Count);
+        Assert.Equal(("text/markdown", "Here is the enrolment flow."), (parts[0].ContentType, parts[0].Value));
+        Assert.Equal(("image/png", "https://cdn.example.com/figures/enrolment.png"), (parts[1].ContentType, parts[1].Value));
+        Assert.Equal(("text/markdown", "Anything else?"), (parts[2].ContentType, parts[2].Value));
+    }
+
+    [Fact]
+    public void UriContent_RoundTripsThroughTheContentsJsonColumn() {
+        // DbMessage.Contents is persisted with exactly these options. UriContent is in MEAI's [JsonDerivedType] list,
+        // so an image attached by URL survives a history reload with no custom converter and no migration.
+        var options = JsonStringValueConverter<List<AIContent>>.SerializerOptions;
+        List<AIContent> contents = [new UriContent("https://cdn.example.com/figures/enrolment.png", "image/png")];
+
+        var rehydrated = JsonSerializer.Deserialize<List<AIContent>>(JsonSerializer.Serialize(contents, options), options);
+
+        var uri = Assert.IsType<UriContent>(Assert.Single(rehydrated!));
+        Assert.Equal("https://cdn.example.com/figures/enrolment.png", uri.Uri.ToString());
+        Assert.Equal("image/png", uri.MediaType);
+    }
 }

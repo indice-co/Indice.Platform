@@ -55,6 +55,10 @@ public static class DexChatResponseExtensions
                     content.Parts.Add(data.ToChatMessagePart());
                     openTextPart = null;
                     break;
+                case UriContent uri:
+                    content.Parts.Add(uri.ToChatMessagePart());
+                    openTextPart = null;
+                    break;
             }
         }
         var distinctCitations = citations.DistinctBy(citation => citation.ChunkId).OrderBy(citation => citation.Number).ToList();
@@ -88,6 +92,16 @@ public static class DexChatResponseExtensions
         data.MediaType.EndsWith("+json", StringComparison.OrdinalIgnoreCase) && !data.Data.IsEmpty
             ? ChatMessagePart.FromText(Encoding.UTF8.GetString(data.Data.Span), data.MediaType)
             : ChatMessagePart.FromText(data.Uri, data.MediaType);
+
+    /// <summary>
+    /// Projects a <see cref="UriContent"/> — hosted content referenced by URL, typically an image — into a boundary
+    /// <see cref="ChatMessagePart"/> carrying that absolute URL. Unlike <see cref="DataContent"/> the bytes never enter
+    /// the stream or the message's JSON column, so this is the cheap way to attach media to a turn. Shared by the
+    /// streaming projection (<c>ChatsService.StreamTurnAsync</c>) and the aggregated one (<see cref="ToDexChatMessage"/>).
+    /// </summary>
+    /// <param name="uri">The URI content to project.</param>
+    public static ChatMessagePart ToChatMessagePart(this UriContent uri) =>
+        ChatMessagePart.FromText(uri.Uri.ToString(), uri.MediaType);
 
     /// <summary>Maps <see cref="UsageDetails"/> to the boundary <see cref="DexChatUsage"/>; <c>null</c> stays <c>null</c>. Question counters are the caller's to set.</summary>
     public static DexChatUsage? ToDexChatUsage(this UsageDetails? usage) => usage is null ? null : new DexChatUsage {

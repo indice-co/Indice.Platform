@@ -75,17 +75,17 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                     class="mt-0.5 size-8 shrink-0 rounded-full ring-1 ring-base-300"
                   />
                   <div class="min-w-0 flex-1">
-                    <div class="rounded-box rounded-tl-sm border border-base-300 bg-base-100 px-4 py-2.5
-                                text-[0.95rem] text-base-content shadow-sm">
-                            @for (contentPart of turn.message.content.parts; track $index) {
-                              <app-chat-message-part
-                                [part]="contentPart"
-                                [interactive]="turn.isLatest && !streaming()"
-                                (optionPick)="optionPick.emit($event)"
-                              />
-                            }
-
-                  </div>
+                    <!-- One block per part, spaced: still one answer, but an image or an options row is not welded into the prose card. -->
+                    <div class="flex flex-col gap-3">
+                      @for (contentPart of turn.message.content.parts; track $index) {
+                        <app-chat-message-part
+                          [part]="contentPart"
+                          [first]="$first"
+                          [interactive]="turn.isLatest && !streaming()"
+                          (pick)="pick.emit($event)"
+                        />
+                      }
+                    </div>
 
                             @if ((turn.message.citations ?? []).length > 0 || turn.message.messageId) {
                               <app-chat-citations [citations]="turn.message.citations ?? []">
@@ -172,13 +172,10 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
                       {{ step() }}
                     </div>
                   } @else if (streamingMessage(); as live) {
-                    <div
-                      class="dex-caret rounded-box rounded-tl-sm border border-base-300 bg-base-100 px-4 py-2.5
-                             text-[0.95rem] text-base-content shadow-sm"
-                    >
+                    <div class="flex flex-col gap-3">
                       <!-- Nothing on a still-streaming answer is actionable yet — interactive defaults to false. -->
                       @for (contentPart of live.content.parts; track $index) {
-                        <app-chat-message-part [part]="contentPart" />
+                        <app-chat-message-part [part]="contentPart" [first]="$first" [caret]="$last" />
                       }
                     </div>
                     @if ((live.citations ?? []).length > 0) {
@@ -216,8 +213,8 @@ export class ChatThreadComponent {
   readonly questionsTotal = input<number | null>(null);
 
   readonly examplePick = output<string>();
-  /** Emits the option the user picked from a multiple-choice part, to be sent as the next user message. */
-  readonly optionPick = output<string>();
+  /** Emits text the user picked from an interactive part (an option, a confirmation button), to be sent as the next user message. */
+  readonly pick = output<string>();
   /** Emits when the user rates an assistant answer: `like` true/false, or null to clear the rating. */
   readonly likeChanged = output<{ messageId: string; like: boolean | null }>();
 
