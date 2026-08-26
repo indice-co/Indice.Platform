@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Indice.AspNetCore.Tests;
 
@@ -47,7 +45,7 @@ public class RequestResponseLoggingTests : IAsyncLifetime
         
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         await _host.StartAsync();
         var server = _host.GetTestServer();
         var handler = server.CreateHandler();
@@ -56,14 +54,14 @@ public class RequestResponseLoggingTests : IAsyncLifetime
         };
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         await((IAsyncDisposable)_host).DisposeAsync();
     }
 
     #region generic tests
     [Fact]
     public async Task Can_Get() {
-        _ = await _httpClient.GetAsync(new Uri($"{BASE_URL}/tests/time"));
+        _ = await _httpClient.GetAsync(new Uri($"{BASE_URL}/tests/time"), TestContext.Current.CancellationToken);
     }
     #endregion
 }

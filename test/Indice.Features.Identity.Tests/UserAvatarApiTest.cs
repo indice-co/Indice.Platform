@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.HttpOverrides;
-using Xunit;
 using Indice.Security;
 using Duende.IdentityModel.Client;
 using System.Security.Claims;
@@ -155,7 +154,7 @@ public class UserAvatarApiTest : IAsyncLifetime
         _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + tokenResponse.AccessToken);
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("multipart/form-data"));
 
-        var response = await _httpClient.PutAsync("/api/my/account/picture", multipartContent);
+        var response = await _httpClient.PutAsync("/api/my/account/picture", multipartContent, TestContext.Current.CancellationToken);
         Assert.True(response.IsSuccessStatusCode);
     }
 
@@ -249,13 +248,13 @@ public class UserAvatarApiTest : IAsyncLifetime
     };
     #endregion
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         await _serviceProvider.DisposeAsync();
     }
 
-    public Task InitializeAsync() {
+    public ValueTask InitializeAsync() {
         var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
         dbContext.SeedInitialData();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 }

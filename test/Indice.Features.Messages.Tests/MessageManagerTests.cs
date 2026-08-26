@@ -147,11 +147,11 @@ public class MessageManagerTests : IAsyncLifetime
         public string Resolve() => "static";
     }
 
-    public Task InitializeAsync() {
-        return Task.CompletedTask;
+    public ValueTask InitializeAsync() {
+        return ValueTask.CompletedTask;
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();
