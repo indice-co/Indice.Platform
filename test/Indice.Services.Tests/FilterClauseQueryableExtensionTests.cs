@@ -40,7 +40,7 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
             //(FilterClause)"name::eq::Κωνσταντίνος",
         };
         var query = dbContext.Dummies.Where(filters);
-        var results = await query.ToListAsync();
+        var results = await query.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Single(results);
     }
 
@@ -49,7 +49,7 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
 
         var query = dbContext.Dummies.Where(x => x.Tags!.Contains("yellow"));
-        var results = await query.ToListAsync();
+        var results = await query.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, results.Count);
     }
 
@@ -57,19 +57,19 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
     public async Task ToResultset_Translates_DynamicJsonPaths_Sort_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
         var query = dbContext.Dummies;
-        var results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName,name" });
+        var results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName,name" }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(3, results.Count);
-        results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName" });
+        results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName" }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(3, results.Count);
-        results = await query.ToResultSetAsync(new ListOptions { Sort = "(integer)data.order" });
+        results = await query.ToResultSetAsync(new ListOptions { Sort = "(integer)data.order" }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(3, results.Count);
-        results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.period.from+" });
+        results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.period.from+" }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(3, results.Count);
-        results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.birthDate-" });
+        results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.birthDate-" }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(3, results.Count);
-        results = await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
+        results = await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(3, results.Count);
-        results = await query.ToResultSetAsync(new ListOptions { Sort = "(boolean)data.enabled-" });
+        results = await query.ToResultSetAsync(new ListOptions { Sort = "(boolean)data.enabled-" }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(3, results.Count);
     }
 
@@ -81,16 +81,16 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
         foreach (var sorting in options.GetSortings()) {
             query = query.OrderBy(sorting, append: true);
         }
-        var results = await query.ToResultSetAsync(options.Page ?? 1, options.Size ?? 100);
+        var results = await query.ToResultSetAsync(options.Page ?? 1, options.Size ?? 100, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(3, results.Count);
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
         await dbContext.SeedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
         await dbContext.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();

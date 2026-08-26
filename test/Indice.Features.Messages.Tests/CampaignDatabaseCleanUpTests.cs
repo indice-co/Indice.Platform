@@ -55,12 +55,12 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         ServiceProvider = services.BuildServiceProvider();
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();
@@ -104,15 +104,15 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
 
         db.SaveChanges();
         await cleanupService.CleanUpCampaignsWithInboxAsync();
-        var remainingCampaigns = await db.Campaigns.ToListAsync();
+        var remainingCampaigns = await db.Campaigns.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, remainingCampaigns.Count); // Only recent and unpublished should remain
         Assert.Contains(remainingCampaigns, c => c.Id == recentCampaign.Id);
         Assert.Contains(remainingCampaigns, c => c.Id == unpublishedCampaign.Id);
 
-        var remainingEvents = await db.MessageEvents.Where(e => e.CampaignId == oldCampaign1.Id).ToListAsync();
+        var remainingEvents = await db.MessageEvents.Where(e => e.CampaignId == oldCampaign1.Id).ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(remainingEvents);
 
-        var remainingLists = await db.DistributionLists.ToListAsync();
+        var remainingLists = await db.DistributionLists.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, remainingLists.Count);
     }
 
@@ -154,13 +154,13 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
 
         db.SaveChanges();
         await cleanupService.CleanUpCampaignsWithoutInboxAsync();
-        var remainingCampaigns = await db.Campaigns.ToListAsync();
+        var remainingCampaigns = await db.Campaigns.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, remainingCampaigns.Count); // Only recent and unpublished should remain
         Assert.Contains(remainingCampaigns, c => c.Id == recentCampaign.Id);
         Assert.Contains(remainingCampaigns, c => c.Id == unpublishedCampaign.Id);
-        var remainingEvents = await db.MessageEvents.Where(e => e.CampaignId == oldCampaign1.Id).ToListAsync();
+        var remainingEvents = await db.MessageEvents.Where(e => e.CampaignId == oldCampaign1.Id).ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(remainingEvents);
-        var remainingLists = await db.DistributionLists.ToListAsync();
+        var remainingLists = await db.DistributionLists.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, remainingLists.Count);
     }
 
@@ -172,7 +172,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         await cleanupService.CleanUpCampaignsWithInboxAsync();
         await cleanupService.CleanUpCampaignsWithoutInboxAsync();
 
-        var campaigns = await db.Campaigns.ToListAsync();
+        var campaigns = await db.Campaigns.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(campaigns);
     }
 
@@ -198,7 +198,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         db.SaveChanges();
 
         await cleanupService.CleanUpCampaignsWithoutInboxAsync();
-        var remainingCampaigns = await db.Campaigns.ToListAsync();
+        var remainingCampaigns = await db.Campaigns.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Single(remainingCampaigns);
         Assert.Equal(campaignWithActivePeriod.Id, remainingCampaigns[0].Id);
     }
