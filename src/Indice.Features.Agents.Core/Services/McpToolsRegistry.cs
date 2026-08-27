@@ -74,8 +74,8 @@ public sealed class McpToolsRegistry : IMcpToolsRegistry, IAsyncDisposable
                     transport = new HttpClientTransport(opts);
                 }
 
-                await using var transportScope = transport;
-                await using var client = await McpClient.CreateAsync(transportScope, cancellationToken: cancellationToken);
+                var transportScope = transport;
+                var client = await McpClient.CreateAsync(transportScope, cancellationToken: cancellationToken);
                 var clientTools = await client.ListToolsAsync(cancellationToken: cancellationToken);
 
                 _serverTools.TryAdd(service, clientTools.AsReadOnly());

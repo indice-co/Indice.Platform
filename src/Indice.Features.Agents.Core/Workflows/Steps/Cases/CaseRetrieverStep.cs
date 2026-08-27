@@ -71,8 +71,15 @@ public sealed class CaseRetrieverStep : Executor<ConversationState, CaseRetrieva
         }
         // Render the verification prompt using template
         var chatOptions = _models.BaseReasoningModelOptions.Clone();
-        chatOptions.Instructions = _promptRenderer.Render(nameof(AgentsConstants.PromptDefaults.CaseRetriever));
-        chatOptions.Tools = [..(chatOptions.Tools ?? []), ..mcpTools];
+        chatOptions.Instructions = _promptRenderer.Render(nameof(AgentsConstants.PromptDefaults.CaseRetriever)); 
+        chatOptions.Instructions = """
+            You are a case retrieval assistant.
+            Use the available tool get_case_data_id from the case-retrieval MCP service to fetch case data.
+            Decide which tool to call based on the user's query.
+            Extract the case GUID from the messages and query the case data.
+            Return the case information json as string
+            """;
+        chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. mcpTools];
 
         var agent = _openAIClient
             .GetChatClient(_model)
@@ -86,7 +93,6 @@ public sealed class CaseRetrieverStep : Executor<ConversationState, CaseRetrieva
         var prompt = $"""
             Retrieve the case information.
             Query: {userInput}
-            and return only the response json as string
             """;
 
         var response = await agent.RunAsync<string>(prompt, cancellationToken: cancellationToken);
