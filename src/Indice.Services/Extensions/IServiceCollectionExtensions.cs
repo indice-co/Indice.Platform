@@ -63,7 +63,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <remarks>Automatically discovers the correct provider using the configuration setting <strong>Email:Provider</strong> to automatically load the correct configuration.
     /// <br />Acceptable values:
-    /// <strong>smtp, sparkpost, sendgrid, brevo, none, azurecommunicationservices</strong>
+    /// <strong>Smtp, SparkPost, SendGrid, Brevo, None, AzureCommunicationServices</strong>
     /// </remarks>
     public static EmailServiceBuilder AddEmailService(this IServiceCollection services, IConfiguration configuration) {
         var providerNamesText = configuration.GetSection(EmailServiceSettings.Name).GetValue<string>("Provider");
