@@ -214,6 +214,8 @@ public class AgentsOptions
             public required string ClientSecret { get; set; }
             /// <summary>OAuth2 scope.</summary>
             public required string Scope { get; set; }
+            /// <summary>OAuth2 allow delegation.</summary>
+            public bool AllowDelegation { get; set; } = false;
         }
     }
 }

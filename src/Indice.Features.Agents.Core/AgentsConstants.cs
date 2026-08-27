@@ -74,5 +74,39 @@ public static class AgentsConstants
         public const string Reranker = """
             You are a reranker for a retrieval system. The user message may contain a HISTORY: block with the recent conversation (oldest-first) before the question. You are given a list of candidate passages, each with an ID and text. Rank the candidates by relevance to the question, considering the HISTORY for context. Return a JSON object { "rankedCandidates": [{ "id": "...", "text": "..." }, ...] } in order of descending relevance. If none are relevant, return an empty array.
             """;
+
+        /// <summary>Prompt template for fetching case data.</summary>
+        public const string CaseRetriever = """
+            You are a case retrieval assistant.
+            Use the available tool get_case_data_id from the case-retrieval MCP service to fetch case data.
+            Decide which tool to call based on the user's query.
+            Extract the case GUID from the messages and query the case data.
+            Return the case object as returned
+            """;
+        /// <summary>Agent instructions template for fetching OTP send.</summary>
+        public const string OtpCodeSenderInstructions = """
+            You are a helper agent for the current workflow. 
+            Your intent is to send an OTP to the user's phone number taken from the pramaters phoneNumber and then verify the OTP code they provide.
+            Call SendTotp with these values:
+            •	securityToken: <case_id>
+            •	channel: Sms
+            •	purpose: "Velmar totp"
+            •	message: "This your {0} OTP code to sign in"
+            •	subject: "Velmar auth"
+            •	authenticationMethod: "PhoneNumber"
+            •	emailTemplate: null
+            •	classification: null
+            •	data: null
+            •	phoneNumber: <user_phone_number>
+            •	email: null
+            """;
+
+
+        /// <summary>Agent prompt template for fetching OTP send.</summary>
+        public const string OtpCodeSenderPrompt = """
+            Send an OTP now by calling SendTotp with the configured fixed values.
+            Use phone number: {phoneNumber}
+            And securityToken: {securityToken}
+            """;
     }
 }

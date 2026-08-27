@@ -53,7 +53,7 @@ public sealed class McpToolsRegistry : IMcpToolsRegistry, IAsyncDisposable
             try {
                 HttpClientTransport transport;
                 if (mcpServiceOptions.OAuth is { } oauth) {
-                    var handler = new ClientCredentialsBearerHandler(oauth.TokenEndpoint, oauth.ClientId, oauth.ClientSecret, oauth.Scope, _httpContextAccessor, _cache);
+                    var handler = new ClientCredentialsBearerHandler(oauth.TokenEndpoint, oauth.ClientId, oauth.ClientSecret, oauth.Scope, oauth.AllowDelegation, _httpContextAccessor, _cache);
                     var http = new HttpClient(handler);
                     transport = new HttpClientTransport(
                         new HttpClientTransportOptions {

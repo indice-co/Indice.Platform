@@ -58,7 +58,7 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
         }
 
         var chatOptions = _models.BaseReasoningModelOptions.Clone();
-        chatOptions.Instructions = _prompts.Render("CasesOtpAgent", new {
+        chatOptions.Instructions = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions), new {
             phoneNumber = caseData.PhoneNumber,
             email = caseData.Email,
             caseId = caseData.CaseId,
@@ -75,14 +75,11 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
             });
 
         // Execute only the send leg now; OTP code collection is done by the workflow host via RequestPort.
-        var sendPrompt = $"""
-            Send an OTP now by calling SendTotp with the configured fixed values.
-            Use phone number: {caseData.PhoneNumber}
-            And securityToken: {caseData.CaseId}
-            Do not verify now.
-            """;
+        var sendPrompt = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeSenderPrompt), new {
+            phoneNumber =  caseData.PhoneNumber,
+            securityToken = caseData.CaseId,
+        });
         _ = await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
-
         var maskedPhone = MaskPhone(caseData.PhoneNumber);
         return new OtpChallengeOutput(
             ValidationData: validationData,

@@ -13,6 +13,7 @@ internal sealed class ClientCredentialsBearerHandler : DelegatingHandler
     private readonly string _clientId;
     private readonly string _clientSecret;
     private readonly string _scope;
+    private readonly bool _allowDelegationToken;
     private readonly IHttpContextAccessor _contextAccessor;
 
 
@@ -20,7 +21,7 @@ internal sealed class ClientCredentialsBearerHandler : DelegatingHandler
     private readonly IDistributedCache _cache;
 
     public ClientCredentialsBearerHandler(
-        string tokenEndpoint, string clientId, string clientSecret, string scope, IHttpContextAccessor contextAccessor, IDistributedCache cache)
+        string tokenEndpoint, string clientId, string clientSecret, string scope, bool allowDelegationToken, IHttpContextAccessor contextAccessor, IDistributedCache cache)
     : base(new HttpClientHandler()) {
         _tokenEndpoint = tokenEndpoint;
         _clientId = clientId;
@@ -28,6 +29,7 @@ internal sealed class ClientCredentialsBearerHandler : DelegatingHandler
         _contextAccessor = contextAccessor;
         _cache = cache;
         _scope = scope ?? string.Empty;
+        _allowDelegationToken = allowDelegationToken;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
@@ -44,7 +46,7 @@ internal sealed class ClientCredentialsBearerHandler : DelegatingHandler
             // double-check after acquiring the lock
             var currentAccessToken = ResolveAuthorizationHeaderValue();
             var currentSubjectId = _contextAccessor.HttpContext?.User.FindSubjectId();
-            var userPresent = !string.IsNullOrWhiteSpace(currentAccessToken) && !string.IsNullOrWhiteSpace(currentSubjectId);
+            var userPresent = _allowDelegationToken && !string.IsNullOrWhiteSpace(currentAccessToken) && !string.IsNullOrWhiteSpace(currentSubjectId);
             var grantType = userPresent ? "delegation" : "client_credentials";
             var cacheKey = $"{_clientId}|{grantType}|sub|{currentSubjectId}|scope|{_scope}";
             var accessToken = await _cache.GetStringAsync(cacheKey);
