@@ -13,15 +13,15 @@ namespace Indice.Services;
 /// Azure Communication Services implementation for the email service abstraction.
 /// <a href="https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/email/send-email?tabs=windows%2Caad%2Csend-email-and-get-status-async%2Casync-client&amp;pivots=programming-language-csharp">Learn more</a>
 /// </summary>
-public sealed class AzureCommunicationServicesEmailService : IEmailService
+public sealed class EmailServiceAzureCommunicationServices : IEmailService
 {
     /// <summary>Represents the name of the AzureCommunicationServices service as a constant string value.</summary>
     public const string ServiceName = "AzureCommunicationServices";
 
-    /// <summary>Creates a new instance of <see cref="AzureCommunicationServicesEmailService"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="EmailServiceAzureCommunicationServices"/>.</summary>
     /// <param name="settings">An instance of <see cref="EmailServiceAzureCommsSettings"/> used to initialize the service.</param>
     /// <param name="htmlRenderingEngine">This is an abstraction for the rendering engine.</param>
-    public AzureCommunicationServicesEmailService(
+    public EmailServiceAzureCommunicationServices(
         IOptionsSnapshot<EmailServiceAzureCommsSettings> settings,
         IHtmlRenderingEngine htmlRenderingEngine
     ) {
