@@ -14,7 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
-using Xunit;
 
 namespace Indice.Features.Messages.Tests;
 
@@ -63,11 +62,11 @@ public class MergeContactTests : IAsyncLifetime
         var contactService = ServiceProvider.GetRequiredService<IContactService>();
         var dbContext = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         var initDBResponse = await InitDatabase();
-        var dbDistributionList = await dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == initDBResponse.DistributionListId).FirstAsync();
+        var dbDistributionList = await dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == initDBResponse.DistributionListId).FirstAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(dbDistributionList.ContactDistributionLists.Count == (_numDuplicates + 1));
         await contactService.MergeContacts(initDBResponse.MainContact, initDBResponse.DuplicateContactIds);
         dbContext.ChangeTracker.Clear();
-        dbDistributionList = await dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == initDBResponse.DistributionListId).FirstAsync();
+        dbDistributionList = await dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == initDBResponse.DistributionListId).FirstAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(dbDistributionList.ContactDistributionLists.Count == 1 && dbDistributionList.ContactDistributionLists.All(u => u.ContactId == initDBResponse.MainContact.Id));
     }
 
@@ -76,11 +75,11 @@ public class MergeContactTests : IAsyncLifetime
         var contactService = ServiceProvider.GetRequiredService<IContactService>();
         var dbContext = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         var initDBResponse = await InitDatabase();
-        var dbDistributionListMainNotIncluded = await dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == initDBResponse.DistributionListMainNotIncludedId).FirstAsync();
+        var dbDistributionListMainNotIncluded = await dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == initDBResponse.DistributionListMainNotIncludedId).FirstAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(dbDistributionListMainNotIncluded.ContactDistributionLists.Count == _numDuplicates);
         await contactService.MergeContacts(initDBResponse.MainContact, initDBResponse.DuplicateContactIds);
         dbContext.ChangeTracker.Clear();
-        dbDistributionListMainNotIncluded = await dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == initDBResponse.DistributionListMainNotIncludedId).FirstAsync();
+        dbDistributionListMainNotIncluded = await dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == initDBResponse.DistributionListMainNotIncludedId).FirstAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(dbDistributionListMainNotIncluded.ContactDistributionLists.Count == 1 && dbDistributionListMainNotIncluded.ContactDistributionLists.All(u => u.ContactId == initDBResponse.MainContact.Id));
     }
 
@@ -92,8 +91,8 @@ public class MergeContactTests : IAsyncLifetime
         InitDBResponse initDBResponse = await InitDatabase();
         await contactService.MergeContacts(initDBResponse.MainContact, initDBResponse.DuplicateContactIds);
         dbContext.ChangeTracker.Clear();
-        Assert.True(await dbContext.Messages.AllAsync(x => x.ContactId == initDBResponse.MainContact.Id) && await dbContext.Messages.CountAsync() == 5);
-        Assert.True(await dbContext.MessageEvents.AllAsync(x => x.ContactId == initDBResponse.MainContact.Id) && await dbContext.MessageEvents.CountAsync() == 5);
+        Assert.True(await dbContext.Messages.AllAsync(x => x.ContactId == initDBResponse.MainContact.Id, cancellationToken: TestContext.Current.CancellationToken) && await dbContext.Messages.CountAsync(cancellationToken: TestContext.Current.CancellationToken) == 5);
+        Assert.True(await dbContext.MessageEvents.AllAsync(x => x.ContactId == initDBResponse.MainContact.Id, cancellationToken: TestContext.Current.CancellationToken) && await dbContext.MessageEvents.CountAsync(cancellationToken: TestContext.Current.CancellationToken) == 5);
     }
 
     public async Task<InitDBResponse> InitDatabase() {
@@ -227,12 +226,12 @@ public class MergeContactTests : IAsyncLifetime
         public string Resolve() => "static";
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();

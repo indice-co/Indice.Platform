@@ -77,7 +77,7 @@ public class AdminCaseServiceTests : IAsyncLifetime
         return new ClaimsPrincipal(identity);
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>(); 
         if (await dbContext.Database.EnsureCreatedAsync() || !dbContext.Cases.Any()) {
             // seed here.
@@ -85,7 +85,7 @@ public class AdminCaseServiceTests : IAsyncLifetime
         }
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         await dbContext.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();

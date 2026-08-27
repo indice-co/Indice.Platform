@@ -4,8 +4,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.Features.GeoIP\Indice.Features.GeoIP.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Using Include="Xunit" />
-  </ItemGroup>
 
 </Project>

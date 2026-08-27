@@ -18,8 +18,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
-using Xunit.Abstractions;
 using static Indice.AspNetCore.Tests.OpenApiTestsModels;
 
 namespace Indice.AspNetCore.Tests;
@@ -82,12 +80,12 @@ public class OpenApiTests : IAsyncLifetime
         _host = builder.Build();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         await _serviceProvider.DisposeAsync();
         await ((IAsyncDisposable)_host).DisposeAsync();
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         await _host.StartAsync();
         var server = _host.GetTestServer();
         var handler = server.CreateHandler();
@@ -101,17 +99,17 @@ public class OpenApiTests : IAsyncLifetime
     [Fact]
     public async Task OpenApiHandlesRecursiveModels() {
         // Act
-        var response = await _httpClient.GetAsync("tests/menu");
+        var response = await _httpClient.GetAsync("tests/menu", TestContext.Current.CancellationToken);
         if (!response.IsSuccessStatusCode) {
-            _output.WriteLine(await response.Content.ReadAsStringAsync());
+            _output.WriteLine(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         }
         Assert.True(response.IsSuccessStatusCode);
         var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         ConfigureIndiceHttpJsonOptions(jsonOptions);
-        var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>(jsonOptions);
+        var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>(jsonOptions, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotEmpty(menu!);
-        var openApi = await _httpClient.GetStringAsync("openapi/tests.json");
+        var openApi = await _httpClient.GetStringAsync("openapi/tests.json", TestContext.Current.CancellationToken);
         Assert.NotEmpty(openApi);
 
         var json = JsonNode.Parse(openApi);
@@ -141,7 +139,7 @@ public class OpenApiTests : IAsyncLifetime
     }
     [Fact]
     public async Task OpenApiHandlesNullableEnumsModels() {
-        var openApi = await _httpClient.GetStringAsync("openapi/nullables.json");
+        var openApi = await _httpClient.GetStringAsync("openapi/nullables.json", TestContext.Current.CancellationToken);
         Assert.NotEmpty(openApi);
 
         var json = JsonNode.Parse(openApi);
@@ -157,17 +155,17 @@ public class OpenApiTests : IAsyncLifetime
     [Fact]
     public async Task OpenApiHandlesRecursiveModels() {
         // Act
-        var response = await _httpClient.GetAsync("tests/menu");
+        var response = await _httpClient.GetAsync("tests/menu", TestContext.Current.CancellationToken);
         if (!response.IsSuccessStatusCode) {
-            _output.WriteLine(await response.Content.ReadAsStringAsync());
+            _output.WriteLine(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         }
         Assert.True(response.IsSuccessStatusCode);
         var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         ConfigureIndiceHttpJsonOptions(jsonOptions);
-        var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>(jsonOptions);
+        var menu = await response.Content.ReadFromJsonAsync<List<MenuItem>>(jsonOptions, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotEmpty(menu!);
-        var openApi = await _httpClient.GetStringAsync("openapi/tests.json");
+        var openApi = await _httpClient.GetStringAsync("openapi/tests.json", TestContext.Current.CancellationToken);
         Assert.NotEmpty(openApi);
 
         var json = JsonNode.Parse(openApi);
@@ -199,7 +197,7 @@ public class OpenApiTests : IAsyncLifetime
 
     [Fact]
     public async Task OpenApiHandlesNullableEnumsModels() {
-        var openApi = await _httpClient.GetStringAsync("openapi/nullables.json");
+        var openApi = await _httpClient.GetStringAsync("openapi/nullables.json", TestContext.Current.CancellationToken);
         Assert.NotEmpty(openApi);
 
         var json = JsonNode.Parse(openApi);
@@ -213,7 +211,7 @@ public class OpenApiTests : IAsyncLifetime
 
     [Fact]
     public async Task OpenApiHandlesOpenApiIgnoreAttribute() {
-        var openApi = await _httpClient.GetStringAsync("openapi/ignore-openapi.json");
+        var openApi = await _httpClient.GetStringAsync("openapi/ignore-openapi.json", TestContext.Current.CancellationToken);
         Assert.NotEmpty(openApi);
 
         var json = JsonNode.Parse(openApi);
@@ -228,7 +226,7 @@ public class OpenApiTests : IAsyncLifetime
 
     [Fact]
     public async Task OpenApiHandlesUploads() {
-        var openApi = await _httpClient.GetStringAsync("openapi/uploads.json");
+        var openApi = await _httpClient.GetStringAsync("openapi/uploads.json", TestContext.Current.CancellationToken);
         Assert.NotEmpty(openApi);
 
         var json = JsonNode.Parse(openApi);

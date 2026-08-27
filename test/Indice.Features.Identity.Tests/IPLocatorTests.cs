@@ -1,6 +1,5 @@
 ﻿using Indice.Features.GeoIP;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Indice.Features.Identity.Tests;
 
@@ -21,11 +20,11 @@ public class IPLocatorTests : IAsyncLifetime
         Assert.Equal("Google LLC", locationMetadata.AsOrganization);
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         if (_serviceProvider != null) {
             await _serviceProvider.DisposeAsync();
         }   
     }
 
-    public Task InitializeAsync() => Task.CompletedTask;
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
 }

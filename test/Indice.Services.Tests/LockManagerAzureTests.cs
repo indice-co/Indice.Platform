@@ -48,18 +48,18 @@ public class LockManagerAzureTests
     public async Task AcquireLockTest() {
         var duration = TimeSpan.FromSeconds(15);
         var name = "constantinos"; // using a random name :)
-        var @lock = await _LockManager.AcquireLock(name, duration);
+        var @lock = await _LockManager.AcquireLock(name, duration, TestContext.Current.CancellationToken);
         await using (@lock) {
-            await Task.Delay(TimeSpan.FromSeconds(0.5));
+            await Task.Delay(TimeSpan.FromSeconds(0.5), TestContext.Current.CancellationToken);
         }
-        var @lock2 = await _LockManager.AcquireLock(name, duration);
+        var @lock2 = await _LockManager.AcquireLock(name, duration, TestContext.Current.CancellationToken);
         await using (@lock2) {
-            await Task.Delay(TimeSpan.FromSeconds(0.5));
+            await Task.Delay(TimeSpan.FromSeconds(0.5), TestContext.Current.CancellationToken);
         }
-        var result = await _LockManager.TryAcquireLock(name);
+        var result = await _LockManager.TryAcquireLock(name, cancellationToken: TestContext.Current.CancellationToken);
         if (result.Ok) {
             await using (result.Lock) {
-                await Task.Delay(TimeSpan.FromSeconds(0.5));
+                await Task.Delay(TimeSpan.FromSeconds(0.5), TestContext.Current.CancellationToken);
             }
         }
     }
@@ -70,15 +70,15 @@ public class LockManagerAzureTests
         var durationGreaterThanMax = TimeSpan.FromSeconds(100);
         var name = "constantinos"; // using a random name :)
 
-        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(name, durationLessThanMin));
-        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(name, durationGreaterThanMax));
+        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(name, durationLessThanMin, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(name, durationGreaterThanMax, TestContext.Current.CancellationToken));
     }
 
     [Fact(Skip = "Only for debug purposes")]
     public async Task FunctionLockingTestMaster() {
         var duration = TimeSpan.FromSeconds(60);
         var operation = "MasterProductImport"; // using a random name :)
-        var @lock = await _LockManager.AcquireLock(operation, duration);
+        var @lock = await _LockManager.AcquireLock(operation, duration, TestContext.Current.CancellationToken);
         await _FileService.SaveAsync($"messages/{operation}.json", Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new Tuple<string, string>(@lock.LeaseId, @lock.Name))));
     }
 
@@ -87,9 +87,9 @@ public class LockManagerAzureTests
         var operation = "MasterProductImport"; // using a random name :)
         var bytes = await _FileService.GetAsync($"messages/{operation}.json");
         var message = JsonSerializer.Deserialize<(string LeaseId, string Name)>(Encoding.UTF8.GetString(bytes), JsonSerializerOptionDefaults.GetDefaultSettings());
-        var @lock = await _LockManager.Renew(message.Name, message.LeaseId);
+        var @lock = await _LockManager.Renew(message.Name, message.LeaseId, TestContext.Current.CancellationToken);
         Assert.NotNull(@lock);
-        await Task.Delay(TimeSpan.FromSeconds(10));
+        await Task.Delay(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
     }
 
     [Fact(Skip = "Only for debug purposes")]
@@ -98,7 +98,7 @@ public class LockManagerAzureTests
         await _LockManager.ExclusiveRun(operation, async (token) => {
             await Task.Delay(TimeSpan.FromSeconds(10), token);
             Console.WriteLine("operation run...");
-        }, cancellationToken: default, new ExclusiveRunOptions {
+        }, cancellationToken: TestContext.Current.CancellationToken, new ExclusiveRunOptions {
             LockDuration = 30,
             RetryIntervalInSeconds = null
         });
@@ -111,7 +111,7 @@ public class LockManagerAzureTests
         var source = new CancellationTokenSource();
         source.CancelAfter(TimeSpan.FromSeconds(2));
 
-        using var lock1 = await _LockManager.AcquireLock(operation, TimeSpan.FromSeconds(59));
+        using var lock1 = await _LockManager.AcquireLock(operation, TimeSpan.FromSeconds(59), TestContext.Current.CancellationToken);
 
         var exclusiveRunTask = _LockManager.ExclusiveRun(operation, async (token) => {
             await Task.Delay(TimeSpan.FromSeconds(1), token);
