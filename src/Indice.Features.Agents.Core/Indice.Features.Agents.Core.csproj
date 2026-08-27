@@ -27,4 +27,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Streamed inline as base64 by OutOfScopeResponder; downscaled from the SPA's public\dex-logo.png. -->
+    <EmbeddedResource Include="Assets\dex-logo-128.png" />
+  </ItemGroup>
 </Project>

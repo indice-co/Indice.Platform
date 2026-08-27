@@ -24,10 +24,27 @@ public sealed class OutOfScopeResponder : Executor<IntentOutput, GroundedAnswerO
     private const string DefaultReason = "Sorry, that question is outside the scope of what I can answer here.";
 
     /// <summary>
-    /// The chat SPA serves its own logo from the site root, so a root-relative URL is enough — this step has no
-    /// business knowing the host's public base address, and the asset is already cached by the thread's avatar.
+    /// The Dex mark, embedded in this assembly and streamed inline with the refusal rather than linked. Downscaled to
+    /// 128×128 from the SPA's own <c>public\dex-logo.png</c> (819×819, 1.1 MB) — at full size the base64 would add
+    /// ~1.5 MB to every refusal turn's SSE frame and to its row in the message store, permanently. If the brand mark
+    /// ever changes, <b>both</b> copies have to be regenerated.
     /// </summary>
-    private const string LogoUrl = "/dex-logo.png";
+    private const string LogoResourceName = "Indice.Features.Agents.Core.Assets.dex-logo-128.png";
+
+    /// <summary>
+    /// Root-relative fallback, used only if the embedded asset is missing. The SPA serves its own logo from the site
+    /// root, so a packaging mistake degrades the figure to a linked image instead of breaking the refusal turn.
+    /// </summary>
+    private const string LogoFallbackUrl = "/dex-logo.png";
+
+    /// <summary>Alternative text for the mark, used whichever way the image ends up being carried.</summary>
+    private const string LogoAlt = "Dex";
+
+    /// <summary>Caption rendered under the mark, used whichever way the image ends up being carried.</summary>
+    private const string LogoCaption = "Dex answers from your knowledge base.";
+
+    /// <summary>The logo's base64 is byte-identical on every refusal, so it is encoded once per process, not per turn.</summary>
+    private static readonly ImageReference _logo = LoadLogo();
 
     private readonly AgentsOptions.TaxonomyOptions _taxonomy;
 
@@ -65,11 +82,7 @@ public sealed class OutOfScopeResponder : Executor<IntentOutput, GroundedAnswerO
                 Title = "Outside my knowledge base",
                 Text = "I answer only from the internal documentation loaded into this assistant, so anything beyond it I have to turn down."
             }, AgentsConstants.MediaTypes.Callout),
-            Part(new ImageReference {
-                Url = LogoUrl,
-                Alt = "Dex",
-                Caption = "Dex answers from your knowledge base."
-            }, AgentsConstants.MediaTypes.Image),
+            Part(_logo, AgentsConstants.MediaTypes.Image),
             // The affirmative label is itself an in-scope question — it classifies as the purpose category and gets a
             // real answer from PurposeResponder, so the button leads somewhere instead of looping back to this step.
             Part(new Confirmation {
@@ -93,4 +106,18 @@ public sealed class OutOfScopeResponder : Executor<IntentOutput, GroundedAnswerO
     /// <summary>Serializes a payload into the atomic <see cref="DataContent"/> part its media type stands for.</summary>
     private static DataContent Part<TPayload>(TPayload payload, string mediaType)
         => new(JsonSerializer.SerializeToUtf8Bytes(payload), mediaType);
+
+    /// <summary>
+    /// Reads the embedded mark once and inlines it as a base64 <c>data:</c> URI, falling back to
+    /// <see cref="LogoFallbackUrl"/> when the resource is absent.
+    /// </summary>
+    private static ImageReference LoadLogo() {
+        using var stream = typeof(OutOfScopeResponder).Assembly.GetManifestResourceStream(LogoResourceName);
+        if (stream is null) {
+            return new ImageReference { Url = LogoFallbackUrl, Alt = LogoAlt, Caption = LogoCaption };
+        }
+        using var buffer = new MemoryStream();
+        stream.CopyTo(buffer);
+        return ImageReference.FromBytes(buffer.ToArray(), "image/png", LogoAlt, LogoCaption);
+    }
 }

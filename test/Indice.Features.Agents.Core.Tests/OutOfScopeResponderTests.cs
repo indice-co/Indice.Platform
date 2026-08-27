@@ -13,6 +13,7 @@ namespace Indice.Features.Agents.Core.Tests;
 public class OutOfScopeResponderTests
 {
     private const string Reason = "I can only answer from the internal documentation.";
+    private const string PngDataUriPrefix = "data:image/png;base64,";
 
     [Fact]
     public void BuildContents_LeadsWithTheReasonAsProse() {
@@ -37,14 +38,28 @@ public class OutOfScopeResponderTests
     }
 
     [Fact]
-    public void BuildContents_ImagePointsAtTheSpasOwnLogoByRootRelativeUrl() {
-        // Root-relative keeps this step out of the business of knowing the host's public base address; the client's
-        // parseImage accepts "/x" but rejects the protocol-relative "//x".
+    public void BuildContents_ImageCarriesTheLogoBytesInlineAsABase64DataUri() {
+        // The whole point of the embedded asset: a refusal ships the actual image data, not a link to it. Decoding back
+        // to the PNG magic header is what proves a real image travelled — if the embedded resource were ever renamed or
+        // dropped from the csproj, the step falls back to a URL and this is the assertion that catches it.
         var image = Payload<ImageReference>(AgentsConstants.MediaTypes.Image);
 
-        Assert.Equal("/dex-logo.png", image.Url);
-        Assert.False(image.Url.StartsWith("//"));
+        Assert.StartsWith(PngDataUriPrefix, image.Url);
+        byte[] pngMagic = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+        var bytes = Convert.FromBase64String(image.Url[PngDataUriPrefix.Length..]);
+        Assert.Equal(pngMagic, bytes.Take(pngMagic.Length).ToArray());
         Assert.False(string.IsNullOrWhiteSpace(image.Alt));
+        Assert.False(string.IsNullOrWhiteSpace(image.Caption));
+    }
+
+    [Fact]
+    public void BuildContents_InlinedLogoStaysSmallEnoughToShipOnEveryRefusal() {
+        // This data URI is streamed and persisted on every refusal turn and re-sent on every load of that conversation,
+        // so it is a permanent per-message cost. The SPA's own logo is 819x819 / 1.1 MB — ~1.5 MB base64 — which is why
+        // the embedded copy is downscaled. This fails loudly if someone swaps the full-size asset back in.
+        var image = Payload<ImageReference>(AgentsConstants.MediaTypes.Image);
+
+        Assert.InRange(image.Url.Length, 1_000, 64_000);
     }
 
     [Fact]

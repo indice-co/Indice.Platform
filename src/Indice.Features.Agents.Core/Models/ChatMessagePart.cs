@@ -1,6 +1,5 @@
-﻿using System.Buffers.Text;
-using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Models;
 
@@ -18,18 +17,21 @@ public class ChatMessagePart
     public static ChatMessagePart FromHtml(string html) => new() { Value = html, ContentType = "text/html" };
     /// <summary>Creates a new <see cref="ChatMessagePart"/> from text content.</summary>
     public static ChatMessagePart FromText(string text, string contentType = "text/markdown") => new() { Value = text, ContentType = contentType };
-    /// <summary>Creates a new <see cref="ChatMessagePart"/> from image content.</summary>
-    public static ChatMessagePart FromImage(BinaryData imageData) => new() { Value = ToBase64UrlSafeFast(imageData), ContentType = imageData.MediaType ?? throw new InvalidOperationException("Image data must have a media type.") };
 
     /// <summary>
-    /// Alternative faster version using Base64Url (recommended in .NET 5+)
+    /// Creates a new <see cref="ChatMessagePart"/> from image content, carrying the bytes inline as a base64
+    /// <c>data:</c> URI.
     /// </summary>
-    private static string ToBase64UrlSafeFast(BinaryData data) {
-        ReadOnlySpan<byte> source = data.ToArray();
-        Span<byte> buffer = new byte[Base64.GetMaxEncodedToUtf8Length(source.Length)];
-
-        Base64Url.EncodeToUtf8(source, buffer, out _, out int bytesWritten);
-
-        return Encoding.UTF8.GetString(buffer.Slice(0, bytesWritten));
+    /// <remarks>
+    /// The value has to be a complete <c>data:image/…;base64,…</c> URI using the standard (padded) base64 alphabet: the
+    /// client renders it straight into an <c>&lt;img src&gt;</c> and silently drops anything that is not a recognised
+    /// image URL. <see cref="DataContent"/> composes exactly that, and is the same mechanism the streaming and
+    /// aggregated projections use, so the shapes cannot drift.
+    /// </remarks>
+    /// <param name="imageData">The image bytes. Its <see cref="BinaryData.MediaType"/> must be set.</param>
+    /// <exception cref="InvalidOperationException">The image data carries no media type.</exception>
+    public static ChatMessagePart FromImage(BinaryData imageData) {
+        var mediaType = imageData.MediaType ?? throw new InvalidOperationException("Image data must have a media type.");
+        return new() { Value = new DataContent(imageData.ToMemory(), mediaType).Uri, ContentType = mediaType };
     }
 }

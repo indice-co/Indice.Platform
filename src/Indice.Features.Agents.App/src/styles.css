@@ -25,14 +25,17 @@
   --color-neutral: oklch(26% 0.012 270);
   --color-neutral-content: oklch(97% 0 0);
 
-  --color-info: oklch(62% 0.1 232);
-  --color-info-content: oklch(98% 0.01 232);
-  --color-success: oklch(62% 0.13 150);
-  --color-success-content: oklch(98% 0.01 150);
-  --color-warning: oklch(76% 0.15 80);
-  --color-warning-content: oklch(28% 0.05 80);
-  --color-error: oklch(55% 0.2 25);
-  --color-error-content: oklch(98% 0.01 25);
+  /* Semantic colours double as foreground (text-error, text-warning, and the tinted callout surfaces), so each one is
+     dark enough to hold ~5:1 on white rather than being a bright fill. Chroma is pulled in to sit with the cool
+     (hue 270) neutrals, and error is kept clearly darker than --color-primary so an alert never reads as brand red. */
+  --color-info: oklch(52% 0.12 248);
+  --color-info-content: oklch(98% 0.01 248);
+  --color-success: oklch(49% 0.1 158);
+  --color-success-content: oklch(98% 0.01 158);
+  --color-warning: oklch(53% 0.1 70);
+  --color-warning-content: oklch(98% 0.01 70);
+  --color-error: oklch(49% 0.17 22);
+  --color-error-content: oklch(98% 0.01 22);
 
   --radius-selector: 1.2rem;
   --radius-field: 0.6rem;

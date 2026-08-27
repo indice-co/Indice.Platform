@@ -25,12 +25,5 @@ export const routes: Routes = [
     ],
   },
 
-  // Unlisted rendering harness for the chat content parts. Outside the shell so it needs no login, lazy so it costs
-  // the main bundle nothing, and it calls no API — see features/dev/part-gallery.component.ts.
-  {
-    path: 'dev/parts',
-    loadComponent: () => import('./features/dev/part-gallery.component').then((m) => m.PartGalleryComponent),
-    title: 'Dex — Part gallery',
-  },
   { path: '**', redirectTo: '' },
 ];

@@ -6,6 +6,10 @@ import { Callout, CalloutSeverity } from './part-contracts';
  * Renders a callout part as a daisyUI alert — a disclaimer, a policy warning, or a caveat about the answer, set apart
  * from the prose it accompanies.
  *
+ * Soft rather than filled: a saturated block beside a white answer bubble shouts, and several in one turn read as a
+ * rainbow. `alert-soft` paints an 8% tint and puts the severity colour on the text instead, which is why the theme's
+ * semantic colours are tuned dark enough to work as foreground (see styles.css).
+ *
  * The body is plain text with line breaks preserved, deliberately not markdown: prose typography inside an alert reads
  * as a second answer rather than as a notice.
  */
@@ -14,7 +18,7 @@ import { Callout, CalloutSeverity } from './part-contracts';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (callout(); as notice) {
-      <div role="note" class="alert w-full items-start text-sm" [class]="alertClass()">
+      <div role="note" class="alert alert-soft w-full items-start text-sm" [class]="alertClass()">
         <svg viewBox="0 0 24 24" fill="none" class="size-5 shrink-0" aria-hidden="true">
           <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
           @if (notice.severity === 'success') {
