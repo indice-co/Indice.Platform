@@ -308,8 +308,8 @@ public class EmailDomainBlacklistValidatorTests
 
         // Act & Assert - The embedded list should contain common disposable email domains
         // Testing against known domains from the blocklist file
-        Assert.True(await provider.IsDomainBlacklistedAsync("0-mail.com"));
-        Assert.False(await provider.IsDomainBlacklistedAsync("gmail.com"));
+        Assert.True(await provider.IsDomainBlacklistedAsync("0-mail.com", TestContext.Current.CancellationToken));
+        Assert.False(await provider.IsDomainBlacklistedAsync("gmail.com", TestContext.Current.CancellationToken));
     }
 
     #endregion

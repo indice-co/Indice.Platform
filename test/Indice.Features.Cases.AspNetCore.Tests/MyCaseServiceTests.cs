@@ -43,11 +43,11 @@ public class MyCaseServiceTests : IDisposable
     public async Task CaseOrderBy_DoesNot_Throw_Test() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
-        if (await dbContext.Database.EnsureCreatedAsync() || !dbContext.Cases.Any()) {
+        if (await dbContext.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken) || !dbContext.Cases.Any()) {
             // seed here.
             await dbContext.SeedAsync();
         }
-        var allCases = await dbContext.Cases.ToListAsync();
+        var allCases = await dbContext.Cases.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(allCases);
         var mockCaseEventService = new Mock<IPlatformEventService>();
         var mockMyCaseMessageService = new Mock<IMyCaseMessageService>();
@@ -82,7 +82,7 @@ public class MyCaseServiceTests : IDisposable
     public async Task MyCaseService_FilterData_Pagination() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         var myOptions = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
-        if (await dbContext.Database.EnsureCreatedAsync() || !dbContext.Cases.Any()) {
+        if (await dbContext.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken) || !dbContext.Cases.Any()) {
             // seed here.
             await dbContext.SeedAsync();
         }
