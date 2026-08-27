@@ -112,7 +112,7 @@ public sealed class OutOfScopeResponder : Executor<IntentOutput, GroundedAnswerO
     /// <see cref="LogoFallbackUrl"/> when the resource is absent.
     /// </summary>
     private static ImageReference LoadLogo() {
-        using var stream = typeof(OutOfScopeResponder).Assembly.GetManifestResourceStream(LogoResourceName);
+        using var stream = OpenSampleLogoAsStream();
         if (stream is null) {
             return new ImageReference { Url = LogoFallbackUrl, Alt = LogoAlt, Caption = LogoCaption };
         }
@@ -120,4 +120,14 @@ public sealed class OutOfScopeResponder : Executor<IntentOutput, GroundedAnswerO
         stream.CopyTo(buffer);
         return ImageReference.FromBytes(buffer.ToArray(), "image/png", LogoAlt, LogoCaption);
     }
+
+    private static async Task<DataContent> PartSampleImage() {
+        using var stream = OpenSampleLogoAsStream();
+        return await DataContent.LoadFromAsync(stream, "image/png");
+    }
+
+    /// <summary>
+    /// Reads a sample image from embedded resources. 
+    /// </summary>
+    private static Stream OpenSampleLogoAsStream() => typeof(OutOfScopeResponder).Assembly.GetManifestResourceStream(LogoResourceName) ?? throw new InvalidOperationException($"Resource '{LogoResourceName}' not found.");
 }
