@@ -58,10 +58,7 @@ public class SmsServiceKonecta : ISmsService
         var requestBody = new SendRequest {
             Sender = sender?.Id ?? _settings.Sender ?? _settings.SenderName ?? throw new InvalidOperationException("Sender is required."),
             Recipient = recipient,
-            Content = JsonSerializer.Serialize(new MessageContent {
-                Type = "TEXT",
-                Text = body ?? string.Empty
-            }),
+            Content = $"{{'type':'TEXT','text':'{body}'}}",
             Operation = _settings.Operation ?? "campaign",
             Site = _settings.Site ?? "default"
         };
@@ -70,7 +67,7 @@ public class SmsServiceKonecta : ISmsService
         _logger.LogDebug("The following payload was sent to Konecta: {requestBody}", jsonData);
 
         var data = new StringContent(jsonData, Encoding.UTF8, "application/json");
-        var httpResponseMessage = await _httpClient.PostAsync("message/send", data);
+        var httpResponseMessage = await _httpClient.PostAsync("rcs/api/v1/message/send", data);
 
         if (!httpResponseMessage.IsSuccessStatusCode) {
             var errorMessage = "SMS Delivery failed.\n";
