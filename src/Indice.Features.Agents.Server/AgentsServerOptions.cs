@@ -49,7 +49,7 @@ public class GuestTokenOptions
     /// <summary>The client secret used to authenticate against the token endpoint.</summary>
     public string? ClientSecret { get; set; }
     /// <summary>The scope(s) to request. When not set, defaults to <see cref="AgentsServerOptions.ChatRequiredScope"/>.</summary>
-    public string? Scope { get; set; }
+    public string? Scope { get; set; } = "chat offline_access identity";
     /// <summary>The grant type to use. Defaults to <c>urn:indice:guest</c>.</summary>
     public string GrantType { get; set; } = DefaultGrantType;
 }
