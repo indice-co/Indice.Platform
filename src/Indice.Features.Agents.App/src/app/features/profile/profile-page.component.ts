@@ -4,11 +4,11 @@ import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService, ImgUserPictureDirective } from '@indice/ng-auth';
 
+import { initialsOf } from '../../core/models/initials';
 import { DexApiService, Profile } from '../../core/services/dex-api.service';
 import {
   UsageStats,
   formatCount,
-  initialsOf,
   languageLabel,
   rolesFromClaims,
   styleLabel,

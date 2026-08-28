@@ -4,6 +4,21 @@ import { AgentInfo } from '../../core/services/dex-api.service';
 
 const MAX_LENGTH = 2000;
 
+const FALLBACK_AGENT_ICON = 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z';
+
+/**
+ * 24×24 stroked path data keyed by the semantic icon token discovery advertises
+ * (`AgentsConstants.AgentIcons` server-side). The server names what a flow *is*; which glyph that
+ * becomes stays a client decision, so new agents reusing a known token need no frontend change and
+ * an unrecognised one degrades to the generic glyph instead of rendering blank.
+ */
+const ICON_PATHS: Record<string, string> = {
+  sparkles:
+    'M12 3c.5 3.8 2.7 6 6.5 6.5-3.8.5-6 2.7-6.5 6.5-.5-3.8-2.7-6-6.5-6.5C9.3 9 11.5 6.8 12 3z',
+  book: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z',
+  chat: FALLBACK_AGENT_ICON,
+};
+
 /** The message input: mode picker, auto-growing textarea, character counter, send / stop control. */
 @Component({
   selector: 'app-chat-composer',
@@ -28,9 +43,10 @@ const MAX_LENGTH = 2000;
               >
                 <svg viewBox="0 0 24 24" fill="none" class="size-3.5" aria-hidden="true">
                   <path
-                    d="M12 3c.5 3.8 2.7 6 6.5 6.5-3.8.5-6 2.7-6.5 6.5-.5-3.8-2.7-6-6.5-6.5C9.3 9 11.5 6.8 12 3z"
+                    [attr.d]="iconFor(activeAgent())"
                     stroke="currentColor"
                     stroke-width="2"
+                    stroke-linecap="round"
                     stroke-linejoin="round"
                   />
                 </svg>
@@ -46,16 +62,55 @@ const MAX_LENGTH = 2000;
               >
                 @for (agent of agents(); track agent.name) {
                   <li>
-                    <button type="button" class="flex-col items-start gap-0.5" (click)="pickAgent(agent.name)">
-                      <span class="flex w-full items-center gap-1.5">
-                        <span class="capitalize font-medium">{{ agent.name }}</span>
-                        @if (agent.name === activeAgent()?.name) {
-                          <svg viewBox="0 0 24 24" fill="none" class="ml-auto size-3.5 text-primary" aria-hidden="true">
-                            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                          </svg>
-                        }
+                    <!-- Two rows per flow: icon + name, then the description beneath it. -->
+                    <button
+                      type="button"
+                      class="items-start gap-2.5 py-2"
+                      (click)="pickAgent(agent.name)"
+                      [attr.aria-current]="agent.name === activeAgent()?.name ? 'true' : null"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        class="mt-0.5 size-4 shrink-0 text-primary"
+                        aria-hidden="true"
+                      >
+                        <path
+                          [attr.d]="iconFor(agent)"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <span class="flex w-full items-center gap-1.5">
+                          <span class="font-medium capitalize text-base-content">
+                            {{ agent.name }}
+                          </span>
+                          @if (agent.name === activeAgent()?.name) {
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              class="ml-auto size-3.5 shrink-0 text-primary"
+                              aria-hidden="true"
+                            >
+                              <path
+                                d="M5 13l4 4L19 7"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                          }
+                        </span>
+                        <span
+                          class="whitespace-normal text-xs leading-snug text-base-content/55"
+                        >
+                          {{ agent.description }}
+                        </span>
                       </span>
-                      <span class="text-xs text-base-content/55">{{ agent.description }}</span>
                     </button>
                   </li>
                 }
@@ -143,6 +198,12 @@ export class ChatComposerComponent {
     const agents = this.agents();
     return agents.find((agent) => agent.name === this.selectedAgent()) ?? agents[0] ?? null;
   });
+
+  /** Resolve a flow's advertised icon token to a glyph, falling back when it is absent or unknown. */
+  protected iconFor(agent: AgentInfo | null | undefined): string {
+    const token = agent?.icon;
+    return (token ? ICON_PATHS[token.toLowerCase()] : undefined) ?? FALLBACK_AGENT_ICON;
+  }
 
   protected pickAgent(name: string): void {
     this.selectedAgent.set(name);

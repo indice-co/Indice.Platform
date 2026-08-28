@@ -41,7 +41,24 @@ public static class AgentsConstants
         public const string Callout = "application/vnd.indice.callout+json";
 
         /// <summary>A two-way confirmation; picking a button posts its label verbatim as the next user message. Payload: <see cref="Models.Confirmation"/>.</summary>
-        public const string Confirmation = "application/vnd.indice.confirm+json";
+        public const string Confirmation = "application/vnd.indice.confirm+json";    
+    }
+  
+    /// <summary>
+    /// Semantic icon tokens advertised on <c>AgentInfo.Icon</c>. A token names what the flow *is*;
+    /// the client maps it onto its own glyph set, so presentation stays a client concern. Clients
+    /// fall back to their generic glyph for a token they do not recognise.
+    /// </summary>
+    public static class AgentIcons
+    {
+        /// <summary>An automatic / intent-routing flow.</summary>
+        public const string Sparkles = "sparkles";
+
+        /// <summary>A flow answering from a knowledge base.</summary>
+        public const string Book = "book";
+
+        /// <summary>A generic conversational flow — matches the client's fallback glyph.</summary>
+        public const string Chat = "chat";
     }
 
     /// <summary>Default prompt templates for various agent tasks.</summary>
