@@ -1544,9 +1544,14 @@ export interface IChatMessageContent {
     parts?: ChatMessagePart[];
 }
 
+// `name` below is hand-added: the server has carried it since ChatMessagePart.Name was wired to DataContent.Name, but
+// the OpenAPI snapshot embedded in dex-api.nswag predates it (and predates ChatRequest.agentName), so regenerating from
+// that snapshot would drop both rather than add them. Refresh the snapshot from a running /openapi/dex.json before the
+// next `npm run generate:api`, after which this note and the four lines it guards become redundant.
 export class ChatMessagePart implements IChatMessagePart {
     value?: string;
     contentType?: string;
+    name?: string | undefined;
 
     constructor(data?: IChatMessagePart) {
         if (data) {
@@ -1561,6 +1566,7 @@ export class ChatMessagePart implements IChatMessagePart {
         if (_data) {
             this.value = _data["value"];
             this.contentType = _data["contentType"];
+            this.name = _data["name"];
         }
     }
 
@@ -1575,6 +1581,7 @@ export class ChatMessagePart implements IChatMessagePart {
         data = typeof data === 'object' ? data : {};
         data["value"] = this.value;
         data["contentType"] = this.contentType;
+        data["name"] = this.name;
         return data;
     }
 }
@@ -1582,6 +1589,7 @@ export class ChatMessagePart implements IChatMessagePart {
 export interface IChatMessagePart {
     value?: string;
     contentType?: string;
+    name?: string | undefined;
 }
 
 export class ChatRequest implements IChatRequest {

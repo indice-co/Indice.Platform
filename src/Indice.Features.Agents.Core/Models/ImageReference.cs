@@ -22,9 +22,11 @@ namespace Indice.Features.Agents.Core.Models;
 /// </description></item>
 /// </list>
 /// <para>
-/// The envelope itself is optional: a part typed with a raw <c>image/*</c> media type, whose value is the URL or data
-/// URI, renders as the same figure. Reach for this type when the image needs <see cref="Alt"/> or a
-/// <see cref="Caption"/> — that is all the envelope buys.
+/// The envelope is usually unnecessary. A part typed with a raw <c>image/*</c> media type, whose value is the URL or
+/// data URI, renders as the same figure, and a <see cref="DataContent"/> carries its caption in
+/// <see cref="DataContent.Name"/> — which the projection lifts onto the part. What a bare part cannot do is caption a
+/// <b>hosted</b> image: those travel as <see cref="UriContent"/>, which has no name of its own. That is the one case
+/// this envelope is still needed for.
 /// </para>
 /// </remarks>
 public class ImageReference
@@ -34,11 +36,12 @@ public class ImageReference
     [JsonPropertyName("uri")]
     public string Uri { get; set; } = string.Empty;
 
-    /// <summary>Alternative text announced by screen readers and shown while the image loads. Omit only for purely decorative images.</summary>
-    [JsonPropertyName("alt")]
-    public string? Alt { get; set; }
-
-    /// <summary>Caption rendered under the image, e.g. the figure number and the document it came from.</summary>
+    /// <summary>Text rendered under the image as its caption, and used as the image's alt text. Omit for a purely decorative image.</summary>
+    /// <remarks>
+    /// This was two fields, <c>alt</c> and <c>caption</c>, until they were collapsed into one — a producer filled both
+    /// with the same sentence, so the client now renders that one string in both roles. It still reads the <c>alt</c>
+    /// spelling as a fallback, so image parts persisted under the old shape keep their text.
+    /// </remarks>
     [JsonPropertyName("caption")]
     public string? Caption { get; set; }
 
@@ -48,13 +51,11 @@ public class ImageReference
     /// </summary>
     /// <param name="bytes">The raw image bytes.</param>
     /// <param name="mediaType">The image's media type, e.g. <c>image/png</c>.</param>
-    /// <param name="alt">Alternative text announced by screen readers.</param>
-    /// <param name="caption">Caption rendered under the image.</param>
-    public static ImageReference FromBytes(ReadOnlyMemory<byte> bytes, string mediaType, string? alt = null, string? caption = null) => new() {
+    /// <param name="caption">Text rendered under the image as its caption, and used as the image's alt text.</param>
+    public static ImageReference FromBytes(ReadOnlyMemory<byte> bytes, string mediaType, string? caption = null) => new() {
         // DataContent composes "data:{mediaType};base64,{data}" — the same mechanism the DataContent projection in
         // DexChatResponseExtensions relies on, so the two shapes cannot drift and no base64 is hand-rolled here.
         Uri = new DataContent(bytes, mediaType).Uri,
-        Alt = alt,
         Caption = caption
     };
 }

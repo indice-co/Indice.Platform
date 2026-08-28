@@ -84,20 +84,26 @@ public static class DexChatResponseExtensions
     /// Projects a <see cref="DataContent"/> into a boundary <see cref="ChatMessagePart"/>. A JSON payload (media type
     /// ending in <c>+json</c>, e.g. <see cref="AgentsConstants.MediaTypes.MultipleChoice"/>) carries its decoded UTF-8
     /// text so the client can parse it directly; anything else (images, embedded binaries) carries the base64
-    /// <c>data:</c> URI. Shared by the streaming projection (<c>ChatsService.StreamTurnAsync</c>) and the aggregated
-    /// one (<see cref="ToDexChatMessage"/>) so the two cannot drift.
+    /// <c>data:</c> URI. <see cref="DataContent.Name"/> lifts to <see cref="ChatMessagePart.Name"/>, which is how a bare
+    /// <c>image/*</c> part carries its caption without the <see cref="AgentsConstants.MediaTypes.Image"/> envelope.
+    /// Shared by the streaming projection (<c>ChatsService.StreamTurnAsync</c>) and the aggregated one
+    /// (<see cref="ToDexChatMessage"/>) so the two cannot drift.
     /// </summary>
     /// <param name="data">The data content to project.</param>
     public static ChatMessagePart ToChatMessagePart(this DataContent data) =>
         data.MediaType.EndsWith("+json", StringComparison.OrdinalIgnoreCase) && !data.Data.IsEmpty
-            ? ChatMessagePart.FromText(Encoding.UTF8.GetString(data.Data.Span), data.MediaType)
-            : ChatMessagePart.FromText(data.Uri, data.MediaType);
+            ? ChatMessagePart.FromText(Encoding.UTF8.GetString(data.Data.Span), data.MediaType, data.Name)
+            : ChatMessagePart.FromText(data.Uri, data.MediaType, data.Name);
 
     /// <summary>
     /// Projects a <see cref="UriContent"/> — hosted content referenced by URL, typically an image — into a boundary
     /// <see cref="ChatMessagePart"/> carrying that absolute URL. Unlike <see cref="DataContent"/> the bytes never enter
     /// the stream or the message's JSON column, so this is the cheap way to attach media to a turn. Shared by the
     /// streaming projection (<c>ChatsService.StreamTurnAsync</c>) and the aggregated one (<see cref="ToDexChatMessage"/>).
+    /// <para>
+    /// The part carries no name: <see cref="UriContent"/> has no equivalent of <see cref="DataContent.Name"/>, so a
+    /// hosted image that needs a caption has to travel in an <see cref="ImageReference"/> envelope instead.
+    /// </para>
     /// </summary>
     /// <param name="uri">The URI content to project.</param>
     public static ChatMessagePart ToChatMessagePart(this UriContent uri) =>

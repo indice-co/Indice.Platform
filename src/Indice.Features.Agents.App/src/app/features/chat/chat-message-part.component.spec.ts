@@ -22,7 +22,7 @@ const CONFIRM_PART = {
 
 const IMAGE_PART = {
   contentType: IMAGE_MEDIA_TYPE,
-  value: '{"uri":"https://cdn.example.com/a.png","alt":"A diagram","caption":"Figure 1"}',
+  value: '{"uri":"https://cdn.example.com/a.png","caption":"Figure 1"}',
 };
 
 describe('ChatMessagePartComponent', () => {
@@ -37,7 +37,7 @@ describe('ChatMessagePartComponent', () => {
   });
 
   function render(
-    part: { contentType?: string; value?: string },
+    part: { contentType?: string; value?: string; name?: string },
     options: { interactive?: boolean; first?: boolean } = {},
   ): HTMLElement {
     fixture.componentRef.setInput('part', part);
@@ -83,14 +83,33 @@ describe('ChatMessagePartComponent', () => {
       const host = render(IMAGE_PART);
       const image = host.querySelector('img');
       expect(image?.getAttribute('src')).toBe('https://cdn.example.com/a.png');
-      expect(image?.getAttribute('alt')).toBe('A diagram');
       expect(host.querySelector('figcaption')?.textContent?.trim()).toBe('Figure 1');
+    });
+
+    it('uses the caption as the alt text as well', () => {
+      // One string does both jobs: the visible caption and the image's text alternative.
+      expect(render(IMAGE_PART).querySelector('img')?.getAttribute('alt')).toBe('Figure 1');
     });
 
     it('renders a raw image/* part whose value is the uri itself', () => {
       const host = render({ contentType: 'image/png', value: 'data:image/png;base64,AAAA' });
       expect(host.querySelector('img')?.getAttribute('src')).toBe('data:image/png;base64,AAAA');
       expect(host.querySelector('figcaption')).toBeNull();
+      // No caption anywhere to describe it, so it is decorative rather than unlabelled.
+      expect(host.querySelector('img')?.getAttribute('alt')).toBe('');
+    });
+
+    it('captions a raw image/* part from the part name', () => {
+      // The bare shape has no payload to hold a caption; the part name is what makes it a peer of the envelope.
+      const host = render({
+        contentType: 'image/png',
+        value: 'data:image/png;base64,AAAA',
+        name: 'The same mark, carried as a bare image/png part.',
+      });
+      expect(host.querySelector('figcaption')?.textContent?.trim()).toBe(
+        'The same mark, carried as a bare image/png part.',
+      );
+      expect(host.querySelector('img')?.getAttribute('alt')).toBe('The same mark, carried as a bare image/png part.');
     });
 
     it('renders nothing once the browser reports the image failed to load', () => {

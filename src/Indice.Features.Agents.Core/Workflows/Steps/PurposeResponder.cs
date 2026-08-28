@@ -93,12 +93,12 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
                 Title = "Outside my knowledge base",
                 Text = "I answer only from the internal documentation loaded into this assistant, so anything beyond it I have to turn down."
             }, AgentsConstants.MediaTypes.Callout),
-            // The same mark twice: the envelope, which is the only shape that can carry alt text and a caption, then
-            // the bare image/png part whose value is the data URI itself. Both render as a figure.
+            // The same mark twice, captioned two ways: the envelope carries its caption in the payload, the bare
+            // image/png part carries it as the part's name. Both render as the same figure.
             DataContentExtensions.JsonPart(
-                ImageReference.FromBytes(_logo, "image/png", alt: "Dex", caption: "Dex answers from your knowledge base."),
+                ImageReference.FromBytes(_logo, "image/png", caption: "Dex answers from your knowledge base."),
                 AgentsConstants.MediaTypes.Image),
-            new DataContent(_logo, "image/png"),
+            new DataContent(_logo, "image/png") { Name = "The same mark, carried as a bare image/png part." },
             DataContentExtensions.JsonPart(new Confirmation {
                 Prompt = "Want a hand finding something I do cover?",
                 ConfirmText = "Yes, what can you help with?",

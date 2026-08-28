@@ -22,9 +22,11 @@ public static class AgentsConstants
     /// carry their payload as raw JSON text (see <see cref="Models.DexChatResponseExtensions.ToChatMessagePart(Microsoft.Extensions.AI.DataContent)"/>).
     /// <para>
     /// Images are the exception, in that they have two valid shapes. A part typed <see cref="Image"/> carries the
-    /// <see cref="Models.ImageReference"/> envelope, which is the only way to attach alt text and a caption; a part
-    /// typed with any raw <c>image/*</c> media type carries the URL — or, for a <c>DataContent</c>, the base64
-    /// <c>data:</c> URI — as its value. The client renders both as a figure, matching <c>image/</c> by prefix.
+    /// <see cref="Models.ImageReference"/> envelope, whose payload holds the caption; a part typed with any raw
+    /// <c>image/*</c> media type carries the URL — or, for a <c>DataContent</c>, the base64 <c>data:</c> URI — as its
+    /// value, and its caption as the part's <see cref="Models.ChatMessagePart.Name"/>. The client renders both as a
+    /// figure, matching <c>image/</c> by prefix. The envelope is only strictly needed to caption a <b>hosted</b> image,
+    /// since <c>UriContent</c> has no name to lift.
     /// </para>
     /// </remarks>
     public static class MediaTypes
@@ -32,7 +34,7 @@ public static class AgentsConstants
         /// <summary>A list of options the user can pick from; picking one posts it verbatim as the next user message. Payload: <see cref="Models.MultipleChoice"/>.</summary>
         public const string MultipleChoice = "application/vnd.indice.multiple-choice+json";
 
-        /// <summary>A single image rendered as a figure, with optional alt text and caption. Payload: <see cref="Models.ImageReference"/>.</summary>
+        /// <summary>A single image rendered as a figure, with an optional caption. Payload: <see cref="Models.ImageReference"/>.</summary>
         public const string Image = "application/vnd.indice.image+json";
 
         /// <summary>A short highlighted notice (info, success, warning, error) rendered as an alert. Payload: <see cref="Models.Callout"/>.</summary>

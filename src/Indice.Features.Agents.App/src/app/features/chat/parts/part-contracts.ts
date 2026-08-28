@@ -11,7 +11,7 @@
 /** A list of options the user can pick from; picking one posts it verbatim as the next user message. */
 export const MULTIPLE_CHOICE_MEDIA_TYPE = 'application/vnd.indice.multiple-choice+json';
 
-/** A single image rendered as a figure, with optional alt text and caption. */
+/** A single image rendered as a figure, with an optional caption. */
 export const IMAGE_MEDIA_TYPE = 'application/vnd.indice.image+json';
 
 /** A short highlighted notice rendered as an alert. */
@@ -47,10 +47,12 @@ export function partKind(contentType: string | undefined): PartKind {
   }
 }
 
-/** An image to render as a figure. Mirrors the server's `ImageReference`. */
+/**
+ * An image to render as a figure. Mirrors the server's `ImageReference`, except that `caption` may also come from the
+ * part's `name`, which is how a bare `image/*` part carries one.
+ */
 export interface ImageReference {
   uri: string;
-  alt?: string;
   caption?: string;
 }
 
@@ -82,11 +84,19 @@ export function parseMultipleChoice(value: string | undefined): string[] {
 /**
  * Reads an image out of a part. Handles both shapes: the `image+json` envelope, and a raw `image/*` part whose value is
  * already the URL — a hosted `https:` one from a `UriContent`, or the `data:` URI of an embedded `DataContent`.
+ *
+ * `name` is the part's own name, which the server lifts from `DataContent.Name`. It is the only way a bare `image/*`
+ * part can be captioned, and it fills in for an envelope that carries no caption of its own.
  */
-export function parseImage(value: string | undefined, contentType: string | undefined): ImageReference | null {
+export function parseImage(
+  value: string | undefined,
+  contentType: string | undefined,
+  name?: string,
+): ImageReference | null {
+  const partName = name?.trim() || undefined;
   if (contentType !== IMAGE_MEDIA_TYPE && contentType?.startsWith('image/')) {
     const uri = value?.trim() ?? '';
-    return isRenderableImageUrl(uri) ? { uri } : null;
+    return isRenderableImageUrl(uri) ? { uri, caption: partName } : null;
   }
   const parsed = parseObject<{ uri?: unknown; url?: unknown; alt?: unknown; caption?: unknown }>(value);
   // The field was spelled `url` until it was renamed to `uri`. Message contents are persisted verbatim, so every image
@@ -96,10 +106,11 @@ export function parseImage(value: string | undefined, contentType: string | unde
   if (!isRenderableImageUrl(uri)) {
     return null;
   }
+  // `alt` and `caption` were two fields until they were collapsed into one, and persisted parts still carry the old
+  // pair. Envelope text wins over the part name; within the envelope, the surviving spelling wins over the old one.
   return {
     uri,
-    alt: typeof parsed?.alt === 'string' ? parsed.alt : undefined,
-    caption: typeof parsed?.caption === 'string' ? parsed.caption : undefined,
+    caption: text(parsed?.caption) ?? text(parsed?.alt) ?? partName,
   };
 }
 
@@ -163,4 +174,9 @@ function parseObject<T>(value: string | undefined): T | null {
 
 function label(value: unknown, fallback: string): string {
   return typeof value === 'string' && value.trim() ? value : fallback;
+}
+
+/** Narrows a payload member to usable text — anything else, including a blank string, is "not supplied". */
+function text(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value : undefined;
 }

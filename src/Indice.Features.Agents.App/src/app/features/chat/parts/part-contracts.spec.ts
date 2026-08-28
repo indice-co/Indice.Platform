@@ -58,22 +58,33 @@ describe('parseMultipleChoice', () => {
 });
 
 describe('parseImage', () => {
-  it('reads uri, alt and caption out of the envelope', () => {
-    const payload = '{"uri":"https://cdn.example.com/a.png","alt":"A","caption":"Figure 1"}';
+  it('reads uri and caption out of the envelope', () => {
+    const payload = '{"uri":"https://cdn.example.com/a.png","caption":"Figure 1"}';
     expect(parseImage(payload, IMAGE_MEDIA_TYPE)).toEqual({
       uri: 'https://cdn.example.com/a.png',
-      alt: 'A',
       caption: 'Figure 1',
     });
   });
 
   it('still reads the legacy `url` spelling, which is what older messages carry', () => {
     // Contents are persisted verbatim, so image parts stored before the field was renamed are still on disk as `url`.
-    expect(parseImage('{"url":"https://cdn.example.com/a.png","alt":"A"}', IMAGE_MEDIA_TYPE)).toEqual({
+    expect(parseImage('{"url":"https://cdn.example.com/a.png","caption":"F1"}', IMAGE_MEDIA_TYPE)).toEqual({
       uri: 'https://cdn.example.com/a.png',
-      alt: 'A',
-      caption: undefined,
+      caption: 'F1',
     });
+  });
+
+  it('still reads the legacy `alt` spelling as the caption', () => {
+    // `alt` and `caption` were two fields until they were collapsed; parts persisted before that carry the old pair.
+    expect(parseImage('{"uri":"https://a/b.png","alt":"A diagram"}', IMAGE_MEDIA_TYPE)).toEqual({
+      uri: 'https://a/b.png',
+      caption: 'A diagram',
+    });
+  });
+
+  it('prefers `caption` over the legacy `alt` when a payload carries both', () => {
+    const payload = '{"uri":"https://a/b.png","alt":"old","caption":"new"}';
+    expect(parseImage(payload, IMAGE_MEDIA_TYPE)?.caption).toBe('new');
   });
 
   it('prefers `uri` when a payload somehow carries both', () => {
@@ -83,14 +94,36 @@ describe('parseImage', () => {
   });
 
   it('treats a raw image/* part value as the uri itself', () => {
-    expect(parseImage('https://cdn.example.com/a.png', 'image/png')).toEqual({ uri: 'https://cdn.example.com/a.png' });
-    expect(parseImage('data:image/png;base64,AAAA', 'image/png')).toEqual({ uri: 'data:image/png;base64,AAAA' });
+    expect(parseImage('https://cdn.example.com/a.png', 'image/png')).toEqual({
+      uri: 'https://cdn.example.com/a.png',
+      caption: undefined,
+    });
+    expect(parseImage('data:image/png;base64,AAAA', 'image/png')).toEqual({
+      uri: 'data:image/png;base64,AAAA',
+      caption: undefined,
+    });
+  });
+
+  it('captions a raw image/* part from the part name, the only place one can live', () => {
+    // Without the envelope there is no payload to hold a caption — this is what makes the bare shape a peer of it.
+    expect(parseImage('data:image/png;base64,AAAA', 'image/png', 'The Dex mark')).toEqual({
+      uri: 'data:image/png;base64,AAAA',
+      caption: 'The Dex mark',
+    });
+  });
+
+  it('falls back to the part name for an envelope that carries no caption', () => {
+    expect(parseImage('{"uri":"https://a/b.png"}', IMAGE_MEDIA_TYPE, 'From the part')?.caption).toBe('From the part');
+  });
+
+  it('prefers the envelope caption over the part name', () => {
+    const payload = '{"uri":"https://a/b.png","caption":"In the payload"}';
+    expect(parseImage(payload, IMAGE_MEDIA_TYPE, 'On the part')?.caption).toBe('In the payload');
   });
 
   it('accepts a same-origin root-relative uri, which is how the SPA offers its own assets', () => {
     expect(parseImage('{"uri":"/dex-logo.png"}', IMAGE_MEDIA_TYPE)).toEqual({
       uri: '/dex-logo.png',
-      alt: undefined,
       caption: undefined,
     });
   });
@@ -104,6 +137,8 @@ describe('parseImage', () => {
     // Protocol-relative: a leading slash that still points off-origin.
     expect(parseImage('{"uri":"//evil.example.com/x.png"}', IMAGE_MEDIA_TYPE)).toBeNull();
     expect(parseImage('javascript:alert(1)', 'image/png')).toBeNull();
+    // A part name does not rescue an unrenderable uri — the caption is not a way in.
+    expect(parseImage('javascript:alert(1)', 'image/png', 'Harmless-looking caption')).toBeNull();
   });
 
   it('returns null for a malformed or uriless payload', () => {
@@ -113,12 +148,12 @@ describe('parseImage', () => {
     expect(parseImage(undefined, IMAGE_MEDIA_TYPE)).toBeNull();
   });
 
-  it('drops alt and caption that are not text', () => {
+  it('drops a caption that is not text, and a blank part name', () => {
     expect(parseImage('{"uri":"https://a/b.png","alt":7,"caption":null}', IMAGE_MEDIA_TYPE)).toEqual({
       uri: 'https://a/b.png',
-      alt: undefined,
       caption: undefined,
     });
+    expect(parseImage('{"uri":"https://a/b.png"}', IMAGE_MEDIA_TYPE, '   ')?.caption).toBeUndefined();
   });
 });
 

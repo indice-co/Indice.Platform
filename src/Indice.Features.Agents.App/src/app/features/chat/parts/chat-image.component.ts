@@ -6,6 +6,10 @@ import { ImageReference } from './part-contracts';
  * Renders an image part as a figure: the image, capped so a large asset cannot swamp the thread, plus an optional
  * caption underneath. The URL was already scheme-checked by `parseImage`.
  *
+ * The caption is the image's text in both senses — the visible `<figcaption>` and the `<img>`'s `alt` — so a producer
+ * supplies one string and it describes the picture wherever that description is needed. An image with no caption is
+ * treated as decorative and gets an empty `alt`.
+ *
  * A dead URL renders nothing rather than a broken-image glyph — the URL usually originates from a model or an external
  * document, so a 404 is an ordinary outcome, not an exceptional one.
  */
@@ -17,7 +21,7 @@ import { ImageReference } from './part-contracts';
       <figure class="max-w-full">
         <img
           [src]="figure.uri"
-          [alt]="figure.alt ?? ''"
+          [alt]="figure.caption ?? ''"
           loading="lazy"
           class="max-h-96 max-w-full rounded-box border border-base-300 object-contain shadow-sm"
           (error)="failed.set(true)"

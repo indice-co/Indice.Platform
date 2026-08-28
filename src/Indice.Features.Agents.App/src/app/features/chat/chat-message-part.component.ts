@@ -68,7 +68,7 @@ export class ChatMessagePartComponent {
   protected readonly kind = computed(() => partKind(this.part().contentType));
 
   protected readonly options = computed(() => parseMultipleChoice(this.part().value));
-  protected readonly image = computed(() => parseImage(this.part().value, this.part().contentType));
+  protected readonly image = computed(() => parseImage(this.part().value, this.part().contentType, this.part().name));
   protected readonly callout = computed(() => parseCallout(this.part().value));
   protected readonly confirmation = computed(() => parseConfirmation(this.part().value));
 }

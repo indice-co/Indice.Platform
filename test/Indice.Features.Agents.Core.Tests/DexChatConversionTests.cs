@@ -188,4 +188,36 @@ public class DexChatConversionTests
         Assert.Equal("https://cdn.example.com/figures/enrolment.png", uri.Uri.ToString());
         Assert.Equal("image/png", uri.MediaType);
     }
+
+    [Fact]
+    public void DataContentName_RoundTripsThroughTheContentsJsonColumn() {
+        // A bare image/png part carries its caption as the part's name, which only works if MEAI writes
+        // DataContent.Name into the same JSON column DbMessage.Contents is persisted with. If it did not,
+        // every such caption would vanish on the first history reload.
+        var options = JsonStringValueConverter<List<AIContent>>.SerializerOptions;
+        List<AIContent> contents = [new DataContent(new byte[] { 1, 2, 3 }, "image/png") { Name = "A diagram" }];
+
+        var rehydrated = JsonSerializer.Deserialize<List<AIContent>>(JsonSerializer.Serialize(contents, options), options);
+
+        var data = Assert.IsType<DataContent>(Assert.Single(rehydrated!));
+        Assert.Equal("A diagram", data.Name);
+        Assert.Equal("image/png", data.MediaType);
+    }
+
+    [Fact]
+    public void ToChatMessagePart_LiftsTheDataContentNameOntoThePart() {
+        // The name is how a bare image/png part carries its caption, so it has to survive both projection branches —
+        // the +json one that decodes the payload and the binary one that emits the data: URI.
+        var json = new DataContent(Encoding.UTF8.GetBytes("""{"options":["one"]}"""), AgentsConstants.MediaTypes.MultipleChoice) { Name = "Suggestions" };
+        var binary = new DataContent(new byte[] { 1, 2, 3 }, "image/png") { Name = "A diagram" };
+
+        Assert.Equal("Suggestions", json.ToChatMessagePart().Name);
+        Assert.Equal("A diagram", binary.ToChatMessagePart().Name);
+    }
+
+    [Fact]
+    public void ToChatMessagePart_LeavesTheNameNullWhenTheContentHasNone() {
+        Assert.Null(new DataContent(new byte[] { 1, 2, 3 }, "image/png").ToChatMessagePart().Name);
+        Assert.Null(new UriContent("https://cdn.example.com/a.png", "image/png").ToChatMessagePart().Name);
+    }
 }
