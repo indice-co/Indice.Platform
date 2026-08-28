@@ -97,7 +97,7 @@ public class OutboxIntegrationTests : IAsyncLifetime
     
     /// <summary>
     /// Regression when publishing a message inside a transaction.
-    /// Now the message is rollbacked transactionally.
+    /// Now the message is rolled back transactionally.
     /// </summary>
     [Fact]
     public async Task OutboxSingleCallerOwnsTransactionRollback() {
