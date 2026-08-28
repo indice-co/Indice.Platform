@@ -49,7 +49,7 @@ export function partKind(contentType: string | undefined): PartKind {
 
 /** An image to render as a figure. Mirrors the server's `ImageReference`. */
 export interface ImageReference {
-  url: string;
+  uri: string;
   alt?: string;
   caption?: string;
 }
@@ -85,16 +85,19 @@ export function parseMultipleChoice(value: string | undefined): string[] {
  */
 export function parseImage(value: string | undefined, contentType: string | undefined): ImageReference | null {
   if (contentType !== IMAGE_MEDIA_TYPE && contentType?.startsWith('image/')) {
-    const url = value?.trim() ?? '';
-    return isRenderableImageUrl(url) ? { url } : null;
+    const uri = value?.trim() ?? '';
+    return isRenderableImageUrl(uri) ? { uri } : null;
   }
-  const parsed = parseObject<{ url?: unknown; alt?: unknown; caption?: unknown }>(value);
-  const url = typeof parsed?.url === 'string' ? parsed.url.trim() : '';
-  if (!isRenderableImageUrl(url)) {
+  const parsed = parseObject<{ uri?: unknown; url?: unknown; alt?: unknown; caption?: unknown }>(value);
+  // The field was spelled `url` until it was renamed to `uri`. Message contents are persisted verbatim, so every image
+  // part stored before the rename still carries the old spelling — reading both is what keeps those threads rendering.
+  const raw = parsed?.uri ?? parsed?.url;
+  const uri = typeof raw === 'string' ? raw.trim() : '';
+  if (!isRenderableImageUrl(uri)) {
     return null;
   }
   return {
-    url,
+    uri,
     alt: typeof parsed?.alt === 'string' ? parsed.alt : undefined,
     caption: typeof parsed?.caption === 'string' ? parsed.caption : undefined,
   };

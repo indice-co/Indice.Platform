@@ -13,6 +13,10 @@ public class ChatMessagePart
     [JsonPropertyName("contentType")]
     public string ContentType { get; set; } = null!;
 
+    /// <summary>Optional title for the Message Part.</summary>
+    [JsonPropertyName("title")]
+    public string? Title { get; set; }
+
     /// <summary>Creates a new <see cref="ChatMessagePart"/> from HTML content.</summary>
     public static ChatMessagePart FromHtml(string html) => new() { Value = html, ContentType = "text/html" };
     /// <summary>Creates a new <see cref="ChatMessagePart"/> from text content.</summary>

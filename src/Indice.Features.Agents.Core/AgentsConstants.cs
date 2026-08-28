@@ -20,6 +20,12 @@ public static class AgentsConstants
     /// Each one is a rendering contract between the pipeline and the chat UI: a part with this media type carries a
     /// JSON payload the UI renders with a dedicated component instead of markdown. Media types ending in <c>+json</c>
     /// carry their payload as raw JSON text (see <see cref="Models.DexChatResponseExtensions.ToChatMessagePart(Microsoft.Extensions.AI.DataContent)"/>).
+    /// <para>
+    /// Images are the exception, in that they have two valid shapes. A part typed <see cref="Image"/> carries the
+    /// <see cref="Models.ImageReference"/> envelope, which is the only way to attach alt text and a caption; a part
+    /// typed with any raw <c>image/*</c> media type carries the URL — or, for a <c>DataContent</c>, the base64
+    /// <c>data:</c> URI — as its value. The client renders both as a figure, matching <c>image/</c> by prefix.
+    /// </para>
     /// </remarks>
     public static class MediaTypes
     {

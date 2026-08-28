@@ -22,7 +22,7 @@ const CONFIRM_PART = {
 
 const IMAGE_PART = {
   contentType: IMAGE_MEDIA_TYPE,
-  value: '{"url":"https://cdn.example.com/a.png","alt":"A diagram","caption":"Figure 1"}',
+  value: '{"uri":"https://cdn.example.com/a.png","alt":"A diagram","caption":"Figure 1"}',
 };
 
 describe('ChatMessagePartComponent', () => {
@@ -87,7 +87,7 @@ describe('ChatMessagePartComponent', () => {
       expect(host.querySelector('figcaption')?.textContent?.trim()).toBe('Figure 1');
     });
 
-    it('renders a raw image/* part whose value is the url itself', () => {
+    it('renders a raw image/* part whose value is the uri itself', () => {
       const host = render({ contentType: 'image/png', value: 'data:image/png;base64,AAAA' });
       expect(host.querySelector('img')?.getAttribute('src')).toBe('data:image/png;base64,AAAA');
       expect(host.querySelector('figcaption')).toBeNull();
@@ -101,8 +101,8 @@ describe('ChatMessagePartComponent', () => {
       expect(host.querySelector('figure')).toBeNull();
     });
 
-    it('renders nothing for a url whose scheme is not allowed', () => {
-      const host = render({ contentType: IMAGE_MEDIA_TYPE, value: '{"url":"javascript:alert(1)"}' });
+    it('renders nothing for a uri whose scheme is not allowed', () => {
+      const host = render({ contentType: IMAGE_MEDIA_TYPE, value: '{"uri":"javascript:alert(1)"}' });
       expect(host.querySelector('img')).toBeNull();
     });
   });

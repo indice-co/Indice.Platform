@@ -16,7 +16,7 @@ import { ImageReference } from './part-contracts';
     @if (visible(); as figure) {
       <figure class="max-w-full">
         <img
-          [src]="figure.url"
+          [src]="figure.uri"
           [alt]="figure.alt ?? ''"
           loading="lazy"
           class="max-h-96 max-w-full rounded-box border border-base-300 object-contain shadow-sm"

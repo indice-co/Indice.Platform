@@ -58,23 +58,38 @@ describe('parseMultipleChoice', () => {
 });
 
 describe('parseImage', () => {
-  it('reads url, alt and caption out of the envelope', () => {
-    const payload = '{"url":"https://cdn.example.com/a.png","alt":"A","caption":"Figure 1"}';
+  it('reads uri, alt and caption out of the envelope', () => {
+    const payload = '{"uri":"https://cdn.example.com/a.png","alt":"A","caption":"Figure 1"}';
     expect(parseImage(payload, IMAGE_MEDIA_TYPE)).toEqual({
-      url: 'https://cdn.example.com/a.png',
+      uri: 'https://cdn.example.com/a.png',
       alt: 'A',
       caption: 'Figure 1',
     });
   });
 
-  it('treats a raw image/* part value as the url itself', () => {
-    expect(parseImage('https://cdn.example.com/a.png', 'image/png')).toEqual({ url: 'https://cdn.example.com/a.png' });
-    expect(parseImage('data:image/png;base64,AAAA', 'image/png')).toEqual({ url: 'data:image/png;base64,AAAA' });
+  it('still reads the legacy `url` spelling, which is what older messages carry', () => {
+    // Contents are persisted verbatim, so image parts stored before the field was renamed are still on disk as `url`.
+    expect(parseImage('{"url":"https://cdn.example.com/a.png","alt":"A"}', IMAGE_MEDIA_TYPE)).toEqual({
+      uri: 'https://cdn.example.com/a.png',
+      alt: 'A',
+      caption: undefined,
+    });
   });
 
-  it('accepts a same-origin root-relative url, which is how the SPA offers its own assets', () => {
-    expect(parseImage('{"url":"/dex-logo.png"}', IMAGE_MEDIA_TYPE)).toEqual({
-      url: '/dex-logo.png',
+  it('prefers `uri` when a payload somehow carries both', () => {
+    expect(parseImage('{"uri":"https://a/new.png","url":"https://a/old.png"}', IMAGE_MEDIA_TYPE)?.uri).toBe(
+      'https://a/new.png',
+    );
+  });
+
+  it('treats a raw image/* part value as the uri itself', () => {
+    expect(parseImage('https://cdn.example.com/a.png', 'image/png')).toEqual({ uri: 'https://cdn.example.com/a.png' });
+    expect(parseImage('data:image/png;base64,AAAA', 'image/png')).toEqual({ uri: 'data:image/png;base64,AAAA' });
+  });
+
+  it('accepts a same-origin root-relative uri, which is how the SPA offers its own assets', () => {
+    expect(parseImage('{"uri":"/dex-logo.png"}', IMAGE_MEDIA_TYPE)).toEqual({
+      uri: '/dex-logo.png',
       alt: undefined,
       caption: undefined,
     });
@@ -82,23 +97,25 @@ describe('parseImage', () => {
 
   it('rejects any scheme other than http, https, data:image and a root-relative path', () => {
     // The payload is ultimately model-influenced, so this is refused before it ever reaches [src].
+    expect(parseImage('{"uri":"javascript:alert(1)"}', IMAGE_MEDIA_TYPE)).toBeNull();
+    expect(parseImage('{"uri":"data:text/html;base64,AAAA"}', IMAGE_MEDIA_TYPE)).toBeNull();
+    // The legacy spelling gets no free pass through the scheme check.
     expect(parseImage('{"url":"javascript:alert(1)"}', IMAGE_MEDIA_TYPE)).toBeNull();
-    expect(parseImage('{"url":"data:text/html;base64,AAAA"}', IMAGE_MEDIA_TYPE)).toBeNull();
     // Protocol-relative: a leading slash that still points off-origin.
-    expect(parseImage('{"url":"//evil.example.com/x.png"}', IMAGE_MEDIA_TYPE)).toBeNull();
+    expect(parseImage('{"uri":"//evil.example.com/x.png"}', IMAGE_MEDIA_TYPE)).toBeNull();
     expect(parseImage('javascript:alert(1)', 'image/png')).toBeNull();
   });
 
-  it('returns null for a malformed or urlless payload', () => {
+  it('returns null for a malformed or uriless payload', () => {
     expect(parseImage('not json', IMAGE_MEDIA_TYPE)).toBeNull();
     expect(parseImage('{}', IMAGE_MEDIA_TYPE)).toBeNull();
-    expect(parseImage('{"url":42}', IMAGE_MEDIA_TYPE)).toBeNull();
+    expect(parseImage('{"uri":42}', IMAGE_MEDIA_TYPE)).toBeNull();
     expect(parseImage(undefined, IMAGE_MEDIA_TYPE)).toBeNull();
   });
 
   it('drops alt and caption that are not text', () => {
-    expect(parseImage('{"url":"https://a/b.png","alt":7,"caption":null}', IMAGE_MEDIA_TYPE)).toEqual({
-      url: 'https://a/b.png',
+    expect(parseImage('{"uri":"https://a/b.png","alt":7,"caption":null}', IMAGE_MEDIA_TYPE)).toEqual({
+      uri: 'https://a/b.png',
       alt: undefined,
       caption: undefined,
     });
