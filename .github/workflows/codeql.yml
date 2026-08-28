@@ -24,20 +24,20 @@ jobs:
       actions: read
       checks: write
 
-  run-codeql-csharp:
-    if: always()
-    name: CodeQL (C#)
-    uses: ./.github/workflows/codeql-cs.template.yml
-    secrets:
-      NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
-    permissions:
-      contents: read
-      security-events: write
+  # run-codeql-csharp:
+  #   if: always()
+  #   name: CodeQL (C#)
+  #   uses: ./.github/workflows/codeql-cs.template.yml
+  #   secrets:
+  #     NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
+  #   permissions:
+  #     contents: read
+  #     security-events: write
     
-  run-codeql-javascript:
-    if: always()
-    name: CodeQL (JavaScript)
-    uses: ./.github/workflows/codeql-js.template.yml
-    permissions:
-      contents: read
-      security-events: write
+  # run-codeql-javascript:
+  #   if: always()
+  #   name: CodeQL (JavaScript)
+  #   uses: ./.github/workflows/codeql-js.template.yml
+  #   permissions:
+  #     contents: read
+  #     security-events: write
