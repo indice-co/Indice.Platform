@@ -16,7 +16,7 @@ services.AddWorkerHost(options => {
     .AddJob<EtlPipelineHandler>()
         .WithScheduleTrigger(cronExpression: "0 0 2 * * ?", options => {
             options.Name = "etl-pipeline";
-            options.Description = "A scheduled task that runs an etl pipeline evry day at 2am.";
+            options.Description = "A scheduled task that runs an etl pipeline every day at 2am.";
             options.Group = "chania-bank";
         })
     .AddJob<OrderCreatedHandler>()
