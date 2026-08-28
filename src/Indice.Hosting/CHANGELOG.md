@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Integrator's dbContext now has the Indice.Hosting migrations applied correctly.
-- Queue commands are now inside the transaction of the integrator's context when there is one e.g with `BeginTransactionAsync()`.
+- Queue commands are now inside the transaction of the integrator's context when there is one (e.g., with `BeginTransactionAsync()`).
 If you used `UseStoreRelational<TContext>()` with a custom context and published inside a custom transaction expecting outbox working:
 ```csharp
 await using (var transaction = await _integratorDbContext.Database.BeginTransactionAsync()) {
