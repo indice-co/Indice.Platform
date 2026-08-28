@@ -23,6 +23,7 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
     private readonly IPromptTemplateRenderer _prompts;
     private readonly UserClaimsAIContextProvider _userClaimsProvider;
     private readonly IMcpToolsRegistry _mcpToolsRegistry;
+    private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="OtpCodeSendStep"/>.</summary>
@@ -32,7 +33,8 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
         IOptions<ModelsOptions> models,
         IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
-        IMcpToolsRegistry mcpToolsRegistry) : base(nameof(OtpCodeSendStep)) {
+        IMcpToolsRegistry mcpToolsRegistry,
+        AgentMessageLocalizer messageLocalizer) : base(nameof(OtpCodeSendStep)) {
         _openAIClient = openAIClient;
         _options = options.Value;
         _models = models.Value;
@@ -40,6 +42,7 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
         _userClaimsProvider = userClaimsProvider;
         _mcpToolsRegistry = mcpToolsRegistry;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
+        _messageLocalizer = messageLocalizer;
     }
 
     /// <inheritdoc/>
@@ -58,11 +61,7 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
         }
 
         var chatOptions = _models.BaseReasoningModelOptions.Clone();
-        chatOptions.Instructions = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions), new {
-            phoneNumber = caseData.PhoneNumber,
-            email = caseData.Email,
-            caseId = caseData.CaseId,
-        });
+        chatOptions.Instructions = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions));
         chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. mcpTools];
 
         var agent = _openAIClient
@@ -77,13 +76,15 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
         // Execute only the send leg now; OTP code collection is done by the workflow host via RequestPort.
         var sendPrompt = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeSenderPrompt), new {
             phoneNumber =  caseData.PhoneNumber,
-            securityToken = caseData.CaseId,
+            email = caseData.Email,
+            securityToken = caseData.CaseId
         });
         _ = await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
         var maskedPhone = MaskPhone(caseData.PhoneNumber);
         return new OtpChallengeOutput(
             ValidationData: validationData,
-            Prompt: $"I sent a verification code to {maskedPhone}. Please enter the OTP you received.",
+            //TODO: Support dual Phone /Email OTP delivery. For now, we only support phone delivery.
+            Prompt: _messageLocalizer.OtpVerificationCodeSendMessage(maskedPhone),
             PhoneNumber: caseData.PhoneNumber,
             Email: caseData.Email,
             CaseId: caseData.CaseId,

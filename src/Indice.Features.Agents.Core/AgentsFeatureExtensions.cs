@@ -83,6 +83,7 @@ public static class AgentsFeatureExtensions
             () => null
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
+        services.TryAddScoped<AgentMessageLocalizer>();
         services.AddAgentsDefaultPipeline();
         services.AddCasesWorkflow();
         return services;
@@ -141,7 +142,7 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<ICaseDataExtractor, DefaultCaseDataExtractor>();
         services.TryAddTransient<CaseRetrieverStep>();
         services.TryAddTransient<OwnershipVerifierStep>();
-        services.TryAddTransient<UserInputValidatorStep>();
+        services.TryAddTransient<OwnershipValidatorStep>();
         services.TryAddTransient<OwnershipRetryChallengeBuilder>();
         services.TryAddTransient<OtpCodeSendStep>();
         services.TryAddTransient<OtpCodeValidatorStep>();
@@ -164,7 +165,7 @@ public static class AgentsFeatureExtensions
         {
             var retriever        = sp.GetRequiredService<CaseRetrieverStep>();
             var verifier         = sp.GetRequiredService<OwnershipVerifierStep>();
-            var validator        = sp.GetRequiredService<UserInputValidatorStep>();
+            var validator        = sp.GetRequiredService<OwnershipValidatorStep>();
             var ownershipRetry   = sp.GetRequiredService<OwnershipRetryChallengeBuilder>();
             var otpAgent         = sp.GetRequiredService<OtpCodeSendStep>();
             var otpValidator     = sp.GetRequiredService<OtpCodeValidatorStep>();
@@ -198,6 +199,15 @@ public static class AgentsFeatureExtensions
             return builder.Build();
         });
 
+        return services;
+    }
+
+    /// <summary>Adds an overridden implementation of <see cref="AgentMessageLocalizer"/>.</summary>
+    /// <typeparam name="TDescriber">The type of labels describer.</typeparam>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddIAgentMessageLocalizer<TDescriber>(this IServiceCollection services) where TDescriber : AgentMessageLocalizer {
+        services.AddScoped<TDescriber>();
+        services.AddScoped<AgentMessageLocalizer>(sp => sp.GetRequiredService<TDescriber>());
         return services;
     }
 }

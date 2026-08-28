@@ -30,12 +30,13 @@ public sealed class FileSystemPromptTemplateRenderer : IPromptTemplateRenderer
                     nameof(AgentsConstants.PromptDefaults.IntentClassifier) => _handlebars.Compile(AgentsConstants.PromptDefaults.IntentClassifier),
                     nameof(AgentsConstants.PromptDefaults.PurposeResponder) => _handlebars.Compile(AgentsConstants.PromptDefaults.PurposeResponder),
                     nameof(AgentsConstants.PromptDefaults.QueryRewriter) => _handlebars.Compile(AgentsConstants.PromptDefaults.QueryRewriter),
-                    nameof(AgentsConstants.PromptDefaults.CaseRetriever) => _handlebars.Compile(AgentsConstants.PromptDefaults.CaseRetriever),
                     
+                    nameof(AgentsConstants.PromptDefaults.CaseRetriever) => _handlebars.Compile(AgentsConstants.PromptDefaults.CaseRetriever),
                     nameof(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions) => _handlebars.Compile(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions),
                     nameof(AgentsConstants.PromptDefaults.OtpCodeSenderPrompt) => _handlebars.Compile(AgentsConstants.PromptDefaults.OtpCodeSenderPrompt),
-                    //TODO add default templates for the rest of the built-in prompt types
-
+                    nameof(AgentsConstants.PromptDefaults.OtpCodeValidatorInstructions) => _handlebars.Compile(AgentsConstants.PromptDefaults.OtpCodeValidatorInstructions),
+                    nameof(AgentsConstants.PromptDefaults.OtpCodeValidatorPrompt) => _handlebars.Compile(AgentsConstants.PromptDefaults.OtpCodeValidatorPrompt),
+                    
                     _ => throw new InvalidOperationException($"Prompt template '{name}' not found at '{path}'."),
                 };
             }

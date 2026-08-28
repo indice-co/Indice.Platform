@@ -33,4 +33,11 @@ public class DefaultCaseDataExtractor : ICaseDataExtractor
     /// <inheritdoc/>
     public virtual string? ExtractVerificationValue(JsonNode caseData) =>
         caseData["data"]?["carPlate"]?.GetValue<string>();
+
+        /// <inheritdoc/>
+    public virtual OperationResult Validate(JsonNode caseData) =>
+        !string.IsNullOrWhiteSpace(ExtractVerificationValue(caseData))
+            ? OperationResult.Success()
+            : OperationResult.Failure("Verification value is missing or empty.");
+    //todo add validation logic for phone number and email if needed
 }

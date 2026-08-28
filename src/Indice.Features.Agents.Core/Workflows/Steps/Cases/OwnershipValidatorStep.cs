@@ -9,14 +9,15 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 /// Receives the user's reply through the ownership confirmation request port (external input) and
 /// compares it with the actual case data field. Supports up to 2 validation attempts.
 /// </summary>
-public sealed class UserInputValidatorStep : Executor<OwnershipConfirmationResponse, UserInputValidationOutput>
+public sealed class OwnershipValidatorStep : Executor<OwnershipConfirmationResponse, UserInputValidationOutput>
 {
     private const int MaxValidationAttempts = 2;
     private const string AttemptStateKey = "OwnershipValidationAttempt";
-
-    /// <summary>Creates a new <see cref="UserInputValidatorStep"/>.</summary>
-    public UserInputValidatorStep() : base(nameof(UserInputValidatorStep))
+    private readonly AgentMessageLocalizer _messageLocalizer;
+    /// <summary>Creates a new <see cref="OwnershipValidatorStep"/>.</summary>
+    public OwnershipValidatorStep(AgentMessageLocalizer messageLocalizer) : base(nameof(OwnershipValidatorStep))
     {
+        _messageLocalizer = messageLocalizer ?? throw new ArgumentNullException(nameof(messageLocalizer))   ;
     }
 
     /// <inheritdoc/>
@@ -25,8 +26,7 @@ public sealed class UserInputValidatorStep : Executor<OwnershipConfirmationRespo
         IWorkflowContext context,
         CancellationToken cancellationToken = default)
     {
-        if (confirmation is null)
-            throw new ArgumentNullException(nameof(confirmation));
+        ArgumentNullException.ThrowIfNull(confirmation);
 
         var verificationData = confirmation.VerificationData;
         var userInput = confirmation.UserInput ?? string.Empty;
@@ -39,15 +39,14 @@ public sealed class UserInputValidatorStep : Executor<OwnershipConfirmationRespo
         // Validate the input against the actual case field value
         var isValid = CompareInputWithCaseField(
             userInput,
-            verificationData.VerificationFieldValue,
-            verificationData.VerificationFieldName);
+            verificationData.VerificationFieldValue);
 
         string? errorMessage = null;
         if (!isValid)
         {
             errorMessage = attempt >= MaxValidationAttempts
-                ? $"Verification failed. Maximum {MaxValidationAttempts} attempts reached. Please try again later."
-                : $"The information provided does not match our records. Attempt {attempt} of {MaxValidationAttempts}. Please try again.";
+                ? _messageLocalizer.VerificationFailedMaxAttempts(MaxValidationAttempts)
+                : _messageLocalizer.VerificationFailedRetry(attempt, MaxValidationAttempts);
         }
 
         return await ValueTask.FromResult(new UserInputValidationOutput(
@@ -61,33 +60,14 @@ public sealed class UserInputValidatorStep : Executor<OwnershipConfirmationRespo
     /// <summary>
     /// Compares user input with the case field value, handling various field types.
     /// </summary>
-    private static bool CompareInputWithCaseField(string userInput, string actualValue, string fieldName)
+    private static bool CompareInputWithCaseField(string userInput, string actualValue)
     {
         if (string.IsNullOrWhiteSpace(userInput))
             return false;
-
         // Normalize inputs for comparison
-        var normalizedInput = NormalizeFieldValue(userInput, fieldName);
-        var normalizedActual = NormalizeFieldValue(actualValue, fieldName);
-
+        var normalizedInput = userInput.Trim();
+        var normalizedActual = actualValue.Trim();
         return string.Equals(normalizedInput, normalizedActual, StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>
-    /// Normalizes field values by removing common formatting characters for robust comparison.
-    /// </summary>
-    private static string NormalizeFieldValue(string value, string fieldName)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return string.Empty;
-
-        return fieldName.ToLower() switch
-        {
-            "email" => value.Trim().ToLowerInvariant(),
-            "phonenumber" or "phone" => System.Text.RegularExpressions.Regex.Replace(value, @"\D", ""),
-            "ssn" or "socialsecuritynumber" => System.Text.RegularExpressions.Regex.Replace(value, @"\D", ""),
-            "cardnumber" or "creditcard" => System.Text.RegularExpressions.Regex.Replace(value, @"\D", ""),
-            _ => value.Trim()
-        };
-    }
 }

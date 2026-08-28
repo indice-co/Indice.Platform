@@ -10,6 +10,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 /// </summary>
 public sealed class OwnershipVerificationFailureHandler : Executor<UserInputValidationOutput, ValidationFailureOutput>
 {
+    //TODO: MaxValidationAttempts from configuration
     private const int MaxValidationAttempts = 2;
 
     /// <summary>Creates a new <see cref="OwnershipVerificationFailureHandler"/>.</summary>

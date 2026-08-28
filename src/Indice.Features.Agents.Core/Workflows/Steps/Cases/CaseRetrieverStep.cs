@@ -72,13 +72,6 @@ public sealed class CaseRetrieverStep : Executor<ConversationState, CaseRetrieva
         // Render the verification prompt using template
         var chatOptions = _models.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = _promptRenderer.Render(nameof(AgentsConstants.PromptDefaults.CaseRetriever)); 
-        chatOptions.Instructions = """
-            You are a case retrieval assistant.
-            Use the available tool get_case_data_id from the case-retrieval MCP service to fetch case data.
-            Decide which tool to call based on the user's query.
-            Extract the case GUID from the messages and query the case data.
-            Return the case information json as string
-            """;
         chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. mcpTools];
 
         var agent = _openAIClient
@@ -101,14 +94,15 @@ public sealed class CaseRetrieverStep : Executor<ConversationState, CaseRetrieva
             throw new InvalidOperationException("Case retrieval agent returned empty payload.");
         }
 
-        var normalizedPayload = ExtractJson(rawPayload);
+        
         JsonNode caseData;
         try {
-            caseData = JsonNode.Parse(normalizedPayload)
+            caseData = JsonNode.Parse(rawPayload)
                 ?? throw new InvalidOperationException("Case retrieval agent returned invalid JSON payload.");
         } catch (Exception ex) {
             throw new InvalidOperationException("Failed to parse case retrieval payload as JSON.", ex);
         }
+
 
         var caseId = _caseDataExtractor.ExtractCaseId(caseData);
         var phoneNumber = _caseDataExtractor.ExtractPhoneNumber(caseData);
@@ -117,6 +111,10 @@ public sealed class CaseRetrieverStep : Executor<ConversationState, CaseRetrieva
         if (string.IsNullOrWhiteSpace(phoneNumber) && string.IsNullOrWhiteSpace(email)) {
             throw new InvalidOperationException("No phone number or email found in case data for OTP delivery.");
         }
+        var validationResult = _caseDataExtractor.Validate(caseData);
+        if (!validationResult.Succeeded) {
+            throw new InvalidOperationException($"Case data validation failed: {validationResult.ErrorMessage}");
+        }
 
         return new CaseRetrievalOutput(
             CaseData: caseData,
@@ -124,16 +122,5 @@ public sealed class CaseRetrieverStep : Executor<ConversationState, CaseRetrieva
             PhoneNumber: phoneNumber,
             Email: email,
             VerificationValue: verificationValue);
-    }
-
-    private static string ExtractJson(string value) {
-        if (value.StartsWith("```") && value.Contains("\n")) {
-            var firstLineEnd = value.IndexOf('\n');
-            var lastFence = value.LastIndexOf("```");
-            if (firstLineEnd >= 0 && lastFence > firstLineEnd) {
-                return value[(firstLineEnd + 1)..lastFence].Trim();
-            }
-        }
-        return value;
     }
 }

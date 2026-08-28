@@ -1,7 +1,7 @@
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Services;
-using Indice.Features.Agents.Core.Workflows.Mcp;
+using Indice.Features.Agents.Core.Workflows.Prompts;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -20,6 +20,8 @@ public sealed class OtpRetryChallengeBuilder : Executor<OtpValidationOutput, Otp
     private readonly ModelsOptions _models;
     private readonly UserClaimsAIContextProvider _userClaimsProvider;
     private readonly IMcpToolsRegistry _mcpToolsRegistry;
+    private readonly AgentMessageLocalizer _messageLocalizer;
+    private readonly IPromptTemplateRenderer _prompts;
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="OtpRetryChallengeBuilder"/>.</summary>
@@ -28,12 +30,16 @@ public sealed class OtpRetryChallengeBuilder : Executor<OtpValidationOutput, Otp
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models,
         UserClaimsAIContextProvider userClaimsProvider,
-        IMcpToolsRegistry mcpToolsRegistry) : base(nameof(OtpRetryChallengeBuilder)) {
+        IMcpToolsRegistry mcpToolsRegistry,
+        IPromptTemplateRenderer prompts,
+        AgentMessageLocalizer messageLocalizer  ) : base(nameof(OtpRetryChallengeBuilder)) {
         _openAIClient = openAIClient;
         _options = options.Value;
         _models = models.Value;
         _userClaimsProvider = userClaimsProvider;
         _mcpToolsRegistry = mcpToolsRegistry;
+        _messageLocalizer = messageLocalizer;
+        _prompts = prompts;
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
     }
 
@@ -54,8 +60,8 @@ public sealed class OtpRetryChallengeBuilder : Executor<OtpValidationOutput, Otp
         var caseId = previousChallenge.CaseId;
 
         var prompt = input.ShouldResendOtp
-            ? $"Your previous code expired. I sent a new verification code to {MaskPhone(phoneNumber)}. Please enter the new OTP."
-            : $"Please try again and enter the OTP code ({Math.Max(input.MaxFailedAttempts - input.FailedAttempts + 1, 0)} attempt(s) left).";
+            ? _messageLocalizer.OtpVerificationCodeSendMessage(MaskPhone(phoneNumber))
+            : _messageLocalizer.InvalidOtpRetryMessage(Math.Max(input.MaxFailedAttempts - input.FailedAttempts + 1, 0));
 
         if (input.ShouldResendOtp) {
             await SendOtpAsync(phoneNumber, caseId, cancellationToken);
@@ -74,25 +80,27 @@ public sealed class OtpRetryChallengeBuilder : Executor<OtpValidationOutput, Otp
             throw new InvalidOperationException("No MCP tools discovered for service 'Identity'.");
         }
 
+
+        
         var chatOptions = _models.BaseReasoningModelOptions.Clone();
-        chatOptions.Tools = [..(chatOptions.Tools ?? []), ..mcpTools];
+        chatOptions.Instructions = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions));
+        chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. mcpTools];
 
         var agent = _openAIClient
             .GetChatClient(_model)
             .AsIChatClient()
-            .AsAIAgent(options: new ChatClientAgentOptions {
+            .AsAIAgent(options: new ChatClientAgentOptions() {
                 ChatOptions = chatOptions,
                 AIContextProviders = [_userClaimsProvider],
                 Name = "DexOtpRetrySenderAgent"
             });
 
-        var sendPrompt = $"""
-            Send an OTP now by calling SendTotp with the configured fixed values.
-            Use phone number: {phoneNumber}
-            And securityToken: {caseId}
-            Do not verify now.
-            """;
-
+        // Execute only the send leg now; OTP code collection is done by the workflow host via RequestPort.
+        var sendPrompt = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeSenderPrompt), new {
+            phoneNumber = phoneNumber,
+            //email = .Email,
+            securityToken = caseId
+        });
         _ = await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
     }
 

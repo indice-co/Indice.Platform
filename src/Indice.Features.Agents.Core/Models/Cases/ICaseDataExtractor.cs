@@ -39,4 +39,25 @@ public interface ICaseDataExtractor
     /// </summary>
     /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
     string? ExtractVerificationValue(JsonNode caseData);
+
+    /// <summary>
+    /// Validates the extracted verification value against the case data to ensure it is present and meets expected criteria.
+    /// </summary>
+    /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
+    OperationResult Validate(JsonNode caseData);
+
+}
+/// <summary>
+/// Represents the result of an operation, including whether it succeeded and an optional error message.
+/// </summary>
+public record OperationResult(bool Succeeded, string? ErrorMessage)
+{
+    /// <summary>Creates a successful <see cref="OperationResult"/>.</summary>
+    public static OperationResult Success() => new(true, null);
+    /// <summary>
+    /// Creates a failed <see cref="OperationResult"/> with the specified error message.
+    /// </summary>
+    /// <param name="error">The error message describing the failure.</param>
+    /// <returns>A failed <see cref="OperationResult"/>.</returns>
+    public static OperationResult Failure(string error) => new(false, error);
 }
