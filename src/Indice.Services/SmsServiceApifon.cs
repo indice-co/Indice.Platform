@@ -32,6 +32,9 @@ public class SmsServiceApifon : ISmsService
         if (string.IsNullOrWhiteSpace(Settings.ApiKey)) {
             throw new ArgumentException($"SMS settings {nameof(SmsServiceApifonSettings.ApiKey)} is empty.");
         }
+        if (!string.IsNullOrWhiteSpace(Settings.WebhookUrl) && string.IsNullOrWhiteSpace(Settings.WebhookSecret)) {
+            throw new ArgumentException($"{nameof(SmsServiceApifonSettings.WebhookSecret)} cannot be empty if a {nameof(SmsServiceApifonSettings.WebhookUrl)} is provided.");
+        }
     }
 
     /// <summary>The Apifon base URL address.</summary>
@@ -63,13 +66,16 @@ public class SmsServiceApifon : ISmsService
                 throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipient));
             }
             return phone.ToString("D");
-        })
-        .ToArray();
+        }).ToArray();
         if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(destination));
         }
         // https://docs.apifon.com/apireference.html#sms-request
         var payload = ApifonRequest.CreateSms(sender?.Id ?? Settings.Sender ?? Settings.SenderName!, recipients, body!, Settings.EnableUrlShortener);
+        if (!string.IsNullOrWhiteSpace(Settings.WebhookUrl)) {
+            payload.WithCallbackUrl(Settings.WebhookUrl, Settings.WebhookSecret);
+        }
+        
         var signature = payload.Sign(Settings.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, "application/json"),
@@ -130,6 +136,10 @@ public class SmsServiceApifonSettings : SmsServiceSettings
     public string Token { get; set; } = null!;
     /// <summary>If enabled all urls in the message will be replaced with shortened urls</summary>
     public bool EnableUrlShortener { get; set; } = false;
+    /// <summary>The base URL to be used for callback events.</summary>
+    public string WebhookUrl { get; set; } = string.Empty;
+    /// <summary>The secret to be used for hashing the request.</summary>
+    public string WebhookSecret { get; set; } = string.Empty;
 }
 
 internal class ApifonResponse
@@ -211,6 +221,8 @@ internal class ApifonRequest
 
     [JsonPropertyName("message")]
     public ApifonMessage Message { get; set; } = new();
+    [JsonPropertyName("reference_id")]
+    public string? ReferenceId { get; set; }
     [JsonPropertyName("subscribers")]
     public List<Subscriber> Subscribers { get; set; } = [];
     /// <summary>SMS validity period. Min 30 - Max 4320 (default).</summary>
@@ -292,6 +304,7 @@ internal static class ApifonSmsServiceExtensions {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     });
 
+    /// <summary>Signs an Apifon request.</summary>
     public static string Sign<TRequest>(this TRequest request, string secretKey, string method, string uri) where TRequest : ApifonRequest {
         var toSign = method + "\n"
             + uri + "\n"
@@ -300,5 +313,18 @@ internal static class ApifonSmsServiceExtensions {
         var encoding = new UTF8Encoding();
         using var hmacSha256 = new HMACSHA256(encoding.GetBytes(secretKey));
         return Convert.ToBase64String(hmacSha256.ComputeHash(encoding.GetBytes(toSign)));
+    }
+
+    /// <summary>Generates a callback URL with a reference identifier for an Apifon request.</summary>
+    public static TRequest WithCallbackUrl<TRequest>(this TRequest request, string baseUrl, string secretKey) where TRequest : ApifonRequest {
+        var timestamp = DateTimeOffset.UtcNow;
+        var referenceId = Guid.NewGuid().ToString("N");
+        var payload = $"{referenceId}:{timestamp:O}";
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
+        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
+        var hex = Convert.ToHexString(hash);
+        request.ReferenceId = referenceId;
+        request.CallbackUrl = $"{baseUrl}?hmac={hex}&ref={referenceId}&ts={Uri.EscapeDataString(timestamp.ToString("O"))}";
+        return request;
     }
 }
