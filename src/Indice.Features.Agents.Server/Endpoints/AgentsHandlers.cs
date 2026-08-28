@@ -18,7 +18,8 @@ internal static class AgentsHandlers
                 Capabilities: [ new AgentCapability("Master intent classification", "Discovers user intent and routes it to the appropriate sub-agent.") ],
                 Domains: [],
                 Tags: ["Intent"],
-                Links: []),
+                Links: [],
+                Icon: AgentsConstants.AgentIcons.Sparkles),
 
             new AgentInfo(
                 Name: AgentsConstants.AgentNames.Knowledge,
@@ -28,7 +29,8 @@ internal static class AgentsHandlers
                 Capabilities: [ new AgentCapability("Knowledge retrieval", "Answers questions based on a knowledge base.") ],
                 Domains: [],
                 Tags: ["Knowledge", "FAQ"],
-                Links: [])
+                Links: [],
+                Icon: AgentsConstants.AgentIcons.Book)
         });
     }
 }
@@ -47,8 +49,12 @@ public record AgentLink(string Type, string Url);
 public record AgentAuthor(string Name, string? Email = null, string? Url = null);
 
 /// <summary>
-/// This record represents the information about an agent, including its name, description, input and output content types, capabilities, domains, tags, links, author, and metadata.
+/// This record represents the information about an agent, including its name, description, input and output content types, capabilities, domains, tags, links, author, metadata and icon.
 /// </summary>
+/// <param name="Icon">
+/// A semantic icon token from <see cref="AgentsConstants.AgentIcons"/> — names what the flow is, leaving the glyph itself to the client.
+/// Appended last on purpose: positional record parameters are public API, so inserting one mid-list would break existing deconstruction.
+/// </param>
 public record AgentInfo(
     string Name,
     string Description,
@@ -59,4 +65,5 @@ public record AgentInfo(
     List<string>? Tags = null,
     List<AgentLink>? Links = null,
     AgentAuthor? Author = null,
-    object? Metadata = null);
+    object? Metadata = null,
+    string? Icon = null);
