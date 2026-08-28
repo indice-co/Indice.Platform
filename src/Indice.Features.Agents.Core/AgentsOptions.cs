@@ -29,6 +29,12 @@ public class AgentsOptions
     public TaxonomyOptions Taxonomy { get; set; } = new();
 
     /// <summary>
+    /// When true we enable additional triggers and debug handles for development and testing. 
+    /// This is not a security boundary; do not rely on it to protect sensitive data. 
+    /// </summary>
+    public bool DebugMode { get; set; } = false;
+
+    /// <summary>
     /// Optional callback to configure the <see cref="DbContextOptionsBuilder"/> for the <see cref="AgentsDbContext"/>.
     /// </summary>
     public Action<IServiceProvider, DbContextOptionsBuilder>? ConfigureDbContext { get; set; }

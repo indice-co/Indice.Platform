@@ -1,30 +1,34 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 
-import { AgentInfo, ChatMessagePart, ConversationListItem, DexApiService, DexChatResponse, LikeRequest } from '../../core/services/dex-api.service';
+import { AgentInfo, ChatMessagePart, DexApiService, DexChatResponse, LikeRequest } from '../../core/services/dex-api.service';
 import { ChatStreamFrame, ChatStreamService } from '../../core/services/chat-stream.service';
+import { ConversationsStore } from '../../core/services/conversations.store';
 import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
 import { ChatComposerComponent } from './chat-composer.component';
-import { ChatSidebarComponent } from './chat-sidebar.component';
 import { ChatThreadComponent } from './chat-thread.component';
 import { ThreadMessage, responseToThreadMessage, toThreadMessage } from './chat.models';
 
-/** The Dex chat surface: session rail + conversation thread + composer, wired to the streaming API. */
+/**
+ * The Dex chat surface: conversation thread + composer, wired to the streaming API.
+ *
+ * Which conversation is open is owned by `ConversationsStore` — the rail (in the shell) sets it,
+ * this page renders it. `loadedId` records the thread actually fetched so a session the stream
+ * just created is adopted without a redundant round-trip.
+ */
 @Component({
   selector: 'app-chat-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ChatSidebarComponent, ChatThreadComponent, ChatComposerComponent],
+  imports: [ChatThreadComponent, ChatComposerComponent],
   templateUrl: './chat-page.component.html',
 })
 export class ChatPageComponent {
   private readonly dex = inject(DexApiService);
   private readonly streamSvc = inject(ChatStreamService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly store = inject(ConversationsStore);
 
-  protected readonly sessions = signal<ConversationListItem[]>([]);
-  protected readonly sessionsLoading = signal(false);
-  protected readonly activeSessionId = signal<string | null>(null);
   protected readonly messages = signal<ThreadMessage[]>([]);
   protected readonly threadLoading = signal(false);
 
@@ -45,66 +49,29 @@ export class ChatPageComponent {
   private streamDocument: Record<string, any> = {};
   private patcher = new JsonPointerPatch();
   private streamSub?: Subscription;
+  private threadSub?: Subscription;
+  /** The conversation whose thread is on screen — `null` for an unsent new chat. */
+  private loadedId: string | null = null;
 
   constructor() {
-    this.loadSessions();
+    effect(() => {
+      const id = this.store.activeId();
+      if (id === this.loadedId) {
+        // Already on screen, or a session this page just streamed into existence.
+        return;
+      }
+      this.loadedId = id;
+      if (id) {
+        this.loadThread(id);
+      } else {
+        this.resetThread();
+      }
+    });
     this.loadAgents();
   }
 
-  protected selectSession(id: string): void {
-    if (id === this.activeSessionId() || this.threadLoading()) {
-      return;
-    }
-    this.cancelStream();
-    this.threadLoading.set(true);
-    this.error.set(null);
-    this.streamResponse.set(null);
-    this.currentStep.set(null);
-    this.dex
-      .getChatSession(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (session) => {
-          this.activeSessionId.set(id);
-          this.messages.set((session.messages ?? []).map(toThreadMessage));
-          this.questionsTotal.set(session.usage?.questionsLimitCount ?? null);
-          this.threadLoading.set(false);
-        },
-        error: () => {
-          this.threadLoading.set(false);
-          this.error.set('Could not load this conversation.');
-        },
-      });
-  }
-
-  protected newChat(): void {
-    this.cancelStream();
-    this.activeSessionId.set(null);
-    this.messages.set([]);
-    this.streamResponse.set(null);
-    this.currentStep.set(null);
-    this.error.set(null);
-    this.isStreaming.set(false);
-    this.questionsTotal.set(null);
-  }
-
-  protected deleteSession(id: string): void {
-    this.dex
-      .delete(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.sessions.update((list) => list.filter((s) => s.id !== id));
-          if (this.activeSessionId() === id) {
-            this.newChat();
-          }
-        },
-        error: () => this.error.set('Could not delete the conversation.'),
-      });
-  }
-
   protected setLike(change: { messageId: string; like: boolean | null }): void {
-    const sessionId = this.activeSessionId();
+    const sessionId = this.store.activeId();
     if (!sessionId) {
       return;
     }
@@ -138,7 +105,7 @@ export class ChatPageComponent {
     this.streamDocument = {};
     this.patcher = new JsonPointerPatch();
 
-    const sessionId = this.activeSessionId();
+    const sessionId = this.store.activeId();
     const agentName = this.selectedAgentName() ?? this.agents()[0]?.name ?? null;
     const stream$ = sessionId
       ? this.streamSvc.streamMessage(sessionId, value, agentName)
@@ -163,8 +130,10 @@ export class ChatPageComponent {
   private onFrame(frame: ChatStreamFrame): void {
     switch (frame.type) {
       case 'start':
-        if (!this.activeSessionId() && frame.conversationId) {
-          this.activeSessionId.set(frame.conversationId);
+        if (!this.store.activeId() && frame.conversationId) {
+          // Claim the id before publishing it, so the effect sees no change and skips the fetch.
+          this.loadedId = frame.conversationId;
+          this.store.adopt(frame.conversationId);
         }
         break;
       case 'status':
@@ -194,7 +163,7 @@ export class ChatPageComponent {
     this.questionsTotal.set(this.streamResponse()?.usage?.questionsLimitCount ?? null);
     this.resetStreamingState();
     // Refresh the rail so the new/updated session and its title appear in order.
-    this.loadSessions();
+    this.store.refresh();
   }
 
   /** Stream ended without `done` (stop pressed / connection closed): keep the partial answer visible. */
@@ -215,6 +184,45 @@ export class ChatPageComponent {
     this.currentStep.set(null);
   }
 
+  /** Fetch and show an existing conversation, superseding any load still in flight. */
+  private loadThread(id: string): void {
+    this.cancelStream();
+    this.threadSub?.unsubscribe();
+    this.threadLoading.set(true);
+    this.error.set(null);
+    this.streamResponse.set(null);
+    this.currentStep.set(null);
+    this.isStreaming.set(false);
+    this.threadSub = this.dex
+      .getChatSession(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (session) => {
+          this.messages.set((session.messages ?? []).map(toThreadMessage));
+          this.questionsTotal.set(session.usage?.questionsLimitCount ?? null);
+          this.threadLoading.set(false);
+        },
+        error: () => {
+          this.threadLoading.set(false);
+          this.error.set('Could not load this conversation.');
+        },
+      });
+  }
+
+  /** Clear the surface for an unsent new chat. */
+  private resetThread(): void {
+    this.cancelStream();
+    this.threadSub?.unsubscribe();
+    this.threadSub = undefined;
+    this.messages.set([]);
+    this.streamResponse.set(null);
+    this.currentStep.set(null);
+    this.error.set(null);
+    this.isStreaming.set(false);
+    this.threadLoading.set(false);
+    this.questionsTotal.set(null);
+  }
+
   private loadAgents(): void {
     this.dex
       .discovery()
@@ -223,20 +231,6 @@ export class ChatPageComponent {
         next: (agents) => this.agents.set(agents ?? []),
         // Non-fatal: without a modes list the picker stays hidden and requests carry no agentName.
         error: () => this.agents.set([]),
-      });
-  }
-
-  private loadSessions(): void {
-    this.sessionsLoading.set(true);
-    this.dex
-      .list(1, 100, null, null)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (result) => {
-          this.sessions.set(result.items ?? []);
-          this.sessionsLoading.set(false);
-        },
-        error: () => this.sessionsLoading.set(false),
       });
   }
 
