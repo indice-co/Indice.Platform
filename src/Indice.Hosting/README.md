@@ -179,4 +179,4 @@ await someOtherService.DoWork(cancellationToken);
 await transaction.CommitAsync(cancellationToken);
 ```
 
-Note: Any IMessageQueue<T> inside a transaction will be committed/rollbacked with the transaction.
+Note: Any `IMessageQueue<T>` inside a transaction will be committed/rolled back with the transaction.
