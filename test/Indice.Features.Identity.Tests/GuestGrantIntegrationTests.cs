@@ -10,10 +10,12 @@ using IdentityServer4.Validation;
 #endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Grants;
+using Indice.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Indice.Features.Identity.Tests;
@@ -120,8 +122,10 @@ public class GuestGrantIntegrationTests
         Assert.Equal("+306900000000", token.Claims.First(claim => claim.Type == "phone_number").Value);
     }
 
-    private class OpinionatedGuestGrantValidator : GuestGrantValidator
+    private class OpinionatedGuestGrantValidator(IPushNotificationService pushNotificationService, ILogger<GuestGrantValidator> logger) 
+        : GuestGrantValidator(pushNotificationService, logger)
     {
+
         protected override Task<IEnumerable<Claim>> GetClaimsAsync(ExtensionGrantValidationContext context, string subject) =>
             Task.FromResult<IEnumerable<Claim>>([new Claim("guest_channel", "web")]);
     }
