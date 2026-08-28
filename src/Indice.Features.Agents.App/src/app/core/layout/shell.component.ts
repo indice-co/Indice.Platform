@@ -1,134 +1,230 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService, ImgUserPictureDirective } from '@indice/ng-auth';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  afterRenderEffect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 
-import { NAV_ITEMS } from './nav';
+import { ConversationsStore } from '../services/conversations.store';
+import { AppSidebarComponent } from './app-sidebar.component';
 
-/** Authenticated app shell: a top navigation bar (brand + links + user menu) over a routed page. */
+/** Where the desktop rail remembers whether it was left collapsed. */
+const COLLAPSED_KEY = 'dex.rail.collapsed';
+
+/**
+ * Authenticated app shell: a conversation rail on the left over a routed page. The rail frames
+ * every route, collapses to an icon strip from `md` up, and slides in as a drawer below it.
+ */
 @Component({
   selector: 'app-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, ImgUserPictureDirective],
+  imports: [RouterLink, RouterOutlet, AppSidebarComponent],
+  host: {
+    '(document:keydown.escape)': 'onEscape()',
+  },
   template: `
-    <div class="flex h-screen flex-col bg-base-200">
-      <header
-        class="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-base-300
-               bg-base-100 px-4 sm:px-6"
+    <div class="flex h-screen bg-base-200">
+      <!-- Desktop rail. Inert behind an open drawer, so "modal" is true and Tab can't reach it. -->
+      <div
+        class="hidden shrink-0 border-r border-base-300 transition-[width] duration-200 md:block"
+        [class.w-16]="collapsed()"
+        [class.w-72]="!collapsed()"
+        [class.lg:w-80]="!collapsed()"
+        [attr.inert]="drawerOpen() ? '' : null"
       >
-        <!-- Brand -->
-        <a routerLink="/" class="flex items-center gap-2.5">
-          <img src="dex-logo.png" alt="Dex" class="size-8 rounded-full" />
-          <span class="leading-tight">
-            <span class="block text-lg font-semibold tracking-tight text-base-content">Dex</span>
-            <span
-              class="-mt-0.5 hidden font-mono text-[0.6rem] uppercase tracking-[0.22em]
-                     text-base-content/45 sm:block"
-            >
-              knowledge assistant
-            </span>
-          </span>
-        </a>
+        <app-sidebar
+          [sessions]="store.sessions()"
+          [activeId]="store.activeId()"
+          [loading]="store.loading()"
+          [error]="store.error()"
+          [collapsed]="collapsed()"
+          (select)="openConversation($event)"
+          (removed)="removeConversation($event)"
+          (create)="newChat()"
+          (toggle)="toggleCollapsed()"
+          (dismissError)="store.clearError()"
+        />
+      </div>
 
-        <!-- Primary nav -->
-        <nav class="hidden flex-1 items-center gap-1 md:flex">
-          @for (item of navItems; track item.path) {
-            <a
-              [routerLink]="item.path"
-              routerLinkActive="bg-primary/10 text-primary"
-              [routerLinkActiveOptions]="{ exact: item.exact }"
-              class="inline-flex items-center gap-2 rounded-field px-3 py-1.5 text-sm font-medium
-                     text-base-content/65 transition hover:bg-base-200 hover:text-base-content"
-            >
-              <svg viewBox="0 0 24 24" fill="none" class="size-[1.05rem]" aria-hidden="true">
-                <path
-                  [attr.d]="item.icon"
-                  stroke="currentColor"
-                  stroke-width="1.7"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              {{ item.label }}
-            </a>
-          }
-        </nav>
-
-        <!-- User menu -->
-        <div class="dropdown dropdown-end">
-          <div
-            tabindex="0"
-            role="button"
-            class="flex items-center gap-2 rounded-full py-1 pl-1 pr-1 transition hover:bg-base-200"
+      <div class="flex min-w-0 flex-1 flex-col" [attr.inert]="drawerOpen() ? '' : null">
+        <!-- Mobile bar: the rail is off-canvas below md, so the burger is the only way in. -->
+        <header
+          class="flex h-14 shrink-0 items-center gap-3 border-b border-base-300 bg-base-100 px-3
+                 md:hidden"
+        >
+          <button
+            #burger
+            type="button"
+            class="btn btn-ghost btn-sm btn-circle text-base-content/70"
+            (click)="drawerOpen.set(true)"
+            aria-label="Open conversations"
+            [attr.aria-expanded]="drawerOpen()"
           >
-            <!--<span
-              class="grid size-9 place-items-center rounded-full bg-primary/10 text-sm font-semibold
-                     text-primary"
-            >
-              {{ initials }}
-            </span>-->
-            <img
-              [userPicture]="subjectId || ''"
-              [displayName]="initials"
-              [size]="64"
-              class="grid size-9 place-items-center rounded-full bg-primary/10 text-sm font-semibold
-                     text-primary"
-            />
-            <span class="hidden max-w-32 truncate pr-1 text-sm font-medium sm:block">
-              {{ displayName }}
-            </span>
-          </div>
-          <ul
-            tabindex="0"
-            class="dropdown-content menu z-10 mt-2 w-56 rounded-box border border-base-300
-                   bg-base-100 p-2 shadow-lg"
-          >
-            <li class="menu-title">
-              <span class="truncate text-base-content/60">{{ displayName }}</span>
-            </li>
-            <li>
-              <button type="button" (click)="logout()">
-                <svg viewBox="0 0 24 24" fill="none" class="size-4" aria-hidden="true">
-                  <path
-                    d="M15 17l5-5-5-5M20 12H9M12 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                Sign out
-              </button>
-            </li>
-          </ul>
-        </div>
-      </header>
+            <svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
+              <path
+                d="M4 7h16M4 12h16M4 17h16"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
 
-      <main class="min-h-0 flex-1">
-        <router-outlet />
-      </main>
+          <a routerLink="/" class="flex min-w-0 items-center gap-2">
+            <img src="dex-logo.png" alt="Dex" class="size-7 shrink-0 rounded-full" />
+            <span class="text-base font-semibold tracking-tight text-base-content">Dex</span>
+          </a>
+
+          <button
+            type="button"
+            class="btn btn-primary btn-sm btn-circle ml-auto shadow-sm"
+            (click)="newChat()"
+            aria-label="New chat"
+          >
+            <svg viewBox="0 0 24 24" fill="none" class="size-4" aria-hidden="true">
+              <path
+                d="M12 5v14M5 12h14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </header>
+
+        <main class="min-h-0 flex-1">
+          <router-outlet />
+        </main>
+      </div>
+
+      <!-- Mobile drawer -->
+      @if (drawerOpen()) {
+        <div
+          class="fixed inset-0 z-40 bg-black/40 md:hidden"
+          (click)="closeDrawer()"
+          aria-hidden="true"
+        ></div>
+      }
+      <!--
+        aria-modal is claimed only while the drawer is open — and only then is it true, because the
+        rail and main column above are inert. Closed, it is inert rather than aria-hidden:
+        aria-hidden over focusable content is a WCAG anti-pattern, and inert covers both trees.
+      -->
+      <div
+        #drawer
+        class="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-base-300 shadow-xl
+               transition-transform duration-200 md:hidden"
+        [class.-translate-x-full]="!drawerOpen()"
+        [attr.inert]="drawerOpen() ? null : ''"
+        [attr.aria-modal]="drawerOpen() ? 'true' : null"
+        tabindex="-1"
+        role="dialog"
+        aria-label="Conversations"
+      >
+        <app-sidebar
+          [sessions]="store.sessions()"
+          [activeId]="store.activeId()"
+          [loading]="store.loading()"
+          [error]="store.error()"
+          [collapsed]="false"
+          (select)="openConversation($event)"
+          (removed)="removeConversation($event)"
+          (create)="newChat()"
+          (dismissError)="store.clearError()"
+          (navigated)="closeDrawer()"
+        />
+      </div>
     </div>
   `,
 })
 export class ShellComponent {
-  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly navItems = NAV_ITEMS;
-  protected readonly displayName = this.auth.getDisplayName() || 'You';
-  protected readonly initials = this.computeInitials(this.displayName);
-  protected readonly subjectId = this.auth.getSubjectId() || '';
+  /** The shared conversation list — the rail reads it, the chat page renders the active thread. */
+  protected readonly store = inject(ConversationsStore);
+  /** Desktop icon-rail state, remembered across reloads. */
+  protected readonly collapsed = signal(readCollapsed());
+  /** Whether the mobile off-canvas rail is showing. */
+  protected readonly drawerOpen = signal(false);
 
-  protected logout(): void {
-    this.auth.signoutRedirect();
+  private readonly drawer = viewChild.required<ElementRef<HTMLElement>>('drawer');
+  private readonly burger = viewChild.required<ElementRef<HTMLButtonElement>>('burger');
+  /** Guards the restore so the first render doesn't yank focus to the burger. */
+  private drawerWasOpen = false;
+
+  constructor() {
+    // afterRender, not effect: the `inert` attribute must be off the drawer before we focus into
+    // it — focusing inside a still-inert subtree is a no-op.
+    afterRenderEffect(() => {
+      const open = this.drawerOpen();
+      if (open) {
+        this.drawer().nativeElement.focus();
+      } else if (this.drawerWasOpen) {
+        this.burger().nativeElement.focus();
+      }
+      this.drawerWasOpen = open;
+    });
+
+    this.store.refresh();
+    // A back gesture must not leave the drawer covering the page it navigated to.
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this.drawerOpen.set(false));
   }
 
-  private computeInitials(name: string): string {
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    if (parts.length === 0) {
-      return '?';
+  protected toggleCollapsed(): void {
+    const next = !this.collapsed();
+    this.collapsed.set(next);
+    try {
+      localStorage.setItem(COLLAPSED_KEY, String(next));
+    } catch {
+      // Private browsing can refuse storage — the preference just won't survive the reload.
     }
-    if (parts.length === 1) {
-      return parts[0].slice(0, 1).toUpperCase();
+  }
+
+  protected closeDrawer(): void {
+    this.drawerOpen.set(false);
+  }
+
+  protected openConversation(id: string): void {
+    this.store.select(id);
+    this.router.navigate(['/']);
+  }
+
+  protected newChat(): void {
+    this.store.startNew();
+    this.router.navigate(['/']);
+    this.closeDrawer();
+  }
+
+  protected removeConversation(id: string): void {
+    this.store.remove(id);
+  }
+
+  /** Escape closes the drawer — unless a modal (the delete confirmation) is claiming the key. */
+  protected onEscape(): void {
+    if (!document.querySelector('dialog[open]')) {
+      this.closeDrawer();
     }
-    return (parts[0].slice(0, 1) + parts[parts.length - 1].slice(0, 1)).toUpperCase();
+  }
+}
+
+/** Read the remembered rail state; defaults to expanded when storage is unavailable or unset. */
+function readCollapsed(): boolean {
+  try {
+    return localStorage.getItem(COLLAPSED_KEY) === 'true';
+  } catch {
+    return false;
   }
 }

@@ -24,5 +24,6 @@ export const routes: Routes = [
       { path: 'profile', component: ProfilePageComponent, title: 'Dex — Profile' },
     ],
   },
+
   { path: '**', redirectTo: '' },
 ];
