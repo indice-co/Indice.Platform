@@ -1,5 +1,6 @@
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 
 import { ConversationListItem, DexApiService } from './dex-api.service';
 
@@ -31,10 +32,15 @@ export class ConversationsStore {
   /** The open conversation's list entry, when it is present in the fetched page. */
   readonly active = computed(() => this.sessions().find((s) => s.id === this.activeId()) ?? null);
 
+  /** The list fetch in flight, if any — at most one is ever allowed to land. */
+  private refreshSub?: Subscription;
+
   /** (Re)fetch the session list — called on startup and after a turn settles. */
   refresh(): void {
+    // Supersede anything still on the wire: a late response must not overwrite a newer one.
+    this.cancelRefresh();
     this.loading.set(true);
-    this.dex
+    this.refreshSub = this.dex
       .list(1, PAGE_SIZE, null, null)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -63,6 +69,8 @@ export class ConversationsStore {
 
   /** Delete a conversation, dropping the row immediately and restoring it if the server refuses. */
   remove(id: string): void {
+    // A list response already on the wire predates this deletion and would resurrect the row.
+    this.cancelRefresh();
     const previous = this.sessions();
     this.error.set(null);
     this.sessions.update((list) => list.filter((s) => s.id !== id));
@@ -83,5 +91,12 @@ export class ConversationsStore {
   /** Dismiss the last list-level error. */
   clearError(): void {
     this.error.set(null);
+  }
+
+  /** Abort the list fetch in flight. Clears `loading` — only `next`/`error` would have. */
+  private cancelRefresh(): void {
+    this.refreshSub?.unsubscribe();
+    this.refreshSub = undefined;
+    this.loading.set(false);
   }
 }

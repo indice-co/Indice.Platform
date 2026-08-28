@@ -83,6 +83,50 @@ describe('ShellComponent', () => {
     expect(drawer.classList.contains('-translate-x-full')).withContext('backdrop closed it').toBe(true);
   });
 
+  it('claims aria-modal only while open, and never uses aria-hidden', async () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const drawer = el.querySelector('[role="dialog"]')!;
+    expect(drawer.getAttribute('aria-modal')).withContext('no claim while closed').toBeNull();
+
+    el.querySelector<HTMLButtonElement>('button[aria-label="Open conversations"]')!.click();
+    await fixture.whenStable();
+    expect(drawer.getAttribute('aria-modal')).toBe('true');
+    expect(drawer.hasAttribute('aria-hidden')).withContext('inert covers this').toBe(false);
+  });
+
+  it('makes the page behind the drawer inert, so the modal claim is true', async () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const rail = el.querySelector('.md\\:block')!;
+    // The column holding the mobile bar and the routed outlet.
+    const main = el.querySelector('header')!.parentElement!;
+    expect(rail.hasAttribute('inert')).withContext('reachable while closed').toBe(false);
+    expect(main.hasAttribute('inert')).toBe(false);
+
+    el.querySelector<HTMLButtonElement>('button[aria-label="Open conversations"]')!.click();
+    await fixture.whenStable();
+
+    expect(rail.hasAttribute('inert')).withContext('background out of the tab order').toBe(true);
+    expect(main.hasAttribute('inert')).toBe(true);
+    expect(el.querySelector('.bg-black\\/40')!.hasAttribute('inert'))
+      .withContext('backdrop stays clickable')
+      .toBe(false);
+  });
+
+  it('moves focus into the drawer on open and back to the burger on close', async () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const burger = el.querySelector<HTMLButtonElement>('button[aria-label="Open conversations"]')!;
+    const drawer = el.querySelector<HTMLElement>('[role="dialog"]')!;
+    expect(document.activeElement).withContext('no focus grab on first render').not.toBe(burger);
+
+    burger.click();
+    await fixture.whenStable();
+    expect(drawer.contains(document.activeElement)).withContext('focus entered drawer').toBe(true);
+
+    el.querySelector<HTMLElement>('.bg-black\\/40')!.click();
+    await fixture.whenStable();
+    expect(document.activeElement).withContext('focus returned to the trigger').toBe(burger);
+  });
+
   it('picking a conversation in the drawer closes it', async () => {
     const el = fixture.nativeElement as HTMLElement;
     el.querySelector<HTMLButtonElement>('button[aria-label="Open conversations"]')!.click();

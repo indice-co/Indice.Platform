@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  afterRenderEffect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
@@ -22,12 +31,13 @@ const COLLAPSED_KEY = 'dex.rail.collapsed';
   },
   template: `
     <div class="flex h-screen bg-base-200">
-      <!-- Desktop rail -->
+      <!-- Desktop rail. Inert behind an open drawer, so "modal" is true and Tab can't reach it. -->
       <div
         class="hidden shrink-0 border-r border-base-300 transition-[width] duration-200 md:block"
         [class.w-16]="collapsed()"
         [class.w-72]="!collapsed()"
         [class.lg:w-80]="!collapsed()"
+        [attr.inert]="drawerOpen() ? '' : null"
       >
         <app-sidebar
           [sessions]="store.sessions()"
@@ -43,13 +53,14 @@ const COLLAPSED_KEY = 'dex.rail.collapsed';
         />
       </div>
 
-      <div class="flex min-w-0 flex-1 flex-col">
+      <div class="flex min-w-0 flex-1 flex-col" [attr.inert]="drawerOpen() ? '' : null">
         <!-- Mobile bar: the rail is off-canvas below md, so the burger is the only way in. -->
         <header
           class="flex h-14 shrink-0 items-center gap-3 border-b border-base-300 bg-base-100 px-3
                  md:hidden"
         >
           <button
+            #burger
             type="button"
             class="btn btn-ghost btn-sm btn-circle text-base-content/70"
             (click)="drawerOpen.set(true)"
@@ -101,13 +112,20 @@ const COLLAPSED_KEY = 'dex.rail.collapsed';
           aria-hidden="true"
         ></div>
       }
+      <!--
+        aria-modal is claimed only while the drawer is open — and only then is it true, because the
+        rail and main column above are inert. Closed, it is inert rather than aria-hidden:
+        aria-hidden over focusable content is a WCAG anti-pattern, and inert covers both trees.
+      -->
       <div
+        #drawer
         class="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-base-300 shadow-xl
                transition-transform duration-200 md:hidden"
         [class.-translate-x-full]="!drawerOpen()"
         [attr.inert]="drawerOpen() ? null : ''"
+        [attr.aria-modal]="drawerOpen() ? 'true' : null"
+        tabindex="-1"
         role="dialog"
-        aria-modal="true"
         aria-label="Conversations"
       >
         <app-sidebar
@@ -137,7 +155,24 @@ export class ShellComponent {
   /** Whether the mobile off-canvas rail is showing. */
   protected readonly drawerOpen = signal(false);
 
+  private readonly drawer = viewChild.required<ElementRef<HTMLElement>>('drawer');
+  private readonly burger = viewChild.required<ElementRef<HTMLButtonElement>>('burger');
+  /** Guards the restore so the first render doesn't yank focus to the burger. */
+  private drawerWasOpen = false;
+
   constructor() {
+    // afterRender, not effect: the `inert` attribute must be off the drawer before we focus into
+    // it — focusing inside a still-inert subtree is a no-op.
+    afterRenderEffect(() => {
+      const open = this.drawerOpen();
+      if (open) {
+        this.drawer().nativeElement.focus();
+      } else if (this.drawerWasOpen) {
+        this.burger().nativeElement.focus();
+      }
+      this.drawerWasOpen = open;
+    });
+
     this.store.refresh();
     // A back gesture must not leave the drawer covering the page it navigated to.
     this.router.events
