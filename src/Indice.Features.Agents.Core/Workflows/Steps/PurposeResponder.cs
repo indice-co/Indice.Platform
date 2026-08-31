@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using System.Text;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
@@ -88,6 +89,7 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
     /// </summary>
     public List<AIContent> BuildContents() {
         var contents = new List<AIContent> {
+            new TextContent("I can render text, images, callouts, confirmations, and multiple-choice prompts among others."),
             DataContentExtensions.JsonPart(new Callout {
                 Severity = Callout.Severities.Warning,
                 Title = "Outside my knowledge base",
@@ -99,6 +101,25 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
                 ImageReference.FromBytes(_logo, "image/png", caption: "Dex answers from your knowledge base."),
                 AgentsConstants.MediaTypes.Image),
             new DataContent(_logo, "image/png") { Name = "The same mark, carried as a bare image/png part." },
+            new DataContent($"data:,{Uri.EscapeDataString("""
+            <section class="dex-card">
+              <img src="https://i.pravatar.cc/160?img=32" alt="Maria Papadopoulou" />
+              <div>
+                <h3>Maria Papadopoulou</h3>
+                <p><span class="dex-badge">Customer Success</span> <span class="dex-muted">Support Department</span></p>
+                <ul>
+                  <li>📧 <a href="mailto:maria.papadopoulou@example.com">maria.papadopoulou@example.com</a></li>
+                  <li>📞 <a href="tel:+302101234567">+30 210 123 4567</a></li>
+                </ul>
+              </div>
+            </section>
+            """)}", MediaTypeNames.Text.Html) { Name = "I can render a beautiful HTML fragment" },
+            new DataContent($"data:,{Uri.EscapeDataString("""
+           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#04AA6D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+           """)}", MediaTypeNames.Image.Svg){ Name = "I can also render a Checkmark SVG" },
+
             DataContentExtensions.JsonPart(new Confirmation {
                 Prompt = "Want a hand finding something I do cover?",
                 ConfirmText = "Yes, what can you help with?",
