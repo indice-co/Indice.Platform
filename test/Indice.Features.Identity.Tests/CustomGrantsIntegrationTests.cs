@@ -804,6 +804,7 @@ private static void AssertSidClaimExists(TokenResponse tokenResponse) {
         await RegisterDeviceUsingBiometric(deviceId);
         // Login with password grant from a specified IP address.
         _ = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx", deviceId, "22.40.56.11");
+        await Task.Delay(500, TestContext.Current.CancellationToken);
         var tokenResponse = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx", deviceId, "67.168.97.200");
         // We rely on options.DequeueBatchSize = 1 so this will force immediate processing of event from the channel and into the database (inmemory dbcontext)
         // thus failing the second login attempt because the impossible travel guard will detect the impossible travel and block the login attempt.

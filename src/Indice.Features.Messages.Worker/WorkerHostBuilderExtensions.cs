@@ -270,7 +270,7 @@ public static class WorkerHostBuilderExtensions
         return options;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Konecta from sending regular SMS messages.</summary>
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Konecta for sending regular SMS messages.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>

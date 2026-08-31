@@ -66,8 +66,8 @@ public class SmsServiceKonecta : ISmsService
         var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
         _logger.LogDebug("The following payload was sent to Konecta: {requestBody}", jsonData);
 
-        var data = new StringContent(jsonData, Encoding.UTF8, "application/json");
-        var httpResponseMessage = await _httpClient.PostAsync("rcs/api/v1/message/send", data);
+        using var data = new StringContent(jsonData, Encoding.UTF8, "application/json");
+        using var httpResponseMessage = await _httpClient.PostAsync("rcs/api/v1/message/send", data);
 
         if (!httpResponseMessage.IsSuccessStatusCode) {
             var errorMessage = "SMS Delivery failed.\n";
@@ -102,7 +102,9 @@ public class SmsServiceKonecta : ISmsService
                         messageId = msgId.GetString() ?? messageId;
                     }
                 }
-            } catch (Exception ex) {
+            } catch (JsonException ex) {
+                _logger.LogWarning(ex, "Could not parse message ID from response data");
+            } catch (InvalidOperationException ex) {
                 _logger.LogWarning(ex, "Could not parse message ID from response data");
             }
         }
