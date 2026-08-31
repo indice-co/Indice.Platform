@@ -1,5 +1,6 @@
 using Indice.Features.Agents.Core.Models.Cases;
 using Microsoft.Agents.AI.Workflows;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 
@@ -10,12 +11,12 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 /// </summary>
 public sealed class OwnershipVerificationFailureHandler : Executor<UserInputValidationOutput, ValidationFailureOutput>
 {
-    //TODO: MaxValidationAttempts from configuration
-    private const int MaxValidationAttempts = 2;
+    private readonly int _maxValidationAttempts;
     private readonly AgentMessageLocalizer _messageLocalizer;
 
     /// <summary>Creates a new <see cref="OwnershipVerificationFailureHandler"/>.</summary>
-    public OwnershipVerificationFailureHandler(AgentMessageLocalizer messageLocalizer) : base(nameof(OwnershipVerificationFailureHandler)) {
+    public OwnershipVerificationFailureHandler(IOptions<AgentsOptions> options, AgentMessageLocalizer messageLocalizer) : base(nameof(OwnershipVerificationFailureHandler)) {
+        _maxValidationAttempts = options.Value.CasesWorkflow.MaxOwnershipValidationAttempts;
         _messageLocalizer = messageLocalizer;
     }
 
@@ -26,7 +27,7 @@ public sealed class OwnershipVerificationFailureHandler : Executor<UserInputVali
         CancellationToken cancellationToken = default) {
 
         var failureMessage = validationOutput.ErrorMessage
-            ?? _messageLocalizer.OwnershipVerificationFailedMaxAttemptsMessage(MaxValidationAttempts);
+            ?? _messageLocalizer.OwnershipVerificationFailedMaxAttemptsMessage(_maxValidationAttempts);
 
         return await ValueTask.FromResult(new ValidationFailureOutput(
             ErrorMessage: failureMessage,
