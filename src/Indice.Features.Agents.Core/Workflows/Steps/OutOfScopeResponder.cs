@@ -21,7 +21,7 @@ public sealed class OutOfScopeResponder : Executor<IntentOutput, GroundedAnswerO
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         var reason = intentResult.Intent.OutOfScopeReason ?? "Sorry, that question is outside the scope of what I can answer here.";
-        await context.AddEventAsync(new AgentResponseUpdateEvent(Id, 
+        await context.AddEventAsync(new AgentResponseUpdateEvent(Id,
                                         new AgentResponseUpdate(ChatRole.Assistant, reason)
                                     ), cancellationToken);
         return new GroundedAnswerOutput(reason, [], []);

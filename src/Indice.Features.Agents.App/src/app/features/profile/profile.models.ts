@@ -60,18 +60,6 @@ function trimZero(n: number): string {
   return n.toFixed(1).replace(/\.0$/, '');
 }
 
-/** Two-letter initials from a display name (mirrors the shell's avatar logic). */
-export function initialsOf(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) {
-    return '?';
-  }
-  if (parts.length === 1) {
-    return parts[0].slice(0, 1).toUpperCase();
-  }
-  return (parts[0].slice(0, 1) + parts[parts.length - 1].slice(0, 1)).toUpperCase();
-}
-
 /** Map a language code from the Dex taxonomy to a friendly label (falls back to the upper-cased code). */
 const LANGUAGE_LABELS: Record<string, string> = { en: 'English', el: 'Greek' };
 export function languageLabel(code: string | undefined): string {
