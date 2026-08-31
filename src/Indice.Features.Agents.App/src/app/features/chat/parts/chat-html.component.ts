@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 /**
- * Renders a `text/html` part as prose inside the same bordered bubble the markdown case uses, so an HTML fragment and
- * a markdown one sit indistinguishably in the thread.
+ * Renders a `text/html` part dex-html fragment in the chat thread.
  *
  * The fragment may arrive in three shapes: a plain HTML string, or a `data:text/html` URI in either its base64 or its
  * percent-encoded form. All three decode to the same markup before rendering; a data URI that fails to decode renders
@@ -79,7 +78,7 @@ const DATA_URI_PATTERN = /^data:text\/html([^,]*),([\s\S]*)$/i;
 
 /**
  * Normalizes a `text/html` part value to the markup it carries. A plain string passes through trimmed; a
- * `data:text/html` URI is decoded from base64 (UTF-8) or percent-encoding as its parameters dictate. Anything
+ * `data:text/html` URI is decoded from base64 (assumed UTF-8) or percent-encoding as its parameters dictate. Anything
  * empty or undecodable yields `null`, which the template treats as "nothing to show".
  */
 function decodeHtmlFragment(value: string | null | undefined): string | null {
