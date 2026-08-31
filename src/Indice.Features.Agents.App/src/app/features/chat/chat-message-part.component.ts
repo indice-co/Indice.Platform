@@ -46,7 +46,7 @@ import { parseCallout, parseConfirmation, parseImage, parseMultipleChoice, partK
         ></div>
       }
       @case ('html') {
-        <app-chat-html [html]="part().value" [first]="first()" [caret]="caret()" />
+        <app-chat-html [html]="part().value" [caption]="part().name" [first]="first()" [caret]="caret()" />
       }
       @case ('image') {
         <app-chat-image [image]="image()" />

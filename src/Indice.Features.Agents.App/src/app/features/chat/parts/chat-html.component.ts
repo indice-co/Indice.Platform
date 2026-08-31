@@ -53,7 +53,7 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input 
   `,
   template: `
     @if (content(); as fragment) {
-      <div
+      <div title="{{ caption() || '' }}"
         class="dex-html text-[0.95rem]"
         [class.rounded-tl-sm]="first()"
         [class.dex-caret]="caret()"
@@ -65,6 +65,8 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input 
 export class ChatHtmlComponent {
   /** The HTML fragment to render, or null when the part carried nothing renderable. */
   readonly html = input<string | null | undefined>(null);
+  /** The optional title or caption for the html fragment. */
+  readonly caption = input<string | null | undefined>(null);
   /** Whether this is the message's first part; only that one gets the bubble tail pointing at the avatar. */
   readonly first = input(false);
   /** Whether to show the blinking streaming caret. */
