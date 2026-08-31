@@ -29,7 +29,7 @@ public class SmsServiceKonecta : ISmsService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         if (_httpClient.BaseAddress == null) {
-            _httpClient.BaseAddress = new Uri(_settings.BaseUrl ?? "https://service.comdatagroup.fr/rcs/api/v1/");
+            _httpClient.BaseAddress = new Uri(_settings.BaseUrl ?? "https://service.comdatagroup.fr/");
         }
 
         if (!_httpClient.DefaultRequestHeaders.Contains("Authorization")) {

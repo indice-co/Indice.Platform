@@ -102,10 +102,14 @@ Send emails through various providers with template rendering support:
 | SendGrid | `EmailServiceSendGrid` |
 | SparkPost | `EmailServiceSparkpost` |
 | Brevo (Sendinblue) | `EmailServiceBrevo` |
+| Azure Communication Services | `AzureCommunicationServicesEmailService` |
 
 ```csharp
 // Auto-discover provider from configuration
 services.AddEmailService(configuration);
+
+// Or register specific provider
+services.AddEmailServiceAzureCommunicationServices(configuration);
 ```
 
 Configuration (`appsettings.json`):
@@ -121,6 +125,34 @@ Configuration (`appsettings.json`):
 }
 ```
 
+#### Configuration for Azure Communication Services
+
+```json
+{
+  "Email": {
+    "Provider": "azurecommunicationservices"
+  },
+  "AzureCommunicationServices": {
+    "Sender": "no-reply@yourdomain.com",
+    "ClientId": "your-azure-ad-app-id",
+    "ClientSecret": "your-azure-ad-app-secret",
+    "TenantId": "your-azure-ad-tenant-id",
+    "ResourceEndpoint": "https://your-acs-resource.communication.azure.com",
+    "BccRecipients": "optional-bcc@example.com",
+    "WaitUntilCompleted": false
+  }
+}
+```
+
+**Key Configuration Options:**
+- `ClientId`, `ClientSecret`, `TenantId`: Azure AD authentication credentials
+- `ResourceEndpoint`: Your Azure Communication Services resource endpoint
+- `Sender`: The sender email address (must be configured in Azure Portal)
+- `BccRecipients`: Optional semicolon or comma-separated list of BCC recipients
+- `WaitUntilCompleted`: Wait for completion before returning (default: `false`, recommended to keep false as it takes ~12 seconds)
+
+**Note**: Sender name must be configured in the Azure Portal on the ACS resource itself.
+
 ### 📱 SMS Services
 
 Send SMS messages through multiple gateway providers:
@@ -130,6 +162,7 @@ Send SMS messages through multiple gateway providers:
 | Apifon | `SmsServiceApifon` |
 | Apifon IM | `SmsServiceApifonIM` |
 | KapaTEL | `SmsServiceKapaTEL` |
+| Konecta | `SmsServiceKonecta` |
 | Mstat | `SmsServiceMstat` |
 | SmsUP | `SmsServiceSmsUP` |
 | Twilio | `SmsServiceTwilio` |
@@ -139,8 +172,39 @@ Send SMS messages through multiple gateway providers:
 | Yuboto Viber | `SmsServiceYubotoOmniViber` |
 
 ```csharp
-services.AddSmsServiceApifon(configuration);
+// Auto-discover provider from configuration
+services.AddSmsService(configuration);
+
+// Or register specific provider
+services.AddSmsServiceKonecta(configuration);
 ```
+
+#### Configuration for Konecta
+
+Konecta uses Basic Authentication and requires specific configuration:
+
+```json
+{
+  "Sms": {
+    "Provider": "konecta",
+    "Username": "your-username",
+    "Password": "your-password",
+    "Sender": "YourSender",
+    "BaseUrl": "https://service.comdatagroup.fr/",
+    "Operation": "campaign",
+    "Site": "default"
+  }
+}
+```
+
+**Key Configuration Options:**
+- `Username` & `Password`: Required for Basic Authentication
+- `BaseUrl`: API endpoint (defaults to `https://service.comdatagroup.fr/`)
+- `Operation`: Operation identifier (defaults to `"campaign"`)
+- `Site`: Site identifier (defaults to `"default"`)
+- `Sender`: The sender ID visible to recipients
+
+**Note**: Konecta does not support multiple recipients in a single request.
 
 ### 🔔 Push Notifications
 
@@ -213,6 +277,7 @@ Most services auto-configure from `IConfiguration`. Common connection string nam
 - [Azure.Storage.Blobs](https://www.nuget.org/packages/Azure.Storage.Blobs) - Blob storage operations
 - [Azure.Storage.Queues](https://www.nuget.org/packages/Azure.Storage.Queues) - Queue storage operations
 - [Azure.Messaging.ServiceBus](https://www.nuget.org/packages/Azure.Messaging.ServiceBus) - Service Bus messaging
+- [Azure.Communication.Email](https://www.nuget.org/packages/Azure.Communication.Email) - Azure Communication Services email sending
 - [MailKit](https://www.nuget.org/packages/MailKit) - SMTP email sending
 - [Microsoft.Azure.NotificationHubs](https://www.nuget.org/packages/Microsoft.Azure.NotificationHubs) - Push notifications
 - [Microsoft.Azure.SignalR.Management](https://www.nuget.org/packages/Microsoft.Azure.SignalR.Management) - SignalR proxy
@@ -221,6 +286,7 @@ Most services auto-configure from `IConfiguration`. Common connection string nam
 
 - .NET 8.0
 - .NET 9.0
+- .NET 10.0
 
 ## License
 
