@@ -58,7 +58,10 @@ public class SmsServiceKonecta : ISmsService
         var requestBody = new SendRequest {
             Sender = sender?.Id ?? _settings.Sender ?? _settings.SenderName ?? throw new InvalidOperationException("Sender is required."),
             Recipient = recipient,
-            Content = CreateContent(body),
+            Content = new MessageContent {
+                Type = "TEXT",
+                Text = body ?? string.Empty
+            },
             Operation = _settings.Operation ?? "campaign",
             Site = _settings.Site ?? "default"
         };
@@ -145,21 +148,9 @@ public class SmsServiceKonecta : ISmsService
     /// <summary>Get default Json Serializer Options: CamelCase, ignore null values.</summary>
     private JsonSerializerOptions GetJsonSerializerOptions() => new JsonSerializerOptions {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new MessageContentJsonConverter() }
     };
-
-    private static string CreateContent(string? body) {
-        var value = body ?? string.Empty;
-
-        value = value
-            .Replace("\\", "\\\\")
-            .Replace("'", "\\'")
-            .Replace("\r", "\\r")
-            .Replace("\n", "\\n")
-            .Replace("\t", "\\t");
-
-        return $"{{'type':'TEXT','text':'{value}'}}";
-    }
 
     #endregion
 
@@ -174,9 +165,9 @@ public class SmsServiceKonecta : ISmsService
         [JsonPropertyName("recipient")]
         public string? Recipient { get; set; }
 
-        /// <summary>The message content as JSON string</summary>
+        /// <summary>The message content</summary>
         [JsonPropertyName("content")]
-        public string? Content { get; set; }
+        public MessageContent? Content { get; set; }
 
         /// <summary>The operation identifier</summary>
         [JsonPropertyName("operation")]
@@ -185,6 +176,17 @@ public class SmsServiceKonecta : ISmsService
         /// <summary>The site identifier</summary>
         [JsonPropertyName("site")]
         public string? Site { get; set; }
+    }
+
+    internal class MessageContent
+    {
+        /// <summary>The message type (e.g., TEXT)</summary>
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "TEXT";
+
+        /// <summary>The message text</summary>
+        [JsonPropertyName("text")]
+        public string Text { get; set; } = string.Empty;
     }
 
     internal class SendResponse
@@ -200,6 +202,38 @@ public class SmsServiceKonecta : ISmsService
         /// <summary>The response data as JSON string</summary>
         [JsonPropertyName("data")]
         public string? Data { get; set; }
+    }
+
+    /// <summary>Custom JSON converter to serialize MessageContent as a JSON string</summary>
+    internal class MessageContentJsonConverter : JsonConverter<MessageContent>
+    {
+        public override MessageContent? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                var jsonString = reader.GetString();
+                if (string.IsNullOrEmpty(jsonString))
+                {
+                    return null;
+                }
+                return JsonSerializer.Deserialize<MessageContent>(jsonString);
+            }
+            return JsonSerializer.Deserialize<MessageContent>(ref reader, options);
+        }
+
+        public override void Write(Utf8JsonWriter writer, MessageContent value, JsonSerializerOptions options)
+        {
+            // Serialize MessageContent to JSON string with single quotes
+            var text = value.Text
+                .Replace("\\", "\\\\")
+                .Replace("'", "\\'")
+                .Replace("\r", "\\r")
+                .Replace("\n", "\\n")
+                .Replace("\t", "\\t");
+
+            var jsonString = $"{{'type':'{value.Type}','text':'{text}'}}";
+            writer.WriteStringValue(jsonString);
+        }
     }
     #endregion
 }
