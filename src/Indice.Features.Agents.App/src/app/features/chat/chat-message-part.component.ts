@@ -4,6 +4,7 @@ import { MarkdownModule } from 'ngx-markdown';
 import { IChatMessagePart } from '../../core/services/dex-api.service';
 import { ChatCalloutComponent } from './parts/chat-callout.component';
 import { ChatConfirmComponent } from './parts/chat-confirm.component';
+import { ChatHtmlComponent } from './parts/chat-html.component';
 import { ChatImageComponent } from './parts/chat-image.component';
 import { ChatOptionsComponent } from './parts/chat-options.component';
 import { parseCallout, parseConfirmation, parseImage, parseMultipleChoice, partKind } from './parts/part-contracts';
@@ -24,7 +25,14 @@ import { parseCallout, parseConfirmation, parseImage, parseMultipleChoice, partK
   selector: 'app-chat-message-part',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  imports: [MarkdownModule, ChatCalloutComponent, ChatConfirmComponent, ChatImageComponent, ChatOptionsComponent],
+  imports: [
+    MarkdownModule,
+    ChatCalloutComponent,
+    ChatConfirmComponent,
+    ChatHtmlComponent,
+    ChatImageComponent,
+    ChatOptionsComponent,
+  ],
   template: `
     @switch (kind()) {
       @case ('markdown') {
@@ -36,6 +44,9 @@ import { parseCallout, parseConfirmation, parseImage, parseMultipleChoice, partK
           markdown
           [data]="part().value"
         ></div>
+      }
+      @case ('html') {
+        <app-chat-html [html]="part().value" [caption]="part().name" [first]="first()" [caret]="caret()" />
       }
       @case ('image') {
         <app-chat-image [image]="image()" />
