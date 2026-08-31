@@ -89,7 +89,7 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
             Email: caseData.Email,
             CaseId: caseData.CaseId,
             FailedAttempts: 0,
-            MaxFailedAttempts: 2);
+            MaxFailedAttempts: _options.CasesWorkflow.MaxOtpValidationAttempts);
     }
 
     private static string MaskPhone(string? phone) {

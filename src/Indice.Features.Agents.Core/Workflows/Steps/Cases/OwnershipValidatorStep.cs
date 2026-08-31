@@ -1,23 +1,26 @@
 using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI.Workflows;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 
 /// <summary>
 /// Step 3 of the Cases workflow: Validates user's ownership confirmation input.
 /// Receives the user's reply through the ownership confirmation request port (external input) and
-/// compares it with the actual case data field. Supports up to 2 validation attempts.
+/// compares it with the actual case data field. Supports up to <see cref="AgentsOptions.CaseWorkflowOptions.MaxOwnershipValidationAttempts"/> validation attempts.
 /// </summary>
 public sealed class OwnershipValidatorStep : Executor<OwnershipConfirmationResponse, UserInputValidationOutput>
 {
-    private const int MaxValidationAttempts = 2;
     private const string AttemptStateKey = "OwnershipValidationAttempt";
     private readonly AgentMessageLocalizer _messageLocalizer;
+    private readonly int _maxValidationAttempts;
+
     /// <summary>Creates a new <see cref="OwnershipValidatorStep"/>.</summary>
-    public OwnershipValidatorStep(AgentMessageLocalizer messageLocalizer) : base(nameof(OwnershipValidatorStep))
+    public OwnershipValidatorStep(AgentMessageLocalizer messageLocalizer, IOptions<AgentsOptions> options) : base(nameof(OwnershipValidatorStep))
     {
-        _messageLocalizer = messageLocalizer ?? throw new ArgumentNullException(nameof(messageLocalizer))   ;
+        _messageLocalizer = messageLocalizer ?? throw new ArgumentNullException(nameof(messageLocalizer));
+        _maxValidationAttempts = options.Value.CasesWorkflow.MaxOwnershipValidationAttempts;
     }
 
     /// <inheritdoc/>
@@ -44,9 +47,9 @@ public sealed class OwnershipValidatorStep : Executor<OwnershipConfirmationRespo
         string? errorMessage = null;
         if (!isValid)
         {
-            errorMessage = attempt >= MaxValidationAttempts
-                ? _messageLocalizer.VerificationFailedMaxAttempts(MaxValidationAttempts)
-                : _messageLocalizer.VerificationFailedRetry(attempt, MaxValidationAttempts);
+            errorMessage = attempt >= _maxValidationAttempts
+                ? _messageLocalizer.VerificationFailedMaxAttempts(_maxValidationAttempts)
+                : _messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts);
         }
 
         return await ValueTask.FromResult(new UserInputValidationOutput(

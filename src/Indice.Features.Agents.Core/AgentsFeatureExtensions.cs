@@ -173,6 +173,7 @@ public static class AgentsFeatureExtensions
             var otpRetry         = sp.GetRequiredService<OtpRetryChallengeBuilder>();
             var casePresenter    = sp.GetRequiredService<CasePresenterStep>();
             var ownershipErr     = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
+            var maxOwnershipValidationAttempts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.CasesWorkflow.MaxOwnershipValidationAttempts;
             // External input ports: workflow pauses and host resumes with user responses.
             var confirmationPort = RequestPort.Create<OwnershipVerificationOutput, OwnershipConfirmationResponse>(AgentsConstants.OwnershipConfirmationPortId);
             var otpPort = RequestPort.Create<OtpChallengeOutput, OtpCodeResponse>(AgentsConstants.OtpVerificationPortId);
@@ -184,7 +185,7 @@ public static class AgentsFeatureExtensions
 
             builder.AddSwitch(validator, sw => sw
                 .AddCase<UserInputValidationOutput>(env => env!.IsValid, otpAgent)
-                .AddCase<UserInputValidationOutput>(env => !env!.IsValid && env.ValidationAttempt < 2, ownershipRetry)
+                .AddCase<UserInputValidationOutput>(env => !env!.IsValid && env.ValidationAttempt < maxOwnershipValidationAttempts, ownershipRetry)
                 .WithDefault(ownershipErr));
             builder.AddEdge(ownershipRetry, confirmationPort);
 

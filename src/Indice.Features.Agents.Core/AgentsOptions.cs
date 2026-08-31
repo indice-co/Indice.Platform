@@ -31,6 +31,9 @@ public class AgentsOptions
     /// <summary>MCP (Model Context Protocol) integrations for external services like OTP delivery.</summary>
     public McpOptions Mcp { get; set; } = new();
 
+    /// <summary>Attempt limits for the Cases workflow (ownership verification and OTP validation).</summary>
+    public CaseWorkflowOptions CasesWorkflow { get; set; } = new();
+
     /// <summary>
     /// When true we enable additional triggers and debug handles for development and testing. 
     /// This is not a security boundary; do not rely on it to protect sensitive data. 
@@ -223,6 +226,18 @@ public class AgentsOptions
             /// <summary>OAuth2 allow delegation.</summary>
             public bool AllowDelegation { get; set; } = false;
         }
+    }
+
+    /// <summary>
+    /// Attempt limits for the Cases workflow steps. Bound from <c>Dex:CasesWorkflow</c>.
+    /// </summary>
+    public class CaseWorkflowOptions
+    {
+        /// <summary>Maximum number of ownership verification attempts allowed before the workflow fails permanently.</summary>
+        public int MaxOwnershipValidationAttempts { get; set; } = 2;
+
+        /// <summary>Maximum number of OTP code validation attempts allowed before the workflow fails permanently.</summary>
+        public int MaxOtpValidationAttempts { get; set; } = 2;
     }
 }
 
