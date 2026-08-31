@@ -58,7 +58,7 @@ public class SmsServiceKonecta : ISmsService
         var requestBody = new SendRequest {
             Sender = sender?.Id ?? _settings.Sender ?? _settings.SenderName ?? throw new InvalidOperationException("Sender is required."),
             Recipient = recipient,
-            Content = $"{{'type':'TEXT','text':'{body}'}}",
+            Content = CreateContent(body),
             Operation = _settings.Operation ?? "campaign",
             Site = _settings.Site ?? "default"
         };
@@ -145,6 +145,20 @@ public class SmsServiceKonecta : ISmsService
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
+
+    private static string CreateContent(string? body) {
+        var value = body ?? string.Empty;
+
+        value = value
+            .Replace("\\", "\\\\")
+            .Replace("'", "\\'")
+            .Replace("\r", "\\r")
+            .Replace("\n", "\\n")
+            .Replace("\t", "\\t");
+
+        return $"{{'type':'TEXT','text':'{value}'}}";
+    }
+
     #endregion
 
     #region Models
@@ -169,17 +183,6 @@ public class SmsServiceKonecta : ISmsService
         /// <summary>The site identifier</summary>
         [JsonPropertyName("site")]
         public string? Site { get; set; }
-    }
-
-    internal class MessageContent
-    {
-        /// <summary>The message type (e.g., TEXT)</summary>
-        [JsonPropertyName("type")]
-        public string Type { get; set; } = "TEXT";
-
-        /// <summary>The message text</summary>
-        [JsonPropertyName("text")]
-        public string Text { get; set; } = string.Empty;
     }
 
     internal class SendResponse
