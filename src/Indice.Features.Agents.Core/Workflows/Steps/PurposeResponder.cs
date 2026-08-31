@@ -75,9 +75,12 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
             await context.AddEventAsync(new AgentResponseUpdateEvent(Id, update), cancellationToken);
         }
         if(_options.DebugMode) {
-            await context.AddEventAsync(new AgentResponseUpdateEvent(Id,
-                                    new AgentResponseUpdate(ChatRole.Assistant, BuildContents())
-                                ), cancellationToken);
+            foreach (var demoPart in BuildContents()) {
+                await Task.Delay(200, cancellationToken);
+                await context.AddEventAsync(new AgentResponseUpdateEvent(Id,
+                    new AgentResponseUpdate(ChatRole.Assistant, [demoPart])
+                ), cancellationToken);
+            }
         }
         return new GroundedAnswerOutput(answer.ToString(), [], []);
 
