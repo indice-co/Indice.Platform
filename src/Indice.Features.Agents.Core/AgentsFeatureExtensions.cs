@@ -140,6 +140,7 @@ public static class AgentsFeatureExtensions
     public static IServiceCollection AddCasesWorkflow(this IServiceCollection services)
     {
         services.TryAddTransient<ICaseDataExtractor, DefaultCaseDataExtractor>();
+        services.TryAddTransient<ICasePresentationFormatter, DefaultCasePresentationFormatter>();
         services.TryAddTransient<CaseRetrieverStep>();
         services.TryAddTransient<OwnershipVerifierStep>();
         services.TryAddTransient<OwnershipValidatorStep>();

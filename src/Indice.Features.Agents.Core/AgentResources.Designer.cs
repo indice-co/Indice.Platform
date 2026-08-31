@@ -124,6 +124,15 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ownership verification failed after {0} attempts..
+        /// </summary>
+        internal static string OwnershipVerificationFailedMaxAttemptsMessage {
+            get {
+                return ResourceManager.GetString("OwnershipVerificationFailedMaxAttemptsMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please type the you phone number to complete the verification process.
         /// </summary>
         internal static string OwnershipVerificationMessagePrompt {

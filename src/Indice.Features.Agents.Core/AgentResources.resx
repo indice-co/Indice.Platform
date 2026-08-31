@@ -138,6 +138,9 @@
   <data name="OwnershipRetryPrompt" xml:space="preserve">
     <value>sadas</value>
   </data>
+  <data name="OwnershipVerificationFailedMaxAttemptsMessage" xml:space="preserve">
+    <value>Ownership verification failed after {0} attempts.</value>
+  </data>
   <data name="OwnershipVerificationMessagePrompt" xml:space="preserve">
     <value>Please type the you phone number to complete the verification process</value>
   </data>

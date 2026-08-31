@@ -43,4 +43,10 @@ public class AgentMessageLocalizer
     /// Message to display to user for OTP Validation failure when retrying
     /// </summary>
     public virtual string InvalidOtpRetryMessage(int attempts) => string.Format(AgentResources.InvalidOtpRetryMessage, attempts);
+
+    /// <summary>
+    /// Message to display to user for Ownership verification failure when retrying
+    /// </summary>
+    public virtual string OwnershipVerificationFailedMaxAttemptsMessage(int maxAttempts) => string.Format(AgentResources.OwnershipVerificationFailedMaxAttemptsMessage, maxAttempts);
+    
 }

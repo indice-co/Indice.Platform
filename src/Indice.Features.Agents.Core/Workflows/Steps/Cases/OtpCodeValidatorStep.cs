@@ -135,8 +135,4 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
             FailedAttempts: failedAttempts,
             MaxFailedAttempts: maxFailedAttempts);
     }
-
-    private static bool IsExpiredMessage(string value) =>
-        value.Contains("expire", StringComparison.OrdinalIgnoreCase) ||
-        value.Contains("expired", StringComparison.OrdinalIgnoreCase);
 }

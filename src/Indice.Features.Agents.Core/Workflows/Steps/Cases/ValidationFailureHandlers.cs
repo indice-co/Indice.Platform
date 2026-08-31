@@ -12,9 +12,12 @@ public sealed class OwnershipVerificationFailureHandler : Executor<UserInputVali
 {
     //TODO: MaxValidationAttempts from configuration
     private const int MaxValidationAttempts = 2;
+    private readonly AgentMessageLocalizer _messageLocalizer;
 
     /// <summary>Creates a new <see cref="OwnershipVerificationFailureHandler"/>.</summary>
-    public OwnershipVerificationFailureHandler() : base(nameof(OwnershipVerificationFailureHandler)) { }
+    public OwnershipVerificationFailureHandler(AgentMessageLocalizer messageLocalizer) : base(nameof(OwnershipVerificationFailureHandler)) {
+        _messageLocalizer = messageLocalizer;
+    }
 
     /// <inheritdoc/>
     public override async ValueTask<ValidationFailureOutput> HandleAsync(
@@ -23,7 +26,7 @@ public sealed class OwnershipVerificationFailureHandler : Executor<UserInputVali
         CancellationToken cancellationToken = default) {
 
         var failureMessage = validationOutput.ErrorMessage
-            ?? $"Ownership verification failed after {MaxValidationAttempts} attempts.";
+            ?? _messageLocalizer.OwnershipVerificationFailedMaxAttemptsMessage(MaxValidationAttempts);
 
         return await ValueTask.FromResult(new ValidationFailureOutput(
             ErrorMessage: failureMessage,
