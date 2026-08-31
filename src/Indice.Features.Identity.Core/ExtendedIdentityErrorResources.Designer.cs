@@ -142,7 +142,7 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Not a well-known password..
+        ///   Looks up a localized string similar to Not easy to guess..
         /// </summary>
         internal static string PasswordIsCommonRequirement {
             get {
@@ -273,6 +273,15 @@ namespace Indice.Features.Identity.Core {
         internal static string PasswordTooShortRequirement {
             get {
                 return ResourceManager.GetString("PasswordTooShortRequirement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The phone number &apos;{0}&apos; is not allowed..
+        /// </summary>
+        internal static string PhoneNumberBlacklisted {
+            get {
+                return ResourceManager.GetString("PhoneNumberBlacklisted", resourceCulture);
             }
         }
     }

@@ -92,9 +92,15 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             user.UserName = user.Email;
         }
         var result = await base.CreateAsync(user);
+
+        if (!result.Succeeded) {
+            await PublishBlacklistEvents(user, result);
+        }
+
         if (result.Succeeded) {
             await _eventService.Publish(new UserCreatedEvent(UserEventContext.InitializeFromUser(user)));
         }
+
         return result;
     }
 
@@ -104,11 +110,18 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <summary>Updates the specified user in the backing store.</summary>
     /// <param name="user">The user to update.</param>
     /// <param name="bypassEmailAsUserNamePolicy">Bypasses the EmailAsUserName policy, if enabled.</param>
-    public Task<IdentityResult> UpdateAsync(TUser user, bool bypassEmailAsUserNamePolicy) {
+    public async Task<IdentityResult> UpdateAsync(TUser user, bool bypassEmailAsUserNamePolicy) {
         if (EmailAsUserName && !bypassEmailAsUserNamePolicy) {
             user.UserName = user.Email;
         }
-        return base.UpdateAsync(user);
+
+        var result = await base.UpdateAsync(user);
+
+        if (!result.Succeeded) {
+            await PublishBlacklistEvents(user, result);
+        }
+
+        return result;
     }
 
     /// <inheritdoc />
@@ -174,11 +187,14 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             }
         }
         var previousValue = user.Email;
-        var emailresult = await base.SetEmailAsync(user, email);
-        if (emailresult.Succeeded) {
+        var emailResult = await base.SetEmailAsync(user, email);
+        if (emailResult.Succeeded) {
             await _eventService.Publish(new UserEmailChangedEvent(UserEventContext.InitializeFromUser(user), previousValue!));
         }
-        return emailresult;
+        if (!emailResult.Succeeded) {
+            await PublishBlacklistEvents(user, emailResult);
+        }
+        return emailResult;
     }
 
     /// <inheritdoc />
@@ -186,7 +202,9 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
         if (result.Succeeded) {
             await _eventService.Publish(new PhoneNumberConfirmedEvent(UserEventContext.InitializeFromUser(user)));
-
+        }
+        if (!result.Succeeded) {
+            await PublishBlacklistEvents(user, result);
         }
         return result;
     }
@@ -222,6 +240,9 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
                     return result;
                 }
             }
+        }
+        if (!result.Succeeded) {
+            await PublishBlacklistEvents(user, result);
         }
         return result;
     }
@@ -760,6 +781,23 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public new ExtendedIdentityErrorDescriber ErrorDescriber {
         get => (ExtendedIdentityErrorDescriber)base.ErrorDescriber;
         set => base.ErrorDescriber = value;
+    }
+
+    /// <summary>
+    /// Publishes events for email and phone number blacklist validation failures.
+    /// </summary>
+    /// <param name="user">The user whose operation was blocked.</param>
+    /// <param name="result">The identity validation result containing the validation errors.</param>
+    private async Task PublishBlacklistEvents(TUser user, IdentityResult result) {
+        if (result.Errors.Any(x => x.Code == nameof(ExtendedIdentityErrorDescriber.InvalidEmail))) {
+            await _eventService.Publish(
+                new EmailBlacklistedBlockedEvent(UserEventContext.InitializeFromUser(user)));
+        }
+
+        if (result.Errors.Any(x => x.Code == nameof(ExtendedIdentityErrorDescriber.PhoneNumberBlacklisted))) {
+            await _eventService.Publish(
+                new PhoneBlacklistedBlockedEvent(UserEventContext.InitializeFromUser(user)));
+        }
     }
 
     #region Helper Methods

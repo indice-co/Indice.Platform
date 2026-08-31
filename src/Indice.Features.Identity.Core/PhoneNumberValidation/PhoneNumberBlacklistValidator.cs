@@ -48,7 +48,7 @@ public class PhoneNumberBlacklistValidator<TUser> : IUserValidator<TUser> where 
 
         return Task.FromResult(
             IdentityResult.Failed(
-                errorDescriber.InvalidPhoneNumber(user.PhoneNumber)));
+                errorDescriber.PhoneNumberBlacklisted(user.PhoneNumber)));
     }
 
     private bool IsBlacklisted(string? phoneNumber) {

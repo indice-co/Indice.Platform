@@ -88,10 +88,15 @@ public class ExtendedIdentityErrorDescriber : IdentityErrorDescriber
         Description = ExtendedIdentityErrorResources.PasswordContainsNotAllowedChars
     };
 
-    public virtual IdentityError InvalidPhoneNumber(string? phoneNumber) =>
+    /// <summary>
+    /// Returns an error indicating that the phone number is blacklisted.
+    /// </summary>
+    /// <param name="phoneNumber">The blacklisted phone number.</param>
+    /// <returns>An identity error describing the blacklist violation.</returns>
+    public virtual IdentityError PhoneNumberBlacklisted(string? phoneNumber) =>
         new() {
-            Code = nameof(InvalidPhoneNumber),
-            Description = $"The phone number '{phoneNumber}' is not allowed."
+            Code = nameof(PhoneNumberBlacklisted),
+            Description = string.Format(IdentityResources.Culture, ExtendedIdentityErrorResources.PhoneNumberBlacklisted, phoneNumber)
         };
 
     /// <summary>Your password's specified length does not meet the minimum length requirements.</summary>

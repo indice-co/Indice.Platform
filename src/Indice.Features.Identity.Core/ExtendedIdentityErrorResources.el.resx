@@ -190,4 +190,7 @@
   <data name="PasswordTooShortRequirement" xml:space="preserve">
     <value>Πρέπει να έχει τουλάχιστον {0} χαρακτήρες.</value>
   </data>
+  <data name="PhoneNumberBlacklisted" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου '{0}' δεν επιτρέπεται.</value>
+  </data>
 </root>

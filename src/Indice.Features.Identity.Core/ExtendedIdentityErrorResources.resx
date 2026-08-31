@@ -212,4 +212,8 @@
     <value>At least {0} characters long.</value>
     <comment>hint</comment>
   </data>
+  <data name="PhoneNumberBlacklisted" xml:space="preserve">
+    <value>The phone number '{0}' is not allowed.</value>
+    <comment>validation error</comment>
+  </data>
 </root>
