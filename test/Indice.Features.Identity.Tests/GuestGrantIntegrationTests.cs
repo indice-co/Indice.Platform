@@ -50,6 +50,7 @@ public class GuestGrantIntegrationTests
             } else {
                 identityServerBuilder.AddGuestGrantValidator();
             }
+            services.AddPushNotificationServiceNoop();
         });
         builder.Configure(app => app.UseIdentityServer());
         var server = new TestServer(builder);
