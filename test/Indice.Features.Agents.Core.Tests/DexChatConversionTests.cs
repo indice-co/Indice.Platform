@@ -1,3 +1,6 @@
+using System.Text;
+using System.Text.Json;
+using Indice.EntityFrameworkCore.ValueConversion;
 using Indice.Features.Agents.Core.Models;
 using Microsoft.Extensions.AI;
 
@@ -83,6 +86,45 @@ public class DexChatConversionTests
         Assert.Equal((second, 2), (citations[1].ChunkId, citations[1].Number));
     }
 
+    [Fact]
+    public void ToChatMessagePart_JsonPayloadCarriesRawJson() {
+        var json = """{"options":["one","two"]}""";
+        var data = new DataContent(Encoding.UTF8.GetBytes(json), AgentsConstants.MediaTypes.MultipleChoice);
+
+        var part = data.ToChatMessagePart();
+
+        Assert.Equal(AgentsConstants.MediaTypes.MultipleChoice, part.ContentType);
+        Assert.Equal(json, part.Value); // the client parses this directly — never a base64 data: URI
+    }
+
+    [Fact]
+    public void ToChatMessagePart_BinaryPayloadKeepsTheDataUri() {
+        var data = new DataContent(new byte[] { 1, 2, 3 }, "image/png");
+
+        var part = data.ToChatMessagePart();
+
+        Assert.Equal("image/png", part.ContentType);
+        Assert.StartsWith("data:image/png;base64,", part.Value);
+    }
+
+    [Fact]
+    public void ToDexChatMessage_MultipleChoiceDataContentBecomesItsOwnPart() {
+        var json = """{"options":["What can you tell me about faq?"]}""";
+        var message = new ChatMessage(ChatRole.Assistant, [
+            new TextContent("That is outside what I cover."),
+            new DataContent(Encoding.UTF8.GetBytes(json), AgentsConstants.MediaTypes.MultipleChoice),
+            new TextContent("Anything else?")
+        ]);
+
+        var parts = message.ToDexChatMessage().Content.Parts;
+
+        // The data part closes the open text part, so the trailing prose opens a new one rather than merging back.
+        Assert.Equal(3, parts.Count);
+        Assert.Equal(("text/markdown", "That is outside what I cover."), (parts[0].ContentType, parts[0].Value));
+        Assert.Equal((AgentsConstants.MediaTypes.MultipleChoice, json), (parts[1].ContentType, parts[1].Value));
+        Assert.Equal(("text/markdown", "Anything else?"), (parts[2].ContentType, parts[2].Value));
+    }
+
     [Theory]
     [InlineData("user", DexChatRole.User)]
     [InlineData("assistant", DexChatRole.Assistant)]
@@ -105,4 +147,77 @@ public class DexChatConversionTests
     [Fact]
     public void ToDexChatFinishReason_NullStaysNull()
         => Assert.Null(((ChatFinishReason?)null).ToDexChatFinishReason());
+
+    [Fact]
+    public void ToChatMessagePart_UriContentCarriesTheAbsoluteUrl() {
+        var uri = new UriContent("https://cdn.example.com/figures/enrolment.png", "image/png");
+
+        var part = uri.ToChatMessagePart();
+
+        Assert.Equal("image/png", part.ContentType);
+        Assert.Equal("https://cdn.example.com/figures/enrolment.png", part.Value); // never base64 — the bytes stay on the CDN
+    }
+
+    [Fact]
+    public void ToDexChatMessage_UriContentBecomesItsOwnPart() {
+        var message = new ChatMessage(ChatRole.Assistant, [
+            new TextContent("Here is the enrolment flow."),
+            new UriContent("https://cdn.example.com/figures/enrolment.png", "image/png"),
+            new TextContent("Anything else?")
+        ]);
+
+        var parts = message.ToDexChatMessage().Content.Parts;
+
+        // Like a data part, the uri part closes the open text part so the trailing prose opens a new one.
+        Assert.Equal(3, parts.Count);
+        Assert.Equal(("text/markdown", "Here is the enrolment flow."), (parts[0].ContentType, parts[0].Value));
+        Assert.Equal(("image/png", "https://cdn.example.com/figures/enrolment.png"), (parts[1].ContentType, parts[1].Value));
+        Assert.Equal(("text/markdown", "Anything else?"), (parts[2].ContentType, parts[2].Value));
+    }
+
+    [Fact]
+    public void UriContent_RoundTripsThroughTheContentsJsonColumn() {
+        // DbMessage.Contents is persisted with exactly these options. UriContent is in MEAI's [JsonDerivedType] list,
+        // so an image attached by URL survives a history reload with no custom converter and no migration.
+        var options = JsonStringValueConverter<List<AIContent>>.SerializerOptions;
+        List<AIContent> contents = [new UriContent("https://cdn.example.com/figures/enrolment.png", "image/png")];
+
+        var rehydrated = JsonSerializer.Deserialize<List<AIContent>>(JsonSerializer.Serialize(contents, options), options);
+
+        var uri = Assert.IsType<UriContent>(Assert.Single(rehydrated!));
+        Assert.Equal("https://cdn.example.com/figures/enrolment.png", uri.Uri.ToString());
+        Assert.Equal("image/png", uri.MediaType);
+    }
+
+    [Fact]
+    public void DataContentName_RoundTripsThroughTheContentsJsonColumn() {
+        // A bare image/png part carries its caption as the part's name, which only works if MEAI writes
+        // DataContent.Name into the same JSON column DbMessage.Contents is persisted with. If it did not,
+        // every such caption would vanish on the first history reload.
+        var options = JsonStringValueConverter<List<AIContent>>.SerializerOptions;
+        List<AIContent> contents = [new DataContent(new byte[] { 1, 2, 3 }, "image/png") { Name = "A diagram" }];
+
+        var rehydrated = JsonSerializer.Deserialize<List<AIContent>>(JsonSerializer.Serialize(contents, options), options);
+
+        var data = Assert.IsType<DataContent>(Assert.Single(rehydrated!));
+        Assert.Equal("A diagram", data.Name);
+        Assert.Equal("image/png", data.MediaType);
+    }
+
+    [Fact]
+    public void ToChatMessagePart_LiftsTheDataContentNameOntoThePart() {
+        // The name is how a bare image/png part carries its caption, so it has to survive both projection branches —
+        // the +json one that decodes the payload and the binary one that emits the data: URI.
+        var json = new DataContent(Encoding.UTF8.GetBytes("""{"options":["one"]}"""), AgentsConstants.MediaTypes.MultipleChoice) { Name = "Suggestions" };
+        var binary = new DataContent(new byte[] { 1, 2, 3 }, "image/png") { Name = "A diagram" };
+
+        Assert.Equal("Suggestions", json.ToChatMessagePart().Name);
+        Assert.Equal("A diagram", binary.ToChatMessagePart().Name);
+    }
+
+    [Fact]
+    public void ToChatMessagePart_LeavesTheNameNullWhenTheContentHasNone() {
+        Assert.Null(new DataContent(new byte[] { 1, 2, 3 }, "image/png").ToChatMessagePart().Name);
+        Assert.Null(new UriContent("https://cdn.example.com/a.png", "image/png").ToChatMessagePart().Name);
+    }
 }

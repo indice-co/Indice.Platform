@@ -30,6 +30,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Streamed inline as base64 by the PurposeResponder debug sample; downscaled from the SPA's public\dex-logo.png. -->
+    <EmbeddedResource Include="Assets\dex-logo-128.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="AgentResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

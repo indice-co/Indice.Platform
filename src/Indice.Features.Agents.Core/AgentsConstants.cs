@@ -24,6 +24,52 @@ public static class AgentsConstants
     /// <summary>The id of the request port where the Cases workflow halts awaiting the user's OTP code.</summary>
     public const string OtpVerificationPortId = "OtpVerificationPort";
 
+    /// <summary>Media types of the alternative (non-prose) content parts an assistant turn can carry.</summary>
+    /// <remarks>
+    /// Each one is a rendering contract between the pipeline and the chat UI: a part with this media type carries a
+    /// JSON payload the UI renders with a dedicated component instead of markdown. Media types ending in <c>+json</c>
+    /// carry their payload as raw JSON text (see <see cref="Models.DexChatResponseExtensions.ToChatMessagePart(Microsoft.Extensions.AI.DataContent)"/>).
+    /// <para>
+    /// Images are the exception, in that they have two valid shapes. A part typed <see cref="Image"/> carries the
+    /// <see cref="Models.ImageReference"/> envelope, whose payload holds the caption; a part typed with any raw
+    /// <c>image/*</c> media type carries the URL — or, for a <c>DataContent</c>, the base64 <c>data:</c> URI — as its
+    /// value, and its caption as the part's <see cref="Models.ChatMessagePart.Name"/>. The client renders both as a
+    /// figure, matching <c>image/</c> by prefix. The envelope is only strictly needed to caption a <b>hosted</b> image,
+    /// since <c>UriContent</c> has no name to lift.
+    /// </para>
+    /// </remarks>
+    public static class MediaTypes
+    {
+        /// <summary>A list of options the user can pick from; picking one posts it verbatim as the next user message. Payload: <see cref="Models.MultipleChoice"/>.</summary>
+        public const string MultipleChoice = "application/vnd.indice.multiple-choice+json";
+
+        /// <summary>A single image rendered as a figure, with an optional caption. Payload: <see cref="Models.ImageReference"/>.</summary>
+        public const string Image = "application/vnd.indice.image+json";
+
+        /// <summary>A short highlighted notice (info, success, warning, error) rendered as an alert. Payload: <see cref="Models.Callout"/>.</summary>
+        public const string Callout = "application/vnd.indice.callout+json";
+
+        /// <summary>A two-way confirmation; picking a button posts its label verbatim as the next user message. Payload: <see cref="Models.Confirmation"/>.</summary>
+        public const string Confirmation = "application/vnd.indice.confirm+json";    
+    }
+  
+    /// <summary>
+    /// Semantic icon tokens advertised on <c>AgentInfo.Icon</c>. A token names what the flow *is*;
+    /// the client maps it onto its own glyph set, so presentation stays a client concern. Clients
+    /// fall back to their generic glyph for a token they do not recognise.
+    /// </summary>
+    public static class AgentIcons
+    {
+        /// <summary>An automatic / intent-routing flow.</summary>
+        public const string Sparkles = "sparkles";
+
+        /// <summary>A flow answering from a knowledge base.</summary>
+        public const string Book = "book";
+
+        /// <summary>A generic conversational flow — matches the client's fallback glyph.</summary>
+        public const string Chat = "chat";
+    }
+
     /// <summary>Default prompt templates for various agent tasks.</summary>
     public static class PromptDefaults
     {
