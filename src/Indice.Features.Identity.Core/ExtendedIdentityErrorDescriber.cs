@@ -5,7 +5,6 @@ namespace Indice.Features.Identity.Core;
 /// <summary>Extends the default <see cref="IdentityErrorDescriber"/> adding hints for password validation rules.</summary>
 public class ExtendedIdentityErrorDescriber : IdentityErrorDescriber
 {
-
     /// <inheritdoc/>
     public override IdentityError PasswordTooShort(int length) => new () {
         Code = nameof(IdentityErrorDescriber.PasswordTooShort),
@@ -88,6 +87,12 @@ public class ExtendedIdentityErrorDescriber : IdentityErrorDescriber
         Code = nameof(PasswordContainsNotAllowedChars),
         Description = ExtendedIdentityErrorResources.PasswordContainsNotAllowedChars
     };
+
+    public virtual IdentityError InvalidPhoneNumber(string? phoneNumber) =>
+        new() {
+            Code = nameof(InvalidPhoneNumber),
+            Description = $"The phone number '{phoneNumber}' is not allowed."
+        };
 
     /// <summary>Your password's specified length does not meet the minimum length requirements.</summary>
     public virtual string PasswordTooShortRequirement(int length) => string.Format(IdentityResources.Culture, ExtendedIdentityErrorResources.PasswordTooShortRequirement, length);
