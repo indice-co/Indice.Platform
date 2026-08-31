@@ -52,8 +52,12 @@ public class PhoneNumberBlacklistValidator<TUser> : IUserValidator<TUser> where 
     }
 
     private bool IsBlacklisted(string? phoneNumber) {
+        if (string.IsNullOrWhiteSpace(phoneNumber)) {
+            return false;
+        }
+
         if (!PhoneNumberNormalizer.TryNormalize(phoneNumber, out var normalized)) {
-            return true;
+            return false;
         }
 
         return _providers.Any(x => x.IsPhoneNumberBlacklisted(normalized));

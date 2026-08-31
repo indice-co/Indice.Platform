@@ -132,7 +132,7 @@ public sealed class PhoneNumberBlacklistProviderTests
     }
 
     [Fact]
-    public void CastleProvider_NormalizesInput() {
+    public void CastleProvider_DoesNotNormalizeInput() {
         var provider = new CastlePhoneNumberBlacklistProvider();
 
         Assert.False(provider.IsPhoneNumberBlacklisted("0033753707041"));
