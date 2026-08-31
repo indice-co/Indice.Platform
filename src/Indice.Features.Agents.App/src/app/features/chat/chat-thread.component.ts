@@ -271,39 +271,4 @@ export class ChatThreadComponent {
     return contentType === 'application/vnd.indice.html-card' || (value?.startsWith('data:application/vnd.indice.html-card') ?? false);
   }
 
-  protected sanitizeHtml(value?: string): string {
-    const raw = value ?? '';
-    const dataPrefix = 'data:application/vnd.indice.html-card';
-    if (raw.startsWith(dataPrefix)) {
-      const separatorIndex = raw.indexOf(',');
-      if (separatorIndex > 0) {
-        const header = raw.slice(0, separatorIndex).toLowerCase();
-        const payload = raw.slice(separatorIndex + 1);
-        try {
-          const html = header.includes(';base64')
-            ? new TextDecoder().decode(Uint8Array.from(atob(payload), (ch) => ch.charCodeAt(0)))
-            : decodeURIComponent(payload);
-          return this.sanitizer.sanitize(SecurityContext.HTML, html) ?? '';
-        } catch {
-          return '';
-        }
-      }
-    }
-    return this.sanitizer.sanitize(SecurityContext.HTML, raw) ?? '';
-  }
-
-  constructor(private readonly sanitizer: DomSanitizer) {
-    // Keep the view pinned to the latest content as messages stream in.
-    afterRenderEffect(() => {
-      // Track the signals that grow the thread.
-      this.messages().length;
-      this.streamingMessage();
-      this.step();
-      this.streaming();
-      const element = this.scroller()?.nativeElement;
-      if (element) {
-        element.scrollTop = element.scrollHeight;
-      }
-    });
-  }
 }
