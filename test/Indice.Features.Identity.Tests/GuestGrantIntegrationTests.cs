@@ -120,7 +120,7 @@ public class GuestGrantIntegrationTests
         Assert.Equal("John", token.Claims.First(claim => claim.Type == "given_name").Value);
         Assert.Equal("Doe", token.Claims.First(claim => claim.Type == "family_name").Value);
         Assert.Equal("john.doe@example.com", token.Claims.First(claim => claim.Type == "email").Value);
-        Assert.Equal("+306900000000", token.Claims.First(claim => claim.Type == "phone_number").Value);
+        Assert.Equal("+30 6900000000", token.Claims.First(claim => claim.Type == "phone_number").Value);
     }
 
     private class OpinionatedGuestGrantValidator(IPushNotificationService pushNotificationService, ILogger<GuestGrantValidator> logger) 
