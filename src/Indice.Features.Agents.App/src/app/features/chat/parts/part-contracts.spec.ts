@@ -22,6 +22,7 @@ describe('partKind', () => {
     // Prefix matching is the whole reason this is a function and not a template @switch.
     ['image/png', 'image'],
     ['image/svg+xml', 'image'],
+    ['text/html', 'html'],
     ['application/vnd.indice.not-invented-yet+json', 'unknown'],
     ['application/pdf', 'unknown'],
     [undefined, 'unknown'],
