@@ -132,13 +132,13 @@ public static class AgentsConstants
         /// <summary>Agent instructions template for fetching OTP send.</summary>
         public const string OtpCodeSenderInstructions = """
             You are a helper agent for the current workflow. 
-            Your intent is to send an OTP to the user's phone number taken from the pramaters phoneNumber and then verify the OTP code they provide.
+            Your intent is to send an OTP to the user's phone number taken from the parameters.
             Call SendTotp with these values:
             •	securityToken: <case_id>
             •	channel: Sms
-            •	purpose: "Velmar totp"
-            •	message: "This your {0} OTP code to sign in"
-            •	subject: "Velmar auth"
+            •	purpose: "Cases totp"
+            •	message: "This is your {0} OTP code for verification"
+            •	subject: "Cases auth"
             •	authenticationMethod: "PhoneNumber"
             •	emailTemplate: null
             •	classification: null
@@ -161,7 +161,7 @@ public static class AgentsConstants
             You MUST call the VerifyTotp tool exactly once.
             Use:
             - securityToken: get securityToken from prompt
-            - purpose: "Velmar totp"
+            - purpose: "Cases totp"
             - phoneNumber: get phoneNumber from prompt
             - email: null
             - user: null

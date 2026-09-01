@@ -197,9 +197,6 @@ public class AgentsOptions
         /// <summary>Authentication method: "none", "apikey", "bearer", "basic", or "oAuth".</summary>
         public string AuthenticationMethod { get; set; } = "none";
 
-        /// <summary>Authentication value (e.g., API key, bearer token). Stored securely in configuration (use env vars / Key Vault in production).</summary>
-        public string? AuthenticationValue { get; set; }
-
         /// <summary>Optional timeout in milliseconds for MCP service calls. Defaults to 30000 (30 seconds).</summary>
         public int TimeoutMilliseconds { get; set; } = 30000;
 
