@@ -21,7 +21,7 @@ export const CALLOUT_MEDIA_TYPE = 'application/vnd.indice.callout+json';
 export const CONFIRM_MEDIA_TYPE = 'application/vnd.indice.confirm+json';
 
 /** What `ChatMessagePartComponent` renders a part as. */
-export type PartKind = 'markdown' | 'image' | 'multiple-choice' | 'callout' | 'confirm' | 'unknown';
+export type PartKind = 'markdown' | 'html' | 'image' | 'multiple-choice' | 'callout' | 'confirm' | 'unknown';
 
 /**
  * Classifies a part by its `contentType`. This exists as a function rather than a plain `@switch` on the raw media type
@@ -34,6 +34,8 @@ export function partKind(contentType: string | undefined): PartKind {
     case 'text/markdown':
     case 'text':
       return 'markdown';
+    case 'text/html':
+      return 'html';
     case MULTIPLE_CHOICE_MEDIA_TYPE:
       return 'multiple-choice';
     case IMAGE_MEDIA_TYPE:
