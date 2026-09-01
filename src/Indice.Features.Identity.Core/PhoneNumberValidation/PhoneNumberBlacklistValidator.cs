@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Identity.Core.Data.Models;
+using Indice.Globalization;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.Features.Identity.Core.PhoneNumberValidation;
@@ -56,10 +57,10 @@ public class PhoneNumberBlacklistValidator<TUser> : IUserValidator<TUser> where 
             return false;
         }
 
-        if (!PhoneNumberNormalizer.TryNormalize(phoneNumber, out var normalized)) {
+        if (!PhoneNumber.TryParse(phoneNumber, out var normalized)) {
             return false;
         }
 
-        return _providers.Any(x => x.IsPhoneNumberBlacklisted(normalized));
+        return _providers.Any(x => x.IsPhoneNumberBlacklisted(normalized.ToString("O")));
     }
 }

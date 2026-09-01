@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Indice.Globalization;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.Core.PhoneNumberValidation;
 
@@ -28,7 +29,7 @@ public sealed class ConfigurationPhoneNumberBlacklistProvider : IPhoneNumberBlac
         _blacklist.Contains(phoneNumber);
 
     private static string? Normalize(string value) =>
-        PhoneNumberNormalizer.TryNormalize(value, out var normalized)
-            ? normalized
+        PhoneNumber.TryParse(value, out var normalized)
+            ? normalized.ToString("O")
             : null;
 }

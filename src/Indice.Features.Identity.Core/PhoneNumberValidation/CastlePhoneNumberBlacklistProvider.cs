@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Identity.Core.PhoneNumberValidation;
+﻿using Indice.Globalization;
+
+namespace Indice.Features.Identity.Core.PhoneNumberValidation;
 
 /// <summary>
 /// Provides blacklisted phone numbers from the embedded Castle disposable phone number list.
@@ -39,7 +41,7 @@ public sealed class CastlePhoneNumberBlacklistProvider : IPhoneNumberBlacklistPr
         _blacklist.Contains(phoneNumber);
 
     private static string? Normalize(string value) =>
-        PhoneNumberNormalizer.TryNormalize(value, out var normalized)
-            ? normalized
+        PhoneNumber.TryParse(value, out var normalized)
+            ? normalized.ToString("O")
             : null;
 }
