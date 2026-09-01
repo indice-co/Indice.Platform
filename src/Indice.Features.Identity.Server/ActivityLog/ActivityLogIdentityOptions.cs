@@ -30,6 +30,11 @@ public class ActivityLogIdentityOptions
     public IConfiguration Configuration { get; set; }
 
     /// <summary>
+    /// The option used to configure whether events without subject should be discarded.
+    /// </summary>
+    public bool EnableSubjectFilter { get; set; } = false;
+
+    /// <summary>
     /// Additional options for configuring the activity logs feature.
     /// </summary>
     public Action<ActivityLogOptions>? Configure { get; set; } = null;

@@ -33,7 +33,8 @@ public class EmailDomainBlacklistValidator<TUser> : IUserValidator<TUser> where 
     /// <inheritdoc/>
     public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user) {
         if (await IsBlacklistedAsync(user.Email)) {
-            return IdentityResult.Failed((manager?.ErrorDescriber ?? new ExtendedIdentityErrorDescriber()).InvalidEmail(user.Email));
+            return IdentityResult.Failed(
+                ((ExtendedIdentityErrorDescriber)(manager?.ErrorDescriber ?? new ExtendedIdentityErrorDescriber())).EmailBlacklisted(user.Email));
         }
         return IdentityResult.Success;
     }
