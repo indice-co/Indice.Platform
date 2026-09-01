@@ -99,6 +99,7 @@ public static class WorkerHostConfiguration
     public static WorkPublisherOptions UseStoreRelational(this WorkPublisherOptions options, Action<DbContextOptionsBuilder>? configureAction = null) => options.UseStoreRelational<TaskDbContext>(configureAction);
 
     /// <summary>Uses the tables of a relational database in order to manage queue items.</summary>
+    /// <remarks>External dbContext configuration - if specified before registering <see cref="AddWorkPublisher"/> - will be respected.</remarks>
     /// <typeparam name="TContext">The type of <see cref="DbContext"/>.</typeparam>
     /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
     /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
@@ -107,8 +108,9 @@ public static class WorkerHostConfiguration
         Action<IServiceProvider, DbContextOptionsBuilder> configureDatabase = configureAction is not null
             ? (_, builder) => configureAction(builder)
             : (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("WorkerDb"));
-        options.Services.AddDbContext<TContext>(configureDatabase);
-        options.Services.AddDbContext<LockDbContext>(configureDatabase);
+        if (!options.Services.Any(sd => sd.ServiceType == typeof(TContext))) {
+            options.Services.AddDbContext<TContext>(configureDatabase);
+        }
         options.Services.TryAddScoped<ITaskDbContext>(sp => sp.GetRequiredService<TContext>());
         options.ScheduledTaskStoreType = typeof(ScheduledTaskStoreEF<>);
         options.QueueStoreType = typeof(MessageQueueRelational<>);
