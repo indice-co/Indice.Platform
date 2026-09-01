@@ -120,6 +120,9 @@
   <data name="DuplicateUserName" xml:space="preserve">
     <value>Το όνομα χρήστη '{0}' χρησιμοποιείται ήδη.</value>
   </data>
+  <data name="EmailBlacklisted" xml:space="preserve">
+    <value>Το email '{0}' δεν επιτρέπεται.</value>
+  </data>
   <data name="PasswordContainsNotAllowedChars" xml:space="preserve">
     <value>Ο κωδικός σας περιέχει μη επιτρεπτούς χαρακτήρες.</value>
   </data>

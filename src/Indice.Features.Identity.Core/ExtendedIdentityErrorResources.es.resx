@@ -212,6 +212,9 @@
     <value>Al menos {0} caracteres de longitud.</value>
     <comment>hint</comment>
   </data>
+  <data name="EmailBlacklisted" xml:space="preserve">
+    <value>El correo electrónico '{0}' no está permitido.</value>
+  </data>
   <data name="PhoneNumberBlacklisted" xml:space="preserve">
     <value>El número de teléfono '{0}' no está permitido.</value>
   </data>

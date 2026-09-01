@@ -70,6 +70,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The email &apos;{0}&apos; is not allowed..
+        /// </summary>
+        internal static string EmailBlacklisted {
+            get {
+                return ResourceManager.GetString("EmailBlacklisted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your password contains not allowed characters..
         /// </summary>
         internal static string PasswordContainsNotAllowedChars {

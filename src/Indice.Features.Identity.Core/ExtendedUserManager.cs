@@ -789,7 +789,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="user">The user whose operation was blocked.</param>
     /// <param name="result">The identity validation result containing the validation errors.</param>
     private async Task PublishBlacklistEvents(TUser user, IdentityResult result) {
-        if (result.Errors.Any(x => x.Code == nameof(ExtendedIdentityErrorDescriber.InvalidEmail))) {
+        if (result.Errors.Any(x => x.Code == nameof(ExtendedIdentityErrorDescriber.EmailBlacklisted))) {
             await _eventService.Publish(
                 new EmailBlacklistedBlockedEvent(UserEventContext.InitializeFromUser(user)));
         }

@@ -190,6 +190,9 @@
   <data name="PasswordTooShortRequirement" xml:space="preserve">
     <value>Au moins {0} caracteres.</value>
   </data>
+  <data name="EmailBlacklisted" xml:space="preserve">
+    <value>L'adresse e-mail « {0} » n'est pas autorisée.</value>
+  </data>
   <data name="PhoneNumberBlacklisted" xml:space="preserve">
     <value>Le numéro de téléphone « {0} » n'est pas autorisé.</value>
   </data>

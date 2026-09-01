@@ -99,6 +99,16 @@ public class ExtendedIdentityErrorDescriber : IdentityErrorDescriber
             Description = string.Format(IdentityResources.Culture, ExtendedIdentityErrorResources.PhoneNumberBlacklisted, phoneNumber)
         };
 
+    /// <summary>
+    /// Returns an error indicating that the email is blacklisted.
+    /// </summary>
+    /// <param name="email">The blacklisted email.</param>
+    /// <returns>An identity error describing the blacklist violation.</returns>
+    public virtual IdentityError EmailBlacklisted(string? email) =>
+        new() {
+            Code = nameof(EmailBlacklisted),
+            Description = string.Format(IdentityResources.Culture, ExtendedIdentityErrorResources.EmailBlacklisted, email)
+        };
     /// <summary>Your password's specified length does not meet the minimum length requirements.</summary>
     public virtual string PasswordTooShortRequirement(int length) => string.Format(IdentityResources.Culture, ExtendedIdentityErrorResources.PasswordTooShortRequirement, length);
     /// <summary>Your password must meet the minimum number of unique chars required.</summary>
