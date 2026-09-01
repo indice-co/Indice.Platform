@@ -121,7 +121,7 @@ public class EmailDomainBlacklistValidatorTests
 
         // Assert
         Assert.False(result.Succeeded);
-        Assert.Contains(result.Errors, e => e.Code.Contains("InvalidEmail"));
+        Assert.Contains(result.Errors, e => e.Code.Contains("EmailBlacklisted"));
     }
 
     [Theory]

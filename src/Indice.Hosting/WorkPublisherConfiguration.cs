@@ -33,19 +33,19 @@ public static class WorkPublisherConfiguration
     public static WorkerHostOptions UseStoreRelational(this WorkerHostOptions options, Action<DbContextOptionsBuilder>? configureAction = null) => options.UseStoreRelational<TaskDbContext>(configureAction);
 
     /// <summary>Uses the tables of a relational database in order to manage queue items.</summary>
+    /// <remarks>External dbContext configuration - if specified before registering <see cref="AddWorkPublisher"/> - will be respected.</remarks>
     /// <typeparam name="TContext">The type of <see cref="DbContext"/>.</typeparam>
     /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
     /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
     /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-    public static WorkPublisherOptions UseStoreRelational<TContext>(this WorkPublisherOptions options, Action<DbContextOptionsBuilder>? configureAction = null) where TContext : TaskDbContext {
-        var isDefaultContext = typeof(TContext) == typeof(TaskDbContext);
-        var connectionString = options.Services.BuildServiceProvider().GetRequiredService<IConfiguration>().GetConnectionString("WorkerDb");
-        void sqlServerConfiguration(DbContextOptionsBuilder builder) => builder.UseSqlServer(connectionString);
-        configureAction ??= sqlServerConfiguration;
-        options.Services.AddDbContext<TContext>(configureAction);
-        if (!isDefaultContext) {
-            options.Services.TryAddScoped<TaskDbContext, TContext>();
+    public static WorkPublisherOptions UseStoreRelational<TContext>(this WorkPublisherOptions options, Action<DbContextOptionsBuilder>? configureAction = null) where TContext : DbContext, ITaskDbContext {
+        Action<IServiceProvider, DbContextOptionsBuilder> configureDatabase = configureAction is not null
+            ? (_, builder) => configureAction(builder)
+            : (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("WorkerDb"));
+        if (!options.Services.Any(sd => sd.ServiceType == typeof(TContext))) {
+            options.Services.AddDbContext<TContext>(configureDatabase);
         }
+        options.Services.TryAddScoped<ITaskDbContext>(sp => sp.GetRequiredService<TContext>());
         options.QueueStoreType = typeof(MessageQueueRelational<>);
         return options;
     }
