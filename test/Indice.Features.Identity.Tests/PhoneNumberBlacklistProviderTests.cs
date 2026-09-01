@@ -42,7 +42,7 @@ public sealed class PhoneNumberBlacklistProviderTests
 
         Assert.Equal(2, providers.Count);
         Assert.Contains(providers, x => x is ConfigurationPhoneNumberBlacklistProvider);
-        Assert.Contains(providers, x => x is CastlePhoneNumberBlacklistProvider);
+        Assert.Contains(providers, x => x is FilePhoneNumberBlacklistProvider);
 
         var validators = scope.ServiceProvider
             .GetRequiredService<IEnumerable<IUserValidator<User>>>()
@@ -116,7 +116,7 @@ public sealed class PhoneNumberBlacklistProviderTests
 
     [Fact]
     public void CastleProvider_ReturnsTrue_ForNumbersInBlacklist() {
-        var provider = new CastlePhoneNumberBlacklistProvider();
+        var provider = new FilePhoneNumberBlacklistProvider();
 
         Assert.True(provider.IsPhoneNumberBlacklisted("+33753707041"));
         Assert.True(provider.IsPhoneNumberBlacklisted("+4915905615645"));
@@ -126,14 +126,14 @@ public sealed class PhoneNumberBlacklistProviderTests
 
     [Fact]
     public void CastleProvider_ReturnsFalse_ForNumberNotInBlacklist() {
-        var provider = new CastlePhoneNumberBlacklistProvider();
+        var provider = new FilePhoneNumberBlacklistProvider();
 
         Assert.False(provider.IsPhoneNumberBlacklisted("+306999999999"));
     }
 
     [Fact]
     public void CastleProvider_DoesNotNormalizeInput() {
-        var provider = new CastlePhoneNumberBlacklistProvider();
+        var provider = new FilePhoneNumberBlacklistProvider();
 
         Assert.False(provider.IsPhoneNumberBlacklisted("0033753707041"));
     }

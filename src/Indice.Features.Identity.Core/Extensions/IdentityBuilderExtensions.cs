@@ -325,7 +325,7 @@ public static class IdentityBuilderExtensions
 
         builder.Services.AddSingleton<
             IPhoneNumberBlacklistProvider,
-            CastlePhoneNumberBlacklistProvider>();
+            FilePhoneNumberBlacklistProvider>();
 
         builder.AddUserValidator<PhoneNumberBlacklistValidator<TUser>>();
 

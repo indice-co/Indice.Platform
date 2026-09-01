@@ -5,21 +5,21 @@ namespace Indice.Features.Identity.Core.PhoneNumberValidation;
 /// <summary>
 /// Provides blacklisted phone numbers from the embedded Castle disposable phone number list.
 /// </summary>
-public sealed class CastlePhoneNumberBlacklistProvider : IPhoneNumberBlacklistProvider
+public sealed class FilePhoneNumberBlacklistProvider : IPhoneNumberBlacklistProvider
 {
     private const string ResourceName = "Indice.Features.Identity.Core.PhoneNumberValidation.phones-blacklist.conf";
 
     private readonly HashSet<string> _blacklist;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CastlePhoneNumberBlacklistProvider"/> class
+    /// Initializes a new instance of the <see cref="FilePhoneNumberBlacklistProvider"/> class
     /// and loads the embedded phone number blacklist.
     /// </summary>
     /// <exception cref="InvalidOperationException">
     /// Thrown when the embedded blacklist resource cannot be found.
     /// </exception>
-    public CastlePhoneNumberBlacklistProvider() {
-        var assembly = typeof(CastlePhoneNumberBlacklistProvider).Assembly;
+    public FilePhoneNumberBlacklistProvider() {
+        var assembly = typeof(FilePhoneNumberBlacklistProvider).Assembly;
 
         using var stream = assembly.GetManifestResourceStream(ResourceName)
             ?? throw new InvalidOperationException(
