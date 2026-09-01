@@ -121,6 +121,10 @@
     <value>Username '{0}' is already in use.</value>
     <comment>validation error</comment>
   </data>
+  <data name="EmailBlacklisted" xml:space="preserve">
+    <value>The email '{0}' is not allowed.</value>
+    <comment>Validation error</comment>
+  </data>
   <data name="PasswordContainsNotAllowedChars" xml:space="preserve">
     <value>Your password contains not allowed characters.</value>
     <comment>validation error</comment>
@@ -211,5 +215,9 @@
   <data name="PasswordTooShortRequirement" xml:space="preserve">
     <value>At least {0} characters long.</value>
     <comment>hint</comment>
+  </data>
+  <data name="PhoneNumberBlacklisted" xml:space="preserve">
+    <value>The phone number '{0}' is not allowed.</value>
+    <comment>validation error</comment>
   </data>
 </root>

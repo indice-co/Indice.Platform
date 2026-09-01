@@ -19,21 +19,41 @@ public class IdentityEventsActivityLogConverter : IActivityLogFromEventConverter
         UserNameChangedEvent e => CreateUserEntry(e.User, nameof(UserNameChangedEvent), ActivityLogCategories.User, $"Username changed from '{e.PreviousValue}'"),
         UserEmailChangedEvent e => CreateUserEntry(e.User, nameof(UserEmailChangedEvent), ActivityLogCategories.User, $"Email changed from '{e.PreviousValue}'", attributeSubject: true),
         AccountLockedEvent e => CreateUserEntry(e.User, nameof(AccountLockedEvent), ActivityLogCategories.User, "Account locked", attributeSubject: true),
+
+        // User blacklist events
+        PhoneBlacklistedBlockedEvent e => CreateUserEntry(
+            e.User,
+            nameof(PhoneBlacklistedBlockedEvent),
+            ActivityLogCategories.User,
+            string.IsNullOrWhiteSpace(e.User.Id)
+                ? $"Registration attempt with blacklisted phone number '{e.User.PhoneNumber}' was blocked"
+                : $"User attempted to change their phone number to blacklisted phone '{e.User.PhoneNumber}'"),
+        EmailBlacklistedBlockedEvent e => CreateUserEntry(
+            e.User,
+            nameof(EmailBlacklistedBlockedEvent),
+            ActivityLogCategories.User,
+            string.IsNullOrWhiteSpace(e.User.Id)
+                ? $"Registration attempt with blacklisted email address '{e.User.Email}' was blocked"
+                : $"User attempted to change their email address to blacklisted email address '{e.User.Email}'"),
+
         // Authentication events
         PasswordSetEvent e => CreateUserEntry(e.User, nameof(PasswordSetEvent), ActivityLogCategories.Authentication, "Password set for user"),
         PasswordChangedEvent e => CreateUserEntry(e.User, nameof(PasswordChangedEvent), ActivityLogCategories.Authentication, "Password changed"),
         EmailConfirmedEvent e => CreateUserEntry(e.User, nameof(EmailConfirmedEvent), ActivityLogCategories.Authentication, "Email confirmed", attributeSubject: true),
         PhoneNumberConfirmedEvent e => CreateUserEntry(e.User, nameof(PhoneNumberConfirmedEvent), ActivityLogCategories.Authentication, "Phone number confirmed", attributeSubject: true),
         UserRequestForEmailConfirmationEvent e => CreateUserEntry(e.User, nameof(UserRequestForEmailConfirmationEvent), ActivityLogCategories.Authentication, "Email confirmation requested"),
+        
         // Device events
         DeviceCreatedEvent e => CreateDeviceEntry(e.Device, nameof(DeviceCreatedEvent), "Device created", e.User),
         DeviceUpdatedEvent e => CreateDeviceEntry(e.Device, nameof(DeviceUpdatedEvent), "Device updated", e.User),
         DeviceDeletedEvent e => CreateDeviceEntry(e.Device, nameof(DeviceDeletedEvent), "Device deleted"),
         DeviceTrustRequestedEvent e => CreateDeviceEntry(e.Device, nameof(DeviceTrustRequestedEvent), "Device trust requested", e.User),
+        
         // Client events
         ClientCreatedEvent e => CreateClientEntry(e.Client, nameof(ClientCreatedEvent), "Client created"),
         ClientUpdatedEvent e => CreateClientEntry(e.Client, nameof(ClientUpdatedEvent), "Client updated"),
         ClientDeletedEvent e => CreateClientEntry(e.Client, nameof(ClientDeletedEvent), "Client deleted"),
+
         _ => null
     };
 
@@ -71,5 +91,4 @@ public class IdentityEventsActivityLogConverter : IActivityLogFromEventConverter
         Description = $"{description}: {client.ClientName ?? client.ClientId}",
         Succeeded = true
     };
-
 }

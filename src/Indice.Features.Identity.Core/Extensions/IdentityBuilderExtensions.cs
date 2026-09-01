@@ -8,6 +8,7 @@ using Indice.Features.Identity.Core.EmailValidation;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
+using Indice.Features.Identity.Core.PhoneNumberValidation;
 using Indice.Features.Identity.Core.TokenProviders;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -286,6 +287,52 @@ public static class IdentityBuilderExtensions
     }
 
     /// <summary>
+    /// Adds phone number blacklist validation to the specified identity builder.
+    /// </summary>
+    /// <typeparam name="TUser">The type of user to validate.</typeparam>
+    /// <param name="builder">The identity builder.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <param name="configureAction">An optional action used to configure phone number blacklist options.</param>
+    /// <returns>The specified <paramref name="builder"/>.</returns>
+    public static IdentityBuilder AddPhoneNumberBlacklistValidator<TUser>(
+        this IdentityBuilder builder,
+        IConfiguration configuration,
+        Action<PhoneNumberBlacklistOptions>? configureAction = null
+    ) where TUser : User {
+        var settings = new PhoneNumberBlacklistOptions {
+            Enabled = configuration.GetIdentityOption<bool>(
+                PhoneNumberBlacklistOptions.SectionName,
+                nameof(PhoneNumberBlacklistOptions.Enabled)),
+            Numbers = configuration.GetIdentityOption<string?>(
+                PhoneNumberBlacklistOptions.SectionName,
+                nameof(PhoneNumberBlacklistOptions.Numbers))
+        };
+
+        configureAction?.Invoke(settings);
+
+        builder.Services.Configure<PhoneNumberBlacklistOptions>(options => {
+            options.Enabled = settings.Enabled;
+            options.Numbers = settings.Numbers;
+        });
+
+        if (!settings.Enabled) {
+            return builder;
+        }
+
+        builder.Services.AddSingleton<
+            IPhoneNumberBlacklistProvider,
+            ConfigurationPhoneNumberBlacklistProvider>();
+
+        builder.Services.AddSingleton<
+            IPhoneNumberBlacklistProvider,
+            FilePhoneNumberBlacklistProvider>();
+
+        builder.AddUserValidator<PhoneNumberBlacklistValidator<TUser>>();
+
+        return builder;
+    }
+
+    /// <summary>
     /// Registers <see cref="EmailDomainBlacklistValidator"/> using <see cref="User"/> as the user type.
     /// This is a convenience overload of <see cref="AddEmailDomainBlacklistValidator{TUser}(IdentityBuilder, IConfiguration, Action{EmailBlacklistOptions})"/>
     /// so you don’t need to specify the generic type explicitly.
@@ -297,6 +344,17 @@ public static class IdentityBuilderExtensions
         this IdentityBuilder builder,
         IConfiguration configuration
     ) => builder.AddEmailDomainBlacklistValidator<User>(configuration);
+
+    /// <summary>
+    /// Adds phone number blacklist validation for the default <see cref="User"/> type.
+    /// </summary>
+    /// <param name="builder">The identity builder.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The specified <paramref name="builder"/>.</returns>
+    public static IdentityBuilder AddPhoneNumberBlacklistValidator(
+        this IdentityBuilder builder,
+        IConfiguration configuration
+    ) => builder.AddPhoneNumberBlacklistValidator<User>(configuration);
 
     /// <summary>Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.</summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
