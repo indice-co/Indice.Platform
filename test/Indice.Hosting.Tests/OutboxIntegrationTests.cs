@@ -111,6 +111,17 @@ public class OutboxIntegrationTests : IAsyncLifetime
         await AssertDatabaseData(_businessId, expectedEntities: 0, expectedEvents: 0);
     }
     
+    [Fact]
+    public void TaskDbContextResolvesSameInstance() {
+        using var scope = _host.Services.CreateScope();
+
+        var taskDbContext = scope.ServiceProvider.GetRequiredService<ITaskDbContext>();
+        var integratorDbContext = scope.ServiceProvider.GetRequiredService<IntegratorDbContext>();
+        
+        var resolved = Assert.IsType<IntegratorDbContext>(taskDbContext);
+        Assert.Same(integratorDbContext, resolved);
+    }
+    
     #endregion
     
     #region Outbox
