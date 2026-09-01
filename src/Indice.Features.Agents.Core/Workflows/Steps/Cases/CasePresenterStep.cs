@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Workflows.Mcp;
 using Microsoft.Agents.AI;
@@ -34,10 +35,9 @@ public sealed class CasePresenterStep : Executor<OtpValidationOutput, RagPipelin
         }
 
         var presentation = _presentationFormatter.Format(input);
-        var dataUri = $"data:application/vnd.indice.html-card;charset=utf-8,{Uri.EscapeDataString(presentation.HtmlCard)}";
 
         await context.AddEventAsync(
-            new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [new DataContent(dataUri, "application/vnd.indice.html-card")])),
+            new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [new DataContent($"data:,{Uri.EscapeDataString(presentation.HtmlCard)}", MediaTypeNames.Text.Html) { Name = "HTML Card" },])),
             cancellationToken);
         return new RagPipelineOutput { Answer = presentation.Answer };
     }

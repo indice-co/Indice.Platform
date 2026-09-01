@@ -167,7 +167,7 @@ public static class AgentsConstants
             - user: null
             - code: user code from the prompt
             Return true if response indicates TOTP was verified successfully.
-            Return the object as json format
+            Return the object in json format as returned by the mcp
             """;
         /// <summary>Agent prompt template for validating OTP code.</summary>
         public const string OtpCodeValidatorPrompt = "Verify this OTP code: {{code}}, with securityToken:{{caseId}}, phoneNumber: {{phoneNumber}}";

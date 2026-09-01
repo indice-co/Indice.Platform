@@ -91,7 +91,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
             phoneNumber = response.Challenge.PhoneNumber
         });
         var result = await agent.RunAsync<string>(prompt, cancellationToken: cancellationToken);
-        var payload = result.Result ?? string.Empty;
+        var payload = result.Text;
 
 
 
