@@ -10,7 +10,7 @@ import { initialsOf } from '../models/initials';
  * with the profile route and sign-out — the shape ChatGPT / Gemini / Grok use.
  *
  * For a guest (anonymous, or holding only a guest token) the same anchor shows a "G" avatar and
- * the popover offers Log in / Sign up instead of Profile / Sign out.
+ * the popover offers Log in instead of Profile / Sign out.
  */
 @Component({
   selector: 'app-sidebar-account',
@@ -130,20 +130,6 @@ import { initialsOf } from '../models/initials';
               Log in
             </button>
           </li>
-          <li>
-            <button type="button" (click)="signUp()">
-              <svg viewBox="0 0 24 24" fill="none" class="size-4" aria-hidden="true">
-                <path
-                  d="M10 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM3 20a7 7 0 0 1 14 0M19 8v6M16 11h6"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              Sign up
-            </button>
-          </li>
         }
       </ul>
     </div>
@@ -169,11 +155,6 @@ export class SidebarAccountComponent {
   protected signIn(): void {
     this.navigated.emit();
     this.auth.signinRedirect({ location: '/' });
-  }
-
-  protected signUp(): void {
-    this.navigated.emit();
-    this.auth.signinRedirect({ location: '/', promptRegister: true });
   }
 
   protected logout(): void {

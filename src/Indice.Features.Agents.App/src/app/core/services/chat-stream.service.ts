@@ -115,10 +115,13 @@ export class ChatStreamService {
           return;
         }
         if (response.status === 401 && !userHeader) {
-          // The guest credential was rejected (expired or revoked) — forget it; the next send starts a new chat.
-          this.guest.clear();
-          subscriber.error(new Error('Your guest session has expired. Start a new chat to continue.'));
-          return;
+          if (this.guest.isActive) {
+            // The guest credential was rejected (expired or revoked) — forget it; the next send starts a new chat.
+            this.guest.clear();
+            subscriber.error(new Error('Your guest session has expired. Start a new chat to continue.'));
+          } else {
+            subscriber.error(new Error('Unauthorized.'));
+          }
         }
         if (!response.ok || !response.body) {
           subscriber.error(new Error(`Streaming request failed (${response.status}).`));

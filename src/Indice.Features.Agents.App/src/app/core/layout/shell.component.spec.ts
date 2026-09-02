@@ -207,25 +207,23 @@ describe('ShellComponent (guest)', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('No conversations yet.');
   });
 
-  it('shows the CTA strip atop the main column and the Log in button starts sign-in', () => {
+  it('shows the guest CTA bar atop the main column and the Log in button starts sign-in', () => {
     const el = fixture.nativeElement as HTMLElement;
     const main = el.querySelector('header')!.parentElement!;
     const strip = main.querySelector('header')!.nextElementSibling!;
     expect(strip.textContent).toContain("You're chatting as a guest.");
     expect(strip.nextElementSibling?.tagName).withContext('sits right above the page').toBe('MAIN');
 
-    Array.from(strip.querySelectorAll('button'))
-      .find((b) => b.textContent?.trim() === 'Log in')!
-      .click();
-    expect(signinRedirect).toHaveBeenCalledWith(jasmine.objectContaining({ location: '/' }));
+    const buttons = Array.from(strip.querySelectorAll('button'));
+    expect(buttons.some((b) => b.textContent?.trim() === 'Sign up'))
+      .withContext('sign up removed')
+      .toBeFalse();
 
-    Array.from(strip.querySelectorAll('button'))
-      .find((b) => b.textContent?.trim() === 'Sign up')!
-      .click();
-    expect(signinRedirect).toHaveBeenCalledWith(jasmine.objectContaining({ promptRegister: true }));
+    buttons.find((b) => b.textContent?.trim() === 'Log in')!.click();
+    expect(signinRedirect).toHaveBeenCalledWith(jasmine.objectContaining({ location: '/' }));
   });
 
-  it('renders a "G" guest account with Log in / Sign up instead of Profile / Sign out', () => {
+  it('renders a "G" guest account with Log in instead of Profile / Sign out', () => {
     const el = fixture.nativeElement as HTMLElement;
     const account = el.querySelector('.md\\:block app-sidebar-account')!;
     expect(account.querySelector('img[userpicture], img')).withContext('no picture lookup').toBeNull();
@@ -235,6 +233,6 @@ describe('ShellComponent (guest)', () => {
     expect(account.querySelector('a[href="/profile"]')).toBeNull();
     expect(account.textContent).not.toContain('Sign out');
     expect(account.textContent).toContain('Log in');
-    expect(account.textContent).toContain('Sign up');
+    expect(account.textContent).not.toContain('Sign up');
   });
 });

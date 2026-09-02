@@ -24,8 +24,8 @@ const COLLAPSED_KEY = 'dex.rail.collapsed';
 /**
  * App shell, shared by guests and signed-in users: a conversation rail on the left over a routed
  * page. The rail frames every route, collapses to an icon strip from `md` up, and slides in as a
- * drawer below it. While nobody is signed in, a strip atop the main column invites the visitor to
- * log in or sign up.
+ * drawer below it. While nobody is signed in, a slim bar atop the main column — the message
+ * centered, a Log in button at the right — invites the visitor to sign in.
  */
 @Component({
   selector: 'app-shell',
@@ -104,18 +104,26 @@ const COLLAPSED_KEY = 'dex.rail.collapsed';
           </button>
         </header>
 
-        <!-- Guest CTA: top-left of the main column, only while nobody is signed in. Hidden (not
-             rendered) until the OIDC user is known, so a signed-in user never sees it flash. -->
+        <!-- Guest CTA: a slim bar atop the main column — the message centered, the Log in button at
+             the right — only while nobody is signed in. Hidden (not rendered) until the OIDC user is
+             known, so a signed-in user never sees it flash. -->
         @if (signedIn() === false) {
           <div
-            class="flex h-12 shrink-0 items-center gap-2 border-b border-base-300 bg-base-100 px-3
-                   sm:px-4"
+            class="grid h-12 shrink-0 grid-cols-3 items-center border-b border-base-300 bg-base-100
+                   px-4 sm:px-6"
           >
-            <span class="hidden text-sm text-base-content/60 sm:inline">
+            <span
+              class="col-start-2 hidden justify-self-center text-sm text-base-content/60 sm:inline"
+            >
               You're chatting as a guest.
             </span>
-            <button type="button" class="btn btn-primary btn-sm" (click)="signIn()">Log in</button>
-            <button type="button" class="btn btn-ghost btn-sm" (click)="signUp()">Sign up</button>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm col-start-3 justify-self-end"
+              (click)="signIn()"
+            >
+              Log in
+            </button>
           </div>
         }
 
@@ -213,10 +221,6 @@ export class ShellComponent {
 
   protected signIn(): void {
     this.auth.signinRedirect({ location: this.router.url });
-  }
-
-  protected signUp(): void {
-    this.auth.signinRedirect({ location: this.router.url, promptRegister: true });
   }
 
   protected toggleCollapsed(): void {

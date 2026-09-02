@@ -87,13 +87,10 @@ public class GuestGrantValidator(IPushNotificationService pushNotificationServic
             var platform = Guard.DevicePlatform(devicePlatform, GuestGrantRequestParameterNames.DevicePlatform);
             try {
                 await PushNotificationService.Register(deviceId, pnsHandle, platform, subject);
-            } catch {
-                // log and swallow the exception, since push notification registration is not critical for the guest token issuance.
-                // we log to inform that probably the push notification service is not configured
-                // or the device registration failed for some reason.
-                Logger.LogError("Failed to register push notification user handle.");
+            } 
+            catch (Exception ex) {
+                Logger.LogError(ex, "Failed to register push notification user handle.");
             }
-        
         }
     }
 
@@ -252,7 +249,7 @@ public class GuestGrantValidator(IPushNotificationService pushNotificationServic
     {
         /// <summary>The client identifier.</summary>
         public const string ClientId = "client_id";
-        /// <summary>The client secret.</summary>
+        /// <summary>The device identifier.</summary>
         public const string DeviceId = "device_id";
         /// <summary>The device name.</summary>
         public const string DeviceName = "device_name";
