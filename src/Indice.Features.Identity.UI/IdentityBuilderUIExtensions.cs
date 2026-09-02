@@ -59,6 +59,7 @@ public static class IdentityBuilderUIExtensions
             options.TermsUrl = configuredOptions.TermsUrl;
             options.RememberMeLoginDuration = configuredOptions.RememberMeLoginDuration;
             options.ShowLogoutPrompt = configuredOptions.ShowLogoutPrompt;
+            options.ShowConfirmationPassword = configuredOptions.ShowConfirmationPassword;
             options.Events = configuredOptions.Events;
             options.EnablePhoneNumberCallingCodes = configuredOptions.EnablePhoneNumberCallingCodes;
             foreach (var url in configuredOptions.ValidReturnUrls) {

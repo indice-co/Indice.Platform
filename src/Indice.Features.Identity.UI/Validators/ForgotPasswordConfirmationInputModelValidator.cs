@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.UI.Models;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Validators;
 
@@ -9,10 +10,15 @@ public class ForgotPasswordConfirmationInputModelValidator : AbstractValidator<F
 {
     /// <summary>Creates a new instance of <see cref="ForgotPasswordConfirmationInputModelValidator"/> class.</summary>'
     /// <param name="describer">The <see cref="IdentityMessageDescriber"/> used to provide localized error messages.</param>
+    /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ForgotPasswordConfirmationInputModelValidator(IdentityMessageDescriber describer) {
+    public ForgotPasswordConfirmationInputModelValidator(IdentityMessageDescriber describer, IOptions<IdentityUIOptions> identityUiOptions) {
         RuleFor(x => x.Email).NotEmpty().EmailAddress().WithName(describer.UI_Validator_ForgotPasswordConfirmation_Email_FieldName);
         RuleFor(x => x.NewPassword).NotEmpty().WithName(describer.UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName);
+        if (identityUiOptions.Value.ShowConfirmationPassword) {
+            RuleFor(x => x.NewPasswordConfirmation).NotEmpty().WithMessage(describer.UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error);
+            RuleFor(x => x.NewPasswordConfirmation).Equal(x => x.NewPassword).WithMessage(describer.UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error);
+        }
         RuleFor(x => x.Token).NotEmpty().WithName(describer.UI_Validator_ForgotPasswordConfirmation_Token_FieldName);
     }
 }

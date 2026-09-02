@@ -504,4 +504,22 @@
   <data name="PasswordSetEventDescription" xml:space="preserve">
     <value>A sua senha foi alterada com sucesso.</value>
   </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>O campo 'Confirmar palavra-passe' é obrigatório.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>A confirmação da palavra-passe não corresponde à palavra-passe.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>O campo 'Confirmar palavra-passe' é obrigatório.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>A confirmação da palavra-passe não corresponde à palavra-passe.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>O campo 'Confirmar palavra-passe' é obrigatório.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>A confirmação da palavra-passe não corresponde à palavra-passe.</value>
+  </data>
 </root>

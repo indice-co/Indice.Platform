@@ -161,6 +161,21 @@
                 </ul>
             </div>
         </div>
+        @if (identityUiOptions.Value.ShowConfirmationPassword)
+        {
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label asp-for="Input.PasswordConfirmation" class="form-label">@Localizer.Register_Password_Confirmation</label>
+                        <div class="password-control">
+                            <input class="form-control password" type="password" placeholder="@Localizer.Register_Password_Confirmation" asp-for="Input.PasswordConfirmation" autocomplete="new-password" />
+                            <i role="button" class="reveal-icon" aria-label="Show password" title="Show password" aria-pressed="false"></i>
+                        </div>
+                        <span asp-validation-for="Input.PasswordConfirmation" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        }
         <div class="row">
             <div class="col-md-12">
                 <div class="mb-3">

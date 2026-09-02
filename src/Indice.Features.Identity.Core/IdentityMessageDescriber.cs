@@ -198,30 +198,14 @@ public class IdentityMessageDescriber
     public virtual string UI_Validator_AddPhone_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_AddPhone_PhoneNumber_InvalidFormat;
     #endregion
 
-    #region Change Password UI
-    /// <summary>Gets the field name used for validating the "Old Password" input in the Change Password UI.</summary>
-    public virtual string UI_Validator_ChangePassword_OldPassword_FieldName => IdentityResources.UI_Validator_ChangePassword_OldPassword_FieldName;
-    /// <summary>Gets the field name used for validating the "New Password" input in the Change Password UI.</summary>
-    public virtual string UI_Validator_ChangePassword_NewPassword_FieldName => IdentityResources.UI_Validator_ChangePassword_NewPassword_FieldName;
-    #endregion
-
-    #region Enable Mfa Sms UI
+    #region Verify Phone UI
     /// <summary>Gets the field name used for validating the "Phone Number" input in the Enable MFA SMS UI.</summary>
     public virtual string UI_Validator_EnableMfaSms_PhoneNumber_FieldName => IdentityResources.UI_Validator_EnableMfaSms_PhoneNumber_FieldName;
     /// <summary>Gets the error message displayed when the phone number format is invalid in the Enable MFA SMS UI.</summary>
     public virtual string UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat;
     #endregion
 
-    #region Forgot Password Confirmation UI
-    /// <summary>Gets the field name used for validating the "Email" input in the Forgot Password Confirmation UI.</summary>
-    public virtual string UI_Validator_ForgotPasswordConfirmation_Email_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_Email_FieldName;
-    /// <summary>Gets the field name used for validating the "New Password" input in the Forgot Password Confirmation UI.</summary>
-    public virtual string UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName;
-    /// <summary>Gets the field name used for validating the "Token" input in the Forgot Password Confirmation UI.</summary>
-    public virtual string UI_Validator_ForgotPasswordConfirmation_Token_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_Token_FieldName;
-    #endregion
-
-    #region Forgot Password UI
+    #region Enable Mfa Sms UI
     /// <summary>Gets the field name used for validating the "Email" input in the Forgot Password UI.</summary>
     public virtual string UI_Validator_ForgotPassword_Email_FieldName => IdentityResources.UI_Validator_ForgotPassword_Email_FieldName;
     #endregion
@@ -286,16 +270,41 @@ public class IdentityMessageDescriber
     public virtual string UI_Validator_Register_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_Register_PhoneNumber_InvalidFormat;
     /// <summary>Gets the error message displayed when the "ZoneInfo" input is invalid in the Register UI.</summary>
     public virtual string UI_Validator_Register_ZoneInfo_InvalidFormat => IdentityResources.UI_Validator_Register_ZoneInfo_InvalidFormat;
+    /// <summary>The message displayed when the password confirmation field is empty in the Register UI.</summary>
+    public virtual string UI_Validator_Register_PasswordConfirmation_Empty_Error => IdentityResources.UI_Validator_Register_PasswordConfirmation_Empty_Error;
+    /// <summary>The message displayed when the password confirmation does not match the password in the Register UI.</summary>
+    public virtual string UI_Validator_Register_PasswordConfirmation_Mismatch_Error => IdentityResources.UI_Validator_Register_PasswordConfirmation_Mismatch_Error;
     #endregion
 
-    #region Verify Phone UI
+    #region Change Password UI
+    /// <summary>Gets the field name used for validating the "Old Password" input in the Change Password UI.</summary>
+    public virtual string UI_Validator_ChangePassword_OldPassword_FieldName => IdentityResources.UI_Validator_ChangePassword_OldPassword_FieldName;
+    /// <summary>Gets the field name used for validating the "New Password" input in the Change Password UI.</summary>
+    public virtual string UI_Validator_ChangePassword_NewPassword_FieldName => IdentityResources.UI_Validator_ChangePassword_NewPassword_FieldName;
+    /// <summary>The message displayed when the new password confirmation field is empty in the Change Password UI.</summary>
+    public virtual string UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error => IdentityResources.UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error;
+    /// <summary>The message displayed when the new password confirmation does not match the new password in the Change Password UI.</summary>
+    public virtual string UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error => IdentityResources.UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error;
+    #endregion
+
+    #region Forgot Password Confirmation UI
+    /// <summary>Gets the field name used for validating the "Email" input in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_Email_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_Email_FieldName;
+    /// <summary>Gets the field name used for validating the "New Password" input in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName;
+    /// <summary>The message displayed when the new password confirmation field is empty in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error => IdentityResources.UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error;
+    /// <summary>The message displayed when the new password confirmation does not match the new password in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error => IdentityResources.UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error;
+    /// <summary>Gets the field name used for validating the "Token" input in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_Token_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_Token_FieldName;
+    #endregion
     /// <summary>Gets the field name used for validating the "PhoneNumber" input in the Verify Phone UI.</summary>
     public virtual string UI_Validator_VerifyPhone_PhoneNumber_FieldName => IdentityResources.UI_Validator_VerifyPhone_PhoneNumber_FieldName;
     /// <summary>Gets the error message displayed when the "PhoneNumber" input is invalid in the Verify Phone UI.</summary>
     public virtual string UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat;
     /// <summary>Gets the field name used for validating the "Code" input in the Verify Phone UI.</summary>
     public virtual string UI_Validator_VerifyPhone_Code_FieldName => IdentityResources.UI_Validator_VerifyPhone_Code_FieldName;
-    #endregion
 
     #region Authentication Methods
     /// <summary>Display name for SMS authentication method.</summary>
