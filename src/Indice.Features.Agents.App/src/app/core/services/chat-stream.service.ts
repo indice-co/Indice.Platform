@@ -1,13 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subscriber } from 'rxjs';
 import { AuthService } from '@indice/ng-auth';
 
+import { AuthGuestService, GuestSessionPayload } from '../auth/auth-guest.service';
 import { DEX_API_BASE_URL, DexChatPatchOp } from './dex-api.service';
 
 /** First frame of every stream; carries the session id. */
 export interface ChatStreamStartFrame {
   type: 'start';
   conversationId?: string;
+  /** Present only on an anonymous create — the credential for every later call. */
+  guestSession?: GuestSessionPayload;
 }
 
 /** Pipeline progress label — ephemeral UI hint, never part of the document. */
@@ -52,13 +55,15 @@ const KNOWN_FRAME_TYPES: ReadonlySet<string> = new Set(['start', 'status', 'delt
  * Streaming client for the Dex SSE chat endpoints.
  *
  * These endpoints are `POST` + `text/event-stream`, so the browser `EventSource` API can't be used
- * (no POST body, no Authorization header) and Angular's `HttpClient` (with `AuthHttpInterceptor`)
+ * (no POST body, no Authorization header) and Angular's `HttpClient` (with `authInterceptor`)
  * isn't involved either. We therefore use `fetch` + `ReadableStream` and attach the bearer token
- * manually from `AuthService`.
+ * manually — the signed-in user's from `AuthService`, else the guest's from `AuthGuestService`,
+ * else none (an anonymous create needs no token; the server mints one on the `start` frame).
  */
 @Injectable({ providedIn: 'root' })
 export class ChatStreamService {
   private readonly auth = inject(AuthService);
+  private readonly guest = inject(AuthGuestService);
   private readonly baseUrl = (inject(DEX_API_BASE_URL, { optional: true }) ?? 'https://localhost:2001').replace(
     /\/$/,
     '',
@@ -79,15 +84,21 @@ export class ChatStreamService {
       const controller = new AbortController();
 
       void (async () => {
+        const userHeader = this.auth.getAuthorizationHeaderValue();
+        const authorization = userHeader || this.guest.getAuthorizationHeaderValue();
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          Accept: 'text/event-stream',
+        };
+        if (authorization) {
+          headers['Authorization'] = authorization;
+        }
+
         let response: Response;
         try {
           response = await fetch(url, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'text/event-stream',
-              Authorization: this.auth.getAuthorizationHeaderValue(),
-            },
+            headers,
             // Omit agentName when unset so the server picks its default agent.
             body: JSON.stringify(agentName ? { text, agentName } : { text }),
             signal: controller.signal,
@@ -102,6 +113,15 @@ export class ChatStreamService {
         if (response.status === 404) {
           subscriber.error(new Error('Session not found.'));
           return;
+        }
+        if (response.status === 401 && !userHeader) {
+          if (this.guest.isActive) {
+            // The guest credential was rejected (expired or revoked) — forget it; the next send starts a new chat.
+            this.guest.clear();
+            subscriber.error(new Error('Your guest session has expired. Start a new chat to continue.'));
+          } else {
+            subscriber.error(new Error('Unauthorized.'));
+          }
         }
         if (!response.ok || !response.body) {
           subscriber.error(new Error(`Streaming request failed (${response.status}).`));
@@ -127,7 +147,7 @@ export class ChatStreamService {
               buffer = buffer.slice(sep + 2);
               const event = this.parseFrame(frame);
               if (event) {
-                subscriber.next(event);
+                this.emit(subscriber, event);
               }
               sep = buffer.indexOf('\n\n');
             }
@@ -135,7 +155,7 @@ export class ChatStreamService {
 
           const tail = this.parseFrame(buffer);
           if (tail) {
-            subscriber.next(tail);
+            this.emit(subscriber, tail);
           }
           subscriber.complete();
         } catch (err) {
@@ -147,6 +167,14 @@ export class ChatStreamService {
 
       return () => controller.abort();
     });
+  }
+
+  /** Publish a frame — adopting the guest credential a `start` frame may carry before anyone else sees it. */
+  private emit(subscriber: Subscriber<ChatStreamFrame>, frame: ChatStreamFrame): void {
+    if (frame.type === 'start') {
+      this.guest.capture(frame.guestSession);
+    }
+    subscriber.next(frame);
   }
 
   /**
