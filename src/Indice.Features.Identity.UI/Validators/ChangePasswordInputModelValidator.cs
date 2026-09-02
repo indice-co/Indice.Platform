@@ -9,7 +9,7 @@ namespace Indice.Features.Identity.UI.Validators;
 public class ChangePasswordInputModelValidator : AbstractValidator<ChangePasswordInputModel>
 {
     /// <summary>Creates a new instance of <see cref="ChangePasswordInputModelValidator"/> class.</summary>
-    /// <param name="describer">The <see cref="IdentityMessageDescriber"/> used to provide localized error messages.</param>"
+    /// <param name="describer">The <see cref="IdentityMessageDescriber"/> used to provide localized error messages.</param>
     /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ChangePasswordInputModelValidator(IdentityMessageDescriber describer, IOptions<IdentityUIOptions> identityUiOptions) {
