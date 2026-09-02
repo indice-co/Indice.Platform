@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EmailValidation\email_blocklist.conf" />
+    <EmbeddedResource Include="PhoneNumberValidation\phones-blacklist.conf" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="ExtendedIdentityErrorResources.resx">
