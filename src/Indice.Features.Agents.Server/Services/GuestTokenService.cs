@@ -50,6 +50,7 @@ internal class GuestTokenService : IGuestTokenService
         var subject = root.TryGetProperty("sub", out var subjectElement)
             ? subjectElement.GetString()!
             : throw new InvalidOperationException("Guest token response did not contain the 'sub' custom field. Ensure the identity provider registers the guest grant validator.");
-        return new GuestAccessToken(accessToken, tokenType, expiresIn, subject);
+        var refreshToken = root.TryGetProperty("refresh_token", out var refreshTokenElement) ? refreshTokenElement.GetString() : null;
+        return new GuestAccessToken(accessToken, tokenType, expiresIn, subject, refreshToken);
     }
 }

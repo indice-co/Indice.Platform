@@ -10,10 +10,12 @@ using IdentityServer4.Validation;
 #endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Grants;
+using Indice.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Indice.Features.Identity.Tests;
@@ -48,6 +50,7 @@ public class GuestGrantIntegrationTests
             } else {
                 identityServerBuilder.AddGuestGrantValidator();
             }
+            //services.AddPushNotificationServiceNoop();
         });
         builder.Configure(app => app.UseIdentityServer());
         var server = new TestServer(builder);
@@ -117,11 +120,13 @@ public class GuestGrantIntegrationTests
         Assert.Equal("John", token.Claims.First(claim => claim.Type == "given_name").Value);
         Assert.Equal("Doe", token.Claims.First(claim => claim.Type == "family_name").Value);
         Assert.Equal("john.doe@example.com", token.Claims.First(claim => claim.Type == "email").Value);
-        Assert.Equal("+306900000000", token.Claims.First(claim => claim.Type == "phone_number").Value);
+        Assert.Equal("+30 6900000000", token.Claims.First(claim => claim.Type == "phone_number").Value);
     }
 
-    private class OpinionatedGuestGrantValidator : GuestGrantValidator
+    private class OpinionatedGuestGrantValidator(IPushNotificationService pushNotificationService, ILogger<GuestGrantValidator> logger) 
+        : GuestGrantValidator(pushNotificationService, logger)
     {
+
         protected override Task<IEnumerable<Claim>> GetClaimsAsync(ExtensionGrantValidationContext context, string subject) =>
             Task.FromResult<IEnumerable<Claim>>([new Claim("guest_channel", "web")]);
     }
