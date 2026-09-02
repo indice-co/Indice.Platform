@@ -13,9 +13,12 @@ const SESSIONS = [
 ];
 
 const authStub = {
+  user$: of({ expired: false, profile: {} }),
+  getAuthorizationHeaderValue: () => 'Bearer user',
   getDisplayName: () => 'Krikor Tzevachirian',
   getEmail: () => 'k@indice.gr',
   getSubjectId: () => 'sub-1',
+  signinRedirect: () => undefined,
   signoutRedirect: () => undefined,
 } as unknown as AuthService;
 
@@ -29,6 +32,7 @@ describe('ShellComponent', () => {
 
   beforeEach(async () => {
     localStorage.removeItem('dex.rail.collapsed');
+    sessionStorage.removeItem('dex.guest.session');
     await TestBed.configureTestingModule({
       imports: [ShellComponent],
       providers: [
@@ -52,6 +56,13 @@ describe('ShellComponent', () => {
 
   it('loads the conversation list on startup', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Vector search');
+  });
+
+  it('shows no guest CTA and offers the profile route to a signed-in user', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).not.toContain("You're chatting as a guest");
+    expect(el.querySelectorAll('a[href="/profile"]').length).withContext('both rails').toBe(2);
+    expect(el.textContent).toContain('Krikor Tzevachirian');
   });
 
   it('collapse toggle switches the rail width and remembers it', async () => {
@@ -155,5 +166,75 @@ describe('ShellComponent', () => {
 
     expect(rail.querySelector('nav')!.textContent).not.toContain('Vector search');
     expect(rail.querySelector('nav')!.textContent).toContain('Onboarding');
+  });
+});
+
+describe('ShellComponent (guest)', () => {
+  let fixture: ComponentFixture<ShellComponent>;
+  let signinRedirect: jasmine.Spy;
+  let list: jasmine.Spy;
+
+  beforeEach(async () => {
+    localStorage.removeItem('dex.rail.collapsed');
+    sessionStorage.removeItem('dex.guest.session');
+    signinRedirect = jasmine.createSpy('signinRedirect');
+    list = jasmine.createSpy('list').and.returnValue(of({ count: 0, items: [] }));
+    const guestAuth = {
+      user$: of(null),
+      getAuthorizationHeaderValue: () => '',
+      getDisplayName: () => '',
+      getEmail: () => undefined,
+      getSubjectId: () => undefined,
+      signinRedirect,
+      signoutRedirect: () => undefined,
+    } as unknown as AuthService;
+    await TestBed.configureTestingModule({
+      imports: [ShellComponent],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([]),
+        { provide: AuthService, useValue: guestAuth },
+        { provide: AUTH_SETTINGS, useValue: { authority: 'https://my.indice.gr' } },
+        { provide: DexApiService, useValue: { list, delete: () => of(void 0) } },
+      ],
+    }).compileComponents();
+    fixture = TestBed.createComponent(ShellComponent);
+    await fixture.whenStable();
+  });
+
+  it('does not fetch the conversation list without a credential', () => {
+    expect(list).not.toHaveBeenCalled();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('No conversations yet.');
+  });
+
+  it('shows the CTA strip atop the main column and the Log in button starts sign-in', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const main = el.querySelector('header')!.parentElement!;
+    const strip = main.querySelector('header')!.nextElementSibling!;
+    expect(strip.textContent).toContain("You're chatting as a guest.");
+    expect(strip.nextElementSibling?.tagName).withContext('sits right above the page').toBe('MAIN');
+
+    Array.from(strip.querySelectorAll('button'))
+      .find((b) => b.textContent?.trim() === 'Log in')!
+      .click();
+    expect(signinRedirect).toHaveBeenCalledWith(jasmine.objectContaining({ location: '/' }));
+
+    Array.from(strip.querySelectorAll('button'))
+      .find((b) => b.textContent?.trim() === 'Sign up')!
+      .click();
+    expect(signinRedirect).toHaveBeenCalledWith(jasmine.objectContaining({ promptRegister: true }));
+  });
+
+  it('renders a "G" guest account with Log in / Sign up instead of Profile / Sign out', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const account = el.querySelector('.md\\:block app-sidebar-account')!;
+    expect(account.querySelector('img[userpicture], img')).withContext('no picture lookup').toBeNull();
+    expect(account.querySelector('[aria-hidden="true"]')!.textContent!.trim()).toBe('G');
+    expect(account.textContent).toContain('Guest');
+    expect(account.textContent).toContain('Not signed in');
+    expect(account.querySelector('a[href="/profile"]')).toBeNull();
+    expect(account.textContent).not.toContain('Sign out');
+    expect(account.textContent).toContain('Log in');
+    expect(account.textContent).toContain('Sign up');
   });
 });
