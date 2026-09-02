@@ -1,6 +1,7 @@
 ﻿using System.Security;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Configuration;
+using Indice.Features.Identity.Core.Guards;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.Mvc.Localization;
 using Indice.Features.Identity.Core.Mvc.Razor;
@@ -64,6 +65,24 @@ public static class IServiceCollectionExtensions
         });
         services.TryAddTransient<TotpServiceFactory>();
         services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
+        return services;
+    }
+
+    /// <summary>Adds a database backed, purpose-scoped action attempt guard.</summary>
+    /// <param name="services">The services available in the application.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">An optional action to further configure <see cref="UserActionGuardOptions"/>.</param>
+    public static IServiceCollection AddUserActionGuard(this IServiceCollection services, IConfiguration configuration, Action<UserActionGuardOptions>? configure = null) {
+        var options = new UserActionGuardOptions {
+            MaxAttempts = configuration.GetIdentityOption<int?>(UserActionGuardOptions.Name, nameof(UserActionGuardOptions.MaxAttempts)) ?? UserActionGuardOptions.DefaultMaxAttempts,
+            Window = configuration.GetIdentityOption<TimeSpan?>(UserActionGuardOptions.Name, nameof(UserActionGuardOptions.Window)) ?? UserActionGuardOptions.DefaultWindow
+        };
+        configure?.Invoke(options);
+        services.Configure<UserActionGuardOptions>(o => {
+            o.MaxAttempts = options.MaxAttempts;
+            o.Window = options.Window;
+        });
+        services.TryAddScoped<IUserActionGuard, UserActionGuard>();
         return services;
     }
 

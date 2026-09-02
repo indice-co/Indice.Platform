@@ -62,7 +62,13 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         if (Input.OtpResend) {
-            await SendVerificationSmsAsync(user, Input.PhoneNumber!);
+            var sent = await SendVerificationSmsAsync(user, Input.PhoneNumber!);
+            if (!sent) {
+                TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
+                    Alert = AlertModel.Error( UserManager.MessageDescriber.LimitAttemptsReached),
+                    NextStepUrl = string.Empty
+                });
+            }
             return Page();
         }
         var result = await UserManager.ChangePhoneNumberAsync(user, Input.PhoneNumber!, Input.Code!);

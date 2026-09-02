@@ -394,6 +394,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You have reached the daily notification request limit. Please try again later..
+        /// </summary>
+        internal static string LimitAttemptsReached {
+            get {
+                return ResourceManager.GetString("LimitAttemptsReached", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your account is temporarily locked. Please contact a system administrator..
         /// </summary>
         internal static string LoginErrorLockedMessage {

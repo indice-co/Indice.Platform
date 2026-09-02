@@ -75,6 +75,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             CustomClaims = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>().CustomClaims
         });
         services.AddTotpServiceFactory(configuration);
+        services.AddUserActionGuard(configuration);
         var identityBuilder = services.AddIdentityDefaults(configuration);
         var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext,
                                                                        options.EnableServerSideSessions, options.EnforceSingleActiveSession);

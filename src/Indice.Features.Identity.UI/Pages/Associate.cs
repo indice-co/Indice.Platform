@@ -164,7 +164,9 @@ public abstract class BaseAssociateModel : BasePageModel
             throw new Exception($"Failed to provision automatically external user: {errors}.");
         }
         if (!newUser.EmailConfirmed) {
-            await SendConfirmationEmail(newUser);
+            if (!await SendConfirmationEmail(newUser)) {
+                throw new Exception($"Limit attempts was reached for send email.");
+            }
         }
         return newUser;
     }

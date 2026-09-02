@@ -69,7 +69,11 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
                 AddModelErrors(result);
                 return Page();
             }
-            await SendVerificationSmsAsync(user, Input.PhoneNumber!);
+            var sent = await SendVerificationSmsAsync(user, Input.PhoneNumber!);
+            if (!sent) {
+                ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
+                return Page();
+            }
             return RedirectToPage("/MfaOnboardingVerifyPhone", routeValues: new { Input.ReturnUrl });
         }
         result = await UserManager.SetTwoFactorAsync(user, Core.Models.AuthenticationMethodType.PhoneNumber.ToString());

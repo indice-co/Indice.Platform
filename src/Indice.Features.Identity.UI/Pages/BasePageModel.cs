@@ -13,6 +13,7 @@ using IdentityServer4.Stores;
 #endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Guards;
 using Indice.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -109,7 +110,11 @@ public abstract class BasePageModel : PageModel
     /// <summary>Generates a registration email confirmation link and sends it to the email of the specified user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="returnUrl">The return URL.</param>
-    public virtual async Task SendConfirmationEmail(User user, string? returnUrl = null) {
+    public virtual async Task<bool> SendConfirmationEmail(User user, string? returnUrl = null) {
+        var userActionGuard = ServiceProvider.GetRequiredService<IUserActionGuard>();
+        if (await userActionGuard.IsBlockedAsync(user.Id, "Email:SendConfirmationEmail")) {
+            return false;
+        }
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
         if (!string.IsNullOrEmpty(returnUrl) && InteractionService.IsValidReturnUrl(returnUrl)) {
@@ -137,13 +142,19 @@ public abstract class BasePageModel : PageModel
         var logger = ServiceProvider.GetRequiredService<ILogger<BasePageModel>>();
         var maskedEmail = user.Email!.Substring(0, 2) + "****" + user.Email.Substring(user.Email.IndexOf('@'));
         logger.LogInformation("Sending a confirmation email to {Email} with callback URL: {CallbackUrl}.", maskedEmail, callbackUrl);
+        await userActionGuard.RecordAttemptAsync(user.Id, "Email:SendConfirmationEmail");
+        return true;
     }
 
     /// <summary>Generates a change email confirmation link and sends it to the email of the specified user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="newEmail">The new email of the user.</param>
     /// <param name="returnUrl">The return URL.</param>
-    public virtual async Task SendChangeEmailConfirmationEmail(User user, string newEmail, string? returnUrl = null) {
+    public virtual async Task<bool> SendChangeEmailConfirmationEmail(User user, string newEmail, string? returnUrl = null) {
+        var userActionGuard = ServiceProvider.GetRequiredService<IUserActionGuard>();
+        if (await userActionGuard.IsBlockedAsync(user.Id, "Email:ChangeEmail")) {
+            return false;
+        }
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var token = await userManager.GenerateChangeEmailTokenAsync(user, newEmail);
         if (!string.IsNullOrEmpty(returnUrl) && InteractionService.IsValidReturnUrl(returnUrl)) {
@@ -170,22 +181,34 @@ public abstract class BasePageModel : PageModel
                        Url = callbackUrl
                    })
         );
+        await userActionGuard.RecordAttemptAsync(user.Id, "Email:ChangeEmail");
+        return true;
     }
 
     /// <summary>Generates a TOTP code and sends it to the phone number of the specified user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="phoneNumber">The phone number.</param>
-    public virtual async Task SendVerificationSmsAsync(User user, string phoneNumber) {
+    public virtual async Task<bool> SendVerificationSmsAsync(User user, string phoneNumber) {
+        var userActionGuard = ServiceProvider.GetRequiredService<IUserActionGuard>();
+        if (await userActionGuard.IsBlockedAsync(user.Id, "Sms:ChangePhoneNumber")) {
+            return false;
+        }
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var code = await userManager.GenerateChangePhoneNumberTokenAsync(user, phoneNumber);
         var smsService = ServiceProvider.GetRequiredService<ISmsService>();
         var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
         await smsService.SendAsync(phoneNumber, identityMessageDescriber.PhoneVerificationSmsSubject, identityMessageDescriber.PhoneVerificationSmsBody(code));
+        await userActionGuard.RecordAttemptAsync(user.Id, "Sms:ChangePhoneNumber");
+        return true;
     }
 
     /// <summary>Generates a TOTP code and sends it to the email address of the specified user.</summary>
     /// <param name="user">The user instance.</param>
-    public virtual async Task SendVerificationEmailAsync(User user) {
+    public virtual async Task<bool> SendVerificationEmailAsync(User user) {
+        var userActionGuard = ServiceProvider.GetRequiredService<IUserActionGuard>();
+        if (await userActionGuard.IsBlockedAsync(user.Id, "Email:VerificationEmail")) {
+            return false;
+        }
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var code = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
@@ -201,6 +224,8 @@ public abstract class BasePageModel : PageModel
                     Code = code
                 });
         });
+        await userActionGuard.RecordAttemptAsync(user.Id, "Email:VerificationEmail");
+        return true;
     }
 
     /// <summary>
