@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  SecurityContext,
   afterRenderEffect,
   computed,
   input,
@@ -266,18 +267,8 @@ export class ChatThreadComponent {
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
 
-  constructor() {
-    // Keep the view pinned to the latest content as messages stream in.
-    afterRenderEffect(() => {
-      // Track the signals that grow the thread.
-      this.messages().length;
-      this.streamingMessage();
-      this.step();
-      this.streaming();
-      const element = this.scroller()?.nativeElement;
-      if (element) {
-        element.scrollTop = element.scrollHeight;
-      }
-    });
+  protected isHtmlCard(contentType?: string, value?: string): boolean {
+    return contentType === 'application/vnd.indice.html-card' || (value?.startsWith('data:application/vnd.indice.html-card') ?? false);
   }
+
 }

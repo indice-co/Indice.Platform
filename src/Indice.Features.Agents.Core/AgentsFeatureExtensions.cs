@@ -2,11 +2,14 @@
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
+using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.Reranking;
+using Indice.Features.Agents.Core.Workflows.State;
 using Indice.Features.Agents.Core.Workflows.Steps;
+using Indice.Features.Agents.Core.Workflows.Steps.Cases;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
@@ -69,6 +72,7 @@ public static class AgentsFeatureExtensions
             configureDbContext.Invoke(sp, options);
         });
 
+        services.TryAddSingleton<IMcpToolsRegistry, McpToolsRegistry>();
         services.TryAddTransient<UserClaimsAIContextProvider>();
         services.TryAddTransient<IConversationStore, ConversationStore>();
         services.TryAddTransient<IUsageGuardService, UsageGuardService>();
@@ -79,7 +83,9 @@ public static class AgentsFeatureExtensions
             () => null
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
+        services.TryAddScoped<AgentMessageLocalizer>();
         services.AddAgentsDefaultPipeline();
+        services.AddCasesWorkflow();
         return services;
     }
 
@@ -119,6 +125,91 @@ public static class AgentsFeatureExtensions
             builder.WithOutputFrom(compose, outOfScopeReply, purposeResponder);
             return builder.Build();
         });
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the Cases workflow steps and the composed Cases workflow.
+    /// <para>
+    /// The OTP verification leg is handled by a single LLM-powered <see cref="OtpCodeSendStep"/> step
+    /// that uses the <c>"otp"</c> MCP service tools at runtime, guided by the
+    /// <c>CasesOtpAgent</c> prompt template. There are no hardcoded send/validate steps.
+    /// </para>
+    /// Call after <c>AddAgentsCore(...)</c>.
+    /// </summary>
+    public static IServiceCollection AddCasesWorkflow(this IServiceCollection services)
+    {
+        services.TryAddTransient<ICaseDataExtractor, DefaultCaseDataExtractor>();
+        services.TryAddTransient<ICasePresentationFormatter, DefaultCasePresentationFormatter>();
+        services.TryAddTransient<CaseRetrieverStep>();
+        services.TryAddTransient<OwnershipVerifierStep>();
+        services.TryAddTransient<OwnershipValidatorStep>();
+        services.TryAddTransient<OwnershipRetryChallengeBuilder>();
+        services.TryAddTransient<OtpCodeSendStep>();
+        services.TryAddTransient<OtpCodeValidatorStep>();
+        services.TryAddTransient<OtpRetryChallengeBuilder>();
+        services.TryAddTransient<CasePresenterStep>();
+        services.TryAddTransient<OwnershipVerificationFailureHandler>();
+        // Checkpointing infrastructure so the workflow can halt awaiting user input and resume on the next message.
+        services.TryAddSingleton<DistributedCacheCheckpointStore>();
+        services.TryAddSingleton(sp => CheckpointManager.CreateJson(sp.GetRequiredService<DistributedCacheCheckpointStore>()));
+
+        // Cases workflow:
+        //   CaseDataRetriever → OwnershipVerifier → [OwnershipConfirmationPort: halts, asks user] → UserInputValidator
+        //       ├─ [valid]   → OtpAgent → [OtpVerificationPort: halts, asks user] → OtpCodeValidator
+        //       │                ├─ [valid]                   → CaseDataPresenter (terminal)
+        //       │                ├─ [invalid/expired retry]   → OtpRetryChallengeBuilder → [OtpVerificationPort]
+        //       │                └─ [max attempts reached]    → CaseDataPresenter (terminal)
+        //       └─ [invalid retry available] → OwnershipRetryChallengeBuilder → [OwnershipConfirmationPort]
+        //                                   └→ [max attempts reached] → OwnershipVerificationFailureHandler (terminal)
+        services.AddKeyedScoped(AgentsConstants.AgentNames.Cases, (sp, key) =>
+        {
+            var retriever        = sp.GetRequiredService<CaseRetrieverStep>();
+            var verifier         = sp.GetRequiredService<OwnershipVerifierStep>();
+            var validator        = sp.GetRequiredService<OwnershipValidatorStep>();
+            var ownershipRetry   = sp.GetRequiredService<OwnershipRetryChallengeBuilder>();
+            var otpAgent         = sp.GetRequiredService<OtpCodeSendStep>();
+            var otpValidator     = sp.GetRequiredService<OtpCodeValidatorStep>();
+            var otpRetry         = sp.GetRequiredService<OtpRetryChallengeBuilder>();
+            var casePresenter    = sp.GetRequiredService<CasePresenterStep>();
+            var ownershipErr     = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
+            var maxOwnershipValidationAttempts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.CasesWorkflow.MaxOwnershipValidationAttempts;
+            // External input ports: workflow pauses and host resumes with user responses.
+            var confirmationPort = RequestPort.Create<OwnershipVerificationOutput, OwnershipConfirmationResponse>(AgentsConstants.OwnershipConfirmationPortId);
+            var otpPort = RequestPort.Create<OtpChallengeOutput, OtpCodeResponse>(AgentsConstants.OtpVerificationPortId);
+
+            var builder = new WorkflowBuilder(retriever);
+            builder.AddEdge(retriever, verifier);
+            builder.AddEdge(verifier, confirmationPort);
+            builder.AddEdge(confirmationPort, validator);
+
+            builder.AddSwitch(validator, sw => sw
+                .AddCase<UserInputValidationOutput>(env => env!.IsValid, otpAgent)
+                .AddCase<UserInputValidationOutput>(env => !env!.IsValid && env.ValidationAttempt < maxOwnershipValidationAttempts, ownershipRetry)
+                .WithDefault(ownershipErr));
+            builder.AddEdge(ownershipRetry, confirmationPort);
+
+            builder.AddEdge(otpAgent, otpPort);
+            builder.AddEdge(otpPort, otpValidator);
+            builder.AddSwitch(otpValidator, sw => sw
+                .AddCase<OtpValidationOutput>(env => env!.IsValid, casePresenter)
+                .AddCase<OtpValidationOutput>(env => env!.ShouldRetry, otpRetry)
+                .WithDefault(casePresenter));
+            builder.AddEdge(otpRetry, otpPort);
+
+            builder.WithOutputFrom(casePresenter, ownershipErr);
+            return builder.Build();
+        });
+
+        return services;
+    }
+
+    /// <summary>Adds an overridden implementation of <see cref="AgentMessageLocalizer"/>.</summary>
+    /// <typeparam name="TDescriber">The type of labels describer.</typeparam>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddIAgentMessageLocalizer<TDescriber>(this IServiceCollection services) where TDescriber : AgentMessageLocalizer {
+        services.AddScoped<TDescriber>();
+        services.AddScoped<AgentMessageLocalizer>(sp => sp.GetRequiredService<TDescriber>());
         return services;
     }
 }

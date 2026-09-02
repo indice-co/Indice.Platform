@@ -28,6 +28,12 @@ public class AgentsOptions
     /// <summary>Allowed categorical/language values constrained by the host application.</summary>
     public TaxonomyOptions Taxonomy { get; set; } = new();
 
+    /// <summary>MCP (Model Context Protocol) integrations for external services like OTP delivery.</summary>
+    public McpOptions Mcp { get; set; } = new();
+
+    /// <summary>Attempt limits for the Cases workflow (ownership verification and OTP validation).</summary>
+    public CaseWorkflowOptions CasesWorkflow { get; set; } = new();
+
     /// <summary>
     /// When true we enable additional triggers and debug handles for development and testing. 
     /// This is not a security boundary; do not rely on it to protect sensitive data. 
@@ -164,10 +170,71 @@ public class AgentsOptions
     public class TaxonomyOptions
     {
         /// <summary>Allowed document categories. Used as the retrieval filter domain and to constrain the intent classifier's category Output.</summary>
-        public IReadOnlyList<string> Categories { get; set; } = ["policy", "faq", "identity", "purpose_of_agent"];
+        public IReadOnlyList<string> Categories { get; set; } = ["policy", "faq", "identity", "purpose_of_agent", "message"];
 
         /// <summary>Allowed ISO-639-1 (or BCP-47) language codes.</summary>
         public IReadOnlyList<string> Languages { get; set; } = ["en", "el", "de", "fr", "es"];
+    }
+
+    /// <summary>
+    /// MCP (Model Context Protocol) integrations configuration.
+    /// Contains keyed sections for different MCP services (e.g., OTP, Case Data Retrieval).
+    /// </summary>
+    public class McpOptions
+    {
+        /// <summary>Collection of MCP service configurations keyed by service name (e.g., "otp", "caseretrieval").</summary>
+        public IDictionary<string, McpServiceOptions> Services { get; set; } = new Dictionary<string, McpServiceOptions>(StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Configuration for a single MCP service endpoint.
+    /// </summary>
+    public class McpServiceOptions
+    {
+        /// <summary>The MCP server endpoint URL (e.g., http://localhost:9000).</summary>
+        public string Endpoint { get; set; } = null!;
+
+        /// <summary>Authentication method: "none", "apikey", "bearer", "basic", or "oAuth".</summary>
+        public string AuthenticationMethod { get; set; } = "none";
+
+        /// <summary>Optional timeout in milliseconds for MCP service calls. Defaults to 30000 (30 seconds).</summary>
+        public int TimeoutMilliseconds { get; set; } = 30000;
+
+        /// <summary>Optional number of retries on transient failures. Defaults to 1 (no retries).</summary>
+        public int MaxRetries { get; set; } = 1;
+
+        /// <summary>
+        /// OAuth2 client-credentials config. When set, the MCP client uses the configured client credentials flow
+        /// instead of forwarding the caller's <c>Authorization</c> header.
+        /// </summary>
+        public ClientCredentialsOptions? OAuth { get; set; }
+
+        /// <summary>OAuth client credentials configuration for the external MCP server.</summary>
+        public class ClientCredentialsOptions
+        {
+            /// <summary>OAuth2 token endpoint URL (e.g. <c>https://server/oauth2/token</c>).</summary>
+            public required string TokenEndpoint { get; set; }
+            /// <summary>OAuth2 client ID.</summary>
+            public required string ClientId { get; set; }
+            /// <summary>OAuth2 client secret.</summary>
+            public required string ClientSecret { get; set; }
+            /// <summary>OAuth2 scope.</summary>
+            public required string Scope { get; set; }
+            /// <summary>OAuth2 allow delegation.</summary>
+            public bool AllowDelegation { get; set; } = false;
+        }
+    }
+
+    /// <summary>
+    /// Attempt limits for the Cases workflow steps. Bound from <c>Dex:CasesWorkflow</c>.
+    /// </summary>
+    public class CaseWorkflowOptions
+    {
+        /// <summary>Maximum number of ownership verification attempts allowed before the workflow fails permanently.</summary>
+        public int MaxOwnershipValidationAttempts { get; set; } = 2;
+
+        /// <summary>Maximum number of OTP code validation attempts allowed before the workflow fails permanently.</summary>
+        public int MaxOtpValidationAttempts { get; set; } = 2;
     }
 }
 
