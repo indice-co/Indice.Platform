@@ -111,7 +111,7 @@ public abstract class BasePageModel : PageModel
     /// <param name="user">The user instance.</param>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<bool> SendConfirmationEmail(User user, string? returnUrl = null) {
-        var userActionGuard = ServiceProvider.GetRequiredService<IUserActionGuard>();
+        var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
         if (await userActionGuard.IsBlockedAsync(user.Id, "Email:SendConfirmationEmail")) {
             return false;
         }
@@ -151,7 +151,7 @@ public abstract class BasePageModel : PageModel
     /// <param name="newEmail">The new email of the user.</param>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<bool> SendChangeEmailConfirmationEmail(User user, string newEmail, string? returnUrl = null) {
-        var userActionGuard = ServiceProvider.GetRequiredService<IUserActionGuard>();
+        var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
         if (await userActionGuard.IsBlockedAsync(user.Id, "Email:ChangeEmail")) {
             return false;
         }
@@ -189,7 +189,7 @@ public abstract class BasePageModel : PageModel
     /// <param name="user">The user instance.</param>
     /// <param name="phoneNumber">The phone number.</param>
     public virtual async Task<bool> SendVerificationSmsAsync(User user, string phoneNumber) {
-        var userActionGuard = ServiceProvider.GetRequiredService<IUserActionGuard>();
+        var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
         if (await userActionGuard.IsBlockedAsync(user.Id, "Sms:ChangePhoneNumber")) {
             return false;
         }
@@ -205,7 +205,7 @@ public abstract class BasePageModel : PageModel
     /// <summary>Generates a TOTP code and sends it to the email address of the specified user.</summary>
     /// <param name="user">The user instance.</param>
     public virtual async Task<bool> SendVerificationEmailAsync(User user) {
-        var userActionGuard = ServiceProvider.GetRequiredService<IUserActionGuard>();
+        var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
         if (await userActionGuard.IsBlockedAsync(user.Id, "Email:VerificationEmail")) {
             return false;
         }

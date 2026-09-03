@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Identity.Core.Data.Mappings;
 
-/// <summary>Entity Framework mapping for type <see cref="UserActionAttempt"/>.</summary>
+/// <summary>Entity Framework mapping for type <see cref="UseRateCount"/>.</summary>
 /// <typeparam name="TUser">The type of user.</typeparam>
-internal class UserActionAttemptMap<TUser> : IEntityTypeConfiguration<UserActionAttempt> where TUser : User
+internal class UseRateCountMap<TUser> : IEntityTypeConfiguration<UseRateCount> where TUser : User
 {
-    /// <summary>Configure Entity Framework mapping for type <see cref="UserActionAttempt"/>.</summary>
+    /// <summary>Configure Entity Framework mapping for type <see cref="UseRateCount"/>.</summary>
     /// <param name="builder"></param>
-    public void Configure(EntityTypeBuilder<UserActionAttempt> builder) {
-        builder.ToTable(nameof(UserActionAttempt), "auth");
+    public void Configure(EntityTypeBuilder<UseRateCount> builder) {
+        builder.ToTable(nameof(UseRateCount), "auth");
 
         builder.HasKey(x => new { x.UserId, x.PurposeKey });
 
@@ -26,13 +26,13 @@ internal class UserActionAttemptMap<TUser> : IEntityTypeConfiguration<UserAction
         builder.Property(x => x.Count)
                .IsRequired();
 
-        builder.Property(x => x.WindowEnd)
+        builder.Property(x => x.ResetDate)
                .IsRequired();
 
-        builder.Property(x => x.LastAttemptDate)
+        builder.Property(x => x.LastUpdate)
                .IsRequired();
 
-        builder.HasIndex(x => x.WindowEnd);
+        builder.HasIndex(x => x.ResetDate);
 
         builder.HasOne<TUser>()
                .WithMany()

@@ -71,18 +71,24 @@ public static class IServiceCollectionExtensions
     /// <summary>Adds a database backed, purpose-scoped action attempt guard.</summary>
     /// <param name="services">The services available in the application.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="configure">An optional action to further configure <see cref="UserActionGuardOptions"/>.</param>
-    public static IServiceCollection AddUserActionGuard(this IServiceCollection services, IConfiguration configuration, Action<UserActionGuardOptions>? configure = null) {
-        var options = new UserActionGuardOptions {
-            MaxAttempts = configuration.GetIdentityOption<int?>(UserActionGuardOptions.Name, nameof(UserActionGuardOptions.MaxAttempts)) ?? UserActionGuardOptions.DefaultMaxAttempts,
-            Window = configuration.GetIdentityOption<TimeSpan?>(UserActionGuardOptions.Name, nameof(UserActionGuardOptions.Window)) ?? UserActionGuardOptions.DefaultWindow
+    /// <param name="configure">An optional action to further configure <see cref="ActionRateLimiterOptions"/>.</param>
+    public static IServiceCollection AddActionRateLimiter(this IServiceCollection services, IConfiguration configuration, Action<ActionRateLimiterOptions>? configure = null) {
+        var options = new ActionRateLimiterOptions {
+            MaxAttempts = configuration.GetIdentityOption<int?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.MaxAttempts)) ?? ActionRateLimiterOptions.DefaultMaxAttempts,
+            Window = configuration.GetIdentityOption<TimeSpan?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.Window)) ?? ActionRateLimiterOptions.DefaultWindow,
+            Enabled = configuration.GetIdentityOption<bool?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.Enabled)) ?? false
         };
         configure?.Invoke(options);
-        services.Configure<UserActionGuardOptions>(o => {
+        services.Configure<ActionRateLimiterOptions>(o => {
             o.MaxAttempts = options.MaxAttempts;
             o.Window = options.Window;
+            o.Enabled = options.Enabled;
         });
-        services.TryAddScoped<IUserActionGuard, UserActionGuard>();
+        if (options.Enabled) {
+            services.TryAddScoped<IActionRateLimiter, ActionRateLimiter>();
+        } else {
+            services.TryAddScoped<IActionRateLimiter, NoOpActionRateLimiter>();
+        }
         return services;
     }
 

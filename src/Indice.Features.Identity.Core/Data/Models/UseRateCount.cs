@@ -1,7 +1,7 @@
 namespace Indice.Features.Identity.Core.Data.Models;
 
 /// <summary>Represents a purpose-scoped action attempt counter for a user.</summary>
-public class UserActionAttempt
+public class UseRateCount
 {
     /// <summary>The user id this counter belongs to.</summary>
     public string UserId { get; set; } = null!;
@@ -10,7 +10,7 @@ public class UserActionAttempt
     /// <summary>The number of attempts recorded in the current active window.</summary>
     public int Count { get; set; }
     /// <summary>The UTC date until which the current window is active.</summary>
-    public DateTimeOffset WindowEnd { get; set; }
+    public DateTimeOffset ResetDate { get; set; }
     /// <summary>The UTC date the latest attempt was recorded.</summary>
-    public DateTimeOffset LastAttemptDate { get; set; }
+    public DateTimeOffset LastUpdate { get; set; }
 }

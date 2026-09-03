@@ -5,11 +5,11 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.Core.Guards;
 
-/// <summary>Options for the <see cref="IUserActionGuard"/> implementation.</summary>
-public class UserActionGuardOptions
+/// <summary>Options for the <see cref="IActionRateLimiter"/> implementation.</summary>
+public class ActionRateLimiterOptions
 {
     /// <summary>The section name in configuration.</summary>
-    public static readonly string Name = "UserActionGuard";
+    public static readonly string Name = "ActionRateLimiter";
     /// <summary>Default max attempts within the active window.</summary>
     public const int DefaultMaxAttempts = 5;
     /// <summary>Default sliding window in hours.</summary>
@@ -19,10 +19,12 @@ public class UserActionGuardOptions
     public int MaxAttempts { get; set; } = DefaultMaxAttempts;
     /// <summary>Duration of the sliding window.</summary>
     public TimeSpan Window { get; set; } = DefaultWindow;
+    /// <summary>Indicates whether the rate limiter is enabled.</summary>
+    public bool Enabled { get; set; } = false;
 }
 
 /// <summary>Provides purpose-scoped attempt limiting operations per user.</summary>
-public interface IUserActionGuard
+public interface IActionRateLimiter
 {
     /// <summary>Checks whether the given user and purpose have reached the configured limit.</summary>
     Task<bool> IsBlockedAsync(string userId, string purposeKey, CancellationToken cancellationToken = default);
@@ -31,14 +33,19 @@ public interface IUserActionGuard
     Task<int> RecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default);
 }
 
-internal class UserActionGuard : IUserActionGuard
+internal class NoOpActionRateLimiter : IActionRateLimiter { 
+    public Task<bool> IsBlockedAsync(string userId, string purposeKey, CancellationToken cancellationToken = default) => Task.FromResult(false);
+    public Task<int> RecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default) => Task.FromResult(0);
+}
+
+internal class ActionRateLimiter : IActionRateLimiter
 {
     private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
-    private readonly UserActionGuardOptions _options;
+    private readonly ActionRateLimiterOptions _options;
 
-    public UserActionGuard(
+    public ActionRateLimiter(
         ExtendedIdentityDbContext<User, Role> dbContext,
-        IOptions<UserActionGuardOptions> options
+        IOptions<ActionRateLimiterOptions> options
     ) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -53,10 +60,10 @@ internal class UserActionGuard : IUserActionGuard
                                       .AsNoTracking()
                                       .SingleOrDefaultAsync(x => x.UserId == userId && x.PurposeKey == purposeKey, cancellationToken);
 
-        if (attempt is null || now > attempt.WindowEnd) {
+        if (attempt is null || now > attempt.ResetDate) {
             return false;
         }
-        var maxAttempts = _options.MaxAttempts > 0 ? _options.MaxAttempts : UserActionGuardOptions.DefaultMaxAttempts;
+        var maxAttempts = _options.MaxAttempts > 0 ? _options.MaxAttempts : ActionRateLimiterOptions.DefaultMaxAttempts;
         return attempt.Count >= maxAttempts;
     }
 
@@ -64,7 +71,7 @@ internal class UserActionGuard : IUserActionGuard
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
         ArgumentException.ThrowIfNullOrWhiteSpace(purposeKey);
 
-        var window = _options.Window > TimeSpan.Zero ? _options.Window : UserActionGuardOptions.DefaultWindow;
+        var window = _options.Window > TimeSpan.Zero ? _options.Window : ActionRateLimiterOptions.DefaultWindow;
 
         for (var i = 0; i < 2; i++) {
             var now = DateTimeOffset.UtcNow;
@@ -72,22 +79,22 @@ internal class UserActionGuard : IUserActionGuard
                                           .SingleOrDefaultAsync(x => x.UserId == userId && x.PurposeKey == purposeKey, cancellationToken);
 
             if (attempt is null) {
-                attempt = new UserActionAttempt {
+                attempt = new UseRateCount {
                     UserId = userId,
                     PurposeKey = purposeKey,
                     Count = 1,
-                    WindowEnd = now.Add(window),
-                    LastAttemptDate = now
+                    ResetDate = now.Add(window),
+                    LastUpdate = now
                 };
                 _dbContext.UserActionAttempts.Add(attempt);
-            } else if (now > attempt.WindowEnd) {
+            } else if (now > attempt.ResetDate) {
                 attempt.Count = 1;
-                attempt.WindowEnd = now.Add(window);
-                attempt.LastAttemptDate = now;
+                attempt.ResetDate = now.Add(window);
+                attempt.LastUpdate = now;
             } else {
                 attempt.Count++;
-                attempt.WindowEnd = now.Add(window);
-                attempt.LastAttemptDate = now;
+                attempt.ResetDate = now.Add(window);
+                attempt.LastUpdate = now;
             }
 
             try {
