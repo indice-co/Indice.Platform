@@ -47,9 +47,8 @@ public sealed class ConversationStoreChatHistoryProvider : ChatHistoryProvider
             return [];
         }
         var history = await _store.GetHistoryAsync(conversationId, cancellationToken);
-        //here I want to filter them
         foreach (var message in history) {
-            message.Contents = ContentSanitizer.ToSanitized(message.Contents);
+            message.Contents = ContentSanitizer.Sanitize(message.Contents);
         }
         return history;
     }

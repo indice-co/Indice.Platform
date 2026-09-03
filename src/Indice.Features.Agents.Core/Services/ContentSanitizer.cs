@@ -13,16 +13,16 @@ public static class ContentSanitizer
     /// </summary>
     /// <param name="parts"></param>
     /// <returns></returns>
-    public static IList<AIContent> ToSanitized(this IList<AIContent> parts) {
+    public static IList<AIContent> Sanitize(this IList<AIContent> parts) {
         IList<AIContent> sanitizedParts = new List<AIContent>();
         foreach (var part in parts) {
             if (part is DataContent dataContent) {
                 switch(dataContent.MediaType) {
                     case MediaTypeNames.Image.Svg:
-                        sanitizedParts.Add(new DataContent(dataContent.Data,"text/vnd.indice+svg") { Name = dataContent.Name});
+                        sanitizedParts.Add(new DataContent(dataContent.Data,AgentsConstants.MediaTypes.Svg) { Name = dataContent.Name});
                         break;
                     case MediaTypeNames.Text.Html:
-                        var textContent = new DataContent(dataContent.Data,"text/vnd.indice+html") { Name = dataContent.Name };
+                        var textContent = new DataContent(dataContent.Data,AgentsConstants.MediaTypes.Html) { Name = dataContent.Name };
                         sanitizedParts.Add(textContent);
                         break;
                     default:
