@@ -63,7 +63,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <remarks>Automatically discovers the correct provider using the configuration setting <strong>Email:Provider</strong> to automatically load the correct configuration.
     /// <br />Acceptable values:
-    /// <strong>smtp, sparkpost, sendgrid, brevo, none, azurecommunicationservices</strong>
+    /// <strong>Smtp, SparkPost, SendGrid, Brevo, None, AzureCommunicationServices</strong>
     /// </remarks>
     public static EmailServiceBuilder AddEmailService(this IServiceCollection services, IConfiguration configuration) {
         var providerNamesText = configuration.GetSection(EmailServiceSettings.Name).GetValue<string>("Provider");
@@ -82,7 +82,7 @@ public static class IndiceServicesServiceCollectionExtensions
                 case EmailServiceBrevo.ServiceName:
                     services.AddEmailServiceBrevo(configuration);
                     break;
-                case AzureCommunicationServicesEmailService.ServiceName:
+                case EmailServiceAzureCommunicationServices.ServiceName:
                     services.AddEmailServiceAzureCommunicationServices(configuration);
                     break;
                 case EmailServiceNoop.ServiceName:
@@ -164,11 +164,11 @@ public static class IndiceServicesServiceCollectionExtensions
     public static EmailServiceBuilder AddEmailServiceAzureCommunicationServices(this IServiceCollection services, IConfiguration configuration) {
         services.Configure<EmailServiceAzureCommsSettings>(configuration.GetSection(EmailServiceAzureCommsSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceAzureCommsSettings>>().Value);
-        services.AddTransient<IEmailService, AzureCommunicationServicesEmailService>();
+        services.AddTransient<IEmailService, EmailServiceAzureCommunicationServices>();
         services.AddSingleton((serviceProvider) => {
             var options = serviceProvider.GetRequiredService<IOptions<EmailServiceAzureCommsSettings>>().Value;
                 return new EmailProvider(
-                AzureCommunicationServicesEmailService.ServiceName,
+                EmailServiceAzureCommunicationServices.ServiceName,
                 new EmailSender(options.Sender!, null));
         });
         services.TryAddTransient((serviceProvider) =>

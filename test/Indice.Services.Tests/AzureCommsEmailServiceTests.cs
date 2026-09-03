@@ -39,10 +39,10 @@ public sealed class AzureCommsEmailServiceTests
             .Setup(x => x.SendAsync(It.IsAny<WaitUntil>(), It.IsAny<EmailMessageAzure>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(mockOperation.Object);
 
-        var service = new AzureCommunicationServicesEmailService(_mockSettings.Object, _mockHtmlRenderingEngine.Object);
+        var service = new EmailServiceAzureCommunicationServices(_mockSettings.Object, _mockHtmlRenderingEngine.Object);
 
         // Using reflection swap the private _emailClient field with our mock
-        var clientField = typeof(AzureCommunicationServicesEmailService).GetField(
+        var clientField = typeof(EmailServiceAzureCommunicationServices).GetField(
             "_emailClient",
             BindingFlags.NonPublic | BindingFlags.Instance);
 
