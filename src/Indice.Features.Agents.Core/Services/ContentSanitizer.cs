@@ -4,7 +4,8 @@ using Microsoft.Extensions.AI;
 namespace Indice.Features.Agents.Core.Services;
 
 /// <summary>
-/// 
+/// Sanitizes <see cref="AIContent"/> parts by downgrading or re-typing unsafe media types (e.g. SVG/HTML)
+/// so downstream renderers don't treat them as executable content.
 /// </summary>
 public static class ContentSanitizer
 {
