@@ -7,33 +7,45 @@ namespace Indice.Features.Agents.Core.Tests;
 
 public class McpToolsTests 
 {
+    private static readonly Lazy<IConfiguration> _configuration = new(() => new ConfigurationBuilder()
+        .AddInMemoryCollection(new Dictionary<string, string?> {
+            ["General:Secrets:ClientId"] = "",
+            ["General:Secrets:ClientSecret"] = "",
+            ["General:Secrets:Scope"] = "mcp identity identity:totp cases",
+            ["General:Endpoints:TokenEndpoint"] = "https://identity/connect/token",
+            ["General:Endpoints:IdentityMCP"] = "https://identity/mcp",
+            ["General:Endpoints:CasesMCP"] = "https://cases/mcp",
+        })
+        .AddUserSecrets(typeof(McpToolsTests).Assembly, optional: true)
+        .Build());
 
-    [Fact(Skip = "Integration test - requires valid MCP credentials")]
+    public static bool HasMcpSecrets =>
+        !string.IsNullOrEmpty(_configuration.Value["General:Secrets:ClientId"]) &&
+        !string.IsNullOrEmpty(_configuration.Value["General:Secrets:ClientSecret"]);
+
+    [Fact(SkipUnless = nameof(HasMcpSecrets), Skip = "Integration test - requires valid MCP credentials")]
     public async Task TestToolRegistry() {
 
-        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> {
-            ["General:Secrets:ClientId"] = "xxxx",
-            ["General:Secrets:ClientSecret"] = "xxxxxxxxxxxxxx",
-            ["General:Secrets:Scope"] = "mcp identity identity:totp cases",
-            ["General:Endpoints:TokenEndpoint"] = "https://sampleid/connect/token",
-            ["General:Endpoints:IdentityMCP"] = "https://sampleservice1/mcp",
-            ["General:Endpoints:CasesMCP"] = "https://sampleservice2/mcp",
-        }).Build();
+        var configuration = _configuration.Value;
         var services = new ServiceCollection();
         // configure dependencies
-        services.AddSingleton<IConfiguration>(configuration);
+        services.AddSingleton(configuration);
         services.AddOptions();
         services.AddLogging();
-        services.AddMcpClient("id")
-                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:IdentityMCP"]!), credentials => {
+
+        services.AddDistributedMemoryCache();
+        services.AddClientCredentialsTokenManagement()
+                .AddClient("mcpsecurity", credentials => {
                     // Machine-to-machine authentication (no user present, no redirect/browser).
                     credentials.TokenEndpoint = new Uri(configuration["General:Endpoints:TokenEndpoint"]!);
                     credentials.ClientId = ClientId.Parse(configuration["General:Secrets:ClientId"]!);
                     credentials.ClientSecret = ClientSecret.Parse(configuration["General:Secrets:ClientSecret"]!);
                     credentials.Scope = Scope.Parse(configuration["General:Secrets:Scope"]!);
                 });
+        services.AddMcpClient("id")
+                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:IdentityMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
         services.AddMcpClient("cases")
-                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:CasesMCP"]!), ClientCredentialsClientName.Parse("mcp-id-auth"));
+                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:CasesMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
 
         await using var serviceProvider = services.BuildServiceProvider();
 
