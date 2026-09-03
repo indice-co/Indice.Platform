@@ -15,7 +15,7 @@ public class ForgotPasswordConfirmationInputModelValidator : AbstractValidator<F
     public ForgotPasswordConfirmationInputModelValidator(IdentityMessageDescriber describer, IOptions<IdentityUIOptions> identityUiOptions) {
         RuleFor(x => x.Email).NotEmpty().EmailAddress().WithName(describer.UI_Validator_ForgotPasswordConfirmation_Email_FieldName);
         RuleFor(x => x.NewPassword).NotEmpty().WithName(describer.UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName);
-        if (identityUiOptions.Value.ShowConfirmationPassword) {
+        if (identityUiOptions.Value.EnablePasswordConfirmation) {
             RuleFor(x => x.NewPasswordConfirmation)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage(describer.UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error)

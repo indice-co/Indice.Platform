@@ -136,7 +136,7 @@ public class IdentityUIOptions
 
     /// <summary>Controls whether password confirmation fields are displayed on register, password expired, change password, and forgot password confirmation pages.</summary>
     /// <remarks>Defaults to false.</remarks>
-    public bool ShowConfirmationPassword { get; set; } = false;
+    public bool EnablePasswordConfirmation { get; set; } = false;
 
     /// <summary>Adds a homepage link to the a service definition cards.</summary>
     /// <param name="displayName">The label.</param>

@@ -15,7 +15,7 @@ public class PasswordExpiredInputModelValidator : AbstractValidator<PasswordExpi
     /// <exception cref="ArgumentNullException"></exception>
     public PasswordExpiredInputModelValidator(IdentityMessageDescriber describer, IOptions<IdentityUIOptions> identityUiOptions) {
         RuleFor(x => x.NewPassword).NotEmpty().WithMessage(describer.UI_Validator_PasswordExpired_NewPassword_Empty_Error);
-        if (identityUiOptions.Value.ShowConfirmationPassword) {
+        if (identityUiOptions.Value.EnablePasswordConfirmation) {
             RuleFor(x => x.NewPasswordConfirmation)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage(describer.UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error)

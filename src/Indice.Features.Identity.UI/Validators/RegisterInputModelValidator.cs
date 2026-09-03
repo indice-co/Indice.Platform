@@ -48,7 +48,7 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
             RuleFor(x => x.UserName).Must(UserNameNotBeAssignedToAnotherUser).WithMessage(describer.UI_Validator_Register_UserName_AlreadyExists);
         }
         RuleFor(x => x.Password).NotEmpty().WithName(describer.UI_Validator_Register_Password_FieldName);
-        if (identityUiOptions.Value.ShowConfirmationPassword) {
+        if (identityUiOptions.Value.EnablePasswordConfirmation) {
             RuleFor(x => x.PasswordConfirmation)
                  .Cascade(CascadeMode.Stop)
                  .NotEmpty().WithMessage(describer.UI_Validator_Register_PasswordConfirmation_Empty_Error)
