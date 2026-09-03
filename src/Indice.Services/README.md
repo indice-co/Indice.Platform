@@ -103,7 +103,7 @@ Send emails through various providers with template rendering support:
 | `SparkPost` | `EmailServiceSparkPost` | `services.AddEmailServiceSparkPost(configuration)` | `SparkPost` |
 | `Brevo` | `EmailServiceBrevo` | `services.AddEmailServiceBrevo(configuration)` | `Brevo` |
 | `AzureCommunicationServices` | `AzureCommunicationServicesEmailService` | `services.AddEmailServiceAzureCommunicationServices(configuration)` | `AzureCommunicationServices` |
-| `Noop` / `none` | `EmailServiceNoop` | `services.AddEmailServiceNoop()` | - |
+| `None` | `EmailServiceNoop` | `services.AddEmailServiceNoop()` | - |
 
 ```csharp
 // Auto-discover provider from configuration
