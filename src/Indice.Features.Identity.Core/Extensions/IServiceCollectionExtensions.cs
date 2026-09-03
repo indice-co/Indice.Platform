@@ -86,11 +86,19 @@ public static class IServiceCollectionExtensions
         });
         if (options.Enabled) {
             services.TryAddScoped<IActionRateLimiter, ActionRateLimiter>();
-        } else {
+        } else { 
             services.TryAddScoped<IActionRateLimiter, NoOpActionRateLimiter>();
         }
         return services;
     }
+
+    /// <summary>Adds a NoOp action rate limiter that does not enforce any limits.</summary>
+    /// <param name="services">The services available in the application.</param>
+    public static IServiceCollection AddActionRateLimiterNoOp(this IServiceCollection services) {
+        services.TryAddScoped<IActionRateLimiter, NoOpActionRateLimiter>();
+        return services;
+    }
+
 
     /// <summary>
     /// Configures the OpenIdConnect handlers and OAuth based handlers to persist the state parameter into the server-side IDistributedCache.
