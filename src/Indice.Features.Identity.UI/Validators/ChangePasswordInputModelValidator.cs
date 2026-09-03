@@ -16,8 +16,10 @@ public class ChangePasswordInputModelValidator : AbstractValidator<ChangePasswor
         RuleFor(x => x.OldPassword).NotEmpty().WithName(describer.UI_Validator_ChangePassword_OldPassword_FieldName);
         RuleFor(x => x.NewPassword).NotEmpty().WithName(describer.UI_Validator_ChangePassword_NewPassword_FieldName);
         if (identityUiOptions.Value.ShowConfirmationPassword) {
-            RuleFor(x => x.NewPasswordConfirmation).NotEmpty().WithMessage(describer.UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error);
-            RuleFor(x => x.NewPasswordConfirmation).Equal(x => x.NewPassword).WithMessage(describer.UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error);
+            RuleFor(x => x.NewPasswordConfirmation)
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty().WithMessage(describer.UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error)
+                .Equal(x => x.NewPassword).WithMessage(describer.UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error);
         }
     }
 }

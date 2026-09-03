@@ -198,14 +198,14 @@ public class IdentityMessageDescriber
     public virtual string UI_Validator_AddPhone_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_AddPhone_PhoneNumber_InvalidFormat;
     #endregion
 
-    #region Verify Phone UI
+    #region Enable Mfa Sms UI
     /// <summary>Gets the field name used for validating the "Phone Number" input in the Enable MFA SMS UI.</summary>
     public virtual string UI_Validator_EnableMfaSms_PhoneNumber_FieldName => IdentityResources.UI_Validator_EnableMfaSms_PhoneNumber_FieldName;
     /// <summary>Gets the error message displayed when the phone number format is invalid in the Enable MFA SMS UI.</summary>
     public virtual string UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat;
     #endregion
 
-    #region Enable Mfa Sms UI
+    #region Forgot Password UI
     /// <summary>Gets the field name used for validating the "Email" input in the Forgot Password UI.</summary>
     public virtual string UI_Validator_ForgotPassword_Email_FieldName => IdentityResources.UI_Validator_ForgotPassword_Email_FieldName;
     #endregion
