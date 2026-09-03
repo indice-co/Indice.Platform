@@ -142,6 +142,36 @@ SendGrid:
 }
 ```
 
+SparkPost:
+```json
+{
+  "Email": {
+    "Provider": "SparkPost"
+  },
+  "SparkPost": {
+    "Sender": "noreply@example.com",
+    "SenderName": "My App",
+    "ApiKey": "<sparkpost-api-key>",
+    "Api": "https://api.eu.sparkpost.com/api/v1/"
+  }
+}
+```
+
+Brevo:
+```json
+{
+  "Email": {
+    "Provider": "Brevo"
+  },
+  "Brevo": {
+    "Sender": "noreply@example.com",
+    "SenderName": "My App",
+    "ApiKey": "<brevo-api-key>",
+    "Api": "https://api.brevo.com/v3/"
+  }
+}
+```
+
 Azure Communication Services:
 ```json
 {
