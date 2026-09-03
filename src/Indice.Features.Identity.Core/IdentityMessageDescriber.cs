@@ -168,7 +168,7 @@ public class IdentityMessageDescriber
     /// <summary>Login error message when user is locked out.</summary>
     public virtual string LoginErrorLockedMessage => IdentityResources.LoginErrorLockedMessage;
 
-    /// <summary>Login error message when the user has reached the limit of attempts.</summary>
+    /// <summary>Error message when the user has reached the configured attempt limit.</summary>
     public virtual string LimitAttemptsReached => IdentityResources.LimitAttemptsReached;
 
     #region Add Password UI
