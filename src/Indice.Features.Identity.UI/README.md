@@ -71,6 +71,7 @@ public void ConfigureServices(IServiceCollection services)
         options.CopyYear = 2024;
     options.EnableRegisterPage = true;
           options.EnableForgotPasswordPage = true;
+          options.ShowConfirmationPassword = false;
      options.AllowRememberLogin = true;
       });
 }
@@ -103,6 +104,8 @@ services.AddIdentityUI(options =>
     options.AutoProvisionExternalUsers = true;
     options.AutoAssociateExternalUsers = true;
     options.EnablePhoneNumberCallingCodes = false;
+    // Show password confirmation fields on Register/PasswordExpired/ChangePassword/ForgotPasswordConfirmation.
+    options.ShowConfirmationPassword = true;
     options.AutomaticSigninAfterRegister = false;
     
     // File Upload Settings
