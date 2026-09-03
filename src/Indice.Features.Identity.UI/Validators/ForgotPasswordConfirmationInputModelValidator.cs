@@ -5,10 +5,10 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Validators;
 
-/// <summary>Validator for <see cref="ForgotPasswordInputModel"/> class.</summary>
+/// <summary>Validator for <see cref="ForgotPasswordConfirmationInputModel"/> class.</summary>
 public class ForgotPasswordConfirmationInputModelValidator : AbstractValidator<ForgotPasswordConfirmationInputModel>
 {
-    /// <summary>Creates a new instance of <see cref="ForgotPasswordConfirmationInputModelValidator"/> class.</summary>'
+    /// <summary>Creates a new instance of <see cref="ForgotPasswordConfirmationInputModelValidator"/> class.</summary>
     /// <param name="describer">The <see cref="IdentityMessageDescriber"/> used to provide localized error messages.</param>
     /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
