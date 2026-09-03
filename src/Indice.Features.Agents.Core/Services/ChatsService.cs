@@ -184,7 +184,12 @@ public class ChatsService : IChatsService
                             }
                             break;
                         case DataContent data:
-                            foreach (var frame in projector.AddPart(ChatMessagePart.FromText(data.Uri, data.MediaType))) {
+                            foreach (var frame in projector.AddPart(data.ToChatMessagePart())) {
+                                yield return compactor.Compact(frame);
+                            }
+                            break;
+                        case UriContent uri:
+                            foreach (var frame in projector.AddPart(uri.ToChatMessagePart())) {
                                 yield return compactor.Compact(frame);
                             }
                             break;

@@ -26,7 +26,9 @@ public static class ActivityLogsExtensions
         var options = new ActivityLogIdentityOptions(builder.Services, configuration);
         configure?.Invoke(options);
         builder.Services.AddActivityLogs(configuration, options.Configure);
-        options.AddFilter<SubjectFilter>();
+        if (options.EnableSubjectFilter) {
+            options.AddFilter<SubjectFilter>();
+        }
         return builder;
     }
 

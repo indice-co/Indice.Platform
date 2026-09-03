@@ -1,37 +1,23 @@
-<div class="flex h-full bg-base-200">
-  <!-- Session rail -->
-  <div class="hidden w-72 shrink-0 border-r border-base-300 md:block lg:w-80">
-    <app-chat-sidebar
-      [sessions]="sessions()"
-      [activeId]="activeSessionId()"
-      [loading]="sessionsLoading()"
-      (select)="selectSession($event)"
-      (removed)="deleteSession($event)"
-      (create)="newChat()"
+<div class="flex h-full flex-col bg-base-200">
+  <div class="min-h-0 flex-1">
+    <app-chat-thread
+      [messages]="messages()"
+      [streaming]="isStreaming()"
+      [streamingMessage]="streamingMessage()"
+      [step]="currentStep()"
+      [error]="error()"
+      [busy]="threadLoading()"
+      [questionsTotal]="questionsTotal()"
+      (examplePick)="send($event)"
+      (pick)="send($event)"
+      (likeChanged)="setLike($event)"
     />
   </div>
-
-  <!-- Conversation -->
-  <main class="flex min-w-0 flex-1 flex-col">
-    <div class="min-h-0 flex-1">
-      <app-chat-thread
-        [messages]="messages()"
-        [streaming]="isStreaming()"
-        [streamingMessage]="streamingMessage()"
-        [step]="currentStep()"
-        [error]="error()"
-        [busy]="threadLoading()"
-        [questionsTotal]="questionsTotal()"
-        (examplePick)="send($event)"
-        (likeChanged)="setLike($event)"
-      />
-    </div>
-    <app-chat-composer
-      [streaming]="isStreaming()"
-      [agents]="agents()"
-      [(selectedAgent)]="selectedAgentName"
-      (send)="send($event)"
-      (stop)="stop()"
-    />
-  </main>
+  <app-chat-composer
+    [streaming]="isStreaming()"
+    [agents]="agents()"
+    [(selectedAgent)]="selectedAgentName"
+    (send)="send($event)"
+    (stop)="stop()"
+  />
 </div>

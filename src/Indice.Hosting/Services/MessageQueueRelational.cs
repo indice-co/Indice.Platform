@@ -1,10 +1,12 @@
 ﻿using System.Data;
+using System.Data.Common;
 using System.Text;
 using System.Text.Json;
 using Indice.Hosting.Data;
 using Indice.Hosting.Data.Models;
 using Indice.Hosting.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Indice.Hosting.Services;
 
@@ -12,7 +14,7 @@ namespace Indice.Hosting.Services;
 /// <typeparam name="T">The type of message.</typeparam>
 public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
 {
-    private readonly TaskDbContext _dbContext;
+    private readonly ITaskDbContext _dbContext;
     private readonly IQueueNameResolver<T> _queueNameResolver;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly MessageQueueQueryDescriptor _queryDescriptor;
@@ -21,7 +23,7 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
     /// <param name="dbContext">A <see cref="DbContext"/> for hosting multiple <see cref="IMessageQueue{T}"/>.</param>
     /// <param name="queueNameResolver">Resolves the queue name.</param>
     /// <param name="workerJsonOptions">These are the options regarding json Serialization. They are used internally for persisting payloads.</param>
-    public MessageQueueRelational(TaskDbContext dbContext, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
+    public MessageQueueRelational(ITaskDbContext dbContext, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _queueNameResolver = queueNameResolver ?? throw new ArgumentNullException(nameof(queueNameResolver));
         _jsonSerializerOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));
@@ -34,8 +36,7 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
 
     /// <inheritdoc/>
     public async Task<int> Count() {
-        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-        await using var command = dbConnection.CreateCommand();
+        await using var command = await CreateCommandAsync();
         command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
         command.CommandText = _queryDescriptor.Count;
         command.CommandType = CommandType.Text;
@@ -45,8 +46,7 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
 
     /// <inheritdoc/>
     public async Task<QMessage<T>?> Dequeue() {
-        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-        await using var command = dbConnection.CreateCommand();
+        await using var command = await CreateCommandAsync();
         command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
         command.CommandText = _queryDescriptor.Dequeue;
         command.CommandType = CommandType.Text;
@@ -68,8 +68,7 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
 
     /// <inheritdoc/>
     public async Task Enqueue(QMessage<T> item, bool isPoison) {
-        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-        await using var command = dbConnection.CreateCommand();
+        await using var command = await CreateCommandAsync();
         command.AddParameterWithValue("@Id", Guid.Parse(item.Id), DbType.Guid);
         command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(isPoison), DbType.String);
         command.AddParameterWithValue("@Payload", JsonSerializer.Serialize(item.Value, _jsonSerializerOptions), DbType.String);
@@ -82,21 +81,22 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
 
     /// <inheritdoc/>
     public async Task EnqueueRange(IEnumerable<QMessage<T>> items) {
+        var messages = items as IList<QMessage<T>> ?? items.ToList();
+        var queueName = _queueNameResolver.Resolve();
         var query = new StringBuilder(_queryDescriptor.EnqueueRangeInsertStatement);
-        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-        const double maxBatchSize = 1000d;
-        var batches = Math.Ceiling(items.Count() / maxBatchSize);
+        const int maxBatchSize = 1000;
+        var batches = (int)Math.Ceiling(messages.Count / (double)maxBatchSize);
         for (var i = 0; i < batches; i++) {
-            var remainingItemsCount = items.Count() - i * maxBatchSize;
-            var iterationLength = remainingItemsCount >= maxBatchSize ? maxBatchSize : remainingItemsCount;
-            await using var command = dbConnection.CreateCommand();
+            var offset = i * maxBatchSize;
+            var iterationLength = Math.Min(maxBatchSize, messages.Count - offset);
+            await using var command = await CreateCommandAsync();
             for (var j = 0; j < iterationLength; j++) {
                 query.AppendFormat(_queryDescriptor.EnqueueRangeValuesStatement, j);
                 var isLastItem = j == iterationLength - 1;
                 query.Append(!isLastItem ? ", " : ";");
-                var currentItem = items.ElementAt(j);
+                var currentItem = messages[offset + j];
                 command.AddParameterWithValue($"@Id{j}", Guid.Parse(currentItem.Id), DbType.Guid);
-                command.AddParameterWithValue($"@QueueName{j}", _queueNameResolver.Resolve(), DbType.String);
+                command.AddParameterWithValue($"@QueueName{j}", queueName, DbType.String);
                 command.AddParameterWithValue($"@Payload{j}", JsonSerializer.Serialize(currentItem.Value, _jsonSerializerOptions), DbType.String);
                 command.AddParameterWithValue($"@Date{j}", currentItem.Date, DbType.DateTime);
                 command.AddParameterWithValue($"@DequeueCount{j}", currentItem.DequeueCount, DbType.Int32);
@@ -111,23 +111,38 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
 
     /// <inheritdoc/>
     public async Task<T?> Peek() {
-        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-        await using var command = dbConnection.CreateCommand();
+        await using var command = await CreateCommandAsync();
         command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
         command.CommandText = _queryDescriptor.Peek;
         command.CommandType = CommandType.Text;
         await using var dataReader = await command.ExecuteReaderAsync();
         string? payload = null;
         while (dataReader.Read()) {
-            payload = dataReader.IsDBNull(0) ? default : dataReader.GetString(2);
+            payload = dataReader.IsDBNull(0) ? default : dataReader.GetString(0);
         }
         return !string.IsNullOrEmpty(payload) ? JsonSerializer.Deserialize<T>(payload, _jsonSerializerOptions) : default;
+    }
+    
+    internal DbQMessage CreateMessage(T payload, DateTime enqueueAt) => new() {
+        Id = Guid.NewGuid(),
+        QueueName = _queueNameResolver.Resolve(),
+        Payload = JsonSerializer.Serialize(payload, _jsonSerializerOptions),
+        Date = enqueueAt,
+        DequeueCount = 0,
+        State = QMessageState.New
+    };
+    
+    private async Task<DbCommand> CreateCommandAsync() {
+        var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
+        var command = dbConnection.CreateCommand();
+        command.Transaction = _dbContext.Database.CurrentTransaction?.GetDbTransaction();
+        return command;
     }
 }
 
 internal class MessageQueueQueryDescriptor
 {
-    public MessageQueueQueryDescriptor(DbContext context) {
+    public MessageQueueQueryDescriptor(ITaskDbContext context) {
         switch (context.Database.ProviderName) {
             case "Npgsql.EntityFrameworkCore.PostgreSQL":
                 Count = PostgreSqlMessageQueueQueries.Count;
