@@ -76,7 +76,7 @@ public static class IServiceCollectionExtensions
         var options = new ActionRateLimiterOptions {
             MaxAttempts = configuration.GetIdentityOption<int?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.MaxAttempts)) ?? ActionRateLimiterOptions.DefaultMaxAttempts,
             Window = configuration.GetIdentityOption<TimeSpan?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.Window)) ?? ActionRateLimiterOptions.DefaultWindow,
-            Enabled = configuration.GetIdentityOption<bool?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.Enabled)) ?? false
+            Enabled = configuration.GetIdentityOption<bool?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.Enabled)) ?? true
         };
         configure?.Invoke(options);
         services.Configure<ActionRateLimiterOptions>(o => {

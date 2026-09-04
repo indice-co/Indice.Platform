@@ -20,7 +20,7 @@ public class ActionRateLimiterOptions
     /// <summary>Duration of the sliding window.</summary>
     public TimeSpan Window { get; set; } = DefaultWindow;
     /// <summary>Indicates whether the rate limiter is enabled.</summary>
-    public bool Enabled { get; set; } = false;
+    public bool Enabled { get; set; } = true;
 }
 
 /// <summary>Provides purpose-scoped attempt limiting operations per user.</summary>
