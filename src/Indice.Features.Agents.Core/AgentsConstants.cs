@@ -18,12 +18,6 @@ public static class AgentsConstants
         public const string Auto = "auto";
     }
 
-    /// <summary>The id of the request port where the Cases workflow halts awaiting the user's ownership confirmation.</summary>
-    public const string OwnershipConfirmationPortId = "OwnershipConfirmationPort";
-
-    /// <summary>The id of the request port where the Cases workflow halts awaiting the user's OTP code.</summary>
-    public const string OtpVerificationPortId = "OtpVerificationPort";
-
     /// <summary>Media types of the alternative (non-prose) content parts an assistant turn can carry.</summary>
     /// <remarks>
     /// Each one is a rendering contract between the pipeline and the chat UI: a part with this media type carries a

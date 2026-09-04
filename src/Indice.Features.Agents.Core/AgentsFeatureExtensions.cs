@@ -150,54 +150,64 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<OtpRetryChallengeBuilder>();
         services.TryAddTransient<CasePresenterStep>();
         services.TryAddTransient<OwnershipVerificationFailureHandler>();
-        // Checkpointing infrastructure so the workflow can halt awaiting user input and resume on the next message.
-        services.TryAddSingleton<DistributedCacheCheckpointStore>();
-        services.TryAddSingleton(sp => CheckpointManager.CreateJson(sp.GetRequiredService<DistributedCacheCheckpointStore>()));
+        services.TryAddTransient<CasesPhaseRouterStep>();
+        services.TryAddTransient<OwnershipChallengeEmitterStep>();
+        services.TryAddTransient<OtpChallengeEmitterStep>();
+        // Replayable Cases state machine: per-turn state persisted in the distributed cache, keyed by conversation id.
+        services.TryAddSingleton<ICasesReplayStateStore, DistributedCacheCasesReplayStateStore>();
 
-        // Cases workflow:
-        //   CaseDataRetriever → OwnershipVerifier → [OwnershipConfirmationPort: halts, asks user] → UserInputValidator
-        //       ├─ [valid]   → OtpAgent → [OtpVerificationPort: halts, asks user] → OtpCodeValidator
-        //       │                ├─ [valid]                   → CaseDataPresenter (terminal)
-        //       │                ├─ [invalid/expired retry]   → OtpRetryChallengeBuilder → [OtpVerificationPort]
-        //       │                └─ [max attempts reached]    → CaseDataPresenter (terminal)
-        //       └─ [invalid retry available] → OwnershipRetryChallengeBuilder → [OwnershipConfirmationPort]
-        //                                   └→ [max attempts reached] → OwnershipVerificationFailureHandler (terminal)
+        // Cases workflow (no request ports — every turn is a fresh run entered via the phase router):
+        //   PhaseRouter ─┬─ [Start]                      → CaseDataRetriever → OwnershipVerifier → OwnershipChallengeEmitter (terminal, persists phase + prompt)
+        //                ├─ [AwaitOwnershipConfirmation] → UserInputValidator
+        //                │       ├─ [valid]              → OtpAgent → OtpChallengeEmitter (terminal, persists phase + prompt)
+        //                │       ├─ [invalid retry]      → OwnershipRetryChallengeBuilder → OwnershipChallengeEmitter
+        //                │       └─ [max attempts]       → OwnershipVerificationFailureHandler (terminal, clears state)
+        //                └─ [AwaitOtpCode]               → OtpCodeValidator
+        //                        ├─ [valid]              → CaseDataPresenter (terminal, clears state)
+        //                        ├─ [invalid retry]      → OtpRetryChallengeBuilder → OtpChallengeEmitter
+        //                        └─ [max attempts]       → CaseDataPresenter (terminal, clears state)
         services.AddKeyedScoped(AgentsConstants.AgentNames.Cases, (sp, key) =>
         {
+            var router           = sp.GetRequiredService<CasesPhaseRouterStep>();
             var retriever        = sp.GetRequiredService<CaseRetrieverStep>();
             var verifier         = sp.GetRequiredService<OwnershipVerifierStep>();
+            var ownershipEmitter = sp.GetRequiredService<OwnershipChallengeEmitterStep>();
             var validator        = sp.GetRequiredService<OwnershipValidatorStep>();
             var ownershipRetry   = sp.GetRequiredService<OwnershipRetryChallengeBuilder>();
             var otpAgent         = sp.GetRequiredService<OtpCodeSendStep>();
+            var otpEmitter       = sp.GetRequiredService<OtpChallengeEmitterStep>();
             var otpValidator     = sp.GetRequiredService<OtpCodeValidatorStep>();
             var otpRetry         = sp.GetRequiredService<OtpRetryChallengeBuilder>();
             var casePresenter    = sp.GetRequiredService<CasePresenterStep>();
             var ownershipErr     = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
             var maxOwnershipValidationAttempts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.CasesWorkflow.MaxOwnershipValidationAttempts;
-            // External input ports: workflow pauses and host resumes with user responses.
-            var confirmationPort = RequestPort.Create<OwnershipVerificationOutput, OwnershipConfirmationResponse>(AgentsConstants.OwnershipConfirmationPortId);
-            var otpPort = RequestPort.Create<OtpChallengeOutput, OtpCodeResponse>(AgentsConstants.OtpVerificationPortId);
 
-            var builder = new WorkflowBuilder(retriever);
+            var builder = new WorkflowBuilder(router);
+            // Phase fan-out: the router emits exactly one of these message types per turn.
+            builder.AddEdge<ConversationState>(router, retriever, condition: message => message is not null);
+            builder.AddEdge<OwnershipConfirmationResponse>(router, validator, condition: message => message is not null);
+            builder.AddEdge<OtpCodeResponse>(router, otpValidator, condition: message => message is not null);
+
+            // Start phase: retrieve the case and emit the ownership challenge.
             builder.AddEdge(retriever, verifier);
-            builder.AddEdge(verifier, confirmationPort);
-            builder.AddEdge(confirmationPort, validator);
+            builder.AddEdge(verifier, ownershipEmitter);
 
+            // Ownership confirmation phase.
             builder.AddSwitch(validator, sw => sw
                 .AddCase<UserInputValidationOutput>(env => env!.IsValid, otpAgent)
                 .AddCase<UserInputValidationOutput>(env => !env!.IsValid && env.ValidationAttempt < maxOwnershipValidationAttempts, ownershipRetry)
                 .WithDefault(ownershipErr));
-            builder.AddEdge(ownershipRetry, confirmationPort);
+            builder.AddEdge(ownershipRetry, ownershipEmitter);
+            builder.AddEdge(otpAgent, otpEmitter);
 
-            builder.AddEdge(otpAgent, otpPort);
-            builder.AddEdge(otpPort, otpValidator);
+            // OTP phase.
             builder.AddSwitch(otpValidator, sw => sw
                 .AddCase<OtpValidationOutput>(env => env!.IsValid, casePresenter)
                 .AddCase<OtpValidationOutput>(env => env!.ShouldRetry, otpRetry)
                 .WithDefault(casePresenter));
-            builder.AddEdge(otpRetry, otpPort);
+            builder.AddEdge(otpRetry, otpEmitter);
 
-            builder.WithOutputFrom(casePresenter, ownershipErr);
+            builder.WithOutputFrom(casePresenter, ownershipErr, ownershipEmitter, otpEmitter);
             return builder.Build();
         });
 

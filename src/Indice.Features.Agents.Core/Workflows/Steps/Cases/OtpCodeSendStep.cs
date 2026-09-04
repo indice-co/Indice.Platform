@@ -53,6 +53,7 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
 
         ArgumentNullException.ThrowIfNull(validationData);
         var caseData = validationData.OwnershipVerificationData.CaseRetrievalData;
+        var maskedPhoneNumber = MaskPhone(caseData.PhoneNumber);
 
         // Fetch OTP tools from the Identity MCP server at runtime.
         var mcpTools = await _mcpToolsRegistry.GetToolsAsync("Identity", cancellationToken);
@@ -80,11 +81,11 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
             securityToken = caseData.CaseId
         });
         _ = await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
-        var maskedPhone = MaskPhone(caseData.PhoneNumber);
+        var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedPhoneNumber);
         return new OtpChallengeOutput(
             ValidationData: validationData,
             //TODO: Support dual Phone /Email OTP delivery. For now, we only support phone delivery.
-            Prompt: _messageLocalizer.OtpVerificationCodeSendMessage(maskedPhone),
+            Prompt: otpPrompt,
             PhoneNumber: caseData.PhoneNumber,
             Email: caseData.Email,
             CaseId: caseData.CaseId,
