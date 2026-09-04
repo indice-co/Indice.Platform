@@ -33,11 +33,11 @@ public class UserActionGuardTests
         var keyA = "Sms:ChangePhoneNumber";
         var keyB = "Sms:StrongCustomerAuthentication";
 
-        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyB, TestContext.Current.CancellationToken));
-        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.False(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.CheckAndAdvanceAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.CheckAndAdvanceAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.CheckAndAdvanceAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.CheckAndAdvanceAsync(user.Id, keyB, TestContext.Current.CancellationToken));
+        Assert.False(await guard.CheckAndAdvanceAsync(user.Id, keyA, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -63,10 +63,10 @@ public class UserActionGuardTests
 
         var keyA = "Sms:ChangePhoneNumber";
 
-        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.CheckAndAdvanceAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.CheckAndAdvanceAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.CheckAndAdvanceAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.CheckAndAdvanceAsync(user.Id, keyA, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -90,17 +90,17 @@ public class UserActionGuardTests
         db.Users.Add(user);
         db.UserActionAttempts.Add(new UseRateCounter {
             UserId = user.Id,
-            PurposeKey = "Sms:ChangePhoneNumber",
+            ActionName = "Sms:ChangePhoneNumber",
             Count = 4,
             ResetDate = DateTimeOffset.UtcNow.AddMinutes(-1),
             LastUpdate = DateTimeOffset.UtcNow.AddHours(-1)
         });
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var count = await guard.RecordAttemptAsync(user.Id, "Sms:ChangePhoneNumber", TestContext.Current.CancellationToken);
+        var count = await guard.AdvanceCounterAsync(user.Id, "Sms:ChangePhoneNumber", TestContext.Current.CancellationToken);
 
         Assert.Equal(1, count);
-        var row = await db.UserActionAttempts.SingleAsync(x => x.UserId == user.Id && x.PurposeKey == "Sms:ChangePhoneNumber", TestContext.Current.CancellationToken);
+        var row = await db.UserActionAttempts.SingleAsync(x => x.UserId == user.Id && x.ActionName == "Sms:ChangePhoneNumber", TestContext.Current.CancellationToken);
         Assert.Equal(1, row.Count);
         Assert.True(row.ResetDate > DateTimeOffset.UtcNow);
     }

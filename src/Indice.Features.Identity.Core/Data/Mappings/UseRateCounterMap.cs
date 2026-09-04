@@ -14,12 +14,12 @@ internal class UseRateCounterMap<TUser> : IEntityTypeConfiguration<UseRateCounte
     public void Configure(EntityTypeBuilder<UseRateCounter> builder) {
         builder.ToTable(nameof(UseRateCounter), "auth");
 
-        builder.HasKey(x => new { x.UserId, x.PurposeKey });
+        builder.HasKey(x => new { x.UserId, x.ActionName });
 
         builder.Property(x => x.UserId)
                .IsRequired();
 
-        builder.Property(x => x.PurposeKey)
+        builder.Property(x => x.ActionName)
                .IsRequired()
                .HasMaxLength(TextSizePresets.M256);
 
@@ -31,6 +31,9 @@ internal class UseRateCounterMap<TUser> : IEntityTypeConfiguration<UseRateCounte
 
         builder.Property(x => x.LastUpdate)
                .IsRequired();
+
+        builder.Property<byte[]>("RowVersion")
+               .IsRowVersion();
 
         builder.HasIndex(x => x.ResetDate);
 

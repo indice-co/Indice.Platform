@@ -206,7 +206,7 @@ internal static partial class MyAccountHandlers
         if (!endpointOptions.Value.PhoneNumber.SendOtpOnUpdate) {
             return TypedResults.NoContent();
         }
-        if (!await actionRateLimiter.TryRecordAttemptAsync(user.Id, "Sms:PhoneNumberChange")) {
+        if (!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, "Sms:PhoneNumberChange")) {
             return TypedResults.ValidationProblem(
                 ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(),
                 userManager.MessageDescriber.LimitAttemptsReached)
@@ -236,7 +236,7 @@ internal static partial class MyAccountHandlers
                 ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber))
             );
         }
-        if(!await actionRateLimiter.TryRecordAttemptAsync(user.Id, "Sms:PhoneNumberChange")) {
+        if(!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, "Sms:PhoneNumberChange")) {
             return TypedResults.ValidationProblem(
                 ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.LimitAttemptsReached)
             );

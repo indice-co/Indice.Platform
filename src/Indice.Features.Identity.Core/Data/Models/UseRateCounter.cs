@@ -5,8 +5,8 @@ public class UseRateCounter
 {
     /// <summary>The user id this counter belongs to.</summary>
     public string UserId { get; set; } = null!;
-    /// <summary>A free-form purpose key (for example, Sms:ChangePhoneNumber).</summary>
-    public string PurposeKey { get; set; } = null!;
+    /// <summary>A free-form action name (for example, Sms:ChangePhoneNumber).</summary>
+    public string ActionName { get; set; } = null!;
     /// <summary>The number of attempts recorded in the current active window.</summary>
     public int Count { get; set; }
     /// <summary>The UTC date until which the current window is active.</summary>

@@ -23,19 +23,21 @@ public class ActionRateLimiterOptions
     public bool Enabled { get; set; } = true;
 }
 
-/// <summary>Provides purpose-scoped attempt limiting operations per user.</summary>
+/// <summary>Provides action-scoped attempt limiting operations per user.</summary>
 public interface IActionRateLimiter
 {
     /// <summary>Attempts to record an action and returns whether the action is allowed by the configured limit.</summary>
-    Task<bool> TryRecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default);
+    /// <returns>True if the action is allowed; otherwise, false.</returns>
+    Task<bool> CheckAndAdvanceAsync(string userId, string actionName, CancellationToken cancellationToken = default);
 
     /// <summary>Records an attempt and returns the updated count for the active sliding window.</summary>
-    Task<int> RecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default);
+    /// <returns>The counter value after recording the attempt.</returns>
+    Task<int> AdvanceCounterAsync(string userId, string actionName, CancellationToken cancellationToken = default);
 }
 
 internal class NoOpActionRateLimiter : IActionRateLimiter { 
-    public Task<bool> TryRecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default) => Task.FromResult(true);
-    public Task<int> RecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default) => Task.FromResult(0);
+    public Task<bool> CheckAndAdvanceAsync(string userId, string actionName, CancellationToken cancellationToken = default) => Task.FromResult(true);
+    public Task<int> AdvanceCounterAsync(string userId, string actionName, CancellationToken cancellationToken = default) => Task.FromResult(0);
 }
 
 internal class ActionRateLimiter : IActionRateLimiter
@@ -51,30 +53,30 @@ internal class ActionRateLimiter : IActionRateLimiter
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
-    public async Task<bool> TryRecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default) {
+    public async Task<bool> CheckAndAdvanceAsync(string userId, string actionName, CancellationToken cancellationToken = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(purposeKey);
+        ArgumentException.ThrowIfNullOrWhiteSpace(actionName);
 
-        var currentCount = await RecordAttemptAsync(userId, purposeKey, cancellationToken);
+        var currentCount = await AdvanceCounterAsync(userId, actionName, cancellationToken);
         var maxAttempts = _options.MaxAttempts > 0 ? _options.MaxAttempts : ActionRateLimiterOptions.DefaultMaxAttempts;
         return currentCount <= maxAttempts;
     }
 
-    public async Task<int> RecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default) {
+    public async Task<int> AdvanceCounterAsync(string userId, string actionName, CancellationToken cancellationToken = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(purposeKey);
+        ArgumentException.ThrowIfNullOrWhiteSpace(actionName);
 
         var window = _options.Window > TimeSpan.Zero ? _options.Window : ActionRateLimiterOptions.DefaultWindow;
 
         for (var i = 0; i < 2; i++) {
             var now = DateTimeOffset.UtcNow;
             var attempt = await _dbContext.UserActionAttempts
-                                          .SingleOrDefaultAsync(x => x.UserId == userId && x.PurposeKey == purposeKey, cancellationToken);
+                                          .SingleOrDefaultAsync(x => x.UserId == userId && x.ActionName == actionName, cancellationToken);
 
             if (attempt is null) {
                 attempt = new UseRateCounter {
                     UserId = userId,
-                    PurposeKey = purposeKey,
+                    ActionName = actionName,
                     Count = 1,
                     ResetDate = now.Add(window),
                     LastUpdate = now
@@ -100,6 +102,6 @@ internal class ActionRateLimiter : IActionRateLimiter
             }
         }
 
-        throw new DbUpdateException($"Could not record user action attempt for '{userId}' and purpose '{purposeKey}'.");
+        throw new DbUpdateException($"Could not record user action attempt for '{userId}' and action '{actionName}'.");
     }
 }

@@ -112,7 +112,7 @@ public abstract class BasePageModel : PageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<bool> SendConfirmationEmail(User user, string? returnUrl = null) {
         var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
-        if (!await userActionGuard.TryRecordAttemptAsync(user.Id, "Email:SendConfirmationEmail")) {
+        if (!await userActionGuard.CheckAndAdvanceAsync(user.Id, "Email:SendConfirmationEmail")) {
             return false;
         }
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
@@ -151,7 +151,7 @@ public abstract class BasePageModel : PageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<bool> SendChangeEmailConfirmationEmail(User user, string newEmail, string? returnUrl = null) {
         var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
-        if (!await userActionGuard.TryRecordAttemptAsync(user.Id, "Email:ChangeEmail")) {
+        if (!await userActionGuard.CheckAndAdvanceAsync(user.Id, "Email:ChangeEmail")) {
             return false;
         }
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
@@ -188,7 +188,7 @@ public abstract class BasePageModel : PageModel
     /// <param name="phoneNumber">The phone number.</param>
     public virtual async Task<bool> SendVerificationSmsAsync(User user, string phoneNumber) {
         var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
-        if (!await userActionGuard.TryRecordAttemptAsync(user.Id, "Sms:ChangePhoneNumber")) {
+        if (!await userActionGuard.CheckAndAdvanceAsync(user.Id, "Sms:ChangePhoneNumber")) {
             return false;
         }
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
@@ -203,7 +203,7 @@ public abstract class BasePageModel : PageModel
     /// <param name="user">The user instance.</param>
     public virtual async Task<bool> SendVerificationEmailAsync(User user) {
         var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
-        if (!await userActionGuard.TryRecordAttemptAsync(user.Id, "Email:VerificationEmail")) {
+        if (!await userActionGuard.CheckAndAdvanceAsync(user.Id, "Email:VerificationEmail")) {
             return false;
         }
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
