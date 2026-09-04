@@ -504,4 +504,7 @@
   <data name="PasswordSetEventDescription" xml:space="preserve">
     <value>Ihr Passwort wurde erfolgreich geändert.</value>
   </data>
+  <data name="LimitAttemptsReached" xml:space="preserve">
+    <value>Sie haben das tägliche Limit für Versuchsanfragen erreicht. Bitte versuchen Sie es später erneut.</value>
+  </data>
 </root>

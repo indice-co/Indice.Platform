@@ -549,6 +549,6 @@
     <value>Your password has been successfully changed.</value>
   </data>
   <data name="LimitAttemptsReached" xml:space="preserve">
-    <value>You have reached the daily notification request limit. Please try again later.</value>
+    <value>You have reached the limit of attempts. Please try again later.</value>
   </data>
 </root>
