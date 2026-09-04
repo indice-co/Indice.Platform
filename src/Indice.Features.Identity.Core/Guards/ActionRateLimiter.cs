@@ -26,15 +26,15 @@ public class ActionRateLimiterOptions
 /// <summary>Provides purpose-scoped attempt limiting operations per user.</summary>
 public interface IActionRateLimiter
 {
-    /// <summary>Checks whether the given user and purpose have reached the configured limit.</summary>
-    Task<bool> IsBlockedAsync(string userId, string purposeKey, CancellationToken cancellationToken = default);
+    /// <summary>Attempts to record an action and returns whether the action is allowed by the configured limit.</summary>
+    Task<bool> TryRecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default);
 
     /// <summary>Records an attempt and returns the updated count for the active sliding window.</summary>
     Task<int> RecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default);
 }
 
 internal class NoOpActionRateLimiter : IActionRateLimiter { 
-    public Task<bool> IsBlockedAsync(string userId, string purposeKey, CancellationToken cancellationToken = default) => Task.FromResult(false);
+    public Task<bool> TryRecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default) => Task.FromResult(true);
     public Task<int> RecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default) => Task.FromResult(0);
 }
 
@@ -51,20 +51,13 @@ internal class ActionRateLimiter : IActionRateLimiter
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
-    public async Task<bool> IsBlockedAsync(string userId, string purposeKey, CancellationToken cancellationToken = default) {
+    public async Task<bool> TryRecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
         ArgumentException.ThrowIfNullOrWhiteSpace(purposeKey);
 
-        var now = DateTimeOffset.UtcNow;
-        var attempt = await _dbContext.UserActionAttempts
-                                      .AsNoTracking()
-                                      .SingleOrDefaultAsync(x => x.UserId == userId && x.PurposeKey == purposeKey, cancellationToken);
-
-        if (attempt is null || now > attempt.ResetDate) {
-            return false;
-        }
+        var currentCount = await RecordAttemptAsync(userId, purposeKey, cancellationToken);
         var maxAttempts = _options.MaxAttempts > 0 ? _options.MaxAttempts : ActionRateLimiterOptions.DefaultMaxAttempts;
-        return attempt.Count >= maxAttempts;
+        return currentCount <= maxAttempts;
     }
 
     public async Task<int> RecordAttemptAsync(string userId, string purposeKey, CancellationToken cancellationToken = default) {

@@ -10,7 +10,7 @@ namespace Indice.Features.Identity.Tests;
 public class UserActionGuardTests
 {
     [Fact]
-    public async Task RecordAttemptAsync_Is_Purpose_Scoped_And_Blocks_By_Configured_Limit() {
+    public async Task TryRecordAttemptAsync_Is_Purpose_Scoped_And_Blocks_By_Configured_Limit() {
         var services = CreateServiceCollection(new Dictionary<string, string?> {
             [$"{ActionRateLimiterOptions.Name}:{nameof(ActionRateLimiterOptions.MaxAttempts)}"] = "3",
             [$"{ActionRateLimiterOptions.Name}:{nameof(ActionRateLimiterOptions.Window)}"] = "1.00:00:00",
@@ -33,16 +33,11 @@ public class UserActionGuardTests
         var keyA = "Sms:ChangePhoneNumber";
         var keyB = "Sms:StrongCustomerAuthentication";
 
-        Assert.False(await guard.IsBlockedAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.Equal(1, await guard.RecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.Equal(2, await guard.RecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken ));
-        Assert.False(await guard.IsBlockedAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-
-        Assert.Equal(1, await guard.RecordAttemptAsync(user.Id, keyB, TestContext.Current.CancellationToken));
-        Assert.False(await guard.IsBlockedAsync(user.Id, keyB, TestContext.Current.CancellationToken));
-
-        Assert.Equal(3, await guard.RecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.True(await guard.IsBlockedAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyB, TestContext.Current.CancellationToken));
+        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.False(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -68,12 +63,10 @@ public class UserActionGuardTests
 
         var keyA = "Sms:ChangePhoneNumber";
 
-        Assert.False(await guard.IsBlockedAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.Equal(0, await guard.RecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.Equal(0, await guard.RecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.False(await guard.IsBlockedAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.Equal(0, await guard.RecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
-        Assert.False(await guard.IsBlockedAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.True(await guard.TryRecordAttemptAsync(user.Id, keyA, TestContext.Current.CancellationToken));
     }
 
     [Fact]

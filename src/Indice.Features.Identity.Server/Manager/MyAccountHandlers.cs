@@ -206,7 +206,7 @@ internal static partial class MyAccountHandlers
         if (!endpointOptions.Value.PhoneNumber.SendOtpOnUpdate) {
             return TypedResults.NoContent();
         }
-        if (await actionRateLimiter.IsBlockedAsync(user.Id, "Sms:PhoneNumberChange")) {
+        if (!await actionRateLimiter.TryRecordAttemptAsync(user.Id, "Sms:PhoneNumberChange")) {
             return TypedResults.ValidationProblem(
                 ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(),
                 userManager.MessageDescriber.LimitAttemptsReached)
@@ -215,7 +215,6 @@ internal static partial class MyAccountHandlers
         var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
         var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber!);
         await smsService.SendAsync(request.PhoneNumber!, string.Empty, userManager.MessageDescriber.PhoneNumberVerificationMessage(token)); 
-        await actionRateLimiter.RecordAttemptAsync(user.Id, "Sms:PhoneNumberChange");
         return TypedResults.NoContent();
     }
 
@@ -237,7 +236,7 @@ internal static partial class MyAccountHandlers
                 ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber))
             );
         }
-        if(await actionRateLimiter.IsBlockedAsync(user.Id, "Sms:PhoneNumberChange")) {
+        if(!await actionRateLimiter.TryRecordAttemptAsync(user.Id, "Sms:PhoneNumberChange")) {
             return TypedResults.ValidationProblem(
                 ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.LimitAttemptsReached)
             );
@@ -245,7 +244,6 @@ internal static partial class MyAccountHandlers
         var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
         var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber!);
         await smsService.SendAsync(request.PhoneNumber!, string.Empty, userManager.MessageDescriber.PhoneNumberChangeVerificationMessage(token));
-        await actionRateLimiter.RecordAttemptAsync(user.Id, "Sms:PhoneNumberChange");
         return TypedResults.NoContent();
     }
 

@@ -112,7 +112,7 @@ public abstract class BasePageModel : PageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<bool> SendConfirmationEmail(User user, string? returnUrl = null) {
         var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
-        if (await userActionGuard.IsBlockedAsync(user.Id, "Email:SendConfirmationEmail")) {
+        if (!await userActionGuard.TryRecordAttemptAsync(user.Id, "Email:SendConfirmationEmail")) {
             return false;
         }
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
@@ -142,7 +142,6 @@ public abstract class BasePageModel : PageModel
         var logger = ServiceProvider.GetRequiredService<ILogger<BasePageModel>>();
         var maskedEmail = user.Email!.Substring(0, 2) + "****" + user.Email.Substring(user.Email.IndexOf('@'));
         logger.LogInformation("Sending a confirmation email to {Email} with callback URL: {CallbackUrl}.", maskedEmail, callbackUrl);
-        await userActionGuard.RecordAttemptAsync(user.Id, "Email:SendConfirmationEmail");
         return true;
     }
 
@@ -152,7 +151,7 @@ public abstract class BasePageModel : PageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<bool> SendChangeEmailConfirmationEmail(User user, string newEmail, string? returnUrl = null) {
         var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
-        if (await userActionGuard.IsBlockedAsync(user.Id, "Email:ChangeEmail")) {
+        if (!await userActionGuard.TryRecordAttemptAsync(user.Id, "Email:ChangeEmail")) {
             return false;
         }
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
@@ -181,7 +180,6 @@ public abstract class BasePageModel : PageModel
                        Url = callbackUrl
                    })
         );
-        await userActionGuard.RecordAttemptAsync(user.Id, "Email:ChangeEmail");
         return true;
     }
 
@@ -190,7 +188,7 @@ public abstract class BasePageModel : PageModel
     /// <param name="phoneNumber">The phone number.</param>
     public virtual async Task<bool> SendVerificationSmsAsync(User user, string phoneNumber) {
         var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
-        if (await userActionGuard.IsBlockedAsync(user.Id, "Sms:ChangePhoneNumber")) {
+        if (!await userActionGuard.TryRecordAttemptAsync(user.Id, "Sms:ChangePhoneNumber")) {
             return false;
         }
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
@@ -198,7 +196,6 @@ public abstract class BasePageModel : PageModel
         var smsService = ServiceProvider.GetRequiredService<ISmsService>();
         var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
         await smsService.SendAsync(phoneNumber, identityMessageDescriber.PhoneVerificationSmsSubject, identityMessageDescriber.PhoneVerificationSmsBody(code));
-        await userActionGuard.RecordAttemptAsync(user.Id, "Sms:ChangePhoneNumber");
         return true;
     }
 
@@ -206,7 +203,7 @@ public abstract class BasePageModel : PageModel
     /// <param name="user">The user instance.</param>
     public virtual async Task<bool> SendVerificationEmailAsync(User user) {
         var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
-        if (await userActionGuard.IsBlockedAsync(user.Id, "Email:VerificationEmail")) {
+        if (!await userActionGuard.TryRecordAttemptAsync(user.Id, "Email:VerificationEmail")) {
             return false;
         }
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
@@ -224,7 +221,6 @@ public abstract class BasePageModel : PageModel
                     Code = code
                 });
         });
-        await userActionGuard.RecordAttemptAsync(user.Id, "Email:VerificationEmail");
         return true;
     }
 
