@@ -95,7 +95,7 @@ public class UserActionGuardTests
             SecurityStamp = Guid.NewGuid().ToString()
         };
         db.Users.Add(user);
-        db.UserActionAttempts.Add(new UseRateCount {
+        db.UserActionAttempts.Add(new UseRateCounter {
             UserId = user.Id,
             PurposeKey = "Sms:ChangePhoneNumber",
             Count = 4,
