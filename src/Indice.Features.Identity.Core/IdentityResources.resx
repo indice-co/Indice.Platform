@@ -323,6 +323,14 @@
     <value>New Password</value>
     <comment>UI Validators</comment>
   </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>The field 'Confirm Password' is required.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>The password confirmation does not match the password.</value>
+    <comment>UI Validators</comment>
+  </data>
   <data name="UI_Validator_EnableMfaSms_PhoneNumber_FieldName" xml:space="preserve">
     <value>Phone Number</value>
     <comment>UI Validators</comment>
@@ -341,6 +349,14 @@
   </data>
   <data name="UI_Validator_ForgotPasswordConfirmation_Token_FieldName" xml:space="preserve">
     <value>Token</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>The field 'Confirm Password' is required.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>The password confirmation does not match the password.</value>
     <comment>UI Validators</comment>
   </data>
   <data name="UI_Validator_ForgotPassword_Email_FieldName" xml:space="preserve">
@@ -532,6 +548,14 @@
   </data>
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>The field 'Timezone' has invalid format.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>The field 'Confirm Password' is required.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>The password confirmation does not match the password.</value>
+    <comment>UI Validators</comment>
   </data>
   <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
     <value>Recovery code verification</value>

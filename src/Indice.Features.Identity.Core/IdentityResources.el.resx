@@ -504,4 +504,22 @@
   <data name="PasswordSetEventDescription" xml:space="preserve">
     <value>Ο κωδικός πρόσβασής σας έχει αλλάξει επιτυχώς.</value>
   </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Το πεδίο 'Επιβεβαίωση κωδικού πρόσβασης' είναι υποχρεωτικό.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Η επιβεβαίωση κωδικού πρόσβασης δεν ταιριάζει με τον κωδικό πρόσβασης.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Το πεδίο 'Επιβεβαίωση κωδικού πρόσβασης' είναι υποχρεωτικό.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Η επιβεβαίωση κωδικού πρόσβασης δεν ταιριάζει με τον κωδικό πρόσβασης.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Το πεδίο 'Επιβεβαίωση κωδικού πρόσβασης' είναι υποχρεωτικό.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Η επιβεβαίωση κωδικού πρόσβασης δεν ταιριάζει με τον κωδικό πρόσβασης.</value>
+  </data>
 </root>

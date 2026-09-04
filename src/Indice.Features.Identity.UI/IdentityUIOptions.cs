@@ -134,6 +134,10 @@ public class IdentityUIOptions
     /// <remarks>Useful when user store is from a migrated database and we need to force users to add an email where an email is not present. Defaults to true.</remarks>
     public bool ShowAddEmailPrompt { get; set; } = true;
 
+    /// <summary>Controls whether password confirmation fields are displayed on register, password expired, change password, and forgot password confirmation pages.</summary>
+    /// <remarks>Defaults to false.</remarks>
+    public bool EnablePasswordConfirmation { get; set; } = false;
+
     /// <summary>Adds a homepage link to the a service definition cards.</summary>
     /// <param name="displayName">The label.</param>
     /// <param name="link">The hyperlink that the service will redirect.</param>

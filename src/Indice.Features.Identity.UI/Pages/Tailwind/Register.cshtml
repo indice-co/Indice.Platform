@@ -213,6 +213,17 @@
                     </ul>
                 </div>
             </div>
+            @if (identityUiOptions.Value.EnablePasswordConfirmation)
+            {
+                <div class="row mb-0.5">
+                    <div class="input-group-w-full password-control">
+                        <input type="password" class="peer password" asp-for="Input.PasswordConfirmation" placeholder="@Localizer.Register_Password_Confirmation" autocomplete="new-password" />
+                        <label asp-for="Input.PasswordConfirmation" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.Register_Password_Confirmation</label>
+                        <i role="button" class="reveal-icon" aria-label="Show password" title="Show password" aria-pressed="false"></i>
+                        <span asp-validation-for="Input.PasswordConfirmation" class="text-danger"></span>
+                    </div>
+                </div>
+            }
             <div class="grid grid-cols-1 place-items-start place-content-start mb-4">
                 <div class="col-span-1 flex flex-row text-left mb-4">
                     <input asp-for="Input.HasAcceptedTerms" type="checkbox" />

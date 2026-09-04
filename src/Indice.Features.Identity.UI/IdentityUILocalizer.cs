@@ -106,6 +106,8 @@ public class IdentityUILocalizer
 
     /// <summary>Label for the New Password input field.</summary>
     public virtual HtmlString ChangePassword_Newpassword_FieldLabel => new HtmlString(IdentityLabels.ChangePassword_Newpassword_FieldLabel);
+    /// <summary>Label for the New Password Confirmation input field.</summary>
+    public virtual HtmlString ChangePassword_NewPasswordConfirmation => new HtmlString(IdentityLabels.ChangePassword_NewPasswordConfirmation);
     /// <summary>Label for the Old Password input field.</summary>
     public virtual HtmlString ChangePassword_OldPassword => new HtmlString(IdentityLabels.ChangePassword_OldPassword_FieldLabel);
     /// <summary>Success message displayed when the password has been successfully changed.</summary>
@@ -395,6 +397,8 @@ public class IdentityUILocalizer
     public virtual HtmlString ForgotPasswordConfirmation_PageTitle => new HtmlString(IdentityLabels.ForgotPasswordConfirmation_PageTitle);
     /// <summary>Gets the instruction text prompting the user to enter a new password.</summary>
     public virtual HtmlString ForgotPasswordConfirmation_New_Password => new HtmlString(IdentityLabels.ForgotPasswordConfirmation_Newpassword_FieldLabel);
+    /// <summary>Gets the label for the new password confirmation field.</summary>
+    public virtual HtmlString ForgotPasswordConfirmation_New_Password_Confirmation => new HtmlString(IdentityLabels.ForgotPasswordConfirmation_New_Password_Confirmation);
     /// <summary>Gets the message indicating that the password has been successfully changed.</summary>
     public virtual HtmlString ForgotPasswordConfirmation_Password_Changed => new HtmlString(IdentityLabels.ForgotPasswordConfirmation_PasswordChanged);
     /// <summary>Gets the instruction text asking the user to log in using their new password. Includes a link for login.</summary>
@@ -1193,6 +1197,11 @@ public class IdentityUILocalizer
     ///   Gets the localized string for "Password_FieldLabel".
     /// </summary>
     public virtual HtmlString Register_Password => new HtmlString(IdentityLabels.Register_Password_FieldLabel);
+
+    /// <summary>
+    ///   Gets the localized string for "Password Confirmation".
+    /// </summary>
+    public virtual HtmlString Register_Password_Confirmation => new HtmlString(IdentityLabels.Register_Password_Confirmation);
 
     /// <summary>
     ///   Gets the localized string for "Phone number".

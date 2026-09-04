@@ -204,6 +204,9 @@
   <data name="ChangePassword_Newpassword_FieldLabel" xml:space="preserve">
     <value>New password</value>
   </data>
+  <data name="ChangePassword_NewPasswordConfirmation" xml:space="preserve">
+    <value>Confirm new password</value>
+  </data>
   <data name="ChangePassword_OldPassword_FieldLabel" xml:space="preserve">
     <value>Old password</value>
   </data>
@@ -509,6 +512,9 @@
   </data>
   <data name="ForgotPasswordConfirmation_Newpassword_FieldLabel" xml:space="preserve">
     <value>New Password</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_New_Password_Confirmation" xml:space="preserve">
+    <value>Confirm New Password</value>
   </data>
   <data name="ForgotPasswordConfirmation_PasswordChanged" xml:space="preserve">
     <value>Password changed</value>
@@ -965,6 +971,9 @@
   </data>
   <data name="Register_Password_FieldLabel" xml:space="preserve">
     <value>Password</value>
+  </data>
+  <data name="Register_Password_Confirmation" xml:space="preserve">
+    <value>Confirm Password</value>
   </data>
   <data name="Register_PhoneNumber" xml:space="preserve">
     <value>Phone number</value>
