@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 768 768" width="768" height="768">
+  <!-- Red badge -->
+  <circle cx="384" cy="384" r="290" fill="#D71920"/>
+
+  <!-- Antennas -->
+  <g stroke="#fff" stroke-width="14" fill="#fff">
+    <line x1="212" y1="300" x2="192" y2="248"/>
+    <circle cx="188" cy="236" r="17" stroke="none"/>
+    <line x1="556" y1="300" x2="576" y2="248"/>
+    <circle cx="580" cy="236" r="17" stroke="none"/>
+  </g>
+
+  <!-- Ears -->
+  <rect x="168" y="322" width="34" height="120" rx="17" fill="#fff"/>
+  <rect x="566" y="322" width="34" height="120" rx="17" fill="#fff"/>
+
+  <!-- Helmet (upper head) -->
+  <path fill="#fff" d="M214 456
+      L214 330
+      C214 262 282 210 384 210
+      C486 210 554 262 554 330
+      L554 456 Z"/>
+
+  <!-- Helmet top hatch (red inset) -->
+  <path fill="none" stroke="#D71920" stroke-width="10"
+        d="M312 230 C312 216 322 208 338 208 L430 208 C446 208 456 216 456 230 L456 244 C420 236 348 236 312 244 Z"
+        transform="translate(0,8)"/>
+
+  <!-- Visor -->
+  <rect x="236" y="286" width="296" height="150" rx="55" fill="#D71920"/>
+  <rect x="252" y="300" width="264" height="122" rx="42" fill="none" stroke="#fff" stroke-width="8" opacity="0.9"/>
+
+  <!-- Eyes (angled slashes) -->
+  <g stroke="#fff" stroke-width="18" stroke-linecap="round">
+    <line x1="296" y1="326" x2="340" y2="386"/>
+    <line x1="472" y1="326" x2="428" y2="386"/>
+  </g>
+  <!-- Eye glow -->
+  <g stroke="#ff9a9a" stroke-width="30" stroke-linecap="round" opacity="0.35" filter="url(#soft)">
+    <line x1="296" y1="326" x2="340" y2="386"/>
+    <line x1="472" y1="326" x2="428" y2="386"/>
+  </g>
+
+  <!-- Smile -->
+  <path d="M344 402 Q384 428 424 402" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round"/>
+
+  <!-- Chin band -->
+  <path fill="#fff" d="M204 476
+      C270 496 498 496 564 476
+      L564 528
+      C564 560 490 582 384 582
+      C278 582 204 560 204 528 Z"/>
+
+  <!-- Neck gap line -->
+  <path d="M214 462 C280 482 488 482 554 462" fill="none" stroke="#D71920" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- DEX text as vector paths -->
+  <g fill="#D71920" transform="translate(268,498)">
+    <!-- D -->
+    <path d="M0 0 L34 0 C58 0 70 12 70 32 C70 52 58 64 34 64 L0 64 Z
+             M22 16 L22 48 L32 48 C42 48 48 43 48 32 C48 21 42 16 32 16 Z"
+          fill-rule="evenodd"/>
+    <!-- E -->
+    <path d="M84 0 L138 0 L138 16 L106 16 L106 24 L134 24 L134 40 L106 40 L106 48 L138 48 L138 64 L84 64 Z"/>
+    <!-- X -->
+    <path d="M148 0 L174 0 L186 20 L198 0 L224 0 L200 32 L225 64 L198 64 L186 44 L174 64 L147 64 L172 32 Z"/>
+  </g>
+
+  <defs>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+  </defs>
+</svg>

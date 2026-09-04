@@ -24,11 +24,20 @@ const ICON_PATHS: Record<string, string> = {
   selector: 'app-chat-composer',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="border-t border-base-300 bg-base-100/80 px-4 py-4 backdrop-blur-sm sm:px-6">
+    <div
+      class="px-4 py-4 sm:px-6"
+      [class.border-t]="!centered()"
+      [class.border-base-300]="!centered()"
+      [class.bg-base-100/80]="!centered()"
+      [class.backdrop-blur-sm]="!centered()"
+    >
       <div class="mx-auto w-full max-w-3xl">
         <div
-          class="flex items-end gap-2 rounded-box border border-base-300 bg-base-100 p-2 shadow-sm
-                 transition-colors focus-within:border-primary/60 focus-within:shadow-md"
+          class="flex items-end gap-2 border border-base-300 bg-base-100 p-2 shadow-sm
+                 transition-[border-radius,border-color,box-shadow] duration-150
+                 focus-within:border-primary/60 focus-within:shadow-md"
+          [class.rounded-full]="!multiline()"
+          [class.rounded-box]="multiline()"
         >
           @if (agents().length > 0) {
             <!-- Mode picker: which agent answers. Opens upward — the composer hugs the viewport bottom. -->
@@ -119,6 +128,7 @@ const ICON_PATHS: Record<string, string> = {
           }
 
           <textarea
+            #box
             class="dex-scroll max-h-44 min-h-11 w-full resize-none bg-transparent px-3 py-2.5 text-[0.95rem]
                    leading-relaxed text-base-content outline-none placeholder:text-base-content/40
                    [field-sizing:content]"
@@ -171,7 +181,7 @@ const ICON_PATHS: Record<string, string> = {
           }
         </div>
 
-        <div class="mt-1.5 px-1 text-[0.7rem] text-base-content/45">
+        <div class="mt-1.5 px-1 text-center text-[0.7rem] text-base-content/45 sm:text-left">
           <span>Enter to send · Shift + Enter for a new line</span>
         </div>
       </div>
@@ -180,6 +190,8 @@ const ICON_PATHS: Record<string, string> = {
 })
 export class ChatComposerComponent {
   readonly streaming = input(false);
+  /** Rendered mid-canvas (new session): drop the pinned bar chrome, keep only the input box. */
+  readonly centered = input(false);
   readonly placeholder = input('Ask Dex anything…');
   /** The modes (agents) the user can pick from; the picker hides when empty. */
   readonly agents = input<AgentInfo[]>([]);
@@ -191,6 +203,8 @@ export class ChatComposerComponent {
 
   protected readonly maxLength = MAX_LENGTH;
   protected readonly text = signal('');
+  /** Whether the auto-growing textarea has wrapped past one row — pill until it does. */
+  protected readonly multiline = signal(false);
   protected readonly canSend = computed(() => this.text().trim().length > 0 && !this.streaming());
 
   /** The agent shown on the picker trigger — the explicit pick, else the first discovered one. */
@@ -212,7 +226,10 @@ export class ChatComposerComponent {
   }
 
   protected onInput(event: Event): void {
-    this.text.set((event.target as HTMLTextAreaElement).value);
+    const area = event.target as HTMLTextAreaElement;
+    this.text.set(area.value);
+    // min-h-11 is 44px — anything taller means the content has wrapped to a second row.
+    this.multiline.set(area.value.includes('\n') || area.clientHeight > 48);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -229,5 +246,6 @@ export class ChatComposerComponent {
     }
     this.send.emit(value);
     this.text.set('');
+    this.multiline.set(false);
   }
 }
