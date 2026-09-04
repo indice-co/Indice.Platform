@@ -10,27 +10,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Run this Migration script to update the database
 ```sql
-
-CREATE TABLE [auth].[UseRateCounter](
+CREATE TABLE [auth].[UserRateCounter](
 	[UserId] [nvarchar](450) NOT NULL,
-	[PurposeKey] [nvarchar](256) NOT NULL,
+	[ActionName] [nvarchar](256) NOT NULL,
 	[Count] [int] NOT NULL,
 	[ResetDate] [datetimeoffset](7) NOT NULL,
 	[LastUpdate] [datetimeoffset](7) NOT NULL,
- CONSTRAINT [PK_UseRateCounter] PRIMARY KEY CLUSTERED 
+	[RowVersion] [timestamp] NULL,
+ CONSTRAINT [PK_UserRateCounter] PRIMARY KEY CLUSTERED 
 (
 	[UserId] ASC,
-	[PurposeKey] ASC
+	[ActionName] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
 
-ALTER TABLE [auth].[UseRateCounter]  WITH CHECK ADD  CONSTRAINT [FK_UseRateCounter_User_UserId] FOREIGN KEY([UserId])
+ALTER TABLE [auth].[UserRateCounter]  WITH CHECK ADD  CONSTRAINT [FK_UserRateCounter_User_UserId] FOREIGN KEY([UserId])
 REFERENCES [auth].[User] ([Id])
 ON DELETE CASCADE
 GO
 
-ALTER TABLE [auth].[UseRateCounter] CHECK CONSTRAINT [FK_UseRateCounter_User_UserId]
+ALTER TABLE [auth].[UserRateCounter] CHECK CONSTRAINT [FK_UserRateCounter_User_UserId]
 GO
 ```
 

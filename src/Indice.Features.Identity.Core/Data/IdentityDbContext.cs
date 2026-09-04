@@ -33,7 +33,7 @@ public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, s
     /// <summary>Stores user devices in database.</summary>
     public DbSet<UserDevice> UserDevices { get; set; } = null!;
     /// <summary>Stores purpose-scoped action attempts in database.</summary>
-    public DbSet<UseRateCounter> UserActionAttempts { get; set; } = null!;
+    public DbSet<UserRateCounter> UserRateCounters { get; set; } = null!;
     /// <summary>Application settings stored in the database.</summary>
     public DbSet<DbAppSetting> AppSettings { get; set; } = null!;
 

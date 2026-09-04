@@ -70,25 +70,24 @@ internal class ActionRateLimiter : IActionRateLimiter
 
         for (var i = 0; i < 2; i++) {
             var now = DateTimeOffset.UtcNow;
-            var attempt = await _dbContext.UserActionAttempts
+            var attempt = await _dbContext.UserRateCounters
                                           .SingleOrDefaultAsync(x => x.UserId == userId && x.ActionName == actionName, cancellationToken);
 
             if (attempt is null) {
-                attempt = new UseRateCounter {
+                attempt = new UserRateCounter {
                     UserId = userId,
                     ActionName = actionName,
                     Count = 1,
                     ResetDate = now.Add(window),
                     LastUpdate = now
                 };
-                _dbContext.UserActionAttempts.Add(attempt);
+                _dbContext.UserRateCounters.Add(attempt);
             } else if (now > attempt.ResetDate) {
                 attempt.Count = 1;
                 attempt.ResetDate = now.Add(window);
                 attempt.LastUpdate = now;
             } else {
                 attempt.Count++;
-                attempt.ResetDate = now.Add(window);
                 attempt.LastUpdate = now;
             }
 

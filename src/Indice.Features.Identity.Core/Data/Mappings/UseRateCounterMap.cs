@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Identity.Core.Data.Mappings;
 
-/// <summary>Entity Framework mapping for type <see cref="UseRateCounter"/>.</summary>
+/// <summary>Entity Framework mapping for type <see cref="UserRateCounter"/>.</summary>
 /// <typeparam name="TUser">The type of user.</typeparam>
-internal class UseRateCounterMap<TUser> : IEntityTypeConfiguration<UseRateCounter> where TUser : User
+internal class UseRateCounterMap<TUser> : IEntityTypeConfiguration<UserRateCounter> where TUser : User
 {
-    /// <summary>Configure Entity Framework mapping for type <see cref="UseRateCounter"/>.</summary>
+    /// <summary>Configure Entity Framework mapping for type <see cref="UserRateCounter"/>.</summary>
     /// <param name="builder"></param>
-    public void Configure(EntityTypeBuilder<UseRateCounter> builder) {
-        builder.ToTable(nameof(UseRateCounter), "auth");
+    public void Configure(EntityTypeBuilder<UserRateCounter> builder) {
+        builder.ToTable(nameof(UserRateCounter), "auth");
 
         builder.HasKey(x => new { x.UserId, x.ActionName });
 
