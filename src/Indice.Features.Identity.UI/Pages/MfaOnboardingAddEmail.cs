@@ -70,7 +70,10 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
                 AddModelErrors(result);
                 return Page();
             }
-            await SendVerificationEmailAsync(user);
+            if (!await SendVerificationEmailAsync(user)) {
+                ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
+                return Page();
+            }
             return RedirectToPage("/MfaOnboardingVerifyEmail", routeValues: new { Input.ReturnUrl });
         }
         result = await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.Email.ToString());

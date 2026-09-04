@@ -41,7 +41,7 @@ export class MenuService {
             new MenuItem('Resources', undefined, canReadClients, 'web', this.isActiveMenuItem('/app/resources'), [
                 new MenuItem('Identity Resources List', '/app/resources/identity', canReadClients),
                 new MenuItem('API Resources List', '/app/resources/api', canReadClients),
-                new MenuItem('Scopes List', '/app/resources/scopes', canReadClients),
+                new MenuItem('API Scopes List', '/app/resources/scopes', canReadClients),
                 new MenuItem('Add Resource', '/app/resources/add', canWriteClients)
             ]),
             new MenuItem('Claim Types', undefined, canReadUsers || canReadClients, 'perm_identity', this.isActiveMenuItem('/app/claim-types'), [

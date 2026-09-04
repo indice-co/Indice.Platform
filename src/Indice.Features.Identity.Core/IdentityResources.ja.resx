@@ -504,4 +504,7 @@
   <data name="PasswordSetEventDescription" xml:space="preserve">
     <value>パスワードが正常に変更されました。</value>
   </data>
+  <data name="LimitAttemptsReached" xml:space="preserve">
+    <value>1日あたりの試行回数の上限に達しました。しばらくしてからもう一度お試しください。</value>
+  </data>
 </root>

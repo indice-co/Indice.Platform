@@ -32,6 +32,8 @@ public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, s
     public DbSet<UserPassword> UserPasswordHistory { get; set; } = null!;
     /// <summary>Stores user devices in database.</summary>
     public DbSet<UserDevice> UserDevices { get; set; } = null!;
+    /// <summary>Stores purpose-scoped action attempts in database.</summary>
+    public DbSet<UserRateCounter> UserRateCounters { get; set; } = null!;
     /// <summary>Application settings stored in the database.</summary>
     public DbSet<DbAppSetting> AppSettings { get; set; } = null!;
 
@@ -48,6 +50,7 @@ public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, s
         builder.ApplyConfiguration(new UserMap<TUser>());
         builder.ApplyConfiguration(new UserPasswordMap<TUser>());
         builder.ApplyConfiguration(new UserDeviceMap<TUser>());
+        builder.ApplyConfiguration(new UseRateCounterMap<TUser>());
         builder.ApplyConfiguration(new UserPictureMap<TUser>());
         builder.ApplyConfiguration(new AppSettingMap());
         builder.ApplyConfiguration(new CacheMap());

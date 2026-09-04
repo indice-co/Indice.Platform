@@ -504,4 +504,7 @@
   <data name="PasswordSetEventDescription" xml:space="preserve">
     <value>Ο κωδικός πρόσβασής σας έχει αλλάξει επιτυχώς.</value>
   </data>
+  <data name="LimitAttemptsReached" xml:space="preserve">
+    <value>Έχετε φτάσει στο ημερήσιο όριο προσπαθειών. Παρακαλώ δοκιμάστε ξανά αργότερα.</value>
+  </data>
 </root>

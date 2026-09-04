@@ -1,6 +1,7 @@
 ﻿using System.Security;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Configuration;
+using Indice.Features.Identity.Core.Guards;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.Mvc.Localization;
 using Indice.Features.Identity.Core.Mvc.Razor;
@@ -66,6 +67,38 @@ public static class IServiceCollectionExtensions
         services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
         return services;
     }
+
+    /// <summary>Adds a database backed, purpose-scoped action attempt guard.</summary>
+    /// <param name="services">The services available in the application.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">An optional action to further configure <see cref="ActionRateLimiterOptions"/>.</param>
+    public static IServiceCollection AddActionRateLimiter(this IServiceCollection services, IConfiguration configuration, Action<ActionRateLimiterOptions>? configure = null) {
+        var options = new ActionRateLimiterOptions {
+            MaxAttempts = configuration.GetIdentityOption<int?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.MaxAttempts)) ?? ActionRateLimiterOptions.DefaultMaxAttempts,
+            Window = configuration.GetIdentityOption<TimeSpan?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.Window)) ?? ActionRateLimiterOptions.DefaultWindow,
+            Enabled = configuration.GetIdentityOption<bool?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.Enabled)) ?? true
+        };
+        configure?.Invoke(options);
+        services.Configure<ActionRateLimiterOptions>(o => {
+            o.MaxAttempts = options.MaxAttempts;
+            o.Window = options.Window;
+            o.Enabled = options.Enabled;
+        });
+        if (options.Enabled) {
+            services.TryAddScoped<IActionRateLimiter, ActionRateLimiter>();
+        } else { 
+            services.TryAddScoped<IActionRateLimiter, NoOpActionRateLimiter>();
+        }
+        return services;
+    }
+
+    /// <summary>Adds a NoOp action rate limiter that does not enforce any limits.</summary>
+    /// <param name="services">The services available in the application.</param>
+    public static IServiceCollection AddActionRateLimiterNoOp(this IServiceCollection services) {
+        services.AddScoped<IActionRateLimiter, NoOpActionRateLimiter>();
+        return services;
+    }
+
 
     /// <summary>
     /// Configures the OpenIdConnect handlers and OAuth based handlers to persist the state parameter into the server-side IDistributedCache.
