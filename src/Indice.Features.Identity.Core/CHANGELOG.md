@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.56.0]
+- Add UserActivityRateCounter with limits and Guard 
+
+Run this Migration script to update the database
+```sql
+
+CREATE TABLE [auth].[UseRateCounter](
+	[UserId] [nvarchar](450) NOT NULL,
+	[PurposeKey] [nvarchar](256) NOT NULL,
+	[Count] [int] NOT NULL,
+	[ResetDate] [datetimeoffset](7) NOT NULL,
+	[LastUpdate] [datetimeoffset](7) NOT NULL,
+ CONSTRAINT [PK_UseRateCounter] PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC,
+	[PurposeKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [auth].[UseRateCounter]  WITH CHECK ADD  CONSTRAINT [FK_UseRateCounter_User_UserId] FOREIGN KEY([UserId])
+REFERENCES [auth].[User] ([Id])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [auth].[UseRateCounter] CHECK CONSTRAINT [FK_UseRateCounter_User_UserId]
+GO
+```
+
+ To update settings or disable it you need the following configuration in appsettings.json
+```json
+ "UserActionGuard": {
+      "MaxAttempts": 5,
+      "Window": "01:00:00",
+      "Enabled": true
+    }
+```
+
+
 ## [8.40.0]
 ### Added
 - Add the UserAgentFamily column to store the user-agent family (e.g. browser/client name) for a device
