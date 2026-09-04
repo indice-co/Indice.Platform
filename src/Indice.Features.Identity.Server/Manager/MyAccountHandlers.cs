@@ -208,7 +208,8 @@ internal static partial class MyAccountHandlers
         }
         if (await actionRateLimiter.IsBlockedAsync(user.Id, "Sms:PhoneNumberChange")) {
             return TypedResults.ValidationProblem(
-                ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber))
+                ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(),
+                userManager.MessageDescriber.LimitAttemptsReached)
             );
         }
         var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
@@ -238,7 +239,7 @@ internal static partial class MyAccountHandlers
         }
         if(await actionRateLimiter.IsBlockedAsync(user.Id, "Sms:PhoneNumberChange")) {
             return TypedResults.ValidationProblem(
-                ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber))
+                ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.LimitAttemptsReached)
             );
         }
         var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");

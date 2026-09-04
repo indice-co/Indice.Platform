@@ -1,7 +1,7 @@
 namespace Indice.Features.Identity.Core.Data.Models;
 
 /// <summary>Represents a purpose-scoped action attempt counter for a user.</summary>
-public class UseRateCount
+public class UseRateCounter
 {
     /// <summary>The user id this counter belongs to.</summary>
     public string UserId { get; set; } = null!;

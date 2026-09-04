@@ -95,7 +95,7 @@ public static class IServiceCollectionExtensions
     /// <summary>Adds a NoOp action rate limiter that does not enforce any limits.</summary>
     /// <param name="services">The services available in the application.</param>
     public static IServiceCollection AddActionRateLimiterNoOp(this IServiceCollection services) {
-        services.TryAddScoped<IActionRateLimiter, NoOpActionRateLimiter>();
+        services.AddScoped<IActionRateLimiter, NoOpActionRateLimiter>();
         return services;
     }
 

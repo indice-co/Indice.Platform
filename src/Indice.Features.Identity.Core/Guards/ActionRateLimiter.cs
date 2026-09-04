@@ -79,7 +79,7 @@ internal class ActionRateLimiter : IActionRateLimiter
                                           .SingleOrDefaultAsync(x => x.UserId == userId && x.PurposeKey == purposeKey, cancellationToken);
 
             if (attempt is null) {
-                attempt = new UseRateCount {
+                attempt = new UseRateCounter {
                     UserId = userId,
                     PurposeKey = purposeKey,
                     Count = 1,
