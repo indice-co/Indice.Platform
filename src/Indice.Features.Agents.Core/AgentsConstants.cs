@@ -41,9 +41,16 @@ public static class AgentsConstants
         public const string Callout = "application/vnd.indice.callout+json";
 
         /// <summary>A two-way confirmation; picking a button posts its label verbatim as the next user message. Payload: <see cref="Models.Confirmation"/>.</summary>
-        public const string Confirmation = "application/vnd.indice.confirm+json";    
+        public const string Confirmation = "application/vnd.indice.confirm+json";
+
+        /// <summary>A custom type to send html to agents that traditionally dont support parts of html.</summary>
+        public const string Html = "text/vnd.indice.html+json";
+
+        /// <summary>A custom type to send svg to other agents that traditionally dont support svg.</summary>
+        public const string Svg = "text/vnd.indice.svg+json";
+
     }
-  
+
     /// <summary>
     /// Semantic icon tokens advertised on <c>AgentInfo.Icon</c>. A token names what the flow *is*;
     /// the client maps it onto its own glyph set, so presentation stays a client concern. Clients

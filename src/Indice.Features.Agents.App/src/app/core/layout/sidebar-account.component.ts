@@ -127,7 +127,7 @@ import { initialsOf } from '../models/initials';
                   stroke-linejoin="round"
                 />
               </svg>
-              Log in
+              Sign in
             </button>
           </li>
         }
