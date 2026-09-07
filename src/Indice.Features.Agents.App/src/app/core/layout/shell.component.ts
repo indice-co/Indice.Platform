@@ -87,21 +87,31 @@ const COLLAPSED_KEY = 'dex.rail.collapsed';
             <span class="text-base font-semibold tracking-tight text-base-content">Dex</span>
           </a>
 
-          <button
-            type="button"
-            class="btn btn-primary btn-sm btn-circle ml-auto shadow-sm"
-            (click)="newChat()"
-            aria-label="New chat"
-          >
-            <svg viewBox="0 0 24 24" fill="none" class="size-4" aria-hidden="true">
-              <path
-                d="M12 5v14M5 12h14"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-            </svg>
-          </button>
+          @if (signedIn() !== false) {
+            <button
+              type="button"
+              class="btn btn-primary btn-sm btn-circle ml-auto shadow-sm"
+              (click)="newChat()"
+              aria-label="New chat"
+            >
+              <svg viewBox="0 0 24 24" fill="none" class="size-4" aria-hidden="true">
+                <path
+                  d="M12 5v14M5 12h14"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="btn btn-primary btn-sm ml-auto rounded-full shadow-sm"
+              (click)="signIn()"
+            >
+              Sign in
+            </button>
+          }
         </header>
 
         <!-- Guest CTA: a slim bar atop the main column — the message centered, the Log in button at
@@ -109,8 +119,8 @@ const COLLAPSED_KEY = 'dex.rail.collapsed';
              known, so a signed-in user never sees it flash. -->
         @if (signedIn() === false) {
           <div
-            class="grid h-12 shrink-0 grid-cols-3 items-center border-b border-base-300 bg-base-100
-                   px-4 sm:px-6"
+            class="hidden h-12 shrink-0 grid-cols-3 items-center border-b border-base-300
+                   bg-base-100 px-4 sm:px-6 md:grid"
           >
             <span
               class="col-start-2 hidden justify-self-center text-sm text-base-content/60 sm:inline"
@@ -119,10 +129,10 @@ const COLLAPSED_KEY = 'dex.rail.collapsed';
             </span>
             <button
               type="button"
-              class="btn btn-primary btn-sm col-start-3 justify-self-end"
+              class="btn btn-primary btn-sm col-start-3 justify-self-end rounded-full"
               (click)="signIn()"
             >
-              Log in
+              Sign in
             </button>
           </div>
         }
