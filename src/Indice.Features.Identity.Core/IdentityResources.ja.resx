@@ -506,5 +506,22 @@
   </data>
   <data name="LimitAttemptsReached" xml:space="preserve">
     <value>1日あたりの試行回数の上限に達しました。しばらくしてからもう一度お試しください。</value>
+  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>「パスワード確認」フィールドは必須です。</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>パスワード確認がパスワードと一致しません。</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>「パスワード確認」フィールドは必須です。</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>パスワード確認がパスワードと一致しません。</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>「パスワード確認」フィールドは必須です。</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>パスワード確認がパスワードと一致しません。</value>
   </data>
 </root>

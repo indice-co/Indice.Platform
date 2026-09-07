@@ -506,5 +506,22 @@
   </data>
   <data name="LimitAttemptsReached" xml:space="preserve">
     <value>Sie haben das tägliche Limit für Versuchsanfragen erreicht. Bitte versuchen Sie es später erneut.</value>
+  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Das Feld 'Passwort bestätigen' ist erforderlich.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Die Passwortbestätigung stimmt nicht mit dem Passwort überein.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Das Feld 'Passwort bestätigen' ist erforderlich.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Die Passwortbestätigung stimmt nicht mit dem Passwort überein.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Das Feld 'Passwort bestätigen' ist erforderlich.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Die Passwortbestätigung stimmt nicht mit dem Passwort überein.</value>
   </data>
 </root>
