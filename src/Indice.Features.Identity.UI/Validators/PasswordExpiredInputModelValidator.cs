@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.UI.Models;
-using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Validators;
 
@@ -11,15 +10,10 @@ public class PasswordExpiredInputModelValidator : AbstractValidator<PasswordExpi
 
     /// <summary>Creates a new instance of <see cref="PasswordExpiredInputModelValidator"/> class.</summary>
     /// <param name="describer">The <see cref="IdentityMessageDescriber"/> used to describe validation messages.</param>
-    /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public PasswordExpiredInputModelValidator(IdentityMessageDescriber describer, IOptions<IdentityUIOptions> identityUiOptions) {
+    public PasswordExpiredInputModelValidator(IdentityMessageDescriber describer) {
         RuleFor(x => x.NewPassword).NotEmpty().WithMessage(describer.UI_Validator_PasswordExpired_NewPassword_Empty_Error);
-        if (identityUiOptions.Value.EnablePasswordConfirmation) {
-            RuleFor(x => x.NewPasswordConfirmation)
-                .Cascade(CascadeMode.Stop)
-                .NotEmpty().WithMessage(describer.UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error)
-                .Equal(x => x.NewPassword).WithMessage(describer.UI_Validator_PasswordExpired_NewPasswordConfirmation_Mismatch_Error);
-        }
+        RuleFor(x => x.NewPasswordConfirmation).NotEmpty().WithMessage(describer.UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error);
+        RuleFor(x => x.NewPasswordConfirmation).Equal(x => x.NewPassword).WithMessage(describer.UI_Validator_PasswordExpired_NewPasswordConfirmation_Mismatch_Error);
     }
 }
