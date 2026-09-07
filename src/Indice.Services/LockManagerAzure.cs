@@ -42,7 +42,7 @@ public class LockManagerAzure : ILockManager
 
     /// <summary>Acquire a lock or throws.</summary>
     /// <param name="name">Topic or name.</param>
-    /// <param name="duration">The duration the lease will be active. A non-infinite lease (-1) can be between 15 and 60 seconds. Defaults 30 seconds.</param>
+    /// <param name="duration">The duration the lease will be active. The duration can be -1 (infinite) or between 15 and 60 seconds. Defaults to 30 seconds.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <exception cref="LockManagerException">Occurs when the lock cannot be acquired.</exception>
     public async Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null, CancellationToken cancellationToken = default) {
