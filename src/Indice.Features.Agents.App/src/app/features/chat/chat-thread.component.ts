@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 
 import { ChatCitationsComponent } from './chat-citations.component';
 import { ChatMessagePartComponent } from './chat-message-part.component';
-import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
+import { ThreadMessage } from './chat.models';
 
 /** The scrolling conversation: message bubbles, live streaming answer, citations and empty state. */
 @Component({
@@ -27,29 +27,7 @@ import { EXAMPLE_PROMPTS, ThreadMessage } from './chat.models';
             <span class="loading loading-ring loading-lg text-primary/60"></span>
           </div>
         } @else if (messages().length === 0 && !streaming()) {
-          <!-- Empty canvas -->
-          <div class="flex flex-col items-center px-4 pt-12 text-center sm:pt-20">
-            <img src="dex-logo.png" alt="Dex" class="size-16 drop-shadow-sm" />
-            <h1 class="mt-6 text-4xl font-semibold tracking-tight text-base-content">
-              Ask Dex
-            </h1>
-            <p class="mt-3 max-w-md text-base-content/55">
-              Grounded answers from your knowledge base — with citations you can trace.
-            </p>
-            <div class="mt-8 flex flex-wrap justify-center gap-2">
-              @for (prompt of examplePrompts; track prompt) {
-                <button
-                  type="button"
-                  class="rounded-selector border border-base-300 bg-base-100 px-4 py-2 text-sm
-                         text-base-content/75 shadow-sm transition hover:border-primary/40
-                         hover:text-base-content"
-                  (click)="examplePick.emit(prompt)"
-                >
-                  {{ prompt }}
-                </button>
-              }
-            </div>
-          </div>
+          <!-- Empty: the new-session hero (and centered composer) is rendered by the chat page. -->
         } @else {
           <div class="flex flex-col gap-6">
             @for (turn of turns(); track $index) {
@@ -212,13 +190,10 @@ export class ChatThreadComponent {
   readonly busy = input(false);
   readonly questionsTotal = input<number | null>(null);
 
-  readonly examplePick = output<string>();
   /** Emits text the user picked from an interactive part (an option, a confirmation button), to be sent as the next user message. */
   readonly pick = output<string>();
   /** Emits when the user rates an assistant answer: `like` true/false, or null to clear the rating. */
   readonly likeChanged = output<{ messageId: string; like: boolean | null }>();
-
-  protected readonly examplePrompts = EXAMPLE_PROMPTS;
 
   /** Like/dislike toggle — clicking the active thumb again clears the rating. */
   protected toggleLike(message: ThreadMessage, like: boolean): void {
