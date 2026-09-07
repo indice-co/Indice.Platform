@@ -47,7 +47,7 @@ public class LockManagerAzure : ILockManager
     /// <exception cref="LockManagerException">Occurs when the lock cannot be acquired.</exception>
     public async Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null, CancellationToken cancellationToken = default) {
         if (duration is not null) {
-            if (duration.Value.TotalSeconds < MIN_LOCK_DURATION_SECONDS && duration.Value.TotalSeconds != -1) {
+            if (duration.Value.TotalSeconds < MIN_LOCK_DURATION_SECONDS && duration.Value != TimeSpan.FromSeconds(-1)) {
                 var innerException = new ArgumentOutOfRangeException(nameof(duration), duration.Value.TotalSeconds, $"Duration is less than minimum duration of {MIN_LOCK_DURATION_SECONDS} seconds");
                 throw new LockManagerException(name, innerException);
             }
