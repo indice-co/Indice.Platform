@@ -506,6 +506,7 @@
   </data>
   <data name="LimitAttemptsReached" xml:space="preserve">
     <value>Vous avez atteint la limite quotidienne de tentatives. Veuillez réessayer plus tard.</value>
+  </data>
   <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
     <value>Le champ « Confirmer le mot de passe » est obligatoire.</value>
   </data>

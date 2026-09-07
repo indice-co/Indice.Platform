@@ -506,6 +506,7 @@
   </data>
   <data name="LimitAttemptsReached" xml:space="preserve">
     <value>Έχετε φτάσει στο ημερήσιο όριο προσπαθειών. Παρακαλώ δοκιμάστε ξανά αργότερα.</value>
+  </data>
   <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
     <value>Το πεδίο 'Επιβεβαίωση κωδικού πρόσβασης' είναι υποχρεωτικό.</value>
   </data>
