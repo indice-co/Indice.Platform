@@ -135,7 +135,7 @@ public static class PushNotificationServiceExtensions
 public interface IPushNotificationServiceFactory
 {
     /// <summary>Creates an instance of an <see cref="IPushNotificationService"/></summary>
-    /// <param name="name">The name/key that the push notification service has been configured with, otherwize null to get the default version.</param>
+    /// <param name="name">The name/key that the push notification service has been configured with, otherwise null to get the default version.</param>
     /// <returns>A push notification service instance</returns>
     IPushNotificationService Create(string? name);
 }

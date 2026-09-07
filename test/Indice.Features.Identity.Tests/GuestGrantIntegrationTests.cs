@@ -123,8 +123,8 @@ public class GuestGrantIntegrationTests
         Assert.Equal("+30 6900000000", token.Claims.First(claim => claim.Type == "phone_number").Value);
     }
 
-    private class OpinionatedGuestGrantValidator(IPushNotificationService pushNotificationService, ILogger<GuestGrantValidator> logger) 
-        : GuestGrantValidator(pushNotificationService, logger)
+    private class OpinionatedGuestGrantValidator(IPushNotificationServiceFactory pushNotificationServiceFactory, ILogger<GuestGrantValidator> logger) 
+        : GuestGrantValidator(pushNotificationServiceFactory, logger)
     {
 
         protected override Task<IEnumerable<Claim>> GetClaimsAsync(ExtensionGrantValidationContext context, string subject) =>

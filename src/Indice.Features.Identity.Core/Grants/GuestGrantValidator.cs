@@ -24,7 +24,7 @@ using IdentityServer4.Validation;
 namespace Indice.Features.Identity.Core.Grants;
 
 /// <summary>A custom <see cref="IExtensionGrantValidator"/> that issues short-lived tokens for anonymous (guest) users.</summary>
-/// <param name="pushNotificationServiceFactory">The push notification service used to register the guest device for push notifications.</param>
+/// <param name="pushNotificationServiceFactory">The push notification service factory to create a service instance used to register the guest device for push notifications.</param>
 /// <param name="logger">The logger instance.</param>
 /// <remarks>
 /// The effective subject is echoed back through the token response custom field <c>sub</c>, so callers do not need to parse the access token.
