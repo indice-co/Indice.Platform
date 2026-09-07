@@ -88,7 +88,7 @@ public class UserActionGuardTests
             SecurityStamp = Guid.NewGuid().ToString()
         };
         db.Users.Add(user);
-        db.UserActionAttempts.Add(new UseRateCounter {
+        db.UserRateCounters.Add(new UserRateCounter {
             UserId = user.Id,
             ActionName = "Sms:ChangePhoneNumber",
             Count = 4,
@@ -100,7 +100,7 @@ public class UserActionGuardTests
         var count = await guard.AdvanceCounterAsync(user.Id, "Sms:ChangePhoneNumber", TestContext.Current.CancellationToken);
 
         Assert.Equal(1, count);
-        var row = await db.UserActionAttempts.SingleAsync(x => x.UserId == user.Id && x.ActionName == "Sms:ChangePhoneNumber", TestContext.Current.CancellationToken);
+        var row = await db.UserRateCounters.SingleAsync(x => x.UserId == user.Id && x.ActionName == "Sms:ChangePhoneNumber", TestContext.Current.CancellationToken);
         Assert.Equal(1, row.Count);
         Assert.True(row.ResetDate > DateTimeOffset.UtcNow);
     }
