@@ -1,23 +1,60 @@
 <div class="flex h-full flex-col bg-base-200">
-  <div class="min-h-0 flex-1">
-    <app-chat-thread
-      [messages]="messages()"
+  @if (isEmptySession()) {
+    <!-- New, unsent chat: hero + composer centered in the canvas, ChatGPT-style. -->
+    <div class="dex-canvas flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-4 sm:px-6">
+      <div class="flex w-full max-w-3xl flex-col items-center text-center">
+        <h1 class="text-3xl font-semibold tracking-tight text-base-content">
+          What can I help with?
+        </h1>
+        <div class="mt-6 w-full">
+          <app-chat-composer
+            [centered]="true"
+            [streaming]="isStreaming()"
+            [agents]="agents()"
+            [(selectedAgent)]="selectedAgentName"
+            (send)="send($event)"
+            (stop)="stop()"
+          />
+        </div>
+        <div class="mt-6 flex flex-wrap justify-center gap-2">
+          @for (prompt of examplePrompts; track prompt) {
+            <button
+              type="button"
+              class="rounded-selector border border-base-300/80 bg-base-100 px-3.5 py-1.5 text-sm
+                     text-base-content/60 transition hover:border-primary/40
+                     hover:text-base-content"
+              (click)="send(prompt)"
+            >
+              {{ prompt }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+    <!-- Disclaimer, ChatGPT-style: only on the vanilla blank slate. -->
+    <footer class="shrink-0 pb-1.5 text-center text-[0.7rem] text-base-content/45">
+      Dex is AI and can make mistakes.
+    </footer>
+  } @else {
+    <div class="min-h-0 flex-1">
+      <app-chat-thread
+        [messages]="messages()"
+        [streaming]="isStreaming()"
+        [streamingMessage]="streamingMessage()"
+        [step]="currentStep()"
+        [error]="error()"
+        [busy]="threadLoading()"
+        [questionsTotal]="questionsTotal()"
+        (pick)="send($event)"
+        (likeChanged)="setLike($event)"
+      />
+    </div>
+    <app-chat-composer
       [streaming]="isStreaming()"
-      [streamingMessage]="streamingMessage()"
-      [step]="currentStep()"
-      [error]="error()"
-      [busy]="threadLoading()"
-      [questionsTotal]="questionsTotal()"
-      (examplePick)="send($event)"
-      (pick)="send($event)"
-      (likeChanged)="setLike($event)"
+      [agents]="agents()"
+      [(selectedAgent)]="selectedAgentName"
+      (send)="send($event)"
+      (stop)="stop()"
     />
-  </div>
-  <app-chat-composer
-    [streaming]="isStreaming()"
-    [agents]="agents()"
-    [(selectedAgent)]="selectedAgentName"
-    (send)="send($event)"
-    (stop)="stop()"
-  />
+  }
 </div>
