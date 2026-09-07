@@ -48,6 +48,12 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
             RuleFor(x => x.UserName).Must(UserNameNotBeAssignedToAnotherUser).WithMessage(describer.UI_Validator_Register_UserName_AlreadyExists);
         }
         RuleFor(x => x.Password).NotEmpty().WithName(describer.UI_Validator_Register_Password_FieldName);
+        if (identityUiOptions.Value.EnablePasswordConfirmation) {
+            RuleFor(x => x.PasswordConfirmation)
+                 .Cascade(CascadeMode.Stop)
+                 .NotEmpty().WithMessage(describer.UI_Validator_Register_PasswordConfirmation_Empty_Error)
+                 .Equal(x => x.Password).WithMessage(describer.UI_Validator_Register_PasswordConfirmation_Mismatch_Error);
+        }
         RuleFor(x => x.Email).NotEmpty().EmailAddress().WithName(describer.UI_Validator_Register_Email_FieldName);
         RuleFor(x => x.Email).Must(EmailNotBeAssignedToAnotherUser).WithMessage(describer.UI_Validator_Register_Email_AlreadyExists);
         RuleFor(x => x.HasAcceptedTerms).Equal(true).WithMessage(describer.UI_Validator_Register_AcceptTerms_Message);
