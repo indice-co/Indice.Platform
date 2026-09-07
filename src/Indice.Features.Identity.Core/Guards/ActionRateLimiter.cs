@@ -29,15 +29,13 @@ public interface IActionRateLimiter
     /// <summary>Attempts to record an action and returns whether the action is allowed by the configured limit.</summary>
     /// <returns>True if the action is allowed; otherwise, false.</returns>
     Task<bool> CheckAndAdvanceAsync(string userId, string actionName, CancellationToken cancellationToken = default);
-
-    /// <summary>Records an attempt and returns the updated count for the active sliding window.</summary>
-    /// <returns>The counter value after recording the attempt.</returns>
-    Task<int> AdvanceCounterAsync(string userId, string actionName, CancellationToken cancellationToken = default);
 }
 
-internal class NoOpActionRateLimiter : IActionRateLimiter { 
-    public Task<bool> CheckAndAdvanceAsync(string userId, string actionName, CancellationToken cancellationToken = default) => Task.FromResult(true);
-    public Task<int> AdvanceCounterAsync(string userId, string actionName, CancellationToken cancellationToken = default) => Task.FromResult(0);
+internal class NoOpActionRateLimiter : IActionRateLimiter
+{
+    
+    /// <inheritdoc/>
+    public Task<bool> CheckAndAdvanceAsync(string userId, string actionName, CancellationToken cancellationToken = default) => Task.FromResult(true);  
 }
 
 internal class ActionRateLimiter : IActionRateLimiter
@@ -53,54 +51,39 @@ internal class ActionRateLimiter : IActionRateLimiter
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
+    /// <inheritdoc/>
     public async Task<bool> CheckAndAdvanceAsync(string userId, string actionName, CancellationToken cancellationToken = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
         ArgumentException.ThrowIfNullOrWhiteSpace(actionName);
 
-        var currentCount = await AdvanceCounterAsync(userId, actionName, cancellationToken);
         var maxAttempts = _options.MaxAttempts > 0 ? _options.MaxAttempts : ActionRateLimiterOptions.DefaultMaxAttempts;
-        return currentCount <= maxAttempts;
-    }
-
-    public async Task<int> AdvanceCounterAsync(string userId, string actionName, CancellationToken cancellationToken = default) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(userId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(actionName);
-
         var window = _options.Window > TimeSpan.Zero ? _options.Window : ActionRateLimiterOptions.DefaultWindow;
+        var now = DateTimeOffset.UtcNow;
 
         for (var i = 0; i < 2; i++) {
-            var now = DateTimeOffset.UtcNow;
             var attempt = await _dbContext.UserRateCounters
                                           .SingleOrDefaultAsync(x => x.UserId == userId && x.ActionName == actionName, cancellationToken);
-
             if (attempt is null) {
-                attempt = new UserRateCounter {
-                    UserId = userId,
-                    ActionName = actionName,
-                    Count = 1,
-                    ResetDate = now.Add(window),
-                    LastUpdate = now
-                };
+                attempt = UserRateCounter.Create(userId, actionName, now, window);
                 _dbContext.UserRateCounters.Add(attempt);
-            } else if (now > attempt.ResetDate) {
-                attempt.Count = 1;
-                attempt.ResetDate = now.Add(window);
-                attempt.LastUpdate = now;
-            } else {
-                attempt.Count++;
-                attempt.LastUpdate = now;
+            }
+            attempt.Increment(now);
+            if (attempt.IsMaxedOut(maxAttempts)) {
+                return false;
+            } else if (attempt.IsResetDue(now)) {
+                attempt.Reset(now, window);
             }
 
             try {
                 await _dbContext.SaveChangesAsync(cancellationToken);
-                return attempt.Count;
+                return true;
             } catch (DbUpdateConcurrencyException) when (i == 0) {
                 _dbContext.ChangeTracker.Clear();
             } catch (DbUpdateException) when (i == 0) {
                 _dbContext.ChangeTracker.Clear();
             }
         }
-
-        throw new DbUpdateException($"Could not record user action attempt for '{userId}' and action '{actionName}'.");
+        //something went wrong with the concurrency, we will not allow the action to be performed
+        return false;
     }
 }

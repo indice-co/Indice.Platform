@@ -10,6 +10,31 @@ namespace Indice.Features.Identity.Tests;
 public class UserActionGuardTests
 {
     [Fact]
+    public async Task TryRecordAttemptAsync_Configured_Max_Attempt_1_Limit() {
+        var services = CreateServiceCollection(new Dictionary<string, string?> {
+            [$"{ActionRateLimiterOptions.Name}:{nameof(ActionRateLimiterOptions.MaxAttempts)}"] = "1",
+            [$"{ActionRateLimiterOptions.Name}:{nameof(ActionRateLimiterOptions.Window)}"] = "1.00:00:00",
+            [$"{ActionRateLimiterOptions.Name}:{nameof(ActionRateLimiterOptions.Enabled)}"] = "true"
+        });
+
+        await using var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        var guard = scope.ServiceProvider.GetRequiredService<IActionRateLimiter>();
+
+        var user = new User("alice@example.com") {
+            Email = "alice@example.com",
+            CreateDate = DateTimeOffset.UtcNow,
+            SecurityStamp = Guid.NewGuid().ToString()
+        };
+        db.Users.Add(user);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var keyA = "Sms:ChangePhoneNumber";
+
+        Assert.True(await guard.CheckAndAdvanceAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+        Assert.False(await guard.CheckAndAdvanceAsync(user.Id, keyA, TestContext.Current.CancellationToken));
+    }
+    [Fact]
     public async Task TryRecordAttemptAsync_Is_Purpose_Scoped_And_Blocks_By_Configured_Limit() {
         var services = CreateServiceCollection(new Dictionary<string, string?> {
             [$"{ActionRateLimiterOptions.Name}:{nameof(ActionRateLimiterOptions.MaxAttempts)}"] = "3",
@@ -97,9 +122,8 @@ public class UserActionGuardTests
         });
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var count = await guard.AdvanceCounterAsync(user.Id, "Sms:ChangePhoneNumber", TestContext.Current.CancellationToken);
-
-        Assert.Equal(1, count);
+        var allowed = await guard.CheckAndAdvanceAsync(user.Id, "Sms:ChangePhoneNumber", TestContext.Current.CancellationToken);
+        Assert.True(allowed);
         var row = await db.UserRateCounters.SingleAsync(x => x.UserId == user.Id && x.ActionName == "Sms:ChangePhoneNumber", TestContext.Current.CancellationToken);
         Assert.Equal(1, row.Count);
         Assert.True(row.ResetDate > DateTimeOffset.UtcNow);
