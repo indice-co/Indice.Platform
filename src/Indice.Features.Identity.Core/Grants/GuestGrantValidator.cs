@@ -24,7 +24,7 @@ using IdentityServer4.Validation;
 namespace Indice.Features.Identity.Core.Grants;
 
 /// <summary>A custom <see cref="IExtensionGrantValidator"/> that issues short-lived tokens for anonymous (guest) users.</summary>
-/// <param name="pushNotificationService">The push notification service used to register the guest device for push notifications.</param>
+/// <param name="pushNotificationServiceFactory">The push notification service used to register the guest device for push notifications.</param>
 /// <param name="logger">The logger instance.</param>
 /// <remarks>
 /// The effective subject is echoed back through the token response custom field <c>sub</c>, so callers do not need to parse the access token.
@@ -32,7 +32,7 @@ namespace Indice.Features.Identity.Core.Grants;
 /// Subclass and override <see cref="GetClaimsAsync"/> to validate additional request data and enrich the issued claims,
 /// then register the subclass through <c>AddGuestGrantValidator&lt;TValidator&gt;()</c>.
 /// </remarks>
-public class GuestGrantValidator(IPushNotificationService pushNotificationService, ILogger<GuestGrantValidator> logger) : IExtensionGrantValidator
+public class GuestGrantValidator(IPushNotificationServiceFactory pushNotificationServiceFactory, ILogger<GuestGrantValidator> logger) : IExtensionGrantValidator
 {
     /// <summary>The identity provider value used to discriminate guest identities.</summary>
     public const string IdentityProviderName = "guest";
@@ -41,7 +41,7 @@ public class GuestGrantValidator(IPushNotificationService pushNotificationServic
     public string GrantType => CustomGrantTypes.Guest;
 
     /// <summary>The push notification service used to register the guest device for push notifications.</summary>
-    public IPushNotificationService PushNotificationService { get; } = pushNotificationService;
+    public IPushNotificationServiceFactory PushNotificationServiceFactory { get; } = pushNotificationServiceFactory;
 
     /// <summary>The logger instance.</summary>
     public ILogger<GuestGrantValidator> Logger { get; } = logger;
@@ -74,6 +74,7 @@ public class GuestGrantValidator(IPushNotificationService pushNotificationServic
     /// In case the registration fails, the exception is swallowed and logged.</remarks>
     /// <exception cref="InvalidOperationException">Thrown when the device fields are not in the correct format.</exception>
     protected async Task TryRegisterToPushNotificationsAsync(ExtensionGrantValidationContext context, string subject) {
+        var pushNotificationService = PushNotificationServiceFactory.Create();
         var raw = context.Request.Raw;
         var deviceId = raw.Get(GuestGrantRequestParameterNames.DeviceId)?.Trim();
         var devicePlatform = raw.Get(GuestGrantRequestParameterNames.DevicePlatform)?.Trim();
@@ -86,7 +87,7 @@ public class GuestGrantValidator(IPushNotificationService pushNotificationServic
             Guard.TooLong(devicePlatform, TextSizePresets.S32, GuestGrantRequestParameterNames.DevicePlatform);
             var platform = Guard.DevicePlatform(devicePlatform, GuestGrantRequestParameterNames.DevicePlatform);
             try {
-                await PushNotificationService.Register(deviceId, pnsHandle, platform, subject);
+                await pushNotificationService.Register(deviceId, pnsHandle, platform, subject);
             } 
             catch (Exception ex) {
                 Logger.LogError(ex, "Failed to register push notification user handle.");

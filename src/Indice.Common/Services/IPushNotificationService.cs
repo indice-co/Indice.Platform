@@ -135,9 +135,9 @@ public static class PushNotificationServiceExtensions
 public interface IPushNotificationServiceFactory
 {
     /// <summary>Creates an instance of an <see cref="IPushNotificationService"/></summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    IPushNotificationService Create(string name);
+    /// <param name="name">The name/key that the push notification service has been configured with, otherwize null to get the default version.</param>
+    /// <returns>A push notification service instance</returns>
+    IPushNotificationService Create(string? name);
 }
 
 /// <inheritdoc/>
@@ -147,5 +147,16 @@ public class DefaultPushNotificationServiceFactory(IServiceProvider serviceProvi
     private IServiceProvider _serviceProvider { get; } = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
     /// <inheritdoc />
-    public IPushNotificationService Create(string name) => _serviceProvider.GetKeyedService<IPushNotificationService>(name) ?? new PushNotificationServiceNoop();
+    public IPushNotificationService Create(string? name) => (string.IsNullOrWhiteSpace(name) ? 
+                                                            _serviceProvider.GetService<IPushNotificationService>() : 
+                                                            _serviceProvider.GetKeyedService<IPushNotificationService>(name))
+        ?? new PushNotificationServiceNoop();
+}
+
+
+/// <summary>Extensions for <see cref="IPushNotificationServiceFactory"/>.</summary>
+public static class PushNotificationServiceFactoryExtensions 
+{
+    /// <summary>Creates the default instance of an <see cref="IPushNotificationService"/>.</summary>
+    public static IPushNotificationService Create(this IPushNotificationServiceFactory factory) => factory.Create(name: null);
 }
