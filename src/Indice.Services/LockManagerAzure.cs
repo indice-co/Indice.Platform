@@ -16,7 +16,7 @@ public class LockManagerAzure : ILockManager
     /// <summary>
     /// Azure maximum duration a lock lease can be acquired for
     /// </summary>
-    private const int MAX_LOCK_DURATION_SECONDS = 59;
+    private const int MAX_LOCK_DURATION_SECONDS = 60;
 
     /// <summary>The default name of the storage connection string.</summary>
     public const string CONNECTION_STRING_NAME = "StorageConnection";
@@ -40,16 +40,20 @@ public class LockManagerAzure : ILockManager
     /// <summary>The cloud container client.</summary>
     public BlobContainerClient BlobContainer { get; }
 
-    /// <inheritdoc />
+    /// <summary>Acquire a lock or throws.</summary>
+    /// <param name="name">Topic or name.</param>
+    /// <param name="duration">The duration the lease will be active. A non-infinite lease (-1) can be between 15 and 60 seconds. Defaults 30 seconds.</param>
+    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
+    /// <exception cref="LockManagerException">Occurs when the lock cannot be acquired.</exception>
     public async Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null, CancellationToken cancellationToken = default) {
         if (duration is not null) {
-            if (duration.Value.Seconds < MIN_LOCK_DURATION_SECONDS && duration.Value.Seconds != -1) {
-                var innerException = new ArgumentOutOfRangeException(nameof(duration), duration.Value.Seconds, $"Duration is less than minimum duration of {MIN_LOCK_DURATION_SECONDS} seconds");
+            if (duration.Value.TotalSeconds < MIN_LOCK_DURATION_SECONDS && duration.Value.TotalSeconds != -1) {
+                var innerException = new ArgumentOutOfRangeException(nameof(duration), duration.Value.TotalSeconds, $"Duration is less than minimum duration of {MIN_LOCK_DURATION_SECONDS} seconds");
                 throw new LockManagerException(name, innerException);
             }
 
-            if (duration.Value.Seconds > MAX_LOCK_DURATION_SECONDS) {
-                var innerException = new ArgumentOutOfRangeException(nameof(duration), duration.Value.Seconds, $"Duration exceeds the maximum duration of {MAX_LOCK_DURATION_SECONDS} seconds");
+            if (duration.Value.TotalSeconds > MAX_LOCK_DURATION_SECONDS) {
+                var innerException = new ArgumentOutOfRangeException(nameof(duration), duration.Value.TotalSeconds, $"Duration exceeds the maximum duration of {MAX_LOCK_DURATION_SECONDS} seconds");
                 throw new LockManagerException(name, innerException);
             }
         }
