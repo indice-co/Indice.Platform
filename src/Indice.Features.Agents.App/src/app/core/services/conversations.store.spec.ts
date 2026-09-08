@@ -1,7 +1,9 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Observable, Subject, of } from 'rxjs';
+import { AuthService } from '@indice/ng-auth';
+import { NEVER, Observable, Subject, of } from 'rxjs';
 
+import { AuthGuestService } from '../auth/auth-guest.service';
 import { ConversationsStore } from './conversations.store';
 import { ConversationListItem, ConversationListItemResultSet, DexApiService } from './dex-api.service';
 
@@ -41,6 +43,7 @@ describe('ConversationsStore', () => {
       providers: [
         provideZonelessChangeDetection(),
         { provide: DexApiService, useValue: controller.api },
+        { provide: AuthService, useValue: { user$: NEVER } },
       ],
     });
     store = TestBed.inject(ConversationsStore);
@@ -91,7 +94,11 @@ describe('ConversationsStore', () => {
     } as unknown as DexApiService;
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection(), { provide: DexApiService, useValue: failing }],
+      providers: [
+        provideZonelessChangeDetection(),
+        { provide: DexApiService, useValue: failing },
+        { provide: AuthService, useValue: { user$: NEVER } },
+      ],
     });
     const s = TestBed.inject(ConversationsStore);
 
@@ -102,5 +109,19 @@ describe('ConversationsStore', () => {
 
     expect(s.sessions().map((x) => x.id)).withContext('rolled back').toEqual(['c1']);
     expect(s.error()).toBe('Could not delete the conversation.');
+  });
+
+  it('empties the rail and starts a new chat when the guest session is cleared', () => {
+    const guest = TestBed.inject(AuthGuestService);
+    guest.capture({ accessToken: 'tok', expiresIn: 3600 });
+    store.refresh();
+    controller.emit(0, listOf('c1'));
+    store.select('c1');
+
+    guest.clear();
+
+    expect(store.sessions()).withContext('rows belonged to the old guest').toEqual([]);
+    expect(store.activeId()).toBeNull();
+    sessionStorage.removeItem('dex.guest.session');
   });
 });

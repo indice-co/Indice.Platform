@@ -13,4 +13,5 @@ public interface IGuestTokenService
 /// <param name="TokenType">The token type (typically <c>Bearer</c>).</param>
 /// <param name="ExpiresIn">Token lifetime in seconds.</param>
 /// <param name="Subject">The guest subject identifier the token was issued for.</param>
-public record GuestAccessToken(string AccessToken, string TokenType, int ExpiresIn, string Subject);
+/// <param name="RefreshToken">The refresh token</param>
+public record GuestAccessToken(string AccessToken, string TokenType, int ExpiresIn, string Subject, string? RefreshToken);

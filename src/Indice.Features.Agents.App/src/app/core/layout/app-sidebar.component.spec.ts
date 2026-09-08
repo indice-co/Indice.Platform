@@ -2,6 +2,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { AUTH_SETTINGS, AuthService } from '@indice/ng-auth';
+import { of } from 'rxjs';
 
 import { AppSidebarComponent } from './app-sidebar.component';
 import { ConversationListItem } from '../services/dex-api.service';
@@ -13,9 +14,12 @@ const SESSIONS = [
 ];
 
 const authStub = {
+  user$: of({ expired: false, profile: {} }),
+  getAuthorizationHeaderValue: () => 'Bearer user',
   getDisplayName: () => 'Krikor Tzevachirian',
   getEmail: () => 'k@indice.gr',
   getSubjectId: () => 'sub-1',
+  signinRedirect: () => undefined,
   signoutRedirect: () => undefined,
 } as unknown as AuthService;
 

@@ -20,4 +20,8 @@ public class GuestSession
     /// <summary>The guest subject identifier the token was issued for.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Subject { get; set; }
+
+    /// <summary>Optionally the refresh token to renew this session. </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? RefreshToken { get; set; }
 }
