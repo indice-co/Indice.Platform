@@ -6,8 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [8.56.0]
-- Add UserActivityRateCounter with limits and Guard 
-
+- Add UserRateCounter-backed action rate limiter with limits and guard
 Run this Migration script to update the database
 ```sql
 CREATE TABLE [auth].[UserRateCounter](
