@@ -1,6 +1,8 @@
+using System.Net.Mime;
+using System.Text;
 using Indice.Features.Agents.Core.Services;
 using Microsoft.Agents.AI;
-
+using Microsoft.Extensions.AI;
 namespace Indice.Features.Agents.Core.Workflows;
 
 /// <summary>
@@ -45,6 +47,9 @@ public sealed class ConversationStoreChatHistoryProvider : ChatHistoryProvider
             return [];
         }
         var history = await _store.GetHistoryAsync(conversationId, cancellationToken);
+        foreach (var message in history) {
+            message.Contents = ContentSanitizer.Sanitize(message.Contents);
+        }
         return history;
     }
 
@@ -56,4 +61,5 @@ public sealed class ConversationStoreChatHistoryProvider : ChatHistoryProvider
     {
         public Guid ConversationId { get; set; }
     }
+
 }

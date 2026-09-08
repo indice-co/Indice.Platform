@@ -52,6 +52,7 @@ public static class IdentityServerBuilderExtensions
     public static TIdentityServerBuilder AddGuestGrantValidator<TIdentityServerBuilder, TValidator>(this TIdentityServerBuilder builder)
         where TIdentityServerBuilder : IIdentityServerBuilder
         where TValidator : GuestGrantValidator {
+        builder.Services.AddPushNotificationServiceNoop();
         builder.AddExtensionGrantValidator<TValidator>();
         return builder;
     }

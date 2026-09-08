@@ -188,7 +188,7 @@ const COLLAPSED_LIMIT = 8;
       }
 
       <!-- Conversations -->
-      <nav class="dex-scroll flex-1 overflow-y-auto pb-3" [class.px-2]="!collapsed()">
+      <nav class="dex-scroll flex-1 overflow-x-hidden overflow-y-auto pb-3" [class.px-2]="!collapsed()">
         @if (loading()) {
           <div class="space-y-2 px-2 pt-2">
             @for (i of skeletons; track i) {
@@ -200,9 +200,9 @@ const COLLAPSED_LIMIT = 8;
             }
           </div>
         } @else if (collapsed()) {
-          <ul class="flex flex-col items-center gap-1 pt-1">
+          <ul class="flex w-full max-w-full flex-col items-center gap-1 pt-1">
             @for (s of collapsedSessions(); track s.id) {
-              <li class="tooltip tooltip-right" [attr.data-tip]="titleOf(s)">
+              <li class="tooltip tooltip-right max-w-full" [attr.data-tip]="titleOf(s)">
                 <button
                   type="button"
                   class="grid size-9 place-items-center rounded-field transition-colors

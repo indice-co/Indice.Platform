@@ -1,7 +1,8 @@
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subscription } from 'rxjs';
+import { Subscription, filter, pairwise } from 'rxjs';
 
+import { AuthGuestService } from '../auth/auth-guest.service';
 import { ConversationListItem, DexApiService } from './dex-api.service';
 
 /** How many sessions the rail fetches in one page — a generous single page covers the history. */
@@ -18,6 +19,7 @@ const PAGE_SIZE = 100;
 @Injectable({ providedIn: 'root' })
 export class ConversationsStore {
   private readonly dex = inject(DexApiService);
+  private readonly guest = inject(AuthGuestService);
   private readonly destroyRef = inject(DestroyRef);
 
   /** The caller's sessions, most-recently-active first (server order). */
@@ -34,6 +36,22 @@ export class ConversationsStore {
 
   /** The list fetch in flight, if any — at most one is ever allowed to land. */
   private refreshSub?: Subscription;
+
+  constructor() {
+    // When the guest credential goes away (expired, rejected, or superseded by a sign-in) the rail it
+    // populated no longer belongs to the caller — empty it and start fresh rather than 401 on every row.
+    this.guest.session$
+      .pipe(
+        pairwise(),
+        filter(([previous, current]) => previous !== null && current === null),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.cancelRefresh();
+        this.sessions.set([]);
+        this.startNew();
+      });
+  }
 
   /** (Re)fetch the session list — called on startup and after a turn settles. */
   refresh(): void {

@@ -8,7 +8,7 @@ import { ConversationsStore } from '../../core/services/conversations.store';
 import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
 import { ChatComposerComponent } from './chat-composer.component';
 import { ChatThreadComponent } from './chat-thread.component';
-import { ThreadMessage, responseToThreadMessage, toThreadMessage } from './chat.models';
+import { EXAMPLE_PROMPTS, ThreadMessage, responseToThreadMessage, toThreadMessage } from './chat.models';
 
 /**
  * The Dex chat surface: conversation thread + composer, wired to the streaming API.
@@ -31,6 +31,16 @@ export class ChatPageComponent {
 
   protected readonly messages = signal<ThreadMessage[]>([]);
   protected readonly threadLoading = signal(false);
+
+  protected readonly examplePrompts = EXAMPLE_PROMPTS;
+  /** A brand-new, unsent chat — the hero and composer render centered, ChatGPT-style. */
+  protected readonly isEmptySession = computed(
+    () =>
+      this.messages().length === 0 &&
+      !this.isStreaming() &&
+      !this.threadLoading() &&
+      !this.store.activeId(),
+  );
 
   protected readonly isStreaming = signal(false);
   /** The DexChatResponse the stream is assembling — the invariant says the patched document IS one. */
