@@ -13,6 +13,10 @@ public static class AgentsConstants
 
         /// <summary>The name of the agent that handles intent classification and routes user queries to the appropriate sub-agent.</summary>
         public const string Auto = "auto";
+
+        /// <summary>The name of the agent that handles case-based queries with OTP verification.</summary>
+        public const string Cases = "cases";
+
     }
 
     /// <summary>Media types of the alternative (non-prose) content parts an assistant turn can carry.</summary>
