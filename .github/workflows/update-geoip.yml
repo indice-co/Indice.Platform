@@ -1,0 +1,188 @@
+name: Update GeoIP Lists
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  GEOIP_PATH: src/Indice.Features.GeoIP/GeoLite2
+  MAXMIND_METADATA: src/Indice.Features.GeoIP/GeoLite2/.maxmind-releases.json
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: develop
+
+      - name: Update MaxMind databases
+        shell: pwsh
+        env:
+          MAXMIND_ACCOUNT_ID: ${{ secrets.MAXMIND_ACCOUNT_ID }}
+          MAXMIND_LICENSE_KEY: ${{ secrets.MAXMIND_LICENSE_KEY }}
+          MAXMIND_ASN_URL: 'https://download.maxmind.com/geoip/databases/GeoLite2-ASN/download?suffix=tar.gz'
+          MAXMIND_CITY_URL: 'https://download.maxmind.com/geoip/databases/GeoLite2-City/download?suffix=tar.gz'
+          MAXMIND_COUNTRY_URL: 'https://download.maxmind.com/geoip/databases/GeoLite2-Country/download?suffix=tar.gz'
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $metadataPath = Join-Path $env:GITHUB_WORKSPACE $env:MAXMIND_METADATA
+          $tempPath = Join-Path $env:RUNNER_TEMP 'geolite'
+
+          New-Item -ItemType Directory -Force -Path $tempPath | Out-Null
+
+          if (Test-Path $metadataPath) {
+              $metadata = Get-Content $metadataPath -Raw | ConvertFrom-Json
+          }
+          else {
+              $metadata = [PSCustomObject]@{}
+          }
+
+          function Get-RemoteLastModified {
+              param(
+                  [string]$Url
+              )
+
+              $headers = @{
+                  Authorization = 'Basic ' + [Convert]::ToBase64String(
+                      [Text.Encoding]::ASCII.GetBytes(
+                          "$env:MAXMIND_ACCOUNT_ID`:$env:MAXMIND_LICENSE_KEY"
+                      )
+                  )
+              }
+
+              $response = Invoke-WebRequest `
+                  -Uri $Url `
+                  -Method Head `
+                  -Headers $headers `
+                  -MaximumRedirection 10
+
+              return [DateTimeOffset]::Parse(
+                  $response.Headers['Last-Modified']
+              )
+          }
+
+          function Update-Database {
+              param(
+                  [string]$Name,
+                  [string]$Url,
+                  [string]$FileName
+              )
+
+              $remoteDate = Get-RemoteLastModified $Url
+              $localDate = $metadata.$Name
+
+              Write-Host "$Name"
+              Write-Host "  Local : $localDate"
+              Write-Host "  Remote: $remoteDate"
+
+              if ($localDate) {
+                  $localDate = [DateTimeOffset]::Parse($localDate)
+
+                  if ($remoteDate -le $localDate) {
+                      Write-Host "  No update."
+                      return
+                  }
+              }
+
+              Write-Host "  Downloading..."
+
+              $archive = Join-Path $tempPath "$Name.tar.gz"
+
+              $headers = @{
+                  Authorization = 'Basic ' + [Convert]::ToBase64String(
+                      [Text.Encoding]::ASCII.GetBytes(
+                          "$env:MAXMIND_ACCOUNT_ID`:$env:MAXMIND_LICENSE_KEY"
+                      )
+                  )
+              }
+
+              Invoke-WebRequest `
+                  -Uri $Url `
+                  -Headers $headers `
+                  -MaximumRedirection 10 `
+                  -OutFile $archive
+
+              tar -xzf $archive -C $tempPath
+
+              $database = Get-ChildItem `
+                  -Path $tempPath `
+                  -Recurse `
+                  -Filter $FileName |
+                  Select-Object -First 1
+
+              if (-not $database) {
+                  throw "Could not find $FileName in downloaded archive."
+              }
+
+              Copy-Item `
+                  -Path $database.FullName `
+                  -Destination (Join-Path $env:GITHUB_WORKSPACE "$env:GEOIP_PATH/$FileName") `
+                  -Force
+
+              $metadata | Add-Member `
+                  -NotePropertyName $Name `
+                  -NotePropertyValue $remoteDate.ToString('O') `
+                  -Force
+
+              Write-Host "  Updated."
+          }
+
+          Update-Database `
+              -Name 'GeoLite2-ASN' `
+              -Url $env:MAXMIND_ASN_URL `
+              -FileName 'GeoLite2-ASN.mmdb'
+
+          Update-Database `
+              -Name 'GeoLite2-City' `
+              -Url $env:MAXMIND_CITY_URL `
+              -FileName 'GeoLite2-City.mmdb'
+
+          Update-Database `
+              -Name 'GeoLite2-Country' `
+              -Url $env:MAXMIND_COUNTRY_URL `
+              -FileName 'GeoLite2-Country.mmdb'
+
+          $metadata |
+              ConvertTo-Json |
+              Set-Content $metadataPath
+
+      # - name: Update disposable lists
+      #   shell: pwsh
+      #   run: |
+      #     $ErrorActionPreference = 'Stop'
+
+      #     $phoneUrl = 'https://raw.githubusercontent.com/castle/disposable-phone-numbers/master/disposable-phone-numbers.txt'
+      #     $emailUrl = 'https://raw.githubusercontent.com/castle/disposable-email-domains/master/disposable-email-domains.txt'
+
+      #     Invoke-WebRequest `
+      #         -Uri $phoneUrl `
+      #         -OutFile "$env:GEOIP_PATH/disposable-phone-numbers.txt"
+
+      #     Invoke-WebRequest `
+      #         -Uri $emailUrl `
+      #         -OutFile "$env:GEOIP_PATH/disposable-email-domains.txt"
+
+      # - name: Create Pull Request
+      #   uses: peter-evans/create-pull-request@v8
+      #   with:
+      #     base: develop
+      #     branch: automated/update-geoip
+      #     delete-branch: true
+      #     commit-message: 'chore: update GeoIP lists'
+      #     title: 'chore: update GeoIP lists'
+      #     body: |
+      #       Automated update of:
+
+      #       - GeoLite2 ASN
+      #       - GeoLite2 City
+      #       - GeoLite2 Country
+      #       - Disposable phone numbers
+      #       - Disposable email domains
