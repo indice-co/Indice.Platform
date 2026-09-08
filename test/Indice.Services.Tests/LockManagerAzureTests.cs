@@ -33,7 +33,7 @@ public class LockManagerAzureTests
         services.AddSingleton<ILockManager, LockManagerAzure>();
 
         services.AddTransient<IFileService>(sp =>
-            new FileServiceAzureStorage(            
+            new FileServiceAzureStorage(
                 sp.GetRequiredService<AzureClientFactory>(),
                 "test",
                 null));
@@ -80,6 +80,28 @@ public class LockManagerAzureTests
         var operation = "MasterProductImport"; // using a random name :)
         var @lock = await _LockManager.AcquireLock(operation, duration, TestContext.Current.CancellationToken);
         await _FileService.SaveAsync($"messages/{operation}.json", Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new Tuple<string, string>(@lock.LeaseId, @lock.Name))));
+    }
+
+
+    [Fact(Skip = "Only for debug purposes")]
+    public async Task LockingDurationValidationTest() {
+        var duration = TimeSpan.FromSeconds(10);
+        var operation = "MasterProductImport"; // using a random name :)
+        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(operation, duration, TestContext.Current.CancellationToken));
+
+        duration = TimeSpan.FromSeconds(30);
+        var @lock = await _LockManager.AcquireLock(operation, duration, TestContext.Current.CancellationToken);
+        Assert.NotNull(@lock);
+        await _LockManager.ReleaseLock(@lock);
+
+        duration = TimeSpan.FromSeconds(60);
+        @lock = await _LockManager.AcquireLock(operation, duration, TestContext.Current.CancellationToken);
+        Assert.NotNull(@lock);
+        await _LockManager.ReleaseLock(@lock);
+
+        duration = TimeSpan.FromSeconds(70);
+        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(operation, duration, TestContext.Current.CancellationToken));
+        
     }
 
     [Fact(Skip = "Only for debug purposes")]

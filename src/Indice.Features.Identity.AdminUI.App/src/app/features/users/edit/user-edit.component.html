@@ -120,6 +120,16 @@
               >Sign In Logs</a
             >
           </li>
+          <li class="nav-item" *ngIf="activityLogsEnabled">
+            <a
+              class="nav-link"
+              [routerLink]="['activity-logs']"
+              routerLinkActive="active"
+              role="tab"
+              id="user-activity-logs-tab"
+              >Activity Logs</a
+            >
+          </li>
         </ul>
         <div class="tab-content">
           <div role="tabpanel" class="tab-pane active">

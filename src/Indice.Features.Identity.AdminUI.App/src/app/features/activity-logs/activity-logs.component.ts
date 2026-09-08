@@ -33,6 +33,7 @@ export class ActivityLogsComponent implements OnInit {
     @ViewChild('eventTypeCellTemplate', { static: true }) private _eventTypeCellTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('subjectNameTemplate', { static: true }) private _subjectNameTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('deviceTemplate', { static: true }) private _deviceTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('resourceIdTemplate', { static: true }) private _resourceIdTemplate: TemplateRef<CellContext<any>>;
 
     public count = 0;
     public rows: ActivityLogEntry[] = [];
@@ -42,14 +43,15 @@ export class ActivityLogsComponent implements OnInit {
     public defaultPageSize: number = 15;
     public defaultSortField: string = 'createdAt';
     public defaultSortDirection: string = 'desc';
-    // Taller than the default 50px so wrapped descriptions (~2 lines) stay fully visible instead of being clipped.
-    public rowHeight: number = 64;
+    // Every cell clips to a single line with an ellipsis, so rows use the default height.
+    public rowHeight: number = 50;
     public isLoading = true;
     public filter = {
         dateFrom: undefined,
         dateTo: undefined,
         succeeded: undefined,
         subject: undefined,
+        subjectFilterMode: 'Actor',
         actionName: undefined,
         resourceId: undefined,
         resourceType: undefined,
@@ -65,10 +67,10 @@ export class ActivityLogsComponent implements OnInit {
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate, width: 360 },
             { prop: 'category', name: 'Category', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate, width: 150 },
             { prop: 'resourceType', name: 'Resource Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate, width: 160 },
-            { prop: 'resourceId', name: 'Resource Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate, width: 280 },
             { prop: 'applicationName', name: 'App Name', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate, width: 170 },
             { prop: 'ipAddress', name: 'IP Address', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._ipCellTemplate, width: 170 },
             { prop: 'extraData.device.displayName', name: 'Device', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._deviceTemplate, width: 200 },
+            { prop: 'resourceId', name: 'Resource Id', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._resourceIdTemplate, width: 280 },
         ];
     }
 
@@ -88,6 +90,7 @@ export class ActivityLogsComponent implements OnInit {
             event.filter.resourceId,
             event.filter.resourceType,
             event.filter.category,
+            event.filter.subjectFilterMode || 'Actor' /*subjectFilterMode*/,
             dateFrom,
             dateTo,
             undefined  /*applicationId*/)
@@ -101,6 +104,7 @@ export class ActivityLogsComponent implements OnInit {
                 this.filter.dateFrom = event.filter.dateFrom ? this._dateParser.parseDate(new Date(event.filter.dateFrom)) : undefined;
                 this.filter.dateTo = event.filter.dateTo ? this._dateParser.parseDate(new Date(event.filter.dateTo)) : undefined;
                 this.filter.subject = event.filter.subject;
+                this.filter.subjectFilterMode = event.filter.subjectFilterMode || 'Actor';
                 this.filter.actionName = event.filter.actionName;
                 this.filter.resourceId = event.filter.resourceId;
                 this.filter.resourceType = event.filter.resourceType;
@@ -130,6 +134,9 @@ export class ActivityLogsComponent implements OnInit {
         }
         if (this.filter.subject) {
             params['subject'] = this.filter.subject
+        }
+        if (this.filter.subjectFilterMode) {
+            params['subjectFilterMode'] = this.filter.subjectFilterMode
         }
         if (this.filter.actionName) {
             params['actionName'] = this.filter.actionName

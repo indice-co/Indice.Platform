@@ -38,4 +38,21 @@ public class AIContentTests
         Assert.Equal(htmlText, Encoding.UTF8.GetString(dataContentHtml.Data.ToArray()));
         Assert.Equal(MediaTypeNames.Text.Html, dataContentHtml.MediaType);
     }
+
+    [Fact]
+    public void DataContentConversionTest() {
+        var htmlText = """
+           <html>
+              <body>
+                 <h1>Hello, world!</h1>
+              </body>
+           </html>
+           """;
+        var dataContentHtml = new DataContent($"data:,{Uri.EscapeDataString(htmlText)}", MediaTypeNames.Text.Html);
+
+        var extractedHtmlContent = Encoding.UTF8.GetString(dataContentHtml.Data.ToArray());
+
+        var dataContentFromHtml = new DataContent($"data:,{Uri.EscapeDataString(extractedHtmlContent)}", "text/vnd.indice+html");
+        Assert.Equal(htmlText, Encoding.UTF8.GetString(dataContentFromHtml.Data.ToArray()));
+    }
 }

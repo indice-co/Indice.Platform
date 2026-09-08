@@ -329,7 +329,16 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("ChangePassword_Newpassword_FieldLabel", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm new password.
+        /// </summary>
+        public static string ChangePassword_NewPasswordConfirmation {
+            get {
+                return ResourceManager.GetString("ChangePassword_NewPasswordConfirmation", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Old password.
         /// </summary>
@@ -1328,7 +1337,16 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("ForgotPasswordConfirmation_Newpassword_FieldLabel", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm New Password.
+        /// </summary>
+        public static string ForgotPasswordConfirmation_New_Password_Confirmation {
+            get {
+                return ResourceManager.GetString("ForgotPasswordConfirmation_New_Password_Confirmation", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Forgot Password Confirmation.
         /// </summary>
@@ -3110,7 +3128,16 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Register_Password_FieldLabel", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm Password.
+        /// </summary>
+        public static string Register_Password_Confirmation {
+            get {
+                return ResourceManager.GetString("Register_Password_Confirmation", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Phone number.
         /// </summary>

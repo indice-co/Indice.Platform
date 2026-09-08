@@ -4,6 +4,7 @@ namespace Indice.Features.Agents.Server.Services;
 public interface IGuestTokenService
 {
     /// <summary>Requests a new guest access token. The identity provider generates a fresh guest subject and echoes it back.</summary>
+    /// <param name="authorName">The name of the author requesting the token.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     Task<GuestAccessToken> CreateTokenAsync(string? authorName = null, CancellationToken cancellationToken = default);
 }

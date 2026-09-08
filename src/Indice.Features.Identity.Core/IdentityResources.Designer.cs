@@ -394,6 +394,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You have exceeded the maximum number of failed attempts..
+        /// </summary>
+        internal static string LimitAttemptsReached {
+            get {
+                return ResourceManager.GetString("LimitAttemptsReached", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your account is temporarily locked. Please contact a system administrator..
         /// </summary>
         internal static string LoginErrorLockedMessage {
@@ -862,6 +871,24 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Confirm Password&apos; is required..
+        /// </summary>
+        internal static string UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The password confirmation does not match the password..
+        /// </summary>
+        internal static string UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Old Password.
         /// </summary>
         internal static string UI_Validator_ChangePassword_OldPassword_FieldName {
@@ -912,6 +939,24 @@ namespace Indice.Features.Identity.Core {
         internal static string UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName {
             get {
                 return ResourceManager.GetString("UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Confirm Password&apos; is required..
+        /// </summary>
+        internal static string UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The password confirmation does not match the password..
+        /// </summary>
+        internal static string UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error", resourceCulture);
             }
         }
         
@@ -1119,6 +1164,24 @@ namespace Indice.Features.Identity.Core {
         internal static string UI_Validator_Register_Password_FieldName {
             get {
                 return ResourceManager.GetString("UI_Validator_Register_Password_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Confirm Password&apos; is required..
+        /// </summary>
+        internal static string UI_Validator_Register_PasswordConfirmation_Empty_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_PasswordConfirmation_Empty_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The password confirmation does not match the password..
+        /// </summary>
+        internal static string UI_Validator_Register_PasswordConfirmation_Mismatch_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_PasswordConfirmation_Mismatch_Error", resourceCulture);
             }
         }
         

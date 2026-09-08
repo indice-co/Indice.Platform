@@ -64,12 +64,13 @@ export interface IIdentityApiService {
      * @param resourceId (optional) 
      * @param resourceType (optional) 
      * @param category (optional) 
+     * @param subjectFilterMode (optional) 
      * @param from (optional) 
      * @param to (optional) 
      * @param applicationId (optional) 
      * @return OK
      */
-    getActivityLogs(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, subject?: string | null | undefined, sessionId?: string | null | undefined, markForReview?: boolean | null | undefined, succeeded?: boolean | null | undefined, actionName?: string | null | undefined, resourceId?: string | null | undefined, resourceType?: string | null | undefined, category?: string | null | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | null | undefined): Observable<ActivityLogEntryResultSet>;
+    getActivityLogs(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, subject?: string | null | undefined, sessionId?: string | null | undefined, markForReview?: boolean | null | undefined, succeeded?: boolean | null | undefined, actionName?: string | null | undefined, resourceId?: string | null | undefined, resourceType?: string | null | undefined, category?: string | null | undefined, subjectFilterMode?: SubjectFilterMode | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | null | undefined): Observable<ActivityLogEntryResultSet>;
     /**
      * Patches the specified log entry by updating the properties given in the request.
      * @return No Content
@@ -738,6 +739,11 @@ export interface IIdentityApiService {
      * @return No Content
      */
     deleteUser(userId: string): Observable<void>;
+    /**
+     * Resets the action counter for the given user.
+     * @return No Content
+     */
+    resetActionCounter(userId: string): Observable<void>;
     /**
      * Gets a list of the applications the user has given consent to or currently has IdentityServer side tokens for.
      * @return OK
@@ -1445,12 +1451,13 @@ export class IdentityApiService implements IIdentityApiService {
      * @param resourceId (optional) 
      * @param resourceType (optional) 
      * @param category (optional) 
+     * @param subjectFilterMode (optional) 
      * @param from (optional) 
      * @param to (optional) 
      * @param applicationId (optional) 
      * @return OK
      */
-    getActivityLogs(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, subject?: string | null | undefined, sessionId?: string | null | undefined, markForReview?: boolean | null | undefined, succeeded?: boolean | null | undefined, actionName?: string | null | undefined, resourceId?: string | null | undefined, resourceType?: string | null | undefined, category?: string | null | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | null | undefined): Observable<ActivityLogEntryResultSet> {
+    getActivityLogs(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, subject?: string | null | undefined, sessionId?: string | null | undefined, markForReview?: boolean | null | undefined, succeeded?: boolean | null | undefined, actionName?: string | null | undefined, resourceId?: string | null | undefined, resourceType?: string | null | undefined, category?: string | null | undefined, subjectFilterMode?: SubjectFilterMode | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | null | undefined): Observable<ActivityLogEntryResultSet> {
         let url_ = this.baseUrl + "/api/activity-logs?";
         if (page !== undefined && page !== null)
             url_ += "Page=" + encodeURIComponent("" + page) + "&";
@@ -1476,6 +1483,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "ResourceType=" + encodeURIComponent("" + resourceType) + "&";
         if (category !== undefined && category !== null)
             url_ += "Category=" + encodeURIComponent("" + category) + "&";
+        if (subjectFilterMode === null)
+            throw new globalThis.Error("The parameter 'subjectFilterMode' cannot be null.");
+        else if (subjectFilterMode !== undefined)
+            url_ += "SubjectFilterMode=" + encodeURIComponent("" + subjectFilterMode) + "&";
         if (from === null)
             throw new globalThis.Error("The parameter 'from' cannot be null.");
         else if (from !== undefined)
@@ -10547,6 +10558,82 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Resets the action counter for the given user.
+     * @return No Content
+     */
+    resetActionCounter(userId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/users/{userId}/action-counter";
+        if (userId === undefined || userId === null)
+            throw new globalThis.Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processResetActionCounter(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processResetActionCounter(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processResetActionCounter(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Gets a list of the applications the user has given consent to or currently has IdentityServer side tokens for.
      * @return OK
      */
@@ -18151,6 +18238,12 @@ export interface ISingleUserInfo {
     accessFailedCount?: number;
     lastSignInDate?: Date | undefined;
     passwordExpirationDate?: Date | undefined;
+}
+
+export enum SubjectFilterMode {
+    Actor = "Actor",
+    Resource = "Resource",
+    Any = "Any",
 }
 
 export class SummaryInfo implements ISummaryInfo {

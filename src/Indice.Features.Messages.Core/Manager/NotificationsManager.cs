@@ -264,7 +264,7 @@ public class NotificationsManager(
     /// <param name="name">The name used to create a new campaign type.</param>
     public async Task<CreateMessageTypeResult> CreateMessageType(string name) {
         var campaignType = new CreateMessageTypeRequest { Name = name };
-        var validationResult = MessageTypeValidator.Validate(campaignType);
+        var validationResult = await MessageTypeValidator.ValidateAsync(campaignType);
         if (!validationResult.IsValid) {
             var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToArray();
             return CreateMessageTypeResult.Fail(errorMessages);
