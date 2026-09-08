@@ -14,6 +14,8 @@ permissions:
 
 env:
   GEOIP_PATH: src/Indice.Features.GeoIP/GeoLite2
+  DISPOSABLE_EMAILS_PATH: src/Indice.Features.Identity.Core/EmailValidation
+  DISPOSABLE_PHONES_PATH: src/Indice.Features.Identity.Core/PhoneNumberValidation
   MAXMIND_METADATA: src/Indice.Features.GeoIP/GeoLite2/.maxmind-releases.json
 
 jobs:
@@ -157,21 +159,26 @@ jobs:
               ConvertTo-Json |
               Set-Content $metadataPath
 
-      # - name: Update disposable lists
-      #   shell: pwsh
-      #   run: |
-      #     $ErrorActionPreference = 'Stop'
+          Update-Database `
+              -Name 'GeoLite2-ASN' `
+              -Url $env:MAXMIND_ASN_URL `
+              -FileName 'GeoLite2-ASN.mmdb'
 
-      #     $phoneUrl = 'https://raw.githubusercontent.com/castle/disposable-phone-numbers/master/disposable-phone-numbers.txt'
-      #     $emailUrl = 'https://raw.githubusercontent.com/castle/disposable-email-domains/master/disposable-email-domains.txt'
+      - name: Update disposable lists
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
 
-      #     Invoke-WebRequest `
-      #         -Uri $phoneUrl `
-      #         -OutFile "$env:GEOIP_PATH/disposable-phone-numbers.txt"
+          $phoneUrl = 'https://raw.githubusercontent.com/castle/disposable-phone-numbers/master/disposable-phone-numbers.txt'
+          $emailUrl = 'https://raw.githubusercontent.com/castle/disposable-email-domains/master/disposable-email-domains.txt'
 
-      #     Invoke-WebRequest `
-      #         -Uri $emailUrl `
-      #         -OutFile "$env:GEOIP_PATH/disposable-email-domains.txt"
+          Invoke-WebRequest `
+            -Uri $phoneUrl `
+            -OutFile "$env:DISPOSABLE_PHONES_PATH/phones-blacklist.conf"
+
+          Invoke-WebRequest `
+            -Uri $emailUrl `
+            -OutFile "$env:DISPOSABLE_EMAILS_PATH/email_blocklist.conf"
 
       # - name: Create Pull Request
       #   uses: peter-evans/create-pull-request@v8
