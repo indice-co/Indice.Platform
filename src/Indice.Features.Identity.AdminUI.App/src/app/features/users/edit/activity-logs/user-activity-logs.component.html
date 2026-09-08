@@ -217,7 +217,8 @@
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #optionalTemplate>
-    <span *ngIf="value" [title]="value" style="white-space: normal; overflow-wrap: anywhere; line-height: 1.3;">{{ value }}</span>
+    <span *ngIf="value" [title]="value"
+          style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">{{ value }}</span>
     <span *ngIf="!value">-</span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
@@ -250,7 +251,8 @@
     <span *ngIf="!value">-</span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #subjectNameTemplate>
-    <span *ngIf="value" [class.text-danger]="row.subjectUnknown" [title]="value">{{ value }}</span>
+    <span *ngIf="value" [class.text-danger]="row.subjectUnknown" [title]="value"
+          style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">{{ value }}</span>
     <span *ngIf="!value">-</span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #resourceIdTemplate>

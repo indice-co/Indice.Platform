@@ -43,8 +43,8 @@ export class UserActivityLogsComponent implements OnInit {
     public defaultPageSize: number = 15;
     public defaultSortField: string = 'createdAt';
     public defaultSortDirection: string = 'desc';
-    // Taller than the default 50px so wrapped descriptions (~2 lines) stay fully visible instead of being clipped.
-    public rowHeight: number = 64;
+    // Every cell clips to a single line with an ellipsis, so rows use the default height.
+    public rowHeight: number = 50;
     public isLoading = true;
     public filter = {
         dateFrom: undefined,
