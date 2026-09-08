@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, Inject, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, OnInit, Inject, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { BulkCreateDistributionListContactsRequest, FileParameter, MessagesApiClient } from "src/app/core/services/messages-api.service";
 import { Router } from "@angular/router";
 import { AbstractControl, UntypedFormControl, UntypedFormGroup } from "@angular/forms";
@@ -9,6 +9,7 @@ import { AppTranslatedToaster } from "../../../shared/services/app-translated-to
 @Component({
     selector: 'app-distribution-list-import-contacts',
     templateUrl: './distribution-list-import-contacts.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DistributionListImportContactsComponent implements OnInit, AfterViewInit {

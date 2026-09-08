@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FolderTree } from 'src/app/core/services/media-api.service';
 
 @Component({
     selector: 'app-tree-breadcrumb-item',
     templateUrl: './tree-breadcrumb-item.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TreeBreadcrumbItemComponent implements OnInit {

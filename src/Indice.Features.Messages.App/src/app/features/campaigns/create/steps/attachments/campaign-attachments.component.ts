@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { FileParameter } from 'src/app/core/services/messages-api.service';
 import { IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
@@ -6,6 +6,7 @@ import { IAttachment } from 'src/app/shared/components/file-upload/file-upload.c
 @Component({
     selector: 'app-campaign-attachments',
     templateUrl: './campaign-attachments.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CampaignAttachmentsComponent implements OnInit {

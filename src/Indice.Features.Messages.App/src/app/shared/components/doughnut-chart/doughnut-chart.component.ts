@@ -1,5 +1,5 @@
 // gauge-chart.component.ts
-import { Component, Input, OnInit, ViewChild, ElementRef, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ElementRef, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Chart, ChartConfiguration, ArcElement, Tooltip, Legend, DoughnutController } from 'chart.js';
 
 // Register needed components for Chart.js v3+
@@ -14,6 +14,7 @@ export interface GaugeChartItem { name: string; value: number; color: string; }
     :host { display: block; }
     canvas { max-width: 400px; max-height: 400px; position: relative; left: 50%; transform: translateX(-50%); }
   `],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DoughnutChartComponent implements OnInit, OnChanges, OnDestroy {

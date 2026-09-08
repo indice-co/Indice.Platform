@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, SecurityContext, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, SecurityContext, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastType } from '@indice/ng-components';
 import { catchError, map, Observable, of, startWith, Subscription } from 'rxjs';
@@ -10,6 +10,7 @@ import { AppTranslatedToaster } from '../../../../shared/services/app-translated
 @Component({
   selector: 'app-contact-duplicates',
   templateUrl: './contact-duplicates.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ContactDuplicatesComponent implements OnInit, AfterViewInit, OnDestroy {

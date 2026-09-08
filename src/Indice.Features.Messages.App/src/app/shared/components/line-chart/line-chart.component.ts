@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import Chart from 'chart.js/auto';
 
 export interface LineChartDataset {
@@ -51,6 +51,7 @@ export interface LineChartData {
       background-color: rgba(255, 255, 255, 0.8);
     }
   `],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class LineChartComponent implements OnInit, AfterViewInit {

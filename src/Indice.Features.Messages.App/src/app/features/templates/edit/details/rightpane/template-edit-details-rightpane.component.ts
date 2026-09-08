@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { APP_LANGUAGES, MenuOption, ToastType } from '@indice/ng-components';
 import { EMPTY, Subscription, catchError, map, Subject, combineLatest, takeUntil } from 'rxjs';
@@ -11,6 +11,7 @@ import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toa
 @Component({
     selector: 'app-campaign-details-edit-rightpane',
     templateUrl: './template-edit-details-rightpane.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {

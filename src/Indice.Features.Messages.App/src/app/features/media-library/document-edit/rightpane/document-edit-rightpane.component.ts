@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { MenuOption, ToastType } from '@indice/ng-components';
@@ -13,6 +13,7 @@ import { TranslateService } from '@ngx-translate/core';
 @Component({
     selector: 'app-document-edit-rightpane',
     templateUrl: './document-edit-rightpane.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DocumentEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {

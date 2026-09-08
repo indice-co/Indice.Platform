@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, Observable, takeUntil } from 'rxjs';
 
@@ -9,6 +9,7 @@ import { ContactService } from './contact.service';
 @Component({
     selector: 'app-contact',
     templateUrl: './contact.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ContactComponent implements OnInit, AfterViewChecked, OnDestroy {

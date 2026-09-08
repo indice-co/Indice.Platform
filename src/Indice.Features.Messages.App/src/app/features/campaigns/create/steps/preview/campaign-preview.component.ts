@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 
 import { CampaignPreview } from './campaign-preview';
@@ -12,6 +12,7 @@ export interface IPreviewModel {
 @Component({
     selector: 'app-campaign-preview',
     templateUrl: './campaign-preview.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CampaignPreviewComponent implements OnInit {

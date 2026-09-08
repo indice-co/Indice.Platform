@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
 import { Observable, Subject, combineLatest } from 'rxjs';
@@ -9,6 +9,7 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 @Component({
   selector: 'app-message-events',
   templateUrl: './message-events.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MessageEventsComponent extends BaseListComponent<MessageEvent> implements OnInit, OnDestroy {

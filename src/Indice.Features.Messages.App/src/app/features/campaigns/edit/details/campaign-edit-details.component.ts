@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { APP_LANGUAGES, ModalService, ToastType } from '@indice/ng-components';
 
@@ -14,6 +14,7 @@ import { AppTranslatedToaster } from '../../../../shared/services/app-translated
 @Component({
     selector: 'app-campaign-details-edit',
     templateUrl: './campaign-edit-details.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CampaignDetailsEditComponent implements OnInit {

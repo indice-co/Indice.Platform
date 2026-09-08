@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastType } from '@indice/ng-components';
 import { FileParameter } from 'src/app/core/services/media-api.service';
@@ -10,6 +10,7 @@ import { settings } from 'src/app/core/models/settings';
 @Component({
     selector: 'app-document-upload',
     templateUrl: './document-upload.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DocumentUploadComponent implements OnInit {

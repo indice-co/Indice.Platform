@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastType } from '@indice/ng-components';
 import { MessagesApiClient, UpdateMessageSenderRequest, MessageSender } from 'src/app/core/services/messages-api.service';
@@ -8,6 +8,7 @@ import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toa
 @Component({
     selector: 'app-email-senders-edit',
     templateUrl: './email-senders-edit.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class EmailSendersEditComponent implements OnInit, AfterViewInit {

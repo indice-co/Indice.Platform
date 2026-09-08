@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HeaderMetaItem, ViewLayoutComponent, ToastType } from '@indice/ng-components';
 import { MediaFile, MediaFolder } from 'src/app/core/services/media-api.service';
@@ -12,6 +12,7 @@ import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toa
 @Component({
     selector: 'app-document-edit',
     templateUrl: './document-edit.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DocumentEditComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { EnhancedComboboxComponent } from '@indice/ng-components';
 import { lastValueFrom } from 'rxjs';
 import { settings } from 'src/app/core/models/settings';
@@ -7,6 +7,7 @@ import { MessagesApiClient, ContactResultSet, Contact } from 'src/app/core/servi
 @Component({
     selector: 'app-list-contact-create',
     templateUrl: './list-contact-create.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ListContactCreateComponent implements AfterViewInit {
