@@ -37,7 +37,7 @@ internal sealed class McpClientFactory(
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try {
             ObjectDisposedException.ThrowIf(_disposed, this);
-            return _shared ??= await CreateCoreAsync(cancellationToken).ConfigureAwait(false);
+            return _shared = await CreateCoreAsync(cancellationToken).ConfigureAwait(false);
         } finally {
             _gate.Release();
         }
