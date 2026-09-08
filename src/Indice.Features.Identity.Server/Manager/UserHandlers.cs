@@ -831,7 +831,7 @@ internal static class UserHandlers
             return TypedResults.NotFound();
         }
         if(!await actionRateLimiter.ResetActionCounterAsync(userId)) {
-            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(userId), "Action's reset failed"));
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(userId), "Action counter reset failed."));
         }
         await platformEvents.Publish(new ResetActionCounterEvent(UserEventContext.InitializeFromUser(user)));
         return TypedResults.NoContent();
