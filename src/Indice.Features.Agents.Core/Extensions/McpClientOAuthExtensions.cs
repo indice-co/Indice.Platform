@@ -23,11 +23,10 @@ public static class McpClientOAuthExtensions
         Action<IServiceProvider, HttpClientTransportOptions>? configure = null) {
         ArgumentNullException.ThrowIfNull(configureCredentials);
 
-        var clientName = $"mcp-{builder.Name}";
         var clientCredentialsClientName = ClientCredentialsClientName.Parse($"mcp-{builder.Name}-auth");
         builder.Services.AddDistributedMemoryCache();
         builder.Services.AddClientCredentialsTokenManagement()
-                        .AddClient(clientName, configureCredentials);
+                        .AddClient(clientCredentialsClientName, configureCredentials);
         return WithClientCredentialsHttpTransport(builder, endpoint, clientCredentialsClientName, configure);
     }
 
