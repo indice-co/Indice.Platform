@@ -129,6 +129,38 @@ public class UserActionGuardTests
         Assert.True(row.ResetDate > DateTimeOffset.UtcNow);
     }
 
+    [Fact]
+    public async Task RecordAttemptAsync_Allows_Again_After_Window_Expires() {
+        var services = CreateServiceCollection(new Dictionary<string, string?> {
+            [$"{ActionRateLimiterOptions.Name}:{nameof(ActionRateLimiterOptions.MaxAttempts)}"] = "2",
+            [$"{ActionRateLimiterOptions.Name}:{nameof(ActionRateLimiterOptions.Window)}"] = "00:00:02",
+            [$"{ActionRateLimiterOptions.Name}:{nameof(ActionRateLimiterOptions.Enabled)}"] = "true"
+        });
+
+        await using var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        var guard = scope.ServiceProvider.GetRequiredService<IActionRateLimiter>();
+
+        var user = new User("charlie@example.com") {
+            Email = "charlie@example.com",
+            CreateDate = DateTimeOffset.UtcNow,
+            SecurityStamp = Guid.NewGuid().ToString()
+        };
+        db.Users.Add(user);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var actionName = "Sms:ChangePhoneNumber";
+
+        Assert.True(await guard.CheckAndAdvanceAsync(user.Id, actionName, TestContext.Current.CancellationToken));
+        Assert.True(await guard.CheckAndAdvanceAsync(user.Id, actionName, TestContext.Current.CancellationToken));
+        Assert.False(await guard.CheckAndAdvanceAsync(user.Id, actionName, TestContext.Current.CancellationToken));
+
+        await Task.Delay(TimeSpan.FromMilliseconds(2100), TestContext.Current.CancellationToken);
+
+        Assert.True(await guard.CheckAndAdvanceAsync(user.Id, actionName, TestContext.Current.CancellationToken));
+    }
+
     private static ServiceCollection CreateServiceCollection(Dictionary<string, string?> settings) {
         var services = new ServiceCollection();
         var configuration = new ConfigurationBuilder()
