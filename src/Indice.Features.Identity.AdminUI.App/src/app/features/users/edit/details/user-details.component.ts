@@ -104,6 +104,13 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         });
     }
 
+
+    public resetActionCounter(): void {
+        this._userStore.resetActionCounter(this.user.id).subscribe(_ => {
+            this._toast.showSuccess(`Users '${this.user.userName}' action counter has been reset.`);
+        });
+    }
+
     public toggleBlock(): void {
         const wasBlocked = this.user.blocked;
         const action$ = !wasBlocked

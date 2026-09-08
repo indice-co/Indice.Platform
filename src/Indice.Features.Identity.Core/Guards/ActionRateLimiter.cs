@@ -29,13 +29,18 @@ public interface IActionRateLimiter
     /// <summary>Attempts to record an action and returns whether the action is allowed by the configured limit.</summary>
     /// <returns>True if the action is allowed; otherwise, false.</returns>
     Task<bool> CheckAndAdvanceAsync(string userId, string actionName, CancellationToken cancellationToken = default);
+    /// <summary>Resets the action counter for the given user.</summary>
+    /// <returns>True if the action counter was successfully reset; otherwise, false.</returns>
+    Task<bool> ResetActionCounterAsync(string userId, CancellationToken cancellationToken = default);
 }
 
 internal class NoOpActionRateLimiter : IActionRateLimiter
 {
-    
+
     /// <inheritdoc/>
-    public Task<bool> CheckAndAdvanceAsync(string userId, string actionName, CancellationToken cancellationToken = default) => Task.FromResult(true);  
+    public Task<bool> CheckAndAdvanceAsync(string userId, string actionName, CancellationToken cancellationToken = default) => Task.FromResult(true);
+    /// <inheritdoc/>
+    public Task<bool> ResetActionCounterAsync(string userId, CancellationToken cancellationToken = default) => Task.FromResult(true);
 }
 
 internal class ActionRateLimiter : IActionRateLimiter
@@ -85,5 +90,14 @@ internal class ActionRateLimiter : IActionRateLimiter
         }
         //something went wrong with the concurrency, we will not allow the action to be performed
         return false;
+    }
+    public async Task<bool> ResetActionCounterAsync(string userId, CancellationToken cancellationToken = default) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userId);
+        try {
+            await _dbContext.UserRateCounters.Where(x => x.UserId == userId).ExecuteDeleteAsync(cancellationToken);
+            return true;
+        } catch (DbUpdateException) {
+            return false;
+        }
     }
 }

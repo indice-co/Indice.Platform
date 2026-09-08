@@ -170,6 +170,11 @@ public static class UsersApi
              .WithSummary("Resets the multi-factor authentication for the given user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
+        group.MapDelete("{userId}/action-counter", UserHandlers.ResetActionCounter)
+             .WithName(nameof(UserHandlers.ResetActionCounter))
+             .WithSummary("Resets the action counter for the given user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
         group.MapPut("{userId}/picture", PictureHandlers.SaveUserPicture)
              .WithName(nameof(PictureHandlers.SaveUserPicture))
              .WithSummary("Create or update profile picture of the given user.")
