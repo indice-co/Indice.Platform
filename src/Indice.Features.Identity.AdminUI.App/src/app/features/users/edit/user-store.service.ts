@@ -113,6 +113,12 @@ export class UserStore {
     return this._api.resetMfa(userId).pipe(
       tap(() => this.refreshUser(userId))
     );
+    }
+
+  public resetActionCounter(userId: string): Observable<void> {
+    return this._api.resetActionCounter(userId).pipe(
+        tap(() => this.refreshUser(userId))
+    );
   }
 
   public addUserRole(userId: string, role: RoleInfo): Observable<void> {
