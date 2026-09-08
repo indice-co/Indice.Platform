@@ -17,6 +17,7 @@ import { UserRolesComponent } from "./edit/roles/user-roles.component";
 import { UsersComponent } from "./users.component";
 import { UsersRoutingModule } from "./users-routing.module";
 import { UserSignInLogsComponent } from "./edit/sign-in-logs/user-sign-in-logs.component";
+import { UserActivityLogsComponent } from "./edit/activity-logs/user-activity-logs.component";
 import { ExtendedInfoStepComponent } from "./add/wizard/steps/extended-info/extended-info-step.component";
 import { UserClaimsStepComponent } from "./add/wizard/steps/claims/user-claims-step.component";
 import { UserRolesStepComponent } from "./add/wizard/steps/roles/user-roles-step.component";
@@ -39,6 +40,7 @@ import { UserSessionsComponent } from "./edit/sessions/user-sessions.component";
     UserProfilePictureComponent,
     UsersComponent,
     UserSignInLogsComponent,
+    UserActivityLogsComponent,
     ExtendedInfoStepComponent,
     UserClaimsStepComponent,
     UserRolesStepComponent,

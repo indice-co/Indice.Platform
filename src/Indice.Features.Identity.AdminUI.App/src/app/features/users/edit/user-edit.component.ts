@@ -26,6 +26,7 @@ export class UserEditComponent implements OnInit, OnDestroy {
   public locked: boolean = false;
   public isAdmin: boolean = false;
   public signInLogsEnabled = false;
+  public activityLogsEnabled = false;
   public canEditUser: boolean;
 
   private _getDataSubscription: Subscription;
@@ -58,6 +59,7 @@ export class UserEditComponent implements OnInit, OnDestroy {
       .subscribe(
         (result: { user: SingleUserInfo; features: UiFeaturesInfo }) => {
           this.signInLogsEnabled = result.features.signInLogsEnabled;
+          this.activityLogsEnabled = result.features.activityLogsEnabled;
           this._updateUserFields(result.user);
         }
       );

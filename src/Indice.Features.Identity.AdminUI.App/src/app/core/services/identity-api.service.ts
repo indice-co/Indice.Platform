@@ -64,12 +64,13 @@ export interface IIdentityApiService {
      * @param resourceId (optional) 
      * @param resourceType (optional) 
      * @param category (optional) 
+     * @param subjectFilterMode (optional) 
      * @param from (optional) 
      * @param to (optional) 
      * @param applicationId (optional) 
      * @return OK
      */
-    getActivityLogs(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, subject?: string | null | undefined, sessionId?: string | null | undefined, markForReview?: boolean | null | undefined, succeeded?: boolean | null | undefined, actionName?: string | null | undefined, resourceId?: string | null | undefined, resourceType?: string | null | undefined, category?: string | null | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | null | undefined): Observable<ActivityLogEntryResultSet>;
+    getActivityLogs(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, subject?: string | null | undefined, sessionId?: string | null | undefined, markForReview?: boolean | null | undefined, succeeded?: boolean | null | undefined, actionName?: string | null | undefined, resourceId?: string | null | undefined, resourceType?: string | null | undefined, category?: string | null | undefined, subjectFilterMode?: SubjectFilterMode | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | null | undefined): Observable<ActivityLogEntryResultSet>;
     /**
      * Patches the specified log entry by updating the properties given in the request.
      * @return No Content
@@ -1450,12 +1451,13 @@ export class IdentityApiService implements IIdentityApiService {
      * @param resourceId (optional) 
      * @param resourceType (optional) 
      * @param category (optional) 
+     * @param subjectFilterMode (optional) 
      * @param from (optional) 
      * @param to (optional) 
      * @param applicationId (optional) 
      * @return OK
      */
-    getActivityLogs(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, subject?: string | null | undefined, sessionId?: string | null | undefined, markForReview?: boolean | null | undefined, succeeded?: boolean | null | undefined, actionName?: string | null | undefined, resourceId?: string | null | undefined, resourceType?: string | null | undefined, category?: string | null | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | null | undefined): Observable<ActivityLogEntryResultSet> {
+    getActivityLogs(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, subject?: string | null | undefined, sessionId?: string | null | undefined, markForReview?: boolean | null | undefined, succeeded?: boolean | null | undefined, actionName?: string | null | undefined, resourceId?: string | null | undefined, resourceType?: string | null | undefined, category?: string | null | undefined, subjectFilterMode?: SubjectFilterMode | undefined, from?: Date | undefined, to?: Date | undefined, applicationId?: string | null | undefined): Observable<ActivityLogEntryResultSet> {
         let url_ = this.baseUrl + "/api/activity-logs?";
         if (page !== undefined && page !== null)
             url_ += "Page=" + encodeURIComponent("" + page) + "&";
@@ -1481,6 +1483,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "ResourceType=" + encodeURIComponent("" + resourceType) + "&";
         if (category !== undefined && category !== null)
             url_ += "Category=" + encodeURIComponent("" + category) + "&";
+        if (subjectFilterMode === null)
+            throw new globalThis.Error("The parameter 'subjectFilterMode' cannot be null.");
+        else if (subjectFilterMode !== undefined)
+            url_ += "SubjectFilterMode=" + encodeURIComponent("" + subjectFilterMode) + "&";
         if (from === null)
             throw new globalThis.Error("The parameter 'from' cannot be null.");
         else if (from !== undefined)
@@ -18232,6 +18238,12 @@ export interface ISingleUserInfo {
     accessFailedCount?: number;
     lastSignInDate?: Date | undefined;
     passwordExpirationDate?: Date | undefined;
+}
+
+export enum SubjectFilterMode {
+    Actor = "Actor",
+    Resource = "Resource",
+    Any = "Any",
 }
 
 export class SummaryInfo implements ISummaryInfo {
