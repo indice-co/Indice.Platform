@@ -8,12 +8,12 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
-    <PackageReference Include="Indice.AspNetCore.Builder" Version="$(VersionPrefixAspNet)-*" />
+    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixAspNet)-*" />
     <PackageReference Include="Indice.Features.Agents.Core" Version="$(VersionPrefixAgents)-*" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Indice.AspNetCore.Builder\Indice.AspNetCore.Builder.csproj" />
+    <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Features.Agents.Core\Indice.Features.Agents.Core.csproj" />
   </ItemGroup>
 
