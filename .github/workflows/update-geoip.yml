@@ -4,9 +4,6 @@ on:
   schedule:
     - cron: '0 3 * * *'
   workflow_dispatch:
-  push:
-    branches:
-      - actions/update-geoip
 
 permissions:
   contents: write
@@ -159,11 +156,6 @@ jobs:
               ConvertTo-Json |
               Set-Content $metadataPath
 
-          Update-Database `
-              -Name 'GeoLite2-ASN' `
-              -Url $env:MAXMIND_ASN_URL `
-              -FileName 'GeoLite2-ASN.mmdb'
-
       - name: Update disposable lists
         shell: pwsh
         run: |
@@ -175,24 +167,25 @@ jobs:
           Invoke-WebRequest `
             -Uri $phoneUrl `
             -OutFile "$env:DISPOSABLE_PHONES_PATH/phones-blacklist.conf"
+          Write-Host "Disposable phone numbers list updated."
 
           Invoke-WebRequest `
             -Uri $emailUrl `
             -OutFile "$env:DISPOSABLE_EMAILS_PATH/email_blocklist.conf"
+          Write-Host "Disposable email domains list updated."
 
-      # - name: Create Pull Request
-      #   uses: peter-evans/create-pull-request@v8
-      #   with:
-      #     base: develop
-      #     branch: automated/update-geoip
-      #     delete-branch: true
-      #     commit-message: 'chore: update GeoIP lists'
-      #     title: 'chore: update GeoIP lists'
-      #     body: |
-      #       Automated update of:
-
-      #       - GeoLite2 ASN
-      #       - GeoLite2 City
-      #       - GeoLite2 Country
-      #       - Disposable phone numbers
-      #       - Disposable email domains
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          base: develop
+          branch: automated/update-geoip
+          delete-branch: true
+          commit-message: '[geoip] Update GeoIP databases and disposable lists'
+          title: '[geoip] Update GeoIP databases and disposable lists'
+          body: |
+            Automated update of:
+            - GeoLite2 ASN
+            - GeoLite2 City
+            - GeoLite2 Country
+            - Disposable phone numbers
+            - Disposable email domains
