@@ -131,7 +131,7 @@
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h4 class="page-title m-0">Activity logs ({{ count }})</h4>
-                    <p class="text-muted font-14">Gets a list of all the Activity logs.</p>
+                    <p class="text-muted font-14">Activity this user performed or was the recipient of.</p>
                 </div>
             </div>
         </div>
@@ -166,12 +166,6 @@
             <label class="visually-hidden" for="date-to-filter">To Date</label>
             <app-dynamic-input id="date-to-filter" name="date-to-filter" [(ngModel)]="filter.dateTo"
                                [modelType]="'DateTime'" [placeholder]="'To Date'">
-            </app-dynamic-input>
-        </div>
-        <div class="col">
-            <label class="visually-hidden" for="subject-filter">Subject</label>
-            <app-dynamic-input id="subject-filter" name="subject-filter" [(ngModel)]="filter.subject"
-                               [modelType]="'String'" [placeholder]="'Subject'">
             </app-dynamic-input>
         </div>
         <div class="col">
@@ -282,3 +276,4 @@
            [class.device-icon-os-none]="platform === 'none' || !platform"></i>
         {{ value }}
     </span>
+</ng-template>

@@ -11,12 +11,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-    selector: 'app-activity-logs',
-    templateUrl: './activity-logs.component.html',
+    selector: 'app-user-activity-logs',
+    templateUrl: './user-activity-logs.component.html',
     providers: [NgbDateCustomParserFormatter],
     standalone: false
 })
-export class ActivityLogsComponent implements OnInit {
+export class UserActivityLogsComponent implements OnInit {
     constructor(
         private _api: IdentityApiService,
         private _modalService: NgbModal,
@@ -50,7 +50,6 @@ export class ActivityLogsComponent implements OnInit {
         dateFrom: undefined,
         dateTo: undefined,
         succeeded: undefined,
-        subject: undefined,
         actionName: undefined,
         resourceId: undefined,
         resourceType: undefined,
@@ -74,22 +73,26 @@ export class ActivityLogsComponent implements OnInit {
     }
 
     public getLogs(event: SearchEvent): void {
+        const userId = this._route.parent.snapshot.params['id'];
         const dateFrom = event.filter.dateFrom ? new Date(event.filter.dateFrom) : undefined;
         const dateTo = event.filter.dateTo ? new Date(event.filter.dateTo) : undefined;
+        // participantId (actor OR recipient) is mutually exclusive with subject/resourceId on the backend.
+        // When a resource id is supplied, scope by this user as subject + that resource instead.
+        const hasResourceId = !!event.filter.resourceId;
         this._api.getActivityLogs(
             event.page,
             event.pageSize,
             event.sortField,
             event.searchTerm,
-            event.filter.subject,
+            hasResourceId ? userId : undefined /*subject*/,
             undefined /*sessionId*/,
             undefined /*markedForReview*/,
             event.filter.succeeded,
             event.filter.actionName,
-            event.filter.resourceId,
+            hasResourceId ? event.filter.resourceId : undefined /*resourceId*/,
             event.filter.resourceType,
             event.filter.category,
-            undefined /*participantId*/,
+            hasResourceId ? undefined : userId /*participantId*/,
             dateFrom,
             dateTo,
             undefined  /*applicationId*/)
@@ -102,7 +105,6 @@ export class ActivityLogsComponent implements OnInit {
                 this.filter.succeeded = event.filter.succeeded ? event.filter.succeeded == "true" ? true : false : undefined;
                 this.filter.dateFrom = event.filter.dateFrom ? this._dateParser.parseDate(new Date(event.filter.dateFrom)) : undefined;
                 this.filter.dateTo = event.filter.dateTo ? this._dateParser.parseDate(new Date(event.filter.dateTo)) : undefined;
-                this.filter.subject = event.filter.subject;
                 this.filter.actionName = event.filter.actionName;
                 this.filter.resourceId = event.filter.resourceId;
                 this.filter.resourceType = event.filter.resourceType;
@@ -129,9 +131,6 @@ export class ActivityLogsComponent implements OnInit {
         }
         if (this.filter.succeeded !== undefined) {
             params['succeeded'] = this.filter.succeeded
-        }
-        if (this.filter.subject) {
-            params['subject'] = this.filter.subject
         }
         if (this.filter.actionName) {
             params['actionName'] = this.filter.actionName

@@ -30,4 +30,6 @@ public class ActivityLogEntryFilter : ActivityLogEntryFilterBase
     public string? ResourceType { get; set; }
     /// <summary>The category of the action.</summary>
     public string? Category { get; set; }
+    /// <summary>Whether we want to retrieve information from both Resource and Subject fields.</summary>
+    public string? ParticipantId { get; set; }
 }

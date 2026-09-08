@@ -55,8 +55,16 @@ public class ActivityLogStore : IActivityLogStore
             if (filter.Succeeded.HasValue) {
                 query = query.Where(log => log.Succeeded == filter.Succeeded.Value);
             }
-            if (!string.IsNullOrWhiteSpace(filter.Subject)) {
-                query = query.Where(log => log.SubjectId == filter.Subject || log.SubjectName == filter.Subject);
+            if(!string.IsNullOrWhiteSpace(filter.ParticipantId)) {
+                query = query.Where(log => log.SubjectId == filter.ParticipantId || log.SubjectName == filter.ParticipantId || log.ResourceId == filter.ParticipantId);
+            } 
+            else {
+                if (!string.IsNullOrWhiteSpace(filter.Subject)) {
+                    query = query.Where(log => log.SubjectId == filter.Subject || log.SubjectName == filter.Subject);
+                }
+                if (!string.IsNullOrWhiteSpace(filter.ResourceId)) {
+                    query = query.Where(log => log.ResourceId == filter.ResourceId);
+                }
             }
             if (!string.IsNullOrWhiteSpace(filter.ActionName)) {
                 query = query.Where(log => log.ActionName == filter.ActionName);
@@ -69,9 +77,6 @@ public class ActivityLogStore : IActivityLogStore
             }
             if (filter.MarkForReview is bool markForReview) {
                 query = query.Where(log => log.Review == markForReview);
-            }
-            if (!string.IsNullOrWhiteSpace(filter.ResourceId)) {
-                query = query.Where(log => log.ResourceId == filter.ResourceId);
             }
             if (!string.IsNullOrWhiteSpace(filter.ResourceType)) {
                 query = query.Where(log => log.ResourceType == filter.ResourceType);
