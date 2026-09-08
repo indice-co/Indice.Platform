@@ -169,7 +169,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
 
           $phoneUrl = 'https://raw.githubusercontent.com/castle/disposable-phone-numbers/master/disposable-phone-numbers.txt'
-          $emailUrl = 'https://raw.githubusercontent.com/castle/disposable-email-domains/master/disposable-email-domains.txt'
+          $emailUrl = 'https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/refs/heads/main/disposable_email_blocklist.conf'
 
           Invoke-WebRequest `
             -Uri $phoneUrl `
