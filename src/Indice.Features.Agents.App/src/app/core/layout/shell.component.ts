@@ -10,8 +10,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { AuthService } from '@indice/ng-auth';
 import { filter } from 'rxjs';
 
+import { AuthGuestService } from '../auth/auth-guest.service';
+import { injectSignedIn } from '../auth/auth-state';
 import { ConversationsStore } from '../services/conversations.store';
 import { AppSidebarComponent } from './app-sidebar.component';
 
@@ -19,8 +22,10 @@ import { AppSidebarComponent } from './app-sidebar.component';
 const COLLAPSED_KEY = 'dex.rail.collapsed';
 
 /**
- * Authenticated app shell: a conversation rail on the left over a routed page. The rail frames
- * every route, collapses to an icon strip from `md` up, and slides in as a drawer below it.
+ * App shell, shared by guests and signed-in users: a conversation rail on the left over a routed
+ * page. The rail frames every route, collapses to an icon strip from `md` up, and slides in as a
+ * drawer below it. While nobody is signed in, a slim bar atop the main column — the message
+ * centered, a Log in button at the right — invites the visitor to sign in.
  */
 @Component({
   selector: 'app-shell',
@@ -82,22 +87,55 @@ const COLLAPSED_KEY = 'dex.rail.collapsed';
             <span class="text-base font-semibold tracking-tight text-base-content">Dex</span>
           </a>
 
-          <button
-            type="button"
-            class="btn btn-primary btn-sm btn-circle ml-auto shadow-sm"
-            (click)="newChat()"
-            aria-label="New chat"
-          >
-            <svg viewBox="0 0 24 24" fill="none" class="size-4" aria-hidden="true">
-              <path
-                d="M12 5v14M5 12h14"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-            </svg>
-          </button>
+          @if (signedIn() !== false) {
+            <button
+              type="button"
+              class="btn btn-primary btn-sm btn-circle ml-auto shadow-sm"
+              (click)="newChat()"
+              aria-label="New chat"
+            >
+              <svg viewBox="0 0 24 24" fill="none" class="size-4" aria-hidden="true">
+                <path
+                  d="M12 5v14M5 12h14"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="btn btn-primary btn-sm ml-auto rounded-full shadow-sm"
+              (click)="signIn()"
+            >
+              Sign in
+            </button>
+          }
         </header>
+
+        <!-- Guest CTA: a slim bar atop the main column — the message centered, the Log in button at
+             the right — only while nobody is signed in. Hidden (not rendered) until the OIDC user is
+             known, so a signed-in user never sees it flash. -->
+        @if (signedIn() === false) {
+          <div
+            class="hidden h-12 shrink-0 grid-cols-3 items-center border-b border-base-300
+                   bg-base-100 px-4 sm:px-6 md:grid"
+          >
+            <span
+              class="col-start-2 hidden justify-self-center text-sm text-base-content/60 sm:inline"
+            >
+              You're chatting as a guest.
+            </span>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm col-start-3 justify-self-end rounded-full"
+              (click)="signIn()"
+            >
+              Sign in
+            </button>
+          </div>
+        }
 
         <main class="min-h-0 flex-1">
           <router-outlet />
@@ -147,9 +185,13 @@ const COLLAPSED_KEY = 'dex.rail.collapsed';
 export class ShellComponent {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly auth = inject(AuthService);
+  private readonly guest = inject(AuthGuestService);
 
   /** The shared conversation list — the rail reads it, the chat page renders the active thread. */
   protected readonly store = inject(ConversationsStore);
+  /** `false` for guests and anonymous visitors; `undefined` until the OIDC user has been read. */
+  protected readonly signedIn = injectSignedIn();
   /** Desktop icon-rail state, remembered across reloads. */
   protected readonly collapsed = signal(readCollapsed());
   /** Whether the mobile off-canvas rail is showing. */
@@ -173,7 +215,11 @@ export class ShellComponent {
       this.drawerWasOpen = open;
     });
 
-    this.store.refresh();
+    // Anonymous visitors have nothing to list — and no credential to list it with. The chat page
+    // refreshes the rail once their first turn has minted a guest session.
+    if (this.auth.getAuthorizationHeaderValue() || this.guest.isActive) {
+      this.store.refresh();
+    }
     // A back gesture must not leave the drawer covering the page it navigated to.
     this.router.events
       .pipe(
@@ -181,6 +227,10 @@ export class ShellComponent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => this.drawerOpen.set(false));
+  }
+
+  protected signIn(): void {
+    this.auth.signinRedirect({ location: this.router.url });
   }
 
   protected toggleCollapsed(): void {

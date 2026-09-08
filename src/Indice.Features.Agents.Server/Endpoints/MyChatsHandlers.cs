@@ -41,7 +41,8 @@ internal static class MyChatsHandlers
                 AccessToken = guestToken.AccessToken,
                 TokenType = guestToken.TokenType,
                 ExpiresIn = guestToken.ExpiresIn,
-                Subject = guestToken.Subject
+                Subject = guestToken.Subject,
+                RefreshToken = guestToken.RefreshToken
             };
         }
         return TypedResults.CreatedAtRoute(response, nameof(GetChatSession), new { chatId = response!.ConversationId });
@@ -86,7 +87,8 @@ internal static class MyChatsHandlers
                     AccessToken = guestToken.AccessToken,
                     TokenType = guestToken.TokenType,
                     ExpiresIn = guestToken.ExpiresIn,
-                    Subject = guestToken.Subject
+                    Subject = guestToken.Subject,
+                    RefreshToken = guestToken.RefreshToken
                 };
             }
             yield return item;

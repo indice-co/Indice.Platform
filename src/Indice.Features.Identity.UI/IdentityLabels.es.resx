@@ -1182,4 +1182,13 @@
   <data name="Register_Optional_Instruction_Notice" xml:space="preserve">
     <value />
   </data>
+  <data name="Register_Password_Confirmation" xml:space="preserve">
+    <value>Confirmar contraseña</value>
+  </data>
+  <data name="ChangePassword_NewPasswordConfirmation" xml:space="preserve">
+    <value>Confirmar nueva contraseña</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_New_Password_Confirmation" xml:space="preserve">
+    <value>Confirmar nueva contraseña</value>
+  </data>
 </root>
