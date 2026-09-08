@@ -55,7 +55,8 @@ public class ActivityLogStore : IActivityLogStore
             if (filter.Succeeded.HasValue) {
                 query = query.Where(log => log.Succeeded == filter.Succeeded.Value);
             }
-            switch(filter!.SubjectFilterMode) {
+            filter.SubjectFilterMode ??= SubjectFilterMode.Actor;
+            switch (filter.SubjectFilterMode) {
                 case SubjectFilterMode.Actor:
                     if(!string.IsNullOrWhiteSpace(filter.Subject)) {
                         query = query.Where(log => log.SubjectId == filter.Subject || log.SubjectName == filter.Subject);
