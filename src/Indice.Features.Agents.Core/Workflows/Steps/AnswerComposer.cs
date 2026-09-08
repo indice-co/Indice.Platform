@@ -52,6 +52,7 @@ public sealed class AnswerComposer : Executor<RerankOutput, GroundedAnswerOutput
     /// <inheritdoc/>
     public override async ValueTask<GroundedAnswerOutput> HandleAsync(RerankOutput message,
         IWorkflowContext context, CancellationToken cancellationToken = default) {
+        await context.EmitProgressAsync(Id, "Composing answer", cancellationToken);
         var state = await context.GetConversationStateAsync(cancellationToken);
         var candidates = message.RerankedCandidates;
         var prompt = BuildPrompt(state.Message.Text, candidates);

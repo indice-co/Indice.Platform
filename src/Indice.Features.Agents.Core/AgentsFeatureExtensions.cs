@@ -6,6 +6,7 @@ using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.Reranking;
+using Indice.Features.Agents.Core.Workflows.Routing;
 using Indice.Features.Agents.Core.Workflows.Steps;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.EntityFrameworkCore;
@@ -80,14 +81,18 @@ public static class AgentsFeatureExtensions
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
         services.AddAgentsDefaultPipeline();
+        services.AddAgentsIntentRouter();
         return services;
     }
 
     /// <summary>
-    /// Registers the five default steps, the default <see cref="ILlmReranker"/>, and a scoped
-    /// <see cref="Workflow"/> wiring them in order. Call after <c>AddDex(...)</c>.
+    /// Registers the knowledge pipeline: its steps, the default <see cref="ILlmReranker"/>, and the
+    /// <see cref="AgentsConstants.AgentNames.Knowledge"/> agent (a scoped <see cref="Workflow"/> wiring the steps in order, exposed
+    /// as an agent through <see cref="AgentsRegistrationExtensions.AddAgentWorkflow"/>). Called by <see cref="AddAgentsCore"/>.
     /// </summary>
     public static IServiceCollection AddAgentsDefaultPipeline(this IServiceCollection services) {
+        services.TryAddTransient<KnowledgeEntry>();
+        services.TryAddTransient<KnowledgeSeed>();
         services.TryAddTransient<IntentClassifier>();
         services.TryAddTransient<QueryRewriter>();
         services.TryAddTransient<Retriever>();
@@ -97,9 +102,18 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<PurposeResponder>();
         services.TryAddTransient<ILlmReranker, LlmListwiseReranker>();
 
-        // Register the workflow, which will resolve the steps and link them together. Step failures are not
-        // handled here — a throwing executor halts the run and DexRunner reads the ExecutorFailedEvent.
-        services.AddKeyedScoped(AgentsConstants.AgentNames.Knowledge, (sp, key) => {
+        // Register the workflow, which resolves the steps and links them together. Step failures are not handled
+        // here — a throwing executor halts the run and surfaces as ErrorContent on the hosting agent's response.
+        var knowledge = new AgentDefinition {
+            Name = AgentsConstants.AgentNames.Knowledge,
+            Description = "This is an agent that can answer questions based on a knowledge base.",
+            Icon = AgentsConstants.AgentIcons.Book,
+            Tags = ["Knowledge", "FAQ"],
+            Capabilities = [new AgentCapabilityDefinition { Name = "Knowledge retrieval", Description = "Answers questions based on a knowledge base." }],
+        };
+        services.AddAgentWorkflow(knowledge, sp => {
+            var entry = sp.GetRequiredService<KnowledgeEntry>();
+            var seed = sp.GetRequiredService<KnowledgeSeed>();
             var intent = sp.GetRequiredService<IntentClassifier>();
             var rewrite = sp.GetRequiredService<QueryRewriter>();
             var retrieve = sp.GetRequiredService<Retriever>();
@@ -108,7 +122,9 @@ public static class AgentsFeatureExtensions
             var outOfScopeReply = sp.GetRequiredService<OutOfScopeResponder>();
             var purposeResponder = sp.GetRequiredService<PurposeResponder>();
 
-            var builder = new WorkflowBuilder(intent);
+            var builder = new WorkflowBuilder(entry);
+            builder.AddEdge(entry, seed);
+            builder.AddEdge(seed, intent);
             builder.AddSwitch(intent, sw => sw
                 .AddCase<IntentOutput>(env => env!.Intent.Category == "purpose_of_agent", purposeResponder)
                 .AddCase<IntentOutput>(env => env!.Intent.IsInScope, rewrite)
@@ -119,6 +135,26 @@ public static class AgentsFeatureExtensions
             builder.WithOutputFrom(compose, outOfScopeReply, purposeResponder);
             return builder.Build();
         });
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the <see cref="AgentsConstants.AgentNames.Auto"/> agent: the master intent router, a handoff orchestration whose
+    /// targets are every other registered agent (resolved per request, so registration order does not matter).
+    /// </summary>
+    public static IServiceCollection AddAgentsIntentRouter(this IServiceCollection services) {
+        var auto = new AgentDefinition {
+            Name = AgentsConstants.AgentNames.Auto,
+            Description = "This is an agent that discovers user intent and passes it to the appropriate sub agent.",
+            Icon = AgentsConstants.AgentIcons.Sparkles,
+            Tags = ["Intent"],
+            Capabilities = [new AgentCapabilityDefinition { Name = "Master intent classification", Description = "Discovers user intent and routes it to the appropriate sub-agent." }],
+            IsRouter = true,
+        };
+        auto.CreateAgent = sp => IntentRouterFactory
+            .CreateHandoffWorkflow(sp)
+            .AsAIAgent(id: auto.Name, name: auto.Name, description: auto.Description, includeExceptionDetails: true);
+        services.AddAgent(auto);
         return services;
     }
 }

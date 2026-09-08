@@ -1,4 +1,5 @@
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Workflows.Events;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -20,6 +21,7 @@ public sealed class OutOfScopeResponder : Executor<IntentOutput, GroundedAnswerO
         IntentOutput intentResult,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
+        await context.EmitProgressAsync(Id, "Preparing response", cancellationToken);
         var reason = intentResult.Intent.OutOfScopeReason ?? "Sorry, that question is outside the scope of what I can answer here.";
         await context.AddEventAsync(new AgentResponseUpdateEvent(Id,
                                         new AgentResponseUpdate(ChatRole.Assistant, reason)

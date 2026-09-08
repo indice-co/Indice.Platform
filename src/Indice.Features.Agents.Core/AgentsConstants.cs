@@ -15,6 +15,23 @@ public static class AgentsConstants
         public const string Auto = "auto";
     }
 
+    /// <summary>Identity of the master intent router agent inside the <see cref="AgentNames.Auto"/> handoff workflow.</summary>
+    public static class IntentRouter
+    {
+        /// <summary>The router's <c>AIAgent.Id</c>. Stamped on its response updates, which the chat client suppresses.</summary>
+        public const string AgentId = "router";
+
+        /// <summary>The router's <c>AIAgent.Name</c>.</summary>
+        public const string AgentName = "IntentRouter";
+    }
+
+    /// <summary>Keys of <c>ChatMessage.AdditionalProperties</c> entries the pipeline relies on.</summary>
+    public static class MessageProperties
+    {
+        /// <summary>The Dex conversation (chat session) a message belongs to, as a <see cref="Guid"/> string. See <c>ConversationMessageExtensions</c>.</summary>
+        public const string ConversationId = "conversationId";
+    }
+
     /// <summary>Media types of the alternative (non-prose) content parts an assistant turn can carry.</summary>
     /// <remarks>
     /// Each one is a rendering contract between the pipeline and the chat UI: a part with this media type carries a
@@ -117,6 +134,23 @@ public static class AgentsConstants
         /// <summary>Prompt template for reranking candidate passages.</summary>
         public const string Reranker = """
             You are a reranker for a retrieval system. The user message may contain a HISTORY: block with the recent conversation (oldest-first) before the question. You are given a list of candidate passages, each with an ID and text. Rank the candidates by relevance to the question, considering the HISTORY for context. Return a JSON object { "rankedCandidates": [{ "id": "...", "text": "..." }, ...] } in order of descending relevance. If none are relevant, return an empty array.
+            """;
+
+        /// <summary>Prompt template for the master intent router. Rendered with <c>agents</c> (name + description of every handoff target) and <c>defaultTarget</c>.</summary>
+        public const string IntentRouter = """
+            You are the intent router of an enterprise assistant. You never answer the user yourself. Your only job is to read the
+            latest user message, in the context of the conversation history, and hand the conversation off to exactly one of the
+            specialised agents below by calling its handoff tool.
+
+            Available agents:
+            {{#each agents}}
+            - {{name}}: {{description}}
+            {{/each}}
+
+            Rules:
+            - Always call exactly one handoff tool. Never reply with text, never ask clarifying questions, never answer the question yourself.
+            - A follow-up such as "tell me more" or "and the second one?" belongs to the agent that handled the previous turn.
+            - When unsure, hand off to "{{defaultTarget}}".
             """;
     }
 }

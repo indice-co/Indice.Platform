@@ -29,6 +29,8 @@ public sealed class AgentsOptionsValidator : IValidateOptions<AgentsOptions>
             failures.Add("Dex:Taxonomy:Languages must contain at least one non-empty string.");
         if (options.Retrieval.RerankSnippetLength <= 0)
             failures.Add("Dex:Retrieval:RerankSnippetLength must be positive.");
+        if (string.IsNullOrWhiteSpace(options.Routing.DefaultAgent))
+            failures.Add("Dex:Routing:DefaultAgent must name a registered agent (e.g. \"auto\" or \"knowledge\").");
 
         return failures.Count > 0
             ? ValidateOptionsResult.Fail(failures)

@@ -1,4 +1,5 @@
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
@@ -43,6 +44,7 @@ public sealed class QueryRewriter : Executor<IntentOutput, QueryRewriteOutput>
     /// <inheritdoc/>
     public override async ValueTask<QueryRewriteOutput> HandleAsync(IntentOutput intentResult,
         IWorkflowContext context, CancellationToken cancellationToken = default) {
+        await context.EmitProgressAsync(Id, "Rewriting query", cancellationToken);
         var state = await context.GetConversationStateAsync(cancellationToken);
         var expansion = _options.Retrieval.QueryExpansion;
         var enabled = _options.Pipeline.EnableQueryRewrite && expansion > 1;

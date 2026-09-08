@@ -48,7 +48,8 @@ public sealed class IntentClassifier : Executor<ConversationState, IntentOutput>
         ConversationState message,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-        var question = message.Message.Text; 
+        await context.EmitProgressAsync(Id, "Classifying intent", cancellationToken);
+        var question = message.Message.Text;
         var conversationId = message.ConversationId;
         await context.SetConversationStateAsync(message, cancellationToken);
         var agentSession = await _agent.CreateSessionAsync(cancellationToken);

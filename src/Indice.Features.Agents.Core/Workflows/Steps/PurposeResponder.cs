@@ -59,6 +59,7 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
     public override async ValueTask<GroundedAnswerOutput> HandleAsync(
         IntentOutput intentResult, IWorkflowContext context,
         CancellationToken cancellationToken = default) {
+        await context.EmitProgressAsync(Id, "Answering", cancellationToken);
         var state = await context.GetConversationStateAsync(cancellationToken);
         var prompt = state.Message.Text;
         var agentSession = await _agent.CreateSessionAsync(cancellationToken);
