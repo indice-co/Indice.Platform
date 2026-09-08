@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  actions: read
+  checks: write
   pull-requests: write
 
 env:
@@ -20,9 +22,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v7
+      - name: Harden Runner
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
-          ref: develop
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Update MaxMind databases
         shell: pwsh
@@ -175,7 +180,7 @@ jobs:
           Write-Host "Disposable email domains list updated."
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 #v8.1.1
         with:
           base: develop
           branch: automated/update-geoip
