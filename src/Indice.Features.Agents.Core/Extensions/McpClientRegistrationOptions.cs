@@ -9,8 +9,7 @@ public class McpClientRegistrationOptions
     public bool ShareSession { get; set; }
     
     /// <summary>Gets or sets a factory function for creating the <see cref="IClientTransport"/> used by the <see cref="McpClient"/>.</summary>
-    public Func<IServiceProvider, IClientTransport> TransportFactory { get; set; } = _ => throw new NotImplementedException();
-
+    public Func<IServiceProvider, IClientTransport> TransportFactory { get; set; } = _ => throw new InvalidOperationException("No MCP transport configured. Call WithStdioTransport(...), WithHttpTransport(...), or WithTransport(...) when registering the client.");
     /// <summary>Gets or sets the options for configuring the <see cref="McpClient"/>.</summary>
     public McpClientOptions Client { get; set; } = new();
 }

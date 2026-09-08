@@ -40,8 +40,7 @@ public class AIContentTests
     }
 
     [Fact]
-    public async Task DataContentConversionTest() {
-        // example Data URI: data:image/png;base64,iVBORw0KGgo...
+    public void DataContentConversionTest() {
         var htmlText = """
            <html>
               <body>
