@@ -1,6 +1,7 @@
 using System.Net.ServerSentEvents;
 using System.Runtime.CompilerServices;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Workflows.State;
 using Indice.Types;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ public class ChatsService : IChatsService
     private readonly IConversationStore _store;
     private readonly IDexChatClient _dexClient;
     private readonly IUsageGuardService _usageGuard;
+    private readonly IWorkflowStateStore? _workflowStateStore;
     private readonly AgentsOptions.AzureOpenAIDeployments _deployments;
     private readonly AgentsOptions.SessionOptions _sessionOptions;
     private readonly ILogger<ChatsService> _logger;
@@ -22,10 +24,12 @@ public class ChatsService : IChatsService
     private const string GenericFailureReason = "The assistant could not complete this request. Please try again.";
 
     /// <summary>Creates a new <see cref="ChatsService"/>.</summary>
-    public ChatsService(IConversationStore store, IDexChatClient dexClient, IUsageGuardService usageGuard, IOptions<AgentsOptions> options, ILogger<ChatsService> logger) {
+    public ChatsService(IConversationStore store, IDexChatClient dexClient, IUsageGuardService usageGuard, IOptions<AgentsOptions> options, ILogger<ChatsService> logger,
+        IWorkflowStateStore? workflowStateStore = null) {
         _store = store;
         _dexClient = dexClient;
         _usageGuard = usageGuard;
+        _workflowStateStore = workflowStateStore;
         _deployments = options.Value.AzureOpenAI.Deployments;
         _sessionOptions = options.Value.Session;
         _logger = logger;
@@ -38,6 +42,7 @@ public class ChatsService : IChatsService
         if (conversation is null) {
             return null;
         }
+        await GroundAsync(conversation, conversationId, chatRequest, cancellationToken);
         var turnCheck = _usageGuard.Check(conversation);
         if (!turnCheck.Allowed) {
             return CreateLimitReachedResponse(conversation, turnCheck.Message);
@@ -91,11 +96,32 @@ public class ChatsService : IChatsService
         if (conversation is null) {
             return null;
         }
+        await GroundAsync(conversation, conversationId, chatRequest, cancellationToken);
         var turnCheck = _usageGuard.Check(conversation);
         if (!turnCheck.Allowed) {
             return LimitReachedStream(conversation, turnCheck.Message);
         }
         return StreamTurnAsync(conversation, chatRequest, cancellationToken);
+    }
+
+    /// <summary>
+    /// Grounds a freshly created conversation on the external reference the hosting UI passed along
+    /// (<c>?refid=...&amp;reftype=...</c>): the reference is persisted as the conversation's workflow state and,
+    /// unless the caller picked an agent explicitly, routes the conversation to the customer-data workflow.
+    /// Ignored for follow-up turns — a conversation is grounded once, when it is created.
+    /// </summary>
+    private async Task GroundAsync(Conversation conversation, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken) {
+        if (conversationId is not null || string.IsNullOrWhiteSpace(chatRequest.ReferenceId)) {
+            return;
+        }
+        chatRequest.AgentName ??= AgentsConstants.AgentNames.Cases;
+        if (_workflowStateStore is null) {
+            return;
+        }
+        await _workflowStateStore.SaveAsync(conversation.Id, new CustomerDataState {
+            ReferenceId = chatRequest.ReferenceId.Trim(),
+            ReferenceType = chatRequest.ReferenceType?.Trim()
+        }, cancellationToken);
     }
 
     /// <summary>Throws a <see cref="BusinessException"/> when a new conversation is requested but the user's conversation cap is hit. No-op for existing sessions.</summary>

@@ -69,6 +69,7 @@ public sealed class IntentClassifier : Executor<ConversationState, IntentOutput>
             Language = language,
             IsInScope = result.IsInScope,
             OutOfScopeReason = result.OutOfScopeReason,
+            RequiresCustomerData = result.RequiresCustomerData,
         };
         await context.SetIntentStateAsync(new IntentState(intent, new RetrievalFilters { Category = category, Language = language }), cancellationToken);
         return new IntentOutput (
@@ -84,6 +85,7 @@ public sealed class IntentClassifier : Executor<ConversationState, IntentOutput>
         public string? Language { get; set; }
         public bool IsInScope { get; set; }
         public string? OutOfScopeReason { get; set; }
+        public bool RequiresCustomerData { get; set; }
     }
 }
 /// <summary>Output payload of <c>IntentClassifier</c>.</summary>

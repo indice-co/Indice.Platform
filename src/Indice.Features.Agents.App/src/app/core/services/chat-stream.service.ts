@@ -49,6 +49,12 @@ export type ChatStreamFrame =
   | ChatStreamErrorFrame
   | ChatStreamDoneFrame;
 
+/** A record of the hosting system a conversation is about, taken from the `refid`/`reftype` query string. */
+export interface ExternalReference {
+  id: string;
+  type?: string;
+}
+
 const KNOWN_FRAME_TYPES: ReadonlySet<string> = new Set(['start', 'status', 'delta', 'error', 'done']);
 
 /**
@@ -69,9 +75,13 @@ export class ChatStreamService {
     '',
   );
 
-  /** POST /my/chats/stream — create a session and stream the first turn. */
-  streamCreate(text: string, agentName?: string | null): Observable<ChatStreamFrame> {
-    return this.stream(`${this.baseUrl}/my/chats/stream`, text, agentName);
+  /**
+   * POST /my/chats/stream — create a session and stream the first turn. An `externalReference` grounds the
+   * new conversation on a record of the hosting system (the `?refid=...&reftype=...` deep link), which the
+   * server persists as the conversation's workflow state.
+   */
+  streamCreate(text: string, agentName?: string | null, externalReference?: ExternalReference | null): Observable<ChatStreamFrame> {
+    return this.stream(`${this.baseUrl}/my/chats/stream`, text, agentName, externalReference);
   }
 
   /** POST /my/chats/{id}/messages/stream — stream a follow-up turn in an existing session. */
@@ -79,7 +89,7 @@ export class ChatStreamService {
     return this.stream(`${this.baseUrl}/my/chats/${sessionId}/messages/stream`, text, agentName);
   }
 
-  private stream(url: string, text: string, agentName?: string | null): Observable<ChatStreamFrame> {
+  private stream(url: string, text: string, agentName?: string | null, externalReference?: ExternalReference | null): Observable<ChatStreamFrame> {
     return new Observable<ChatStreamFrame>((subscriber) => {
       const controller = new AbortController();
 
@@ -99,8 +109,12 @@ export class ChatStreamService {
           response = await fetch(url, {
             method: 'POST',
             headers,
-            // Omit agentName when unset so the server picks its default agent.
-            body: JSON.stringify(agentName ? { text, agentName } : { text }),
+            // Omit agentName when unset so the server picks its default agent, and the reference when there is none.
+            body: JSON.stringify({
+              text,
+              ...(agentName ? { agentName } : {}),
+              ...(externalReference?.id ? { referenceId: externalReference.id, referenceType: externalReference.type } : {}),
+            }),
             signal: controller.signal,
           });
         } catch (err) {

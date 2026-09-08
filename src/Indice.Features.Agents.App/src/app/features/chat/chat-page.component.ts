@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 
 import { AgentInfo, ChatMessagePart, DexApiService, DexChatResponse, LikeRequest } from '../../core/services/dex-api.service';
-import { ChatStreamFrame, ChatStreamService } from '../../core/services/chat-stream.service';
+import { ChatStreamFrame, ChatStreamService, ExternalReference } from '../../core/services/chat-stream.service';
 import { ConversationsStore } from '../../core/services/conversations.store';
 import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
 import { ChatComposerComponent } from './chat-composer.component';
@@ -54,6 +54,13 @@ export class ChatPageComponent {
   protected readonly agents = signal<AgentInfo[]>([]);
   /** The composer's picked mode; `null` falls back to the first discovered agent. */
   protected readonly selectedAgentName = signal<string | null>(null);
+
+  /**
+   * The record this visit is about, deep-linked as `?refid=...&reftype=...`. It is sent once, with the
+   * conversation-creating turn, and grounds the server-side workflow so it can skip asking what the visit is
+   * about. Follow-up turns carry nothing: the conversation is already grounded.
+   */
+  private readonly externalReference = signal<ExternalReference | null>(readExternalReference());
 
   /** The raw patch target for the turn's `delta` frames — plain JSON; `streamResponse` is its typed projection. */
   private streamDocument: Record<string, any> = {};
@@ -119,7 +126,10 @@ export class ChatPageComponent {
     const agentName = this.selectedAgentName() ?? this.agents()[0]?.name ?? null;
     const stream$ = sessionId
       ? this.streamSvc.streamMessage(sessionId, value, agentName)
-      : this.streamSvc.streamCreate(value, agentName);
+      : this.streamSvc.streamCreate(value, agentName, this.externalReference());
+    if (!sessionId) {
+      this.externalReference.set(null);
+    }
 
     this.streamSub = stream$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (frame) => this.onFrame(frame),
@@ -248,4 +258,14 @@ export class ChatPageComponent {
     this.streamSub?.unsubscribe();
     this.streamSub = undefined;
   }
+}
+
+/** Reads the `refid`/`reftype` deep-link parameters of the hosting page, if any. */
+function readExternalReference(): ExternalReference | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('refid')?.trim();
+  return id ? { id, type: params.get('reftype')?.trim() || undefined } : null;
 }

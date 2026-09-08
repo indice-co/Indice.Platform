@@ -35,6 +35,13 @@ public class DbConversation
     /// <summary>Optional per-session metadata (JSON) — e.g. default filters or language preferences.</summary>
     public string? MetadataJson { get; set; }
 
+    /// <summary>
+    /// Durable state of the multi-turn workflow this conversation is running (JSON). Holds the step the run
+    /// stopped at plus the external reference it is grounded on, so the next turn resumes instead of starting
+    /// over. Managed by <c>IWorkflowStateStore</c>; never holds undisclosed customer data.
+    /// </summary>
+    public string? WorkflowStateJson { get; set; }
+
     /// <summary>Navigation: messages belonging to this session.</summary>
     public ICollection<DbMessage> Messages { get; set; } = [];
 }

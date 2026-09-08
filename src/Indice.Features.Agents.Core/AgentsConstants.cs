@@ -100,6 +100,7 @@ public static class AgentsConstants
             - Language: ONE of [{{#each languages}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}], or null if uncertain.
             - IsInScope: true when the question is reasonably answerable from internal documentation in the listed categories; false for chit-chat, jokes, weather, current events, or topics clearly outside the knowledge base.
             - OutOfScopeReason: a polite one-sentence explanation when IsInScope is false; null otherwise.
+            - RequiresCustomerData: true when the user asks about a specific record of their own held in an external system — a case, an order, a service pickup, a contract — or supplies such a reference/case number. These need customer data retrieved and the person verified, not documentation, so they are handled by a dedicated workflow; set IsInScope to true for them as well.
             """;
 
         /// <summary>Prompt template for responding to questions about the agent's capabilities.</summary>

@@ -17,4 +17,11 @@ public class Intent
 
     /// <summary>Polite human-readable reason when <see cref="IsInScope"/> is false.</summary>
     public string? OutOfScopeReason { get; init; }
+
+    /// <summary>
+    /// When true the user is after a specific record of their own held in an external system (a case, an order,
+    /// a service pickup) rather than an answer from the knowledge base, and the auto-routing workflow hands the
+    /// turn to the customer-data sub-workflow — which verifies them before disclosing anything.
+    /// </summary>
+    public bool RequiresCustomerData { get; init; }
 }
