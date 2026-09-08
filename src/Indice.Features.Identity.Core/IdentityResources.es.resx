@@ -505,7 +505,7 @@
     <value>Su contraseña ha sido cambiada exitosamente.</value>
   </data>
   <data name="LimitAttemptsReached" xml:space="preserve">
-    <value>Ha alcanzado el límite diario de intentos. Por favor, inténtelo de nuevo más tarde.</value>
+    <value>Ha superado el número máximo de intentos fallidos.</value>
   </data>
   <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
     <value>El campo 'Confirmar contraseña' es obligatorio.</value>

@@ -32,11 +32,20 @@ GO
 
 ALTER TABLE [auth].[UserRateCounter] CHECK CONSTRAINT [FK_UserRateCounter_User_UserId]
 GO
+
+CREATE NONCLUSTERED INDEX [IX_UserRateCounter_ResetDate] ON [auth].[UserRateCounter]
+(
+	[ResetDate] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+SET ANSI_PADDING ON
+GO
 ```
 
- To update settings or disable it you need the following configuration in appsettings.json
+To update settings or disable it you need the following configuration in appsettings.json
 ```json
- "UserActionGuard": {
+ "ActionRateLimiter": {
       "MaxAttempts": 5,
       "Window": "01:00:00",
       "Enabled": true

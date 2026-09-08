@@ -72,11 +72,12 @@ internal class ActionRateLimiter : IActionRateLimiter
                 attempt = UserRateCounter.Create(userId, actionName, now, window);
                 _dbContext.UserRateCounters.Add(attempt);
             }
+            if (attempt.IsResetDue(now)) {
+                attempt.Reset(now, window);
+            }
             attempt.Increment(now);
             if (attempt.IsMaxedOut(maxAttempts)) {
                 return false;
-            } else if (attempt.IsResetDue(now)) {
-                attempt.Reset(now, window);
             }
 
             try {

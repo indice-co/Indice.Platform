@@ -573,6 +573,6 @@
     <value>Your password has been successfully changed.</value>
   </data>
   <data name="LimitAttemptsReached" xml:space="preserve">
-    <value>You have reached the limit of attempts. Please try again later.</value>
+    <value>You have exceeded the maximum number of failed attempts.</value>
   </data>
 </root>

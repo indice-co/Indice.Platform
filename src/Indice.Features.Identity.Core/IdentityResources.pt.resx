@@ -505,7 +505,7 @@
     <value>A sua senha foi alterada com sucesso.</value>
   </data>
   <data name="LimitAttemptsReached" xml:space="preserve">
-    <value>Você atingiu o limite diário de tentativas. Tente novamente mais tarde.</value>
+    <value>Você excedeu o número máximo de tentativas falhadas.</value>
   </data>
   <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
     <value>O campo 'Confirmar palavra-passe' é obrigatório.</value>

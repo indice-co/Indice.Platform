@@ -25,7 +25,7 @@ public class UserRateCounter
     /// <param name="now">The current date and time.</param>
     /// <param name="window">The time span for the new reset window.</param>
     public void Reset(DateTimeOffset now, TimeSpan window) {
-        Count = 1;
+        Count = 0;
         ResetDate = now.Add(window);
         LastUpdate = now;
     }

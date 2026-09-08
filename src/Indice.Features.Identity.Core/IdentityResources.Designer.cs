@@ -394,7 +394,7 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You have reached the limit of attempts. Please try again later..
+        ///   Looks up a localized string similar to You have exceeded the maximum number of failed attempts..
         /// </summary>
         internal static string LimitAttemptsReached {
             get {

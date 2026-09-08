@@ -7,7 +7,7 @@ namespace Indice.Features.Identity.Core.Data.Mappings;
 
 /// <summary>Entity Framework mapping for type <see cref="UserRateCounter"/>.</summary>
 /// <typeparam name="TUser">The type of user.</typeparam>
-internal class UseRateCounterMap<TUser> : IEntityTypeConfiguration<UserRateCounter> where TUser : User
+internal class UserRateCounterMap<TUser> : IEntityTypeConfiguration<UserRateCounter> where TUser : User
 {
     /// <summary>Configure Entity Framework mapping for type <see cref="UserRateCounter"/>.</summary>
     /// <param name="builder"></param>
