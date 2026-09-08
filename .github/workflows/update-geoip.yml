@@ -4,9 +4,6 @@ on:
   schedule:
     - cron: '0 3 * * *'
   workflow_dispatch:
-  push:
-    branches:
-      - actions/update-geoip
 
 permissions:
   contents: write
@@ -19,7 +16,7 @@ env:
   MAXMIND_METADATA: src/Indice.Features.GeoIP/GeoLite2/.maxmind-releases.json
 
 jobs:
-  update:
+  update-geoip:
     runs-on: ubuntu-latest
 
     steps:
