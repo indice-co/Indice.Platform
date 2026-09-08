@@ -41,9 +41,14 @@ public sealed class ConversationStoreChatHistoryProvider : ChatHistoryProvider
         => _sessionState.SaveState(agentSession, new State { ConversationId = conversationId });
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// Resolves the conversation from the session state stamped via <see cref="SetSessionId"/>; when the session was created by the
+    /// Agent Framework itself (a handoff participant, a workflow hosted as an agent) and carries no id, falls back to the
+    /// <c>conversationId</c> property stamped on the request messages (see <c>ConversationMessageExtensions</c>).
+    /// </remarks>
     protected override async ValueTask<IEnumerable<Microsoft.Extensions.AI.ChatMessage>> ProvideChatHistoryAsync(InvokingContext context, CancellationToken cancellationToken = default) {
         var conversationId = _sessionState.GetOrInitializeState(context.Session).ConversationId;
-        if (conversationId == Guid.Empty) {
+        if (conversationId == Guid.Empty && !context.RequestMessages.TryGetConversationId(out conversationId)) {
             return [];
         }
         var history = await _store.GetHistoryAsync(conversationId, cancellationToken);

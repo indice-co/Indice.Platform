@@ -1,5 +1,6 @@
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
+using Indice.Features.Agents.Core.Workflows.Events;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
@@ -29,6 +30,7 @@ public sealed class Retriever : Executor<QueryRewriteOutput, RetrievalOutput>
     /// <inheritdoc/>
     public override async ValueTask<RetrievalOutput> HandleAsync(
         QueryRewriteOutput queryRewriteOutput, IWorkflowContext context, CancellationToken cancellationToken = default) {
+        await context.EmitProgressAsync(Id, "Retrieving relevant context", cancellationToken);
         var filters = queryRewriteOutput.Filters;
         var topK = _options.Retrieval.NumberOfCandidates;
 

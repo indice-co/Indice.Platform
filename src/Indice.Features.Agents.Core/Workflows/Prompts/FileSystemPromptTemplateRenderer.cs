@@ -30,6 +30,7 @@ public sealed class FileSystemPromptTemplateRenderer : IPromptTemplateRenderer
                     nameof(AgentsConstants.PromptDefaults.IntentClassifier) => _handlebars.Compile(AgentsConstants.PromptDefaults.IntentClassifier),
                     nameof(AgentsConstants.PromptDefaults.PurposeResponder) => _handlebars.Compile(AgentsConstants.PromptDefaults.PurposeResponder),
                     nameof(AgentsConstants.PromptDefaults.QueryRewriter) => _handlebars.Compile(AgentsConstants.PromptDefaults.QueryRewriter),
+                    nameof(AgentsConstants.PromptDefaults.IntentRouter) => _handlebars.Compile(AgentsConstants.PromptDefaults.IntentRouter),
                     _ => throw new InvalidOperationException($"Prompt template '{name}' not found at '{path}'."),
                 };
             }

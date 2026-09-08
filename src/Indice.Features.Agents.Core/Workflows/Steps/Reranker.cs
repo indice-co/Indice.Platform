@@ -1,4 +1,5 @@
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.Reranking;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI.Workflows;
@@ -25,6 +26,7 @@ public sealed class Reranker : Executor<RetrievalOutput, RerankOutput>
     /// <inheritdoc/>
     public override async ValueTask<RerankOutput> HandleAsync(RetrievalOutput retrievalOutput, IWorkflowContext context,
         CancellationToken cancellationToken = default) {
+        await context.EmitProgressAsync(Id, "Ranking results", cancellationToken);
         var topResults = _options.Retrieval.NumberOfResults;
         var candidates = retrievalOutput.Candidates;
         var state = await context.GetConversationStateAsync(cancellationToken);

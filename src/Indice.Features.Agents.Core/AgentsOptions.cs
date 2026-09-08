@@ -28,6 +28,9 @@ public class AgentsOptions
     /// <summary>Allowed categorical/language values constrained by the host application.</summary>
     public TaxonomyOptions Taxonomy { get; set; } = new();
 
+    /// <summary>Agent selection behaviour (default agent, intent routing).</summary>
+    public RoutingOptions Routing { get; set; } = new();
+
     /// <summary>
     /// When true we enable additional triggers and debug handles for development and testing. 
     /// This is not a security boundary; do not rely on it to protect sensitive data. 
@@ -168,6 +171,17 @@ public class AgentsOptions
 
         /// <summary>Allowed ISO-639-1 (or BCP-47) language codes.</summary>
         public IReadOnlyList<string> Languages { get; set; } = ["en", "el", "de", "fr", "es"];
+    }
+
+    /// <summary>Agent selection behaviour.</summary>
+    public class RoutingOptions
+    {
+        /// <summary>
+        /// Name of the registered agent used when a chat request omits <c>agentName</c> or names an agent that is not registered.
+        /// Defaults to <see cref="AgentsConstants.AgentNames.Auto"/>, the master intent router. When the configured agent is not
+        /// registered either, <see cref="AgentsConstants.AgentNames.Knowledge"/> is used.
+        /// </summary>
+        public string DefaultAgent { get; set; } = AgentsConstants.AgentNames.Auto;
     }
 }
 

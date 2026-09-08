@@ -1,40 +1,42 @@
-﻿using Indice.Features.Agents.Core;
+using Indice.Features.Agents.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Agents.Server.Endpoints;
 
 internal static class AgentsHandlers
 {
-    /// <summary>Handles the discovery of available agents.</summary>
-    public static Ok<List<AgentInfo>> Discovery() {
-        // Implementation for discovering agents goes here.
-        return TypedResults.Ok(new List<AgentInfo>() { 
-            new AgentInfo(
-                Name: AgentsConstants.AgentNames.Auto,
-                Description: "This is an agent that discovers user intent and passes it to the appropriate sub agent.",
-                InputContentTypes: ["text/plain" ],
-                OutputContentTypes: ["text/markdown", AgentsConstants.MediaTypes.MultipleChoice, AgentsConstants.MediaTypes.Callout,
-                                    AgentsConstants.MediaTypes.Image, AgentsConstants.MediaTypes.Confirmation, "image/png"],
-                Capabilities: [ new AgentCapability("Master intent classification", "Discovers user intent and routes it to the appropriate sub-agent.") ],
-                Domains: [],
-                Tags: ["Intent"],
-                Links: [],
-                Icon: AgentsConstants.AgentIcons.Sparkles),
+    private static readonly List<string> InputContentTypes = ["text/plain"];
+    private static readonly List<string> OutputContentTypes = [
+        "text/markdown",
+        AgentsConstants.MediaTypes.MultipleChoice,
+        AgentsConstants.MediaTypes.Callout,
+        AgentsConstants.MediaTypes.Image,
+        AgentsConstants.MediaTypes.Confirmation,
+        "image/png"
+    ];
 
-            new AgentInfo(
-                Name: AgentsConstants.AgentNames.Knowledge,
-                Description: "This is an agent that can answer questions based on a knowledge base.",
-                InputContentTypes: ["text/plain" ],
-                OutputContentTypes: ["text/markdown", AgentsConstants.MediaTypes.MultipleChoice, AgentsConstants.MediaTypes.Callout,
-                                    AgentsConstants.MediaTypes.Image, AgentsConstants.MediaTypes.Confirmation, "image/png"],
-                Capabilities: [ new AgentCapability("Knowledge retrieval", "Answers questions based on a knowledge base.") ],
-                Domains: [],
-                Tags: ["Knowledge", "FAQ"],
-                Links: [],
-                Icon: AgentsConstants.AgentIcons.Book)
-        });
+    /// <summary>Lists the registered agents, the intent router first, then in registration order.</summary>
+    public static Ok<List<AgentInfo>> Discovery([FromServices] IEnumerable<AgentDefinition> agents) {
+        var list = agents
+            .OrderByDescending(definition => definition.IsRouter)
+            .Select(ToAgentInfo)
+            .ToList();
+        return TypedResults.Ok(list);
     }
+
+    /// <summary>Projects a catalogue entry onto the discovery contract.</summary>
+    internal static AgentInfo ToAgentInfo(AgentDefinition definition) => new(
+        Name: definition.Name,
+        Description: definition.Description,
+        InputContentTypes: [.. InputContentTypes],
+        OutputContentTypes: [.. OutputContentTypes],
+        Capabilities: definition.Capabilities.Select(capability => new AgentCapability(capability.Name, capability.Description)).ToList(),
+        Domains: [],
+        Tags: [.. definition.Tags],
+        Links: [],
+        Icon: definition.Icon);
 }
 // Rich agent metadata
 /// <summary>
