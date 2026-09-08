@@ -55,16 +55,25 @@ public class ActivityLogStore : IActivityLogStore
             if (filter.Succeeded.HasValue) {
                 query = query.Where(log => log.Succeeded == filter.Succeeded.Value);
             }
-            if(!string.IsNullOrWhiteSpace(filter.ParticipantId)) {
-                query = query.Where(log => log.SubjectId == filter.ParticipantId || log.SubjectName == filter.ParticipantId || log.ResourceId == filter.ParticipantId);
-            } 
-            else {
-                if (!string.IsNullOrWhiteSpace(filter.Subject)) {
-                    query = query.Where(log => log.SubjectId == filter.Subject || log.SubjectName == filter.Subject);
-                }
-                if (!string.IsNullOrWhiteSpace(filter.ResourceId)) {
-                    query = query.Where(log => log.ResourceId == filter.ResourceId);
-                }
+            switch(filter!.SubjectFilterMode) {
+                case SubjectFilterMode.Actor:
+                    if(!string.IsNullOrWhiteSpace(filter.Subject)) {
+                        query = query.Where(log => log.SubjectId == filter.Subject || log.SubjectName == filter.Subject);
+                    }
+                    break;
+                case SubjectFilterMode.Resource:
+                    if(!string.IsNullOrWhiteSpace(filter.Subject)) {
+                        query = query.Where(log => log.ResourceId == filter.Subject);
+                    }
+                    break;
+                case SubjectFilterMode.Any:
+                    if(!string.IsNullOrWhiteSpace(filter.Subject)) {
+                        query = query.Where(log => log.SubjectId == filter.Subject || log.SubjectName == filter.Subject || log.ResourceId == filter.Subject);
+                    }
+                    break;
+            }
+            if(!string.IsNullOrWhiteSpace(filter.ResourceId)) {
+                query = query.Where(log => log.ResourceId == filter.ResourceId);
             }
             if (!string.IsNullOrWhiteSpace(filter.ActionName)) {
                 query = query.Where(log => log.ActionName == filter.ActionName);

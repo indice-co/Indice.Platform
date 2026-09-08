@@ -50,6 +50,7 @@ export class UserActivityLogsComponent implements OnInit {
         dateFrom: undefined,
         dateTo: undefined,
         succeeded: undefined,
+        subjectFilterMode: 'Actor',
         actionName: undefined,
         resourceId: undefined,
         resourceType: undefined,
@@ -76,23 +77,23 @@ export class UserActivityLogsComponent implements OnInit {
         const userId = this._route.parent.snapshot.params['id'];
         const dateFrom = event.filter.dateFrom ? new Date(event.filter.dateFrom) : undefined;
         const dateTo = event.filter.dateTo ? new Date(event.filter.dateTo) : undefined;
-        // participantId (actor OR recipient) is mutually exclusive with subject/resourceId on the backend.
-        // When a resource id is supplied, scope by this user as subject + that resource instead.
-        const hasResourceId = !!event.filter.resourceId;
+        // This user is always the subject. SubjectFilterMode decides whether to match them as the
+        // actor, the resource, or either. ResourceId stays an independent additional filter.
+        const subjectFilterMode = event.filter.subjectFilterMode || 'Actor';
         this._api.getActivityLogs(
             event.page,
             event.pageSize,
             event.sortField,
             event.searchTerm,
-            hasResourceId ? userId : undefined /*subject*/,
+            userId /*subject*/,
             undefined /*sessionId*/,
-            undefined /*markedForReview*/,
+            undefined /*markForReview*/,
             event.filter.succeeded,
             event.filter.actionName,
-            hasResourceId ? event.filter.resourceId : undefined /*resourceId*/,
+            event.filter.resourceId,
             event.filter.resourceType,
             event.filter.category,
-            hasResourceId ? undefined : userId /*participantId*/,
+            subjectFilterMode /*subjectFilterMode*/,
             dateFrom,
             dateTo,
             undefined  /*applicationId*/)
@@ -106,6 +107,7 @@ export class UserActivityLogsComponent implements OnInit {
                 this.filter.dateFrom = event.filter.dateFrom ? this._dateParser.parseDate(new Date(event.filter.dateFrom)) : undefined;
                 this.filter.dateTo = event.filter.dateTo ? this._dateParser.parseDate(new Date(event.filter.dateTo)) : undefined;
                 this.filter.actionName = event.filter.actionName;
+                this.filter.subjectFilterMode = event.filter.subjectFilterMode || 'Actor';
                 this.filter.resourceId = event.filter.resourceId;
                 this.filter.resourceType = event.filter.resourceType;
                 this.filter.category = event.filter.category;
@@ -131,6 +133,9 @@ export class UserActivityLogsComponent implements OnInit {
         }
         if (this.filter.succeeded !== undefined) {
             params['succeeded'] = this.filter.succeeded
+        }
+        if (this.filter.subjectFilterMode) {
+            params['subjectFilterMode'] = this.filter.subjectFilterMode
         }
         if (this.filter.actionName) {
             params['actionName'] = this.filter.actionName

@@ -30,6 +30,19 @@ public class ActivityLogEntryFilter : ActivityLogEntryFilterBase
     public string? ResourceType { get; set; }
     /// <summary>The category of the action.</summary>
     public string? Category { get; set; }
-    /// <summary>Whether we want to retrieve information from both Resource and Subject fields.</summary>
-    public string? ParticipantId { get; set; }
+    /// <summary>Defines the filter mode for the subject in an <see cref="ActivityLogEntry"/> query.</summary>
+    public SubjectFilterMode? SubjectFilterMode { get; set; } = Models.SubjectFilterMode.Actor;
+}
+
+/// <summary>
+/// Defines the filter mode for the subject in an <see cref="ActivityLogEntry"/> query.
+/// </summary>
+public enum SubjectFilterMode
+{
+    /// <summary>Entries where the subject is the actor.</summary>
+    Actor,
+    /// <summary>Entries where the subject is the resource.</summary>
+    Resource,
+    /// <summary>Entries where the subject is either the actor or the resource.</summary>
+    Any
 }

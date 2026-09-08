@@ -51,6 +51,7 @@ export class ActivityLogsComponent implements OnInit {
         dateTo: undefined,
         succeeded: undefined,
         subject: undefined,
+        subjectFilterMode: 'Actor',
         actionName: undefined,
         resourceId: undefined,
         resourceType: undefined,
@@ -89,7 +90,7 @@ export class ActivityLogsComponent implements OnInit {
             event.filter.resourceId,
             event.filter.resourceType,
             event.filter.category,
-            undefined /*participantId*/,
+            event.filter.subjectFilterMode || 'Actor' /*subjectFilterMode*/,
             dateFrom,
             dateTo,
             undefined  /*applicationId*/)
@@ -103,6 +104,7 @@ export class ActivityLogsComponent implements OnInit {
                 this.filter.dateFrom = event.filter.dateFrom ? this._dateParser.parseDate(new Date(event.filter.dateFrom)) : undefined;
                 this.filter.dateTo = event.filter.dateTo ? this._dateParser.parseDate(new Date(event.filter.dateTo)) : undefined;
                 this.filter.subject = event.filter.subject;
+                this.filter.subjectFilterMode = event.filter.subjectFilterMode || 'Actor';
                 this.filter.actionName = event.filter.actionName;
                 this.filter.resourceId = event.filter.resourceId;
                 this.filter.resourceType = event.filter.resourceType;
@@ -132,6 +134,9 @@ export class ActivityLogsComponent implements OnInit {
         }
         if (this.filter.subject) {
             params['subject'] = this.filter.subject
+        }
+        if (this.filter.subjectFilterMode) {
+            params['subjectFilterMode'] = this.filter.subjectFilterMode
         }
         if (this.filter.actionName) {
             params['actionName'] = this.filter.actionName

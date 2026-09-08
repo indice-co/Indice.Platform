@@ -151,6 +151,17 @@
             </select>
         </div>
         <div class="col">
+            <label class="visually-hidden" for="subject-filter-mode">Subject Match</label>
+            <select class="form-control form-select"
+                    id="subject-filter-mode"
+                    name="subject-filter-mode"
+                    [(ngModel)]="filter.subjectFilterMode">
+                <option [ngValue]="'Actor'">Actor</option>
+                <option [ngValue]="'Resource'">Resource</option>
+                <option [ngValue]="'Any'">Any</option>
+            </select>
+        </div>
+        <div class="col">
             <label class="visually-hidden" for="action-name-filter">Action Name</label>
             <app-dynamic-input id="action-name-filter" name="action-name-filter" [(ngModel)]="filter.actionName"
                                [modelType]="'String'" [placeholder]="'Action Name'">
