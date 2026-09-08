@@ -1,6 +1,9 @@
 name: Update GeoIP Lists
 
 on:
+  push:
+    branches:
+      - actions/update-geoip
   schedule:
     - cron: '0 3 * * *'
   workflow_dispatch:
