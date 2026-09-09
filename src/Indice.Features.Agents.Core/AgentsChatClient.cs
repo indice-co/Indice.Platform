@@ -1,4 +1,7 @@
 using System.Runtime.CompilerServices;
+using Indice.Features.Agents.Core.Extensions;
+using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.State;
 using Indice.Security;
@@ -60,14 +63,51 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         }
         var message = messages.First();
         var conversationId = options?.ConversationId ?? Guid.NewGuid().ToString();
-        // Use options.Instructions as the agent/workflow selector passed from the HTTP layer (ChatRequest.AgentName).
-        // Supported selectors: "auto", "knowledge", "cases". Unknown or missing values fall back to "knowledge".
-        var agenticWorkflowName = options?.Instructions?.Trim().ToLowerInvariant() switch {
-            AgentsConstants.AgentNames.Auto => AgentsConstants.AgentNames.Auto,
+        var conversationIdGuid = Guid.TryParse(conversationId, out var parsedConversationId) ? parsedConversationId : (Guid?)null;
+        var optionsSnapshot = serviceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<AgentsOptions>>().Value;
+        var workflowRouter = serviceProvider.GetRequiredService<IWorkflowRouter>();
+        var conversationStore = serviceProvider.GetRequiredService<IConversationStore>();
+        // Use options.Instructions as the workflow selector passed from the HTTP layer (ChatRequest.AgentName).
+        // Explicit selectors (knowledge/cases) win. auto performs LLM routing when enabled.
+        var selector = options?.Instructions?.Trim().ToLowerInvariant();
+        var explicitWorkflowChoice = selector == AgentsConstants.AgentNames.Auto ? NormalizeWorkflowName(message.Text) : null;
+        WorkflowRoutingDecision? routingDecision = null;
+        string? persistedWorkflow = null;
+        if (selector == AgentsConstants.AgentNames.Auto && conversationIdGuid is Guid cid) {
+            persistedWorkflow = await conversationStore.GetSelectedWorkflowAsync(cid, cancellationToken).ConfigureAwait(false);
+        }
+        var agenticWorkflowName = selector switch {
             AgentsConstants.AgentNames.Knowledge => AgentsConstants.AgentNames.Knowledge,
             AgentsConstants.AgentNames.Cases => AgentsConstants.AgentNames.Cases,
+            AgentsConstants.AgentNames.Auto when explicitWorkflowChoice is not null => explicitWorkflowChoice,
+            AgentsConstants.AgentNames.Auto when persistedWorkflow is AgentsConstants.AgentNames.Knowledge or AgentsConstants.AgentNames.Cases => persistedWorkflow,
+            AgentsConstants.AgentNames.Auto => optionsSnapshot.Routing.Enabled
+                ? (routingDecision = await workflowRouter.RouteAsync(message, cancellationToken).ConfigureAwait(false)) is not null
+                    && !routingDecision.IsAmbiguous
+                    && routingDecision.Confidence >= optionsSnapshot.Routing.ConfidenceThreshold
+                    ? routingDecision.WorkflowName
+                    : AgentsConstants.AgentNames.Auto
+                : AgentsConstants.AgentNames.Knowledge,
             _ => AgentsConstants.AgentNames.Knowledge
         };
+
+        if (agenticWorkflowName == AgentsConstants.AgentNames.Auto) {
+            var decision = routingDecision ?? await workflowRouter.RouteAsync(message, cancellationToken).ConfigureAwait(false);
+            var clarification = decision.ClarificationPrompt ?? "I can help with either knowledge questions or case-specific requests. Which one do you want? Reply with 'knowledge' or 'cases'.";
+            var choices = decision.ClarificationOptions?.Count > 0 ? decision.ClarificationOptions.ToList() : [AgentsConstants.AgentNames.Knowledge, AgentsConstants.AgentNames.Cases];
+            yield return new ChatResponseUpdate(ChatRole.Assistant, [
+                new TextContent(clarification),
+                DataContentExtensions.JsonPart(new MultipleChoice { Options = choices }, AgentsConstants.MediaTypes.MultipleChoice)
+            ]) { ConversationId = conversationId };
+            yield break;
+        }
+
+        if (selector == AgentsConstants.AgentNames.Auto && conversationIdGuid is Guid conversationGuid &&
+            agenticWorkflowName is AgentsConstants.AgentNames.Knowledge or AgentsConstants.AgentNames.Cases &&
+            !string.Equals(persistedWorkflow, agenticWorkflowName, StringComparison.Ordinal)) {
+            await conversationStore.SetSelectedWorkflowAsync(conversationGuid, agenticWorkflowName, cancellationToken).ConfigureAwait(false);
+        }
+
         var workflow = serviceProvider.GetKeyedService<Workflow>(agenticWorkflowName)
             ?? serviceProvider.GetRequiredKeyedService<Workflow>(AgentsConstants.AgentNames.Knowledge);
 
@@ -115,6 +155,11 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
 
     /// <inheritdoc/>
     public object? GetService(Type serviceType, object? serviceKey = null) => serviceKey is null ? serviceProvider.GetService(serviceType) : serviceProvider.GetKeyedService(serviceType, serviceKey);
+
+    private static string? NormalizeWorkflowName(string? value) {
+        var normalized = value?.Trim().ToLowerInvariant();
+        return normalized is AgentsConstants.AgentNames.Knowledge or AgentsConstants.AgentNames.Cases ? normalized : null;
+    }
 
     /// <inheritdoc/>
     public void Dispose() {

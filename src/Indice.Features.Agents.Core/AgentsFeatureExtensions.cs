@@ -76,6 +76,7 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<UserClaimsAIContextProvider>();
         services.TryAddTransient<IConversationStore, ConversationStore>();
         services.TryAddTransient<IUsageGuardService, UsageGuardService>();
+        services.TryAddTransient<IWorkflowRouter, LlmWorkflowRouter>();
         services.TryAddTransient<ConversationStoreChatHistoryProvider>();
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();
         services.TryAddTransient<IDexChatClient, AgentsChatClient>();

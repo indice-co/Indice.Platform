@@ -34,6 +34,9 @@ public class AgentsOptions
     /// <summary>Attempt limits for the Cases workflow (ownership verification and OTP validation).</summary>
     public CaseWorkflowOptions CasesWorkflow { get; set; } = new();
 
+    /// <summary>Dynamic workflow routing options used when the selector is <c>auto</c>.</summary>
+    public WorkflowRoutingOptions Routing { get; set; } = new();
+
     /// <summary>
     /// When true we enable additional triggers and debug handles for development and testing. 
     /// This is not a security boundary; do not rely on it to protect sensitive data. 
@@ -235,6 +238,18 @@ public class AgentsOptions
 
         /// <summary>Maximum number of OTP code validation attempts allowed before the workflow fails permanently.</summary>
         public int MaxOtpValidationAttempts { get; set; } = 2;
+    }
+
+    /// <summary>
+    /// Options controlling host-side first-turn workflow routing.
+    /// </summary>
+    public class WorkflowRoutingOptions
+    {
+        /// <summary>When false, <c>auto</c> routing falls back to knowledge.</summary>
+        public bool Enabled { get; set; } = true;
+
+        /// <summary>Minimum confidence required to route without clarification.</summary>
+        public double ConfidenceThreshold { get; set; } = 0.7;
     }
 }
 

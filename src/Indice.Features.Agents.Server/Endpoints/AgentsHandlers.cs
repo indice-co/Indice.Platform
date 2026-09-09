@@ -12,7 +12,7 @@ internal static class AgentsHandlers
         return TypedResults.Ok(new List<AgentInfo>() { 
             new AgentInfo(
                 Name: AgentsConstants.AgentNames.Auto,
-                Description: "This is an agent that discovers user intent and passes it to the appropriate sub agent.",
+                Description: "LLM-based workflow router: inspects the first user message and dynamically routes to Knowledge or Cases; asks for clarification when ambiguous.",
                 InputContentTypes: ["text/plain" ],
                 OutputContentTypes: ["text/markdown", AgentsConstants.MediaTypes.MultipleChoice, AgentsConstants.MediaTypes.Callout,
                                     AgentsConstants.MediaTypes.Image, AgentsConstants.MediaTypes.Confirmation, "image/png"],

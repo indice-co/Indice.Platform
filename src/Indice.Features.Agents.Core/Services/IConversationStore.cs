@@ -61,4 +61,10 @@ public interface IConversationStore
     /// <summary>Likes or dislikes a conversation message.</summary>
     /// <returns><c>true</c> when the message exists and the like/dislike was persisted.</returns>
     Task<bool> SetLikeAsync(string userId, Guid conversationId, Guid messageId, bool? liked, CancellationToken cancellationToken);
+
+    /// <summary>Returns the sticky workflow selection for the conversation, when present in metadata.</summary>
+    Task<string?> GetSelectedWorkflowAsync(Guid conversationId, CancellationToken cancellationToken);
+
+    /// <summary>Sets the sticky workflow selection for the conversation in metadata.</summary>
+    Task SetSelectedWorkflowAsync(Guid conversationId, string workflowName, CancellationToken cancellationToken);
 }

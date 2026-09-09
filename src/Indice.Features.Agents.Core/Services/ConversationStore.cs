@@ -253,6 +253,38 @@ public class ConversationStore : IConversationStore
         return affectedRows > 0;
     }
 
+    /// <inheritdoc/>
+    public async Task<string?> GetSelectedWorkflowAsync(Guid conversationId, CancellationToken cancellationToken) {
+        var metadataJson = await _db.Conversations
+            .AsNoTracking()
+            .Where(c => c.Id == conversationId)
+            .Select(c => c.MetadataJson)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var metadata = ConversationMetadata.Parse(metadataJson);
+        var selected = metadata.SelectedWorkflow?.Trim().ToLowerInvariant();
+        return selected is AgentsConstants.AgentNames.Knowledge or AgentsConstants.AgentNames.Cases ? selected : null;
+    }
+
+    /// <inheritdoc/>
+    public async Task SetSelectedWorkflowAsync(Guid conversationId, string workflowName, CancellationToken cancellationToken) {
+        var selected = workflowName?.Trim().ToLowerInvariant();
+        if (selected is not (AgentsConstants.AgentNames.Knowledge or AgentsConstants.AgentNames.Cases)) {
+            return;
+        }
+
+        var entity = await _db.Conversations.FirstOrDefaultAsync(c => c.Id == conversationId, cancellationToken);
+        if (entity is null) {
+            return;
+        }
+
+        var metadata = ConversationMetadata.Parse(entity.MetadataJson);
+        metadata.SelectedWorkflow = selected;
+        entity.MetadataJson = metadata.ToJson();
+
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
     private static DbMessage ToDb(Guid conversationId, ChatMessage m, string? responseId, int? prompt, int? completion, string? model) => new() {
         Id = string.IsNullOrWhiteSpace(m.MessageId) || !Guid.TryParse(m.MessageId, out var parsedId) ? Guid.NewGuid() : parsedId,
         ConversationId = conversationId,

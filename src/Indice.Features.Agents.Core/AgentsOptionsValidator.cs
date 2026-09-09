@@ -29,6 +29,8 @@ public sealed class AgentsOptionsValidator : IValidateOptions<AgentsOptions>
             failures.Add("Dex:Taxonomy:Languages must contain at least one non-empty string.");
         if (options.Retrieval.RerankSnippetLength <= 0)
             failures.Add("Dex:Retrieval:RerankSnippetLength must be positive.");
+        if (options.Routing.ConfidenceThreshold < 0 || options.Routing.ConfidenceThreshold > 1)
+            failures.Add("Dex:Routing:ConfidenceThreshold must be in the [0,1] range.");
 
         return failures.Count > 0
             ? ValidateOptionsResult.Fail(failures)
