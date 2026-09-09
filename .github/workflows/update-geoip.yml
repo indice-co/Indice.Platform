@@ -188,7 +188,7 @@ jobs:
           base: develop
           branch: automated/update-geoip
           delete-branch: true
-          commit-message: 'Update GeoIP databases and disposable lists'
+          commit-message: '🔐[update] MaxMind GeoIP databases and disposable lists'
           title: '🔐[update] MaxMind GeoIP databases and disposable lists'
           body: |
             Automated update of:
