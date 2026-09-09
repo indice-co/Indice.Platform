@@ -15,10 +15,10 @@ public sealed class OwnershipVerificationFailureHandler : Executor<UserInputVali
 {
     private readonly int _maxValidationAttempts;
     private readonly AgentMessageLocalizer _messageLocalizer;
-    private readonly ICasesReplayStateStore _stateStore;
+    private readonly IWorkflowStateStore _stateStore;
 
     /// <summary>Creates a new <see cref="OwnershipVerificationFailureHandler"/>.</summary>
-    public OwnershipVerificationFailureHandler(IOptions<AgentsOptions> options, AgentMessageLocalizer messageLocalizer, ICasesReplayStateStore stateStore) : base(nameof(OwnershipVerificationFailureHandler)) {
+    public OwnershipVerificationFailureHandler(IOptions<AgentsOptions> options, AgentMessageLocalizer messageLocalizer, IWorkflowStateStore stateStore) : base(nameof(OwnershipVerificationFailureHandler)) {
         _maxValidationAttempts = options.Value.CasesWorkflow.MaxOwnershipValidationAttempts;
         _messageLocalizer = messageLocalizer;
         _stateStore = stateStore ?? throw new ArgumentNullException(nameof(stateStore));
@@ -31,8 +31,7 @@ public sealed class OwnershipVerificationFailureHandler : Executor<UserInputVali
         CancellationToken cancellationToken = default) {
 
         // Terminal step — the conversation's Cases state machine is finished.
-        var conversationState = await context.GetConversationStateAsync(cancellationToken);
-        await _stateStore.RemoveAsync(conversationState.ConversationId, cancellationToken);
+        await context.SetCustomerDataStateAsync(_stateStore, null, cancellationToken);
 
         var failureMessage = validationOutput.ErrorMessage
             ?? _messageLocalizer.OwnershipVerificationFailedMaxAttemptsMessage(_maxValidationAttempts);

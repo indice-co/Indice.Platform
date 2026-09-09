@@ -1,6 +1,7 @@
 using System.Net.ServerSentEvents;
 using System.Runtime.CompilerServices;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Types;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
@@ -17,15 +18,17 @@ public class ChatsService : IChatsService
     private readonly AgentsOptions.AzureOpenAIDeployments _deployments;
     private readonly AgentsOptions.SessionOptions _sessionOptions;
     private readonly ILogger<ChatsService> _logger;
+    private readonly IWorkflowStateStore _workflowStateStore;
 
     // User-displayable reason for the terminal error event. Exception details never reach the wire — they are logged.
     private const string GenericFailureReason = "The assistant could not complete this request. Please try again.";
 
     /// <summary>Creates a new <see cref="ChatsService"/>.</summary>
-    public ChatsService(IConversationStore store, IDexChatClient dexClient, IUsageGuardService usageGuard, IOptions<AgentsOptions> options, ILogger<ChatsService> logger) {
+    public ChatsService(IConversationStore store, IDexChatClient dexClient, IUsageGuardService usageGuard, IWorkflowStateStore workflowStateStore, IOptions<AgentsOptions> options, ILogger<ChatsService> logger) {
         _store = store;
         _dexClient = dexClient;
         _usageGuard = usageGuard;
+        _workflowStateStore = workflowStateStore;
         _deployments = options.Value.AzureOpenAI.Deployments;
         _sessionOptions = options.Value.Session;
         _logger = logger;
@@ -47,7 +50,9 @@ public class ChatsService : IChatsService
             CreatedAt = DateTimeOffset.UtcNow,
             AuthorName = chatRequest.AuthorName
         };
-        var response = await _dexClient.GetResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString(), Instructions = chatRequest.AgentName }, cancellationToken);
+        await GroundAsync(conversation.Id, chatRequest, cancellationToken);
+        var agentName = ResolveAgentName(chatRequest);
+        var response = await _dexClient.GetResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString(), Instructions = agentName }, cancellationToken);
         var persisted = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
         return CreateTurnResponse(conversation, response, persisted);
     }
@@ -136,7 +141,9 @@ public class ChatsService : IChatsService
             CreatedAt = DateTimeOffset.UtcNow,
             AuthorName = chatRequest.AuthorName
         };
-        var stream = _dexClient.GetStreamingResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString(), Instructions = chatRequest.AgentName }, cancellationToken);
+        await GroundAsync(conversation.Id, chatRequest, cancellationToken);
+        var agentName = ResolveAgentName(chatRequest);
+        var stream = _dexClient.GetStreamingResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString(), Instructions = agentName }, cancellationToken);
         var updates = new List<ChatResponseUpdate>();
         var projector = new DexChatStreamProjector();
         var compactor = new DeltaCompactor();
@@ -243,6 +250,30 @@ public class ChatsService : IChatsService
             if (frame.Op == _op) { frame.Op = null; } else { _op = frame.Op; }
             return new SseItem<DexChatResponseUpdate>(frame, "delta");
         }
+    }
+
+    private static string? ResolveAgentName(ChatRequest request) {
+        if (!string.IsNullOrWhiteSpace(request.AgentName)) {
+            return request.AgentName;
+        }
+        return !string.IsNullOrWhiteSpace(request.ReferenceId) ? AgentsConstants.AgentNames.Cases : null;
+    }
+
+    private async Task GroundAsync(Guid conversationId, ChatRequest request, CancellationToken cancellationToken) {
+        if (string.IsNullOrWhiteSpace(request.ReferenceId)) {
+            return;
+        }
+
+        var state = CustomerDataState.FromJson(await _workflowStateStore.GetStateJsonAsync(conversationId, cancellationToken))
+            ?? new CustomerDataState {
+                ConversationId = conversationId.ToString(),
+                Stage = CustomerDataStage.Start
+            };
+        state.ReferenceId = request.ReferenceId;
+        state.ReferenceType = request.ReferenceType;
+        state.LastStepId = nameof(ChatsService);
+        state.UpdatedAt = DateTimeOffset.UtcNow;
+        await _workflowStateStore.SetStateJsonAsync(conversationId, state.ToJson(), cancellationToken);
     }
 
 

@@ -13,6 +13,8 @@ public class DbConversationMap : IEntityTypeConfiguration<DbConversation>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.UserId).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M256);
+        builder.Property(x => x.MetadataJson).HasColumnType("nvarchar(max)");
+        builder.Property(x => x.WorkflowStateJson).HasColumnType("nvarchar(max)");
         builder.Property(x => x.InputTokenCount).HasDefaultValue(0L);
         builder.Property(x => x.OutputTokenCount).HasDefaultValue(0L);
         builder.Property(x => x.MessageCount).HasDefaultValue(0);

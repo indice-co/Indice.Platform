@@ -11,4 +11,10 @@ public class ChatRequest
 
     /// <summary>Optional name of the agent to use for this chat. If not provided, the system will use a default agent.</summary>
     public string? AgentName { get; set; }
+
+    /// <summary>Optional external reference id (deep-link kickoff) used by customer-data workflows.</summary>
+    public string? ReferenceId { get; set; }
+
+    /// <summary>Optional external reference type (deep-link kickoff) used by customer-data workflows.</summary>
+    public string? ReferenceType { get; set; }
 }

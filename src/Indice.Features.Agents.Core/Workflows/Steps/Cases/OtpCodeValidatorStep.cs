@@ -3,6 +3,7 @@ using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.Mcp;
 using Indice.Features.Agents.Core.Workflows.Prompts;
+using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -24,6 +25,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
     private readonly IMcpToolsRegistry _mcpToolsRegistry;
     private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly IPromptTemplateRenderer _prompts;
+    private readonly IWorkflowStateStore _stateStore;
     private readonly string _model;
 
     /// <summary>Creates a new <see cref="OtpCodeValidatorStep"/>.</summary>
@@ -34,7 +36,8 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
         UserClaimsAIContextProvider userClaimsProvider,
         IMcpToolsRegistry mcpToolsRegistry,
         AgentMessageLocalizer messageLocalizer,
-        IPromptTemplateRenderer prompts) : base(nameof(OtpCodeValidatorStep)) {
+        IPromptTemplateRenderer prompts,
+        IWorkflowStateStore stateStore) : base(nameof(OtpCodeValidatorStep)) {
         _openAIClient = openAIClient;
         _options = options.Value;
         _models = models.Value;
@@ -42,6 +45,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
         _mcpToolsRegistry = mcpToolsRegistry;
         _messageLocalizer = messageLocalizer;
         _prompts = prompts;
+        _stateStore = stateStore ?? throw new ArgumentNullException(nameof(stateStore));
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
     }
 
@@ -120,6 +124,11 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
         var failedAttempts = response.Challenge.FailedAttempts;
         var maxFailedAttempts = response.Challenge.MaxFailedAttempts;
         var shouldRetry = !verification.IsRateLimited && (failedAttempts <= maxFailedAttempts);
+        var customerDataState = await context.GetCustomerDataStateAsync(_stateStore, cancellationToken) ?? new CustomerDataState();
+        customerDataState.FailedOtpAttempts = failedAttempts;
+        customerDataState.IsOtpVerified = verification.Success;
+        customerDataState.LastStepId = Id;
+        await context.SetCustomerDataStateAsync(_stateStore, customerDataState, cancellationToken);
         var finalMessage = shouldRetry
             ? _messageLocalizer.InvalidOtpRetryMessage(Math.Max(maxFailedAttempts - failedAttempts + 1, 0))
             : _messageLocalizer.InvalidOtpMaxAttemptsReachedMessage;

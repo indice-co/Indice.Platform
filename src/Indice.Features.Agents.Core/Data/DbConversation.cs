@@ -35,6 +35,9 @@ public class DbConversation
     /// <summary>Optional per-session metadata (JSON) — e.g. default filters or language preferences.</summary>
     public string? MetadataJson { get; set; }
 
+    /// <summary>Optional per-session workflow runtime state (JSON) used for cross-turn workflow resume.</summary>
+    public string? WorkflowStateJson { get; set; }
+
     /// <summary>Navigation: messages belonging to this session.</summary>
     public ICollection<DbMessage> Messages { get; set; } = [];
 }

@@ -76,6 +76,7 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<UserClaimsAIContextProvider>();
         services.TryAddTransient<IConversationStore, ConversationStore>();
         services.TryAddTransient<IUsageGuardService, UsageGuardService>();
+        services.TryAddScoped<IWorkflowStateStore, ConversationWorkflowStateStore>();
         services.TryAddTransient<IWorkflowRouter, LlmWorkflowRouter>();
         services.TryAddTransient<ConversationStoreChatHistoryProvider>();
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();
@@ -154,8 +155,6 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<CasesPhaseRouterStep>();
         services.TryAddTransient<OwnershipChallengeEmitterStep>();
         services.TryAddTransient<OtpChallengeEmitterStep>();
-        // Replayable Cases state machine: per-turn state persisted in the distributed cache, keyed by conversation id.
-        services.TryAddSingleton<ICasesReplayStateStore, DistributedCacheCasesReplayStateStore>();
 
         // Cases workflow (no request ports — every turn is a fresh run entered via the phase router):
         //   PhaseRouter ─┬─ [Start]                      → CaseDataRetriever → OwnershipVerifier → OwnershipChallengeEmitter (terminal, persists phase + prompt)

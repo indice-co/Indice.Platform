@@ -10,14 +10,14 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 /// <summary>
 /// Terminal step that emits the ownership verification prompt to the user as a normal streamed update,
 /// persists the pending verification payload and phase, and ends the run. The next user message re-enters
-/// the workflow through <see cref="CasesPhaseRouterStep"/> at <see cref="CasesReplayPhase.AwaitOwnershipConfirmation"/>.
+/// the workflow through <see cref="CasesPhaseRouterStep"/> at <see cref="CustomerDataStage.AwaitOwnershipConfirmation"/>.
 /// </summary>
 public sealed class OwnershipChallengeEmitterStep : Executor<OwnershipVerificationOutput, OwnershipVerificationOutput>
 {
-    private readonly ICasesReplayStateStore _stateStore;
+    private readonly IWorkflowStateStore _stateStore;
 
     /// <summary>Creates a new <see cref="OwnershipChallengeEmitterStep"/>.</summary>
-    public OwnershipChallengeEmitterStep(ICasesReplayStateStore stateStore) : base(nameof(OwnershipChallengeEmitterStep)) {
+    public OwnershipChallengeEmitterStep(IWorkflowStateStore stateStore) : base(nameof(OwnershipChallengeEmitterStep)) {
         _stateStore = stateStore ?? throw new ArgumentNullException(nameof(stateStore));
     }
 
@@ -27,14 +27,12 @@ public sealed class OwnershipChallengeEmitterStep : Executor<OwnershipVerificati
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(verification);
-        var conversationState = await context.GetConversationStateAsync(cancellationToken);
-        var state = await _stateStore.GetAsync(conversationState.ConversationId, cancellationToken) ?? new CasesReplayState {
-            ConversationId = conversationState.ConversationId
-        };
-        state.Phase = CasesReplayPhase.AwaitOwnershipConfirmation;
+        var state = await context.GetCustomerDataStateAsync(_stateStore, cancellationToken) ?? new CustomerDataState();
+        state.Stage = CustomerDataStage.AwaitOwnershipConfirmation;
+        state.LastStepId = Id;
         state.PendingOwnershipVerification = verification;
         state.PendingOtpChallenge = null;
-        await _stateStore.SetAsync(state, cancellationToken);
+        await context.SetCustomerDataStateAsync(_stateStore, state, cancellationToken);
         await context.AddEventAsync(
             new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [new TextContent(verification.VerificationPrompt)])),
             cancellationToken);
@@ -45,14 +43,14 @@ public sealed class OwnershipChallengeEmitterStep : Executor<OwnershipVerificati
 /// <summary>
 /// Terminal step that emits the OTP challenge prompt to the user as a normal streamed update, persists the
 /// pending challenge and phase, and ends the run. The next user message re-enters the workflow through
-/// <see cref="CasesPhaseRouterStep"/> at <see cref="CasesReplayPhase.AwaitOtpCode"/>.
+/// <see cref="CasesPhaseRouterStep"/> at <see cref="CustomerDataStage.AwaitOtpCode"/>.
 /// </summary>
 public sealed class OtpChallengeEmitterStep : Executor<OtpChallengeOutput, OtpChallengeOutput>
 {
-    private readonly ICasesReplayStateStore _stateStore;
+    private readonly IWorkflowStateStore _stateStore;
 
     /// <summary>Creates a new <see cref="OtpChallengeEmitterStep"/>.</summary>
-    public OtpChallengeEmitterStep(ICasesReplayStateStore stateStore) : base(nameof(OtpChallengeEmitterStep)) {
+    public OtpChallengeEmitterStep(IWorkflowStateStore stateStore) : base(nameof(OtpChallengeEmitterStep)) {
         _stateStore = stateStore ?? throw new ArgumentNullException(nameof(stateStore));
     }
 
@@ -62,14 +60,13 @@ public sealed class OtpChallengeEmitterStep : Executor<OtpChallengeOutput, OtpCh
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(challenge);
-        var conversationState = await context.GetConversationStateAsync(cancellationToken);
-        var state = await _stateStore.GetAsync(conversationState.ConversationId, cancellationToken) ?? new CasesReplayState {
-            ConversationId = conversationState.ConversationId
-        };
-        state.Phase = CasesReplayPhase.AwaitOtpCode;
+        var state = await context.GetCustomerDataStateAsync(_stateStore, cancellationToken) ?? new CustomerDataState();
+        state.Stage = CustomerDataStage.AwaitOtpCode;
+        state.LastStepId = Id;
+        state.ChannelPath = !string.IsNullOrWhiteSpace(challenge.PhoneNumber) ? "phone" : (!string.IsNullOrWhiteSpace(challenge.Email) ? "email" : null);
         state.PendingOtpChallenge = challenge;
         state.PendingOwnershipVerification = null;
-        await _stateStore.SetAsync(state, cancellationToken);
+        await context.SetCustomerDataStateAsync(_stateStore, state, cancellationToken);
         await context.AddEventAsync(
             new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [new TextContent(challenge.Prompt)])),
             cancellationToken);

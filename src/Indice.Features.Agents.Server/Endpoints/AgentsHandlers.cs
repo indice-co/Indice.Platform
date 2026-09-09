@@ -35,12 +35,16 @@ internal static class AgentsHandlers
                 Icon: AgentsConstants.AgentIcons.Book),
             new AgentInfo(
                 Name: AgentsConstants.AgentNames.Cases,
-                Description: "This is an agent that can handle cases and provide solutions based on predefined rules.",
+                Description: "Retrieves customer/case data behind an external reference, verifies ownership (knowledge challenge + OTP), then discloses verified data as an HTML card.",
                 InputContentTypes: ["text/plain" ],
-                OutputContentTypes: ["text/plain" ],
-                Capabilities: [ new AgentCapability("Case management", "Handles cases and provides solutions based on predefined rules.") ],
+                OutputContentTypes: ["text/markdown", "text/html", AgentsConstants.MediaTypes.Callout, AgentsConstants.MediaTypes.MultipleChoice],
+                Capabilities: [
+                    new AgentCapability("Reference-based retrieval", "Loads customer/case records from external references without exposing sensitive data pre-verification."),
+                    new AgentCapability("Ownership + OTP verification", "Runs identity challenge and OTP validation before presenting protected fields."),
+                    new AgentCapability("HTML card presentation", "Renders verified customer/case details as an HTML card response.")
+                ],
                 Domains: [],
-                Tags: ["Cases"],
+                Tags: ["Cases", "Verification", "OTP", "HTML"],
                 Links: [])
         });
     }

@@ -15,10 +15,10 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 public sealed class CasePresenterStep : Executor<OtpValidationOutput, RagPipelineOutput>
 {
     private readonly ICasePresentationFormatter _presentationFormatter;
-    private readonly ICasesReplayStateStore _stateStore;
+    private readonly IWorkflowStateStore _stateStore;
 
     /// <summary>Creates a new <see cref="CasePresenterStep"/>.</summary>
-    public CasePresenterStep(ICasePresentationFormatter presentationFormatter, ICasesReplayStateStore stateStore) : base(nameof(CasePresenterStep)) {
+    public CasePresenterStep(ICasePresentationFormatter presentationFormatter, IWorkflowStateStore stateStore) : base(nameof(CasePresenterStep)) {
         _presentationFormatter = presentationFormatter;
         _stateStore = stateStore ?? throw new ArgumentNullException(nameof(stateStore));
     }
@@ -32,8 +32,7 @@ public sealed class CasePresenterStep : Executor<OtpValidationOutput, RagPipelin
         ArgumentNullException.ThrowIfNull(input);
 
         // Terminal step — the conversation's Cases state machine is finished.
-        var conversationState = await context.GetConversationStateAsync(cancellationToken);
-        await _stateStore.RemoveAsync(conversationState.ConversationId, cancellationToken);
+        await context.SetCustomerDataStateAsync(_stateStore, null, cancellationToken);
 
         if (!input.IsValid) {
             await context.AddEventAsync(
