@@ -32,7 +32,16 @@ internal static class AgentsHandlers
                 Domains: [],
                 Tags: ["Knowledge", "FAQ"],
                 Links: [],
-                Icon: AgentsConstants.AgentIcons.Book)
+                Icon: AgentsConstants.AgentIcons.Book),
+            new AgentInfo(
+                Name: AgentsConstants.AgentNames.Cases,
+                Description: "This is an agent that can handle cases and provide solutions based on predefined rules.",
+                InputContentTypes: ["text/plain" ],
+                OutputContentTypes: ["text/plain" ],
+                Capabilities: [ new AgentCapability("Case management", "Handles cases and provides solutions based on predefined rules.") ],
+                Domains: [],
+                Tags: ["Cases"],
+                Links: [])
         });
     }
 }

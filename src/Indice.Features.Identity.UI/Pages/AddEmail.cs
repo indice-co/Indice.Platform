@@ -81,7 +81,15 @@ public abstract class BaseAddEmailModel : BasePageModel
                 return Page();
             }
         }
-        await SendConfirmationEmail(user, returnUrl);
+
+        if (!await SendConfirmationEmail(user, returnUrl)) {
+            TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
+                Alert = AlertModel.Error(UserManager.MessageDescriber.LimitAttemptsReached),
+                DisableForm = true,
+                NextStepUrl = Url.PageLink("/AddEmail", values: new { returnUrl })
+            });
+            return Page();
+        }
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
             Alert = AlertModel.Success(UserManager.MessageDescriber.AddEmailConfirmationEmailSend),
             DisableForm = true,

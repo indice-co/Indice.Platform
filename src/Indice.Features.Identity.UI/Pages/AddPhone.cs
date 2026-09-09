@@ -74,7 +74,11 @@ public abstract class BaseAddPhoneModel : BasePageModel
             AddModelErrors(result);
             return Page();
         }
-        await SendVerificationSmsAsync(user, phone.ToString(IdentityUiOptions.PhoneNumberStoreFormat));
+        var sent = await SendVerificationSmsAsync(user, phone.ToString(IdentityUiOptions.PhoneNumberStoreFormat));
+        if (!sent) {
+            ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
+            return Page();
+        }
         return RedirectToPage("/VerifyPhone", new { returnUrl });
     }
 }

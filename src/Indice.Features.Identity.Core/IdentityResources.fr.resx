@@ -504,6 +504,9 @@
   <data name="PasswordSetEventDescription" xml:space="preserve">
     <value>Votre mot de passe a été modifié avec succès.</value>
   </data>
+  <data name="LimitAttemptsReached" xml:space="preserve">
+    <value>Vous avez dépassé le nombre maximal de tentatives infructueuses.</value>
+  </data>
   <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
     <value>Le champ « Confirmer le mot de passe » est obligatoire.</value>
   </data>
