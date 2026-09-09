@@ -1,0 +1,198 @@
+name: Update GeoIP Lists
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 1 * *' # At 03:00 UTC on the first day of every month
+
+permissions:
+  contents: write
+  actions: read
+  checks: write
+  pull-requests: write
+
+env:
+  GEOIP_PATH: src/Indice.Features.GeoIP/GeoLite2
+  DISPOSABLE_EMAILS_PATH: src/Indice.Features.Identity.Core/EmailValidation/Resources
+  DISPOSABLE_PHONES_PATH: src/Indice.Features.Identity.Core/PhoneNumberValidation/Resources
+  MAXMIND_METADATA: src/Indice.Features.GeoIP/GeoLite2/.maxmind-releases.json
+
+jobs:
+  update-geoip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: develop
+
+      - name: Update MaxMind databases
+        shell: pwsh
+        env:
+          MAXMIND_ACCOUNT_ID: ${{ secrets.MAXMIND_ACCOUNT_ID }}
+          MAXMIND_LICENSE_KEY: ${{ secrets.MAXMIND_LICENSE_KEY }}
+          MAXMIND_ASN_URL: 'https://download.maxmind.com/geoip/databases/GeoLite2-ASN/download?suffix=tar.gz'
+          MAXMIND_CITY_URL: 'https://download.maxmind.com/geoip/databases/GeoLite2-City/download?suffix=tar.gz'
+          MAXMIND_COUNTRY_URL: 'https://download.maxmind.com/geoip/databases/GeoLite2-Country/download?suffix=tar.gz'
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $metadataPath = Join-Path $env:GITHUB_WORKSPACE $env:MAXMIND_METADATA
+          $tempPath = Join-Path $env:RUNNER_TEMP 'geolite'
+
+          New-Item -ItemType Directory -Force -Path $tempPath | Out-Null
+
+          if (Test-Path $metadataPath) {
+              $metadata = Get-Content $metadataPath -Raw | ConvertFrom-Json
+          }
+          else {
+              $metadata = [PSCustomObject]@{}
+          }
+
+          function Get-RemoteLastModified {
+              param(
+                  [string]$Url
+              )
+
+              $headers = @{
+                  Authorization = 'Basic ' + [Convert]::ToBase64String(
+                      [Text.Encoding]::ASCII.GetBytes(
+                          "$env:MAXMIND_ACCOUNT_ID`:$env:MAXMIND_LICENSE_KEY"
+                      )
+                  )
+              }
+
+              $response = Invoke-WebRequest `
+                  -Uri $Url `
+                  -Method Head `
+                  -Headers $headers `
+                  -MaximumRedirection 10
+
+              return [DateTimeOffset]::Parse(
+                  $response.Headers['Last-Modified']
+              )
+          }
+
+          function Update-Database {
+              param(
+                  [string]$Name,
+                  [string]$Url,
+                  [string]$FileName
+              )
+
+              $remoteDate = Get-RemoteLastModified $Url
+              $localDate = $metadata.$Name
+
+              Write-Host "$Name"
+              Write-Host "  Local : $localDate"
+              Write-Host "  Remote: $remoteDate"
+
+              if ($localDate) {
+                  $localDate = [DateTimeOffset]::Parse($localDate)
+
+                  if ($remoteDate -le $localDate) {
+                      Write-Host "  No update."
+                      return
+                  }
+              }
+
+              Write-Host "  Downloading..."
+
+              $archive = Join-Path $tempPath "$Name.tar.gz"
+
+              $headers = @{
+                  Authorization = 'Basic ' + [Convert]::ToBase64String(
+                      [Text.Encoding]::ASCII.GetBytes(
+                          "$env:MAXMIND_ACCOUNT_ID`:$env:MAXMIND_LICENSE_KEY"
+                      )
+                  )
+              }
+
+              Invoke-WebRequest `
+                  -Uri $Url `
+                  -Headers $headers `
+                  -MaximumRedirection 10 `
+                  -OutFile $archive
+
+              tar -xzf $archive -C $tempPath
+
+              $database = Get-ChildItem `
+                  -Path $tempPath `
+                  -Recurse `
+                  -Filter $FileName |
+                  Select-Object -First 1
+
+              if (-not $database) {
+                  throw "Could not find $FileName in downloaded archive."
+              }
+
+              Copy-Item `
+                  -Path $database.FullName `
+                  -Destination (Join-Path $env:GITHUB_WORKSPACE "$env:GEOIP_PATH/$FileName") `
+                  -Force
+
+              $metadata | Add-Member `
+                  -NotePropertyName $Name `
+                  -NotePropertyValue $remoteDate.ToString('O') `
+                  -Force
+
+              Write-Host "  Updated."
+          }
+
+          Update-Database `
+              -Name 'GeoLite2-ASN' `
+              -Url $env:MAXMIND_ASN_URL `
+              -FileName 'GeoLite2-ASN.mmdb'
+
+          Update-Database `
+              -Name 'GeoLite2-City' `
+              -Url $env:MAXMIND_CITY_URL `
+              -FileName 'GeoLite2-City.mmdb'
+
+          Update-Database `
+              -Name 'GeoLite2-Country' `
+              -Url $env:MAXMIND_COUNTRY_URL `
+              -FileName 'GeoLite2-Country.mmdb'
+
+          $metadata |
+              ConvertTo-Json |
+              Set-Content $metadataPath
+
+      - name: Update disposable lists
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $phoneUrl = 'https://raw.githubusercontent.com/castle/disposable-phone-numbers/master/disposable-phone-numbers.txt'
+          $emailUrl = 'https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/refs/heads/main/disposable_email_blocklist.conf'
+
+          Invoke-WebRequest `
+            -Uri $phoneUrl `
+            -OutFile "$env:DISPOSABLE_PHONES_PATH/phones-blacklist.conf"
+          Write-Host "Disposable phone numbers list updated."
+
+          Invoke-WebRequest `
+            -Uri $emailUrl `
+            -OutFile "$env:DISPOSABLE_EMAILS_PATH/email_blocklist.conf"
+          Write-Host "Disposable email domains list updated."
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 #v8.1.1
+        with:
+          base: develop
+          branch: automated/update-geoip
+          delete-branch: true
+          commit-message: 'Update GeoIP databases and disposable lists'
+          title: '🔐[update] MaxMind GeoIP databases and disposable lists'
+          body: |
+            Automated update of:
+            - GeoLite2 ASN
+            - GeoLite2 City
+            - GeoLite2 Country
+            - Disposable phone numbers
+            - Disposable email domains
