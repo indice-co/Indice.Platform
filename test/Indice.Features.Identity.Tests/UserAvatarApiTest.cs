@@ -19,6 +19,8 @@ using Indice.Security;
 using Duende.IdentityModel.Client;
 using System.Security.Claims;
 using System.Net.Http.Headers;
+using Indice.Features.Identity.Core.Guards;
+
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
@@ -77,6 +79,7 @@ public class UserAvatarApiTest : IAsyncLifetime
                 options.UseEntityFrameworkCoreStore(dbBuilder => dbBuilder.UseInMemoryDatabase(_signInLogDatabaseName));
                 options.Enable = true;
             });
+            services.AddActionRateLimiterNoOp();
             services.AddEmailServiceNoop();
             services.AddSmsServiceNoop();
             services.AddSingleton<CallingCodesProvider>();

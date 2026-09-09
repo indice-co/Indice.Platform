@@ -16,9 +16,11 @@ public class IdentityEventsActivityLogConverter : IActivityLogFromEventConverter
         UserDeletedEvent e => CreateUserEntry(e.User, nameof(UserDeletedEvent), ActivityLogCategories.User, "User deleted"),
         UserBlockedEvent e => CreateUserEntry(e.User, nameof(UserBlockedEvent), ActivityLogCategories.User, "User blocked"),
         UserUnBlockedEvent e => CreateUserEntry(e.User, nameof(UserUnBlockedEvent), ActivityLogCategories.User, "User unblocked"),
-        UserNameChangedEvent e => CreateUserEntry(e.User, nameof(UserNameChangedEvent), ActivityLogCategories.User, $"Username changed from '{e.PreviousValue}'"),
-        UserEmailChangedEvent e => CreateUserEntry(e.User, nameof(UserEmailChangedEvent), ActivityLogCategories.User, $"Email changed from '{e.PreviousValue}'", attributeSubject: true),
+        UserNameChangedEvent e => CreateUserEntry(e.User, nameof(UserNameChangedEvent), ActivityLogCategories.User, $"Username changed from '{e.PreviousValue}' to '{e.User.UserName}'"),
+        UserEmailChangedEvent e => CreateUserEntry(e.User, nameof(UserEmailChangedEvent), ActivityLogCategories.User, $"Email changed from '{e.PreviousValue}' to '{e.User.Email}'", attributeSubject: true),
         AccountLockedEvent e => CreateUserEntry(e.User, nameof(AccountLockedEvent), ActivityLogCategories.User, "Account locked", attributeSubject: true),
+        ResetActionCounterEvent e => CreateUserEntry(e.User, nameof(ResetActionCounterEvent), ActivityLogCategories.User, "Action counter reset"),
+        ResetMfaEvent e => CreateUserEntry(e.User, nameof(ResetMfaEvent), ActivityLogCategories.User, "MFA Reset"),
 
         // User blacklist events
         PhoneBlacklistedBlockedEvent e => CreateUserEntry(

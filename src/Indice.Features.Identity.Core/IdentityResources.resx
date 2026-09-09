@@ -572,4 +572,7 @@
   <data name="PasswordSetEventDescription" xml:space="preserve">
     <value>Your password has been successfully changed.</value>
   </data>
+  <data name="LimitAttemptsReached" xml:space="preserve">
+    <value>You have exceeded the maximum number of failed attempts.</value>
+  </data>
 </root>

@@ -504,6 +504,9 @@
   <data name="PasswordSetEventDescription" xml:space="preserve">
     <value>Su contraseña ha sido cambiada exitosamente.</value>
   </data>
+  <data name="LimitAttemptsReached" xml:space="preserve">
+    <value>Ha superado el número máximo de intentos fallidos.</value>
+  </data>
   <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
     <value>El campo 'Confirmar contraseña' es obligatorio.</value>
   </data>

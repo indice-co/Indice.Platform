@@ -34,6 +34,7 @@ using System.Text;
 using Indice.Security;
 using Microsoft.AspNetCore.Session;
 using Microsoft.AspNetCore.Mvc;
+using Indice.Features.Identity.Core.Guards;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -762,6 +763,7 @@ internal static class UserHandlers
     }
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ResetMfa(
         ExtendedUserManager<User> userManager,
+        IPlatformEventService platformEvents,
         ClaimsPrincipal currentUser,
         string userId
     ) {
@@ -773,6 +775,7 @@ internal static class UserHandlers
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
+        await platformEvents.Publish(new ResetMfaEvent(UserEventContext.InitializeFromUser(user)));
         return TypedResults.NoContent();
     }
 
@@ -815,5 +818,22 @@ internal static class UserHandlers
         }
 
         return TypedResults.Ok(keys);
+    }
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ResetActionCounter(
+        IActionRateLimiter actionRateLimiter, 
+        IPlatformEventService platformEvents,
+        ExtendedUserManager<User> userManager,
+        ClaimsPrincipal currentUser,
+        string userId
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        if(!await actionRateLimiter.ResetActionCounterAsync(userId)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(userId), "Action counter reset failed."));
+        }
+        await platformEvents.Publish(new ResetActionCounterEvent(UserEventContext.InitializeFromUser(user)));
+        return TypedResults.NoContent();
     }
 }
