@@ -200,15 +200,14 @@ public static class IdentityBuilderExtensions
             });
         });
     }
-    
+
     /// <summary>Registers the <see cref="AuthenticationMethodProviderInMemory"/> which is an in-memory static provider for <see cref="IAuthenticationMethodProvider"/>. Using the factory pattern with localization support via <see cref="IdentityMessageDescriber"/></summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
     /// <param name="configure">Action to configure authentication methods.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
     public static IdentityBuilder AddAuthenticationMethods(
-        this IdentityBuilder builder, 
-        Action<AuthenticationMethodBuilder> configure)
-    {
+        this IdentityBuilder builder,
+        Action<AuthenticationMethodBuilder> configure) {
         var innerBuilder = new AuthenticationMethodBuilder(builder.Services);
         configure(innerBuilder);
 
@@ -263,7 +262,7 @@ public static class IdentityBuilderExtensions
         Action<EmailBlacklistOptions>? configureAction = null
     ) where TUser : User {
         var settings = new EmailBlacklistOptions() {
-            Enabled = configuration.GetIdentityOption<bool>(EmailBlacklistOptions.Name, nameof(EmailBlacklistOptions.Enabled)),
+            Enabled = configuration.GetIdentityOption<bool?>(EmailBlacklistOptions.Name, nameof(EmailBlacklistOptions.Enabled)) ?? true,
             Domains = configuration.GetIdentityOption<string?>(EmailBlacklistOptions.Name, nameof(EmailBlacklistOptions.Domains))
         };
         configureAction?.Invoke(settings);
@@ -300,9 +299,9 @@ public static class IdentityBuilderExtensions
         Action<PhoneNumberBlacklistOptions>? configureAction = null
     ) where TUser : User {
         var settings = new PhoneNumberBlacklistOptions {
-            Enabled = configuration.GetIdentityOption<bool>(
+            Enabled = configuration.GetIdentityOption<bool?>(
                 PhoneNumberBlacklistOptions.SectionName,
-                nameof(PhoneNumberBlacklistOptions.Enabled)),
+                nameof(PhoneNumberBlacklistOptions.Enabled)) ?? true,
             Numbers = configuration.GetIdentityOption<string?>(
                 PhoneNumberBlacklistOptions.SectionName,
                 nameof(PhoneNumberBlacklistOptions.Numbers))

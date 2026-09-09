@@ -36,6 +36,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Indice.Features.Identity.Core.Extensions;
+using Indice.Features.Identity.Core.Guards;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -185,7 +186,8 @@ internal static partial class MyAccountHandlers
         IOptions<ExtendedEndpointOptions> endpointOptions,
         ClaimsPrincipal currentUser,
         ISmsServiceFactory smsServiceFactory,
-        UpdateUserPhoneNumberRequest request
+        UpdateUserPhoneNumberRequest request,
+        IActionRateLimiter actionRateLimiter
     ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user == null) {
@@ -204,10 +206,15 @@ internal static partial class MyAccountHandlers
         if (!endpointOptions.Value.PhoneNumber.SendOtpOnUpdate) {
             return TypedResults.NoContent();
         }
+        if (!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, "Sms:PhoneNumberChange")) {
+            return TypedResults.ValidationProblem(
+                ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(),
+                userManager.MessageDescriber.LimitAttemptsReached)
+            );
+        }
         var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
-
         var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber!);
-        await smsService.SendAsync(request.PhoneNumber!, string.Empty, userManager.MessageDescriber.PhoneNumberVerificationMessage(token));
+        await smsService.SendAsync(request.PhoneNumber!, string.Empty, userManager.MessageDescriber.PhoneNumberVerificationMessage(token)); 
         return TypedResults.NoContent();
     }
 
@@ -216,7 +223,8 @@ internal static partial class MyAccountHandlers
         IOptions<ExtendedEndpointOptions> endpointOptions,
         ClaimsPrincipal currentUser,
         ISmsServiceFactory smsServiceFactory,
-        ChangeUserPhoneNumberRequest request
+        ChangeUserPhoneNumberRequest request,
+        IActionRateLimiter actionRateLimiter
     ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user == null) {
@@ -226,6 +234,11 @@ internal static partial class MyAccountHandlers
         if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase) && await userManager.IsPhoneNumberConfirmedAsync(user)) {
             return TypedResults.ValidationProblem(
                 ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber))
+            );
+        }
+        if(!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, "Sms:PhoneNumberChange")) {
+            return TypedResults.ValidationProblem(
+                ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.LimitAttemptsReached)
             );
         }
         var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");

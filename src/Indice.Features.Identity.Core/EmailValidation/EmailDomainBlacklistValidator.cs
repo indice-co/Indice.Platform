@@ -142,7 +142,7 @@ public class FileEmailDomainBlacklistProvider : IEmailDomainBlacklistProvider
     /// </summary>
     public FileEmailDomainBlacklistProvider() {
         var assembly = typeof(FileEmailDomainBlacklistProvider).Assembly;
-        var resourceName = "Indice.Features.Identity.Core.EmailValidation.email_blocklist.conf";
+        var resourceName = "Indice.Features.Identity.Core.EmailValidation.Resources.email_blocklist.conf";
 
         using var stream = assembly.GetManifestResourceStream(resourceName);
         if (stream == null) {
