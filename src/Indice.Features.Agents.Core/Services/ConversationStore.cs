@@ -214,6 +214,9 @@ public class ConversationStore : IConversationStore
         await _db.Messages
             .Where(m => m.ConversationId == conversationId)
             .ExecuteDeleteAsync(cancellationToken);
+        await _db.Checkpoints
+            .Where(c => c.SessionId == conversationId.ToString())
+            .ExecuteDeleteAsync(cancellationToken);
         var deleted = await _db.Conversations
             .Where(s => s.Id == conversationId && s.UserId == userId)
             .ExecuteDeleteAsync(cancellationToken);
