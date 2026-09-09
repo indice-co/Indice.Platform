@@ -96,7 +96,7 @@ internal class SignInLogEntryFactory
             EventType = SignInLogEventType.UserLoginCompleted,
             ApplicationId = @event.ClientId,
             ApplicationName = @event.ClientName,
-            Description = "A user failed to authenticate.",
+            Description = string.IsNullOrWhiteSpace(@event.Message) ? "A user failed to authenticate." : $"A user failed to authenticate. {@event.Message}",
             IpAddress = @event.RemoteIpAddress,
             ResourceId = @event.Endpoint,
             ResourceType = "IdentityServer",
