@@ -7,7 +7,7 @@ namespace Indice.Features.Identity.Core.PhoneNumberValidation;
 /// </summary>
 public sealed class FilePhoneNumberBlacklistProvider : IPhoneNumberBlacklistProvider
 {
-    private const string ResourceName = "Indice.Features.Identity.Core.PhoneNumberValidation.phones-blacklist.conf";
+    private const string ResourceName = "Indice.Features.Identity.Core.PhoneNumberValidation.Resources.phones-blacklist.conf";
 
     private readonly HashSet<string> _blacklist;
 

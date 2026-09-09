@@ -3,7 +3,7 @@ name: Update GeoIP Lists
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 3 * * *'
+    - cron: '0 3 1 * *' # At 03:00 UTC on the first day of every month
 
 permissions:
   contents: write
@@ -13,8 +13,8 @@ permissions:
 
 env:
   GEOIP_PATH: src/Indice.Features.GeoIP/GeoLite2
-  DISPOSABLE_EMAILS_PATH: src/Indice.Features.Identity.Core/EmailValidation
-  DISPOSABLE_PHONES_PATH: src/Indice.Features.Identity.Core/PhoneNumberValidation
+  DISPOSABLE_EMAILS_PATH: src/Indice.Features.Identity.Core/EmailValidation/Resources
+  DISPOSABLE_PHONES_PATH: src/Indice.Features.Identity.Core/PhoneNumberValidation/Resources
   MAXMIND_METADATA: src/Indice.Features.GeoIP/GeoLite2/.maxmind-releases.json
 
 jobs:
@@ -187,8 +187,8 @@ jobs:
           base: develop
           branch: automated/update-geoip
           delete-branch: true
-          commit-message: '[geoip] Update GeoIP databases and disposable lists'
-          title: '[geoip] Update GeoIP databases and disposable lists'
+          commit-message: 'Update GeoIP databases and disposable lists'
+          title: '🔐[update] MaxMind GeoIP databases and disposable lists'
           body: |
             Automated update of:
             - GeoLite2 ASN
