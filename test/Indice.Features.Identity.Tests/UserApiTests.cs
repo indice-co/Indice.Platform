@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Indice.Features.Identity.Tests;
+
 public class UserApiTests : IAsyncLifetime
 {
     // Private fields
@@ -28,8 +29,8 @@ public class UserApiTests : IAsyncLifetime
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(configurationBuilder => {
             configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?> {
-                 ["test"] = "test"
-             });
+                ["test"] = "test"
+            });
         });
         builder.ConfigureServices((context, services) => {
             // configure dependencies
@@ -51,7 +52,8 @@ public class UserApiTests : IAsyncLifetime
                     .AddInMemoryApiResources([])
                     .AddInMemoryClients([])
                     .AddAspNetIdentity<User>()
-                    .AddInMemoryPersistedGrants();
+                    .AddInMemoryPersistedGrants()
+                    ;
             // indice stuff
             services.AddDefaultPlatformEventService();
             services.AddPlatformEventHandler<UserCreatedEvent, UserCreatedAssertionHanbdler>();
@@ -59,8 +61,9 @@ public class UserApiTests : IAsyncLifetime
             services.AddOutputCache();
             services.AddLogging();
             services.AddLocalization()
+                    .AddActionRateLimiter(context.Configuration)
                     .AddRouting()
-                    .AddAuthorization(authOptions => 
+                    .AddAuthorization(authOptions =>
                         authOptions.AddPolicy(IdentityEndpoints.Policies.BeUsersWriter, policy => {
                             policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                                   .RequireAuthenticatedUser()
