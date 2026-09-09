@@ -6,10 +6,7 @@ on:
     - cron: '0 3 1 * *' # At 03:00 UTC on the first day of every month
 
 permissions:
-  contents: write
-  actions: read
-  checks: write
-  pull-requests: write
+  contents: read
 
 env:
   GEOIP_PATH: src/Indice.Features.GeoIP/GeoLite2
@@ -20,6 +17,10 @@ env:
 jobs:
   update-geoip:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Harden Runner

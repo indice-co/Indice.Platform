@@ -20,7 +20,6 @@ jobs:
     secrets:
       NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
     permissions:
-      contents: read
       actions: read
       checks: write
 
@@ -31,7 +30,6 @@ jobs:
     secrets:
       NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
     permissions:
-      contents: read
       security-events: write
     
   run-codeql-javascript:
@@ -39,5 +37,4 @@ jobs:
     name: CodeQL (JavaScript)
     uses: ./.github/workflows/codeql-js.template.yml
     permissions:
-      contents: read
       security-events: write
