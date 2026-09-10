@@ -58,8 +58,21 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             _ => AgentsConstants.AgentNames.Knowledge
         };
         var workflow = serviceProvider.GetKeyedService<Workflow>(agenticWorkflowName) ?? serviceProvider.GetRequiredKeyedService<Workflow>(AgentsConstants.AgentNames.Knowledge);
-
-        await using var run = await InProcessExecution.RunStreamingAsync(workflow, state, sessionId: state.ConversationId, cancellationToken: cancellationToken);
+        // Checkpointing: state written via QueueStateUpdateAsync is snapshotted at each superstep into the durable
+        // EF-backed store, so it survives across HTTP requests. On a follow-up turn the latest checkpoint of the
+        // conversation (sessionId == ConversationId) is restored and the new user message is injected into the resumed run.
+        var checkpointManager = serviceProvider.GetRequiredService<CheckpointManager>();
+        var latestCheckpoint = options?.ConversationId is not null
+            ? await checkpointManager.GetLatestCheckpointAsync(state.ConversationId, cancellationToken)
+            : null;
+        StreamingRun run;
+        if (latestCheckpoint is not null) {
+            run = await InProcessExecution.ResumeStreamingAsync(workflow, latestCheckpoint, checkpointManager, cancellationToken: cancellationToken);
+            await run.TrySendMessageAsync(state);
+        } else {
+            run = await InProcessExecution.RunStreamingAsync(workflow, state, checkpointManager, sessionId: state.ConversationId, cancellationToken: cancellationToken);
+        }
+        await using var _ = run;
 
         string? failure = null;
         await foreach (var evt in run.WatchStreamAsync().WithCancellation(cancellationToken)) {
