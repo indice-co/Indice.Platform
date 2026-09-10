@@ -87,7 +87,7 @@ jobs:
                   [string]$FileName
               )
 
-              $remoteDate = Get-RemoteLastModified
+              $remoteDate = Get-RemoteLastModified $Url
               $localDate = $metadata[$Name]
 
               Write-Host "$Name"
