@@ -51,7 +51,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             throw new ArgumentException("DexChatClient only supports a single user message per request. No batching allowed.", nameof(messages));
         }
         var message = messages.First();
-        var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());
+        var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());     
         // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
         // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
         var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
@@ -82,13 +82,24 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         } 
         else {
             
-            resolvedAgent = string.IsNullOrEmpty(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
+            resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
         }
-
-        var workflow = serviceProvider.GetKeyedService<Workflow>(resolvedAgent) ?? serviceProvider.GetRequiredKeyedService<Workflow>(AgentsConstants.AgentNames.Knowledge);
-
-        await using var run = await InProcessExecution.RunStreamingAsync(workflow, state, sessionId: state.ConversationId, cancellationToken: cancellationToken);
-
+        var workflow = serviceProvider.GetKeyedService<Workflow>(resolvedAgent);
+        // Checkpointing: state written via QueueStateUpdateAsync is snapshotted at each superstep into the durable
+        // EF-backed store, so it survives across HTTP requests. On a follow-up turn the latest checkpoint of the
+        // conversation (sessionId == ConversationId) is restored and the new user message is injected into the resumed run.
+        var checkpointManager = serviceProvider.GetRequiredService<CheckpointManager>();
+        var latestCheckpoint = options?.ConversationId is not null
+            ? await checkpointManager.GetLatestCheckpointAsync(state.ConversationId, cancellationToken)
+            : null;
+        StreamingRun run;
+        if (latestCheckpoint is not null) {
+            run = await InProcessExecution.ResumeStreamingAsync(workflow, latestCheckpoint, checkpointManager, cancellationToken: cancellationToken);
+            await run.TrySendMessageAsync(state);
+        } else {
+            run = await InProcessExecution.RunStreamingAsync(workflow, state, checkpointManager, sessionId: state.ConversationId, cancellationToken: cancellationToken);
+        }
+        await using var _ = run;
         string? failure = null;
         await foreach (var evt in run.WatchStreamAsync().WithCancellation(cancellationToken)) {
             switch (evt) {

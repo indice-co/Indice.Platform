@@ -17,6 +17,9 @@ public static class AgentsConstants
         /// <summary>The name of the agent that handles case-based queries with OTP verification.</summary>
         public const string Cases = "cases";
 
+        /// <summary>The name of the test/dummy agent.</summary>
+        public const string Dummy = "dummy";
+
     }
 
     /// <summary>Media types of the alternative (non-prose) content parts an assistant turn can carry.</summary>

@@ -72,6 +72,8 @@ public static class AgentsFeatureExtensions
 
         services.TryAddTransient<UserClaimsAIContextProvider>();
         services.TryAddTransient<IConversationStore, ConversationStore>();
+        services.TryAddScoped<PersistedCheckpointStore>();
+        services.TryAddScoped(sp => CheckpointManager.CreateJson(sp.GetRequiredService<PersistedCheckpointStore>()));
         services.TryAddTransient<IUsageGuardService, UsageGuardService>();
         services.TryAddTransient<ConversationStoreChatHistoryProvider>();
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();
@@ -148,6 +150,37 @@ public static class AgentsFeatureExtensions
                 builder.WithOutputFrom(compose, outOfScopeReply, purposeResponder);
                 return builder.Build();
             });
+
+        services.AddRoutableAgent(
+    new AgentInfo(
+        Name: AgentsConstants.AgentNames.Dummy,
+        Description: "Its the test agent for branching out to different workflows.",
+        InputContentTypes: ["text/plain"],
+        OutputContentTypes: ["text/markdown"],
+        Capabilities: [new AgentCapability("Dummy Agent", "Its the test agent for branching out to different workflows.")],
+        Domains: [],
+        Tags: ["Knowledge", "FAQ"],
+        Links: [],
+        Icon: AgentsConstants.AgentIcons.Book),
+        (sp, key) => {
+        var intent = sp.GetRequiredService<IntentClassifier>();
+        var rewrite = sp.GetRequiredService<QueryRewriter>();
+        var retrieve = sp.GetRequiredService<Retriever>();
+        var rerank = sp.GetRequiredService<Reranker>();
+        var compose = sp.GetRequiredService<AnswerComposer>();
+        var outOfScopeReply = sp.GetRequiredService<OutOfScopeResponder>();
+
+        var builder = new WorkflowBuilder(intent);
+        builder.AddSwitch(intent, sw => sw
+            .AddCase<IntentOutput>(env => env!.Intent.IsInScope, rewrite)
+            .WithDefault(outOfScopeReply));
+        builder.AddEdge(rewrite, retrieve);
+        builder.AddEdge(retrieve, rerank);
+        builder.AddEdge(rerank, compose);
+        builder.WithOutputFrom(compose, outOfScopeReply);
+        return builder.Build();
+    });
+
         return services;
     }
 
