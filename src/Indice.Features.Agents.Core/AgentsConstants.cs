@@ -18,6 +18,16 @@ public static class AgentsConstants
         public const string Auto = "auto";
     }
 
+    /// <summary>Request-port identifiers used by checkpointed workflow resumes.</summary>
+    public static class PortIds
+    {
+        /// <summary>Port that requests ownership confirmation and expects user's confirmation response.</summary>
+        public const string OwnershipConfirmation = "OwnershipConfirmationPort";
+
+        /// <summary>Port that requests OTP input and expects the user's OTP response.</summary>
+        public const string OtpVerification = "OtpVerificationPort";
+    }
+
     /// <summary>Media types of the alternative (non-prose) content parts an assistant turn can carry.</summary>
     /// <remarks>
     /// Each one is a rendering contract between the pipeline and the chat UI: a part with this media type carries a

@@ -1,6 +1,7 @@
 using System.Globalization;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Security;
 using Indice.Types;
@@ -199,6 +200,31 @@ public class ConversationStore : IConversationStore
         if (session.Title is null && _sessionOptions.TitleAutoGenerate) {
             session.Title = DeriveTitle(userMessage);
         }
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<PendingCasesWorkflowState?> GetPendingCasesWorkflowAsync(Guid conversationId, CancellationToken cancellationToken) {
+        var metadataJson = await _db.Conversations
+            .AsNoTracking()
+            .Where(c => c.Id == conversationId)
+            .Select(c => c.MetadataJson)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var metadata = ConversationMetadata.Parse(metadataJson);
+        return metadata.PendingCasesWorkflow;
+    }
+
+    /// <inheritdoc/>
+    public async Task SetPendingCasesWorkflowAsync(Guid conversationId, PendingCasesWorkflowState? pending, CancellationToken cancellationToken) {
+        var entity = await _db.Conversations.FirstOrDefaultAsync(c => c.Id == conversationId, cancellationToken);
+        if (entity is null) {
+            return;
+        }
+
+        var metadata = ConversationMetadata.Parse(entity.MetadataJson);
+        metadata.PendingCasesWorkflow = pending;
+        entity.MetadataJson = metadata.ToJson();
         await _db.SaveChangesAsync(cancellationToken);
     }
 

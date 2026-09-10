@@ -1,6 +1,4 @@
 using Indice.Features.Agents.Core.Models.Cases;
-using Indice.Features.Agents.Core.Services;
-using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.Options;
 
@@ -8,20 +6,18 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
 
 /// <summary>
 /// Step 3 of the Cases workflow: Validates user's ownership confirmation input.
-/// Receives the user's reply routed by <see cref="CasesPhaseRouterStep"/> and
+/// Receives the user's reply from the ownership request port and
 /// compares it with the actual case data field. Supports up to <see cref="AgentsOptions.CaseWorkflowOptions.MaxOwnershipValidationAttempts"/> validation attempts.
 /// </summary>
 public sealed class OwnershipValidatorStep : Executor<OwnershipConfirmationResponse, UserInputValidationOutput>
 {
     private readonly AgentMessageLocalizer _messageLocalizer;
-    private readonly IWorkflowStateStore _stateStore;
     private readonly int _maxValidationAttempts;
 
     /// <summary>Creates a new <see cref="OwnershipValidatorStep"/>.</summary>
-    public OwnershipValidatorStep(AgentMessageLocalizer messageLocalizer, IOptions<AgentsOptions> options, IWorkflowStateStore stateStore) : base(nameof(OwnershipValidatorStep))
+    public OwnershipValidatorStep(AgentMessageLocalizer messageLocalizer, IOptions<AgentsOptions> options) : base(nameof(OwnershipValidatorStep))
     {
         _messageLocalizer = messageLocalizer ?? throw new ArgumentNullException(nameof(messageLocalizer));
-        _stateStore = stateStore ?? throw new ArgumentNullException(nameof(stateStore));
         _maxValidationAttempts = options.Value.CasesWorkflow.MaxOwnershipValidationAttempts;
     }
 
@@ -36,13 +32,7 @@ public sealed class OwnershipValidatorStep : Executor<OwnershipConfirmationRespo
         var verificationData = confirmation.VerificationData;
         var userInput = confirmation.UserInput ?? string.Empty;
 
-        // Track validation attempts in the persisted replay state so retries survive across per-turn runs.
-        var replayState = await context.GetCustomerDataStateAsync(_stateStore, cancellationToken) ?? new CustomerDataState();
-        var attempt = replayState.OwnershipAttempts + 1;
-        replayState.OwnershipAttempts = attempt;
-        replayState.FailedOwnershipAttempts = attempt;
-        replayState.LastStepId = Id;
-        await context.SetCustomerDataStateAsync(_stateStore, replayState, cancellationToken);
+        var attempt = confirmation.VerificationData.Attempt + 1;
 
         // Validate the input against the actual case field value
         var isValid = CompareInputWithCaseField(

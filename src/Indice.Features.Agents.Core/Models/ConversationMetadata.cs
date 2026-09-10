@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Indice.Features.Agents.Core.Models.Cases;
 
 namespace Indice.Features.Agents.Core.Models;
 
@@ -7,6 +8,9 @@ public sealed class ConversationMetadata
 {
     /// <summary>Sticky workflow selection for this conversation (<c>knowledge</c> or <c>cases</c>).</summary>
     public string? SelectedWorkflow { get; set; }
+
+    /// <summary>Pending checkpoint resume envelope for the cases workflow, if the run is halted awaiting user input.</summary>
+    public PendingCasesWorkflowState? PendingCasesWorkflow { get; set; }
 
     /// <summary>Parses metadata JSON into a model instance, returning an empty object on invalid payloads.</summary>
     public static ConversationMetadata Parse(string? json) {

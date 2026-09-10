@@ -1,6 +1,8 @@
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -40,7 +42,6 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         ["OtpCodeValidator"] = "Verify OTP code",
         ["OtpRetryChallengeBuilder"] = "Prepare OTP retry",
         ["CaseDataPresenter"] = "Present case details",
-        ["CasesPhaseRouterStep"] = "Resuming case verification",
         ["OwnershipValidatorStep"] = "Validating ownership confirmation",
         ["OtpCodeSendStep"] = "Send OTP"
     };
@@ -67,6 +68,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         var optionsSnapshot = serviceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<AgentsOptions>>().Value;
         var workflowRouter = serviceProvider.GetRequiredService<IWorkflowRouter>();
         var conversationStore = serviceProvider.GetRequiredService<IConversationStore>();
+        var checkpointManager = serviceProvider.GetRequiredService<CheckpointManager>();
         // Use options.Instructions as the workflow selector passed from the HTTP layer (ChatRequest.AgentName).
         // Explicit selectors (knowledge/cases) win. auto performs LLM routing when enabled.
         var selector = options?.Instructions?.Trim().ToLowerInvariant();
@@ -111,13 +113,70 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         var workflow = serviceProvider.GetKeyedService<Workflow>(agenticWorkflowName)
             ?? serviceProvider.GetRequiredKeyedService<Workflow>(AgentsConstants.AgentNames.Knowledge);
 
-        // All workflows (knowledge, auto, cases) share the same streaming loop. The Cases workflow handles
-        // multi-turn state internally: its phase router reads the persisted CasesReplayState and starts each
-        // run at the correct step, so no request ports or host-side resume logic are required.
-        var state = new ConversationState(message, conversationId);
-        await using var run = await InProcessExecution.RunStreamingAsync(workflow, state, sessionId: conversationId, cancellationToken: cancellationToken);
-        await foreach (var update in WatchStreamUpdates(run, conversationId, cancellationToken)) {
-            yield return update;
+        // Cases workflow uses native checkpoint pause/resume through request ports.
+        if (agenticWorkflowName == AgentsConstants.AgentNames.Cases && conversationIdGuid is Guid casesConversationId) {
+            var pending = await conversationStore.GetPendingCasesWorkflowAsync(casesConversationId, cancellationToken).ConfigureAwait(false);
+            if (pending is not null && !string.Equals(pending.WorkflowName, AgentsConstants.AgentNames.Cases, StringComparison.OrdinalIgnoreCase)) {
+                pending = null;
+            }
+            if (pending is not null && DateTimeOffset.UtcNow - pending.CreatedAt > TimeSpan.FromHours(2)) {
+                pending = null;
+                await conversationStore.SetPendingCasesWorkflowAsync(casesConversationId, null, cancellationToken).ConfigureAwait(false);
+            }
+            if (pending is not null &&
+                (string.IsNullOrWhiteSpace(pending.PortId) ||
+                 string.IsNullOrWhiteSpace(pending.RequestId) ||
+                 string.IsNullOrWhiteSpace(pending.CheckpointJson) ||
+                 string.IsNullOrWhiteSpace(pending.RequestPayloadJson))) {
+                pending = null;
+                await conversationStore.SetPendingCasesWorkflowAsync(casesConversationId, null, cancellationToken).ConfigureAwait(false);
+                yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent("The pending verification session is invalid or expired. Please retry your request.")]) { ConversationId = conversationId };
+                yield break;
+            }
+            StreamingRun? run = null;
+            string? startError = null;
+            try {
+                run = await StartOrResumeCasesRunAsync(workflow, checkpointManager, conversationId, pending, message.Text ?? string.Empty, cancellationToken);
+            } catch {
+                await conversationStore.SetPendingCasesWorkflowAsync(casesConversationId, null, cancellationToken).ConfigureAwait(false);
+                startError = pending is null
+                    ? "Unable to execute the cases workflow. Please retry your request."
+                    : "Unable to resume the pending verification step. It may have expired; please retry your request.";
+            }
+            if (startError is not null) {
+                yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(startError)]) { ConversationId = conversationId };
+                yield break;
+            }
+
+            await using (run!) {
+
+                RequestInfoEvent? pendingRequest = null;
+                CheckpointInfo? checkpoint = null;
+
+                await foreach (var update in WatchStreamUpdates(run, conversationId, blockOnPendingRequest: false, onRequestInfo: evt => pendingRequest = evt, onCheckpoint: cp => checkpoint = cp, cancellationToken: cancellationToken)) {
+                    yield return update;
+                }
+
+                var status = await run.GetStatusAsync(cancellationToken);
+                if (status == RunStatus.PendingRequests && pendingRequest?.Request is { } request && checkpoint is not null) {
+                    var nextPending = new PendingCasesWorkflowState(
+                        CheckpointJson: JsonSerializer.Serialize(checkpoint),
+                        PortId: request.PortInfo.PortId,
+                        RequestId: request.RequestId,
+                        RequestPayloadJson: JsonSerializer.Serialize(request.Data),
+                        WorkflowName: AgentsConstants.AgentNames.Cases,
+                        CreatedAt: DateTimeOffset.UtcNow);
+                    await conversationStore.SetPendingCasesWorkflowAsync(casesConversationId, nextPending, cancellationToken).ConfigureAwait(false);
+                } else {
+                    await conversationStore.SetPendingCasesWorkflowAsync(casesConversationId, null, cancellationToken).ConfigureAwait(false);
+                }
+            }
+        } else {
+            var state = new ConversationState(message, conversationId);
+            await using var run = await InProcessExecution.RunStreamingAsync(workflow, state, sessionId: conversationId, cancellationToken: cancellationToken);
+            await foreach (var update in WatchStreamUpdates(run, conversationId, blockOnPendingRequest: true, cancellationToken: cancellationToken)) {
+                yield return update;
+            }
         }
 
         // Cancellation just stops the stream rather than raising a failure event — surface it as cancellation.
@@ -127,9 +186,12 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
     private async IAsyncEnumerable<ChatResponseUpdate> WatchStreamUpdates(
         StreamingRun run,
         string conversationId,
+        bool blockOnPendingRequest,
+        Action<RequestInfoEvent>? onRequestInfo = null,
+        Action<CheckpointInfo?>? onCheckpoint = null,
         [EnumeratorCancellation] CancellationToken cancellationToken = default) {
         string? failure = null;
-        await foreach (var evt in run.WatchStreamAsync().WithCancellation(cancellationToken)) {
+        await foreach (var evt in run.WatchStreamAsync(blockOnPendingRequest, cancellationToken).WithCancellation(cancellationToken)) {
             switch (evt) {
                 case AgentResponseUpdateEvent updateEvent:
                     var update = updateEvent.Update.AsChatResponseUpdate();
@@ -138,6 +200,12 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     break;
                 case ExecutorInvokedEvent invoked when StepLabels.TryGetValue(invoked.ExecutorId, out var label):
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = conversationId };
+                    break;
+                case RequestInfoEvent requestInfoEvent:
+                    onRequestInfo?.Invoke(requestInfoEvent);
+                    break;
+                case SuperStepCompletedEvent superStepCompleted:
+                    onCheckpoint?.Invoke(superStepCompleted.CompletionInfo?.Checkpoint);
                     break;
                 case WorkflowErrorEvent error:
                     var exception = error.Data as Exception;
@@ -159,6 +227,54 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
     private static string? NormalizeWorkflowName(string? value) {
         var normalized = value?.Trim().ToLowerInvariant();
         return normalized is AgentsConstants.AgentNames.Knowledge or AgentsConstants.AgentNames.Cases ? normalized : null;
+    }
+
+    private static async ValueTask<StreamingRun> StartOrResumeCasesRunAsync(
+        Workflow workflow,
+        CheckpointManager checkpointManager,
+        string conversationId,
+        PendingCasesWorkflowState? pending,
+        string userInput,
+        CancellationToken cancellationToken) {
+
+        if (pending is null) {
+            var state = new ConversationState(new ChatMessage(ChatRole.User, userInput), conversationId);
+            return await InProcessExecution.RunStreamingAsync(workflow, state, checkpointManager, sessionId: state.ConversationId, cancellationToken: cancellationToken);
+        }
+
+        var checkpoint = JsonSerializer.Deserialize<CheckpointInfo>(pending.CheckpointJson)
+            ?? throw new InvalidOperationException("Pending checkpoint payload is invalid.");
+
+        var run = await InProcessExecution.ResumeStreamingAsync(workflow, checkpoint, checkpointManager, cancellationToken);
+        var response = CreateResponseForPendingRequest(pending, userInput);
+        await run.SendResponseAsync(response);
+        return run;
+    }
+
+    private static ExternalResponse CreateResponseForPendingRequest(PendingCasesWorkflowState pending, string userInput) {
+        return pending.PortId switch {
+            var port when string.Equals(port, AgentsConstants.PortIds.OwnershipConfirmation, StringComparison.Ordinal) => CreateOwnershipResponse(pending, userInput),
+            var port when string.Equals(port, AgentsConstants.PortIds.OtpVerification, StringComparison.Ordinal) => CreateOtpResponse(pending, userInput),
+            _ => throw new InvalidOperationException($"Unknown pending request port '{pending.PortId}'.")
+        };
+    }
+
+    private static ExternalResponse CreateOwnershipResponse(PendingCasesWorkflowState pending, string userInput) {
+        var requestData = JsonSerializer.Deserialize<OwnershipVerificationOutput>(pending.RequestPayloadJson)
+            ?? throw new InvalidOperationException("Ownership verification request payload is invalid.");
+        var port = RequestPort.Create<OwnershipVerificationOutput, OwnershipConfirmationResponse>(AgentsConstants.PortIds.OwnershipConfirmation);
+        var request = ExternalRequest.Create(port, requestData, pending.RequestId);
+        var response = new OwnershipConfirmationResponse(requestData, userInput, requestData.Attempt);
+        return request.CreateResponse(response);
+    }
+
+    private static ExternalResponse CreateOtpResponse(PendingCasesWorkflowState pending, string userInput) {
+        var requestData = JsonSerializer.Deserialize<OtpChallengeOutput>(pending.RequestPayloadJson)
+            ?? throw new InvalidOperationException("OTP challenge request payload is invalid.");
+        var port = RequestPort.Create<OtpChallengeOutput, OtpCodeResponse>(AgentsConstants.PortIds.OtpVerification);
+        var request = ExternalRequest.Create(port, requestData, pending.RequestId);
+        var response = new OtpCodeResponse(requestData, userInput);
+        return request.CreateResponse(response);
     }
 
     /// <inheritdoc/>

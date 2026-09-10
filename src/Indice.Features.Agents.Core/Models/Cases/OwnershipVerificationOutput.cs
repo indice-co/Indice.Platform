@@ -7,7 +7,9 @@ namespace Indice.Features.Agents.Core.Models.Cases;
 /// <param name="CaseRetrievalData">The original case retrieval output forwarded from previous step.</param>
 /// <param name="VerificationFieldValue">The value for verification.</param>
 /// <param name="VerificationPrompt">The formatted prompt requesting user confirmation.</param>
+/// <param name="Attempt">Current ownership validation attempt index.</param>
 public record OwnershipVerificationOutput(
     CaseRetrievalOutput CaseRetrievalData,
     string VerificationFieldValue,
-    string VerificationPrompt);
+    string VerificationPrompt,
+    int Attempt = 0);

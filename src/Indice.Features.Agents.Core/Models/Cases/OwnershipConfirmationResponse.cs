@@ -6,6 +6,8 @@ namespace Indice.Features.Agents.Core.Models.Cases;
 /// </summary>
 /// <param name="VerificationData">The ownership verification data originally emitted by the OwnershipVerifier step.</param>
 /// <param name="UserInput">The raw text the user submitted to confirm ownership of the case.</param>
+/// <param name="Attempt">The current ownership confirmation attempt number.</param>
 public record OwnershipConfirmationResponse(
     OwnershipVerificationOutput VerificationData,
-    string UserInput);
+    string UserInput,
+    int Attempt = 0);

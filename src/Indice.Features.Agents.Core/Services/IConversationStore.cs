@@ -1,4 +1,5 @@
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Types;
 using Microsoft.Extensions.AI;
 using static Indice.Features.Agents.Core.AgentsOptions;
@@ -67,4 +68,10 @@ public interface IConversationStore
 
     /// <summary>Sets the sticky workflow selection for the conversation in metadata.</summary>
     Task SetSelectedWorkflowAsync(Guid conversationId, string workflowName, CancellationToken cancellationToken);
+
+    /// <summary>Gets pending checkpoint resume details for cases workflow when a request port is awaiting response.</summary>
+    Task<PendingCasesWorkflowState?> GetPendingCasesWorkflowAsync(Guid conversationId, CancellationToken cancellationToken);
+
+    /// <summary>Persists pending checkpoint resume details for cases workflow.</summary>
+    Task SetPendingCasesWorkflowAsync(Guid conversationId, PendingCasesWorkflowState? pending, CancellationToken cancellationToken);
 }
