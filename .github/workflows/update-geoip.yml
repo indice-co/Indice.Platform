@@ -6,10 +6,7 @@ on:
     - cron: '0 3 1 * *' # At 03:00 UTC on the first day of every month
 
 permissions:
-  contents: write
-  actions: read
-  checks: write
-  pull-requests: write
+  contents: read
 
 env:
   GEOIP_PATH: src/Indice.Features.GeoIP/GeoLite2
@@ -20,6 +17,10 @@ env:
 jobs:
   update-geoip:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Harden Runner
@@ -48,10 +49,11 @@ jobs:
           New-Item -ItemType Directory -Force -Path $tempPath | Out-Null
 
           if (Test-Path $metadataPath) {
-              $metadata = Get-Content $metadataPath -Raw | ConvertFrom-Json
+              $metadata = Get-Content $metadataPath -Raw |
+                  ConvertFrom-Json -AsHashtable -DateKind String
           }
           else {
-              $metadata = [PSCustomObject]@{}
+              $metadata = [ordered]@{}
           }
 
           function Get-RemoteLastModified {
@@ -86,7 +88,7 @@ jobs:
               )
 
               $remoteDate = Get-RemoteLastModified $Url
-              $localDate = $metadata.$Name
+              $localDate = $metadata[$Name]
 
               Write-Host "$Name"
               Write-Host "  Local : $localDate"
@@ -136,10 +138,7 @@ jobs:
                   -Destination (Join-Path $env:GITHUB_WORKSPACE "$env:GEOIP_PATH/$FileName") `
                   -Force
 
-              $metadata | Add-Member `
-                  -NotePropertyName $Name `
-                  -NotePropertyValue $remoteDate.ToString('O') `
-                  -Force
+              $metadata[$Name] = $remoteDate.ToString('O')
 
               Write-Host "  Updated."
           }
@@ -159,7 +158,25 @@ jobs:
               -Url $env:MAXMIND_COUNTRY_URL `
               -FileName 'GeoLite2-Country.mmdb'
 
-          $metadata |
+          $normalizedMetadata = [ordered]@{
+              'GeoLite2-ASN'     = if ($metadata['GeoLite2-ASN']) {
+                  ([DateTimeOffset]::Parse($metadata['GeoLite2-ASN'])).ToString('O')
+              } else {
+                  $null
+              }
+              'GeoLite2-City'    = if ($metadata['GeoLite2-City']) {
+                  ([DateTimeOffset]::Parse($metadata['GeoLite2-City'])).ToString('O')
+              } else {
+                  $null
+              }
+              'GeoLite2-Country' = if ($metadata['GeoLite2-Country']) {
+                  ([DateTimeOffset]::Parse($metadata['GeoLite2-Country'])).ToString('O')
+              } else {
+                  $null
+              }
+          }
+
+          $normalizedMetadata |
               ConvertTo-Json |
               Set-Content $metadataPath
 
@@ -187,7 +204,7 @@ jobs:
           base: develop
           branch: automated/update-geoip
           delete-branch: true
-          commit-message: 'Update GeoIP databases and disposable lists'
+          commit-message: '🔐[update] MaxMind GeoIP databases and disposable lists'
           title: '🔐[update] MaxMind GeoIP databases and disposable lists'
           body: |
             Automated update of:

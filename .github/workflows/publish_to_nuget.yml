@@ -12,11 +12,11 @@ on:
 
 jobs:
   build:
+    runs-on: windows-2025
     permissions:
       contents: read
       actions: read
       checks: write
-    runs-on: windows-2025
     steps:
     # Checkout
     - name: Harden Runner
@@ -79,7 +79,8 @@ jobs:
         path: "TestResults/*.trx"                            
         reporter: dotnet-trx
         fail-on-error: true
-        
+        use-actions-summary: true
+
     # Pack
     - name: Generate NuGet package
       run: ./pack.ps1
