@@ -7,6 +7,8 @@ using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.Reranking;
 using Indice.Features.Agents.Core.Workflows.Steps;
+using Indice.Features.Agents.Core.Workflows.Steps.CustomerData;
+using Indice.Features.Agents.Core.Workflows.Cards;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
@@ -82,6 +84,7 @@ public static class AgentsFeatureExtensions
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
         services.AddAgentsDefaultPipeline();
+        services.AddAgentsCustomerDataPipeline();
         return services;
     }
 
@@ -122,5 +125,88 @@ public static class AgentsFeatureExtensions
             return builder.Build();
         });
         return services;
+    }
+
+    /// <summary>
+    /// Registers the customer-data steps, their default services (MCP-backed data retrieval and one-time
+    /// password verification, Handlebars card rendering, durable per-conversation workflow state) and two keyed
+    /// workflows: <see cref="AgentsConstants.AgentNames.Cases"/>, the sub-workflow on its own, and
+    /// <see cref="AgentsConstants.AgentNames.Auto"/>, the master intent classifier routing between the
+    /// knowledge pipeline and the customer-data sub-workflow.
+    /// </summary>
+    /// <remarks>
+    /// Every service registered here is a <c>TryAdd</c>, so a host that resolves customer data in-process, signs
+    /// one-time passwords itself, or renders its own cards only has to register its own implementation first.
+    /// </remarks>
+    public static IServiceCollection AddAgentsCustomerDataPipeline(this IServiceCollection services) {
+        services.TryAddTransient<IWorkflowStateStore, ConversationWorkflowStateStore>();
+        services.TryAddTransient<ICustomerDataResolver, McpCustomerDataResolver>();
+        services.TryAddTransient<IVerificationCodeService, McpVerificationCodeService>();
+        services.TryAddSingleton<ICustomerDataCardRenderer, HandlebarsCustomerDataCardRenderer>();
+
+        services.TryAddTransient<CustomerDataRouter>();
+        services.TryAddTransient<ReferenceCollector>();
+        services.TryAddTransient<CustomerDataRetriever>();
+        services.TryAddTransient<IdentityVerifier>();
+        services.TryAddTransient<OtpVerifier>();
+        services.TryAddTransient<CustomerDataCardPresenter>();
+        services.TryAddTransient<CustomerDataIntentForwarder>();
+
+        services.AddKeyedScoped(AgentsConstants.AgentNames.Cases, (sp, key) => {
+            var router = sp.GetRequiredService<CustomerDataRouter>();
+            var builder = new WorkflowBuilder(router);
+            return AddCustomerDataChain(builder, sp, router).Build();
+        });
+
+        services.AddKeyedScoped(AgentsConstants.AgentNames.Auto, (sp, key) => {
+            var intent = sp.GetRequiredService<IntentClassifier>();
+            var rewrite = sp.GetRequiredService<QueryRewriter>();
+            var retrieve = sp.GetRequiredService<Retriever>();
+            var rerank = sp.GetRequiredService<Reranker>();
+            var compose = sp.GetRequiredService<AnswerComposer>();
+            var outOfScopeReply = sp.GetRequiredService<OutOfScopeResponder>();
+            var purposeResponder = sp.GetRequiredService<PurposeResponder>();
+            var forwarder = sp.GetRequiredService<CustomerDataIntentForwarder>();
+            var router = sp.GetRequiredService<CustomerDataRouter>();
+
+            var builder = new WorkflowBuilder(intent);
+            // Cases are evaluated in order: a question about the user's own record never falls through to retrieval.
+            builder.AddSwitch(intent, sw => sw
+                .AddCase<IntentOutput>(env => env!.Intent.Category == "purpose_of_agent", purposeResponder)
+                .AddCase<IntentOutput>(env => env!.Intent.RequiresCustomerData, forwarder)
+                .AddCase<IntentOutput>(env => env!.Intent.IsInScope, rewrite)
+                .WithDefault(outOfScopeReply));
+            builder.AddEdge(rewrite, retrieve);
+            builder.AddEdge(retrieve, rerank);
+            builder.AddEdge(rerank, compose);
+            builder.AddEdge(forwarder, router);
+            AddCustomerDataChain(builder, sp, router);
+            builder.WithOutputFrom(compose, outOfScopeReply, purposeResponder);
+            return builder.Build();
+        });
+        return services;
+    }
+
+    /// <summary>
+    /// Wires the customer-data chain onto <paramref name="builder"/>, starting from <paramref name="router"/>:
+    /// collect the reference, retrieve the data, verify knowledge of it, verify a one-time password, present the
+    /// card. Every edge is conditional on the step being able to continue, so a step that needs something from
+    /// the user simply ends the run — the conversation resumes on the next turn from the persisted stage.
+    /// </summary>
+    private static WorkflowBuilder AddCustomerDataChain(WorkflowBuilder builder, IServiceProvider sp, CustomerDataRouter router) {
+        var collect = sp.GetRequiredService<ReferenceCollector>();
+        var retrieve = sp.GetRequiredService<CustomerDataRetriever>();
+        var identity = sp.GetRequiredService<IdentityVerifier>();
+        var otp = sp.GetRequiredService<OtpVerifier>();
+        var present = sp.GetRequiredService<CustomerDataCardPresenter>();
+
+        builder.AddEdge<CustomerDataTurn>(router, retrieve, turn => turn?.Continue == true && turn.State.GetReference() is not null);
+        builder.AddEdge<CustomerDataTurn>(router, collect, turn => turn?.Continue == true && turn.State.GetReference() is null);
+        builder.AddEdge<CustomerDataTurn>(collect, retrieve, turn => turn?.Continue == true);
+        builder.AddEdge<CustomerDataTurn>(retrieve, identity, turn => turn?.Continue == true);
+        builder.AddEdge<CustomerDataTurn>(identity, otp, turn => turn?.Continue == true);
+        builder.AddEdge<CustomerDataTurn>(otp, present, turn => turn?.Continue == true);
+        builder.WithOutputFrom(router, collect, retrieve, identity, otp, present);
+        return builder;
     }
 }

@@ -35,13 +35,18 @@ internal static class AgentsHandlers
                 Icon: AgentsConstants.AgentIcons.Book),
             new AgentInfo(
                 Name: AgentsConstants.AgentNames.Cases,
-                Description: "This is an agent that can handle cases and provide solutions based on predefined rules.",
+                Description: "This is an agent that looks up a case or other customer record, verifies the person asking for it, and presents it as a card.",
                 InputContentTypes: ["text/plain" ],
-                OutputContentTypes: ["text/plain" ],
-                Capabilities: [ new AgentCapability("Case management", "Handles cases and provides solutions based on predefined rules.") ],
+                OutputContentTypes: ["text/markdown", "text/html", AgentsConstants.MediaTypes.Callout],
+                Capabilities: [
+                    new AgentCapability("Customer data retrieval", "Retrieves the record behind an external reference (case number, service pickup) from the system of record."),
+                    new AgentCapability("Strong customer verification", "Challenges the user on data already on file and confirms with a one-time password sent to a channel found in that data."),
+                    new AgentCapability("Data presentation", "Renders the verified record as an HTML card.")
+                ],
                 Domains: [],
-                Tags: ["Cases"],
-                Links: [])
+                Tags: ["Cases", "Verification"],
+                Links: [],
+                Icon: AgentsConstants.AgentIcons.Chat)
         });
     }
 }

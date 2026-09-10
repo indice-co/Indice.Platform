@@ -24,6 +24,14 @@ bld/
 [Oo]bj/
 [Ll]og/
 
+# MSBuild artifacts generated for JavaScript (.esproj) projects. On non-Windows tooling the
+# backslashes in the emitted path are kept literally (e.g. "obj\Debug/\package.g.props"), so the
+# [Bb]in/ and [Oo]bj/ rules above do not match them.
+package.g.props
+*\\*package.g.props
+**/*obj\\*/
+**/*bin\\*/
+
 # Visual Studio 2015 cache/options directory
 .vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot

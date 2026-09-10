@@ -29,6 +29,12 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         ["AnswerComposer"] = "Composing answer",
         ["PurposeResponder"] = "Answering",
         ["OutOfScopeResponder"] = "Preparing response",
+        ["CustomerDataRouter"] = "Picking up where we left off",
+        ["ReferenceCollector"] = "Looking up your reference",
+        ["CustomerDataRetriever"] = "Retrieving your data",
+        ["IdentityVerifier"] = "Verifying your identity",
+        ["OtpVerifier"] = "Checking your one-time code",
+        ["CustomerDataCardPresenter"] = "Preparing your card",
     };
 
     /// <inheritdoc/>
@@ -50,11 +56,12 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         var message = messages.First();
         var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());
         // Use options.Instructions as the agent/workflow selector passed from the HTTP layer (ChatRequest.AgentName).
-        // Supported selectors: "auto", "knowledge". Unknown or missing values fall back to "knowledge".
+        // Supported selectors: "auto", "knowledge", "cases". Unknown or missing values fall back to "knowledge".
 
         var agenticWorkflowName = options?.Instructions?.Trim().ToLowerInvariant() switch {
             AgentsConstants.AgentNames.Auto => AgentsConstants.AgentNames.Auto,
             AgentsConstants.AgentNames.Knowledge => AgentsConstants.AgentNames.Knowledge,
+            AgentsConstants.AgentNames.Cases => AgentsConstants.AgentNames.Cases,
             _ => AgentsConstants.AgentNames.Knowledge
         };
         var workflow = serviceProvider.GetKeyedService<Workflow>(agenticWorkflowName) ?? serviceProvider.GetRequiredKeyedService<Workflow>(AgentsConstants.AgentNames.Knowledge);

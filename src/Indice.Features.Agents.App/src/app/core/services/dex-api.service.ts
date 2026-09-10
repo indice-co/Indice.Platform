@@ -1747,6 +1747,8 @@ export class ChatRequest implements IChatRequest {
     text?: string;
     authorName?: string | undefined;
     agentName?: string | undefined;
+    referenceId?: string | undefined;
+    referenceType?: string | undefined;
 
     constructor(data?: IChatRequest) {
         if (data) {
@@ -1762,6 +1764,8 @@ export class ChatRequest implements IChatRequest {
             this.text = _data["text"];
             this.authorName = _data["authorName"];
             this.agentName = _data["agentName"];
+            this.referenceId = _data["referenceId"];
+            this.referenceType = _data["referenceType"];
         }
     }
 
@@ -1777,6 +1781,8 @@ export class ChatRequest implements IChatRequest {
         data["text"] = this.text;
         data["authorName"] = this.authorName;
         data["agentName"] = this.agentName;
+        data["referenceId"] = this.referenceId;
+        data["referenceType"] = this.referenceType;
         return data;
     }
 }
@@ -1785,6 +1791,8 @@ export interface IChatRequest {
     text?: string;
     authorName?: string | undefined;
     agentName?: string | undefined;
+    referenceId?: string | undefined;
+    referenceType?: string | undefined;
 }
 
 export class Citation implements ICitation {

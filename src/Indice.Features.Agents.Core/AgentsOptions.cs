@@ -28,6 +28,9 @@ public class AgentsOptions
     /// <summary>Allowed categorical/language values constrained by the host application.</summary>
     public TaxonomyOptions Taxonomy { get; set; } = new();
 
+    /// <summary>Customer-data sub-workflow knobs: MCP tool names, verification limits and the prompts it speaks with.</summary>
+    public CustomerDataOptions CustomerData { get; set; } = new();
+
     /// <summary>
     /// When true we enable additional triggers and debug handles for development and testing. 
     /// This is not a security boundary; do not rely on it to protect sensitive data. 
@@ -168,6 +171,59 @@ public class AgentsOptions
 
         /// <summary>Allowed ISO-639-1 (or BCP-47) language codes.</summary>
         public IReadOnlyList<string> Languages { get; set; } = ["en", "el", "de", "fr", "es"];
+    }
+
+    /// <summary>
+    /// Configuration of the customer-data sub-workflow: which MCP tools it talks to, how forgiving the strong
+    /// customer verification loop is, and the wording it uses. Every message is a composite format string, so
+    /// hosts can localize the flow without replacing its steps.
+    /// </summary>
+    public class CustomerDataOptions
+    {
+        /// <summary>Name the MCP client is registered under (<c>services.AddMcpClient(name, ...)</c>).</summary>
+        public string McpClientName { get; set; } = Extensions.McpClientServiceCollectionExtensions.DefaultName;
+
+        /// <summary>MCP tool retrieving the customer/case payload for an external reference.</summary>
+        public string DataRetrievalTool { get; set; } = "get_customer_data";
+
+        /// <summary>MCP tool delivering a one-time password to a channel found inside the payload.</summary>
+        public string OtpSendTool { get; set; } = "send_totp";
+
+        /// <summary>MCP tool validating a one-time password.</summary>
+        public string OtpVerifyTool { get; set; } = "verify_totp";
+
+        /// <summary>Number of failed verification answers tolerated before the conversation is blocked for the reference.</summary>
+        public int MaxVerificationAttempts { get; set; } = 3;
+
+        /// <summary>Asked when the conversation carries no external reference yet.</summary>
+        public string AskForReferenceMessage { get; set; } = "Let's start with your case number, so I can look it up. What is it?";
+
+        /// <summary>Said when the external system knows nothing about the reference. <c>{0}</c> is the reference the user gave.</summary>
+        public string ReferenceNotFoundMessage { get; set; } = "I could not find anything under \"{0}\". Please check the number and send it to me again.";
+
+        /// <summary>Asked to prove knowledge of the data. <c>{0}</c> is the list of things the user may answer with.</summary>
+        public string AskForIdentityMessage { get; set; } = "Before I show you these details I need to make sure they are yours. Please reply with one of the following: {0}.";
+
+        /// <summary>Said when the answer matches nothing in the payload. <c>{0}</c> is the number of attempts left.</summary>
+        public string IdentityMismatchMessage { get; set; } = "That does not match what I have on file. You can try again ({0} attempt(s) left).";
+
+        /// <summary>Said when the payload carries no channel a one-time password can be sent to.</summary>
+        public string NoChannelMessage { get; set; } = "I cannot complete the security check because there is no phone number or e-mail address on this record. Please contact support.";
+
+        /// <summary>Said after a one-time password went out. <c>{0}</c> is the masked channel.</summary>
+        public string CodeSentMessage { get; set; } = "I sent a one-time code to {0}. Please type it here to continue.";
+
+        /// <summary>Said when the one-time password could not be delivered.</summary>
+        public string CodeDeliveryFailedMessage { get; set; } = "I could not send the one-time code right now. Please try again in a few moments.";
+
+        /// <summary>Said when the typed code is wrong. <c>{0}</c> is the number of attempts left.</summary>
+        public string CodeMismatchMessage { get; set; } = "That code is not correct. Please try again ({0} attempt(s) left).";
+
+        /// <summary>Said when the attempt budget is exhausted.</summary>
+        public string BlockedMessage { get; set; } = "I could not verify your identity, so I cannot show these details here. Please contact support.";
+
+        /// <summary>Said right before the card is rendered. <c>{0}</c> is the reference id.</summary>
+        public string PresentationMessage { get; set; } = "Thank you, you are verified. Here are the details for {0}.";
     }
 }
 
