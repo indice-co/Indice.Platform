@@ -13,6 +13,10 @@ on:
 jobs:
   build:
     runs-on: windows-2025
+    permissions:
+      contents: read
+      actions: read
+      checks: write
     steps:
     # Checkout
     - name: Harden Runner
