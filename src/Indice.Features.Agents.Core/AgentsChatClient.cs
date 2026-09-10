@@ -53,8 +53,8 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         // Supported selectors: "auto", "knowledge". Unknown or missing values fall back to "knowledge".
 
         var agenticWorkflowName = options?.Instructions?.Trim().ToLowerInvariant() switch {
-            AgentsConstants.AgentNames.Auto => AgentsConstants.AgentNames.Auto,
             AgentsConstants.AgentNames.Knowledge => AgentsConstants.AgentNames.Knowledge,
+            AgentsConstants.AgentNames.Operator => AgentsConstants.AgentNames.Operator,
             _ => AgentsConstants.AgentNames.Knowledge
         };
         var workflow = serviceProvider.GetKeyedService<Workflow>(agenticWorkflowName) ?? serviceProvider.GetRequiredKeyedService<Workflow>(AgentsConstants.AgentNames.Knowledge);

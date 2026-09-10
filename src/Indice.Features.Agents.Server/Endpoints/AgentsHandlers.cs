@@ -34,13 +34,13 @@ internal static class AgentsHandlers
                 Links: [],
                 Icon: AgentsConstants.AgentIcons.Book),
             new AgentInfo(
-                Name: AgentsConstants.AgentNames.Cases,
+                Name: AgentsConstants.AgentNames.Operator,
                 Description: "This is an agent that can handle cases and provide solutions based on predefined rules.",
                 InputContentTypes: ["text/plain" ],
                 OutputContentTypes: ["text/plain" ],
                 Capabilities: [ new AgentCapability("Case management", "Handles cases and provides solutions based on predefined rules.") ],
                 Domains: [],
-                Tags: ["Cases"],
+                Tags: ["Cases", "Operator"],
                 Links: [])
         });
     }

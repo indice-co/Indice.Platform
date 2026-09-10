@@ -15,7 +15,7 @@ public static class AgentsConstants
         public const string Auto = "auto";
 
         /// <summary>The name of the agent that handles case-based queries with OTP verification.</summary>
-        public const string Cases = "cases";
+        public const string Operator = "operator";
 
     }
 
@@ -121,6 +121,15 @@ public static class AgentsConstants
         /// <summary>Prompt template for reranking candidate passages.</summary>
         public const string Reranker = """
             You are a reranker for a retrieval system. The user message may contain a HISTORY: block with the recent conversation (oldest-first) before the question. You are given a list of candidate passages, each with an ID and text. Rank the candidates by relevance to the question, considering the HISTORY for context. Return a JSON object { "rankedCandidates": [{ "id": "...", "text": "..." }, ...] } in order of descending relevance. If none are relevant, return an empty array.
+            """;
+
+        /// <summary>Prompt template for fetching case data.</summary>
+        public const string CaseRetriever = """
+            You are a case retrieval assistant.
+            Use the available tool get_case_data_id from the case-retrieval MCP service to fetch case data.
+            Decide which tool to call based on the user's query.
+            Extract the case GUID from the messages and query the case data.
+            Return the object as json format
             """;
     }
 }
