@@ -142,6 +142,69 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Composing answer.
+        /// </summary>
+        internal static string StepAnswerComposer {
+            get {
+                return ResourceManager.GetString("StepAnswerComposer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Classifying intent.
+        /// </summary>
+        internal static string StepIntentClassifier {
+            get {
+                return ResourceManager.GetString("StepIntentClassifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preparing response.
+        /// </summary>
+        internal static string StepOutOfScopeResponder {
+            get {
+                return ResourceManager.GetString("StepOutOfScopeResponder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Answering.
+        /// </summary>
+        internal static string StepPurposeResponder {
+            get {
+                return ResourceManager.GetString("StepPurposeResponder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rewriting query.
+        /// </summary>
+        internal static string StepQueryRewriter {
+            get {
+                return ResourceManager.GetString("StepQueryRewriter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ranking results.
+        /// </summary>
+        internal static string StepReranker {
+            get {
+                return ResourceManager.GetString("StepReranker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Retrieve relevant context.
+        /// </summary>
+        internal static string StepRetriever {
+            get {
+                return ResourceManager.GetString("StepRetriever", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Verification failed. Maximum {0} attempts reached. Please try again later..
         /// </summary>
         internal static string VerificationFailedMaxAttempts {

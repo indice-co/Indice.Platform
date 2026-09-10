@@ -1,4 +1,3 @@
-using Indice.Features.Agents.Core.Workflows.Steps.Operator;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.Options;
 

@@ -144,6 +144,27 @@
   <data name="OwnershipVerificationMessagePrompt" xml:space="preserve">
     <value>Please type the you phone number to complete the verification process</value>
   </data>
+  <data name="StepAnswerComposer" xml:space="preserve">
+    <value>Composing answer</value>
+  </data>
+  <data name="StepIntentClassifier" xml:space="preserve">
+    <value>Classifying intent</value>
+  </data>
+  <data name="StepOutOfScopeResponder" xml:space="preserve">
+    <value>Preparing response</value>
+  </data>
+  <data name="StepPurposeResponder" xml:space="preserve">
+    <value>Answering</value>
+  </data>
+  <data name="StepQueryRewriter" xml:space="preserve">
+    <value>Rewriting query</value>
+  </data>
+  <data name="StepReranker" xml:space="preserve">
+    <value>Ranking results</value>
+  </data>
+  <data name="StepRetriever" xml:space="preserve">
+    <value>Retrieve relevant context</value>
+  </data>
   <data name="VerificationFailedMaxAttempts" xml:space="preserve">
     <value>Verification failed. Maximum {0} attempts reached. Please try again later.</value>
   </data>

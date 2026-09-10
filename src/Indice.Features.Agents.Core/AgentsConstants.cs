@@ -134,12 +134,56 @@ public static class AgentsConstants
             """;
 
         /// <summary>Prompt template for fetching case data.</summary>
-        public const string CaseRetriever = """
+        public const string DataRetriever = """
             You are a case retrieval assistant.
             Use the available tool get_case_data_id from the case-retrieval MCP service to fetch case data.
             Decide which tool to call based on the user's query.
             Extract the case GUID from the messages and query the case data.
             Return the object as json format
             """;
+        /// <summary>Agent instructions template for fetching OTP send.</summary>
+        public const string OtpCodeSenderInstructions = """
+            You are a helper agent for the current workflow. 
+            Your intent is to send an OTP to the user's phone number taken from the parameters.
+            Call SendTotp with these values:
+            •	securityToken: <case_id>
+            •	channel: Sms
+            •	purpose: "Cases totp"
+            •	message: "This is your {0} OTP code for verification"
+            •	subject: "Cases auth"
+            •	authenticationMethod: "PhoneNumber"
+            •	emailTemplate: null
+            •	classification: null
+            •	data: null
+            •	phoneNumber: <user_phone_number>
+            •	email: null
+            """;
+
+
+        /// <summary>Agent prompt template for fetching OTP send.</summary>
+        public const string OtpCodeSenderPrompt = """
+            Send an OTP now by calling SendTotp with the configured fixed values.
+            User phone number: {{ phoneNumber }} and 
+            securityToken: {{ securityToken }}
+            """;
+
+
+        /// <summary>Agent instructions template for validating OTP code.</summary>
+        public const string OtpCodeValidatorInstructions = """
+            You are an OTP verifier.
+            You MUST call the VerifyTotp tool exactly once.
+            Use:
+            - securityToken: get securityToken from prompt
+            - purpose: "Cases totp"
+            - phoneNumber: get phoneNumber from prompt
+            - email: null
+            - user: null
+            - code: user code from the prompt
+            Return true if response indicates TOTP was verified successfully.
+            Return the object in json format as returned by the mcp
+            """;
+        /// <summary>Agent prompt template for validating OTP code.</summary>
+        public const string OtpCodeValidatorPrompt = "Verify this OTP code: {{code}}, with securityToken:{{caseId}}, phoneNumber: {{phoneNumber}}";
+
     }
 }

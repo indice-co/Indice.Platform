@@ -18,7 +18,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// </summary>
 internal sealed class DataRetrieverStep : Executor<ConversationState, CaseRetrievalOutput>
 {
-    private const string McpServiceKey = "Cases";
+    private const string McpServiceKey = "cases";
 
     private readonly AzureOpenAIClient _openAIClient;
     private readonly AgentsOptions _options;
@@ -67,7 +67,7 @@ internal sealed class DataRetrieverStep : Executor<ConversationState, CaseRetrie
         }
         // Render the verification prompt using template
         var chatOptions = _models.BaseReasoningModelOptions.Clone();
-        chatOptions.Instructions = _promptRenderer.Render(nameof(AgentsConstants.PromptDefaults.CaseRetriever));
+        chatOptions.Instructions = _promptRenderer.Render(nameof(AgentsConstants.PromptDefaults.DataRetriever));
         chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. mcpTools];
 
         var agent = _openAIClient

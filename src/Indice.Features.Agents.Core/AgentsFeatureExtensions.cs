@@ -1,7 +1,9 @@
 ﻿using System.ClientModel;
 using Azure.AI.OpenAI;
+using Duende.AccessTokenManagement;
 using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
+using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
@@ -83,8 +85,9 @@ public static class AgentsFeatureExtensions
             () => null
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
+        services.TryAddScoped<AgentMessageLocalizer>();
         services.AddAgentsDefaultPipeline();
-        services.AddOperatorWorkflow();
+        services.AddOperatorWorkflow(configuration);
         return services;
     }
 
@@ -137,22 +140,37 @@ public static class AgentsFeatureExtensions
     /// </para>
     /// Call after <c>AddAgentsCore(...)</c>.
     /// </summary>
-    public static IServiceCollection AddOperatorWorkflow(this IServiceCollection services) {
+    public static IServiceCollection AddOperatorWorkflow(this IServiceCollection services, IConfiguration configuration) {
+
+
+        services.AddClientCredentialsTokenManagement()
+                .AddClient("mcpsecurity", credentials => {
+                    // Machine-to-machine authentication (no user present, no redirect/browser).
+                    credentials.TokenEndpoint = new Uri(configuration["General:Endpoints:TokenEndpoint"]!);
+                    credentials.ClientId = ClientId.Parse(configuration["General:Secrets:ClientId"]!);
+                    credentials.ClientSecret = ClientSecret.Parse(configuration["General:Secrets:ClientSecret"]!);
+                    credentials.Scope = Scope.Parse(configuration["General:Secrets:Scope"]!);
+                });
+        services.AddMcpClient("id")
+                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:IdentityMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
+        services.AddMcpClient("cases")
+                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:CasesMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
+
         services.TryAddTransient<ICustomerDataResolver, DefaultCustomerDataResolver>();
-        //services.TryAddTransient<ICasePresentationFormatter, DefaultCasePresentationFormatter>();
+        services.TryAddTransient<ICasePresentationFormatter, DefaultCasePresentationFormatter>();
         services.TryAddTransient<DataRetrieverStep>();
         services.TryAddTransient<OwnershipVerifierStep>();
         services.TryAddTransient<OwnershipValidatorStep>();
         services.TryAddTransient<OwnershipRetryChallengeBuilder>();
-        //services.TryAddTransient<OtpCodeSendStep>();
-        //services.TryAddTransient<OtpCodeValidatorStep>();
-        //services.TryAddTransient<OtpRetryChallengeBuilder>();
-        //services.TryAddTransient<CasePresenterStep>();
-        //services.TryAddTransient<OwnershipVerificationFailureHandler>();
+        services.TryAddTransient<OtpCodeSendStep>();
+        services.TryAddTransient<OtpCodeValidatorStep>();
+        services.TryAddTransient<OtpRetryChallengeBuilder>();
+        services.TryAddTransient<DataPresenterStep>();
+        services.TryAddTransient<OwnershipVerificationFailureHandler>();
 
         // Request ports for checkpoint-based pause/resume.
         var ownershipPort = RequestPort.Create<OwnershipVerificationOutput, OwnershipConfirmationResponse>(AgentsConstants.WorkflowPorts.OwnershipConfirmation);
-        //var otpPort = RequestPort.Create<OtpChallengeOutput, OtpCodeResponse>(AgentsConstants.WorkflowPorts.OtpVerification);
+        var otpPort = RequestPort.Create<OtpChallengeOutput, OtpCodeResponse>(AgentsConstants.WorkflowPorts.OtpVerification);
 
         // Cases workflow with native pause/resume through request ports + checkpoints.
         //   CaseDataRetriever -> OwnershipVerifier -> OwnershipConfirmationPort
@@ -164,37 +182,36 @@ public static class AgentsFeatureExtensions
         //                                          -> (max) CasePresenterStep
         services.AddKeyedScoped(AgentsConstants.AgentNames.Operator, (sp, key) => {
             var retriever = sp.GetRequiredService<DataRetrieverStep>();
-            var verifier = sp.GetRequiredService<OwnershipVerifierStep>();
-            var validator = sp.GetRequiredService<OwnershipValidatorStep>();
+            var ownnershipVerifier = sp.GetRequiredService<OwnershipVerifierStep>();
+            var ownnershipValidator = sp.GetRequiredService<OwnershipValidatorStep>();
             var ownershipRetry = sp.GetRequiredService<OwnershipRetryChallengeBuilder>();
             var ownershipErr = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
             var maxOwnershipValidationAttempts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.CasesWorkflow.MaxOwnershipValidationAttempts;
-            //var otpAgent = sp.GetRequiredService<OtpCodeSendStep>();
-            //var otpValidator = sp.GetRequiredService<OtpCodeValidatorStep>();
-            //var otpRetry = sp.GetRequiredService<OtpRetryChallengeBuilder>();
-            //var casePresenter = sp.GetRequiredService<CasePresenterStep>();
+            var otpAgent = sp.GetRequiredService<OtpCodeSendStep>();
+            var otpValidator = sp.GetRequiredService<OtpCodeValidatorStep>();
+            var otpRetry = sp.GetRequiredService<OtpRetryChallengeBuilder>();
+            var dataPresenter = sp.GetRequiredService<DataPresenterStep>();
 
 
             var builder = new WorkflowBuilder(retriever);
-            builder.AddEdge(retriever, verifier);
-            builder.AddEdge(verifier, ownershipPort);
-
-            //builder.AddEdge(ownershipPort, validator);
-            builder.AddSwitch(validator, sw => sw
-                //.AddCase<UserInputValidationOutput>(env => env!.IsValid, otpAgent)
+            builder.AddEdge(retriever, ownnershipVerifier);
+            builder.AddEdge(ownnershipVerifier, ownershipPort);
+            builder.AddEdge(ownershipPort, ownnershipValidator);
+            builder.AddSwitch(ownnershipValidator, sw => sw
+                .AddCase<UserInputValidationOutput>(env => env!.IsValid, otpAgent)
                 .AddCase<UserInputValidationOutput>(env => !env!.IsValid && env.ValidationAttempt < maxOwnershipValidationAttempts, ownershipRetry)
                 .WithDefault(ownershipErr));
             builder.AddEdge(ownershipRetry, ownershipPort);
-            //builder.AddEdge(otpAgent, otpPort);
+            builder.AddEdge(otpAgent, otpPort);
 
-            //builder.AddEdge(otpPort, otpValidator);
-            //builder.AddSwitch(otpValidator, sw => sw
-            //    .AddCase<OtpValidationOutput>(env => env!.IsValid, casePresenter)
-            //    .AddCase<OtpValidationOutput>(env => env!.ShouldRetry, otpRetry)
-            //    .WithDefault(casePresenter));
-            //builder.AddEdge(otpRetry, otpPort);
+            builder.AddEdge(otpPort, otpValidator);
+            builder.AddSwitch(otpValidator, sw => sw
+                .AddCase<OtpValidationOutput>(env => env!.IsValid, dataPresenter)
+                .AddCase<OtpValidationOutput>(env => env!.ShouldRetry, otpRetry)
+                .WithDefault(dataPresenter));
+            builder.AddEdge(otpRetry, otpPort);
 
-            builder.WithOutputFrom(ownershipErr, ownershipPort);
+            builder.WithOutputFrom(dataPresenter, ownershipErr, ownershipPort, otpPort);
             return builder.Build();
         });
 
