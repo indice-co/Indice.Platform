@@ -71,6 +71,8 @@ public static class AgentsFeatureExtensions
 
         services.TryAddTransient<UserClaimsAIContextProvider>();
         services.TryAddTransient<IConversationStore, ConversationStore>();
+        services.TryAddScoped<PersistedCheckpointStore>();
+        services.TryAddScoped(sp => CheckpointManager.CreateJson(sp.GetRequiredService<PersistedCheckpointStore>()));
         services.TryAddTransient<IUsageGuardService, UsageGuardService>();
         services.TryAddTransient<ConversationStoreChatHistoryProvider>();
         services.TryAddSingleton<IPromptTemplateRenderer, FileSystemPromptTemplateRenderer>();

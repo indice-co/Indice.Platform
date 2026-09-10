@@ -26,6 +26,9 @@ public class AgentsDbContext : DbContext
     /// <summary>Application-local user profiles (augmenting the IdP).</summary>
     public DbSet<DbProfile> Profiles => Set<DbProfile>();
 
+    /// <summary>Durable workflow checkpoint blobs, keyed per run (conversation).</summary>
+    public DbSet<DbCheckpoint> Checkpoints => Set<DbCheckpoint>();
+
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
