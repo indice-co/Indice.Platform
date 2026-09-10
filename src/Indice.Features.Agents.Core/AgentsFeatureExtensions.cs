@@ -2,6 +2,7 @@
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
+using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Prompts;
@@ -79,6 +80,8 @@ public static class AgentsFeatureExtensions
             () => null
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
+        services.TryAddSingleton<AgentInfoRegistry>();
+        services.TryAddTransient<IntentRouterService>();
         services.AddAgentsDefaultPipeline();
         return services;
     }
@@ -97,28 +100,67 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<PurposeResponder>();
         services.TryAddTransient<ILlmReranker, LlmListwiseReranker>();
 
-        // Register the workflow, which will resolve the steps and link them together. Step failures are not
-        // handled here — a throwing executor halts the run and DexRunner reads the ExecutorFailedEvent.
-        services.AddKeyedScoped(AgentsConstants.AgentNames.Knowledge, (sp, key) => {
-            var intent = sp.GetRequiredService<IntentClassifier>();
-            var rewrite = sp.GetRequiredService<QueryRewriter>();
-            var retrieve = sp.GetRequiredService<Retriever>();
-            var rerank = sp.GetRequiredService<Reranker>();
-            var compose = sp.GetRequiredService<AnswerComposer>();
-            var outOfScopeReply = sp.GetRequiredService<OutOfScopeResponder>();
-            var purposeResponder = sp.GetRequiredService<PurposeResponder>();
+        // The meta "auto" router advertises itself for discovery but has no workflow of its own — it runs the
+        // IntentRouterService to pick one of the routable agents registered below.
+        services.AddSingleton(new AgentInfo(
+            Name: AgentsConstants.AgentNames.Auto,
+            Description: "Discovers the user's intent and routes the request to the appropriate sub-agent.",
+            InputContentTypes: ["text/plain"],
+            OutputContentTypes: ["text/markdown", AgentsConstants.MediaTypes.MultipleChoice, AgentsConstants.MediaTypes.Callout,
+                                 AgentsConstants.MediaTypes.Image, AgentsConstants.MediaTypes.Confirmation, "image/png"],
+            Capabilities: [new AgentCapability("Master intent classification", "Discovers user intent and routes it to the appropriate sub-agent.")],
+            Domains: [],
+            Tags: ["Intent"],
+            Links: [],
+            Icon: AgentsConstants.AgentIcons.Sparkles));
 
-            var builder = new WorkflowBuilder(intent);
-            builder.AddSwitch(intent, sw => sw
-                .AddCase<IntentOutput>(env => env!.Intent.Category == "purpose_of_agent", purposeResponder)
-                .AddCase<IntentOutput>(env => env!.Intent.IsInScope, rewrite)
-                .WithDefault(outOfScopeReply));
-            builder.AddEdge(rewrite, retrieve);
-            builder.AddEdge(retrieve, rerank);
-            builder.AddEdge(rerank, compose);
-            builder.WithOutputFrom(compose, outOfScopeReply, purposeResponder);
-            return builder.Build();
-        });
+        // Register the knowledge workflow together with its metadata. Step failures are not handled here — a
+        // throwing executor halts the run and AgentsChatClient reads the resulting error event.
+        services.AddRoutableAgent(
+            new AgentInfo(
+                Name: AgentsConstants.AgentNames.Knowledge,
+                Description: "Answers questions grounded in the configured knowledge base.",
+                InputContentTypes: ["text/plain"],
+                OutputContentTypes: ["text/markdown", AgentsConstants.MediaTypes.MultipleChoice, AgentsConstants.MediaTypes.Callout,
+                                     AgentsConstants.MediaTypes.Image, AgentsConstants.MediaTypes.Confirmation, "image/png"],
+                Capabilities: [new AgentCapability("Knowledge retrieval", "Answers questions based on a knowledge base.")],
+                Domains: [],
+                Tags: ["Knowledge", "FAQ"],
+                Links: [],
+                Icon: AgentsConstants.AgentIcons.Book),
+            (sp, key) => {
+                var intent = sp.GetRequiredService<IntentClassifier>();
+                var rewrite = sp.GetRequiredService<QueryRewriter>();
+                var retrieve = sp.GetRequiredService<Retriever>();
+                var rerank = sp.GetRequiredService<Reranker>();
+                var compose = sp.GetRequiredService<AnswerComposer>();
+                var outOfScopeReply = sp.GetRequiredService<OutOfScopeResponder>();
+                var purposeResponder = sp.GetRequiredService<PurposeResponder>();
+
+                var builder = new WorkflowBuilder(intent);
+                builder.AddSwitch(intent, sw => sw
+                    .AddCase<IntentOutput>(env => env!.Intent.Category == "purpose_of_agent", purposeResponder)
+                    .AddCase<IntentOutput>(env => env!.Intent.IsInScope, rewrite)
+                    .WithDefault(outOfScopeReply));
+                builder.AddEdge(rewrite, retrieve);
+                builder.AddEdge(retrieve, rerank);
+                builder.AddEdge(rerank, compose);
+                builder.WithOutputFrom(compose, outOfScopeReply, purposeResponder);
+                return builder.Build();
+            });
+        return services;
+    }
+
+    /// <summary>
+    /// Registers a routable agent: a keyed <see cref="Workflow"/> resolved by <paramref name="info"/>'s name, plus
+    /// its <see cref="AgentInfo"/> metadata. The metadata is collected by <see cref="AgentInfoRegistry"/> (and the
+    /// discovery endpoint) through <c>IEnumerable&lt;AgentInfo&gt;</c>. Plain <c>AddSingleton</c> registers the
+    /// metadata on purpose: every <see cref="AgentInfo"/> shares one implementation type, so <c>TryAddEnumerable</c>
+    /// would dedupe them down to a single entry.
+    /// </summary>
+    private static IServiceCollection AddRoutableAgent(this IServiceCollection services, AgentInfo info, Func<IServiceProvider, object?, Workflow> workflowFactory) {
+        services.AddKeyedScoped(info.Name, workflowFactory);
+        services.AddSingleton(info);
         return services;
     }
 }

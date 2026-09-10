@@ -1,9 +1,12 @@
 using System.Runtime.CompilerServices;
+using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core;
 
@@ -49,15 +52,40 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         }
         var message = messages.First();
         var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());
-        // Use options.Instructions as the agent/workflow selector passed from the HTTP layer (ChatRequest.AgentName).
-        // Supported selectors: "auto", "knowledge". Unknown or missing values fall back to "knowledge".
+        // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
+        // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
+        var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
+        var selector = options?.Instructions?.ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(selector)) {
+            selector = routing.DefaultAgent?.ToLowerInvariant();
+        }
+        string resolvedAgent;
+        if (string.Equals(selector, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
+            RouteDecision? decision = null;
+            string? routeError = null;
+            try {
+                var router = serviceProvider.GetRequiredService<IntentRouterService>();
+                decision = await router.RouteAsync(message.Text, state.ConversationId, cancellationToken);
+            } 
+            catch (Exception exception) when (exception is not OperationCanceledException) {
+                routeError = exception.Message;
+            }
+            if (routeError is not null) {
+                yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = state.ConversationId };
+                yield break;
+            }
+            if (decision!.AgentName is null) {
+                yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = state.ConversationId };
+                yield break;
+            }
+            resolvedAgent = decision.AgentName;
+        } 
+        else {
+            
+            resolvedAgent = string.IsNullOrEmpty(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
+        }
 
-        var agenticWorkflowName = options?.Instructions?.Trim().ToLowerInvariant() switch {
-            AgentsConstants.AgentNames.Auto => AgentsConstants.AgentNames.Auto,
-            AgentsConstants.AgentNames.Knowledge => AgentsConstants.AgentNames.Knowledge,
-            _ => AgentsConstants.AgentNames.Knowledge
-        };
-        var workflow = serviceProvider.GetKeyedService<Workflow>(agenticWorkflowName) ?? serviceProvider.GetRequiredKeyedService<Workflow>(AgentsConstants.AgentNames.Knowledge);
+        var workflow = serviceProvider.GetKeyedService<Workflow>(resolvedAgent) ?? serviceProvider.GetRequiredKeyedService<Workflow>(AgentsConstants.AgentNames.Knowledge);
 
         await using var run = await InProcessExecution.RunStreamingAsync(workflow, state, sessionId: state.ConversationId, cancellationToken: cancellationToken);
 

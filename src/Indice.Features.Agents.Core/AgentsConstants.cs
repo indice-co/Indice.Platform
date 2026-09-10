@@ -72,6 +72,13 @@ public static class AgentsConstants
         public const string Chat = "chat";
     }
 
+    /// <summary>Default fallback messages surfaced by the Agents feature.</summary>
+    public static class Defaults
+    {
+        /// <summary>Reply returned when the master intent router finds no agent that can handle the request.</summary>
+        public const string OutOfScopeReply = "I'm sorry, but that request falls outside what I can help with here.";
+    }
+
     /// <summary>Default prompt templates for various agent tasks.</summary>
     public static class PromptDefaults
     {
@@ -100,6 +107,23 @@ public static class AgentsConstants
             - Language: ONE of [{{#each languages}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}], or null if uncertain.
             - IsInScope: true when the question is reasonably answerable from internal documentation in the listed categories; false for chit-chat, jokes, weather, current events, or topics clearly outside the knowledge base.
             - OutOfScopeReason: a polite one-sentence explanation when IsInScope is false; null otherwise.
+            """;
+
+        /// <summary>Prompt template for the master intent router (returns a routing decision as JSON).</summary>
+        public const string IntentRouter = """
+            You are the master intent router of an enterprise assistant. You never answer the user yourself. Your only
+            job is to read the latest user message, in the context of the conversation history, and decide which ONE of
+            the specialised agents below should handle it.
+            Available agents:
+            {{#each agents}}
+            - {{name}}: {{description}}
+            {{/each}}
+            The user message may contain a HISTORY: block with the recent conversation (oldest-first) followed by the latest message. Judge the latest message in that context — a follow-up such as "tell me more" belongs to the same agent that handled the previous turn.
+            Return ONLY a JSON object with these fields:
+            - Target: the exact name of ONE agent from the list above, or null if no listed agent fits.
+            - IsInScope: true when one of the listed agents can handle the request; false otherwise.
+            - Reason: when IsInScope is false, a polite one-sentence explanation addressed to the user; otherwise null.
+            Never invent an agent name that is not in the list.
             """;
 
         /// <summary>Prompt template for responding to questions about the agent's capabilities.</summary>
