@@ -275,10 +275,10 @@ public class NotificationsManager(
 
     /// <summary>Retrieves the campaign type with the specified name.</summary>
     /// <param name="name">The name or the alias of the campaign type to look for.</param>
-    public Task<MessageType?> GetMessageType(string name) {
-        var messageType = MessageTypeService.GetById((GuidOrAlias)name);
+    public async Task<MessageType?> GetMessageType(string name) {
+        var messageType = await MessageTypeService.GetById((GuidOrAlias)name);
         if (messageType != null) return messageType;
-        return MessageTypeService.GetByName(name);
+        return await MessageTypeService.GetByName(name);
     }
 
 
