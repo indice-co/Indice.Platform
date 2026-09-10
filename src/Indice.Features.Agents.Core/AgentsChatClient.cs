@@ -1,9 +1,12 @@
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.Latency;
 
 namespace Indice.Features.Agents.Core;
 
@@ -74,6 +77,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         }
         await using var _ = run;
 
+        RequestInfoEvent? pendingRequest = null;
         string? failure = null;
         await foreach (var evt in run.WatchStreamAsync().WithCancellation(cancellationToken)) {
             switch (evt) {
@@ -85,6 +89,12 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                 // One progress event per step start; unmapped executor ids are skipped. Emitted as ephemeral content, stripped from the composed response.
                 case ExecutorInvokedEvent invoked when StepLabels.TryGetValue(invoked.ExecutorId, out var label):
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = state.ConversationId };
+                    break;
+                case RequestInfoEvent requestInfoEvent:
+                    pendingRequest = requestInfoEvent;
+                    break;
+                case SuperStepCompletedEvent superStepCompleted:
+                    latestCheckpoint = superStepCompleted.CompletionInfo?.Checkpoint;
                     break;
                 // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor
                 // exceptions ("Error invoking handler for ..."), so walk to the innermost exception for the real cause.
@@ -100,7 +110,20 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     //Console.WriteLine(evt);
                     break;
             }
+
+            var status = await run.GetStatusAsync(cancellationToken);
+            if (status == RunStatus.PendingRequests && pendingRequest?.Request is { } request && latestCheckpoint is not null) {
+                //var nextPending = new PendingCasesWorkflowState(
+                //    CheckpointJson: JsonSerializer.Serialize(latestCheckpoint),
+                //    PortId: request.PortInfo.PortId,
+                //    RequestId: request.RequestId,
+                //    RequestPayloadJson: JsonSerializer.Serialize(request.Data),
+                //    WorkflowName: AgentsConstants.AgentNames.Cases,
+                //    CreatedAt: DateTimeOffset.UtcNow);
+                //await conversationStore.SetPendingCasesWorkflowAsync(casesConversationId, nextPending, cancellationToken).ConfigureAwait(false);
+            }
         }
+
         // Cancellation just stops the stream rather than raising a failure event — surface it as cancellation.
         cancellationToken.ThrowIfCancellationRequested();
     }

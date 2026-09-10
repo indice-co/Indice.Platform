@@ -10,7 +10,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Features.Agents.Core.Workflows.Steps.Cases;
+namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 
 /// <summary>
 /// Step 1 of the Cases workflow: Retrieves case data from the configured MCP service.

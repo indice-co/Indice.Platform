@@ -8,7 +8,7 @@ using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.Reranking;
 using Indice.Features.Agents.Core.Workflows.Steps;
-using Indice.Features.Agents.Core.Workflows.Steps.Cases;
+using Indice.Features.Agents.Core.Workflows.Steps.Operator;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
@@ -141,9 +141,9 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<ICustomerDataResolver, DefaultCustomerDataResolver>();
         //services.TryAddTransient<ICasePresentationFormatter, DefaultCasePresentationFormatter>();
         services.TryAddTransient<DataRetrieverStep>();
-        //services.TryAddTransient<OwnershipVerifierStep>();
-        //services.TryAddTransient<OwnershipValidatorStep>();
-        //services.TryAddTransient<OwnershipRetryChallengeBuilder>();
+        services.TryAddTransient<OwnershipVerifierStep>();
+        services.TryAddTransient<OwnershipValidatorStep>();
+        services.TryAddTransient<OwnershipRetryChallengeBuilder>();
         //services.TryAddTransient<OtpCodeSendStep>();
         //services.TryAddTransient<OtpCodeValidatorStep>();
         //services.TryAddTransient<OtpRetryChallengeBuilder>();
@@ -151,8 +151,8 @@ public static class AgentsFeatureExtensions
         //services.TryAddTransient<OwnershipVerificationFailureHandler>();
 
         // Request ports for checkpoint-based pause/resume.
-        //var ownershipPort = RequestPort.Create<OwnershipVerificationOutput, OwnershipConfirmationResponse>(AgentsConstants.PortIds.OwnershipConfirmation);
-        //var otpPort = RequestPort.Create<OtpChallengeOutput, OtpCodeResponse>(AgentsConstants.PortIds.OtpVerification);
+        var ownershipPort = RequestPort.Create<OwnershipVerificationOutput, OwnershipConfirmationResponse>(AgentsConstants.WorkflowPorts.OwnershipConfirmation);
+        //var otpPort = RequestPort.Create<OtpChallengeOutput, OtpCodeResponse>(AgentsConstants.WorkflowPorts.OtpVerification);
 
         // Cases workflow with native pause/resume through request ports + checkpoints.
         //   CaseDataRetriever -> OwnershipVerifier -> OwnershipConfirmationPort
@@ -164,26 +164,27 @@ public static class AgentsFeatureExtensions
         //                                          -> (max) CasePresenterStep
         services.AddKeyedScoped(AgentsConstants.AgentNames.Operator, (sp, key) => {
             var retriever = sp.GetRequiredService<DataRetrieverStep>();
-            //var verifier = sp.GetRequiredService<OwnershipVerifierStep>();
-            //var validator = sp.GetRequiredService<OwnershipValidatorStep>();
-            //var ownershipRetry = sp.GetRequiredService<OwnershipRetryChallengeBuilder>();
+            var verifier = sp.GetRequiredService<OwnershipVerifierStep>();
+            var validator = sp.GetRequiredService<OwnershipValidatorStep>();
+            var ownershipRetry = sp.GetRequiredService<OwnershipRetryChallengeBuilder>();
+            var ownershipErr = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
+            var maxOwnershipValidationAttempts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.CasesWorkflow.MaxOwnershipValidationAttempts;
             //var otpAgent = sp.GetRequiredService<OtpCodeSendStep>();
             //var otpValidator = sp.GetRequiredService<OtpCodeValidatorStep>();
             //var otpRetry = sp.GetRequiredService<OtpRetryChallengeBuilder>();
             //var casePresenter = sp.GetRequiredService<CasePresenterStep>();
-            //var ownershipErr = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
-            //var maxOwnershipValidationAttempts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.CasesWorkflow.MaxOwnershipValidationAttempts;
+
 
             var builder = new WorkflowBuilder(retriever);
-            //builder.AddEdge(retriever, verifier);
-            //builder.AddEdge(verifier, ownershipPort);
+            builder.AddEdge(retriever, verifier);
+            builder.AddEdge(verifier, ownershipPort);
 
             //builder.AddEdge(ownershipPort, validator);
-            //builder.AddSwitch(validator, sw => sw
-            //    .AddCase<UserInputValidationOutput>(env => env!.IsValid, otpAgent)
-            //    .AddCase<UserInputValidationOutput>(env => !env!.IsValid && env.ValidationAttempt < maxOwnershipValidationAttempts, ownershipRetry)
-            //    .WithDefault(ownershipErr));
-            //builder.AddEdge(ownershipRetry, ownershipPort);
+            builder.AddSwitch(validator, sw => sw
+                //.AddCase<UserInputValidationOutput>(env => env!.IsValid, otpAgent)
+                .AddCase<UserInputValidationOutput>(env => !env!.IsValid && env.ValidationAttempt < maxOwnershipValidationAttempts, ownershipRetry)
+                .WithDefault(ownershipErr));
+            builder.AddEdge(ownershipRetry, ownershipPort);
             //builder.AddEdge(otpAgent, otpPort);
 
             //builder.AddEdge(otpPort, otpValidator);
@@ -193,7 +194,7 @@ public static class AgentsFeatureExtensions
             //    .WithDefault(casePresenter));
             //builder.AddEdge(otpRetry, otpPort);
 
-            //builder.WithOutputFrom(casePresenter, ownershipErr, ownershipPort, otpPort);
+            builder.WithOutputFrom(ownershipErr, ownershipPort);
             return builder.Build();
         });
 
