@@ -18,6 +18,7 @@ public interface IConversationStore
     Task<Conversation?> LoadOrCreateAsync(
         string userId, string? authorName,
         Guid? conversationId,
+        ChatTopic? subject,
         CancellationToken cancellationToken);
 
     /// <summary>Returns the conversation detail (metadata + last <see cref="SessionOptions.HistoryWindow"/> turns of messages, oldest-first) or <c>null</c>.</summary>

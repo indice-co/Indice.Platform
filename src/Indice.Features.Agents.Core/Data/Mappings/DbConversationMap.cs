@@ -22,5 +22,9 @@ public class DbConversationMap : IEntityTypeConfiguration<DbConversation>
                .WithOne()
                .HasForeignKey(m => m.ConversationId)
                .OnDelete(DeleteBehavior.Cascade);
+
+        builder.OwnsOne(x => x.Topic, subjectBuilder => {
+            subjectBuilder.ToJson();
+        });
     }
 }

@@ -35,6 +35,9 @@ public class Conversation
     /// <summary>Total questions allowed per session, for a <c>used/total</c> display. <c>null</c> when the message limit is disabled.</summary>
     public int? QuestionsLimitCount { get; init; }
 
+    /// <summary>Optional subject of the conversation. it grounds the workflow so it can skip discovering the purpose of the visit.</summary>
+    public ChatTopic? Subject { get; init; }
+
     /// <summary>Recent messages in chronological order (oldest first), capped at the configured history window.</summary>
-    public IReadOnlyList<ChatMessage> Messages { get; init; } = Array.Empty<ChatMessage>();
+    public IReadOnlyList<ChatMessage> Messages { get; init; } = [];
 }

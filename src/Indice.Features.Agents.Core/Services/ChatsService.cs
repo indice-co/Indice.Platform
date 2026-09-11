@@ -34,9 +34,13 @@ public class ChatsService : IChatsService
     /// <inheritdoc/>
     public async Task<DexChatResponse?> SendAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken) {
         await EnsureSessionCreationAllowedAsync(userId, conversationId, cancellationToken);
-        var conversation = await _store.LoadOrCreateAsync(userId, chatRequest.AuthorName, conversationId, cancellationToken);
+        var conversation = await _store.LoadOrCreateAsync(userId, chatRequest.AuthorName, conversationId, chatRequest.Topic, cancellationToken);
         if (conversation is null) {
             return null;
+        }
+        // invalid request. Grounding with subject is only allowed on new conversations.
+        if (conversationId is not null && chatRequest.Topic is not null) {
+            return CreateInvalidRequestResponse(conversation, "Invalid request");
         }
         var turnCheck = _usageGuard.Check(conversation);
         if (!turnCheck.Allowed) {
@@ -51,6 +55,24 @@ public class ChatsService : IChatsService
         var persisted = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
         return CreateTurnResponse(conversation, response, persisted);
     }
+
+    /// <summary>Builds the canonical limit-blocked response shared by the streaming and non-streaming paths.</summary>
+    private DexChatResponse CreateInvalidRequestResponse(Conversation conversation, string? message) => new() {
+        ConversationId = conversation.Id,
+        ResponseId = Guid.NewGuid().ToString(),
+        Messages = [new DexChatMessage {
+            MessageId = Guid.Empty.ToString(),
+            Role = DexChatRole.Assistant,
+            Content = new ChatMessageContent(message ?? string.Empty),
+            CreatedAt = DateTimeOffset.UtcNow
+        }],
+        FinishReason = DexChatFinishReason.ContentFilter,
+        Usage = new DexChatUsage {
+            QuestionsUsedCount = _sessionOptions.GetQuestionsUsed(conversation.MessageCount),
+            QuestionsLimitCount = _sessionOptions.GetQuestionsTotal()
+        }
+    };
+
 
     /// <summary>Builds the canonical limit-blocked response shared by the streaming and non-streaming paths.</summary>
     private DexChatResponse CreateLimitReachedResponse(Conversation conversation, string? message) => new() {
@@ -87,7 +109,7 @@ public class ChatsService : IChatsService
     /// <inheritdoc/>
     public async Task<IAsyncEnumerable<SseItem<DexChatResponseUpdate>>?> SendStreamAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken) {
         await EnsureSessionCreationAllowedAsync(userId, conversationId, cancellationToken);
-        var conversation = await _store.LoadOrCreateAsync(userId, chatRequest.AuthorName, conversationId, cancellationToken);
+        var conversation = await _store.LoadOrCreateAsync(userId, chatRequest.AuthorName, conversationId, chatRequest.Topic, cancellationToken);
         if (conversation is null) {
             return null;
         }

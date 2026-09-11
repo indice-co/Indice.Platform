@@ -26,7 +26,7 @@ public class ConversationStore : IConversationStore
     }
 
     /// <inheritdoc/>
-    public async Task<Conversation?> LoadOrCreateAsync(string userId, string? authorName, Guid? conversationId, CancellationToken cancellationToken) {
+    public async Task<Conversation?> LoadOrCreateAsync(string userId, string? authorName, Guid? conversationId, ChatTopic? subject, CancellationToken cancellationToken) {
         if (conversationId is null) {
             var now = DateTimeOffset.UtcNow;
             var entity = new DbConversation {
@@ -37,6 +37,7 @@ public class ConversationStore : IConversationStore
                 LastActivityAt = now,
                 InputTokenCount = 0,
                 OutputTokenCount = 0,
+                Topic = subject
             };
             _db.Add(entity);
             if (!await _db.Profiles.AsNoTracking().AnyAsync(p => p.UserId == userId, cancellationToken)) {
@@ -69,7 +70,8 @@ public class ConversationStore : IConversationStore
                 InputTokenCount = s.InputTokenCount,
                 OutputTokenCount = s.OutputTokenCount,
                 MessageCount = s.MessageCount,
-                Pin = s.Pin
+                Pin = s.Pin,
+                Subject = s.Topic
             })
             .FirstOrDefaultAsync(cancellationToken);
     }
@@ -94,6 +96,7 @@ public class ConversationStore : IConversationStore
                 QuestionsUsedCount = questionsTotal == null ? null : ((s.MessageCount + 1) / 2 < questionsTotal ? (s.MessageCount + 1) / 2 : questionsTotal),
                 QuestionsLimitCount = questionsTotal,
                 Pin = s.Pin,
+                Subject = s.Topic,
                 Messages = s.Messages
                     .OrderByDescending(m => m.CreatedAt)
                     .Take(messageTake)
