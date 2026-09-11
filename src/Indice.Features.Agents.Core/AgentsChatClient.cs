@@ -55,9 +55,9 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
         // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
         var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
-        var selector = options?.Instructions?.ToLowerInvariant();
+        var selector = options?.Instructions?.Trim().ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(selector)) {
-            selector = routing.DefaultAgent?.ToLowerInvariant();
+            selector = routing.DefaultAgent?.Trim().ToLowerInvariant();
         }
         string resolvedAgent;
         if (string.Equals(selector, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
@@ -74,7 +74,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                 yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = state.ConversationId };
                 yield break;
             }
-            if (decision!.AgentName is null) {
+            else if (decision!.AgentName is null) {
                 yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = state.ConversationId };
                 yield break;
             }

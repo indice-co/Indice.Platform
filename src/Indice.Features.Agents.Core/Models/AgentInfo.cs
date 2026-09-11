@@ -17,10 +17,17 @@ public record AgentAuthor(string Name, string? Email = null, string? Url = null)
 /// <summary>
 /// This record represents the information about an agent, including its name, description, input and output content types, capabilities, domains, tags, links, author, metadata and icon.
 /// </summary>
-/// <param name="Icon">
-/// A semantic icon token from <see cref="AgentsConstants.AgentIcons"/> — names what the flow is, leaving the glyph itself to the client.
-/// Appended last on purpose: positional record parameters are public API, so inserting one mid-list would break existing deconstruction.
-/// </param>
+/// <param name="Name">The unique name of the agent.</param>
+/// <param name="Description">A description of the agent.</param>
+/// <param name="InputContentTypes">The list of input content types that the agent can handle.</param>
+/// <param name="OutputContentTypes">The list of output content types that the agent can produce.</param>
+/// <param name="Capabilities">The list of capabilities that the agent has.</param>
+/// <param name="Domains">The list of domains that the agent is associated with.</param>
+/// <param name="Tags">The list of tags that are associated with the agent.</param>
+/// <param name="Links">The list of links that are related to the agent.</param>
+/// <param name="Author">The author of the agent.</param>
+/// <param name="Metadata">Additional metadata about the agent.</param>
+/// <param name="Icon">A semantic icon token from <see cref="AgentsConstants.AgentIcons"/> — names what the flow is, leaving the glyph itself to the client.</param>
 public record AgentInfo(
     string Name,
     string Description,

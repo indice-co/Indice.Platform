@@ -16,6 +16,6 @@ public record AgentSessionId (Guid ConversationId, string? AgentName = null)
     /// </summary>
     /// <returns></returns>
     public string ToKey() {
-        return ConversationId.ToString() + (string.IsNullOrWhiteSpace(AgentName) ? string.Empty : $":{AgentName}");
+        return ConversationId + (string.IsNullOrWhiteSpace(AgentName) ? string.Empty : $":{AgentName}");
     }
 }
