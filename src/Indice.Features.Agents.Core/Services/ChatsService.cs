@@ -11,6 +11,8 @@ namespace Indice.Features.Agents.Core.Services;
 /// <inheritdoc/>
 public class ChatsService : IChatsService
 {
+    private const string ReadOnlyConversationCode = "CONVERSATION_READ_ONLY";
+    private const string ReadOnlyConversationMessage = "This conversation is read-only and cannot be continued.";
     private readonly IConversationStore _store;
     private readonly IDexChatClient _dexClient;
     private readonly IUsageGuardService _usageGuard;
@@ -34,9 +36,16 @@ public class ChatsService : IChatsService
     /// <inheritdoc/>
     public async Task<DexChatResponse?> SendAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken) {
         await EnsureSessionCreationAllowedAsync(userId, conversationId, cancellationToken);
-        var conversation = await _store.LoadOrCreateAsync(userId, chatRequest.AuthorName, conversationId, cancellationToken);
+        var conversation = await _store.LoadOrCreateAsync(userId, chatRequest.AuthorName, conversationId, chatRequest.Topic, cancellationToken);
         if (conversation is null) {
             return null;
+        }
+        if (conversation.ReadOnly) {
+            return CreateInvalidRequestResponse(conversation, ReadOnlyConversationMessage);
+        }
+        // invalid request. Grounding with subject is only allowed on new conversations.
+        if (conversationId is not null && chatRequest.Topic is not null) {
+            return CreateInvalidRequestResponse(conversation, "Invalid request");
         }
         var turnCheck = _usageGuard.Check(conversation);
         if (!turnCheck.Allowed) {
@@ -48,9 +57,32 @@ public class ChatsService : IChatsService
             AuthorName = chatRequest.AuthorName
         };
         var response = await _dexClient.GetResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString(), Instructions = chatRequest.AgentName }, cancellationToken);
-        var persisted = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
+        ChatMessage persisted;
+        try {
+            persisted = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
+        } catch (BusinessException exception) when (exception.Code == ReadOnlyConversationCode) {
+            return CreateInvalidRequestResponse(conversation, ReadOnlyConversationMessage);
+        }
         return CreateTurnResponse(conversation, response, persisted);
     }
+
+    /// <summary>Builds the canonical invalid-request response shared by the streaming and non-streaming paths.</summary>
+    private DexChatResponse CreateInvalidRequestResponse(Conversation conversation, string? message) => new() {
+        ConversationId = conversation.Id,
+        ResponseId = Guid.NewGuid().ToString(),
+        Messages = [new DexChatMessage {
+            MessageId = Guid.Empty.ToString(),
+            Role = DexChatRole.Assistant,
+            Content = new ChatMessageContent(message ?? string.Empty),
+            CreatedAt = DateTimeOffset.UtcNow
+        }],
+        FinishReason = DexChatFinishReason.ContentFilter,
+        Usage = new DexChatUsage {
+            QuestionsUsedCount = _sessionOptions.GetQuestionsUsed(conversation.MessageCount),
+            QuestionsLimitCount = _sessionOptions.GetQuestionsTotal()
+        }
+    };
+
 
     /// <summary>Builds the canonical limit-blocked response shared by the streaming and non-streaming paths.</summary>
     private DexChatResponse CreateLimitReachedResponse(Conversation conversation, string? message) => new() {
@@ -87,15 +119,29 @@ public class ChatsService : IChatsService
     /// <inheritdoc/>
     public async Task<IAsyncEnumerable<SseItem<DexChatResponseUpdate>>?> SendStreamAsync(string userId, Guid? conversationId, ChatRequest chatRequest, CancellationToken cancellationToken) {
         await EnsureSessionCreationAllowedAsync(userId, conversationId, cancellationToken);
-        var conversation = await _store.LoadOrCreateAsync(userId, chatRequest.AuthorName, conversationId, cancellationToken);
+        var conversation = await _store.LoadOrCreateAsync(userId, chatRequest.AuthorName, conversationId, chatRequest.Topic, cancellationToken);
         if (conversation is null) {
             return null;
+        }
+        if (conversation.ReadOnly) {
+            return ReadOnlyStream(conversation);
+        }
+        // invalid request. Grounding with subject is only allowed on new conversations.
+        if (conversationId is not null && chatRequest.Topic is not null) {
+            return InvalidRequestStream(conversation, "Invalid request");
         }
         var turnCheck = _usageGuard.Check(conversation);
         if (!turnCheck.Allowed) {
             return LimitReachedStream(conversation, turnCheck.Message);
         }
         return StreamTurnAsync(conversation, chatRequest, cancellationToken);
+    }
+
+    /// <summary>Streams a terminal <c>error</c> for a read-only conversation. Nothing is persisted.</summary>
+    private static async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> ReadOnlyStream(Conversation conversation) {
+        yield return Message(new DexChatStreamStart { ConversationId = conversation.Id });
+        yield return Message(new DexChatStreamError { Reason = ReadOnlyConversationMessage });
+        await Task.CompletedTask;
     }
 
     /// <summary>Throws a <see cref="BusinessException"/> when a new conversation is requested but the user's conversation cap is hit. No-op for existing sessions.</summary>
@@ -112,6 +158,18 @@ public class ChatsService : IChatsService
     /// <summary>Streams a blocked turn through the normal grammar — <c>start</c>, the projected response as patch frames, then the bare <c>done</c>. Nothing is persisted.</summary>
     private async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> LimitReachedStream(Conversation conversation, string? message) {
         var response = CreateLimitReachedResponse(conversation, message);
+        yield return Message(new DexChatStreamStart { ConversationId = conversation.Id });
+        var compactor = new DeltaCompactor();
+        foreach (var frame in new DexChatStreamProjector().ProjectResponse(response)) {
+            yield return compactor.Compact(frame);
+        }
+        yield return Message(new DexChatStreamDone());
+        await Task.CompletedTask;
+    }
+
+    /// <summary>Streams an invalid request through the normal grammar — <c>start</c>, the projected response as patch frames, then the bare <c>done</c>. Nothing is persisted.</summary>
+    private async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> InvalidRequestStream(Conversation conversation, string? message) {
+        var response = CreateInvalidRequestResponse(conversation, message);
         yield return Message(new DexChatStreamStart { ConversationId = conversation.Id });
         var compactor = new DeltaCompactor();
         foreach (var frame in new DexChatStreamProjector().ProjectResponse(response)) {
@@ -204,15 +262,26 @@ public class ChatsService : IChatsService
             }
 
             if (response is null) {
-                await _store.AppendFailedTurnAsync(conversation.Id, userMessage, cancellationToken);
+                await PersistFailedTurnAsync(conversation.Id, userMessage, cancellationToken);
                 turnPersisted = true;
                 yield return Message(new DexChatStreamError { Reason = GenericFailureReason });
                 yield break;
             }
 
-            var persisted = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
+            ChatMessage? persisted = null;
+            var conversationBecameReadOnly = false;
+            try {
+                persisted = await _store.AppendTurnAsync(conversation.Id, userMessage, response, cancellationToken);
+            } catch (BusinessException exception) when (exception.Code == ReadOnlyConversationCode) {
+                turnPersisted = true;
+                conversationBecameReadOnly = true;
+            }
+            if (conversationBecameReadOnly) {
+                yield return Message(new DexChatStreamError { Reason = ReadOnlyConversationMessage });
+                yield break;
+            }
             turnPersisted = true;
-            foreach (var frame in projector.Complete(CreateTurnResponse(conversation, response, persisted))) {
+            foreach (var frame in projector.Complete(CreateTurnResponse(conversation, response, persisted!))) {
                 yield return compactor.Compact(frame);
             }
             yield return Message(new DexChatStreamDone());
@@ -220,8 +289,16 @@ public class ChatsService : IChatsService
         finally {
             if (!turnPersisted) {
                 // Disconnect or fault before persistence: keep the user's question in the conversation and count it.
-                await _store.AppendFailedTurnAsync(conversation.Id, userMessage, CancellationToken.None);
+                await PersistFailedTurnAsync(conversation.Id, userMessage, CancellationToken.None);
             }
+        }
+    }
+
+    private async Task PersistFailedTurnAsync(Guid conversationId, ChatMessage userMessage, CancellationToken cancellationToken) {
+        try {
+            await _store.AppendFailedTurnAsync(conversationId, userMessage, cancellationToken);
+        } catch (BusinessException exception) when (exception.Code == ReadOnlyConversationCode) {
+            // The conversation became read-only before persistence. Preserve the no-append invariant.
         }
     }
 
@@ -258,6 +335,7 @@ public class ChatsService : IChatsService
             CreatedAt = conversation.CreatedAt,
             LastActivityAt = conversation.LastActivityAt,
             MessageCount = conversation.MessageCount,
+            ReadOnly = conversation.ReadOnly,
             Usage = new DexChatUsage {
                 InputTokenCount = conversation.InputTokenCount,
                 OutputTokenCount = conversation.OutputTokenCount,
