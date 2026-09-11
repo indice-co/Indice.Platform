@@ -303,6 +303,8 @@ public class ConversationStore : IConversationStore
         QuestionsUsedCount = _sessionOptions.GetQuestionsUsed(s.MessageCount),
         QuestionsLimitCount = _sessionOptions.GetQuestionsTotal(),
         ReadOnly = s.ReadOnly,
+        Pin = s.Pin,
+        Topic = s.Topic,
         Messages = messages,
     };
 
