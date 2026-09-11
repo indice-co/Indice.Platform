@@ -1,13 +1,18 @@
 ﻿using System.ClientModel;
 using Azure.AI.OpenAI;
+using Duende.AccessTokenManagement;
 using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Extensions;
+using Indice.Features.Agents.Core.Models.Cases;
+using Indice.Features.Agents.Core.RequestPorts;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.Reranking;
 using Indice.Features.Agents.Core.Workflows.Steps;
+using Indice.Features.Agents.Core.Workflows.Steps.Operator;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
@@ -84,6 +89,7 @@ public static class AgentsFeatureExtensions
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
         services.TryAddSingleton<AgentInfoRegistry>();
         services.TryAddTransient<IntentRouterService>();
+        services.TryAddScoped<AgentMessageLocalizer>();
         services.AddAgentsDefaultPipeline();
         return services;
     }
@@ -150,37 +156,6 @@ public static class AgentsFeatureExtensions
                 builder.WithOutputFrom(compose, outOfScopeReply, purposeResponder);
                 return builder.Build();
             });
-
-        services.AddRoutableAgent(
-    new AgentInfo(
-        Name: AgentsConstants.AgentNames.Dummy,
-        Description: "Its the test agent for branching out to different workflows.",
-        InputContentTypes: ["text/plain"],
-        OutputContentTypes: ["text/markdown"],
-        Capabilities: [new AgentCapability("Dummy Agent", "Its the test agent for branching out to different workflows.")],
-        Domains: [],
-        Tags: ["Knowledge", "FAQ"],
-        Links: [],
-        Icon: AgentsConstants.AgentIcons.Book),
-        (sp, key) => {
-        var intent = sp.GetRequiredService<IntentClassifier>();
-        var rewrite = sp.GetRequiredService<QueryRewriter>();
-        var retrieve = sp.GetRequiredService<Retriever>();
-        var rerank = sp.GetRequiredService<Reranker>();
-        var compose = sp.GetRequiredService<AnswerComposer>();
-        var outOfScopeReply = sp.GetRequiredService<OutOfScopeResponder>();
-
-        var builder = new WorkflowBuilder(intent);
-        builder.AddSwitch(intent, sw => sw
-            .AddCase<IntentOutput>(env => env!.Intent.IsInScope, rewrite)
-            .WithDefault(outOfScopeReply));
-        builder.AddEdge(rewrite, retrieve);
-        builder.AddEdge(retrieve, rerank);
-        builder.AddEdge(rerank, compose);
-        builder.WithOutputFrom(compose, outOfScopeReply);
-        return builder.Build();
-    });
-
         return services;
     }
 
@@ -194,6 +169,121 @@ public static class AgentsFeatureExtensions
     private static IServiceCollection AddRoutableAgent(this IServiceCollection services, AgentInfo info, Func<IServiceProvider, object?, Workflow> workflowFactory) {
         services.AddKeyedScoped(info.Name, workflowFactory);
         services.AddSingleton(info);
+        return services;
+    }
+
+
+    /// <summary>
+    /// Registers the Cases workflow steps and the composed Cases workflow.
+    /// <para>
+    /// The OTP verification leg is handled by a single LLM-powered step
+    /// that uses the <c>"otp"</c> MCP service tools at runtime, guided by the
+    /// <c>CasesOtpAgent</c> prompt template. There are no hardcoded send/validate steps.
+    /// </para>
+    /// Call after <c>AddAgentsCore(...)</c>.
+    /// </summary>
+    public static IServiceCollection AddOperatorWorkflow(this IServiceCollection services, IConfiguration configuration) {
+
+        // The meta "auto" router advertises itself for discovery but has no workflow of its own — it runs the
+        // IntentRouterService to pick one of the routable agents registered below.
+        services.AddSingleton(new AgentInfo(
+            Name: AgentsConstants.AgentNames.Operator,
+            Description: "This is an operator agent that can handle tools and provide solutions based on predefined rules.",
+            InputContentTypes: ["text/plain"],
+            OutputContentTypes: ["text/markdown", AgentsConstants.MediaTypes.MultipleChoice, AgentsConstants.MediaTypes.Callout,
+                                 AgentsConstants.MediaTypes.Image, AgentsConstants.MediaTypes.Confirmation, "image/png"],
+            Capabilities: [new AgentCapability("Tool invocation", "Run tools and strong customer authentication"),
+                           new AgentCapability("Strong customer authentication", "Authenticate customers using strong methods"),
+                           new AgentCapability("Data presentation", "Present data to users in the form of html smart cards")],
+            Domains: [],
+            Tags: ["operator", "workflow"],
+            Links: [],
+            Icon: AgentsConstants.AgentIcons.Gear));
+
+
+        services.AddClientCredentialsTokenManagement()
+                .AddClient("mcpsecurity", credentials => {
+                    // Machine-to-machine authentication (no user present, no redirect/browser).
+                    credentials.TokenEndpoint = new Uri(configuration["General:Endpoints:TokenEndpoint"]!);
+                    credentials.ClientId = ClientId.Parse(configuration["General:Secrets:ClientId"]!);
+                    credentials.ClientSecret = ClientSecret.Parse(configuration["General:Secrets:ClientSecret"]!);
+                    credentials.Scope = Scope.Parse(configuration["General:Secrets:Scope"]!);
+                });
+        services.AddMcpClient("id")
+                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:IdentityMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
+        services.AddMcpClient("cases")
+                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:CasesMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
+
+        services.TryAddTransient<ICustomerDataResolver, DefaultCustomerDataResolver>();
+        services.TryAddTransient<ICasePresentationFormatter, DefaultCasePresentationFormatter>();
+        services.TryAddTransient<DataRetrieverStep>();
+        services.TryAddTransient<OwnershipVerifierStep>();
+        services.TryAddTransient<OwnershipValidatorStep>();
+        services.TryAddTransient<OwnershipRetryChallengeBuilder>();
+        services.TryAddTransient<OtpCodeSendStep>();
+        services.TryAddTransient<OtpCodeValidatorStep>();
+        services.TryAddTransient<OtpRetryChallengeBuilder>();
+        services.TryAddTransient<DataPresenterStep>();
+        services.TryAddTransient<OwnershipVerificationFailureHandler>();
+        services.AddKeyedTransient<IRequestPortHandler, OwnershipConfirmationRequestPortHandler>(AgentsConstants.WorkflowPorts.OwnershipConfirmation);
+        services.AddKeyedTransient<IRequestPortHandler, OtpVerificationRequestPortHandler>(AgentsConstants.WorkflowPorts.OtpVerification);
+
+        // Request ports for checkpoint-based pause/resume.
+        var ownershipPort = RequestPort.Create<OwnershipVerificationOutput, OwnershipConfirmationResponse>(AgentsConstants.WorkflowPorts.OwnershipConfirmation);
+        var otpPort = RequestPort.Create<OtpChallengeOutput, OtpCodeResponse>(AgentsConstants.WorkflowPorts.OtpVerification);
+
+        // Cases workflow with native pause/resume through request ports + checkpoints.
+        //   CaseDataRetriever -> OwnershipVerifier -> OwnershipConfirmationPort
+        //                       -> OwnershipValidator -> (valid) OtpCodeSendStep -> OtpVerificationPort
+        //                                            -> (invalid retry) OwnershipRetryChallengeBuilder -> OwnershipConfirmationPort
+        //                                            -> (max) OwnershipVerificationFailureHandler
+        //   OtpVerificationPort -> OtpCodeValidator -> (valid) CasePresenterStep
+        //                                          -> (invalid retry) OtpRetryChallengeBuilder -> OtpVerificationPort
+        //                                          -> (max) CasePresenterStep
+        services.AddKeyedScoped(AgentsConstants.AgentNames.Operator, (sp, key) => {
+            var retriever = sp.GetRequiredService<DataRetrieverStep>();
+            var ownnershipVerifier = sp.GetRequiredService<OwnershipVerifierStep>();
+            var ownnershipValidator = sp.GetRequiredService<OwnershipValidatorStep>();
+            var ownershipRetry = sp.GetRequiredService<OwnershipRetryChallengeBuilder>();
+            var ownershipErr = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
+            var maxOwnershipValidationAttempts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.CasesWorkflow.MaxOwnershipValidationAttempts;
+            var otpAgent = sp.GetRequiredService<OtpCodeSendStep>();
+            var otpValidator = sp.GetRequiredService<OtpCodeValidatorStep>();
+            var otpRetry = sp.GetRequiredService<OtpRetryChallengeBuilder>();
+            var dataPresenter = sp.GetRequiredService<DataPresenterStep>();
+
+
+            var builder = new WorkflowBuilder(retriever);
+            builder.AddEdge(retriever, ownnershipVerifier);
+            builder.AddEdge(ownnershipVerifier, ownershipPort);
+            builder.AddEdge(ownershipPort, ownnershipValidator);
+            builder.AddSwitch(ownnershipValidator, sw => sw
+                .AddCase<UserInputValidationOutput>(env => env!.IsValid, otpAgent)
+                .AddCase<UserInputValidationOutput>(env => !env!.IsValid && env.ValidationAttempt < maxOwnershipValidationAttempts, ownershipRetry)
+                .WithDefault(ownershipErr));
+            builder.AddEdge(ownershipRetry, ownershipPort);
+            builder.AddEdge(otpAgent, otpPort);
+
+            builder.AddEdge(otpPort, otpValidator);
+            builder.AddSwitch(otpValidator, sw => sw
+                .AddCase<OtpValidationOutput>(env => env!.IsValid, dataPresenter)
+                .AddCase<OtpValidationOutput>(env => env!.ShouldRetry, otpRetry)
+                .WithDefault(dataPresenter));
+            builder.AddEdge(otpRetry, otpPort);
+
+            builder.WithOutputFrom(dataPresenter, ownershipErr, ownershipPort, otpPort);
+            return builder.Build();
+        });
+
+        return services;
+    }
+
+    /// <summary>Adds an overridden implementation of <see cref="AgentMessageLocalizer"/>.</summary>
+    /// <typeparam name="TDescriber">The type of labels describer.</typeparam>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddIAgentMessageLocalizer<TDescriber>(this IServiceCollection services) where TDescriber : AgentMessageLocalizer {
+        services.AddScoped<TDescriber>();
+        services.AddScoped<AgentMessageLocalizer>(sp => sp.GetRequiredService<TDescriber>());
         return services;
     }
 }

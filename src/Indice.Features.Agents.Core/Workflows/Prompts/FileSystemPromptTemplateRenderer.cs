@@ -31,6 +31,13 @@ public sealed class FileSystemPromptTemplateRenderer : IPromptTemplateRenderer
                     nameof(AgentsConstants.PromptDefaults.PurposeResponder) => _handlebars.Compile(AgentsConstants.PromptDefaults.PurposeResponder),
                     nameof(AgentsConstants.PromptDefaults.QueryRewriter) => _handlebars.Compile(AgentsConstants.PromptDefaults.QueryRewriter),
                     nameof(AgentsConstants.PromptDefaults.IntentRouter) => _handlebars.Compile(AgentsConstants.PromptDefaults.IntentRouter),
+
+                    nameof(AgentsConstants.PromptDefaults.DataRetriever) => _handlebars.Compile(AgentsConstants.PromptDefaults.DataRetriever),
+                    nameof(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions) => _handlebars.Compile(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions),
+                    nameof(AgentsConstants.PromptDefaults.OtpCodeSenderPrompt) => _handlebars.Compile(AgentsConstants.PromptDefaults.OtpCodeSenderPrompt),
+                    nameof(AgentsConstants.PromptDefaults.OtpCodeValidatorInstructions) => _handlebars.Compile(AgentsConstants.PromptDefaults.OtpCodeValidatorInstructions),
+                    nameof(AgentsConstants.PromptDefaults.OtpCodeValidatorPrompt) => _handlebars.Compile(AgentsConstants.PromptDefaults.OtpCodeValidatorPrompt),
+
                     _ => throw new InvalidOperationException($"Prompt template '{name}' not found at '{path}'."),
                 };
             }

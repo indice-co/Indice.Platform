@@ -1,7 +1,10 @@
 using System.Runtime.CompilerServices;
+using Indice.Features.Agents.Core.RequestPorts;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
+using Indice.Features.Agents.Core.Workflows.Steps;
+using Indice.Features.Agents.Core.Workflows.Steps.Operator;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -22,16 +25,22 @@ public interface IDexChatClient : IChatClient
 /// <param name="serviceProvider">The service provider for resolving dependencies.</param>
 public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
 {
-
-    /// <summary>Human-friendly progress labels keyed by executor id, surfaced as SSE <c>step</c> events.</summary>
-    private static readonly IReadOnlyDictionary<string, string> StepLabels = new Dictionary<string, string>(StringComparer.Ordinal) {
-        ["IntentClassifier"] = "Classifying intent",
-        ["QueryRewriter"] = "Rewriting query",
-        ["Retriever"] = "Retrieving relevant context",
-        ["Reranker"] = "Ranking results",
-        ["AnswerComposer"] = "Composing answer",
-        ["PurposeResponder"] = "Answering",
-        ["OutOfScopeResponder"] = "Preparing response",
+    private static IReadOnlyDictionary<string, string> CreateStepLabels(AgentMessageLocalizer localizer) => new Dictionary<string, string>(StringComparer.Ordinal) {
+        [nameof(IntentClassifier)] = localizer.StepIntentClassifier,
+        [nameof(QueryRewriter)] = localizer.StepQueryRewriter,
+        [nameof(Retriever)] = localizer.StepRetriever,
+        [nameof(Reranker)] = localizer.StepReranker,
+        [nameof(AnswerComposer)] = localizer.StepAnswerComposer,
+        [nameof(PurposeResponder)] = localizer.StepPurposeResponder,
+        [nameof(OutOfScopeResponder)] = localizer.StepOutOfScopeResponder,
+        [nameof(DataRetrieverStep)] = localizer.StepCaseDataRetriever,
+        [nameof(OwnershipVerifierStep)] = localizer.StepOwnershipVerifier,
+        [nameof(OtpCodeSendStep)] = localizer.StepOtpAgent,
+        [nameof(OtpCodeValidatorStep)] = localizer.StepOtpCodeValidator,
+        [nameof(OtpRetryChallengeBuilder)] = localizer.StepOtpRetryChallengeBuilder,
+        [nameof(DataPresenterStep)] = localizer.StepCaseDataPresenter,
+        [nameof(OwnershipValidatorStep)] = localizer.StepOwnershipValidator,
+        [nameof(OtpCodeSendStep)] = localizer.StepOtpCodeSend
     };
 
     /// <inheritdoc/>
@@ -93,14 +102,20 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             ? await checkpointManager.GetLatestCheckpointAsync(new AgentSessionId(Guid.Parse(options!.ConversationId), resolvedAgent), cancellationToken)
             :  null;
         StreamingRun run;
-        if (latestCheckpoint is not null) {
-            run = await InProcessExecution.ResumeStreamingAsync(workflow, latestCheckpoint, checkpointManager, cancellationToken: cancellationToken);
-            await run.TrySendMessageAsync(state);
+        var isResumed = latestCheckpoint is not null;
+        if (isResumed) {
+            run = await InProcessExecution.ResumeStreamingAsync(workflow, latestCheckpoint!, checkpointManager, cancellationToken: cancellationToken);
+            //await run.TrySendMessageAsync(state);
         } else {
             run = await InProcessExecution.RunStreamingAsync(workflow, state, checkpointManager, sessionId: new AgentSessionId(Guid.Parse(state.ConversationId), resolvedAgent), cancellationToken: cancellationToken);
         }
         await using var _ = run;
+
+        var messageLocalizer = serviceProvider.GetService<AgentMessageLocalizer>() ?? new AgentMessageLocalizer();
+        var stepLabels = CreateStepLabels(messageLocalizer);
+
         string? failure = null;
+        string? userReply = isResumed ? message.Text : null;
         await foreach (var evt in run.WatchStreamAsync().WithCancellation(cancellationToken)) {
             switch (evt) {
                 case AgentResponseUpdateEvent updateEvent:
@@ -109,8 +124,40 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     yield return update;
                     break;
                 // One progress event per step start; unmapped executor ids are skipped. Emitted as ephemeral content, stripped from the composed response.
-                case ExecutorInvokedEvent invoked when StepLabels.TryGetValue(invoked.ExecutorId, out var label):
+                case ExecutorInvokedEvent invoked when stepLabels.TryGetValue(invoked.ExecutorId, out var label):
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = state.ConversationId };
+                    break;
+                case RequestInfoEvent requestInfoEvent:
+                    var portId = requestInfoEvent.Request.PortInfo.PortId;
+                    var handler = serviceProvider.GetKeyedService<IRequestPortHandler>(portId);
+                    if (handler is null) {
+                        yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent($"Unsupported workflow request port: '{portId}'.")]) { ConversationId = state.ConversationId };
+                        yield break;
+                    }
+                    var handlerContext = new RequestPortHandlerContext {
+                        Run = run,
+                        ConversationId = state.ConversationId,
+                        UserReply = userReply
+                    };
+                    var handlingResult = await handler.HandleAsync(requestInfoEvent, handlerContext, cancellationToken);
+                    userReply = handlerContext.UserReply;
+
+                    if (!handlingResult.Handled) {
+                        yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent($"Request-port handler '{handler.GetType().Name}' could not process port '{portId}'.")]) { ConversationId = state.ConversationId };
+                        yield break;
+                    }
+
+                    if (handlingResult.Updates is not null) {
+                        foreach (var responseUpdate in handlingResult.Updates) {
+                            yield return responseUpdate;
+                        }
+                    }
+
+                    if (handlingResult.ShouldHalt) {
+                        yield break;
+                    }
+                    break;
+                case SuperStepCompletedEvent:
                     break;
                 // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor
                 // exceptions ("Error invoking handler for ..."), so walk to the innermost exception for the real cause.
@@ -126,7 +173,9 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     //Console.WriteLine(evt);
                     break;
             }
+
         }
+
         // Cancellation just stops the stream rather than raising a failure event — surface it as cancellation.
         cancellationToken.ThrowIfCancellationRequested();
     }
