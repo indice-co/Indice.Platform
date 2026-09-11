@@ -72,7 +72,7 @@ public class ConversationStore : IConversationStore
                 MessageCount = s.MessageCount,
                 Pin = s.Pin,
                 ReadOnly = s.ReadOnly,
-                Subject = s.Topic
+                Topic = s.Topic
             })
             .FirstOrDefaultAsync(cancellationToken);
     }
@@ -98,7 +98,7 @@ public class ConversationStore : IConversationStore
                 QuestionsLimitCount = questionsTotal,
                 Pin = s.Pin,
                 ReadOnly = s.ReadOnly,
-                Subject = s.Topic,
+                Topic = s.Topic,
                 Messages = s.Messages
                     .OrderByDescending(m => m.CreatedAt)
                     .Take(messageTake)

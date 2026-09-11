@@ -9,7 +9,7 @@ public class DbConversation
     /// <summary>Primary key.</summary>
     public Guid Id { get; set; }
 
-    /// <summary>Topic claim of the owning user.</summary>
+    /// <summary><c>sub</c> jwt claim of the owning user.</summary>
     public string UserId { get; set; } = string.Empty;
 
     /// <summary>Optional title (auto-generated from the first user message when <see cref="SessionOptions.TitleAutoGenerate"/> is true).</summary>

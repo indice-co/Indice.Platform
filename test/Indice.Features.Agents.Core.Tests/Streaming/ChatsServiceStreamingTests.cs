@@ -262,7 +262,7 @@ internal sealed class FakeConversationStore(Guid persistedConversationId, string
     public bool FailedTurnPersisted { get; private set; }
 
     public Task<Conversation?> LoadOrCreateAsync(string userId, string? authorName,
-        Guid? conversationId, ChatTopic? subject, CancellationToken cancellationToken)
+        Guid? conversationId, ChatTopic? topic, CancellationToken cancellationToken)
         => Task.FromResult<Conversation?>(new Conversation { Id = persistedConversationId });
 
     public Task<ChatMessage> AppendTurnAsync(Guid id, ChatMessage userMessage, ChatResponse response, CancellationToken cancellationToken) {

@@ -7,10 +7,13 @@
 /// conversation is created: it grounds the workflow so it can skip discovering the purpose of
 /// the visit.
 /// </remarks>
-/// <param name="ReferenceId">The identifier of a record in an external system.</param>
-/// <param name="ReferenceType">The kind of record <paramref name="ReferenceId"/> points at (the <c>reftype</c> query string parameter), e.g. <c>ServicePickup</c>.</param>
-public record ChatTopic(string? ReferenceId, string? ReferenceType)
+public class ChatTopic
 {
+    /// <summary>The identifier of a record in an external system.</summary>
+    public string? ReferenceId { get; set; }
+    /// <summary>The kind of record <see cref="ReferenceId"/> points at (the <c>reftype</c> query string parameter), e.g. <c>ServicePickup</c>.</summary>
+    public string? ReferenceType { get; set; }
+
     /// <summary>Returns an empty <see cref="ChatTopic"/> instance.</summary>
-    public static ChatTopic Empty => new(null, null);
+    public static ChatTopic Empty => new();
 }

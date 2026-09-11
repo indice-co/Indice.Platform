@@ -1787,6 +1787,46 @@ export interface IChatRequest {
     topic?: ChatTopic | undefined;
 }
 
+export class ChatTopic implements IChatTopic {
+    referenceId?: string;
+    referenceType?: string;
+
+    constructor(data?: IChatTopic) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.referenceId = _data["referenceId"];
+            this.referenceType = _data["referenceType"];
+        }
+    }
+
+    static fromJS(data: any): ChatTopic {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChatTopic();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["referenceId"] = this.referenceId;
+        data["referenceType"] = this.referenceType;
+        return data;
+    }
+}
+
+export interface IChatTopic {
+    referenceId?: string | undefined;
+    referenceType?: string | undefined;
+}
+
 export class Citation implements ICitation {
     chunkId?: string;
     documentId?: string;
@@ -1961,46 +2001,6 @@ export class ConversationListItemResultSet implements IConversationListItemResul
 export interface IConversationListItemResultSet {
     count?: number;
     items?: ConversationListItem[];
-}
-
-export class ChatTopic implements IChatTopic {
-    referenceId: string | null | undefined;
-    referenceType: string | null | undefined;
-
-    constructor(data?: IChatTopic) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.referenceId = _data["referenceId"];
-            this.referenceType = _data["referenceType"];
-        }
-    }
-
-    static fromJS(data: any): ChatTopic {
-        data = typeof data === 'object' ? data : {};
-        let result = new ChatTopic();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["referenceId"] = this.referenceId;
-        data["referenceType"] = this.referenceType;
-        return data;
-    }
-}
-
-export interface IChatTopic {
-    referenceId: string | null | undefined;
-    referenceType: string | null | undefined;
 }
 
 export enum DexChatFinishReason {
@@ -2693,7 +2693,7 @@ export class GuestSession implements IGuestSession {
     accessToken!: string;
     tokenType?: string;
     expiresIn?: number;
-    topic?: string | undefined;
+    subject?: string | undefined;
     refreshToken?: string | undefined;
 
     constructor(data?: IGuestSession) {
@@ -2710,7 +2710,7 @@ export class GuestSession implements IGuestSession {
             this.accessToken = _data["accessToken"];
             this.tokenType = _data["tokenType"];
             this.expiresIn = _data["expiresIn"];
-            this.topic = _data["topic"];
+            this.subject = _data["subject"];
             this.refreshToken = _data["refreshToken"];
         }
     }
@@ -2727,7 +2727,7 @@ export class GuestSession implements IGuestSession {
         data["accessToken"] = this.accessToken;
         data["tokenType"] = this.tokenType;
         data["expiresIn"] = this.expiresIn;
-        data["topic"] = this.topic;
+        data["subject"] = this.subject;
         data["refreshToken"] = this.refreshToken;
         return data;
     }
@@ -2737,7 +2737,7 @@ export interface IGuestSession {
     accessToken: string;
     tokenType?: string;
     expiresIn?: number;
-    topic?: string | undefined;
+    subject?: string | undefined;
     refreshToken?: string | undefined;
 }
 
@@ -3300,7 +3300,7 @@ function blobToText(blob: any): Observable<string> {
                 observer.complete();
             };
             reader.readAsText(blob);
-      }
+        }
     });
 }
 export interface FileParameter {

@@ -38,6 +38,9 @@ public class ChatsService : IChatsService
         if (conversation is null) {
             return null;
         }
+        if (conversation.ReadOnly) {
+            return CreateInvalidRequestResponse(conversation, "This conversation is read-only and cannot be continued.");
+        }
         // invalid request. Grounding with subject is only allowed on new conversations.
         if (conversationId is not null && chatRequest.Topic is not null) {
             return CreateInvalidRequestResponse(conversation, "Invalid request");
