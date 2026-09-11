@@ -11,4 +11,7 @@ public class ChatRequest
 
     /// <summary>Optional name of the agent to use for this chat. If not provided, the system will use a default agent.</summary>
     public string? AgentName { get; set; }
+
+    /// <summary>Optional topic of the conversation. it grounds the workflow so it can skip discovering the purpose of the visit.</summary>
+    public ChatTopic? Topic { get; init; }
 }

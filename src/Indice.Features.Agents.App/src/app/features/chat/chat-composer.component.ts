@@ -46,7 +46,7 @@ const ICON_PATHS: Record<string, string> = {
                 type="button"
                 class="btn btn-ghost btn-sm mb-1 gap-1 px-2 font-normal text-base-content/60
                        hover:text-base-content"
-                [disabled]="streaming()"
+                [disabled]="streaming() || readOnly()"
                 aria-label="Select mode"
                 title="Mode"
               >
@@ -135,8 +135,8 @@ const ICON_PATHS: Record<string, string> = {
             rows="1"
             [attr.maxlength]="maxLength"
             [value]="text()"
-            [disabled]="streaming()"
-            [placeholder]="placeholder()"
+            [disabled]="streaming() || readOnly()"
+            [placeholder]="readOnly() ? 'This conversation is read-only' : placeholder()"
             (input)="onInput($event)"
             (keydown)="onKeydown($event)"
             aria-label="Message Dex"
@@ -182,7 +182,11 @@ const ICON_PATHS: Record<string, string> = {
         </div>
 
         <div class="mt-1.5 px-1 text-center text-[0.7rem] text-base-content/45 sm:text-left">
-          <span>Enter to send · Shift + Enter for a new line</span>
+          @if (readOnly()) {
+            <span>This conversation is read-only and cannot be continued</span>
+          } @else {
+            <span>Enter to send · Shift + Enter for a new line</span>
+          }
         </div>
       </div>
     </div>
@@ -190,6 +194,8 @@ const ICON_PATHS: Record<string, string> = {
 })
 export class ChatComposerComponent {
   readonly streaming = input(false);
+  /** When the conversation is read-only the composer is disabled entirely — no new turns can be sent. */
+  readonly readOnly = input(false);
   /** Rendered mid-canvas (new session): drop the pinned bar chrome, keep only the input box. */
   readonly centered = input(false);
   readonly placeholder = input('Ask Dex anything…');
@@ -205,7 +211,7 @@ export class ChatComposerComponent {
   protected readonly text = signal('');
   /** Whether the auto-growing textarea has wrapped past one row — pill until it does. */
   protected readonly multiline = signal(false);
-  protected readonly canSend = computed(() => this.text().trim().length > 0 && !this.streaming());
+  protected readonly canSend = computed(() => this.text().trim().length > 0 && !this.streaming() && !this.readOnly());
 
   /** The agent shown on the picker trigger — the explicit pick, else the first discovered one. */
   protected readonly activeAgent = computed<AgentInfo | null>(() => {
@@ -241,7 +247,7 @@ export class ChatComposerComponent {
 
   protected emitSend(): void {
     const value = this.text().trim();
-    if (!value || this.streaming()) {
+    if (!value || this.streaming() || this.readOnly()) {
       return;
     }
     this.send.emit(value);

@@ -51,6 +51,7 @@
     </div>
     <app-chat-composer
       [streaming]="isStreaming()"
+      [readOnly]="conversationReadOnly()"
       [agents]="agents()"
       [(selectedAgent)]="selectedAgentName"
       (send)="send($event)"
