@@ -126,9 +126,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                         }
                     }
                     break;
-                case SuperStepCompletedEvent superStepCompleted:
-
-                    latestCheckpoint = superStepCompleted.CompletionInfo?.Checkpoint;
+                case SuperStepCompletedEvent:
                     break;
                 // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor
                 // exceptions ("Error invoking handler for ..."), so walk to the innermost exception for the real cause.

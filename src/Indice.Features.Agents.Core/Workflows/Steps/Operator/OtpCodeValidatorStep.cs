@@ -104,7 +104,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
         try {
             verification = OtpVerificationResultPayload.Deserialize(payload);
 
-        } catch {
+        } catch (JsonException) {
             verification = new OtpVerificationResultPayload(false, $"MCP results is not valid:{payload}", false, false, false, 0);
         }
 
