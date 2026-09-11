@@ -28,8 +28,11 @@ public class AgentsOptions
     /// <summary>Allowed categorical/language values constrained by the host application.</summary>
     public TaxonomyOptions Taxonomy { get; set; } = new();
 
+    /// <summary>Master-router behavior (the default agent an unspecified request maps to).</summary>
+    public RoutingOptions Routing { get; set; } = new();
+
     /// <summary>
-    /// When true we enable additional triggers and debug handles for development and testing. 
+    /// When true we enable additional triggers and debug handles for development and testing.
     /// This is not a security boundary; do not rely on it to protect sensitive data. 
     /// </summary>
     public bool DebugMode { get; set; } = false;
@@ -168,6 +171,16 @@ public class AgentsOptions
 
         /// <summary>Allowed ISO-639-1 (or BCP-47) language codes.</summary>
         public IReadOnlyList<string> Languages { get; set; } = ["en", "el", "de", "fr", "es"];
+    }
+
+    /// <summary>Master intent-router behavior.</summary>
+    public class RoutingOptions
+    {
+        /// <summary>
+        /// The agent a chat request maps to when it does not specify one. Defaults to <c>auto</c>, which runs the
+        /// master intent router; set it to a specific agent name (e.g. <c>knowledge</c>) to bypass routing.
+        /// </summary>
+        public string DefaultAgent { get; set; } = AgentsConstants.AgentNames.Auto;
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using Indice.Features.Agents.Core;
+using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -6,75 +7,8 @@ namespace Indice.Features.Agents.Server.Endpoints;
 
 internal static class AgentsHandlers
 {
-    /// <summary>Handles the discovery of available agents.</summary>
-    public static Ok<List<AgentInfo>> Discovery() {
-        // Implementation for discovering agents goes here.
-        return TypedResults.Ok(new List<AgentInfo>() { 
-            new AgentInfo(
-                Name: AgentsConstants.AgentNames.Auto,
-                Description: "This is an agent that discovers user intent and passes it to the appropriate sub agent.",
-                InputContentTypes: ["text/plain" ],
-                OutputContentTypes: ["text/markdown", AgentsConstants.MediaTypes.MultipleChoice, AgentsConstants.MediaTypes.Callout,
-                                    AgentsConstants.MediaTypes.Image, AgentsConstants.MediaTypes.Confirmation, "image/png"],
-                Capabilities: [ new AgentCapability("Master intent classification", "Discovers user intent and routes it to the appropriate sub-agent.") ],
-                Domains: [],
-                Tags: ["Intent"],
-                Links: [],
-                Icon: AgentsConstants.AgentIcons.Sparkles),
-
-            new AgentInfo(
-                Name: AgentsConstants.AgentNames.Knowledge,
-                Description: "This is an agent that can answer questions based on a knowledge base.",
-                InputContentTypes: ["text/plain" ],
-                OutputContentTypes: ["text/markdown", AgentsConstants.MediaTypes.MultipleChoice, AgentsConstants.MediaTypes.Callout,
-                                    AgentsConstants.MediaTypes.Image, AgentsConstants.MediaTypes.Confirmation, "image/png"],
-                Capabilities: [ new AgentCapability("Knowledge retrieval", "Answers questions based on a knowledge base.") ],
-                Domains: [],
-                Tags: ["Knowledge", "FAQ"],
-                Links: [],
-                Icon: AgentsConstants.AgentIcons.Book),
-            new AgentInfo(
-                Name: AgentsConstants.AgentNames.Cases,
-                Description: "This is an agent that can handle cases and provide solutions based on predefined rules.",
-                InputContentTypes: ["text/plain" ],
-                OutputContentTypes: ["text/plain" ],
-                Capabilities: [ new AgentCapability("Case management", "Handles cases and provides solutions based on predefined rules.") ],
-                Domains: [],
-                Tags: ["Cases"],
-                Links: [])
-        });
-    }
+    /// <summary>Lists the agents available to the caller, sourced from the <see cref="AgentInfoRegistry"/>.</summary>
+    /// <param name="registry">The registry of agents registered in DI.</param>
+    public static Ok<List<AgentInfo>> Discovery(AgentInfoRegistry registry) =>
+        TypedResults.Ok(registry.All().ToList());
 }
-// Rich agent metadata
-/// <summary>
-/// This metadata is used to describe the capabilities of an agent, its input and output content types, and other relevant information.
-/// </summary>
-public record AgentCapability(string Name, string Description);
-/// <summary>
-/// This record represents a link related to an agent, such as documentation or a website.
-/// </summary>
-public record AgentLink(string Type, string Url);
-/// <summary>
-/// This record represents the author of an agent, including their name, email, and URL.
-/// </summary>
-public record AgentAuthor(string Name, string? Email = null, string? Url = null);
-
-/// <summary>
-/// This record represents the information about an agent, including its name, description, input and output content types, capabilities, domains, tags, links, author, metadata and icon.
-/// </summary>
-/// <param name="Icon">
-/// A semantic icon token from <see cref="AgentsConstants.AgentIcons"/> — names what the flow is, leaving the glyph itself to the client.
-/// Appended last on purpose: positional record parameters are public API, so inserting one mid-list would break existing deconstruction.
-/// </param>
-public record AgentInfo(
-    string Name,
-    string Description,
-    List<string> InputContentTypes,
-    List<string> OutputContentTypes,
-    List<AgentCapability>? Capabilities = null,
-    List<string>? Domains = null,
-    List<string>? Tags = null,
-    List<AgentLink>? Links = null,
-    AgentAuthor? Author = null,
-    object? Metadata = null,
-    string? Icon = null);
