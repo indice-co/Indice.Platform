@@ -98,7 +98,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
         var result = await agent.RunAsync<string>(prompt, cancellationToken: cancellationToken);
         var payload = result.Text;
 
-
+        response.Code = string.Empty; // Clear the code from the response for security reasons.
 
         OtpVerificationResultPayload verification;
         try {
@@ -155,11 +155,19 @@ public sealed class AnswerDeltaEvent(string Text) : WorkflowEvent
 /// <summary>
 /// Response payload delivered to the OTP verification request port when the user submits the received OTP code.
 /// </summary>
-/// <param name="Challenge">The pending OTP challenge emitted by the send step.</param>
-/// <param name="Code">The user provided OTP code.</param>
-public record OtpCodeResponse(
-    OtpChallengeOutput Challenge,
-    string Code);
+public class OtpCodeResponse
+{
+    /// <summary>The pending OTP challenge emitted by the send step..</summary>
+    public OtpChallengeOutput Challenge { get; }
+    /// <summary>The OTP code provided by the user.</summary>
+    public string Code { get; set; }
+    /// <summary>Creates a new <see cref="OtpCodeResponse"/>.</summary>
+    public OtpCodeResponse(OtpChallengeOutput challenge, string code)
+    {
+        Challenge = challenge;
+        Code = code;
+    }
+}
 
 /// <summary>
 /// Output of OTP code verification, preserving full workflow context for downstream steps.

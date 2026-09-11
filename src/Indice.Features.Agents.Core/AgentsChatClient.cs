@@ -1,5 +1,7 @@
 using System.Runtime.CompilerServices;
 using Indice.Features.Agents.Core.RequestPorts;
+using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
 using Indice.Features.Agents.Core.Workflows.Steps;
 using Indice.Features.Agents.Core.Workflows.Steps.Operator;
@@ -7,6 +9,7 @@ using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core;
 
@@ -57,30 +60,54 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             throw new ArgumentException("DexChatClient only supports a single user message per request. No batching allowed.", nameof(messages));
         }
         var message = messages.First();
-        var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());
-        // Use options.Instructions as the agent/workflow selector passed from the HTTP layer (ChatRequest.AgentName).
-        // Supported selectors: "auto", "knowledge". Unknown or missing values fall back to "knowledge".
-
-        var agenticWorkflowName = options?.Instructions?.Trim().ToLowerInvariant() switch {
-            AgentsConstants.AgentNames.Knowledge => AgentsConstants.AgentNames.Knowledge,
-            AgentsConstants.AgentNames.Operator => AgentsConstants.AgentNames.Operator,
-            _ => AgentsConstants.AgentNames.Knowledge
-        };
-        var workflow = serviceProvider.GetKeyedService<Workflow>(agenticWorkflowName) ?? serviceProvider.GetRequiredKeyedService<Workflow>(AgentsConstants.AgentNames.Knowledge);
+        var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());     
+        // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
+        // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
+        var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
+        var selector = options?.Instructions?.Trim().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(selector)) {
+            selector = routing.DefaultAgent?.Trim().ToLowerInvariant();
+        }
+        string resolvedAgent;
+        if (string.Equals(selector, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
+            RouteDecision? decision = null;
+            string? routeError = null;
+            try {
+                var router = serviceProvider.GetRequiredService<IntentRouterService>();
+                decision = await router.RouteAsync(message.Text, state.ConversationId, cancellationToken);
+            } 
+            catch (Exception exception) when (exception is not OperationCanceledException) {
+                routeError = exception.Message;
+            }
+            if (routeError is not null) {
+                yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = state.ConversationId };
+                yield break;
+            }
+            else if (decision!.AgentName is null) {
+                yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = state.ConversationId };
+                yield break;
+            }
+            resolvedAgent = decision.AgentName;
+        } 
+        else {
+            
+            resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
+        }
+        var workflow = serviceProvider.GetRequiredKeyedService<Workflow>(resolvedAgent);
         // Checkpointing: state written via QueueStateUpdateAsync is snapshotted at each superstep into the durable
         // EF-backed store, so it survives across HTTP requests. On a follow-up turn the latest checkpoint of the
         // conversation (sessionId == ConversationId) is restored and the new user message is injected into the resumed run.
         var checkpointManager = serviceProvider.GetRequiredService<CheckpointManager>();
         var latestCheckpoint = options?.ConversationId is not null
-            ? await checkpointManager.GetLatestCheckpointAsync(state.ConversationId, cancellationToken)
-            : null;
-        var isResumed = latestCheckpoint is not null;
+            ? await checkpointManager.GetLatestCheckpointAsync(new AgentSessionId(Guid.Parse(options!.ConversationId), resolvedAgent), cancellationToken)
+            :  null;
         StreamingRun run;
+        var isResumed = latestCheckpoint is not null;
         if (isResumed) {
             run = await InProcessExecution.ResumeStreamingAsync(workflow, latestCheckpoint!, checkpointManager, cancellationToken: cancellationToken);
             //await run.TrySendMessageAsync(state);
         } else {
-            run = await InProcessExecution.RunStreamingAsync(workflow, state, checkpointManager, sessionId: state.ConversationId, cancellationToken: cancellationToken);
+            run = await InProcessExecution.RunStreamingAsync(workflow, state, checkpointManager, sessionId: new AgentSessionId(Guid.Parse(state.ConversationId), resolvedAgent), cancellationToken: cancellationToken);
         }
         await using var _ = run;
 
