@@ -121,7 +121,6 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
                 MaxFailedAttempts: response.Challenge.MaxFailedAttempts);
         }
 
-        var verifyMessage = _messageLocalizer.OtvpVerificationFailedMessage;
         var failedAttempts = response.Challenge.FailedAttempts + 1;
         var maxFailedAttempts = response.Challenge.MaxFailedAttempts;
         var shouldRetry = !verification.IsRateLimited && failedAttempts <= maxFailedAttempts;

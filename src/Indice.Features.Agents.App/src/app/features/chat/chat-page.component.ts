@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 
-import { AgentInfo, ChatMessagePart, DexApiService, DexChatResponse, LikeRequest } from '../../core/services/dex-api.service';
+import { AgentInfo, ChatMessagePart, ChatTopic, DexApiService, DexChatResponse, LikeRequest } from '../../core/services/dex-api.service';
 import { ChatStreamFrame, ChatStreamService } from '../../core/services/chat-stream.service';
 import { ConversationsStore } from '../../core/services/conversations.store';
 import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
@@ -49,11 +49,18 @@ export class ChatPageComponent {
   protected readonly currentStep = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly questionsTotal = signal<number | null>(null);
+  /** Whether the open conversation is read-only — the composer disables and no new turns are sent. */
+  protected readonly conversationReadOnly = signal(false);
 
   /** The modes discovered from GET /agents; empty (picker hidden) when discovery fails. */
   protected readonly agents = signal<AgentInfo[]>([]);
   /** The composer's picked mode; `null` falls back to the first discovered agent. */
-  protected readonly selectedAgentName = signal<string | null>(null);
+  protected readonly selectedAgentName = signal<string | null>(null);  /**
+   * The record this visit is about, deep-linked as `?refid=...&reftype=...`. It is sent once, with the
+   * conversation-creating turn, and grounds the server-side workflow so it can skip asking what the visit is
+   * about. Follow-up turns carry nothing: the conversation is already grounded.
+   */
+  private readonly externalReference = signal<ChatTopic | null>(readExternalReference());
 
   /** The raw patch target for the turn's `delta` frames — plain JSON; `streamResponse` is its typed projection. */
   private streamDocument: Record<string, any> = {};
@@ -103,7 +110,7 @@ export class ChatPageComponent {
 
   protected send(text: string): void {
     const value = text.trim();
-    if (!value || this.isStreaming()) {
+    if (!value || this.isStreaming() || this.conversationReadOnly()) {
       return;
     }
     this.cancelStream();
@@ -119,8 +126,7 @@ export class ChatPageComponent {
     const agentName = this.selectedAgentName() ?? this.agents()[0]?.name ?? null;
     const stream$ = sessionId
       ? this.streamSvc.streamMessage(sessionId, value, agentName)
-      : this.streamSvc.streamCreate(value, agentName);
-
+      : this.streamSvc.streamCreate(value, agentName, this.externalReference());
     this.streamSub = stream$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (frame) => this.onFrame(frame),
       error: (err: unknown) => {
@@ -144,6 +150,7 @@ export class ChatPageComponent {
           // Claim the id before publishing it, so the effect sees no change and skips the fetch.
           this.loadedId = frame.conversationId;
           this.store.adopt(frame.conversationId);
+          this.externalReference.set(null);
         }
         break;
       case 'status':
@@ -203,6 +210,7 @@ export class ChatPageComponent {
     this.streamResponse.set(null);
     this.currentStep.set(null);
     this.isStreaming.set(false);
+    this.conversationReadOnly.set(false);
     this.threadSub = this.dex
       .getChatSession(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -210,6 +218,7 @@ export class ChatPageComponent {
         next: (session) => {
           this.messages.set((session.messages ?? []).map(toThreadMessage));
           this.questionsTotal.set(session.usage?.questionsLimitCount ?? null);
+          this.conversationReadOnly.set(session.readOnly ?? false);
           this.threadLoading.set(false);
         },
         error: () => {
@@ -231,6 +240,7 @@ export class ChatPageComponent {
     this.isStreaming.set(false);
     this.threadLoading.set(false);
     this.questionsTotal.set(null);
+    this.conversationReadOnly.set(false);
   }
 
   private loadAgents(): void {
@@ -248,4 +258,18 @@ export class ChatPageComponent {
     this.streamSub?.unsubscribe();
     this.streamSub = undefined;
   }
+}
+
+/** Reads the `refid`/`reftype` deep-link parameters of the hosting page, if any. */
+function readExternalReference(): ChatTopic | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const params = new URLSearchParams(window.location.search);
+  const referenceId = params.get('refid')?.trim();
+  const referenceType = params.get('reftype')?.trim();
+  return referenceId ? new ChatTopic({
+    referenceId: referenceId,
+    referenceType: referenceType
+  }) : null;
 }

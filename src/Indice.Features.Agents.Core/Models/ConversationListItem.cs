@@ -23,4 +23,7 @@ public class ConversationListItem
 
     /// <summary>Whether the session is pinned to the top of the list.</summary>
     public bool Pin { get; set; }
+
+    /// <summary>Whether the conversation is read-only; no further turns can be appended.</summary>
+    public bool ReadOnly { get; init; }
 }

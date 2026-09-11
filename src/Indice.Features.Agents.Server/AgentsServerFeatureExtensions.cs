@@ -3,6 +3,7 @@ using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Ingestion;
 using Indice.Features.Agents.Server;
+using Indice.Features.Agents.Server.Endpoints;
 using Indice.Features.Agents.Server.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -30,6 +31,7 @@ public static class AgentsServerFeatureExtensions
         if(configureOptions is not null) { 
             services.Configure(configureOptions);
         }
+        services.AddEndpointParameterFluentValidation(typeof(AgentsServerFeatureExtensions).Assembly);
         services.AddTransient<ISourceLinkGenerator, SourceLinkGenerator>();
         services.AddAgentsCore(configuration, options.ConfigureAgents);
         services.AddMyProfileFeature();

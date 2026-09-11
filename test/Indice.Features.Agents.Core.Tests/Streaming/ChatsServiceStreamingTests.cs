@@ -139,6 +139,27 @@ public class ChatsServiceStreamingTests
         Assert.False(store.FailedTurnPersisted);
     }
 
+    [Fact]
+    public async Task Existing_conversation_with_topic_streams_invalid_request_and_persists_nothing() {
+        var (service, store) = CreateService();
+        var stream = await service.SendStreamAsync("user-1", ConversationId, new ChatRequest {
+            Text = "hi",
+            Topic = new ChatTopic {
+                ReferenceType = "case",
+                ReferenceId = "CASE-1"
+            }
+        }, CancellationToken.None);
+        var frames = new List<SseItem<DexChatResponseUpdate>>();
+        await foreach (var item in stream!) {
+            frames.Add(item);
+        }
+
+        Assert.IsType<DexChatStreamDone>(frames[^1].Data);
+        Assert.Contains(frames, frame => frame.Data is DexChatStreamDelta { Path: "/messages" });
+        Assert.False(store.TurnPersisted);
+        Assert.False(store.FailedTurnPersisted);
+    }
+
     /// <summary>The out-of-scope shape: prose followed by an atomic multiple-choice part in the same update.</summary>
     private static List<ChatResponseUpdate> MultipleChoiceUpdates() => [
         new ChatResponseUpdate(ChatRole.Assistant, [
@@ -262,7 +283,7 @@ internal sealed class FakeConversationStore(Guid persistedConversationId, string
     public bool FailedTurnPersisted { get; private set; }
 
     public Task<Conversation?> LoadOrCreateAsync(string userId, string? authorName,
-        Guid? conversationId, CancellationToken cancellationToken)
+        Guid? conversationId, ChatTopic? topic, CancellationToken cancellationToken)
         => Task.FromResult<Conversation?>(new Conversation { Id = persistedConversationId });
 
     public Task<ChatMessage> AppendTurnAsync(Guid id, ChatMessage userMessage, ChatResponse response, CancellationToken cancellationToken) {
@@ -284,6 +305,8 @@ internal sealed class FakeConversationStore(Guid persistedConversationId, string
     public Task<int> CountSessionsAsync(string userId, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<long> GetUsageTokensAsync(string userId, DateTimeOffset since, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<bool> SetLikeAsync(string userId, Guid id, Guid messageId, bool? liked, CancellationToken cancellationToken) => throw new NotSupportedException();
+    public Task<bool> SetReadOnlyAsync(string userId, Guid id, bool isReadOnly, CancellationToken cancellationToken) => throw new NotSupportedException();
+    public Task<bool> SetVisibilityAsync(string userId, Guid id, bool hidden, CancellationToken cancellationToken) => throw new NotSupportedException();
 }
 
 internal sealed class FakeUsageGuard(bool limitReached) : IUsageGuardService
