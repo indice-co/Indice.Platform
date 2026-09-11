@@ -14,6 +14,8 @@ namespace Indice.Features.Agents.Core.Services;
 /// <inheritdoc/>
 public class ConversationStore : IConversationStore
 {
+    private const string ReadOnlyConversationCode = "CONVERSATION_READ_ONLY";
+    private const string ReadOnlyConversationMessage = "This conversation is read-only and cannot be continued.";
     private readonly AgentsDbContext _db;
     private readonly SessionOptions _sessionOptions;
     private readonly AgentsClaimsPrincipalSelector _claimsPrincipalSelector;
@@ -163,6 +165,8 @@ public class ConversationStore : IConversationStore
     public async Task<ChatMessage> AppendTurnAsync(Guid conversationId, ChatMessage userMessage, ChatResponse response,
         CancellationToken cancellationToken) {
 
+        await using var transaction = await _db.Database.BeginTransactionAsync(cancellationToken);
+        await EnsureConversationWritableAsync(conversationId, cancellationToken);
         var conversation = await _db.Conversations.FirstAsync(s => s.Id == conversationId, cancellationToken);
         var userDisplayName = await _db.Profiles.Where(x => x.UserId == conversation.UserId).Select(x => x.DisplayName).FirstOrDefaultAsync(cancellationToken);
         userMessage.AuthorName ??= userDisplayName;
@@ -185,6 +189,7 @@ public class ConversationStore : IConversationStore
         }
 
         await _db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         return new ChatMessage {
             MessageId = assistantRow.Id.ToString(),
@@ -197,6 +202,8 @@ public class ConversationStore : IConversationStore
 
     /// <inheritdoc/>
     public async Task AppendFailedTurnAsync(Guid conversationId, ChatMessage userMessage, CancellationToken cancellationToken) {
+        await using var transaction = await _db.Database.BeginTransactionAsync(cancellationToken);
+        await EnsureConversationWritableAsync(conversationId, cancellationToken);
         var session = await _db.Conversations.FirstAsync(s => s.Id == conversationId, cancellationToken);
         var userRow = ToDb(conversationId, userMessage, responseId: null, prompt: null, completion: null, model: null);
         _db.Add(userRow);
@@ -206,6 +213,7 @@ public class ConversationStore : IConversationStore
             session.Title = DeriveTitle(userMessage);
         }
         await _db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -317,5 +325,14 @@ public class ConversationStore : IConversationStore
         return new AdditionalPropertiesDictionary() {
             [nameof(DbMessage.Liked)] = liked
         };
+    }
+
+    private async Task EnsureConversationWritableAsync(Guid conversationId, CancellationToken cancellationToken) {
+        var affectedRows = await _db.Conversations
+            .Where(s => s.Id == conversationId && !s.ReadOnly)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.LastActivityAt, c => c.LastActivityAt), cancellationToken);
+        if (affectedRows == 0) {
+            throw new BusinessException(ReadOnlyConversationMessage, ReadOnlyConversationCode);
+        }
     }
 }

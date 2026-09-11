@@ -127,10 +127,6 @@ export class ChatPageComponent {
     const stream$ = sessionId
       ? this.streamSvc.streamMessage(sessionId, value, agentName)
       : this.streamSvc.streamCreate(value, agentName, this.externalReference());
-
-    if (!sessionId) {
-      this.externalReference.set(null);
-    }
     this.streamSub = stream$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (frame) => this.onFrame(frame),
       error: (err: unknown) => {
@@ -154,6 +150,7 @@ export class ChatPageComponent {
           // Claim the id before publishing it, so the effect sees no change and skips the fetch.
           this.loadedId = frame.conversationId;
           this.store.adopt(frame.conversationId);
+          this.externalReference.set(null);
         }
         break;
       case 'status':

@@ -139,6 +139,27 @@ public class ChatsServiceStreamingTests
         Assert.False(store.FailedTurnPersisted);
     }
 
+    [Fact]
+    public async Task Existing_conversation_with_topic_streams_invalid_request_and_persists_nothing() {
+        var (service, store) = CreateService();
+        var stream = await service.SendStreamAsync("user-1", ConversationId, new ChatRequest {
+            Text = "hi",
+            Topic = new ChatTopic {
+                ReferenceType = "case",
+                ReferenceId = "CASE-1"
+            }
+        }, CancellationToken.None);
+        var frames = new List<SseItem<DexChatResponseUpdate>>();
+        await foreach (var item in stream!) {
+            frames.Add(item);
+        }
+
+        Assert.IsType<DexChatStreamDone>(frames[^1].Data);
+        Assert.Contains(frames, frame => frame.Data is DexChatStreamDelta { Path: "/messages" });
+        Assert.False(store.TurnPersisted);
+        Assert.False(store.FailedTurnPersisted);
+    }
+
     /// <summary>The out-of-scope shape: prose followed by an atomic multiple-choice part in the same update.</summary>
     private static List<ChatResponseUpdate> MultipleChoiceUpdates() => [
         new ChatResponseUpdate(ChatRole.Assistant, [
