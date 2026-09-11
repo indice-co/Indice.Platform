@@ -18,6 +18,9 @@ public class DexConversation
     /// <summary>Number of persisted messages in this session. Each turn appends two rows (user + assistant).</summary>
     public int MessageCount { get; init; }
 
+    /// <summary>Whether the conversation is read-only; no further turns can be appended.</summary>
+    public bool ReadOnly { get; init; }
+
     /// <summary>Cumulative token and question usage across all turns in this session.</summary>
     public DexChatUsage Usage { get; init; } = new();
 

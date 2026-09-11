@@ -29,12 +29,18 @@ public class Conversation
     /// <summary>Whether the session is pinned to the top of the list.</summary>
     public bool Pin { get; set; }
 
+    /// <summary>Whether the conversation is read-only; no further turns can be appended.</summary>
+    public bool ReadOnly { get; init; }
+
     /// <summary>Questions used in this session so far, for a <c>used/total</c> display. <c>null</c> when the message limit is disabled.</summary>
     public int? QuestionsUsedCount { get; init; }
 
     /// <summary>Total questions allowed per session, for a <c>used/total</c> display. <c>null</c> when the message limit is disabled.</summary>
     public int? QuestionsLimitCount { get; init; }
 
+    /// <summary>Optional topic of the conversation. it grounds the workflow so it can skip discovering the purpose of the visit.</summary>
+    public ChatTopic? Topic { get; init; }
+
     /// <summary>Recent messages in chronological order (oldest first), capped at the configured history window.</summary>
-    public IReadOnlyList<ChatMessage> Messages { get; init; } = Array.Empty<ChatMessage>();
+    public IReadOnlyList<ChatMessage> Messages { get; init; } = [];
 }
