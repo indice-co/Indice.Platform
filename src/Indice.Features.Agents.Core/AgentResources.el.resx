@@ -98,4 +98,49 @@
 	<resheader name="writer">
 		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
 	</resheader>
+	<data name="StepIntentClassifier" xml:space="preserve">
+		<value>Ταξινόμηση πρόθεσης</value>
+	</data>
+	<data name="StepQueryRewriter" xml:space="preserve">
+		<value>Αναδιατύπωση ερωτήματος</value>
+	</data>
+	<data name="StepRetriever" xml:space="preserve">
+		<value>Ανάκτηση σχετικού περιεχομένου</value>
+	</data>
+	<data name="StepReranker" xml:space="preserve">
+		<value>Επανακατάταξη αποτελεσμάτων</value>
+	</data>
+	<data name="StepAnswerComposer" xml:space="preserve">
+		<value>Σύνθεση απάντησης</value>
+	</data>
+	<data name="StepPurposeResponder" xml:space="preserve">
+		<value>Παροχή απάντησης</value>
+	</data>
+	<data name="StepOutOfScopeResponder" xml:space="preserve">
+		<value>Προετοιμασία απάντησης</value>
+	</data>
+	<data name="StepCaseDataRetriever" xml:space="preserve">
+		<value>Ανάκτηση στοιχείων υπόθεσης</value>
+	</data>
+	<data name="StepOwnershipVerifier" xml:space="preserve">
+		<value>Επαλήθευση κατόχου υπόθεσης</value>
+	</data>
+	<data name="StepOwnershipValidator" xml:space="preserve">
+		<value>Επικύρωση επιβεβαίωσης κατόχου</value>
+	</data>
+	<data name="StepOtpAgent" xml:space="preserve">
+		<value>Αποστολή OTP</value>
+	</data>
+	<data name="StepOtpCodeSend" xml:space="preserve">
+		<value>Αποστολή OTP</value>
+	</data>
+	<data name="StepOtpCodeValidator" xml:space="preserve">
+		<value>Επαλήθευση κωδικού OTP</value>
+	</data>
+	<data name="StepOtpRetryChallengeBuilder" xml:space="preserve">
+		<value>Προετοιμασία νέας προσπάθειας OTP</value>
+	</data>
+	<data name="StepCaseDataPresenter" xml:space="preserve">
+		<value>Παρουσίαση στοιχείων υπόθεσης</value>
+	</data>
 </root>

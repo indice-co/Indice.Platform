@@ -37,7 +37,7 @@ internal static class AgentsHandlers
                 Name: AgentsConstants.AgentNames.Operator,
                 Description: "This is an agent that can handle cases and provide solutions based on predefined rules.",
                 InputContentTypes: ["text/plain" ],
-                OutputContentTypes: ["text/plain" ],
+                OutputContentTypes: ["text/plain", "text/html" ],
                 Capabilities: [ new AgentCapability("Case management", "Handles cases and provides solutions based on predefined rules.") ],
                 Domains: [],
                 Tags: ["Cases", "Operator"],

@@ -61,7 +61,7 @@ public sealed class OtpRetryChallengeBuilder : Executor<OtpValidationOutput, Otp
 
         var prompt = input.ShouldResendOtp
             ? _messageLocalizer.OtpVerificationCodeSendMessage(MaskPhone(phoneNumber))
-            : _messageLocalizer.InvalidOtpRetryMessage(Math.Max(input.MaxFailedAttempts - input.FailedAttempts + 1, 0));
+            : _messageLocalizer.InvalidOtpRetryMessage(Math.Max(input.MaxFailedAttempts - input.FailedAttempts, 0));
 
         if (input.ShouldResendOtp) {
             await SendOtpAsync(phoneNumber, caseId, cancellationToken);

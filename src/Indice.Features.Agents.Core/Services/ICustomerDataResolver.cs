@@ -10,7 +10,7 @@ namespace Indice.Features.Agents.Core.Services;
 /// the default field names used to locate the case id, contact channels, and verification value
 /// inside the JSON returned by the MCP case service.
 /// </remarks>
-internal interface ICustomerDataResolver
+public interface ICustomerDataResolver
 {
     /// <summary>
     /// Extracts the case identifier from the JSON payload.

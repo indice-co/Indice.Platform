@@ -59,7 +59,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
         if (string.IsNullOrWhiteSpace(code)) {
             var blankCodeMessage = _messageLocalizer.OtpInputValidationEmpty;
             await context.AddEventAsync(new AnswerDeltaEvent(blankCodeMessage), cancellationToken);
-            
+
             return new OtpValidationOutput(
                 OtpResponse: response,
                 IsValid: false,
@@ -122,11 +122,11 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
         }
 
         var verifyMessage = _messageLocalizer.OtvpVerificationFailedMessage;
-        var failedAttempts = response.Challenge.FailedAttempts;
+        var failedAttempts = response.Challenge.FailedAttempts + 1;
         var maxFailedAttempts = response.Challenge.MaxFailedAttempts;
-        var shouldRetry = !verification.IsRateLimited && (failedAttempts <= maxFailedAttempts);
+        var shouldRetry = !verification.IsRateLimited && failedAttempts <= maxFailedAttempts;
         var finalMessage = shouldRetry
-            ? _messageLocalizer.InvalidOtpRetryMessage(Math.Max(maxFailedAttempts - failedAttempts + 1, 0))
+            ? _messageLocalizer.InvalidOtpRetryMessage(Math.Max(maxFailedAttempts - failedAttempts, 0))
             : _messageLocalizer.InvalidOtpMaxAttemptsReachedMessage;
         if (!shouldRetry) {
             await context.AddEventAsync(new AnswerDeltaEvent(finalMessage), cancellationToken);

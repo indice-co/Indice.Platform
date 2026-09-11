@@ -1,4 +1,6 @@
+using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
@@ -27,6 +29,10 @@ public sealed class OwnershipVerificationFailureHandler : Executor<UserInputVali
 
         var failureMessage = validationOutput.ErrorMessage
             ?? _messageLocalizer.OwnershipVerificationFailedMaxAttemptsMessage(_maxValidationAttempts);
+
+        await context.AddEventAsync(
+            new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [new TextContent(failureMessage)])),
+            cancellationToken);
 
         return new ValidationFailureOutput(
             ErrorMessage: failureMessage,

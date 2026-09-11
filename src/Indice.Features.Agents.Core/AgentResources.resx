@@ -121,7 +121,7 @@
     <value>The OTP code is invalid. You have reached the maximum number of attempts. Please start again.</value>
   </data>
   <data name="InvalidOtpRetryMessage" xml:space="preserve">
-    <value>That OTP was not valid. Please try again ({0} attempt(s) left)."</value>
+    <value>That OTP was not valid. Please try again ({0} attempt(s) left).</value>
   </data>
   <data name="OtpInputValidationEmpty" xml:space="preserve">
     <value>I didn't receive an OTP code. Please enter the OTP sent to your phone.</value>
@@ -142,7 +142,7 @@
     <value>Ownership verification failed after {0} attempts.</value>
   </data>
   <data name="OwnershipVerificationMessagePrompt" xml:space="preserve">
-    <value>Please type the you phone number to complete the verification process</value>
+    <value>Please enter your car license plate to complete the verification process.</value>
   </data>
   <data name="StepAnswerComposer" xml:space="preserve">
     <value>Composing answer</value>
@@ -175,7 +175,7 @@
     <value>Validating user</value>
   </data>
   <data name="StepOwnershipVerifier" xml:space="preserve">
-    <value>Verifing user</value>
+    <value>Verifying user</value>
   </data>
   <data name="StepPurposeResponder" xml:space="preserve">
     <value>Answering</value>

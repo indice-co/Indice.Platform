@@ -88,7 +88,6 @@ public static class AgentsFeatureExtensions
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
         services.TryAddScoped<AgentMessageLocalizer>();
         services.AddAgentsDefaultPipeline();
-        services.AddOperatorWorkflow(configuration);
         return services;
     }
 

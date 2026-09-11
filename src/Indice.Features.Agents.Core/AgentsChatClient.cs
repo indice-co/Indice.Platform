@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using Indice.Features.Agents.Core.RequestPorts;
 using Indice.Features.Agents.Core.Workflows.State;
+using Indice.Features.Agents.Core.Workflows.Steps;
 using Indice.Features.Agents.Core.Workflows.Steps.Operator;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
@@ -22,21 +23,21 @@ public interface IDexChatClient : IChatClient
 public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
 {
     private static IReadOnlyDictionary<string, string> CreateStepLabels(AgentMessageLocalizer localizer) => new Dictionary<string, string>(StringComparer.Ordinal) {
-        ["IntentClassifier"] = localizer.StepIntentClassifier,
-        ["QueryRewriter"] = localizer.StepQueryRewriter,
-        ["Retriever"] = localizer.StepRetriever,
-        ["Reranker"] = localizer.StepReranker,
-        ["AnswerComposer"] = localizer.StepAnswerComposer,
-        ["PurposeResponder"] = localizer.StepPurposeResponder,
-        ["OutOfScopeResponder"] = localizer.StepOutOfScopeResponder,
-        ["CaseDataRetriever"] = localizer.StepCaseDataRetriever,
-        ["OwnershipVerifier"] = localizer.StepOwnershipVerifier,
-        ["OtpAgent"] = localizer.StepOtpAgent,
-        ["OtpCodeValidator"] = localizer.StepOtpCodeValidator,
-        ["OtpRetryChallengeBuilder"] = localizer.StepOtpRetryChallengeBuilder,
-        ["CaseDataPresenter"] = localizer.StepCaseDataPresenter,
-        ["OwnershipValidatorStep"] = localizer.StepOwnershipValidator,
-        ["OtpCodeSendStep"] = localizer.StepOtpCodeSend
+        [nameof(IntentClassifier)] = localizer.StepIntentClassifier,
+        [nameof(QueryRewriter)] = localizer.StepQueryRewriter,
+        [nameof(Retriever)] = localizer.StepRetriever,
+        [nameof(Reranker)] = localizer.StepReranker,
+        [nameof(AnswerComposer)] = localizer.StepAnswerComposer,
+        [nameof(PurposeResponder)] = localizer.StepPurposeResponder,
+        [nameof(OutOfScopeResponder)] = localizer.StepOutOfScopeResponder,
+        [nameof(DataRetrieverStep)] = localizer.StepCaseDataRetriever,
+        [nameof(OwnershipVerifierStep)] = localizer.StepOwnershipVerifier,
+        [nameof(OtpCodeSendStep)] = localizer.StepOtpAgent,
+        [nameof(OtpCodeValidatorStep)] = localizer.StepOtpCodeValidator,
+        [nameof(OtpRetryChallengeBuilder)] = localizer.StepOtpRetryChallengeBuilder,
+        [nameof(DataPresenterStep)] = localizer.StepCaseDataPresenter,
+        [nameof(OwnershipValidatorStep)] = localizer.StepOwnershipValidator,
+        [nameof(OtpCodeSendStep)] = localizer.StepOtpCodeSend
     };
 
     /// <inheritdoc/>
@@ -104,7 +105,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     var handler = serviceProvider.GetKeyedService<IRequestPortHandler>(portId);
                     if (handler is null) {
                         yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent($"Unsupported workflow request port: '{portId}'.")]) { ConversationId = state.ConversationId };
-                        break;
+                        yield break;
                     }
                     var handlerContext = new RequestPortHandlerContext {
                         Run = run,
@@ -116,7 +117,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
 
                     if (!handlingResult.Handled) {
                         yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent($"Request-port handler '{handler.GetType().Name}' could not process port '{portId}'.")]) { ConversationId = state.ConversationId };
-                        break;
+                        yield break;
                     }
 
                     if (handlingResult.Updates is not null) {

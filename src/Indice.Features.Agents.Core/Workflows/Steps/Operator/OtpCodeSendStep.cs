@@ -79,7 +79,7 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
             email = caseData.Email,
             securityToken = caseData.CaseId
         });
-        _ = await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
+        var resuts = await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
         var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedPhoneNumber);
         return new OtpChallengeOutput(
             ValidationData: validationData,

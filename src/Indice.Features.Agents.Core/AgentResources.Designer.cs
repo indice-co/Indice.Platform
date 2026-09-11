@@ -70,7 +70,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to That OTP was not valid. Please try again ({0} attempt(s) left).&quot;.
+        ///   Looks up a localized string similar to That OTP was not valid. Please try again ({0} attempt(s) left)..
         /// </summary>
         internal static string InvalidOtpRetryMessage {
             get {
@@ -133,7 +133,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please type the you phone number to complete the verification process.
+        ///   Looks up a localized string similar to Please enter your car license plate to complete the verification process..
         /// </summary>
         internal static string OwnershipVerificationMessagePrompt {
             get {
@@ -232,7 +232,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Verifing user.
+        ///   Looks up a localized string similar to Verifying user.
         /// </summary>
         internal static string StepOwnershipVerifier {
             get {

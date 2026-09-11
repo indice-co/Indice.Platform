@@ -165,6 +165,7 @@ public static class AgentsConstants
             Send an OTP now by calling SendTotp with the configured fixed values.
             User phone number: {{ phoneNumber }} and 
             securityToken: {{ securityToken }}
+            Return true for success or false for failure
             """;
 
 
