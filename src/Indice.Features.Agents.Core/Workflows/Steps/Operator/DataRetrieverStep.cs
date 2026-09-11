@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Extensions;
@@ -95,7 +96,7 @@ internal sealed class DataRetrieverStep : Executor<ConversationState, CaseRetrie
         try {
             caseData = JsonNode.Parse(rawPayload)
                 ?? throw new InvalidOperationException("Case retrieval agent returned invalid JSON payload.");
-        } catch (Exception ex) {
+        } catch (JsonException ex) {
             throw new InvalidOperationException("Failed to parse case retrieval payload as JSON.", ex);
         }
 
