@@ -88,6 +88,7 @@ public static class AgentsFeatureExtensions
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
         services.TryAddScoped<AgentMessageLocalizer>();
         services.AddAgentsDefaultPipeline();
+        services.AddOperatorWorkflow(configuration);
         return services;
     }
 
@@ -141,7 +142,6 @@ public static class AgentsFeatureExtensions
     /// Call after <c>AddAgentsCore(...)</c>.
     /// </summary>
     public static IServiceCollection AddOperatorWorkflow(this IServiceCollection services, IConfiguration configuration) {
-
 
         services.AddClientCredentialsTokenManagement()
                 .AddClient("mcpsecurity", credentials => {
