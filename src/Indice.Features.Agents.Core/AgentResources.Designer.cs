@@ -151,6 +151,24 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Retrieving details.
+        /// </summary>
+        internal static string StepCaseDataPresenter {
+            get {
+                return ResourceManager.GetString("StepCaseDataPresenter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Retrieving Data.
+        /// </summary>
+        internal static string StepCaseDataRetriever {
+            get {
+                return ResourceManager.GetString("StepCaseDataRetriever", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Classifying intent.
         /// </summary>
         internal static string StepIntentClassifier {
@@ -160,11 +178,65 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sending OTP.
+        /// </summary>
+        internal static string StepOtpAgent {
+            get {
+                return ResourceManager.GetString("StepOtpAgent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sending OTP.
+        /// </summary>
+        internal static string StepOtpCodeSend {
+            get {
+                return ResourceManager.GetString("StepOtpCodeSend", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verifying OTP code.
+        /// </summary>
+        internal static string StepOtpCodeValidator {
+            get {
+                return ResourceManager.GetString("StepOtpCodeValidator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preparing OTP retry.
+        /// </summary>
+        internal static string StepOtpRetryChallengeBuilder {
+            get {
+                return ResourceManager.GetString("StepOtpRetryChallengeBuilder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Preparing response.
         /// </summary>
         internal static string StepOutOfScopeResponder {
             get {
                 return ResourceManager.GetString("StepOutOfScopeResponder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Validating user.
+        /// </summary>
+        internal static string StepOwnershipValidator {
+            get {
+                return ResourceManager.GetString("StepOwnershipValidator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verifing user.
+        /// </summary>
+        internal static string StepOwnershipVerifier {
+            get {
+                return ResourceManager.GetString("StepOwnershipVerifier", resourceCulture);
             }
         }
         

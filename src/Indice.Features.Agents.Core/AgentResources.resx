@@ -147,11 +147,35 @@
   <data name="StepAnswerComposer" xml:space="preserve">
     <value>Composing answer</value>
   </data>
+  <data name="StepCaseDataPresenter" xml:space="preserve">
+    <value>Retrieving details</value>
+  </data>
+  <data name="StepCaseDataRetriever" xml:space="preserve">
+    <value>Retrieving Data</value>
+  </data>
   <data name="StepIntentClassifier" xml:space="preserve">
     <value>Classifying intent</value>
   </data>
+  <data name="StepOtpAgent" xml:space="preserve">
+    <value>Sending OTP</value>
+  </data>
+  <data name="StepOtpCodeSend" xml:space="preserve">
+    <value>Sending OTP</value>
+  </data>
+  <data name="StepOtpCodeValidator" xml:space="preserve">
+    <value>Verifying OTP code</value>
+  </data>
+  <data name="StepOtpRetryChallengeBuilder" xml:space="preserve">
+    <value>Preparing OTP retry</value>
+  </data>
   <data name="StepOutOfScopeResponder" xml:space="preserve">
     <value>Preparing response</value>
+  </data>
+  <data name="StepOwnershipValidator" xml:space="preserve">
+    <value>Validating user</value>
+  </data>
+  <data name="StepOwnershipVerifier" xml:space="preserve">
+    <value>Verifing user</value>
   </data>
   <data name="StepPurposeResponder" xml:space="preserve">
     <value>Answering</value>

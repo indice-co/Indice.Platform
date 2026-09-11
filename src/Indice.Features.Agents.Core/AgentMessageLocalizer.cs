@@ -28,28 +28,28 @@ public class AgentMessageLocalizer
     public virtual string StepOutOfScopeResponder => AgentResources.StepOutOfScopeResponder;
 
     /// <summary>Step label shown while retrieving case data.</summary>
-    public virtual string StepCaseDataRetriever => GetResourceOrDefault("StepCaseDataRetriever", "Retrieve Case Data");
+    public virtual string StepCaseDataRetriever => AgentResources.StepCaseDataRetriever;
 
     /// <summary>Step label shown while verifying case ownership details.</summary>
-    public virtual string StepOwnershipVerifier => GetResourceOrDefault("StepOwnershipVerifier", "Verify ownership of Case Data");
+    public virtual string StepOwnershipVerifier => AgentResources.StepOwnershipVerifier;
 
     /// <summary>Step label shown while sending OTP code.</summary>
-    public virtual string StepOtpAgent => GetResourceOrDefault("StepOtpAgent", "Send OTP");
+    public virtual string StepOtpAgent => AgentResources.StepOtpAgent;
 
     /// <summary>Step label shown while validating OTP code.</summary>
-    public virtual string StepOtpCodeValidator => GetResourceOrDefault("StepOtpCodeValidator", "Verify OTP code");
+    public virtual string StepOtpCodeValidator => AgentResources.StepOtpCodeValidator;
 
     /// <summary>Step label shown while preparing OTP retry prompt.</summary>
-    public virtual string StepOtpRetryChallengeBuilder => GetResourceOrDefault("StepOtpRetryChallengeBuilder", "Prepare OTP retry");
+    public virtual string StepOtpRetryChallengeBuilder => AgentResources.StepOtpRetryChallengeBuilder;
 
     /// <summary>Step label shown while presenting case details.</summary>
-    public virtual string StepCaseDataPresenter => GetResourceOrDefault("StepCaseDataPresenter", "Present case details");
+    public virtual string StepCaseDataPresenter => AgentResources.StepCaseDataPresenter;
 
     /// <summary>Step label shown while validating ownership confirmation.</summary>
-    public virtual string StepOwnershipValidator => GetResourceOrDefault("StepOwnershipValidator", "Validating ownership confirmation");
+    public virtual string StepOwnershipValidator => AgentResources.StepOwnershipValidator;
 
     /// <summary>Step label shown while sending OTP in workflow step.</summary>
-    public virtual string StepOtpCodeSend => GetResourceOrDefault("StepOtpCodeSend", "Send OTP");
+    public virtual string StepOtpCodeSend => AgentResources.StepOtpCodeSend;
 
     /// <summary>Text for the email label.</summary>
     public virtual string OwnershipRetryPrompt => AgentResources.OwnershipRetryPrompt;

@@ -5,6 +5,7 @@ using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models.Cases;
+using Indice.Features.Agents.Core.RequestPorts;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Prompts;
@@ -167,6 +168,8 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<OtpRetryChallengeBuilder>();
         services.TryAddTransient<DataPresenterStep>();
         services.TryAddTransient<OwnershipVerificationFailureHandler>();
+        services.AddKeyedTransient<IRequestPortHandler, OwnershipConfirmationRequestPortHandler>(AgentsConstants.WorkflowPorts.OwnershipConfirmation);
+        services.AddKeyedTransient<IRequestPortHandler, OtpVerificationRequestPortHandler>(AgentsConstants.WorkflowPorts.OtpVerification);
 
         // Request ports for checkpoint-based pause/resume.
         var ownershipPort = RequestPort.Create<OwnershipVerificationOutput, OwnershipConfirmationResponse>(AgentsConstants.WorkflowPorts.OwnershipConfirmation);

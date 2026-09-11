@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Indice.Features.Agents.Core.RequestPorts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Indice.Features.Agents.Core.Workflows.Steps.Operator;
 using Microsoft.Agents.AI;
@@ -85,7 +86,6 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         var messageLocalizer = serviceProvider.GetService<AgentMessageLocalizer>() ?? new AgentMessageLocalizer();
         var stepLabels = CreateStepLabels(messageLocalizer);
 
-        RequestInfoEvent? pendingRequest = null;
         string? failure = null;
         string? userReply = isResumed ? message.Text : null;
         await foreach (var evt in run.WatchStreamAsync().WithCancellation(cancellationToken)) {
@@ -100,30 +100,33 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = state.ConversationId };
                     break;
                 case RequestInfoEvent requestInfoEvent:
-                    pendingRequest = requestInfoEvent;
-                    if (requestInfoEvent.Request.PortInfo.PortId == AgentsConstants.WorkflowPorts.OwnershipConfirmation
-                        && requestInfoEvent.Request.TryGetDataAs<OwnershipVerificationOutput>(out var verificationData)) {
-                        if (userReply is not null) {
-                            // Resumed run re-surfaces the pending request — answer it with the user's message.
-                            await run.SendResponseAsync(requestInfoEvent.Request.CreateResponse(new OwnershipConfirmationResponse(verificationData!, userReply)));
-                            userReply = null;
-                        } else {
-                            // First pass: surface the verification prompt to the user, persist the checkpoint and halt.
-                            yield return new ChatResponseUpdate(ChatRole.Assistant, verificationData!.VerificationPrompt) { ConversationId = state.ConversationId };
-                            yield break;
+                    var portId = requestInfoEvent.Request.PortInfo.PortId;
+                    var handler = serviceProvider.GetKeyedService<IRequestPortHandler>(portId);
+                    if (handler is null) {
+                        yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent($"Unsupported workflow request port: '{portId}'.")]) { ConversationId = state.ConversationId };
+                        break;
+                    }
+                    var handlerContext = new RequestPortHandlerContext {
+                        Run = run,
+                        ConversationId = state.ConversationId,
+                        UserReply = userReply
+                    };
+                    var handlingResult = await handler.HandleAsync(requestInfoEvent, handlerContext, cancellationToken);
+                    userReply = handlerContext.UserReply;
+
+                    if (!handlingResult.Handled) {
+                        yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent($"Request-port handler '{handler.GetType().Name}' could not process port '{portId}'.")]) { ConversationId = state.ConversationId };
+                        break;
+                    }
+
+                    if (handlingResult.Updates is not null) {
+                        foreach (var responseUpdate in handlingResult.Updates) {
+                            yield return responseUpdate;
                         }
                     }
-                    if (requestInfoEvent.Request.PortInfo.PortId == AgentsConstants.WorkflowPorts.OtpVerification
-                        && requestInfoEvent.Request.TryGetDataAs<OtpChallengeOutput>(out var otpChallenge)) {
-                        if (userReply is not null) {
-                            // Resumed run re-surfaces the OTP request — answer it with the user's code.
-                            await run.SendResponseAsync(requestInfoEvent.Request.CreateResponse(new OtpCodeResponse(otpChallenge!, userReply)));
-                            userReply = null;
-                        } else {
-                            // First pass: ask the user for the received OTP and halt.
-                            yield return new ChatResponseUpdate(ChatRole.Assistant, otpChallenge!.Prompt) { ConversationId = state.ConversationId };
-                            yield break;
-                        }
+
+                    if (handlingResult.ShouldHalt) {
+                        yield break;
                     }
                     break;
                 case SuperStepCompletedEvent superStepCompleted:
