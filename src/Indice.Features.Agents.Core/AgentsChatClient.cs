@@ -90,15 +90,14 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         // conversation (sessionId == ConversationId) is restored and the new user message is injected into the resumed run.
         var checkpointManager = serviceProvider.GetRequiredService<CheckpointManager>();
         var latestCheckpoint = options?.ConversationId is not null
-            ? await checkpointManager.GetLatestCheckpointAsync(new AgentSessionId(Guid.Parse(options!.ConversationId), resolvedAgent).ToKey(), cancellationToken)
-            //?? await checkpointManager.GetLatestCheckpointAsync(options!.ConversationId, cancellationToken)
+            ? await checkpointManager.GetLatestCheckpointAsync(new AgentSessionId(Guid.Parse(options!.ConversationId), resolvedAgent), cancellationToken)
             :  null;
         StreamingRun run;
         if (latestCheckpoint is not null) {
             run = await InProcessExecution.ResumeStreamingAsync(workflow, latestCheckpoint, checkpointManager, cancellationToken: cancellationToken);
             await run.TrySendMessageAsync(state);
         } else {
-            run = await InProcessExecution.RunStreamingAsync(workflow, state, checkpointManager, sessionId: state.ConversationId, cancellationToken: cancellationToken);
+            run = await InProcessExecution.RunStreamingAsync(workflow, state, checkpointManager, sessionId: new AgentSessionId(Guid.Parse(state.ConversationId), resolvedAgent), cancellationToken: cancellationToken);
         }
         await using var _ = run;
         string? failure = null;

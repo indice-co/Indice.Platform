@@ -228,8 +228,9 @@ public class ConversationStore : IConversationStore
         await _db.Messages
             .Where(m => m.ConversationId == conversationId)
             .ExecuteDeleteAsync(cancellationToken);
+        string sessionId = new AgentSessionId(conversationId, null);
         await _db.Checkpoints
-            .Where(c => c.SessionId == conversationId.ToString())
+            .Where(c => c.SessionId.StartsWith(sessionId))
             .ExecuteDeleteAsync(cancellationToken);
         var deleted = await _db.Conversations
             .Where(s => s.Id == conversationId && s.UserId == userId)
