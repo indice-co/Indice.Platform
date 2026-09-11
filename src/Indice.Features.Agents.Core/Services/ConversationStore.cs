@@ -26,7 +26,7 @@ public class ConversationStore : IConversationStore
     }
 
     /// <inheritdoc/>
-    public async Task<Conversation?> LoadOrCreateAsync(string userId, string? authorName, Guid? conversationId, ChatTopic? subject, CancellationToken cancellationToken) {
+    public async Task<Conversation?> LoadOrCreateAsync(string userId, string? authorName, Guid? conversationId, ChatTopic? topic, CancellationToken cancellationToken) {
         if (conversationId is null) {
             var now = DateTimeOffset.UtcNow;
             var entity = new DbConversation {
@@ -37,7 +37,7 @@ public class ConversationStore : IConversationStore
                 LastActivityAt = now,
                 InputTokenCount = 0,
                 OutputTokenCount = 0,
-                Topic = subject
+                Topic = topic
             };
             _db.Add(entity);
             if (!await _db.Profiles.AsNoTracking().AnyAsync(p => p.UserId == userId, cancellationToken)) {
@@ -61,7 +61,7 @@ public class ConversationStore : IConversationStore
         // pipeline'c chat-history provider.
         return await _db.Conversations
             .AsNoTracking()
-            .Where(s => s.Id == conversationId!.Value && s.UserId == userId)
+            .Where(s => s.Id == conversationId!.Value && s.UserId == userId && !s.Hidden)
             .Select(s => new Conversation {
                 Id = s.Id,
                 Title = s.Title,
@@ -71,6 +71,7 @@ public class ConversationStore : IConversationStore
                 OutputTokenCount = s.OutputTokenCount,
                 MessageCount = s.MessageCount,
                 Pin = s.Pin,
+                ReadOnly = s.ReadOnly,
                 Subject = s.Topic
             })
             .FirstOrDefaultAsync(cancellationToken);
@@ -84,7 +85,7 @@ public class ConversationStore : IConversationStore
         var questionsTotal = _sessionOptions.GetQuestionsTotal();
         var conversation = await _db.Conversations
             .AsNoTracking()
-            .Where(s => s.Id == conversationId && s.UserId == userId)
+            .Where(s => s.Id == conversationId && s.UserId == userId && !s.Hidden)
             .Select(s => new Conversation {
                 Id = s.Id,
                 Title = s.Title,
@@ -96,6 +97,7 @@ public class ConversationStore : IConversationStore
                 QuestionsUsedCount = questionsTotal == null ? null : ((s.MessageCount + 1) / 2 < questionsTotal ? (s.MessageCount + 1) / 2 : questionsTotal),
                 QuestionsLimitCount = questionsTotal,
                 Pin = s.Pin,
+                ReadOnly = s.ReadOnly,
                 Subject = s.Topic,
                 Messages = s.Messages
                     .OrderByDescending(m => m.CreatedAt)
@@ -121,7 +123,7 @@ public class ConversationStore : IConversationStore
         var messageTake = _sessionOptions.HistoryWindow * 2;
         var messages = await _db.Messages
             .AsNoTracking()
-            .Where(m => m.ConversationId == conversationId)
+            .Where(m => m.ConversationId == conversationId && _db.Conversations.Any(c => c.Id == conversationId && !c.Hidden))
             .OrderByDescending(m => m.CreatedAt)
             .Take(messageTake)
             .OrderBy(m => m.CreatedAt)
@@ -141,7 +143,7 @@ public class ConversationStore : IConversationStore
     public async Task<ResultSet<ConversationListItem>> ListAsync(string userId, ListOptions options, CancellationToken cancellationToken) {
         var query = _db.Conversations
             .AsNoTracking()
-            .Where(c => c.UserId == userId)
+            .Where(c => c.UserId == userId && !c.Hidden)
             .OrderByDescending(c => c.Pin)
             .ThenByDescending(c => c.LastActivityAt)
             .Select(c => new ConversationListItem {
@@ -151,7 +153,8 @@ public class ConversationStore : IConversationStore
                 LastActivityAt = c.LastActivityAt,
                 TotalPromptTokens = c.InputTokenCount,
                 TotalCompletionTokens = c.OutputTokenCount,
-                Pin = c.Pin
+                Pin = c.Pin,
+                ReadOnly = c.ReadOnly
             });
         return await query.ToResultSetAsync(options, cancellationToken);
     }
@@ -259,6 +262,22 @@ public class ConversationStore : IConversationStore
         return affectedRows > 0;
     }
 
+    /// <inheritdoc/>
+    public async Task<bool> SetReadOnlyAsync(string userId, Guid conversationId, bool isReadOnly, CancellationToken cancellationToken) {
+        var affectedRows = await _db.Conversations
+            .Where(s => s.Id == conversationId && s.UserId == userId)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.ReadOnly, isReadOnly), cancellationToken);
+        return affectedRows > 0;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> SetVisibilityAsync(string userId, Guid conversationId, bool hidden, CancellationToken cancellationToken) {
+        var affectedRows = await _db.Conversations
+            .Where(s => s.Id == conversationId && s.UserId == userId)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.Hidden, hidden), cancellationToken);
+        return affectedRows > 0;
+    }
+
     private static DbMessage ToDb(Guid conversationId, ChatMessage m, string? responseId, int? prompt, int? completion, string? model) => new() {
         Id = string.IsNullOrWhiteSpace(m.MessageId) || !Guid.TryParse(m.MessageId, out var parsedId) ? Guid.NewGuid() : parsedId,
         ConversationId = conversationId,
@@ -283,6 +302,7 @@ public class ConversationStore : IConversationStore
         MessageCount = s.MessageCount,
         QuestionsUsedCount = _sessionOptions.GetQuestionsUsed(s.MessageCount),
         QuestionsLimitCount = _sessionOptions.GetQuestionsTotal(),
+        ReadOnly = s.ReadOnly,
         Messages = messages,
     };
 

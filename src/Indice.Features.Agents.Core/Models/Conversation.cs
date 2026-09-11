@@ -29,6 +29,9 @@ public class Conversation
     /// <summary>Whether the session is pinned to the top of the list.</summary>
     public bool Pin { get; set; }
 
+    /// <summary>Whether the conversation is read-only; no further turns can be appended.</summary>
+    public bool ReadOnly { get; init; }
+
     /// <summary>Questions used in this session so far, for a <c>used/total</c> display. <c>null</c> when the message limit is disabled.</summary>
     public int? QuestionsUsedCount { get; init; }
 

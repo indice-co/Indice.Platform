@@ -113,11 +113,21 @@ public class ChatsService : IChatsService
         if (conversation is null) {
             return null;
         }
+        if (conversation.ReadOnly) {
+            return ReadOnlyStream(conversation);
+        }
         var turnCheck = _usageGuard.Check(conversation);
         if (!turnCheck.Allowed) {
             return LimitReachedStream(conversation, turnCheck.Message);
         }
         return StreamTurnAsync(conversation, chatRequest, cancellationToken);
+    }
+
+    /// <summary>Streams a terminal <c>error</c> for a read-only conversation. Nothing is persisted.</summary>
+    private static async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> ReadOnlyStream(Conversation conversation) {
+        yield return Message(new DexChatStreamStart { ConversationId = conversation.Id });
+        yield return Message(new DexChatStreamError { Reason = "This conversation is read-only and cannot be continued." });
+        await Task.CompletedTask;
     }
 
     /// <summary>Throws a <see cref="BusinessException"/> when a new conversation is requested but the user's conversation cap is hit. No-op for existing sessions.</summary>
@@ -280,6 +290,7 @@ public class ChatsService : IChatsService
             CreatedAt = conversation.CreatedAt,
             LastActivityAt = conversation.LastActivityAt,
             MessageCount = conversation.MessageCount,
+            ReadOnly = conversation.ReadOnly,
             Usage = new DexChatUsage {
                 InputTokenCount = conversation.InputTokenCount,
                 OutputTokenCount = conversation.OutputTokenCount,

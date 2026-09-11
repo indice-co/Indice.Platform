@@ -262,7 +262,7 @@ internal sealed class FakeConversationStore(Guid persistedConversationId, string
     public bool FailedTurnPersisted { get; private set; }
 
     public Task<Conversation?> LoadOrCreateAsync(string userId, string? authorName,
-        Guid? conversationId, CancellationToken cancellationToken)
+        Guid? conversationId, ChatTopic? subject, CancellationToken cancellationToken)
         => Task.FromResult<Conversation?>(new Conversation { Id = persistedConversationId });
 
     public Task<ChatMessage> AppendTurnAsync(Guid id, ChatMessage userMessage, ChatResponse response, CancellationToken cancellationToken) {
@@ -284,6 +284,8 @@ internal sealed class FakeConversationStore(Guid persistedConversationId, string
     public Task<int> CountSessionsAsync(string userId, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<long> GetUsageTokensAsync(string userId, DateTimeOffset since, CancellationToken cancellationToken) => throw new NotSupportedException();
     public Task<bool> SetLikeAsync(string userId, Guid id, Guid messageId, bool? liked, CancellationToken cancellationToken) => throw new NotSupportedException();
+    public Task<bool> SetReadOnlyAsync(string userId, Guid id, bool isReadOnly, CancellationToken cancellationToken) => throw new NotSupportedException();
+    public Task<bool> SetVisibilityAsync(string userId, Guid id, bool hidden, CancellationToken cancellationToken) => throw new NotSupportedException();
 }
 
 internal sealed class FakeUsageGuard(bool limitReached) : IUsageGuardService

@@ -33,6 +33,12 @@ public class DbConversation
     /// <summary>Optional pinning of this session to the top of the user's list.</summary>
     public bool Pin { get; set; }
 
+    /// <summary>When <c>true</c> the conversation cannot be continued; new turns are rejected.</summary>
+    public bool ReadOnly { get; set; }
+
+    /// <summary>When <c>true</c> the conversation is filtered out of all read paths (list, detail, history, load).</summary>
+    public bool Hidden { get; set; }
+
     /// <summary>Optional per-session metadata (JSON) — e.g. default filters or language preferences.</summary>
     public string? MetadataJson { get; set; }
 

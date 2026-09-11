@@ -62,4 +62,12 @@ public interface IConversationStore
     /// <summary>Likes or dislikes a conversation message.</summary>
     /// <returns><c>true</c> when the message exists and the like/dislike was persisted.</returns>
     Task<bool> SetLikeAsync(string userId, Guid conversationId, Guid messageId, bool? liked, CancellationToken cancellationToken);
+
+    /// <summary>Marks a conversation as read-only (or writable again). A read-only conversation cannot be continued.</summary>
+    /// <returns><c>true</c> when the conversation exists, is owned by <paramref name="userId"/> and the flag was persisted.</returns>
+    Task<bool> SetReadOnlyAsync(string userId, Guid conversationId, bool isReadOnly, CancellationToken cancellationToken);
+
+    /// <summary>Hides (or unhides) a conversation. Hidden conversations are filtered out of all read paths.</summary>
+    /// <returns><c>true</c> when the conversation exists, is owned by <paramref name="userId"/> and the flag was persisted.</returns>
+    Task<bool> SetVisibilityAsync(string userId, Guid conversationId, bool hidden, CancellationToken cancellationToken);
 }

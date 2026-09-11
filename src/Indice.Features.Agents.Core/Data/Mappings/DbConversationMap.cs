@@ -16,6 +16,8 @@ public class DbConversationMap : IEntityTypeConfiguration<DbConversation>
         builder.Property(x => x.InputTokenCount).HasDefaultValue(0L);
         builder.Property(x => x.OutputTokenCount).HasDefaultValue(0L);
         builder.Property(x => x.MessageCount).HasDefaultValue(0);
+        builder.Property(x => x.ReadOnly).HasDefaultValue(false);
+        builder.Property(x => x.Hidden).HasDefaultValue(false);
         builder.HasIndex(x => new { x.UserId, x.LastActivityAt })
                .IsDescending(false, true);
         builder.HasMany(x => x.Messages)

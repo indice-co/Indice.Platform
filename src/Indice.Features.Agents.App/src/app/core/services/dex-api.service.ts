@@ -1859,6 +1859,7 @@ export class ConversationListItem implements IConversationListItem {
     totalPromptTokens?: number;
     totalCompletionTokens?: number;
     pin?: boolean;
+    readOnly?: boolean;
 
     constructor(data?: IConversationListItem) {
         if (data) {
@@ -1878,6 +1879,7 @@ export class ConversationListItem implements IConversationListItem {
             this.totalPromptTokens = _data["totalPromptTokens"];
             this.totalCompletionTokens = _data["totalCompletionTokens"];
             this.pin = _data["pin"];
+            this.readOnly = _data["readOnly"];
         }
     }
 
@@ -1897,6 +1899,7 @@ export class ConversationListItem implements IConversationListItem {
         data["totalPromptTokens"] = this.totalPromptTokens;
         data["totalCompletionTokens"] = this.totalCompletionTokens;
         data["pin"] = this.pin;
+        data["readOnly"] = this.readOnly;
         return data;
     }
 }
@@ -1909,6 +1912,7 @@ export interface IConversationListItem {
     totalPromptTokens?: number;
     totalCompletionTokens?: number;
     pin?: boolean;
+    readOnly?: boolean;
 }
 
 export class ConversationListItemResultSet implements IConversationListItemResultSet {
@@ -2554,6 +2558,7 @@ export class DexConversation implements IDexConversation {
     createdAt?: Date;
     lastActivityAt?: Date;
     messageCount?: number;
+    readOnly?: boolean;
     usage?: DexChatUsage;
     messages?: DexChatMessage[];
 
@@ -2573,6 +2578,7 @@ export class DexConversation implements IDexConversation {
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
             this.lastActivityAt = _data["lastActivityAt"] ? new Date(_data["lastActivityAt"].toString()) : undefined as any;
             this.messageCount = _data["messageCount"];
+            this.readOnly = _data["readOnly"];
             this.usage = _data["usage"] ? DexChatUsage.fromJS(_data["usage"]) : undefined as any;
             if (Array.isArray(_data["messages"])) {
                 this.messages = [] as any;
@@ -2596,6 +2602,7 @@ export class DexConversation implements IDexConversation {
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
         data["lastActivityAt"] = this.lastActivityAt ? this.lastActivityAt.toISOString() : undefined as any;
         data["messageCount"] = this.messageCount;
+        data["readOnly"] = this.readOnly;
         data["usage"] = this.usage ? this.usage.toJSON() : undefined as any;
         if (Array.isArray(this.messages)) {
             data["messages"] = [];
@@ -2612,6 +2619,7 @@ export interface IDexConversation {
     createdAt?: Date;
     lastActivityAt?: Date;
     messageCount?: number;
+    readOnly?: boolean;
     usage?: DexChatUsage;
     messages?: DexChatMessage[];
 }

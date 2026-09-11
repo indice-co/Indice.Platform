@@ -49,6 +49,8 @@ export class ChatPageComponent {
   protected readonly currentStep = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly questionsTotal = signal<number | null>(null);
+  /** Whether the open conversation is read-only — the composer disables and no new turns are sent. */
+  protected readonly conversationReadOnly = signal(false);
 
   /** The modes discovered from GET /agents; empty (picker hidden) when discovery fails. */
   protected readonly agents = signal<AgentInfo[]>([]);
@@ -108,7 +110,7 @@ export class ChatPageComponent {
 
   protected send(text: string): void {
     const value = text.trim();
-    if (!value || this.isStreaming()) {
+    if (!value || this.isStreaming() || this.conversationReadOnly()) {
       return;
     }
     this.cancelStream();
@@ -211,6 +213,7 @@ export class ChatPageComponent {
     this.streamResponse.set(null);
     this.currentStep.set(null);
     this.isStreaming.set(false);
+    this.conversationReadOnly.set(false);
     this.threadSub = this.dex
       .getChatSession(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -218,6 +221,7 @@ export class ChatPageComponent {
         next: (session) => {
           this.messages.set((session.messages ?? []).map(toThreadMessage));
           this.questionsTotal.set(session.usage?.questionsLimitCount ?? null);
+          this.conversationReadOnly.set(session.readOnly ?? false);
           this.threadLoading.set(false);
         },
         error: () => {
@@ -239,6 +243,7 @@ export class ChatPageComponent {
     this.isStreaming.set(false);
     this.threadLoading.set(false);
     this.questionsTotal.set(null);
+    this.conversationReadOnly.set(false);
   }
 
   private loadAgents(): void {
