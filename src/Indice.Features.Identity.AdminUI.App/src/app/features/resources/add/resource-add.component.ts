@@ -2,7 +2,6 @@ import {
   Component,
   OnInit,
   ViewChild,
-  ComponentFactoryResolver,
   ChangeDetectorRef,
 } from "@angular/core";
 import {
@@ -42,7 +41,6 @@ export class ResourceAddComponent implements OnInit {
   private _navigationOrigin: string;
 
   constructor(
-    private _componentFactoryResolver: ComponentFactoryResolver,
     private _formBuilder: UntypedFormBuilder,
     private _changeDetectionRef: ChangeDetectorRef,
     private _api: IdentityApiService,
@@ -158,11 +156,9 @@ export class ResourceAddComponent implements OnInit {
   }
 
   private loadStep(step: WizardStepDescriptor): void {
-    const componentFactory =
-      this._componentFactoryResolver.resolveComponentFactory(step.component);
     const viewContainerRef = this._wizardStepHost.viewContainerRef;
     viewContainerRef.clear();
-    const componentRef = viewContainerRef.createComponent(componentFactory);
+    const componentRef = viewContainerRef.createComponent(step.component);
     // Keep a reference of the instance of the step component.
     this._loadedStepInstance =
       componentRef.instance as StepBaseComponent<ResourceWizardModel>;
