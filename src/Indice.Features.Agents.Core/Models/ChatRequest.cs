@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.AI;
+﻿using System.Net.Mime;
 
 namespace Indice.Features.Agents.Core.Models;
 
@@ -6,12 +6,15 @@ namespace Indice.Features.Agents.Core.Models;
 public class ChatRequest
 {
     /// <summary>The end-user message text.</summary>
-    public string Text { get; init; } = string.Empty;
+    public string? Text {
+        get { return Parts.FirstOrDefault(x => x.ContentType.StartsWith("text", StringComparison.OrdinalIgnoreCase))?.Value; }
+        set { Parts.FirstOrDefault(x => x.ContentType.StartsWith("text", StringComparison.OrdinalIgnoreCase))?.Value = value ?? string.Empty; }
+    }
 
     /// <summary>
-    /// The end-user message content parts. Each part can be a text, an image, or any other supported content type. The system will process the parts in order and generate a response based on the combined content.
+    /// The structured content of the message.
     /// </summary>
-    public List<ChatMessagePart> Content { get; init; } = new List<ChatMessagePart>();
+    public List<ChatMessagePart> Parts { get; init; } = [new ChatMessagePart() { ContentType = MediaTypeNames.Text.Plain, Value = string.Empty }];
 
     /// <summary>Optional display name of the end-user. If not provided, the system will use a default name.</summary>
     public string? AuthorName { get; set; }
