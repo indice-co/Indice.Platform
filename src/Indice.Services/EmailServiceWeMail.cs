@@ -20,7 +20,7 @@ public sealed class EmailServiceWeMail : IEmailService
 
     private ILogger<EmailServiceWeMail> _logger { get; }
 
-    /// <summary>Represents the name of the Smtp service as a constant string value.</summary>
+    /// <summary>Represents the name of the WeMail service as a constant string value.</summary>
     public const string ServiceName = "WeMail";
 
     /// <summary>The endpoint that handles message services.</summary>
