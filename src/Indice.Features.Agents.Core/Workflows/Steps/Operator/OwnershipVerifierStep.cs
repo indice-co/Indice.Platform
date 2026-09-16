@@ -1,12 +1,13 @@
+using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
-
+using Microsoft.Extensions.AI;
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 
 /// <summary>
 /// Step 2 of the Cases workflow: Requests user to verify ownership of the case by confirming a specific field.
 /// Uses a prompt template to generate the verification request with the field name and masked value.
 /// </summary>
-public sealed class OwnershipVerifierStep : Executor<CaseRetrievalOutput, OwnershipVerificationOutput>
+public sealed class OwnershipVerifierStep : Executor<CaseRetrievalOutput, AgentResponseUpdate>
 {
     private readonly AgentMessageLocalizer _messageLocalizer;
 
@@ -16,31 +17,13 @@ public sealed class OwnershipVerifierStep : Executor<CaseRetrievalOutput, Owners
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<OwnershipVerificationOutput> HandleAsync(
+    public override async ValueTask<AgentResponseUpdate> HandleAsync(
         CaseRetrievalOutput caseData,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(caseData);
-
         var verificationFieldValue = caseData.VerificationValue ?? throw new InvalidOperationException($"Verification field not found in case data.");
-
-        return await ValueTask.FromResult(new OwnershipVerificationOutput(
-            CaseRetrievalData: caseData,
-            VerificationFieldValue: verificationFieldValue,
-            VerificationPrompt: _messageLocalizer.OwnershipVerificationMessagePrompt));
+        //await context.AddEventAsync(new AnswerDeltaEvent(_messageLocalizer.OwnershipVerificationMessagePrompt +" comes from delta."), cancellationToken);
+        return await ValueTask.FromResult(new AgentResponseUpdate(ChatRole.Assistant, _messageLocalizer.OwnershipVerificationMessagePrompt));
     }
 }
-
-/// <summary>
-/// Output of the OwnershipVerifier step after requesting user to confirm case ownership.
-/// Contains the verification field name and awaits user response.
-/// </summary>
-/// <param name="CaseRetrievalData">The original case retrieval output forwarded from previous step.</param>
-/// <param name="VerificationFieldValue">The value for verification.</param>
-/// <param name="VerificationPrompt">The formatted prompt requesting user confirmation.</param>
-/// <param name="Attempt">Current ownership validation attempt index.</param>
-public record OwnershipVerificationOutput(
-    CaseRetrievalOutput CaseRetrievalData,
-    string VerificationFieldValue,
-    string VerificationPrompt,
-    int Attempt = 0);

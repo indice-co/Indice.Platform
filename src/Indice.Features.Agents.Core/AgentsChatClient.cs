@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using Indice.Features.Agents.Core.RequestPorts;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -60,7 +59,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             throw new ArgumentException("DexChatClient only supports a single user message per request. No batching allowed.", nameof(messages));
         }
         var message = messages.First();
-        var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());     
+        var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());
         // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
         // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
         var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
@@ -75,22 +74,19 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             try {
                 var router = serviceProvider.GetRequiredService<IntentRouterService>();
                 decision = await router.RouteAsync(message.Text, state.ConversationId, cancellationToken);
-            } 
-            catch (Exception exception) when (exception is not OperationCanceledException) {
+            } catch (Exception exception) when (exception is not OperationCanceledException) {
                 routeError = exception.Message;
             }
             if (routeError is not null) {
                 yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = state.ConversationId };
                 yield break;
-            }
-            else if (decision!.AgentName is null) {
+            } else if (decision!.AgentName is null) {
                 yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = state.ConversationId };
                 yield break;
             }
             resolvedAgent = decision.AgentName;
-        } 
-        else {
-            
+        } else {
+
             resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
         }
         var workflow = serviceProvider.GetRequiredKeyedService<Workflow>(resolvedAgent);
@@ -100,7 +96,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         var checkpointManager = serviceProvider.GetRequiredService<CheckpointManager>();
         var latestCheckpoint = options?.ConversationId is not null
             ? await checkpointManager.GetLatestCheckpointAsync(new AgentSessionId(Guid.Parse(options!.ConversationId), resolvedAgent), cancellationToken)
-            :  null;
+            : null;
         StreamingRun run;
         var isResumed = latestCheckpoint is not null;
         if (isResumed) {
@@ -127,35 +123,14 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                 case ExecutorInvokedEvent invoked when stepLabels.TryGetValue(invoked.ExecutorId, out var label):
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = state.ConversationId };
                     break;
-                case RequestInfoEvent requestInfoEvent:
-                    var portId = requestInfoEvent.Request.PortInfo.PortId;
-                    var handler = serviceProvider.GetKeyedService<IRequestPortHandler>(portId);
-                    if (handler is null) {
-                        yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent($"Unsupported workflow request port: '{portId}'.")]) { ConversationId = state.ConversationId };
-                        yield break;
-                    }
-                    var handlerContext = new RequestPortHandlerContext {
-                        Run = run,
-                        ConversationId = state.ConversationId,
-                        UserReply = userReply
-                    };
-                    var handlingResult = await handler.HandleAsync(requestInfoEvent, handlerContext, cancellationToken);
-                    userReply = handlerContext.UserReply;
-
-                    if (!handlingResult.Handled) {
-                        yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent($"Request-port handler '{handler.GetType().Name}' could not process port '{portId}'.")]) { ConversationId = state.ConversationId };
-                        yield break;
-                    }
-
-                    if (handlingResult.Updates is not null) {
-                        foreach (var responseUpdate in handlingResult.Updates) {
-                            yield return responseUpdate;
-                        }
-                    }
-
-                    if (handlingResult.ShouldHalt) {
-                        yield break;
-                    }
+                case RequestInfoEvent requestInfoEvent when requestInfoEvent.Request.TryGetDataAs<AgentResponseUpdate>(out var chatMessage):
+                    // First pass: surface the verification prompt to the user, persist the checkpoint and halt.
+                    yield return new ChatResponseUpdate(ChatRole.Assistant, chatMessage.Contents) { ConversationId = state.ConversationId };
+                    yield break;
+                case RequestInfoEvent requestInfoEvent when isResumed:
+                    // Resumed run re-surfaces the OTP request — answer it with the user's code.
+                    await run.SendResponseAsync(requestInfoEvent.Request.CreateResponse(new ChatMessage(ChatRole.Assistant, userReply)));
+                    userReply = null;
                     break;
                 case SuperStepCompletedEvent:
                     break;

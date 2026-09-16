@@ -28,5 +28,16 @@ public static class IWorkflowContextStateExtensions
     public static async Task SetIntentStateAsync(this IWorkflowContext context, IntentState state, CancellationToken cancellationToken = default) {
         await context.QueueStateUpdateAsync(nameof(IntentState), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
     }
+
+    /// <summary>Reads the <see cref="OperatorState"/> from the workflow context.</summary>
+    public static async Task<OperatorState> GetOperatorStateAsync(this IWorkflowContext context, CancellationToken cancellationToken = default) {
+        return await context.ReadStateAsync<OperatorState>(nameof(OperatorState), scopeName: ConversationScope, cancellationToken: cancellationToken) ??
+               throw new InvalidOperationException("OperatorState not found in workflow context.");
+    }
+
+    /// <summary>Writes the <see cref="OperatorState"/> to the workflow context.</summary>
+    public static async Task SetOperatorStateAsync(this IWorkflowContext context, OperatorState state, CancellationToken cancellationToken = default) {
+        await context.QueueStateUpdateAsync(nameof(OperatorState), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
+    }
 }
 

@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Extensions;
+using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -10,6 +11,7 @@ using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using ModelContextProtocol.Protocol;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 
@@ -112,6 +114,14 @@ internal sealed class DataRetrieverStep : Executor<ConversationState, CaseRetrie
         if (!validationResult.Succeeded) {
             throw new InvalidOperationException($"Case data validation failed: {validationResult.ErrorMessage}");
         }
+
+        await context.SetOperatorStateAsync(new OperatorState() {
+            CaseData = caseData,
+            CaseId = caseId,
+            PhoneNumber = phoneNumber,
+            Email = email,
+            VerificationValue = verificationValue
+        }, cancellationToken);
 
         return new CaseRetrievalOutput(
             CaseData: caseData,

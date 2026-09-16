@@ -72,24 +72,20 @@ public sealed class OwnershipValidatorStep : Executor<OwnershipConfirmationRespo
 /// Response payload delivered to the Cases workflow when the user replies to the ownership verification request.
 /// Produced by the host (chat client) as an external response to the ownership confirmation request port.
 /// </summary>
-/// <param name="VerificationData">The ownership verification data originally emitted by the OwnershipVerifier step.</param>
 /// <param name="UserInput">The raw text the user submitted to confirm ownership of the case.</param>
 /// <param name="Attempt">The current ownership confirmation attempt number.</param>
 public record OwnershipConfirmationResponse(
-    OwnershipVerificationOutput VerificationData,
     string UserInput,
     int Attempt = 0);
 
 /// <summary>
 /// Output of the UserInputValidator step with validation result and retry tracking.
 /// </summary>
-/// <param name="OwnershipVerificationData">The original ownership verification output.</param>
 /// <param name="IsValid">Whether the user's input matches the case data field.</param>
 /// <param name="ErrorMessage">Error message if validation failed; null if valid.</param>
 /// <param name="ValidationAttempt">Current attempt number (1 or 2; max 2 attempts allowed).</param>
 /// <param name="UserInput">The user's input to verify (stored for comparison).</param>
 public record UserInputValidationOutput(
-    OwnershipVerificationOutput OwnershipVerificationData,
     bool IsValid,
     string? ErrorMessage,
     int ValidationAttempt,

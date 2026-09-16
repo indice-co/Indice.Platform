@@ -1,5 +1,7 @@
 using System.Net.Mime;
 using Indice.Features.Agents.Core.Services;
+using Indice.Features.Agents.Core.Workflows.State;
+using Indice.Globalization;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -23,9 +25,7 @@ public sealed class DataPresenterStep : Executor<OtpValidationOutput, OperatorPi
         OtpValidationOutput input,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-
         ArgumentNullException.ThrowIfNull(input);
-
         if (!input.IsValid) {
             await context.AddEventAsync(
                 new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [new TextContent(input.Message)])),
@@ -33,7 +33,8 @@ public sealed class DataPresenterStep : Executor<OtpValidationOutput, OperatorPi
             return new OperatorPipelineOutput { Answer = input.Message };
         }
 
-        var presentation = _presentationFormatter.Format(input);
+        var state = await context.GetOperatorStateAsync(cancellationToken);
+        var presentation = _presentationFormatter.Format(state);
 
         await context.AddEventAsync(
             new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [new DataContent($"data:,{Uri.EscapeDataString(presentation.HtmlCard)}", MediaTypeNames.Text.Html) { Name = "HTML Card" },])),

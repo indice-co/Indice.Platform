@@ -1,3 +1,4 @@
+using Indice.Features.Agents.Core.Workflows.State;
 using Indice.Features.Agents.Core.Workflows.Steps.Operator;
 
 namespace Indice.Features.Agents.Core.Services;
@@ -13,7 +14,7 @@ public interface ICasePresentationFormatter
     /// </summary>
     /// <param name="input">The validated OTP workflow output.</param>
     /// <returns>The composed answer text and HTML card content.</returns>
-    CasePresentationResult Format(OtpValidationOutput input);
+    CasePresentationResult Format(OperatorState input);
 }
 
 /// <summary>

@@ -1,6 +1,6 @@
 using System.Net;
 using System.Text;
-using Indice.Features.Agents.Core.Workflows.Steps.Operator;
+using Indice.Features.Agents.Core.Workflows.State;
 
 namespace Indice.Features.Agents.Core.Services;
 
@@ -15,26 +15,27 @@ namespace Indice.Features.Agents.Core.Services;
 public class DefaultCasePresentationFormatter : ICasePresentationFormatter
 {
     /// <inheritdoc/>
-    public virtual CasePresentationResult Format(OtpValidationOutput input) {
+    public virtual CasePresentationResult Format(OperatorState input) {
         ArgumentNullException.ThrowIfNull(input);
 
-        var caseData = input.OtpResponse.Challenge.ValidationData.OwnershipVerificationData.CaseRetrievalData.CaseData;
+
+
+        var caseData = input.CaseData;
         var data = caseData?["data"];
 
-        var caseId = input.OtpResponse.Challenge.CaseId;
+        var caseId = input.CaseId;
         var plate = data?["carPlate"]?.GetValue<string>() ?? "-";
         var email = data?["email"]?.GetValue<string>() ?? "-";
         var phone = data?["phoneNumber"]?.GetValue<string>() ?? "-";
 
         var answer = new StringBuilder()
-            .AppendLine(input.Message)
             .AppendLine($"Case ID: {caseId}")
             .AppendLine($"Plate: {plate}")
             .AppendLine($"Email: {email}")
             .AppendLine($"Phone: {phone}")
             .ToString();
 
-        var htmlCard = BuildCaseHtmlCard(input.Message, caseId, plate, email, phone);
+        var htmlCard = BuildCaseHtmlCard("Case Details", caseId, plate, email, phone);
         return new CasePresentationResult(answer, htmlCard);
     }
 
