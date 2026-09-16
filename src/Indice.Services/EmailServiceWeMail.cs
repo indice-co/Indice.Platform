@@ -58,7 +58,7 @@ public sealed class EmailServiceWeMail : IEmailService
         var bccRecipients = (_settings.BccRecipients ?? string.Empty)
             .Split([';', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        var request = new HttpRequestMessage(HttpMethod.Post, MessagesEndpoint) {
+        using var request = new HttpRequestMessage(HttpMethod.Post, MessagesEndpoint) {
             Content = JsonContent.Create(
                  new WeMailMessageRequest {
                      From = from?.Address ?? _settings.Sender,
@@ -84,7 +84,7 @@ public sealed class EmailServiceWeMail : IEmailService
         };
 
 
-        var responseMessage = await _httpClient.SendAsync(request);
+        using var responseMessage = await _httpClient.SendAsync(request);
 
         if (!responseMessage.IsSuccessStatusCode) {
             var content = await responseMessage.Content.ReadAsStringAsync();

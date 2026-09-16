@@ -161,6 +161,9 @@ public static class IndiceServicesServiceCollectionExtensions
         return new EmailServiceBuilder(services);
     }
 
+    /// <summary>Adds an implementation of <see cref="IEmailService"/> that uses WeMail to send emails.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static EmailServiceBuilder AddEmailServiceWeMail(this IServiceCollection services, IConfiguration configuration) {
         services.Configure<EmailServiceWeMailSettings>(configuration.GetSection(EmailServiceWeMailSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceWeMailSettings>>().Value);

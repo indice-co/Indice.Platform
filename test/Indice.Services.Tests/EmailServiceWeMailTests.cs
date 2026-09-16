@@ -23,7 +23,6 @@ public sealed class EmailServiceWeMailTests
     [Fact]
     public async Task SendAsync_Succeeds() {
         var expectedMessageId = Guid.NewGuid().ToString();
-        var expectedCreatedAt = DateTimeOffset.UtcNow;
 
         using var httpClient = new HttpClient();
 
