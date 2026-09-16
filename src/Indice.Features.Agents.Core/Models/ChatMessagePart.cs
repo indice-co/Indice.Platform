@@ -45,4 +45,9 @@ public class ChatMessagePart
         var mediaType = imageData.MediaType ?? throw new InvalidOperationException("Image data must have a media type.");
         return new() { Value = new DataContent(imageData.ToMemory(), mediaType).Uri, ContentType = mediaType, Name = name };
     }
+
+    /// <summary>Converts this <see cref="ChatMessagePart"/> into an <see cref="AIContent"/> instance.</summary>
+    public AIContent ToAIContent() {
+        return ContentType == "text/plain" ? new TextContent(Value) : new DataContent(Value, ContentType);
+    }
 }
