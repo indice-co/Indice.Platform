@@ -85,6 +85,9 @@ public static class IndiceServicesServiceCollectionExtensions
                 case EmailServiceAzureCommunicationServices.ServiceName:
                     services.AddEmailServiceAzureCommunicationServices(configuration);
                     break;
+                case EmailServiceWeMail.ServiceName:
+                    services.AddEmailServiceWeMail(configuration);
+                    break;
                 case EmailServiceNoop.ServiceName:
                 default:
                     services.AddEmailServiceNoop();
@@ -152,6 +155,19 @@ public static class IndiceServicesServiceCollectionExtensions
         services.AddSingleton((serviceProvider) => {
             var options = serviceProvider.GetRequiredService<IOptions<EmailServiceBrevoSettings>>().Value;
             return new EmailProvider(EmailServiceBrevo.ServiceName, new EmailSender(options.Sender!, options.SenderName));
+        });
+        services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
+        services.AddHtmlRenderingEngineNoop();
+        return new EmailServiceBuilder(services);
+    }
+
+    public static EmailServiceBuilder AddEmailServiceWeMail(this IServiceCollection services, IConfiguration configuration) {
+        services.Configure<EmailServiceWeMailSettings>(configuration.GetSection(EmailServiceWeMailSettings.Name));
+        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceWeMailSettings>>().Value);
+        services.AddHttpClient<IEmailService, EmailServiceWeMail>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddSingleton((serviceProvider) => {
+            var options = serviceProvider.GetRequiredService<IOptions<EmailServiceWeMailSettings>>().Value;
+            return new EmailProvider(EmailServiceWeMail.ServiceName, new EmailSender(options.Sender!, options.SenderName));
         });
         services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
         services.AddHtmlRenderingEngineNoop();
