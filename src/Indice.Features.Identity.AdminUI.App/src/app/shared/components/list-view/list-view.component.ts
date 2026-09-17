@@ -78,15 +78,14 @@ export class ListViewComponent extends ListView implements OnInit, OnDestroy {
 
     private parseQueryParams(params: Params): void {
         this.page = +(params[QueryParameters.PAGE] || 1);
-        this.dataTable.offset = this.page - 1;
+        this.dataTable.offset.set(this.page - 1);
         this.rowsPerPage = +(params[QueryParameters.PAGE_SIZE] || this.rowsPerPage || this.defaultRowsPerPage)
         this.sortField = params[QueryParameters.SORT_FIELD] || this.defaultSortField || undefined;
         this.sortDirection = (params[QueryParameters.SORT_DIRECTION] || this.defaultSortDirection || undefined) as SortDirection;
         if (this.sortField) {
-            this.dataTable.sorts.splice(0, this.dataTable.sorts.length);
-            this.dataTable.sorts.push({
+            this.dataTable.sorts.set([{
                 prop: this.sortField, dir: this.sortDirection === SortDirection.Desc ? 'desc' : 'asc'
-            });
+            }]);
         }
         this.searchTerm = params[QueryParameters.SEARCH_TERM] || undefined;
         this.parseFilterParams(params)

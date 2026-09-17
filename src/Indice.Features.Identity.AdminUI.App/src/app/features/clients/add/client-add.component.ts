@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ComponentFactoryResolver } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators, UntypedFormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -30,7 +30,6 @@ export class ClientAddComponent implements OnInit {
   constructor(
     private _wizardService: ClientsWizardService,
     private _changeDetectionRef: ChangeDetectorRef,
-    private _componentFactoryResolver: ComponentFactoryResolver,
     private _formBuilder: UntypedFormBuilder,
     private _api: IdentityApiService,
     private _router: Router,
@@ -168,10 +167,9 @@ export class ClientAddComponent implements OnInit {
   }
 
   private loadStep(step: WizardStepDescriptor): void {
-    const componentFactory = this._componentFactoryResolver.resolveComponentFactory(step.component);
     const viewContainerRef = this._wizardStepHost.viewContainerRef;
     viewContainerRef.clear();
-    const componentRef = viewContainerRef.createComponent(componentFactory);
+    const componentRef = viewContainerRef.createComponent(step.component);
     // Keep a reference of the instance of the step component.
     this._loadedStepInstance = componentRef.instance as StepBaseComponent<ClientWizardModel>;
     // Pass data to the dynamically loaded component.
