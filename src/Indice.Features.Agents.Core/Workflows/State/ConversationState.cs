@@ -10,6 +10,7 @@ namespace Indice.Features.Agents.Core.Workflows.State;
 /// <param name="ConversationId">The chat session this run belongs to. History-aware steps stamp it on their per-run</param>
 /// <param name="Message">The chat message being processed.</param>
 public record ConversationState(ChatMessage Message, string ConversationId) {
-    /// <summary>Indicates whether the message contains a Hilt response.</summary>
-    public bool HasHiltResponse => Message.Text.Contains("text/hilt-response");
+    /// <summary>Indicates whether the message contains a Hitl response.</summary>
+    public bool HasHitlResponse => Message.Contents.Where(c => c is DataContent data && string.Equals(data.MediaType, AgentsConstants.MediaTypes.HitlResponse, StringComparison.OrdinalIgnoreCase)).Any();
+
 }

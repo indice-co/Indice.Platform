@@ -90,6 +90,7 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<IntentRouterService>();
         services.TryAddScoped<AgentMessageLocalizer>();
         services.AddAgentsDefaultPipeline();
+        services.AddOperatorWorkflow(configuration);
         return services;
     }
 
@@ -226,8 +227,8 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<OwnershipVerificationFailureHandler>();
 
         // Request ports for checkpoint-based pause/resume.
-        var ownershipPort = RequestPort.Create<ChatMessage, OwnershipConfirmationResponse>(AgentsConstants.WorkflowPorts.OwnershipConfirmation);
-        var otpPort = RequestPort.Create<OtpChallengeOutput, OtpCodeResponse>(AgentsConstants.WorkflowPorts.OtpVerification);
+        var ownershipPort = RequestPort.Create<ChatMessage, ChatMessage>(AgentsConstants.WorkflowPorts.OwnershipConfirmation);
+        var otpPort = RequestPort.Create<OtpChallengeOutput, ChatMessage>(AgentsConstants.WorkflowPorts.OtpVerification);
 
         // Cases workflow with native pause/resume through request ports + checkpoints.
         //   CaseDataRetriever -> OwnershipVerifier -> OwnershipConfirmationPort

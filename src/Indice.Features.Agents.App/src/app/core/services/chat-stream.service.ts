@@ -3,7 +3,7 @@ import { Observable, Subscriber } from 'rxjs';
 import { AuthService } from '@indice/ng-auth';
 
 import { AuthGuestService, GuestSessionPayload } from '../auth/auth-guest.service';
-import { ChatTopic, DEX_API_BASE_URL, DexChatPatchOp } from './dex-api.service';
+import { ChatTopic, DEX_API_BASE_URL, DexChatPatchOp, IChatMessagePart } from './dex-api.service';
 
 /** First frame of every stream; carries the session id. */
 export interface ChatStreamStartFrame {
@@ -74,16 +74,29 @@ export class ChatStreamService {
    * new conversation on a record of the hosting system (the `?refid=...&reftype=...` deep link), which the
    * server persists as the conversation's workflow state.
    */
-  streamCreate(text: string, agentName?: string | null, topic?: ChatTopic | null): Observable<ChatStreamFrame> {
-    return this.stream(`${this.baseUrl}/my/chats/stream`, text, agentName, topic);
+  streamCreate(
+    parts: IChatMessagePart[],
+    agentName?: string | null,
+    topic?: ChatTopic | null,
+  ): Observable<ChatStreamFrame> {
+    return this.stream(`${this.baseUrl}/my/chats/stream`, parts, agentName, topic);
   }
 
   /** POST /my/chats/{id}/messages/stream — stream a follow-up turn in an existing session. */
-  streamMessage(sessionId: string, text: string, agentName?: string | null): Observable<ChatStreamFrame> {
-    return this.stream(`${this.baseUrl}/my/chats/${sessionId}/messages/stream`, text, agentName);
+  streamMessage(
+    sessionId: string,
+    parts: IChatMessagePart[],
+    agentName?: string | null,
+  ): Observable<ChatStreamFrame> {
+    return this.stream(`${this.baseUrl}/my/chats/${sessionId}/messages/stream`, parts, agentName);
   }
 
-  private stream(url: string, text: string, agentName?: string | null, topic?: ChatTopic | null): Observable<ChatStreamFrame> {
+  private stream(
+    url: string,
+    parts: IChatMessagePart[],
+    agentName?: string | null,
+    topic?: ChatTopic | null,
+  ): Observable<ChatStreamFrame> {
     return new Observable<ChatStreamFrame>((subscriber) => {
       const controller = new AbortController();
 
@@ -103,9 +116,13 @@ export class ChatStreamService {
           response = await fetch(url, {
             method: 'POST',
             headers,
+            // `parts` rather than `text`: the server's `ChatRequest.Text` is a facade over the first text part, and
+            // `Parts` is init-only, so a body carrying both would resolve by JSON property order. Sending only
+            // `parts` is what keeps that ambiguity off the wire; an ordinary turn is a single `text/plain` part,
+            // which deserializes to exactly what `{ text }` produced.
             // Omit agentName when unset so the server picks its default agent, and the topic is inferred when there is none.
             body: JSON.stringify({
-              text,
+              parts,
               ...(agentName ? { agentName } : {}),
               ...(topic ? { topic } : {}),
             }),

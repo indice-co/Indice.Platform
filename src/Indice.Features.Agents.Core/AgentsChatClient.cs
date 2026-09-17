@@ -102,14 +102,14 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                 case ExecutorInvokedEvent invoked when stepLabels.TryGetValue(invoked.ExecutorId, out var label):
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = state.ConversationId };
                     break;
-                case RequestInfoEvent requestInfoEvent when !state.HasHiltResponse:
+                case RequestInfoEvent requestInfoEvent when !state.HasHitlResponse:
                     requestInfoEvent.Request.TryGetDataAs<ChatMessage>(out var chatMessage);
                     // First pass: surface the verification prompt to the user, persist the checkpoint and halt.
                     chatMessage!.Contents.Add(
-                            DataContentExtensions.JsonPart(new HumanRequest() { RequestId = requestInfoEvent.Request.RequestId }, AgentsConstants.MediaTypes.HitlRequest, "hilt"));
+                            DataContentExtensions.JsonPart(new HumanRequest() { RequestId = requestInfoEvent.Request.RequestId }, AgentsConstants.MediaTypes.HitlRequest, "hitl"));
                     yield return new ChatResponseUpdate(ChatRole.Assistant, chatMessage!.Contents) { ConversationId = state.ConversationId };
                     yield break;
-                case RequestInfoEvent requestInfoEvent when state.HasHiltResponse:
+                case RequestInfoEvent requestInfoEvent when state.HasHitlResponse:
                     // Resumed run re-surfaces the OTP request — answer it with the user's code.
                     await run.SendResponseAsync(requestInfoEvent.Request.CreateResponse(new ChatMessage(ChatRole.User, state.Message.Contents)));
                     userReply = null;
