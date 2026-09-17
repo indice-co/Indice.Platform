@@ -1,3 +1,4 @@
+using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.Options;
 
@@ -28,15 +29,16 @@ public sealed class OwnershipValidatorStep : Executor<OwnershipConfirmationRespo
     {
         ArgumentNullException.ThrowIfNull(confirmation);
 
-        var verificationData = confirmation.VerificationData;
+        var caseData = await context.GetOperatorStateAsync(cancellationToken);
+        var verificationData = caseData.VerificationValue;
         var userInput = confirmation.UserInput ?? string.Empty;
 
-        var attempt = confirmation.VerificationData.Attempt + 1;
+        var attempt = confirmation.Attempt + 1;
 
         // Validate the input against the actual case field value
         var isValid = CompareInputWithCaseField(
             userInput,
-            verificationData.VerificationFieldValue);
+            verificationData);
 
         string? errorMessage = null;
         if (!isValid)
@@ -47,7 +49,6 @@ public sealed class OwnershipValidatorStep : Executor<OwnershipConfirmationRespo
         }
 
         return await ValueTask.FromResult(new UserInputValidationOutput(
-            OwnershipVerificationData: verificationData,
             IsValid: isValid,
             ErrorMessage: errorMessage,
             ValidationAttempt: attempt,

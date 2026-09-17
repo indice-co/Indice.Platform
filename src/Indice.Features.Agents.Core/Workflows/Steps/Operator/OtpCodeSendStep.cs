@@ -1,6 +1,7 @@
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Workflows.Prompts;
+using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -50,7 +51,7 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
         CancellationToken cancellationToken = default) {
 
         ArgumentNullException.ThrowIfNull(validationData);
-        var caseData = validationData.OwnershipVerificationData.CaseRetrievalData;
+        var caseData = await context.GetOperatorStateAsync(cancellationToken);
         var maskedPhoneNumber = MaskPhone(caseData.PhoneNumber);
 
         // Fetch OTP tools from the Identity MCP server at runtime.
