@@ -12,6 +12,9 @@ public class ChatMessagePart
     /// <summary>The content type of the message part (e.g., "text/plain", "text/html").</summary>
     [JsonPropertyName("contentType")]
     public string ContentType { get; set; } = null!;
+    /// <summary>The request ID of the message part.</summary>
+    [JsonPropertyName("requestId")]
+    public string RequestId { get; set; } = null!;
 
     /// <summary>Optional title for the Message Part.</summary>
     /// <remarks>

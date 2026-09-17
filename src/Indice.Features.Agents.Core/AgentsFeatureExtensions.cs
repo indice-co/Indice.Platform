@@ -239,10 +239,10 @@ public static class AgentsFeatureExtensions
         //                                          -> (max) CasePresenterStep
         services.AddKeyedScoped(AgentsConstants.AgentNames.Operator, (sp, key) => {
             var retriever = sp.GetRequiredService<DataRetrieverStep>();
-            var ownnershipVerifier = sp.GetRequiredService<OwnershipVerifierStep>();
-            var ownnershipValidator = sp.GetRequiredService<OwnershipValidatorStep>();
+            var ownershipVerifier = sp.GetRequiredService<OwnershipVerifierStep>();
+            var ownershipValidator = sp.GetRequiredService<OwnershipValidatorStep>();
             var ownershipRetry = sp.GetRequiredService<OwnershipRetryChallengeBuilder>();
-            var ownershipErr = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
+            //var ownershipErr = sp.GetRequiredService<OwnershipVerificationFailureHandler>();
             var maxOwnershipValidationAttempts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.CasesWorkflow.MaxOwnershipValidationAttempts;
             var otpAgent = sp.GetRequiredService<OtpCodeSendStep>();
             var otpValidator = sp.GetRequiredService<OtpCodeValidatorStep>();
@@ -251,13 +251,14 @@ public static class AgentsFeatureExtensions
 
 
             var builder = new WorkflowBuilder(retriever);
-            builder.AddEdge(retriever, ownnershipVerifier);
-            builder.AddEdge(ownnershipVerifier, ownershipPort);
-            builder.AddEdge(ownershipPort, ownnershipValidator);
-            builder.AddSwitch(ownnershipValidator, sw => sw
-                .AddCase<UserInputValidationOutput>(env => env!.IsValid, otpAgent)
-                .AddCase<UserInputValidationOutput>(env => !env!.IsValid && env.ValidationAttempt < maxOwnershipValidationAttempts, ownershipRetry)
-                .WithDefault(ownershipErr));
+            builder.AddEdge(retriever, ownershipVerifier);
+            builder.AddEdge(ownershipVerifier, ownershipPort);
+            builder.AddEdge(ownershipPort, ownershipValidator);
+            builder.AddSwitch(ownershipValidator, sw => sw
+                .AddCase<ChatMessage>(env => !env!.Contents.OfType<ErrorContent>().Any(), otpAgent)
+                //.AddCase<ChatMessage>(env => !env!.Contents.OfType<ErrorContent>().Any(), otpAgent)
+                //.AddCase<ChatMessage>(env => !env!.IsValid && env.ValidationAttempt < maxOwnershipValidationAttempts, ownershipRetry)
+                .WithDefault(ownershipRetry));
             builder.AddEdge(ownershipRetry, ownershipPort);
             builder.AddEdge(otpAgent, otpPort);
 
@@ -268,7 +269,7 @@ public static class AgentsFeatureExtensions
                 .WithDefault(dataPresenter));
             builder.AddEdge(otpRetry, otpPort);
 
-            builder.WithOutputFrom(dataPresenter, ownershipErr, ownershipPort, otpPort);
+            builder.WithOutputFrom(dataPresenter, ownershipPort, otpPort);//,ownershipErr
             return builder.Build();
         });
 

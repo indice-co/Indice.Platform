@@ -9,4 +9,7 @@ namespace Indice.Features.Agents.Core.Workflows.State;
 /// </summary>
 /// <param name="ConversationId">The chat session this run belongs to. History-aware steps stamp it on their per-run</param>
 /// <param name="Message">The chat message being processed.</param>
-public record ConversationState(ChatMessage Message, string ConversationId);
+public record ConversationState(ChatMessage Message, string ConversationId) {
+    /// <summary>Indicates whether the message contains a Hilt response.</summary>
+    public bool HasHiltResponse => Message.Text.Contains("text/hilt-response");
+}

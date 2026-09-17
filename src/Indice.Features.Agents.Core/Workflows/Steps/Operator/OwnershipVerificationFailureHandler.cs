@@ -1,3 +1,4 @@
+using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -10,7 +11,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// exhausts its maximum allowed attempts. Returns a <see cref="ValidationFailureOutput"/>
 /// that the workflow surfaces as the final output to the caller.
 /// </summary>
-public sealed class OwnershipVerificationFailureHandler : Executor<UserInputValidationOutput, ValidationFailureOutput>
+public sealed class OwnershipVerificationFailureHandler : Executor<ChatMessage, ValidationFailureOutput>
 {
     private readonly int _maxValidationAttempts;
     private readonly AgentMessageLocalizer _messageLocalizer;
@@ -23,21 +24,21 @@ public sealed class OwnershipVerificationFailureHandler : Executor<UserInputVali
 
     /// <inheritdoc/>
     public override async ValueTask<ValidationFailureOutput> HandleAsync(
-        UserInputValidationOutput validationOutput,
+        ChatMessage validationOutput,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
 
-        var failureMessage = validationOutput.ErrorMessage
+        var failureMessage = validationOutput.Contents.OfType<TextContent>().FirstOrDefault()?.Text
             ?? _messageLocalizer.OwnershipVerificationFailedMaxAttemptsMessage(_maxValidationAttempts);
 
         await context.AddEventAsync(
             new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [new TextContent(failureMessage)])),
             cancellationToken);
-
+        var attempts = await context.GetApprovalStateAsync(cancellationToken);
         return new ValidationFailureOutput(
             ErrorMessage: failureMessage,
             FailureStep: "OwnershipVerification",
-            AttemptsExhausted: validationOutput.ValidationAttempt);
+            AttemptsExhausted: attempts);
     }
 }
 

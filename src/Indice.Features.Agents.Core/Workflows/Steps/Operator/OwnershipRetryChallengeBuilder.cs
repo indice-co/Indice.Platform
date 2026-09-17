@@ -7,7 +7,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// <summary>
 /// Builds the next ownership verification challenge when validation allows a retry.
 /// </summary>
-public sealed class OwnershipRetryChallengeBuilder : Executor<UserInputValidationOutput, AgentResponseUpdate>
+public sealed class OwnershipRetryChallengeBuilder : Executor<ChatMessage, ChatMessage>
 {
     private readonly AgentMessageLocalizer _messageLocalizer;
     /// <summary>Creates a new <see cref="OwnershipRetryChallengeBuilder"/>.</summary>
@@ -16,19 +16,16 @@ public sealed class OwnershipRetryChallengeBuilder : Executor<UserInputValidatio
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<AgentResponseUpdate> HandleAsync(
-        UserInputValidationOutput validationOutput,
+    public override async ValueTask<ChatMessage> HandleAsync(
+        ChatMessage validationOutput,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-
         ArgumentNullException.ThrowIfNull(validationOutput);
-
-        if (validationOutput.IsValid) {
-            throw new InvalidOperationException("Ownership retry challenge requested for valid input.");
-        }
-        var retryPrompt = string.IsNullOrWhiteSpace(validationOutput.ErrorMessage)
+        var prompt = validationOutput.Contents.OfType<TextContent>().FirstOrDefault()?.Text;
+        var retryPrompt = string.IsNullOrWhiteSpace(prompt)
             ? _messageLocalizer.OwnershipVerificationMessagePrompt
-            : $"{validationOutput.ErrorMessage} {_messageLocalizer.OwnershipVerificationMessagePrompt}";
-        return await ValueTask.FromResult(new AgentResponseUpdate(ChatRole.Assistant, retryPrompt));
+            : $"{prompt} {_messageLocalizer.OwnershipVerificationMessagePrompt}";
+
+        return await ValueTask.FromResult(new ChatMessage(ChatRole.Assistant, retryPrompt));
     }
 }

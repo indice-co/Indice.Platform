@@ -14,7 +14,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Sends an OTP using MCP tools and produces a challenge prompt.
 /// The workflow pauses after this step and waits for the user OTP input on a request port.
 /// </summary>
-public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpChallengeOutput>
+public sealed class OtpCodeSendStep : Executor<ChatMessage, OtpChallengeOutput>
 {
     private readonly AzureOpenAIClient _openAIClient;
     private readonly AgentsOptions _options;
@@ -46,7 +46,7 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
 
     /// <inheritdoc/>
     public override async ValueTask<OtpChallengeOutput> HandleAsync(
-        UserInputValidationOutput validationData,
+        ChatMessage validationData,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
 
@@ -83,7 +83,6 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
         var resuts = await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
         var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedPhoneNumber);
         return new OtpChallengeOutput(
-            ValidationData: validationData,
             //TODO: Support dual Phone /Email OTP delivery. For now, we only support phone delivery.
             Prompt: otpPrompt,
             PhoneNumber: caseData.PhoneNumber,
@@ -104,7 +103,6 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
 /// <summary>
 /// Output from the OTP send step. Represents a pending OTP challenge that requires user input.
 /// </summary>
-/// <param name="ValidationData">The upstream validated ownership data.</param>
 /// <param name="Prompt">Prompt shown to the user asking for OTP input.</param>
 /// <param name="PhoneNumber">Phone number used for OTP delivery.</param>
 /// <param name="Email">Email used for OTP delivery when applicable.</param>
@@ -112,7 +110,6 @@ public sealed class OtpCodeSendStep : Executor<UserInputValidationOutput, OtpCha
 /// <param name="FailedAttempts">Number of invalid OTP attempts already made.</param>
 /// <param name="MaxFailedAttempts">Maximum invalid OTP attempts allowed before failing.</param>
 public record OtpChallengeOutput(
-    UserInputValidationOutput ValidationData,
     string Prompt,
     string? PhoneNumber,
     string? Email,

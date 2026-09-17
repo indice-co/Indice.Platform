@@ -62,6 +62,12 @@ public static class AgentsConstants
         /// <summary>A custom type to send svg to other agents that traditionally dont support svg.</summary>
         public const string Svg = "text/vnd.indice.svg+json";
 
+        /// <summary>Human-in-the-loop response payload.</summary>
+        public const string HitlResponse = "application/vnd.indice.hitl-response+json";
+
+        /// <summary>Human-in-the-loop request payload.</summary>
+        public const string HitlRequest = "application/vnd.indice.hitl-request+json";
+
     }
 
     /// <summary>
@@ -165,6 +171,7 @@ public static class AgentsConstants
             Use the available tool get_case_data_id from the case-retrieval MCP service to fetch case data.
             Decide which tool to call based on the user's query.
             Extract the case GUID from the messages and query the case data.
+            Return the object in json format as returned by the mcp.
             """;
         /// <summary>Agent instructions template for fetching OTP send.</summary>
         public const string OtpCodeSenderInstructions = """

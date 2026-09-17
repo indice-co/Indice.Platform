@@ -1,4 +1,5 @@
-﻿using Microsoft.Agents.AI.Workflows;
+﻿using Indice.Features.Agents.Core.Workflows.Steps.Operator;
+using Microsoft.Agents.AI.Workflows;
 
 namespace Indice.Features.Agents.Core.Workflows.State;
 
@@ -38,6 +39,15 @@ public static class IWorkflowContextStateExtensions
     /// <summary>Writes the <see cref="OperatorState"/> to the workflow context.</summary>
     public static async Task SetOperatorStateAsync(this IWorkflowContext context, OperatorState state, CancellationToken cancellationToken = default) {
         await context.QueueStateUpdateAsync(nameof(OperatorState), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
+    }
+    /// <summary>Reads the <see cref="OwnershipValidatorStep"/> from the workflow context.</summary>
+    public static async Task<int> GetApprovalStateAsync(this IWorkflowContext context, CancellationToken cancellationToken = default) {
+        return await context.ReadStateAsync<int?>(nameof(OwnershipValidatorStep), scopeName: ConversationScope, cancellationToken: cancellationToken) ?? 0;
+    }
+
+    /// <summary>Writes the <see cref="OwnershipValidatorStep"/> to the workflow context.</summary>
+    public static async Task SetApprovalStateAsync(this IWorkflowContext context, int state, CancellationToken cancellationToken = default) {
+        await context.QueueStateUpdateAsync(nameof(OwnershipValidatorStep), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
     }
 }
 

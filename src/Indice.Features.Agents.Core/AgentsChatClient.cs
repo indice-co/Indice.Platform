@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -62,32 +63,10 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());
         // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
         // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
-        var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
-        var selector = options?.Instructions?.Trim().ToLowerInvariant();
-        if (string.IsNullOrWhiteSpace(selector)) {
-            selector = routing.DefaultAgent?.Trim().ToLowerInvariant();
-        }
-        string resolvedAgent;
-        if (string.Equals(selector, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
-            RouteDecision? decision = null;
-            string? routeError = null;
-            try {
-                var router = serviceProvider.GetRequiredService<IntentRouterService>();
-                decision = await router.RouteAsync(message.Text, state.ConversationId, cancellationToken);
-            } catch (Exception exception) when (exception is not OperationCanceledException) {
-                routeError = exception.Message;
-            }
-            if (routeError is not null) {
-                yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = state.ConversationId };
-                yield break;
-            } else if (decision!.AgentName is null) {
-                yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = state.ConversationId };
-                yield break;
-            }
-            resolvedAgent = decision.AgentName;
-        } else {
-
-            resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
+        (bool result, string resolvedAgent) = await GetAgentName(options, message, state, cancellationToken);
+        if (!result) {
+            yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(resolvedAgent)]) { ConversationId = state.ConversationId };
+            yield break;
         }
         var workflow = serviceProvider.GetRequiredKeyedService<Workflow>(resolvedAgent);
         // Checkpointing: state written via QueueStateUpdateAsync is snapshotted at each superstep into the durable
@@ -123,13 +102,16 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                 case ExecutorInvokedEvent invoked when stepLabels.TryGetValue(invoked.ExecutorId, out var label):
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = state.ConversationId };
                     break;
-                case RequestInfoEvent requestInfoEvent when requestInfoEvent.Request.TryGetDataAs<AgentResponseUpdate>(out var chatMessage):
+                case RequestInfoEvent requestInfoEvent when !state.HasHiltResponse:
+                    requestInfoEvent.Request.TryGetDataAs<ChatMessage>(out var chatMessage);
                     // First pass: surface the verification prompt to the user, persist the checkpoint and halt.
-                    yield return new ChatResponseUpdate(ChatRole.Assistant, chatMessage.Contents) { ConversationId = state.ConversationId };
+                    chatMessage!.Contents.Add(
+                            DataContentExtensions.JsonPart(new HumanRequest() { RequestId = requestInfoEvent.Request.RequestId }, AgentsConstants.MediaTypes.HitlRequest, "hilt"));
+                    yield return new ChatResponseUpdate(ChatRole.Assistant, chatMessage!.Contents) { ConversationId = state.ConversationId };
                     yield break;
-                case RequestInfoEvent requestInfoEvent when isResumed:
+                case RequestInfoEvent requestInfoEvent when state.HasHiltResponse:
                     // Resumed run re-surfaces the OTP request — answer it with the user's code.
-                    await run.SendResponseAsync(requestInfoEvent.Request.CreateResponse(new ChatMessage(ChatRole.Assistant, userReply)));
+                    await run.SendResponseAsync(requestInfoEvent.Request.CreateResponse(new ChatMessage(ChatRole.User, state.Message.Contents)));
                     userReply = null;
                     break;
                 case SuperStepCompletedEvent:
@@ -153,6 +135,35 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
 
         // Cancellation just stops the stream rather than raising a failure event — surface it as cancellation.
         cancellationToken.ThrowIfCancellationRequested();
+    }
+
+    private async Task<(bool Result, string AgentName)> GetAgentName(ChatOptions? options, ChatMessage message, ConversationState state, CancellationToken cancellationToken) {
+        var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
+        var selector = options?.Instructions?.Trim().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(selector)) {
+            selector = routing.DefaultAgent?.Trim().ToLowerInvariant();
+        }
+        string resolvedAgent;
+        if (string.Equals(selector, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
+            RouteDecision? decision = null;
+            string? routeError = null;
+            try {
+                var router = serviceProvider.GetRequiredService<IntentRouterService>();
+                decision = await router.RouteAsync(message.Text, state.ConversationId, cancellationToken);
+            } catch (Exception exception) when (exception is not OperationCanceledException) {
+                routeError = exception.Message;
+            }
+            if (routeError is not null) {
+                return (false, routeError);
+            } else if (decision!.AgentName is null) {
+                return (false, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply);
+                
+            }
+            resolvedAgent = decision.AgentName;
+        } else {
+            resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
+        }
+        return (true, resolvedAgent);
     }
 
     /// <inheritdoc/>
