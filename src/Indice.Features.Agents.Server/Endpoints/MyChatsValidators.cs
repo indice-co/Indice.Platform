@@ -57,6 +57,8 @@ public class ChatMessagePartValidator : AbstractValidator<ChatMessagePart>
 
         RuleFor(x => x.Name).MaximumLength(250);
 
+        RuleFor(x => x.RequestId).MaximumLength(250);
+
         RuleFor(x => x.Value)
             .NotNull();
 
