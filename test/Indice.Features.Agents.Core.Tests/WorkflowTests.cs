@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Indice.Features.Agents.Core.Data;
+using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows;
 using Microsoft.Agents.AI;
@@ -143,25 +144,6 @@ public class WorkflowTests
     }
 }
 
-
-public static class WorkflowExtensions
-{
-    public static ValueTask Say(this IWorkflowContext context, string executorId, string message)
-        => context.AddEventAsync(new AgentResponseUpdateEvent(executorId, new AgentResponseUpdate(ChatRole.Assistant, [new TextContent(message)])));
-
-    public static AgentResponseUpdate AsAgentResponseUpdate(this RequestInfoEvent requestInfoEvent, CheckpointInfo checkpoint)
-        => new AgentResponseUpdate(ChatRole.Assistant, [new FunctionCallContent(requestInfoEvent.Request.RequestId + '.' + checkpoint.CheckpointId, requestInfoEvent.Request.PortInfo.RequestType.TypeName,  new Dictionary<string, object?>() { ["data"] = requestInfoEvent.Request.Data })]);
-
-    public static object? GetFunctionResult(this ChatMessage chatMessage)
-        => chatMessage.Contents.OfType<FunctionResultContent>().FirstOrDefault()?.Result;
-
-    public static FunctionResultContent? GetFunctionResultContent(this ChatMessage chatMessage)
-        => chatMessage.Contents.OfType<FunctionResultContent>().FirstOrDefault();
-    public static bool HasFunctionResultContent(this ChatMessage chatMessage, string? requestId = null)
-        => chatMessage.Contents.OfType<FunctionResultContent>().Any(c => requestId == null || c.CallId.StartsWith(requestId));
-
-}
-
 public class WorkflowChatClient(IServiceProvider serviceProvider) : IChatClient
 {
     public IServiceProvider ServiceProvider { get; } = serviceProvider;
@@ -184,8 +166,8 @@ public class WorkflowChatClient(IServiceProvider serviceProvider) : IChatClient
         
         StreamingRun run;
         if (message.HasFunctionResultContent()) {
-            var functionResultContent = message.GetFunctionResultContent();
-            var checkpointInfo = new CheckpointInfo(sessionId, functionResultContent!.CallId.Split('.')[1]);
+            var callId = message.GetFunctionResultContentCallId();
+            var checkpointInfo = new CheckpointInfo(sessionId, callId);
             run = await InProcessExecution.ResumeStreamingAsync(workflow, checkpointInfo, checkpointManager, cancellationToken: cancellationToken);
         } else {
             run = await InProcessExecution.RunStreamingAsync(workflow, message, checkpointManager, sessionId: sessionId, cancellationToken: cancellationToken);
