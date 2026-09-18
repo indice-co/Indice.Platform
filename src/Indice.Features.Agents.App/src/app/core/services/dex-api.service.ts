@@ -1698,6 +1698,7 @@ export interface IChatMessageContent {
 export class ChatMessagePart implements IChatMessagePart {
     value?: string;
     contentType?: string;
+    requestId?: string | undefined;
     name?: string | undefined;
 
     constructor(data?: IChatMessagePart) {
@@ -1713,6 +1714,7 @@ export class ChatMessagePart implements IChatMessagePart {
         if (_data) {
             this.value = _data["value"];
             this.contentType = _data["contentType"];
+            this.requestId = _data["requestId"];
             this.name = _data["name"];
         }
     }
@@ -1728,6 +1730,7 @@ export class ChatMessagePart implements IChatMessagePart {
         data = typeof data === 'object' ? data : {};
         data["value"] = this.value;
         data["contentType"] = this.contentType;
+        data["requestId"] = this.requestId;
         data["name"] = this.name;
         return data;
     }
@@ -1736,11 +1739,13 @@ export class ChatMessagePart implements IChatMessagePart {
 export interface IChatMessagePart {
     value?: string;
     contentType?: string;
+    requestId?: string | undefined;
     name?: string | undefined;
 }
 
 export class ChatRequest implements IChatRequest {
     text?: string;
+    parts?: ChatMessagePart[];
     authorName?: string | undefined;
     agentName?: string | undefined;
     topic?: ChatTopic | undefined;
@@ -1757,6 +1762,11 @@ export class ChatRequest implements IChatRequest {
     init(_data?: any) {
         if (_data) {
             this.text = _data["text"];
+            if (Array.isArray(_data["parts"])) {
+                this.parts = [] as any;
+                for (let item of _data["parts"])
+                    this.parts!.push(ChatMessagePart.fromJS(item));
+            }
             this.authorName = _data["authorName"];
             this.agentName = _data["agentName"];
             this.topic = _data["topic"] ? ChatTopic.fromJS(_data["topic"]) : undefined as any;
@@ -1773,6 +1783,11 @@ export class ChatRequest implements IChatRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["text"] = this.text;
+        if (Array.isArray(this.parts)) {
+            data["parts"] = [];
+            for (let item of this.parts)
+                data["parts"].push(item ? item.toJSON() : undefined as any);
+        }
         data["authorName"] = this.authorName;
         data["agentName"] = this.agentName;
         data["topic"] = this.topic ? this.topic.toJSON() : undefined as any;
@@ -1782,14 +1797,15 @@ export class ChatRequest implements IChatRequest {
 
 export interface IChatRequest {
     text?: string;
+    parts?: ChatMessagePart[];
     authorName?: string | undefined;
     agentName?: string | undefined;
     topic?: ChatTopic | undefined;
 }
 
 export class ChatTopic implements IChatTopic {
-    referenceId?: string;
-    referenceType?: string;
+    referenceId?: string | undefined;
+    referenceType?: string | undefined;
 
     constructor(data?: IChatTopic) {
         if (data) {
@@ -3300,7 +3316,7 @@ function blobToText(blob: any): Observable<string> {
                 observer.complete();
             };
             reader.readAsText(blob);
-        }
+      }
     });
 }
 export interface FileParameter {
