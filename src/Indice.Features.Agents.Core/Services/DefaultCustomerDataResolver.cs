@@ -1,0 +1,48 @@
+using System.Text.Json.Nodes;
+using Indice.Features.Agents.Core.Services;
+
+namespace Indice.Features.Agents.Core.Models.Cases;
+
+/// <summary>
+/// Default implementation of <see cref="ICustomerDataResolver"/> that reads the standard
+/// field layout returned by the Indice Cases MCP service:
+/// <c>id</c>, <c>data.phoneNumber</c>, <c>data.email</c>, and <c>data.carPlate</c>.
+/// </summary>
+/// <remarks>
+/// To use a different JSON schema register your own <see cref="ICustomerDataResolver"/>
+/// implementation in the DI container <em>before</em> calling <c>AddCasesWorkflow()</c>:
+/// <code>
+/// services.AddTransient&lt;ICustomerDataResolver, MyCustomerDataResolver&gt;();
+/// services.AddCasesWorkflow();
+/// </code>
+/// </remarks>
+public class DefaultCustomerDataResolver : ICustomerDataResolver
+{
+    /// <inheritdoc/>
+    public virtual string ExtractCaseId(JsonNode caseData) =>
+        caseData["id"]?.GetValue<string>()
+            ?? throw new InvalidOperationException("CaseId not found in case data.");
+
+    /// <inheritdoc/>
+    public virtual string? ExtractPhoneNumber(JsonNode caseData) =>
+        caseData["data"]?["phoneNumber"]?.GetValue<string>();
+
+    /// <inheritdoc/>
+    public virtual string? ExtractEmail(JsonNode caseData) =>
+        caseData["data"]?["email"]?.GetValue<string>();
+
+    /// <inheritdoc/>
+    public virtual string? ExtractVerificationValue(JsonNode caseData) =>
+        caseData["data"]?["carPlate"]?.GetValue<string>();
+
+    /// <inheritdoc/>
+    public virtual OperationResult Validate(JsonNode caseData) {
+        var verificationValue = ExtractVerificationValue(caseData);
+        if (string.IsNullOrWhiteSpace(verificationValue))
+            return OperationResult.Failure("Verification value is missing or empty.");
+
+        if (string.IsNullOrWhiteSpace(ExtractPhoneNumber(caseData)) && string.IsNullOrWhiteSpace(ExtractEmail(caseData)))
+            return OperationResult.Failure("Phone number and email are missing or empty.");
+        return OperationResult.Success();
+    }
+}

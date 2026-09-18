@@ -8,6 +8,10 @@
  * never seen without taking the thread down.
  */
 
+// Type-only: the generated shape of a part, so the builders below cannot drift from the wire contract. It adds no
+// runtime dependency, which is what keeps this file importable from a spec without a TestBed.
+import type { IChatMessagePart } from '../../../core/services/dex-api.service';
+
 /** A list of options the user can pick from; picking one posts it verbatim as the next user message. */
 export const MULTIPLE_CHOICE_MEDIA_TYPE = 'application/vnd.indice.multiple-choice+json';
 
@@ -20,8 +24,34 @@ export const CALLOUT_MEDIA_TYPE = 'application/vnd.indice.callout+json';
 /** A two-way confirmation; picking a button posts its label verbatim as the next user message. */
 export const CONFIRM_MEDIA_TYPE = 'application/vnd.indice.confirm+json';
 
+/**
+ * A question the workflow is blocked on until a human answers it — the assistant half of the human-in-the-loop
+ * round-trip. The answer goes back on the next user turn as a {@link HITL_RESPONSE_MEDIA_TYPE} part.
+ */
+export const HITL_REQUEST_MEDIA_TYPE = 'application/vnd.indice.hitl-request+json';
+
+/**
+ * The user half of that round-trip. It only ever appears on a *user* turn, which is why it has no {@link PartKind}:
+ * user turns render their text directly and never go through `ChatMessagePartComponent`.
+ *
+ * Unlike every other media type here, a part carrying this one travels as a base64 `data:` URI rather than raw JSON.
+ * That asymmetry is the server's: an outbound `+json` part is decoded to text by `DexChatResponseExtensions
+ * .ToChatMessagePart`, but an inbound one is fed to `ChatMessagePart.ToAIContent()`, which hands anything that is
+ * not exactly `text/plain` to `new DataContent(value, contentType)` — and that constructor takes a data URI, not
+ * arbitrary text. {@link hitlResponseParts} is the only place that encoding is applied.
+ */
+export const HITL_RESPONSE_MEDIA_TYPE = 'application/vnd.indice.hitl-response+json';
+
 /** What `ChatMessagePartComponent` renders a part as. */
-export type PartKind = 'markdown' | 'html' | 'image' | 'multiple-choice' | 'callout' | 'confirm' | 'unknown';
+export type PartKind =
+  | 'markdown'
+  | 'html'
+  | 'image'
+  | 'multiple-choice'
+  | 'callout'
+  | 'confirm'
+  | 'hitl-request'
+  | 'unknown';
 
 /**
  * Classifies a part by its `contentType`. This exists as a function rather than a plain `@switch` on the raw media type
@@ -44,6 +74,8 @@ export function partKind(contentType: string | undefined): PartKind {
       return 'callout';
     case CONFIRM_MEDIA_TYPE:
       return 'confirm';
+    case HITL_REQUEST_MEDIA_TYPE:
+      return 'hitl-request';
     default:
       return contentType?.startsWith('image/') ? 'image' : 'unknown';
   }
@@ -73,6 +105,20 @@ export interface Confirmation {
   prompt?: string;
   confirmText: string;
   cancelText: string;
+}
+
+/**
+ * A question the workflow is waiting on a human to answer. Mirrors the server's `HumanRequest`: `requestId`
+ * correlates the answer back to the port that asked, and `text` is the prompt.
+ *
+ * The server leaves `text` unset today — `AgentsChatClient` appends this part to the request port's own
+ * `ChatMessage`, so the question arrives as ordinary prose parts beside it and this payload is effectively just the
+ * correlation id. The field is read anyway, so a server that starts filling it needs no client change.
+ */
+export interface HitlRequest {
+  requestId?: string;
+  text?: string;
+  properties?: Record<string, string>;
 }
 
 /** Reads the options out of a multiple-choice part value; anything unexpected yields an empty list. */
@@ -143,6 +189,76 @@ export function parseConfirmation(value: string | undefined): Confirmation | nul
   };
 }
 
+/**
+ * Reads a human-in-the-loop request out of a part value. Unlike the other parsers this one returns a request for any
+ * well-formed JSON object, even one with no prompt: "is an answer owed?" and "does the form render?" have to be the
+ * same predicate, or the composer would silently stop attaching answers for a payload the thread still shows.
+ */
+export function parseHitlRequest(value: string | undefined): HitlRequest | null {
+  const parsed = parseObject<Record<string, unknown>>(value);
+  if (!parsed) {
+    return null;
+  }
+  // Both casings. `HumanRequest`/`HumanResponse` are the only payloads here with no `[JsonPropertyName]` attributes,
+  // and `DataContentExtensions.JsonPart` serialises with the default options rather than the web ones — so they
+  // arrive PascalCase while every other payload arrives camelCase. Reading both survives that being tidied up.
+  return {
+    requestId: text(parsed['RequestId']) ?? text(parsed['requestId']),
+    text: text(parsed['Text']) ?? text(parsed['text']),
+    properties: stringMap(parsed['Properties'] ?? parsed['properties']),
+  };
+}
+
+/**
+ * Builds the parts of a user turn answering `request`. The readable text leads: it is what the thread and the
+ * persisted history show, and it is the part the server's `ChatRequest.Text` facade resolves to — which is what
+ * `ChatRequestValidator` validates, so a turn without it is a 400.
+ *
+ * It must be `text/plain` exactly. `ChatMessagePart.ToAIContent()` promotes only that one media type to
+ * `TextContent`; `text/markdown` would take the `DataContent` branch and fail on text that is not a data URI.
+ */
+export function hitlResponseParts(request: HitlRequest, answer: string): IChatMessagePart[] {
+  // PascalCase mirrors the server's `HumanResponse` as it would actually be read back: the class carries no
+  // `[JsonPropertyName]` attributes, and the default `JsonSerializerOptions` are case-sensitive with no naming
+  // policy — camelCase would deserialize into an empty object.
+  const payload = { Text: answer, RequestId: request.requestId ?? '', Properties: {} };
+  return [
+    { value: answer, contentType: 'text/plain' },
+    { value: toBase64DataUri(payload, HITL_RESPONSE_MEDIA_TYPE), contentType: HITL_RESPONSE_MEDIA_TYPE },
+  ];
+}
+
+/** The parts of an ordinary, unstructured user turn. */
+export function textParts(value: string): IChatMessagePart[] {
+  return [{ value, contentType: 'text/plain' }];
+}
+
+/**
+ * Whether a part carries prose the user's own bubble should print. Everything else on a user turn is structured
+ * payload — a HITL answer, an attachment — which would otherwise spill its raw value into the thread.
+ *
+ * The `text` prefix (not `text/`) mirrors the server's `ChatRequest.Text` facade, so both ends agree on which part
+ * of a turn is its text.
+ */
+export function isTextPart(contentType: string | undefined): boolean {
+  return !contentType || contentType.toLowerCase().startsWith('text');
+}
+
+/**
+ * Serialises a payload as a base64 `data:` URI. `btoa` alone is not enough: it throws on any code point above 255,
+ * which every Greek answer in this UI would hit. Encoding to UTF-8 bytes first is the inverse of the decode in
+ * `chat-html.component.ts`. The bytes are walked rather than spread — a spread of a long answer would overflow the
+ * argument limit of `String.fromCharCode`.
+ */
+function toBase64DataUri(payload: unknown, mediaType: string): string {
+  const bytes = new TextEncoder().encode(JSON.stringify(payload));
+  let binary = '';
+  for (let index = 0; index < bytes.length; index++) {
+    binary += String.fromCharCode(bytes[index]);
+  }
+  return `data:${mediaType};base64,${btoa(binary)}`;
+}
+
 const CALLOUT_SEVERITIES: readonly CalloutSeverity[] = ['info', 'success', 'warning', 'error'];
 
 /**
@@ -181,4 +297,13 @@ function label(value: unknown, fallback: string): string {
 /** Narrows a payload member to usable text — anything else, including a blank string, is "not supplied". */
 function text(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() ? value : undefined;
+}
+
+/** Narrows a payload member to a flat string map, dropping entries whose value is not text. */
+function stringMap(value: unknown): Record<string, string> | undefined {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return undefined;
+  }
+  const entries = Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === 'string');
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
 }

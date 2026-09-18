@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { ChatCitationsComponent } from './chat-citations.component';
 import { ChatMessagePartComponent } from './chat-message-part.component';
 import { ThreadMessage } from './chat.models';
+import { isTextPart } from './parts/part-contracts';
 
 /** The scrolling conversation: message bubbles, live streaming answer, citations and empty state. */
 @Component({
@@ -38,10 +39,14 @@ import { ThreadMessage } from './chat.models';
                            bg-primary px-4 py-2.5 text-[0.95rem] leading-relaxed text-primary-content
                            shadow-sm"
                   >
+                    <!-- Text only: a user turn can also carry structured payload (a HITL answer), whose value is a
+                         data URI that must never reach the bubble — on send or on reload from history. -->
                     @for (contentPart of turn.message.content.parts; track $index) {
-                    <div class="{{contentPart.contentType}}">
-                    {{ contentPart.value }}
-                    </div>
+                      @if (isText(contentPart.contentType)) {
+                        <div class="{{contentPart.contentType}}">
+                        {{ contentPart.value }}
+                        </div>
+                      }
                     }
                   </div>
                 </div>
@@ -194,6 +199,9 @@ export class ChatThreadComponent {
   readonly pick = output<string>();
   /** Emits when the user rates an assistant answer: `like` true/false, or null to clear the rating. */
   readonly likeChanged = output<{ messageId: string; like: boolean | null }>();
+
+  /** Which parts of a user turn its bubble prints; see the template. */
+  protected readonly isText = isTextPart;
 
   /** Like/dislike toggle — clicking the active thumb again clears the rating. */
   protected toggleLike(message: ThreadMessage, like: boolean): void {

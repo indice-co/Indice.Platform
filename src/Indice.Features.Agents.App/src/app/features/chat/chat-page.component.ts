@@ -9,6 +9,7 @@ import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
 import { ChatComposerComponent } from './chat-composer.component';
 import { ChatThreadComponent } from './chat-thread.component';
 import { EXAMPLE_PROMPTS, ThreadMessage, responseToThreadMessage, toThreadMessage } from './chat.models';
+import { HITL_REQUEST_MEDIA_TYPE, hitlResponseParts, parseHitlRequest, textParts } from './parts/part-contracts';
 
 /**
  * The Dex chat surface: conversation thread + composer, wired to the streaming API.
@@ -41,6 +42,21 @@ export class ChatPageComponent {
       !this.threadLoading() &&
       !this.store.activeId(),
   );
+
+  /**
+   * The human-in-the-loop question the thread is waiting on, if any — the latest turn is the assistant's and it
+   * carries a request part. Derived rather than stored, so it survives a thread reload and clears itself the moment
+   * `send` appends the user turn, exactly like the `isLatest` rule that disables a spent options list.
+   */
+  protected readonly pendingHitlRequest = computed(() => {
+    const messages = this.messages();
+    const latest = messages[messages.length - 1];
+    if (latest?.role !== 'Assistant') {
+      return null;
+    }
+    const part = latest.content.parts?.find((candidate) => candidate.contentType === HITL_REQUEST_MEDIA_TYPE);
+    return part ? parseHitlRequest(part.value) : null;
+  });
 
   protected readonly isStreaming = signal(false);
   /** The DexChatResponse the stream is assembling — the invariant says the patched document IS one. */
@@ -115,7 +131,18 @@ export class ChatPageComponent {
     }
     this.cancelStream();
     this.error.set(null);
-    this.messages.update((list) => [...list, { role: 'User', content: { parts: [new ChatMessagePart({ value: value, contentType: 'text/markdown' })] }, createdAt: new Date() }]);
+    // Read before the turn is appended: once it is, this message is no longer the latest and the request is spent.
+    // The answer rides on whatever the next turn is, so typing in the composer answers just as the inline form does.
+    const pending = this.pendingHitlRequest();
+    const parts = pending ? hitlResponseParts(pending, value) : textParts(value);
+    this.messages.update((list) => [
+      ...list,
+      {
+        role: 'User',
+        content: { parts: parts.map((part) => new ChatMessagePart(part)) },
+        createdAt: new Date(),
+      },
+    ]);
     this.isStreaming.set(true);
     this.streamResponse.set(null);
     this.currentStep.set('Working…');
@@ -125,8 +152,8 @@ export class ChatPageComponent {
     const sessionId = this.store.activeId();
     const agentName = this.selectedAgentName() ?? this.agents()[0]?.name ?? null;
     const stream$ = sessionId
-      ? this.streamSvc.streamMessage(sessionId, value, agentName)
-      : this.streamSvc.streamCreate(value, agentName, this.externalReference());
+      ? this.streamSvc.streamMessage(sessionId, parts, agentName)
+      : this.streamSvc.streamCreate(parts, agentName, this.externalReference());
     this.streamSub = stream$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (frame) => this.onFrame(frame),
       error: (err: unknown) => {

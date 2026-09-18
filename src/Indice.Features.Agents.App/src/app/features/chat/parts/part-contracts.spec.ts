@@ -1,14 +1,20 @@
 import {
   CALLOUT_MEDIA_TYPE,
   CONFIRM_MEDIA_TYPE,
+  HITL_REQUEST_MEDIA_TYPE,
+  HITL_RESPONSE_MEDIA_TYPE,
   IMAGE_MEDIA_TYPE,
   MULTIPLE_CHOICE_MEDIA_TYPE,
   PartKind,
+  hitlResponseParts,
+  isTextPart,
   parseCallout,
   parseConfirmation,
+  parseHitlRequest,
   parseImage,
   parseMultipleChoice,
   partKind,
+  textParts,
 } from './part-contracts';
 
 describe('partKind', () => {
@@ -19,6 +25,9 @@ describe('partKind', () => {
     [IMAGE_MEDIA_TYPE, 'image'],
     [CALLOUT_MEDIA_TYPE, 'callout'],
     [CONFIRM_MEDIA_TYPE, 'confirm'],
+    [HITL_REQUEST_MEDIA_TYPE, 'hitl-request'],
+    // The response half is deliberately unclassified: it only ever rides a user turn, which the dispatcher never sees.
+    [HITL_RESPONSE_MEDIA_TYPE, 'unknown'],
     // Prefix matching is the whole reason this is a function and not a template @switch.
     ['image/png', 'image'],
     ['image/svg+xml', 'image'],
@@ -200,3 +209,130 @@ describe('parseConfirmation', () => {
     expect(parseConfirmation(undefined)).toBeNull();
   });
 });
+
+describe('parseHitlRequest', () => {
+  it('reads the PascalCase payload the server actually emits', () => {
+    // `HumanRequest` has no [JsonPropertyName] attributes and JsonPart serialises with the default options, so this
+    // is the shape on the wire — the only payload here that is not camelCase.
+    expect(parseHitlRequest('{"Text":null,"RequestId":"a1b2","Properties":{}}')).toEqual({
+      requestId: 'a1b2',
+      text: undefined,
+      properties: undefined,
+    });
+  });
+
+  it('reads a camelCase payload too, in case the attributes get added', () => {
+    expect(parseHitlRequest('{"requestId":"a1b2","text":"VAT number?"}')).toEqual({
+      requestId: 'a1b2',
+      text: 'VAT number?',
+      properties: undefined,
+    });
+  });
+
+  it('reads the prompt and properties when the server fills them', () => {
+    const payload = '{"RequestId":"a1b2","Text":"VAT number?","Properties":{"caseId":"77"}}';
+    expect(parseHitlRequest(payload)).toEqual({
+      requestId: 'a1b2',
+      text: 'VAT number?',
+      properties: { caseId: '77' },
+    });
+  });
+
+  it('still reports a request when the payload carries nothing but the id', () => {
+    // Unlike a bodiless callout this must not degrade to null: "is an answer owed?" and "does the form render?" are
+    // the same predicate, so a promptless request would otherwise stop the next turn carrying an answer. Which is
+    // the live case — the server sends only a RequestId and puts the question in sibling prose parts.
+    expect(parseHitlRequest('{"RequestId":"a1b2"}')).toEqual({
+      requestId: 'a1b2',
+      text: undefined,
+      properties: undefined,
+    });
+    expect(parseHitlRequest('{}')).toEqual({ requestId: undefined, text: undefined, properties: undefined });
+  });
+
+  it('drops members that are not usable text', () => {
+    expect(parseHitlRequest('{"RequestId":7,"Text":"   ","Properties":{"a":1}}')).toEqual({
+      requestId: undefined,
+      text: undefined,
+      properties: undefined,
+    });
+  });
+
+  it('returns null for a malformed payload rather than throwing', () => {
+    expect(parseHitlRequest('not json')).toBeNull();
+    expect(parseHitlRequest('[]')).toBeNull();
+    expect(parseHitlRequest('')).toBeNull();
+    expect(parseHitlRequest(undefined)).toBeNull();
+  });
+});
+
+describe('hitlResponseParts', () => {
+  it('leads with the plain-text answer, which is the part the server validates', () => {
+    // ChatRequest.Text resolves to the first text part and ChatRequestValidator requires it non-empty; and only
+    // text/plain exactly is promoted to TextContent, so text/markdown here would take the DataContent branch.
+    const [text] = hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789');
+    expect(text).toEqual({ value: 'EL123456789', contentType: 'text/plain' });
+  });
+
+  it('carries the structured answer as a data URI, not as raw json', () => {
+    // DataContent's string constructor takes a data URI; raw json would not survive ChatMessagePart.ToAIContent().
+    const [, structured] = hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789');
+    expect(structured.contentType).toBe(HITL_RESPONSE_MEDIA_TYPE);
+    expect(structured.value).toContain(`data:${HITL_RESPONSE_MEDIA_TYPE};base64,`);
+  });
+
+  it('emits the PascalCase HumanResponse shape the server would deserialize', () => {
+    // Default JsonSerializerOptions are case-sensitive with no naming policy, and HumanResponse carries no
+    // attributes — camelCase would bind into an empty object.
+    expect(decodeResponse(hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789')[1].value)).toEqual({
+      Text: 'EL123456789',
+      RequestId: 'a1b2',
+      Properties: {},
+    });
+  });
+
+  it('sends an empty correlation id when the request carried none', () => {
+    // RequestId is a non-nullable string server-side, so an empty one is closer than an absent member.
+    expect(decodeResponse(hitlResponseParts({}, 'yes')[1].value)).toEqual({
+      Text: 'yes',
+      RequestId: '',
+      Properties: {},
+    });
+  });
+
+  it('encodes an answer outside latin-1, which bare btoa rejects', () => {
+    // The UI ships Greek content, so this is the ordinary case rather than an edge one.
+    const answer = 'Ναι, το ΑΦΜ είναι EL123456789 — ευχαριστώ';
+    expect(decodeResponse(hitlResponseParts({ requestId: 'a1b2' }, answer)[1].value)).toEqual({
+      Text: answer,
+      RequestId: 'a1b2',
+      Properties: {},
+    });
+  });
+});
+
+describe('textParts', () => {
+  it('builds the single text/plain part of an ordinary turn', () => {
+    expect(textParts('hello')).toEqual([{ value: 'hello', contentType: 'text/plain' }]);
+  });
+});
+
+describe('isTextPart', () => {
+  it('admits prose, including a part that declares no type at all', () => {
+    expect(isTextPart('text/plain')).toBeTrue();
+    expect(isTextPart('text/markdown')).toBeTrue();
+    expect(isTextPart('TEXT/HTML')).toBeTrue();
+    expect(isTextPart(undefined)).toBeTrue();
+  });
+
+  it('rejects structured payload, whose raw value must never reach a bubble', () => {
+    expect(isTextPart(HITL_RESPONSE_MEDIA_TYPE)).toBeFalse();
+    expect(isTextPart('image/png')).toBeFalse();
+  });
+});
+
+/** Reads a response part's value back — the inverse of the encoding in `hitlResponseParts`. */
+function decodeResponse(value: string | undefined): unknown {
+  const base64 = (value ?? '').slice(`data:${HITL_RESPONSE_MEDIA_TYPE};base64,`.length);
+  return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(base64), (char) => char.charCodeAt(0))));
+}

@@ -6,6 +6,7 @@ import { ChatMessagePartComponent } from './chat-message-part.component';
 import {
   CALLOUT_MEDIA_TYPE,
   CONFIRM_MEDIA_TYPE,
+  HITL_REQUEST_MEDIA_TYPE,
   IMAGE_MEDIA_TYPE,
   MULTIPLE_CHOICE_MEDIA_TYPE,
 } from './parts/part-contracts';
@@ -23,6 +24,17 @@ const CONFIRM_PART = {
 const IMAGE_PART = {
   contentType: IMAGE_MEDIA_TYPE,
   value: '{"uri":"https://cdn.example.com/a.png","caption":"Figure 1"}',
+};
+
+const HITL_PART = {
+  contentType: HITL_REQUEST_MEDIA_TYPE,
+  value: '{"Text":"What is the customer\'s VAT number?","RequestId":"a1b2","Properties":{}}',
+};
+
+/** What the server emits today: the correlation id alone, the question carried by sibling prose parts. */
+const HITL_BARE_PART = {
+  contentType: HITL_REQUEST_MEDIA_TYPE,
+  value: '{"Text":null,"RequestId":"a1b2","Properties":{}}',
 };
 
 describe('ChatMessagePartComponent', () => {
@@ -53,6 +65,13 @@ describe('ChatMessagePartComponent', () => {
 
   function bubbleOf(host: HTMLElement): DOMTokenList | undefined {
     return host.querySelector('.markdown')?.classList;
+  }
+
+  function typeAnswer(host: HTMLElement, value: string): void {
+    const field = host.querySelector('input') as HTMLInputElement;
+    field.value = value;
+    field.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
   }
 
   describe('prose', () => {
@@ -213,6 +232,60 @@ describe('ChatMessagePartComponent', () => {
     it('is disabled once the message is no longer the latest', () => {
       const host = render(CONFIRM_PART, { interactive: false });
       expect(buttons(host).every((button) => button.disabled)).toBeTrue();
+    });
+  });
+
+  describe('hitl request', () => {
+    it('renders the prompt and a field to answer it in', () => {
+      const host = render(HITL_PART);
+      expect(host.textContent).toContain("What is the customer's VAT number?");
+      expect(host.querySelector('input')).toBeTruthy();
+    });
+
+    it('keeps submit disabled until something has been typed', () => {
+      const host = render(HITL_PART);
+      expect(buttons(host)[0].disabled).toBeTrue();
+      typeAnswer(host, 'EL123456789');
+      expect(buttons(host)[0].disabled).toBeFalse();
+    });
+
+    it('emits the typed answer so the page can send it as a user message', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_PART);
+      typeAnswer(host, '  EL123456789  ');
+      buttons(host)[0].click();
+      expect(picked).toEqual(['EL123456789']);
+    });
+
+    it('locks after the first submit so a double-click cannot send twice', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_PART);
+      typeAnswer(host, 'EL123456789');
+      buttons(host)[0].click();
+      fixture.detectChanges();
+      buttons(host)[0].click();
+      expect(picked).toEqual(['EL123456789']);
+      expect(host.querySelector('input')?.disabled).toBeTrue();
+    });
+
+    it('is inert once the message is no longer the latest', () => {
+      const host = render(HITL_PART, { interactive: false });
+      expect(host.querySelector('input')?.disabled).toBeTrue();
+      expect(buttons(host).every((button) => button.disabled)).toBeTrue();
+    });
+
+    it('renders nothing when the payload is malformed', () => {
+      const host = render({ contentType: HITL_REQUEST_MEDIA_TYPE, value: 'not json' });
+      expect(host.querySelector('input')).toBeNull();
+      expect(buttons(host).length).toBe(0);
+    });
+
+    it('still offers a field for the bare payload the server sends today', () => {
+      const host = render(HITL_BARE_PART);
+      expect(host.querySelector('input')).toBeTruthy();
+      expect(host.querySelector('p')).toBeNull();
     });
   });
 
