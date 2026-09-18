@@ -190,6 +190,7 @@ public class WorkflowChatClient(IServiceProvider serviceProvider) : IChatClient
         } else {
             run = await InProcessExecution.RunStreamingAsync(workflow, message, checkpointManager, sessionId: sessionId, cancellationToken: cancellationToken);
         }
+        await using var _ = run;
         await foreach (var evt in run.WatchStreamAsync().WithCancellation(cancellationToken)) {
             switch (evt) {
                 case AgentResponseUpdateEvent updateEvent:
@@ -198,7 +199,7 @@ public class WorkflowChatClient(IServiceProvider serviceProvider) : IChatClient
                     yield return update;
                     break;
                 case RequestInfoEvent requestInfoEvent when !message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
-                    var lastCheckPoint = await checkpointManager.GetLatestCheckpointAsync(sessionId);
+                    var lastCheckPoint = await checkpointManager.GetLatestCheckpointAsync(sessionId, cancellationToken);
                     var requestUpdate = requestInfoEvent.AsAgentResponseUpdate(lastCheckPoint!)
                                                         .AsChatResponseUpdate();
                     requestUpdate.ConversationId = options!.ConversationId;
