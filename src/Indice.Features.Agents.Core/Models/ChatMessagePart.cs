@@ -3,6 +3,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Indice.Features.Agents.Core.Data;
 using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Models;
@@ -72,7 +73,9 @@ public class ChatMessagePart
     public static ChatMessagePart FromImage(byte[] imageData, string contentType, string? name = null)
         => FromImage(new BinaryData(imageData, mediaType: contentType), name);
 
+
     /// <summary>Converts this <see cref="ChatMessagePart"/> into an <see cref="AIContent"/> instance.</summary>
+    /// <remarks>Inbound conversion. DexUI 2 ChatClient</remarks>
     /// <exception cref="NotSupportedException">The content type cannot be converted to an <see cref="AIContent"/>.</exception>
     public AIContent ToAIContent() => ContentType switch {
         // A pending tool/function invocation surfaced through the dex port. RequestId correlates with the eventual result.
