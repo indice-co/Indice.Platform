@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -51,7 +52,9 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             throw new ArgumentException("DexChatClient only supports a single user message per request. No batching allowed.", nameof(messages));
         }
         var message = messages.First();
-        var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());     
+        options ??= new ChatOptions();
+        options.ConversationId ??= Guid.NewGuid().ToString();
+        var state = new ConversationState(message, options.ConversationId);
         // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
         // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
         var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
@@ -84,20 +87,19 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             
             resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
         }
+        var sessionId = new AgentSessionId(Guid.Parse(options!.ConversationId), resolvedAgent);
         var workflow = serviceProvider.GetRequiredKeyedService<Workflow>(resolvedAgent);
         // Checkpointing: state written via QueueStateUpdateAsync is snapshotted at each superstep into the durable
         // EF-backed store, so it survives across HTTP requests. On a follow-up turn the latest checkpoint of the
         // conversation (sessionId == ConversationId) is restored and the new user message is injected into the resumed run.
         var checkpointManager = serviceProvider.GetRequiredService<CheckpointManager>();
-        var latestCheckpoint = options?.ConversationId is not null
-            ? await checkpointManager.GetLatestCheckpointAsync(new AgentSessionId(Guid.Parse(options!.ConversationId), resolvedAgent), cancellationToken)
-            :  null;
         StreamingRun run;
-        if (latestCheckpoint is not null) {
-            run = await InProcessExecution.ResumeStreamingAsync(workflow, latestCheckpoint, checkpointManager, cancellationToken: cancellationToken);
-            await run.TrySendMessageAsync(state);
+        if (message.HasFunctionResultContent()) {
+            var callId = message.GetFunctionResultContentCallId();
+            var checkpointInfo = new CheckpointInfo(sessionId, callId);
+            run = await InProcessExecution.ResumeStreamingAsync(workflow, checkpointInfo, checkpointManager, cancellationToken: cancellationToken);
         } else {
-            run = await InProcessExecution.RunStreamingAsync(workflow, state, checkpointManager, sessionId: new AgentSessionId(Guid.Parse(state.ConversationId), resolvedAgent), cancellationToken: cancellationToken);
+            run = await InProcessExecution.RunStreamingAsync(workflow, message, checkpointManager, sessionId: sessionId, cancellationToken: cancellationToken);
         }
         await using var _ = run;
         string? failure = null;
@@ -111,6 +113,17 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                 // One progress event per step start; unmapped executor ids are skipped. Emitted as ephemeral content, stripped from the composed response.
                 case ExecutorInvokedEvent invoked when StepLabels.TryGetValue(invoked.ExecutorId, out var label):
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = state.ConversationId };
+                    break;
+                case RequestInfoEvent requestInfoEvent when !message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
+                    var lastCheckPoint = await checkpointManager.GetLatestCheckpointAsync(sessionId, cancellationToken);
+                    var requestUpdate = requestInfoEvent.AsAgentResponseUpdate(lastCheckPoint!)
+                                                        .AsChatResponseUpdate();
+                    requestUpdate.ConversationId = options!.ConversationId;
+                    yield return requestUpdate;
+                    yield break;
+                case RequestInfoEvent requestInfoEvent when message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
+                    var response = requestInfoEvent.Request.CreateResponse(message.GetFunctionResult()!);
+                    await run.SendResponseAsync(response);
                     break;
                 // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor
                 // exceptions ("Error invoking handler for ..."), so walk to the innermost exception for the real cause.
