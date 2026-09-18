@@ -3,7 +3,6 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Xml.Linq;
 using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Models;
