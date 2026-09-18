@@ -30,7 +30,7 @@ public class WorkflowTests
           .Build();
         services.AddSingleton<IConfiguration>(configuration); 
         services.AddDbContext<AgentsDbContext>(builder => builder.UseInMemoryDatabase(databaseName: "AgentsDb"), ServiceLifetime.Singleton);
-        services.AddTransient<PersistedCheckpointStore>();
+        services.AddSingleton<PersistedCheckpointStore>();
         services.TryAddTransient(sp => CheckpointManager.CreateJson(sp.GetRequiredService<PersistedCheckpointStore>()));
         services.AddKeyedTransient("default", (sp, key) => {
             var start = new ChatTurnStartStep();
