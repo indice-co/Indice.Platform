@@ -62,12 +62,25 @@ public static class AgentsConstants
         /// <summary>A custom type to send svg to other agents that traditionally dont support svg.</summary>
         public const string Svg = "text/vnd.indice.svg+json";
 
-        /// <summary>Human-in-the-loop response payload.</summary>
-        public const string HitlResponse = "application/vnd.indice.hitl-response+json";
+        /// <summary>A custom type to send a request for a function call to the dex surface.</summary>
 
-        /// <summary>Human-in-the-loop request payload.</summary>
-        public const string HitlRequest = "application/vnd.indice.hitl-request+json";
+        public static class FunctionCallPort
+        {
+            /// <summary>The media type for a function call request sent to the dex surface. The payload is a generic json object.</summary>
+            public const string Request = "application/vnd.indice.function-call.request+json";
+            /// <summary>The media type for a function call response sent from the dex surface. The payload is a generic json object.</summary>
+            public const string Response = "application/vnd.indice.function-call.response+json";
+        }
 
+        /// <summary>A custom type to send a request for confirmation to the dex surface.</summary>
+
+        public static class ConfirmationPort
+        {
+            /// <summary>The media type for a confirmation request sent to the dex surface. The payload is a <see cref="Models.Confirmation"/> object.</summary>
+            public const string Request = "application/vnd.indice.confirmation.request+json";
+            /// <summary>The media type for a confirmation response sent from the dex surface. The payload is a string object.</summary>
+            public const string Response = "application/vnd.indice.confirmation.response+json";
+        }
     }
 
     /// <summary>

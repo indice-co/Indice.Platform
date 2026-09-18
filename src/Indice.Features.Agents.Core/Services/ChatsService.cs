@@ -51,7 +51,7 @@ public class ChatsService : IChatsService
         if (!turnCheck.Allowed) {
             return CreateLimitReachedResponse(conversation, turnCheck.Message);
         }
-        var userMessage = new ChatMessage(ChatRole.User, [.. chatRequest.Parts.Select(x => x.ToAIContent())]) {
+        var userMessage = new ChatMessage(ChatRole.User, [..chatRequest.Parts.Select(x => x.ToAIContent())]) {
             MessageId = Guid.NewGuid().ToString(),
             CreatedAt = DateTimeOffset.UtcNow,
             AuthorName = chatRequest.AuthorName

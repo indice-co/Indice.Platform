@@ -60,29 +60,54 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             throw new ArgumentException("DexChatClient only supports a single user message per request. No batching allowed.", nameof(messages));
         }
         var message = messages.First();
-        var state = new ConversationState(message, options?.ConversationId ?? Guid.NewGuid().ToString());
+        options ??= new ChatOptions();
+        options.ConversationId ??= Guid.NewGuid().ToString();
+        var state = new ConversationState(message, options.ConversationId);
         // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
         // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
-        (bool result, string resolvedAgent) = await GetAgentName(options, message, state, cancellationToken);
-        if (!result) {
-            yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(resolvedAgent)]) { ConversationId = state.ConversationId };
-            yield break;
+        var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
+        var selector = options?.Instructions?.Trim().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(selector)) {
+            selector = routing.DefaultAgent?.Trim().ToLowerInvariant();
         }
+        string resolvedAgent;
+        if (string.Equals(selector, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
+            RouteDecision? decision = null;
+            string? routeError = null;
+            try {
+                var router = serviceProvider.GetRequiredService<IntentRouterService>();
+                decision = await router.RouteAsync(message.Text, state.ConversationId, cancellationToken);
+            } 
+            catch (Exception exception) when (exception is not OperationCanceledException) {
+                routeError = exception.Message;
+            }
+            if (routeError is not null) {
+                yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = state.ConversationId };
+                yield break;
+            }
+            else if (decision!.AgentName is null) {
+                yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = state.ConversationId };
+                yield break;
+            }
+            resolvedAgent = decision.AgentName;
+        } 
+        else {
+            
+            resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
+        }
+        var sessionId = new AgentSessionId(Guid.Parse(options!.ConversationId), resolvedAgent);
         var workflow = serviceProvider.GetRequiredKeyedService<Workflow>(resolvedAgent);
         // Checkpointing: state written via QueueStateUpdateAsync is snapshotted at each superstep into the durable
         // EF-backed store, so it survives across HTTP requests. On a follow-up turn the latest checkpoint of the
         // conversation (sessionId == ConversationId) is restored and the new user message is injected into the resumed run.
         var checkpointManager = serviceProvider.GetRequiredService<CheckpointManager>();
-        var latestCheckpoint = options?.ConversationId is not null
-            ? await checkpointManager.GetLatestCheckpointAsync(new AgentSessionId(Guid.Parse(options!.ConversationId), resolvedAgent), cancellationToken)
-            : null;
         StreamingRun run;
-        var isResumed = latestCheckpoint is not null;
-        if (isResumed) {
-            run = await InProcessExecution.ResumeStreamingAsync(workflow, latestCheckpoint!, checkpointManager, cancellationToken: cancellationToken);
-            //await run.TrySendMessageAsync(state);
+        if (message.HasFunctionResultContent()) {
+            var callId = message.GetFunctionResultContentCallId();
+            var checkpointInfo = new CheckpointInfo(sessionId, callId);
+            run = await InProcessExecution.ResumeStreamingAsync(workflow, checkpointInfo, checkpointManager, cancellationToken: cancellationToken);
         } else {
-            run = await InProcessExecution.RunStreamingAsync(workflow, state, checkpointManager, sessionId: new AgentSessionId(Guid.Parse(state.ConversationId), resolvedAgent), cancellationToken: cancellationToken);
+            run = await InProcessExecution.RunStreamingAsync(workflow, message, checkpointManager, sessionId: sessionId, cancellationToken: cancellationToken);
         }
         await using var _ = run;
 
@@ -102,19 +127,16 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                 case ExecutorInvokedEvent invoked when stepLabels.TryGetValue(invoked.ExecutorId, out var label):
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = state.ConversationId };
                     break;
-                case RequestInfoEvent requestInfoEvent when !state.HasHitlResponse:
-                    requestInfoEvent.Request.TryGetDataAs<ChatMessage>(out var chatMessage);
-                    // First pass: surface the verification prompt to the user, persist the checkpoint and halt.
-                    chatMessage!.Contents.Add(
-                            DataContentExtensions.JsonPart(new HumanRequest() { RequestId = requestInfoEvent.Request.RequestId }, AgentsConstants.MediaTypes.HitlRequest, "hitl"));
-                    yield return new ChatResponseUpdate(ChatRole.Assistant, chatMessage!.Contents) { ConversationId = state.ConversationId };
+                case RequestInfoEvent requestInfoEvent when !message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
+                    var lastCheckPoint = await checkpointManager.GetLatestCheckpointAsync(sessionId, cancellationToken);
+                    var requestUpdate = requestInfoEvent.AsAgentResponseUpdate(lastCheckPoint!)
+                                                        .AsChatResponseUpdate();
+                    requestUpdate.ConversationId = options!.ConversationId;
+                    yield return requestUpdate;
                     yield break;
-                case RequestInfoEvent requestInfoEvent when state.HasHitlResponse:
-                    // Resumed run re-surfaces the OTP request — answer it with the user's code.
-                    await run.SendResponseAsync(requestInfoEvent.Request.CreateResponse(new ChatMessage(ChatRole.User, state.Message.Contents)));
-                    userReply = null;
-                    break;
-                case SuperStepCompletedEvent:
+                case RequestInfoEvent requestInfoEvent when message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
+                    var response = requestInfoEvent.Request.CreateResponse(message.GetFunctionResult()!);
+                    await run.SendResponseAsync(response);
                     break;
                 // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor
                 // exceptions ("Error invoking handler for ..."), so walk to the innermost exception for the real cause.
