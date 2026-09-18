@@ -62,7 +62,18 @@ public static class WorkflowExtensions
         /// <returns>The function result content.</returns>
         public FunctionResultContent? GetFunctionResultContent(string? requestId = null)
             => chatMessage.Contents.OfType<FunctionResultContent>()
-                                   .FirstOrDefault(c => requestId == null || new AgentFunctionCallId(c.CallId).RequestId.Equals(requestId));
+                                   .FirstOrDefault(c => requestId == null || (AgentFunctionCallId.TryParse(c.CallId, out var callId) && callId!.RequestId.Equals(requestId)));
+
+        /// <summary>
+        /// Tries to get the function result content from a <see cref="ChatMessage"/>.
+        /// </summary>
+        /// <param name="requestId">The optional request ID to match.</param>
+        /// <param name="functionResultContent">When this method returns, contains the function result content if the parsing succeeded, or null if the parsing failed.</param>
+        /// <returns>True if the parsing succeeded; otherwise, false.</returns>
+        public bool TryGetFunctionResultContent(string? requestId, out FunctionResultContent? functionResultContent) {
+            functionResultContent = GetFunctionResultContent(chatMessage, requestId);
+            return functionResultContent != null;
+        }
 
         /// <summary>
         /// Determines whether a <see cref="ChatMessage"/> has function result content.
@@ -70,7 +81,7 @@ public static class WorkflowExtensions
         /// <param name="requestId">The optional request ID to match.</param>
         /// <returns><c>true</c> if the chat message has function result content; otherwise, <c>false</c>.</returns>
         public bool HasFunctionResultContent(string? requestId = null)
-            => chatMessage.Contents.OfType<FunctionResultContent>().Any(c => requestId == null || new AgentFunctionCallId(c.CallId).RequestId.Equals(requestId));
+            => GetFunctionResultContent(chatMessage, requestId) != null;
 
         /// <summary>
         /// Determines whether a <see cref="ChatMessage"/> has function result content.

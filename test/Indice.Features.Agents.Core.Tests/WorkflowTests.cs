@@ -167,7 +167,7 @@ public class WorkflowChatClient(IServiceProvider serviceProvider) : IChatClient
         StreamingRun run;
         if (message.HasFunctionResultContent()) {
             var callId = message.GetFunctionResultContentCallId();
-            var checkpointInfo = new CheckpointInfo(sessionId, callId);
+            var checkpointInfo = new CheckpointInfo(sessionId, callId.CheckpointId!);
             run = await InProcessExecution.ResumeStreamingAsync(workflow, checkpointInfo, checkpointManager, cancellationToken: cancellationToken);
         } else {
             run = await InProcessExecution.RunStreamingAsync(workflow, message, checkpointManager, sessionId: sessionId, cancellationToken: cancellationToken);

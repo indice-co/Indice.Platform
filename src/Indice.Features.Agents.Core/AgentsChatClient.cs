@@ -54,7 +54,6 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         var message = messages.First();
         options ??= new ChatOptions();
         options.ConversationId ??= Guid.NewGuid().ToString();
-        options.Instructions ??= "default";
         var state = new ConversationState(message, options.ConversationId);
         // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
         // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
