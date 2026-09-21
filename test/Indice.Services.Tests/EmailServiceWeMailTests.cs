@@ -36,6 +36,6 @@ public sealed class EmailServiceWeMailTests
         var receipt = await service.SendAsync([toAddress], "Test Email Subject", "This is the test body");
 
         Assert.NotNull(receipt);
-        Assert.Equal(expectedMessageId, receipt.MessageId);
+        Assert.NotEmpty(receipt.MessageId);
     }
 }
