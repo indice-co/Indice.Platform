@@ -51,6 +51,12 @@ public class AIContentTests
         var dataContentHtml = new DataContent($"data:,{Uri.EscapeDataString(htmlText)}", MediaTypeNames.Text.Html);
 
         var extractedHtmlContent = Encoding.UTF8.GetString(dataContentHtml.Data.ToArray());
+        var code = 23323423;
+        var codeDataContent = new DataContent($"data:,{Uri.EscapeDataString(code.ToString())}", "text/vnd.indice+code");
+
+        int extractedCode = int.Parse(Encoding.UTF8.GetString(codeDataContent.Data.ToArray()));
+
+        Assert.Equal(code, extractedCode);
 
         var dataContentFromHtml = new DataContent($"data:,{Uri.EscapeDataString(extractedHtmlContent)}", "text/vnd.indice+html");
         Assert.Equal(htmlText, Encoding.UTF8.GetString(dataContentFromHtml.Data.ToArray()));
