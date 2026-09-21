@@ -241,6 +241,14 @@ public static class HostBuilderExtensions
         return options;
     }
 
+    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses WeMail to send emails.</summary>
+    /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageOptions UseEmailServiceWeMail(this MessageOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceWeMail(configuration);
+        return options;
+    }
+
     /// <summary>Adds an instance of <see cref="IEmailService"/> according to <seealso cref="IConfiguration"/> and the <strong>Email:Provider</strong> setting.</summary>
     /// <param name="options">Options used when configuring messages in Azure Functions.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
