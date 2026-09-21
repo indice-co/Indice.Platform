@@ -15,10 +15,10 @@ public static class AgentsConstants
         public const string Auto = "auto";
 
         /// <summary>The name of the agent that handles case-based queries with OTP verification.</summary>
-        public const string Cases = "cases";
+        public const string Operator = "operator";
 
-        /// <summary>The name of the test/dummy agent.</summary>
-        public const string Dummy = "dummy";
+        /// <summary>The name of the test/demo agent.</summary>
+        public const string Demo = "demo";
 
     }
 
