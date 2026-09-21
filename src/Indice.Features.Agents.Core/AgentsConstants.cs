@@ -15,10 +15,10 @@ public static class AgentsConstants
         public const string Auto = "auto";
 
         /// <summary>The name of the agent that handles case-based queries with OTP verification.</summary>
-        public const string Cases = "cases";
+        public const string Operator = "operator";
 
-        /// <summary>The name of the test/dummy agent.</summary>
-        public const string Dummy = "dummy";
+        /// <summary>The name of the test/demo agent.</summary>
+        public const string Demo = "demo";
 
     }
 
@@ -92,6 +92,9 @@ public static class AgentsConstants
 
         /// <summary>A generic conversational flow — matches the client's fallback glyph.</summary>
         public const string Chat = "chat";
+
+        /// <summary>A operator flow — matches the client's fallback gear.</summary>
+        public const string Gear = "gear";
     }
 
     /// <summary>Default fallback messages surfaced by the Agents feature.</summary>
