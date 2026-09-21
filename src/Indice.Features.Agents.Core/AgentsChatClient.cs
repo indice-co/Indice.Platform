@@ -53,7 +53,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         }
         var message = messages.First();
         options ??= new ChatOptions();
-        options.ConversationId ??= Guid.NewGuid().ToString();
+        options.ConversationId ??= Guid.NewGuid().ToString()!;
         message.AdditionalProperties ??= new AdditionalPropertiesDictionary() {
             [nameof(options.ConversationId)] = options.ConversationId
         };
@@ -62,7 +62,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
         // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
         var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
-        var selector = options?.Instructions?.Trim().ToLowerInvariant();
+        var selector = options.Instructions?.Trim().ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(selector)) {
             selector = routing.DefaultAgent?.Trim().ToLowerInvariant();
         }
@@ -72,17 +72,17 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             string? routeError = null;
             try {
                 var router = serviceProvider.GetRequiredService<IntentRouterService>();
-                decision = await router.RouteAsync(message.Text, options!.ConversationId, cancellationToken);
+                decision = await router.RouteAsync(message.Text, options.ConversationId, cancellationToken);
             } 
             catch (Exception exception) when (exception is not OperationCanceledException) {
                 routeError = exception.Message;
             }
             if (routeError is not null) {
-                yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = options!.ConversationId };
+                yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = options.ConversationId };
                 yield break;
             }
             else if (decision!.AgentName is null) {
-                yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = options!.ConversationId };
+                yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = options.ConversationId };
                 yield break;
             }
             resolvedAgent = decision.AgentName;
@@ -91,7 +91,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             
             resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
         }
-        var sessionId = new AgentSessionId(Guid.Parse(options!.ConversationId), resolvedAgent);
+        var sessionId = new AgentSessionId(Guid.Parse(options.ConversationId), resolvedAgent);
         var workflow = serviceProvider.GetRequiredKeyedService<Workflow>(resolvedAgent);
         // Checkpointing: state written via QueueStateUpdateAsync is snapshotted at each superstep into the durable
         // EF-backed store, so it survives across HTTP requests. On a follow-up turn the latest checkpoint of the
@@ -112,12 +112,12 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             switch (evt) {
                 case AgentResponseUpdateEvent updateEvent:
                     var update = updateEvent.Update.AsChatResponseUpdate();
-                    update.ConversationId = options!.ConversationId;
+                    update.ConversationId = options.ConversationId;
                     yield return update;
                     break;
                 // One progress event per step start; unmapped executor ids are skipped. Emitted as ephemeral content, stripped from the composed response.
                 case ExecutorInvokedEvent invoked when StepLabels.TryGetValue(invoked.ExecutorId, out var label):
-                    yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = options!.ConversationId };
+                    yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = options.ConversationId };
                     break;
                 case RequestInfoEvent requestInfoEvent when !message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
                     // Defer emission until the superstep checkpoint is committed (raised via SuperStepCompletedEvent).
@@ -126,7 +126,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                 case SuperStepCompletedEvent superStepCompleted when pendingRequest is not null && superStepCompleted.CompletionInfo?.Checkpoint is not null:
                     var requestUpdate = pendingRequest.AsAgentResponseUpdate(superStepCompleted.CompletionInfo.Checkpoint)
                                                       .AsChatResponseUpdate();
-                    requestUpdate.ConversationId = options!.ConversationId;
+                    requestUpdate.ConversationId = options.ConversationId;
                     yield return requestUpdate;
                     yield break;
                 case RequestInfoEvent requestInfoEvent when message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
@@ -141,7 +141,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                         exception = exception.InnerException;
                     }
                     failure ??= exception?.Message ?? "Workflow failed without exception details.";
-                    yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(failure)]) { ConversationId = options!.ConversationId };
+                    yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(failure)]) { ConversationId = options.ConversationId };
                     break;
                 default:
                     //Console.WriteLine(evt);
