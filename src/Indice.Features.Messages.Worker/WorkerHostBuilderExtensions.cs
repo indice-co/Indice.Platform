@@ -200,7 +200,7 @@ public static class WorkerHostBuilderExtensions
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceSendGrid(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddEmailServiceSparkPost(configuration);
+        options.Services.AddEmailServiceSendGrid(configuration);
         return options;
     }
 
@@ -208,7 +208,15 @@ public static class WorkerHostBuilderExtensions
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceBrevo(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddEmailServiceSparkPost(configuration);
+        options.Services.AddEmailServiceBrevo(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses WeMail to send emails.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageJobsOptions UseEmailServiceWeMail(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceWeMail(configuration);
         return options;
     }
 
