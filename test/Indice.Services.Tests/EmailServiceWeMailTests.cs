@@ -23,8 +23,6 @@ public sealed class EmailServiceWeMailTests
             });
         _mockHtmlRenderingEngine = new Mock<IHtmlRenderingEngine>();
 
-        var expectedMessageId = Guid.NewGuid().ToString();
-
         using var httpClient = new HttpClient();
 
         var service = new EmailServiceWeMail(
