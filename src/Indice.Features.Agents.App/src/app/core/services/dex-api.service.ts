@@ -3316,7 +3316,7 @@ function blobToText(blob: any): Observable<string> {
                 observer.complete();
             };
             reader.readAsText(blob);
-      }
+        }
     });
 }
 export interface FileParameter {
