@@ -251,6 +251,11 @@ public class ChatsService : IChatsService
                                 yield return compactor.Compact(frame);
                             }
                             break;
+                        case FunctionCallContent call:
+                            foreach (var frame in projector.AddPart(call.ToChatMessagePart())) {
+                                yield return compactor.Compact(frame);
+                            }
+                            break;
                     }
                 }
             }
