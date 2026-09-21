@@ -34,7 +34,6 @@ public class WorkflowTests
         services.TryAddTransient(sp => CheckpointManager.CreateJson(sp.GetRequiredService<PersistedCheckpointStore>()));
         services.AddKeyedTransient("default", (sp, key) => {
             var start = new ChatTurnStartStep();
-            var completed = new ChatConversationCompletedStep();
             var otpRequirement = new OtpRequirementStep();
             var otpVerification = new OtpVerificationStep();
             var otpPort = OtpRequestPort.CreateOtpPort();
@@ -114,26 +113,7 @@ public class WorkflowTests
         }
     }
 
-    class ChatConversationCompletedStep() : Executor<ConversationOutput, ConversationOutput>("ChatConversationCompleted")
-    {
-
-        public override async ValueTask<ConversationOutput> HandleAsync(ConversationOutput message, IWorkflowContext context, CancellationToken cancellationToken = default) {
-            // await context.Say(Id, "Done");
-            return message;
-        }
-    }
-
-
     public record ConversationOutput(bool Done);
-
-
-    public static class HumanInTheLoopConstants
-    {
-        public const string ContentTypeMask = "application/vnd.indice.hitl-{0}+json";
-        public static readonly string RequestContentType = string.Format(ContentTypeMask, "request");
-        public static readonly string ResponseContentType = string.Format(ContentTypeMask, "response");
-
-    }
 
     public static class OtpRequestPort 
     { 
@@ -173,6 +153,7 @@ public class WorkflowChatClient(IServiceProvider serviceProvider) : IChatClient
             run = await InProcessExecution.RunStreamingAsync(workflow, message, checkpointManager, sessionId: sessionId, cancellationToken: cancellationToken);
         }
         await using var _ = run;
+        RequestInfoEvent? pendingRequest = null;
         await foreach (var evt in run.WatchStreamAsync().WithCancellation(cancellationToken)) {
             switch (evt) {
                 case AgentResponseUpdateEvent updateEvent:
@@ -181,9 +162,12 @@ public class WorkflowChatClient(IServiceProvider serviceProvider) : IChatClient
                     yield return update;
                     break;
                 case RequestInfoEvent requestInfoEvent when !message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
-                    var lastCheckPoint = await checkpointManager.GetLatestCheckpointAsync(sessionId, cancellationToken);
-                    var requestUpdate = requestInfoEvent.AsAgentResponseUpdate(lastCheckPoint!)
-                                                        .AsChatResponseUpdate();
+                    // Defer emission until the superstep checkpoint is committed (raised via SuperStepCompletedEvent).
+                    pendingRequest = requestInfoEvent;
+                    break;
+                case SuperStepCompletedEvent superStepCompleted when pendingRequest is not null && superStepCompleted.CompletionInfo?.Checkpoint is not null:
+                    var requestUpdate = pendingRequest.AsAgentResponseUpdate(superStepCompleted.CompletionInfo.Checkpoint)
+                                                      .AsChatResponseUpdate();
                     requestUpdate.ConversationId = options!.ConversationId;
                     yield return requestUpdate;
                     yield break;

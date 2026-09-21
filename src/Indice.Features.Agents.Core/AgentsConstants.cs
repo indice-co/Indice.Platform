@@ -16,6 +16,9 @@ public static class AgentsConstants
 
         /// <summary>The name of the agent that handles case-based queries with OTP verification.</summary>
         public const string Operator = "operator";
+        
+        /// <summary>The name of the test/demo agent.</summary>
+        public const string Demo = "demo";
     }
 
     /// <summary>Request-port identifiers used by checkpointed workflow resumes.</summary>

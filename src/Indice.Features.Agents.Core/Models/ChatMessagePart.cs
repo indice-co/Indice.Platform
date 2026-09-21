@@ -75,7 +75,9 @@ public class ChatMessagePart
     public static ChatMessagePart FromImage(byte[] imageData, string contentType, string? name = null)
         => FromImage(new BinaryData(imageData, mediaType: contentType), name);
 
+    
     /// <summary>Converts this <see cref="ChatMessagePart"/> into an <see cref="AIContent"/> instance.</summary>
+    /// <remarks>Inbound conversion. DexUI 2 ChatClient</remarks>
     /// <exception cref="NotSupportedException">The content type cannot be converted to an <see cref="AIContent"/>.</exception>
     public AIContent ToAIContent() => ContentType switch {
         // A pending tool/function invocation surfaced through the dex port. RequestId correlates with the eventual result.
@@ -127,5 +129,28 @@ public class ChatMessagePart
             sb.Append($", RequestId={RequestId}");
         }
         return sb.ToString();
+    }
+}
+
+/// <summary>Extension methods for <see cref="ChatMessagePart"/>.</summary>
+public static class ChatMessagePartExtensions
+{
+    /// <summary>Converts a collection of <see cref="ChatMessagePart"/> instances into a list of <see cref="AIContent"/> instances.</summary>
+    public static List<AIContent> ToAIContents(this IEnumerable<ChatMessagePart> parts) {
+        var contents = new List<AIContent>();
+        bool hasRequestId = parts.Any(x => !string.IsNullOrWhiteSpace(x.RequestId));
+        bool hasFunctionResponse = parts.Any(x => x.ContentType == AgentsConstants.MediaTypes.FunctionCallPort.Response);
+        if (hasRequestId && !hasFunctionResponse) {
+            var textPart = parts.FirstOrDefault(x => x.ContentType.StartsWith("text/", StringComparison.OrdinalIgnoreCase));
+            contents.Add(new FunctionResultContent(textPart!.RequestId!, textPart?.Value));
+        }
+        foreach (var part in parts) {
+            try {
+                contents.Add(part.ToAIContent());
+            } catch (NotSupportedException) {
+                // If the content type cannot be converted to an AIContent, we skip it and continue with the next part.
+            }
+        }
+        return contents;
     }
 }

@@ -40,7 +40,7 @@ public static class WorkflowExtensions
         /// <param name="checkpoint">The checkpoint info.</param>
         /// <returns>The agent response update.</returns>
         public AgentResponseUpdate AsAgentResponseUpdate(CheckpointInfo checkpoint)
-            => new (ChatRole.Assistant, [new FunctionCallContent(new AgentFunctionCallId(requestInfoEvent.Request.RequestId, checkpoint.CheckpointId), requestInfoEvent.Request.PortInfo.RequestType.TypeName, new Dictionary<string, object?>() { ["data"] = requestInfoEvent.Request.Data })]);
+            => new (ChatRole.Assistant, [new FunctionCallContent(new AgentFunctionCallId(requestInfoEvent.Request.RequestId, checkpoint.CheckpointId), requestInfoEvent.Request.PortInfo.PortId, new Dictionary<string, object?>() { ["data"] = requestInfoEvent.Request.Data })]);
     }
 
     /// <summary>
