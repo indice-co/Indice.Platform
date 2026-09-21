@@ -5,6 +5,7 @@ using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
+using Indice.Features.Agents.Core.Workflows.Demo;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.Reranking;
 using Indice.Features.Agents.Core.Workflows.Steps;
@@ -14,7 +15,6 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using OpenAI;
 using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -151,38 +151,32 @@ public static class AgentsFeatureExtensions
                 return builder.Build();
             });
 
-        services.AddRoutableAgent(
-    new AgentInfo(
-        Name: AgentsConstants.AgentNames.Dummy,
-        Description: "Its the test agent for branching out to different workflows.",
-        InputContentTypes: ["text/plain"],
-        OutputContentTypes: ["text/markdown"],
-        Capabilities: [new AgentCapability("Dummy Agent", "Its the test agent for branching out to different workflows.")],
-        Domains: [],
-        Tags: ["Knowledge", "FAQ"],
-        Links: [],
-        Icon: AgentsConstants.AgentIcons.Book),
-        (sp, key) => {
-        var intent = sp.GetRequiredService<IntentClassifier>();
-        var rewrite = sp.GetRequiredService<QueryRewriter>();
-        var retrieve = sp.GetRequiredService<Retriever>();
-        var rerank = sp.GetRequiredService<Reranker>();
-        var compose = sp.GetRequiredService<AnswerComposer>();
-        var outOfScopeReply = sp.GetRequiredService<OutOfScopeResponder>();
-
-        var builder = new WorkflowBuilder(intent);
-        builder.AddSwitch(intent, sw => sw
-            .AddCase<IntentOutput>(env => env!.Intent.IsInScope, rewrite)
-            .WithDefault(outOfScopeReply));
-        builder.AddEdge(rewrite, retrieve);
-        builder.AddEdge(retrieve, rerank);
-        builder.AddEdge(rerank, compose);
-        builder.WithOutputFrom(compose, outOfScopeReply);
-        return builder.Build();
-    });
-
         return services;
     }
+
+    /// <summary>
+    /// Registers a demo workflow together with its metadata.
+    /// </summary>
+    /// <param name="services">The service collection to add the demo workflow to.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddAgentsDemoPipeline(this IServiceCollection services) {
+        services.AddRoutableAgent(
+            new AgentInfo(
+                Name: AgentsConstants.AgentNames.Demo,
+                Description: "Its the demo agent for testing capabilities.",
+                InputContentTypes: ["text/plain"],
+                OutputContentTypes: ["text/markdown"],
+                Capabilities: [new AgentCapability("Demo Agent", "Its the demo agent for testing new workflow interactions.")],
+                Domains: [],
+                Tags: ["Demo", "SCA"],
+                Links: [],
+                Icon: AgentsConstants.AgentIcons.Gear),
+            (sp, key) => {
+                return DemoWorkflow.CreateDemoWorkflow(sp);
+            });
+        return services;
+    }
+
 
     /// <summary>
     /// Registers a routable agent: a keyed <see cref="Workflow"/> resolved by <paramref name="info"/>'s name, plus

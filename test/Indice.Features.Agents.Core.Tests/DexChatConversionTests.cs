@@ -220,4 +220,35 @@ public class DexChatConversionTests
         Assert.Null(new DataContent(new byte[] { 1, 2, 3 }, "image/png").ToChatMessagePart().Name);
         Assert.Null(new UriContent("https://cdn.example.com/a.png", "image/png").ToChatMessagePart().Name);
     }
+
+    [Fact]
+    public void ToChatMessagePart_FunctionCallContent_PreservesCallIdNameAndArguments() {
+        FunctionCallContent call = new("call-1", "function_port", new Dictionary<string, object?> { ["data"] = new { id = 42 } });
+
+        var part = call.ToChatMessagePart();
+
+        Assert.Equal(AgentsConstants.MediaTypes.FunctionCallPort.Request, part.ContentType);
+        Assert.Equal("call-1", part.RequestId);
+        Assert.Equal("function_port", part.Name);
+        using var payload = JsonDocument.Parse(part.Value);
+        Assert.Equal(42, payload.RootElement.GetProperty("data").GetProperty("id").GetInt32());
+    }
+
+    [Fact]
+    public void ToDexChatMessage_FunctionCallContent_BecomesItsOwnPart() {
+        var message = new ChatMessage(ChatRole.Assistant, [
+            new TextContent("Please approve."),
+            new FunctionCallContent("call-2", "approval_port", new Dictionary<string, object?> { ["data"] = new { action = "approve" } }),
+            new TextContent("Waiting for result.")
+        ]);
+
+        var parts = message.ToDexChatMessage().Content.Parts;
+
+        Assert.Equal(3, parts.Count);
+        Assert.Equal(("text/markdown", "Please approve."), (parts[0].ContentType, parts[0].Value));
+        Assert.Equal(AgentsConstants.MediaTypes.FunctionCallPort.Request, parts[1].ContentType);
+        Assert.Equal("call-2", parts[1].RequestId);
+        Assert.Equal("approval_port", parts[1].Name);
+        Assert.Equal(("text/markdown", "Waiting for result."), (parts[2].ContentType, parts[2].Value));
+    }
 }
