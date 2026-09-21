@@ -201,6 +201,51 @@ public class ChatsServiceStreamingTests
             $"assembled:\n{document.ToJsonString()}\nexpected:\n{expected.ToJsonString()}");
     }
 
+    /// <summary>Function-call shape: prose, a function call request, then more prose.</summary>
+    private static List<ChatResponseUpdate> FunctionCallUpdates() => [
+        new ChatResponseUpdate(ChatRole.Assistant, [
+            new TextContent("Please provide the required data."),
+            new FunctionCallContent("req-1:cp-1", "port.request.info", new Dictionary<string, object?> { ["data"] = new { caseId = "CASE-1" } }),
+            new TextContent("Awaiting your input.")
+        ]),
+        new ChatResponseUpdate(ChatRole.Assistant, [new UsageContent(new UsageDetails { TotalTokenCount = 5 })]) {
+            ResponseId = "resp-1", ModelId = "gpt-test", FinishReason = ChatFinishReason.Stop, CreatedAt = DateTimeOffset.UnixEpoch
+        }
+    ];
+
+    [Fact]
+    public async Task Function_call_part_streams_as_function_call_request_part_preserving_identity_and_payload() {
+        var (service, _) = CreateService(FunctionCallUpdates());
+        string? path = null;
+        var parts = new List<ChatMessagePart>();
+        foreach (var delta in (await Collect(service)).Select(item => item.Data).OfType<DexChatStreamDelta>()) {
+            path = delta.Path ?? path;
+            if (path == "/messages/0/content/parts/-") { parts.Add(Assert.IsType<ChatMessagePart>(delta.Value)); }
+        }
+        Assert.Equal(3, parts.Count);
+        Assert.Equal(AgentsConstants.MediaTypes.FunctionCallPort.Request, parts[1].ContentType);
+        Assert.Equal("req-1:cp-1", parts[1].RequestId);
+        Assert.Equal("port.request.info", parts[1].Name);
+        using var payload = JsonDocument.Parse(parts[1].Value);
+        Assert.Equal("CASE-1", payload.RootElement.GetProperty("data").GetProperty("caseId").GetString());
+    }
+
+    [Fact]
+    public async Task Function_call_invariant_streamed_parts_equal_the_nonstreaming_ones() {
+        var (streaming, _) = CreateService(FunctionCallUpdates());
+        var document = new JsonObject();
+        var applier = new JsonPointerPatch();
+        foreach (var patch in (await Collect(streaming)).Select(item => item.Data).OfType<DexChatStreamDelta>()) {
+            applier.Apply(document, patch, Json);
+        }
+        var (nonStreaming, _) = CreateService(FunctionCallUpdates());
+        var canonical = await nonStreaming.SendAsync("user-1", null, new ChatRequest { Text = "hi" }, CancellationToken.None);
+        var expected = Normalize(JsonSerializer.SerializeToNode(canonical, Json)!.AsObject());
+        expected.Remove("text");
+        Assert.True(JsonNode.DeepEquals(Normalize(document), expected),
+            $"assembled:\n{document.ToJsonString()}\nexpected:\n{expected.ToJsonString()}");
+    }
+
     /// <summary>A hosted-image shape: prose, an image referenced by URL, then more prose.</summary>
     private static List<ChatResponseUpdate> HostedImageUpdates() => [
         new ChatResponseUpdate(ChatRole.Assistant, [
