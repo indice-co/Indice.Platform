@@ -173,6 +173,7 @@ public class WorkflowChatClient(IServiceProvider serviceProvider) : IChatClient
             run = await InProcessExecution.RunStreamingAsync(workflow, message, checkpointManager, sessionId: sessionId, cancellationToken: cancellationToken);
         }
         await using var _ = run;
+        RequestInfoEvent? pendingRequest = null;
         await foreach (var evt in run.WatchStreamAsync().WithCancellation(cancellationToken)) {
             switch (evt) {
                 case AgentResponseUpdateEvent updateEvent:
@@ -181,9 +182,12 @@ public class WorkflowChatClient(IServiceProvider serviceProvider) : IChatClient
                     yield return update;
                     break;
                 case RequestInfoEvent requestInfoEvent when !message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
-                    var lastCheckPoint = await checkpointManager.GetLatestCheckpointAsync(sessionId, cancellationToken);
-                    var requestUpdate = requestInfoEvent.AsAgentResponseUpdate(lastCheckPoint!)
-                                                        .AsChatResponseUpdate();
+                    // Defer emission until the superstep checkpoint is committed (raised via SuperStepCompletedEvent).
+                    pendingRequest = requestInfoEvent;
+                    break;
+                case SuperStepCompletedEvent superStepCompleted when pendingRequest is not null && superStepCompleted.CompletionInfo?.Checkpoint is not null:
+                    var requestUpdate = pendingRequest.AsAgentResponseUpdate(superStepCompleted.CompletionInfo.Checkpoint)
+                                                      .AsChatResponseUpdate();
                     requestUpdate.ConversationId = options!.ConversationId;
                     yield return requestUpdate;
                     yield break;
