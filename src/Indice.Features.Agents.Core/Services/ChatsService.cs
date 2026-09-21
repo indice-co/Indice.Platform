@@ -51,7 +51,7 @@ public class ChatsService : IChatsService
         if (!turnCheck.Allowed) {
             return CreateLimitReachedResponse(conversation, turnCheck.Message);
         }
-        var userMessage = new ChatMessage(ChatRole.User, [..chatRequest.Parts.Select(x => x.ToAIContent())]) {
+        var userMessage = new ChatMessage(ChatRole.User, chatRequest.Parts.ToAIContents()) {
             MessageId = Guid.NewGuid().ToString(),
             CreatedAt = DateTimeOffset.UtcNow,
             AuthorName = chatRequest.AuthorName
@@ -189,7 +189,7 @@ public class ChatsService : IChatsService
     private async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> StreamTurnAsync(
         Conversation conversation, ChatRequest chatRequest, [EnumeratorCancellation] CancellationToken cancellationToken) {
 
-        var userMessage = new ChatMessage(ChatRole.User, [.. chatRequest.Parts.Select(x => x.ToAIContent())]) {
+        var userMessage = new ChatMessage(ChatRole.User, chatRequest.Parts.ToAIContents()) {
             MessageId = Guid.NewGuid().ToString(),
             CreatedAt = DateTimeOffset.UtcNow,
             AuthorName = chatRequest.AuthorName
@@ -248,6 +248,11 @@ public class ChatsService : IChatsService
                             break;
                         case UriContent uri:
                             foreach (var frame in projector.AddPart(uri.ToChatMessagePart())) {
+                                yield return compactor.Compact(frame);
+                            }
+                            break;
+                        case FunctionCallContent call:
+                            foreach (var frame in projector.AddPart(call.ToChatMessagePart())) {
                                 yield return compactor.Compact(frame);
                             }
                             break;
