@@ -16,7 +16,6 @@ public static class DemoWorkflow
     /// <returns>The created workflow.</returns>
     public static Workflow CreateDemoWorkflow(IServiceProvider serviceProvider) {
         var start = new ChatTurnStartStep();
-        var completed = new ChatConversationCompletedStep();
         var otpRequirement = new OtpRequirementStep();
         var otpVerification = new OtpVerificationStep();
         var otpPort = OtpRequestPort.CreateOtpPort();
@@ -61,15 +60,6 @@ public static class DemoWorkflow
             }
             await context.Say(Id, $"Otp verification failed for {message.Otp}!");
             await context.SendMessageAsync(new OtpRequestPort.OtpRequest(ExpirationDate: DateTime.UtcNow.AddMinutes(5)));
-        }
-    }
-
-    class ChatConversationCompletedStep() : Executor<ConversationOutput, ConversationOutput>("ChatConversationCompleted")
-    {
-
-        public override async ValueTask<ConversationOutput> HandleAsync(ConversationOutput message, IWorkflowContext context, CancellationToken cancellationToken = default) {
-            // await context.Say(Id, "Done");
-            return message;
         }
     }
 

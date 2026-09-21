@@ -34,7 +34,6 @@ public class WorkflowTests
         services.TryAddTransient(sp => CheckpointManager.CreateJson(sp.GetRequiredService<PersistedCheckpointStore>()));
         services.AddKeyedTransient("default", (sp, key) => {
             var start = new ChatTurnStartStep();
-            var completed = new ChatConversationCompletedStep();
             var otpRequirement = new OtpRequirementStep();
             var otpVerification = new OtpVerificationStep();
             var otpPort = OtpRequestPort.CreateOtpPort();
@@ -114,26 +113,7 @@ public class WorkflowTests
         }
     }
 
-    class ChatConversationCompletedStep() : Executor<ConversationOutput, ConversationOutput>("ChatConversationCompleted")
-    {
-
-        public override async ValueTask<ConversationOutput> HandleAsync(ConversationOutput message, IWorkflowContext context, CancellationToken cancellationToken = default) {
-            // await context.Say(Id, "Done");
-            return message;
-        }
-    }
-
-
     public record ConversationOutput(bool Done);
-
-
-    public static class HumanInTheLoopConstants
-    {
-        public const string ContentTypeMask = "application/vnd.indice.hitl-{0}+json";
-        public static readonly string RequestContentType = string.Format(ContentTypeMask, "request");
-        public static readonly string ResponseContentType = string.Format(ContentTypeMask, "response");
-
-    }
 
     public static class OtpRequestPort 
     { 
