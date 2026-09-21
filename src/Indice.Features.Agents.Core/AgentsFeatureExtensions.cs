@@ -161,7 +161,7 @@ public static class AgentsFeatureExtensions
         Domains: [],
         Tags: ["Knowledge", "FAQ"],
         Links: [],
-        Icon: AgentsConstants.AgentIcons.Book),
+        Icon: AgentsConstants.AgentIcons.Gear),
         (sp, key) => {
         var intent = sp.GetRequiredService<IntentClassifier>();
         var rewrite = sp.GetRequiredService<QueryRewriter>();

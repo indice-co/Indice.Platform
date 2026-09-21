@@ -92,6 +92,9 @@ public static class AgentsConstants
 
         /// <summary>A generic conversational flow — matches the client's fallback glyph.</summary>
         public const string Chat = "chat";
+
+        /// <summary>A operator flow — matches the client's fallback gear.</summary>
+        public const string Gear = "gear";
     }
 
     /// <summary>Default fallback messages surfaced by the Agents feature.</summary>
