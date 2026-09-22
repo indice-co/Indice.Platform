@@ -1,4 +1,5 @@
 using System.Text;
+using Indice.Extensions;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 
@@ -128,6 +129,7 @@ public static class DexChatResponseExtensions
         }
         return ChatMessagePart.FromObject(arguments, AgentsConstants.MediaTypes.FunctionCallPort.Request, call.Name, call.CallId);
     }
+
     /// <summary>Maps <see cref="UsageDetails"/> to the boundary <see cref="DexChatUsage"/>; <c>null</c> stays <c>null</c>. Question counters are the caller's to set.</summary>
     public static DexChatUsage? ToDexChatUsage(this UsageDetails? usage) => usage is null ? null : new DexChatUsage {
         InputTokenCount = usage.InputTokenCount,

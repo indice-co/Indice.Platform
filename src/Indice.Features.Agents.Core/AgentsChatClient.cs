@@ -60,7 +60,6 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         }
         var message = messages.First();
         options ??= new ChatOptions();
-
         options.ConversationId ??= Guid.NewGuid().ToString()!;
         message.AdditionalProperties ??= new AdditionalPropertiesDictionary() {
             [nameof(options.ConversationId)] = options.ConversationId
@@ -99,7 +98,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             
             resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
         }
-        var sessionId = new AgentSessionId(Guid.Parse(options!.ConversationId), resolvedAgent);
+        var sessionId = new AgentSessionId(Guid.Parse(options.ConversationId), resolvedAgent);
         var workflow = serviceProvider.GetRequiredKeyedService<Workflow>(resolvedAgent);
         // Checkpointing: state written via QueueStateUpdateAsync is snapshotted at each superstep into the durable
         // EF-backed store, so it survives across HTTP requests. On a follow-up turn the latest checkpoint of the
@@ -138,7 +137,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                 case SuperStepCompletedEvent superStepCompleted when pendingRequest is not null && superStepCompleted.CompletionInfo?.Checkpoint is not null:
                     var requestUpdate = pendingRequest.AsAgentResponseUpdate(superStepCompleted.CompletionInfo.Checkpoint)
                                                       .AsChatResponseUpdate();
-                    requestUpdate.ConversationId = options!.ConversationId;
+                    requestUpdate.ConversationId = options.ConversationId;
                     yield return requestUpdate;
                     yield break;
                 case RequestInfoEvent requestInfoEvent when message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):

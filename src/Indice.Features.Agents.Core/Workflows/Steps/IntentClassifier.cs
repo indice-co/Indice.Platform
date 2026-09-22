@@ -48,7 +48,8 @@ public sealed class IntentClassifier : Executor<ChatMessage, IntentOutput>
         ChatMessage message,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-        var question = message.Text; 
+        
+        var question = message.Text;
         var conversationId = message.AdditionalProperties![nameof(ConversationState.ConversationId)]!.ToString()!;
         var conversationState = new ConversationState(message, conversationId);
         await context.SetConversationStateAsync(conversationState, cancellationToken);
