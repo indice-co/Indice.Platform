@@ -246,12 +246,11 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<OwnershipValidatorStep>();
         services.TryAddTransient<OtpCodeSendStep>();
         services.TryAddTransient<OtpCodeValidatorStep>();
-        services.TryAddTransient<OtpRetryChallengeBuilder>();
         services.TryAddTransient<DataPresenterStep>();
 
         // Request ports for checkpoint-based pause/resume.
         var ownershipPort = OwnershipVerificationRequestPort.CreateOwnershipPort();
-        var otpPort = RequestPort.Create<OtpChallengeOutput, ChatMessage>(AgentsConstants.WorkflowPorts.OtpVerification);
+        var otpPort = OtpRequestPort.CreateOtpPort();
 
         // Cases workflow with native pause/resume through request ports + checkpoints.
         //   CaseDataRetriever -> OwnershipVerifier -> OwnershipConfirmationPort
@@ -267,7 +266,6 @@ public static class AgentsFeatureExtensions
             var ownershipValidator = sp.GetRequiredService<OwnershipValidatorStep>();
             var otpNotificationSend = sp.GetRequiredService<OtpCodeSendStep>();
             var otpValidator = sp.GetRequiredService<OtpCodeValidatorStep>();
-            var otpRetry = sp.GetRequiredService<OtpRetryChallengeBuilder>();
             var dataPresenter = sp.GetRequiredService<DataPresenterStep>();
 
 
@@ -281,10 +279,8 @@ public static class AgentsFeatureExtensions
             builder.AddEdge(otpNotificationSend, otpPort);
             builder.AddEdge(otpPort, otpValidator);
             builder.AddSwitch(otpValidator, sw => sw
-                .AddCase<OtpValidationOutput>(env => env!.IsValid, dataPresenter)
-                .AddCase<OtpValidationOutput>(env => env!.ShouldRetry, otpRetry)
-                .WithDefault(dataPresenter));
-            builder.AddEdge(otpRetry, otpPort);
+                .AddCase<ChatMessage>(env => !env!.Contents.OfType<ErrorContent>().Any(), dataPresenter)
+                .WithDefault(otpPort));
 
             builder.WithOutputFrom(dataPresenter, ownershipValidator, otpPort);//,ownershipErr
             return builder.Build();

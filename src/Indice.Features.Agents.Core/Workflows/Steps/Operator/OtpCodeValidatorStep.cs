@@ -3,22 +3,27 @@ using System.Text.Json.Serialization;
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Workflows.Prompts;
+using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static Indice.Features.Agents.Core.Workflows.Demo.DemoWorkflow;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 
 /// <summary>
 /// Verifies a user-provided OTP code using MCP tools and produces the terminal response.
 /// </summary>
-public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidationOutput>
+[SendsMessage(typeof(OtpRequestPort.OtpRequest))]
+[SendsMessage(typeof(ChatMessage))]
+[YieldsOutput(typeof(ValidationFailureOutput))]
+public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
 {
     private const string McpServiceKey = "Identity";
 
+    private readonly int _maxValidationAttempts;
     private readonly AzureOpenAIClient _openAIClient;
     private readonly AgentsOptions _options;
     private readonly ModelsOptions _models;
@@ -44,34 +49,77 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
         _mcpClientFactory = mcpClientFactory;
         _messageLocalizer = messageLocalizer;
         _prompts = prompts;
-        _model = _options.AzureOpenAI.Deployments.Reasoning!;
+        _model = _options.AzureOpenAI.Deployments.Reasoning!; 
+        _maxValidationAttempts = options.Value.CasesWorkflow.MaxOtpValidationAttempts;
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<OtpValidationOutput> HandleAsync(
-        OtpCodeResponse response,
+    public override async ValueTask HandleAsync(
+        OtpRequestPort.OtpResponse response,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-
         ArgumentNullException.ThrowIfNull(response);
-
-        var code = response.Code?.Trim() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(code)) {
-            var blankCodeMessage = _messageLocalizer.OtpInputValidationEmpty;
-            await context.AddEventAsync(new AnswerDeltaEvent(blankCodeMessage), cancellationToken);
-
-            return new OtpValidationOutput(
-                OtpResponse: response,
-                IsValid: false,
-                Message: blankCodeMessage,
-                ShouldRetry: true,
-                ShouldResendOtp: false,
-                FailedAttempts: response.Challenge.FailedAttempts,
-                MaxFailedAttempts: response.Challenge.MaxFailedAttempts);
+        
+        if (string.IsNullOrWhiteSpace(response.Otp?.Trim())) {
+            await context.Say(Id, _messageLocalizer.OtpInputValidationEmpty);
+            await context.SendMessageAsync(new OtpRequestPort.OtpRequest(response.ChallengeCode, DateTime.UtcNow));
+            return;
         }
 
+        var caseData = await context.GetOperatorStateAsync(cancellationToken);
+        //var payload = await ValidateOtp(response, caseData, cancellationToken);
+
+        //OtpVerificationResultPayload verification;
+        //try {
+        //    verification = OtpVerificationResultPayload.Deserialize(payload);
+
+        //} catch (JsonException) {
+        //    verification = new OtpVerificationResultPayload(false, $"MCP results is not valid:{payload}", false, false, false, 0);
+        //}
+        OtpVerificationResultPayload verification = new OtpVerificationResultPayload(
+            Success: false,
+            Error: null,
+            IsRateLimited: false,
+            IsInvalidCode: response.Otp != "123456",
+            IsInvalidFormat: false,
+            TotpLifetime: 30);
+
+        if (verification.Success) {
+            await context.Say(Id, _messageLocalizer.OtvpVerificationSuccessMessage);
+            await context.SendMessageAsync(new ChatMessage(ChatRole.Assistant, [
+                new TextContent(_messageLocalizer.OtvpVerificationSuccessMessage)]));
+            return;
+        }
+        var attempt = (await context.GetApprovalStateAsync(cancellationToken)) + 1;
+        await context.SetApprovalStateAsync(attempt, cancellationToken);
+        if (attempt >= _maxValidationAttempts) {
+            await context.Say(Id, _messageLocalizer.InvalidOtpMaxAttemptsReachedMessage);
+            await context.YieldOutputAsync(new ValidationFailureOutput(
+                        ErrorMessage: _messageLocalizer.InvalidOtpMaxAttemptsReachedMessage,
+                        FailureStep: "OtpValidation"));
+            return;
+        }
+
+        await context.Say(Id, _messageLocalizer.InvalidOtpRetryMessage(Math.Max(_maxValidationAttempts - attempt, 0)));
+        await context.SendMessageAsync(new OtpRequestPort.OtpRequest(response.ChallengeCode, DateTime.UtcNow));
+
+        //var shouldRetry = !verification.IsRateLimited && attempt<= _maxValidationAttempts;
+        //var finalMessage = shouldRetry
+        //    ? _messageLocalizer.InvalidOtpRetryMessage(Math.Max(_maxValidationAttempts - attempt, 0))
+
+        //if(verification.IsRateLimited) {
+        //    finalMessage = _messageLocalizer.InvalidOtpRateLimitMessage;
+        //}
+        //if (!shouldRetry) {
+        //    await context.AddEventAsync(new AnswerDeltaEvent(finalMessage), cancellationToken);
+        //}
+
+    }
+
+    private async Task<string> ValidateOtp(OtpRequestPort.OtpResponse response, OperatorState caseData, CancellationToken cancellationToken) {
+
         // Fetch OTP tools from the Identity MCP server at runtime.
-        var registry = await _mcpClientFactory.CreateAsync();
+        var registry = await _mcpClientFactory.CreateAsync(cancellationToken);
         var mcpTools = await registry.ListToolsAsync(options: null, cancellationToken);
         if (mcpTools.Count == 0) {
             throw new InvalidOperationException($"No MCP tools discovered for service '{McpServiceKey}'.");
@@ -91,102 +139,14 @@ public sealed class OtpCodeValidatorStep : Executor<OtpCodeResponse, OtpValidati
             });
 
         var prompt = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeValidatorPrompt), new {
-            code,
-            caseId = response.Challenge.CaseId,
-            phoneNumber = response.Challenge.PhoneNumber
+            otp = response.Otp.Trim(),
+            caseId = response.ChallengeCode,
+            phoneNumber = caseData.PhoneNumber
         });
         var result = await agent.RunAsync<string>(prompt, cancellationToken: cancellationToken);
-        var payload = result.Text;
-
-        response.Code = string.Empty; // Clear the code from the response for security reasons.
-
-        OtpVerificationResultPayload verification;
-        try {
-            verification = OtpVerificationResultPayload.Deserialize(payload);
-
-        } catch (JsonException) {
-            verification = new OtpVerificationResultPayload(false, $"MCP results is not valid:{payload}", false, false, false, 0);
-        }
-
-        if (verification.Success) {
-            var successMessage = _messageLocalizer.OtvpVerificationSuccessMessage;
-            await context.AddEventAsync(new AnswerDeltaEvent(successMessage), cancellationToken);
-            return new OtpValidationOutput(
-                OtpResponse: response,
-                IsValid: true,
-                Message: successMessage,
-                ShouldRetry: false,
-                ShouldResendOtp: false,
-                FailedAttempts: response.Challenge.FailedAttempts,
-                MaxFailedAttempts: response.Challenge.MaxFailedAttempts);
-        }
-
-        var failedAttempts = response.Challenge.FailedAttempts + 1;
-        var maxFailedAttempts = response.Challenge.MaxFailedAttempts;
-        var shouldRetry = !verification.IsRateLimited && failedAttempts <= maxFailedAttempts;
-        var finalMessage = shouldRetry
-            ? _messageLocalizer.InvalidOtpRetryMessage(Math.Max(maxFailedAttempts - failedAttempts, 0))
-            : _messageLocalizer.InvalidOtpMaxAttemptsReachedMessage;
-        if (!shouldRetry) {
-            await context.AddEventAsync(new AnswerDeltaEvent(finalMessage), cancellationToken);
-        }
-        return new OtpValidationOutput(
-            OtpResponse: response,
-            IsValid: false,
-            Message: finalMessage,
-            ShouldRetry: shouldRetry,
-            ShouldResendOtp: false, //TODO: review if we can identify this..
-            FailedAttempts: failedAttempts,
-            MaxFailedAttempts: maxFailedAttempts);
+        return result.Text;
     }
 }
-
-/// <summary>
-/// Workflow event emitted by LLM agent steps for each streamed text token.
-/// Surfaced as an SSE <c>delta</c> frame by the streaming runner; ignored by the non-streaming runner.
-/// </summary>
-/// <param name="Text">The text delta emitted by the model.</param>
-public sealed class AnswerDeltaEvent(string Text) : WorkflowEvent
-{
-    /// <summary>The text delta emitted by the model.</summary>
-    public string Text { get; } = Text;
-}
-
-/// <summary>
-/// Response payload delivered to the OTP verification request port when the user submits the received OTP code.
-/// </summary>
-public class OtpCodeResponse
-{
-    /// <summary>The pending OTP challenge emitted by the send step..</summary>
-    public OtpChallengeOutput Challenge { get; }
-    /// <summary>The OTP code provided by the user.</summary>
-    public string Code { get; set; }
-    /// <summary>Creates a new <see cref="OtpCodeResponse"/>.</summary>
-    public OtpCodeResponse(OtpChallengeOutput challenge, string code)
-    {
-        Challenge = challenge;
-        Code = code;
-    }
-}
-
-/// <summary>
-/// Output of OTP code verification, preserving full workflow context for downstream steps.
-/// </summary>
-/// <param name="OtpResponse">The OTP response envelope containing challenge and case context.</param>
-/// <param name="IsValid">Whether the OTP was successfully verified.</param>
-/// <param name="Message">User-facing verification message.</param>
-/// <param name="ShouldRetry">Whether the workflow should ask for OTP input again.</param>
-/// <param name="ShouldResendOtp">Whether a new OTP should be sent before asking again.</param>
-/// <param name="FailedAttempts">Number of invalid OTP attempts so far.</param>
-/// <param name="MaxFailedAttempts">Maximum invalid OTP attempts allowed.</param>
-public record OtpValidationOutput(
-    OtpCodeResponse OtpResponse,
-    bool IsValid,
-    string Message,
-    bool ShouldRetry,
-    bool ShouldResendOtp,
-    int FailedAttempts,
-    int MaxFailedAttempts);
 
 
 

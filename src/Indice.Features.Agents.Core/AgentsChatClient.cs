@@ -36,7 +36,6 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         [nameof(OwnershipRequestVerificationStep)] = localizer.StepOwnershipVerifier,
         [nameof(OtpCodeSendStep)] = localizer.StepOtpAgent,
         [nameof(OtpCodeValidatorStep)] = localizer.StepOtpCodeValidator,
-        [nameof(OtpRetryChallengeBuilder)] = localizer.StepOtpRetryChallengeBuilder,
         [nameof(DataPresenterStep)] = localizer.StepCaseDataPresenter,
         [nameof(OwnershipValidatorStep)] = localizer.StepOwnershipValidator,
         [nameof(OtpCodeSendStep)] = localizer.StepOtpCodeSend
@@ -141,7 +140,8 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     yield return requestUpdate;
                     yield break;
                 case RequestInfoEvent requestInfoEvent when message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
-                    var response = requestInfoEvent.Request.CreateResponse(new ChatMessage(ChatRole.User, message.Contents));
+                    var response = requestInfoEvent.Request.CreateResponse(message.GetFunctionResult()!);
+                    //var response = requestInfoEvent.Request.CreateResponse(new ChatMessage(ChatRole.User, message.Contents));
                     await run.SendResponseAsync(response);
                     break;
                 // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor

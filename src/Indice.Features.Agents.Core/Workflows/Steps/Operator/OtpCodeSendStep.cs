@@ -7,6 +7,7 @@ using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using static Indice.Features.Agents.Core.Workflows.Demo.DemoWorkflow;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 
@@ -14,7 +15,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Sends an OTP using MCP tools and produces a challenge prompt.
 /// The workflow pauses after this step and waits for the user OTP input on a request port.
 /// </summary>
-public sealed class OtpCodeSendStep : Executor<ChatMessage, OtpChallengeOutput>
+public sealed class OtpCodeSendStep : Executor<ChatMessage, OtpRequestPort.OtpRequest>
 {
     private readonly AzureOpenAIClient _openAIClient;
     private readonly AgentsOptions _options;
@@ -45,7 +46,7 @@ public sealed class OtpCodeSendStep : Executor<ChatMessage, OtpChallengeOutput>
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<OtpChallengeOutput> HandleAsync(
+    public override async ValueTask<OtpRequestPort.OtpRequest> HandleAsync(
         ChatMessage validationData,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
@@ -53,6 +54,14 @@ public sealed class OtpCodeSendStep : Executor<ChatMessage, OtpChallengeOutput>
         ArgumentNullException.ThrowIfNull(validationData);
         var caseData = await context.GetOperatorStateAsync(cancellationToken);
         var maskedPhoneNumber = MaskPhone(caseData.PhoneNumber);
+        var securityToken = Guid.NewGuid().ToString();
+        //await SendOtpCode(caseData, securityToken, cancellationToken);
+        var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedPhoneNumber);
+        await context.Say(Id, otpPrompt);
+        return new OtpRequestPort.OtpRequest(ChallengeCode: securityToken, ExpirationDate: DateTime.UtcNow.AddMinutes(2));
+    }
+
+    private async Task<string> SendOtpCode(OperatorState caseData, string securityToken, CancellationToken cancellationToken) {
 
         // Fetch OTP tools from the Identity MCP server at runtime.
         var registry = await _mcpClientFactory.CreateAsync();
@@ -73,24 +82,14 @@ public sealed class OtpCodeSendStep : Executor<ChatMessage, OtpChallengeOutput>
                 AIContextProviders = [_userClaimsProvider],
                 Name = "DexOtpAgent"
             });
-
         // Execute only the send leg now; OTP code collection is done by the workflow host via RequestPort.
         var sendPrompt = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeSenderPrompt), new {
-            phoneNumber =  caseData.PhoneNumber,
+            phoneNumber = caseData.PhoneNumber,
             email = caseData.Email,
-            securityToken = caseData.CaseId
+            securityToken
         });
         var resuts = await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
-        var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedPhoneNumber);
-        await context.Say(Id, otpPrompt);
-        return new OtpChallengeOutput(
-            //TODO: Support dual Phone /Email OTP delivery. For now, we only support phone delivery.
-            Prompt: otpPrompt,
-            PhoneNumber: caseData.PhoneNumber,
-            Email: caseData.Email,
-            CaseId: caseData.CaseId,
-            FailedAttempts: 0,
-            MaxFailedAttempts: _options.CasesWorkflow.MaxOtpValidationAttempts);
+        return securityToken;
     }
 
     private static string MaskPhone(string? phone) {
@@ -101,19 +100,3 @@ public sealed class OtpCodeSendStep : Executor<ChatMessage, OtpChallengeOutput>
         return digits.Length < 4 ? "your registered phone" : $"***{digits[^4..]}";
     }
 }
-/// <summary>
-/// Output from the OTP send step. Represents a pending OTP challenge that requires user input.
-/// </summary>
-/// <param name="Prompt">Prompt shown to the user asking for OTP input.</param>
-/// <param name="PhoneNumber">Phone number used for OTP delivery.</param>
-/// <param name="Email">Email used for OTP delivery when applicable.</param>
-/// <param name="CaseId">Case id associated with this challenge.</param>
-/// <param name="FailedAttempts">Number of invalid OTP attempts already made.</param>
-/// <param name="MaxFailedAttempts">Maximum invalid OTP attempts allowed before failing.</param>
-public record OtpChallengeOutput(
-    string Prompt,
-    string? PhoneNumber,
-    string? Email,
-    string CaseId,
-    int FailedAttempts = 0,
-    int MaxFailedAttempts = 2);

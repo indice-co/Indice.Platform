@@ -48,6 +48,7 @@ export type PartKind =
   | 'callout'
   | 'confirm'
   | 'hitl-request'
+  | 'hitl-request-otp'
   | 'unknown';
 
 /**
@@ -90,7 +91,7 @@ export function HitlControlResolver(name: string | undefined): PartKind {
       console.log('HitlControlResolver: hitl-request');
       return 'hitl-request';
     default:
-      return 'markdown';
+      return 'hitl-request-otp';
   }
 }
 
@@ -242,7 +243,7 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
  */
 export function hitlResponseParts(request: HitlRequest, answer: string): IChatMessagePart[] {
   const requestId = request.requestId ?? '';
-  const payload = { text: answer, requestId, properties: {} };
+  const payload = { userInput: answer, requestId, properties: {} };
   return [
     { value: answer, contentType: 'text/plain', requestId },
     { value: JSON.stringify(payload), contentType: HITL_RESPONSE_MEDIA_TYPE, requestId },
