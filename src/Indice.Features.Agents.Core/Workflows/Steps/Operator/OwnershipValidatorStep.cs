@@ -1,10 +1,9 @@
 using Indice.Features.Agents.Core.Extensions;
+using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
-using static Indice.Features.Agents.Core.Workflows.Demo.DemoWorkflow;
-using static Indice.Features.Agents.Core.Workflows.Demo.DemoWorkflow.OwnershipVerificationRequestPort;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 
@@ -13,10 +12,10 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Receives the user's reply from the ownership request port and
 /// compares it with the actual case data field. Supports up to <see cref="AgentsOptions.CaseWorkflowOptions.MaxOwnershipValidationAttempts"/> validation attempts.
 /// </summary>
-[SendsMessage(typeof(OwnershipVerificationResponse))]
+[SendsMessage(typeof(ChallengeRequestPort.ChallengeRequest))]
 [SendsMessage(typeof(ChatMessage))]
 [YieldsOutput(typeof(ValidationFailureOutput))]
-public sealed class OwnershipValidatorStep : Executor<OwnershipVerificationResponse>
+public sealed class OwnershipValidatorStep : Executor<ChallengeRequestPort.ChallengeResponse>
 {
     private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly int _maxValidationAttempts;
@@ -29,7 +28,7 @@ public sealed class OwnershipValidatorStep : Executor<OwnershipVerificationRespo
 
     /// <inheritdoc/>
     public override async ValueTask HandleAsync(
-        OwnershipVerificationResponse confirmation,
+        ChallengeRequestPort.ChallengeResponse confirmation,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(confirmation);
@@ -53,7 +52,7 @@ public sealed class OwnershipValidatorStep : Executor<OwnershipVerificationRespo
                 return;
             }
             await context.Say(Id, _messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts));
-            await context.SendMessageAsync(new OwnershipVerificationRequest(_messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts)));
+            await context.SendMessageAsync(new ChallengeRequestPort.ChallengeRequest(_messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts)));
             return;
         }
         await context.Say(Id, _messageLocalizer.OtvpVerificationSuccessMessage);

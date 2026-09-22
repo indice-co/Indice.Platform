@@ -9,6 +9,7 @@ using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Demo;
+using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.Reranking;
 using Indice.Features.Agents.Core.Workflows.Steps;
@@ -248,9 +249,6 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<OtpCodeValidatorStep>();
         services.TryAddTransient<DataPresenterStep>();
 
-        // Request ports for checkpoint-based pause/resume.
-        var ownershipPort = OwnershipVerificationRequestPort.CreateOwnershipPort();
-        var otpPort = OtpRequestPort.CreateOtpPort();
 
         // Cases workflow with native pause/resume through request ports + checkpoints.
         //   CaseDataRetriever -> OwnershipVerifier -> OwnershipConfirmationPort
@@ -260,6 +258,7 @@ public static class AgentsFeatureExtensions
         //   OtpVerificationPort -> OtpCodeValidator -> (valid) CasePresenterStep
         //                                          -> (invalid retry) OtpRetryChallengeBuilder -> OtpVerificationPort
         //                                          -> (max) CasePresenterStep
+        // Request ports for checkpoint-based pause/resume.
         services.AddKeyedScoped(AgentsConstants.AgentNames.Operator, (sp, key) => {
             var retriever = sp.GetRequiredService<DataRetrieverStep>();
             var ownershipVerifier = sp.GetRequiredService<OwnershipRequestVerificationStep>();
@@ -268,6 +267,8 @@ public static class AgentsFeatureExtensions
             var otpValidator = sp.GetRequiredService<OtpCodeValidatorStep>();
             var dataPresenter = sp.GetRequiredService<DataPresenterStep>();
 
+            var ownershipPort = ChallengeRequestPort.Create();
+            var otpPort = OtpRequestPort.Create();
 
             var builder = new WorkflowBuilder(retriever);
             builder.AddEdge(retriever, ownershipVerifier);

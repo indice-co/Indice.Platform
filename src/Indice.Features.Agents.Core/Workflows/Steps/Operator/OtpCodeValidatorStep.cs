@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Extensions;
+using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
@@ -9,7 +10,6 @@ using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using static Indice.Features.Agents.Core.Workflows.Demo.DemoWorkflow;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 

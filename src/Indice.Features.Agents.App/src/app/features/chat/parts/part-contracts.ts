@@ -243,7 +243,7 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
  */
 export function hitlResponseParts(request: HitlRequest, answer: string): IChatMessagePart[] {
   const requestId = request.requestId ?? '';
-  const payload = { userInput: answer, requestId, properties: {} };
+  const payload = { userInput: answer };
   return [
     { value: answer, contentType: 'text/plain', requestId },
     { value: JSON.stringify(payload), contentType: HITL_RESPONSE_MEDIA_TYPE, requestId },

@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Agents.Core.Extensions;
+using Indice.Features.Agents.Core.Workflows.Ports;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 
@@ -18,7 +19,7 @@ public static class DemoWorkflow
         var start = new ChatTurnStartStep();
         var otpRequirement = new OtpRequirementStep();
         var otpVerification = new OtpVerificationStep();
-        var otpPort = OtpRequestPort.CreateOtpPort();
+        var otpPort = OtpRequestPort.Create();
         var workflow = new WorkflowBuilder(start)
                        .AddEdge(start, otpRequirement)
                        .AddEdge(otpRequirement, otpPort)
@@ -70,55 +71,4 @@ public static class DemoWorkflow
     public record ConversationOutput(bool Done);
 
 
-    /// <summary>
-    /// Represents a request port for OTP (One-Time Password) verification in the workflow.
-    /// </summary>
-    public static class OtpRequestPort
-    {
-        /// <summary>
-        /// Represents a request for an OTP (One-Time Password) with an expiration date.
-        /// </summary>
-        /// <param name="ChallengeCode">The challenge code of the OTP.</param>
-        /// <param name="ExpirationDate">The expiration date of the OTP.</param>
-        public record OtpRequest(string ChallengeCode, DateTime ExpirationDate);
-
-        /// <summary>
-        /// Represents a response containing an OTP (One-Time Password).
-        /// </summary>
-        /// <param name="ChallengeCode">The challenge code of the OTP.</param>
-        /// <param name="Otp">The OTP (One-Time Password).</param>
-        public record OtpResponse(string ChallengeCode, string Otp);
-
-        /// <summary>
-        /// Creates a request port for OTP (One-Time Password) verification in the workflow.
-        /// </summary>
-        /// <param name="id">The identifier for the request port.</param>
-        /// <returns>A request port for OTP verification.</returns>
-        public static RequestPort<OtpRequest, OtpResponse> CreateOtpPort(string id = nameof(OtpRequest)) => RequestPort.Create<OtpRequest, OtpResponse>(id);
-    }
-
-    /// <summary>
-    /// Represents a request port for Ownership verification in the workflow.
-    /// </summary>
-    public static class OwnershipVerificationRequestPort
-    {
-        /// <summary>
-        /// Represents a request for an verfication request
-        /// </summary>
-        /// <param name="message">The message for the user.</param>
-        public record OwnershipVerificationRequest(string message);
-
-        /// <summary>
-        /// Represents a response for an verfication request containing users input
-        /// </summary>
-        /// <param name="userInput">Users input.</param>
-        public record OwnershipVerificationResponse(string userInput);
-
-        /// <summary>
-        /// Creates a request port for OTP (One-Time Password) verification in the workflow.
-        /// </summary>
-        /// <param name="id">The identifier for the request port.</param>
-        /// <returns>A request port for OTP verification.</returns>
-        public static RequestPort<OwnershipVerificationRequest, OwnershipVerificationResponse> CreateOwnershipPort(string id = nameof(OwnershipVerificationRequestPort)) => RequestPort.Create<OwnershipVerificationRequest, OwnershipVerificationResponse>(id);
-    }
 }
