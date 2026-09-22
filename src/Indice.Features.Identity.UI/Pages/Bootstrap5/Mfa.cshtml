@@ -12,7 +12,7 @@
     ViewData["Title"] = Localizer.Mfa_PageTitle + " - " + Model.View.AuthenticationMethod?.DisplayName;
 }
 
-<section class="sign-in m-auto">
+<section class="auth-card mfa">
     <vc:page-heading title="@Localizer.Mfa_PageHeader" image-src="" />
     <partial name="_ValidationSummary" />
     <div indice-if="!Model.View.HasError">
@@ -52,6 +52,7 @@
     <script type="text/javascript" src="~/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
     <script type="text/javascript" src="~/js/mfa.js" csp-nonce></script>
     <script type="text/javascript" src="~/js/otp.js" csp-nonce></script>
+    <script type="text/javascript" src="~/js/otp-field.js" csp-nonce></script>
     <script type="text/javascript" csp-nonce>
         $(document).ready(function () {
             var viewModelParameters = {
@@ -104,10 +105,6 @@
                 $('.channel-btn').removeClass('active');
                 $(this).addClass('active');
             });
-
-            document.head.insertAdjacentHTML('beforeend',
-                '<style>.transition { transition: all 0.2s ease-in-out; } ' +
-                '.channel-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }</style>');
         });
     </script>
 }

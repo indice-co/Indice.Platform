@@ -11,38 +11,33 @@
     var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddPhoneModel.TempDataKey);
 }
 
-<div class="sign-in m-auto">
+<section class="auth-card mfa">
     <vc:page-heading title="@Localizer.MfaOnBoardingAddPhone_PageHeader" image-src="" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="alert" />
-    <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
-        <div class="mb-3">
-            <input type="hidden" asp-for="Input.ReturnUrl" />
-            <label asp-for="Input.PhoneNumber" class="form-label visually-hidden">@Localizer.MfaOnBoardingAddPhone_Phone_Number</label>
+    <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate class="auth-form">
+        <input type="hidden" asp-for="Input.ReturnUrl" />
+        <div class="field">
+            <label asp-for="Input.PhoneNumber" class="field__label">@Localizer.MfaOnBoardingAddPhone_Phone_Number</label>
             <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-            <input class="form-control" type="text" placeholder="@Localizer.MfaOnBoardingAddPhone_Phone_Number" asp-for="Input.PhoneNumber" readonly="@Model.View.DisablePhoneNumberInput" />
-            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            <input class="form-control field__control" type="tel" placeholder="@Localizer.MfaOnBoardingAddPhone_Phone_Number" asp-for="Input.PhoneNumber" readonly="@Model.View.DisablePhoneNumberInput" autocomplete="tel" aria-describedby="Input_PhoneNumber-error" />
+            <span asp-validation-for="Input.PhoneNumber" class="field__error" id="Input_PhoneNumber-error"></span>
         </div>
-        <div class="mb-3">
-            <div class="row m-0 w-100">
-                @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
-                {
-                    <a class="btn btn-primary w-100" href="@Model.View.NextStepUrl">@Localizer.MfaOnBoardingAddPhone_Next</a>
-                }
-                else
-                {
-                    <button class="btn btn-primary w-100" type="submit">@Localizer.MfaOnBoardingAddPhone_Save</button>
-                }
-            </div>
+        <div class="auth-form__actions">
+            @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
+            {
+                <a class="btn btn-primary auth-form__submit" href="@Model.View.NextStepUrl">@Localizer.MfaOnBoardingAddPhone_Next</a>
+            }
+            else
+            {
+                <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.MfaOnBoardingAddPhone_Save</button>
+            }
         </div>
-        <div class="mb-3">
-            <a asp-page="/MfaOnboarding"
-                   class="btn btn-link text-decoration-none p-0 text-dark">
-                ← @Localizer.Mfa_Back
-            </a>
-        </div>
+        <a asp-page="/MfaOnboarding" class="mfa__back">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> @Localizer.Mfa_Back
+        </a>
     </form>
-</div>
+</section>
 
 @section scripts {
     <partial name="_ValidationScripts" />

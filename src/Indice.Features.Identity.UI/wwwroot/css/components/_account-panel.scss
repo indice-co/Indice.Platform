@@ -1,0 +1,111 @@
+﻿@use 'abstracts/tokens' as t;
+@use 'abstracts/mixins' as m;
+
+// Slide-out account menu (Bootstrap offcanvas) opened from the header avatar.
+// Floats as a rounded panel below the header instead of a full-height drawer.
+
+.account-panel {
+    --bs-offcanvas-width: 22rem;
+    --bs-backdrop-opacity: .25;
+    top: t.$space-4;
+    right: t.$space-4;
+    bottom: auto;
+    height: auto;
+    max-height: calc(100dvh - #{t.$space-4 * 2});
+    overflow-y: auto;
+    border: 0;
+    border-radius: var(--idui-radius-lg);
+    background: var(--idui-color-surface-muted);
+    box-shadow: var(--idui-shadow-panel);
+
+    @include m.mq-down(sm) {
+        --bs-offcanvas-width: auto;
+        top: t.$space-3;
+        right: t.$space-3;
+        left: t.$space-3;
+        width: auto;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: flex-end;
+        padding: t.$space-3 t.$space-3 0;
+    }
+
+    &__card {
+        @include m.card;
+        margin: 0 t.$space-4;
+        padding: t.$space-5 t.$space-4;
+        text-align: center;
+    }
+
+    &__avatar {
+        margin: 0 auto t.$space-3;
+    }
+
+    &__name {
+        @include m.truncate;
+        margin: 0;
+        font-size: t.$font-size-lg;
+        color: var(--idui-color-ink);
+    }
+
+    &__email {
+        @include m.truncate;
+        margin: .125rem 0 0;
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text-muted);
+    }
+
+    &__switch {
+        display: block;
+        margin-top: t.$space-3;
+        padding-top: t.$space-3;
+        border-top: 1px solid var(--idui-color-border);
+        font-size: t.$font-size-sm;
+        font-weight: t.$font-weight-medium;
+        color: var(--idui-color-ink);
+    }
+
+    &__nav {
+        display: flex;
+        flex-direction: column;
+        gap: t.$space-1;
+        padding: t.$space-4 t.$space-4 t.$space-2;
+    }
+
+    &__link {
+        display: flex;
+        align-items: center;
+        gap: t.$space-3;
+        min-height: 2.75rem;
+        padding: .5rem t.$space-3;
+        border-radius: var(--idui-radius-sm);
+        color: var(--idui-color-text);
+        font-weight: t.$font-weight-medium;
+        text-decoration: none;
+        transition: background-color t.$transition-fast, color t.$transition-fast;
+
+        &:hover {
+            background: var(--idui-color-surface);
+            color: var(--idui-color-ink);
+        }
+
+        &[aria-current="page"] {
+            background: var(--idui-color-ink);
+            color: var(--idui-color-on-dark);
+        }
+    }
+
+    &__icon {
+        width: 1.5rem;
+        font-size: 1.1rem;
+        text-align: center;
+    }
+
+    &__footer {
+        margin: t.$space-2 t.$space-4 t.$space-4;
+        padding-top: t.$space-3;
+        border-top: 1px solid var(--idui-color-border);
+    }
+}

@@ -1,0 +1,237 @@
+﻿// =============================================================================
+// Design tokens — the single source of truth for the Bootstrap5 Identity UI.
+//
+// Two tiers:
+//   1. Sass tokens (`!default`, this file). Used at compile time: mapped onto Bootstrap's
+//      variables in bootstrap.scss, and for values that never change per theme (spacing,
+//      type scale, breakpoints, z-index, motion). A host that recompiles the stylesheet can
+//      configure them with `@use 'abstracts/tokens' with (...)`.
+//   2. CSS custom properties (`--idui-*`, emitted on :root at the bottom of this file).
+//      Everything a theme may change — colours, font family, radii, shadows, hero image,
+//      layout sizes and the layout contract read by layouts/_anonymous-shell.scss. Every
+//      component reads these, so a theme is only a block of custom property values scoped
+//      to `[data-theme="name"]` (see themes/). No markup differs between themes.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Palette
+// -----------------------------------------------------------------------------
+$color-ink: #242221 !default;            // primary actions, headings
+$color-ink-hover: #151515 !default;
+$color-text: #252525 !default;
+$color-text-muted: #6b6b6b !default;     // 5.7:1 on white
+$color-text-subtle: #767676 !default;    // 4.5:1 on white (placeholders, meta)
+$color-surface: #ffffff !default;
+$color-surface-muted: #f6f6f5 !default;  // page background (minimal theme, mobile)
+$color-surface-sunken: #ececec !default;
+$color-border: #e1e1e1 !default;
+$color-border-strong: #cfcfcf !default;
+$color-brand: #0e3f49 !default;          // deep teal (hero overlay, avatar initials)
+$color-brand-accent: #1f6f7c !default;
+$color-brand-bright: #2f98ab !default;   // floating panel theme page background
+$color-success: #1e7e34 !default;
+$color-danger: #d2232a !default;
+$color-warning: #b26a00 !default;
+$color-info: #1f6f7c !default;
+$color-focus: #1f6f7c !default;
+$color-on-dark: #ffffff !default;
+$hero-overlay: rgba(11, 64, 74, .45) !default;
+$hero-overlay-strong: rgba(11, 64, 74, .6) !default;
+
+// -----------------------------------------------------------------------------
+// Typography
+// -----------------------------------------------------------------------------
+$font-family-base: 'Gotham Greek', 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif !default;
+$font-weight-normal: 400 !default;
+$font-weight-medium: 500 !default;
+$font-weight-bold: 700 !default;
+$font-size-xs: .75rem !default;
+$font-size-sm: .875rem !default;
+$font-size-base: 1rem !default;
+$font-size-lg: 1.125rem !default;
+// Fluid scale: min at 390px, max from ~1440px.
+$font-size-h1: clamp(1.625rem, 1.3rem + 1.1vw, 2.125rem) !default;
+$font-size-h2: clamp(1.375rem, 1.15rem + .8vw, 1.75rem) !default;
+$font-size-h3: clamp(1.125rem, 1rem + .5vw, 1.375rem) !default;
+$font-size-hero: clamp(2rem, 1.1rem + 2.3vw, 3.25rem) !default;
+$font-size-hero-sub: clamp(1.125rem, .85rem + 1vw, 1.75rem) !default;
+$line-height-base: 1.5 !default;
+$line-height-tight: 1.2 !default;
+
+// -----------------------------------------------------------------------------
+// Spacing (aligned with Bootstrap's $spacer = 1rem)
+// -----------------------------------------------------------------------------
+$space-1: .25rem !default;
+$space-2: .5rem !default;
+$space-3: .75rem !default;
+$space-4: 1rem !default;
+$space-5: 1.5rem !default;
+$space-6: 2rem !default;
+$space-7: 2.5rem !default;
+$space-8: 3rem !default;
+$space-9: 4rem !default;
+
+// -----------------------------------------------------------------------------
+// Radii
+// -----------------------------------------------------------------------------
+$radius-sm: .5rem !default;     // small controls, menu items
+$radius: .75rem !default;       // inputs, buttons
+$radius-lg: 1rem !default;      // cards
+$radius-xl: 1.5rem !default;    // floating panel, inset hero
+$radius-pill: 50rem !default;
+
+// -----------------------------------------------------------------------------
+// Shadows
+// -----------------------------------------------------------------------------
+$shadow-card: 0 12px 32px rgba(17, 24, 39, .10) !default;
+$shadow-panel: 0 24px 64px rgba(0, 0, 0, .25) !default;
+$shadow-menu: 0 8px 24px rgba(0, 0, 0, .12) !default;
+$shadow-focus: 0 0 0 .2rem rgba($color-focus, .35) !default;
+
+// -----------------------------------------------------------------------------
+// Layout
+// -----------------------------------------------------------------------------
+$card-width: 34rem !default;
+$card-width-wide: 46rem !default;
+$article-width: 80rem !default;
+$panel-width: 95rem !default;
+$panel-min-height: 42rem !default;
+$hero-column: 40% !default;      // columns theme / split register image column
+$form-column: 36rem !default;    // split theme login card column
+$header-height: 5.5rem !default;
+$header-height-sm: 4.5rem !default;
+$page-gutter: 1rem !default;
+$page-gutter-lg: 3.75rem !default;
+$avatar-sm: 2.75rem !default;
+$avatar-md: 3.5rem !default;
+$avatar-lg: 5rem !default;
+
+// Breakpoints (mirror Bootstrap's grid breakpoints).
+$breakpoints: (sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl: 1440px) !default;
+
+// -----------------------------------------------------------------------------
+// Z-index & motion
+// -----------------------------------------------------------------------------
+$z-header: 1030 !default;
+$z-ribbon: 1040 !default;
+$z-skip-link: 2000 !default;
+$transition-fast: .15s ease !default;
+$transition-base: .25s ease !default;
+
+// =============================================================================
+// Runtime custom properties. Defaults come from the Sass tokens above; a theme
+// overrides any of them under `[data-theme="name"]`, a host under `:root`.
+// =============================================================================
+:root {
+    // ---- Palette ------------------------------------------------------------
+    --idui-color-ink: #{$color-ink};
+    --idui-color-ink-hover: #{$color-ink-hover};
+    --idui-color-text: #{$color-text};
+    --idui-color-text-muted: #{$color-text-muted};
+    --idui-color-text-subtle: #{$color-text-subtle};
+    --idui-color-surface: #{$color-surface};
+    --idui-color-surface-muted: #{$color-surface-muted};
+    --idui-color-surface-sunken: #{$color-surface-sunken};
+    --idui-color-border: #{$color-border};
+    --idui-color-border-strong: #{$color-border-strong};
+    --idui-color-brand: #{$color-brand};
+    --idui-color-brand-accent: #{$color-brand-accent};
+    --idui-color-brand-bright: #{$color-brand-bright};
+    --idui-color-success: #{$color-success};
+    --idui-color-danger: #{$color-danger};
+    --idui-color-warning: #{$color-warning};
+    --idui-color-info: #{$color-info};
+    --idui-color-focus: #{$color-focus};
+    --idui-color-on-dark: #{$color-on-dark};
+
+    // ---- Type, radii, shadows ----------------------------------------------
+    --idui-font-family: #{$font-family-base};
+    --idui-radius-sm: #{$radius-sm};
+    --idui-radius: #{$radius};
+    --idui-radius-lg: #{$radius-lg};
+    --idui-radius-xl: #{$radius-xl};
+    --idui-shadow-card: #{$shadow-card};
+    --idui-shadow-panel: #{$shadow-panel};
+    --idui-shadow-menu: #{$shadow-menu};
+    --idui-shadow-focus: #{$shadow-focus};
+
+    // ---- Sizes ---------------------------------------------------------------
+    --idui-card-width: #{$card-width};
+    --idui-card-width-wide: #{$card-width-wide};
+    --idui-article-width: #{$article-width};
+    --idui-panel-width: #{$panel-width};
+    --idui-panel-min-height: #{$panel-min-height};
+    --idui-hero-column: #{$hero-column};
+    --idui-form-column: #{$form-column};
+    --idui-header-height: #{$header-height};
+    --idui-header-height-sm: #{$header-height-sm};
+    --idui-page-gutter: #{$page-gutter};
+    --idui-page-gutter-lg: #{$page-gutter-lg};
+    --idui-avatar-sm: #{$avatar-sm};
+    --idui-avatar-md: #{$avatar-md};
+    --idui-avatar-lg: #{$avatar-lg};
+
+    // ---- Hero image ------------------------------------------------------------
+    // Override the image / overlay on the same element (`:root` or `[data-theme]`) so the
+    // composed backgrounds below pick them up.
+    --idui-hero-image: url('../img/hero.jpg');
+    --idui-hero-overlay: #{$hero-overlay};
+    --idui-hero-overlay-strong: #{$hero-overlay-strong};
+    --idui-hero-bg: linear-gradient(var(--idui-hero-overlay), var(--idui-hero-overlay)), var(--idui-hero-image) center / cover no-repeat var(--idui-color-brand);
+    --idui-hero-bg-strong: linear-gradient(var(--idui-hero-overlay-strong), var(--idui-hero-overlay-strong)), var(--idui-hero-image) center / cover no-repeat var(--idui-color-brand);
+    --idui-hero-color: var(--idui-color-on-dark);
+    --idui-hero-text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+
+    // ---- Chrome (header, footer, language switcher) ----------------------------
+    // Defaults are the "light" chrome; abstracts/_theme.scss has mixins for the on-image variant.
+    --idui-header-color: var(--idui-color-text);
+    --idui-header-text-shadow: none;
+    --idui-logo-light-display: block;
+    --idui-logo-dark-display: none;
+    --idui-footer-color: var(--idui-color-text-muted);
+    --idui-footer-text-shadow: none;
+    --idui-footer-link-hover: var(--idui-color-ink);
+    --idui-lang-toggle-bg: var(--idui-color-surface);
+    --idui-lang-toggle-color: var(--idui-color-text);
+    --idui-lang-toggle-border: var(--idui-color-border);
+
+    // ---- Auth card (login/register/... form card) -------------------------------
+    --idui-auth-card-bg: var(--idui-color-surface);
+    --idui-auth-card-shadow: var(--idui-shadow-card);
+    --idui-auth-card-width: var(--idui-card-width);
+    --idui-auth-card-padding: #{$space-8} #{$space-7};
+
+    // ---- Layout contract (read by layouts/_anonymous-shell.scss from the lg breakpoint) ----
+    // .site is a CSS grid; header, hero, main and footer are placed by named areas. Defaults
+    // describe the minimal theme: header / main / footer stacked, hero hidden.
+    --idui-page-bg: var(--idui-color-surface-muted);   // <body> background (any `background` value), all viewports
+    --idui-site-columns: minmax(0, 1fr);
+    --idui-site-rows: auto minmax(0, 1fr) auto;
+    --idui-site-areas: 'header' 'main' 'footer';
+    --idui-site-gap: 0;
+    --idui-site-padding: 0;
+    --idui-header-area: header;
+    --idui-footer-area: footer;
+    --idui-main-area: main;
+    --idui-main-padding: #{$space-6} var(--idui-page-gutter-lg) #{$space-8};
+    --idui-main-justify: center;                        // vertical alignment of the card inside main
+    // .site-body wraps hero + main. `contents` places them straight into the .site grid;
+    // `grid` makes .site-body a box of its own (the floating panel theme).
+    --idui-body-display: contents;
+    --idui-body-area: body;
+    --idui-body-columns: minmax(0, 1fr);
+    --idui-body-width: 100%;
+    --idui-body-min-height: 0;
+    --idui-body-margin: 0;
+    --idui-body-bg: none;
+    --idui-body-radius: 0;
+    --idui-body-shadow: none;
+    // The hero aside (title + subtitle next to the form).
+    --idui-hero-display: none;                          // `flex` to show it
+    --idui-hero-area: hero;                             // a named area or explicit grid lines
+    --idui-hero-align: center;                          // align-items
+    --idui-hero-bg-layer: none;                         // the aside's own background (page background shows through when none)
+    --idui-hero-margin: 0;
+    --idui-hero-padding: #{$space-9} var(--idui-page-gutter-lg);
+    --idui-hero-radius: 0;
+}

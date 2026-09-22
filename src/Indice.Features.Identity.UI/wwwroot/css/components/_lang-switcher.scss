@@ -1,0 +1,56 @@
+﻿@use 'abstracts/tokens' as t;
+
+.lang-switcher {
+    display: inline-block;
+
+    &__toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: t.$space-2;
+        min-height: 2.5rem;
+        padding: .4rem .85rem;
+        background: var(--idui-lang-toggle-bg);
+        border: 1px solid var(--idui-lang-toggle-border);
+        border-radius: var(--idui-radius-sm);
+        color: var(--idui-lang-toggle-color);
+        font-size: t.$font-size-sm;
+        text-shadow: none;
+        cursor: pointer;
+        transition: border-color t.$transition-fast, background-color t.$transition-fast;
+
+        &:hover {
+            border-color: var(--idui-lang-toggle-color);
+        }
+    }
+
+    &__caret {
+        font-size: .7em;
+    }
+
+    &__menu {
+        min-width: 10rem;
+        padding: .375rem;
+        border: 1px solid var(--idui-color-border);
+        border-radius: var(--idui-radius);
+        box-shadow: var(--idui-shadow-menu);
+    }
+
+    &__item {
+        width: 100%;
+        padding: .55rem .75rem;
+        border: 0;
+        border-radius: var(--idui-radius-sm);
+        background: transparent;
+        color: var(--idui-color-text);
+        font-size: t.$font-size-sm;
+        text-align: left;
+        text-shadow: none;
+
+        &--active,
+        &.active {
+            background: var(--idui-color-surface-muted);
+            color: var(--idui-color-ink);
+            font-weight: t.$font-weight-medium;
+        }
+    }
+}

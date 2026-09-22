@@ -8,21 +8,19 @@
     ViewData["Title"] = Localizer.Error_PageTitle;
 }
 
-<section class="border-0 pt-5 error-page identity-panel">
-    <article>
-        <h1 class="text-danger text-start">@Localizer.Error_PageHeader</h1>
-        <h2 class="text-danger">@Localizer.Error_Oops_Seems_We_Encountered_An_Error</h2>
-        <p class="pt-5">
-            @if (Model?.Message is not null)
-            {
-                <strong>
-                    @Model.Title <em>: @Model.Message</em>
-                </strong>
-            }
-            @if (Model?.RequestId is not null)
-            {
-                <div class="request-id">@Localizer.Error_Request_Id: @Model.RequestId</div>
-            }
+<section class="auth-card auth-card--message error-page">
+    <vc:page-heading title="@Localizer.Error_PageHeader" subtitle="@Localizer.Error_Oops_Seems_We_Encountered_An_Error" image-src="" />
+    @if (Model?.Message is not null)
+    {
+        <p class="auth-card__text error-page__message">
+            <strong>@Model.Title</strong><em>: @Model.Message</em>
         </p>
-    </article>
+    }
+    @if (Model?.RequestId is not null)
+    {
+        <p class="error-page__request-id">@Localizer.Error_Request_Id: <code>@Model.RequestId</code></p>
+    }
+    <div class="auth-form__actions">
+        <a class="btn btn-primary auth-form__submit" asp-page="/Home">@Localizer.Error_Go_back_home</a>
+    </div>
 </section>

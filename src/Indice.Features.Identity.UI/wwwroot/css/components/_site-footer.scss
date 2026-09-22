@@ -1,0 +1,62 @@
+﻿@use 'abstracts/tokens' as t;
+@use 'abstracts/mixins' as m;
+
+// Colours come from the chrome variables (--idui-footer-*), which a theme sets per page /
+// breakpoint. See abstracts/_theme.scss.
+
+.site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: t.$space-3 t.$space-5;
+    padding: t.$space-4 var(--idui-page-gutter-lg);
+    font-size: t.$font-size-sm;
+    color: var(--idui-footer-color);
+    text-shadow: var(--idui-footer-text-shadow);
+
+    &__copyright {
+        margin: 0;
+    }
+
+    &__links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: t.$space-4;
+    }
+
+    &__link {
+        color: inherit;
+        font-weight: t.$font-weight-medium;
+        text-decoration: underline;
+        text-underline-offset: .2em;
+
+        &:hover {
+            color: var(--idui-footer-link-hover);
+        }
+    }
+
+    &__credit {
+        margin: 0 0 0 auto;
+        font-size: t.$font-size-xs;
+
+        strong {
+            font-weight: t.$font-weight-bold;
+        }
+    }
+
+    @include m.mq-down(lg) {
+        flex-direction: column;
+        justify-content: center;
+        gap: t.$space-3;
+        padding: t.$space-6 var(--idui-page-gutter);
+        text-align: center;
+
+        &__links {
+            justify-content: center;
+        }
+
+        &__credit {
+            margin: t.$space-2 0 0;
+        }
+    }
+}

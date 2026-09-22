@@ -1,0 +1,125 @@
+﻿@use 'abstracts/tokens' as t;
+@use 'abstracts/mixins' as m;
+
+// A labelled form control with optional hint, reveal button, error and help text.
+// Markup:
+//   <div class="field">
+//     <label class="field__label" for=…>Label <span class="field__required" aria-hidden="true">*</span></label>
+//     <div class="field__group">            (only when a trailing button is needed)
+//       <input class="form-control field__control" …>
+//       <button type="button" class="field__reveal" aria-pressed="false">…</button>
+//     </div>
+//     <span class="field__error" id="…-error"></span>
+//     <span class="field__help" id="…-hint">…</span>
+//   </div>
+
+.field {
+    margin-bottom: t.$space-5;
+
+    &__label {
+        display: block;
+        margin-bottom: t.$space-2;
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text-muted);
+    }
+
+    &__required {
+        margin-left: .125rem;
+        color: var(--idui-color-danger);
+    }
+
+    &__hint {
+        margin-left: t.$space-1;
+        color: var(--idui-color-text-subtle);
+        cursor: help;
+
+        &:hover {
+            color: var(--idui-color-ink);
+        }
+    }
+
+    &__group {
+        position: relative;
+
+        .field__control {
+            padding-right: 3rem;
+        }
+    }
+
+    &__reveal {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 100%;
+        padding: 0;
+        border: 0;
+        border-radius: 0 var(--idui-radius) var(--idui-radius) 0;
+        background: transparent;
+        color: var(--idui-color-text-muted);
+        cursor: pointer;
+
+        &:hover {
+            color: var(--idui-color-ink);
+        }
+
+        &:focus-visible {
+            outline-offset: -2px;
+        }
+    }
+
+    &__error,
+    &__help {
+        display: block;
+        margin-top: t.$space-2;
+        font-size: t.$font-size-sm;
+    }
+
+    &__error {
+        color: var(--idui-color-danger);
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    &__help {
+        font-size: t.$font-size-xs;
+        color: var(--idui-color-text-muted);
+    }
+
+    .form-control,
+    .form-select {
+        &.input-validation-error {
+            border-color: var(--idui-color-danger);
+        }
+    }
+}
+
+// Checkboxes and radios (Bootstrap .form-check themed through variables; spacing here).
+.form-check {
+    display: flex;
+    align-items: flex-start;
+    gap: t.$space-2;
+    min-height: 1.5rem;
+    margin-bottom: t.$space-3;
+    padding-left: 0;
+
+    .form-check-input {
+        flex: 0 0 auto;
+        margin: .2rem 0 0;
+    }
+
+    .form-check-label {
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text);
+    }
+
+    .field__error {
+        flex-basis: 100%;
+        margin-top: 0;
+    }
+}

@@ -10,223 +10,129 @@
 
 @{
     ViewData["Title"] = Localizer.Register_PageTitle;
+    ViewData["Shell"] = "auth";
+    var callingCodesEnabled = identityUiOptions.Value.EnablePhoneNumberCallingCodes;
 }
 
-<section class="sign-up m-auto">
-    <vc:page-heading title="@Localizer.Register_PageHeader" image-src="" />
+<section class="auth-card">
+    <vc:page-heading title="@Localizer.Register_PageHeader" subtitle="@Localizer.Register_Subtitle" image-src="" />
     <partial name="_ValidationSummary" />
-    @if (Model.View.VisibleExternalProviders.Any())
-    {
-        <div class="login-form">
-            <ul class="list-unstyled">
-                @foreach (var provider in Model.View.VisibleExternalProviders)
-                {
-                    <li class="idp idp-@provider.AuthenticationScheme!.ToLower()">
-                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
-                            @Localizer.GetGeneric(provider.DisplayName!)
-                        </a>
-                    </li>
-                }
-            </ul>
-        </div>
-        <div class="hr-sect">@Localizer.Register_OR</div>
-    }
-    <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate id="registerForm">
+    <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate id="registerForm" class="auth-form">
         <input type="hidden" asp-for="Input.ReturnUrl" />
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label asp-for="Input.FirstName" class="form-label">@Localizer.Register_First_Name</label>
-                    <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Localizer.Register_First_Name" autofocus />
-                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label asp-for="Input.LastName" class="form-label">@Localizer.Register_Last_Name</label>
-                    <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Localizer.Register_Last_Name" />
-                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
-                </div>
-            </div>
+        <div class="field">
+            <label asp-for="Input.FirstName" class="field__label">@Localizer.Register_First_Name <span class="field__required" aria-hidden="true">*</span></label>
+            <input class="form-control field__control" type="text" asp-for="Input.FirstName" placeholder="@Localizer.Register_First_Name" autocomplete="given-name" autofocus aria-describedby="Input_FirstName-error" />
+            <span asp-validation-for="Input.FirstName" class="field__error" id="Input_FirstName-error"></span>
         </div>
-        @if (!userManager.EmailAsUserName || !identityUiOptions.Value.EnablePhoneNumberCallingCodes)
+        <div class="field">
+            <label asp-for="Input.LastName" class="field__label">@Localizer.Register_Last_Name <span class="field__required" aria-hidden="true">*</span></label>
+            <input class="form-control field__control" type="text" asp-for="Input.LastName" placeholder="@Localizer.Register_Last_Name" autocomplete="family-name" aria-describedby="Input_LastName-error" />
+            <span asp-validation-for="Input.LastName" class="field__error" id="Input_LastName-error"></span>
+        </div>
+        <div class="field">
+            <label asp-for="Input.Email" class="field__label">@Localizer.Email <span class="field__required" aria-hidden="true">*</span></label>
+            <input class="form-control field__control" type="email" asp-for="Input.Email" placeholder="@Localizer.Email" autocomplete="email" aria-describedby="Input_Email-error" />
+            <span asp-validation-for="Input.Email" class="field__error" id="Input_Email-error"></span>
+        </div>
+        @if (callingCodesEnabled)
         {
-            <div class="row">
-                <div indice-if="!userManager.EmailAsUserName" class="@(identityUiOptions.Value.EnablePhoneNumberCallingCodes ? "col-md-12" : "col-md-6")">
-                    <div class="mb-3">
-                        <label asp-for="Input.Email" class="form-label">@Localizer.Email</label>
-                        <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Localizer.Email" />
-                        <span asp-validation-for="Input.Email" class="text-danger"></span>
-                    </div>
-                </div>
-                <div indice-if="!identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="@(userManager.EmailAsUserName ? "col-md-12" : "col-md-6")">
-                    <div class="mb-3">
-                        <label asp-for="Input.PhoneNumber" class="form-label">@Localizer.Register_Phone_number</label>
-                        <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer.Register_Phone_number" />
-                        <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
-                    </div>
-                </div>
+            <div class="field">
+                <label class="field__label" asp-for="Input.CallingCode">@Localizer.Register_Calling_Code <span class="field__required" aria-hidden="true">*</span></label>
+                <select class="form-select field__control" asp-for="Input.CallingCode" required aria-describedby="Input_CallingCode-error">
+                    <option value="" selected>@Localizer.Profile_Choose</option>
+                    @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
+                    {
+                        <option value="@callingCode">@callingCode.DisplayName</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.CallingCode" class="field__error" id="Input_CallingCode-error"></span>
             </div>
         }
-        <div indice-if="identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label" asp-for="Input.CallingCode">@Localizer.Register_Calling_Code</label>
-                    <select class="form-control lh-lg" asp-for="Input.CallingCode" required>
-                        <option value="" selected>@Localizer.Profile_Choose</option>
-                        @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
-                        {
-                            <option value="@callingCode">@callingCode.DisplayName</option>
-                        }
-                    </select>
-                    <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label asp-for="Input.PhoneNumber" class="form-label">@Localizer.Register_Phone_number]</label>
-                    <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer.Register_Phone_number]" />
-                    <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
-                </div>
-            </div>
+        <div class="field">
+            <label asp-for="Input.PhoneNumber" class="field__label">@Localizer.Register_Phone_number <span class="field__required" aria-hidden="true">*</span></label>
+            <input class="form-control field__control" type="tel" asp-for="Input.PhoneNumber" placeholder="@Localizer.Register_Phone_number" autocomplete="tel" aria-describedby="Input_PhoneNumberWithCallingCode-error" />
+            <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="field__error" id="Input_PhoneNumberWithCallingCode-error"></span>
         </div>
-        @if (userManager.EmailAsUserName)
+        @if (!userManager.EmailAsUserName)
         {
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <hr>
-                        <div>
-                            <p>
-                                @Localizer.Register_Choose_An_Email_And_A_Password
-                                <br><br>
-                                @Localizer.Register_Credentials_Notice
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <label asp-for="Input.Email" class="form-label">@Localizer.Email</label>
-                        <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Localizer.Email" />
-                        <span asp-validation-for="Input.Email" class="text-danger"></span>
-                    </div>
-                </div>
+            <div class="field">
+                <label asp-for="Input.UserName" class="field__label">@Localizer.Register_Username <span class="field__required" aria-hidden="true">*</span></label>
+                <input class="form-control field__control" type="text" asp-for="Input.UserName" placeholder="@Localizer.Register_Username" autocomplete="off" aria-describedby="Input_UserName-error Input_UserName-hint" />
+                <span asp-validation-for="Input.UserName" class="field__error" id="Input_UserName-error"></span>
+                <span class="field__help" id="Input_UserName-hint">@Localizer.Register_Choose_A_Username_And_A_Password</span>
             </div>
         }
-        else
-        {
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <hr>
-                        <div>
-                            <p>
-                                @Localizer.Register_Choose_A_Username_And_A_Password
-                                <br><br>
-                                @Localizer.Register_Credentials_Notice
-                            </p>
-                        </div>
-                    </div>
-                </div>
+        <div class="field">
+            <label asp-for="Input.Password" class="field__label">
+                @Localizer.Register_Password <span class="field__required" aria-hidden="true">*</span>
+                <span class="field__hint" tabindex="0" title="@Localizer.Register_Credentials_Notice" aria-label="@Localizer.Register_Credentials_Notice"><i class="fa-regular fa-circle-question" aria-hidden="true"></i></span>
+            </label>
+            <div class="field__group">
+                <input class="form-control field__control password" type="password" placeholder="@Localizer.Register_Password" data-sbind="event: { keyup: passwordChanged }" asp-for="Input.Password" autocomplete="new-password" aria-describedby="Input_Password-error password-rules" />
+                <button type="button" class="field__reveal" aria-pressed="false" aria-label="@Localizer.Password_Show" title="@Localizer.Password_Show" data-label-show="@Localizer.Password_Show" data-label-hide="@Localizer.Password_Hide">
+                    <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                </button>
             </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <label asp-for="Input.UserName" class="form-label">@Localizer.Register_Username</label>
-                        <input class="form-control" type="text" asp-for="Input.UserName" placeholder="@Localizer.Register_Username" autocomplete="off" />
-                        <span asp-validation-for="Input.UserName" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-        }
-        <div class="row">
-            <div class="col-md-12">
-                <div class="mb-3">
-                    <label asp-for="Input.Password" class="form-label">@Localizer.Register_Password</label>
-                    <div class="password-control">
-                        <input class="form-control password" type="password" placeholder="@Localizer.Register_Password" data-sbind="event: { keyup: passwordChanged }" asp-for="Input.Password" autocomplete="new-password" />
-                        <i role="button" class="reveal-icon" aria-label="Show password" title="Show password" aria-pressed="false"></i>
-                    </div>
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div id="password-rules" class="password-rules col-md-12">
-                <ul data-sbind="foreach: passwordRules">
-                    <li class="password-rule" data-sbind="text: $data.requirement, css: { 'rule-valid': $data.isValid }"></li>
-                </ul>
-            </div>
+            <span asp-validation-for="Input.Password" class="field__error" id="Input_Password-error"></span>
+            <ul id="password-rules" class="password-rules" data-sbind="foreach: passwordRules" aria-live="polite">
+                <li class="password-rules__item" data-sbind="text: $data.requirement, css: { 'password-rules__item--valid': $data.isValid }"></li>
+            </ul>
         </div>
         @if (identityUiOptions.Value.EnablePasswordConfirmation)
         {
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <label asp-for="Input.PasswordConfirmation" class="form-label">@Localizer.Register_Password_Confirmation</label>
-                        <div class="password-control">
-                            <input class="form-control password" type="password" placeholder="@Localizer.Register_Password_Confirmation" asp-for="Input.PasswordConfirmation" autocomplete="new-password" />
-                            <i role="button" class="reveal-icon" aria-label="Show password" title="Show password" aria-pressed="false"></i>
-                        </div>
-                        <span asp-validation-for="Input.PasswordConfirmation" class="text-danger"></span>
-                    </div>
+            <div class="field">
+                <label asp-for="Input.PasswordConfirmation" class="field__label">@Localizer.Register_Password_Confirmation <span class="field__required" aria-hidden="true">*</span></label>
+                <div class="field__group">
+                    <input class="form-control field__control password" type="password" placeholder="@Localizer.Register_Password_Confirmation" asp-for="Input.PasswordConfirmation" autocomplete="new-password" aria-describedby="Input_PasswordConfirmation-error" />
+                    <button type="button" class="field__reveal" aria-pressed="false" aria-label="@Localizer.Password_Show" title="@Localizer.Password_Show" data-label-show="@Localizer.Password_Show" data-label-hide="@Localizer.Password_Hide">
+                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                    </button>
                 </div>
+                <span asp-validation-for="Input.PasswordConfirmation" class="field__error" id="Input_PasswordConfirmation-error"></span>
             </div>
         }
-        <div class="row">
-            <div class="col-md-12">
-                <div class="mb-3">
-                    <label class="checkbox">
-                        <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
-                        @Localizer.Register_I_Have_Read_And_Accept_Terms()
-                    </label>
-                    <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
-                </div>
+        <div class="auth-form__consents">
+            <div class="form-check">
+                <input asp-for="Input.HasAcceptedTerms" type="checkbox" class="form-check-input" aria-describedby="Input_HasAcceptedTerms-error" />
+                <label asp-for="Input.HasAcceptedTerms" class="form-check-label">@Localizer.Register_I_Have_Read_And_Accept_Terms()</label>
+                <span asp-validation-for="Input.HasAcceptedTerms" class="field__error" id="Input_HasAcceptedTerms-error"></span>
+            </div>
+            <div class="form-check">
+                <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" class="form-check-input" aria-describedby="Input_HasReadPrivacyPolicy-error" />
+                <label asp-for="Input.HasReadPrivacyPolicy" class="form-check-label">@Localizer.Register_I_Consent_To_Registration()</label>
+                <span asp-validation-for="Input.HasReadPrivacyPolicy" class="field__error" id="Input_HasReadPrivacyPolicy-error"></span>
+            </div>
+            <div class="form-check">
+                <input asp-for="Input.HasConsentedToCommercialCommunications" type="checkbox" class="form-check-input" aria-describedby="Input_HasConsentedToCommercialCommunications-error" />
+                <label asp-for="Input.HasConsentedToCommercialCommunications" class="form-check-label">@Localizer.Register_I_Consent_To_Contact_Usage</label>
+                <span asp-validation-for="Input.HasConsentedToCommercialCommunications" class="field__error" id="Input_HasConsentedToCommercialCommunications-error"></span>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="mb-3">
-                    <label class="checkbox">
-                        <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
-                        @Localizer.Register_I_Consent_To_Registration()
-                    </label>
-                    <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="mb-3">
-                    <label class="checkbox">
-                        <input asp-for="Input.HasConsentedToCommercialCommunications" type="checkbox" />
-                        @Localizer.Register_I_Consent_To_Contact_Usage
-                    </label>
-                    <span asp-validation-for="Input.HasConsentedToCommercialCommunications" class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "registerForm", ButtonId = "submitButton", Action = "register" }' />
-            </div>
-        </div>
-        <div class="row align-items-center">
-            <div class="col-md-6 col-12">
-                <div class="mb-3">
-                    <a class="btn btn-link w-100" asp-page="/Login" asp-route-returnUrl="@Model.View.ReturnUrl">@Localizer.Register_Already_Have_An_Account</a>
-                </div>
-            </div>
-            <div class="col-md-6 col-12">
-                <div class="mb-3">
-                    <button class="btn btn-primary w-100" id="submitButton" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer.Register_Join_Us</button>
-                </div>
-            </div>
+        <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "registerForm", ButtonId = "submitButton", Action = "register" }' />
+        <div class="auth-form__actions">
+            <button class="btn btn-primary auth-form__submit" id="submitButton" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer.Register_Join_Us</button>
         </div>
     </form>
+    @if (Model.View.VisibleExternalProviders.Any())
+    {
+        <div class="divider"><span class="divider__label">@Localizer.Login_Alternatively</span></div>
+        <ul class="provider-list">
+            @foreach (var provider in Model.View.VisibleExternalProviders)
+            {
+                var scheme = provider.AuthenticationScheme!.ToLower();
+                <li class="provider-list__item">
+                    <a class="btn provider-btn provider-btn--@scheme" asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
+                        <span class="provider-btn__logo" aria-hidden="true"></span>
+                        <span class="provider-btn__label">@Localizer.GetGeneric(provider.DisplayName!)</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+    <p class="auth-card__switch">
+        <span>@Localizer.Register_Already_Have_An_Account</span>
+        <a asp-page="/Login" asp-route-returnUrl="@Model.View.ReturnUrl">@Localizer.Login_PageHeader</a>
+    </p>
 </section>
 
 @section scripts {
@@ -237,12 +143,12 @@
     <script type="text/javascript" src="~/js/password-rules.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/reveal-password.js" csp-nonce="true"></script>
     <script csp-nonce="true">
-        document.querySelectorAll('.idp a').forEach(function (el) {
-        el.onclick = function (link) {
-        if (!link.target.classList.contains('disabled')) {
-        link.target.classList.add('disabled');
-        }
-        };
+        document.querySelectorAll('.provider-btn').forEach(function (el) {
+            el.addEventListener('click', function () {
+                if (!el.classList.contains('disabled')) {
+                    el.classList.add('disabled');
+                }
+            });
         });
     </script>
 }

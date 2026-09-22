@@ -4,11 +4,13 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-    ViewData["body-css-class"] = "article-page";
     ViewData["Title"] = Localizer.Privacy_PageTitle;
+    ViewData["Shell"] = "article";
 }
 
-<article class="p-0 py-md-4 px-md-5">
-    <vc:page-heading title="@Localizer.Privacy_PageHeader" image-src="" />
-    <md path="@Model.View.MarkdownPath" class="markdown-body"></md>
+<article class="article-card">
+    <header class="article-card__header">
+        <h1 class="article-card__title">@Localizer.Privacy_PageHeader</h1>
+    </header>
+    <md path="@Model.View.MarkdownPath" class="article-card__body markdown-body"></md>
 </article>

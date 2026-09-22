@@ -1,0 +1,112 @@
+﻿@use 'abstracts/tokens' as t;
+@use 'abstracts/mixins' as m;
+
+// The white card that frames every form. A theme can render it flat (no card chrome) by
+// overriding the --idui-auth-card-* variables (see abstracts/_theme.scss `auth-card-flat`).
+
+.auth-card {
+    width: 100%;
+    max-width: var(--idui-auth-card-width);
+    margin: 0 auto;
+    padding: var(--idui-auth-card-padding);
+    background: var(--idui-auth-card-bg);
+    border-radius: var(--idui-radius-lg);
+    box-shadow: var(--idui-auth-card-shadow);
+
+    @include m.mq-down(sm) {
+        padding: t.$space-6 t.$space-4;
+    }
+
+    &--wide {
+        max-width: var(--idui-card-width-wide);
+    }
+
+    &__header {
+        margin-bottom: t.$space-6;
+        text-align: center;
+    }
+
+    &__image {
+        width: 4.5rem;
+        height: 4.5rem;
+        margin-bottom: t.$space-3;
+        border-radius: 50%;
+        object-fit: contain;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: t.$font-size-h1;
+        font-weight: t.$font-weight-normal;
+        line-height: t.$line-height-tight;
+        color: var(--idui-color-ink);
+    }
+
+    &__subtitle {
+        margin: t.$space-2 0 0;
+        color: var(--idui-color-text-muted);
+    }
+
+    // "Don't have an account? Create one" line with short rules on either side.
+    &__switch {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: .35rem;
+        margin: t.$space-6 0 0;
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text-muted);
+
+        &::before,
+        &::after {
+            content: '';
+            flex: 0 0 1.25rem;
+            height: 1px;
+            background: var(--idui-color-border);
+        }
+
+        a {
+            font-weight: t.$font-weight-medium;
+            color: var(--idui-color-ink);
+        }
+    }
+
+    > .alert {
+        margin-bottom: t.$space-5;
+    }
+}
+
+// Form scaffolding inside a card.
+.auth-form {
+    &__row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: t.$space-3;
+        margin-bottom: t.$space-5;
+
+        .form-check {
+            margin: 0;
+        }
+    }
+
+    &__link {
+        font-size: t.$font-size-sm;
+        font-weight: t.$font-weight-medium;
+        color: var(--idui-color-ink);
+    }
+
+    &__consents {
+        margin: t.$space-5 0;
+    }
+
+    &__actions {
+        margin-top: t.$space-5;
+    }
+
+    &__submit {
+        width: 100%;
+    }
+}

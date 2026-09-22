@@ -9,8 +9,6 @@
 
 @{
     ViewData["Title"] = Localizer.MfaOnBoarding_PageTitle;
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
 @functions {
     public string GetIconFromAuthenticationMethod(AuthenticationMethod method)
@@ -29,38 +27,31 @@
     }
 }
 
-<div class="sign-in m-auto">
-    <h1>
-        <a class="header-logo" href="/">
-            <img src="~/img/logo@(langSuffix).svg" />
-        </a>
-        <span class="header-text">@Localizer.MfaOnBoarding_Keep_Your_Account_Safe </span>
-        <span class="text-1">@Localizer.MfaOnBoarding_Setup_An_Additional_Authentication_Method</span>
-    </h1>
-    <div id="authentication-methods" class="list-group">
-        <!-- ko foreach: authenticationMethods -->
-        <div role="button" data-sbind="event: { click: $parent.methodSelected }, css: { active: selected }" class="list-group-item list-group-item-action active">
-            <div class="d-flex flex-row  align-items-center gap-3">
-                <i class="fa-2xl" data-sbind="css: iconClass" aria-label="icon"></i>
-                <div class="d-flex w-100 flex-column justify-content-between">
-                    <h5 class="mb-1" data-sbind="text: displayName">Authenticator (recommended)</h5>
-                    <small data-sbind="text: description">Use an authenticator app to generate verification codes.</small>
-                </div>
-            </div>
-        </div>
-        <!-- /ko -->
-        <span asp-validation-for="Input.SelectedAuthenticationMethod" class="text-danger mt-2"></span>
-    </div>
-    <form class="mt-3" asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
+<section class="auth-card mfa">
+    <vc:page-heading title="@Localizer.MfaOnBoarding_Keep_Your_Account_Safe" subtitle="@Localizer.MfaOnBoarding_Setup_An_Additional_Authentication_Method" image-src="" />
+    <form class="auth-form" asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
         <input type="hidden" asp-for="Input.ReturnUrl" />
         <input type="hidden" data-sbind="value: selectedMethodType" asp-for="Input.SelectedAuthenticationMethod" />
-        <div class="mb-3">
-            <div class="row m-0 w-100">
-                <button class="btn btn-primary w-100" name="button" value="login" type="submit">@Localizer.MfaOnBoarding_Next</button>
-            </div>
+        <ul id="authentication-methods" class="choice-list choice-list--radio" role="radiogroup" aria-label="@Localizer.MfaOnBoarding_Setup_An_Additional_Authentication_Method">
+            <!-- ko foreach: authenticationMethods -->
+            <li class="choice-list__item" data-sbind="css: { 'choice-list__item--selected': selected }">
+                <label class="choice-list__label">
+                    <input type="radio" name="onboarding-method" class="form-check-input choice-list__radio" data-sbind="checked: $parent.selectedMethodType, attr: { value: type }, event: { change: $parent.methodSelected }" />
+                    <span class="choice-list__icon"><i data-sbind="css: iconClass" aria-hidden="true"></i></span>
+                    <span class="choice-list__body">
+                        <span class="choice-list__title" data-sbind="text: displayName"></span>
+                        <span class="choice-list__desc" data-sbind="text: description"></span>
+                    </span>
+                </label>
+            </li>
+            <!-- /ko -->
+        </ul>
+        <span asp-validation-for="Input.SelectedAuthenticationMethod" class="field__error"></span>
+        <div class="auth-form__actions">
+            <button class="btn btn-primary auth-form__submit" name="button" value="login" type="submit">@Localizer.MfaOnBoarding_Next</button>
         </div>
     </form>
-</div>
+</section>
 
 @section scripts {
     <script type="text/javascript" src="~/lib/knockout/build/output/knockout-latest.js" csp-nonce="true"></script>

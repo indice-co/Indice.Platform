@@ -7,48 +7,30 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    ViewData["Title"] = null;
+    var isAuthenticated = User.IsAuthenticated();
 }
 
-<h1 class="text-center display-4 p-sm-2 p-md-3 p-lg-4">
-    @Localizer.Home_WelcomeDigitalServices(Settings.Organization!)
-</h1>
-<section class="border-0 identity-panel">
-    <article class="text-center">
-        <div class="header-logo d-xs-block d-sm-block d-md-none pb-5">
-            <img class="img-fluid" src="/img/logo@(langSuffix).svg" />
-        </div>
-        @if (!User.IsAuthenticated())
-        {
-            <div class="section text-start" id="welcome-to-identity">
-                <p class="lead">
-					@Localizer.Home_IntroTextWithOrgName(Settings.Organization!)
-                </p>
-            </div>
-            <partial name="_ServiceDeck" model="Model.Services" />
-            <p class="lead" indice-if="@Environment.IsDevelopment()">
-                @Localizer.Home_Please_Login_To_The_Application <a asp-page="/Login">@Localizer.Home_Here</a>.
+<section class="auth-card auth-card--wide home">
+    <header class="auth-card__header">
+        <h1 class="auth-card__title">@Localizer.Home_WelcomeDigitalServices(Settings.Organization!)</h1>
+        <p indice-if="isAuthenticated" class="auth-card__subtitle">@Localizer.Home_Welcome_Back @User.FindDisplayName().</p>
+    </header>
+    <p class="home__intro">@Localizer.Home_IntroTextWithOrgName(Settings.Organization!)</p>
+    <partial name="_ServiceDeck" model="Model.Services" />
+    @if (!isAuthenticated)
+    {
+        <p class="home__note" indice-if="@Environment.IsDevelopment()">
+            @Localizer.Home_Please_Login_To_The_Application <a asp-page="/Login">@Localizer.Home_Here</a>.
+        </p>
+    }
+    else
+    {
+        <div class="home__section">
+            <h2 class="home__section-title">@Localizer.Home_Manage_Your_Grants</h2>
+            <p class="home__note">
+                @Localizer.Home_Check_And_Revoke_Your <a asp-page="/Grants">@Localizer.Home_Authorized_Applications</a>
             </p>
-        }
-        else
-        {
-            <h3 class="py-5">
-                @Localizer.Home_Welcome_Back @User.FindDisplayName().
-            </h3>
-            <div class="section text-start" id="welcome-to-identity">
-                <p class="lead">@Localizer.Home_IntroTextWithOrgName(Settings.Organization!) </p>
-            </div>
-            <partial name="_ServiceDeck" model="Model.Services" />
-            <div class="paragraph-block text-start">
-                <h4>@Localizer.Home_Manage_Your_Grants</h4>
-                <p class="lead">
-                    @Localizer.Home_Check_And_Revoke_Your <a asp-page="/Grants" class="reference external">@Localizer.Home_Authorized_Applications</a>
-                </p>
-            </div>
-        }
-    </article>
+        </div>
+    }
 </section>
-<div id="stars"></div>
-<div id="stars2"></div>
-<div id="stars3"></div>

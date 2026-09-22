@@ -1,0 +1,35 @@
+﻿// Self-hosted Gotham Greek. Only the faces the UI uses are declared.
+// Swap the family here (and `$font-family-base` in _tokens.scss) to change the typeface.
+// Paths are relative to the compiled stylesheet (wwwroot/css/identity.css), not to this partial.
+
+@font-face {
+    font-family: 'Gotham Greek';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/gotham-greek/GothamGreek-Book.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Gotham Greek';
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/gotham-greek/GothamGreek-BookItalic.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Gotham Greek';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/gotham-greek/GothamGreek-Medium.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Gotham Greek';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/gotham-greek/GothamGreek-Bold.otf') format('opentype');
+}

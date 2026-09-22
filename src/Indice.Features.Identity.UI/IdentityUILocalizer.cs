@@ -1391,4 +1391,47 @@ public class IdentityUILocalizer
     /// <summary>Gets the localized HTML content for the page header displayed during phone number verification.</summary>
     public virtual HtmlString VerifyPhone_PageHeader => new HtmlString(IdentityLabels.VerifyPhone_PageHeader);
     #endregion
+
+    #region Layout (redesign)
+    /// <summary>Hero title rendered next to the login and register forms (split, columns and panel templates).</summary>
+    public virtual HtmlString Hero_Title => new HtmlString(IdentityLabels.Hero_Title);
+    /// <summary>Hero subtitle rendered under <see cref="Hero_Title"/>.</summary>
+    public virtual HtmlString Hero_Subtitle => new HtmlString(IdentityLabels.Hero_Subtitle);
+    /// <summary>The "made by" credit rendered in the footer. May contain HTML.</summary>
+    public virtual HtmlString Footer_MadeBy => new HtmlString(IdentityLabels.Footer_MadeBy);
+    /// <summary>Accessible label of the footer links navigation.</summary>
+    public virtual HtmlString Footer_LinksLabel => new HtmlString(IdentityLabels.Footer_LinksLabel);
+    /// <summary>Divider label between the local login form and the external providers.</summary>
+    public virtual HtmlString Login_Alternatively => new HtmlString(IdentityLabels.Login_Alternatively);
+    /// <summary>Subtitle of the register card.</summary>
+    public virtual HtmlString Register_Subtitle => new HtmlString(IdentityLabels.Register_Subtitle);
+    /// <summary>Accessible label of the avatar button that opens the account panel.</summary>
+    public virtual HtmlString Nav_OpenMenu => new HtmlString(IdentityLabels.Nav_OpenMenu);
+    /// <summary>Accessible label of the button that closes the account panel.</summary>
+    public virtual HtmlString Nav_CloseMenu => new HtmlString(IdentityLabels.Nav_CloseMenu);
+    /// <summary>Link text for signing in with a different account.</summary>
+    public virtual HtmlString Account_SwitchAccount => new HtmlString(IdentityLabels.Account_SwitchAccount);
+    /// <summary>Accessible label of the account navigation.</summary>
+    public virtual HtmlString Account_NavLabel => new HtmlString(IdentityLabels.Account_NavLabel);
+    /// <summary>Text of the skip link that jumps to the main content.</summary>
+    public virtual HtmlString SkipToContent => new HtmlString(IdentityLabels.SkipToContent);
+    /// <summary>Accessible label of the reveal-password button when the password is hidden.</summary>
+    public virtual HtmlString Password_Show => new HtmlString(IdentityLabels.Password_Show);
+    /// <summary>Accessible label of the reveal-password button when the password is visible.</summary>
+    public virtual HtmlString Password_Hide => new HtmlString(IdentityLabels.Password_Hide);
+    /// <summary>Text shown before the countdown until an OTP can be re-sent.</summary>
+    public virtual HtmlString Mfa_ResendAvailableIn => new HtmlString(IdentityLabels.Mfa_ResendAvailableIn);
+    /// <summary>Title of the profile photo card.</summary>
+    public virtual HtmlString Profile_Photo => new HtmlString(IdentityLabels.Profile_Photo);
+    /// <summary>Call to action on the profile photo.</summary>
+    public virtual HtmlString Profile_PhotoUpload => new HtmlString(IdentityLabels.Profile_PhotoUpload);
+    /// <summary>Help text next to the profile photo.</summary>
+    public virtual HtmlString Profile_PhotoHelp => new HtmlString(IdentityLabels.Profile_PhotoHelp);
+    /// <summary>Upload constraints for the profile photo. {0} is the size limit in MB, {1} the maximum side in pixels.</summary>
+    public virtual HtmlString Profile_PhotoConstraints(double maxSizeMb, int maxSidePx) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_PhotoConstraints, maxSizeMb, maxSidePx));
+    /// <summary>Title of the account details card on the profile page.</summary>
+    public virtual HtmlString Profile_AccountDetails => new HtmlString(IdentityLabels.Profile_AccountDetails);
+    /// <summary>Title of the profile details card on the profile page.</summary>
+    public virtual HtmlString Profile_DetailsSection => new HtmlString(IdentityLabels.Profile_DetailsSection);
+    #endregion
 }

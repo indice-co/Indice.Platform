@@ -9,34 +9,30 @@
 @{
     ViewData["Title"] = Localizer.AddEmail_PageTitle;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseAddEmailModel.TempDataKey);
+    var formDisabled = tempData?.DisableForm == true;
+    var showNext = formDisabled || !string.IsNullOrEmpty(tempData?.NextStepUrl);
 }
 
-<div class="sign-in m-auto">
+<section class="auth-card">
     <vc:page-heading title="@Localizer.AddEmail_PageHeader" image-src="" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="tempData?.Alert" />
-    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
-        <div class="row mb-3">
-            <div class="col-12">
-                <label asp-for="Input.Email" class="form-label visually-hidden">@Localizer.Email</label>
-                <input class="form-control" type="text" placeholder="@Localizer.Email" asp-for="Input.Email" disabled="@tempData?.DisableForm" />
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
+    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" class="auth-form">
+        <div class="field">
+            <label asp-for="Input.Email" class="field__label">@Localizer.Email</label>
+            <input class="form-control field__control" type="email" placeholder="@Localizer.Email" asp-for="Input.Email" disabled="@tempData?.DisableForm" autocomplete="email" aria-describedby="Input_Email-error" />
+            <span asp-validation-for="Input.Email" class="field__error" id="Input_Email-error"></span>
         </div>
-        <div class="row mb-3">
-            <div indice-if="Model.UiOptions.ShowAddEmailPrompt" class="@(tempData?.DisableForm == true ? "col-sm-6" : string.Empty) col-12 py-1">
-                <button class="btn btn-primary w-100" type="submit" disabled="@tempData?.DisableForm">@Localizer.AddEmail_Save</button>
-            </div>
-            @if (tempData?.DisableForm == true || !string.IsNullOrEmpty(tempData?.NextStepUrl))
+        <div class="auth-form__actions @(showNext && Model.UiOptions.ShowAddEmailPrompt ? "auth-form__actions--split" : string.Empty)">
+            <button indice-if="Model.UiOptions.ShowAddEmailPrompt" class="btn btn-primary auth-form__submit" type="submit" disabled="@tempData?.DisableForm">@Localizer.AddEmail_Save</button>
+            @if (showNext)
             {
-                <div class="col-sm-6 col-12 py-1">
-                    <a class="btn btn-primary w-100" href="@tempData.NextStepUrl">@Localizer.AddEmail_Next</a>
-                </div>
+                <a class="btn btn-primary auth-form__submit" href="@tempData!.NextStepUrl">@Localizer.AddEmail_Next</a>
             }
         </div>
         <input type="hidden" asp-for="Input.ReturnUrl" />
     </form>
-</div>
+</section>
 
 @section scripts {
     <partial name="_ValidationScripts" />

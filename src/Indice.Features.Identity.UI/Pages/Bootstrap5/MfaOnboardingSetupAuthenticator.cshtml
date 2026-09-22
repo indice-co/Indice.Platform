@@ -1,4 +1,4 @@
-@page "/login/mfa/onboarding/setup-authenticator"
+﻿@page "/login/mfa/onboarding/setup-authenticator"
 @attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/mfa/onboarding/setup-authenticator")]
 @model BaseMfaOnboardingSetupAuthenticatorModel
 
@@ -8,47 +8,45 @@
     ViewBag.Title = Localizer.MfaOnBoardingSetupAuthenticator_PageTitle;
 }
 
-<div class="sign-in m-auto">
-    <vc:page-heading title="@Localizer.MfaOnBoardingSetupAuthenticator_PageHeader" image-src="" />
+<section class="auth-card mfa">
+    <vc:page-heading title="@Localizer.MfaOnBoardingSetupAuthenticator_PageHeader" subtitle="@Localizer.MfaOnBoardingSetupAuthenticator_ScanQrCode" image-src="" />
     <partial name="_ValidationSummary" />
 
-    <p class="text-muted">@Localizer.MfaOnBoardingSetupAuthenticator_ScanQrCode</p>
-
-    <div class="d-flex justify-content-center mb-3">
-        <div id="qrCode" class="p-3 border rounded bg-white"></div>
+    <div class="mfa__qr">
+        <div id="qrCode" role="img" aria-label="QR"></div>
     </div>
     <div id="qrCodeData" data-url="@Model.View.AuthenticatorUri" class="d-none"></div>
 
-    <p class="small text-muted mb-1">@Localizer.MfaOnBoardingSetupAuthenticator_OrEnterManually</p>
-    <p class="fw-semibold font-monospace text-break mb-4">@Model.View.FormattedSharedKey</p>
+    <p class="field__help">@Localizer.MfaOnBoardingSetupAuthenticator_OrEnterManually</p>
+    <p class="mfa__key">@Model.View.FormattedSharedKey</p>
 
-    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
+    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate class="auth-form">
         <input type="hidden" asp-for="Input.ReturnUrl" />
-        <div class="mb-3">
-            <label asp-for="Input.Code" class="form-label">@Localizer.MfaOnBoardingSetupAuthenticator_VerificationCode</label>
+        <div class="field">
+            <label asp-for="Input.Code" class="field__label">@Localizer.MfaOnBoardingSetupAuthenticator_VerificationCode</label>
             <input asp-for="Input.Code"
-                   class="form-control"
+                   class="form-control field__control otp-field__input"
+                   data-otp-length="@Model.View.AuthenticatorDigits"
                    placeholder="@Localizer.MfaOnBoardingSetupAuthenticator_VerificationCode"
                    autocomplete="one-time-code"
                    inputmode="numeric"
                    maxlength="@Model.View.AuthenticatorDigits"
-                   autofocus />
-            <span asp-validation-for="Input.Code" class="text-danger small"></span>
+                   autofocus
+                   aria-describedby="Input_Code-error" />
+            <span asp-validation-for="Input.Code" class="field__error" id="Input_Code-error"></span>
         </div>
-        <div class="mb-3">
-            <button class="btn btn-primary w-100" type="submit">@Localizer.MfaOnBoardingSetupAuthenticator_Verify</button>
+        <div class="auth-form__actions">
+            <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.MfaOnBoardingSetupAuthenticator_Verify</button>
         </div>
-        <div class="mb-3">
-            <a asp-page="/MfaOnboarding"
-                   class="btn btn-link text-decoration-none p-0 text-dark">
-                ← @Localizer.Mfa_Back
-            </a>
-        </div>
+        <a asp-page="/MfaOnboarding" class="mfa__back">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> @Localizer.Mfa_Back
+        </a>
     </form>
-</div>
+</section>
 
 @section scripts {
     <partial name="_ValidationScripts" />
     <script type="text/javascript" src="~/lib/qrcodejs2/qrcode.min.js" csp-nonce></script>
     <script type="text/javascript" src="~/js/qr.js" csp-nonce></script>
+    <script type="text/javascript" src="~/js/otp-field.js" csp-nonce></script>
 }

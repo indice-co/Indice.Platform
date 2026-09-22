@@ -13,47 +13,40 @@
         && !string.IsNullOrEmpty(tempData.NextStepUrl);
 }
 
-<div class="sign-in m-auto">
+<section class="auth-card mfa">
     <vc:page-heading title="@Localizer.VerifyPhone_PageHeader" image-src="" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="tempData?.Alert" />
-    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
+    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" class="auth-form">
         <input type="hidden" asp-for="Input.PhoneNumber" />
         <input type="hidden" asp-for="Input.ReturnUrl" />
-        <div class="row mb-3">
-            <div class="col-12 py-1">
-                <label asp-for="Input.Code" class="form-label visually-hidden">@Localizer.VerifyPhone_Code</label>
-                <input class="form-control" type="text" placeholder="@Localizer.VerifyPhone_Code" asp-for="Input.Code" disabled="@displayNext" />
-                <span asp-validation-for="Input.Code" class="text-danger"></span>
-            </div>
+        <div class="field">
+            <label asp-for="Input.Code" class="field__label">@Localizer.VerifyPhone_Code</label>
+            <input class="form-control field__control otp-field__input" data-otp-length="6" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="@Localizer.VerifyPhone_Code" asp-for="Input.Code" disabled="@displayNext" aria-describedby="Input_Code-error" />
+            <span asp-validation-for="Input.Code" class="field__error" id="Input_Code-error"></span>
         </div>
-        <div class="row mb-3">
-            <div class="@Html.Raw(displayNext ? "col-sm-6 " : "col-12") py-1">
-                <button class="btn btn-primary w-100" type="submit" disabled="@displayNext">@Localizer.VerifyPhone_Save</button>
-            </div>
+        <p class="otp-field__resend">
+            <button type="submit"
+                    id="otp-resend"
+                    name="Input.OtpResend"
+                    value="true"
+                    class="otp-field__resend-btn">
+                <span class="otp-field__resend-text">@Localizer.VerifyPhone_Resend</span>
+                <span class="otp-field__wait">@Localizer.Mfa_ResendAvailableIn <span class="countdown otp-field__countdown"></span></span>
+            </button>
+        </p>
+        <div class="auth-form__actions @(displayNext ? "auth-form__actions--split" : string.Empty)">
+            <button class="btn btn-primary auth-form__submit" type="submit" disabled="@displayNext">@Localizer.VerifyPhone_Save</button>
             @if (displayNext)
             {
-                <div class="col-sm-6 col-12 py-1">
-                    <a class="btn btn-primary w-100" href="@tempData?.NextStepUrl">@Localizer.VerifyPhone_Next</a>
-                </div>
+                <a class="btn btn-primary auth-form__submit" href="@tempData?.NextStepUrl">@Localizer.VerifyPhone_Next</a>
             }
         </div>
-        <div class="row mb-3">
-            <div class="col-6 py-1">
-                <button type="submit"
-                        id="otp-resend"
-                        name="Input.OtpResend"
-                        value="true"
-                        class="btn btn-link text-decoration-none p-0">
-                    <span>@Localizer.VerifyPhone_Resend</span>
-                    <span class="countdown ms-2 text-muted small"></span>
-                </button>
-            </div>
-        </div>
     </form>
-</div>
+</section>
 
 @section scripts {
     <partial name="_ValidationScripts" />
     <script type="text/javascript" src="~/js/otp.js" csp-nonce></script>
+    <script type="text/javascript" src="~/js/otp-field.js" csp-nonce></script>
 }

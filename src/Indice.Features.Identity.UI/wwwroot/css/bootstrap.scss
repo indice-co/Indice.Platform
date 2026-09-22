@@ -1,54 +1,206 @@
-﻿@import 'colors';
-/* You need to import functions to compile overrides https://github.com/twbs/bootstrap/issues/23331 */
+﻿// =============================================================================
+// Bootstrap 5 build for the Identity UI. Design tokens are mapped onto Bootstrap's
+// Sass variables here, before Bootstrap's own `!default` declarations are loaded.
+// =============================================================================
+@use 'abstracts/tokens' as t;
+
 @import 'bootstrap/scss/functions';
-@import 'bootstrap/scss/variables';
-// Color system.
-$primary: $primary;
-$secondary: $secondary;
-$success: $success;
-$info: $info;
-$warning: $warning;
-$danger: $danger;
 
-$link-color: $blue;
-$link-hover-color: $text-color;
-$body-color: $text-color;
-$text-muted: $gray-800;
-$input-color: $text-color;
-$input-focus-color: $text-color;
-$grays: ( "100": $gray-100, "200": $gray-200, "300": $gray-300, "400": $gray-400, "500": $gray-500, "600": $gray-600, "700": $gray-700, );
-$colors: ( "blue-400": $text-color, "gray-400": $gray-400, "gray-700": $gray-700, "white": $white, "orange": $orange, "green": $green, "violet": $violet, "violet-light":$violet-light,"red": $red, "red-light": $red-light, "yellow-dark": $yellow-dark, "yellow-light": $yellow-light, "teal": $teal, "blue-200-light": $blue-200-light, "blue-light": $blue-light, "blue-lighter":$blue-lighter, "alert": $alert );
-$headings-margin-bottom: calc($spacer / 0.65);
-$border-radius: .1875rem;
-$border-radius-lg: .225rem;
-$border-radius-sm: .15rem;
-$input-border-radius: 0;
-$input-border-radius-lg: 0;
-$input-border-radius-sm: 0;
-$btn-border-radius: .1875rem;
-$btn-border-radius-lg: 225rem;
-$btn-border-radius-sm: .15rem;
-$btn-padding-y: .55rem;
+// ---- Color system ------------------------------------------------------------
+$primary: t.$color-ink;
+$secondary: t.$color-text-muted;
+$success: t.$color-success;
+$info: t.$color-info;
+$warning: t.$color-warning;
+$danger: t.$color-danger;
+$light: t.$color-surface-muted;
+$dark: t.$color-ink;
 
-$default-font-family: 'Gotham';
-
-$gutter: 48px;
-$gutters: ( xs: 30px, sm: 30px, md: 30px, lg: 30px, xl: 30px, xxl:30px );
-$grid-columns: 12;
-$grid-breakpoints: ( xs: 0, sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl:1440px );
-$container-max-widths: ( sm: 560px, md: 730px, lg: 948px, xl: 1118px, xxl:1377px );
-$font-mod: .8;
-$h1-font-size: $font-size-base * (2.5 * $font-mod);
-$h2-font-size: $font-size-base * (2 * $font-mod);
-$h3-font-size: $font-size-base * (1.75 * $font-mod);
-$h4-font-size: $font-size-base * (1.5 * $font-mod);
-$h5-font-size: $font-size-base * (1.25 * $font-mod);
-$h6-font-size: $font-size-base;
-
-$link-decoration: none;
+$body-color: t.$color-text;
+$body-bg: t.$color-surface-muted;
+$body-secondary-color: t.$color-text-muted;
+$secondary-color: t.$color-text-muted;
+$border-color: t.$color-border;
+$link-color: t.$color-ink;
+$link-hover-color: t.$color-ink-hover;
+$link-decoration: underline;
 $link-hover-decoration: underline;
 
-$list-group-active-color: #000;
-$list-group-active-bg: transparent;
+// ---- Options -----------------------------------------------------------------
+$enable-shadows: false;
+$enable-rfs: true;
+$enable-negative-margins: false;
+$min-contrast-ratio: 4.5;
+
+// ---- Typography --------------------------------------------------------------
+$font-family-sans-serif: t.$font-family-base;
+$font-size-base: t.$font-size-base;
+$line-height-base: t.$line-height-base;
+$headings-font-weight: t.$font-weight-normal;
+$headings-color: t.$color-ink;
+$headings-line-height: t.$line-height-tight;
+$h1-font-size: 2.125rem;
+$h2-font-size: 1.75rem;
+$h3-font-size: 1.375rem;
+$h4-font-size: 1.125rem;
+$h5-font-size: 1rem;
+$h6-font-size: .875rem;
+$small-font-size: t.$font-size-sm;
+
+// ---- Radii & focus -----------------------------------------------------------
+$border-radius: t.$radius;
+$border-radius-sm: t.$radius-sm;
+$border-radius-lg: t.$radius-lg;
+$border-radius-xl: t.$radius-xl;
+$border-radius-pill: t.$radius-pill;
+$focus-ring-width: .2rem;
+$focus-ring-color: rgba(t.$color-focus, .35);
+
+// ---- Grid --------------------------------------------------------------------
+$grid-breakpoints: (xs: 0, sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl: 1440px);
+$container-max-widths: (sm: 540px, md: 720px, lg: 960px, xl: 1140px, xxl: 1320px);
+
+// ---- Forms -------------------------------------------------------------------
+$input-padding-y: .8rem;
+$input-padding-x: 1rem;
+$input-bg: t.$color-surface;
+$input-color: t.$color-text;
+$input-border-color: t.$color-border-strong;
+$input-border-radius: t.$radius;
+$input-focus-border-color: t.$color-focus;
+$input-focus-box-shadow: t.$shadow-focus;
+$input-placeholder-color: t.$color-text-subtle;
+$input-disabled-bg: t.$color-surface-muted;
+$form-label-margin-bottom: .5rem;
+$form-label-font-size: t.$font-size-sm;
+$form-label-color: t.$color-text-muted;
+$form-select-padding-y: .8rem;
+$form-select-padding-x: 1rem;
+$form-select-border-radius: t.$radius;
+$form-check-input-width: 1.125em;
+$form-check-input-border: 1px solid t.$color-border-strong;
+$form-check-input-border-radius: .3em;
+$form-check-input-checked-bg-color: t.$color-ink;
+$form-check-input-checked-border-color: t.$color-ink;
+$form-check-input-focus-border: t.$color-focus;
+$form-check-input-focus-box-shadow: t.$shadow-focus;
+$form-feedback-font-size: t.$font-size-sm;
+
+// ---- Buttons -----------------------------------------------------------------
+$btn-padding-y: .8rem;
+$btn-padding-x: 1.25rem;
+$btn-font-weight: t.$font-weight-medium;
+$btn-border-radius: t.$radius;
+$btn-border-radius-sm: t.$radius-sm;
+$btn-border-radius-lg: t.$radius-lg;
+$btn-focus-box-shadow: t.$shadow-focus;
+$btn-disabled-opacity: .45;
+$btn-transition: color t.$transition-fast, background-color t.$transition-fast, border-color t.$transition-fast, box-shadow t.$transition-fast;
+
+// ---- Components --------------------------------------------------------------
+$alert-border-radius: t.$radius;
+$alert-padding-y: .8rem;
+$alert-padding-x: 1rem;
+$dropdown-border-radius: t.$radius;
+$dropdown-border-color: t.$color-border;
+$dropdown-box-shadow: t.$shadow-menu;
+$dropdown-link-active-bg: t.$color-surface-muted;
+$dropdown-link-active-color: t.$color-ink;
+$dropdown-link-hover-bg: t.$color-surface-muted;
+$offcanvas-horizontal-width: 22rem;
+$offcanvas-bg-color: t.$color-surface-muted;
+$offcanvas-border-color: transparent;
+$offcanvas-padding-x: 0;
+$offcanvas-padding-y: 0;
+$list-group-border-color: t.$color-border;
+$list-group-active-color: t.$color-ink;
+$list-group-active-bg: t.$color-surface-muted;
+$list-group-active-border-color: t.$color-border;
+$card-border-radius: t.$radius-lg;
+$card-border-color: t.$color-border;
 
 @import 'bootstrap/scss/bootstrap';
+
+// =============================================================================
+// Runtime bridge. Bootstrap compiled its component variables from the Sass tokens above;
+// re-point the ones a theme may change to the --idui-* custom properties so that a
+// `[data-theme]` (or host) override reaches Bootstrap components without recompiling.
+// =============================================================================
+:root {
+    --bs-body-font-family: var(--idui-font-family);
+    --bs-body-color: var(--idui-color-text);
+    --bs-body-bg: var(--idui-color-surface-muted);
+    --bs-heading-color: var(--idui-color-ink);
+    --bs-secondary-color: var(--idui-color-text-muted);
+    --bs-link-color: var(--idui-color-ink);
+    --bs-link-hover-color: var(--idui-color-ink-hover);
+    --bs-border-color: var(--idui-color-border);
+    --bs-border-radius: var(--idui-radius);
+    --bs-border-radius-sm: var(--idui-radius-sm);
+    --bs-border-radius-lg: var(--idui-radius-lg);
+    --bs-border-radius-xl: var(--idui-radius-xl);
+}
+
+.btn-primary,
+.btn-dark {
+    --bs-btn-bg: var(--idui-color-ink);
+    --bs-btn-border-color: var(--idui-color-ink);
+    --bs-btn-hover-bg: var(--idui-color-ink-hover);
+    --bs-btn-hover-border-color: var(--idui-color-ink-hover);
+    --bs-btn-active-bg: var(--idui-color-ink-hover);
+    --bs-btn-active-border-color: var(--idui-color-ink-hover);
+    --bs-btn-disabled-bg: var(--idui-color-ink);
+    --bs-btn-disabled-border-color: var(--idui-color-ink);
+}
+
+.btn-outline-primary,
+.btn-outline-dark {
+    --bs-btn-color: var(--idui-color-ink);
+    --bs-btn-border-color: var(--idui-color-ink);
+    --bs-btn-hover-bg: var(--idui-color-ink);
+    --bs-btn-hover-border-color: var(--idui-color-ink);
+    --bs-btn-active-bg: var(--idui-color-ink);
+    --bs-btn-active-border-color: var(--idui-color-ink);
+}
+
+.form-control,
+.form-select {
+    border-color: var(--idui-color-border-strong);
+    border-radius: var(--idui-radius);
+
+    &:focus {
+        border-color: var(--idui-color-focus);
+        box-shadow: var(--idui-shadow-focus);
+    }
+}
+
+.form-check-input {
+    border-color: var(--idui-color-border-strong);
+
+    &:checked {
+        background-color: var(--idui-color-ink);
+        border-color: var(--idui-color-ink);
+    }
+
+    &:focus {
+        border-color: var(--idui-color-focus);
+        box-shadow: var(--idui-shadow-focus);
+    }
+}
+
+.dropdown-menu {
+    --bs-dropdown-border-radius: var(--idui-radius);
+    --bs-dropdown-border-color: var(--idui-color-border);
+    --bs-dropdown-box-shadow: var(--idui-shadow-menu);
+    --bs-dropdown-link-hover-bg: var(--idui-color-surface-muted);
+    --bs-dropdown-link-active-bg: var(--idui-color-surface-muted);
+    --bs-dropdown-link-active-color: var(--idui-color-ink);
+}
+
+.offcanvas {
+    --bs-offcanvas-bg: var(--idui-color-surface-muted);
+}
+
+.alert {
+    --bs-alert-border-radius: var(--idui-radius);
+}

@@ -1,0 +1,59 @@
+﻿// =============================================================================
+// Helpers for theme authors. Each mixin only emits `--idui-*` custom property values, so
+// a theme partial stays a list of values. The same blocks, written as plain CSS, are what
+// a host puts in its own stylesheet to define a theme without recompiling (see README).
+// =============================================================================
+
+/// Header over an image / dark background: white text, dark-background logo.
+@mixin header-on-image {
+    --idui-header-color: var(--idui-color-on-dark);
+    --idui-header-text-shadow: var(--idui-hero-text-shadow);
+    --idui-logo-light-display: none;
+    --idui-logo-dark-display: block;
+}
+
+/// Footer (and its language switcher) over an image / dark background.
+@mixin footer-on-image {
+    --idui-footer-color: var(--idui-color-on-dark);
+    --idui-footer-text-shadow: var(--idui-hero-text-shadow);
+    --idui-footer-link-hover: var(--idui-color-on-dark);
+    --idui-lang-toggle-bg: rgba(255, 255, 255, .16);
+    --idui-lang-toggle-color: var(--idui-color-on-dark);
+    --idui-lang-toggle-border: transparent;
+}
+
+/// Header + footer over an image.
+@mixin chrome-on-image {
+    @include header-on-image;
+    @include footer-on-image;
+}
+
+/// Back to the light chrome (the :root defaults), for a page that opts out inside a theme.
+@mixin header-light {
+    --idui-header-color: var(--idui-color-text);
+    --idui-header-text-shadow: none;
+    --idui-logo-light-display: block;
+    --idui-logo-dark-display: none;
+}
+
+@mixin footer-light {
+    --idui-footer-color: var(--idui-color-text-muted);
+    --idui-footer-text-shadow: none;
+    --idui-footer-link-hover: var(--idui-color-ink);
+    --idui-lang-toggle-bg: var(--idui-color-surface);
+    --idui-lang-toggle-color: var(--idui-color-text);
+    --idui-lang-toggle-border: var(--idui-color-border);
+}
+
+@mixin chrome-light {
+    @include header-light;
+    @include footer-light;
+}
+
+/// Render the form without card chrome (the surrounding column or panel is the card).
+@mixin auth-card-flat($width: 26rem) {
+    --idui-auth-card-bg: transparent;
+    --idui-auth-card-shadow: none;
+    --idui-auth-card-padding: 0;
+    --idui-auth-card-width: #{$width};
+}

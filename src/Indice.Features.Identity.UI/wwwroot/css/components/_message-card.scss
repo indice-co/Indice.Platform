@@ -1,0 +1,54 @@
+﻿@use 'abstracts/tokens' as t;
+
+// Informational cards (confirmations, logged-out, errors): centered copy, no form fields.
+
+.auth-card--message {
+    text-align: center;
+
+    .auth-card__text {
+        margin: 0 0 t.$space-5;
+        color: var(--idui-color-text-muted);
+
+        a {
+            font-weight: t.$font-weight-medium;
+        }
+    }
+}
+
+.error-page {
+    &__code {
+        margin: 0 0 t.$space-2;
+        font-size: clamp(4rem, 3rem + 4vw, 6.5rem);
+        font-weight: t.$font-weight-bold;
+        line-height: 1;
+        letter-spacing: -.03em;
+        color: var(--idui-color-border-strong);
+    }
+
+    &__message em {
+        font-style: normal;
+        color: var(--idui-color-text);
+    }
+
+    &__request-id {
+        margin: 0 0 t.$space-5;
+        font-size: t.$font-size-xs;
+        color: var(--idui-color-text-subtle);
+
+        code {
+            color: inherit;
+        }
+    }
+}
+
+// Two side-by-side actions (Save + Next, Cancel + Accept).
+.auth-form__actions--split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: t.$space-3;
+
+    .auth-form__submit {
+        width: 100%;
+    }
+}
+

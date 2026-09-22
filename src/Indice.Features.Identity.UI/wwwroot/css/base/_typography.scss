@@ -1,0 +1,48 @@
+﻿@use 'abstracts/tokens' as t;
+
+body {
+    font-family: var(--idui-font-family);
+    font-size: t.$font-size-base;
+    line-height: t.$line-height-base;
+    color: var(--idui-color-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, .h1 {
+    font-size: t.$font-size-h1;
+}
+
+h2, .h2 {
+    font-size: t.$font-size-h2;
+}
+
+h3, .h3 {
+    font-size: t.$font-size-h3;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-weight: t.$font-weight-normal;
+    line-height: t.$line-height-tight;
+    color: var(--idui-color-ink);
+}
+
+a {
+    color: var(--idui-color-ink);
+    text-underline-offset: .15em;
+    transition: color t.$transition-fast;
+
+    &:hover {
+        color: var(--idui-color-ink-hover);
+    }
+}
+
+small,
+.small {
+    font-size: t.$font-size-sm;
+}
+
+.text-muted {
+    color: var(--idui-color-text-muted) !important;
+}

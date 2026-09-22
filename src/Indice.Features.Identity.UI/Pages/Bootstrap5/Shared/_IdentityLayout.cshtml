@@ -7,14 +7,21 @@
 @inject SignInManager<User> SignInManager
 
 @{
-	var applicationName = Localizer.ApplicationName(ViewBag.ApplicationName ?? Settings.ApplicationName);
+    var applicationName = Localizer.ApplicationName(ViewBag.ApplicationName ?? Settings.ApplicationName);
     var dash = ViewBag.Title != null ? " - " : string.Empty;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var authClass = SignInManager.IsSignedIn(User) ? "authenticated" : "anonymous";
+    // The theme is a set of CSS custom property values keyed by data-theme on <html>; the markup is the same for every theme.
+    var theme = string.IsNullOrWhiteSpace(UiOptions.Value.Theme) ? IdentityUIThemes.Split : UiOptions.Value.Theme.Trim().ToLowerInvariant();
+    // The shell decides how the page body is framed: auth (hero + form), card (centered card), profile (sidebar + cards), article (wide reading card).
+    var shell = (ViewData["Shell"] as string ?? "card").ToLowerInvariant();
+    var shellClass = $"shell-{shell}";
+    // The hero aside is rendered for anonymous auth/card shells; each template decides whether to show it.
+    var renderHero = authClass == "anonymous" && (shell == "auth" || shell == "card");
 }
 
 <!DOCTYPE html>
-<html lang="@lang">
+<html lang="@lang" data-theme="@theme">
 <head prefix="og: http://ogp.me/ns#">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -31,27 +38,44 @@
     <link href="~/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" sizes="16x16 32x32 64x64 128x128" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <partial name="_StylesHead" />
-    <script type="text/javascript" csp-nonce="true">@Html.Raw(JavaScriptSnippet.ScriptBody)</script>
-</head>
-<body route-styles class="@authClass @UiOptions.Value.HtmlBodyBackgroundCssClass">
     <link rel="stylesheet" type="text/css" href="~/css/bootstrap.css" asp-append-version="true" />
     <link rel="stylesheet" type="text/css" href="~/css/identity.css" asp-append-version="true" />
     <link rel="stylesheet" type="text/css" href="~/lib/@@fortawesome/fontawesome-free/css/all.min.css" asp-append-version="true" />
     <partial name="_Styles" />
     @RenderSection("css", required: false)
-    <partial name="_Header" />
+    <script type="text/javascript" csp-nonce="true">@Html.Raw(JavaScriptSnippet.ScriptBody)</script>
+</head>
+<body route-styles class="@authClass @shellClass @UiOptions.Value.HtmlBodyBackgroundCssClass">
+    <a class="skip-link" href="#main">@Localizer.SkipToContent</a>
     <environment exclude="@UiOptions.Value.ProductionEnvironments">
         <div class="ribbon @Environment.EnvironmentName.ToLower()">
             <span>@Environment.EnvironmentName</span>
         </div>
     </environment>
-    <div class="wrapper">
-        <main>
-            <div class="container">
-                @RenderBody()
-            </div>
-            <partial name="_Footer" />
-        </main>
+    <div class="site">
+        <partial name="_Header" />
+        <div class="site-body">
+            @if (renderHero)
+            {
+                <partial name="_HeroPanel" />
+            }
+            <main id="main" class="site-main">
+                @if (shell == "profile")
+                {
+                    <div class="profile-shell">
+                        <partial name="_ProfileNav" />
+                        <div class="profile-shell__content">
+                            @RenderBody()
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    @RenderBody()
+                }
+            </main>
+        </div>
+        <partial name="_Footer" />
     </div>
     <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/lib/@@popperjs/core/dist/umd/popper.min.js" csp-nonce="true"></script>

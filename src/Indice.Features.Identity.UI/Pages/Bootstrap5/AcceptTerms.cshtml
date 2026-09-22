@@ -5,30 +5,22 @@
 
 @{
     ViewData["Title"] = Localizer.AcceptTerms_PageTitle;
-    
+    ViewData["Shell"] = "article";
 }
-<div class="identity-panel m-auto">
-    <vc:page-heading title="@Localizer.AcceptTerms_PageHeader" image-src="" />
+
+<article class="article-card">
+    <header class="article-card__header">
+        <h1 class="article-card__title">@Localizer.AcceptTerms_PageHeader</h1>
+        <p class="article-card__meta">@Localizer.AcceptTerms_ReadAndAcceptTerms</p>
+    </header>
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="Model.View.Alert" />
-    <div class="row min-vh-100">
-      <iframe src="~/terms?raw=true" class="w-100"></iframe>
-    </div>
-    <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post">
-        <div class="mb-3">
- <div class="row m-0 w-100">
-                <div class="col-sm-6 py-1">
-           <a class="btn btn-link w-100" href="~/">@Localizer.AcceptTerms_Reject</a>
-                </div>
-                <div class="col-sm-6 py-1">
-        <button class="btn btn-primary w-100" type="submit">@Localizer.AcceptTerms_Accept</button>
-     </div>
- </div>
+    <iframe src="~/terms?raw=true" class="article-card__frame" title="@Localizer.Terms_PageTitle"></iframe>
+    <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" class="auth-form article-card__actions">
+        <div class="auth-form__actions auth-form__actions--split">
+            <a class="btn btn-outline-secondary auth-form__submit" href="~/">@Localizer.AcceptTerms_Reject</a>
+            <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.AcceptTerms_Accept</button>
         </div>
-  <input type="hidden" asp-for="View.ReturnUrl" />
+        <input type="hidden" asp-for="View.ReturnUrl" />
     </form>
-</div>
-
-@section scripts {
-    <partial name="_ValidationScripts" />
-}
+</article>

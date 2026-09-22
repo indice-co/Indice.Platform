@@ -1,0 +1,90 @@
+﻿@use 'abstracts/tokens' as t;
+@use 'abstracts/mixins' as m;
+
+// Colours and logo variant come from the chrome variables (--idui-header-*, --idui-logo-*),
+// which a theme sets per page / breakpoint. See abstracts/_theme.scss.
+
+.site-header {
+    position: relative;
+    z-index: t.$z-header;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--idui-header-height);
+    padding: 0 var(--idui-page-gutter-lg);
+    color: var(--idui-header-color);
+    text-shadow: var(--idui-header-text-shadow);
+
+    &__brand {
+        display: inline-flex;
+        align-items: center;
+        gap: t.$space-3;
+        color: inherit;
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            color: inherit;
+        }
+    }
+
+    &__logo {
+        display: block;
+        width: auto;
+        height: 3rem;
+
+        &--light {
+            display: var(--idui-logo-light-display);
+        }
+
+        &--dark {
+            display: var(--idui-logo-dark-display);
+        }
+    }
+
+    &__wordmark {
+        max-width: 14rem;
+        font-size: t.$font-size-lg;
+        font-weight: t.$font-weight-medium;
+        line-height: 1.1;
+        letter-spacing: .02em;
+        text-transform: uppercase;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: t.$space-3;
+    }
+
+    &__avatar {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        border-radius: 50%;
+        cursor: pointer;
+        line-height: 0;
+    }
+
+    @include m.mq-down(lg) {
+        min-height: var(--idui-header-height-sm);
+        padding: 0 var(--idui-page-gutter);
+        justify-content: center;
+
+        &__logo {
+            height: 2.5rem;
+        }
+
+        &__wordmark {
+            max-width: 10rem;
+            font-size: t.$font-size-base;
+        }
+
+        &__actions {
+            position: absolute;
+            top: 50%;
+            right: var(--idui-page-gutter);
+            transform: translateY(-50%);
+        }
+    }
+}
