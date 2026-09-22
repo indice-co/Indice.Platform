@@ -1,3 +1,4 @@
+using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -10,7 +11,9 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Receives the user's reply from the ownership request port and
 /// compares it with the actual case data field. Supports up to <see cref="AgentsOptions.CaseWorkflowOptions.MaxOwnershipValidationAttempts"/> validation attempts.
 /// </summary>
-public sealed class OwnershipValidatorStep : Executor<ChatMessage, ChatMessage>
+[SendsMessage(typeof(ChatMessage))]
+[YieldsOutput(typeof(ValidationFailureOutput))]
+public sealed class OwnershipValidatorStep : Executor<ChatMessage>
 {
     private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly int _maxValidationAttempts;
@@ -22,7 +25,7 @@ public sealed class OwnershipValidatorStep : Executor<ChatMessage, ChatMessage>
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<ChatMessage> HandleAsync(
+    public override async ValueTask HandleAsync(
         ChatMessage confirmation,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
@@ -30,26 +33,38 @@ public sealed class OwnershipValidatorStep : Executor<ChatMessage, ChatMessage>
         var userInput = confirmation.Contents.OfType<TextContent>().FirstOrDefault()?.Text ?? string.Empty;
 
         var caseData = await context.GetOperatorStateAsync(cancellationToken);
-        var verificationData = caseData.VerificationValue;
-
-
+        var verificationData = caseData.VerificationValue!;
 
         // Validate the input against the actual case field value
-        var isValid = CompareInputWithCaseField(
-            userInput,
-            verificationData);
+        var isValid = CompareInputWithCaseField(userInput, verificationData);
 
-        string? errorMessage = null;
         if (!isValid) {
             var attempt = (await context.GetApprovalStateAsync(cancellationToken)) + 1;
             await context.SetApprovalStateAsync(attempt, cancellationToken);
-            errorMessage = attempt >= _maxValidationAttempts
-                ? _messageLocalizer.VerificationFailedMaxAttempts(_maxValidationAttempts)
-                : _messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts);
-        }
-        return await ValueTask.FromResult(new ChatMessage(ChatRole.Assistant, [
+            
+            if (attempt >= _maxValidationAttempts) {
+                //await context.AddEventAsync(new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [new TextContent(failureMessage)])),cancellationToken);
+                var attempts = await context.GetApprovalStateAsync(cancellationToken);
+                await context.Say(Id, _messageLocalizer.OwnershipVerificationFailedMaxAttemptsMessage(_maxValidationAttempts));
+                await context.SendMessageAsync(new ValidationFailureOutput(
+                    ErrorMessage: _messageLocalizer.OwnershipVerificationFailedMaxAttemptsMessage(_maxValidationAttempts),
+                    FailureStep: "OwnershipVerification",
+                    AttemptsExhausted: attempts));
+            }
+
+            await context.Say(Id, _messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts));
+            await context.SendMessageAsync(new ChatMessage(ChatRole.Assistant, [
             new TextContent(_messageLocalizer.OwnershipVerificationMessagePrompt),
-            new ErrorContent(errorMessage)]));
+            new ErrorContent(_messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts))]));
+
+            await context.SendMessageAsync(new ValidationFailureOutput(
+                ErrorMessage: _messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts),
+                FailureStep: "OwnershipVerification",
+                AttemptsExhausted: attempt));
+        }
+        await context.Say(Id, _messageLocalizer.OtvpVerificationSuccessMessage);
+        await context.SendMessageAsync(new ChatMessage(ChatRole.Assistant, [
+            new TextContent(_messageLocalizer.OtvpVerificationSuccessMessage)])); 
     }
 
     /// <summary>
@@ -66,11 +81,13 @@ public sealed class OwnershipValidatorStep : Executor<ChatMessage, ChatMessage>
 }
 
 /// <summary>
-/// Response payload delivered to the Cases workflow when the user replies to the ownership verification request.
-/// Produced by the host (chat client) as an external response to the ownership confirmation request port.
+/// Output when validation fails after maximum retry attempts have been exhausted.
+/// This terminal output is used for workflow routing when retries are exceeded.
 /// </summary>
-/// <param name="UserInput">The raw text the user submitted to confirm ownership of the case.</param>
-/// <param name="Attempt">The current ownership confirmation attempt number.</param>
-public record OwnershipConfirmationResponse(
-    string UserInput,
-    int Attempt = 0);
+/// <param name="ErrorMessage">The error message to display.</param>
+/// <param name="FailureStep">The step where validation failed (e.g., "OwnershipVerification", "OtpValidation").</param>
+/// <param name="AttemptsExhausted">Number of attempts made before giving up.</param>
+public record ValidationFailureOutput(
+    string ErrorMessage,
+    string FailureStep,
+    int AttemptsExhausted);

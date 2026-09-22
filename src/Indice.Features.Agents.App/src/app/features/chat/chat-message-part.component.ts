@@ -9,6 +9,7 @@ import { ChatHtmlComponent } from './parts/chat-html.component';
 import { ChatImageComponent } from './parts/chat-image.component';
 import { ChatOptionsComponent } from './parts/chat-options.component';
 import {
+  HitlControlResolver,
   parseCallout,
   parseConfirmation,
   parseHitlRequest,
@@ -70,7 +71,11 @@ import {
         <app-chat-confirm [confirmation]="confirmation()" [disabled]="!interactive()" (pick)="pick.emit($event)" />
       }
       @case ('hitl-request') {
-        <app-chat-hitl [request]="hitlRequest()" [disabled]="!interactive()" (pick)="pick.emit($event)" />
+        @switch (hitlControl()) {
+          @case ('hitl-request') {
+            <app-chat-hitl [request]="hitlRequest()" [disabled]="!interactive()" (pick)="pick.emit($event)" />
+          }
+        }
       }
     }
   `,
@@ -89,10 +94,11 @@ export class ChatMessagePartComponent {
   readonly pick = output<string>();
 
   protected readonly kind = computed(() => partKind(this.part().contentType));
+  protected readonly hitlControl = computed(() => HitlControlResolver(this.part().name));
 
   protected readonly options = computed(() => parseMultipleChoice(this.part().value));
   protected readonly image = computed(() => parseImage(this.part().value, this.part().contentType, this.part().name));
   protected readonly callout = computed(() => parseCallout(this.part().value));
   protected readonly confirmation = computed(() => parseConfirmation(this.part().value));
-  protected readonly hitlRequest = computed(() => parseHitlRequest(this.part().value));
+  protected readonly hitlRequest = computed(() => parseHitlRequest(this.part().value, this.part().requestId));
 }

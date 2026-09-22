@@ -2,7 +2,6 @@ using System.Runtime.CompilerServices;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
-using Indice.Features.Agents.Core.Workflows.State;
 using Indice.Features.Agents.Core.Workflows.Steps;
 using Indice.Features.Agents.Core.Workflows.Steps.Operator;
 using Microsoft.Agents.AI;
@@ -34,7 +33,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         [nameof(PurposeResponder)] = localizer.StepPurposeResponder,
         [nameof(OutOfScopeResponder)] = localizer.StepOutOfScopeResponder,
         [nameof(DataRetrieverStep)] = localizer.StepCaseDataRetriever,
-        [nameof(OwnershipVerifierStep)] = localizer.StepOwnershipVerifier,
+        [nameof(OwnershipRequestVerificationStep)] = localizer.StepOwnershipVerifier,
         [nameof(OtpCodeSendStep)] = localizer.StepOtpAgent,
         [nameof(OtpCodeValidatorStep)] = localizer.StepOtpCodeValidator,
         [nameof(OtpRetryChallengeBuilder)] = localizer.StepOtpRetryChallengeBuilder,
@@ -61,12 +60,17 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         }
         var message = messages.First();
         options ??= new ChatOptions();
-        options.ConversationId ??= Guid.NewGuid().ToString();
-        var state = new ConversationState(message, options.ConversationId);
+
+        options.ConversationId ??= Guid.NewGuid().ToString()!;
+        message.AdditionalProperties ??= new AdditionalPropertiesDictionary() {
+            [nameof(options.ConversationId)] = options.ConversationId
+        };
+
+        //var state = new ConversationState(message, options.ConversationId);
         // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
         // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
         var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
-        var selector = options?.Instructions?.Trim().ToLowerInvariant();
+        var selector = options.Instructions?.Trim().ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(selector)) {
             selector = routing.DefaultAgent?.Trim().ToLowerInvariant();
         }
@@ -76,17 +80,17 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             string? routeError = null;
             try {
                 var router = serviceProvider.GetRequiredService<IntentRouterService>();
-                decision = await router.RouteAsync(message.Text, state.ConversationId, cancellationToken);
+                decision = await router.RouteAsync(message.Text, options.ConversationId, cancellationToken);
             } 
             catch (Exception exception) when (exception is not OperationCanceledException) {
                 routeError = exception.Message;
             }
             if (routeError is not null) {
-                yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = state.ConversationId };
+                yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = options.ConversationId };
                 yield break;
             }
             else if (decision!.AgentName is null) {
-                yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = state.ConversationId };
+                yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = options.ConversationId };
                 yield break;
             }
             resolvedAgent = decision.AgentName;
@@ -104,7 +108,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         StreamingRun run;
         if (message.HasFunctionResultContent()) {
             var callId = message.GetFunctionResultContentCallId();
-            var checkpointInfo = new CheckpointInfo(sessionId, callId);
+            var checkpointInfo = new CheckpointInfo(sessionId, callId.CheckpointId);
             run = await InProcessExecution.ResumeStreamingAsync(workflow, checkpointInfo, checkpointManager, cancellationToken: cancellationToken);
         } else {
             run = await InProcessExecution.RunStreamingAsync(workflow, message, checkpointManager, sessionId: sessionId, cancellationToken: cancellationToken);
@@ -120,12 +124,12 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
             switch (evt) {
                 case AgentResponseUpdateEvent updateEvent:
                     var update = updateEvent.Update.AsChatResponseUpdate();
-                    update.ConversationId = state.ConversationId;
+                    update.ConversationId = options.ConversationId;
                     yield return update;
                     break;
                 // One progress event per step start; unmapped executor ids are skipped. Emitted as ephemeral content, stripped from the composed response.
                 case ExecutorInvokedEvent invoked when stepLabels.TryGetValue(invoked.ExecutorId, out var label):
-                    yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = state.ConversationId };
+                    yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = options.ConversationId };
                     break;
                 case RequestInfoEvent requestInfoEvent when !message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
                     // Defer emission until the superstep checkpoint is committed (raised via SuperStepCompletedEvent).
@@ -138,7 +142,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     yield return requestUpdate;
                     yield break;
                 case RequestInfoEvent requestInfoEvent when message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
-                    var response = requestInfoEvent.Request.CreateResponse(message.GetFunctionResult()!);
+                    var response = requestInfoEvent.Request.CreateResponse(new ChatMessage(ChatRole.User, message.Contents));
                     await run.SendResponseAsync(response);
                     break;
                 // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor
@@ -149,7 +153,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                         exception = exception.InnerException;
                     }
                     failure ??= exception?.Message ?? "Workflow failed without exception details.";
-                    yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(failure)]) { ConversationId = state.ConversationId };
+                    yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(failure)]) { ConversationId = options.ConversationId };
                     break;
                 default:
                     //Console.WriteLine(evt);
@@ -160,35 +164,6 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
 
         // Cancellation just stops the stream rather than raising a failure event — surface it as cancellation.
         cancellationToken.ThrowIfCancellationRequested();
-    }
-
-    private async Task<(bool Result, string AgentName)> GetAgentName(ChatOptions? options, ChatMessage message, ConversationState state, CancellationToken cancellationToken) {
-        var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
-        var selector = options?.Instructions?.Trim().ToLowerInvariant();
-        if (string.IsNullOrWhiteSpace(selector)) {
-            selector = routing.DefaultAgent?.Trim().ToLowerInvariant();
-        }
-        string resolvedAgent;
-        if (string.Equals(selector, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
-            RouteDecision? decision = null;
-            string? routeError = null;
-            try {
-                var router = serviceProvider.GetRequiredService<IntentRouterService>();
-                decision = await router.RouteAsync(message.Text, state.ConversationId, cancellationToken);
-            } catch (Exception exception) when (exception is not OperationCanceledException) {
-                routeError = exception.Message;
-            }
-            if (routeError is not null) {
-                return (false, routeError);
-            } else if (decision!.AgentName is null) {
-                return (false, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply);
-                
-            }
-            resolvedAgent = decision.AgentName;
-        } else {
-            resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
-        }
-        return (true, resolvedAgent);
     }
 
     /// <inheritdoc/>

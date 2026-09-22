@@ -93,4 +93,17 @@ public static class DemoWorkflow
         /// <returns>A request port for OTP verification.</returns>
         public static RequestPort<OtpRequest, OtpResponse> CreateOtpPort(string id = nameof(OtpRequest)) => RequestPort.Create<OtpRequest, OtpResponse>(id);
     }
+
+    /// <summary>
+    /// Represents a request port for Ownership verification in the workflow.
+    /// </summary>
+    public static class OwnershipVerificationRequestPort
+    {
+        /// <summary>
+        /// Creates a request port for OTP (One-Time Password) verification in the workflow.
+        /// </summary>
+        /// <param name="id">The identifier for the request port.</param>
+        /// <returns>A request port for OTP verification.</returns>
+        public static RequestPort<ChatMessage, ChatMessage> CreateOwnershipPort(string id = nameof(OwnershipVerificationRequestPort)) => RequestPort.Create<ChatMessage, ChatMessage>(id);
+    }
 }

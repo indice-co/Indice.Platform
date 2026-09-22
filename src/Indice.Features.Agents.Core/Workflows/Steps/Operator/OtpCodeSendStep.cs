@@ -82,6 +82,7 @@ public sealed class OtpCodeSendStep : Executor<ChatMessage, OtpChallengeOutput>
         });
         var resuts = await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
         var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedPhoneNumber);
+        await context.Say(Id, otpPrompt);
         return new OtpChallengeOutput(
             //TODO: Support dual Phone /Email OTP delivery. For now, we only support phone delivery.
             Prompt: otpPrompt,

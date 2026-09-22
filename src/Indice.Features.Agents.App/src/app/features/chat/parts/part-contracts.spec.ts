@@ -50,7 +50,7 @@ describe('parseMultipleChoice', () => {
   });
 
   it('returns an empty list for a malformed payload rather than throwing', () => {
-    // A renderer calls this from a template — a bad payload must degrade to "nothing to show".
+    // A renderer calls this from a template â€” a bad payload must degrade to "nothing to show".
     expect(parseMultipleChoice('not json')).toEqual([]);
     expect(parseMultipleChoice('')).toEqual([]);
     expect(parseMultipleChoice(undefined)).toEqual([]);
@@ -115,7 +115,7 @@ describe('parseImage', () => {
   });
 
   it('captions a raw image/* part from the part name, the only place one can live', () => {
-    // Without the envelope there is no payload to hold a caption — this is what makes the bare shape a peer of it.
+    // Without the envelope there is no payload to hold a caption â€” this is what makes the bare shape a peer of it.
     expect(parseImage('data:image/png;base64,AAAA', 'image/png', 'The Dex mark')).toEqual({
       uri: 'data:image/png;base64,AAAA',
       caption: 'The Dex mark',
@@ -147,7 +147,7 @@ describe('parseImage', () => {
     // Protocol-relative: a leading slash that still points off-origin.
     expect(parseImage('{"uri":"//evil.example.com/x.png"}', IMAGE_MEDIA_TYPE)).toBeNull();
     expect(parseImage('javascript:alert(1)', 'image/png')).toBeNull();
-    // A part name does not rescue an unrenderable uri — the caption is not a way in.
+    // A part name does not rescue an unrenderable uri â€” the caption is not a way in.
     expect(parseImage('javascript:alert(1)', 'image/png', 'Harmless-looking caption')).toBeNull();
   });
 
@@ -182,7 +182,7 @@ describe('parseCallout', () => {
   });
 
   it('returns null when there is no body to show', () => {
-    // An alert with no text is an empty coloured box — better to render nothing.
+    // An alert with no text is an empty coloured box â€” better to render nothing.
     expect(parseCallout('{"severity":"info"}')).toBeNull();
     expect(parseCallout('{"severity":"info","text":"   "}')).toBeNull();
     expect(parseCallout('not json')).toBeNull();
@@ -218,6 +218,9 @@ describe('parseHitlRequest', () => {
       requestId: 'a1b2',
       text: undefined,
       properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
     });
   });
 
@@ -226,6 +229,9 @@ describe('parseHitlRequest', () => {
       requestId: 'a1b2',
       text: 'VAT number?',
       properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
     });
   });
 
@@ -235,6 +241,62 @@ describe('parseHitlRequest', () => {
       requestId: 'a1b2',
       text: 'VAT number?',
       properties: { caseId: '77' },
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
+    });
+  });
+
+  it('reads the nested chat-message payload shape too', () => {
+    const payload = '{"data":{"authorName":null,"createdAt":null,"role":"assistant","contents":[{"$type":"text","text":"Please enter your car license plate to complete the verification process.","annotations":null,"additionalProperties":null}],"messageId":"m1","additionalProperties":{"caseId":"77"}}}';
+    expect(parseHitlRequest(payload)).toEqual({
+      requestId: undefined,
+      text: 'Please enter your car license plate to complete the verification process.',
+      properties: undefined,
+      contents: [
+        {
+          $type: 'text',
+          text: 'Please enter your car license plate to complete the verification process.',
+          annotations: null,
+          additionalProperties: null,
+        },
+      ],
+      messageId: 'm1',
+      additionalProperties: { caseId: '77' },
+    });
+  });
+
+  it('falls back to the part requestId when the nested payload omits one', () => {
+    const payload = '{"data":{"role":"assistant","contents":[{"$type":"text","text":"Plate?"}],"messageId":"m1","additionalProperties":{}}}';
+    expect(parseHitlRequest(payload, 'a1b2')).toEqual({
+      requestId: 'a1b2',
+      text: 'Plate?',
+      properties: undefined,
+      contents: [{ $type: 'text', text: 'Plate?' }],
+      messageId: 'm1',
+      additionalProperties: {},
+    });
+  });
+
+  it('prefers a requestId carried inside the payload over the fallback metadata', () => {
+    expect(parseHitlRequest('{"RequestId":"inside"}', 'outside')).toEqual({
+      requestId: 'inside',
+      text: undefined,
+      properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
+    });
+  });
+
+  it('still reports a request when the payload carries nothing but the fallback id', () => {
+    expect(parseHitlRequest('{}', 'a1b2')).toEqual({
+      requestId: 'a1b2',
+      text: undefined,
+      properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
     });
   });
 
@@ -246,8 +308,18 @@ describe('parseHitlRequest', () => {
       requestId: 'a1b2',
       text: undefined,
       properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
     });
-    expect(parseHitlRequest('{}')).toEqual({ requestId: undefined, text: undefined, properties: undefined });
+    expect(parseHitlRequest('{}')).toEqual({
+      requestId: undefined,
+      text: undefined,
+      properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
+    });
   });
 
   it('drops members that are not usable text', () => {
@@ -255,6 +327,9 @@ describe('parseHitlRequest', () => {
       requestId: undefined,
       text: undefined,
       properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
     });
   });
 
@@ -268,45 +343,43 @@ describe('parseHitlRequest', () => {
 
 describe('hitlResponseParts', () => {
   it('leads with the plain-text answer, which is the part the server validates', () => {
-    // ChatRequest.Text resolves to the first text part and ChatRequestValidator requires it non-empty; and only
-    // text/plain exactly is promoted to TextContent, so text/markdown here would take the DataContent branch.
+    // ChatRequest.Text resolves to the first text part and ChatRequestValidator requires it non-empty.
     const [text] = hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789');
-    expect(text).toEqual({ value: 'EL123456789', contentType: 'text/plain' });
+    expect(text).toEqual({ value: 'EL123456789', contentType: 'text/plain', requestId: 'a1b2' });
   });
 
-  it('carries the structured answer as a data URI, not as raw json', () => {
-    // DataContent's string constructor takes a data URI; raw json would not survive ChatMessagePart.ToAIContent().
+  it('carries the structured answer as raw json with the function-call response media type', () => {
     const [, structured] = hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789');
-    expect(structured.contentType).toBe(HITL_RESPONSE_MEDIA_TYPE);
-    expect(structured.value).toContain(`data:${HITL_RESPONSE_MEDIA_TYPE};base64,`);
+    expect(structured).toEqual({
+      value: '{"text":"EL123456789","requestId":"a1b2","properties":{}}',
+      contentType: HITL_RESPONSE_MEDIA_TYPE,
+      requestId: 'a1b2',
+    });
   });
 
-  it('emits the PascalCase HumanResponse shape the server would deserialize', () => {
-    // Default JsonSerializerOptions are case-sensitive with no naming policy, and HumanResponse carries no
-    // attributes — camelCase would bind into an empty object.
-    expect(decodeResponse(hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789')[1].value)).toEqual({
-      Text: 'EL123456789',
-      RequestId: 'a1b2',
-      Properties: {},
+  it('includes requestId inside the structured payload too', () => {
+    expect(parseResponse(hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789')[1].value)).toEqual({
+      text: 'EL123456789',
+      requestId: 'a1b2',
+      properties: {},
     });
   });
 
   it('sends an empty correlation id when the request carried none', () => {
     // RequestId is a non-nullable string server-side, so an empty one is closer than an absent member.
-    expect(decodeResponse(hitlResponseParts({}, 'yes')[1].value)).toEqual({
-      Text: 'yes',
-      RequestId: '',
-      Properties: {},
+    expect(parseResponse(hitlResponseParts({}, 'yes')[1].value)).toEqual({
+      text: 'yes',
+      requestId: '',
+      properties: {},
     });
   });
 
-  it('encodes an answer outside latin-1, which bare btoa rejects', () => {
-    // The UI ships Greek content, so this is the ordinary case rather than an edge one.
+  it('preserves answers outside latin-1 because the response is sent as plain json', () => {
     const answer = 'Ναι, το ΑΦΜ είναι EL123456789 — ευχαριστώ';
-    expect(decodeResponse(hitlResponseParts({ requestId: 'a1b2' }, answer)[1].value)).toEqual({
-      Text: answer,
-      RequestId: 'a1b2',
-      Properties: {},
+    expect(parseResponse(hitlResponseParts({ requestId: 'a1b2' }, answer)[1].value)).toEqual({
+      text: answer,
+      requestId: 'a1b2',
+      properties: {},
     });
   });
 });
@@ -331,8 +404,9 @@ describe('isTextPart', () => {
   });
 });
 
-/** Reads a response part's value back — the inverse of the encoding in `hitlResponseParts`. */
-function decodeResponse(value: string | undefined): unknown {
-  const base64 = (value ?? '').slice(`data:${HITL_RESPONSE_MEDIA_TYPE};base64,`.length);
-  return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(base64), (char) => char.charCodeAt(0))));
+/** Reads a response part's value back â€” the inverse of the encoding in `hitlResponseParts`. */
+function parseResponse(value: string | undefined): unknown {
+  return JSON.parse(value ?? 'null');
 }
+
+

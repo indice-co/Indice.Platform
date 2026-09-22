@@ -19,7 +19,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Step 1 of the Cases workflow: Retrieves case data from the configured MCP service.
 /// The MCP service key is fixed, while the model decides which discovered tool to call.
 /// </summary>
-internal sealed class DataRetrieverStep : Executor<ConversationState, CaseRetrievalOutput>
+internal sealed class DataRetrieverStep : Executor<ChatMessage, CaseRetrievalOutput>
 {
     private const string McpServiceKey = "cases";
 
@@ -52,17 +52,17 @@ internal sealed class DataRetrieverStep : Executor<ConversationState, CaseRetrie
 
     /// <inheritdoc/>
     public override async ValueTask<CaseRetrievalOutput> HandleAsync(
-        ConversationState state,
+        ChatMessage message,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
 
-        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(message);
 
         // Persist a ConversationState snapshot so downstream shared steps (e.g. OtpAgent)
         // can use existing state extension helpers.
-        await context.SetConversationStateAsync(new ConversationState(state.Message, state.ConversationId), cancellationToken);
+        await context.SetConversationStateAsync(new ConversationState(message, message.AdditionalProperties![nameof(ConversationState.ConversationId)]!.ToString()!), cancellationToken);
 
-        var userInput = state.Message.Text ?? string.Empty;
+        var userInput = message.Text ?? string.Empty;
         var registry = await _mcpClientFactory.CreateAsync();
         var mcpTools = await registry.ListToolsAsync(options: null, cancellationToken);
         if (mcpTools.Count == 0) {
@@ -124,7 +124,6 @@ internal sealed class DataRetrieverStep : Executor<ConversationState, CaseRetrie
         }, cancellationToken);
 
         return new CaseRetrievalOutput(
-            CaseData: caseData,
             CaseId: caseId,
             PhoneNumber: phoneNumber,
             Email: email,
@@ -134,13 +133,11 @@ internal sealed class DataRetrieverStep : Executor<ConversationState, CaseRetrie
 /// <summary>
 /// Output of the CaseDataRetriever step containing the retrieved case data and related context.
 /// </summary>
-/// <param name="CaseData">The complete case data as a JsonNode for flexible schema support.</param>
 /// <param name="CaseId">The unique identifier for the case.</param>
 /// <param name="PhoneNumber">The phone number from case data for OTP delivery (primary channel).</param>
 /// <param name="Email">The email from case data (fallback channel if phone unavailable).</param>
 /// <param name="VerificationValue">The value the user must use to verify their identity.</param>
 public record CaseRetrievalOutput(
-    JsonNode CaseData,
     string CaseId,
     string? PhoneNumber,
     string? Email,

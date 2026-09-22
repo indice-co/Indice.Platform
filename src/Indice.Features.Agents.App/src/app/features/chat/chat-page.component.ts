@@ -55,7 +55,7 @@ export class ChatPageComponent {
       return null;
     }
     const part = latest.content.parts?.find((candidate) => candidate.contentType === HITL_REQUEST_MEDIA_TYPE);
-    return part ? parseHitlRequest(part.value) : null;
+    return part ? parseHitlRequest(part.value, part.requestId) : null;
   });
 
   protected readonly isStreaming = signal(false);
