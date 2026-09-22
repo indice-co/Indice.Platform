@@ -1,6 +1,8 @@
-﻿using Indice.Features.Agents.Core.Models;
+﻿using System.Text.Json;
+using Indice.Features.Agents.Core.Models;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
+using Microsoft.Agents.AI.Workflows.Checkpointing;
 using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Extensions;
@@ -53,8 +55,16 @@ public static class WorkflowExtensions
         /// Gets the function result from a <see cref="ChatMessage"/>.
         /// </summary>
         /// <returns>The function result.</returns>
-        public object? GetFunctionResult()
-            => chatMessage.Contents.OfType<FunctionResultContent>().FirstOrDefault()?.Result;
+        public object? GetFunctionResult(RequestPortInfo portInfo, JsonSerializerOptions? options = null) {
+            var result = chatMessage.Contents.OfType<FunctionResultContent>().FirstOrDefault()?.Result;
+            return result switch {
+                null => null,
+                JsonElement jsonElement when portInfo.ResponseType.ToClrType() is { } clrType => jsonElement.Deserialize(clrType, options ?? JsonSerializerOptions.Web),
+                JsonElement jsonElement => jsonElement,
+                _ => result
+            };
+        }
+
 
         /// <summary>
         /// Gets the function result content from a <see cref="ChatMessage"/>.

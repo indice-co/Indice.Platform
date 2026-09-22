@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text.Json;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
@@ -76,6 +77,55 @@ public class WorkflowTests
         
         Assert.Equal("Otp verified 123456!", responseC.ToString());
 
+        await serviceProvider.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task HumanInTheLoopWorkflow_WithSerializedResult_Test() {
+        var services = new ServiceCollection();
+        var configuration = new ConfigurationBuilder()
+          .AddInMemoryCollection(new Dictionary<string, string?> {
+              ["test"] = "test"
+          })
+          .Build();
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddDbContext<AgentsDbContext>(builder => builder.UseInMemoryDatabase(databaseName: "AgentsDb"), ServiceLifetime.Singleton);
+        services.AddSingleton<PersistedCheckpointStore>();
+        services.TryAddTransient(sp => CheckpointManager.CreateJson(sp.GetRequiredService<PersistedCheckpointStore>()));
+        services.AddKeyedTransient("default", (sp, key) => {
+            var start = new ChatTurnStartStep();
+            var otpRequirement = new OtpRequirementStep();
+            var otpVerification = new OtpVerificationStep();
+            var otpPort = OtpRequestPort.CreateOtpPort();
+            var workflow = new WorkflowBuilder(start)
+                           .AddEdge(start, otpRequirement)
+                           .AddEdge(otpRequirement, otpPort)
+                           .AddEdge(otpPort, otpVerification)
+                           .AddEdge(otpVerification, otpPort)
+                           .WithOutputFrom(otpVerification)
+                           .Build();
+            return workflow;
+        });
+        services.AddTransient<IChatClient, WorkflowChatClient>();
+        var serviceProvider = services.BuildServiceProvider();
+
+        var chatClient = serviceProvider.GetRequiredService<IChatClient>();
+        var chatOptions = new ChatOptions { Instructions = "default", ConversationId = Guid.NewGuid().ToString() };
+        var messageA = new ChatMessage(ChatRole.User, "Hello! I need to validate my identity.") { AuthorName = "John Doe" };
+        var responseA = await chatClient.GetResponseAsync([messageA], chatOptions, TestContext.Current.CancellationToken);
+
+        var functionCallContentA = responseA.Messages.First().Contents.OfType<FunctionCallContent>().First();
+
+
+        var jsonResult = JsonElement.Parse(JsonSerializer.Serialize(new OtpRequestPort.OtpResponse("123456"), new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        var messageB = new ChatMessage(ChatRole.User, [
+            new TextContent("Here is my otp."),
+            new FunctionResultContent(functionCallContentA.CallId, jsonResult)
+            ]) { AuthorName = "John Doe" };
+        var responseB = await chatClient.GetResponseAsync([messageB], chatOptions, TestContext.Current.CancellationToken);
+
+        Assert.Equal("Otp verified 123456!", responseB.ToString());
+        
         await serviceProvider.DisposeAsync();
     }
 
@@ -172,7 +222,7 @@ public class WorkflowChatClient(IServiceProvider serviceProvider) : IChatClient
                     yield return requestUpdate;
                     yield break;
                 case RequestInfoEvent requestInfoEvent when message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
-                    var response = requestInfoEvent.Request.CreateResponse(message.GetFunctionResult()!);
+                    var response = requestInfoEvent.Request.CreateResponse(message.GetFunctionResult(requestInfoEvent.Request.PortInfo)!);
                     await run.SendResponseAsync(response);
                     break;
                 default:

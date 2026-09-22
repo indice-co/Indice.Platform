@@ -140,7 +140,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     yield return requestUpdate;
                     yield break;
                 case RequestInfoEvent requestInfoEvent when message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
-                    var response = requestInfoEvent.Request.CreateResponse(message.GetFunctionResult()!);
+                    var response = requestInfoEvent.Request.CreateResponse(message.GetFunctionResult(requestInfoEvent.Request.PortInfo)!);
                     await run.SendResponseAsync(response);
                     break;
                 // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor
