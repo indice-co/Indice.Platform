@@ -30,24 +30,24 @@ public static class IWorkflowContextStateExtensions
         await context.QueueStateUpdateAsync(nameof(IntentState), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
     }
 
-    /// <summary>Reads the <see cref="OperatorState"/> from the workflow context.</summary>
-    public static async Task<OperatorState> GetOperatorStateAsync(this IWorkflowContext context, CancellationToken cancellationToken = default) {
-        return await context.ReadStateAsync<OperatorState>(nameof(OperatorState), scopeName: ConversationScope, cancellationToken: cancellationToken) ??
-               throw new InvalidOperationException("OperatorState not found in workflow context.");
+    /// <summary>Reads the <see cref="CustomerState"/> from the workflow context.</summary>
+    public static async Task<CustomerState> GetOperatorStateAsync(this IWorkflowContext context, CancellationToken cancellationToken = default) {
+        return await context.ReadStateAsync<CustomerState>(nameof(CustomerState), scopeName: ConversationScope, cancellationToken: cancellationToken) ??
+               throw new InvalidOperationException("CustomerState not found in workflow context.");
     }
 
-    /// <summary>Writes the <see cref="OperatorState"/> to the workflow context.</summary>
-    public static async Task SetOperatorStateAsync(this IWorkflowContext context, OperatorState state, CancellationToken cancellationToken = default) {
-        await context.QueueStateUpdateAsync(nameof(OperatorState), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
+    /// <summary>Writes the <see cref="CustomerState"/> to the workflow context.</summary>
+    public static async Task SetOperatorStateAsync(this IWorkflowContext context, CustomerState state, CancellationToken cancellationToken = default) {
+        await context.QueueStateUpdateAsync(nameof(CustomerState), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
     }
-    /// <summary>Reads the <see cref="OwnershipValidatorStep"/> from the workflow context.</summary>
+    /// <summary>Reads the <see cref="AuthenticationStep"/> from the workflow context.</summary>
     public static async Task<int> GetApprovalStateAsync(this IWorkflowContext context, CancellationToken cancellationToken = default) {
-        return await context.ReadStateAsync<int?>(nameof(OwnershipValidatorStep), scopeName: ConversationScope, cancellationToken: cancellationToken) ?? 0;
+        return await context.ReadStateAsync<int?>(nameof(AuthenticationStep), scopeName: ConversationScope, cancellationToken: cancellationToken) ?? 0;
     }
 
-    /// <summary>Writes the <see cref="OwnershipValidatorStep"/> to the workflow context.</summary>
-    public static async Task SetApprovalStateAsync(this IWorkflowContext context, int state, CancellationToken cancellationToken = default) {
-        await context.QueueStateUpdateAsync(nameof(OwnershipValidatorStep), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
+    /// <summary>Writes the <see cref="AuthenticationStep"/> to the workflow context.</summary>
+    public static async Task SetApprovalStateAsync(this IWorkflowContext context, int? state, CancellationToken cancellationToken = default) {
+        await context.QueueStateUpdateAsync(nameof(AuthenticationStep), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
     }
 }
 

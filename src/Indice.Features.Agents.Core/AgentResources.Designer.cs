@@ -61,6 +61,15 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to User challenge completed. .
+        /// </summary>
+        internal static string ChallengeSucceeded {
+            get {
+                return ResourceManager.GetString("ChallengeSucceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The OTP code is invalid. You have reached the maximum number of attempts. Please start again..
         /// </summary>
         internal static string InvalidOtpMaxAttemptsReachedMessage {

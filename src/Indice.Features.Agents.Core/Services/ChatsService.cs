@@ -192,8 +192,12 @@ public class ChatsService : IChatsService
         var userMessage = new ChatMessage(ChatRole.User, chatRequest.Parts.ToAIContents()) {
             MessageId = Guid.NewGuid().ToString(),
             CreatedAt = DateTimeOffset.UtcNow,
-            AuthorName = chatRequest.AuthorName
+            AuthorName = chatRequest.AuthorName,
         };
+        if (conversation.Topic is not null) {
+            userMessage.AdditionalProperties ??= new();
+            userMessage.AdditionalProperties[nameof(ChatTopic)] = conversation.Topic;
+        }
         var stream = _dexClient.GetStreamingResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString(), Instructions = chatRequest.AgentName }, cancellationToken);
         var updates = new List<ChatResponseUpdate>();
         var projector = new DexChatStreamProjector();
@@ -290,8 +294,7 @@ public class ChatsService : IChatsService
                 yield return compactor.Compact(frame);
             }
             yield return Message(new DexChatStreamDone());
-        } 
-        finally {
+        } finally {
             if (!turnPersisted) {
                 // Disconnect or fault before persistence: keep the user's question in the conversation and count it.
                 await PersistFailedTurnAsync(conversation.Id, userMessage, CancellationToken.None);

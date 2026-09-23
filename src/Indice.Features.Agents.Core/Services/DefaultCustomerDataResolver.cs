@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Indice.Features.Agents.Core.Services;
 
@@ -19,30 +20,37 @@ namespace Indice.Features.Agents.Core.Models.Cases;
 public class DefaultCustomerDataResolver : ICustomerDataResolver
 {
     /// <inheritdoc/>
-    public virtual string ExtractCaseId(JsonNode caseData) =>
-        caseData["id"]?.GetValue<string>()
-            ?? throw new InvalidOperationException("CaseId not found in case data.");
+    public virtual string ExtractCaseId(JsonElement caseData) =>
+        caseData.GetProperty("id").GetString()
+            ?? throw new InvalidOperationException("ReferenceId not found in case data.");
 
     /// <inheritdoc/>
-    public virtual string? ExtractPhoneNumber(JsonNode caseData) =>
-        caseData["data"]?["phoneNumber"]?.GetValue<string>();
+    public virtual string? ExtractPhoneNumber(JsonElement caseData) =>
+        caseData.GetProperty("data").GetProperty("phoneNumber").GetString();
 
     /// <inheritdoc/>
-    public virtual string? ExtractEmail(JsonNode caseData) =>
-        caseData["data"]?["email"]?.GetValue<string>();
+    public virtual string? ExtractEmail(JsonElement caseData) =>
+        caseData.GetProperty("data").GetProperty("email").GetString();
 
     /// <inheritdoc/>
-    public virtual string? ExtractVerificationValue(JsonNode caseData) =>
-        caseData["data"]?["carPlate"]?.GetValue<string>();
+    public virtual string? ExtractChallengeValue(JsonElement caseData) =>
+        caseData.GetProperty("data").GetProperty("carPlate").GetString();
+
 
     /// <inheritdoc/>
-    public virtual OperationResult Validate(JsonNode caseData) {
-        var verificationValue = ExtractVerificationValue(caseData);
+    public virtual OperationResult Validate(JsonElement caseData) {
+        var verificationValue = ExtractChallengeValue(caseData);
         if (string.IsNullOrWhiteSpace(verificationValue))
             return OperationResult.Failure("Verification value is missing or empty.");
 
         if (string.IsNullOrWhiteSpace(ExtractPhoneNumber(caseData)) && string.IsNullOrWhiteSpace(ExtractEmail(caseData)))
             return OperationResult.Failure("Phone number and email are missing or empty.");
         return OperationResult.Success();
+    }
+
+    /// <inheritdoc/>
+    public string ExtractDataType(JsonElement caseData) {
+        return caseData.GetProperty("caseType").GetProperty("code").GetString()
+            ?? throw new InvalidOperationException("DataType not found in case data.");
     }
 }

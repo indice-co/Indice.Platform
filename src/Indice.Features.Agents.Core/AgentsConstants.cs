@@ -21,16 +21,6 @@ public static class AgentsConstants
         public const string Demo = "demo";
     }
 
-    /// <summary>Request-port identifiers used by checkpointed workflow resumes.</summary>
-    public static class WorkflowPorts
-    {
-        /// <summary>Port that requests ownership confirmation and expects user's confirmation response.</summary>
-        public const string OwnershipConfirmation = "OwnershipConfirmationPort";
-
-        /// <summary>Port that requests OTP input and expects the user's OTP response.</summary>
-        public const string OtpVerification = "OtpVerificationPort";
-    }
-
     /// <summary>Media types of the alternative (non-prose) content parts an assistant turn can carry.</summary>
     /// <remarks>
     /// Each one is a rendering contract between the pipeline and the chat UI: a part with this media type carries a
@@ -229,10 +219,10 @@ public static class AgentsConstants
             - user: null
             - code: user code from the prompt
             Return true if response indicates TOTP was verified successfully.
-            Return the object in json format as returned by the mcp
+            Return the object in json format as returned by the mcp.
             """;
         /// <summary>Agent prompt template for validating OTP code.</summary>
-        public const string OtpCodeValidatorPrompt = "Verify this OTP code: {{code}}, with securityToken:{{caseId}}, phoneNumber: {{phoneNumber}}";
+        public const string OtpCodeValidatorPrompt = "Verify this OTP code: {{otp}}, with securityToken:{{caseId}}, phoneNumber: {{phoneNumber}}";
 
     }
 }
