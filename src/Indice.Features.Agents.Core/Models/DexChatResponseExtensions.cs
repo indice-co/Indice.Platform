@@ -39,7 +39,7 @@ public static class DexChatResponseExtensions
         var citations = new List<Citation>();
         ChatMessagePart? openTextPart = null;
         foreach (var item in message.Contents) {
-            switch(item) {
+            switch (item) {
                 case TextContent text:
                     if (!string.IsNullOrEmpty(text.Text)) {
                         if (openTextPart is null) {

@@ -5,9 +5,15 @@ import { provideMarkdown } from 'ngx-markdown';
 import { ChatMessageContent, ChatMessagePart } from '../../core/services/dex-api.service';
 import { ChatThreadComponent } from './chat-thread.component';
 import { ThreadMessage } from './chat.models';
-import { MULTIPLE_CHOICE_MEDIA_TYPE } from './parts/part-contracts';
+import {
+  HITL_REQUEST_MEDIA_TYPE,
+  HITL_RESPONSE_MEDIA_TYPE,
+  MULTIPLE_CHOICE_MEDIA_TYPE,
+} from './parts/part-contracts';
 
 const CHOICE_VALUE = '{"options":["Tell me about faq"]}';
+
+const HITL_REQUEST_VALUE = '{"Text":null,"RequestId":"a1b2","Properties":{}}';
 
 describe('ChatThreadComponent', () => {
   let fixture: ComponentFixture<ChatThreadComponent>;
@@ -77,6 +83,38 @@ describe('ChatThreadComponent', () => {
     expect(optionButtons.length).toBe(2);
     expect(optionButtons[0].disabled).toBeTrue(); // answered — it is no longer last
     expect(optionButtons[1].disabled).toBeFalse();
+  });
+
+  it('prints only the text of a user turn that also carries a structured answer', () => {
+    // The HITL answer's value is a data URI; before the bubble filtered its parts it spilled straight into the thread,
+    // both on send and again on every reload of the conversation.
+    const host = render([
+      {
+        role: 'User',
+        content: new ChatMessageContent({
+          parts: [
+            part('text/plain', 'EL123456789'),
+            part(HITL_RESPONSE_MEDIA_TYPE, `data:${HITL_RESPONSE_MEDIA_TYPE};base64,eyJ0ZXh0IjoiRUwxMjM0NTY3ODkifQ==`),
+          ],
+        }),
+      },
+    ]);
+
+    expect(host.textContent).toContain('EL123456789');
+    expect(host.textContent).not.toContain('base64');
+  });
+
+  it('keeps a hitl request answerable only on the last message of the thread', () => {
+    const host = render([
+      assistant([part(HITL_REQUEST_MEDIA_TYPE, HITL_REQUEST_VALUE)]),
+      user('EL123456789'),
+      assistant([part(HITL_REQUEST_MEDIA_TYPE, HITL_REQUEST_VALUE)]),
+    ]);
+
+    const fields = Array.from(host.querySelectorAll<HTMLInputElement>('app-chat-hitl input'));
+    expect(fields.length).toBe(2);
+    expect(fields[0].disabled).toBeTrue(); // answered — it is no longer last
+    expect(fields[1].disabled).toBeFalse();
   });
 
   it('re-emits what an interactive part was picked, for the page to send', () => {

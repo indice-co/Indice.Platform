@@ -2,7 +2,8 @@ using System.Runtime.CompilerServices;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
-using Indice.Features.Agents.Core.Workflows.State;
+using Indice.Features.Agents.Core.Workflows.Steps;
+using Indice.Features.Agents.Core.Workflows.Steps.Operator;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -23,16 +24,20 @@ public interface IDexChatClient : IChatClient
 /// <param name="serviceProvider">The service provider for resolving dependencies.</param>
 public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
 {
-
-    /// <summary>Human-friendly progress labels keyed by executor id, surfaced as SSE <c>step</c> events.</summary>
-    private static readonly IReadOnlyDictionary<string, string> StepLabels = new Dictionary<string, string>(StringComparer.Ordinal) {
-        ["IntentClassifier"] = "Classifying intent",
-        ["QueryRewriter"] = "Rewriting query",
-        ["Retriever"] = "Retrieving relevant context",
-        ["Reranker"] = "Ranking results",
-        ["AnswerComposer"] = "Composing answer",
-        ["PurposeResponder"] = "Answering",
-        ["OutOfScopeResponder"] = "Preparing response",
+    private static IReadOnlyDictionary<string, string> CreateStepLabels(AgentMessageLocalizer localizer) => new Dictionary<string, string>(StringComparer.Ordinal) {
+        [nameof(IntentClassifier)] = localizer.StepIntentClassifier,
+        [nameof(QueryRewriter)] = localizer.StepQueryRewriter,
+        [nameof(Retriever)] = localizer.StepRetriever,
+        [nameof(Reranker)] = localizer.StepReranker,
+        [nameof(AnswerComposer)] = localizer.StepAnswerComposer,
+        [nameof(PurposeResponder)] = localizer.StepPurposeResponder,
+        [nameof(OutOfScopeResponder)] = localizer.StepOutOfScopeResponder,
+        [nameof(DataRetrieverStep)] = localizer.StepCaseDataRetriever,
+        [nameof(AuthenticationChallengeStep)] = localizer.StepOwnershipVerifier,
+        [nameof(OtpCodeValidatorStep)] = localizer.StepOtpCodeValidator,
+        [nameof(DataPresenterStep)] = localizer.StepCaseDataPresenter,
+        [nameof(AuthenticationStep)] = localizer.StepOwnershipValidator,
+        [nameof(OtpCodeSendStep)] = localizer.StepOtpCodeSend
     };
 
     /// <inheritdoc/>
@@ -54,9 +59,9 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         var message = messages.First();
         options ??= new ChatOptions();
         options.ConversationId ??= Guid.NewGuid().ToString()!;
-        message.AdditionalProperties ??= new AdditionalPropertiesDictionary() {
-            [nameof(options.ConversationId)] = options.ConversationId
-        };
+
+        message.AdditionalProperties ??= new();
+        message.AdditionalProperties[nameof(options.ConversationId)] = options.ConversationId;
 
         //var state = new ConversationState(message, options.ConversationId);
         // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
@@ -100,12 +105,16 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         StreamingRun run;
         if (message.HasFunctionResultContent()) {
             var callId = message.GetFunctionResultContentCallId();
-            var checkpointInfo = new CheckpointInfo(sessionId, callId);
+            var checkpointInfo = new CheckpointInfo(sessionId, callId.CheckpointId!);
             run = await InProcessExecution.ResumeStreamingAsync(workflow, checkpointInfo, checkpointManager, cancellationToken: cancellationToken);
         } else {
             run = await InProcessExecution.RunStreamingAsync(workflow, message, checkpointManager, sessionId: sessionId, cancellationToken: cancellationToken);
         }
         await using var _ = run;
+
+        var messageLocalizer = serviceProvider.GetService<AgentMessageLocalizer>() ?? new AgentMessageLocalizer();
+        var stepLabels = CreateStepLabels(messageLocalizer);
+
         string? failure = null;
         RequestInfoEvent? pendingRequest = null;
         await foreach (var evt in run.WatchStreamAsync().WithCancellation(cancellationToken)) {
@@ -116,7 +125,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     yield return update;
                     break;
                 // One progress event per step start; unmapped executor ids are skipped. Emitted as ephemeral content, stripped from the composed response.
-                case ExecutorInvokedEvent invoked when StepLabels.TryGetValue(invoked.ExecutorId, out var label):
+                case ExecutorInvokedEvent invoked when stepLabels.TryGetValue(invoked.ExecutorId, out var label):
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = options.ConversationId };
                     break;
                 case RequestInfoEvent requestInfoEvent when !message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
@@ -130,7 +139,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     yield return requestUpdate;
                     yield break;
                 case RequestInfoEvent requestInfoEvent when message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
-                    var response = requestInfoEvent.Request.CreateResponse(message.GetFunctionResult()!);
+                    var response = requestInfoEvent.Request.CreateResponse(message.GetFunctionResult(requestInfoEvent.Request.PortInfo)!);
                     await run.SendResponseAsync(response);
                     break;
                 // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor
@@ -147,7 +156,9 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     //Console.WriteLine(evt);
                     break;
             }
+
         }
+
         // Cancellation just stops the stream rather than raising a failure event — surface it as cancellation.
         cancellationToken.ThrowIfCancellationRequested();
     }

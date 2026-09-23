@@ -17,7 +17,6 @@ public class ChatMessagePart
     /// <summary>The content type of the message part (e.g., "text/plain", "text/html").</summary>
     [JsonPropertyName("contentType")]
     public string ContentType { get; set; } = null!;
-
     /// <summary>Optional request ID for the message part. 
     /// Used to correlate requests and responses for scenarios such as human in the loop, tool calls, function calls etc.</summary>
     [JsonPropertyName("requestId")]

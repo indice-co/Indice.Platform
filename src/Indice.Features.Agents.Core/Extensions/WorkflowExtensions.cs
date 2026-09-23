@@ -1,6 +1,8 @@
-﻿using Indice.Features.Agents.Core.Models;
+﻿using System.Text.Json;
+using Indice.Features.Agents.Core.Models;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
+using Microsoft.Agents.AI.Workflows.Checkpointing;
 using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Extensions;
@@ -23,9 +25,10 @@ public static class WorkflowExtensions
         /// <remarks>Used to bubble up messages from the assistant to the workflow runner and eventually to the client.</remarks>
         /// <param name="executorId">The executor ID.</param>
         /// <param name="message">The message to send.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A value task representing the asynchronous operation.</returns>
-        public ValueTask Say(string executorId, string message)
-            => context.AddEventAsync(new AgentResponseUpdateEvent(executorId, new AgentResponseUpdate(ChatRole.Assistant, [new TextContent(message)])));
+        public ValueTask Say(string executorId, string message, CancellationToken cancellationToken = default)
+            => context.AddEventAsync(new AgentResponseUpdateEvent(executorId, new AgentResponseUpdate(ChatRole.Assistant, [new TextContent(message)])), cancellationToken);
     }
 
     /// <summary>
@@ -53,8 +56,16 @@ public static class WorkflowExtensions
         /// Gets the function result from a <see cref="ChatMessage"/>.
         /// </summary>
         /// <returns>The function result.</returns>
-        public object? GetFunctionResult()
-            => chatMessage.Contents.OfType<FunctionResultContent>().FirstOrDefault()?.Result;
+        public object? GetFunctionResult(RequestPortInfo portInfo, JsonSerializerOptions? options = null) {
+            var result = chatMessage.Contents.OfType<FunctionResultContent>().FirstOrDefault()?.Result;
+            return result switch {
+                null => null,
+                JsonElement jsonElement when portInfo.ResponseType.ToClrType() is { } clrType => jsonElement.Deserialize(clrType, options ?? JsonSerializerOptions.Web),
+                JsonElement jsonElement => jsonElement,
+                _ => result
+            };
+        }
+
 
         /// <summary>
         /// Gets the function result content from a <see cref="ChatMessage"/>.

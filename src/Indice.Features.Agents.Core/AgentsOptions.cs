@@ -185,6 +185,18 @@ public class AgentsOptions
 }
 
 /// <summary>
+/// Attempt limits for the Cases workflow steps.
+/// </summary>
+public class CustomerWorkflowOptions
+{
+    /// <summary>Maximum number of ownership verification attempts allowed before the workflow fails permanently.</summary>
+    public int MaxOwnershipValidationAttempts { get; set; } = 3;
+
+    /// <summary>Maximum number of OTP code validation attempts allowed before the workflow fails permanently.</summary>
+    public int MaxOtpValidationAttempts { get; set; } = 3;
+}
+
+/// <summary>
 /// Per-role model invocation parameters applied by the pipeline steps when calling their chat model.
 /// Each role is a <see cref="ChatOptions"/>: <c>Temperature</c> and <c>MaxOutputTokens</c> bind from
 /// configuration; <c>Tools</c> and the remaining knobs are set in code. Steps <see cref="ChatOptions.Clone"/>

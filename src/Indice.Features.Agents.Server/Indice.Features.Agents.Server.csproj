@@ -4,10 +4,10 @@
     <TargetFrameworks></TargetFrameworks>
     <TargetFramework>net10.0</TargetFramework>
     <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
-    <VersionSuffix>beta17</VersionSuffix>
+    <VersionSuffix>beta18</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixAspNet)-*" />
     <PackageReference Include="Indice.Features.Agents.Core" Version="$(VersionPrefixAgents)-*" />
   </ItemGroup>
