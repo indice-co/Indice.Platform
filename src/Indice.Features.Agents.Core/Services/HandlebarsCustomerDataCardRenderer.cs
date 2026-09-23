@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.Linq;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
@@ -66,9 +67,8 @@ public sealed class HandlebarsCustomerDataCardRenderer : ICustomerDataCardRender
     private HandlebarsTemplate<object, object> Compile(string dataType) {
         var name = string.IsNullOrWhiteSpace(dataType) ? DefaultTemplateName : dataType;
         return _cache.GetOrAdd(name, key => {
-            foreach (var candidate in new[] { key, DefaultTemplateName }) {
+            foreach (var fileName in new[] { key, DefaultTemplateName }.Select(Path.GetFileName)) {
                 // The template name comes from the external reference type, so keep it to a file name.
-                var fileName = Path.GetFileName(candidate);
                 var path = Path.Join(_baseDirectory, $"{fileName}.hbs");
                 if (File.Exists(path)) {
                     return _handlebars.Compile(File.ReadAllText(path));
