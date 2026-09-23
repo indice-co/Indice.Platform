@@ -96,4 +96,10 @@ public class AgentMessageLocalizer
     /// </summary>
     public virtual string OwnershipVerificationFailedMaxAttemptsMessage(int maxAttempts) => string.Format(AgentResources.OwnershipVerificationFailedMaxAttemptsMessage, maxAttempts);
 
+
+    /// <summary>
+    /// Message to display when the challenge is successfully completed
+    /// </summary>
+    public virtual string ChallengeSucceeded => AgentResources.ChallengeSucceeded;
+
 }

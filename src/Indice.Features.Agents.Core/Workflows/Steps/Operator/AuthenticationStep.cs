@@ -53,7 +53,7 @@ public sealed class AuthenticationStep : Executor<ChallengeRequestPort.Challenge
             return;
         }
         await context.SetApprovalStateAsync(null, cancellationToken);
-        await context.Say(Id, _messageLocalizer.OtvpVerificationSuccessMessage);
+        await context.Say(Id, _messageLocalizer.ChallengeSucceeded);
         await context.SendMessageAsync(OperationState.Next(nameof(OtpCodeSendStep)));
     }
 

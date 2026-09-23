@@ -185,7 +185,7 @@ public class AgentsOptions
 }
 
 /// <summary>
-/// Attempt limits for the Cases workflow steps. Bound from <c>Dex:CasesWorkflow</c>.
+/// Attempt limits for the Cases workflow steps.
 /// </summary>
 public class CustomerWorkflowOptions
 {

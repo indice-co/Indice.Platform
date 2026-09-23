@@ -34,7 +34,6 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         [nameof(OutOfScopeResponder)] = localizer.StepOutOfScopeResponder,
         [nameof(DataRetrieverStep)] = localizer.StepCaseDataRetriever,
         [nameof(AuthenticationChallengeStep)] = localizer.StepOwnershipVerifier,
-        [nameof(OtpCodeSendStep)] = localizer.StepOtpAgent,
         [nameof(OtpCodeValidatorStep)] = localizer.StepOtpCodeValidator,
         [nameof(DataPresenterStep)] = localizer.StepCaseDataPresenter,
         [nameof(AuthenticationStep)] = localizer.StepOwnershipValidator,

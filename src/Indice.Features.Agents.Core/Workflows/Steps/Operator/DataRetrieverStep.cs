@@ -19,7 +19,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Step 1 of the Cases workflow: Retrieves case data from the configured MCP service.
 /// The MCP service key is fixed, while the model decides which discovered tool to call.
 /// </summary>
-internal sealed class DataRetrieverStep : Executor<ChatMessage, CaseRetrievalOutput>
+internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
 {
     private const string McpServiceKey = "cases";
 
@@ -51,7 +51,7 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, CaseRetrievalOut
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<CaseRetrievalOutput> HandleAsync(
+    public override async ValueTask<OperationState> HandleAsync(
         ChatMessage message,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
@@ -126,11 +126,7 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, CaseRetrievalOut
             ChallengValue = verificationValue
         }, cancellationToken);
 
-        return new CaseRetrievalOutput(
-            CaseId: caseId,
-            PhoneNumber: phoneNumber,
-            Email: email,
-            VerificationValue: verificationValue);
+        return OperationState.Next(nameof(AuthenticationChallengeStep));
     }
 }
 /// <summary>

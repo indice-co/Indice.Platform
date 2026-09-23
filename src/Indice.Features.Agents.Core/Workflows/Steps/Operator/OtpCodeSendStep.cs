@@ -87,7 +87,7 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
             email = caseData.Email,
             securityToken
         });
-        var resuts = await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
+        await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
     }
 
     private static string MaskPhone(string? phone) {
