@@ -49,9 +49,6 @@ public class AgentsOptions
     /// </summary>
     public Action<ModelsOptions>? ConfigureModelOptions { get; set; }
 
-    /// <summary>Attempt limits for the Cases workflow (ownership verification and OTP validation).</summary>
-    public CaseWorkflowOptions CasesWorkflow { get; set; } = new();
-
     /// <summary>Azure OpenAI service endpoint, credentials, and per-role deployment names.</summary>
     public class AzureOpenAIOptions
     {
@@ -185,17 +182,18 @@ public class AgentsOptions
         /// </summary>
         public string DefaultAgent { get; set; } = AgentsConstants.AgentNames.Auto;
     }
-    /// <summary>
-    /// Attempt limits for the Cases workflow steps. Bound from <c>Dex:CasesWorkflow</c>.
-    /// </summary>
-    public class CaseWorkflowOptions
-    {
-        /// <summary>Maximum number of ownership verification attempts allowed before the workflow fails permanently.</summary>
-        public int MaxOwnershipValidationAttempts { get; set; } = 2;
+}
 
-        /// <summary>Maximum number of OTP code validation attempts allowed before the workflow fails permanently.</summary>
-        public int MaxOtpValidationAttempts { get; set; } = 2;
-    }
+/// <summary>
+/// Attempt limits for the Cases workflow steps. Bound from <c>Dex:CasesWorkflow</c>.
+/// </summary>
+public class CustomerWorkflowOptions
+{
+    /// <summary>Maximum number of ownership verification attempts allowed before the workflow fails permanently.</summary>
+    public int MaxOwnershipValidationAttempts { get; set; } = 3;
+
+    /// <summary>Maximum number of OTP code validation attempts allowed before the workflow fails permanently.</summary>
+    public int MaxOtpValidationAttempts { get; set; } = 3;
 }
 
 /// <summary>

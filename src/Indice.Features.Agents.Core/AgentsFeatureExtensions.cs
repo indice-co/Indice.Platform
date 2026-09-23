@@ -1,6 +1,8 @@
 ﻿using System.ClientModel;
 using Azure.AI.OpenAI;
+using Azure.Messaging;
 using Duende.AccessTokenManagement;
+using Google.Protobuf;
 using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Extensions;
@@ -8,10 +10,12 @@ using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
+using Indice.Features.Agents.Core.Workflows.Cards;
 using Indice.Features.Agents.Core.Workflows.Demo;
 using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.Reranking;
+using Indice.Features.Agents.Core.Workflows.State;
 using Indice.Features.Agents.Core.Workflows.Steps;
 using Indice.Features.Agents.Core.Workflows.Steps.Operator;
 using Microsoft.Agents.AI.Workflows;
@@ -20,8 +24,8 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using static System.Net.Mime.MediaTypeNames;
 using static Indice.Features.Agents.Core.AgentsOptions;
-using static Indice.Features.Agents.Core.Workflows.Demo.DemoWorkflow;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -208,8 +212,11 @@ public static class AgentsFeatureExtensions
     /// </para>
     /// Call after <c>AddAgentsCore(...)</c>.
     /// </summary>
-    public static IServiceCollection AddOperatorWorkflow(this IServiceCollection services, IConfiguration configuration) {
-
+    public static IServiceCollection AddOperatorWorkflow(this IServiceCollection services, IConfiguration configuration, Action<CustomerWorkflowOptions>? configureOptions = null) {
+        var optionsBuilder = services.AddOptions<CustomerWorkflowOptions>();
+        if (configureOptions is not null) {
+            optionsBuilder.Configure(configureOptions);
+        }
         // The meta "auto" router advertises itself for discovery but has no workflow of its own — it runs the
         // IntentRouterService to pick one of the routable agents registered below.
         services.AddSingleton(new AgentInfo(
@@ -241,49 +248,44 @@ public static class AgentsFeatureExtensions
                 .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:CasesMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
 
         services.TryAddTransient<ICustomerDataResolver, DefaultCustomerDataResolver>();
-        services.TryAddTransient<ICasePresentationFormatter, DefaultCasePresentationFormatter>();
+        services.TryAddTransient<ICustomerDataCardRenderer, HandlebarsCustomerDataCardRenderer>();
         services.TryAddTransient<DataRetrieverStep>();
-        services.TryAddTransient<OwnershipRequestVerificationStep>();
-        services.TryAddTransient<OwnershipValidatorStep>();
+        services.TryAddTransient<AuthenticationChallengeStep>();
+        services.TryAddTransient<AuthenticationStep>();
         services.TryAddTransient<OtpCodeSendStep>();
         services.TryAddTransient<OtpCodeValidatorStep>();
         services.TryAddTransient<DataPresenterStep>();
 
-
-        // Cases workflow with native pause/resume through request ports + checkpoints.
-        //   CaseDataRetriever -> OwnershipVerifier -> OwnershipConfirmationPort
-        //                       -> OwnershipValidator -> (valid) OtpCodeSendStep -> OtpVerificationPort
-        //                                            -> (invalid retry) OwnershipRetryChallengeBuilder -> OwnershipConfirmationPort
-        //                                            -> (max) OwnershipVerificationFailureHandler
-        //   OtpVerificationPort -> OtpCodeValidator -> (valid) CasePresenterStep
-        //                                          -> (invalid retry) OtpRetryChallengeBuilder -> OtpVerificationPort
-        //                                          -> (max) CasePresenterStep
-        // Request ports for checkpoint-based pause/resume.
         services.AddKeyedScoped(AgentsConstants.AgentNames.Operator, (sp, key) => {
             var retriever = sp.GetRequiredService<DataRetrieverStep>();
-            var ownershipVerifier = sp.GetRequiredService<OwnershipRequestVerificationStep>();
-            var ownershipValidator = sp.GetRequiredService<OwnershipValidatorStep>();
-            var otpNotificationSend = sp.GetRequiredService<OtpCodeSendStep>();
-            var otpValidator = sp.GetRequiredService<OtpCodeValidatorStep>();
+            var ownershipPrompt = sp.GetRequiredService<AuthenticationChallengeStep>();
+            var ownershipValidate = sp.GetRequiredService<AuthenticationStep>();
+            var otpSend = sp.GetRequiredService<OtpCodeSendStep>();
+            var otpValidate = sp.GetRequiredService<OtpCodeValidatorStep>();
             var dataPresenter = sp.GetRequiredService<DataPresenterStep>();
 
             var ownershipPort = ChallengeRequestPort.Create();
             var otpPort = OtpRequestPort.Create();
 
             var builder = new WorkflowBuilder(retriever);
-            builder.AddEdge(retriever, ownershipVerifier);
-            builder.AddEdge(ownershipVerifier, ownershipPort);
-            builder.AddEdge(ownershipPort, ownershipValidator);
-            builder.AddSwitch(ownershipValidator, sw => sw
-                .AddCase<ChatMessage>(env => !env!.Contents.OfType<ErrorContent>().Any(), otpNotificationSend)
+            builder.AddEdge(retriever, ownershipPrompt);
+            builder.AddEdge(ownershipPrompt, ownershipPort);
+            builder.AddEdge(ownershipPort, ownershipValidate);
+            // Important: The switch in MAF is not based on the type of the message, but on the predicate.
+            // The predicate is evaluated at runtime to determine which case to execute.
+            // The framework passes null to a typed switch predicate when the message type differs.
+            // When ported to c# this seems counterintuitive, but the generic argument is necessary to write a meaningful predicate. (MAF original implementation is on python)
+            builder.AddSwitch(ownershipValidate, sw => sw
+                .AddCase<OperationState>(message => message is not null, otpSend)
                 .WithDefault(ownershipPort));
-            builder.AddEdge(otpNotificationSend, otpPort);
-            builder.AddEdge(otpPort, otpValidator);
-            builder.AddSwitch(otpValidator, sw => sw
-                .AddCase<ChatMessage>(env => !env!.Contents.OfType<ErrorContent>().Any(), dataPresenter)
+
+            builder.AddEdge(otpSend, otpPort);
+            builder.AddEdge(otpPort, otpValidate);
+            builder.AddSwitch(otpValidate, sw => sw
+                .AddCase<OperationState>(message => message is not null, dataPresenter)
                 .WithDefault(otpPort));
 
-            builder.WithOutputFrom(dataPresenter, ownershipValidator, otpPort);//,ownershipErr
+            builder.WithOutputFrom(dataPresenter, ownershipValidate, otpValidate);
             return builder.Build();
         });
 

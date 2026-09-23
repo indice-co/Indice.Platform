@@ -15,7 +15,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Sends an OTP using MCP tools and produces a challenge prompt.
 /// The workflow pauses after this step and waits for the user OTP input on a request port.
 /// </summary>
-public sealed class OtpCodeSendStep : Executor<ChatMessage, OtpRequestPort.OtpRequest>
+public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.OtpRequest>
 {
     private readonly AzureOpenAIClient _openAIClient;
     private readonly AgentsOptions _options;
@@ -47,21 +47,20 @@ public sealed class OtpCodeSendStep : Executor<ChatMessage, OtpRequestPort.OtpRe
 
     /// <inheritdoc/>
     public override async ValueTask<OtpRequestPort.OtpRequest> HandleAsync(
-        ChatMessage validationData,
+        OperationState completed,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-
-        ArgumentNullException.ThrowIfNull(validationData);
+        ArgumentNullException.ThrowIfNull(completed);
         var caseData = await context.GetOperatorStateAsync(cancellationToken);
         var maskedPhoneNumber = MaskPhone(caseData.PhoneNumber);
         var securityToken = Guid.NewGuid().ToString();
-        //await SendOtpCode(caseData, securityToken, cancellationToken);
+        await SendOtpCode(caseData, securityToken, cancellationToken);
         var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedPhoneNumber);
         await context.Say(Id, otpPrompt);
         return new OtpRequestPort.OtpRequest(ChallengeCode: securityToken, ExpirationDate: DateTime.UtcNow.AddMinutes(2));
     }
 
-    private async Task<string> SendOtpCode(OperatorState caseData, string securityToken, CancellationToken cancellationToken) {
+    private async Task SendOtpCode(CustomerState caseData, string securityToken, CancellationToken cancellationToken) {
 
         // Fetch OTP tools from the Identity MCP server at runtime.
         var registry = await _mcpClientFactory.CreateAsync();
@@ -89,7 +88,6 @@ public sealed class OtpCodeSendStep : Executor<ChatMessage, OtpRequestPort.OtpRe
             securityToken
         });
         var resuts = await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
-        return securityToken;
     }
 
     private static string MaskPhone(string? phone) {

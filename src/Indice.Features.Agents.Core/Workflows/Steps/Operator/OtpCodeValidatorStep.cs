@@ -17,8 +17,8 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Verifies a user-provided OTP code using MCP tools and produces the terminal response.
 /// </summary>
 [SendsMessage(typeof(OtpRequestPort.OtpRequest))]
-[SendsMessage(typeof(ChatMessage))]
-[YieldsOutput(typeof(ValidationFailureOutput))]
+[SendsMessage(typeof(OperationState))]
+[YieldsOutput(typeof(OperationState))]
 public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
 {
     private const string McpServiceKey = "Identity";
@@ -37,6 +37,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
     public OtpCodeValidatorStep(
         AzureOpenAIClient openAIClient,
         IOptions<AgentsOptions> options,
+        IOptions<CustomerWorkflowOptions> customerWorkflowOptions,
         IOptions<ModelsOptions> models,
         UserClaimsAIContextProvider userClaimsProvider,
         [FromKeyedServices("id")] IMcpClientFactory mcpClientFactory,
@@ -50,7 +51,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         _messageLocalizer = messageLocalizer;
         _prompts = prompts;
         _model = _options.AzureOpenAI.Deployments.Reasoning!; 
-        _maxValidationAttempts = options.Value.CasesWorkflow.MaxOtpValidationAttempts;
+        _maxValidationAttempts = customerWorkflowOptions.Value.MaxOtpValidationAttempts;
     }
 
     /// <inheritdoc/>
@@ -67,36 +68,29 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         }
 
         var caseData = await context.GetOperatorStateAsync(cancellationToken);
-        //var payload = await ValidateOtp(response, caseData, cancellationToken);
+        var payload = await ValidateOtp(response, caseData, cancellationToken);
 
-        //OtpVerificationResultPayload verification;
-        //try {
-        //    verification = OtpVerificationResultPayload.Deserialize(payload);
+        OtpVerificationResultPayload verification;
+        try {
+            verification = OtpVerificationResultPayload.Deserialize(payload);
 
-        //} catch (JsonException) {
-        //    verification = new OtpVerificationResultPayload(false, $"MCP results is not valid:{payload}", false, false, false, 0);
-        //}
-        OtpVerificationResultPayload verification = new OtpVerificationResultPayload(
-            Success: false,
-            Error: null,
-            IsRateLimited: false,
-            IsInvalidCode: response.Otp != "123456",
-            IsInvalidFormat: false,
-            TotpLifetime: 30);
+        } catch (JsonException) {
+            verification = new OtpVerificationResultPayload(false, $"MCP results is not valid:{payload}", false, false, false, 0);
+        }
 
         if (verification.Success) {
+            await context.SetApprovalStateAsync(null, cancellationToken);
             await context.Say(Id, _messageLocalizer.OtvpVerificationSuccessMessage);
-            await context.SendMessageAsync(new ChatMessage(ChatRole.Assistant, [
-                new TextContent(_messageLocalizer.OtvpVerificationSuccessMessage)]));
+            await context.SendMessageAsync(OperationState.Next(nameof(DataPresenterStep)));
             return;
         }
+
         var attempt = (await context.GetApprovalStateAsync(cancellationToken)) + 1;
         await context.SetApprovalStateAsync(attempt, cancellationToken);
         if (attempt >= _maxValidationAttempts) {
+            await context.SetApprovalStateAsync(null, cancellationToken);
             await context.Say(Id, _messageLocalizer.InvalidOtpMaxAttemptsReachedMessage);
-            await context.YieldOutputAsync(new ValidationFailureOutput(
-                        ErrorMessage: _messageLocalizer.InvalidOtpMaxAttemptsReachedMessage,
-                        FailureStep: "OtpValidation"));
+            await context.YieldOutputAsync(OperationState.End);
             return;
         }
 
@@ -116,7 +110,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
 
     }
 
-    private async Task<string> ValidateOtp(OtpRequestPort.OtpResponse response, OperatorState caseData, CancellationToken cancellationToken) {
+    private async Task<string> ValidateOtp(OtpRequestPort.OtpResponse response, CustomerState caseData, CancellationToken cancellationToken) {
 
         // Fetch OTP tools from the Identity MCP server at runtime.
         var registry = await _mcpClientFactory.CreateAsync(cancellationToken);

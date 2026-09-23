@@ -1,4 +1,5 @@
 using System.Net.Mime;
+using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
@@ -10,37 +11,24 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// <summary>
 /// Presents selected case data after OTP verification completes.
 /// </summary>
-public sealed class DataPresenterStep : Executor<ChatMessage, OperatorPipelineOutput>
+public sealed class DataPresenterStep : Executor<OperationState, OperationState>
 {
-    private readonly ICasePresentationFormatter _presentationFormatter;
+    private readonly ICustomerDataCardRenderer _presentationFormatter;
 
     /// <summary>Creates a new <see cref="DataPresenterStep"/>.</summary>
-    public DataPresenterStep(ICasePresentationFormatter presentationFormatter) : base(nameof(DataPresenterStep)) {
+    public DataPresenterStep(ICustomerDataCardRenderer presentationFormatter) : base(nameof(DataPresenterStep)) {
         _presentationFormatter = presentationFormatter;
     }
 
     /// <inheritdoc/>
-    public override async ValueTask<OperatorPipelineOutput> HandleAsync(
-        ChatMessage input,
+    public override async ValueTask<OperationState> HandleAsync(
+        OperationState message,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(message);
         var state = await context.GetOperatorStateAsync(cancellationToken);
-        var presentation = _presentationFormatter.Format(state);
-
-        await context.AddEventAsync(
-            new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [new DataContent($"data:,{Uri.EscapeDataString(presentation.HtmlCard)}", MediaTypeNames.Text.Html) { Name = "HTML Card" }])),
-            cancellationToken);
-        return new OperatorPipelineOutput { Answer = presentation.Answer };
+        var presentation = _presentationFormatter.Render(state);
+        await context.AddEventAsync(new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [presentation])), cancellationToken);
+        return OperationState.End;
     }
 }
-
-/// <summary>
-/// Terminal output of any LLM agent step that streams a free-text answer to the caller.
-/// </summary>
-public sealed class OperatorPipelineOutput
-{
-    /// <summary>The fully accumulated answer text produced by the model.</summary>
-    public string Answer { get; init; } = string.Empty;
-}
-

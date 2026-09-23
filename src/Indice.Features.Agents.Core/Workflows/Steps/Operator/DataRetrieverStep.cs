@@ -63,6 +63,9 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, CaseRetrievalOut
         await context.SetConversationStateAsync(new ConversationState(message, message.AdditionalProperties![nameof(ConversationState.ConversationId)]!.ToString()!), cancellationToken);
 
         var userInput = message.Text ?? string.Empty;
+        if (message.AdditionalProperties.TryGetValue<ChatTopic>(nameof(ChatTopic), out var topic) && !string.IsNullOrEmpty(topic.ReferenceId)) {
+            userInput = topic.ReferenceId;
+        }
         var registry = await _mcpClientFactory.CreateAsync();
         var mcpTools = await registry.ListToolsAsync(options: null, cancellationToken);
         if (mcpTools.Count == 0) {
@@ -94,10 +97,9 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, CaseRetrievalOut
         }
 
 
-        JsonNode caseData;
+        JsonElement caseData;
         try {
-            caseData = JsonNode.Parse(rawPayload)
-                ?? throw new InvalidOperationException("Case retrieval agent returned invalid JSON payload.");
+            caseData = JsonDocument.Parse(rawPayload).RootElement;
         } catch (JsonException ex) {
             throw new InvalidOperationException("Failed to parse case retrieval payload as JSON.", ex);
         }
@@ -106,7 +108,7 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, CaseRetrievalOut
         var caseId = _caseDataExtractor.ExtractCaseId(caseData);
         var phoneNumber = _caseDataExtractor.ExtractPhoneNumber(caseData);
         var email = _caseDataExtractor.ExtractEmail(caseData);
-        var verificationValue = _caseDataExtractor.ExtractVerificationValue(caseData);
+        var verificationValue = _caseDataExtractor.ExtractChallengeValue(caseData);
         if (string.IsNullOrWhiteSpace(phoneNumber) && string.IsNullOrWhiteSpace(email)) {
             throw new InvalidOperationException("No phone number or email found in case data for OTP delivery.");
         }
@@ -115,12 +117,13 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, CaseRetrievalOut
             throw new InvalidOperationException($"Case data validation failed: {validationResult.ErrorMessage}");
         }
 
-        await context.SetOperatorStateAsync(new OperatorState() {
-            CaseData = caseData,
-            CaseId = caseId,
+        await context.SetOperatorStateAsync(new CustomerState() {
+            Data = caseData,
+            DataType = _caseDataExtractor.ExtractDataType(caseData),
+            ReferenceId = caseId,
             PhoneNumber = phoneNumber,
             Email = email,
-            VerificationValue = verificationValue
+            ChallengValue = verificationValue
         }, cancellationToken);
 
         return new CaseRetrievalOutput(

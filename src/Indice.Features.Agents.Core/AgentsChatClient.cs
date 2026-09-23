@@ -33,11 +33,11 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         [nameof(PurposeResponder)] = localizer.StepPurposeResponder,
         [nameof(OutOfScopeResponder)] = localizer.StepOutOfScopeResponder,
         [nameof(DataRetrieverStep)] = localizer.StepCaseDataRetriever,
-        [nameof(OwnershipRequestVerificationStep)] = localizer.StepOwnershipVerifier,
+        [nameof(AuthenticationChallengeStep)] = localizer.StepOwnershipVerifier,
         [nameof(OtpCodeSendStep)] = localizer.StepOtpAgent,
         [nameof(OtpCodeValidatorStep)] = localizer.StepOtpCodeValidator,
         [nameof(DataPresenterStep)] = localizer.StepCaseDataPresenter,
-        [nameof(OwnershipValidatorStep)] = localizer.StepOwnershipValidator,
+        [nameof(AuthenticationStep)] = localizer.StepOwnershipValidator,
         [nameof(OtpCodeSendStep)] = localizer.StepOtpCodeSend
     };
 
@@ -60,9 +60,9 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         var message = messages.First();
         options ??= new ChatOptions();
         options.ConversationId ??= Guid.NewGuid().ToString()!;
-        message.AdditionalProperties ??= new AdditionalPropertiesDictionary() {
-            [nameof(options.ConversationId)] = options.ConversationId
-        };
+
+        message.AdditionalProperties ??= new();
+        message.AdditionalProperties[nameof(options.ConversationId)] = options.ConversationId;
 
         //var state = new ConversationState(message, options.ConversationId);
         // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
@@ -106,7 +106,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         StreamingRun run;
         if (message.HasFunctionResultContent()) {
             var callId = message.GetFunctionResultContentCallId();
-            var checkpointInfo = new CheckpointInfo(sessionId, callId.CheckpointId);
+            var checkpointInfo = new CheckpointInfo(sessionId, callId.CheckpointId!);
             run = await InProcessExecution.ResumeStreamingAsync(workflow, checkpointInfo, checkpointManager, cancellationToken: cancellationToken);
         } else {
             run = await InProcessExecution.RunStreamingAsync(workflow, message, checkpointManager, sessionId: sessionId, cancellationToken: cancellationToken);

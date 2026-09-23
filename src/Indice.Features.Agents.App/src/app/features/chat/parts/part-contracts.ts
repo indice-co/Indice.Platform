@@ -121,6 +121,18 @@ export interface Confirmation {
   cancelText: string;
 }
 
+/** The server's OTP challenge, with its expiration date preserved as an ISO date string. */
+export interface OtpRequest {
+  challengeCode: string;
+  expirationDate: string;
+}
+
+/** The user's OTP and the challenge it answers. */
+export interface OtpResponse {
+  challengeCode: string;
+  otp: string;
+}
+
 /**
  * A question the workflow is waiting on a human to answer. Most payloads mirror the server's `HumanRequest`:
  * `requestId` correlates the answer back to the port that asked, and `text` is the prompt.
@@ -136,6 +148,7 @@ export interface HitlRequest {
   contents?: Record<string, unknown>[];
   messageId?: string;
   additionalProperties?: Record<string, unknown>;
+  otp?: OtpRequest;
 }
 
 /** Reads the options out of a multiple-choice part value; anything unexpected yields an empty list. */
@@ -222,6 +235,8 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
   // chat-message `data` envelope; reading both shapes keeps persisted history and newer messages compatible.
   const payload = plainObject(parsed['Data'] ?? parsed['data']) ?? parsed;
   const contents = objectArray(payload['Contents'] ?? payload['contents']);
+  const challengeCode = text(payload['ChallengeCode']) ?? text(payload['challengeCode']);
+  const expirationDate = text(payload['ExpirationDate']) ?? text(payload['expirationDate']);
   return {
     requestId: text(payload['RequestId']) ?? text(payload['requestId']) ?? text(parsed['RequestId']) ?? text(parsed['requestId']) ?? fallbackRequestId,
     text: text(payload['Text']) ?? text(payload['text']) ?? firstContentText(contents),
@@ -229,6 +244,7 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
     contents,
     messageId: text(payload['MessageId']) ?? text(payload['messageId']),
     additionalProperties: plainObject(payload['AdditionalProperties'] ?? payload['additionalProperties']),
+    ...(challengeCode && expirationDate ? { otp: { challengeCode, expirationDate } } : {}),
   };
 }
 
@@ -238,12 +254,14 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
  * `ChatRequestValidator` validates, so a turn without it is a 400.
  *
  * It must be `text/plain` exactly. `ChatMessagePart.ToAIContent()` promotes only that one media type to
- * `TextContent`. The structured companion is a function-call result whose JSON body also carries `requestId`, while
- * the part-level `requestId` is what the server's `ToAIContent()` uses for correlation.
+ * `TextContent`. The structured companion carries an OTP response for OTP challenges and user input otherwise.
+ * The part-level `requestId` is what the server's `ToAIContent()` uses for correlation.
  */
 export function hitlResponseParts(request: HitlRequest, answer: string): IChatMessagePart[] {
   const requestId = request.requestId ?? '';
-  const payload = { userInput: answer };
+  const payload: OtpResponse | { userInput: string } = request.otp
+    ? { challengeCode: request.otp.challengeCode, otp: answer }
+    : { userInput: answer };
   return [
     { value: answer, contentType: 'text/plain', requestId },
     { value: JSON.stringify(payload), contentType: HITL_RESPONSE_MEDIA_TYPE, requestId },

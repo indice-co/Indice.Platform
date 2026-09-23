@@ -211,6 +211,41 @@ describe('parseConfirmation', () => {
 });
 
 describe('parseHitlRequest', () => {
+  it('reads camelCase OTP data and retains the part correlation id', () => {
+    const payload = '{"data":{"challengeCode":"challenge-1","expirationDate":"2026-07-01T12:00:00Z"}}';
+    const request = parseHitlRequest(payload, 'request-1');
+    expect(request?.requestId).toBe('request-1');
+    expect(request?.otp).toEqual({ challengeCode: 'challenge-1', expirationDate: '2026-07-01T12:00:00Z' });
+  });
+
+  it('reads PascalCase OTP data and an envelope correlation id', () => {
+    const payload = '{"RequestId":"request-1","Data":{"ChallengeCode":"challenge-1","ExpirationDate":"2026-07-01T12:00:00Z"}}';
+    const request = parseHitlRequest(payload, 'fallback');
+    expect(request?.requestId).toBe('request-1');
+    expect(request?.otp).toEqual({ challengeCode: 'challenge-1', expirationDate: '2026-07-01T12:00:00Z' });
+  });
+
+  it('reads unwrapped OTP data too', () => {
+    const payload = '{"ChallengeCode":"challenge-1","ExpirationDate":"2026-07-01T12:00:00Z"}';
+    expect(parseHitlRequest(payload)?.otp).toEqual({
+      challengeCode: 'challenge-1',
+      expirationDate: '2026-07-01T12:00:00Z',
+    });
+  });
+
+  it('does not interpret incomplete or incorrectly typed data as an OTP request', () => {
+    for (const data of [
+      null,
+      [],
+      { challengeCode: 'challenge-1' },
+      { challengeCode: 123, expirationDate: '2026-07-01T12:00:00Z' },
+      { challengeCode: ' ', expirationDate: '2026-07-01T12:00:00Z' },
+      { challengeCode: 'challenge-1', expirationDate: 123 },
+    ]) {
+      expect(parseHitlRequest(JSON.stringify({ data }))?.otp).toBeUndefined();
+    }
+  });
+
   it('reads the PascalCase payload the server actually emits', () => {
     // `HumanRequest` has no [JsonPropertyName] attributes and JsonPart serialises with the default options, so this
     // is the shape on the wire — the only payload here that is not camelCase.
@@ -342,6 +377,18 @@ describe('parseHitlRequest', () => {
 });
 
 describe('hitlResponseParts', () => {
+  it('answers parsed OTP challenges with the challenge code and OTP', () => {
+    const request = parseHitlRequest(
+      '{"data":{"challengeCode":"challenge-1","expirationDate":"2026-07-01T12:00:00Z"}}',
+      'request-1',
+    )!;
+    const [text, structured] = hitlResponseParts(request, '001234');
+    expect(text).toEqual({ value: '001234', contentType: 'text/plain', requestId: 'request-1' });
+    expect(structured.contentType).toBe(HITL_RESPONSE_MEDIA_TYPE);
+    expect(structured.requestId).toBe('request-1');
+    expect(parseResponse(structured.value)).toEqual({ challengeCode: 'challenge-1', otp: '001234' });
+  });
+
   it('leads with the plain-text answer, which is the part the server validates', () => {
     // ChatRequest.Text resolves to the first text part and ChatRequestValidator requires it non-empty.
     const [text] = hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789');
@@ -351,35 +398,29 @@ describe('hitlResponseParts', () => {
   it('carries the structured answer as raw json with the function-call response media type', () => {
     const [, structured] = hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789');
     expect(structured).toEqual({
-      value: '{"text":"EL123456789","requestId":"a1b2","properties":{}}',
+      value: '{"userInput":"EL123456789"}',
       contentType: HITL_RESPONSE_MEDIA_TYPE,
       requestId: 'a1b2',
     });
   });
 
-  it('includes requestId inside the structured payload too', () => {
-    expect(parseResponse(hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789')[1].value)).toEqual({
-      text: 'EL123456789',
-      requestId: 'a1b2',
-      properties: {},
-    });
+  it('keeps correlation on the part rather than inside generic response data', () => {
+    const [, structured] = hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789');
+    expect(structured.requestId).toBe('a1b2');
+    expect(parseResponse(structured.value)).toEqual({ userInput: 'EL123456789' });
   });
 
   it('sends an empty correlation id when the request carried none', () => {
     // RequestId is a non-nullable string server-side, so an empty one is closer than an absent member.
-    expect(parseResponse(hitlResponseParts({}, 'yes')[1].value)).toEqual({
-      text: 'yes',
-      requestId: '',
-      properties: {},
-    });
+    const [, structured] = hitlResponseParts({}, 'yes');
+    expect(structured.requestId).toBe('');
+    expect(parseResponse(structured.value)).toEqual({ userInput: 'yes' });
   });
 
   it('preserves answers outside latin-1 because the response is sent as plain json', () => {
     const answer = 'Ναι, το ΑΦΜ είναι EL123456789 — ευχαριστώ';
     expect(parseResponse(hitlResponseParts({ requestId: 'a1b2' }, answer)[1].value)).toEqual({
-      text: answer,
-      requestId: 'a1b2',
-      properties: {},
+      userInput: answer,
     });
   });
 });

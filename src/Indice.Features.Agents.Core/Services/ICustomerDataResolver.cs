@@ -1,9 +1,10 @@
-﻿using System.Text.Json.Nodes;
+﻿using System.Text.Json;
+using Indice.Features.Agents.Core.Workflows.State;
 
 namespace Indice.Features.Agents.Core.Services;
 
 /// <summary>
-/// Extracts structured fields from a raw JSON case payload and maps them into a <see cref="CaseRetrievalOutput"/>.
+/// Extracts structured fields from a raw JSON case payload and maps them into a <see cref="CustomerState"/>.
 /// </summary>
 /// <remarks>
 /// Register a custom implementation before calling <c>AddCasesWorkflow()</c> to override
@@ -15,36 +16,43 @@ public interface ICustomerDataResolver
     /// <summary>
     /// Extracts the case identifier from the JSON payload.
     /// </summary>
-    /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
+    /// <param name="caseData">The root <see cref="JsonElement"/> returned by the case retrieval agent.</param>
     /// <returns>The case identifier string.</returns>
-    string ExtractCaseId(JsonNode caseData);
+    string ExtractCaseId(JsonElement caseData);
 
     /// <summary>
     /// Extracts the phone number used for OTP delivery from the JSON payload.
     /// Returns <see langword="null"/> when the field is absent or empty.
     /// </summary>
-    /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
-    string? ExtractPhoneNumber(JsonNode caseData);
+    /// <param name="caseData">The root <see cref="JsonElement"/> returned by the case retrieval agent.</param>
+    string? ExtractPhoneNumber(JsonElement caseData);
 
     /// <summary>
     /// Extracts the e-mail address used as a fallback OTP channel from the JSON payload.
     /// Returns <see langword="null"/> when the field is absent or empty.
     /// </summary>
-    /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
-    string? ExtractEmail(JsonNode caseData);
+    /// <param name="caseData">The root <see cref="JsonElement"/> returned by the case retrieval agent.</param>
+    string? ExtractEmail(JsonElement caseData);
+    
+    /// <summary>
+    /// Extracts the data type of the retrieved case from the JSON payload.
+    /// Returns <see langword="null"/> when the field is absent or empty.
+    /// </summary>
+    /// <param name="caseData">The root <see cref="JsonElement"/> returned by the case retrieval agent.</param>
+    string ExtractDataType(JsonElement caseData);
 
     /// <summary>
     /// Extracts the value the end-user must supply to verify their identity (e.g. car plate, VIN, contract number).
     /// Returns <see langword="null"/> when the field is absent or not applicable.
     /// </summary>
-    /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
-    string? ExtractVerificationValue(JsonNode caseData);
+    /// <param name="caseData">The root <see cref="JsonElement"/> returned by the case retrieval agent.</param>
+    string? ExtractChallengeValue(JsonElement caseData);
 
     /// <summary>
     /// Validates the extracted verification value against the case data to ensure it is present and meets expected criteria.
     /// </summary>
-    /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
-    OperationResult Validate(JsonNode caseData);
+    /// <param name="caseData">The root <see cref="JsonElement"/> returned by the case retrieval agent.</param>
+    OperationResult Validate(JsonElement caseData);
 
 
 }

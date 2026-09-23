@@ -129,6 +129,121 @@ public class WorkflowTests
         await serviceProvider.DisposeAsync();
     }
 
+
+    [Theory(Timeout = 30_000)]
+    [InlineData(0, true)]
+    [InlineData(1, true)]
+    [InlineData(2, true)]
+    [InlineData(3, false)]
+    public async Task OwnershipWorkflow_ValidatesInput_RetriesOrCompletes(int failedAttempts, bool succeeds) {
+        const int maxAttempts = 3;
+        var nextStepExecutions = 0;
+        await using var serviceProvider = CreateOwnershipServiceProvider(maxAttempts, () => nextStepExecutions++);
+        var outputs = new List<WorkflowOutputEvent>();
+        var streamCompleted = false;
+        using var chatClient = new WorkflowChatClient(serviceProvider) {
+            OnOutput = outputs.Add,
+            OnStreamCompleted = () => streamCompleted = true
+        };
+        var chatOptions = new ChatOptions { Instructions = "ownership", ConversationId = Guid.NewGuid().ToString() };
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var response = await chatClient.GetResponseAsync([new ChatMessage(ChatRole.User, "Verify ownership.")], chatOptions, cancellationToken);
+        var callIds = new HashSet<string>();
+        var inputs = Enumerable.Repeat("invalid", failedAttempts).Concat(succeeds ? ["valid"] : Array.Empty<string>()).ToArray();
+
+        for (var index = 0; index < inputs.Length; index++) {
+            var request = Assert.Single(response.Messages.SelectMany(message => message.Contents).OfType<FunctionCallContent>());
+            Assert.Equal("OwnershipPort", request.Name);
+            Assert.True(callIds.Add(request.CallId), "Every retry must use a fresh request call ID.");
+            Assert.Equal(0, nextStepExecutions);
+            Assert.Empty(outputs);
+            Assert.False(streamCompleted);
+
+            var reply = new ChatMessage(ChatRole.User, [new FunctionResultContent(request.CallId, new OwnershipResponse(inputs[index]))]);
+            response = await chatClient.GetResponseAsync([reply], chatOptions, cancellationToken);
+
+            if (index < inputs.Length - 1) {
+                Assert.Equal($"Ownership verification failed ({index + 1}/{maxAttempts}).", response.ToString());
+            }
+        }
+
+        Assert.Empty(response.Messages.SelectMany(message => message.Contents).OfType<FunctionCallContent>());
+        Assert.Equal(succeeds ? 1 : 0, nextStepExecutions);
+        Assert.Equal(succeeds ? "Ownership verified. Next step executed." : $"Ownership verification failed after {maxAttempts} attempts.", response.ToString());
+        var output = Assert.IsType<OwnershipOutput>(Assert.Single(outputs).Data);
+        Assert.Equal(new OwnershipOutput(Done: true, Verified: succeeds, failedAttempts), output);
+        Assert.True(streamCompleted);
+    }
+
+    private static ServiceProvider CreateOwnershipServiceProvider(int maxAttempts, Action onNextStep) {
+        var services = new ServiceCollection();
+        var databaseName = Guid.NewGuid().ToString();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+        services.AddDbContext<AgentsDbContext>(builder => builder.UseInMemoryDatabase(databaseName), ServiceLifetime.Singleton);
+        services.AddSingleton<PersistedCheckpointStore>();
+        services.AddTransient(sp => CheckpointManager.CreateJson(sp.GetRequiredService<PersistedCheckpointStore>()));
+        services.AddKeyedTransient("ownership", (sp, key) => {
+            var requirement = new OwnershipRequirementStep();
+            var ownershipPort = RequestPort.Create<OwnershipRequest, OwnershipResponse>("OwnershipPort");
+            var validator = new OwnershipVerificationStep(maxAttempts);
+            var nextStep = new OwnershipNextStep(onNextStep);
+            return new WorkflowBuilder(requirement)
+                .AddEdge(requirement, ownershipPort)
+                .AddEdge(ownershipPort, validator)
+                .AddSwitch(validator, sw => sw
+                    .AddCase<OwnershipVerified>(message => message is not null, nextStep)
+                    .WithDefault(ownershipPort))
+                .WithOutputFrom(validator, nextStep)
+                .Build();
+        });
+        return services.BuildServiceProvider();
+    }
+
+    class OwnershipRequirementStep() : Executor<ChatMessage, OwnershipRequest>("OwnershipRequirement")
+    {
+        public override ValueTask<OwnershipRequest> HandleAsync(ChatMessage message, IWorkflowContext context, CancellationToken cancellationToken = default) {
+            return ValueTask.FromResult(new OwnershipRequest("Enter the ownership value."));
+        }
+    }
+
+    [SendsMessage(typeof(OwnershipRequest))]
+    [SendsMessage(typeof(OwnershipVerified))]
+    [YieldsOutput(typeof(OwnershipOutput))]
+    class OwnershipVerificationStep(int maxAttempts) : Executor<OwnershipResponse>("OwnershipVerification")
+    {
+        public override async ValueTask HandleAsync(OwnershipResponse message, IWorkflowContext context, CancellationToken cancellationToken = default) {
+            var failedAttempts = await context.ReadStateAsync<int?>("FailedAttempts", cancellationToken: cancellationToken) ?? 0;
+            if ("valid".Equals(message.Value, StringComparison.Ordinal)) {
+                await context.SendMessageAsync(new OwnershipVerified(failedAttempts), cancellationToken: cancellationToken);
+                return;
+            }
+            failedAttempts++;
+            await context.QueueStateUpdateAsync("FailedAttempts", failedAttempts, cancellationToken: cancellationToken);
+            if (failedAttempts >= maxAttempts) {
+                await context.Say(Id, $"Ownership verification failed after {failedAttempts} attempts.");
+                await context.YieldOutputAsync(new OwnershipOutput(Done: true, Verified: false, failedAttempts), cancellationToken);
+                return;
+            }
+            await context.Say(Id, $"Ownership verification failed ({failedAttempts}/{maxAttempts}).");
+            await context.SendMessageAsync(new OwnershipRequest("Invalid ownership value. Try again."), cancellationToken: cancellationToken);
+        }
+    }
+
+    [YieldsOutput(typeof(OwnershipOutput))]
+    class OwnershipNextStep(Action onExecute) : Executor<OwnershipVerified>("OwnershipNext")
+    {
+        public override async ValueTask HandleAsync(OwnershipVerified message, IWorkflowContext context, CancellationToken cancellationToken = default) {
+            onExecute();
+            await context.Say(Id, "Ownership verified. Next step executed.");
+            await context.YieldOutputAsync(new OwnershipOutput(Done: true, Verified: true, message.FailedAttempts), cancellationToken);
+        }
+    }
+
+    public record OwnershipRequest(string Prompt);
+    public record OwnershipResponse(string Value);
+    public record OwnershipVerified(int FailedAttempts);
+    public record OwnershipOutput(bool Done, bool Verified, int FailedAttempts);
+
     class ChatTurnStartStep() : Executor<ChatMessage, ChatMessage>("ChatTurnStart")
     {
         
@@ -177,6 +292,8 @@ public class WorkflowTests
 public class WorkflowChatClient(IServiceProvider serviceProvider) : IChatClient
 {
     public IServiceProvider ServiceProvider { get; } = serviceProvider;
+    public Action<WorkflowOutputEvent>? OnOutput { get; init; }
+    public Action? OnStreamCompleted { get; init; }
 
     /// <inheritdoc/>
     public async Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default) {
@@ -225,11 +342,15 @@ public class WorkflowChatClient(IServiceProvider serviceProvider) : IChatClient
                     var response = requestInfoEvent.Request.CreateResponse(message.GetFunctionResult(requestInfoEvent.Request.PortInfo)!);
                     await run.SendResponseAsync(response);
                     break;
+                case WorkflowOutputEvent outputEvent:
+                    OnOutput?.Invoke(outputEvent);
+                    break;
                 default:
                     break;
             }
         }
         cancellationToken.ThrowIfCancellationRequested();
+        OnStreamCompleted?.Invoke();
     }
 
     public object? GetService(Type serviceType, object? serviceKey = null) =>
