@@ -18,13 +18,22 @@ public class RateLimiterOptions
     /// <summary>List of all rate limiter policies. This is used to ensure that all policies are registered in the rate limiter middleware.</summary>
     public IReadOnlyList<string> AllRateLimiterPolicies { get; set; } = Array.Empty<string>();
 
-    /// <summary>Custom factory function for creating policy-specific rate limiter rules. Set this to provide custom configurations based on policy names.</summary>
-    public Func<string, RateLimiterEndpointRule>? CustomPolicyFactory { get; set; }
+    /// <summary>
+    /// Custom factory function for creating policy-specific collections of rate limiter rules.
+    /// Set this to provide custom configurations based on policy names.
+    /// Return an empty list to indicate that the policy has no active rate limiting rules.
+    /// Returning <c>null</c> will cause <see cref="GetPolicySettings(string)"/> to fall back to a single default rule.
+    /// </summary>
+    public Func<string, List<RateLimiterEndpointRule>>? CustomPolicyFactory { get; set; }
 
-    /// <summary>Default configuration for <see cref="RateLimiterEndpointRule"/>. Returns custom rule if <see cref="CustomPolicyFactory"/> is set, otherwise returns a default rule.</summary>
+    /// <summary>
+    /// Gets the configured <see cref="RateLimiterEndpointRule"/> list for the specified policy.
+    /// If <see cref="CustomPolicyFactory"/> is set, its result is returned (including an empty list, which means no rules are applied).
+    /// If the factory is not set or returns <c>null</c>, a list containing a single default rule is returned.
+    /// </summary>
     /// <param name="policyName">The policy name to get the configuration for.</param>
-    public RateLimiterEndpointRule GetPolicySettings(string policyName) =>
-        CustomPolicyFactory?.Invoke(policyName) ?? new();
+    public List<RateLimiterEndpointRule> GetPolicySettings(string policyName) =>
+        CustomPolicyFactory?.Invoke(policyName) ?? [new()];
 }
 
 /// <summary>Rate limiter fixed window options for Server API.</summary>
@@ -44,6 +53,18 @@ public class RateLimiterEndpointRule
 
     /// <summary>The Http method of the endpoint to apply the rate limiter. Optional.</summary>
     public string? HttpMethod { get; set; }
+    /// <summary>
+    /// The property path to extract from the request body for partitioning (e.g., input name for form "Input.Email" , or property name for json "email"). 
+    /// When specified, rate limiting will be applied per unique value of this property instead of per IP or user.
+    /// Optional.
+    /// </summary>
+    public string? PartitionByProperty { get; set; }
+
+    /// <summary>
+    /// The partitioning strategy to use for rate limiting. Determines how requests are grouped.
+    /// Defaults to <see cref="RateLimiterPartitionStrategy.Auto"/> (User subject if authenticated, then request property (if specified), otherwise IP address).
+    /// </summary>
+    public RateLimiterPartitionStrategy PartitionStrategy { get; set; } = RateLimiterPartitionStrategy.Auto;
 
     /// <summary>Determines whether <see cref="HttpMethod"/> has a value.</summary>
     public bool HasHttpMehtod => !string.IsNullOrWhiteSpace(HttpMethod);
@@ -51,4 +72,17 @@ public class RateLimiterEndpointRule
     /// <summary>Determines whether the rate limiter can be applied based on the http method.</summary>
     public bool CanLimitHttpMethod(string? httpMethod) =>
         !HasHttpMehtod || string.Equals(HttpMethod, httpMethod, StringComparison.OrdinalIgnoreCase);
+}
+
+/// <summary>Defines the strategy for partitioning rate limit requests.</summary>
+public enum RateLimiterPartitionStrategy
+{
+    /// <summary>Automatically determine: User subject if authenticated, then request property (if specified), otherwise IP address.</summary>
+    Auto = 0,
+    /// <summary>Partition by IP address.</summary>
+    IpAddress = 1,
+    /// <summary>Partition by authenticated user subject claim.</summary>
+    User = 2,
+    /// <summary>Partition by a property extracted from the request body (requires <see cref="RateLimiterEndpointRule.PartitionByProperty"/>).</summary>
+    RequestProperty = 3
 }
