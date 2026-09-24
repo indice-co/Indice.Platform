@@ -29,7 +29,7 @@
 }
 
 .logo-wrapper:before {
-    @apply lg:blur-3xl bg-fixed bg-no-repeat h-screen w-screen absolute -mt-[48px] lg:-mt-[100px] bg-[url('../img/background-image.jpg')] bg-cover bg-top -translate-x-2/4 z-[1] transition-all ease-in-out visible;
+    @apply lg:blur-3xl bg-fixed bg-no-repeat h-screen w-screen absolute -mt-[48px] lg:-mt-[100px] bg-[url('../../img/background-image.jpg')] bg-cover bg-top -translate-x-2/4 z-[1] transition-all ease-in-out visible;
         content: "";
 }
 

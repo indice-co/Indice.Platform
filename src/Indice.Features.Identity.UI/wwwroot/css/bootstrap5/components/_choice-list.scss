@@ -1,0 +1,134 @@
+﻿@use '../abstracts/tokens' as t;
+
+// A vertical list of selectable options (consent scopes, MFA methods):
+// each item has a control, a title, an optional description and optional icon.
+
+.choice-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--idui-color-border);
+
+    &__item {
+        padding: t.$space-4 0;
+        border-bottom: 1px solid var(--idui-color-border);
+    }
+
+    &__check {
+        margin-bottom: 0;
+        align-items: center;
+    }
+
+    &__title {
+        font-size: t.$font-size-base;
+        font-weight: t.$font-weight-medium;
+        color: var(--idui-color-ink);
+    }
+
+    &__required {
+        margin-left: .25rem;
+        font-size: t.$font-size-xs;
+        font-style: normal;
+        color: var(--idui-color-text-muted);
+    }
+
+    &__emphasis {
+        margin-left: .25rem;
+        color: var(--idui-color-warning);
+    }
+
+    &__desc,
+    &__meta {
+        margin: t.$space-1 0 0 calc(1.125em + #{t.$space-2});
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text-muted);
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    // Radio-card variant (MFA method pickers): the whole row is the label.
+    &--radio &__item {
+        padding: 0;
+    }
+
+    &__item--button {
+        padding: 0;
+    }
+
+    &__item--selected &__title {
+        color: var(--idui-color-ink);
+    }
+
+    &__chevron {
+        align-self: center;
+        color: var(--idui-color-text-subtle);
+    }
+
+    &__radio {
+        flex: 0 0 auto;
+        margin-top: .35rem;
+    }
+
+    &__icon {
+        flex: 0 0 2.25rem;
+        width: 2.25rem;
+        font-size: 1.6rem;
+        line-height: 1;
+        text-align: center;
+        color: var(--idui-color-ink);
+    }
+
+    &__body {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    &__label {
+        display: flex;
+        gap: t.$space-3;
+        align-items: flex-start;
+        width: 100%;
+        padding: t.$space-4 0;
+        cursor: pointer;
+    }
+
+    &__body > &__desc {
+        margin: .125rem 0 0;
+    }
+}
+
+// Consent page specifics.
+.consent {
+    &__hint {
+        margin: t.$space-2 0 0;
+        font-size: t.$font-size-xs;
+        color: var(--idui-color-text-subtle);
+    }
+
+    &__group {
+        margin: 0 0 t.$space-5;
+        padding: 0;
+        border: 0;
+        min-width: 0;
+    }
+
+    &__legend {
+        float: none;
+        width: auto;
+        margin-bottom: t.$space-2;
+        padding: 0;
+        font-size: t.$font-size-lg;
+        color: var(--idui-color-ink);
+
+        i {
+            margin-right: .35rem;
+            color: var(--idui-color-text-muted);
+        }
+    }
+
+    &__remember {
+        margin: t.$space-5 0;
+    }
+}

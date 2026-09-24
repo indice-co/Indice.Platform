@@ -1,0 +1,72 @@
+﻿@use '../abstracts/tokens' as t;
+
+// External identity provider buttons ("Sign in with Microsoft" …).
+
+.provider-list {
+    display: flex;
+    flex-direction: column;
+    gap: t.$space-2;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.provider-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .625rem;
+    width: 100%;
+    padding: .7rem t.$space-4;
+    border: 1px solid var(--idui-color-border-strong);
+    border-radius: var(--idui-radius);
+    background: var(--idui-color-surface);
+    color: var(--idui-color-text);
+    font-weight: t.$font-weight-medium;
+    text-decoration: none;
+    transition: border-color t.$transition-fast, background-color t.$transition-fast;
+
+    &:hover,
+    &:focus-visible {
+        border-color: var(--idui-color-ink);
+        background: var(--idui-color-surface-muted);
+        color: var(--idui-color-ink);
+    }
+
+    &.disabled {
+        opacity: .6;
+        pointer-events: none;
+    }
+
+    &__logo {
+        flex: 0 0 auto;
+        width: 1.25rem;
+        height: 1.25rem;
+        background: center / contain no-repeat;
+    }
+
+    // Known provider logos, keyed by lower-cased authentication scheme.
+    $logos: (
+        microsoft: 'Microsoft',
+        google: 'Google',
+        facebook: 'Facebook',
+        apple: 'Apple',
+        github: 'Github',
+        govgr: 'GovGr',
+        nbg: 'Nbg',
+        piraeus: 'Piraeus'
+    );
+
+    @each $scheme, $file in $logos {
+        &--#{$scheme} .provider-btn__logo {
+            background-image: url('../../img/idps/#{$file}.svg');
+        }
+    }
+}
+
+// Standalone logo (linked-provider rows on the profile page).
+@each $scheme, $file in (microsoft: 'Microsoft', google: 'Google', facebook: 'Facebook', apple: 'Apple', github: 'Github', govgr: 'GovGr', nbg: 'Nbg', piraeus: 'Piraeus') {
+    .provider-logo--#{$scheme} {
+        background-image: url('../../img/idps/#{$file}.svg');
+    }
+}

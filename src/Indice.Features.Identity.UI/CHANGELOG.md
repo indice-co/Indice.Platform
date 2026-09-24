@@ -6,9 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [8.58.0] - 2026-09-22
+### Changed (Bootstrap5 and Tailwind — stylesheet locations, breaking for hosts that reference them)
+- **Breaking:** stylesheets are split per UI framework into `wwwroot/css/bootstrap5/` and `wwwroot/css/tailwind/`,
+  and nothing is shared between the two trees. The compiled CSS is unchanged; only the file locations moved:
+
+  | Before | Now |
+  |---|---|
+  | `~/css/bootstrap.css` | `~/css/bootstrap5/bootstrap.bs.css` |
+  | `~/css/identity.css` | `~/css/bootstrap5/identity.bs.css` |
+  | `~/css/identity.tw.css` | `~/css/tailwind/identity.tw.css` |
+  | `wwwroot/css/_custom.scss` | `wwwroot/css/bootstrap5/_custom.scss` |
+
+  Hosts that **override** one of these files by shipping it at the old path must move it: the old file is still
+  served but no page links it any more, so the override is silently ignored. Hosts that **link** the old URLs
+  (layouts copied from the package, a custom `_Styles` partial, other apps) get a 404. Hosts that use the package
+  pages and layouts as-is need no changes. See *Upgrading to 8.58* in the README.
+- SCSS sources moved with them (`bootstrap.scss` → `bootstrap5/bootstrap.bs.scss`, `identity.scss` →
+  `bootstrap5/identity.bs.scss`, `identity.tw.scss` / `_reveal.scss` → `tailwind/`), and the package's Sass build no
+  longer puts `wwwroot/css` on the load path. The Tailwind build no longer scans the Bootstrap5 sources.
 ### Changed (Bootstrap5 variant — visual redesign, breaking for CSS overrides)
 - Every Bootstrap5 Razor page was rewritten against a new design system: Sass design tokens
-  (`wwwroot/css/abstracts/_tokens.scss`) mapped onto Bootstrap 5.3 variables (`bootstrap.scss`), BEM-named
+  (`wwwroot/css/bootstrap5/abstracts/_tokens.scss`) mapped onto Bootstrap 5.3 variables (`bootstrap.bs.scss`), BEM-named
   components (`components/*`), one master layout with four "shells" (`auth`, `card`, `profile`, `article`)
   and four themes switched by a `data-theme` attribute on `<html>`. Page models, routes, form fields, handlers and
   validation are unchanged; only the markup and styles changed.
@@ -16,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and their CSS classes (`.sign-in`, `.sign-up`, `.identity-panel`, `.hr-sect`, `.idp`, `.password-control`,
   `.reveal-icon`, `.drop-card`, `.wrapper`, `.footer`, …) are gone. Hosts that override
   `wwwroot/css/identity.css` or ship a `_custom.scss` written against the old class names must update them.
-  The `_custom.scss` escape hatch is still imported last.
+  The `_custom.scss` escape hatch is still imported last (now `wwwroot/css/bootstrap5/_custom.scss`).
 - **Breaking:** `IdentityUIOptions.HtmlBodyBackgroundCssClass` now defaults to an empty string (the selected
   template owns the page background); the `gradient-bg` / `image-bg` classes no longer exist.
 - The header renders the brand and, for signed-in users, an avatar button that opens a slide-out account panel
@@ -31,10 +49,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `IdentityUIOptions.Theme` (string, default `IdentityUIThemes.Split`) and the `IdentityUIThemes` constants `minimal`,
   `split`, `columns`, `panel`. Emitted as `data-theme` on `<html>`. The markup is identical for every theme: a theme is a
-  block of `--idui-*` CSS custom property values under `[data-theme="name"]` (`wwwroot/css/themes/`), read by the
-  layout engine in `wwwroot/css/layouts/_anonymous-shell.scss` and by every component. Hosts add a theme by choosing
+  block of `--idui-*` CSS custom property values under `[data-theme="name"]` (`wwwroot/css/bootstrap5/themes/`), read by the
+  layout engine in `wwwroot/css/bootstrap5/layouts/_anonymous-shell.scss` and by every component. Hosts add a theme by choosing
   another name and shipping a stylesheet with those values; no recompilation needed. Bootstrap runtime variables
-  (`--bs-*`) are bridged to the same properties in `bootstrap.scss`.
+  (`--bs-*`) are bridged to the same properties in `bootstrap.bs.scss`.
 - `IdentityUIOptions.ShowMadeByCredit` (default `true`).
 - `PageHeading` view component accepts an optional `subtitle`.
 - `wwwroot/js/otp-field.js`: progressive enhancement that renders one-time codes as digit cells

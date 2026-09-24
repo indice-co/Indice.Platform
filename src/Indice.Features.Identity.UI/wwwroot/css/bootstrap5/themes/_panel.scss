@@ -1,0 +1,41 @@
+﻿@use '../abstracts/mixins' as m;
+@use '../abstracts/theme' as theme;
+
+// =============================================================================
+// Theme "panel". <html data-theme="panel">
+//   Desktop: solid brand-coloured page; login/register live in a centered two-column
+//   floating panel (image left, flat form right) between the header and the footer. Other
+//   anonymous pages show the usual centered card over the coloured page.
+//   Mobile: light single column, hero hidden.
+// Only custom property values; the layout engine in layouts/_anonymous-shell.scss reads them.
+// =============================================================================
+
+:root[data-theme='panel'] {
+    @include m.mq(lg) {
+        body.anonymous {
+            --idui-page-bg: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--idui-color-brand-bright), white 12%), var(--idui-color-brand-bright) 45%, color-mix(in srgb, var(--idui-color-brand-bright), black 15%) 100%);
+            @include theme.chrome-on-image;
+        }
+
+        body.shell-auth {
+            --idui-site-areas: 'header' 'body' 'footer';
+            // .site-body is the panel: a grid of its own with the hero in column 1 and the form in column 2.
+            --idui-body-display: grid;
+            --idui-body-columns: minmax(0, 34%) minmax(0, 1fr);
+            --idui-body-width: min(100% - 2 * var(--idui-page-gutter-lg), var(--idui-panel-width));
+            --idui-body-min-height: var(--idui-panel-min-height);
+            --idui-body-margin: auto;
+            --idui-body-bg: var(--idui-color-surface-muted);
+            --idui-body-radius: var(--idui-radius-xl);
+            --idui-body-shadow: var(--idui-shadow-panel);
+            --idui-hero-display: flex;
+            --idui-hero-area: 1 / 1;
+            --idui-hero-align: flex-end;
+            --idui-hero-bg-layer: var(--idui-hero-bg-strong);
+            --idui-hero-padding: 3rem 2.5rem;
+            --idui-main-area: 1 / 2;
+            --idui-main-padding: 3rem 2.5rem;
+            @include theme.auth-card-flat;
+        }
+    }
+}

@@ -4,7 +4,7 @@
 /// <remarks>
 /// The selected theme (<see cref="IdentityUIOptions.Theme"/>) is emitted as <c>data-theme="…"</c> on the <c>&lt;html&gt;</c> element.
 /// The markup is identical for every theme: a theme is nothing more than a set of <c>--idui-*</c> CSS custom property values scoped to
-/// <c>[data-theme="name"]</c> (see <c>wwwroot/css/themes/</c>). Hosts add a theme by picking any other name and shipping a stylesheet
+/// <c>[data-theme="name"]</c> (see <c>wwwroot/css/bootstrap5/themes/</c>). Hosts add a theme by picking any other name and shipping a stylesheet
 /// that declares those properties for it.
 /// </remarks>
 public static class IdentityUIThemes
