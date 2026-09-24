@@ -15,7 +15,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps;
 /// On out-of-scope the workflow routes to <see cref="OutOfScopeResponder"/> via a conditional edge; otherwise
 /// downstream steps receive validated <see cref="Intent"/> and <see cref="RetrievalFilters"/>.
 /// </summary>
-public sealed class IntentClassifier : Executor<ConversationState, IntentOutput>
+public sealed class IntentClassifier : Executor<ChatMessage, IntentOutput>
 {
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
@@ -45,12 +45,14 @@ public sealed class IntentClassifier : Executor<ConversationState, IntentOutput>
 
     /// <inheritdoc/>
     public override async ValueTask<IntentOutput> HandleAsync(
-        ConversationState message,
+        ChatMessage message,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-        var question = message.Message.Text; 
-        var conversationId = message.ConversationId;
-        await context.SetConversationStateAsync(message, cancellationToken);
+        
+        var question = message.Text;
+        var conversationId = message.AdditionalProperties![nameof(ConversationState.ConversationId)]!.ToString()!;
+        var conversationState = new ConversationState(message, conversationId);
+        await context.SetConversationStateAsync(conversationState, cancellationToken);
         var agentSession = await _agent.CreateSessionAsync(cancellationToken);
         
         ConversationStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(conversationId));

@@ -32,6 +32,7 @@ public static class AgentsServerFeatureExtensions
             services.Configure(configureOptions);
         }
         services.AddEndpointParameterFluentValidation(typeof(AgentsServerFeatureExtensions).Assembly);
+        services.AddMagicBytesValidator();
         services.AddTransient<ISourceLinkGenerator, SourceLinkGenerator>();
         services.AddAgentsCore(configuration, options.ConfigureAgents);
         services.AddMyProfileFeature();

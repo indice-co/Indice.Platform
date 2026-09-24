@@ -1,14 +1,20 @@
 import {
   CALLOUT_MEDIA_TYPE,
   CONFIRM_MEDIA_TYPE,
+  HITL_REQUEST_MEDIA_TYPE,
+  HITL_RESPONSE_MEDIA_TYPE,
   IMAGE_MEDIA_TYPE,
   MULTIPLE_CHOICE_MEDIA_TYPE,
   PartKind,
+  hitlResponseParts,
+  isTextPart,
   parseCallout,
   parseConfirmation,
+  parseHitlRequest,
   parseImage,
   parseMultipleChoice,
   partKind,
+  textParts,
 } from './part-contracts';
 
 describe('partKind', () => {
@@ -19,6 +25,9 @@ describe('partKind', () => {
     [IMAGE_MEDIA_TYPE, 'image'],
     [CALLOUT_MEDIA_TYPE, 'callout'],
     [CONFIRM_MEDIA_TYPE, 'confirm'],
+    [HITL_REQUEST_MEDIA_TYPE, 'hitl-request'],
+    // The response half is deliberately unclassified: it only ever rides a user turn, which the dispatcher never sees.
+    [HITL_RESPONSE_MEDIA_TYPE, 'unknown'],
     // Prefix matching is the whole reason this is a function and not a template @switch.
     ['image/png', 'image'],
     ['image/svg+xml', 'image'],
@@ -41,7 +50,7 @@ describe('parseMultipleChoice', () => {
   });
 
   it('returns an empty list for a malformed payload rather than throwing', () => {
-    // A renderer calls this from a template — a bad payload must degrade to "nothing to show".
+    // A renderer calls this from a template â€” a bad payload must degrade to "nothing to show".
     expect(parseMultipleChoice('not json')).toEqual([]);
     expect(parseMultipleChoice('')).toEqual([]);
     expect(parseMultipleChoice(undefined)).toEqual([]);
@@ -106,7 +115,7 @@ describe('parseImage', () => {
   });
 
   it('captions a raw image/* part from the part name, the only place one can live', () => {
-    // Without the envelope there is no payload to hold a caption — this is what makes the bare shape a peer of it.
+    // Without the envelope there is no payload to hold a caption â€” this is what makes the bare shape a peer of it.
     expect(parseImage('data:image/png;base64,AAAA', 'image/png', 'The Dex mark')).toEqual({
       uri: 'data:image/png;base64,AAAA',
       caption: 'The Dex mark',
@@ -138,7 +147,7 @@ describe('parseImage', () => {
     // Protocol-relative: a leading slash that still points off-origin.
     expect(parseImage('{"uri":"//evil.example.com/x.png"}', IMAGE_MEDIA_TYPE)).toBeNull();
     expect(parseImage('javascript:alert(1)', 'image/png')).toBeNull();
-    // A part name does not rescue an unrenderable uri — the caption is not a way in.
+    // A part name does not rescue an unrenderable uri â€” the caption is not a way in.
     expect(parseImage('javascript:alert(1)', 'image/png', 'Harmless-looking caption')).toBeNull();
   });
 
@@ -173,7 +182,7 @@ describe('parseCallout', () => {
   });
 
   it('returns null when there is no body to show', () => {
-    // An alert with no text is an empty coloured box — better to render nothing.
+    // An alert with no text is an empty coloured box â€” better to render nothing.
     expect(parseCallout('{"severity":"info"}')).toBeNull();
     expect(parseCallout('{"severity":"info","text":"   "}')).toBeNull();
     expect(parseCallout('not json')).toBeNull();
@@ -200,3 +209,245 @@ describe('parseConfirmation', () => {
     expect(parseConfirmation(undefined)).toBeNull();
   });
 });
+
+describe('parseHitlRequest', () => {
+  it('reads camelCase OTP data and retains the part correlation id', () => {
+    const payload = '{"data":{"challengeCode":"challenge-1","expirationDate":"2026-07-01T12:00:00Z"}}';
+    const request = parseHitlRequest(payload, 'request-1');
+    expect(request?.requestId).toBe('request-1');
+    expect(request?.otp).toEqual({ challengeCode: 'challenge-1', expirationDate: '2026-07-01T12:00:00Z' });
+  });
+
+  it('reads PascalCase OTP data and an envelope correlation id', () => {
+    const payload = '{"RequestId":"request-1","Data":{"ChallengeCode":"challenge-1","ExpirationDate":"2026-07-01T12:00:00Z"}}';
+    const request = parseHitlRequest(payload, 'fallback');
+    expect(request?.requestId).toBe('request-1');
+    expect(request?.otp).toEqual({ challengeCode: 'challenge-1', expirationDate: '2026-07-01T12:00:00Z' });
+  });
+
+  it('reads unwrapped OTP data too', () => {
+    const payload = '{"ChallengeCode":"challenge-1","ExpirationDate":"2026-07-01T12:00:00Z"}';
+    expect(parseHitlRequest(payload)?.otp).toEqual({
+      challengeCode: 'challenge-1',
+      expirationDate: '2026-07-01T12:00:00Z',
+    });
+  });
+
+  it('does not interpret incomplete or incorrectly typed data as an OTP request', () => {
+    for (const data of [
+      null,
+      [],
+      { challengeCode: 'challenge-1' },
+      { challengeCode: 123, expirationDate: '2026-07-01T12:00:00Z' },
+      { challengeCode: ' ', expirationDate: '2026-07-01T12:00:00Z' },
+      { challengeCode: 'challenge-1', expirationDate: 123 },
+    ]) {
+      expect(parseHitlRequest(JSON.stringify({ data }))?.otp).toBeUndefined();
+    }
+  });
+
+  it('reads the PascalCase payload the server actually emits', () => {
+    // `HumanRequest` has no [JsonPropertyName] attributes and JsonPart serialises with the default options, so this
+    // is the shape on the wire — the only payload here that is not camelCase.
+    expect(parseHitlRequest('{"Text":null,"RequestId":"a1b2","Properties":{}}')).toEqual({
+      requestId: 'a1b2',
+      text: undefined,
+      properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
+    });
+  });
+
+  it('reads a camelCase payload too, in case the attributes get added', () => {
+    expect(parseHitlRequest('{"requestId":"a1b2","text":"VAT number?"}')).toEqual({
+      requestId: 'a1b2',
+      text: 'VAT number?',
+      properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
+    });
+  });
+
+  it('reads the prompt and properties when the server fills them', () => {
+    const payload = '{"RequestId":"a1b2","Text":"VAT number?","Properties":{"caseId":"77"}}';
+    expect(parseHitlRequest(payload)).toEqual({
+      requestId: 'a1b2',
+      text: 'VAT number?',
+      properties: { caseId: '77' },
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
+    });
+  });
+
+  it('reads the nested chat-message payload shape too', () => {
+    const payload = '{"data":{"authorName":null,"createdAt":null,"role":"assistant","contents":[{"$type":"text","text":"Please enter your car license plate to complete the verification process.","annotations":null,"additionalProperties":null}],"messageId":"m1","additionalProperties":{"caseId":"77"}}}';
+    expect(parseHitlRequest(payload)).toEqual({
+      requestId: undefined,
+      text: 'Please enter your car license plate to complete the verification process.',
+      properties: undefined,
+      contents: [
+        {
+          $type: 'text',
+          text: 'Please enter your car license plate to complete the verification process.',
+          annotations: null,
+          additionalProperties: null,
+        },
+      ],
+      messageId: 'm1',
+      additionalProperties: { caseId: '77' },
+    });
+  });
+
+  it('falls back to the part requestId when the nested payload omits one', () => {
+    const payload = '{"data":{"role":"assistant","contents":[{"$type":"text","text":"Plate?"}],"messageId":"m1","additionalProperties":{}}}';
+    expect(parseHitlRequest(payload, 'a1b2')).toEqual({
+      requestId: 'a1b2',
+      text: 'Plate?',
+      properties: undefined,
+      contents: [{ $type: 'text', text: 'Plate?' }],
+      messageId: 'm1',
+      additionalProperties: {},
+    });
+  });
+
+  it('prefers a requestId carried inside the payload over the fallback metadata', () => {
+    expect(parseHitlRequest('{"RequestId":"inside"}', 'outside')).toEqual({
+      requestId: 'inside',
+      text: undefined,
+      properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
+    });
+  });
+
+  it('still reports a request when the payload carries nothing but the fallback id', () => {
+    expect(parseHitlRequest('{}', 'a1b2')).toEqual({
+      requestId: 'a1b2',
+      text: undefined,
+      properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
+    });
+  });
+
+  it('still reports a request when the payload carries nothing but the id', () => {
+    // Unlike a bodiless callout this must not degrade to null: "is an answer owed?" and "does the form render?" are
+    // the same predicate, so a promptless request would otherwise stop the next turn carrying an answer. Which is
+    // the live case — the server sends only a RequestId and puts the question in sibling prose parts.
+    expect(parseHitlRequest('{"RequestId":"a1b2"}')).toEqual({
+      requestId: 'a1b2',
+      text: undefined,
+      properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
+    });
+    expect(parseHitlRequest('{}')).toEqual({
+      requestId: undefined,
+      text: undefined,
+      properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
+    });
+  });
+
+  it('drops members that are not usable text', () => {
+    expect(parseHitlRequest('{"RequestId":7,"Text":"   ","Properties":{"a":1}}')).toEqual({
+      requestId: undefined,
+      text: undefined,
+      properties: undefined,
+      contents: undefined,
+      messageId: undefined,
+      additionalProperties: undefined,
+    });
+  });
+
+  it('returns null for a malformed payload rather than throwing', () => {
+    expect(parseHitlRequest('not json')).toBeNull();
+    expect(parseHitlRequest('[]')).toBeNull();
+    expect(parseHitlRequest('')).toBeNull();
+    expect(parseHitlRequest(undefined)).toBeNull();
+  });
+});
+
+describe('hitlResponseParts', () => {
+  it('answers parsed OTP challenges with the challenge code and OTP', () => {
+    const request = parseHitlRequest(
+      '{"data":{"challengeCode":"challenge-1","expirationDate":"2026-07-01T12:00:00Z"}}',
+      'request-1',
+    )!;
+    const [text, structured] = hitlResponseParts(request, '001234');
+    expect(text).toEqual({ value: '001234', contentType: 'text/plain', requestId: 'request-1' });
+    expect(structured.contentType).toBe(HITL_RESPONSE_MEDIA_TYPE);
+    expect(structured.requestId).toBe('request-1');
+    expect(parseResponse(structured.value)).toEqual({ challengeCode: 'challenge-1', otp: '001234' });
+  });
+
+  it('leads with the plain-text answer, which is the part the server validates', () => {
+    // ChatRequest.Text resolves to the first text part and ChatRequestValidator requires it non-empty.
+    const [text] = hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789');
+    expect(text).toEqual({ value: 'EL123456789', contentType: 'text/plain', requestId: 'a1b2' });
+  });
+
+  it('carries the structured answer as raw json with the function-call response media type', () => {
+    const [, structured] = hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789');
+    expect(structured).toEqual({
+      value: '{"userInput":"EL123456789"}',
+      contentType: HITL_RESPONSE_MEDIA_TYPE,
+      requestId: 'a1b2',
+    });
+  });
+
+  it('keeps correlation on the part rather than inside generic response data', () => {
+    const [, structured] = hitlResponseParts({ requestId: 'a1b2' }, 'EL123456789');
+    expect(structured.requestId).toBe('a1b2');
+    expect(parseResponse(structured.value)).toEqual({ userInput: 'EL123456789' });
+  });
+
+  it('sends an empty correlation id when the request carried none', () => {
+    // RequestId is a non-nullable string server-side, so an empty one is closer than an absent member.
+    const [, structured] = hitlResponseParts({}, 'yes');
+    expect(structured.requestId).toBe('');
+    expect(parseResponse(structured.value)).toEqual({ userInput: 'yes' });
+  });
+
+  it('preserves answers outside latin-1 because the response is sent as plain json', () => {
+    const answer = 'Ναι, το ΑΦΜ είναι EL123456789 — ευχαριστώ';
+    expect(parseResponse(hitlResponseParts({ requestId: 'a1b2' }, answer)[1].value)).toEqual({
+      userInput: answer,
+    });
+  });
+});
+
+describe('textParts', () => {
+  it('builds the single text/plain part of an ordinary turn', () => {
+    expect(textParts('hello')).toEqual([{ value: 'hello', contentType: 'text/plain' }]);
+  });
+});
+
+describe('isTextPart', () => {
+  it('admits prose, including a part that declares no type at all', () => {
+    expect(isTextPart('text/plain')).toBeTrue();
+    expect(isTextPart('text/markdown')).toBeTrue();
+    expect(isTextPart('TEXT/HTML')).toBeTrue();
+    expect(isTextPart(undefined)).toBeTrue();
+  });
+
+  it('rejects structured payload, whose raw value must never reach a bubble', () => {
+    expect(isTextPart(HITL_RESPONSE_MEDIA_TYPE)).toBeFalse();
+    expect(isTextPart('image/png')).toBeFalse();
+  });
+});
+
+/** Reads a response part's value back â€” the inverse of the encoding in `hitlResponseParts`. */
+function parseResponse(value: string | undefined): unknown {
+  return JSON.parse(value ?? 'null');
+}
+
+

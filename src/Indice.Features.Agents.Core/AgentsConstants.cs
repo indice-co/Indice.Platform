@@ -15,11 +15,10 @@ public static class AgentsConstants
         public const string Auto = "auto";
 
         /// <summary>The name of the agent that handles case-based queries with OTP verification.</summary>
-        public const string Cases = "cases";
-
-        /// <summary>The name of the test/dummy agent.</summary>
-        public const string Dummy = "dummy";
-
+        public const string Operator = "operator";
+        
+        /// <summary>The name of the test/demo agent.</summary>
+        public const string Demo = "demo";
     }
 
     /// <summary>Media types of the alternative (non-prose) content parts an assistant turn can carry.</summary>
@@ -56,6 +55,25 @@ public static class AgentsConstants
         /// <summary>A custom type to send svg to other agents that traditionally dont support svg.</summary>
         public const string Svg = "text/vnd.indice.svg+json";
 
+        /// <summary>A custom type to send a request for a function call to the dex surface.</summary>
+
+        public static class FunctionCallPort
+        {
+            /// <summary>The media type for a function call request sent to the dex surface. The payload is a generic json object.</summary>
+            public const string Request = "application/vnd.indice.function-call.request+json";
+            /// <summary>The media type for a function call response sent from the dex surface. The payload is a generic json object.</summary>
+            public const string Response = "application/vnd.indice.function-call.response+json";
+        }
+
+        /// <summary>A custom type to send a request for confirmation to the dex surface.</summary>
+
+        public static class ConfirmationPort
+        {
+            /// <summary>The media type for a confirmation request sent to the dex surface. The payload is a <see cref="Models.Confirmation"/> object.</summary>
+            public const string Request = "application/vnd.indice.confirmation.request+json";
+            /// <summary>The media type for a confirmation response sent from the dex surface. The payload is a string object.</summary>
+            public const string Response = "application/vnd.indice.confirmation.response+json";
+        }
     }
 
     /// <summary>
@@ -73,6 +91,9 @@ public static class AgentsConstants
 
         /// <summary>A generic conversational flow — matches the client's fallback glyph.</summary>
         public const string Chat = "chat";
+
+        /// <summary>A operator flow — matches the client's fallback gear.</summary>
+        public const string Gear = "gear";
     }
 
     /// <summary>Default fallback messages surfaced by the Agents feature.</summary>
@@ -149,5 +170,59 @@ public static class AgentsConstants
         public const string Reranker = """
             You are a reranker for a retrieval system. The user message may contain a HISTORY: block with the recent conversation (oldest-first) before the question. You are given a list of candidate passages, each with an ID and text. Rank the candidates by relevance to the question, considering the HISTORY for context. Return a JSON object { "rankedCandidates": [{ "id": "...", "text": "..." }, ...] } in order of descending relevance. If none are relevant, return an empty array.
             """;
+
+        /// <summary>Prompt template for fetching case data.</summary>
+        public const string DataRetriever = """
+            You are a case retrieval assistant.
+            Use the available tool get_case_data_id from the case-retrieval MCP service to fetch case data.
+            Decide which tool to call based on the user's query.
+            Extract the case GUID from the messages and query the case data.
+            Return the object in json format as returned by the mcp.
+            """;
+        /// <summary>Agent instructions template for fetching OTP send.</summary>
+        public const string OtpCodeSenderInstructions = """
+            You are a helper agent for the current workflow. 
+            Your intent is to send an OTP to the user's phone number taken from the parameters.
+            Call SendTotp with these values:
+            •	securityToken: <case_id>
+            •	channel: Sms
+            •	purpose: "Cases totp"
+            •	message: "This is your {0} OTP code for verification"
+            •	subject: "Cases auth"
+            •	authenticationMethod: "PhoneNumber"
+            •	emailTemplate: null
+            •	classification: null
+            •	data: null
+            •	phoneNumber: <user_phone_number>
+            •	email: null
+            """;
+
+
+        /// <summary>Agent prompt template for fetching OTP send.</summary>
+        public const string OtpCodeSenderPrompt = """
+            Send an OTP now by calling SendTotp with the configured fixed values.
+            User phone number: {{ phoneNumber }} and 
+            securityToken: {{ securityToken }}
+            Return true for success or false for failure
+            """;
+
+
+        /// <summary>Agent instructions template for validating OTP code.</summary>
+        public const string OtpCodeValidatorInstructions = """
+            You are an OTP verifier.
+            You MUST call the VerifyTotp tool exactly once.
+            Use:
+            - securityToken: get securityToken from prompt
+            - purpose: "Cases totp"
+            - phoneNumber: get phoneNumber from prompt
+            - email: null
+            - user: null
+            - code: user code from the prompt
+            Return true if response indicates TOTP was verified successfully.
+            Return the object in json format as returned by the mcp.
+            """;
+        /// <summary>Agent prompt template for validating OTP code.</summary>
+        public const string OtpCodeValidatorPrompt = "Verify this OTP code: {{otp}}, with securityToken:{{caseId}}, phoneNumber: {{phoneNumber}}";
+
     }
 }

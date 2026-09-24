@@ -51,7 +51,7 @@ public class ChatsService : IChatsService
         if (!turnCheck.Allowed) {
             return CreateLimitReachedResponse(conversation, turnCheck.Message);
         }
-        var userMessage = new ChatMessage(ChatRole.User, chatRequest.Text) {
+        var userMessage = new ChatMessage(ChatRole.User, chatRequest.Parts.ToAIContents()) {
             MessageId = Guid.NewGuid().ToString(),
             CreatedAt = DateTimeOffset.UtcNow,
             AuthorName = chatRequest.AuthorName
@@ -189,11 +189,15 @@ public class ChatsService : IChatsService
     private async IAsyncEnumerable<SseItem<DexChatResponseUpdate>> StreamTurnAsync(
         Conversation conversation, ChatRequest chatRequest, [EnumeratorCancellation] CancellationToken cancellationToken) {
 
-        var userMessage = new ChatMessage(ChatRole.User, chatRequest.Text) {
+        var userMessage = new ChatMessage(ChatRole.User, chatRequest.Parts.ToAIContents()) {
             MessageId = Guid.NewGuid().ToString(),
             CreatedAt = DateTimeOffset.UtcNow,
-            AuthorName = chatRequest.AuthorName
+            AuthorName = chatRequest.AuthorName,
         };
+        if (conversation.Topic is not null) {
+            userMessage.AdditionalProperties ??= new();
+            userMessage.AdditionalProperties[nameof(ChatTopic)] = conversation.Topic;
+        }
         var stream = _dexClient.GetStreamingResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString(), Instructions = chatRequest.AgentName }, cancellationToken);
         var updates = new List<ChatResponseUpdate>();
         var projector = new DexChatStreamProjector();
@@ -251,6 +255,11 @@ public class ChatsService : IChatsService
                                 yield return compactor.Compact(frame);
                             }
                             break;
+                        case FunctionCallContent call:
+                            foreach (var frame in projector.AddPart(call.ToChatMessagePart())) {
+                                yield return compactor.Compact(frame);
+                            }
+                            break;
                     }
                 }
             }
@@ -285,8 +294,7 @@ public class ChatsService : IChatsService
                 yield return compactor.Compact(frame);
             }
             yield return Message(new DexChatStreamDone());
-        } 
-        finally {
+        } finally {
             if (!turnPersisted) {
                 // Disconnect or fault before persistence: keep the user's question in the conversation and count it.
                 await PersistFailedTurnAsync(conversation.Id, userMessage, CancellationToken.None);

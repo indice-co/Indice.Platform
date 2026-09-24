@@ -4,10 +4,20 @@ import { MarkdownModule } from 'ngx-markdown';
 import { IChatMessagePart } from '../../core/services/dex-api.service';
 import { ChatCalloutComponent } from './parts/chat-callout.component';
 import { ChatConfirmComponent } from './parts/chat-confirm.component';
+import { ChatHitlComponent } from './parts/chat-hitl.component';
+import { ChatHitlOtpComponent } from './parts/chat-hitl-otp.component';
 import { ChatHtmlComponent } from './parts/chat-html.component';
 import { ChatImageComponent } from './parts/chat-image.component';
 import { ChatOptionsComponent } from './parts/chat-options.component';
-import { parseCallout, parseConfirmation, parseImage, parseMultipleChoice, partKind } from './parts/part-contracts';
+import {
+  HitlControlResolver,
+  parseCallout,
+  parseConfirmation,
+  parseHitlRequest,
+  parseImage,
+  parseMultipleChoice,
+  partKind,
+} from './parts/part-contracts';
 
 /**
  * Renders one content part of an assistant message according to its `contentType`. This is the single dispatch point
@@ -29,6 +39,8 @@ import { parseCallout, parseConfirmation, parseImage, parseMultipleChoice, partK
     MarkdownModule,
     ChatCalloutComponent,
     ChatConfirmComponent,
+    ChatHitlComponent,
+    ChatHitlOtpComponent,
     ChatHtmlComponent,
     ChatImageComponent,
     ChatOptionsComponent,
@@ -60,6 +72,16 @@ import { parseCallout, parseConfirmation, parseImage, parseMultipleChoice, partK
       @case ('confirm') {
         <app-chat-confirm [confirmation]="confirmation()" [disabled]="!interactive()" (pick)="pick.emit($event)" />
       }
+      @case ('hitl-request') {
+        @switch (hitlControl()) {
+          @case ('hitl-request') {
+            <app-chat-hitl [request]="hitlRequest()" [disabled]="!interactive()" (pick)="pick.emit($event)" />
+          }
+          @case ('hitl-request-otp') {
+            <app-chat-hitl-otp [request]="hitlRequest()" [disabled]="!interactive()" (pick)="pick.emit($event)" />
+          }
+        }
+      }
     }
   `,
 })
@@ -77,9 +99,11 @@ export class ChatMessagePartComponent {
   readonly pick = output<string>();
 
   protected readonly kind = computed(() => partKind(this.part().contentType));
+  protected readonly hitlControl = computed(() => HitlControlResolver(this.part().name));
 
   protected readonly options = computed(() => parseMultipleChoice(this.part().value));
   protected readonly image = computed(() => parseImage(this.part().value, this.part().contentType, this.part().name));
   protected readonly callout = computed(() => parseCallout(this.part().value));
   protected readonly confirmation = computed(() => parseConfirmation(this.part().value));
+  protected readonly hitlRequest = computed(() => parseHitlRequest(this.part().value, this.part().requestId));
 }

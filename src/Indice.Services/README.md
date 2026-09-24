@@ -102,6 +102,7 @@ Send emails through various providers with template rendering support:
 | `SendGrid` | `EmailServiceSendGrid` | `services.AddEmailServiceSendGrid(configuration)` | `SendGrid` |
 | `SparkPost` | `EmailServiceSparkPost` | `services.AddEmailServiceSparkPost(configuration)` | `SparkPost` |
 | `Brevo` | `EmailServiceBrevo` | `services.AddEmailServiceBrevo(configuration)` | `Brevo` |
+| `WeMail` | `EmailServiceWeMail` | `services.AddEmailServiceWeMail(configuration)` | `WeMail` |
 | `AzureCommunicationServices` | `AzureCommunicationServicesEmailService` | `services.AddEmailServiceAzureCommunicationServices(configuration)` | `AzureCommunicationServices` |
 | `None` | `EmailServiceNoop` | `services.AddEmailServiceNoop()` | - |
 
@@ -168,6 +169,20 @@ Brevo:
     "SenderName": "My App",
     "ApiKey": "<brevo-api-key>",
     "Api": "https://api.brevo.com/v3/"
+  }
+}
+```
+
+WeMail:
+```json
+{
+  "Email": {
+    "Provider": "WeMail"
+  },
+  "WeMail": {
+    "Sender": "noreply@example.com",
+    "SenderName": "MyApp",
+    "ApiKey": "<api-key>"
   }
 }
 ```

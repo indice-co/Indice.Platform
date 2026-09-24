@@ -8,6 +8,10 @@
  * never seen without taking the thread down.
  */
 
+// Type-only: the generated shape of a part, so the builders below cannot drift from the wire contract. It adds no
+// runtime dependency, which is what keeps this file importable from a spec without a TestBed.
+import type { IChatMessagePart } from '../../../core/services/dex-api.service';
+
 /** A list of options the user can pick from; picking one posts it verbatim as the next user message. */
 export const MULTIPLE_CHOICE_MEDIA_TYPE = 'application/vnd.indice.multiple-choice+json';
 
@@ -20,8 +24,32 @@ export const CALLOUT_MEDIA_TYPE = 'application/vnd.indice.callout+json';
 /** A two-way confirmation; picking a button posts its label verbatim as the next user message. */
 export const CONFIRM_MEDIA_TYPE = 'application/vnd.indice.confirm+json';
 
+/**
+ * A question the workflow is blocked on until a human answers it — the assistant half of the human-in-the-loop
+ * round-trip. The answer goes back on the next user turn as a {@link HITL_RESPONSE_MEDIA_TYPE} part.
+ */
+export const HITL_REQUEST_MEDIA_TYPE = 'application/vnd.indice.function-call.request+json';
+
+/**
+ * The user half of that round-trip. It only ever appears on a *user* turn, which is why it has no {@link PartKind}:
+ * user turns render their text directly and never go through `ChatMessagePartComponent`.
+ *
+ * The structured payload rides as raw JSON text. `ChatMessagePart.ToAIContent()` handles
+ * `application/vnd.indice.function-call.response+json` explicitly and correlates it through the part's `requestId`.
+ */
+export const HITL_RESPONSE_MEDIA_TYPE = 'application/vnd.indice.function-call.response+json';
+
 /** What `ChatMessagePartComponent` renders a part as. */
-export type PartKind = 'markdown' | 'html' | 'image' | 'multiple-choice' | 'callout' | 'confirm' | 'unknown';
+export type PartKind =
+  | 'markdown'
+  | 'html'
+  | 'image'
+  | 'multiple-choice'
+  | 'callout'
+  | 'confirm'
+  | 'hitl-request'
+  | 'hitl-request-otp'
+  | 'unknown';
 
 /**
  * Classifies a part by its `contentType`. This exists as a function rather than a plain `@switch` on the raw media type
@@ -44,8 +72,26 @@ export function partKind(contentType: string | undefined): PartKind {
       return 'callout';
     case CONFIRM_MEDIA_TYPE:
       return 'confirm';
+    case HITL_REQUEST_MEDIA_TYPE:
+      console.log('partKind: hitl-request');
+      return 'hitl-request';
     default:
       return contentType?.startsWith('image/') ? 'image' : 'unknown';
+  }
+}
+/**
+ * Classifies a part by its `contentType`. This exists as a function rather than a plain `@switch` on the raw media type
+ * because images need *prefix* matching: an image attached as `DataContent`/`UriContent` arrives as `image/png`,
+ * `image/svg+xml`, and so on. Anything unrecognised is `'unknown'`, which renders nothing — the same forward-compat
+ * discipline `chat-stream.service.ts` applies to unknown SSE frame types.
+ */
+export function HitlControlResolver(name: string | undefined): PartKind {
+  switch (name) {
+    case 'OwnershipVerificationRequestPort':
+      console.log('HitlControlResolver: hitl-request');
+      return 'hitl-request';
+    default:
+      return 'hitl-request-otp';
   }
 }
 
@@ -73,6 +119,36 @@ export interface Confirmation {
   prompt?: string;
   confirmText: string;
   cancelText: string;
+}
+
+/** The server's OTP challenge, with its expiration date preserved as an ISO date string. */
+export interface OtpRequest {
+  challengeCode: string;
+  expirationDate: string;
+}
+
+/** The user's OTP and the challenge it answers. */
+export interface OtpResponse {
+  challengeCode: string;
+  otp: string;
+}
+
+/**
+ * A question the workflow is waiting on a human to answer. Most payloads mirror the server's `HumanRequest`:
+ * `requestId` correlates the answer back to the port that asked, and `text` is the prompt.
+ *
+ * Newer payloads can arrive wrapped in a chat-message `data` envelope instead, carrying `contents`, `messageId`
+ * and `additionalProperties`. Those fields are surfaced too, and the first textual content becomes `text` so the
+ * existing renderer keeps working.
+ */
+export interface HitlRequest {
+  requestId?: string;
+  text?: string;
+  properties?: Record<string, string>;
+  contents?: Record<string, unknown>[];
+  messageId?: string;
+  additionalProperties?: Record<string, unknown>;
+  otp?: OtpRequest;
 }
 
 /** Reads the options out of a multiple-choice part value; anything unexpected yields an empty list. */
@@ -143,6 +219,71 @@ export function parseConfirmation(value: string | undefined): Confirmation | nul
   };
 }
 
+/**
+ * Reads a human-in-the-loop request out of a part value. Unlike the other parsers this one returns a request for any
+ * well-formed JSON object, even one with no prompt: "is an answer owed?" and "does the form render?" have to be the
+ * same predicate, or the composer would silently stop attaching answers for a payload the thread still shows.
+ */
+export function parseHitlRequest(value: string | undefined, fallbackRequestId?: string): HitlRequest | null {
+  const parsed = parseObject<Record<string, unknown>>(value);
+  if (!parsed) {
+    return null;
+  }
+  // Both casings. `HumanRequest`/`HumanResponse` are the only payloads here with no `[JsonPropertyName]` attributes,
+  // and `DataContentExtensions.JsonPart` serialises with the default options rather than the web ones — so they
+  // arrive PascalCase while every other payload arrives camelCase. Some newer HITL payloads also arrive wrapped in a
+  // chat-message `data` envelope; reading both shapes keeps persisted history and newer messages compatible.
+  const payload = plainObject(parsed['Data'] ?? parsed['data']) ?? parsed;
+  const contents = objectArray(payload['Contents'] ?? payload['contents']);
+  const challengeCode = text(payload['ChallengeCode']) ?? text(payload['challengeCode']);
+  const expirationDate = text(payload['ExpirationDate']) ?? text(payload['expirationDate']);
+  return {
+    requestId: text(payload['RequestId']) ?? text(payload['requestId']) ?? text(parsed['RequestId']) ?? text(parsed['requestId']) ?? fallbackRequestId,
+    text: text(payload['Text']) ?? text(payload['text']) ?? firstContentText(contents),
+    properties: stringMap(payload['Properties'] ?? payload['properties']),
+    contents,
+    messageId: text(payload['MessageId']) ?? text(payload['messageId']),
+    additionalProperties: plainObject(payload['AdditionalProperties'] ?? payload['additionalProperties']),
+    ...(challengeCode && expirationDate ? { otp: { challengeCode, expirationDate } } : {}),
+  };
+}
+
+/**
+ * Builds the parts of a user turn answering `request`. The readable text leads: it is what the thread and the
+ * persisted history show, and it is the part the server's `ChatRequest.Text` facade resolves to — which is what
+ * `ChatRequestValidator` validates, so a turn without it is a 400.
+ *
+ * It must be `text/plain` exactly. `ChatMessagePart.ToAIContent()` promotes only that one media type to
+ * `TextContent`. The structured companion carries an OTP response for OTP challenges and user input otherwise.
+ * The part-level `requestId` is what the server's `ToAIContent()` uses for correlation.
+ */
+export function hitlResponseParts(request: HitlRequest, answer: string): IChatMessagePart[] {
+  const requestId = request.requestId ?? '';
+  const payload: OtpResponse | { userInput: string } = request.otp
+    ? { challengeCode: request.otp.challengeCode, otp: answer }
+    : { userInput: answer };
+  return [
+    { value: answer, contentType: 'text/plain', requestId },
+    { value: JSON.stringify(payload), contentType: HITL_RESPONSE_MEDIA_TYPE, requestId },
+  ];
+}
+
+/** The parts of an ordinary, unstructured user turn. */
+export function textParts(value: string): IChatMessagePart[] {
+  return [{ value, contentType: 'text/plain' }];
+}
+
+/**
+ * Whether a part carries prose the user's own bubble should print. Everything else on a user turn is structured
+ * payload — a HITL answer, an attachment — which would otherwise spill its raw value into the thread.
+ *
+ * The `text` prefix (not `text/`) mirrors the server's `ChatRequest.Text` facade, so both ends agree on which part
+ * of a turn is its text.
+ */
+export function isTextPart(contentType: string | undefined): boolean {
+  return !contentType || contentType.toLowerCase().startsWith('text');
+}
+
 const CALLOUT_SEVERITIES: readonly CalloutSeverity[] = ['info', 'success', 'warning', 'error'];
 
 /**
@@ -181,4 +322,41 @@ function label(value: unknown, fallback: string): string {
 /** Narrows a payload member to usable text — anything else, including a blank string, is "not supplied". */
 function text(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() ? value : undefined;
+}
+
+/** Narrows a payload member to a flat string map, dropping entries whose value is not text. */
+function stringMap(value: unknown): Record<string, string> | undefined {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return undefined;
+  }
+  const entries = Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === 'string');
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
+/** Narrows a payload member to a plain JSON object. */
+function plainObject(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined;
+}
+
+/** Narrows a payload member to a list of plain JSON objects, dropping anything else. */
+function objectArray(value: unknown): Record<string, unknown>[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  const items = value.filter((entry): entry is Record<string, unknown> => typeof entry === 'object' && entry !== null && !Array.isArray(entry));
+  return items.length > 0 ? items : undefined;
+}
+
+/** Reads the first usable text-bearing content item, which is what the HITL input can label itself with. */
+function firstContentText(contents: Record<string, unknown>[] | undefined): string | undefined {
+  if (!contents) {
+    return undefined;
+  }
+  for (const content of contents) {
+    const value = text(content['Text']) ?? text(content['text']);
+    if (value) {
+      return value;
+    }
+  }
+  return undefined;
 }

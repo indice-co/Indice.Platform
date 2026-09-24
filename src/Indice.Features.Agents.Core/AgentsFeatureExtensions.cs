@@ -1,20 +1,30 @@
 ﻿using System.ClientModel;
 using Azure.AI.OpenAI;
+using Azure.Messaging;
+using Duende.AccessTokenManagement;
+using Google.Protobuf;
 using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
+using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
+using Indice.Features.Agents.Core.Workflows.Cards;
+using Indice.Features.Agents.Core.Workflows.Demo;
+using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.Reranking;
+using Indice.Features.Agents.Core.Workflows.State;
 using Indice.Features.Agents.Core.Workflows.Steps;
+using Indice.Features.Agents.Core.Workflows.Steps.Operator;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using OpenAI;
+using static System.Net.Mime.MediaTypeNames;
 using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -84,6 +94,7 @@ public static class AgentsFeatureExtensions
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
         services.TryAddSingleton<AgentInfoRegistry>();
         services.TryAddTransient<IntentRouterService>();
+        services.TryAddScoped<AgentMessageLocalizer>();
         services.AddAgentsDefaultPipeline();
         return services;
     }
@@ -151,38 +162,32 @@ public static class AgentsFeatureExtensions
                 return builder.Build();
             });
 
-        services.AddRoutableAgent(
-    new AgentInfo(
-        Name: AgentsConstants.AgentNames.Dummy,
-        Description: "Its the test agent for branching out to different workflows.",
-        InputContentTypes: ["text/plain"],
-        OutputContentTypes: ["text/markdown"],
-        Capabilities: [new AgentCapability("Dummy Agent", "Its the test agent for branching out to different workflows.")],
-        Domains: [],
-        Tags: ["Knowledge", "FAQ"],
-        Links: [],
-        Icon: AgentsConstants.AgentIcons.Book),
-        (sp, key) => {
-        var intent = sp.GetRequiredService<IntentClassifier>();
-        var rewrite = sp.GetRequiredService<QueryRewriter>();
-        var retrieve = sp.GetRequiredService<Retriever>();
-        var rerank = sp.GetRequiredService<Reranker>();
-        var compose = sp.GetRequiredService<AnswerComposer>();
-        var outOfScopeReply = sp.GetRequiredService<OutOfScopeResponder>();
-
-        var builder = new WorkflowBuilder(intent);
-        builder.AddSwitch(intent, sw => sw
-            .AddCase<IntentOutput>(env => env!.Intent.IsInScope, rewrite)
-            .WithDefault(outOfScopeReply));
-        builder.AddEdge(rewrite, retrieve);
-        builder.AddEdge(retrieve, rerank);
-        builder.AddEdge(rerank, compose);
-        builder.WithOutputFrom(compose, outOfScopeReply);
-        return builder.Build();
-    });
-
         return services;
     }
+
+    /// <summary>
+    /// Registers a demo workflow together with its metadata.
+    /// </summary>
+    /// <param name="services">The service collection to add the demo workflow to.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddAgentsDemoPipeline(this IServiceCollection services) {
+        services.AddRoutableAgent(
+            new AgentInfo(
+                Name: AgentsConstants.AgentNames.Demo,
+                Description: "Its the demo agent for testing capabilities.",
+                InputContentTypes: ["text/plain"],
+                OutputContentTypes: ["text/markdown"],
+                Capabilities: [new AgentCapability("Demo Agent", "Its the demo agent for testing new workflow interactions.")],
+                Domains: [],
+                Tags: ["Demo", "SCA"],
+                Links: [],
+                Icon: AgentsConstants.AgentIcons.Gear),
+            (sp, key) => {
+                return DemoWorkflow.CreateDemoWorkflow(sp);
+            });
+        return services;
+    }
+
 
     /// <summary>
     /// Registers a routable agent: a keyed <see cref="Workflow"/> resolved by <paramref name="info"/>'s name, plus
@@ -194,6 +199,105 @@ public static class AgentsFeatureExtensions
     private static IServiceCollection AddRoutableAgent(this IServiceCollection services, AgentInfo info, Func<IServiceProvider, object?, Workflow> workflowFactory) {
         services.AddKeyedScoped(info.Name, workflowFactory);
         services.AddSingleton(info);
+        return services;
+    }
+
+
+    /// <summary>
+    /// Registers the Cases workflow steps and the composed Cases workflow.
+    /// <para>
+    /// The OTP verification leg is handled by a single LLM-powered step
+    /// that uses the <c>"otp"</c> MCP service tools at runtime, guided by the
+    /// <c>CasesOtpAgent</c> prompt template. There are no hardcoded send/validate steps.
+    /// </para>
+    /// Call after <c>AddAgentsCore(...)</c>.
+    /// </summary>
+    public static IServiceCollection AddOperatorWorkflow(this IServiceCollection services, IConfiguration configuration, Action<CustomerWorkflowOptions>? configureOptions = null) {
+        var optionsBuilder = services.AddOptions<CustomerWorkflowOptions>();
+        if (configureOptions is not null) {
+            optionsBuilder.Configure(configureOptions);
+        }
+        // The meta "auto" router advertises itself for discovery but has no workflow of its own — it runs the
+        // IntentRouterService to pick one of the routable agents registered below.
+        services.AddSingleton(new AgentInfo(
+            Name: AgentsConstants.AgentNames.Operator,
+            Description: "This is an operator agent that can handle tools and provide solutions based on predefined rules.",
+            InputContentTypes: ["text/plain"],
+             OutputContentTypes: ["text/markdown", "text/html", 
+                                  AgentsConstants.MediaTypes.FunctionCallPort.Request],
+            Capabilities: [new AgentCapability("Tool invocation", "Run tools and strong customer authentication"),
+                           new AgentCapability("Strong customer authentication", "Authenticate customers using strong methods"),
+                           new AgentCapability("Data presentation", "Present data to users in the form of html smart cards")],
+            Domains: [],
+            Tags: ["operator", "workflow"],
+            Links: [],
+            Icon: AgentsConstants.AgentIcons.Gear));
+
+
+        services.AddClientCredentialsTokenManagement()
+                .AddClient("mcpsecurity", credentials => {
+                    // Machine-to-machine authentication (no user present, no redirect/browser).
+                    credentials.TokenEndpoint = new Uri(configuration["General:Endpoints:TokenEndpoint"]!);
+                    credentials.ClientId = ClientId.Parse(configuration["General:Secrets:ClientId"]!);
+                    credentials.ClientSecret = ClientSecret.Parse(configuration["General:Secrets:ClientSecret"]!);
+                    credentials.Scope = Scope.Parse(configuration["General:Secrets:Scope"]!);
+                });
+        services.AddMcpClient("id")
+                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:IdentityMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
+        services.AddMcpClient("cases")
+                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:CasesMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
+
+        services.TryAddTransient<ICustomerDataResolver, DefaultCustomerDataResolver>();
+        services.TryAddTransient<ICustomerDataCardRenderer, HandlebarsCustomerDataCardRenderer>();
+        services.TryAddTransient<DataRetrieverStep>();
+        services.TryAddTransient<AuthenticationChallengeStep>();
+        services.TryAddTransient<AuthenticationStep>();
+        services.TryAddTransient<OtpCodeSendStep>();
+        services.TryAddTransient<OtpCodeValidatorStep>();
+        services.TryAddTransient<DataPresenterStep>();
+
+        services.AddKeyedScoped(AgentsConstants.AgentNames.Operator, (sp, key) => {
+            var retriever = sp.GetRequiredService<DataRetrieverStep>();
+            var ownershipPrompt = sp.GetRequiredService<AuthenticationChallengeStep>();
+            var ownershipValidate = sp.GetRequiredService<AuthenticationStep>();
+            var otpSend = sp.GetRequiredService<OtpCodeSendStep>();
+            var otpValidate = sp.GetRequiredService<OtpCodeValidatorStep>();
+            var dataPresenter = sp.GetRequiredService<DataPresenterStep>();
+
+            var ownershipPort = ChallengeRequestPort.Create();
+            var otpPort = OtpRequestPort.Create();
+
+            var builder = new WorkflowBuilder(retriever);
+            builder.AddEdge(retriever, ownershipPrompt);
+            builder.AddEdge(ownershipPrompt, ownershipPort);
+            builder.AddEdge(ownershipPort, ownershipValidate);
+            // Important: The switch in MAF is not based on the type of the message, but on the predicate.
+            // The predicate is evaluated at runtime to determine which case to execute.
+            // The framework passes null to a typed switch predicate when the message type differs.
+            // When ported to c# this seems counterintuitive, but the generic argument is necessary to write a meaningful predicate. (MAF original implementation is on python)
+            builder.AddSwitch(ownershipValidate, sw => sw
+                .AddCase<OperationState>(message => message is not null, otpSend)
+                .WithDefault(ownershipPort));
+
+            builder.AddEdge(otpSend, otpPort);
+            builder.AddEdge(otpPort, otpValidate);
+            builder.AddSwitch(otpValidate, sw => sw
+                .AddCase<OperationState>(message => message is not null, dataPresenter)
+                .WithDefault(otpPort));
+
+            builder.WithOutputFrom(dataPresenter, ownershipValidate, otpValidate);
+            return builder.Build();
+        });
+
+        return services;
+    }
+
+    /// <summary>Adds an overridden implementation of <see cref="AgentMessageLocalizer"/>.</summary>
+    /// <typeparam name="TDescriber">The type of labels describer.</typeparam>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddIAgentMessageLocalizer<TDescriber>(this IServiceCollection services) where TDescriber : AgentMessageLocalizer {
+        services.AddScoped<TDescriber>();
+        services.AddScoped<AgentMessageLocalizer>(sp => sp.GetRequiredService<TDescriber>());
         return services;
     }
 }

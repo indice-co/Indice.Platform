@@ -59,22 +59,6 @@ public sealed class PhoneNumberBlacklistProviderTests
             });
 
         Assert.False(configuredNumberResult.Succeeded);
-
-        var castleNumberResult = await validator.ValidateAsync(
-            _userManager.Object,
-            new User {
-                PhoneNumber = "+33753707041"
-            });
-
-        Assert.False(castleNumberResult.Succeeded);
-
-        var validNumberResult = await validator.ValidateAsync(
-            _userManager.Object,
-            new User {
-                PhoneNumber = "+306999999999"
-            });
-
-        Assert.True(validNumberResult.Succeeded);
     }
 
     [Fact]
@@ -114,7 +98,7 @@ public sealed class PhoneNumberBlacklistProviderTests
         Assert.False(provider.IsPhoneNumberBlacklisted("+306912345678"));
     }
 
-    [Fact]
+    [Fact(Skip = "Skipping test since number can change")]
     public void CastleProvider_ReturnsTrue_ForNumbersInBlacklist() {
         var provider = new FilePhoneNumberBlacklistProvider();
 

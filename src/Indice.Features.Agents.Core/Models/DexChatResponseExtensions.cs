@@ -1,4 +1,6 @@
 using System.Text;
+using Indice.Extensions;
+using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Models;
@@ -37,7 +39,7 @@ public static class DexChatResponseExtensions
         var citations = new List<Citation>();
         ChatMessagePart? openTextPart = null;
         foreach (var item in message.Contents) {
-            switch(item) {
+            switch (item) {
                 case TextContent text:
                     if (!string.IsNullOrEmpty(text.Text)) {
                         if (openTextPart is null) {
@@ -57,6 +59,10 @@ public static class DexChatResponseExtensions
                     break;
                 case UriContent uri:
                     content.Parts.Add(uri.ToChatMessagePart());
+                    openTextPart = null;
+                    break;
+                case FunctionCallContent call:
+                    content.Parts.Add(call.ToChatMessagePart());
                     openTextPart = null;
                     break;
             }
@@ -108,6 +114,21 @@ public static class DexChatResponseExtensions
     /// <param name="uri">The URI content to project.</param>
     public static ChatMessagePart ToChatMessagePart(this UriContent uri) =>
         ChatMessagePart.FromText(uri.Uri.ToString(), uri.MediaType);
+
+    /// <summary>
+    /// Projects a <see cref="FunctionCallContent"/> into a boundary <see cref="ChatMessagePart"/> using the
+    /// function-call request media type, preserving call id, function name and arguments payload.
+    /// </summary>
+    /// <param name="call">The function call content to project.</param>
+    public static ChatMessagePart ToChatMessagePart(this FunctionCallContent call) {
+        var arguments = new Dictionary<string, object?>(call.Arguments ?? new Dictionary<string, object?>());
+        foreach (var key in arguments.Keys) {
+            if (arguments[key] is PortableValue portableValue) {
+                arguments[key] = portableValue.As<object?>();
+            }
+        }
+        return ChatMessagePart.FromObject(arguments, AgentsConstants.MediaTypes.FunctionCallPort.Request, call.Name, call.CallId);
+    }
 
     /// <summary>Maps <see cref="UsageDetails"/> to the boundary <see cref="DexChatUsage"/>; <c>null</c> stays <c>null</c>. Question counters are the caller's to set.</summary>
     public static DexChatUsage? ToDexChatUsage(this UsageDetails? usage) => usage is null ? null : new DexChatUsage {

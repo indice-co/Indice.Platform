@@ -9,37 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add UserRateCounter-backed action rate limiter with limits and guard
 Run this Migration script to update the database
 ```sql
-CREATE TABLE [auth].[UserRateCounter](
-	[UserId] [nvarchar](450) NOT NULL,
-	[ActionName] [nvarchar](256) NOT NULL,
-	[Count] [int] NOT NULL,
-	[ResetDate] [datetimeoffset](7) NOT NULL,
-	[LastUpdate] [datetimeoffset](7) NOT NULL,
-	[RowVersion] [timestamp] NULL,
- CONSTRAINT [PK_UserRateCounter] PRIMARY KEY CLUSTERED 
-(
-	[UserId] ASC,
-	[ActionName] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
-GO
+CREATE TABLE [auth].[UserRateCounter] (
+    [UserId]     NVARCHAR (450)     NOT NULL,
+    [ActionName] NVARCHAR (256)     NOT NULL,
+    [Count]      INT                NOT NULL,
+    [ResetDate]  DATETIMEOFFSET (7) NOT NULL,
+    [LastUpdate] DATETIMEOFFSET (7) NOT NULL,
+    [RowVersion] ROWVERSION         NULL,
+    CONSTRAINT [PK_UserRateCounter] PRIMARY KEY CLUSTERED ([UserId] ASC, [ActionName] ASC),
+    CONSTRAINT [FK_UserRateCounter_User_UserId] FOREIGN KEY ([UserId]) REFERENCES [auth].[User] ([Id]) ON DELETE CASCADE
+);
 
-ALTER TABLE [auth].[UserRateCounter]  WITH CHECK ADD  CONSTRAINT [FK_UserRateCounter_User_UserId] FOREIGN KEY([UserId])
-REFERENCES [auth].[User] ([Id])
-ON DELETE CASCADE
 GO
-
-ALTER TABLE [auth].[UserRateCounter] CHECK CONSTRAINT [FK_UserRateCounter_User_UserId]
-GO
-
-CREATE NONCLUSTERED INDEX [IX_UserRateCounter_ResetDate] ON [auth].[UserRateCounter]
-(
-	[ResetDate] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-
-SET ANSI_PADDING ON
-GO
+CREATE NONCLUSTERED INDEX [IX_UserRateCounter_ResetDate]
+    ON [auth].[UserRateCounter]([ResetDate] ASC);
 ```
 
 To update settings or disable it you need the following configuration in appsettings.json

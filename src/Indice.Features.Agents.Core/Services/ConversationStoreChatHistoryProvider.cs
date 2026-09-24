@@ -48,7 +48,7 @@ public sealed class ConversationStoreChatHistoryProvider : ChatHistoryProvider
         }
         var history = await _store.GetHistoryAsync(conversationId, cancellationToken);
         foreach (var message in history) {
-            message.Contents = ContentSanitizer.Sanitize(message.Contents);
+            message.Contents = ContentSanitizer.SanitizeForLLMs(message.Contents);
         }
         return history;
     }
