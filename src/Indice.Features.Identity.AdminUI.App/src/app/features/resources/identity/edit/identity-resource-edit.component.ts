@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { IdentityResourceStore } from './identity-resource-store.service';
 
@@ -6,6 +6,7 @@ import { IdentityResourceStore } from './identity-resource-store.service';
     selector: 'app-identity-resource-edit',
     templateUrl: './identity-resource-edit.component.html',
     providers: [IdentityResourceStore],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class IdentityResourceEditComponent implements OnInit {

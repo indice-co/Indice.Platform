@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 
@@ -8,6 +8,7 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 @Component({
     selector: 'app-claim-type-edit',
     templateUrl: './claim-type-edit.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ClaimTypeEditComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { TableColumn } from '@swimlane/ngx-datatable';
@@ -11,6 +11,7 @@ import { IdentityResourceStore } from '../identity-resource-store.service';
 @Component({
     selector: 'app-identity-resource-claims',
     templateUrl: './identity-resource-claims.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class IdentityResourceClaimsComponent implements OnInit, OnDestroy {

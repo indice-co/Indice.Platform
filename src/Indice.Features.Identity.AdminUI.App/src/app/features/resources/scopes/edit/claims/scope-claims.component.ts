@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { TableColumn } from '@swimlane/ngx-datatable';
@@ -11,6 +11,7 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 @Component({
     selector: 'app-scope-claims',
     templateUrl: './scope-claims.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ScopeClaimsComponent implements OnInit, OnDestroy {

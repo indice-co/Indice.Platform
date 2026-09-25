@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { fromEvent } from 'rxjs';
@@ -11,6 +11,7 @@ import { SearchEvent } from './models/search-event';
     selector: 'app-list-view',
     templateUrl: './list-view.component.html',
     styleUrls: ['./list-view.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ListViewComponent extends ListView implements OnInit, OnDestroy {

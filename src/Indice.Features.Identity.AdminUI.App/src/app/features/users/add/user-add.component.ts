@@ -3,6 +3,7 @@ import {
   Component,
   OnInit,
   ViewChild,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
@@ -35,6 +36,7 @@ import { UserStore } from "../edit/user-store.service";
     selector: "app-user-add",
     templateUrl: "./user-add.component.html",
     providers: [UserStore],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UserAddComponent implements OnInit {

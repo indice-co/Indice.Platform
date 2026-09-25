@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Subscription } from 'rxjs';
@@ -9,6 +9,7 @@ import { ApiResourceStore } from '../../api-resource-store.service';
 @Component({
     selector: 'app-api-resource-scopes',
     templateUrl: './api-resource-scopes.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApiResourceScopesComponent implements OnInit, OnDestroy {

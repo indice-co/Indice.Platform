@@ -3,6 +3,7 @@ import {
   OnInit,
   ViewChild,
   ChangeDetectorRef,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import {
   UntypedFormGroup,
@@ -33,6 +34,7 @@ import { BasicInfoStepComponent } from "./wizard/steps/basic-info/basic-info-ste
     selector: "app-resource-add",
     templateUrl: "./resource-add.component.html",
     providers: [ApiResourceStore],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ResourceAddComponent implements OnInit {

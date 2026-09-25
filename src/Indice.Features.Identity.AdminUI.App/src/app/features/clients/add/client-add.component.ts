@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators, UntypedFormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -19,6 +19,7 @@ import { ValidationSummaryComponent } from 'src/app/shared/components/validation
     templateUrl: './client-add.component.html',
     styleUrls: ['./client-add.component.scss'],
     providers: [ClientsWizardService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ClientAddComponent implements OnInit {

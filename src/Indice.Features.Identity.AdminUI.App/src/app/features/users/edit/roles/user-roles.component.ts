@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { map } from 'rxjs/operators';
@@ -12,6 +12,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-user-roles',
     templateUrl: './user-roles.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UserRolesComponent implements OnInit, OnDestroy {

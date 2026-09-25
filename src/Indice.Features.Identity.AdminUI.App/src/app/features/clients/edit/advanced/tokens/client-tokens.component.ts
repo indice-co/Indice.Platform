@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
@@ -11,6 +11,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-client-tokens',
     templateUrl: './client-tokens.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ClientTokensComponent implements OnInit, OnDestroy {

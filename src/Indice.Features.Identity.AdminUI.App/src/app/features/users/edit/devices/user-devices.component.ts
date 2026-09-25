@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
@@ -13,6 +13,7 @@ import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 @Component({
     selector: 'app-user-devices',
     templateUrl: './user-devices.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UserDevicesComponent implements OnInit, OnDestroy {

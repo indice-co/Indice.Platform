@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { MenuService } from '../../services/menu.service';
 
@@ -6,6 +6,7 @@ import { MenuService } from '../../services/menu.service';
     selector: 'app-dashboard-shell',
     templateUrl: './dashboard-shell.component.html',
     providers: [MenuService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DashboardShellComponent implements OnInit {

@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule, LOCALE_ID } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import localeGreek from '@angular/common/locales/el';
@@ -46,8 +46,7 @@ import * as app from './models/settings';
         { provide: IDENTITY_API_BASE_URL, useFactory: () => app.settings.api_url },
         { provide: LOCALE_ID, useValue: app.settings.culture },
         provideAnimations(),
-        provideSweetAlert2(),
-        provideHttpClient(withInterceptorsFromDi())
+        provideSweetAlert2()
     ]
 })
 export class CoreModule { }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -16,6 +16,7 @@ import { BasicInfoStepComponent } from 'src/app/features/resources/add/wizard/st
 @Component({
     selector: 'app-api-resource-scope-add',
     templateUrl: './api-resource-scope-add.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApiResourceScopeAddComponent implements OnInit {

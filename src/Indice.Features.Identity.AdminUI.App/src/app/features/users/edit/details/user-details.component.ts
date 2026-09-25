@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Subscription, combineLatest } from 'rxjs';
@@ -16,6 +16,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
     selector: 'app-user-details',
     templateUrl: './user-details.component.html',
     providers: [NgbDateCustomParserFormatter],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UserDetailsComponent implements OnInit, OnDestroy {

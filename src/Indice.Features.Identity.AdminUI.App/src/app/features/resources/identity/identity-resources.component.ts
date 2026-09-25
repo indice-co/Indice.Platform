@@ -1,4 +1,4 @@
-import { Component, ViewChild, TemplateRef, OnInit } from '@angular/core';
+import { Component, ViewChild, TemplateRef, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -8,6 +8,7 @@ import { SearchEvent } from 'src/app/shared/components/list-view/models/search-e
 @Component({
     selector: 'app-identity-resources',
     templateUrl: './identity-resources.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class IdentityResourcesComponent implements OnInit {

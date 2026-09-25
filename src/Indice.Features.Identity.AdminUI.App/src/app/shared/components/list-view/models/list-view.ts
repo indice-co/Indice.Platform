@@ -1,4 +1,4 @@
-import { Output, EventEmitter, Input, ViewChild, TemplateRef, Component } from '@angular/core';
+import { Output, EventEmitter, Input, ViewChild, TemplateRef, Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { TableColumn, DatatableComponent, CellContext } from '@swimlane/ngx-datatable';
 import { Subscription } from 'rxjs';
@@ -6,6 +6,7 @@ import { SearchEvent } from './search-event';
 
 @Component({
     template: '',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ListView {

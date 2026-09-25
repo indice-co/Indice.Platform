@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, TemplateRef } from '@angular/core';
+import { Component, ViewChild, OnInit, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { IdentityApiService, AppSettingInfo, AppSettingInfoResultSet } from 'src/app/core/services/identity-api.service';
@@ -7,6 +7,7 @@ import { SearchEvent } from 'src/app/shared/components/list-view/models/search-e
 @Component({
     selector: 'app-settings',
     templateUrl: './settings.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SettingsComponent implements OnInit {

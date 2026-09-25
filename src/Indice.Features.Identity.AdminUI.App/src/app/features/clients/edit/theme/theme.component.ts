@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { ClientThemeConfigRequest, ClientThemeConfigResponse, IdentityApiService } from 'src/app/core/services/identity-api.service';
@@ -7,6 +7,7 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 @Component({
     selector: 'app-client-theme-config',
     templateUrl: './theme.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ClientUiConfigComponent implements OnInit {

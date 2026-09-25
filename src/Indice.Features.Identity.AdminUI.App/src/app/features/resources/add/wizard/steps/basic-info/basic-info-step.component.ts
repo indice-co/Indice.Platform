@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
@@ -7,6 +7,7 @@ import { ResourceWizardModel } from '../../../models/resource-wizard-model';
 @Component({
     selector: 'app-basic-info-step',
     templateUrl: './basic-info-step.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class BasicInfoStepComponent extends StepBaseComponent<ResourceWizardModel> implements OnInit {

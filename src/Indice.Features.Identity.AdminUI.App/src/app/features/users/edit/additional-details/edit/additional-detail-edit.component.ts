@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { Subscription, combineLatest } from 'rxjs';
@@ -15,6 +15,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
     selector: 'app-additional-detail-edit',
     templateUrl: './additional-detail-edit.component.html',
     providers: [NgbDateCustomParserFormatter],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class AdditionalDetailEditComponent implements OnInit, OnDestroy {

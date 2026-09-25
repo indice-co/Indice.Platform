@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 
 import { AuthService } from "src/app/core/services/auth.service";
 import { MenuService } from "src/app/layout/services/menu.service";
@@ -8,6 +8,7 @@ import { IdTokenClaims } from "oidc-client-ts";
 @Component({
     selector: "app-top-bar",
     templateUrl: "./top-bar.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TopBarComponent implements OnInit {

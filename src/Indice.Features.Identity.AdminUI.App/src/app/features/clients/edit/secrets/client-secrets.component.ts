@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
@@ -18,6 +18,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-client-secrets',
     templateUrl: './client-secrets.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ClientSecretsComponent implements OnInit, OnDestroy {
