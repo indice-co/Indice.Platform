@@ -7,7 +7,7 @@
 
 @{
     ViewData["Title"] = Localizer.Consent_PageTitle;
-    var logoUrl = Model.View.ClientLogoUrl is not null
+    var logoUrl = !string.IsNullOrEmpty(Model.View.ClientLogoUrl)
         ? (Url.IsLocalUrl(Model.View.ClientLogoUrl) ? Url.Content(Model.View.ClientLogoUrl) : Model.View.ClientLogoUrl)
         : Url.Content($"~/avatar/{Model.View.ClientName}/128.jpg");
 }
