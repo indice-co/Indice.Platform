@@ -6,11 +6,55 @@
 <title>Animated gradient background demo</title>
 <style>
   :root {
+    /* Brand gradient */
     --c-blue:   #2f7cf6;
     --c-indigo: #4b5df2;
     --c-violet: #8a4bd8;
     --c-pink:   #d24da8;
     --c-orange: #f28c3a;
+
+    /* Base background (static cyan -> blue) */
+    --c-bg-cyan:   #1fd0ff;
+    --c-bg-sky:    #22a6f5;
+    --c-bg-blue:   #1f66e8;
+
+    /* Vibrant wave palette */
+    --c-wave-violet-a: #6a3cff;
+    --c-wave-violet-b: #9b3df0;
+    --c-wave-violet-c: #6d2bd6;
+    --c-wave-magenta-a: #ff5fd2;
+    --c-wave-magenta-b: #d13ee9;
+    --c-wave-magenta-c: #a02bf0;
+    --c-wave-orange-a: #ff9a3c;
+    --c-wave-orange-b: #ff7a4a;
+    --c-wave-orange-c: #ff5aa0;
+    --c-wave-sky-a: #2fd7ff;
+    --c-wave-sky-b: #2b8cff;
+
+    /* Neutrals */
+    --c-white:      #fff;
+    --c-black:      #111;
+    --c-black-soft: #333;
+    --c-text-muted: #555;
+    --c-text-faint: #666;
+    --c-border:     #d0d0d0;
+
+    /* Brand */
+    --c-brand-red: #e63946;
+
+    /* Glass */
+    --glass-bg:          rgba(255, 255, 255, .14);
+    --glass-bg-fallback: rgba(255, 255, 255, .3);
+    --glass-border:      rgba(255, 255, 255, .4);
+    --glass-highlight:   rgba(255, 255, 255, .35);
+    --glass-sheen:       rgba(255, 255, 255, .16);
+    --glass-control-bg:  rgba(255, 255, 255, .14);
+    --glass-control-bd:  rgba(255, 255, 255, .55);
+    --glass-shadow:      rgba(0, 0, 0, .18);
+
+    /* Shadows */
+    --shadow-text: rgba(0, 0, 0, .3);
+    --shadow-card: rgba(0, 0, 0, .3);
   }
 
   * { box-sizing: border-box; }
@@ -22,31 +66,7 @@
     inset: 0;
     z-index: -1;
     overflow: hidden;
-    background: linear-gradient(115deg,
-        var(--c-blue) 0%, var(--c-indigo) 35%, var(--c-violet) 60%, var(--c-pink) 85%, var(--c-orange) 100%);
-    background-size: 200% 200%;
-    animation: hueShift 30s ease-in-out infinite alternate;
-  }
-  @keyframes hueShift { from { background-position: 0% 0%; } to { background-position: 100% 100%; } }
-
-  /* Soft glowing blobs */
-  .blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: .8;
-    mix-blend-mode: screen;
-    will-change: transform;
-    animation: drift var(--dur, 20s) ease-in-out infinite alternate;
-  }
-  .blob-1 { width: 60vw; height: 60vw; top: -25vw; left: -15vw; background: #38b6ff; --dur: 22s; }
-  .blob-2 { width: 55vw; height: 55vw; bottom: -20vw; left: 20vw; background: #b35cff; --dur: 26s; animation-delay: -8s; }
-  .blob-3 { width: 50vw; height: 50vw; top: -15vw; right: -10vw; background: #ff8a3d; --dur: 18s; animation-delay: -4s; }
-  @keyframes drift {
-    0%   { transform: translate(0, 0) scale(1); }
-    33%  { transform: translate(8vw, -6vh) scale(1.1); }
-    66%  { transform: translate(-6vw, 8vh) scale(.95); }
-    100% { transform: translate(4vw, 4vh) scale(1.05); }
+    background: linear-gradient(160deg, var(--c-bg-cyan) 0%, var(--c-bg-sky) 45%, var(--c-bg-blue) 100%);
   }
 
   /* ---------- SVG waves ---------- */
@@ -60,24 +80,21 @@
     transform-box: fill-box;
     transform-origin: center;
     will-change: transform;
-    mix-blend-mode: screen;
   }
-  .wave-1 { animation: wave1 26s ease-in-out infinite alternate; }
-  .wave-2 { animation: wave2 32s ease-in-out infinite alternate; animation-delay: -10s; }
-  .wave-3 { animation: wave3 38s ease-in-out infinite alternate; animation-delay: -18s; }
-  .wave-4 { animation: wave1 44s ease-in-out infinite alternate-reverse; animation-delay: -6s; }
+  .wave-violet  { animation: driftY 28s ease-in-out infinite alternate; }
+  .wave-magenta { animation: driftX 34s ease-in-out infinite alternate; animation-delay: -12s; }
+  .wave-orange  { animation: driftY 24s ease-in-out infinite alternate-reverse; animation-delay: -6s; }
+  .wave-sky     { animation: driftX 40s ease-in-out infinite alternate-reverse; animation-delay: -20s; }
 
-  @keyframes wave1 {
-    from { transform: translate(0, 0) rotate(0deg) scale(1); }
-    to   { transform: translate(4%, -3%) rotate(3deg) scale(1.06); }
+  /* Vertical movement */
+  @keyframes driftY {
+    from { transform: translateY(0) scale(1); }
+    to   { transform: translateY(-6%) scale(1.05); }
   }
-  @keyframes wave2 {
-    from { transform: translate(0, 0) rotate(0deg); }
-    to   { transform: translate(-5%, 4%) rotate(-4deg) scale(1.04); }
-  }
-  @keyframes wave3 {
-    from { transform: translate(0, 0) scale(1); }
-    to   { transform: translate(3%, 5%) rotate(2deg) scale(1.08); }
+  /* Horizontal movement */
+  @keyframes driftX {
+    from { transform: translateX(0) scale(1); }
+    to   { transform: translateX(5%) scale(1.04); }
   }
 
   /* Film grain */
@@ -86,22 +103,60 @@
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   }
 
-  @media (prefers-reduced-motion: reduce) { .auth-bg, .blob, .wave { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .wave { animation: none; } }
+
+  /* ---------- Glass panels (header / footer) ---------- */
+  .glass {
+    position: relative;
+    color: var(--c-white);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+  }
+  /* Fallback when backdrop-filter is unsupported */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass { background: var(--glass-bg-fallback); }
+  }
+  /* Subtle glossy sheen */
+  .glass::before {
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, var(--glass-sheen) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .shell { min-height: 100%; display: flex; flex-direction: column; padding: .75rem; gap: .5rem; }
+
+  .site-header { display: flex; align-items: center; gap: .75rem; padding: 1rem 1.5rem; }
+  .brand { display: inline-flex; align-items: center; text-decoration: none; color: inherit; }
+  .brand img { height: 40px; width: auto; display: block; }
+
+  .site-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem 1.5rem; font-size: .8rem; flex-wrap: wrap; }
+  .footer-left { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .site-footer a { color: var(--c-white); text-decoration: none; }
+  .site-footer a:hover { text-decoration: underline; }
+  .lang { appearance: none; padding: .35rem 1.75rem .35rem .75rem; border-radius: 6px; border: 1px solid var(--glass-control-bd); background: var(--glass-control-bg) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='white' stroke-width='1.5'/></svg>") no-repeat right .6rem center; color: var(--c-white); font: inherit; cursor: pointer; }
+  .lang option { color: var(--c-black); }
+  .footer-right { opacity: .95; }
 
   /* ---------- Layout & card ---------- */
-  .page { min-height: 100%; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 2rem; gap: 2rem; }
-  .hero { color: #fff; padding: 2rem; text-shadow: 0 2px 12px rgba(0,0,0,.25); }
+  .page { flex: 1; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 2rem; gap: 2rem; }
+  .hero { color: var(--c-white); padding: 2rem; text-shadow: 0 2px 12px var(--shadow-text); }
   .hero h1 { font-size: 2.25rem; font-weight: 500; margin: 0 0 .5rem; }
   .hero p  { font-size: 1.1rem; margin: 0; opacity: .9; }
 
-  .card { background: #fff; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.25); padding: 2.5rem; width: 100%; max-width: 380px; margin: 0 auto; }
+  .card { background: var(--c-white); border-radius: 12px; box-shadow: 0 20px 60px var(--shadow-card); padding: 2.5rem; width: 100%; max-width: 380px; margin: 0 auto; }
   .card h2 { margin: 0 0 1.5rem; text-align: center; font-weight: 500; font-size: 1.25rem; }
-  label { display: block; font-size: .8rem; color: #555; margin-bottom: .35rem; }
-  input { width: 100%; padding: .7rem .8rem; border: 1px solid #d0d0d0; border-radius: 6px; font-size: .95rem; margin-bottom: 1rem; }
+  label { display: block; font-size: .8rem; color: var(--c-text-muted); margin-bottom: .35rem; }
+  input { width: 100%; padding: .7rem .8rem; border: 1px solid var(--c-border); border-radius: 6px; font-size: .95rem; margin-bottom: 1rem; }
   input:focus { outline: 2px solid var(--c-indigo); border-color: transparent; }
-  button { width: 100%; padding: .8rem; border: none; border-radius: 6px; background: #111; color: #fff; font-size: .95rem; cursor: pointer; }
-  button:hover { background: #333; }
-  .links { margin-top: 1.25rem; text-align: center; font-size: .8rem; color: #666; }
+  button { width: 100%; padding: .8rem; border: none; border-radius: 6px; background: var(--c-black); color: var(--c-white); font-size: .95rem; cursor: pointer; }
+  button:hover { background: var(--c-black-soft); }
+  .links { margin-top: 1.25rem; text-align: center; font-size: .8rem; color: var(--c-text-faint); }
   .links a { color: var(--c-indigo); }
   @media (max-width: 800px) { .page { grid-template-columns: 1fr; } .hero { text-align: center; } }
 </style>
@@ -109,72 +164,69 @@
 <body>
 
   <div class="auth-bg" aria-hidden="true">
-    <span class="blob blob-1"></span>
-    <span class="blob blob-2"></span>
-    <span class="blob blob-3"></span>
-
     <svg class="waves" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
       <defs>
-        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0"   stop-color="#5b7bff" stop-opacity=".95"/>
-          <stop offset=".55" stop-color="#a55cf0" stop-opacity=".9"/>
-          <stop offset="1"   stop-color="#ff7ad9" stop-opacity=".85"/>
+        <linearGradient id="g-violet" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0"   stop-color="var(--c-wave-violet-a)"/>
+          <stop offset=".55" stop-color="var(--c-wave-violet-b)"/>
+          <stop offset="1"   stop-color="var(--c-wave-violet-c)"/>
         </linearGradient>
-        <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0"   stop-color="#c04ee6" stop-opacity=".9"/>
-          <stop offset=".6"  stop-color="#ff6ab5" stop-opacity=".85"/>
-          <stop offset="1"   stop-color="#ffb35c" stop-opacity=".8"/>
+        <linearGradient id="g-magenta" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0"   stop-color="var(--c-wave-magenta-a)"/>
+          <stop offset=".5"  stop-color="var(--c-wave-magenta-b)"/>
+          <stop offset="1"   stop-color="var(--c-wave-magenta-c)"/>
         </linearGradient>
-        <linearGradient id="g3" x1="1" y1="0" x2="0" y2="1">
-          <stop offset="0"   stop-color="#ffa25a" stop-opacity=".9"/>
-          <stop offset=".5"  stop-color="#ff5f8f" stop-opacity=".8"/>
-          <stop offset="1"   stop-color="#8c5cff" stop-opacity=".7"/>
+        <linearGradient id="g-orange" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0"   stop-color="var(--c-wave-orange-a)"/>
+          <stop offset=".55" stop-color="var(--c-wave-orange-b)"/>
+          <stop offset="1"   stop-color="var(--c-wave-orange-c)"/>
         </linearGradient>
-        <linearGradient id="g4" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0"   stop-color="#3ec4ff" stop-opacity=".8"/>
-          <stop offset="1"   stop-color="#6f6cff" stop-opacity=".6"/>
+        <linearGradient id="g-sky" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0"   stop-color="var(--c-wave-sky-a)"/>
+          <stop offset="1"   stop-color="var(--c-wave-sky-b)"/>
         </linearGradient>
-        <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="1"/>
-        </filter>
-        <filter id="softer" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="3"/>
-        </filter>
       </defs>
 
-      <!-- Large sweeping curve, bottom-left -> upper-right -->
-      <path class="wave wave-1" fill="url(#g1)" filter="url(#soft)"
-        d="M -200 900
-           C 150 700, 350 420, 700 380
-           S 1250 520, 1650 280
-           L 1650 1000 L -200 1000 Z"/>
+      <!-- Deep violet body filling the right side, bottom-left -> top-right -->
+      <path class="wave wave-violet" fill="url(#g-violet)"
+        d="M 260 1000
+           C 420 760, 640 640, 780 460
+           S 980 120, 1150 -100
+           L 1650 -100 L 1650 1000 Z"/>
 
-      <!-- Mid ribbon crossing diagonally -->
-      <path class="wave wave-2" fill="url(#g2)" filter="url(#soft)"
-        d="M -200 620
-           C 200 560, 420 780, 760 700
-           S 1200 380, 1650 460
-           C 1500 620, 1250 700, 950 860
-           S 250 980, -200 900 Z"/>
+      <!-- Magenta ribbon sweeping across the violet body -->
+      <path class="wave wave-magenta" fill="url(#g-magenta)"
+        d="M 460 1000
+           C 620 820, 760 700, 860 520
+           S 1000 200, 1120 -100
+           L 1300 -100
+           C 1180 200, 1080 420, 980 600
+           S 760 860, 680 1000 Z"/>
 
-      <!-- Warm accent from top-right -->
-      <path class="wave wave-3" fill="url(#g3)" filter="url(#softer)"
-        d="M 700 -100
-           C 950 60, 1050 260, 1300 300
-           S 1650 240, 1650 240
+      <!-- Warm orange accent in the top-right corner -->
+      <path class="wave wave-orange" fill="url(#g-orange)"
+        d="M 920 -100
+           C 1000 80, 1120 200, 1300 240
+           S 1650 200, 1650 200
            L 1650 -100 Z"/>
 
-      <!-- Cool highlight band -->
-      <path class="wave wave-4" fill="url(#g4)" filter="url(#softer)"
-        d="M -200 300
-           C 150 220, 300 420, 600 380
-           S 1000 180, 1250 260
-           C 1050 380, 800 520, 500 560
-           S 50 500, -200 560 Z"/>
+      <!-- Bright cyan highlight curling in from the left -->
+      <path class="wave wave-sky" fill="url(#g-sky)"
+        d="M -200 520
+           C 100 440, 320 560, 520 640
+           S 780 880, 620 1000
+           L -200 1000 Z"/>
     </svg>
 
     <span class="grain"></span>
   </div>
+
+  <div class="shell">
+  <header class="site-header glass">
+    <a class="brand" href="#">
+      <img src="./iam-logo.svg" alt="INDICE IAM Logo" />
+    </a>
+  </header>
 
   <main class="page">
     <section class="hero">
@@ -192,6 +244,21 @@
       <div class="links">Δεν έχεις λογαριασμό; <a href="#">Δημιουργία λογαριασμού</a></div>
     </form>
   </main>
+
+  <footer class="site-footer glass">
+    <div class="footer-left">
+      <select class="lang" aria-label="Language">
+        <option>Ελληνικά</option>
+        <option>English</option>
+      </select>
+      <span>© 2019 - 2026 Indice</span>
+      <a href="#">Πολιτική Απορρήτου</a>
+      <a href="#">Όροι Χρήσης</a>
+      <a href="#">Επικοινωνία</a>
+    </div>
+    <div class="footer-right">With ❤ by INDICE</div>
+  </footer>
+  </div>
 
 </body>
 </html>
