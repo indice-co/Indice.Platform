@@ -10,7 +10,7 @@
 
 <section class="auth-card auth-card--message @(Model.AutomaticRedirectAfterSignOut ? "d-none": "")">
     @* PostLogoutRedirectUri and SignOutIframeUrl come from IIdentityServerInteractionService.GetLogoutContextAsync and are validated by IdentityServer against the client's registered URIs. *@
-    <vc:page-heading
+    <vc:page-heading title="@Localizer.LoggedOut_PageHeader" subtitle="@Localizer.LoggedOut_You_Are_Now_Logged_Out" image-src="" />
     <p class="auth-card__text">
         @Localizer.LoggedOut_Click <a id="PostLogoutRedirectUri" href="@(Model.HasPostLogoutRedirectUri? Model.PostLogoutRedirectUri: "/")">@Localizer.LoggedOut_Here</a> @Localizer.LoggedOut_To_Return_To_The_Application
         <span indice-if="Model.HasPostLogoutRedirectUri">@Model.ClientName</span>.
