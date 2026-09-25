@@ -6,24 +6,21 @@
 @{
     var settings = Settings.Value;
     var copyYear = UIOptions.Value.CopyYear;
-    var version = typeof(BaseLoginModel).Assembly.GetName().Version?.ToString();
     var showContactUs = !string.IsNullOrWhiteSpace(UIOptions.Value.ContactUsUrl);
 }
 
-<footer class="container-fluid footer">
-    <div class="copyright">
-        <div class="language">
-            <partial name="_LanguageSelector" />
-        </div>
-        &copy; @Localizer.OrganizationName(settings.Organization!) @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
+<footer class="site-footer">
+    <div class="site-footer__lang">
+        <partial name="_LanguageSelector" />
     </div>
-    <div class="links">
-        <span class="software-verson">v@(version ?? "1.0.0")</span>
+    <p class="site-footer__copyright">&copy; @copyYear@(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty) @Localizer.OrganizationName(settings.Organization!)</p>
+    <nav class="site-footer__links" aria-label="@Localizer.Footer_LinksLabel">
         <environment exclude="@UIOptions.Value.ProductionEnvironments">
-            <a href="~/.well-known/openid-configuration" target="_blank">@Localizer.Footer_Discovery</a>
+            <a class="site-footer__link" href="~/.well-known/openid-configuration" target="_blank" rel="noopener">@Localizer.Footer_Discovery</a>
         </environment>
-        <a asp-page="/Privacy" target="_blank">@Localizer.Footer_Privacy</a>
-        <a asp-page="/Terms" target="_blank">@Localizer.Footer_Terms</a>
-        <a indice-if="showContactUs" href="@UIOptions.Value.ContactUsUrl" target="_blank">@Localizer.Footer_Contact_us</a>
-    </div>
+        <a class="site-footer__link" asp-page="/Privacy" target="_blank">@Localizer.Footer_Privacy</a>
+        <a class="site-footer__link" asp-page="/Terms" target="_blank">@Localizer.Footer_Terms</a>
+        <a class="site-footer__link" indice-if="showContactUs" href="@UIOptions.Value.ContactUsUrl" target="_blank" rel="noopener">@Localizer.Footer_Contact_us</a>
+    </nav>
+    <p indice-if="UIOptions.Value.ShowMadeByCredit" class="site-footer__credit">@Localizer.Footer_MadeBy</p>
 </footer>

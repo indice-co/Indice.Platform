@@ -1,0 +1,29 @@
+﻿@use '../abstracts/mixins' as m;
+@use '../abstracts/theme' as theme;
+
+// =============================================================================
+// Theme "columns". <html data-theme="columns">
+//   Desktop: a fixed-width left column carries the hero image and copy for the full page
+//   height with the brand over it; the right column holds the form (flat, no card) and the
+//   footer. Applies to every page except the profile shell. Mobile: light single column, hero hidden.
+// Only custom property values; the layout engine in layouts/_anonymous-shell.scss reads them.
+// =============================================================================
+
+:root[data-theme='columns'] {
+    @include m.mq(lg) {
+        body:not(.shell-profile) {
+            --idui-page-bg: var(--idui-color-surface-muted);
+            @include theme.header-on-image;
+            --idui-site-columns: minmax(0, var(--idui-hero-column)) minmax(0, 1fr);
+            --idui-site-areas: 'header main' 'hero main' 'hero footer';
+            --idui-hero-display: flex;
+            --idui-hero-area: 1 / 1 / -1 / 2;   // span every row of the first column, under the header
+            --idui-hero-align: flex-end;
+            --idui-hero-bg-layer: var(--idui-hero-bg);
+            --idui-hero-padding: 4rem var(--idui-page-gutter-lg);
+            // main starts at the top row; keep the form clear of the header line.
+            --idui-main-padding: calc(var(--idui-header-height) + 1rem) 3rem 2rem;
+            @include theme.auth-card-flat;
+        }
+    }
+}

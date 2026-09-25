@@ -52,7 +52,7 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
         Input = View = new EnableMfaEmailViewModel {
             Email = user.Email,
             EmailConfirmed = user.EmailConfirmed,
-            ReturnUrl = returnUrl
+            ReturnUrl = SanitizeReturnUrl(returnUrl)
         };
         return Page();
     }

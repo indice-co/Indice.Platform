@@ -1,17 +1,17 @@
 ﻿@inject IdentityUILocalizer Localizer
 @model List<GatewayServiceModel>
 
-<div indice-if="Model.Count > 0" class="services deck d-flex flex-wrap">
+<ul indice-if="Model.Count > 0" class="deck">
     @foreach (var item in Model)
     {
         var itemCssClass = item.DisplayName.ToLower().Replace(' ', '-');
         var hasImage = !string.IsNullOrWhiteSpace(item.ImageSrc);
-        <a class="deck-item @item.CssClass @itemCssClass d-flex flex-column-reverse mb-4" href="@Url.Content(item.Link)" indice-if="item.Visible">
-            <h5 class="deck-title mt-3">@Localizer.GetGeneric(item.DisplayName)</h5>
-            <div indice-if="!hasImage" class="deck-icon"></div>
-            <div indice-if="hasImage" class="deck-image">
-                <img src="@item.ImageSrc" alt="@Localizer.GetGeneric(item.DisplayName) image" />
-            </div>
-        </a>
+        <li class="deck__item" indice-if="item.Visible">
+            <a class="deck__link @item.CssClass @itemCssClass" href="@Url.Content(item.Link)">
+                <span indice-if="!hasImage" class="deck__icon" aria-hidden="true"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+                <span indice-if="hasImage" class="deck__image"><img src="@item.ImageSrc" alt="" /></span>
+                <span class="deck__title">@Localizer.GetGeneric(item.DisplayName)</span>
+            </a>
+        </li>
     }
-</div>
+</ul>

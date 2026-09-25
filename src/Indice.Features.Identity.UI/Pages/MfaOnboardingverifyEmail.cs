@@ -47,7 +47,7 @@ public abstract class BaseMfaOnboardingVerifyEmailModel : BasePageModel
             NextStepUrl = string.Empty
         });
         Input.Email = user.Email;
-        Input.ReturnUrl = returnUrl;
+        Input.ReturnUrl = SanitizeReturnUrl(returnUrl);
         return Page();
     }
 

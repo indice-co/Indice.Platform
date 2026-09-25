@@ -1,22 +1,28 @@
-(function ($) {
+﻿(function ($) {
     function togglePassword(e) {
         e.preventDefault();
 
-        const $btn = $(this);
-
-        const $root = $btn.closest('.password-control');
-        const $input = $root.find('input.password');
+        var $btn = $(this);
+        var $root = $btn.closest('.field__group, .password-control');
+        var $input = $root.find('input.password');
 
         if (!$input.length) return;
 
-        const isVisible = $input.attr('type') === 'text';
+        var isVisible = $input.attr('type') === 'text';
 
         $input.attr('type', isVisible ? 'password' : 'text');
         $btn.attr('aria-pressed', String(!isVisible));
-        const label = isVisible ? 'Show password' : 'Hide password';
+
+        var label = isVisible
+            ? ($btn.data('label-show') || 'Show password')
+            : ($btn.data('label-hide') || 'Hide password');
         $btn.attr('aria-label', label);
         $btn.attr('title', label);
+
+        $btn.find('.fa-eye, .fa-eye-slash')
+            .toggleClass('fa-eye', isVisible)
+            .toggleClass('fa-eye-slash', !isVisible);
     }
 
-    $(document).on('click', '.password-control .reveal-icon', togglePassword);
+    $(document).on('click', '.field__reveal, .password-control .reveal-icon', togglePassword);
 })(jQuery);

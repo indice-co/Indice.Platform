@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animated gradient background demo</title>
+<style>
+  :root {
+    /* Brand gradient */
+    --c-blue:   #2f7cf6;
+    --c-indigo: #4b5df2;
+    --c-violet: #8a4bd8;
+    --c-pink:   #d24da8;
+    --c-orange: #f28c3a;
+
+    /* Base background (static cyan -> blue) */
+    --c-bg-cyan:   #1fd0ff;
+    --c-bg-sky:    #22a6f5;
+    --c-bg-blue:   #1f66e8;
+
+    /* Vibrant wave palette */
+    --c-wave-violet-a: #6a3cff;
+    --c-wave-violet-b: #9b3df0;
+    --c-wave-violet-c: #6d2bd6;
+    --c-wave-magenta-a: #ff5fd2;
+    --c-wave-magenta-b: #d13ee9;
+    --c-wave-magenta-c: #a02bf0;
+    --c-wave-orange-a: #ff9a3c;
+    --c-wave-orange-b: #ff7a4a;
+    --c-wave-orange-c: #ff5aa0;
+    --c-wave-sky-a: #2fd7ff;
+    --c-wave-sky-b: #2b8cff;
+
+    /* Neutrals */
+    --c-white:      #fff;
+    --c-black:      #111;
+    --c-black-soft: #333;
+    --c-text-muted: #555;
+    --c-text-faint: #666;
+    --c-border:     #d0d0d0;
+
+    /* Brand */
+    --c-brand-red: #e63946;
+
+    /* Glass */
+    --glass-bg:          rgba(255, 255, 255, .14);
+    --glass-bg-fallback: rgba(255, 255, 255, .3);
+    --glass-border:      rgba(255, 255, 255, .4);
+    --glass-highlight:   rgba(255, 255, 255, .35);
+    --glass-sheen:       rgba(255, 255, 255, .16);
+    --glass-control-bg:  rgba(255, 255, 255, .14);
+    --glass-control-bd:  rgba(255, 255, 255, .55);
+    --glass-shadow:      rgba(0, 0, 0, .18);
+
+    /* Shadows */
+    --shadow-text: rgba(0, 0, 0, .3);
+    --shadow-card: rgba(0, 0, 0, .3);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+  /* ---------- Background ---------- */
+  .auth-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--c-bg-cyan) 0%, var(--c-bg-sky) 45%, var(--c-bg-blue) 100%);
+  }
+
+  /* ---------- SVG waves ---------- */
+  .waves {
+    position: absolute;
+    inset: -10%;             /* bleed so edges never show while moving */
+    width: 120%;
+    height: 120%;
+  }
+  .wave {
+    transform-box: fill-box;
+    transform-origin: center;
+    will-change: transform;
+  }
+  .wave-violet  { animation: driftY 28s ease-in-out infinite alternate; }
+  .wave-magenta { animation: driftX 34s ease-in-out infinite alternate; animation-delay: -12s; }
+  .wave-orange  { animation: driftY 24s ease-in-out infinite alternate-reverse; animation-delay: -6s; }
+  .wave-sky     { animation: driftX 40s ease-in-out infinite alternate-reverse; animation-delay: -20s; }
+
+  /* Vertical movement */
+  @keyframes driftY {
+    from { transform: translateY(0) scale(1); }
+    to   { transform: translateY(-6%) scale(1.05); }
+  }
+  /* Horizontal movement */
+  @keyframes driftX {
+    from { transform: translateX(0) scale(1); }
+    to   { transform: translateX(5%) scale(1.04); }
+  }
+
+  /* Film grain */
+  .grain {
+    position: absolute; inset: 0; opacity: .08; mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  @media (prefers-reduced-motion: reduce) { .wave { animation: none; } }
+
+  /* ---------- Glass panels (header / footer) ---------- */
+  .glass {
+    position: relative;
+    color: var(--c-white);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+  }
+  /* Fallback when backdrop-filter is unsupported */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass { background: var(--glass-bg-fallback); }
+  }
+  /* Subtle glossy sheen */
+  .glass::before {
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, var(--glass-sheen) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .shell { min-height: 100%; display: flex; flex-direction: column; padding: .75rem; gap: .5rem; }
+
+  .site-header { display: flex; align-items: center; gap: .75rem; padding: 1rem 1.5rem; }
+  .brand { display: inline-flex; align-items: center; text-decoration: none; color: inherit; }
+  .brand img { height: 40px; width: auto; display: block; }
+
+  .site-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem 1.5rem; font-size: .8rem; flex-wrap: wrap; }
+  .footer-left { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .site-footer a { color: var(--c-white); text-decoration: none; }
+  .site-footer a:hover { text-decoration: underline; }
+  .lang { appearance: none; padding: .35rem 1.75rem .35rem .75rem; border-radius: 6px; border: 1px solid var(--glass-control-bd); background: var(--glass-control-bg) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='white' stroke-width='1.5'/></svg>") no-repeat right .6rem center; color: var(--c-white); font: inherit; cursor: pointer; }
+  .lang option { color: var(--c-black); }
+  .footer-right { opacity: .95; }
+
+  /* ---------- Layout & card ---------- */
+  .page { flex: 1; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 2rem; gap: 2rem; }
+  .hero { color: var(--c-white); padding: 2rem; text-shadow: 0 2px 12px var(--shadow-text); }
+  .hero h1 { font-size: 2.25rem; font-weight: 500; margin: 0 0 .5rem; }
+  .hero p  { font-size: 1.1rem; margin: 0; opacity: .9; }
+
+  .card { background: var(--c-white); border-radius: 12px; box-shadow: 0 20px 60px var(--shadow-card); padding: 2.5rem; width: 100%; max-width: 380px; margin: 0 auto; }
+  .card h2 { margin: 0 0 1.5rem; text-align: center; font-weight: 500; font-size: 1.25rem; }
+  label { display: block; font-size: .8rem; color: var(--c-text-muted); margin-bottom: .35rem; }
+  input { width: 100%; padding: .7rem .8rem; border: 1px solid var(--c-border); border-radius: 6px; font-size: .95rem; margin-bottom: 1rem; }
+  input:focus { outline: 2px solid var(--c-indigo); border-color: transparent; }
+  button { width: 100%; padding: .8rem; border: none; border-radius: 6px; background: var(--c-black); color: var(--c-white); font-size: .95rem; cursor: pointer; }
+  button:hover { background: var(--c-black-soft); }
+  .links { margin-top: 1.25rem; text-align: center; font-size: .8rem; color: var(--c-text-faint); }
+  .links a { color: var(--c-indigo); }
+  @media (max-width: 800px) { .page { grid-template-columns: 1fr; } .hero { text-align: center; } }
+</style>
+</head>
+<body>
+
+  <div class="auth-bg" aria-hidden="true">
+    <svg class="waves" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="g-violet" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0"   stop-color="var(--c-wave-violet-a)"/>
+          <stop offset=".55" stop-color="var(--c-wave-violet-b)"/>
+          <stop offset="1"   stop-color="var(--c-wave-violet-c)"/>
+        </linearGradient>
+        <linearGradient id="g-magenta" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0"   stop-color="var(--c-wave-magenta-a)"/>
+          <stop offset=".5"  stop-color="var(--c-wave-magenta-b)"/>
+          <stop offset="1"   stop-color="var(--c-wave-magenta-c)"/>
+        </linearGradient>
+        <linearGradient id="g-orange" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0"   stop-color="var(--c-wave-orange-a)"/>
+          <stop offset=".55" stop-color="var(--c-wave-orange-b)"/>
+          <stop offset="1"   stop-color="var(--c-wave-orange-c)"/>
+        </linearGradient>
+        <linearGradient id="g-sky" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0"   stop-color="var(--c-wave-sky-a)"/>
+          <stop offset="1"   stop-color="var(--c-wave-sky-b)"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Deep violet body filling the right side, bottom-left -> top-right -->
+      <path class="wave wave-violet" fill="url(#g-violet)"
+        d="M 260 1000
+           C 420 760, 640 640, 780 460
+           S 980 120, 1150 -100
+           L 1650 -100 L 1650 1000 Z"/>
+
+      <!-- Magenta ribbon sweeping across the violet body -->
+      <path class="wave wave-magenta" fill="url(#g-magenta)"
+        d="M 460 1000
+           C 620 820, 760 700, 860 520
+           S 1000 200, 1120 -100
+           L 1300 -100
+           C 1180 200, 1080 420, 980 600
+           S 760 860, 680 1000 Z"/>
+
+      <!-- Warm orange accent in the top-right corner -->
+      <path class="wave wave-orange" fill="url(#g-orange)"
+        d="M 920 -100
+           C 1000 80, 1120 200, 1300 240
+           S 1650 200, 1650 200
+           L 1650 -100 Z"/>
+
+      <!-- Bright cyan highlight curling in from the left -->
+      <path class="wave wave-sky" fill="url(#g-sky)"
+        d="M -200 520
+           C 100 440, 320 560, 520 640
+           S 780 880, 620 1000
+           L -200 1000 Z"/>
+    </svg>
+
+    <span class="grain"></span>
+  </div>
+
+  <div class="shell">
+  <header class="site-header glass">
+    <a class="brand" href="#">
+      <img src="./iam-logo.svg" alt="INDICE IAM Logo" />
+    </a>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <h1>Η ταυτότητά σου, στα χέρια σου.</h1>
+      <p>Απόκτησε πρόσβαση στον κόσμο σου με σιγουριά.</p>
+    </section>
+
+    <form class="card" onsubmit="event.preventDefault(); alert('Submitted');">
+      <h2>Είσοδος στο λογαριασμό</h2>
+      <label for="email">Όνομα χρήστη</label>
+      <input id="email" type="email" placeholder="myemail@mycompany.gr" autocomplete="username">
+      <label for="password">Κωδικός πρόσβασης</label>
+      <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+      <button type="submit">Είσοδος</button>
+      <div class="links">Δεν έχεις λογαριασμό; <a href="#">Δημιουργία λογαριασμού</a></div>
+    </form>
+  </main>
+
+  <footer class="site-footer glass">
+    <div class="footer-left">
+      <select class="lang" aria-label="Language">
+        <option>Ελληνικά</option>
+        <option>English</option>
+      </select>
+      <span>© 2019 - 2026 Indice</span>
+      <a href="#">Πολιτική Απορρήτου</a>
+      <a href="#">Όροι Χρήσης</a>
+      <a href="#">Επικοινωνία</a>
+    </div>
+    <div class="footer-right">With ❤ by INDICE</div>
+  </footer>
+  </div>
+
+</body>
+</html>

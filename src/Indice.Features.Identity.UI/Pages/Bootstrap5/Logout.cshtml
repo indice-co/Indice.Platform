@@ -7,17 +7,12 @@
     ViewData["Title"] = Localizer.Logout_PageTitle;
 }
 
-<section class="identity-panel wide logout-page">
-    <article class="text-center">
-        <vc:page-heading title="@Localizer.Logout_PageHeader" image-src="" />
-        <p>@Localizer.Logout_Would_You_Like_To_Logout</p>
-        <form asp-page="/Logout">
-            <input type="hidden" name="logoutId" value="@Model.LogoutId" />
-            <fieldset>
-                <div class="mb-3">
-                    <button class="btn btn-primary">@Localizer.Logout_Yes</button>
-                </div>
-            </fieldset>
-        </form>
-    </article>
+<section class="auth-card auth-card--message">
+    <vc:page-heading title="@Localizer.Logout_PageHeader" subtitle="@Localizer.Logout_Would_You_Like_To_Logout" image-src="" />
+    <form asp-page="/Logout" class="auth-form">
+        <input type="hidden" name="logoutId" value="@Model.LogoutId" />
+        <div class="auth-form__actions">
+            <button class="btn btn-primary auth-form__submit">@Localizer.Logout_Yes</button>
+        </div>
+    </form>
 </section>

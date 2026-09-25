@@ -97,7 +97,7 @@ services.AddIdentityUI(options =>
     options.HomePageSlogan = "Welcome to the {0} Digital Services <strong>Portal</strong>";
     options.AvatarColorHex = "1abc9c";
     options.EmailLinkColorHex = "1abc9c";
-    options.HtmlBodyBackgroundCssClass = "gradient-bg";
+    options.Theme = IdentityUIThemes.Split;          // visual theme (data-theme on <html>)
     
     // Feature Toggles
     options.EnableLocalLogin = true;
@@ -142,20 +142,48 @@ services.AddIdentityUI(options =>
 
 ## 🎨 Customization
 
-### Theme Selection
+### UI framework
 
-The library supports multiple UI frameworks. Choose your preferred theme by organizing your views:
+Two page trees ship in the package: `Pages/Bootstrap5` (default) and `Pages/Tailwind`. The host picks one with
+the `IdentityUIFrameworkVersion` MSBuild property (`Bootstrap5` or `Tailwind`).
 
-```
-Pages/
-├── Bootstrap5/          # Bootstrap 5 theme (default)
-│   ├── Login.cshtml
-│   ├── Register.cshtml
-│   └── ...
-├── Tailwind/           # Tailwind CSS theme
-│   ├── Login.cshtml
-│   ├── Register.cshtml
-│   └── ...
+
+### Shells
+
+`_IdentityLayout.cshtml` frames the page body with a *shell* chosen by `ViewData["Shell"]`:
+
+| Shell | Pages | Structure |
+|---|---|---|
+| `auth` | Login, Register | Hero aside + form (template-dependent) |
+| `card` (default) | Every other anonymous flow, MFA, consent, errors | One centered `.auth-card` |
+| `profile` | Profile, Change/Add password, Grants | Image header band, `_ProfileNav` sidebar, `.data-card` stack |
+| `article` | Terms, Privacy, Accept terms | Wide `.article-card` with rendered markdown |
+
+### Styling
+
+- Each UI framework has its own stylesheet folder: `wwwroot/css/bootstrap5/` (`bootstrap.bs.scss` +
+  `identity.bs.scss` → `bootstrap.bs.css` + `identity.bs.css`) and `wwwroot/css/tailwind/` (`identity.tw.scss` →
+  `identity.tw.css`). Nothing is shared between the two trees. The paths below are relative to `wwwroot/css/bootstrap5/`.
+- Design tokens live in `abstracts/_tokens.scss` (colours, fluid type scale, spacing, radii, shadows,
+  layout widths). They are mapped onto Bootstrap's Sass variables in `bootstrap.bs.scss` and exposed as
+  `--idui-*` custom properties for runtime tweaks.
+- Custom components use BEM (`.auth-card__title`, `.field__error`, `.provider-btn--microsoft`, …) and live in
+  `components/`. Themes live in `themes/` (values only), the layout engine and shells in `layouts/`.
+- Stylesheets are compiled by Vite (`npm run build`, also run by `dotnet build`); the compiled
+  `wwwroot/css/**/*.css` files are committed.
+- Hosts override styles by shipping `wwwroot/css/bootstrap5/identity.bs.css` (replaces the stylesheet) or by adding rules to a
+  `wwwroot/css/bootstrap5/_custom.scss` that the package imports last when the SCSS imports feature is enabled.
+- The hero image is `wwwroot/img/hero.jpg`; ship a file at the same path to replace it, or set
+  `--idui-hero-image` on `:root` / `[data-theme]`.
+
+A typical form field:
+
+```html
+<div class="field">
+    <label asp-for="Input.Email" class="field__label">Email <span class="field__required" aria-hidden="true">*</span></label>
+    <input class="form-control field__control" asp-for="Input.Email" aria-describedby="Input_Email-error" />
+    <span asp-validation-for="Input.Email" class="field__error" id="Input_Email-error"></span>
+</div>
 ```
 
 ### Overriding Static Assets
@@ -165,12 +193,36 @@ You can override any static asset by placing a file with the same path in your h
 ```
 wwwroot/
 ├── css/
-│   └── bootstrap.css    # Overrides library's bootstrap.css
+│   └── bootstrap5/
+│       └── identity.bs.css   # Overrides the library's Bootstrap5 identity stylesheet
 ├── js/
 │   └── app.js       # Additional JavaScript
 └── images/
     └── logo.png        # Custom logo
 ```
+
+### Upgrading to 8.58
+
+8.58.0 moved the stylesheets into one folder per UI framework. The compiled CSS is unchanged; only the paths moved.
+
+| Before | Now |
+|---|---|
+| `wwwroot/css/bootstrap.css` | `wwwroot/css/bootstrap5/bootstrap.bs.css` |
+| `wwwroot/css/identity.css` | `wwwroot/css/bootstrap5/identity.bs.css` |
+| `wwwroot/css/identity.tw.css` | `wwwroot/css/tailwind/identity.tw.css` |
+| `wwwroot/css/_custom.scss` | `wwwroot/css/bootstrap5/_custom.scss` |
+
+Check your host for:
+
+- **Overridden stylesheets**: a file at one of the old paths in your `wwwroot` is still served but no longer linked,
+  so it silently stops applying. Move it to the new path.
+- **Direct links**: layouts or partials copied from the package, a custom `_Styles` partial, or other apps that
+  link the IdP stylesheets get a 404 until the `href` is updated.
+- **SCSS**: a `_custom.scss` must move to `wwwroot/css/bootstrap5/`. Builds that compile or `@use` the package's
+  SCSS sources must use the new entry files (`bootstrap5/*.bs.scss`, `tailwind/identity.tw.scss`).
+
+Hosts that use the package pages and layouts without overriding stylesheets need no changes. The Bootstrap5 variant
+was also redesigned in 8.58.0 (new markup and class names); see the CHANGELOG for those breaking changes.
 
 ### Custom Page Templates
 

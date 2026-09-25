@@ -220,12 +220,14 @@ public abstract class BaseLoginModel : BasePageModel
 
     private async Task<LoginViewModel> BuildLoginViewModelAsync(string? returnUrl) {
         var context = await Interaction.GetAuthorizationContextAsync(returnUrl);
+        // A non-null context means IdentityServer already validated the return URL; otherwise only render it when it is a known safe URL.
+        returnUrl = SanitizeReturnUrl(returnUrl, context);
         if (context?.IdP is not null && await SchemeProvider.GetSchemeAsync(context.IdP) is not null) {
             var local = context.IdP == IdentityServerConstants.LocalIdentityProvider;
             // This is meant to short circuit the UI and only trigger the one external IdP.
             var viewModel = new LoginViewModel {
                 EnableLocalLogin = local,
-                ReturnUrl = returnUrl ?? "/",
+                ReturnUrl = returnUrl,
                 UserName = context.LoginHint
             };
             if (!local) {

@@ -3281,5 +3281,187 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("VerifyPhone_Save", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your identity, in your hands..
+        /// </summary>
+        public static string Hero_Title {
+            get {
+                return ResourceManager.GetString("Hero_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Access your world with confidence..
+        /// </summary>
+        public static string Hero_Subtitle {
+            get {
+                return ResourceManager.GetString("Hero_Subtitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to With &lt;span aria-hidden=&quot;true&quot;&gt;❤&lt;/span&gt; by &lt;strong&gt;INDICE&lt;/strong&gt;.
+        /// </summary>
+        public static string Footer_MadeBy {
+            get {
+                return ResourceManager.GetString("Footer_MadeBy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Legal and support.
+        /// </summary>
+        public static string Footer_LinksLabel {
+            get {
+                return ResourceManager.GetString("Footer_LinksLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Or continue with.
+        /// </summary>
+        public static string Login_Alternatively {
+            get {
+                return ResourceManager.GetString("Login_Alternatively", resourceCulture);
+            }
+        }
+
+        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter your details.
+        /// </summary>
+        public static string Register_Subtitle {
+            get {
+                return ResourceManager.GetString("Register_Subtitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open account menu.
+        /// </summary>
+        public static string Nav_OpenMenu {
+            get {
+                return ResourceManager.GetString("Nav_OpenMenu", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close menu.
+        /// </summary>
+        public static string Nav_CloseMenu {
+            get {
+                return ResourceManager.GetString("Nav_CloseMenu", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Switch account.
+        /// </summary>
+        public static string Account_SwitchAccount {
+            get {
+                return ResourceManager.GetString("Account_SwitchAccount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account.
+        /// </summary>
+        public static string Account_NavLabel {
+            get {
+                return ResourceManager.GetString("Account_NavLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Skip to main content.
+        /// </summary>
+        public static string SkipToContent {
+            get {
+                return ResourceManager.GetString("SkipToContent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show password.
+        /// </summary>
+        public static string Password_Show {
+            get {
+                return ResourceManager.GetString("Password_Show", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Hide password.
+        /// </summary>
+        public static string Password_Hide {
+            get {
+                return ResourceManager.GetString("Password_Hide", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resend available in.
+        /// </summary>
+        public static string Mfa_ResendAvailableIn {
+            get {
+                return ResourceManager.GetString("Mfa_ResendAvailableIn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Profile photo.
+        /// </summary>
+        public static string Profile_Photo {
+            get {
+                return ResourceManager.GetString("Profile_Photo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Upload.
+        /// </summary>
+        public static string Profile_PhotoUpload {
+            get {
+                return ResourceManager.GetString("Profile_PhotoUpload", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Personalize your profile with a photo. It will be shown wherever you sign in..
+        /// </summary>
+        public static string Profile_PhotoHelp {
+            get {
+                return ResourceManager.GetString("Profile_PhotoHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to File type: JPG or PNG. Maximum size: {0} MB. Maximum dimensions: {1} x {1} px..
+        /// </summary>
+        public static string Profile_PhotoConstraints {
+            get {
+                return ResourceManager.GetString("Profile_PhotoConstraints", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account details.
+        /// </summary>
+        public static string Profile_AccountDetails {
+            get {
+                return ResourceManager.GetString("Profile_AccountDetails", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Profile details.
+        /// </summary>
+        public static string Profile_DetailsSection {
+            get {
+                return ResourceManager.GetString("Profile_DetailsSection", resourceCulture);
+            }
+        }
     }
 }

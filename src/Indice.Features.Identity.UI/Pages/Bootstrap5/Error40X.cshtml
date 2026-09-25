@@ -9,12 +9,14 @@
     var error = Model.ErrorMessages.GetValueOrDefault(Model.ErrorStatusCode.GetValueOrDefault());
 }
 
-<section class="identity-panel">
-    <article class="text-center">
-        <partial name="_PageHeader" model="string.Empty" />
-        <h1 class="page-message glitch" data-text="@Model">@Model.ErrorStatusCode</h1>
-        <h2 indice-if="!string.IsNullOrEmpty(error?.Title)" class="page-message-title">@error!.Title</h2>
-        <p indice-if="!string.IsNullOrEmpty(error?.Message)" class="page-message-description">@error!.Message</p>
-        <a class="btn btn-outline-light btn-lg" asp-page="/Home">@Localizer.Error_Go_back_home</a>
-    </article>
+<section class="auth-card auth-card--message error-page">
+    <p class="error-page__code" aria-hidden="true">@Model.ErrorStatusCode</p>
+    <h1 class="auth-card__title">
+        <span class="visually-hidden">@Model.ErrorStatusCode</span>
+        @(!string.IsNullOrEmpty(error?.Title) ? error!.Title : Localizer.Error_PageHeader.Value)
+    </h1>
+    <p indice-if="!string.IsNullOrEmpty(error?.Message)" class="auth-card__text">@error!.Message</p>
+    <div class="auth-form__actions">
+        <a class="btn btn-primary auth-form__submit" asp-page="/Home">@Localizer.Error_Go_back_home</a>
+    </div>
 </section>

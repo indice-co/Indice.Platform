@@ -8,16 +8,14 @@
     ViewData["Title"] = Localizer.LoggedOut_PageTitle;
 }
 
-<section class="identity-panel wide logged-out @(Model.AutomaticRedirectAfterSignOut ? "d-none": "")">
-    <article class="text-center">
-        <vc:page-heading title="@Localizer.LoggedOut_PageHeader" image-src="" />
-        <p>@Localizer.LoggedOut_You_Are_Now_Logged_Out</p>
-        <div>
-            @Localizer.LoggedOut_Click <a id="PostLogoutRedirectUri" class="" href="@(Model.HasPostLogoutRedirectUri? Model.PostLogoutRedirectUri: "/")">@Localizer.LoggedOut_Here</a> @Localizer.LoggedOut_To_Return_To_The_Application
-            <span indice-if="Model.HasPostLogoutRedirectUri">@Model.ClientName</span>.
-        </div>
-        <iframe indice-if="Model.SignOutIframeUrl != null" width="0" height="0" class="signout" src="@Model.SignOutIframeUrl"></iframe>
-    </article>
+<section class="auth-card auth-card--message @(Model.AutomaticRedirectAfterSignOut ? "d-none": "")">
+    @* PostLogoutRedirectUri and SignOutIframeUrl come from IIdentityServerInteractionService.GetLogoutContextAsync and are validated by IdentityServer against the client's registered URIs. *@
+    <vc:page-heading title="@Localizer.LoggedOut_PageHeader" subtitle="@Localizer.LoggedOut_You_Are_Now_Logged_Out" image-src="" />
+    <p class="auth-card__text">
+        @Localizer.LoggedOut_Click <a id="PostLogoutRedirectUri" href="@(Model.HasPostLogoutRedirectUri? Model.PostLogoutRedirectUri: "/")">@Localizer.LoggedOut_Here</a> @Localizer.LoggedOut_To_Return_To_The_Application
+        <span indice-if="Model.HasPostLogoutRedirectUri">@Model.ClientName</span>.
+    </p>
+    <iframe indice-if="Model.SignOutIframeUrl != null" width="0" height="0" class="signout" src="@Model.SignOutIframeUrl" title="sign-out"></iframe>
 </section>
 
 @section scripts {

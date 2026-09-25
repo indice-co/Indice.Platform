@@ -88,8 +88,17 @@ public class IdentityUIOptions
     public int PictureMaxSideSize { get; set; } = 512;
     /// <summary>RGB color to be used with email default templates for links.</summary>
     public string EmailLinkColorHex { get; set; } = "1abc9c";
-    /// <summary>RGB color to be used with email default templates for links.</summary>
-    public string HtmlBodyBackgroundCssClass { get; set; } = "gradient-bg";
+    /// <summary>Extra CSS class(es) appended to the <c>&lt;body&gt;</c> element. Empty by default; the selected <see cref="Theme"/> owns the page background.</summary>
+    public string HtmlBodyBackgroundCssClass { get; set; } = string.Empty;
+    /// <summary>The visual theme of the end-user UI (Bootstrap5 variant). Emitted as <c>data-theme</c> on the <c>&lt;html&gt;</c> element. Defaults to <see cref="IdentityUIThemes.Split"/>.</summary>
+    /// <remarks>
+    /// Built-in values: <see cref="IdentityUIThemes.Minimal"/>, <see cref="IdentityUIThemes.Split"/>, <see cref="IdentityUIThemes.Columns"/> and <see cref="IdentityUIThemes.Panel"/>.
+    /// The markup is identical for every theme; a theme is a set of <c>--idui-*</c> CSS custom property values scoped to <c>[data-theme="name"]</c>.
+    /// Any other value selects a host-defined theme: ship a stylesheet (for example through the <c>_Styles</c> partial) that declares those properties for it.
+    /// </remarks>
+    public string Theme { get; set; } = IdentityUIThemes.Split;
+    /// <summary>Controls whether the "made by" credit is rendered in the footer. Defaults to true.</summary>
+    public bool ShowMadeByCredit { get; set; } = true;
     /// <summary>Contains additional valid return URLs. It's used in the login page.</summary>
     public HashSet<string> ValidReturnUrls { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     /// <summary>Remember me duration.</summary>

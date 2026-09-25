@@ -8,85 +8,82 @@
 
 @{
     ViewData["Title"] = Localizer.Login_PageTitle;
+    ViewData["Shell"] = "auth";
+    var userNameLabel = userManager.EmailAsUserName ? Localizer.Email : Localizer.Login_Username;
+    var showOnBoarding = Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding;
 }
 
-<section class="sign-in m-auto">
+<section class="auth-card">
     <vc:page-heading title="@Localizer.Login_PageHeader" image-src="" />
     <partial name="_ValidationSummary" />
-    @if (Model.View.VisibleExternalProviders.Any())
-    {
-        <div class="login-form">
-            <ul class="list-unstyled">
-                @foreach (var provider in Model.View.VisibleExternalProviders)
-                {
-                    <li class="idp idp-@provider.AuthenticationScheme!.ToLower()">
-                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
-                            @Localizer.GetGeneric(provider.DisplayName!)
-                        </a>
-                    </li>
-                }
-            </ul>
-        </div>
-        @if (Model.View.EnableLocalLogin)
-        {
-            <div class="hr-sect">@Localizer.Login_OR</div>
-        }
-    }
     @if (Model.View.EnableLocalLogin)
     {
-        <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" id="loginForm">
+        <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" id="loginForm" class="auth-form">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <input type="hidden" asp-for="Input.DeviceId" />
-            <div class="mb-3">
-                <label asp-for="Input.UserName" class="form-label">@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)</label>
-                <input class="form-control" type="text" placeholder="@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)" asp-for="Input.UserName" />
-                <span asp-validation-for="Input.UserName" class="text-danger"></span>
-            </div>            
-            <div class="mb-3">
-                <label asp-for="Input.Password" class="form-label">@Localizer.Login_Password</label>
-                <div class="password-control">
-                    <input class="form-control password" type="password" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
-                    <i role="button" class="reveal-icon" aria-label="Show password" title="Show password" aria-pressed="false"></i>
-                </div>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            <div class="field">
+                <label asp-for="Input.UserName" class="field__label">@userNameLabel</label>
+                <input class="form-control field__control" type="text" placeholder="@userNameLabel" asp-for="Input.UserName" autocomplete="username" aria-describedby="Input_UserName-error" />
+                <span asp-validation-for="Input.UserName" class="field__error" id="Input_UserName-error"></span>
             </div>
-            <div class="mb-3">
+            <div class="field">
+                <label asp-for="Input.Password" class="field__label">@Localizer.Login_Password</label>
+                <div class="field__group">
+                    <input class="form-control field__control password" type="password" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="current-password" aria-describedby="Input_Password-error" />
+                    <button type="button" class="field__reveal" aria-pressed="false" aria-label="@Localizer.Password_Show" title="@Localizer.Password_Show" data-label-show="@Localizer.Password_Show" data-label-hide="@Localizer.Password_Hide">
+                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Input.Password" class="field__error" id="Input_Password-error"></span>
+            </div>
+            <div class="auth-form__row" indice-if="Model.UiOptions.AllowRememberLogin || Model.UiOptions.EnableForgotPasswordPage">
                 @if (Model.UiOptions.AllowRememberLogin)
                 {
-                    <div class="form-check custom-checkbox d-inline-block">
-                        <label class="form-check-label">
-                            <input asp-for="Input.RememberLogin" type="checkbox" class="form-check-input text-info" />
-                            <span class="control"></span>
-                            @Localizer.Login_Remember_Me
-                        </label>
+                    <div class="form-check">
+                        <input asp-for="Input.RememberLogin" type="checkbox" class="form-check-input" />
+                        <label asp-for="Input.RememberLogin" class="form-check-label">@Localizer.Login_Remember_Me</label>
                     </div>
                 }
                 @if (Model.UiOptions.EnableForgotPasswordPage)
                 {
-                    <a class="btn btn-link p-0 text-md float-end text-blue" asp-page="/ForgotPassword">@Localizer.Login_Forgot_Password</a>
+                    <a class="auth-form__link" asp-page="/ForgotPassword">@Localizer.Login_Forgot_Password</a>
                 }
             </div>
             <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "loginForm", ButtonId = "loginButton", Action = "login", IsLoginForm = true }' />
-            <div class="mb-3">
-                <div class="row align-items-center">
-                    @if (Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding)
-                    {
-                        <div class="col-sm-6 col-12 py-1">
-                            <a class="btn btn-link w-100" asp-page="@Model.UiOptions.OnBoardingPage" asp-route-returnUrl="@Model.View.ReturnUrl">
-                                @Localizer.Login_Join_Us
-                            </a>
-                        </div>
-                    }
-                    <div class="@(Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding ? "col-sm-6" : string.Empty) col-12 py-1">
-                        <button class="btn btn-primary w-100" id="loginButton" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>
-                    </div>
-                </div>
+            <div class="auth-form__actions">
+                <button class="btn btn-primary auth-form__submit" id="loginButton" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>
             </div>
         </form>
     }
+    @if (Model.View.VisibleExternalProviders.Any())
+    {
+        @if (Model.View.EnableLocalLogin)
+        {
+            <div class="divider"><span class="divider__label">@Localizer.Login_Alternatively</span></div>
+        }
+        <ul class="provider-list">
+            @foreach (var provider in Model.View.VisibleExternalProviders)
+            {
+                var scheme = provider.AuthenticationScheme!.ToLower();
+                <li class="provider-list__item">
+                    <a class="btn provider-btn provider-btn--@scheme" asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
+                        <span class="provider-btn__logo" aria-hidden="true"></span>
+                        <span class="provider-btn__label">@Localizer.GetGeneric(provider.DisplayName!)</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+    @if (showOnBoarding)
+    {
+        <p class="auth-card__switch">
+            <span>@Localizer.Login_Dont_Have_An_Account</span>
+            <a asp-page="@Model.UiOptions.OnBoardingPage" asp-route-returnUrl="@Model.View.ReturnUrl">@Localizer.Login_Join_Us</a>
+        </p>
+    }
     @if (!Model.View.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
     {
-        <div class="alert alert-warning">
+        <div class="alert alert-warning" role="alert">
             <strong>@Localizer.Login_Invalid_Login_Request</strong>
             @Localizer.Login_No_Login_Schemes_Configured
         </div>
@@ -96,29 +93,20 @@
 @section scripts {
     <partial name="_ValidationScripts" />
     <script csp-nonce="true">
-        document.querySelectorAll('.idp a').forEach(function (el) {
-            el.onclick = function (link) {
-                if (!link.target.classList.contains('disabled')) {
-                    link.target.classList.add('disabled');
+        document.querySelectorAll('.provider-btn').forEach(function (el) {
+            el.addEventListener('click', function () {
+                if (!el.classList.contains('disabled')) {
+                    el.classList.add('disabled');
                 }
-            };
+            });
         });
     </script>
     <script type="text/javascript" src="~/js/reveal-password.js" csp-nonce="true"></script>
     @if (Model.View.GenerateDeviceId)
     {
+        <div id="mfa-bootstrap" hidden data-mode="login" data-browser-family="@Request.GetBrowserName()"></div>
         <script type="text/javascript" src="/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
         <script type="text/javascript" src="/js/mfa.js" csp-nonce></script>
-        <script type="text/javascript" csp-nonce>
-            $(document).ready(function () {
-                var viewModelParameters = {
-                    $deviceIdInput: $('#Input_DeviceId'),
-                    browserFamily: '@Request.GetBrowserName()'
-                };
-                var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
-                viewModel.init();
-                viewModel.calculateDeviceId();
-            });
-        </script>
+        <script type="text/javascript" src="/js/mfa-bootstrap.js" csp-nonce></script>
     }
 }

@@ -1,0 +1,45 @@
+﻿// =============================================================================
+// Indice Identity UI (Bootstrap5 variant) — main stylesheet.
+// Order: tokens → fonts → base → components → layouts → themes → host overrides.
+// Tokens + the --idui-* runtime contract: abstracts/_tokens.scss.
+// Bootstrap variable mapping: bootstrap.scss. Themes: themes/ (values only, keyed by
+// <html data-theme="…">).
+// =============================================================================
+
+@use 'abstracts/tokens';
+@use 'abstracts/fonts';
+
+@use 'base/reset';
+@use 'base/typography';
+@use 'base/layout';
+
+@use 'components/site-header';
+@use 'components/site-footer';
+@use 'components/lang-switcher';
+@use 'components/account-panel';
+@use 'components/avatar';
+@use 'components/auth-card';
+@use 'components/field';
+@use 'components/password-rules';
+@use 'components/provider-list';
+@use 'components/divider';
+@use 'components/alert';
+@use 'components/ribbon';
+@use 'components/message-card';
+@use 'components/choice-list';
+@use 'components/deck';
+@use 'components/otp-field';
+@use 'components/data-card';
+@use 'components/article';
+
+@use 'layouts/anonymous-shell';
+@use 'layouts/profile-shell';
+@use 'layouts/article-shell';
+
+@use 'themes/minimal';
+@use 'themes/split';
+@use 'themes/columns';
+@use 'themes/panel';
+
+// Host escape hatch: a host may ship its own wwwroot/css/_custom.scss (static web asset override).
+@import 'custom';

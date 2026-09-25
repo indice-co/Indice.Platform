@@ -55,7 +55,7 @@ public abstract class BaseAddPhoneModel : BasePageModel
         _ = PhoneNumber.TryParse(user.PhoneNumber!, out var phone);
         Input.PhoneNumber = phone.Number;
         Input.CallingCode = phone.CallingCode;
-        Input.ReturnUrl = returnUrl;
+        Input.ReturnUrl = SanitizeReturnUrl(returnUrl);
         return Page();
     }
 

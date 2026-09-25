@@ -52,6 +52,8 @@ public static class IdentityBuilderUIExtensions
             options.HomepageLinks.AddRange(extraHomePageLinks);
             options.HomePageSlogan = configuredOptions.HomePageSlogan;
             options.HtmlBodyBackgroundCssClass = configuredOptions.HtmlBodyBackgroundCssClass;
+            options.Theme = configuredOptions.Theme;
+            options.ShowMadeByCredit = configuredOptions.ShowMadeByCredit;
             options.OverrideDefaultStaticFileMiddleware = configuredOptions.OverrideDefaultStaticFileMiddleware;
             options.PrivacyUrlResolver = configuredOptions.PrivacyUrlResolver;
             options.TermsUrlResolver = configuredOptions.TermsUrlResolver;

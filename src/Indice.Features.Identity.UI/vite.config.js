@@ -67,8 +67,7 @@ export default defineConfig({
                 silenceDeprecations: ['legacy-js-api', 'mixed-decls', 'color-functions', 'global-builtin', 'import'],
                 quietDeps: true,
                 loadPaths: [
-                    path.resolve(__dirname, 'node_modules'),
-                    path.resolve(__dirname, 'wwwroot/css')
+                    path.resolve(__dirname, 'node_modules')
                 ]
             }
         },
