@@ -6,6 +6,7 @@
 
 .otp-field {
     display: flex;
+    justify-content: center;
     gap: t.$space-2;
 
     &__input--enhanced {
@@ -81,7 +82,7 @@
 .mfa {
     &__notice {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         gap: t.$space-3;
         margin: 0 0 t.$space-5;
         padding: t.$space-3 t.$space-4;
@@ -92,9 +93,10 @@
     }
 
     &__notice-icon {
-        flex: 0 0 auto;
-        margin-top: .1rem;
-        font-size: 1.25rem;
+        flex: 0 0 2rem;
+        width: 2rem;
+        font-size: 1.75rem;
+        text-align: center;
         color: var(--idui-color-ink);
     }
 
@@ -186,14 +188,21 @@
     gap: t.$space-3;
     align-items: flex-start;
     width: 100%;
-    padding: t.$space-4 0;
+    padding: t.$space-4 t.$space-3;
     border: 0;
+    border-radius: var(--idui-radius);
     background: none;
     text-align: left;
     color: inherit;
     cursor: pointer;
+    transition: background-color t.$transition-fast;
 
-    &:hover .choice-list__title {
-        text-decoration: underline;
+    &:hover,
+    &:focus-visible {
+        background: var(--idui-color-surface-muted);
+
+        .choice-list__chevron {
+            color: var(--idui-color-ink);
+        }
     }
 }

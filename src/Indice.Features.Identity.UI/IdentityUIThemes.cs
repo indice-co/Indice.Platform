@@ -13,7 +13,7 @@ public static class IdentityUIThemes
     public const string Minimal = "minimal";
     /// <summary>A full-viewport hero image; the login form floats on the right, register uses an inset image column. The default.</summary>
     public const string Split = "split";
-    /// <summary>A fixed image column on the left; the form and the footer sit in the right column. Applies to every anonymous page.</summary>
+    /// <summary>A fixed image column on the left; the form and the footer sit in the right column. Applies to every page except the account (profile) pages.</summary>
     public const string Columns = "columns";
     /// <summary>A centered two-column floating panel (image left, form right) on a solid brand-coloured page.</summary>
     public const string Panel = "panel";

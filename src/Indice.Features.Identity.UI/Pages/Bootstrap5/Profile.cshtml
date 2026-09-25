@@ -2,6 +2,7 @@
 @attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("manage/profile")]
 
 @inject CallingCodesProvider callingCodesProvider
+@inject IZoneInfoProvider zoneInfoProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
 @inject ExtendedUserManager<User> userManager
 @inject IdentityUILocalizer Localizer
@@ -139,6 +140,17 @@
                 <label asp-for="Input.BirthDate" class="field__label">@Localizer.Profile_Birth_Date</label>
                 <input class="form-control field__control" type="date" placeholder="@Localizer.Profile_Birth_Date" asp-for="Input.BirthDate" autocomplete="bday" aria-describedby="Input_BirthDate-error" />
                 <span asp-validation-for="Input.BirthDate" class="field__error" id="Input_BirthDate-error"></span>
+            </div>
+            <div class="field">
+                <label asp-for="Input.ZoneInfo" class="field__label">@Localizer.Profile_Timezone</label>
+                <select class="form-select field__control" asp-for="Input.ZoneInfo" aria-describedby="Input_ZoneInfo-error">
+                    <option value="">@Localizer.Profile_Choose</option>
+                    @foreach (var timezone in zoneInfoProvider.GetTimeZones())
+                    {
+                        <option value="@timezone.Id">@timezone.DisplayName</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.ZoneInfo" class="field__error" id="Input_ZoneInfo-error"></span>
             </div>
             <div class="field" indice-if="Model.View.HasDeveloperTotp">
                 <label asp-for="Input.DeveloperTotp" class="field__label">@Localizer.Profile_Developer_TOTP</label>

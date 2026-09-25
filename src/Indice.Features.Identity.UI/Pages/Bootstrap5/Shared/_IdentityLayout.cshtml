@@ -16,8 +16,8 @@
     // The shell decides how the page body is framed: auth (hero + form), card (centered card), profile (sidebar + cards), article (wide reading card).
     var shell = (ViewData["Shell"] as string ?? "card").ToLowerInvariant();
     var shellClass = $"shell-{shell}";
-    // The hero aside is rendered for anonymous auth/card shells; each template decides whether to show it.
-    var renderHero = authClass == "anonymous" && (shell == "auth" || shell == "card");
+    // The hero aside is rendered for auth/card shells, signed in or not; each theme decides whether to show it.
+    var renderHero = shell == "auth" || shell == "card";
 }
 
 <!DOCTYPE html>

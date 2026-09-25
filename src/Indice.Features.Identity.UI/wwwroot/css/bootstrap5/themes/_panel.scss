@@ -5,14 +5,14 @@
 // Theme "panel". <html data-theme="panel">
 //   Desktop: solid brand-coloured page; login/register live in a centered two-column
 //   floating panel (image left, flat form right) between the header and the footer. Other
-//   anonymous pages show the usual centered card over the coloured page.
+//   pages show the usual centered card over the coloured page.
 //   Mobile: light single column, hero hidden.
 // Only custom property values; the layout engine in layouts/_anonymous-shell.scss reads them.
 // =============================================================================
 
 :root[data-theme='panel'] {
     @include m.mq(lg) {
-        body.anonymous {
+        body:not(.shell-profile) {
             --idui-page-bg: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--idui-color-brand-bright), white 12%), var(--idui-color-brand-bright) 45%, color-mix(in srgb, var(--idui-color-brand-bright), black 15%) 100%);
             @include theme.chrome-on-image;
         }

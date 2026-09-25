@@ -42,15 +42,6 @@
         }
     }
 
-    &__wordmark {
-        max-width: 14rem;
-        font-size: t.$font-size-lg;
-        font-weight: t.$font-weight-medium;
-        line-height: 1.1;
-        letter-spacing: .02em;
-        text-transform: uppercase;
-    }
-
     &__actions {
         display: flex;
         align-items: center;
@@ -73,11 +64,6 @@
 
         &__logo {
             height: 2.5rem;
-        }
-
-        &__wordmark {
-            max-width: 10rem;
-            font-size: t.$font-size-base;
         }
 
         &__actions {

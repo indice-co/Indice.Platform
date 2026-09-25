@@ -1191,4 +1191,64 @@
   <data name="ForgotPasswordConfirmation_New_Password_Confirmation" xml:space="preserve">
     <value>Confirmer le nouveau mot de passe</value>
   </data>
+  <data name="Account_NavLabel" xml:space="preserve">
+    <value>Compte</value>
+  </data>
+  <data name="Account_SwitchAccount" xml:space="preserve">
+    <value>Changer de compte</value>
+  </data>
+  <data name="Footer_LinksLabel" xml:space="preserve">
+    <value>Mentions légales et assistance</value>
+  </data>
+  <data name="Footer_MadeBy" xml:space="preserve">
+    <value>Avec &lt;span aria-hidden="true"&gt;&#10084;&lt;/span&gt; par &lt;strong&gt;INDICE&lt;/strong&gt;</value>
+  </data>
+  <data name="Hero_Subtitle" xml:space="preserve">
+    <value>Accédez à votre univers en toute confiance.</value>
+  </data>
+  <data name="Hero_Title" xml:space="preserve">
+    <value>Votre identité, entre vos mains.</value>
+  </data>
+  <data name="Login_Alternatively" xml:space="preserve">
+    <value>Ou continuer avec</value>
+  </data>
+  <data name="Mfa_ResendAvailableIn" xml:space="preserve">
+    <value>Renvoi possible dans</value>
+  </data>
+  <data name="Nav_CloseMenu" xml:space="preserve">
+    <value>Fermer le menu</value>
+  </data>
+  <data name="Nav_OpenMenu" xml:space="preserve">
+    <value>Ouvrir le menu du compte</value>
+  </data>
+  <data name="Password_Hide" xml:space="preserve">
+    <value>Masquer le mot de passe</value>
+  </data>
+  <data name="Password_Show" xml:space="preserve">
+    <value>Afficher le mot de passe</value>
+  </data>
+  <data name="Profile_AccountDetails" xml:space="preserve">
+    <value>Détails du compte</value>
+  </data>
+  <data name="Profile_DetailsSection" xml:space="preserve">
+    <value>Détails du profil</value>
+  </data>
+  <data name="Profile_Photo" xml:space="preserve">
+    <value>Photo de profil</value>
+  </data>
+  <data name="Profile_PhotoConstraints" xml:space="preserve">
+    <value>Type de fichier : JPG ou PNG. Taille maximale : {0} Mo. Dimensions maximales : {1} x {1} px.</value>
+  </data>
+  <data name="Profile_PhotoHelp" xml:space="preserve">
+    <value>Personnalisez votre profil avec une photo. Elle s’affichera partout où vous vous connectez.</value>
+  </data>
+  <data name="Profile_PhotoUpload" xml:space="preserve">
+    <value>Téléverser</value>
+  </data>
+  <data name="Register_Subtitle" xml:space="preserve">
+    <value>Saisissez vos informations</value>
+  </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>Aller au contenu principal</value>
+  </data>
 </root>

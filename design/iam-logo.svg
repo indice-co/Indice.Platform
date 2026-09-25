@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 124 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g id="Logo" transform="matrix(1,0,0,1,-26,-17.75)">
+        <g transform="matrix(0.75,0,0,0.593333,19.5,11.6)">
+            <path d="M40,15L64,24L64,54.607C64,72.607 52,82 40,90C28,82 16,73.449 16,55.449L16,24L40,15Z" style="fill:url(#_Linear1);fill-rule:nonzero;"/>
+        </g>
+        <g transform="matrix(0.6875,0,0,0.543889,22,14.1958)">
+            <path d="M40,15L64,24L64,54.607C64,72.607 52,82 40,90C28,82 16,73.449 16,55.449L16,24L40,15Z" style="fill:url(#_Linear2);fill-rule:nonzero;"/>
+        </g>
+        <g transform="matrix(0.6875,0,0,0.543889,22,14.1958)">
+            <path d="M40,15L64,24L64,54.607C64,72.607 52,82 40,90L40,15Z" style="fill:url(#_Linear3);"/>
+        </g>
+        <g transform="matrix(0.625,0,0,0.605263,24,10.5789)">
+            <path d="M22.432,52.092L27.911,46.251L30.739,49.079L36.843,55.184L53.78,36.255L59.564,41.773L37.157,66.816L22.432,52.092Z" style="fill:white;"/>
+        </g>
+        <g transform="matrix(0.625,0,0,0.605263,24,10.5789)">
+            <path d="M27.893,45.083L31.296,48.486L36.812,54.002L53.735,35.087L60.694,41.727L37.188,67.998L21.301,52.111L27.893,45.083ZM23.564,52.073L37.125,65.635L58.433,41.819L53.825,37.422L36.875,56.365L30.183,49.673L27.929,47.419L23.564,52.073Z" style="fill:rgb(166,106,207);"/>
+        </g>
+    </g>
+    <g transform="matrix(0.886226,0,0,0.886226,58.8684,18.5336)">
+        <text x="0px" y="0px" style="font-family:'Arial-BoldMT', 'Arial', sans-serif;font-weight:700;font-size:20px;fill:rgb(31,31,31);">IN<tspan x="20.2px 34.743px 40.4px 54.943px " y="0px 0px 0px 0px ">DICE</tspan></text>
+    </g>
+    <g transform="matrix(0.857646,0,0,0.857646,58.3623,44.75)">
+        <text x="0px" y="0px" style="font-family:'Arial-BoldMT', 'Arial', sans-serif;font-weight:700;font-size:32px;fill:rgb(31,31,31);">I<tspan x="9.051px 32.32px " y="0px 0px ">AM</tspan></text>
+    </g>
+    <defs>
+        <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(4.59243e-15,75,-75,4.59243e-15,16,15)"><stop offset="0" style="stop-color:rgb(90,28,164);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(166,106,207);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(4.59243e-15,75,-75,4.59243e-15,16,15)"><stop offset="0" style="stop-color:rgb(126,34,206);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(192,132,252);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(4.59243e-15,75,-75,4.59243e-15,16,15)"><stop offset="0" style="stop-color:rgb(126,34,206);stop-opacity:1"/><stop offset="0.18" style="stop-color:rgb(154,76,226);stop-opacity:1"/><stop offset="0.39" style="stop-color:rgb(181,116,244);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(192,132,252);stop-opacity:1"/></linearGradient>
+    </defs>
+</svg>

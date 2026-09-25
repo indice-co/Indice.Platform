@@ -13,8 +13,11 @@
     border-radius: var(--idui-radius-lg);
     box-shadow: var(--idui-auth-card-shadow);
 
+    // Phones: full-bleed, no rounded corners or shadow.
     @include m.mq-down(sm) {
         padding: t.$space-6 t.$space-4;
+        border-radius: 0;
+        box-shadow: none;
     }
 
     &--wide {

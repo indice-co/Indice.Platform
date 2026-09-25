@@ -191,7 +191,6 @@
   --bs-link-decoration: underline;
   --bs-link-hover-color: #151515;
   --bs-link-hover-color-rgb: 21, 21, 21;
-  --bs-link-hover-decoration: underline;
   --bs-code-color: #d63384;
   --bs-highlight-color: #252525;
   --bs-highlight-bg: rgb(255, 242.6, 205.4);
@@ -443,7 +442,6 @@ a {
 }
 a:hover {
   --bs-link-color-rgb: var(--bs-link-hover-color-rgb);
-  text-decoration: underline;
 }
 
 a:not([href]):not([class]), a:not([href]):not([class]):hover {
@@ -3064,7 +3062,6 @@ textarea.form-control-lg {
 }
 .btn:hover {
   color: var(--bs-btn-hover-color);
-  text-decoration: none;
   background-color: var(--bs-btn-hover-bg);
   border-color: var(--bs-btn-hover-border-color);
 }
@@ -3389,9 +3386,6 @@ textarea.form-control-lg {
   --bs-btn-disabled-border-color: transparent;
   --bs-btn-box-shadow: 0 0 0 #000;
   --bs-btn-focus-shadow-rgb: 69, 67, 66;
-  text-decoration: underline;
-}
-.btn-link:hover, .btn-link:focus-visible {
   text-decoration: underline;
 }
 .btn-link:focus-visible {
@@ -3720,7 +3714,6 @@ textarea.form-control-lg {
 }
 .dropdown-item:hover, .dropdown-item:focus {
   color: var(--bs-dropdown-link-hover-color);
-  text-decoration: none;
   background-color: var(--bs-dropdown-link-hover-bg);
 }
 .dropdown-item.active, .dropdown-item:active {
@@ -3901,7 +3894,6 @@ textarea.form-control-lg {
 }
 .nav-link:hover, .nav-link:focus {
   color: var(--bs-nav-link-hover-color);
-  text-decoration: none;
 }
 .nav-link:focus-visible {
   outline: 0;
@@ -4056,7 +4048,6 @@ textarea.form-control-lg {
 }
 .navbar-brand:hover, .navbar-brand:focus {
   color: var(--bs-navbar-brand-hover-color);
-  text-decoration: none;
 }
 
 .navbar-nav {
@@ -4509,9 +4500,6 @@ textarea.form-control-lg {
   margin-bottom: 0;
 }
 
-.card-link:hover {
-  text-decoration: none;
-}
 .card-link + .card-link {
   margin-left: var(--bs-card-spacer-x);
 }
@@ -4837,7 +4825,6 @@ textarea.form-control-lg {
 .page-link:hover {
   z-index: 2;
   color: var(--bs-pagination-hover-color);
-  text-decoration: none;
   background-color: var(--bs-pagination-hover-bg);
   border-color: var(--bs-pagination-hover-border-color);
 }

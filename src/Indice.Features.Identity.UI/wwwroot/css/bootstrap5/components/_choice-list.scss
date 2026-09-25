@@ -90,8 +90,24 @@
         gap: t.$space-3;
         align-items: flex-start;
         width: 100%;
-        padding: t.$space-4 0;
+        padding: t.$space-4 t.$space-3;
+        border-radius: var(--idui-radius);
         cursor: pointer;
+        transition: background-color t.$transition-fast;
+
+        &:hover {
+            background: var(--idui-color-surface-muted);
+        }
+    }
+
+    &__item--selected &__label {
+        background: var(--idui-color-surface-muted);
+    }
+
+    // Title and description are spans (valid inside <button>/<label>); stack them.
+    &__body > &__title,
+    &__body > &__desc {
+        display: block;
     }
 
     &__body > &__desc {

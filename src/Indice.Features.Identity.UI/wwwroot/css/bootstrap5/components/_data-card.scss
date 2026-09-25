@@ -8,8 +8,11 @@
     margin-bottom: t.$space-5;
     padding: t.$space-6;
 
+    // Phones: full-bleed, no rounded corners or shadow.
     @include m.mq-down(sm) {
         padding: t.$space-5 t.$space-4;
+        border-radius: 0;
+        box-shadow: none;
     }
 
     &--form {

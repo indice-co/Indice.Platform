@@ -99,6 +99,18 @@
     }
 }
 
+// Disabled and read-only controls must not look editable.
+.form-control,
+.form-select {
+    &:disabled,
+    &[readonly] {
+        background-color: var(--idui-color-surface-sunken);
+        border-color: var(--idui-color-border);
+        color: var(--idui-color-text-muted);
+        cursor: not-allowed;
+    }
+}
+
 // Checkboxes and radios (Bootstrap .form-check themed through variables; spacing here).
 .form-check {
     display: flex;
