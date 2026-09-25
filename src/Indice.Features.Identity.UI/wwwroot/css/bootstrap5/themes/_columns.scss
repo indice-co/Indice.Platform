@@ -5,13 +5,13 @@
 // Theme "columns". <html data-theme="columns">
 //   Desktop: a fixed-width left column carries the hero image and copy for the full page
 //   height with the brand over it; the right column holds the form (flat, no card) and the
-//   footer. Applies to every anonymous page. Mobile: light single column, hero hidden.
+//   footer. Applies to every page except the profile shell. Mobile: light single column, hero hidden.
 // Only custom property values; the layout engine in layouts/_anonymous-shell.scss reads them.
 // =============================================================================
 
 :root[data-theme='columns'] {
     @include m.mq(lg) {
-        body.anonymous {
+        body:not(.shell-profile) {
             --idui-page-bg: var(--idui-color-surface-muted);
             @include theme.header-on-image;
             --idui-site-columns: minmax(0, var(--idui-hero-column)) minmax(0, 1fr);

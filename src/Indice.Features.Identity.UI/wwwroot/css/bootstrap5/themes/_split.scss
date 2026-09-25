@@ -5,7 +5,7 @@
 // Theme "split" (default). <html data-theme="split">
 //   Login:    full-viewport hero image on every viewport, hero copy left, floating card right.
 //   Register: inset hero image column left, light content column (header, form, footer) right.
-//   Other anonymous pages: centered card over the hero image (desktop), light page (mobile).
+//   Other pages (auth, card, article shells; signed in or not): centered card over the hero image (desktop), light page (mobile).
 // Only custom property values; the layout engine in layouts/_anonymous-shell.scss reads them.
 // =============================================================================
 
@@ -17,8 +17,8 @@
     }
 
     @include m.mq(lg) {
-        // ---- Every anonymous page sits over the image on desktop -------------------
-        body.anonymous {
+        // ---- Every non-profile page sits over the image on desktop ----------------
+        body:not(.shell-profile) {
             --idui-page-bg: var(--idui-hero-bg);
             @include theme.chrome-on-image;
         }

@@ -25,6 +25,13 @@ body.shell-profile {
                 right: t.$space-4;
             }
         }
+
+        // Phones: full-bleed band flush with the top of the page.
+        @include m.mq-down(sm) {
+            margin: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
     }
 
     .site-main {
@@ -34,6 +41,11 @@ body.shell-profile {
 
         @include m.mq-down(lg) {
             padding: t.$space-4 var(--idui-page-gutter);
+        }
+
+        @include m.mq-down(sm) {
+            padding-right: 0;
+            padding-left: 0;
         }
     }
 }

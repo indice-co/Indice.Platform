@@ -24,7 +24,8 @@ $border-color: t.$color-border;
 $link-color: t.$color-ink;
 $link-hover-color: t.$color-ink-hover;
 $link-decoration: underline;
-$link-hover-decoration: underline;
+// null: no `a:hover { text-decoration }` rule, which would out-specify `text-decoration: none` on nav links.
+$link-hover-decoration: null;
 
 // ---- Options -----------------------------------------------------------------
 $enable-shadows: false;
