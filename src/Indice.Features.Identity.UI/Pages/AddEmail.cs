@@ -48,7 +48,7 @@ public abstract class BaseAddEmailModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         Input.Email = user.Email;
-        Input.ReturnUrl = returnUrl;
+        Input.ReturnUrl = returnUrl = SanitizeReturnUrl(returnUrl);
         if (!UiOptions.ShowAddEmailPrompt) {
             return await OnPostAsync(returnUrl);
         }
@@ -66,9 +66,8 @@ public abstract class BaseAddEmailModel : BasePageModel
         }
         if (string.IsNullOrEmpty(returnUrl)) {
             returnUrl = Input.ReturnUrl;
-        } else {
-            Input.ReturnUrl = returnUrl;
         }
+        Input.ReturnUrl = returnUrl = SanitizeReturnUrl(returnUrl);
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         if (user.Email?.Equals(Input.Email) == true && user.EmailConfirmed) { 
             return RedirectToPage("/AddEmail", routeValues: new { returnUrl });

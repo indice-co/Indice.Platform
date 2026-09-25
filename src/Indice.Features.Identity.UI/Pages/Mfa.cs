@@ -97,6 +97,7 @@ public abstract class BaseMfaModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         View = await BuildMfaLoginViewModelAsync(Input);
+        Input.ReturnUrl = View.ReturnUrl;
         if (View.HasError) {
             ModelState.AddModelError(string.Empty, View.Error!);
             return Page();
@@ -138,7 +139,8 @@ public abstract class BaseMfaModel : BasePageModel
     /// <summary>MFA page POST handler for recovery code authentication.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnPostRecoveryCodeAsync([FromQuery] string? returnUrl) {
-        View = await BuildMfaLoginViewModelAsync(Input);
+        View = await BuildMfaLoginViewModelAsync(Input); 
+        Input.ReturnUrl = View.ReturnUrl;
         if (!ModelState.IsValid) {
             return Page();
         }
@@ -197,7 +199,7 @@ public abstract class BaseMfaModel : BasePageModel
             AuthenticationMethod = authenticationMethod,
             AvailableAuthenticationMethods = await AuthenticationMethodProvider.GetAllMethodsForUserAsync(user),
             AllowDowngradeAuthenticationMethod = AuthenticationMethodProvider.AllowMfaChannelDowngrade,
-            ReturnUrl = returnUrl,
+            ReturnUrl = SanitizeReturnUrl(returnUrl),
             User = user,
             IsExistingBrowser = browserDevice?.MfaSessionActive() ?? false,
             Error = hasError ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null,
