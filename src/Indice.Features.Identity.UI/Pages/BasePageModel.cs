@@ -67,7 +67,7 @@ public abstract class BasePageModel : PageModel
         if (string.IsNullOrWhiteSpace(returnUrl)) {
             return "/";
         }
-        return IsValidReturnUrl(returnUrl) ? returnUrl : "/";
+        return context is not null || IsValidReturnUrl(returnUrl) ? returnUrl : "/";
     }
 
     /// <summary>Adds errors contained in <see cref="IdentityResult"/> to the <see cref="ModelStateDictionary"/>.</summary>
