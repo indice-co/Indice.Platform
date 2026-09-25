@@ -51,7 +51,7 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
         Input = View = new EnableMfaSmsViewModel {
             PhoneNumber = user.PhoneNumber,
             PhoneNumberConfirmed = user.PhoneNumberConfirmed,
-            ReturnUrl = returnUrl
+            ReturnUrl = SanitizeReturnUrl(returnUrl)
         };
         return Page();
     }

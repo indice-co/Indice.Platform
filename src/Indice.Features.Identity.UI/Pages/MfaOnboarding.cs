@@ -40,6 +40,7 @@ public abstract class BaseMfaOnboardingModel : BasePageModel
     /// <summary>MFA onboarding page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
+        returnUrl = SanitizeReturnUrl(returnUrl);
         Input.ReturnUrl = returnUrl;
         View.ReturnUrl = returnUrl;
         View.AuthenticationMethods = await GetMfaAuthenticationMethods();

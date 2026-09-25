@@ -35,7 +35,7 @@ public abstract class BaseConfirmEmailChangeModel : BasePageModel
             ModelState.AddModelError(string.Empty, "user not found");
             return Page();
         }
-        if (!string.IsNullOrWhiteSpace(Input.ReturnUrl) && !string.IsNullOrWhiteSpace(Input.ClientId)) {
+        if (!string.IsNullOrWhiteSpace(Input.ReturnUrl) && !string.IsNullOrWhiteSpace(Input.ClientId) && IsValidReturnUrl(Input.ReturnUrl)) {
             View.ReturnUrl = QueryHelpers.AddQueryString(Input.ReturnUrl, "client_id", Input.ClientId);
         }
         View.Email = Input.Email;
@@ -50,7 +50,7 @@ public abstract class BaseConfirmEmailChangeModel : BasePageModel
             ModelState.AddModelError(string.Empty, "user not found");
             return Page();
         }
-        if (!string.IsNullOrWhiteSpace(Input.ReturnUrl) && !string.IsNullOrWhiteSpace(Input.ClientId)) {
+        if (!string.IsNullOrWhiteSpace(Input.ReturnUrl) && !string.IsNullOrWhiteSpace(Input.ClientId) && IsValidReturnUrl(Input.ReturnUrl)) {
             View.ReturnUrl = QueryHelpers.AddQueryString(Input.ReturnUrl, "client_id", Input.ClientId);
         }
         View.AlreadyVerified = (user.Email == Input.Email) && await UserManager.IsEmailConfirmedAsync(user);

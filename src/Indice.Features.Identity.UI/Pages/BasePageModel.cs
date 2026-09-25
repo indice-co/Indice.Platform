@@ -60,6 +60,16 @@ public abstract class BasePageModel : PageModel
         return InteractionService.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl) || UiOptions.IsValidReturnUrl(returnUrl);
     }
 
+    /// <summary>Returns the given return URL when it is safe to render, otherwise falls back to the root path.</summary>
+    /// <param name="returnUrl">The URL to sanitize.</param>
+    /// <param name="context">The current authorization context, if any. A non-null context means IdentityServer has already validated the return URL.</param>
+    protected string SanitizeReturnUrl(string? returnUrl, AuthorizationRequest? context = null) {
+        if (string.IsNullOrWhiteSpace(returnUrl)) {
+            return "/";
+        }
+        return context is not null || IsValidReturnUrl(returnUrl) ? returnUrl : "/";
+    }
+
     /// <summary>Adds errors contained in <see cref="IdentityResult"/> to the <see cref="ModelStateDictionary"/>.</summary>
     /// <param name="result">Represents the result of a sign-in operation.</param>
     public virtual void AddModelErrors(IdentityResult result) {

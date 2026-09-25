@@ -67,7 +67,7 @@ public abstract class BaseConsentModel : BasePageModel
             return RedirectToPage("/Error");
         }
         Input = new ConsentInputModel {
-            ReturnUrl = returnUrl,
+            ReturnUrl = SanitizeReturnUrl(returnUrl),
         };
         return Page();
     }

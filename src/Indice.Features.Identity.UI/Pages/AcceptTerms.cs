@@ -57,7 +57,7 @@ public abstract class BaseAcceptTermsModel(ExtendedUserManager<User> userManager
             LastConsentDate = consentDate,
             LastConsent = bool.TrueString.Equals(consent, StringComparison.OrdinalIgnoreCase),
             LastUpdateDate = DateTimeOffset.UtcNow,
-            ReturnUrl = returnUrl,
+            ReturnUrl = SanitizeReturnUrl(returnUrl),
         };
     }
 }
