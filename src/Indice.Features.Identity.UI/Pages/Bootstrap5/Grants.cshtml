@@ -9,58 +9,65 @@
     ViewData["Shell"] = "profile";
 }
 
-<section class="data-card">
-    <header class="data-card__header">
-        <h1 class="data-card__title">@Localizer.Grants_PageHeader</h1>
-    </header>
-    <p indice-if="Model.View.Grants!.Any()" class="data-card__lead">@Localizer.Grants_Applications_And_Resources</p>
+<section class="data-card@(Model.View.Grants!.Any() ? "" : " data-card--empty")">
     @if (!Model.View.Grants!.Any())
     {
-        <div class="alert alert-secondary" role="status">
-            @Localizer.Grants_No_Applications_Provided
+        <h1 class="visually-hidden">@Localizer.Grants_PageHeader</h1>
+        <div class="empty-state" role="status">
+            <svg class="empty-state__icon" width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                <circle cx="24" cy="5" r="2.5" stroke="currentColor" stroke-width="2.5" />
+                <path d="M8 38V22a16 14 0 0 1 32 0v16" stroke="currentColor" stroke-width="3" stroke-linejoin="round" />
+                <path d="M18 38V14M30 38V14M24 38V8" stroke="currentColor" stroke-width="2.5" />
+                <path d="M18 30h6" stroke="currentColor" stroke-width="2.5" />
+                <rect x="4" y="38" width="40" height="6" rx="1.5" fill="#9b87f5" stroke="currentColor" stroke-width="2.5" />
+            </svg>
+            <p class="empty-state__text">@Localizer.Grants_No_Applications_Provided</p>
         </div>
     }
-</section>
-@foreach (var grant in Model.View.Grants!)
-{
-    <section class="data-card grant">
-        <header class="data-card__header grant__header">
-            <span class="grant__identity">
-                <img class="avatar avatar--md grant__logo" src="@(!string.IsNullOrEmpty(grant.ClientLogoUrl) ? (Url.IsLocalUrl(grant.ClientLogoUrl) ? Url.Content(grant.ClientLogoUrl) : grant.ClientLogoUrl) : Url.Content($"~/avatar/{grant.ClientName}/64.png"))" alt="@Localizer.Grants_Client_Logo" />
-                <span>
-                    <h2 class="data-card__title grant__name">@grant.ClientName</h2>
-                    <span class="data-card__meta">@Localizer.Grants_Created @grant.Created.ToString("yyyy-MM-dd HH:mm")</span>
-                </span>
-            </span>
+    else
+    {
+        <header class="data-card__header">
+            <h1 class="data-card__title">@Localizer.Grants_PageHeader</h1>
         </header>
-        <div class="data-card__grid">
-            <div indice-if="grant.IdentityGrantNames.Any()" class="grant__group">
-                <h3 class="data-card__subtitle"><i class="fa-regular fa-address-card" aria-hidden="true"></i> Identity Grants</h3>
+        <p class="data-card__lead">@Localizer.Grants_Applications_And_Resources</p>
+    }
+    @foreach (var grant in Model.View.Grants!)
+    {
+        <article class="grant">
+            <header class="grant__header">
+                <span class="grant__identity">
+                    <img class="avatar avatar--md grant__logo" src="@(!string.IsNullOrEmpty(grant.ClientLogoUrl) ? (Url.IsLocalUrl(grant.ClientLogoUrl) ? Url.Content(grant.ClientLogoUrl) : grant.ClientLogoUrl) : Url.Content($"~/avatar/{grant.ClientName}/64.png"))" alt="@Localizer.Grants_Client_Logo" />
+                    <span>
+                        <h2 class="grant__name">@grant.ClientName</h2>
+                        <span class="data-card__meta">@Localizer.Grants_Created @grant.Created.ToString("yyyy-MM-dd HH:mm")</span>
+                        <span indice-if="grant.Expires.HasValue" class="data-card__meta">
+                            &middot; @Localizer.Grants_Expires_On @(grant.Expires.HasValue ? grant.Expires.Value.ToString("yyyy-MM-dd HH:mm") : "-")
+                        </span>
+                    </span>
+                </span>
+                <form asp-page-handler="Revoke" method="post" class="grant__revoke">
+                    <input type="hidden" name="clientId" value="@grant.ClientId">
+                    <button class="btn btn-sm btn-outline-danger">@Localizer.Grants_Revoke_Access</button>
+                </form>
+            </header>
+            <details indice-if="grant.IdentityGrantNames.Any()" class="grant__group" open>
+                <summary class="grant__summary"><i class="fa-regular fa-address-card" aria-hidden="true"></i> Identity Grants</summary>
                 <ul class="grant__list">
                     @foreach (var name in grant.IdentityGrantNames)
                     {
                         <li>@name</li>
                     }
                 </ul>
-            </div>
-            <div indice-if="grant.ApiGrantNames.Any()" class="grant__group">
-                <h3 class="data-card__subtitle"><i class="fa-solid fa-server" aria-hidden="true"></i> API Grants</h3>
+            </details>
+            <details indice-if="grant.ApiGrantNames.Any()" class="grant__group">
+                <summary class="grant__summary"><i class="fa-solid fa-server" aria-hidden="true"></i> API Grants</summary>
                 <ul class="grant__list">
                     @foreach (var name in grant.ApiGrantNames)
                     {
                         <li>@name</li>
                     }
                 </ul>
-            </div>
-        </div>
-        <footer class="data-card__actions grant__footer">
-            <span indice-if="grant.Expires.HasValue" class="data-card__meta">
-                @Localizer.Grants_Expires_On @(grant.Expires.HasValue ? $"{grant.Expires.Value.ToString("yyyy-MM-dd")} @ {grant.Expires.Value.ToString("HH:mm")}" : "-")
-            </span>
-            <form asp-page-handler="Revoke" method="post">
-                <input type="hidden" name="clientId" value="@grant.ClientId">
-                <button class="btn btn-outline-danger">@Localizer.Grants_Revoke_Access</button>
-            </form>
-        </footer>
-    </section>
-}
+            </details>
+        </article>
+    }
+</section>
