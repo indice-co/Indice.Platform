@@ -6,5 +6,6 @@
     <h1 class="auth-card__title">@Localizer.Redirect_Returning</h1>
     <p class="auth-card__text">@Localizer.Redirect_CloseTab</p>
 </section>
+@* RedirectUri is only supplied by page models after the return URL has been validated (authorization context or IsValidReturnUrl). *@
 <meta http-equiv="refresh" content="0;url=@Model.RedirectUri" data-url="@Model.RedirectUri" />
 <script type="text/javascript" src="~/js/signin-redirect.js" csp-nonce="true"></script>

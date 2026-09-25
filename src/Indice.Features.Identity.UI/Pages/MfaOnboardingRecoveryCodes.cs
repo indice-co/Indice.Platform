@@ -42,7 +42,7 @@ public abstract class BaseMfaOnboardingRecoveryCodesModel : BasePageModel
             return RedirectToPage("/MfaOnboarding", routeValues: new { returnUrl });
         }
         View = tempModel;
-        View.ReturnUrl ??= returnUrl;
+        View.ReturnUrl = SanitizeReturnUrl(View.ReturnUrl ?? returnUrl);
         return Page();
     }
 

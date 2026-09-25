@@ -51,7 +51,7 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
             NextStepUrl = string.Empty
         });
         Input.PhoneNumber = user.PhoneNumber;
-        Input.ReturnUrl = returnUrl;
+        Input.ReturnUrl = SanitizeReturnUrl(returnUrl);
         return Page();
     }
 

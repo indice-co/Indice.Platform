@@ -113,15 +113,16 @@ public abstract class BaseMfaOnboardingSetupAuthenticatorModel : BasePageModel
         var applicationName = Configuration.GetApplicationName() ?? "IdentityServer";
 
         var userIdentifier = await UserManager.GetEmailAsync(user) ?? user.UserName ?? string.Empty;
+        returnUrl = SanitizeReturnUrl(returnUrl ?? Input.ReturnUrl);
         View = new SetupAuthenticatorViewModel {
             Code = null,
-            ReturnUrl = returnUrl ?? Input.ReturnUrl,
+            ReturnUrl = returnUrl,
             SharedKey = unformattedKey,
             FormattedSharedKey = FormatSharedKey(unformattedKey!),
             AuthenticatorUri = BuildAuthenticatorUri(applicationName, userIdentifier, unformattedKey!, AuthenticatorDigits),
             AuthenticatorDigits = AuthenticatorDigits
         };
-        Input.ReturnUrl ??= returnUrl;
+        Input.ReturnUrl = returnUrl;
     }
 
     private static string FormatSharedKey(string unformattedKey) {

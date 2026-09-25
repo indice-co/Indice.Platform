@@ -46,7 +46,7 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
             NextStepUrl = string.Empty
         });
         Input.PhoneNumber = user.PhoneNumber;
-        Input.ReturnUrl = returnUrl;
+        Input.ReturnUrl = SanitizeReturnUrl(returnUrl);
         return Page();
     }
 
