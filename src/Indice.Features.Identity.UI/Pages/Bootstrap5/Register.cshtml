@@ -4,6 +4,7 @@
 @model BaseRegisterModel
 
 @inject ExtendedUserManager<User> userManager
+@inject IZoneInfoProvider zoneInfoProvider
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
 @inject IdentityUILocalizer Localizer
@@ -52,6 +53,17 @@
             <label asp-for="Input.PhoneNumber" class="field__label">@Localizer.Register_Phone_number <span class="field__required" aria-hidden="true">*</span></label>
             <input class="form-control field__control" type="tel" asp-for="Input.PhoneNumber" placeholder="@Localizer.Register_Phone_number" autocomplete="tel" aria-describedby="Input_PhoneNumberWithCallingCode-error" />
             <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="field__error" id="Input_PhoneNumberWithCallingCode-error"></span>
+        </div>
+        <div class="field">
+            <label class="field__label" asp-for="Input.ZoneInfo">@Localizer.Register_Timezone</label>
+            <select class="form-select field__control" asp-for="Input.ZoneInfo" aria-describedby="Input_ZoneInfo-error">
+                <option value="" selected>@Localizer.Profile_Choose</option>
+                @foreach (var timezone in zoneInfoProvider.GetTimeZones())
+                {
+                    <option value="@timezone.Id">@timezone.DisplayName</option>
+                }
+            </select>
+            <span asp-validation-for="Input.ZoneInfo" class="field__error" id="Input_ZoneInfo-error"></span>
         </div>
         @if (!userManager.EmailAsUserName)
         {
@@ -142,6 +154,7 @@
     <script type="text/javascript" src="~/js/utilities.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/password-rules.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/reveal-password.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/zone-info-select.js" csp-nonce="true" data-id="@Html.IdFor(x => x.Input.ZoneInfo)"></script>
     <script csp-nonce="true">
         document.querySelectorAll('.provider-btn').forEach(function (el) {
             el.addEventListener('click', function () {

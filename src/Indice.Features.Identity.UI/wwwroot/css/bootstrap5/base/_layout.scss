@@ -39,6 +39,12 @@ body {
     justify-content: center;
     width: 100%;
     padding: t.$space-4 var(--idui-page-gutter) t.$space-6;
+
+    // Phones: the cards span the full width.
+    @include m.mq-down(sm) {
+        padding-right: 0;
+        padding-left: 0;
+    }
 }
 
 // The hero aside only shows on themes that use it, from the lg breakpoint up.

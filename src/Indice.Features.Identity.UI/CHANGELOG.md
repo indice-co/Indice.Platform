@@ -41,8 +41,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (profile, change/add password, grants, switch account, logout) on every viewport. The old inline navbar and
   dropdown card are gone.
 - The footer now always shows the language switcher, copyright, legal links and a "made by" credit.
-- `_StylesHead` preloads the two Gotham Greek faces the UI uses and no longer preconnects to
-  `storage.googleapis.com`; the Open Sans Google Fonts declarations were removed (fonts are self-hosted).
+- `_StylesHead` preloads the two Gotham Greek faces the UI uses and keeps the `storage.googleapis.com` preconnect;
+  the Open Sans Google Fonts declarations were removed (fonts are self-hosted).
+- The header shows only the logo (the application name is its accessible label, not visible text).
+- Themes apply the hero background to every non-profile page whether or not the user is signed in (Home, Consent,
+  Logout and Error keep the image after sign-in).
+- Register and Profile show the timezone select (`Input.ZoneInfo`); Register pre-selects the browser's zone through
+  `js/zone-info-select.js`, as on Tailwind.
+- Disabled and read-only controls render muted; `$link-hover-decoration` is `null`, so navigation links are not
+  underlined on hover.
 - Stylesheet `<link>`s moved from `<body>` to `<head>`.
 - `wwwroot/img/hero.jpg` (optimised, 1920 px) is the default hero/background image; override it by shipping
   your own file at the same path or by setting `--idui-hero-image` in a custom stylesheet.
@@ -61,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Footer_LinksLabel`, `Login_Alternatively`, `Register_Subtitle`, `Nav_OpenMenu`, `Nav_CloseMenu`,
   `Account_SwitchAccount`, `Account_NavLabel`, `SkipToContent`, `Password_Show`, `Password_Hide`,
   `Mfa_ResendAvailableIn`, `Profile_Photo`, `Profile_PhotoUpload`, `Profile_PhotoHelp`,
-  `Profile_PhotoConstraints`, `Profile_AccountDetails`, `Profile_DetailsSection` (English + Greek).
+  `Profile_PhotoConstraints`, `Profile_AccountDetails`, `Profile_DetailsSection` (all shipped languages: en, el, de, es, fr, it, ja, pt).
 - Accessibility: skip link, `role="alert"` on validation summaries, `aria-describedby` from every control to its
   error message, real `<button aria-pressed>` for the password reveal, labelled offcanvas and navigation
   landmarks, visible focus ring on every interactive element.
