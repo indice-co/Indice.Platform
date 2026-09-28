@@ -15,13 +15,19 @@
         <img class="site-header__logo site-header__logo--light" src="~/img/logo@(langSuffix).svg" alt="" />
         <img class="site-header__logo site-header__logo--dark" src="~/img/logo-dark-bg@(langSuffix).svg" alt="" />
     </a>
-    @if (displayMenu)
-    {
-        <div class="site-header__actions">
+    <div class="site-header__actions">
+        <div class="site-header__lang">
+            <partial name="_LanguageSelector" />
+        </div>
+        @if (displayMenu)
+        {
             <button type="button" class="site-header__avatar" data-bs-toggle="offcanvas" data-bs-target="#account-panel" aria-controls="account-panel" aria-label="@Localizer.Nav_OpenMenu">
                 <img class="avatar avatar--sm" profile-pic="48" alt="" />
             </button>
-        </div>
+        }
+    </div>
+    @if (displayMenu)
+    {
         <partial name="_AccountPanel" />
     }
 </header>

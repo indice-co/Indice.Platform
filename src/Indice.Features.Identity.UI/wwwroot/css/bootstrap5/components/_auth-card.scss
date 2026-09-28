@@ -30,6 +30,7 @@
     }
 
     &__image {
+        display: var(--idui-auth-card-image-display);
         width: 4.5rem;
         height: 4.5rem;
         margin-bottom: t.$space-3;

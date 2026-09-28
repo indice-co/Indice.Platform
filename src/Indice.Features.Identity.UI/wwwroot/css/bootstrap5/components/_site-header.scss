@@ -48,6 +48,10 @@
         gap: t.$space-3;
     }
 
+    &__lang {
+        display: var(--idui-header-lang-display);
+    }
+
     &__avatar {
         padding: 0;
         border: 0;

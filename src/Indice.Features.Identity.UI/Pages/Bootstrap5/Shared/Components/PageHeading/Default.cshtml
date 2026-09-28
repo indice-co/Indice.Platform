@@ -1,7 +1,14 @@
 ﻿@model PageHeadingViewModel
-
+@{
+    if (string.IsNullOrWhiteSpace(Model.ImageSrc))
+    {
+        var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+        var langSuffix = (lang == "el") ? ".el" : string.Empty;
+        Model.ImageSrc = Url.Content($"~/img/logo{langSuffix}.svg");
+    }
+}
 <header class="auth-card__header">
-    <img indice-if="!string.IsNullOrWhiteSpace(Model.ImageSrc)" class="auth-card__image" src="@Model.ImageSrc" alt="" />
+    <img class="auth-card__image" src="@Model.ImageSrc" alt="" />
     <h1 class="auth-card__title">@Model.Title</h1>
     <p indice-if="!string.IsNullOrWhiteSpace(Model.Subtitle?.ToString())" class="auth-card__subtitle">@Model.Subtitle</p>
 </header>

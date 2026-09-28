@@ -191,6 +191,8 @@ $transition-base: .25s ease !default;
     --idui-footer-color: var(--idui-color-text-muted);
     --idui-footer-text-shadow: none;
     --idui-footer-link-hover: var(--idui-color-ink);
+    // Header language switcher is hidden by default; set to `block` (or `flex`) to show it.
+    --idui-header-lang-display: none;
     --idui-lang-toggle-bg: var(--idui-color-surface);
     --idui-lang-toggle-color: var(--idui-color-text);
     --idui-lang-toggle-border: var(--idui-color-border);
@@ -198,6 +200,8 @@ $transition-base: .25s ease !default;
     // ---- Auth card (login/register/... form card) -------------------------------
     --idui-auth-card-bg: var(--idui-color-surface);
     --idui-auth-card-shadow: var(--idui-shadow-card);
+    // Auth card heading image is hidden by default; set to `inline-block` to show it.
+    --idui-auth-card-image-display: none;
     --idui-auth-card-width: var(--idui-card-width);
     --idui-auth-card-padding: #{$space-8} #{$space-7};
 
