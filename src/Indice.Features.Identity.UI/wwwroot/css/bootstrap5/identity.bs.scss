@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // Indice Identity UI (Bootstrap5 variant) — main stylesheet.
 // Order: tokens → fonts → base → components → layouts → themes → host overrides.
 // Tokens + the --idui-* runtime contract: abstracts/_tokens.scss.
@@ -15,6 +15,7 @@
 
 @use 'components/site-header';
 @use 'components/site-footer';
+@use 'components/footer-menu';
 @use 'components/lang-switcher';
 @use 'components/account-panel';
 @use 'components/avatar';

@@ -196,6 +196,14 @@ $transition-base: .25s ease !default;
     --idui-lang-toggle-bg: var(--idui-color-surface);
     --idui-lang-toggle-color: var(--idui-color-text);
     --idui-lang-toggle-border: var(--idui-color-border);
+    --idui-footer-menu-toggle-bg: var(--idui-color-surface-muted);
+    --idui-footer-menu-toggle-hover-bg: var(--idui-color-border);
+    --idui-footer-menu-toggle-color: var(--idui-color-text);
+    --idui-footer-menu-bg: var(--idui-color-surface);
+    --idui-footer-menu-shadow: var(--idui-shadow-menu);
+    --idui-footer-menu-item-color: var(--idui-color-text);
+    --idui-footer-menu-item-active-bg: var(--idui-color-surface-muted);
+    --idui-footer-menu-item-active-color: var(--idui-color-ink);
 
     // ---- Auth card (login/register/... form card) -------------------------------
     --idui-auth-card-bg: var(--idui-color-surface);

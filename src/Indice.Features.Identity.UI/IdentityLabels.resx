@@ -1204,6 +1204,9 @@
   <data name="Footer_LinksLabel" xml:space="preserve">
     <value>Legal and support</value>
   </data>
+  <data name="Footer_MoreLinks" xml:space="preserve">
+    <value>More links</value>
+  </data>
   <data name="Login_Alternatively" xml:space="preserve">
     <value>Or continue with</value>
   </data>

@@ -41,6 +41,7 @@ public static class IdentityBuilderUIExtensions
             options.AvatarColorHex = configuredOptions.AvatarColorHex;
             options.OnBoardingPage = configuredOptions.OnBoardingPage;
             options.ContactUsUrl = configuredOptions.ContactUsUrl;
+            options.FooterLinks = configuredOptions.FooterLinks;
             options.CopyYear = configuredOptions.CopyYear;
             options.EmailLinkColorHex = configuredOptions.EmailLinkColorHex;
             options.EnableForgotPasswordPage = configuredOptions.EnableForgotPasswordPage;

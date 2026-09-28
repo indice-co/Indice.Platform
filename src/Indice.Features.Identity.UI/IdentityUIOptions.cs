@@ -58,6 +58,9 @@ public class IdentityUIOptions
     /// <summary>An absolute URL to the <strong>Contact us</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
     /// <remarks>If left null the <strong>Contact Us</strong> link in the footer will disappear. If populated it will do a redirect to this URL. By default it is empty</remarks>
     public string? ContactUsUrl { get; set; }
+    /// <summary>Extra links rendered in the site footer, after the built-in ones (Discovery, Privacy, Terms, Contact us).</summary>
+    /// <remarks>The first 4 links (built-in and custom) are shown inline; any remaining links are listed in a "more" (&#8942;) menu.</remarks>
+    public List<FooterLink> FooterLinks { get; set; } = [];
     /// <summary>The absolute page path (not the url) that points to a custom on boarding process start. For example <strong>/OnBoarding/Welcome</strong> would be the route pointing to a page under the physical path: <strong>/Pages/OnBoarding/Welcome.cshtml</strong></summary>
     /// <remarks>This will replace all register links pointing to the native register page <strong>/Register</strong> but will not shut down native registration. In order to shut down registration use <seealso cref="EnableRegisterPage"/>.</remarks>
     public string OnBoardingPage { get; set; } = "/Register";

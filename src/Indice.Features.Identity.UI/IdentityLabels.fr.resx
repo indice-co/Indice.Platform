@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -1199,6 +1199,9 @@
   </data>
   <data name="Footer_LinksLabel" xml:space="preserve">
     <value>Mentions légales et assistance</value>
+  </data>
+  <data name="Footer_MoreLinks" xml:space="preserve">
+    <value>Plus de liens</value>
   </data>
   <data name="Footer_MadeBy" xml:space="preserve">
     <value>Avec &lt;span aria-hidden="true"&gt;&#10084;&lt;/span&gt; par &lt;strong&gt;INDICE&lt;/strong&gt;</value>

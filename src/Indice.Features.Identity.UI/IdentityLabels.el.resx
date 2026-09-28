@@ -1203,6 +1203,9 @@
   <data name="Footer_LinksLabel" xml:space="preserve">
     <value>Νομικά και υποστήριξη</value>
   </data>
+  <data name="Footer_MoreLinks" xml:space="preserve">
+    <value>Περισσότερα</value>
+  </data>
   <data name="Login_Alternatively" xml:space="preserve">
     <value>Εναλλακτικά</value>
   </data>

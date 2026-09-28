@@ -20,6 +20,14 @@
     --idui-lang-toggle-bg: rgba(255, 255, 255, .16);
     --idui-lang-toggle-color: var(--idui-color-on-dark);
     --idui-lang-toggle-border: transparent;
+    --idui-footer-menu-toggle-bg: rgba(255, 255, 255, .16);
+    --idui-footer-menu-toggle-hover-bg: rgba(255, 255, 255, .28);
+    --idui-footer-menu-toggle-color: var(--idui-color-on-dark);
+    --idui-footer-menu-bg: rgba(255, 255, 255, .16);
+    --idui-footer-menu-shadow: none;
+    --idui-footer-menu-item-color: var(--idui-color-on-dark);
+    --idui-footer-menu-item-active-bg: rgba(0, 0, 0, .85);
+    --idui-footer-menu-item-active-color: var(--idui-color-on-dark);
 }
 
 /// Header + footer over an image.
@@ -43,6 +51,14 @@
     --idui-lang-toggle-bg: var(--idui-color-surface);
     --idui-lang-toggle-color: var(--idui-color-text);
     --idui-lang-toggle-border: var(--idui-color-border);
+    --idui-footer-menu-toggle-bg: var(--idui-color-surface-muted);
+    --idui-footer-menu-toggle-hover-bg: var(--idui-color-border);
+    --idui-footer-menu-toggle-color: var(--idui-color-text);
+    --idui-footer-menu-bg: var(--idui-color-surface);
+    --idui-footer-menu-shadow: var(--idui-shadow-menu);
+    --idui-footer-menu-item-color: var(--idui-color-text);
+    --idui-footer-menu-item-active-bg: var(--idui-color-surface-muted);
+    --idui-footer-menu-item-active-color: var(--idui-color-ink);
 }
 
 @mixin chrome-light {

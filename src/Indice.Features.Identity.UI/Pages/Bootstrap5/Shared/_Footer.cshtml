@@ -7,6 +7,17 @@
     var settings = Settings.Value;
     var copyYear = UIOptions.Value.CopyYear;
     var showContactUs = !string.IsNullOrWhiteSpace(UIOptions.Value.ContactUsUrl);
+    var uiOptions = UIOptions.Value;
+    var culture = CultureInfo.CurrentUICulture;
+    var htmlUniqueId = $"{Guid.NewGuid():N}";
+    var links = new List<(string Text, string Href, string? Target, string? Rel)>();
+    foreach (var link in uiOptions.FooterLinks) {
+        var href = link.GetUrl(culture);
+        if (string.IsNullOrWhiteSpace(href)) {
+            continue;
+        }
+        links.Add((link.GetText(culture), href.StartsWith('~') ? Url.Content(href) : href, link.Target, link.GetRel()));
+    }
 }
 
 <footer class="site-footer">
@@ -21,6 +32,20 @@
         <a class="site-footer__link" asp-page="/Privacy" target="_blank">@Localizer.Footer_Privacy</a>
         <a class="site-footer__link" asp-page="/Terms" target="_blank">@Localizer.Footer_Terms</a>
         <a class="site-footer__link" indice-if="showContactUs" href="@UIOptions.Value.ContactUsUrl" target="_blank" rel="noopener">@Localizer.Footer_Contact_us</a>
+        @if (links.Count > 0)
+        {
+            <div class="footer-menu dropup">
+                <button type="button" id="footer-menu-@htmlUniqueId" class="footer-menu__toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="@Localizer.Footer_MoreLinks">
+                    <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end footer-menu__menu" aria-labelledby="footer-menu-@htmlUniqueId">
+                    @foreach (var link in links)
+                    {
+                        <a class="dropdown-item footer-menu__item" href="@link.Href" target="@link.Target" rel="@link.Rel">@link.Text</a>
+                    }
+                </div>
+            </div>
+        }
     </nav>
-    <p indice-if="UIOptions.Value.ShowMadeByCredit" class="site-footer__credit">@Localizer.Footer_MadeBy</p>
+    <p indice-if="uiOptions.ShowMadeByCredit" class="site-footer__credit">@Localizer.Footer_MadeBy</p>
 </footer>
