@@ -16,8 +16,6 @@
     // The shell decides how the page body is framed: auth (hero + form), card (centered card), profile (sidebar + cards), article (wide reading card).
     var shell = (ViewData["Shell"] as string ?? "card").ToLowerInvariant();
     var shellClass = $"shell-{shell}";
-    // The hero aside is rendered for auth/card shells, signed in or not; each theme decides whether to show it.
-    var renderHero = shell == "auth" || shell == "card";
 }
 
 <!DOCTYPE html>
@@ -56,10 +54,8 @@
     <div class="site">
         <partial name="_Header" />
         <div class="site-body">
-            @if (renderHero)
-            {
-                <partial name="_HeroPanel" />
-            }
+            @* Pages opt in to the hero aside by defining a "hero" section (e.g. <vc:hero-panel />); each theme decides whether to show it. *@
+            @RenderSection("hero", required: false)
             <main id="main" class="site-main">
                 @if (shell == "profile")
                 {

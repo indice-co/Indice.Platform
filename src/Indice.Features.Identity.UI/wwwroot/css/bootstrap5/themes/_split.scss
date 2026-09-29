@@ -1,4 +1,4 @@
-﻿@use '../abstracts/mixins' as m;
+@use '../abstracts/mixins' as m;
 @use '../abstracts/theme' as theme;
 
 // =============================================================================
@@ -23,8 +23,8 @@
             @include theme.chrome-on-image;
         }
 
-        // ---- Login: hero copy left, card right --------------------------------------
-        body.login {
+        // ---- Login (with hero): hero copy left, card right --------------------------------------
+        body.login:has(.site-body > .site-hero) {
             --idui-site-columns: minmax(0, 1fr) minmax(0, var(--idui-form-column));
             --idui-site-areas: 'header header' 'hero main' 'footer footer';
             --idui-site-gap: 0 3rem;
@@ -34,8 +34,8 @@
             --idui-main-padding: 1rem var(--idui-page-gutter-lg) 3rem 0;
         }
 
-        // ---- Register: inset image column + light content column --------------------
-        body.register {
+        // ---- Register (with hero): inset image column + light content column --------------------
+        body.register:has(.site-body > .site-hero) {
             --idui-page-bg: var(--idui-color-surface-muted);
             @include theme.chrome-light;
             --idui-site-columns: minmax(0, var(--idui-hero-column)) minmax(0, 1fr);

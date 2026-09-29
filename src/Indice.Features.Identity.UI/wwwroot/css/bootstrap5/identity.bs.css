@@ -593,8 +593,7 @@ body {
   width: var(--idui-avatar-md);
   height: var(--idui-avatar-md);
   border-radius: 50%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   background: var(--idui-color-surface-sunken);
 }
 .avatar--sm {
@@ -635,8 +634,7 @@ body {
   height: 4.5rem;
   margin-bottom: 0.75rem;
   border-radius: 50%;
-  -o-object-fit: contain;
-     object-fit: contain;
+  object-fit: contain;
 }
 .auth-card__title {
   margin: 0;
@@ -1173,8 +1171,7 @@ body {
 .deck__image img {
   width: 3rem;
   height: 3rem;
-  -o-object-fit: contain;
-     object-fit: contain;
+  object-fit: contain;
 }
 .deck__title {
   font-weight: 500;
@@ -1355,9 +1352,7 @@ body {
   background: var(--idui-color-surface-muted);
   color: var(--idui-color-text);
   text-align: center;
-  -webkit-user-select: all;
-     -moz-user-select: all;
-          user-select: all;
+  user-select: all;
 }
 
 .choice-list__button {
@@ -1432,8 +1427,7 @@ body {
 .data-card__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  -moz-column-gap: 1.5rem;
-       column-gap: 1.5rem;
+  column-gap: 1.5rem;
 }
 .data-card__span {
   grid-column: 1/-1;
@@ -2050,7 +2044,7 @@ body.shell-article .site-main {
     --idui-footer-menu-item-active-bg: rgba(0, 0, 0, .85);
     --idui-footer-menu-item-active-color: var(--idui-color-on-dark);
   }
-  :root[data-theme=split] body.login {
+  :root[data-theme=split] body.login:has(.site-body > .site-hero) {
     --idui-site-columns: minmax(0, 1fr) minmax(0, var(--idui-form-column));
     --idui-site-areas: "header header" "hero main" "footer footer";
     --idui-site-gap: 0 3rem;
@@ -2059,7 +2053,7 @@ body.shell-article .site-main {
     --idui-hero-padding: 1rem 0 3rem var(--idui-page-gutter-lg);
     --idui-main-padding: 1rem var(--idui-page-gutter-lg) 3rem 0;
   }
-  :root[data-theme=split] body.register {
+  :root[data-theme=split] body.register:has(.site-body > .site-hero) {
     --idui-page-bg: var(--idui-color-surface-muted);
     --idui-header-color: var(--idui-color-text);
     --idui-header-text-shadow: none;
@@ -2089,7 +2083,10 @@ body.shell-article .site-main {
     --idui-hero-radius: var(--idui-radius-xl);
     --idui-main-padding: 1.5rem 3rem 3rem;
   }
-  :root[data-theme=columns] body:not(.shell-profile) {
+}
+
+@media (min-width: 992px) {
+  :root[data-theme=columns] body:not(.shell-profile):has(.site-body > .site-hero) {
     --idui-page-bg: var(--idui-color-surface-muted);
     --idui-header-color: var(--idui-color-on-dark);
     --idui-header-text-shadow: var(--idui-hero-text-shadow);
@@ -2108,6 +2105,9 @@ body.shell-article .site-main {
     --idui-auth-card-padding: 0;
     --idui-auth-card-width: 26rem;
   }
+}
+
+@media (min-width: 992px) {
   :root[data-theme=panel] body:not(.shell-profile) {
     --idui-page-bg: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--idui-color-brand-bright), white 12%), var(--idui-color-brand-bright) 45%, color-mix(in srgb, var(--idui-color-brand-bright), black 15%) 100%);
     --idui-header-color: var(--idui-color-on-dark);
@@ -2129,7 +2129,7 @@ body.shell-article .site-main {
     --idui-footer-menu-item-active-bg: rgba(0, 0, 0, .85);
     --idui-footer-menu-item-active-color: var(--idui-color-on-dark);
   }
-  :root[data-theme=panel] body.shell-auth {
+  :root[data-theme=panel] body.shell-auth:has(.site-body > .site-hero) {
     --idui-site-areas: "header" "body" "footer";
     --idui-body-display: grid;
     --idui-body-columns: minmax(0, 34%) minmax(0, 1fr);
