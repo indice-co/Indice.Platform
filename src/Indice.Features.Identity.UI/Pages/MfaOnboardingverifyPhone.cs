@@ -42,7 +42,7 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success( UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone),
+            Alert = AlertModel.Info( UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone),
             NextStepUrl = string.Empty
         });
         Input.PhoneNumber = user.PhoneNumber;

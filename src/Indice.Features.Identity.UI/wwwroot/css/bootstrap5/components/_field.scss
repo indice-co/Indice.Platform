@@ -69,6 +69,18 @@
         &:focus-visible {
             outline-offset: -2px;
         }
+
+        &::before {
+            content: "";
+            display: block;
+            width: 1.6em;
+            aspect-ratio: 1 / 1;
+            background: url('../../img/reveal.svg') center / contain no-repeat;
+        }
+
+        &[aria-pressed="true"]::before {
+            background-image: url('../../img/reveal-hide.svg');
+        }
     }
 
     &__error,

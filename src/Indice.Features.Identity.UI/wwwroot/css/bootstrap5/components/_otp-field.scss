@@ -156,9 +156,17 @@
     &__key {
         margin: 0 0 t.$space-5;
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: t.$font-size-sm;
+        font-size: t.$font-size-base;
+        font-weight: 700;
+        letter-spacing: 0.05em;
         text-align: center;
         overflow-wrap: anywhere;
+        padding: t.$space-3;
+        border: 1px solid var(--idui-color-border);
+        border-radius: var(--idui-radius-sm);
+        background: var(--idui-color-surface-muted);
+        color: var(--idui-color-text);
+        user-select: all;
     }
 
     &__codes {

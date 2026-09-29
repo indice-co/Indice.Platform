@@ -43,7 +43,7 @@ public abstract class BaseMfaOnboardingVerifyEmailModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success( UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail),
+            Alert = AlertModel.Info( UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail),
             NextStepUrl = string.Empty
         });
         Input.Email = user.Email;

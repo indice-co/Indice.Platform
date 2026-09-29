@@ -18,10 +18,6 @@
             : ($btn.data('label-hide') || 'Hide password');
         $btn.attr('aria-label', label);
         $btn.attr('title', label);
-
-        $btn.find('.fa-eye, .fa-eye-slash')
-            .toggleClass('fa-eye', isVisible)
-            .toggleClass('fa-eye-slash', !isVisible);
     }
 
     $(document).on('click', '.field__reveal, .password-control .reveal-icon', togglePassword);
