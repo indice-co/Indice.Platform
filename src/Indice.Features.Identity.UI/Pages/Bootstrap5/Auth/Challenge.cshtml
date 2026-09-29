@@ -1,0 +1,11 @@
+﻿@page "/external-login"
+
+@inject IdentityUILocalizer Localizer
+
+
+@model BaseChallengeModel
+
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = Localizer.Challenge_PageTitle;
+}

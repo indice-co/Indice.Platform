@@ -148,16 +148,23 @@ Two page trees ship in the package: `Pages/Bootstrap5` (default) and `Pages/Tail
 the `IdentityUIFrameworkVersion` MSBuild property (`Bootstrap5` or `Tailwind`).
 
 
-### Shells
+### Page groups and layouts (Bootstrap5)
 
-`_IdentityLayout.cshtml` frames the page body with a *shell* chosen by `ViewData["Shell"]`:
+The Bootstrap5 pages are grouped in folders, and every page sets its group's layout, which nests in
+`Shared/_IdentityLayout.cshtml` (document, header, footer). The group folder only organises the source: it is removed
+from the view path like the framework folder, so `/Pages/Bootstrap5/Auth/Login.cshtml` is still the page `/Login`
+(same routes, `RedirectToPage` names and host overrides).
 
-| Shell | Pages | Structure |
-|---|---|---|
-| `auth` | Login, Register | Hero aside + form (template-dependent) |
-| `card` (default) | Every other anonymous flow, MFA, consent, errors | One centered `.auth-card` |
-| `profile` | Profile, Change/Add password, Grants | Image header band, `_ProfileNav` sidebar, `.data-card` stack |
-| `article` | Terms, Privacy, Accept terms | Wide `.article-card` with rendered markdown |
+| Folder | Layout | Shell (`<body>` class) | Pages |
+|---|---|---|---|
+| `Auth/` | `_AuthLayout` | `card` (one centered `.auth-card`); `auth` (hero aside + form) on Login, Register | Sign in/up, MFA and onboarding, verification, forgot password, consent, external login, logout, errors |
+| `Profile/` | `_ProfileLayout` | `profile` (image header band, `_ProfileNav` sidebar, `.data-card` stack) | Profile, Change/Add password, Grants |
+| `Home/` | `_HomeLayout` | `card` | Home |
+| `Article/` | `_ArticleLayout` | `article` (wide `.article-card` with rendered markdown) | Terms, Privacy, Accept terms |
+
+The group layouts pass the page's optional `meta`, `css`, `hero` and `scripts` sections through to `_IdentityLayout`.
+A host can replace a group layout by shipping e.g. `Pages/Shared/_AuthLayout.cshtml`, or the outer frame with
+`Pages/Shared/_IdentityLayout.cshtml`. Pages that set no group layout (host pages, the `Redirect` view) get the `card` shell.
 
 ### Styling
 
@@ -228,7 +235,7 @@ was also redesigned in 8.58.0 (new markup and class names); see the CHANGELOG fo
 
 Override specific pages by creating them in your host application:
 
-1. On the same path as in the library but ommiting the `UIFramework` folder `/Pages/Bootstrap5/Login` will become `/Pages/Login`.
+1. On the same path as in the library but ommiting the `UIFramework` folder and, for Bootstrap5, the page group folder: `/Pages/Bootstrap5/Auth/Login` will become `/Pages/Login`.
 ```
 Pages/
 ├── Login.cshtml     # Custom login page
@@ -264,7 +271,7 @@ Pages/
 Indice.Features.Identity.UI/
 ├── Models/      # View models and input models
 ├── Pages/              # Razor pages organized by theme
-│   ├── Bootstrap5/         # Bootstrap 5 theme
+│   ├── Bootstrap5/         # Bootstrap 5 theme: Auth/, Profile/, Home/, Article/ page groups + Shared/ layouts and partials
 │   ├── Tailwind/          # Tailwind CSS theme
 │   └── Shared/         # Shared layouts and components
 ├── Validators/  # FluentValidation validators
