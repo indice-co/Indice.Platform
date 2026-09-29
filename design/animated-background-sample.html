@@ -159,72 +159,152 @@
   .links { margin-top: 1.25rem; text-align: center; font-size: .8rem; color: var(--c-text-faint); }
   .links a { color: var(--c-indigo); }
   @media (max-width: 800px) { .page { grid-template-columns: 1fr; } .hero { text-align: center; } }
+
+
+
+  /* APPLE STYLE **/
+    /* ---------- The Liquid Glass card ---------- */
+    .glass-card {
+        position: relative;
+        color: var(--c-white);
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        /* No background here — the layers below build the material */
+        isolation: isolate;
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+        transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    }
+
+       /* .glass-card:hover {
+            transform: scale(1.02);
+        }
+*/
+        /* LAYER 1 — Refraction: the SVG displacement map bends whatever is
+     behind the card, like light passing through curved glass */
+        .glass-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            z-index: -3;
+            backdrop-filter: url(#glass-distortion);
+            -webkit-backdrop-filter: url(#glass-distortion);
+        }
+
+        /* LAYER 2 — Frost + tint: soft blur, saturation boost, near-zero fill */
+        .glass-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            z-index: -2;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(3px) saturate(180%) brightness(1.08);
+            -webkit-backdrop-filter: blur(3px) saturate(180%) brightness(1.08);
+        }
+
+    /* LAYER 3 — Specular shell: the bright rim where light catches
+     the edge of the glass, brighter on top-left (the light source) */
+    .glass-shine {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        z-index: -1;
+        pointer-events: none;
+        box-shadow: inset 2px 2px 1px -1px rgba(255, 255, 255, 0.7), inset -1px -1px 1px -1px rgba(255, 255, 255, 0.35), inset 0 0 24px 4px rgba(255, 255, 255, 0.06);
+    }
+
+    /* Fallback for Safari/Firefox — no SVG backdrop filters, so lean
+     on heavier blur + a faked edge gradient instead */
+    @supports not (backdrop-filter: url(#glass-distortion)) {
+        .glass-card::before {
+            backdrop-filter: blur(14px) saturate(200%);
+            -webkit-backdrop-filter: blur(14px) saturate(200%);
+        }
+    }
+ 
 </style>
 </head>
 <body>
 
-  <div class="auth-bg" aria-hidden="true">
-    <svg class="waves" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <linearGradient id="g-violet" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0"   stop-color="var(--c-wave-violet-a)"/>
-          <stop offset=".55" stop-color="var(--c-wave-violet-b)"/>
-          <stop offset="1"   stop-color="var(--c-wave-violet-c)"/>
-        </linearGradient>
-        <linearGradient id="g-magenta" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0"   stop-color="var(--c-wave-magenta-a)"/>
-          <stop offset=".5"  stop-color="var(--c-wave-magenta-b)"/>
-          <stop offset="1"   stop-color="var(--c-wave-magenta-c)"/>
-        </linearGradient>
-        <linearGradient id="g-orange" x1="1" y1="0" x2="0" y2="1">
-          <stop offset="0"   stop-color="var(--c-wave-orange-a)"/>
-          <stop offset=".55" stop-color="var(--c-wave-orange-b)"/>
-          <stop offset="1"   stop-color="var(--c-wave-orange-c)"/>
-        </linearGradient>
-        <linearGradient id="g-sky" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0"   stop-color="var(--c-wave-sky-a)"/>
-          <stop offset="1"   stop-color="var(--c-wave-sky-b)"/>
-        </linearGradient>
-      </defs>
+    <div class="auth-bg" aria-hidden="true">
+        <!-- The refraction engine: a displacement map that backdrop-filter
+    samples to shift background pixels, mimicking light bending -->
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+            <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
+                <!-- Organic noise field = the uneven surface of the glass -->
+                <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008"
+                              numOctaves="2" seed="92" result="noise" />
+                <!-- Smooth the noise so the warp looks liquid, not gritty -->
+                <feGaussianBlur in="noise" stdDeviation="2" result="blurred" />
+                <!-- Push background pixels around using the noise's R/G channels.
+             scale = refraction strength; try 40–120 -->
+                <feDisplacementMap in="SourceGraphic" in2="blurred"
+                                   scale="70" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+        </svg>
+        <svg class="waves" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="g-violet" x1="0" y1="1" x2="1" y2="0">
+                    <stop offset="0" stop-color="var(--c-wave-violet-a)" />
+                    <stop offset=".55" stop-color="var(--c-wave-violet-b)" />
+                    <stop offset="1" stop-color="var(--c-wave-violet-c)" />
+                </linearGradient>
+                <linearGradient id="g-magenta" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="var(--c-wave-magenta-a)" />
+                    <stop offset=".5" stop-color="var(--c-wave-magenta-b)" />
+                    <stop offset="1" stop-color="var(--c-wave-magenta-c)" />
+                </linearGradient>
+                <linearGradient id="g-orange" x1="1" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="var(--c-wave-orange-a)" />
+                    <stop offset=".55" stop-color="var(--c-wave-orange-b)" />
+                    <stop offset="1" stop-color="var(--c-wave-orange-c)" />
+                </linearGradient>
+                <linearGradient id="g-sky" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="var(--c-wave-sky-a)" />
+                    <stop offset="1" stop-color="var(--c-wave-sky-b)" />
+                </linearGradient>
+            </defs>
 
-      <!-- Deep violet body filling the right side, bottom-left -> top-right -->
-      <path class="wave wave-violet" fill="url(#g-violet)"
-        d="M 260 1000
+            <!-- Deep violet body filling the right side, bottom-left -> top-right -->
+            <path class="wave wave-violet" fill="url(#g-violet)"
+                  d="M 260 1000
            C 420 760, 640 640, 780 460
            S 980 120, 1150 -100
-           L 1650 -100 L 1650 1000 Z"/>
+           L 1650 -100 L 1650 1000 Z" />
 
-      <!-- Magenta ribbon sweeping across the violet body -->
-      <path class="wave wave-magenta" fill="url(#g-magenta)"
-        d="M 460 1000
+            <!-- Magenta ribbon sweeping across the violet body -->
+            <path class="wave wave-magenta" fill="url(#g-magenta)"
+                  d="M 460 1000
            C 620 820, 760 700, 860 520
            S 1000 200, 1120 -100
            L 1300 -100
            C 1180 200, 1080 420, 980 600
-           S 760 860, 680 1000 Z"/>
+           S 760 860, 680 1000 Z" />
 
-      <!-- Warm orange accent in the top-right corner -->
-      <path class="wave wave-orange" fill="url(#g-orange)"
-        d="M 920 -100
+            <!-- Warm orange accent in the top-right corner -->
+            <path class="wave wave-orange" fill="url(#g-orange)"
+                  d="M 920 -100
            C 1000 80, 1120 200, 1300 240
            S 1650 200, 1650 200
-           L 1650 -100 Z"/>
+           L 1650 -100 Z" />
 
-      <!-- Bright cyan highlight curling in from the left -->
-      <path class="wave wave-sky" fill="url(#g-sky)"
-        d="M -200 520
+            <!-- Bright cyan highlight curling in from the left -->
+            <path class="wave wave-sky" fill="url(#g-sky)"
+                  d="M -200 520
            C 100 440, 320 560, 520 640
            S 780 880, 620 1000
-           L -200 1000 Z"/>
-    </svg>
+           L -200 1000 Z" />
+        </svg>
 
-    <span class="grain"></span>
-  </div>
+        <span class="grain"></span>
+    </div>
 
   <div class="shell">
   <header class="site-header glass">
     <a class="brand" href="#">
-      <img src="./iam-logo.svg" alt="INDICE IAM Logo" />
+      <img src="./iam-logo-light.svg" alt="INDICE IAM Logo" />
     </a>
   </header>
 
