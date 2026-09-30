@@ -30,6 +30,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   components (`components/*`), one master layout with four "shells" (`auth`, `card`, `profile`, `article`)
   and four themes switched by a `data-theme` attribute on `<html>`. Page models, routes, form fields, handlers and
   validation are unchanged; only the markup and styles changed.
+- Bootstrap5 pages are grouped in `Pages/Bootstrap5/Auth/`, `Profile/`, `Home/` and `Article/`, each with a layout
+  (`_AuthLayout`, `_ProfileLayout`, `_HomeLayout`, `_ArticleLayout`) nested in `_IdentityLayout`. The group folder is
+  removed from the view path like the framework folder, so routes, page names (`/Login`), `RedirectToPage` calls and
+  host override paths (`Pages/Login.cshtml`) are unchanged.
+- **Breaking:** Bootstrap5 pages set their group layout themselves, so a layout chosen in the host's `_ViewStart` no
+  longer applies to them; override `Pages/Shared/_IdentityLayout.cshtml` or a group layout instead. The profile
+  sub-navigation moved from `_IdentityLayout` to `_ProfileLayout`, so a host `_IdentityLayout` override no longer needs
+  to render it.
 - **Breaking:** the legacy Sass partials (`_colors`, `_variables`, `_panel`, `_forms`, `_menu`, `_dropcard`, …)
   and their CSS classes (`.sign-in`, `.sign-up`, `.identity-panel`, `.hr-sect`, `.idp`, `.password-control`,
   `.reveal-icon`, `.drop-card`, `.wrapper`, `.footer`, …) are gone. Hosts that override

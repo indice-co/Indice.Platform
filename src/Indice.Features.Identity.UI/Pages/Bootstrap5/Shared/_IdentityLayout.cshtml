@@ -13,7 +13,8 @@
     var authClass = SignInManager.IsSignedIn(User) ? "authenticated" : "anonymous";
     // The theme is a set of CSS custom property values keyed by data-theme on <html>; the markup is the same for every theme.
     var theme = string.IsNullOrWhiteSpace(UiOptions.Value.Theme) ? IdentityUIThemes.Split : UiOptions.Value.Theme.Trim().ToLowerInvariant();
-    // The shell decides how the page body is framed: auth (hero + form), card (centered card), profile (sidebar + cards), article (wide reading card).
+    // The shell (body class) decides how the page body is framed: auth (hero + form), card (centered card), profile (sidebar + cards), article (wide reading card).
+    // Pages pick a group layout (_AuthLayout, _ProfileLayout, _HomeLayout, _ArticleLayout) that nests in this one and sets the shell; "card" is the fallback.
     var shell = (ViewData["Shell"] as string ?? "card").ToLowerInvariant();
     var shellClass = $"shell-{shell}";
 }
@@ -57,19 +58,7 @@
             @* Pages opt in to the hero aside by defining a "hero" section (e.g. <vc:hero-panel />); each theme decides whether to show it. *@
             @RenderSection("hero", required: false)
             <main id="main" class="site-main">
-                @if (shell == "profile")
-                {
-                    <div class="profile-shell">
-                        <partial name="_ProfileNav" />
-                        <div class="profile-shell__content">
-                            @RenderBody()
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    @RenderBody()
-                }
+                @RenderBody()
             </main>
         </div>
         <partial name="_Footer" />
