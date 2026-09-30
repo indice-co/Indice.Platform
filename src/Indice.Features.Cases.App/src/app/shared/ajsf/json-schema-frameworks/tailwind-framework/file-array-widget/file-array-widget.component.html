@@ -52,14 +52,14 @@
            class="peer sr-only"
            [accept]="accept"
            [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
-           [attr.required]="options?.required && !fileValues.length ? true : null"
+           [attr.required]="isRequired && !fileValues.length ? true : null"
            [disabled]="controlDisabled"
            [id]="'control' + layoutNode?._id"
            [name]="controlName"
            (change)="onFileSelect($event)"
            multiple />
     <label [attr.for]="'control' + layoutNode?._id"
-           class="inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-dark font-weight-bold bg-gray-300 hover:bg-gray-400 shadow-sm peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blue-600"
+           class="mr-2 inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-dark font-weight-bold bg-gray-300 hover:bg-gray-400 shadow-sm peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blue-600"
            [class.opacity-50]="controlDisabled"
            [class.cursor-not-allowed]="controlDisabled">
         <svg class="h-3.5 w-3.5"
@@ -75,5 +75,50 @@
         </svg>
         {{ 'common.uploadDocuments' | translate }}
     </label>
+    @if (hasRequirements) {
+    <span class="group relative inline-flex align-middle">
+        <button type="button"
+                class="rounded-full text-gray-500 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                [attr.aria-label]="'fileUpload.requirements' | translate"
+                [attr.aria-describedby]="'control' + layoutNode?._id + 'Requirements'" disabled>
+            <svg class="h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+                <path stroke="currentColor" stroke-linecap="round" stroke-width="1.8" d="M12 11v5m0-8h.01" />
+            </svg>
+        </button>
+        <span role="tooltip"
+              [id]="'control' + layoutNode?._id + 'Requirements'"
+              class="invisible absolute right-0 top-full z-10 mt-2 w-64 rounded-md border border-gray-200 bg-white p-3 text-xs text-gray-700 shadow-lg group-hover:visible group-focus-within:visible">
+            @if (hasTypeLimit) {
+            <span class="block">{{ 'fileUpload.acceptedTypes' | translate }}: {{ accept }}</span>
+            }
+            @if (minFiles > 0) {
+            <span class="block">{{ 'fileUpload.minimumFiles' | translate }}: {{ minFiles }}</span>
+            }
+            @if (maxFiles !== undefined) {
+            <span class="block">{{ 'fileUpload.maximumFiles' | translate }}: {{ maxFiles }}</span>
+            }
+            @if (maxFileSizeLabel) {
+            <span class="block">{{ 'fileUpload.maximumFileSize' | translate }}: {{ maxFileSizeLabel }}</span>
+            }
+        </span>
+    </span>
     }
+    }
+    <div [id]="'control' + layoutNode?._id + 'Status'"
+         class="mt-2 space-y-1 text-sm text-red-600"
+         aria-live="polite">
+        @for (error of validationMessages; track error.key) {
+        <div>
+            <p>{{ error.key | translate:error.params }}</p>
+            @if (error.files?.length) {
+            <ul class="list-disc pl-5">
+                @for (fileName of error.files ?? []; track $index) {
+                <li class="break-all">{{ fileName }}</li>
+                }
+            </ul>
+            }
+        </div>
+        }
+    </div>
 </div>

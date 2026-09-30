@@ -1,12 +1,10 @@
-import { JsonSchemaFormService } from '@ajsf-extended/core';
+import { isInputRequired, JsonPointer, JsonSchemaFormService } from '@ajsf-extended/core';
 import { Component, Input, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormControl } from '@angular/forms';
-import { ToastType } from '@indice/ng-components';
+import { AbstractControl, FormArray, FormControl, NgForm } from '@angular/forms';
 import { tap } from 'rxjs';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
-import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 
 @Component({
     templateUrl: './file-array-widget.component.html',
@@ -23,19 +21,25 @@ export class FileArrayWidgetComponent implements OnInit {
     @Input() dataIndex: number[] | undefined;
     @Input() data: any;
     draft?: boolean = false;
-    accept: string = '*.*';
+    accept = '';
+    protected isRequired = false;
+    selectionErrors: { invalidFileType?: string[]; fileTooLarge?: string[]; tooManyFiles?: boolean } = {};
+    private arraySchema: { minItems?: number; maxItems?: number } = {};
 
     constructor(
-        private _toaster: TranslatedToasterService,
         private _api: CasesApiService,
         private _caseDetails: CaseDetailsService,
         private _jsf: JsonSchemaFormService,
         private _fileUploadService: FileUploadService,
+        private _form: NgForm,
     ) {}
 
     public ngOnInit() {
         this.options = this.layoutNode.options || {};
-        if (this.options?.accept !== undefined) {
+        const schemaPointer = JsonPointer.toSchemaPointer(this.layoutNode.dataPointer, this._jsf.schema);
+        this.arraySchema = JsonPointer.get(this._jsf.schema, schemaPointer) ?? {};
+        this.isRequired = isInputRequired(this._jsf.schema, schemaPointer);
+        if (this.options?.accept?.length) {
             this.accept = this.options.accept.join(', ');
         }
         this._jsf.initializeControl(this);
@@ -61,6 +65,61 @@ export class FileArrayWidgetComponent implements OnInit {
         return Array.isArray(this.controlValue) ? this.controlValue : [];
     }
 
+    protected get minFiles(): number {
+        return this.arraySchema.minItems ?? 0;
+    }
+
+    protected get maxFiles(): number | undefined {
+        return this.arraySchema.maxItems;
+    }
+
+    protected get maxFileSizeBytes(): number | undefined {
+        return this.options?.maxFileSizeBytes;
+    }
+
+    protected get maxFileSizeLabel(): string | undefined {
+        const bytes = this.maxFileSizeBytes;
+        if (bytes === undefined) {
+            return undefined;
+        }
+        if (bytes >= 1024 * 1024) {
+            return `${Number((bytes / (1024 * 1024)).toFixed(2))} MB`;
+        }
+        if (bytes >= 1024) {
+            return `${Number((bytes / 1024).toFixed(2))} KB`;
+        }
+        return `${bytes} B`;
+    }
+
+    protected get showCountError(): boolean {
+        return this.fileValues.length > 0 || (this.isRequired && (this.formControl?.dirty || this._form.submitted));
+    }
+
+    protected get hasTypeLimit(): boolean {
+        return !!this.options?.accept?.length && !this.options.accept.some(type => ['*', '*.*', '*/*'].includes(type.trim()));
+    }
+
+    protected get hasRequirements(): boolean {
+        return this.hasTypeLimit || this.minFiles > 0 || this.maxFiles !== undefined || this.maxFileSizeBytes !== undefined;
+    }
+
+    protected get validationMessages(): FileValidationMessage[] {
+        const messages: FileValidationMessage[] = [];
+        if (this.selectionErrors.invalidFileType?.length) {
+            messages.push({ key: 'fileUpload.invalidType', params: { types: this.accept }, files: this.selectionErrors.invalidFileType });
+        }
+        if (this.selectionErrors.fileTooLarge?.length) {
+            messages.push({ key: 'fileUpload.fileTooLarge', params: { size: this.maxFileSizeLabel }, files: this.selectionErrors.fileTooLarge });
+        }
+        if (this.selectionErrors.tooManyFiles || (this.showCountError && this.maxFiles !== undefined && this.fileValues.length > this.maxFiles)) {
+            messages.push({ key: this.maxFiles === 1 ? 'fileUpload.tooManyFilesOne' : 'fileUpload.tooManyFiles', params: { count: this.maxFiles } });
+        }
+        if (this.showCountError && this.fileValues.length < this.minFiles) {
+            messages.push({ key: this.minFiles === 1 ? 'fileUpload.tooFewFilesOne' : 'fileUpload.tooFewFiles', params: { count: this.minFiles } });
+        }
+        return messages;
+    }
+
     protected fileName(value: string): string | undefined {
         if (this.isGuid(value)) {
             return this._caseDetails.caseDetails?.attachments?.find(attachment => attachment.id === value)?.fileName;
@@ -75,13 +134,8 @@ export class FileArrayWidgetComponent implements OnInit {
             return;
         }
         this.formControl?.markAsTouched();
-        if (!this.validateInput(files)) {
-            this._toaster.show(
-                ToastType.Error,
-                'toasts.saveError.title',
-                'toasts.invalidFileType.body',
-                5000,
-            );
+        this.selectionErrors = this.validateInput(files);
+        if (Object.keys(this.selectionErrors).length) {
             input.value = '';
             return;
         }
@@ -110,34 +164,26 @@ export class FileArrayWidgetComponent implements OnInit {
         this._jsf.updateValue(this, values);
     }
 
-    private validateInput(files: FileList): boolean {
+    private validateInput(files: FileList): typeof this.selectionErrors {
         const acceptedTypes = this.options?.accept;
-
-        if (!acceptedTypes?.length) {
-            this.clearInvalidFileTypeError();
-            return true;
+        const errors: typeof this.selectionErrors = {};
+        if (acceptedTypes?.length) {
+            const invalidFiles = Array.from(files).filter(file => !this.isFileAccepted(file, acceptedTypes));
+            if (invalidFiles.length) {
+                errors.invalidFileType = invalidFiles.map(file => file.name);
+            }
         }
-
-        const invalidFiles = Array.from(files).filter(file =>
-            !this.isFileAccepted(file, acceptedTypes)
-        );
-
-        if (invalidFiles.length > 0) {
-            this.formControl?.setErrors({
-                ...this.formControl.errors,
-                invalidFileType: {
-                    files: invalidFiles.map(file => file.name),
-                    acceptedTypes
-                }
-            });
-
-            this.formControl?.markAsTouched();
-            return false;
+        const maxFileSizeBytes = this.maxFileSizeBytes;
+        const oversizedFiles = maxFileSizeBytes === undefined
+            ? []
+            : Array.from(files).filter(file => file.size > maxFileSizeBytes);
+        if (oversizedFiles.length) {
+            errors.fileTooLarge = oversizedFiles.map(file => file.name);
         }
-
-        this.clearInvalidFileTypeError();
-        return true;
-
+        if (this.maxFiles !== undefined && this.fileValues.length + files.length > this.maxFiles) {
+            errors.tooManyFiles = true;
+        }
+        return errors;
     }
 
     private isFileAccepted(file: File, acceptedTypes: string[]): boolean {
@@ -147,7 +193,7 @@ export class FileArrayWidgetComponent implements OnInit {
         return acceptedTypes.some(type => {
             const acceptedType = type.trim().toLowerCase();
 
-            if (acceptedType === '*' || acceptedType === '*.*') {
+            if (acceptedType === '*' || acceptedType === '*.*' || acceptedType === '*/*') {
                 return true;
             }
 
@@ -162,18 +208,6 @@ export class FileArrayWidgetComponent implements OnInit {
 
             return mimeType === acceptedType;
         });
-    }
-
-    private clearInvalidFileTypeError(): void {
-        if (!this.formControl?.errors?.['invalidFileType']) {
-            return;
-        }
-
-        const { invalidFileType, ...remainingErrors } = this.formControl.errors;
-
-        this.formControl.setErrors(
-            Object.keys(remainingErrors).length > 0 ? remainingErrors : null,
-        );
     }
 
     public onDownload(attachmentId: string) {
@@ -197,6 +231,8 @@ export class FileArrayWidgetComponent implements OnInit {
     }
 
     protected onRemove(index: number): void {
+        this.selectionErrors = {};
+        this.formControl?.markAsTouched();
         const values = this.fileValues.filter((_, fileIndex) => fileIndex !== index);
         const uploads = this._fileUploadService.files ?? {};
         const pendingFiles = values.map(value => this.isGuid(value) ? undefined : uploads[value]);
@@ -221,11 +257,15 @@ export class FileArrayWidgetComponent implements OnInit {
     }
 }
 
+interface FileValidationMessage {
+    key: string;
+    params: { types?: string; size?: string; count?: number };
+    files?: string[];
+}
+
 export interface FileArrayWidgetOptions {
-    accept: string[];
-    maxLength?: number;
-    minLength?: number;
-    required?: boolean;
+    accept?: string[];
+    maxFileSizeBytes?: number;
     readonly?: boolean;
     downloadToDisk?: boolean;
 }
