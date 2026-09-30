@@ -237,6 +237,9 @@
   <data name="common.download" xml:space="preserve">
     <value>Λήψη</value>
   </data>
+  <data name="common.uploadDocuments" xml:space="preserve">
+    <value>Ανεβάστε Έγγραφα</value>
+  </data>
   <data name="common.yes" xml:space="preserve">
     <value>Ναι</value>
   </data>

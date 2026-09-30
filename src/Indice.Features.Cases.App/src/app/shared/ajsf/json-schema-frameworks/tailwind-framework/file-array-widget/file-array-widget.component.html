@@ -1,64 +1,79 @@
-<div>
-    <!-- @for (file of files; track file.name) {
-            <div class="flex align-items-center justify-content-center align-middle">
-      <button type="button"
-        (click)="onDownload()"
-        class="btn-default">
-        <svg class="fill-current w-4 h-4 mr-2"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20">
-          <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
-        </svg>
-        <span>{{ 'common.download' | translate }}</span>
-      </button>
-      @if (!this.options.readonly) {
-        <button (click)="onRemove()" type="button" class="ml-2 bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
-          <svg class="w-6 h-6 text-gray-800 text-black" style="color: rgb(31 41 55 / 1) !important" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
-          </svg>
-          <span class="sr-only">{{ 'common.removeAttachment' | translate }}</span>
-        </button>
-      }
-    </div>
-    } -->
-    @if (hasDownloadableFiles) {
-        @for (guid of controlValue; track guid) {
-            @if (isGuid(guid)) {
-                <div class="flex align-items-center justify-content-center align-middle">
-                    <button type="button"
-                        (click)="onDownload(guid)"
-                        class="btn-default">
-                        <svg class="fill-current w-4 h-4 mr-2"
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20">
-                            <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
-                        </svg>
-                        <span>{{ 'common.download' | translate }}</span>
-                    </button>
-                    @if (!options?.readonly) {
-                        <button (click)="onRemove(guid)" type="button" class="ml-2 bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
-                            <svg class="w-6 h-6 text-gray-800 text-black" style="color: rgb(31 41 55 / 1) !important" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
-                            </svg>
-                            <span class="sr-only">{{ 'common.removeAttachment' | translate }}</span>
-                        </button>
-                    }
-                </div>
+<div class="w-full md:w-1/2">
+    @if (fileValues.length) {
+    <ul class="mb-3 space-y-2">
+        @for (value of fileValues; track $index; let index = $index) {
+        <li
+            class="flex min-h-10 items-center gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700">
+            @if (isGuid(value)) {
+            <button type="button"
+                    class="flex min-w-0 flex-1 items-center text-left font-medium text-blue-700 hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                    [title]="fileName(value)"
+                    (click)="onDownload(value)">
+                <svg fill="currentColor"
+                     viewBox="0 0 20 20"
+                     xmlns="http://www.w3.org/2000/svg"
+                     class="mr-2 h-4 w-4 shrink-0"
+                     aria-hidden="true">
+                    <path fill-rule="evenodd"
+                          d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z"
+                          clip-rule="evenodd" />
+                </svg>
+                <span class="truncate">{{ fileName(value) || (('common.download' | translate) + ' ' + (index + 1))
+                    }}</span>
+            </button>
+            } @else {
+            <span class="min-w-0 flex-1 truncate"
+                  [title]="fileName(value)">{{ fileName(value) || value }}</span>
             }
+            @if (!options?.readonly && !controlDisabled) {
+            <button type="button"
+                    class="shrink-0 rounded p-1 text-red-600 hover:bg-red-50 hover:text-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                    [attr.aria-label]="('common.removeAttachment' | translate) + ' ' + (fileName(value) || (index + 1))"
+                    (click)="onRemove(index)">
+                <svg class="h-3.5 w-3.5"
+                     aria-hidden="true"
+                     xmlns="http://www.w3.org/2000/svg"
+                     fill="none"
+                     viewBox="0 0 24 24">
+                    <path stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1.8"
+                          d="M4 7h16m-10 4v7m4-7v7M9 7V4h6v3m3 0-1 14H7L6 7" />
+                </svg>
+            </button>
+            }
+        </li>
         }
+    </ul>
     }
     @if (!options?.readonly) {
-            <input type="file"
+    <input type="file"
+           class="peer sr-only"
            [accept]="accept"
            [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
-           [attr.maxlength]="options?.maxLength"
-           [attr.minlength]="options?.minLength"
-           [attr.required]="options?.required"
+           [attr.required]="options?.required && !fileValues.length ? true : null"
            [disabled]="controlDisabled"
            [id]="'control' + layoutNode?._id"
            [name]="controlName"
-           [readonly]="options?.readonly ? 'readonly' : null"
            (change)="onFileSelect($event)"
            multiple />
+    <label [attr.for]="'control' + layoutNode?._id"
+           class="inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-dark font-weight-bold bg-gray-300 hover:bg-gray-400 shadow-sm peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blue-600"
+           [class.opacity-50]="controlDisabled"
+           [class.cursor-not-allowed]="controlDisabled">
+        <svg class="h-3.5 w-3.5"
+             aria-hidden="true"
+             xmlns="http://www.w3.org/2000/svg"
+             fill="none"
+             viewBox="0 0 24 24">
+            <path stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.8"
+                  d="M12 16V4m0 0L8 8m4-4 4 4M4 16v4h16v-4" />
+        </svg>
+        {{ 'common.uploadDocuments' | translate }}
+    </label>
     }
 </div>

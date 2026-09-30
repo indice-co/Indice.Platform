@@ -4,6 +4,7 @@ import { AbstractControl, FormArray, FormControl } from '@angular/forms';
 import { ToastType } from '@indice/ng-components';
 import { tap } from 'rxjs';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
+import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
 import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 
@@ -14,7 +15,7 @@ import { TranslatedToasterService } from 'src/app/shared/services/translated-toa
 export class FileArrayWidgetComponent implements OnInit {
     formControl: AbstractControl | undefined;
     controlName: string | undefined;
-    controlValue: string | undefined;
+    controlValue: string[] | undefined;
     controlDisabled: boolean = false;
     options?: FileArrayWidgetOptions;
     @Input() layoutNode: any;
@@ -23,11 +24,11 @@ export class FileArrayWidgetComponent implements OnInit {
     @Input() data: any;
     draft?: boolean = false;
     accept: string = '*.*';
-    hasDownloadableFiles: boolean = false;
 
     constructor(
         private _toaster: TranslatedToasterService,
         private _api: CasesApiService,
+        private _caseDetails: CaseDetailsService,
         private _jsf: JsonSchemaFormService,
         private _fileUploadService: FileUploadService,
     ) {}
@@ -38,56 +39,75 @@ export class FileArrayWidgetComponent implements OnInit {
             this.accept = this.options.accept.join(', ');
         }
         this._jsf.initializeControl(this);
+        if (this.formControl instanceof FormArray) {
+            for (let index = this.formControl.length - 1; index >= 0; index--) {
+                const value = this.formControl.at(index).value;
+                if (typeof value !== 'string' || !value.trim()) {
+                    this.formControl.removeAt(index, { emitEvent: false });
+                }
+            }
+            this.controlValue = this.formControl.value;
+            this.layoutNode.value = this.controlValue;
+        }
         this.draft = this._jsf.formOptions.draft;
-        this.hasDownloadableFiles = Array.isArray(this.controlValue) && this.controlValue.some((v: any) => typeof v === 'string' && this.isGuid(v));
     }
 
-    protected isGuid(str: string) {
+    protected isGuid(str: string): boolean {
         const guidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
         return guidRegex.test(str);
     }
 
-    public onFileSelect(event: any) {
+    protected get fileValues(): string[] {
+        return Array.isArray(this.controlValue) ? this.controlValue : [];
+    }
+
+    protected fileName(value: string): string | undefined {
+        if (this.isGuid(value)) {
+            return this._caseDetails.caseDetails?.attachments?.find(attachment => attachment.id === value)?.fileName;
+        }
+        return this._fileUploadService.files?.[value]?.name;
+    }
+
+    public onFileSelect(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const files = input.files;
+        if (!files?.length) {
+            return;
+        }
         this.formControl?.markAsTouched();
-        if (!this.validateInput(event.target.files)) {
+        if (!this.validateInput(files)) {
             this._toaster.show(
                 ToastType.Error,
                 'toasts.saveError.title',
                 'toasts.invalidFileType.body',
                 5000,
             );
+            input.value = '';
             return;
         }
         if (!this._fileUploadService.files) {
             this._fileUploadService.files = {};
         }
-        if (event.target.files.length > 0) {
-            const files: FileList = event.target.files;
-            const existingValues = Array.isArray(this.controlValue)
-                ? this.controlValue.filter(
-                      (v: any) => typeof v === 'string' && v.trim() !== '',
-                  )
-                : [];
-            const fileValues: string[] = [...existingValues];
-            let startIndex = existingValues.length;
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const pointerKey = `${this.layoutNode.dataPointer}/${startIndex + i}`;
-                fileValues.push(pointerKey);
-                this._fileUploadService.files[pointerKey] = file;
-            }
-
-            if (this.formControl instanceof FormArray) {
-                while (this.formControl.length < fileValues.length) {
-                    const newValue = fileValues[this.formControl.length];
-                    this.formControl.push(new FormControl(newValue), {
-                        emitEvent: false,
-                    });
-                }
-            }
-
-            this._jsf.updateValue(this, fileValues);
+        const fileValues = [...this.fileValues];
+        for (const file of Array.from(files)) {
+            const pointer = `${this.layoutNode.dataPointer}/${fileValues.length}`;
+            fileValues.push(pointer);
+            this._fileUploadService.files[pointer] = file;
         }
+        this.updateFiles(fileValues);
+        input.value = '';
+    }
+
+    private updateFiles(values: string[]): void {
+        if (this.formControl instanceof FormArray) {
+            while (this.formControl.length > values.length) {
+                this.formControl.removeAt(this.formControl.length - 1, { emitEvent: false });
+            }
+            while (this.formControl.length < values.length) {
+                this.formControl.push(new FormControl(values[this.formControl.length]), { emitEvent: false });
+            }
+        }
+        this._jsf.updateValue(this, values);
     }
 
     private validateInput(files: FileList): boolean {
@@ -127,23 +147,19 @@ export class FileArrayWidgetComponent implements OnInit {
         return acceptedTypes.some(type => {
             const acceptedType = type.trim().toLowerCase();
 
-            // "wildcard" */*
             if (acceptedType === '*' || acceptedType === '*.*') {
                 return true;
             }
 
-            // extensions eg .pdf, .docx, etc.
             if (acceptedType.startsWith('.')) {
                 return fileName.endsWith(acceptedType);
             }
 
-            // wildcard image/*, application/*
             if (acceptedType.endsWith('/*')) {
                 const mimePrefix = acceptedType.slice(0, -1);
                 return mimeType.startsWith(mimePrefix);
             }
 
-            // exact type image/png, application/pdf
             return mimeType === acceptedType;
         });
     }
@@ -169,11 +185,10 @@ export class FileArrayWidgetComponent implements OnInit {
                     if (this.options?.downloadToDisk) {
                         const a = document.createElement('a');
                         a.href = fileURL;
-                        //we get the file name from the content-disposition header, so make sure its exposed
                         a.download = results.fileName ?? `${this.layoutNode.name}-${attachmentId}`;
                         a.click();
-                        window.URL.revokeObjectURL(fileURL); //clean up
-                    } else { //if downloadToDisk is not there or set to false, then open file in new tab to show the content
+                        window.URL.revokeObjectURL(fileURL);
+                    } else {
                         window.open(fileURL, '_blank');
                     }
                 })
@@ -181,13 +196,28 @@ export class FileArrayWidgetComponent implements OnInit {
             .subscribe();
     }
 
-    protected onRemove(attachmentId: string) {
-        const existingValues = Array.isArray(this.controlValue)
-            ? this.controlValue.filter((v: any) => typeof v === 'string' && v.trim() !== '')
-            : [];
-        const updatedValues = existingValues.filter((v: any) => v !== attachmentId);
-        this._jsf.updateValue(this, updatedValues);
-        return;
+    protected onRemove(index: number): void {
+        const values = this.fileValues.filter((_, fileIndex) => fileIndex !== index);
+        const uploads = this._fileUploadService.files ?? {};
+        const pendingFiles = values.map(value => this.isGuid(value) ? undefined : uploads[value]);
+
+        for (const value of this.fileValues) {
+            if (!this.isGuid(value)) {
+                delete uploads[value];
+            }
+        }
+
+        const updatedValues = values.map((value, fileIndex) => {
+            const file = pendingFiles[fileIndex];
+            if (!file) {
+                return value;
+            }
+            const pointer = `${this.layoutNode.dataPointer}/${fileIndex}`;
+            uploads[pointer] = file;
+            return pointer;
+        });
+
+        this.updateFiles(updatedValues);
     }
 }
 

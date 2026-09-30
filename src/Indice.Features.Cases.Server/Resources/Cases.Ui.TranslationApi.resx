@@ -237,6 +237,9 @@
   <data name="common.download" xml:space="preserve">
     <value>Download</value>
   </data>
+  <data name="common.uploadDocuments" xml:space="preserve">
+    <value>Upload Attachments</value>
+  </data>
   <data name="common.yes" xml:space="preserve">
     <value>Yes</value>
   </data>
