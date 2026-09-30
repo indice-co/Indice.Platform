@@ -46,6 +46,7 @@
           [widgets]="widgets"
           (onChanges)="onFormChanges($event)"
           (isValid)="isValid($event)"
+          (validationErrors)="validationErrors($event)"
           (onSubmit)="onSubmit($event)">
         </json-schema-form>
       }

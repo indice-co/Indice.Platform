@@ -20,6 +20,7 @@ import { LookupSelectorWidgetComponent } from 'src/app/shared/ajsf/json-schema-f
 import { WysiwygWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
 import { HrefWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/href-widget/href-widget.component';
 import { LabelOnlyWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/label-only-widget/label-only-widget.component';
+import { FileArrayWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/file-array-widget/file-array-widget.component';
 
 
 @Component({
@@ -41,6 +42,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     // Add custom widget
     public widgets = {
         "file": FileWidgetComponent,
+        "file-array": FileArrayWidgetComponent,
         "submit": SubmitWidgetComponent,
         "select": SelectWidgetComponent,
         "lookup": LookupWidgetComponent,
@@ -245,6 +247,12 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     public isValid(event: boolean) {
         this.formIsValid.emit(event);
         this.latestIsValid = event;
+    }
+
+    public validationErrors(event: any) {
+        if (this.layout.debugForm === true) {
+            console.log('validationErrors', event);
+        }
     }
 
     onSubmitExternal(): void {
