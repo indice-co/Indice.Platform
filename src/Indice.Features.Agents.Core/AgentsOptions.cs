@@ -32,6 +32,13 @@ public class AgentsOptions
     public RoutingOptions Routing { get; set; } = new();
 
     /// <summary>
+    /// Who the assistant is and who it represents, injected as background context into the answer-composing agents. Off when
+    /// <see cref="AgentIdentityOptions.Name"/> is blank. Loaded from the host's <c>Prompts/AgentIdentity.json</c> when present
+    /// (next to the <c>AgentIdentity</c> template), otherwise bound from the <c>Dex:Identity</c> configuration section.
+    /// </summary>
+    public AgentIdentityOptions Identity { get; set; } = new();
+
+    /// <summary>
     /// When true we enable additional triggers and debug handles for development and testing.
     /// This is not a security boundary; do not rely on it to protect sensitive data. 
     /// </summary>
@@ -181,6 +188,45 @@ public class AgentsOptions
         /// master intent router; set it to a specific agent name (e.g. <c>knowledge</c>) to bypass routing.
         /// </summary>
         public string DefaultAgent { get; set; } = AgentsConstants.AgentNames.Auto;
+    }
+
+    /// <summary>
+    /// The assistant's identity, rendered through the <c>AgentIdentity</c> prompt template and contributed as
+    /// background instructions to the answer-composing agents. Edit per client; leave <see cref="Name"/> blank to disable.
+    /// </summary>
+    public class AgentIdentityOptions
+    {
+        /// <summary>The assistant's name, e.g. <c>Dex</c>. When blank no identity context is injected.</summary>
+        public string? Name { get; set; }
+
+        /// <summary>The company the assistant represents.</summary>
+        public AgentCompanyOptions Company { get; set; } = new();
+    }
+
+    /// <summary>The company an assistant represents.</summary>
+    public class AgentCompanyOptions
+    {
+        /// <summary>Company name, e.g. <c>Indice</c>.</summary>
+        public string? Name { get; set; }
+
+        /// <summary>One-sentence description of the company, phrased to follow "{Name} is …".</summary>
+        public string? Blurb { get; set; }
+
+        /// <summary>What the company's products are built on, phrased to follow "Its products are built on …".</summary>
+        public string? Platform { get; set; }
+
+        /// <summary>The company's products.</summary>
+        public List<AgentProductOptions> Products { get; set; } = [];
+    }
+
+    /// <summary>A product of the company an assistant represents.</summary>
+    public class AgentProductOptions
+    {
+        /// <summary>Product name.</summary>
+        public string? Name { get; set; }
+
+        /// <summary>Short summary of what the product does.</summary>
+        public string? Summary { get; set; }
     }
 }
 

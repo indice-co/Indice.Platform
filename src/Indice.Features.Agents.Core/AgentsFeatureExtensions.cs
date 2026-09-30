@@ -37,6 +37,8 @@ public static class AgentsFeatureExtensions
     /// </summary>
     public static IServiceCollection AddAgentsCore(this IServiceCollection services, IConfiguration configuration, Action<AgentsOptions>? configureAction = null) {
         var optionsBuilder = services.AddOptions<AgentsOptions>().BindConfiguration("Dex");
+        // Prompts/AgentIdentity.json, when present, overrides Dex:Identity; registered before configureAction so code still wins.
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureOptions<AgentsOptions>, AgentIdentityFileConfigureOptions>());
         if (configureAction is not null) {
             optionsBuilder.Configure(configureAction);
         }
@@ -81,6 +83,7 @@ public static class AgentsFeatureExtensions
         });
 
         services.TryAddTransient<UserClaimsAIContextProvider>();
+        services.TryAddSingleton<AgentIdentityAIContextProvider>();
         services.TryAddTransient<IConversationStore, ConversationStore>();
         services.TryAddScoped<PersistedCheckpointStore>();
         services.TryAddScoped(sp => CheckpointManager.CreateJson(sp.GetRequiredService<PersistedCheckpointStore>()));
