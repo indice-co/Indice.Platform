@@ -264,8 +264,10 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     onCancel(): void {
         this.showForm = false;
         this.changeDetector.detectChanges(); // enforce the instantaneous deletion of form
-        this.schema = JSON.parse(this.case?.caseType?.dataSchema!);
-        this.layout = JSON.parse(this.case?.caseType?.layout!);
+        // We need to JSON.parse the layout only if it is a string, otherwise we can assume it is already an object (eg. when we are in edit mode and the layout has been transformed)
+        this.schema = typeof this.case?.caseType?.dataSchema! === 'string' ? JSON.parse(this.case?.caseType?.dataSchema!) : this.case?.caseType?.dataSchema!;
+        // Same here.
+        this.layout = typeof this.case?.caseType?.layout! === 'string' ? JSON.parse(this.case?.caseType?.layout!) : this.case?.caseType?.layout!;
         this.data = this.initialData;
         this.populateForm(this.data);
         this.showForm = true;
