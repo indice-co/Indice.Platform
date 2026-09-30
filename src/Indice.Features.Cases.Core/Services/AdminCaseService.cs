@@ -437,7 +437,6 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (options.Sort is null) {
             options.Sort = $"{nameof(CasePartial.CreatedByWhen)}";
         }
-        var sql = query.Skip(0).Take(100).ToQueryString();
         var result = await query.ToResultSetAsync(options);
 
         // translate case types
