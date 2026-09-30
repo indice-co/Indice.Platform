@@ -45,10 +45,7 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var alert = user.EmailConfirmed
-            ? UserManager.MessageDescriber.MfaAddEmailValidationEmailAlreadyConfirmed
-            : UserManager.MessageDescriber.MfaAddEmailValidationEmailEmpty;
-        TempData.Put(TempDataKey, AlertModel.Info(alert));
+        TempData.Remove(TempDataKey);
         Input = View = new EnableMfaEmailViewModel {
             Email = user.Email,
             EmailConfirmed = user.EmailConfirmed,

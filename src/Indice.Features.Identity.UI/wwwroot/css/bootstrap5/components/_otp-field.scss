@@ -1,4 +1,4 @@
-﻿@use '../abstracts/tokens' as t;
+@use '../abstracts/tokens' as t;
 @use '../abstracts/mixins' as m;
 
 // One-time-code entry: the real input (posted with the form) is hidden once js/otp-field.js
@@ -6,7 +6,7 @@
 
 .otp-field {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     gap: t.$space-2;
 
     &__input--enhanced {
@@ -16,8 +16,8 @@
     &__cell {
         flex: 1 1 0;
         min-width: 0;
-        max-width: 3.5rem;
-        height: 3.5rem;
+        max-width: 4.5rem;
+        height: 4.5rem;
         padding: 0;
         border: 1px solid var(--idui-color-border-strong);
         border-radius: var(--idui-radius);
@@ -37,6 +37,7 @@
     // Resend line under the code.
     &__resend {
         margin: t.$space-3 0 t.$space-5;
+        text-align: center;
         font-size: t.$font-size-sm;
         color: var(--idui-color-text-subtle);
     }

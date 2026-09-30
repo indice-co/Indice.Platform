@@ -44,10 +44,7 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var alert = user.PhoneNumberConfirmed
-            ? UserManager.MessageDescriber.MfaAddPhoneValidationPhoneAlreadyConfirmed
-            : UserManager.MessageDescriber.MfaAddPhoneValidationPhoneEmpty;
-        TempData.Put(TempDataKey, AlertModel.Info(alert));
+        TempData.Remove(TempDataKey);
         Input = View = new EnableMfaSmsViewModel {
             PhoneNumber = user.PhoneNumber,
             PhoneNumberConfirmed = user.PhoneNumberConfirmed,
@@ -61,6 +58,7 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
+        TempData.Remove(TempDataKey);
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         IdentityResult result;
         if (!user.PhoneNumberConfirmed) {

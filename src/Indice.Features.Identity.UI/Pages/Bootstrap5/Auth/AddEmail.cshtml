@@ -1,9 +1,11 @@
 ﻿@page "/login/add-email"
+@using Microsoft.AspNetCore.Html
 @attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/add-email")]
 
 @model BaseAddEmailModel
 
 @inject IdentityUILocalizer Localizer
+@inject ExtendedUserManager<User> UserManager
 
 
 @{
@@ -15,7 +17,7 @@
 }
 
 <section class="auth-card">
-    <vc:page-heading title="@Localizer.AddEmail_PageHeader" image-src="" />
+    <vc:page-heading title="@Localizer.AddEmail_PageHeader" image-src="" subtitle="new HtmlString(UserManager.MessageDescriber.AddEmailValidationEmailEmpty)" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="tempData?.Alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" class="auth-form">

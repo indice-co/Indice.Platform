@@ -1,19 +1,25 @@
 ﻿@page "/login/mfa/onboarding/add-phone"
+@using Microsoft.AspNetCore.Html
 @attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/mfa/onboarding/add-phone")]
 @model BaseMfaOnboardingAddPhoneModel
 
 @inject IWebHostEnvironment HostingEnvironment
 @inject IdentityUILocalizer Localizer
+@inject ExtendedUserManager<User> UserManager
+
 
 
 @{
     Layout = "_AuthLayout";
     ViewBag.Title = Localizer.MfaOnBoardingAddPhone_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddPhoneModel.TempDataKey);
+    var message = ((EnableMfaSmsViewModel)Model.Input).PhoneNumberConfirmed? UserManager.MessageDescriber.MfaAddPhoneValidationPhoneAlreadyConfirmed
+            : UserManager.MessageDescriber.MfaAddPhoneValidationPhoneEmpty;
+
 }
 
 <section class="auth-card mfa">
-    <vc:page-heading title="@Localizer.MfaOnBoardingAddPhone_PageHeader" image-src="" />
+    <vc:page-heading title="@Localizer.MfaOnBoardingAddPhone_PageHeader" image-src="" subtitle="new HtmlString(message)" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="alert" />
     <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate class="auth-form">

@@ -22,7 +22,6 @@
             --idui-page-bg: var(--idui-hero-bg);
             @include theme.chrome-on-image;
         }
-
         // ---- Login (with hero): hero copy left, card right --------------------------------------
         body.login:has(.site-body > .site-hero) {
             --idui-site-columns: minmax(0, 1fr) minmax(0, var(--idui-form-column));
@@ -33,7 +32,6 @@
             --idui-hero-padding: 1rem 0 3rem var(--idui-page-gutter-lg);
             --idui-main-padding: 1rem var(--idui-page-gutter-lg) 3rem 0;
         }
-
         // ---- Register (with hero): inset image column + light content column --------------------
         body.register:has(.site-body > .site-hero) {
             --idui-page-bg: var(--idui-color-surface-muted);
@@ -47,12 +45,13 @@
             --idui-hero-padding: 4rem 2.5rem;
             --idui-hero-radius: var(--idui-radius-xl);
             --idui-main-padding: 1.5rem 3rem 3rem;
+            --idui-hero-column: 40%;
 
             .site-hero {
                 position: fixed;
                 top: 0;
                 bottom: 0;
-                width: 40%;
+                width: var(--idui-hero-column);
             }
         }
     }

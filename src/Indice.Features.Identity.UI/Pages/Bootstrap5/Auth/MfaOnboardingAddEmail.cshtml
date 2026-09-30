@@ -1,20 +1,26 @@
 ﻿@page "/login/mfa/onboarding/add-email"
+@using Microsoft.AspNetCore.Html
 @attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/mfa/onboarding/add-email")]
 
 @model BaseMfaOnboardingAddEmailModel
 
 @inject IWebHostEnvironment HostingEnvironment
 @inject IdentityUILocalizer Localizer
-
+@inject ExtendedUserManager<User> UserManager
 
 @{
     Layout = "_AuthLayout";
     ViewBag.Title = Localizer.MfaOnBoardingAddEmail_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddEmailModel.TempDataKey);
+    var message = ((EnableMfaEmailViewModel)Model.Input).EmailConfirmed ?
+            UserManager.MessageDescriber.MfaAddEmailValidationEmailAlreadyConfirmed
+            : UserManager.MessageDescriber.MfaAddEmailValidationEmailEmpty;
+    var subTitle = new HtmlString(message);
+
 }
 
 <section class="auth-card mfa">
-    <vc:page-heading title="@Localizer.MfaOnBoardingAddEmail_PageHeader" image-src="" />
+    <vc:page-heading title="@Localizer.MfaOnBoardingAddEmail_PageHeader" image-src="" subtitle="subTitle" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="alert" />
     <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate class="auth-form">

@@ -1,19 +1,23 @@
 ﻿@page "/login/mfa/onboarding/verify-email"
+@using Microsoft.AspNetCore.Html
 
 @model BaseMfaOnboardingVerifyEmailModel
 
 @inject IWebHostEnvironment HostingEnvironment
 @inject IdentityUILocalizer Localizer
+@inject ExtendedUserManager<User> UserManager
 
 @{
     Layout = "_AuthLayout";
     ViewBag.Title = Localizer.MfaOnBoardingVerifyEmail_PageTitle;
     var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyEmailModel.TempDataKey);
     var displayNext = !string.IsNullOrEmpty(infoMessage?.NextStepUrl) && infoMessage?.Alert?.AlertType == AlertType.Success;
+    
 }
 
 <section class="auth-card mfa">
-    <vc:page-heading title="@Localizer.MfaOnBoardingVerifyEmail_PageHeader" image-src="" />
+    <vc:page-heading title="@Localizer.MfaOnBoardingVerifyEmail_PageHeader" image-src=""
+                     subtitle="new HtmlString(UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail)" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="infoMessage?.Alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate class="auth-form">

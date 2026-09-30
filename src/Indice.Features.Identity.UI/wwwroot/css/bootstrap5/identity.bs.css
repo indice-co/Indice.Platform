@@ -1209,7 +1209,7 @@ body {
 
 .otp-field {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   gap: 0.5rem;
 }
 .otp-field__input--enhanced {
@@ -1226,8 +1226,8 @@ body {
 .otp-field__cell {
   flex: 1 1 0;
   min-width: 0;
-  max-width: 3.5rem;
-  height: 3.5rem;
+  max-width: 4.5rem;
+  height: 4.5rem;
   padding: 0;
   border: 1px solid var(--idui-color-border-strong);
   border-radius: var(--idui-radius);
@@ -1244,6 +1244,7 @@ body {
 }
 .otp-field__resend {
   margin: 0.75rem 0 1.5rem;
+  text-align: center;
   font-size: 0.875rem;
   color: var(--idui-color-text-subtle);
 }
@@ -2108,12 +2109,13 @@ body.shell-article .site-main {
     --idui-hero-padding: 4rem 2.5rem;
     --idui-hero-radius: var(--idui-radius-xl);
     --idui-main-padding: 1.5rem 3rem 3rem;
+    --idui-hero-column: 40%;
   }
   :root[data-theme=split] body.register:has(.site-body > .site-hero) .site-hero {
     position: fixed;
     top: 0;
     bottom: 0;
-    width: 40%;
+    width: var(--idui-hero-column);
   }
   :root[data-theme=columns] body:not(.shell-profile):has(.site-body > .site-hero) {
     --idui-page-bg: var(--idui-color-surface-muted);
@@ -2129,10 +2131,17 @@ body.shell-article .site-main {
     --idui-hero-bg-layer: var(--idui-hero-bg);
     --idui-hero-padding: 4rem var(--idui-page-gutter-lg);
     --idui-main-padding: calc(var(--idui-header-height) + 1rem) 3rem 2rem;
+    --idui-hero-column: 40%;
     --idui-auth-card-bg: transparent;
     --idui-auth-card-shadow: none;
     --idui-auth-card-padding: 0;
     --idui-auth-card-width: 26rem;
+  }
+  :root[data-theme=columns] body:not(.shell-profile):has(.site-body > .site-hero) .site-hero {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: var(--idui-hero-column);
   }
   :root[data-theme=panel] body:not(.shell-profile) {
     --idui-page-bg: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--idui-color-brand-bright), white 12%), var(--idui-color-brand-bright) 45%, color-mix(in srgb, var(--idui-color-brand-bright), black 15%) 100%);
@@ -2167,7 +2176,7 @@ body.shell-article .site-main {
     --idui-body-shadow: var(--idui-shadow-panel);
     --idui-hero-display: flex;
     --idui-hero-area: 1 / 1;
-    --idui-hero-align: flex-end;
+    --idui-hero-align: center;
     --idui-hero-bg-layer: var(--idui-hero-bg-strong);
     --idui-hero-padding: 3rem 2.5rem;
     --idui-main-area: 1 / 2;

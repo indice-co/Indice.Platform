@@ -1,9 +1,11 @@
 ﻿@page "/login/verify-phone"
+@using Microsoft.AspNetCore.Html
 @attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/verify-phone")]
 @model BaseVerifyPhoneModel
 
 @inject IWebHostEnvironment HostingEnvironment
 @inject IdentityUILocalizer Localizer
+@inject ExtendedUserManager<User> UserManager
 
 @{
     Layout = "_AuthLayout";
@@ -15,7 +17,7 @@
 }
 
 <section class="auth-card mfa">
-    <vc:page-heading title="@Localizer.VerifyPhone_PageHeader" image-src="" />
+    <vc:page-heading title="@Localizer.VerifyPhone_PageHeader" subtitle="new HtmlString(UserManager.MessageDescriber.RegisterPhoneConfirmationPrompt)" image-src="" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="tempData?.Alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" class="auth-form">

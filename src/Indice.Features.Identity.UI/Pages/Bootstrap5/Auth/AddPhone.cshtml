@@ -1,10 +1,12 @@
 ﻿@page "/login/add-phone"
+@using Microsoft.AspNetCore.Html
 @attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/add-phone")]
 @model BaseAddPhoneModel
 
 @inject IWebHostEnvironment HostingEnvironment
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
+@inject ExtendedUserManager<User> UserManager
 
 
 @inject IdentityUILocalizer Localizer
@@ -16,7 +18,7 @@
 }
 
 <section class="auth-card">
-    <vc:page-heading title="@Localizer.AddPhone_PageHeader" image-src="" />
+    <vc:page-heading title="@Localizer.AddPhone_PageHeader" subtitle="new HtmlString(UserManager.MessageDescriber.AddPhoneValidationPhoneEmpty)" image-src="" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" class="auth-form">

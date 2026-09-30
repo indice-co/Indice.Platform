@@ -52,9 +52,7 @@ public abstract class BaseAddEmailModel : BasePageModel
         if (!UiOptions.ShowAddEmailPrompt) {
             return await OnPostAsync(returnUrl);
         }
-        TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Info(UserManager.MessageDescriber.AddEmailValidationEmailEmpty)
-        });
+        TempData.Remove(TempDataKey);
         return Page();
     }
 
@@ -64,6 +62,7 @@ public abstract class BaseAddEmailModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
+        TempData.Remove(TempDataKey);
         if (string.IsNullOrEmpty(returnUrl)) {
             returnUrl = Input.ReturnUrl;
         }

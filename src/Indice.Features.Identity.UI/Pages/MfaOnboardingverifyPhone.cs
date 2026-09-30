@@ -41,10 +41,8 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Info( UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone),
-            NextStepUrl = string.Empty
-        });
+        TempData.Remove(TempDataKey);
+        
         Input.PhoneNumber = user.PhoneNumber;
         Input.ReturnUrl = SanitizeReturnUrl(returnUrl);
         return Page();
@@ -55,6 +53,7 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
+        TempData.Remove(TempDataKey);
         var tempDataModel = new ExtendedValidationTempDataModel();
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         Input.PhoneNumber = user.PhoneNumber;
@@ -63,6 +62,7 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
             await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.PhoneNumber.ToString());
             tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyPhoneSuccessMessage);
         } else {
+            //TODO: error message
             tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone);
         }
         

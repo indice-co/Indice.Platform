@@ -1,9 +1,11 @@
 ﻿@page "/login/mfa/onboarding/verify-phone"
+@using Microsoft.AspNetCore.Html
 
 @model BaseMfaOnboardingVerifyPhoneModel
 
 @inject IWebHostEnvironment HostingEnvironment
 @inject IdentityUILocalizer Localizer
+@inject ExtendedUserManager<User> UserManager
 
 @{
     Layout = "_AuthLayout";
@@ -13,7 +15,8 @@
 }
 
 <section class="auth-card mfa">
-    <vc:page-heading title="@Localizer.MfaOnBoardingVerifyPhone_PageHeader" image-src="" />
+    <vc:page-heading title="@Localizer.MfaOnBoardingVerifyPhone_PageHeader" image-src="" 
+                     subtitle="new HtmlString(UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone)" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="infoMessage?.Alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate class="auth-form">

@@ -18,13 +18,21 @@
             --idui-site-columns: minmax(0, var(--idui-hero-column)) minmax(0, 1fr);
             --idui-site-areas: 'header main' 'hero main' 'hero footer';
             --idui-hero-display: flex;
-            --idui-hero-area: 1 / 1 / -1 / 2;   // span every row of the first column, under the header
+            --idui-hero-area: 1 / 1 / -1 / 2; // span every row of the first column, under the header
             --idui-hero-align: flex-end;
             --idui-hero-bg-layer: var(--idui-hero-bg);
             --idui-hero-padding: 4rem var(--idui-page-gutter-lg);
             // main starts at the top row; keep the form clear of the header line.
             --idui-main-padding: calc(var(--idui-header-height) + 1rem) 3rem 2rem;
+            --idui-hero-column: 40%;
             @include theme.auth-card-flat;
+
+            .site-hero {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                width: var(--idui-hero-column);
+            }
         }
     }
 }
