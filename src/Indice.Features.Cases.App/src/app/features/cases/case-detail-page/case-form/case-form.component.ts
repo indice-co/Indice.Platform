@@ -250,8 +250,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     }
 
     public validationErrors(event: any) {
-        if (this.layout.debugForm === true) {
-            console.log('validationErrors', event);
+        if (Array.isArray(this.layout) && this.layout.some((item: any) => item.debugForm === true)) {
+                console.debug('Form validation errors', event);
         }
     }
 
@@ -264,10 +264,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     onCancel(): void {
         this.showForm = false;
         this.changeDetector.detectChanges(); // enforce the instantaneous deletion of form
-        // We need to JSON.parse the layout only if it is a string, otherwise we can assume it is already an object (eg. when we are in edit mode and the layout has been transformed)
-        this.schema = typeof this.case?.caseType?.dataSchema! === 'string' ? JSON.parse(this.case?.caseType?.dataSchema!) : this.case?.caseType?.dataSchema!;
-        // Same here.
-        this.layout = typeof this.case?.caseType?.layout! === 'string' ? JSON.parse(this.case?.caseType?.layout!) : this.case?.caseType?.layout!;
+        this.schema = this.case?.caseType?.dataSchema!;
+        this.layout = this.case?.caseType?.layout!;
         this.data = this.initialData;
         this.populateForm(this.data);
         this.showForm = true;

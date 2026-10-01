@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `file-array` widget for case attachments in BackOffice. Selected files are listed in the form, and saved attachments can be downloaded or removed.
 - File requirements tooltip and localized validation messages for accepted file types, file count and file size. Rejected file names are shown in a list.
-- A way for developers to console log validation errors in case they are not shown by inputs. This is meant to be used in development only. You can now do this by adding a key in the `layout` like this "debugForm": true. <- TODO fix this
+- A way for developers to console log validation errors in case they are not shown by inputs. This is meant to be used in development only. You can now do this by adding an item in the `layout` like this `{ "debugForm": true }`. Make sure to also set your log level in your browser to verbose or anything equivalent that prints debug messages.
 
 File count limits are read from the data schema. File types and the maximum size of each file are set in the layout options:
 
