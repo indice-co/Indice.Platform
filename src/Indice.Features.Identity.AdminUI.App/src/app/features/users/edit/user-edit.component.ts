@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { LoggerService } from "src/app/core/services/logger.service";
@@ -16,6 +16,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
     selector: "app-user-edit",
     templateUrl: "./user-edit.component.html",
     providers: [UserStore],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UserEditComponent implements OnInit, OnDestroy {

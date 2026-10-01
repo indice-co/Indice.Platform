@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, TemplateRef } from "@angular/core";
+import { Component, ViewChild, OnInit, TemplateRef, ChangeDetectionStrategy } from "@angular/core";
 
 import { CellContext, TableColumn } from "@swimlane/ngx-datatable";
 import {
@@ -15,6 +15,7 @@ import { Observable, map } from "rxjs";
 @Component({
     selector: "app-users",
     templateUrl: "./users.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UsersComponent implements OnInit {

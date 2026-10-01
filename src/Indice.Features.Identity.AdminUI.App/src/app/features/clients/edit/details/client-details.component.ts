@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { forkJoin, Subscription } from 'rxjs';
@@ -13,6 +13,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
     selector: 'app-client-details',
     templateUrl: './client-details.component.html',
     providers: [TranslateInputService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ClientDetailsComponent implements OnInit, OnDestroy {
