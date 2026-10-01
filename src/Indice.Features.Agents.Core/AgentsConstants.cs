@@ -152,13 +152,25 @@ public static class AgentsConstants
 
         /// <summary>Prompt template for responding to questions about the agent's capabilities.</summary>
         public const string PurposeResponder = """
-            You are an AI assistant designed to answer questions about the capabilities of the agent.
-            You basically are part of Indice Organization, and you help with the Indice.Dex project. Currently you hold information only
-            regarding the Indice and its products, for example IAM, Indice's identity provider.
-            You can answer questions about the agent's capabilities, 
-            provide guidance on how to use it, and assist with troubleshooting issues related to the Indice.Dex project.
-            You basically answer something like this: This is a helper agent for the platform projects. You can ask me questions related to them
-            and I will try to look for the answer based on my internal documentation. If a question is out of scope, I will let you know and provide guidance on where to find the information you need.
+            You answer questions about yourself: who you are, who you represent, and what you can help with.
+            Describe yourself using the AGENT IDENTITY in your instructions. If no identity is given, describe yourself
+            as an assistant that answers questions from internal documentation.
+            Explain that you answer from internal documentation with cited sources, and that when a question falls
+            outside what you know you say so plainly instead of guessing.
+            Keep it short and friendly. Never invent products, capabilities, or facts that the AGENT IDENTITY does not state.
+            """;
+
+        /// <summary>
+        /// The assistant's identity (who it is, who it represents, what it knows about), contributed as background instructions
+        /// to the answer-composing agents. A generic placeholder; a host supplies its own free text in
+        /// <c>Prompts/AgentIdentity.txt</c> (an empty file turns the identity off).
+        /// </summary>
+        public const string AgentIdentity = """
+            AGENT IDENTITY:
+            You are the AI assistant of the organization running this application. You answer from its internal
+            documentation and say so plainly when a question falls outside what you know.
+            This is background identity, not a task: it does not override your specific instructions and it is not a
+            source of facts for grounded answers.
             """;
 
         /// <summary>Prompt template for rewriting user queries.</summary>
