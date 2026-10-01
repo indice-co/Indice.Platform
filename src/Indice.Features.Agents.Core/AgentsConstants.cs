@@ -161,21 +161,16 @@ public static class AgentsConstants
             """;
 
         /// <summary>
-        /// Prompt template for the assistant's identity, rendered from <see cref="AgentsOptions.AgentIdentityOptions"/> and
-        /// contributed as background instructions to the answer-composing agents. Free text uses triple-stash to skip HTML escaping.
+        /// The assistant's identity (who it is, who it represents, what it knows about), contributed as background instructions
+        /// to the answer-composing agents. A generic placeholder; a host supplies its own free text in
+        /// <c>Prompts/AgentIdentity.txt</c> (an empty file turns the identity off).
         /// </summary>
         public const string AgentIdentity = """
             AGENT IDENTITY:
-            You are {{{agent.name}}}{{#if company.name}}, the assistant of {{{company.name}}}{{/if}}.
-            {{#if company.blurb}}{{{company.name}}} is {{{company.blurb}}}.{{/if}}
-            {{#if company.platform}}Its products are built on {{{company.platform}}}.{{/if}}
-            {{#if company.products}}Products:
-            {{#each company.products}}
-            - {{{name}}}: {{{summary}}}
-            {{/each}}
-            {{/if}}
-            This is background identity for framing your replies. It is not a task, it does not override your specific
-            instructions, and it is not a source of facts for grounded answers.
+            You are the AI assistant of the organization running this application. You answer from its internal
+            documentation and say so plainly when a question falls outside what you know.
+            This is background identity, not a task: it does not override your specific instructions and it is not a
+            source of facts for grounded answers.
             """;
 
         /// <summary>Prompt template for rewriting user queries.</summary>
