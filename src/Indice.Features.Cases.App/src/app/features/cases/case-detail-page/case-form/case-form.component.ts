@@ -264,6 +264,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     onCancel(): void {
         this.showForm = false;
         this.changeDetector.detectChanges(); // enforce the instantaneous deletion of form
+        this._fileUploadService.reset();
         this.schema = this.case?.caseType?.dataSchema!;
         this.layout = this.case?.caseType?.layout!;
         this.data = this.initialData;

@@ -51,6 +51,7 @@ File count limits are read from the data schema. File types and the maximum size
 
 - Empty attachment row no longer appears when the form first renders.
 - Fixed the Cancel button when editing a case whose schema or layout was already parsed.
+- Cancelling case edits now clears pending uploads so they cannot replace saved attachments on the next save.
 - Fixed the case details submission date format by using `yyyy` instead of `YYYY`.
 
 ## [8.50.0] - 2026-06-16
