@@ -15,6 +15,7 @@
         <img class="site-header__logo site-header__logo--light" src="~/img/logo@(langSuffix).svg" alt="" />
         <img class="site-header__logo site-header__logo--dark" src="~/img/logo-dark-bg@(langSuffix).svg" alt="" />
     </a>
+    <partial name="_ThemePicker.cshtml" />
     <div class="site-header__actions">
         <div class="site-header__lang">
             <partial name="_LanguageSelector" />
@@ -26,8 +27,4 @@
             </button>
         }
     </div>
-    @if (displayMenu)
-    {
-        <partial name="_AccountPanel" />
-    }
 </header>

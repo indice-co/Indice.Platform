@@ -1403,8 +1403,6 @@ public class IdentityUILocalizer
     public virtual HtmlString Footer_LinksLabel => new HtmlString(IdentityLabels.Footer_LinksLabel);
     /// <summary>Accessible label of the footer "more links" menu toggle.</summary>
     public virtual HtmlString Footer_MoreLinks => new HtmlString(IdentityLabels.Footer_MoreLinks);
-    /// <summary>Divider label between the local login form and the external providers.</summary>
-    public virtual HtmlString Login_Alternatively => new HtmlString(IdentityLabels.Login_Alternatively);
     /// <summary>Subtitle of the register card.</summary>
     public virtual HtmlString Register_Subtitle => new HtmlString(IdentityLabels.Register_Subtitle);
     /// <summary>Accessible label of the avatar button that opens the account panel.</summary>

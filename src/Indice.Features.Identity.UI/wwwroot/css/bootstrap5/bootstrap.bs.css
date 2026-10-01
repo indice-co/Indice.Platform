@@ -73,6 +73,9 @@
   --idui-auth-card-image-display: none;
   --idui-auth-card-width: var(--idui-card-width);
   --idui-auth-card-padding: 3rem 2.5rem;
+  --idui-provider-columns: 1;
+  --idui-provider-featured: auto;
+  --idui-provider-label-display-sm: inline;
   --idui-page-bg: var(--idui-color-surface-muted);
   --idui-site-columns: minmax(0, 1fr);
   --idui-site-rows: auto minmax(0, 1fr) auto;

@@ -1212,9 +1212,6 @@
   <data name="Hero_Title" xml:space="preserve">
     <value>A sua identidade, nas suas mãos.</value>
   </data>
-  <data name="Login_Alternatively" xml:space="preserve">
-    <value>Ou continue com</value>
-  </data>
   <data name="Mfa_ResendAvailableIn" xml:space="preserve">
     <value>Reenvio disponível em</value>
   </data>

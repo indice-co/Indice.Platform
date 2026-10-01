@@ -73,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `wwwroot/js/otp-field.js`: progressive enhancement that renders one-time codes as digit cells
   (`input.otp-field__input[data-otp-length]`); the original input stays in the form.
 - New `IdentityUILocalizer` members / resource keys: `Hero_Title`, `Hero_Subtitle`, `Footer_MadeBy`,
-  `Footer_LinksLabel`, `Login_Alternatively`, `Register_Subtitle`, `Nav_OpenMenu`, `Nav_CloseMenu`,
+  `Footer_LinksLabel`, `Register_Subtitle`, `Nav_OpenMenu`, `Nav_CloseMenu`,
   `Account_SwitchAccount`, `Account_NavLabel`, `SkipToContent`, `Password_Show`, `Password_Hide`,
   `Mfa_ResendAvailableIn`, `Profile_Photo`, `Profile_PhotoUpload`, `Profile_PhotoHelp`,
   `Profile_PhotoConstraints`, `Profile_AccountDetails`, `Profile_DetailsSection` (all shipped languages: en, el, de, es, fr, it, ja, pt).

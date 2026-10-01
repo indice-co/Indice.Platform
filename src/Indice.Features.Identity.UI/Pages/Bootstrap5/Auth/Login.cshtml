@@ -58,14 +58,14 @@
     {
         @if (Model.View.EnableLocalLogin)
         {
-            <div class="divider"><span class="divider__label">@Localizer.Login_Alternatively</span></div>
+            <div class="divider"><span class="divider__label">@Localizer.Login_OR</span></div>
         }
         <ul class="provider-list">
             @foreach (var provider in Model.View.VisibleExternalProviders)
             {
                 var scheme = provider.AuthenticationScheme!.ToLower();
                 <li class="provider-list__item">
-                    <a class="btn provider-btn provider-btn--@scheme" asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
+                    <a class="btn provider-btn provider-btn--@scheme" title="@Localizer.GetGeneric(provider.DisplayName!)" aria-label="@Localizer.GetGeneric(provider.DisplayName!)" asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
                         <span class="provider-btn__logo" aria-hidden="true"></span>
                         <span class="provider-btn__label">@Localizer.GetGeneric(provider.DisplayName!)</span>
                     </a>

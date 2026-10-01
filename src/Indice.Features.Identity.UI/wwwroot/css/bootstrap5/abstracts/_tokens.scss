@@ -213,6 +213,14 @@ $transition-base: .25s ease !default;
     --idui-auth-card-width: var(--idui-card-width);
     --idui-auth-card-padding: #{$space-8} #{$space-7};
 
+    // ---- External provider buttons (see components/_provider-list.scss) ---------
+    // Buttons per row: 1 (stacked, default), 2 or 3.
+    --idui-provider-columns: 1;
+    // Grid placement of the first provider: `auto` (default) or `1 / -1` to make it full width.
+    --idui-provider-featured: auto;
+    // Label display below the md breakpoint: `inline` (default) or `none` for logo-only buttons.
+    --idui-provider-label-display-sm: inline;
+
     // ---- Layout contract (read by layouts/_anonymous-shell.scss from the lg breakpoint) ----
     // .site is a CSS grid; header, hero, main and footer are placed by named areas. Defaults
     // describe the minimal theme: header / main / footer stacked, hero hidden.

@@ -1681,15 +1681,6 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Or continue with.
-        /// </summary>
-        public static string Login_Alternatively {
-            get {
-                return ResourceManager.GetString("Login_Alternatively", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Forgot password?.
         /// </summary>
         public static string Login_ForgotPassword_FieldLabel {

@@ -144,6 +144,10 @@ public abstract class BaseMfaModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
+        if (Input.SelectedAuthenticationMethodCode != "RecoveryCode") {
+            return Page();
+
+        }
         var user = await SignInManager.GetTwoFactorAuthenticationUserAsync();
         if (user == null) {
             throw new InvalidOperationException("Unable to load two-factor authentication user.");

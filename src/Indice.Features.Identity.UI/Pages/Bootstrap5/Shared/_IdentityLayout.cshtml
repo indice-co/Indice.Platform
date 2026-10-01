@@ -11,6 +11,8 @@
     var dash = ViewBag.Title != null ? " - " : string.Empty;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var authClass = SignInManager.IsSignedIn(User) ? "authenticated" : "anonymous";
+    // Same condition as the avatar toggle in _Header.
+    var displayAccountPanel = SignInManager.IsSignedIn(User) && !User.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationScheme);
     // The theme is a set of CSS custom property values keyed by data-theme on <html>; the markup is the same for every theme.
     var theme = string.IsNullOrWhiteSpace(UiOptions.Value.Theme) ? IdentityUIThemes.Split : UiOptions.Value.Theme.Trim().ToLowerInvariant();
     // The shell (body class) decides how the page body is framed: auth (hero + form), card (centered card), profile (sidebar + cards), article (wide reading card).
@@ -63,6 +65,11 @@
         </div>
         <partial name="_Footer" />
     </div>
+    @* Rendered outside .site-header so the offcanvas isn't trapped in the header's stacking context (z-index 1030) under Bootstrap's backdrop (1040). *@
+    @if (displayAccountPanel)
+    {
+        <partial name="_AccountPanel" />
+    }
     <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/lib/@@popperjs/core/dist/umd/popper.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" csp-nonce="true"></script>

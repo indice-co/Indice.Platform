@@ -33,7 +33,8 @@
         });
 
         var $mainPanel = $('#panel-main'),
-            $chanPanel = $('#panel-channels');
+            $chanPanel = $('#panel-channels'),
+            $messagePanel = $('.alert-danger');
 
         function showElement($element) {
             $element.removeClass('d-none');
@@ -48,6 +49,8 @@
 
         $(document).on('click', '#show-channels, #otp-resend:not([name])', function (e) {
             e.preventDefault();
+
+            hideElement($messagePanel)
             hideElement($mainPanel);
             showElement($chanPanel);
         });

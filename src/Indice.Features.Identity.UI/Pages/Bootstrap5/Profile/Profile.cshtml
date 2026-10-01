@@ -229,7 +229,7 @@
             {
                 var scheme = provider.Name.ToLower();
                 <li class="provider-list__item">
-                    <a class="btn provider-btn provider-btn--@scheme" asp-page-handler="LinkLogin" asp-route-provider="@provider.Name">
+                    <a class="btn provider-btn provider-btn--@scheme" title="@Localizer.GetGeneric(provider.DisplayName ?? "Unknown")" aria-label="@Localizer.GetGeneric(provider.DisplayName ?? "Unknown")" asp-page-handler="LinkLogin" asp-route-provider="@provider.Name">
                         <span class="provider-btn__logo" aria-hidden="true"></span>
                         <span class="provider-btn__label">@Localizer.GetGeneric(provider.DisplayName ?? "Unknown")</span>
                     </a>

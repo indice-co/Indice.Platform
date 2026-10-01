@@ -1207,9 +1207,6 @@
   <data name="Footer_MoreLinks" xml:space="preserve">
     <value>More links</value>
   </data>
-  <data name="Login_Alternatively" xml:space="preserve">
-    <value>Or continue with</value>
-  </data>
   <data name="Register_Subtitle" xml:space="preserve">
     <value>Enter your details</value>
   </data>

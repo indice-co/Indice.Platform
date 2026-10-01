@@ -37,7 +37,7 @@
             <!-- ko foreach: authenticationMethods -->
             <li class="choice-list__item" data-sbind="css: { 'choice-list__item--selected': selected }">
                 <label class="choice-list__label">
-                    <input type="radio" name="onboarding-method" class="form-check-input choice-list__radio" data-sbind="checked: $parent.selectedMethodType, attr: { value: type }, event: { change: $parent.methodSelected }" />
+                    <input type="radio" name="onboarding-method" class="form-check-input choice-list__radio" data-sbind="checked: $parent.selectedMethod, checkedValue: $data, attr: { value: type }, event: { change: $parent.methodSelected }" />
                     <span class="choice-list__icon"><i data-sbind="css: iconClass" aria-hidden="true"></i></span>
                     <span class="choice-list__body">
                         <span class="choice-list__title" data-sbind="text: displayName"></span>
