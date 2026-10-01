@@ -181,8 +181,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         } else {
             var accessMatch = Data.Models.DbCaseAccessRule.AccessMatchPredicate(userId, userRoles, inputGroupId);
             query = (from @case in queryCases
-                     join checkpoint in DbContext.Checkpoints
-                        on @case.CheckpointId equals checkpoint.Id
+                     where @case.CheckpointId != null
+                     // use the navigation instead of an explicit join so EF reuses the same
+                     // Checkpoint join (and projects CheckpointTypeId) when paging pushes the query down.
+                     let checkpoint = @case.Checkpoint
 
                      let caseAccess = DbContext.CaseAccessRules
                                     .Where(accessMatch)
@@ -435,7 +437,6 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (options.Sort is null) {
             options.Sort = $"{nameof(CasePartial.CreatedByWhen)}";
         }
-
         var result = await query.ToResultSetAsync(options);
 
         // translate case types
