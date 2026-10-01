@@ -75,7 +75,7 @@
                           'ms-Icon--Inbox': tab.labelText === 'Inbox'
                          }"></i>
                     </span>
-                    <span>{{ tab.labelText | translate }}</span>
+                    <span>{{ tab.labelText() | translate }}</span>
                   </div>
                 </ng-template>
                 <ng-container *ngTemplateOutlet="contentTemplate; context: { $implicit: contentForm }"></ng-container>

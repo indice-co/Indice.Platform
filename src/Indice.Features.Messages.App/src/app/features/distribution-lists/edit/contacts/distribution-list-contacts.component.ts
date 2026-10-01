@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ViewAction } from '@indice/ng-components';
@@ -13,6 +13,7 @@ import { AppTranslatedToaster } from '../../../../shared/services/app-translated
 @Component({
     selector: 'app-distribution-list-contacts',
     templateUrl: './distribution-list-contacts.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DistributionListContactsComponent extends BaseListComponent<Contact> implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { ToastType } from '@indice/ng-components';
@@ -10,6 +10,7 @@ import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toa
 @Component({
     selector: 'app-distribution-list-details-edit-rightpane',
     templateUrl: './distribution-list-edit-details-rightpane.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DistributionListDetailsEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {
