@@ -1,7 +1,7 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { APP_LANGUAGES, HeaderMetaItem, ViewLayoutComponent } from '@indice/ng-components';
+import { APP_LANGUAGES, HeaderMetaItem } from '@indice/ng-components';
 import { DistributionList } from 'src/app/core/services/messages-api.service';
 import { DistributionListEditStore } from './distribution-list-edit-store.service';
 import { AppLanguagesService } from '../../../shared/services/app-languages.service';
@@ -15,7 +15,7 @@ import { takeUntil } from 'rxjs';
     standalone: false
 })
 export class DistributionListEditComponent implements OnInit, AfterViewChecked {
-    @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;
+    public layoutTitle = '';
     private _distributionListId?: string;
 
     constructor(
@@ -37,7 +37,7 @@ export class DistributionListEditComponent implements OnInit, AfterViewChecked {
               this._lang.translateKey('DistributionLists.TitleFormat', { name: distributionList.name })
                 .pipe(takeUntil(this.$destroy))
                 .subscribe(title => {
-                  this._layout.title = title || `DistributionList - ${distributionList.name}`;
+                  this.layoutTitle = title || `DistributionList - ${distributionList.name}`;
                 });
             });
         }

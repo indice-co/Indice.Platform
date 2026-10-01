@@ -1,7 +1,7 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { APP_LANGUAGES, HeaderMetaItem, ViewLayoutComponent } from '@indice/ng-components';
+import { APP_LANGUAGES, HeaderMetaItem } from '@indice/ng-components';
 import { Template } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from './template-edit-store.service';
 import { AppLanguagesService } from '../../../shared/services/app-languages.service';
@@ -14,7 +14,7 @@ import { Subject, takeUntil } from 'rxjs';
     standalone: false
 })
 export class TemplateEditComponent implements OnInit, AfterViewChecked, OnDestroy {
-  @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;
+  public layoutTitle = '';
   private _templateId?: string;
   private $destroy = new Subject<void>();
 
@@ -37,7 +37,7 @@ export class TemplateEditComponent implements OnInit, AfterViewChecked, OnDestro
           this._lang.translateKey('Templates.TemplateTitle', { title: template.name })
             .pipe(takeUntil(this.$destroy))
             .subscribe(translated => {
-              this._layout.title = translated || `Template - ${template.name}`;
+              this.layoutTitle = translated || `Template - ${template.name}`;
             });
         });
     }
