@@ -42,4 +42,7 @@ public class CustomerState
     /// Gets or sets the type of verification challenge, if specified.
     /// </summary>
     public string? ChallengeType { get; set; }
+
+    /// <summary>Whether the one-time password goes out over SMS (a phone number is on file) rather than email.</summary>
+    public bool UsesSmsForOtp() => !string.IsNullOrWhiteSpace(PhoneNumber);
 }
