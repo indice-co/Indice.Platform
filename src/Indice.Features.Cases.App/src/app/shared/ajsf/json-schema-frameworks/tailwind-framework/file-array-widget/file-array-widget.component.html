@@ -1,0 +1,124 @@
+<div class="w-full max-w-sm">
+    @if (fileValues.length) {
+    <ul class="mb-3 space-y-2">
+        @for (value of fileValues; track $index; let index = $index) {
+        <li
+            class="flex min-h-10 items-center gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700">
+            @if (isGuid(value)) {
+            <button type="button"
+                    class="flex min-w-0 flex-1 items-center text-left font-medium text-blue-700 hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                    [title]="fileName(value)"
+                    (click)="onDownload(value)">
+                <svg fill="currentColor"
+                     viewBox="0 0 20 20"
+                     xmlns="http://www.w3.org/2000/svg"
+                     class="mr-2 h-4 w-4 shrink-0"
+                     aria-hidden="true">
+                    <path fill-rule="evenodd"
+                          d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z"
+                          clip-rule="evenodd" />
+                </svg>
+                <span class="truncate">{{ fileName(value) || (('common.download' | translate) + ' ' + (index + 1))
+                    }}</span>
+            </button>
+            } @else {
+            <span class="min-w-0 flex-1 truncate"
+                  [title]="fileName(value)">{{ fileName(value) || value }}</span>
+            }
+            @if (!options?.readonly && !controlDisabled) {
+            <button type="button"
+                    class="shrink-0 rounded p-1 text-red-600 hover:bg-red-50 hover:text-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                    [attr.aria-label]="('common.removeAttachment' | translate) + ' ' + (fileName(value) || (index + 1))"
+                    (click)="onRemove(index)">
+                <svg class="h-3.5 w-3.5"
+                     aria-hidden="true"
+                     xmlns="http://www.w3.org/2000/svg"
+                     fill="none"
+                     viewBox="0 0 24 24">
+                    <path stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1.8"
+                          d="M4 7h16m-10 4v7m4-7v7M9 7V4h6v3m3 0-1 14H7L6 7" />
+                </svg>
+            </button>
+            }
+        </li>
+        }
+    </ul>
+    }
+    @if (!options?.readonly) {
+    <input type="file"
+           class="peer sr-only"
+           [accept]="accept"
+           [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
+           [attr.required]="isRequired && !fileValues.length ? true : null"
+           [disabled]="controlDisabled"
+           [id]="'control' + layoutNode?._id"
+           [name]="controlName"
+           (change)="onFileSelect($event)"
+           multiple />
+    <label [attr.for]="'control' + layoutNode?._id"
+           class="mr-2 inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-dark font-weight-bold bg-gray-300 hover:bg-gray-400 shadow-sm peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blue-600"
+           [class.opacity-50]="controlDisabled"
+           [class.cursor-not-allowed]="controlDisabled">
+        <svg class="h-3.5 w-3.5"
+             aria-hidden="true"
+             xmlns="http://www.w3.org/2000/svg"
+             fill="none"
+             viewBox="0 0 24 24">
+            <path stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.8"
+                  d="M12 16V4m0 0L8 8m4-4 4 4M4 16v4h16v-4" />
+        </svg>
+        {{ 'common.uploadDocuments' | translate }}
+    </label>
+    @if (hasRequirements) {
+    <span class="group relative inline-flex align-middle">
+        <button type="button"
+                class="peer rounded-full text-gray-500 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                [attr.aria-label]="'fileUpload.requirements' | translate"
+                [attr.aria-describedby]="'control' + layoutNode?._id + 'Requirements'">
+            <svg class="h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+                <path stroke="currentColor" stroke-linecap="round" stroke-width="1.8" d="M12 11v5m0-8h.01" />
+            </svg>
+        </button>
+        <span role="tooltip"
+              [id]="'control' + layoutNode?._id + 'Requirements'"
+              class="invisible absolute right-0 top-full z-10 mt-2 w-64 rounded-md border border-gray-200 bg-white p-3 text-xs text-gray-700 shadow-lg group-hover:visible peer-focus-visible:visible">
+            @if (hasTypeLimit) {
+            <span class="block">{{ 'fileUpload.acceptedTypes' | translate }}: {{ accept }}</span>
+            }
+            @if (minFiles > 0) {
+            <span class="block">{{ 'fileUpload.minimumFiles' | translate }}: {{ minFiles }}</span>
+            }
+            @if (maxFiles !== undefined) {
+            <span class="block">{{ 'fileUpload.maximumFiles' | translate }}: {{ maxFiles }}</span>
+            }
+            @if (maxFileSizeLabel) {
+            <span class="block">{{ 'fileUpload.maximumFileSize' | translate }}: {{ maxFileSizeLabel }}</span>
+            }
+        </span>
+    </span>
+    }
+    }
+    <div [id]="'control' + layoutNode?._id + 'Status'"
+         class="mt-2 space-y-1 text-sm text-red-600"
+         aria-live="polite">
+        @for (error of validationMessages; track error.key) {
+        <div>
+            <p>{{ error.key | translate:error.params }}</p>
+            @if (error.files?.length) {
+            <ul class="list-disc pl-5">
+                @for (fileName of error.files ?? []; track $index) {
+                <li class="break-all">{{ fileName }}</li>
+                }
+            </ul>
+            }
+        </div>
+        }
+    </div>
+</div>

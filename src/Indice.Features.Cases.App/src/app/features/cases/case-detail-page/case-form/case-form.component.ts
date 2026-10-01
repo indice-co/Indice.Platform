@@ -20,6 +20,7 @@ import { LookupSelectorWidgetComponent } from 'src/app/shared/ajsf/json-schema-f
 import { WysiwygWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
 import { HrefWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/href-widget/href-widget.component';
 import { LabelOnlyWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/label-only-widget/label-only-widget.component';
+import { FileArrayWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/file-array-widget/file-array-widget.component';
 
 
 @Component({
@@ -41,6 +42,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     // Add custom widget
     public widgets = {
         "file": FileWidgetComponent,
+        "file-array": FileArrayWidgetComponent,
         "submit": SubmitWidgetComponent,
         "select": SelectWidgetComponent,
         "lookup": LookupWidgetComponent,
@@ -247,6 +249,12 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
         this.latestIsValid = event;
     }
 
+    public validationErrors(event: any) {
+        if (Array.isArray(this.layout) && this.layout.some((item: any) => item.debugForm === true)) {
+                console.debug('Form validation errors', event);
+        }
+    }
+
     onSubmitExternal(): void {
         if (this.latestIsValid) {
             this.onSubmit(this.latestModel);
@@ -256,8 +264,9 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     onCancel(): void {
         this.showForm = false;
         this.changeDetector.detectChanges(); // enforce the instantaneous deletion of form
-        this.schema = JSON.parse(this.case?.caseType?.dataSchema!);
-        this.layout = JSON.parse(this.case?.caseType?.layout!);
+        this._fileUploadService.reset();
+        this.schema = this.case?.caseType?.dataSchema!;
+        this.layout = this.case?.caseType?.layout!;
         this.data = this.initialData;
         this.populateForm(this.data);
         this.showForm = true;
