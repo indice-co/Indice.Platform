@@ -1,0 +1,109 @@
+﻿@use '../abstracts/tokens' as t;
+
+// Rendered markdown (terms of service, privacy policy).
+
+.markdown-body {
+    color: var(--idui-color-text);
+    line-height: 1.65;
+
+    > :first-child {
+        margin-top: 0;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        margin: t.$space-6 0 t.$space-3;
+        color: var(--idui-color-ink);
+    }
+
+    h1 {
+        font-size: t.$font-size-h2;
+    }
+
+    h2 {
+        font-size: t.$font-size-h3;
+    }
+
+    h3, h4, h5, h6 {
+        font-size: t.$font-size-lg;
+    }
+
+    p,
+    ul,
+    ol,
+    blockquote,
+    pre,
+    table {
+        margin: 0 0 t.$space-4;
+    }
+
+    ul,
+    ol {
+        padding-left: 1.5rem;
+    }
+
+    li + li {
+        margin-top: .25rem;
+    }
+
+    a {
+        font-weight: t.$font-weight-medium;
+    }
+
+    blockquote {
+        padding: t.$space-3 t.$space-4;
+        border-left: 3px solid var(--idui-color-border-strong);
+        background: var(--idui-color-surface-muted);
+        color: var(--idui-color-text-muted);
+    }
+
+    code {
+        padding: .1em .35em;
+        border-radius: var(--idui-radius-sm);
+        background: var(--idui-color-surface-muted);
+        font-size: .9em;
+        color: var(--idui-color-text);
+    }
+
+    pre {
+        padding: t.$space-4;
+        overflow: auto;
+        border-radius: var(--idui-radius);
+        background: var(--idui-color-surface-muted);
+
+        code {
+            padding: 0;
+            background: none;
+        }
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: t.$font-size-sm;
+
+        th,
+        td {
+            padding: .6rem .75rem;
+            border-bottom: 1px solid var(--idui-color-border);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            font-weight: t.$font-weight-medium;
+            color: var(--idui-color-ink);
+        }
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+        border-radius: var(--idui-radius);
+    }
+
+    hr {
+        margin: t.$space-6 0;
+        border: 0;
+        border-top: 1px solid var(--idui-color-border);
+    }
+}

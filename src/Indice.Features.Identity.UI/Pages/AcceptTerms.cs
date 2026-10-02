@@ -53,11 +53,11 @@ public abstract class BaseAcceptTermsModel(ExtendedUserManager<User> userManager
             consentDate = date;
         }
         return new() {
-            Alert = AlertModel.Info("Please read and accept the terms and conditions to continue."),
+            Alert = AlertModel.Info(IdentityLabels.AcceptTerms_ReadAndAcceptTerms),
             LastConsentDate = consentDate,
             LastConsent = bool.TrueString.Equals(consent, StringComparison.OrdinalIgnoreCase),
             LastUpdateDate = DateTimeOffset.UtcNow,
-            ReturnUrl = returnUrl,
+            ReturnUrl = SanitizeReturnUrl(returnUrl),
         };
     }
 }

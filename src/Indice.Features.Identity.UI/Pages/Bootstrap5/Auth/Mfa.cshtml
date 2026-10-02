@@ -1,0 +1,64 @@
+﻿@page "/login/mfa"
+@using Indice.Extensions
+@using Indice.Features.Identity.Core.Models
+@using Microsoft.AspNetCore.Html
+
+@model BaseMfaModel
+
+@inject IdentityUILocalizer Localizer
+@inject IConfiguration Configuration
+
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = Localizer.Mfa_PageTitle + " - " + Model.View.AuthenticationMethod?.DisplayName;
+}
+
+<section class="auth-card mfa">
+    <vc:page-heading title="@Localizer.Mfa_PageHeader" image-src="" />
+    <partial name="_ValidationSummary" />
+    <div indice-if="!Model.View.HasError">
+        @if ((Model.View is { AuthenticationMethodDeliveryChannel: TotpDeliveryChannel.Sms or TotpDeliveryChannel.Viber, PhoneNumberAvailable: true }))
+        {
+            <partial name="_MfaSms" model="Model" />
+        }
+
+        @if ((Model.View is { AuthenticationMethodDeliveryChannel: TotpDeliveryChannel.Email, EmailAvailable: true }))
+        {
+            <partial name="_MfaEmail" model="Model" />
+        }
+
+        @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification)
+        {
+            <partial name="_MfaPushNotification" model="Model" />
+        }
+
+        @if (Model.View.AuthenticationMethod?.Type == AuthenticationMethodType.AuthenticatorApp)
+        {
+            <partial name="_MfaAuthenticatorApp" model="Model" />
+        }
+
+        @if (Model.View.AuthenticationMethod?.Type == AuthenticationMethodType.RecoveryCode)
+        {
+            <partial name="_MfaRecoveryCodes" model="Model" />
+        }
+    </div>
+</section>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+    @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification)
+    {
+        <script type="text/javascript" src="~/lib/@@microsoft/signalr/dist/browser/signalr.min.js" csp-nonce></script>
+    }
+    <script type="text/javascript" src="~/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
+    <script type="text/javascript" src="~/js/mfa.js" csp-nonce></script>
+    <script type="text/javascript" src="~/js/otp.js" csp-nonce></script>
+    <script type="text/javascript" src="~/js/otp-field.js" csp-nonce></script>
+    <div id="mfa-bootstrap"
+         hidden
+         data-mode="mfa"
+         data-browser-family="@HttpContext.Request.GetBrowserName()"
+         data-delivery-channel="@Model.View.AuthenticationMethod?.GetDeliveryChannel()"
+         data-hub-connection-url="@Model.View.HubConnectionUrl"></div>
+    <script type="text/javascript" src="~/js/mfa-bootstrap.js" csp-nonce></script>
+}

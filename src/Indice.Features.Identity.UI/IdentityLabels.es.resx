@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -1190,5 +1190,84 @@
   </data>
   <data name="ForgotPasswordConfirmation_New_Password_Confirmation" xml:space="preserve">
     <value>Confirmar nueva contraseña</value>
+  </data>
+  <data name="Account_NavLabel" xml:space="preserve">
+    <value>Cuenta</value>
+  </data>
+  <data name="Account_SwitchAccount" xml:space="preserve">
+    <value>Cambiar de cuenta</value>
+  </data>
+  <data name="Footer_LinksLabel" xml:space="preserve">
+    <value>Legal y soporte</value>
+  </data>
+  <data name="Footer_MoreLinks" xml:space="preserve">
+    <value>Más enlaces</value>
+  </data>
+  <data name="Footer_MadeBy" xml:space="preserve">
+    <value>Con &lt;span aria-hidden="true"&gt;&#10084;&lt;/span&gt; por &lt;strong&gt;INDICE&lt;/strong&gt;</value>
+  </data>
+  <data name="Hero_Subtitle" xml:space="preserve">
+    <value>Accede a tu mundo con confianza.</value>
+  </data>
+  <data name="Hero_Title" xml:space="preserve">
+    <value>Tu identidad, en tus manos.</value>
+  </data>
+  
+  <data name="Mfa_ResendAvailableIn" xml:space="preserve">
+    <value>Reenvío disponible en</value>
+  </data>
+  <data name="Nav_CloseMenu" xml:space="preserve">
+    <value>Cerrar menú</value>
+  </data>
+  <data name="Nav_OpenMenu" xml:space="preserve">
+    <value>Abrir el menú de la cuenta</value>
+  </data>
+  <data name="Password_Hide" xml:space="preserve">
+    <value>Ocultar contraseña</value>
+  </data>
+  <data name="Password_Show" xml:space="preserve">
+    <value>Mostrar contraseña</value>
+  </data>
+  <data name="Profile_AccountDetails" xml:space="preserve">
+    <value>Datos de la cuenta</value>
+  </data>
+  <data name="Profile_DetailsSection" xml:space="preserve">
+    <value>Datos del perfil</value>
+  </data>
+  <data name="Profile_Photo" xml:space="preserve">
+    <value>Foto de perfil</value>
+  </data>
+  <data name="Profile_PhotoConstraints" xml:space="preserve">
+    <value>Tipo de archivo: JPG o PNG. Tamaño máximo: {0} MB. Dimensiones máximas: {1} x {1} px.</value>
+  </data>
+  <data name="Profile_PhotoHelp" xml:space="preserve">
+    <value>Personaliza tu perfil con una foto. Se mostrará en todos los lugares donde inicies sesión.</value>
+  </data>
+  <data name="Profile_PhotoUpload" xml:space="preserve">
+    <value>Subir</value>
+  </data>
+  <data name="Register_Subtitle" xml:space="preserve">
+    <value>Introduce tus datos</value>
+  </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>Ir al contenido principal</value>
+  </data>
+  <data name="VerifyEmail_PageTitle" xml:space="preserve">
+    <value>Verificar correo electrónico</value>
+  </data>
+  <data name="VerifyEmail_PageHeader" xml:space="preserve">
+    <value>Verificar correo electrónico</value>
+  </data>
+  <data name="VerifyEmail_Prompt" xml:space="preserve">
+    <value>Introduzca el código que enviamos a {0}.</value>
+  </data>
+  <data name="VerifyEmail_InvalidCode" xml:space="preserve">
+    <value>El código no es válido o ha caducado.</value>
+  </data>
+  <data name="VerifyEmail_Success" xml:space="preserve">
+    <value>Su correo electrónico se ha verificado correctamente.</value>
+  </data>
+  <data name="Email_ConfirmYourEmail_OtpCode" xml:space="preserve">
+    <value>Utilice el siguiente código para verificar su dirección de correo electrónico:</value>
   </data>
 </root>

@@ -42,12 +42,9 @@ public abstract class BaseMfaOnboardingVerifyEmailModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success( UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail),
-            NextStepUrl = string.Empty
-        });
+        TempData.Remove(TempDataKey);
         Input.Email = user.Email;
-        Input.ReturnUrl = returnUrl;
+        Input.ReturnUrl = SanitizeReturnUrl(returnUrl);
         return Page();
     }
 
@@ -56,6 +53,7 @@ public abstract class BaseMfaOnboardingVerifyEmailModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
+        TempData.Remove(TempDataKey);
         var tempDataModel = new ExtendedValidationTempDataModel();
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         Input.Email = user.Email;
@@ -66,6 +64,7 @@ public abstract class BaseMfaOnboardingVerifyEmailModel : BasePageModel
             await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.Email.ToString());
             tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyEmailSuccessMessage);
         } else {
+            //TODO:Add new error mesage
             tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail);
         }
         TempData.Put(TempDataKey, tempDataModel);

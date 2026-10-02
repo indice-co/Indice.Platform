@@ -1,0 +1,41 @@
+﻿@page "/"
+
+@model BaseHomeModel
+
+@inject GeneralSettings Settings
+@inject IWebHostEnvironment Environment
+@inject IdentityUILocalizer Localizer
+
+@{
+    Layout = "_HomeLayout";
+    ViewData["Title"] = null;
+    var isAuthenticated = User.IsAuthenticated();
+}
+
+<section class="auth-card auth-card--wide home">
+    <header class="auth-card__header">
+        <h1 class="auth-card__title">@Localizer.Home_WelcomeDigitalServices(Settings.Organization!)</h1>
+        <p indice-if="isAuthenticated" class="auth-card__subtitle">@Localizer.Home_Welcome_Back @User.FindDisplayName().</p>
+    </header>
+    <p class="home__intro">@Localizer.Home_IntroTextWithOrgName(Settings.Organization!)</p>
+    <partial name="_ServiceDeck" model="Model.Services" />
+    @if (!isAuthenticated)
+    {
+        <p class="home__note" indice-if="@Environment.IsDevelopment()">
+            @Localizer.Home_Please_Login_To_The_Application <a asp-page="/Login">@Localizer.Home_Here</a>.
+        </p>
+    }
+    else
+    {
+        <div class="home__section">
+            <h2 class="home__section-title">@Localizer.Home_Manage_Your_Grants</h2>
+            <p class="home__note">
+                @Localizer.Home_Check_And_Revoke_Your <a asp-page="/Grants">@Localizer.Home_Authorized_Applications</a>
+            </p>
+        </div>
+    }
+</section>
+
+@section hero {
+    <vc:hero-panel />
+}

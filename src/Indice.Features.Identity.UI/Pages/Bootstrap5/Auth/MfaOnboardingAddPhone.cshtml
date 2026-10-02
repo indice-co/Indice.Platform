@@ -1,0 +1,51 @@
+﻿@page "/login/mfa/onboarding/add-phone"
+@using Microsoft.AspNetCore.Html
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/mfa/onboarding/add-phone")]
+@model BaseMfaOnboardingAddPhoneModel
+
+@inject IWebHostEnvironment HostingEnvironment
+@inject IdentityUILocalizer Localizer
+@inject ExtendedUserManager<User> UserManager
+
+
+
+@{
+    Layout = "_AuthLayout";
+    ViewBag.Title = Localizer.MfaOnBoardingAddPhone_PageTitle;
+    var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddPhoneModel.TempDataKey);
+    var message = ((EnableMfaSmsViewModel)Model.Input).PhoneNumberConfirmed? UserManager.MessageDescriber.MfaAddPhoneValidationPhoneAlreadyConfirmed
+            : UserManager.MessageDescriber.MfaAddPhoneValidationPhoneEmpty;
+
+}
+
+<section class="auth-card mfa">
+    <vc:page-heading title="@Localizer.MfaOnBoardingAddPhone_PageHeader" image-src="" subtitle="new HtmlString(message)" />
+    <partial name="_ValidationSummary" />
+    <partial name="_Alert" model="alert" />
+    <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate class="auth-form">
+        <input type="hidden" asp-for="Input.ReturnUrl" />
+        <div class="field">
+            <label asp-for="Input.PhoneNumber" class="field__label">@Localizer.MfaOnBoardingAddPhone_Phone_Number</label>
+            <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
+            <input class="form-control field__control" type="tel" placeholder="@Localizer.MfaOnBoardingAddPhone_Phone_Number" asp-for="Input.PhoneNumber" readonly="@Model.View.DisablePhoneNumberInput" autocomplete="tel" aria-describedby="Input_PhoneNumber-error" />
+            <span asp-validation-for="Input.PhoneNumber" class="field__error" id="Input_PhoneNumber-error"></span>
+        </div>
+        <div class="auth-form__actions">
+            @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
+            {
+                <a class="btn btn-primary auth-form__submit" href="@Model.View.NextStepUrl">@Localizer.MfaOnBoardingAddPhone_Next</a>
+            }
+            else
+            {
+                <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.MfaOnBoardingAddPhone_Save</button>
+            }
+        </div>
+        <a asp-page="/MfaOnboarding" class="mfa__back">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> @Localizer.Mfa_Back
+        </a>
+    </form>
+</section>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+}

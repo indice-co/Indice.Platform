@@ -1,0 +1,10 @@
+﻿// =============================================================================
+// Theme "minimal" — a single centered column over the light page; the hero is never shown.
+// This is exactly the :root default of the layout contract (abstracts/_tokens.scss), so the
+// theme only pins the two values that matter. <html data-theme="minimal">
+// =============================================================================
+
+:root[data-theme='minimal'] {
+    --idui-page-bg: var(--idui-color-surface-muted);
+    --idui-hero-display: none;
+}

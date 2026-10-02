@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -1190,5 +1190,83 @@
   </data>
   <data name="ForgotPasswordConfirmation_New_Password_Confirmation" xml:space="preserve">
     <value>新しいパスワードの確認</value>
+  </data>
+  <data name="Account_NavLabel" xml:space="preserve">
+    <value>アカウント</value>
+  </data>
+  <data name="Account_SwitchAccount" xml:space="preserve">
+    <value>アカウントを切り替える</value>
+  </data>
+  <data name="Footer_LinksLabel" xml:space="preserve">
+    <value>法的情報とサポート</value>
+  </data>
+  <data name="Footer_MoreLinks" xml:space="preserve">
+    <value>その他のリンク</value>
+  </data>
+  <data name="Footer_MadeBy" xml:space="preserve">
+    <value>&lt;strong&gt;INDICE&lt;/strong&gt; が &lt;span aria-hidden="true"&gt;&#10084;&lt;/span&gt; を込めて作成</value>
+  </data>
+  <data name="Hero_Subtitle" xml:space="preserve">
+    <value>安心してあなたの世界へアクセス。</value>
+  </data>
+  <data name="Hero_Title" xml:space="preserve">
+    <value>あなたのアイデンティティを、あなたの手に。</value>
+  </data>
+  <data name="Mfa_ResendAvailableIn" xml:space="preserve">
+    <value>再送信まで</value>
+  </data>
+  <data name="Nav_CloseMenu" xml:space="preserve">
+    <value>メニューを閉じる</value>
+  </data>
+  <data name="Nav_OpenMenu" xml:space="preserve">
+    <value>アカウントメニューを開く</value>
+  </data>
+  <data name="Password_Hide" xml:space="preserve">
+    <value>パスワードを隠す</value>
+  </data>
+  <data name="Password_Show" xml:space="preserve">
+    <value>パスワードを表示</value>
+  </data>
+  <data name="Profile_AccountDetails" xml:space="preserve">
+    <value>アカウント情報</value>
+  </data>
+  <data name="Profile_DetailsSection" xml:space="preserve">
+    <value>プロフィール情報</value>
+  </data>
+  <data name="Profile_Photo" xml:space="preserve">
+    <value>プロフィール写真</value>
+  </data>
+  <data name="Profile_PhotoConstraints" xml:space="preserve">
+    <value>ファイル形式: JPG または PNG。最大サイズ: {0} MB。最大サイズ（寸法）: {1} x {1} px。</value>
+  </data>
+  <data name="Profile_PhotoHelp" xml:space="preserve">
+    <value>写真でプロフィールをパーソナライズしましょう。サインインするすべての場所に表示されます。</value>
+  </data>
+  <data name="Profile_PhotoUpload" xml:space="preserve">
+    <value>アップロード</value>
+  </data>
+  <data name="Register_Subtitle" xml:space="preserve">
+    <value>詳細を入力してください</value>
+  </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>メインコンテンツへスキップ</value>
+  </data>
+  <data name="VerifyEmail_PageTitle" xml:space="preserve">
+    <value>メールアドレスの確認</value>
+  </data>
+  <data name="VerifyEmail_PageHeader" xml:space="preserve">
+    <value>メールアドレスの確認</value>
+  </data>
+  <data name="VerifyEmail_Prompt" xml:space="preserve">
+    <value>{0} に送信したコードを入力してください。</value>
+  </data>
+  <data name="VerifyEmail_InvalidCode" xml:space="preserve">
+    <value>コードが無効か、有効期限が切れています。</value>
+  </data>
+  <data name="VerifyEmail_Success" xml:space="preserve">
+    <value>メールアドレスが正常に確認されました。</value>
+  </data>
+  <data name="Email_ConfirmYourEmail_OtpCode" xml:space="preserve">
+    <value>次のコードを使用してメールアドレスを確認してください:</value>
   </data>
 </root>

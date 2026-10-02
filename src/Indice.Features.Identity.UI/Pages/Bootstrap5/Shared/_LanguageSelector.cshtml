@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Builder;
 @using Microsoft.AspNetCore.Http.Extensions;
 @inject IOptions<RequestLocalizationOptions> LocalizationOptions
+@inject IdentityUILocalizer Localizer
 
 @{
     var htmlUniqueId = $"{Guid.NewGuid():N}";
@@ -20,13 +21,12 @@
                culture.NativeName;
     }
 }
-<div class="language-selector dropdown">
-    <button type="button" class="btn dropdown-toggle mr-md-2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="@langDisplayName">
-        @*<i class="fa fa-globe fa-lg"></i>*@
-        <span class="text-uppercase">@lang</span>
-        <i class="arrow"></i>
+<div class="lang-switcher dropup">
+    <button type="button" id="lang-switcher-@htmlUniqueId" class="lang-switcher__toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="@Localizer.SelectLanguage: @langDisplayName">
+        <span class="lang-switcher__label" lang="@lang">@langDisplayName</span>
+        <i class="fa-solid fa-chevron-down lang-switcher__caret" aria-hidden="true"></i>
     </button>
-    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+    <div class="dropdown-menu lang-switcher__menu" aria-labelledby="lang-switcher-@htmlUniqueId">
         <form asp-page="/SetLanguage" id="SelectLanguageForm_@htmlUniqueId" asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()" method="post" role="form">
             @foreach (var supportedCulture in supportedCultures)
             {
@@ -34,8 +34,9 @@
                 var isSelected = supportedCulture.TwoLetterISOLanguageName == lang;
                 <button type="submit" form="SelectLanguageForm_@htmlUniqueId"
                         lang="@supportedCulture.TwoLetterISOLanguageName"
-                        name="culture" value="@supportedCulture.TwoLetterISOLanguageName" title="@optionText"
-                        class="dropdown-item font-weight-600 text-uppercase @(isSelected ? "active" : string.Empty)">
+                        name="culture" value="@supportedCulture.TwoLetterISOLanguageName"
+                        class="dropdown-item lang-switcher__item @(isSelected ? "active lang-switcher__item--active" : string.Empty)"
+                        aria-current="@(isSelected ? "true" : null)">
                     @optionText
                 </button>
             }
