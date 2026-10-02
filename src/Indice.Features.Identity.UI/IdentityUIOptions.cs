@@ -146,6 +146,13 @@ public class IdentityUIOptions
     /// <remarks>Useful when user store is from a migrated database and we need to force users to add an email where an email is not present. Defaults to true.</remarks>
     public bool ShowAddEmailPrompt { get; set; } = true;
 
+    /// <summary>The method used to confirm the user's email address during the extended validation flow (add email).</summary>
+    /// <remarks>
+    /// <see cref="EmailConfirmationMethod.Link"/> sends a confirmation link; <see cref="EmailConfirmationMethod.Otp"/> sends a one-time code 
+    /// that the user must enter in a subsequent step. Defaults to <see cref="EmailConfirmationMethod.Link"/>.
+    /// </remarks>
+    public EmailConfirmationMethod EmailConfirmationMethod { get; set; } = EmailConfirmationMethod.Link;
+
     /// <summary>Controls whether password confirmation fields are displayed on register, password expired, change password, and forgot password confirmation pages.</summary>
     /// <remarks>Defaults to false.</remarks>
     public bool EnablePasswordConfirmation { get; set; } = false;
@@ -195,4 +202,14 @@ public class UiPageEvents
 {
     /// <summary>Triggered when a user is registering from the /register page.</summary>
     public UIPageUserRegisteringEventHandler? OnUserRegistering { get; set; }
+}
+
+
+/// <summary>The method used to confirm a user's email address.</summary>
+public enum EmailConfirmationMethod
+{
+    /// <summary>A confirmation link is sent to the user's email. The user confirms by clicking the link.</summary>
+    Link,
+    /// <summary>A one-time code (OTP) is sent to the user's email. The user confirms by entering the code in a dedicated step.</summary>
+    Otp
 }

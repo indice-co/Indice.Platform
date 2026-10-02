@@ -155,6 +155,35 @@ public abstract class BasePageModel : PageModel
         return true;
     }
 
+    /// <summary>Generates an email confirmation one-time code (OTP) and sends it to the email of the specified user.</summary>
+    /// <param name="user">The user instance.</param>
+    /// <returns>False if the attempts limit has been reached, otherwise true.</returns>
+    public virtual async Task<bool> SendConfirmationOtpEmail(User user) {
+        var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
+        if (!await userActionGuard.CheckAndAdvanceAsync(user.Id, "Email:SendConfirmationEmail")) {
+            return false;
+        }
+        var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var code = await userManager.GenerateEmailConfirmationOtpAsync(user);
+        var emailService = ServiceProvider.GetRequiredService<IEmailService>();
+        var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
+        await emailService.SendAsync(message =>
+            message.To(user.Email!)
+                   .WithSubject(identityMessageDescriber.ConfirmationEmailSubject)
+                   .UsingTemplate("EmailConfirmYourEmailOtp")
+                   .WithData(new {
+                       user.UserName,
+                       RecipientEmail = user.Email,
+                       Subject = identityMessageDescriber.ConfirmationEmailSubject,
+                       Code = code
+                   })
+        );
+        var logger = ServiceProvider.GetRequiredService<ILogger<BasePageModel>>();
+        var maskedEmail = user.Email!.Substring(0, 2) + "****" + user.Email.Substring(user.Email.IndexOf('@'));
+        logger.LogInformation("Sending a confirmation OTP email to {Email}.", maskedEmail);
+        return true;
+    }
+
     /// <summary>Generates a change email confirmation link and sends it to the email of the specified user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="newEmail">The new email of the user.</param>

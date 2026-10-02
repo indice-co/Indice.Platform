@@ -1280,6 +1280,18 @@ public class IdentityUILocalizer
 
     #endregion
 
+    #region VerifyEmail
+    /// <summary>Gets the localized string for "Verify email" page title.</summary>
+    public virtual HtmlString VerifyEmail_PageTitle => new HtmlString(IdentityLabels.VerifyEmail_PageTitle);
+    /// <summary>Gets the localized string for "Verify email" page header.</summary>
+    public virtual HtmlString VerifyEmail_PageHeader => new HtmlString(IdentityLabels.VerifyEmail_PageHeader);
+    /// <summary>Gets the localized prompt "Enter the code we sent to {0}.", formatted with the HTML-encoded email.</summary>
+    /// <param name="email">The email the code was sent to.</param>
+    public virtual HtmlString VerifyEmail_Prompt(string email) => new HtmlString(string.Format(IdentityLabels.VerifyEmail_Prompt, System.Net.WebUtility.HtmlEncode(email)));
+    /// <summary>Gets the localized text that introduces the OTP code in the email confirmation email.</summary>
+    public virtual HtmlString Email_ConfirmYourEmail_OtpCode => new HtmlString(IdentityLabels.Email_ConfirmYourEmail_OtpCode);
+    #endregion
+
     /// <summary> Label for the Preferred Language field in profile sidebar.</summary>     
     public virtual HtmlString ProfileSidebar_ConfirmEmailSentTo => new HtmlString(IdentityLabels.ProfileSidebar_ConfirmEmailSentTo);
     /// <summary> Label for Manage Profile action in profile sidebar.</summary>

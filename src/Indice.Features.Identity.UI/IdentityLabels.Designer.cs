@@ -3461,5 +3461,59 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("VerifyPhone_Save", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verify email.
+        /// </summary>
+        public static string VerifyEmail_PageTitle {
+            get {
+                return ResourceManager.GetString("VerifyEmail_PageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verify email.
+        /// </summary>
+        public static string VerifyEmail_PageHeader {
+            get {
+                return ResourceManager.GetString("VerifyEmail_PageHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the code we sent to {0}..
+        /// </summary>
+        public static string VerifyEmail_Prompt {
+            get {
+                return ResourceManager.GetString("VerifyEmail_Prompt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The code is invalid or has expired..
+        /// </summary>
+        public static string VerifyEmail_InvalidCode {
+            get {
+                return ResourceManager.GetString("VerifyEmail_InvalidCode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your email has been verified successfully..
+        /// </summary>
+        public static string VerifyEmail_Success {
+            get {
+                return ResourceManager.GetString("VerifyEmail_Success", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use the following code to verify your email address:.
+        /// </summary>
+        public static string Email_ConfirmYourEmail_OtpCode {
+            get {
+                return ResourceManager.GetString("Email_ConfirmYourEmail_OtpCode", resourceCulture);
+            }
+        }
     }
 }

@@ -80,6 +80,18 @@ public abstract class BaseAddEmailModel : BasePageModel
             }
         }
 
+        if (UiOptions.EmailConfirmationMethod == EmailConfirmationMethod.Otp) {
+            if (!await SendConfirmationOtpEmail(user)) {
+                TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
+                    Alert = AlertModel.Error(UserManager.MessageDescriber.LimitAttemptsReached),
+                    DisableForm = true,
+                    NextStepUrl = Url.PageLink("/AddEmail", values: new { returnUrl })
+                });
+                return Page();
+            }
+            return RedirectToPage("/VerifyEmail", new { returnUrl });
+        }
+
         if (!await SendConfirmationEmail(user, returnUrl)) {
             TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
                 Alert = AlertModel.Error(UserManager.MessageDescriber.LimitAttemptsReached),

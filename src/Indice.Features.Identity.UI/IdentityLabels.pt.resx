@@ -1251,4 +1251,22 @@
   <data name="SkipToContent" xml:space="preserve">
     <value>Saltar para o conteúdo principal</value>
   </data>
+  <data name="VerifyEmail_PageTitle" xml:space="preserve">
+    <value>Verificar email</value>
+  </data>
+  <data name="VerifyEmail_PageHeader" xml:space="preserve">
+    <value>Verificar email</value>
+  </data>
+  <data name="VerifyEmail_Prompt" xml:space="preserve">
+    <value>Introduza o código que enviámos para {0}.</value>
+  </data>
+  <data name="VerifyEmail_InvalidCode" xml:space="preserve">
+    <value>O código é inválido ou expirou.</value>
+  </data>
+  <data name="VerifyEmail_Success" xml:space="preserve">
+    <value>O seu email foi verificado com sucesso.</value>
+  </data>
+  <data name="Email_ConfirmYourEmail_OtpCode" xml:space="preserve">
+    <value>Utilize o seguinte código para verificar o seu endereço de email:</value>
+  </data>
 </root>

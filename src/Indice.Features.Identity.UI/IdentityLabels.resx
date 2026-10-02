@@ -1252,4 +1252,22 @@
   <data name="Profile_DetailsSection" xml:space="preserve">
     <value>Profile details</value>
   </data>
+  <data name="VerifyEmail_PageTitle" xml:space="preserve">
+    <value>Verify email</value>
+  </data>
+  <data name="VerifyEmail_PageHeader" xml:space="preserve">
+    <value>Verify email</value>
+  </data>
+  <data name="VerifyEmail_Prompt" xml:space="preserve">
+    <value>Enter the code we sent to {0}.</value>
+  </data>
+  <data name="VerifyEmail_InvalidCode" xml:space="preserve">
+    <value>The code is invalid or has expired.</value>
+  </data>
+  <data name="VerifyEmail_Success" xml:space="preserve">
+    <value>Your email has been verified successfully.</value>
+  </data>
+  <data name="Email_ConfirmYourEmail_OtpCode" xml:space="preserve">
+    <value>Use the following code to verify your email address:</value>
+  </data>
 </root>
