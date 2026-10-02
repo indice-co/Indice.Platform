@@ -5,6 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added send statistics
+
+The worker can keep the number of successful sends per UTC day and month, by channel and campaign type, in the new table `MessageStat`.
+A successful send is a `Sent` event with `Success = 1` for Email, SMS and PushNotification, and a `Created` event with `Success = 1` for Inbox. Global campaigns are not counted.
+The numbers are written while the worker sends, and a nightly job recounts the last complete days from `MessageEvent` and corrects them.
+
+The feature is off by default. Run the script first, then switch it on in the worker:
+```csharp
+// Azure Functions worker
+options.UseLockManagerAzure();
+options.CampaignStatisticOptions.Stats.Enabled = true;
+// Indice.Hosting worker
+options.Analytics.Stats.Enabled = true;
+```
+For Azure Worker deployments, add the schedule of the nightly job in the application settings and local.settings.json. Without it the timer function is left out.
+``` json
+"MessageJobsOptions:StatsVerifyCronExpression": "0 30 0 * * *"
+```
+For self-hosted workers the schedule is `MessageJobsOptions.StatsVerifyCronExpression` and defaults to `0 30 0 * * ?`.
+
+**Note:** The nightly job must run before the database clean up job, and the events must be kept longer than `Stats.VerifyLookbackDays` (2 days by default).
+
+SQL Server:
+```sql
+IF OBJECT_ID(N'[#schema#].[MessageStat]', N'U') IS NULL
+BEGIN
+    CREATE TABLE [#schema#].[MessageStat] (
+        [Granularity]      TINYINT            NOT NULL,
+        [PeriodStart]      DATE               NOT NULL,
+        [Channel]          TINYINT            NOT NULL,
+        [CampaignTypeId]   UNIQUEIDENTIFIER   NOT NULL,
+        [CampaignTypeName] NVARCHAR (128)     NULL,
+        [SuccessfulSends]  INT                NOT NULL,
+        [UpdatedAt]        DATETIMEOFFSET (7) NOT NULL,
+        CONSTRAINT [PK_MessageStat] PRIMARY KEY CLUSTERED ([Granularity] ASC, [PeriodStart] ASC, [Channel] ASC, [CampaignTypeId] ASC)
+    );
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE [name] = N'IX_MessageEvent_CreatedOn' AND [object_id] = OBJECT_ID(N'[#schema#].[MessageEvent]'))
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_MessageEvent_CreatedOn]
+        ON [#schema#].[MessageEvent] ([CreatedOn] ASC)
+        INCLUDE ([Type], [Channel], [Success], [CampaignId]);
+END
+GO
+```
+
+PostgreSQL:
+```sql
+CREATE TABLE IF NOT EXISTS "#schema#"."MessageStat" (
+    "Granularity"      smallint                 NOT NULL,
+    "PeriodStart"      date                     NOT NULL,
+    "Channel"          smallint                 NOT NULL,
+    "CampaignTypeId"   uuid                     NOT NULL,
+    "CampaignTypeName" character varying(128)   NULL,
+    "SuccessfulSends"  integer                  NOT NULL,
+    "UpdatedAt"        timestamp with time zone NOT NULL,
+    CONSTRAINT "PK_MessageStat" PRIMARY KEY ("Granularity", "PeriodStart", "Channel", "CampaignTypeId")
+);
+
+CREATE INDEX IF NOT EXISTS "IX_MessageEvent_CreatedOn"
+    ON "#schema#"."MessageEvent" ("CreatedOn")
+    INCLUDE ("Type", "Channel", "Success", "CampaignId");
+```
+**Note:** Replace `#schema#` with the schema of the messaging tables (`cmp` by default). The index is needed by the nightly job. Without it every recount reads the whole `MessageEvent` table.
+
 ## [8.47.0] - 2026-05-13
 ### Added partial template functionality
 

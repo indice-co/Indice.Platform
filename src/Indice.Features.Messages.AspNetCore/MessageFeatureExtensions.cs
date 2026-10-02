@@ -121,9 +121,14 @@ public static class MessageFeatureExtensions
 
         services.Configure<AnalyticsOptions>(opt => {
             opt.Enabled = apiOptions.AnalyticsOptions.Enabled;
+            opt.Stats = apiOptions.AnalyticsOptions.Stats;
         });
         services.AddSingleton<MessageEventQueue>();
         services.AddSingleton<IHostedService, MessageEventHostedServcie>();
+        services.TryAddSingleton<MessageStatsQueue>();
+        services.TryAddSingleton<MessageStatsWriter>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, MessageStatsHostedService>());
+        services.AddLockManagerNoop();
         return services;
     }
 

@@ -12,6 +12,7 @@ namespace Indice.Features.Messages.Core.Services;
 /// <summary>Background service that handles the processing of campaign events.</summary>
 public class MessageEventHostedServcie(
     MessageEventQueue queue,
+    MessageStatsQueue statsQueue,
     IServiceScopeFactory scopeFactory,
     IOptions<AnalyticsOptions> AnalyticsOptions,
     ILogger<MessageEventHostedServcie> logger) : BackgroundService
@@ -38,6 +39,8 @@ public class MessageEventHostedServcie(
             var db = scope.ServiceProvider.GetRequiredService<CampaignsDbContext>();
             try {
                 await UpsertBatchAsync(lastActivityBatch, db, stoppingToken);
+                // Only events that were saved are counted in the send statistics.
+                EnqueueStats(lastActivityBatch);
             } catch (DbUpdateException dbEx) {
                 logger.LogError(dbEx, "Database update failed while upserting CampaignEvents.");
             } catch (OperationCanceledException ocEx) when (stoppingToken.IsCancellationRequested) {
@@ -53,5 +56,18 @@ public class MessageEventHostedServcie(
         var entries = lastActivityBatch.Select(activity => activity.ToDbEvent());
         await db.MessageEvents.AddRangeAsync(entries, stoppingToken);
         await db.SaveChangesAsync(stoppingToken);
+    }
+
+    /// <summary>Posts the successful sends of a saved batch to the send statistics queue.</summary>
+    private void EnqueueStats(List<MessageEvent> lastActivityBatch) {
+        if (!AnalyticsOptions.Value.Stats.Enabled) {
+            return;
+        }
+        foreach (var activity in lastActivityBatch) {
+            var delta = MessageStatsEligibility.ToDelta(activity);
+            if (delta is not null) {
+                statsQueue.TryEnqueue(delta);
+            }
+        }
     }
 }

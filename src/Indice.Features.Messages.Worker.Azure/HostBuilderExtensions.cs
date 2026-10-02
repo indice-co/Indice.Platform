@@ -50,7 +50,7 @@ public static class HostBuilderExtensions
         });
 
         builder.Services.AddHostedService<StartupSeedHostedService>();
-        builder.Services.TryAddSingleton(options.FunctionDisablePredicate);
+        builder.Services.TryAddSingleton(ExcludeStatsVerifyUnlessConfigured(options.FunctionDisablePredicate, options.CampaignStatisticOptions));
         builder.Services.AddDecorator<IFunctionMetadataProvider, ExtendedFunctionMetadataProvider>();
         return builder;
     }
@@ -81,7 +81,7 @@ public static class HostBuilderExtensions
                 messageWorkerOptions.DatabaseCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
             });
             services.AddHostedService<StartupSeedHostedService>();
-            services.TryAddSingleton(options.FunctionDisablePredicate);
+            services.TryAddSingleton(ExcludeStatsVerifyUnlessConfigured(options.FunctionDisablePredicate, options.CampaignStatisticOptions));
             services.AddDecorator<IFunctionMetadataProvider, ExtendedFunctionMetadataProvider>();
 
         });
@@ -115,9 +115,16 @@ public static class HostBuilderExtensions
 
         services.Configure<AnalyticsOptions>(opt => {
             opt.Enabled = options.CampaignStatisticOptions.Enabled;
+            opt.Stats = options.CampaignStatisticOptions.Stats;
         });
         services.AddSingleton<MessageEventQueue>();
         services.AddSingleton<IHostedService, MessageEventHostedServcie>();
+        services.TryAddSingleton<MessageStatsQueue>();
+        services.TryAddSingleton<MessageStatsWriter>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, MessageStatsHostedService>());
+        services.TryAddTransient<IMessageStatsVerificationService, MessageStatsVerificationService>();
+        // Used when the host did not call UseLockManagerAzure.
+        services.AddLockManagerNoop();
         return services;
     }
 
@@ -131,6 +138,7 @@ public static class HostBuilderExtensions
         services.TryAddTransient<ICampaignJobHandler<MarkMessagesUnreadEvent>, MarkUnreadEventHandler>();
         services.TryAddTransient<ICampaignJobHandler<MergeContactsEvent>, MergeContactsEventHandler>();
         services.TryAddTransient<ICampaignJobHandler<MessagingDatabaseCleanUpTimerEvent>, MessagingDatabaseCleanUpHandler>();
+        services.TryAddTransient<ICampaignJobHandler<MessageStatsVerifyTimerEvent>, MessageStatsVerifyHandler>();
         services.AddTransient<MessageJobHandlerFactory>();
         return services;
     }
@@ -163,6 +171,14 @@ public static class HostBuilderExtensions
             options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
             options.UseCompression = true;
         });
+        return options;
+    }
+
+    /// <summary>Adds <see cref="ILockManager"/> using Azure Blob Storage as the backing store. The lock guards the writes to the send statistics.</summary>
+    /// <param name="options">Options used when configuring campaign Azure Functions.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static MessageOptions UseLockManagerAzure(this MessageOptions options, Action<IServiceProvider, LockManagerAzureOptions>? configure = null) {
+        options.Services.AddLockManagerAzure(configure);
         return options;
     }
 
@@ -373,5 +389,14 @@ public static class HostBuilderExtensions
                                                             $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.MergeContacts}");
     internal static ExtendedFunctionMetadataProviderDisablePredicate ExcludeFunctions(params string[] functionNames) {
         return (fn, Configuration) => functionNames.Any(x => x.Equals(fn.Name, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>Adds to a predicate the rule that leaves out the send statistics timer function when the statistics are off or its schedule setting is missing.</summary>
+    /// <remarks>A timer function whose schedule setting is missing stops the host from starting. This lets an existing app upgrade without adding the setting.</remarks>
+    internal static ExtendedFunctionMetadataProviderDisablePredicate ExcludeStatsVerifyUnlessConfigured(ExtendedFunctionMetadataProviderDisablePredicate predicate, AnalyticsOptions analyticsOptions) {
+        var statsEnabled = analyticsOptions.Enabled && analyticsOptions.Stats.Enabled;
+        return (fn, configuration) => predicate(fn, configuration) ||
+            (CronTriggers.StatsVerifyFunctionName.Equals(fn.Name, StringComparison.OrdinalIgnoreCase) &&
+                (!statsEnabled || string.IsNullOrWhiteSpace(configuration[CronTriggers.StatsVerifyCronExpressionSetting])));
     }
 }

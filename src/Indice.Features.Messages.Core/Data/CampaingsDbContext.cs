@@ -24,6 +24,8 @@ public class CampaignsDbContext : DbContext
     public DbSet<DbCampaign> Campaigns { get; set; }
     /// <summary>Campaign events table.</summary>
     public DbSet<DbMessageEvent> MessageEvents { get; set; }
+    /// <summary>Send statistics table.</summary>
+    public DbSet<DbMessageStat> MessageStats { get; set; }
     /// <summary>Message types table.</summary>
     public DbSet<DbMessageType> MessageTypes { get; set; }
     /// <summary>Message senders table.</summary>
@@ -52,6 +54,7 @@ public class CampaignsDbContext : DbContext
         modelBuilder.ApplyConfiguration(new DbAttachmentMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbCampaignMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbMessageEventMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbMessageStatMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbDistributionListContactMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbContactMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbDistributionListMap(schemaName));

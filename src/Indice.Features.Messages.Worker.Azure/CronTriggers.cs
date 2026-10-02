@@ -9,6 +9,9 @@ namespace Indice.Features.Messages.Worker.Azure;
 /// </summary>
 public class CronTriggers
 {
+    internal const string StatsVerifyFunctionName = "MessagingStatsVerify";
+    internal const string StatsVerifyCronExpressionSetting = "MessageJobsOptions:StatsVerifyCronExpression";
+
     private MessageJobHandlerFactory CleanUpJobHandlerFactory { get; }
 
     /// <summary>
@@ -31,6 +34,17 @@ public class CronTriggers
     public async Task RunMessagingDatabaseCleanUp([TimerTrigger("%MessageJobsOptions:DatabaseCleanUpCronExpression%")] TimerInfo myTimer) {
         var payload = new MessagingDatabaseCleanUpTimerEvent();
         await CleanUpJobHandlerFactory.CreateFor<MessagingDatabaseCleanUpTimerEvent>().Process(payload);
+    }
+
+    /// <summary>
+    /// Recounts the successful sends of the last complete days and corrects the send statistics.
+    /// </summary>
+    /// <param name="myTimer">The timer trigger that schedules the verification job.</param>
+    /// <returns>A task that represents the asynchronous verification operation.</returns>
+    [Function(StatsVerifyFunctionName)]
+    public async Task RunMessagingStatsVerify([TimerTrigger("%" + StatsVerifyCronExpressionSetting + "%")] TimerInfo myTimer) {
+        var payload = new MessageStatsVerifyTimerEvent();
+        await CleanUpJobHandlerFactory.CreateFor<MessageStatsVerifyTimerEvent>().Process(payload);
     }
 
 }

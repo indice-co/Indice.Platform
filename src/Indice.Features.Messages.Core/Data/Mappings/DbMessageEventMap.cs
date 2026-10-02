@@ -32,5 +32,6 @@ public class DbMessageEventMap : IEntityTypeConfiguration<DbMessageEvent>
         builder.HasIndex(x => x.Type);
         builder.HasIndex(x => x.Channel);
         builder.HasIndex(x => x.Recipient);
+        builder.HasIndex(x => x.CreatedOn);
     }
 }

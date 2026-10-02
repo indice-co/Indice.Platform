@@ -111,6 +111,14 @@ public static class WorkerHostBuilderExtensions
             options.Name = nameof(MessagingDatabaseCleanUpJobHandler);
             options.Group = nameof(MessagingDatabaseCleanUpJobHandler);
         });
+        if (messageOptions.Analytics.Enabled && messageOptions.Analytics.Stats.Enabled) {
+            workerHostBuilder.AddJob<MessageStatsVerifyJobHandler>().WithScheduleTrigger(messageOptions.StatsVerifyCronExpression, options => {
+                // Not a singleton job. The job takes the send statistics lock for every write, and a singleton job would hold a second lock around it.
+                // The in-memory lock manager shares one lock between all names, so that would never finish. Two instances running it give the same result.
+                options.Name = nameof(MessageStatsVerifyJobHandler);
+                options.Group = nameof(MessageStatsVerifyJobHandler);
+            });
+        }
     }
 
     private static void AddJobHandlerServices(this IServiceCollection services) {
@@ -120,6 +128,7 @@ public static class WorkerHostBuilderExtensions
         services.TryAddTransient<ICampaignJobHandler<SendEmailEvent>, SendEmailHandler>();
         services.TryAddTransient<ICampaignJobHandler<SendSmsEvent>, SendSmsHandler>();
         services.TryAddTransient<ICampaignJobHandler<MessagingDatabaseCleanUpTimerEvent>, MessagingDatabaseCleanUpHandler>();
+        services.TryAddTransient<ICampaignJobHandler<MessageStatsVerifyTimerEvent>, MessageStatsVerifyHandler>();
         services.AddTransient<MessageJobHandlerFactory>();
     }
 
@@ -155,9 +164,14 @@ public static class WorkerHostBuilderExtensions
 
         services.Configure<AnalyticsOptions>(opt => {
             opt.Enabled = options.Analytics.Enabled;
+            opt.Stats = options.Analytics.Stats;
         });
         services.AddSingleton<MessageEventQueue>();
         services.AddSingleton<IHostedService, MessageEventHostedServcie>();
+        services.TryAddSingleton<MessageStatsQueue>();
+        services.TryAddSingleton<MessageStatsWriter>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, MessageStatsHostedService>());
+        services.TryAddTransient<IMessageStatsVerificationService, MessageStatsVerificationService>();
     }
 
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>

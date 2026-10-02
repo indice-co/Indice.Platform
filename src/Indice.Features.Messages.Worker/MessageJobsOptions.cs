@@ -26,6 +26,11 @@ public class MessageJobsOptions : MessageWorkerOptions
     /// The cron expression that defines the schedule for the cleanup task. Defaults to <i>"0 0 2 * * *" (every day at 2 AM)</i>
     /// </summary>
     public string DatabaseCleanUpCronExpression { get; set; } = "0 0 2 * * ?";
+    /// <summary>
+    /// The cron expression that defines the schedule for the verification of the send statistics. Defaults to <i>"0 30 0 * * ?" (every day at 00:30)</i>
+    /// </summary>
+    /// <remarks>The job is added only when the send statistics are enabled. It should run before the database clean up.</remarks>
+    public string StatsVerifyCronExpression { get; set; } = "0 30 0 * * ?";
 
     /// <summary>Gets or sets the configuration options for analytics features.</summary>
     public AnalyticsOptions Analytics { get; set; } = new();
