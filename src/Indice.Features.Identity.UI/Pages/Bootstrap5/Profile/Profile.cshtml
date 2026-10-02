@@ -101,6 +101,15 @@
                 <input class="form-control field__control" type="tel" placeholder="@Localizer.Profile_Phone_Number" asp-for="Input.PhoneNumber" readonly="@options.DisablePhoneEdit" autocomplete="tel" aria-describedby="Input_PhoneNumberWithCallingCode-error" />
                 <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="field__error" id="Input_PhoneNumberWithCallingCode-error"></span>
             </div>
+           
+        </div>
+    </section>
+
+    <section class="data-card">
+        <header class="data-card__header">
+            <h2 class="data-card__title">@Localizer.Profile_DetailsSection</h2>
+        </header>
+        <div class="data-card__grid">
             @if (Model.View.ShowFullName)
             {
                 <div class="field data-card__span">
@@ -123,14 +132,6 @@
                     <span asp-validation-for="Input.LastName" class="field__error" id="Input_LastName-error"></span>
                 </div>
             }
-        </div>
-    </section>
-
-    <section class="data-card">
-        <header class="data-card__header">
-            <h2 class="data-card__title">@Localizer.Profile_DetailsSection</h2>
-        </header>
-        <div class="data-card__grid">
             <div class="field">
                 <label asp-for="Input.Tin" class="field__label">@Localizer.Profile_Tax_Identification</label>
                 <input class="form-control field__control" type="text" placeholder="@Localizer.Profile_Tax_Identification" readonly="@Model.View.DisableEditTin" asp-for="Input.Tin" aria-describedby="Input_Tin-error" />
