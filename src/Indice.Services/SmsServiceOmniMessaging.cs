@@ -411,6 +411,9 @@ internal sealed class SmsServiceOmniResponse
     [JsonPropertyName("campaign_id")]
     public string? CampaignId { get; set; }
 
+    [JsonPropertyName("request_id")]
+    public string? RequestId { get; set; }
+
     public JsonElement? Data { get; set; }
 
     public string? GetCampaignId() {
@@ -422,6 +425,10 @@ internal sealed class SmsServiceOmniResponse
             return CampaignId;
         }
 
+        if (!string.IsNullOrWhiteSpace(RequestId)) {
+            return RequestId;
+        }
+
         if (Data is { ValueKind: JsonValueKind.Object } data) {
             if (data.TryGetProperty("id", out var id) && id.ValueKind == JsonValueKind.String) {
                 return id.GetString();
@@ -429,6 +436,10 @@ internal sealed class SmsServiceOmniResponse
 
             if (data.TryGetProperty("campaign_id", out var campaignId) && campaignId.ValueKind == JsonValueKind.String) {
                 return campaignId.GetString();
+            }
+
+            if (data.TryGetProperty("request_id", out var requestId) && requestId.ValueKind == JsonValueKind.String) {
+                return requestId.GetString();
             }
         }
 
