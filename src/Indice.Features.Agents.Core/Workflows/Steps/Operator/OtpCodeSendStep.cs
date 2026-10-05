@@ -52,10 +52,11 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(completed);
         var caseData = await context.GetOperatorStateAsync(cancellationToken);
-        var sms = caseData.UseSms();
-        var maskedRecipient = sms ? MaskPhone(caseData.PhoneNumber) : MaskEmail(caseData.Email);
+        var useSms = caseData.UsesSmsForOtp();
+        var maskedRecipient = useSms ? MaskPhone(caseData.PhoneNumber) : MaskEmail(caseData.Email);
+
         var securityToken = Guid.NewGuid().ToString();
-        await SendOtpCode(caseData, sms, securityToken, cancellationToken);
+        await SendOtpCode(caseData, useSms, securityToken, cancellationToken);
         var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedRecipient);
         await context.Say(Id, otpPrompt);
         return new OtpRequestPort.OtpRequest(ChallengeCode: securityToken, ExpirationDate: DateTime.UtcNow.AddMinutes(2));

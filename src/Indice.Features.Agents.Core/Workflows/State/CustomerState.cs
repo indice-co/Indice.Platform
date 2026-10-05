@@ -44,5 +44,5 @@ public class CustomerState
     public string? ChallengeType { get; set; }
 
     /// <summary>Whether the one-time password goes out over SMS (a phone number is on file) rather than email.</summary>
-    public bool UseSms() => !string.IsNullOrWhiteSpace(PhoneNumber);
+    public bool UsesSmsForOtp() => !string.IsNullOrWhiteSpace(PhoneNumber);
 }
