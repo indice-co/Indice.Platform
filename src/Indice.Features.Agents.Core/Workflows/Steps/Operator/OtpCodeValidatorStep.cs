@@ -132,7 +132,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
                 Name = "DexOtpCodeValidatorAgent"
             });
 
-        var sms = caseData.UsesSmsForOtp();
+        var sms = caseData.UseSms();
         var prompt = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeValidatorPrompt), new {
             otp = response.Otp.Trim(),
             caseId = response.ChallengeCode,
