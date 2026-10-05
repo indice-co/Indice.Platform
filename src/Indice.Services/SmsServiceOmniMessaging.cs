@@ -117,7 +117,7 @@ public sealed class SmsServiceOmniMessaging : ISmsService
             Options.SmsValidity,
             Options.UseUtf8);
 
-        var request = new HttpRequestMessage {
+        using var request = new HttpRequestMessage {
             Method = HttpMethod.Post,
             RequestUri = new Uri(
                 $"{HttpClient.BaseAddress ?? new Uri(BASE_URI)}{string.Format(SERVICE_ENDPOINT, Options.AccountId)}"),
@@ -283,7 +283,6 @@ internal sealed class SmsServiceOmniRequest
                     },
                     Viber = viberFallbackEnabled
                         ? new OmniViber {
-                            Type = 109,
                             Message = new OmniViberMessage {
                                 Text = message,
                             }
@@ -369,7 +368,7 @@ internal sealed class OmniSms
 internal sealed class OmniViber
 {
     [JsonPropertyName("type")]
-    public int Type { get; init; } = 108;
+    public int Type { get; init; } = 106;
 
     [JsonPropertyName("message")]
     public required OmniViberMessage Message { get; init; }

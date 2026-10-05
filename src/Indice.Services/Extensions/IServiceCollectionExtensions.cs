@@ -386,8 +386,9 @@ public static class IndiceServicesServiceCollectionExtensions
     public static IServiceCollection AddSmsServiceOmniMessaging(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceOmniMessagingSettings>? configure = null) {
         services.Configure<SmsServiceOmniMessagingSettings>(configuration.GetSection(SmsServiceSettings.Name));
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
-        var options = new SmsServiceOmniMessagingSettings();
-        configure?.Invoke(options);
+        if (configure is not null) {
+            services.Configure(configure);
+        }
         services.AddHttpClient<ISmsService, SmsServiceOmniMessaging>()
             .ConfigureHttpClient(httpClient => {
                 httpClient.BaseAddress = new Uri(SmsServiceOmniMessaging.BASE_URI);
