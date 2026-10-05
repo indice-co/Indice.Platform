@@ -257,31 +257,36 @@ public class SmsTests
     }
 
     [Theory(Skip = "Sensitive Data")]
-    [InlineData("", "", "", "Test Subject", "Test Body", "Test")]
-    public async Task TestMstatSms(string apiToken, string phoneNumber, string sender, string subject, string body, string senderName) {
-
+    [InlineData("", "", "", "", "Test Subject", "Test Body")]
+    public async Task TestOmniMessaging(string apiKey, string accountId, string sender, string phoneNumber, string subject, string body) {
         var inMemorySettings = new Dictionary<string, string?> {
-            ["Sms:ApiKey"] = apiToken,
+            ["Sms:ApiKey"] = apiKey,
+            ["Sms:AccountId"] = accountId,
             ["Sms:Sender"] = sender,
-            ["Sms:SenderName"] = senderName
+            ["Sms:CampaignName"] = sender,
+            ["Sms:ViberFallbackEnabled"] = true.ToString()
         };
+
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
             .Build();
+
         var collection = new ServiceCollection()
             .AddSingleton(configuration)
             .AddOptions()
-            .Configure<SmsServiceMstatSettings>(configuration.GetSection(SmsServiceMstatSettings.Name))
-            .AddSmsServiceMstat(configuration);
+            .Configure<SmsServiceOmniMessagingSettings>(configuration.GetSection(SmsServiceSettings.Name))
+            .AddSmsServiceOmniMessaging(configuration);
 
         var serviceProvider = collection.BuildServiceProvider();
-        var excepion = default(Exception);
+        Exception exception = null!;
+
         try {
             var service = serviceProvider.GetRequiredService<ISmsService>();
             await service.SendAsync(phoneNumber, subject, body);
         } catch (Exception smsServiceException) {
-            excepion = smsServiceException;
+            exception = smsServiceException;
         }
-        Assert.Null(excepion);
+
+        Assert.Null(exception);
     }
 }
