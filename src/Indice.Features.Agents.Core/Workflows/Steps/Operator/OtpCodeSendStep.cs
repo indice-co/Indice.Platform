@@ -101,7 +101,11 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
     }
 
     private static string MaskEmail(string? email) {
-        var at = email?.IndexOf('@') ?? -1;
-        return at < 1 ? "your registered email" : $"{email![0]}***{email[at..]}";
+        if (string.IsNullOrWhiteSpace(email)) {
+            return "your registered email";
+        }
+
+        var at = email.IndexOf('@');
+        return at < 1 ? "your registered email" : $"{email[0]}***{email[at..]}";
     }
 }
