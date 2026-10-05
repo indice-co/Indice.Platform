@@ -31,11 +31,6 @@
             <input class="form-control field__control" type="text" asp-for="Input.LastName" placeholder="@Localizer.Register_Last_Name" autocomplete="family-name" aria-describedby="Input_LastName-error" />
             <span asp-validation-for="Input.LastName" class="field__error" id="Input_LastName-error"></span>
         </div>
-        <div class="field">
-            <label asp-for="Input.Email" class="field__label">@Localizer.Email <span class="field__required" aria-hidden="true">*</span></label>
-            <input class="form-control field__control" type="email" asp-for="Input.Email" placeholder="@Localizer.Email" autocomplete="email" aria-describedby="Input_Email-error" />
-            <span asp-validation-for="Input.Email" class="field__error" id="Input_Email-error"></span>
-        </div>
         @if (callingCodesEnabled)
         {
             @:<div class="field-row field-row--phone">
@@ -60,6 +55,11 @@
         {
             @:</div>
         }
+        <div class="field">
+            <label asp-for="Input.Email" class="field__label">@Localizer.Email <span class="field__required" aria-hidden="true">*</span></label>
+            <input class="form-control field__control" type="email" asp-for="Input.Email" placeholder="@Localizer.Email" autocomplete="email" aria-describedby="Input_Email-error" />
+            <span asp-validation-for="Input.Email" class="field__error" id="Input_Email-error"></span>
+        </div>
         <div class="field">
             <label class="field__label" asp-for="Input.ZoneInfo">@Localizer.Register_Timezone</label>
             <select class="form-select field__control" asp-for="Input.ZoneInfo" aria-describedby="Input_ZoneInfo-error">
