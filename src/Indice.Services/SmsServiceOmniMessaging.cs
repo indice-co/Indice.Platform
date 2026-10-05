@@ -66,14 +66,10 @@ public sealed class SmsServiceOmniMessaging : ISmsService
         }
 
         if (Options.ViberValidity < 30) {
-            throw new ArgumentException($"SMS settings {nameof(SmsServiceOmniMessagingSettings.ViberValidity)} must be at least 30 seconds.");
+            throw new ArgumentException($"SMS settings {nameof(SmsServiceOmniMessagingSettings.ViberValidity)} must be greater than zero.");
         }
 
-        if (Options.ViberValidity > 1209600) {
-            throw new ArgumentException($"SMS settings {nameof(SmsServiceOmniMessagingSettings.ViberValidity)} cannot exceed 1209600 seconds.");
-        }
-
-        if (Options.SmsValidity < 1) {
+        if (Options.SmsValidity < 3) {
             throw new ArgumentException($"SMS settings {nameof(SmsServiceOmniMessagingSettings.SmsValidity)} must be greater than zero.");
         }
     }
@@ -362,7 +358,7 @@ internal sealed class OmniSms
     public required string Text { get; init; }
 
     [JsonPropertyName("charset")]
-    public string Charset { get; init; } = "GSM";
+    public string Charset { get; init; }
 }
 
 internal sealed class OmniViber
