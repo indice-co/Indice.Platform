@@ -19,7 +19,7 @@
 }
 
 <section class="auth-card mfa">
-    <vc:page-heading title="@Localizer.MfaOnBoardingAddPhone_PageHeader" image-src="" subtitle="new HtmlString(message)" />
+    <vc:page-heading title="@Localizer.MfaOnBoardingAddPhone_PageHeader" image-src="" subtitle="@(new HtmlString(message))" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="alert" />
     <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate class="auth-form">

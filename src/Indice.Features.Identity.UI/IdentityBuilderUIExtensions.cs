@@ -208,8 +208,7 @@ public static class IdentityBuilderUIExtensions
         }
 
         private static string StripPageGroup(string relativePath) {
-            foreach (var group in PageGroups) {
-                var prefix = $"/Pages/{group}/";
+            foreach (var prefix in PageGroups.Select(group => $"/Pages/{group}/")) {
                 if (relativePath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) {
                     return string.Concat("/Pages/", relativePath.AsSpan(prefix.Length));
                 }

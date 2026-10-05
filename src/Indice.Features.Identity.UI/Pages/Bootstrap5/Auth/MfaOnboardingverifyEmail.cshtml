@@ -11,7 +11,6 @@
     Layout = "_AuthLayout";
     ViewBag.Title = Localizer.MfaOnBoardingVerifyEmail_PageTitle;
     var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyEmailModel.TempDataKey);
-    var displayNext = !string.IsNullOrEmpty(infoMessage?.NextStepUrl) && infoMessage?.Alert?.AlertType == AlertType.Success;
     
 }
 
@@ -28,12 +27,8 @@
             <input class="form-control field__control otp-field__input" data-otp-length="6" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="@Localizer.MfaOnBoardingVerifyEmail_Code" asp-for="Input.Code" disabled="@displayNext" autofocus aria-describedby="Input_Code-error" />
             <span asp-validation-for="Input.Code" class="field__error" id="Input_Code-error"></span>
         </div>
-        <div class="auth-form__actions @(displayNext ? "auth-form__actions--split" : string.Empty)">
-            <button class="btn btn-primary auth-form__submit" type="submit" disabled="@displayNext">@Localizer.MfaOnBoardingVerifyEmail_Save</button>
-            @if (displayNext)
-            {
-                <a class="btn btn-primary auth-form__submit" href="@infoMessage!.NextStepUrl">@Localizer.MfaOnBoardingVerifyEmail_Next</a>
-            }
+        <div class="auth-form__actions">
+            <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.MfaOnBoardingVerifyEmail_Save</button>
         </div>
     </form>
 </section>

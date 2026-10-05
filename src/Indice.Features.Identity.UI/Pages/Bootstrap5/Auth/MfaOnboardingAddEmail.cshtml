@@ -20,7 +20,7 @@
 }
 
 <section class="auth-card mfa">
-    <vc:page-heading title="@Localizer.MfaOnBoardingAddEmail_PageHeader" image-src="" subtitle="subTitle" />
+    <vc:page-heading title="@Localizer.MfaOnBoardingAddEmail_PageHeader" image-src="" subtitle="@subTitle" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="alert" />
     <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate class="auth-form">

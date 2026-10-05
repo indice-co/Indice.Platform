@@ -20,7 +20,7 @@
             <label asp-for="Input.OtpCode" class="field__label">@Localizer.Mfa_OTP_Code</label>
             <input asp-for="Input.OtpCode"
                    class="form-control field__control otp-field__input"
-                   data-otp-length="6"
+                   data-otp-length="@Model.View.AuthenticatorDigits"
                    inputmode="numeric"
                    autocomplete="one-time-code"
                    placeholder="@Localizer.Mfa_OTP_Code"
