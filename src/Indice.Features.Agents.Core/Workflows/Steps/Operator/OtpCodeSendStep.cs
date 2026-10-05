@@ -52,7 +52,7 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(completed);
         var caseData = await context.GetOperatorStateAsync(cancellationToken);
-        var useSms = caseData.UsesSmsForOtp();
+        var useSms = caseData.UsesSmsForOtp;
         var maskedRecipient = useSms ? MaskPhone(caseData.PhoneNumber) : MaskEmail(caseData.Email);
 
         var securityToken = Guid.NewGuid().ToString();

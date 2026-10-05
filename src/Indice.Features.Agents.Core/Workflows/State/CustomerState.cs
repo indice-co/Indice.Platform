@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace Indice.Features.Agents.Core.Workflows.State;
 
@@ -44,5 +45,6 @@ public class CustomerState
     public string? ChallengeType { get; set; }
 
     /// <summary>Whether the one-time password goes out over SMS (a phone number is on file) rather than email.</summary>
-    public bool UsesSmsForOtp() => !string.IsNullOrWhiteSpace(PhoneNumber);
+    [JsonIgnore]
+    public bool UsesSmsForOtp => !string.IsNullOrWhiteSpace(PhoneNumber);
 }
