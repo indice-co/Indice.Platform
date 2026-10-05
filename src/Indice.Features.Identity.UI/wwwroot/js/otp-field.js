@@ -101,6 +101,12 @@
         input.setAttribute('tabindex', '-1');
         input.setAttribute('aria-hidden', 'true');
         input.insertAdjacentElement('afterend', container);
+        if (label) {
+            label.addEventListener('click', function (e) {
+                e.preventDefault();
+                cells[0].focus();
+            });
+        }
 
         if (input.hasAttribute('autofocus') || document.activeElement === input) {
             cells[0].focus();
