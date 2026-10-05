@@ -65,11 +65,11 @@ public sealed class SmsServiceOmniMessaging : ISmsService
             throw new ArgumentException($"SMS settings {nameof(SmsServiceOmniMessagingSettings.Sender)} is empty.");
         }
 
-        if (Options.ViberValidity < 30) {
+        if (Options.ViberValidity < 1) {
             throw new ArgumentException($"SMS settings {nameof(SmsServiceOmniMessagingSettings.ViberValidity)} must be greater than zero.");
         }
 
-        if (Options.SmsValidity < 3) {
+        if (Options.SmsValidity < 1) {
             throw new ArgumentException($"SMS settings {nameof(SmsServiceOmniMessagingSettings.SmsValidity)} must be greater than zero.");
         }
     }
