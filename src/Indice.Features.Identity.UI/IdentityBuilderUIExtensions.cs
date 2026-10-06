@@ -165,7 +165,7 @@ public static class IdentityBuilderUIExtensions
     {
         // Bootstrap5 pages are grouped in these folders for source organisation only. The folder is removed from the view path so that
         // page names (RedirectToPage("/Login")), host overrides (Pages/Login.cshtml) and route ordering stay the same as a flat tree.
-        private static readonly string[] PageGroups = ["Auth", "Profile", "Home", "Article"];
+        private static readonly string[] PageGroups = ["Profile", "Legal", "Verification"];
         private readonly UIFramework _framework;
 
         public ViewVersionFeatureProvider(UIFramework framework) => _framework = framework;

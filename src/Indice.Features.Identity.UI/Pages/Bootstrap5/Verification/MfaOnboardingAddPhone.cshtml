@@ -13,9 +13,11 @@
     Layout = "_AuthLayout";
     ViewBag.Title = Localizer.MfaOnBoardingAddPhone_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddPhoneModel.TempDataKey);
-    var message = ((EnableMfaSmsViewModel)Model.Input).PhoneNumberConfirmed? UserManager.MessageDescriber.MfaAddPhoneValidationPhoneAlreadyConfirmed
+    var message = ((EnableMfaSmsViewModel)Model.View).PhoneNumberConfirmed ? UserManager.MessageDescriber.MfaAddPhoneValidationPhoneAlreadyConfirmed
             : UserManager.MessageDescriber.MfaAddPhoneValidationPhoneEmpty;
-
+    var buttonText = ((EnableMfaSmsViewModel)Model.View).PhoneNumberConfirmed ?
+                Localizer.MfaOnBoardingAddPhone_Next
+                : Localizer.MfaOnBoardingAddPhone_Save;
 }
 
 <section class="auth-card mfa">
@@ -31,14 +33,7 @@
             <span asp-validation-for="Input.PhoneNumber" class="field__error" id="Input_PhoneNumber-error"></span>
         </div>
         <div class="auth-form__actions">
-            @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
-            {
-                <a class="btn btn-primary auth-form__submit" href="@Model.View.NextStepUrl">@Localizer.MfaOnBoardingAddPhone_Next</a>
-            }
-            else
-            {
-                <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.MfaOnBoardingAddPhone_Save</button>
-            }
+            <button class="btn btn-primary auth-form__submit" type="submit">@buttonText</button>
         </div>
         <a asp-page="/MfaOnboarding" class="mfa__back">
             <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> @Localizer.Mfa_Back

@@ -30,6 +30,17 @@
                 asp-for="Input.Code"  autofocus aria-describedby="Input_Code-error" />
             <span asp-validation-for="Input.Code" class="field__error" id="Input_Code-error"></span>
         </div>
+        <p class="otp-field__resend">
+            <button type="submit"
+                    id="otp-resend"
+                    name="Input.OtpResend"
+                    value="true"
+                    formnovalidate
+                    class="otp-field__resend-btn">
+                <span class="otp-field__resend-text">@Localizer.VerifyPhone_Resend</span>
+                <span class="otp-field__wait">@Localizer.Mfa_ResendAvailableIn <span class="countdown otp-field__countdown"></span></span>
+            </button>
+        </p>
         <div class="auth-form__actions">
             <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.MfaOnBoardingVerifyEmail_Save</button>
         </div>
@@ -38,5 +49,6 @@
 
 @section scripts {
     <partial name="_ValidationScripts" />
+    <script type="text/javascript" src="~/js/otp.js" csp-nonce></script>
     <script type="text/javascript" src="~/js/otp-field.js" csp-nonce></script>
 }

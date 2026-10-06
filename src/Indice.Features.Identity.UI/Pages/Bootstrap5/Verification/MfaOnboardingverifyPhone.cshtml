@@ -11,11 +11,10 @@
     Layout = "_AuthLayout";
     ViewBag.Title = Localizer.MfaOnBoardingVerifyPhone_PageTitle;
     var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyPhoneModel.TempDataKey);
-    var displayNext = infoMessage != null && infoMessage.Alert?.AlertType == AlertType.Success && !string.IsNullOrEmpty(infoMessage.NextStepUrl);
 }
 
 <section class="auth-card mfa">
-    <vc:page-heading title="@Localizer.MfaOnBoardingVerifyPhone_PageHeader" image-src="" 
+    <vc:page-heading title="@Localizer.MfaOnBoardingVerifyPhone_PageHeader" image-src=""
                      subtitle="new HtmlString(UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone)" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="infoMessage?.Alert" />
@@ -24,20 +23,30 @@
         <input type="hidden" asp-for="Input.PhoneNumber" />
         <div class="field">
             <label asp-for="Input.Code" class="field__label">@Localizer.MfaOnBoardingVerifyPhone_Code</label>
-            <input class="form-control field__control otp-field__input" data-otp-length="6" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="@Localizer.MfaOnBoardingVerifyPhone_Code" asp-for="Input.Code" disabled="@displayNext" autofocus aria-describedby="Input_Code-error" />
+            <input class="form-control field__control otp-field__input" data-otp-length="6" type="text" inputmode="numeric"
+                   autocomplete="one-time-code" placeholder="@Localizer.MfaOnBoardingVerifyPhone_Code"
+                   asp-for="Input.Code" autofocus aria-describedby="Input_Code-error" />
             <span asp-validation-for="Input.Code" class="field__error" id="Input_Code-error"></span>
         </div>
-        <div class="auth-form__actions @(displayNext ? "auth-form__actions--split" : string.Empty)">
-            <button class="btn btn-primary auth-form__submit" type="submit" disabled="@displayNext">@Localizer.MfaOnBoardingVerifyPhone_Save</button>
-            @if (displayNext)
-            {
-                <a class="btn btn-primary auth-form__submit" href="@infoMessage!.NextStepUrl">@Localizer.MfaOnBoardingVerifyPhone_Next</a>
-            }
+        <p class="otp-field__resend">
+            <button type="submit"
+                    id="otp-resend"
+                    name="Input.OtpResend"
+                    value="true"
+                    formnovalidate
+                    class="otp-field__resend-btn">
+                <span class="otp-field__resend-text">@Localizer.VerifyPhone_Resend</span>
+                <span class="otp-field__wait">@Localizer.Mfa_ResendAvailableIn <span class="countdown otp-field__countdown"></span></span>
+            </button>
+        </p>
+        <div class="auth-form__actions">
+            <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.MfaOnBoardingVerifyPhone_Save</button>
         </div>
     </form>
 </section>
 
 @section scripts {
     <partial name="_ValidationScripts" />
+    <script type="text/javascript" src="~/js/otp.js" csp-nonce></script>
     <script type="text/javascript" src="~/js/otp-field.js" csp-nonce></script>
 }

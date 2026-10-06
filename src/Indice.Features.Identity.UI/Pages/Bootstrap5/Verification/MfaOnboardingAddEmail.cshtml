@@ -12,11 +12,13 @@
     Layout = "_AuthLayout";
     ViewBag.Title = Localizer.MfaOnBoardingAddEmail_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddEmailModel.TempDataKey);
-    var message = ((EnableMfaEmailViewModel)Model.Input).EmailConfirmed ?
+    var message = ((EnableMfaEmailViewModel)Model.View).EmailConfirmed ?
             UserManager.MessageDescriber.MfaAddEmailValidationEmailAlreadyConfirmed
             : UserManager.MessageDescriber.MfaAddEmailValidationEmailEmpty;
     var subTitle = new HtmlString(message);
-
+    var buttonText = ((EnableMfaEmailViewModel)Model.View).EmailConfirmed ?
+            Localizer.MfaOnBoardingAddEmail_Next
+            : Localizer.MfaOnBoardingAddEmail_Save;
 }
 
 <section class="auth-card mfa">
@@ -32,14 +34,7 @@
             <span asp-validation-for="Input.Email" class="field__error" id="Input_Email-error"></span>
         </div>
         <div class="auth-form__actions">
-            @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
-            {
-                <a class="btn btn-primary auth-form__submit" href="@Model.View.NextStepUrl">@Localizer.MfaOnBoardingAddEmail_Next</a>
-            }
-            else
-            {
-                <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.MfaOnBoardingAddEmail_Save</button>
-            }
+            <button class="btn btn-primary auth-form__submit" type="submit">@buttonText</button>
         </div>
         <a asp-page="/MfaOnboarding" class="mfa__back">
             <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> @Localizer.Mfa_Back

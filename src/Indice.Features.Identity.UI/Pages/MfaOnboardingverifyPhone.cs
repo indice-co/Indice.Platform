@@ -50,13 +50,22 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
 
     /// <summary>MFA onboarding verify phone page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
-        if (!ModelState.IsValid) {
-            return Page();
-        }
         TempData.Remove(TempDataKey);
         var tempDataModel = new ExtendedValidationTempDataModel();
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         Input.PhoneNumber = user.PhoneNumber;
+        if (Input.OtpResend) {
+            Input.OtpResend = false;
+            ModelState.Clear();
+            if (!await SendVerificationSmsAsync(user, user.PhoneNumber!)) {
+                tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.LimitAttemptsReached);
+                TempData.Put(TempDataKey, tempDataModel);
+            }
+            return Page();
+        }
+        if (!ModelState.IsValid) {
+            return Page();
+        }
         var result = await UserManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, Input.Code!);
         if (result.Succeeded) {
             await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.PhoneNumber.ToString());
