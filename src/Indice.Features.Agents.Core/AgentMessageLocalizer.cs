@@ -51,9 +51,6 @@ public class AgentMessageLocalizer
     /// <summary>Step label shown while sending OTP in workflow step.</summary>
     public virtual string StepOtpCodeSend => AgentResources.StepOtpCodeSend;
 
-    /// <summary>Text for the email label.</summary>
-    public virtual string OwnershipRetryPrompt => AgentResources.OwnershipRetryPrompt;
-
     /// <summary>Error message when user exceed max verification attempts.</summary>
     public virtual string VerificationFailedMaxAttempts(int maxAttempts) => string.Format(AgentResources.VerificationFailedMaxAttempts, maxAttempts);
 

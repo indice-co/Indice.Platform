@@ -61,7 +61,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to User challenge completed. .
+        ///   Looks up a localized string similar to Thank you..
         /// </summary>
         internal static string ChallengeSucceeded {
             get {
@@ -79,7 +79,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to That OTP was not valid. Please try again ({0} attempt(s) left)..
+        ///   Looks up a localized string similar to That OTP was not valid. Please try again - {0} attempt(s) left..
         /// </summary>
         internal static string InvalidOtpRetryMessage {
             get {
@@ -120,15 +120,6 @@ namespace Indice.Features.Agents.Core {
         internal static string OtvpVerificationSuccessMessage {
             get {
                 return ResourceManager.GetString("OtvpVerificationSuccessMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to sadas.
-        /// </summary>
-        internal static string OwnershipRetryPrompt {
-            get {
-                return ResourceManager.GetString("OwnershipRetryPrompt", resourceCulture);
             }
         }
         

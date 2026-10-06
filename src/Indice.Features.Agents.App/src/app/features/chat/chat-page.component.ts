@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 
 import { AgentInfo, ChatMessagePart, ChatTopic, DexApiService, DexChatResponse, LikeRequest } from '../../core/services/dex-api.service';
 import { ChatStreamFrame, ChatStreamService } from '../../core/services/chat-stream.service';
+import { assistantName } from '../../core/models/brand';
 import { ConversationsStore } from '../../core/services/conversations.store';
 import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
 import { ChatComposerComponent } from './chat-composer.component';
@@ -25,6 +26,9 @@ import { HITL_REQUEST_MEDIA_TYPE, hitlResponseParts, parseHitlRequest, textParts
   templateUrl: './chat-page.component.html',
 })
 export class ChatPageComponent {
+  /** Display name of the assistant. */
+  protected readonly assistantName = assistantName;
+
   private readonly dex = inject(DexApiService);
   private readonly streamSvc = inject(ChatStreamService);
   private readonly destroyRef = inject(DestroyRef);

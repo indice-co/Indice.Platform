@@ -117,6 +117,33 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ChallengeSucceeded" xml:space="preserve">
+    <value>Ευχαριστούμε.</value>
+  </data>
+  <data name="InvalidOtpMaxAttemptsReachedMessage" xml:space="preserve">
+    <value>Ο κωδικός OTP δεν είναι έγκυρος. Έχετε φτάσει τον μέγιστο αριθμό προσπαθειών. Παρακαλούμε ξεκινήστε ξανά.</value>
+  </data>
+  <data name="InvalidOtpRetryMessage" xml:space="preserve">
+    <value>Ο κωδικός OTP δεν ήταν έγκυρος. Παρακαλούμε δοκιμάστε ξανά - απομένουν {0} προσπάθειες.</value>
+  </data>
+  <data name="OtpInputValidationEmpty" xml:space="preserve">
+    <value>Δεν έλαβα κωδικό OTP. Παρακαλούμε εισαγάγετε τον κωδικό OTP που στάλθηκε στο τηλέφωνό σας.</value>
+  </data>
+  <data name="OtpVerificationCodeSendMessage" xml:space="preserve">
+    <value>Ένας κωδικός επαλήθευσης στάλθηκε στο {0}. Παρακαλούμε εισαγάγετε τον κωδικό OTP που λάβατε.</value>
+  </data>
+  <data name="OtvpVerificationFailedMessage" xml:space="preserve">
+    <value>Ο κωδικός OTP δεν είναι έγκυρος</value>
+  </data>
+  <data name="OtvpVerificationSuccessMessage" xml:space="preserve">
+    <value>Ο κωδικός OTP είναι έγκυρος</value>
+  </data>
+  <data name="OwnershipVerificationFailedMaxAttemptsMessage" xml:space="preserve">
+    <value>Η επαλήθευση κατόχου απέτυχε μετά από {0} προσπάθειες.</value>
+  </data>
+  <data name="OwnershipVerificationMessagePrompt" xml:space="preserve">
+    <value>Παρακαλούμε εισαγάγετε τον αριθμό κυκλοφορίας του οχήματός σας για να ολοκληρωθεί η διαδικασία επαλήθευσης.</value>
+  </data>
   <data name="StepAnswerComposer" xml:space="preserve">
     <value>Σύνθεση απάντησης</value>
   </data>
@@ -161,5 +188,11 @@
   </data>
   <data name="StepRetriever" xml:space="preserve">
     <value>Ανάκτηση σχετικού περιεχομένου</value>
+  </data>
+  <data name="VerificationFailedMaxAttempts" xml:space="preserve">
+    <value>Η επαλήθευση απέτυχε. Συμπληρώθηκε ο μέγιστος αριθμός των {0} προσπαθειών. Παρακαλούμε δοκιμάστε ξανά αργότερα.</value>
+  </data>
+  <data name="VerificationFailedRetry" xml:space="preserve">
+    <value>Τα στοιχεία που δώσατε δεν ταιριάζουν με τα αρχεία μας. Προσπάθεια {0} από {1}. Παρακαλούμε δοκιμάστε ξανά.</value>
   </data>
 </root>

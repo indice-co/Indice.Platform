@@ -86,12 +86,13 @@ export function partKind(contentType: string | undefined): PartKind {
  * discipline `chat-stream.service.ts` applies to unknown SSE frame types.
  */
 export function HitlControlResolver(name: string | undefined): PartKind {
+  console.log(`HitlControlResolver: ${name}`);
   switch (name) {
-    case 'OwnershipVerificationRequestPort':
-      console.log('HitlControlResolver: hitl-request');
-      return 'hitl-request';
-    default:
+    case 'OtpRequest':
       return 'hitl-request-otp';
+    default:
+      return 'hitl-request';
+
   }
 }
 

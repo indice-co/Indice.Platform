@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import { assistantName, brandLogo } from '../../core/models/brand';
 import { ChatCitationsComponent } from './chat-citations.component';
 import { ChatMessagePartComponent } from './chat-message-part.component';
 import { ThreadMessage } from './chat.models';
@@ -53,8 +54,8 @@ import { isTextPart } from './parts/part-contracts';
               } @else {
                 <div class="group dex-rise flex gap-3">
                   <img
-                    src="dex-logo.png"
-                    alt="Dex"
+                    [src]="logo()"
+                    [alt]="assistantName"
                     class="mt-0.5 size-8 shrink-0 rounded-full ring-1 ring-base-300"
                   />
                   <div class="min-w-0 flex-1">
@@ -141,8 +142,8 @@ import { isTextPart } from './parts/part-contracts';
             @if (streaming()) {
               <div class="dex-rise flex gap-3">
                 <img
-                  src="dex-logo.png"
-                  alt="Dex"
+                  [src]="logo()"
+                  [alt]="assistantName"
                   class="mt-0.5 size-8 shrink-0 rounded-full ring-1 ring-base-300"
                 />
                 <div class="min-w-0 flex-1">
@@ -187,6 +188,11 @@ import { isTextPart } from './parts/part-contracts';
   `,
 })
 export class ChatThreadComponent {
+  /** Brand mark of the active theme, used as the assistant avatar. */
+  protected readonly logo = brandLogo;
+  /** Display name of the assistant. */
+  protected readonly assistantName = assistantName;
+
   readonly messages = input<ThreadMessage[]>([]);
   readonly streaming = input(false);
   readonly streamingMessage = input<ThreadMessage | null>(null);
