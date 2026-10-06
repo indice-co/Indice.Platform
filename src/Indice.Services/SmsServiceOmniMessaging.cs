@@ -108,7 +108,7 @@ public sealed class SmsServiceOmniMessaging : ISmsService
             senderId!,
             recipients,
             body,
-            Options.ViberFallbackEnabled,
+            Options.Channel,
             Options.ViberValidity,
             Options.SmsValidity,
             Options.UseUtf8);
@@ -173,8 +173,14 @@ public sealed class SmsServiceOmniMessaging : ISmsService
     /// otherwise, <see langword="false"/>.
     /// </returns>
     public bool Supports(string deliveryChannel) =>
-        "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase) ||
-        ("SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase) && Options.ViberFallbackEnabled);
+        Options.Channel switch {
+            SmsServiceOmniMessagingMode.SmsOnly => "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase),
+            SmsServiceOmniMessagingMode.ViberOnly => "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase),
+            SmsServiceOmniMessagingMode.ViberWithSmsFallback =>
+                "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase) ||
+                "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase),
+            _ => false
+    };
 
     /// <summary>
     /// Gets the JSON serializer options used for Omni requests and responses.
@@ -184,6 +190,27 @@ public sealed class SmsServiceOmniMessaging : ISmsService
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
+}
+
+/// <summary>
+/// Specifies the delivery mode used by the Omni messaging service.
+/// </summary>
+public enum SmsServiceOmniMessagingMode
+{
+    /// <summary>
+    /// Sends the message using SMS only.
+    /// </summary>
+    SmsOnly,
+
+    /// <summary>
+    /// Sends the message using Viber only.
+    /// </summary>
+    ViberOnly,
+
+    /// <summary>
+    /// Sends the message using Viber with SMS fallback.
+    /// </summary>
+    ViberWithSmsFallback
 }
 
 /// <summary>
@@ -207,9 +234,9 @@ public sealed class SmsServiceOmniMessagingSettings
     public string? Sender { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether SMS fallback is enabled when Viber delivery fails.
+    /// Gets or sets the primary messaging channel preference.
     /// </summary>
-    public bool ViberFallbackEnabled { get; set; }
+    public SmsServiceOmniMessagingMode Channel { get; set; } = SmsServiceOmniMessagingMode.SmsOnly;
 
     /// <summary>
     /// Gets or sets the Viber message validity period in seconds.
@@ -256,51 +283,59 @@ internal sealed class SmsServiceOmniRequest
     /// Creates an Omni campaign request.
     /// </summary>
     public static SmsServiceOmniRequest Create(
-        string sender,
-        string[] recipients,
-        string message,
-        bool viberFallbackEnabled,
-        int viberValidity,
-        int smsValidity,
-        bool useUtf8) {
-            return new SmsServiceOmniRequest {
-                Name = sender,
-                Recipients = recipients
-                    .Select(phoneNumber => new OmniRecipient {
-                        UniqueId = phoneNumber,
-                        Mobile = phoneNumber
-                    })
-                    .ToList(),
-                Content = new OmniContent {
-                    Sms = new OmniSms {
+    string sender,
+    string[] recipients,
+    string message,
+    SmsServiceOmniMessagingMode mode,
+    int viberValidity,
+    int smsValidity,
+    bool useUtf8) {
+        var useSms = mode is SmsServiceOmniMessagingMode.SmsOnly or SmsServiceOmniMessagingMode.ViberWithSmsFallback;
+        var useViber = mode is SmsServiceOmniMessagingMode.ViberOnly or SmsServiceOmniMessagingMode.ViberWithSmsFallback;
+        var useFallback = mode is SmsServiceOmniMessagingMode.ViberWithSmsFallback;
+
+        return new SmsServiceOmniRequest {
+            Name = sender,
+            Recipients = recipients
+                .Select(phoneNumber => new OmniRecipient {
+                    UniqueId = phoneNumber,
+                    Mobile = phoneNumber
+                })
+                .ToList(),
+            Content = new OmniContent {
+                Sms = useSms
+                    ? new OmniSms {
                         From = sender,
                         Text = message,
-                        Charset = (useUtf8) ? "UTF-8" : "GSM"
-                    },
-                    Viber = viberFallbackEnabled
-                        ? new OmniViber {
-                            Message = new OmniViberMessage {
-                                Text = message,
-                            }
+                        Charset = useUtf8 ? "UTF8" : "GSM"
+                    }
+                    : null,
+                Viber = useViber
+                    ? new OmniViber {
+                        Message = new OmniViberMessage {
+                            Text = message
+                        }
+                    }
+                    : null
+            },
+            Scheduling = new OmniScheduling {
+                Channels = new OmniSchedulingChannels {
+                    Sms = useSms
+                        ? new OmniChannelScheduling {
+                            TimePeriod = smsValidity
+                        }
+                        : null,
+                    Viber = useViber
+                        ? new OmniChannelScheduling {
+                            TimePeriod = viberValidity
                         }
                         : null
                 },
-                Scheduling = new OmniScheduling {
-                    Channels = new OmniSchedulingChannels {
-                        Sms = new OmniChannelScheduling {
-                            TimePeriod = smsValidity
-                        },
-                        Viber = viberFallbackEnabled
-                            ? new OmniChannelScheduling {
-                                TimePeriod = viberValidity
-                            }
-                            : null
-                    },
-                    Fallback = viberFallbackEnabled
-                        ? ["viber", "sms"]
-                        : null
-                }
-            };
+                Fallback = useFallback
+                    ? ["viber", "sms"]
+                    : null
+            }
+        };
     }
 
     /// <summary>
@@ -343,7 +378,7 @@ internal sealed class OmniRecipient
 internal sealed class OmniContent
 {
     [JsonPropertyName("sms")]
-    public required OmniSms Sms { get; set; }
+    public OmniSms? Sms { get; set; }
 
     [JsonPropertyName("viber")]
     public OmniViber? Viber { get; set; }
@@ -408,9 +443,7 @@ internal sealed class SmsServiceOmniResponse
     public string? CampaignId { get; set; }
 
     [JsonPropertyName("request_id")]
-    public string? RequestId { get; set; }
-
-    public JsonElement? Data { get; set; }
+    public long? RequestId { get; set; }
 
     public string? GetCampaignId() {
         if (!string.IsNullOrWhiteSpace(Id)) {
@@ -421,24 +454,7 @@ internal sealed class SmsServiceOmniResponse
             return CampaignId;
         }
 
-        if (!string.IsNullOrWhiteSpace(RequestId)) {
-            return RequestId;
-        }
-
-        if (Data is { ValueKind: JsonValueKind.Object } data) {
-            if (data.TryGetProperty("id", out var id) && id.ValueKind == JsonValueKind.String) {
-                return id.GetString();
-            }
-
-            if (data.TryGetProperty("campaign_id", out var campaignId) && campaignId.ValueKind == JsonValueKind.String) {
-                return campaignId.GetString();
-            }
-
-            if (data.TryGetProperty("request_id", out var requestId) && requestId.ValueKind == JsonValueKind.String) {
-                return requestId.GetString();
-            }
-        }
-
-        return null;
+        return RequestId?.ToString();
     }
 }
+
