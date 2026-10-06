@@ -28,6 +28,7 @@ public sealed class AnswerComposer : Executor<RerankOutput, GroundedAnswerOutput
     public AnswerComposer([FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, 
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
+        AgentIdentityAIContextProvider identityProvider,
         UserClaimsAIContextProvider userClaimsProvider,
         ConversationStoreChatHistoryProvider historyProvider) : base("AnswerComposer") {
         _options = options.Value;
@@ -40,7 +41,7 @@ public sealed class AnswerComposer : Executor<RerankOutput, GroundedAnswerOutput
         _agent = chatClient.AsAIAgent(
                 options: new ChatClientAgentOptions() {
                     ChatOptions = chatOptions,
-                    AIContextProviders = [userClaimsProvider],
+                    AIContextProviders = [identityProvider, userClaimsProvider],
                     Name = "DexAnswerComposer",
                     ChatHistoryProvider = historyProvider,
                     // Chat completions is stateless; the M.E.AI OpenAI client echoes the request ConversationId onto
