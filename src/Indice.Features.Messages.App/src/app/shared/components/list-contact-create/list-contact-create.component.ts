@@ -114,7 +114,7 @@ export class ListContactCreateComponent implements AfterViewInit {
     }
     (<any>contact)._edit = true;
     this.contactsCombobox.selectedItems.unshift(contact);
-    this.isLoading = true;
+    this.isLoading = false;
   }
 
   public submit(): void {

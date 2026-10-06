@@ -1,4 +1,4 @@
-import { Component, EventEmitter, forwardRef, Inject, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Inject, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { APP_LANGUAGES, MenuOption } from '@indice/ng-components';
 import { AppLanguagesService } from '../../services/app-languages.service';
