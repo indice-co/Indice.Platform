@@ -393,7 +393,7 @@ internal sealed class OmniSms
     public required string Text { get; init; }
 
     [JsonPropertyName("charset")]
-    public string Charset { get; init; }
+    public required string Charset { get; init; }
 }
 
 internal sealed class OmniViber
