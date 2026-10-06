@@ -16,7 +16,6 @@
   --idui-color-success: #1e7e34;
   --idui-color-danger: #d2232a;
   --idui-color-warning: #b26a00;
-  --idui-color-info: #1f6f7c;
   --idui-color-focus: #1f6f7c;
   --idui-color-on-dark: #ffffff;
   --idui-font-family: Gotham Greek, Segoe UI, system-ui, -apple-system, Roboto, Helvetica Neue, Arial, sans-serif;
@@ -329,30 +328,15 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
 }
 
 h1, .h1 {
-  font-size: calc(1.3375rem + 1.05vw);
-}
-@media (min-width: 1200px) {
-  h1, .h1 {
-    font-size: 2.125rem;
-  }
+  font-size: clamp(1.625rem, 1.3rem + 1.1vw, 2.125rem);
 }
 
 h2, .h2 {
-  font-size: calc(1.3rem + 0.6vw);
-}
-@media (min-width: 1200px) {
-  h2, .h2 {
-    font-size: 1.75rem;
-  }
+  font-size: clamp(1.375rem, 1.15rem + 0.8vw, 1.75rem);
 }
 
 h3, .h3 {
-  font-size: calc(1.2625rem + 0.15vw);
-}
-@media (min-width: 1200px) {
-  h3, .h3 {
-    font-size: 1.375rem;
-  }
+  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
 }
 
 h4, .h4 {
@@ -8410,15 +8394,15 @@ textarea.form-control-lg {
 }
 
 .fs-1 {
-  font-size: calc(1.3375rem + 1.05vw) !important;
+  font-size: clamp(1.625rem, 1.3rem + 1.1vw, 2.125rem) !important;
 }
 
 .fs-2 {
-  font-size: calc(1.3rem + 0.6vw) !important;
+  font-size: clamp(1.375rem, 1.15rem + 0.8vw, 1.75rem) !important;
 }
 
 .fs-3 {
-  font-size: calc(1.2625rem + 0.15vw) !important;
+  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem) !important;
 }
 
 .fs-4 {
@@ -12030,17 +12014,6 @@ textarea.form-control-lg {
   }
   .text-xxl-center {
     text-align: center !important;
-  }
-}
-@media (min-width: 1200px) {
-  .fs-1 {
-    font-size: 2.125rem !important;
-  }
-  .fs-2 {
-    font-size: 1.75rem !important;
-  }
-  .fs-3 {
-    font-size: 1.375rem !important;
   }
 }
 @media print {

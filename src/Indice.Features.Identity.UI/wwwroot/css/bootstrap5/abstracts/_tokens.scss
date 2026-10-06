@@ -86,7 +86,9 @@ $radius-pill: 50rem !default;
 $shadow-card: 0 12px 32px rgba(17, 24, 39, .10) !default;
 $shadow-panel: 0 24px 64px rgba(0, 0, 0, .25) !default;
 $shadow-menu: 0 8px 24px rgba(0, 0, 0, .12) !default;
-$shadow-focus: 0 0 0 .2rem rgba($color-focus, .35) !default;
+$focus-ring-width: .2rem !default;
+$focus-ring-color: rgba($color-focus, .35) !default;
+$shadow-focus: 0 0 0 $focus-ring-width $focus-ring-color !default;
 
 // -----------------------------------------------------------------------------
 // Layout
@@ -116,7 +118,6 @@ $z-header: 1030 !default;
 $z-ribbon: 1040 !default;
 $z-skip-link: 2000 !default;
 $transition-fast: .15s ease !default;
-$transition-base: .25s ease !default;
 
 // =============================================================================
 // Runtime custom properties. Defaults come from the Sass tokens above; a theme
@@ -140,7 +141,6 @@ $transition-base: .25s ease !default;
     --idui-color-success: #{$color-success};
     --idui-color-danger: #{$color-danger};
     --idui-color-warning: #{$color-warning};
-    --idui-color-info: #{$color-info};
     --idui-color-focus: #{$color-focus};
     --idui-color-on-dark: #{$color-on-dark};
 

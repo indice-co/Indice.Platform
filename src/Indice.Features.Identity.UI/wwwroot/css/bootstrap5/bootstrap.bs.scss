@@ -2,6 +2,7 @@
 // Bootstrap 5 build for the Identity UI. Design tokens are mapped onto Bootstrap's
 // Sass variables here, before Bootstrap's own `!default` declarations are loaded.
 // =============================================================================
+@use 'sass:map';
 @use 'abstracts/tokens' as t;
 
 @import 'bootstrap/scss/functions';
@@ -40,9 +41,9 @@ $line-height-base: t.$line-height-base;
 $headings-font-weight: t.$font-weight-normal;
 $headings-color: t.$color-ink;
 $headings-line-height: t.$line-height-tight;
-$h1-font-size: 2.125rem;
-$h2-font-size: 1.75rem;
-$h3-font-size: 1.375rem;
+$h1-font-size: t.$font-size-h1;
+$h2-font-size: t.$font-size-h2;
+$h3-font-size: t.$font-size-h3;
 $h4-font-size: 1.125rem;
 $h5-font-size: 1rem;
 $h6-font-size: .875rem;
@@ -54,11 +55,11 @@ $border-radius-sm: t.$radius-sm;
 $border-radius-lg: t.$radius-lg;
 $border-radius-xl: t.$radius-xl;
 $border-radius-pill: t.$radius-pill;
-$focus-ring-width: .2rem;
-$focus-ring-color: rgba(t.$color-focus, .35);
+$focus-ring-width: t.$focus-ring-width;
+$focus-ring-color: t.$focus-ring-color;
 
 // ---- Grid --------------------------------------------------------------------
-$grid-breakpoints: (xs: 0, sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl: 1440px);
+$grid-breakpoints: map.merge((xs: 0), t.$breakpoints);
 $container-max-widths: (sm: 540px, md: 720px, lg: 960px, xl: 1140px, xxl: 1320px);
 
 // ---- Forms -------------------------------------------------------------------
