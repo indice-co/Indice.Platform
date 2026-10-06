@@ -1269,4 +1269,37 @@
   <data name="Email_ConfirmYourEmail_OtpCode" xml:space="preserve">
     <value>Χρησιμοποιήστε τον παρακάτω κωδικό για να επιβεβαιώσετε τη διεύθυνση email σας:</value>
   </data>
+  <data name="MfaOnBoardingComplete_PageTitle" xml:space="preserve">
+    <value>Ολοκλήρωση ρύθμισης</value>
+  </data>
+  <data name="MfaOnBoardingComplete_PageHeader" xml:space="preserve">
+    <value>Όλα έτοιμα</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Message" xml:space="preserve">
+    <value>Ο έλεγχος ταυτότητας πολλαπλών παραγόντων είναι πλέον ενεργός για τον λογαριασμό σας.</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Destination" xml:space="preserve">
+    <value>Οι κωδικοί επαλήθευσης θα αποστέλλονται στο {0}.</value>
+  </data>
+  <data name="MfaOnBoardingComplete_NextSignIn" xml:space="preserve">
+    <value>Την επόμενη φορά που θα συνδεθείτε, θα σας ζητηθεί κωδικός επαλήθευσης.</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Continue" xml:space="preserve">
+    <value>Συνέχεια</value>
+  </data>
+  <data name="MfaOnBoardingComplete_MethodLabel" xml:space="preserve">
+    <value>Μέθοδος ελέγχου ταυτότητας</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Method_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Method_PhoneNumber" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Method_AuthenticatorApp" xml:space="preserve">
+    <value>Εφαρμογή ελέγχου ταυτότητας</value>
+  </data>
+  <data name="MfaOnBoardingComplete_AuthenticatorHint" xml:space="preserve">
+    <value>Χρησιμοποιήστε τον κωδικό από την εφαρμογή ελέγχου ταυτότητας όταν συνδέεστε.</value>
+  </data>
 </root>

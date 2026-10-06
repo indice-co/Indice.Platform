@@ -1269,4 +1269,37 @@
   <data name="Email_ConfirmYourEmail_OtpCode" xml:space="preserve">
     <value>次のコードを使用してメールアドレスを確認してください:</value>
   </data>
+  <data name="MfaOnBoardingComplete_PageTitle" xml:space="preserve">
+    <value>セットアップ完了</value>
+  </data>
+  <data name="MfaOnBoardingComplete_PageHeader" xml:space="preserve">
+    <value>準備が整いました</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Message" xml:space="preserve">
+    <value>お客様のアカウントで多要素認証が有効になりました。</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Destination" xml:space="preserve">
+    <value>確認コードは {0} に送信されます。</value>
+  </data>
+  <data name="MfaOnBoardingComplete_NextSignIn" xml:space="preserve">
+    <value>次回サインイン時に確認コードの入力が求められます。</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Continue" xml:space="preserve">
+    <value>続行</value>
+  </data>
+  <data name="MfaOnBoardingComplete_MethodLabel" xml:space="preserve">
+    <value>認証方法</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Method_Email" xml:space="preserve">
+    <value>メール</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Method_PhoneNumber" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Method_AuthenticatorApp" xml:space="preserve">
+    <value>認証アプリ</value>
+  </data>
+  <data name="MfaOnBoardingComplete_AuthenticatorHint" xml:space="preserve">
+    <value>サインイン時に認証アプリのコードを使用してください。</value>
+  </data>
 </root>

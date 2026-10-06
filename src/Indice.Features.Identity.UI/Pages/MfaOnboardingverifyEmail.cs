@@ -70,11 +70,11 @@ public abstract class BaseMfaOnboardingVerifyEmailModel : BasePageModel
         if (result) {
             user.EmailConfirmed = true;
             await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.Email.ToString());
-            tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyEmailSuccessMessage);
-        } else {
-            //TODO:Add new error mesage
-            tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail);
+            TempData.Put(BaseMfaOnboardingCompleteModel.TempDataKey, MfaOnboardingCompleteViewModel.Create(AuthenticationMethodType.Email, user.Email, Input.ReturnUrl ?? returnUrl));
+            return RedirectToPage("/MfaOnboardingComplete", routeValues: new { returnUrl = Input.ReturnUrl ?? returnUrl });
         }
+        //TODO:Add new error mesage
+        tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail);
         TempData.Put(TempDataKey, tempDataModel);
         return Page();
     }

@@ -80,9 +80,9 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
             return Page();
         }
         
-        TempData.Put(TempDataKey, AlertModel.Success(UserManager.MessageDescriber.MfaAddPhoneSuccessMessage));
-        View.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
-        return Page();
+        TempData.Remove(TempDataKey);
+        TempData.Put(BaseMfaOnboardingCompleteModel.TempDataKey, MfaOnboardingCompleteViewModel.Create(Core.Models.AuthenticationMethodType.PhoneNumber, user.PhoneNumber, Input.ReturnUrl ?? returnUrl));
+        return RedirectToPage("/MfaOnboardingComplete", routeValues: new { returnUrl = Input.ReturnUrl ?? returnUrl });
     }
 }
 

@@ -69,12 +69,11 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
         var result = await UserManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, Input.Code!);
         if (result.Succeeded) {
             await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.PhoneNumber.ToString());
-            tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyPhoneSuccessMessage);
-        } else {
-            //TODO: error message
-            tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone);
+            TempData.Put(BaseMfaOnboardingCompleteModel.TempDataKey, MfaOnboardingCompleteViewModel.Create(AuthenticationMethodType.PhoneNumber, user.PhoneNumber, Input.ReturnUrl ?? returnUrl));
+            return RedirectToPage("/MfaOnboardingComplete", routeValues: new { returnUrl = Input.ReturnUrl ?? returnUrl });
         }
-        
+        //TODO: error message
+        tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone);
         TempData.Put(TempDataKey, tempDataModel);
         return Page();
     }

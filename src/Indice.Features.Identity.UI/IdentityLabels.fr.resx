@@ -1270,4 +1270,37 @@
   <data name="Email_ConfirmYourEmail_OtpCode" xml:space="preserve">
     <value>Utilisez le code suivant pour vérifier votre adresse e-mail :</value>
   </data>
+  <data name="MfaOnBoardingComplete_PageTitle" xml:space="preserve">
+    <value>Configuration terminée</value>
+  </data>
+  <data name="MfaOnBoardingComplete_PageHeader" xml:space="preserve">
+    <value>Tout est prêt</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Message" xml:space="preserve">
+    <value>L'authentification multifacteur est désormais activée pour votre compte.</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Destination" xml:space="preserve">
+    <value>Les codes de vérification seront envoyés à {0}.</value>
+  </data>
+  <data name="MfaOnBoardingComplete_NextSignIn" xml:space="preserve">
+    <value>Un code de vérification vous sera demandé lors de votre prochaine connexion.</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Continue" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="MfaOnBoardingComplete_MethodLabel" xml:space="preserve">
+    <value>Méthode d'authentification</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Method_Email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Method_PhoneNumber" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="MfaOnBoardingComplete_Method_AuthenticatorApp" xml:space="preserve">
+    <value>Application d'authentification</value>
+  </data>
+  <data name="MfaOnBoardingComplete_AuthenticatorHint" xml:space="preserve">
+    <value>Utilisez le code de votre application d'authentification lorsque vous vous connectez.</value>
+  </data>
 </root>

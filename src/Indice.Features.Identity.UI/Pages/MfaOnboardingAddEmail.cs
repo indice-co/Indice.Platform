@@ -79,9 +79,9 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
             return Page();
         }
 
-        TempData.Put(TempDataKey, AlertModel.Success(UserManager.MessageDescriber.MfaAddEmailSuccessMessage));
-        View.EmailConfirmed = user.EmailConfirmed;
-        return Page();
+        TempData.Remove(TempDataKey);
+        TempData.Put(BaseMfaOnboardingCompleteModel.TempDataKey, MfaOnboardingCompleteViewModel.Create(AuthenticationMethodType.Email, user.Email, Input.ReturnUrl ?? returnUrl));
+        return RedirectToPage("/MfaOnboardingComplete", routeValues: new { returnUrl = Input.ReturnUrl ?? returnUrl });
     }
 }
 

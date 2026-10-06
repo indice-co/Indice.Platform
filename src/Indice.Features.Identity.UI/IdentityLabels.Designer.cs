@@ -2122,6 +2122,105 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Setup complete.
+        /// </summary>
+        public static string MfaOnBoardingComplete_PageTitle {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingComplete_PageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Authentication method.
+        /// </summary>
+        public static string MfaOnBoardingComplete_MethodLabel {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingComplete_MethodLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Email.
+        /// </summary>
+        public static string MfaOnBoardingComplete_Method_Email {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingComplete_Method_Email", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SMS.
+        /// </summary>
+        public static string MfaOnBoardingComplete_Method_PhoneNumber {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingComplete_Method_PhoneNumber", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Authenticator app.
+        /// </summary>
+        public static string MfaOnBoardingComplete_Method_AuthenticatorApp {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingComplete_Method_AuthenticatorApp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use the code from your authenticator app when you sign in..
+        /// </summary>
+        public static string MfaOnBoardingComplete_AuthenticatorHint {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingComplete_AuthenticatorHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You're all set.
+        /// </summary>
+        public static string MfaOnBoardingComplete_PageHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingComplete_PageHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Multi-factor authentication is now enabled for your account..
+        /// </summary>
+        public static string MfaOnBoardingComplete_Message {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingComplete_Message", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verification codes will be sent to {0}..
+        /// </summary>
+        public static string MfaOnBoardingComplete_Destination {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingComplete_Destination", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You will be asked for a verification code the next time you sign in..
+        /// </summary>
+        public static string MfaOnBoardingComplete_NextSignIn {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingComplete_NextSignIn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Continue.
+        /// </summary>
+        public static string MfaOnBoardingComplete_Continue {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingComplete_Continue", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Next.
         /// </summary>
         public static string MfaOnBoardingAddEmail_Next {

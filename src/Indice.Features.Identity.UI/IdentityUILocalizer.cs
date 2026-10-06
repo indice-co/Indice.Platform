@@ -832,6 +832,43 @@ public class IdentityUILocalizer
 
     #endregion
 
+    #region MfaOnBoardingComplete
+
+    /// <summary>Gets the localized string for "Setup complete".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_PageTitle => new HtmlString(IdentityLabels.MfaOnBoardingComplete_PageTitle);
+
+    /// <summary>Gets the localized string for "You're all set".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_PageHeader => new HtmlString(IdentityLabels.MfaOnBoardingComplete_PageHeader);
+
+    /// <summary>Gets the localized string for "Multi-factor authentication is now enabled for your account.".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_Message => new HtmlString(IdentityLabels.MfaOnBoardingComplete_Message);
+
+    /// <summary>Gets the localized format string for the destination note (with {0} placeholder for the masked email/phone).</summary>
+    public virtual HtmlString MfaOnBoardingComplete_Destination(string maskedDestination) => new HtmlString(string.Format(IdentityLabels.MfaOnBoardingComplete_Destination, System.Net.WebUtility.HtmlEncode(maskedDestination)));
+
+    /// <summary>Gets the localized string for "You will be asked for a verification code the next time you sign in.".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_NextSignIn => new HtmlString(IdentityLabels.MfaOnBoardingComplete_NextSignIn);
+
+    /// <summary>Gets the localized string for "Continue".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_Continue => new HtmlString(IdentityLabels.MfaOnBoardingComplete_Continue);
+
+    /// <summary>Gets the localized string for "Authentication method".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_MethodLabel => new HtmlString(IdentityLabels.MfaOnBoardingComplete_MethodLabel);
+
+    /// <summary>Gets the localized string for "Use the code from your authenticator app when you sign in.".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_AuthenticatorHint => new HtmlString(IdentityLabels.MfaOnBoardingComplete_AuthenticatorHint);
+
+    /// <summary>Gets the localized display name of the given authentication method.</summary>
+    /// <param name="method">The authentication method.</param>
+    public virtual HtmlString MfaOnBoardingComplete_MethodName(Indice.Features.Identity.Core.Models.AuthenticationMethodType method) => new HtmlString(method switch {
+        Indice.Features.Identity.Core.Models.AuthenticationMethodType.Email => IdentityLabels.MfaOnBoardingComplete_Method_Email,
+        Indice.Features.Identity.Core.Models.AuthenticationMethodType.PhoneNumber => IdentityLabels.MfaOnBoardingComplete_Method_PhoneNumber,
+        Indice.Features.Identity.Core.Models.AuthenticationMethodType.AuthenticatorApp => IdentityLabels.MfaOnBoardingComplete_Method_AuthenticatorApp,
+        _ => method.ToString()
+    });
+
+    #endregion
+
     #region MfaOnBoardingAddEmail
 
     /// <summary>

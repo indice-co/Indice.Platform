@@ -189,9 +189,40 @@
             user-select: all;
         }
     }
+
+    // Chosen method summary shown on the onboarding completion page.
+    &__method {
+        margin: 0 0 t.$space-4;
+        padding: t.$space-3 t.$space-4;
+        border: 1px solid var(--idui-color-border);
+        border-radius: var(--idui-radius);
+        background: var(--idui-color-surface-muted);
+        color: var(--idui-color-text);
+    }
+
+    &__method-title {
+        margin: 0 0 t.$space-1;
+        font-size: t.$font-size-lg;
+        font-weight: t.$font-weight-medium;
+    }
+
+    &__method-name {
+        color: var(--idui-color-text-muted);
+    }
+
+    &__method-detail {
+        margin: 0;
+        font-size: t.$font-size-sm;
+    }
+
+    &__hint {
+        margin: 0 0 t.$space-5;
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text-muted);
+    }
 }
 
-// Selectable option that submits (MFA channel switch): looks like a choice-list item.
+// Selectable option that submits
 .choice-list__button {
     display: flex;
     gap: t.$space-3;
