@@ -262,9 +262,7 @@ public class SmsTests
         var inMemorySettings = new Dictionary<string, string?> {
             ["Sms:ApiKey"] = apiKey,
             ["Sms:AccountId"] = accountId,
-            ["Sms:Sender"] = sender,
-            ["Sms:CampaignName"] = sender,
-            ["Sms:ViberFallbackEnabled"] = true.ToString()
+            ["Sms:Sender"] = sender
         };
 
         var configuration = new ConfigurationBuilder()
