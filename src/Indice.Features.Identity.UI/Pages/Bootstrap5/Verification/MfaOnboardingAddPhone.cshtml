@@ -13,9 +13,9 @@
     Layout = "_AuthLayout";
     ViewBag.Title = Localizer.MfaOnBoardingAddPhone_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddPhoneModel.TempDataKey);
-    var message = ((EnableMfaSmsViewModel)Model.View).PhoneNumberConfirmed ? UserManager.MessageDescriber.MfaAddPhoneValidationPhoneAlreadyConfirmed
+    var message = Model.View.PhoneNumberConfirmed ? UserManager.MessageDescriber.MfaAddPhoneValidationPhoneAlreadyConfirmed
             : UserManager.MessageDescriber.MfaAddPhoneValidationPhoneEmpty;
-    var buttonText = ((EnableMfaSmsViewModel)Model.View).PhoneNumberConfirmed ?
+    var buttonText = Model.View.PhoneNumberConfirmed ?
                 Localizer.MfaOnBoardingAddPhone_Next
                 : Localizer.MfaOnBoardingAddPhone_Save;
 }

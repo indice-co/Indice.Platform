@@ -12,11 +12,11 @@
     Layout = "_AuthLayout";
     ViewBag.Title = Localizer.MfaOnBoardingAddEmail_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddEmailModel.TempDataKey);
-    var message = ((EnableMfaEmailViewModel)Model.View).EmailConfirmed ?
+    var message = Model.View.EmailConfirmed ?
             UserManager.MessageDescriber.MfaAddEmailValidationEmailAlreadyConfirmed
             : UserManager.MessageDescriber.MfaAddEmailValidationEmailEmpty;
     var subTitle = new HtmlString(message);
-    var buttonText = ((EnableMfaEmailViewModel)Model.View).EmailConfirmed ?
+    var buttonText = Model.View.EmailConfirmed ?
             Localizer.MfaOnBoardingAddEmail_Next
             : Localizer.MfaOnBoardingAddEmail_Save;
 }
