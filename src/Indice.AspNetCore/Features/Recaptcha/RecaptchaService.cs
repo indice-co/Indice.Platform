@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Recaptcha;
 
-/// <summary>Service for validating Google reCAPTCHA tokens.</summary>
+/// <summary>Service for validating captcha tokens.</summary>
 /// <remarks>
 /// This service handles both v3 (invisible, score-based) and v2 (checkbox) validation.
 /// Typical flow:
@@ -36,11 +36,16 @@ public interface IRecaptchaService
 
     /// <summary>Gets the site key for v2.</summary>
     string? SiteKeyV2 { get; }
+
+    /// <summary>Gets the configured captcha provider.</summary>
+    CaptchaProviderType Provider { get; }
 }
 
 /// <summary>Implementation of the reCAPTCHA validation service.</summary>
-public class RecaptchaService : IRecaptchaService
-{
+public class RecaptchaService : IRecaptchaService {
+    private const string GoogleVerifyUrl = "https://www.google.com/recaptcha/api/siteverify";
+    private const string HCaptchaVerifyUrl = "https://api.hcaptcha.com/siteverify";
+
     private static readonly JsonSerializerOptions JsonOptions = new() {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         PropertyNameCaseInsensitive = true
@@ -61,7 +66,12 @@ public class RecaptchaService : IRecaptchaService
     }
 
     /// <inheritdoc/>
-    public bool IsEnabled => !string.IsNullOrWhiteSpace(_options.SiteKey) && !string.IsNullOrWhiteSpace(_options.SecretKey);
+    public CaptchaProviderType Provider => _options.Provider;
+
+    /// <inheritdoc/>
+    public bool IsEnabled => Provider != CaptchaProviderType.None
+                          && !string.IsNullOrWhiteSpace(_options.SiteKey)
+                          && !string.IsNullOrWhiteSpace(_options.SecretKey);
     /// <inheritdoc/>
     public bool IsEnabledInLogin => _options.EnabledInLoginPage;
     /// <inheritdoc/>
@@ -91,7 +101,12 @@ public class RecaptchaService : IRecaptchaService
 
         // Determine which version and use appropriate secret key
         var isV2 = string.Equals(version, "v2", StringComparison.OrdinalIgnoreCase);
-        var secretKey = isV2 ? _options.EffectiveSecretKeyV2 : _options.SecretKey;
+        var (secretKey, verifyUrl) = ResolveProviderSettings(isV2);
+
+        if (string.IsNullOrWhiteSpace(secretKey) || string.IsNullOrWhiteSpace(verifyUrl)) {
+            _logger.LogWarning("reCAPTCHA validation failed - provider not configured correctly.");
+            return new RecaptchaValidationResult { Success = false, Score = 0.0m };
+        }
 
         try {
             var httpClient = _httpClientFactory.CreateClient();
@@ -106,7 +121,7 @@ public class RecaptchaService : IRecaptchaService
             }
             using var content = new FormUrlEncodedContent(formData);
             var response = await httpClient.PostAsync(
-                "https://www.google.com/recaptcha/api/siteverify",
+                verifyUrl,
                 content,
                 cancellationToken
             );
@@ -123,7 +138,7 @@ public class RecaptchaService : IRecaptchaService
             var score = isV2 ? (result.Success ? 1.0m : 0.0m) : (decimal)result.Score;
 
             // v3 requires v2 fallback if score is below configured threshold
-            var requiresV2Fallback = !isV2 && result.Success && score < _options.ScoreThreshold;
+            var requiresV2Fallback = !isV2 && result.Success && ShouldRequireFallback(score);
 
             if (!result.Success) {
                 _logger.LogWarning("reCAPTCHA validation failed. Error codes: {ErrorCodes}",
@@ -153,6 +168,21 @@ public class RecaptchaService : IRecaptchaService
             _logger.LogError(ex, "Failed to parse reCAPTCHA validation response.");
             return new RecaptchaValidationResult { Success = false, Score = 0.0m };
         }
+    }
+
+    private (string? SecretKey, string? VerifyUrl) ResolveProviderSettings(bool isV2) {
+        return Provider switch {
+            CaptchaProviderType.Recaptcha => (isV2 ? _options.EffectiveSecretKeyV2 : _options.SecretKey, GoogleVerifyUrl),
+            CaptchaProviderType.HCaptcha => (isV2 ? _options.EffectiveSecretKeyV2 : _options.SecretKey, HCaptchaVerifyUrl),
+            _ => (null, null)
+        };
+    }
+
+    private bool ShouldRequireFallback(decimal score) {
+        if (Provider == CaptchaProviderType.HCaptcha) {
+            return score > _options.ScoreThreshold;
+        }
+        return score < _options.ScoreThreshold;
     }
 
     private sealed class GoogleRecaptchaResponse

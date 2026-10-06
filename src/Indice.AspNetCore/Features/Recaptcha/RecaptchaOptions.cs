@@ -6,6 +6,9 @@ public class RecaptchaOptions
     /// <summary>The configuration section name.</summary>
     public const string SectionName = "Recaptcha";
 
+    /// <summary>The captcha provider. Defaults to <see cref="CaptchaProviderType.None"/>.</summary>
+    public CaptchaProviderType Provider { get; set; } = CaptchaProviderType.None;
+
     /// <summary>The reCAPTCHA v3 site key.</summary>
     public string? SiteKey { get; set; }
 
@@ -29,4 +32,17 @@ public class RecaptchaOptions
 
     /// <summary>Whether to show the reCAPTCHA widget on the login page. Default is true.</summary>
     public bool EnabledInLoginPage { get; set; } = true;
+}
+
+/// <summary>Supported captcha providers.</summary>
+public enum CaptchaProviderType
+{
+    /// <summary>No provider configured.</summary>
+    None = 0,
+
+    /// <summary>ReCAPTCHA provider.</summary>
+    Recaptcha = 1,
+
+    /// <summary>hCaptcha provider.</summary>
+    HCaptcha = 2
 }

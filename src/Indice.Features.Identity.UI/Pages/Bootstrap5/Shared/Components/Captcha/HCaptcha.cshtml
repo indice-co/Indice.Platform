@@ -1,0 +1,202 @@
+@inject Indice.AspNetCore.Features.Recaptcha.IRecaptchaService CaptchaService
+@model RecaptchaViewModel
+@{
+    var isCaptchaEnabled = CaptchaService.IsEnabled;
+    var captchaSiteKey = CaptchaService.SiteKey;
+    var captchaSiteKeyV2 = CaptchaService.SiteKeyV2;
+    var showInForm = (Model.IsLoginForm && CaptchaService.IsEnabledInLogin) || !Model.IsLoginForm;
+}
+@if (isCaptchaEnabled && showInForm)
+{
+    <input type="hidden" id="recaptchaToken" name="Input.RecaptchaToken" />
+    <input type="hidden" id="recaptchaVersion" name="Input.RecaptchaVersion" value="v3" />
+
+    <div id="hcaptchaV3Container" style="display:none;">
+        <div id="hcaptchaV3"></div>
+    </div>
+
+    <div id="hcaptchaV2Container" class="mb-3" style="display: none;">
+        <div id="hcaptchaV2"></div>
+        <span id="hcaptchaV2Error" class="text-danger"></span>
+    </div>
+
+    <small class="text-muted d-block mt-2">
+        This site is protected by hCaptcha and its
+        <a href="https://www.hcaptcha.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+        and
+        <a href="https://www.hcaptcha.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+        apply.
+    </small>
+
+    <script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer csp-nonce></script>
+    <script csp-nonce="true">
+        document.addEventListener('DOMContentLoaded', function() {
+            const siteKey = '@Html.Raw(captchaSiteKey)';
+            const siteKeyV2 = '@Html.Raw(captchaSiteKeyV2)';
+            const form = document.getElementById('@Html.Raw(Model.FormId)');
+            const submitButton = document.getElementById('@Html.Raw(Model.ButtonId)');
+            const recaptchaTokenInput = document.getElementById('recaptchaToken');
+            const recaptchaVersionInput = document.getElementById('recaptchaVersion');
+            const hcaptchaV2Container = document.getElementById('hcaptchaV2Container');
+            const hcaptchaV2Error = document.getElementById('hcaptchaV2Error');
+
+            let v3WidgetId = null;
+            let v2WidgetId = null;
+            let isSubmitting = false;
+            let executeResolver = null;
+
+            function ensureV3Widget() {
+                if (v3WidgetId !== null || typeof hcaptcha === 'undefined') {
+                    return;
+                }
+                v3WidgetId = hcaptcha.render('hcaptchaV3', {
+                    sitekey: siteKey,
+                    size: 'invisible',
+                    callback: function(token) {
+                        if (executeResolver) {
+                            executeResolver(token);
+                            executeResolver = null;
+                        }
+                    },
+                    'error-callback': function() {
+                        if (executeResolver) {
+                            executeResolver(null);
+                            executeResolver = null;
+                        }
+                    },
+                    'expired-callback': function() {
+                        recaptchaTokenInput.value = '';
+                    }
+                });
+            }
+
+            async function executeCaptchaV3() {
+                ensureV3Widget();
+                if (v3WidgetId === null || typeof hcaptcha === 'undefined') {
+                    return null;
+                }
+
+                return await new Promise(function(resolve) {
+                    executeResolver = resolve;
+                    try {
+                        hcaptcha.execute(v3WidgetId);
+                    } catch (error) {
+                        executeResolver = null;
+                        resolve(null);
+                    }
+                });
+            }
+
+            function showCaptchaV2(v2Key) {
+                hcaptchaV2Container.style.display = 'block';
+                recaptchaVersionInput.value = 'v2';
+                const effectiveV2Key = v2Key || siteKeyV2 || siteKey;
+
+                if (v2WidgetId === null && typeof hcaptcha !== 'undefined') {
+                    v2WidgetId = hcaptcha.render('hcaptchaV2', {
+                        sitekey: effectiveV2Key,
+                        callback: function(token) {
+                            recaptchaTokenInput.value = token;
+                            hcaptchaV2Error.textContent = '';
+                        },
+                        'expired-callback': function() {
+                            recaptchaTokenInput.value = '';
+                            hcaptchaV2Error.textContent = 'hCaptcha expired. Please verify again.';
+                        },
+                        'error-callback': function() {
+                            hcaptchaV2Error.textContent = 'hCaptcha error. Please try again.';
+                        }
+                    });
+                }
+            }
+
+            async function validateCaptchaV3Token(token) {
+                try {
+                    const response = await fetch('/RecaptchaValidate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token: token, version: 'v3' })
+                    });
+
+                    if (!response.ok) {
+                        return { success: false, requiresV2: false };
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    console.error('hCaptcha validation error:', error);
+                    return { success: false, requiresV2: false };
+                }
+            }
+
+            form.addEventListener('submit', async function(e) {
+                if (isSubmitting) {
+                    return;
+                }
+
+                e.preventDefault();
+                submitButton.disabled = true;
+
+                if (hcaptchaV2Container.style.display !== 'none') {
+                    if (!recaptchaTokenInput.value) {
+                        hcaptchaV2Error.textContent = 'Please complete the hCaptcha verification.';
+                        submitButton.disabled = false;
+                        return;
+                    }
+
+                    isSubmitting = true;
+                    addButtonValueToForm();
+                    form.submit();
+                    return;
+                }
+
+                const token = await executeCaptchaV3();
+                if (!token) {
+                    submitButton.disabled = false;
+                    return;
+                }
+
+                const validationResult = await validateCaptchaV3Token(token);
+                if (!validationResult.success) {
+                    submitButton.disabled = false;
+                    return;
+                }
+
+                if (validationResult.requiresV2) {
+                    recaptchaTokenInput.value = '';
+                    showCaptchaV2(validationResult.siteKeyV2);
+                    submitButton.disabled = false;
+                    return;
+                }
+
+                recaptchaTokenInput.value = token;
+                isSubmitting = true;
+                addButtonValueToForm();
+                form.submit();
+            });
+
+            function addButtonValueToForm() {
+                if (!submitButton) {
+                    return;
+                }
+
+                const buttonName = submitButton.getAttribute('name');
+                if (!buttonName) {
+                    return;
+                }
+
+                const buttonValue = submitButton.getAttribute('value');
+                let buttonInput = form.querySelector('input[name="' + buttonName + '"]');
+                if (!buttonInput) {
+                    buttonInput = document.createElement('input');
+                    buttonInput.type = 'hidden';
+                    buttonInput.name = buttonName;
+                    if (buttonValue !== null) {
+                        buttonInput.value = buttonValue;
+                    }
+                    form.appendChild(buttonInput);
+                }
+            }
+        });
+    </script>
+}
