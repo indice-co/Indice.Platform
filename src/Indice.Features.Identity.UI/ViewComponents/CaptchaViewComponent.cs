@@ -17,10 +17,6 @@ public class CaptchaViewComponent : ViewComponent
 
     /// <summary>Renders captcha markup for a target form submit flow.</summary>
     public IViewComponentResult Invoke(string formId, string buttonId, string action, bool isLoginForm = false) {
-        var currentPath = ViewContext.View.Path;
-        var isTailwind = !string.IsNullOrWhiteSpace(currentPath) && currentPath.Contains("/Tailwind/", StringComparison.OrdinalIgnoreCase);
-        var framework = isTailwind ? "Tailwind" : "Bootstrap5";
-
         var showInForm = (isLoginForm && _recaptchaService.IsEnabledInLogin) || !isLoginForm;
         if (!_recaptchaService.IsEnabled || !showInForm) {
             return Content(string.Empty);

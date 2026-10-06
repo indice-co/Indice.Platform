@@ -211,7 +211,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "registerForm", ButtonId = "submitButton", Action = "register" }' />
+                <vc:captcha form-id="registerForm" button-id="submitButton" action="register" />
             </div>
         </div>
         <div class="row align-items-center">

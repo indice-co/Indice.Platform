@@ -66,6 +66,12 @@
                         executeResolver = null;
                     }
                 },
+                'close-callback': function() {
+                    if (executeResolver) {
+                        executeResolver(null);
+                        executeResolver = null;
+                    }
+                },
                 'expired-callback': function() {
                     recaptchaTokenInput.value = '';
                 }
