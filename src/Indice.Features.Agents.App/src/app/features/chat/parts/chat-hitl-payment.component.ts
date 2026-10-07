@@ -25,7 +25,7 @@ let nextGroupId = 0;
     @if (methods().length > 0) {
       <div class="flex flex-col items-start gap-3">
         <fieldset class="flex w-full max-w-xs flex-col gap-2" [disabled]="locked()" [class.opacity-60]="locked()">
-          <legend class="mb-2 text-sm text-base-content/70">{{ request()?.text || 'Choose a payment method' }}</legend>
+          <legend class="mb-2 text-sm text-base-content/70">{{ request()?.text || 'Επιλέξτε τρόπο πληρωμής' }}</legend>
           @for (method of methods(); track method) {
             <label
               class="flex cursor-pointer items-center gap-3 rounded-field border bg-base-100 px-4 py-2.5 text-sm
@@ -68,7 +68,7 @@ let nextGroupId = 0;
           }
         </fieldset>
         <button type="button" class="btn btn-primary btn-sm" [disabled]="locked() || !selected()" (click)="open()">
-          Pay
+          Πληρωμή
         </button>
       </div>
       <dialog #sheet class="modal" (close)="onClosed()">
