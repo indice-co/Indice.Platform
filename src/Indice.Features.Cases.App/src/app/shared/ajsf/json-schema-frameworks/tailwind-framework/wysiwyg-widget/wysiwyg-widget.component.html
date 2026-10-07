@@ -5,12 +5,12 @@
       [attr.for]="'control' + layoutNode?._id"
       [class]="options?.labelHtmlClass || ''"
       [style.display]="options?.notitle ? 'none' : ''"
-    [innerHTML]="options?.title"></label>
+    [innerHTML]="$safeNavigationMigration(options?.title)"></label>
   }
   @if (!options?.readonly) {
     <div class="mt-1 editor"
       >
-      <quill-editor [id]="'control' + layoutNode?._id"
+      <quill-editor [id]="'control' + $safeNavigationMigration(layoutNode?._id)"
         [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
         [attr.list]="'control' + layoutNode?._id + 'Autocomplete'"
         [attr.required]="options?.required"

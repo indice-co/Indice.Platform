@@ -19,7 +19,7 @@
       @if (options?.helpBlock) {
         <p
           class="help-block"
-        [innerHTML]="options?.helpBlock"></p>
+        [innerHTML]="$safeNavigationMigration(options?.helpBlock)"></p>
       }
     </div>
   }
@@ -29,7 +29,7 @@
       [attr.for]="'control' + layoutNode?._id"
       [class]="options?.labelHtmlClass || ''"
       [class.sr-only]="options?.notitle"
-    [innerHTML]="options?.title"></label>
+    [innerHTML]="$safeNavigationMigration(options?.title)"></label>
   }
   <!-- <p *ngIf="layoutNode?.type === 'submit' && jsf?.formOptions?.fieldsRequired">
   <strong class="text-danger">*</strong> = required fields
@@ -38,7 +38,7 @@
   @if (options?.fieldAddonLeft) {
     <span
       class="input-group-addon"
-    [innerHTML]="options?.fieldAddonLeft"></span>
+    [innerHTML]="$safeNavigationMigration(options?.fieldAddonLeft)"></span>
   }
 
   <select-widget-widget [layoutNode]="widgetLayoutNode"
@@ -48,7 +48,7 @@
   @if (options?.fieldAddonRight) {
     <span
       class="input-group-addon"
-    [innerHTML]="options?.fieldAddonRight"></span>
+    [innerHTML]="$safeNavigationMigration(options?.fieldAddonRight)"></span>
   }
 </div>
 
@@ -66,7 +66,7 @@
     @if (options?.helpBlock) {
       <p
         class="text-red-500 text-xs italic"
-      [innerHTML]="options?.helpBlock"></p>
+      [innerHTML]="$safeNavigationMigration(options?.helpBlock)"></p>
     }
   </div>
 }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastType } from '@indice/ng-components';
 import { TranslateService } from '@ngx-translate/core';
@@ -11,6 +11,7 @@ import { TranslatedToasterService } from 'src/app/shared/services/translated-toa
 @Component({
     selector: 'app-case-detail-page',
     templateUrl: './case-detail-page.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseDetailPageComponent implements OnInit, OnDestroy {

@@ -1,5 +1,5 @@
 import { JsonSchemaFormService } from "@ajsf-extended/core";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
 import { ToastType } from "@indice/ng-components";
 import { tap } from "rxjs/operators";
@@ -9,6 +9,7 @@ import { TranslatedToasterService } from "src/app/shared/services/translated-toa
 
 @Component({
     templateUrl: './file-widget.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class FileWidgetComponent implements OnInit {

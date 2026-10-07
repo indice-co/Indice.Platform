@@ -4,7 +4,7 @@
       [attr.for]="'control' + layoutNode?._id"
       [class]="options?.labelHtmlClass || ''"
       [style.display]="options?.notitle ? 'none' : ''"
-    [innerHTML]="options?.title"></label>
+    [innerHTML]="$safeNavigationMigration(options?.title)"></label>
   }
   @if (boundControl) {
     <select
@@ -13,22 +13,22 @@
       [attr.readonly]="options?.readonly ? 'readonly' : null"
       [attr.required]="options?.required"
       [class]="options?.fieldHtmlClass || ''"
-      [id]="'control' + layoutNode?._id"
+      [id]="'control' + $safeNavigationMigration(layoutNode?._id)"
       [name]="controlName">
       @for (selectItem of selectList; track selectItem) {
-        @if (!isArray(selectItem?.items) && selectItem?.value) {
+        @if (!isArray($safeNavigationMigration(selectItem?.items)) && selectItem?.value) {
           <option
-            [value]="selectItem?.value">
-            <span [innerHTML]="selectItem?.value ? selectItem?.name : ''"></span>
+            [value]="$safeNavigationMigration(selectItem?.value)">
+            <span [innerHTML]="selectItem?.value ? $safeNavigationMigration(selectItem?.name) : ''"></span>
           </option>
         }
-        @if (isArray(selectItem?.items)) {
+        @if (isArray($safeNavigationMigration(selectItem?.items))) {
           <optgroup
-            [label]="selectItem?.group">
+            [label]="$safeNavigationMigration(selectItem?.group)">
             @for (subItem of selectItem.items; track subItem) {
               <option
-                [value]="subItem?.value">
-                <span [innerHTML]="subItem?.name"></span>
+                [value]="$safeNavigationMigration(subItem?.value)">
+                <span [innerHTML]="$safeNavigationMigration(subItem?.name)"></span>
               </option>
             }
           </optgroup>
@@ -43,25 +43,25 @@
       [attr.required]="options?.required"
       [class]="options?.fieldHtmlClass || ''"
       [disabled]="controlDisabled"
-      [id]="'control' + layoutNode?._id"
+      [id]="'control' + $safeNavigationMigration(layoutNode?._id)"
       [name]="controlName"
       (change)="updateValue($event)">
       @for (selectItem of selectList; track selectItem) {
-        @if (!isArray(selectItem?.items)) {
+        @if (!isArray($safeNavigationMigration(selectItem?.items))) {
           <option
             [selected]="selectItem?.value === controlValue"
-            [value]="selectItem?.value">
-            <span [innerHTML]="selectItem?.name"></span>
+            [value]="$safeNavigationMigration(selectItem?.value)">
+            <span [innerHTML]="$safeNavigationMigration(selectItem?.name)"></span>
           </option>
         }
-        @if (isArray(selectItem?.items)) {
+        @if (isArray($safeNavigationMigration(selectItem?.items))) {
           <optgroup
-            [label]="selectItem?.group">
+            [label]="$safeNavigationMigration(selectItem?.group)">
             @for (subItem of selectItem.items; track subItem) {
               <option
                 [attr.selected]="subItem?.value === controlValue"
-                [value]="subItem?.value">
-                <span [innerHTML]="subItem?.name"></span>
+                [value]="$safeNavigationMigration(subItem?.value)">
+                <span [innerHTML]="$safeNavigationMigration(subItem?.name)"></span>
               </option>
             }
           </optgroup>

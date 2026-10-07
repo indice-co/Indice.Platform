@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 
 import { MenuOption } from '@indice/ng-components';
 
 @Component({
     selector: 'lib-radio-buttons-list',
     templateUrl: './radio-buttons-list.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class RadioButtonsListComponent implements OnInit {

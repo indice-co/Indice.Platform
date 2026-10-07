@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { CasesApiService, CreateDraftCaseRequest, Contact, ContactMeta } from 'src/app/core/services/cases-api.service';
@@ -7,6 +7,7 @@ import { CasesApiService, CreateDraftCaseRequest, Contact, ContactMeta } from 's
     selector: 'app-case-create-page',
     templateUrl: './case-create-page.component.html',
     styleUrls: ['./case-create-page.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseCreatePageComponent implements OnInit {

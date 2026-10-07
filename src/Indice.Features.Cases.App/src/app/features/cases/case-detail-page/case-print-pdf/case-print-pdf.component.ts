@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { tap } from 'rxjs/operators';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 
@@ -6,6 +6,7 @@ import { CasesApiService } from 'src/app/core/services/cases-api.service';
     selector: 'app-case-print-pdf',
     templateUrl: './case-print-pdf.component.html',
     styleUrls: ['./case-print-pdf.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CasePrintPdfComponent implements OnInit {

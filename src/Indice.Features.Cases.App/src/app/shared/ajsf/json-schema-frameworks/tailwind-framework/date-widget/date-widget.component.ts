@@ -1,12 +1,13 @@
 import { MenuOption } from '@indice/ng-components';
 import { JsonSchemaFormService } from '@ajsf-extended/core';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import moment from 'moment';
 
 @Component({
     selector: 'app-date-widget',
     templateUrl: './date-widget.component.html',
     styleUrls: ['./date-widget.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DateWidgetComponent implements OnInit {

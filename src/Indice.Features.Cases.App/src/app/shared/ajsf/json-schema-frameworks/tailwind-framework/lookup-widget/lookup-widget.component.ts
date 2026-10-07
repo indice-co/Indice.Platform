@@ -1,5 +1,5 @@
 import { JsonSchemaFormService } from "@ajsf-extended/core";
-import { ChangeDetectorRef, Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Subject } from "rxjs";
 import { takeUntil, tap } from "rxjs/operators";
 import { LookupItemResultSet } from "src/app/core/services/cases-api.service";
@@ -9,6 +9,7 @@ import { LookupsService } from "src/app/core/services/lookups.service";
     selector: 'app-lookup-widget',
     templateUrl: './lookup-widget.component.html',
     styleUrls: ['./lookup-widget.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class LookupWidgetComponent implements OnInit, OnDestroy {

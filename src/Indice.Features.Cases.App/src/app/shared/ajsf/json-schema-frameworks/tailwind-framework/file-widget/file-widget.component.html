@@ -4,7 +4,7 @@
       [attr.for]="'control' + layoutNode?._id"
       [class]="options?.labelHtmlClass"
       [style.display]="options?.notitle ? 'none' : ''"
-    [innerHTML]="options?.title"></label>
+    [innerHTML]="$safeNavigationMigration(options?.title)"></label>
   }
   @if (!isGuid(controlValue!)) {
     @if (!options?.readonly) {
@@ -19,7 +19,7 @@
         [attr.required]="options?.required"
         [class]="options?.fieldHtmlClass"
         [disabled]="controlDisabled"
-        [id]="'control' + layoutNode?._id"
+        [id]="'control' + $safeNavigationMigration(layoutNode?._id)"
         [name]="controlName"
         [readonly]="options?.readonly ? 'readonly' : null"
         (change)="onFileSelect($event)">

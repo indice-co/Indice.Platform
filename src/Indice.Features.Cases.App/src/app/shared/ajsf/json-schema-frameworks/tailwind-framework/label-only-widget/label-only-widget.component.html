@@ -5,7 +5,7 @@
       [attr.for]="'control' + layoutNode?._id"
       [class]="options?.labelHtmlClass || ''"
       [style.display]="options?.notitle ? 'none' : ''"
-      [innerHTML]="options?.title">
+      [innerHTML]="$safeNavigationMigration(options?.title)">
     </h2>
   }
   @if (!options?.extraType?.includes('href')) {
@@ -16,7 +16,7 @@
   @if (options?.extraType?.includes('href')) {
     <a
       [href]="displayValue"
-      [title]="options?.title"
+      [title]="$safeNavigationMigration(options?.title)"
       [class]="options?.fieldHtmlClass || ''"
       target="_blank">
       {{ options?.linkText }}

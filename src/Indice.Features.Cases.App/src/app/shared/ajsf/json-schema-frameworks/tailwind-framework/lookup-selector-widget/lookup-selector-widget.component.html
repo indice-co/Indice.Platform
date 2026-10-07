@@ -4,7 +4,7 @@
       [attr.for]="'control' + layoutNode?._id"
       [class]="options?.labelHtmlClass || ''"
       [style.display]="options?.notitle ? 'none' : ''"
-    [innerHTML]="options?.title"></label>
+    [innerHTML]="$safeNavigationMigration(options?.title)"></label>
   }
   @if (selectList && selectList.length > 0 && formControl) {
     <select
@@ -14,13 +14,13 @@
       [attr.required]="options?.required"
       [class]="options?.fieldHtmlClass || ''"
       [disabled]="controlDisabled"
-      [id]="'control' + layoutNode?._id"
+      [id]="'control' + $safeNavigationMigration(layoutNode?._id)"
       [name]="controlName">
       @for (selectItem of selectList; track selectItem) {
-        @if (!isArray(selectItem?.items) && selectItem?.value) {
+        @if (!isArray($safeNavigationMigration(selectItem?.items)) && selectItem?.value) {
           <option
-            [value]="selectItem?.value">
-            <span [innerHTML]="selectItem?.value ? selectItem?.name : ''"></span>
+            [value]="$safeNavigationMigration(selectItem?.value)">
+            <span [innerHTML]="selectItem?.value ? $safeNavigationMigration(selectItem?.name) : ''"></span>
           </option>
         }
         <!-- <optgroup *ngIf="isArray(selectItem?.items)"

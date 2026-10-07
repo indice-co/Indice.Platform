@@ -1,5 +1,5 @@
 import { buildTitleMap, isArray, JsonSchemaFormService } from "@ajsf-extended/core";
-import { ChangeDetectorRef, Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { FilterClause } from "@indice/ng-components";
 import * as _ from "lodash";
 import { Subject } from "rxjs";
@@ -11,6 +11,7 @@ import { LookupsService } from "src/app/core/services/lookups.service";
 @Component({
     selector: 'app-lookup-selector-widget',
     templateUrl: './lookup-selector-widget.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class LookupSelectorWidgetComponent implements OnInit, OnDestroy {

@@ -1,10 +1,11 @@
 import { JsonSchemaFormService } from '@ajsf-extended/core';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     selector: 'app-text-area-widget',
     templateUrl: './text-area-widget.component.html',
     styleUrls: ['./text-area-widget.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TextAreaWidgetComponent implements OnInit {

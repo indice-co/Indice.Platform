@@ -1,10 +1,11 @@
 import { JsonSchemaFormService } from '@ajsf-extended/core';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     selector: 'app-wysiwyg-widget',
     templateUrl: './wysiwyg-widget.component.html',
     styleUrls: ['./wysiwyg-widget.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class WysiwygWidgetComponent implements OnInit {

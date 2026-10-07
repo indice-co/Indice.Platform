@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { buildTitleMap, isArray, JsonSchemaFormService } from '@ajsf-extended/core';
 
 @Component({
     selector: 'app-select-widget',
     templateUrl: './select-widget.component.html',
     styleUrls: ['./select-widget.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SelectWidgetComponent implements OnInit {

@@ -4,7 +4,7 @@
       [attr.for]="'control' + layoutNode?._id"
       [class]="options?.labelHtmlClass || ''"
       [style.display]="options?.notitle ? 'none' : ''"
-    [innerHTML]="options?.title"></label>
+    [innerHTML]="$safeNavigationMigration(options?.title)"></label>
   }
   @if (boundControl) {
     <input
@@ -20,15 +20,15 @@
     [attr.placeholder]="options?.placeholder"
     [attr.required]="options?.required"
     [disabled]="controlDisabled"
-    [id]="'input-control' + layoutNode?._id"
+    [id]="'input-control' + $safeNavigationMigration(layoutNode?._id)"
     [name]="'input' + controlName"
     [readonly]="options?.readonly ? 'readonly' : null"
-    [type]="layoutNode?.type"
+    [type]="$safeNavigationMigration(layoutNode?.type)"
     (input)="updateValue($event)"
     [(ngModel)]="formControl.value">
     @if (options?.typeahead?.source) {
       <datalist
-        [id]="'control' + layoutNode?._id + 'Autocomplete'">
+        [id]="'control' + $safeNavigationMigration(layoutNode?._id) + 'Autocomplete'">
         @for (word of options?.typeahead?.source; track word) {
           <option
             [value]="word">

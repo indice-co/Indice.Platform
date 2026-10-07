@@ -10,29 +10,29 @@
               <div class="bg-white shadow rounded-sm">
                 <app-case-detail-info [title]="'caseDetails.basicInfo' | translate"
                                                   [keyValuePairs]="{
-                                                    'caseDetails.caseId': model?.id,
-                                                    'caseDetails.referenceNumber': model?.referenceNumber?.toString(),
-                                                    'caseDetails.submitDate': model?.createdByWhen | date:'dd/MM/YYYY',
-                                                    'caseDetails.caseType':model?.caseType?.title,
-                                                    'caseDetails.channel':model?.channel,
+                                                    'caseDetails.caseId': $safeNavigationMigration(model?.id),
+                                                    'caseDetails.referenceNumber': $safeNavigationMigration(model?.referenceNumber?.toString()),
+                                                    'caseDetails.submitDate': $safeNavigationMigration(model?.createdByWhen) | date:'dd/MM/YYYY',
+                                                    'caseDetails.caseType':$safeNavigationMigration(model?.caseType?.title),
+                                                    'caseDetails.channel':$safeNavigationMigration(model?.channel),
                                                     'caseDetails.checkpoint':model?.checkpointType?.title ??model?.checkpointType?.code,
                                                     'caseDetails.assignedTo':model?.assignedToName || ' - '}">
                 </app-case-detail-info>
                 <app-case-detail-info [title]="'caseDetails.customerInfo' | translate"
                                                   [keyValuePairs]="{
-                                                    'caseDetails.customerId': model?.ownerId,
-                                                    'caseDetails.customerName': model?.ownerName,
-                                                    'caseDetails.taxId':model?.ownerTin,
-                                                    'caseDetails.groupId':model?.groupId}">
+                                                    'caseDetails.customerId': $safeNavigationMigration(model?.ownerId),
+                                                    'caseDetails.customerName': $safeNavigationMigration(model?.ownerName),
+                                                    'caseDetails.taxId':$safeNavigationMigration(model?.ownerTin),
+                                                    'caseDetails.groupId':$safeNavigationMigration(model?.groupId)}">
                 </app-case-detail-info>
                 @if (model?.metadata?.UserRole) {
                   <app-case-detail-info
                     [title]="'caseDetails.userInfo' | translate"
                                                   [keyValuePairs]="{
-                                                    'caseDetails.userSurname': model?.metadata?.UserSurname,
-                                                    'caseDetails.userFirstName': model?.metadata?.UserFirstName,
-                                                    'caseDetails.userRole':model?.metadata?.UserRole,
-                                                    'caseDetails.userCustomerId':model?.metadata?.UserCustomerId}">
+                                                    'caseDetails.userSurname': $safeNavigationMigration(model?.metadata?.UserSurname),
+                                                    'caseDetails.userFirstName': $safeNavigationMigration(model?.metadata?.UserFirstName),
+                                                    'caseDetails.userRole':$safeNavigationMigration(model?.metadata?.UserRole),
+                                                    'caseDetails.userCustomerId':$safeNavigationMigration(model?.metadata?.UserCustomerId)}">
                   </app-case-detail-info>
                 }
               </div>
@@ -77,7 +77,7 @@
                     (formIsValid)="isValid($event)"
                   (unSavedChanges)="formDataHasChanged($event)"></app-case-form>
                   <app-case-print-pdf [caseId]="model.id"
-                                                [enabled]="caseTypeConfig?.checkpointsThatAllowDownload ? caseTypeConfig?.checkpointsThatAllowDownload.includes(model.checkpointType?.code)
+                                                [enabled]="caseTypeConfig?.checkpointsThatAllowDownload ? caseTypeConfig?.checkpointsThatAllowDownload.includes($safeNavigationMigration(model.checkpointType?.code))
                                                 : (model.checkpointType?.status === caseStatus.Completed || model.checkpointType?.status === caseStatus.InProgress)"
                     [buttonDisabled]="!formValid || formUnSavedChanges"
                     (pdfButtonClicked)="onPdfButtonClicked($event)">

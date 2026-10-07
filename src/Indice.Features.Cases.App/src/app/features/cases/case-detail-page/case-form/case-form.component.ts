@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ToastType } from '@indice/ng-components';
 import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 import { EMPTY, forkJoin, Observable, of } from 'rxjs';
@@ -26,6 +26,7 @@ import { LabelOnlyWidgetComponent } from 'src/app/shared/ajsf/json-schema-framew
     selector: 'app-case-form',
     templateUrl: './case-form.component.html',
     styleUrls: ['./case-form.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {

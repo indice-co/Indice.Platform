@@ -1,5 +1,5 @@
 import { catchError, tap } from 'rxjs/operators';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Modal, ModalOptions, ToastType } from '@indice/ng-components';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
@@ -9,6 +9,7 @@ import { EMPTY } from 'rxjs';
     selector: 'app-case-type-delete-modal',
     templateUrl: './case-type-delete-modal.component.html',
     styleUrls: ['./case-type-delete-modal.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseTypeDeleteModalComponent implements OnInit {

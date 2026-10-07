@@ -1,5 +1,5 @@
 import { JsonSchemaFormService } from '@ajsf-extended/core';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 /**
  * Cases UI widget component for usage in Layout.json.
@@ -19,6 +19,7 @@ import { Component, Input, OnInit } from '@angular/core';
     selector: 'app-label-only-widget',
     templateUrl: './label-only-widget.component.html',
     styleUrls: ['./label-only-widget.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class LabelOnlyWidgetComponent implements OnInit {

@@ -1,5 +1,5 @@
 import { AbstractControl } from '@angular/forms';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { hasOwn, JsonSchemaFormService } from '@ajsf-extended/core';
 
 @Component({
@@ -16,15 +16,16 @@ import { hasOwn, JsonSchemaFormService } from '@ajsf-extended/core';
         [class]="options?.fieldHtmlClass || ''"
         [ngClass]="{'opacity-50 cursor-not-allowed': controlDisabled === true}"
         [disabled]="controlDisabled"
-        [id]="'control' + layoutNode?._id"
+        [id]="'control' + $safeNavigationMigration(layoutNode?._id)"
         [name]="controlName"
-        [type]="layoutNode?.type"
+        [type]="$safeNavigationMigration(layoutNode?.type)"
         (click)="updateValue($event)">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                   </svg>&nbsp;{{isDraft ? 'Δημιουργία Νέας Υπόθεσης' : 'Αποθήκευση'}}
       </button>
     </div>`,
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SubmitWidgetComponent implements OnInit {

@@ -3,7 +3,8 @@ import {
   Component,
   Input,
   OnChanges,
-  OnInit
+  OnInit,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import { JsonSchemaFormService, addClasses, inArray } from '@ajsf-extended/core';
@@ -18,6 +19,7 @@ import { CaseDetailsService } from 'src/app/core/services/case-details.service';
     selector: 'tailwind-framework',
     templateUrl: './tailwind-framework.component.html',
     styleUrls: ['./tailwind-framework.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TailwindFrameworkComponent implements OnInit, OnChanges {

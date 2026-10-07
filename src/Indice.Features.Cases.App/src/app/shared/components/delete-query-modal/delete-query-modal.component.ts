@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Modal, ModalOptions } from '@indice/ng-components';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
@@ -6,6 +6,7 @@ import { CasesApiService } from 'src/app/core/services/cases-api.service';
 @Component({
     selector: 'app-delete-query-modal',
     templateUrl: './delete-query-modal.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DeleteQueryModalComponent implements OnInit {

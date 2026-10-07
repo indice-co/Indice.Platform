@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { ApprovalButtonsComponent } from './components/approval-buttons/approval-buttons.component';
 import { PageIllustrationComponent } from './components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './components/radio-buttons-list/radio-buttons-list.component';
@@ -100,6 +100,6 @@ import { BeautifyBooleanPipe, ValueFromPathPipe, ToReadableDatePipe } from './pi
         NgxMaskDirective,
         NgxMaskPipe], providers: [
         provideNgxMask(),
-        provideHttpClient(withInterceptorsFromDi())
+        provideHttpClient(withXhr(), withInterceptorsFromDi())
     ] })
 export class SharedModule { }

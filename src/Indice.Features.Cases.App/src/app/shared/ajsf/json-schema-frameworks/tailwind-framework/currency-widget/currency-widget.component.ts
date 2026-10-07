@@ -1,5 +1,5 @@
 import { JsonSchemaFormService } from '@ajsf-extended/core';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, map, tap } from 'rxjs/operators';
 
@@ -7,6 +7,7 @@ import { takeUntil, map, tap } from 'rxjs/operators';
     selector: 'app-currency-widget',
     templateUrl: './currency-widget.component.html',
     styleUrls: ['./currency-widget.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CurrencyWidgetComponent implements OnInit {

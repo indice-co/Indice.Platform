@@ -5,7 +5,7 @@
       [attr.for]="'control' + layoutNode?._id"
       [class]="options?.labelHtmlClass || ''"
       [style.display]="options?.notitle ? 'none' : ''"
-    [innerHTML]="options?.title"></label>
+    [innerHTML]="$safeNavigationMigration(options?.title)"></label>
   }
   <div class="mt-1">
     <textarea [rows]="options?.rows || 4"
@@ -18,7 +18,7 @@
       [attr.required]="options?.required"
       [class]="options?.fieldHtmlClass || ''"
       [disabled]="controlDisabled"
-      [id]="'control' + layoutNode?._id"
+      [id]="'control' + $safeNavigationMigration(layoutNode?._id)"
       [readonly]="options?.readonly ? 'readonly' : null"
       [(ngModel)]="controlValue"
       (input)="updateValue($event)"

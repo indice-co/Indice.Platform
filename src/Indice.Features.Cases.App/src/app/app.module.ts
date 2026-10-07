@@ -1,6 +1,6 @@
 import { JsonSchemaFormModule } from '@ajsf-extended/core';
 import { CommonModule } from '@angular/common';
-import { HTTP_INTERCEPTORS, withInterceptors, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, withInterceptors, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { APP_LANGUAGES, APP_LINKS, BREADCRUMB_LABEL_RESOLVER, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
 import { AppComponent } from './app.component';
@@ -21,7 +21,7 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CaseTypeService } from './core/services/case-type.service';
 import { FormsModule } from '@angular/forms';
 import { AUTH_SETTINGS, AuthHttpInterceptor, AuthService, IndiceAuthModule } from '@indice/ng-auth';
-import { NgModule } from '@angular/core';
+import { NgModule, provideZoneChangeDetection } from '@angular/core';
 import { CasesModule } from './features/cases/cases.module';
 import { AppLanguagesService } from './shared/services/app-languages.service';
 import { AppBreadcrumbTranslateService } from './shared/services/app-breadcrumb-translate.service';
@@ -63,7 +63,8 @@ import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
         { provide: APP_LANGUAGES, useClass: AppLanguagesService },
         { provide: BREADCRUMB_LABEL_RESOLVER, useClass: AppBreadcrumbTranslateService },
         { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
-        provideHttpClient(withInterceptors([progressInterceptor])),
-        provideHttpClient(withInterceptorsFromDi())
+        provideZoneChangeDetection({ eventCoalescing: true }),
+        provideHttpClient(withXhr(), withInterceptors([progressInterceptor])),
+        provideHttpClient(withXhr(), withInterceptorsFromDi())
     ] })
 export class AppModule { }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 import { tap } from 'rxjs/operators';
 
@@ -6,6 +6,7 @@ import { tap } from 'rxjs/operators';
     selector: 'app-case-discard-draft',
     templateUrl: './case-discard-draft.component.html',
     styleUrls: ['./case-discard-draft.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseDiscardDraftComponent implements OnInit {

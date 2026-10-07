@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CasePartial } from 'src/app/core/services/cases-api.service';
 
 @Component({
     selector: 'app-case-related',
     templateUrl: './related-cases.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class RelatedCasesComponent implements OnInit {

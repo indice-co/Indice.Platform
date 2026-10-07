@@ -4,7 +4,7 @@
       [attr.for]="'control' + layoutNode?._id"
       [class]="options?.labelHtmlClass || ''"
       [style.display]="options?.notitle ? 'none' : ''"
-    [innerHTML]="options?.title"></label>
+    [innerHTML]="$safeNavigationMigration(options?.title)"></label>
   }
   @if (boundControl) {
     <input
@@ -16,7 +16,7 @@
       [attr.placeholder]="options?.placeholder"
       [attr.required]="options?.required"
       [class]="options?.fieldHtmlClass || ''"
-      [id]="'control' + layoutNode?._id"
+      [id]="'control' + $safeNavigationMigration(layoutNode?._id)"
       [name]="controlName"
       [style]="'display: none;'"
       [readonly]="options?.readonly ? 'readonly' : null"
@@ -30,7 +30,7 @@
     [attr.placeholder]="options?.placeholder"
     [attr.required]="options?.required"
     [class]="options?.fieldHtmlClass || ''"
-    [id]="'control' + layoutNode?._id"
+    [id]="'control' + $safeNavigationMigration(layoutNode?._id)"
     [name]="controlName"
     [readonly]="options?.readonly ? 'readonly' : null"
     [type]="'text'"
@@ -53,7 +53,7 @@
     (input)="updateValue($event)"> -->
     @if (options?.typeahead?.source) {
       <datalist
-        [id]="'control' + layoutNode?._id + 'Autocomplete'">
+        [id]="'control' + $safeNavigationMigration(layoutNode?._id) + 'Autocomplete'">
         @for (word of options?.typeahead?.source; track word) {
           <option
             [value]="word">

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AuthService } from '@indice/ng-auth';
 import { HeaderMetaItem } from '@indice/ng-components';
 import { User } from 'oidc-client-ts';
@@ -9,6 +9,7 @@ import { ReportTag } from 'src/app/core/services/cases-api.service';
 @Component({
     selector: 'app-dashboard',
     templateUrl: './dashboard.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DashboardComponent implements OnInit {

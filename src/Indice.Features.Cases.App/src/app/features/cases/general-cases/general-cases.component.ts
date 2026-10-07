@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, SearchOption, ViewAction } from '@indice/ng-components';
@@ -15,6 +15,7 @@ import { QueriesModalComponent } from 'src/app/shared/components/query-modal/que
 @Component({
     selector: 'app-general-cases-component',
     templateUrl: './general-cases.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GeneralCasesComponent extends BaseListComponent<CasePartial> implements OnInit {
@@ -29,7 +30,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     protected _canCreateCase = false;
     public caseTypeTitle: string = "";
     public columns = this.setDefaultColumns();
-    private destroyRef = inject(DestroyRef);
+    private _destroyRef = inject(DestroyRef);
 
     constructor(
         protected _route: ActivatedRoute,
@@ -58,7 +59,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
         // Single global signal: rebuild every TS-built label whenever the language changes
         // (and once immediately). Columns are translated in the template, so they're not rebuilt here.
         this._lang.onLanguageChange()
-            .pipe(takeUntilDestroyed(this.destroyRef))
+            .pipe(takeUntilDestroyed(this._destroyRef))
             .subscribe(() => {
                 this.buildSortOptions();
                 this.buildFormActions();
