@@ -31,6 +31,7 @@ public sealed class FileSystemPromptTemplateRenderer : IPromptTemplateRenderer
                     nameof(AgentsConstants.PromptDefaults.PurposeResponder) => _handlebars.Compile(AgentsConstants.PromptDefaults.PurposeResponder),
                     nameof(AgentsConstants.PromptDefaults.QueryRewriter) => _handlebars.Compile(AgentsConstants.PromptDefaults.QueryRewriter),
                     nameof(AgentsConstants.PromptDefaults.IntentRouter) => _handlebars.Compile(AgentsConstants.PromptDefaults.IntentRouter),
+                    nameof(AgentsConstants.PromptDefaults.AgentIdentity) => _handlebars.Compile(AgentsConstants.PromptDefaults.AgentIdentity),
 
                     nameof(AgentsConstants.PromptDefaults.DataRetriever) => _handlebars.Compile(AgentsConstants.PromptDefaults.DataRetriever),
                     nameof(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions) => _handlebars.Compile(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions),
