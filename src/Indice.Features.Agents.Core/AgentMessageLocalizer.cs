@@ -74,6 +74,10 @@ public class AgentMessageLocalizer
     /// </summary>
     public virtual string OtvpVerificationSuccessMessage => AgentResources.OtvpVerificationSuccessMessage;
     /// <summary>
+    /// Message to display to user once a payment method has been chosen
+    /// </summary>
+    public virtual string PaymentCompletedMessage => AgentResources.PaymentCompletedMessage;
+    /// <summary>
     /// Message to display to user for OTP Validation failure
     /// </summary>
     public virtual string OtvpVerificationFailedMessage => AgentResources.OtvpVerificationFailedMessage;

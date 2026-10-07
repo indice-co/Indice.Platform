@@ -6,6 +6,7 @@ import { ChatCalloutComponent } from './parts/chat-callout.component';
 import { ChatConfirmComponent } from './parts/chat-confirm.component';
 import { ChatHitlComponent } from './parts/chat-hitl.component';
 import { ChatHitlOtpComponent } from './parts/chat-hitl-otp.component';
+import { ChatHitlPaymentComponent } from './parts/chat-hitl-payment.component';
 import { ChatHtmlComponent } from './parts/chat-html.component';
 import { ChatImageComponent } from './parts/chat-image.component';
 import { ChatOptionsComponent } from './parts/chat-options.component';
@@ -41,6 +42,7 @@ import {
     ChatConfirmComponent,
     ChatHitlComponent,
     ChatHitlOtpComponent,
+    ChatHitlPaymentComponent,
     ChatHtmlComponent,
     ChatImageComponent,
     ChatOptionsComponent,
@@ -79,6 +81,9 @@ import {
           }
           @case ('hitl-request-otp') {
             <app-chat-hitl-otp [request]="hitlRequest()" [disabled]="!interactive()" (pick)="pick.emit($event)" />
+          }
+          @case ('hitl-request-payment') {
+            <app-chat-hitl-payment [request]="hitlRequest()" [disabled]="!interactive()" (pick)="pick.emit($event)" />
           }
         }
       }

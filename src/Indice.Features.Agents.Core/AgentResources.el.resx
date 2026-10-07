@@ -138,6 +138,9 @@
 <data name="OtvpVerificationSuccessMessage" xml:space="preserve">
   <value>Η επιβεβαίωση ολοκληρώθηκε.</value>
 </data>
+<data name="PaymentCompletedMessage" xml:space="preserve">
+  <value>Ευχαριστούμε για την πληρωμή σας. Μπορείτε να παραλάβετε το αμάξι σας από το parking A2 μεταξύ 17:30-18:00. Παρακαλώ, να έχετε πρόχειρη την ταυτότητα σας.</value>
+</data>
 <data name="OwnershipVerificationFailedMaxAttemptsMessage" xml:space="preserve">
   <value>Δεν μπορέσαμε να επιβεβαιώσουμε τα στοιχεία σας. Αποτυχημένες προσπάθειες: {0}.</value>
 </data>

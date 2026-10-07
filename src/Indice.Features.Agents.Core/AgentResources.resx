@@ -138,6 +138,9 @@
 <data name="OtvpVerificationSuccessMessage" xml:space="preserve">
   <value>Verification complete.</value>
 </data>
+<data name="PaymentCompletedMessage" xml:space="preserve">
+  <value>Thank you for your payment.</value>
+</data>
 <data name="OwnershipVerificationFailedMaxAttemptsMessage" xml:space="preserve">
   <value>We weren't able to verify your details. Failed attempts: {0}.</value>
 </data>

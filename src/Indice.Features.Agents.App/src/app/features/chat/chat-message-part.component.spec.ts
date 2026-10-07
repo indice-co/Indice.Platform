@@ -364,6 +364,79 @@ describe('ChatMessagePartComponent', () => {
     });
   });
 
+  describe('hitl payment method', () => {
+    const HITL_PAYMENT_PART = {
+      contentType: HITL_REQUEST_MEDIA_TYPE,
+      name: 'PaymentRequest',
+      value: '{"data":{"methods":["Apple Pay","Google Pay"]}}',
+    };
+
+    function radios(host: HTMLElement): HTMLInputElement[] {
+      return Array.from(host.querySelectorAll('app-chat-hitl-payment input[type="radio"]'));
+    }
+
+    function payButton(host: HTMLElement): HTMLButtonElement {
+      return host.querySelector('app-chat-hitl-payment button[type="button"]') as HTMLButtonElement;
+    }
+
+    function choose(host: HTMLElement, index: number): void {
+      radios(host)[index].dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+    }
+
+    it('renders one radio per method and a pay button that waits for a choice', () => {
+      const host = render(HITL_PAYMENT_PART);
+      expect(radios(host).map((radio) => radio.value)).toEqual(['Apple Pay', 'Google Pay']);
+      expect(payButton(host).disabled).toBeTrue();
+      choose(host, 1);
+      expect(payButton(host).disabled).toBeFalse();
+    });
+
+    it('gives each method its brand icon, and a card for anything unrecognised', () => {
+      const host = render({
+        ...HITL_PAYMENT_PART,
+        value: '{"data":{"methods":["Apple Pay","Google Pay","Credit or debit card"]}}',
+      });
+      const icons = Array.from(host.querySelectorAll('app-chat-hitl-payment [data-icon]'));
+      expect(icons.map((icon) => icon.getAttribute('data-icon'))).toEqual(['apple', 'google', 'card']);
+      expect(icons.map((icon) => icon.querySelector('img')?.getAttribute('src') ?? null)).toEqual([
+        'apple-pay-mark.svg',
+        'google-pay-mark.svg',
+        null,
+      ]);
+      expect(icons[2].querySelector('svg')).toBeTruthy();
+    });
+
+    it('opens the sheet on pay and sends the chosen method once it is dismissed, then locks', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_PAYMENT_PART);
+      const sheet = host.querySelector('dialog') as HTMLDialogElement;
+      choose(host, 0);
+      payButton(host).click();
+      expect(sheet.open).toBeTrue();
+      expect(picked).toEqual([]);
+      sheet.dispatchEvent(new Event('close'));
+      sheet.dispatchEvent(new Event('close'));
+      fixture.detectChanges();
+      expect(picked).toEqual(['Apple Pay']);
+      expect(payButton(host).disabled).toBeTrue();
+      sheet.close();
+    });
+
+    it('is inert once the message is no longer the latest', () => {
+      const host = render(HITL_PAYMENT_PART, { interactive: false });
+      expect(payButton(host).disabled).toBeTrue();
+      expect(host.querySelector('fieldset')?.disabled).toBeTrue();
+    });
+
+    it('renders nothing when the payload carries no methods', () => {
+      const host = render({ contentType: HITL_REQUEST_MEDIA_TYPE, name: 'PaymentRequest', value: '{"data":{}}' });
+      expect(host.querySelector('input')).toBeNull();
+      expect(host.querySelector('dialog')).toBeNull();
+    });
+  });
+
   it('renders nothing at all for an unknown content type', () => {
     const host = render({ contentType: 'application/vnd.indice.not-invented-yet+json', value: '{"a":1}' });
     expect(host.textContent?.trim()).toBe('');

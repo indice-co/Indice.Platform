@@ -194,6 +194,9 @@ public class CustomerWorkflowOptions
 
     /// <summary>Maximum number of OTP code validation attempts allowed before the workflow fails permanently.</summary>
     public int MaxOtpValidationAttempts { get; set; } = 3;
+
+    /// <summary>The payment methods offered to the user once the case data has been presented.</summary>
+    public List<string> PaymentMethods { get; set; } = ["Apple Pay", "Google Pay", "Credit or debit card"];
 }
 
 /// <summary>

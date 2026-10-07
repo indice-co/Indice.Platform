@@ -115,6 +115,15 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Thank you for your payment..
+        /// </summary>
+        internal static string PaymentCompletedMessage {
+            get {
+                return ResourceManager.GetString("PaymentCompletedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to The OTP is valid.
         /// </summary>
         internal static string OtvpVerificationSuccessMessage {
