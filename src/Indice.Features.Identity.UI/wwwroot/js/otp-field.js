@@ -28,6 +28,11 @@
         }
 
         var cells = [];
+        // A code re-rendered after a failed post was rejected; start empty rather than editing it.
+        var rejected = input.classList.contains('input-validation-error') || input.getAttribute('aria-invalid') === 'true';
+        if (rejected) {
+            input.value = '';
+        }
         var initial = (input.value || '').split('');
         for (var i = 0; i < length; i++) {
             var cell = document.createElement('input');
@@ -42,7 +47,46 @@
             container.appendChild(cell);
         }
 
+        // Auto-submit when the code is completed in one go: typing into the last cell or pasting /
+        // autofilling the whole code. Editing a digit of a complete code never submits; the user
+        // presses the button (or Enter). Opt out with data-otp-autosubmit="false".
+        var autoSubmit = input.dataset.otpAutosubmit !== 'false';
+        var submitDelay = 250;
+        var submitTimer = null;
+
+        function cancelSubmit() {
+            if (submitTimer) {
+                clearTimeout(submitTimer);
+                submitTimer = null;
+            }
+        }
+
+        function scheduleSubmit() {
+            cancelSubmit();
+            var form = input.form;
+            if (!autoSubmit || !form || input.value.length !== length) {
+                return;
+            }
+            // Short delay so the last digit is visible and a quick correction can cancel it.
+            submitTimer = setTimeout(function () {
+                submitTimer = null;
+                if (input.value.length !== length) {
+                    return;
+                }
+                var submitter = form.querySelector('.auth-form__submit') ||
+                    form.querySelector('button[type="submit"]:not([formnovalidate]), input[type="submit"]:not([formnovalidate])');
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit(submitter || undefined);
+                } else if (submitter) {
+                    submitter.click();
+                } else {
+                    form.submit();
+                }
+            }, submitDelay);
+        }
+
         function sync() {
+            cancelSubmit();
             input.value = cells.map(function (c) { return c.value; }).join('');
             input.dispatchEvent(new Event('input', { bubbles: true }));
             input.dispatchEvent(new Event('change', { bubbles: true }));
@@ -59,6 +103,9 @@
             });
             sync();
             cells[Math.min(index, length - 1)].focus();
+            if (startIndex === 0 && chars.length >= length) {
+                scheduleSubmit();
+            }
         }
 
         cells.forEach(function (cell, index) {
@@ -67,7 +114,11 @@
                     fill(cell.value, index);
                     return;
                 }
+                var wasComplete = input.value.length === length;
                 sync();
+                if (cell.value && index === length - 1 && !wasComplete) {
+                    scheduleSubmit();
+                }
                 if (cell.value && index < length - 1) {
                     cells[index + 1].focus();
                     cells[index + 1].select();
