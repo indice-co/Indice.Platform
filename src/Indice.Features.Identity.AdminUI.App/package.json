@@ -42,8 +42,8 @@
   "devDependencies": {
     "@angular/build": "22.1.6",
     "@angular/cli": "22.1.6",
-    "@angular/compiler-cli": "22.1.4",
-    "@angular/language-service": "22.1.4",
+    "@angular/compiler-cli": "22.2.1",
+    "@angular/language-service": "22.2.1",
     "@types/jasmine": "5.1.9",
     "@types/jasminewd2": "2.0.13",
     "eslint": "9.35.0",
