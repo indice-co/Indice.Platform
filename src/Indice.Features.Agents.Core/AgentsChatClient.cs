@@ -71,32 +71,25 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         if (string.IsNullOrWhiteSpace(selector)) {
             selector = routing.DefaultAgent?.Trim().ToLowerInvariant();
         }
-        if (message.AdditionalProperties.TryGetValue("ChatTopic", out ChatTopic? topic) && topic is not null && !string.IsNullOrWhiteSpace(topic.ReferenceType)) {
-            selector = topic.ReferenceType;
-        }
         string resolvedAgent;
         if (string.Equals(selector, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
             RouteDecision? decision = null;
             string? routeError = null;
             try {
                 var router = serviceProvider.GetRequiredService<IntentRouterService>();
-                decision = await router.RouteAsync(message.Text, options.ConversationId, cancellationToken);
-            } 
-            catch (Exception exception) when (exception is not OperationCanceledException) {
+                decision = await router.RouteAsync(message, options.ConversationId, cancellationToken);
+            } catch (Exception exception) when (exception is not OperationCanceledException) {
                 routeError = exception.Message;
             }
             if (routeError is not null) {
                 yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = options.ConversationId };
                 yield break;
-            }
-            else if (decision!.AgentName is null) {
+            } else if (decision!.AgentName is null) {
                 yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = options.ConversationId };
                 yield break;
             }
             resolvedAgent = decision.AgentName;
-        } 
-        else {
-            
+        } else {
             resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
         }
         var sessionId = new AgentSessionId(Guid.Parse(options.ConversationId), resolvedAgent);
