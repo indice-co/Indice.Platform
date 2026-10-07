@@ -10,7 +10,7 @@ namespace Indice.Hosting.Services;
 /// <summary><see cref="ILockManager"/> implementation for a relational database.</summary>
 public class LockManagerRelational : ILockManager
 {
-    private readonly LockDbContext _dbContext;
+    private readonly TaskDbContext _dbContext;
     private readonly LockManagerQueryDescriptor _queryDescriptor;
 
     /// <summary>Constructs the <see cref="LockManagerRelational"/>.</summary>
