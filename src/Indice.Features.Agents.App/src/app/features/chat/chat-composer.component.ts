@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, model, output, signal } from '@angular/core';
 
+import { assistantName } from '../../core/models/brand';
 import { AgentInfo } from '../../core/services/dex-api.service';
 
 const MAX_LENGTH = 2000;
@@ -140,7 +141,7 @@ const ICON_PATHS: Record<string, string> = {
             [placeholder]="readOnly() ? 'This conversation is read-only' : placeholder()"
             (input)="onInput($event)"
             (keydown)="onKeydown($event)"
-            aria-label="Message Dex"
+            [attr.aria-label]="'Message ' + assistantName"
           ></textarea>
 
           <span
@@ -194,12 +195,15 @@ const ICON_PATHS: Record<string, string> = {
   `,
 })
 export class ChatComposerComponent {
+  /** Display name of the assistant. */
+  protected readonly assistantName = assistantName;
+
   readonly streaming = input(false);
   /** When the conversation is read-only the composer is disabled entirely — no new turns can be sent. */
   readonly readOnly = input(false);
   /** Rendered mid-canvas (new session): drop the pinned bar chrome, keep only the input box. */
   readonly centered = input(false);
-  readonly placeholder = input('Ask Dex anything…');
+  readonly placeholder = input(`Ask ${assistantName} anything…`);
   /** The modes (agents) the user can pick from; the picker hides when empty. */
   readonly agents = input<AgentInfo[]>([]);
   /** Two-way: the picked agent name — `null` until the user picks, meaning the first discovered agent. */
