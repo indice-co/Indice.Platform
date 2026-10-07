@@ -213,7 +213,7 @@ Send SMS messages through multiple gateway providers:
 | `apifon` | `SmsServiceApifon` | `services.AddSmsServiceApifon(configuration)` | `ApiKey`, `Token`, `Sender` (or `SenderName`) |
 | `apifon_im` / `apifonim` | `SmsServiceApifonIM` | `services.AddSmsServiceApifonIM(configuration)` | `ApiKey`, `Token`, `Sender` (or `SenderName`) |
 | `kapatel` / `kapa_tel` | `SmsServiceKapaTEL` | `services.AddSmsServiceKapaTEL(configuration)` | `Username`, `Password`, `From` |
-| `mstat` | `SmsServiceMstat` | `services.AddSmsServiceMstat(configuration)` | `ApiKey`, `SenderName` |
+| `mstat` | `SmsServiceOmniMessaging` | `services.AddSmsServiceOmniMessaging(configuration)` | `ApiKey`, `SenderName`, `AccountId` |
 | `smsup` | `SmsServiceSmsUP` | `services.AddSmsServiceSmsUp(configuration)` | `ApiKey`, `Sender` |
 | `twilio` | `SmsServiceTwilio` | `services.AddSmsServiceTwilio(configuration)` | `AccountSid`, plus (`ApiKey` + `Secret`) or (`AuthToken`), and `SenderPhoneNumber` or `MessagingServiceSid` |
 | `vonage` | `SmsServiceVonage` | `services.AddSmsServiceVonage(configuration)` | `ApiKey`, `SignatureSecret`, `Sender` (or `SenderName`) |

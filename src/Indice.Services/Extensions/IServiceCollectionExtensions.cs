@@ -248,7 +248,9 @@ public static class IndiceServicesServiceCollectionExtensions
                     services.AddSmsServiceKapaTEL(configuration);
                     break;
                 case "mstat":
-                    services.AddSmsServiceMstat(configuration);
+                case "omnimessaging":
+                case "omni_messaging":
+                    services.AddSmsServiceOmniMessaging(configuration);
                     break;
                 case "noop":
                 case "none":
@@ -379,20 +381,21 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Mstat.</summary>
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using MStat OmniMessaging REST API.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static IServiceCollection AddSmsServiceMstat(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceMstatSettings>? configure = null) {
-        services.Configure<SmsServiceMstatSettings>(configuration.GetSection(SmsServiceSettings.Name));
+    public static IServiceCollection AddSmsServiceOmniMessaging(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceOmniMessagingSettings>? configure = null) {
+        services.Configure<SmsServiceOmniMessagingSettings>(configuration.GetSection(SmsServiceSettings.Name));
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
-        var options = new SmsServiceMstatSettings();
-        configure?.Invoke(options);
-        services.AddHttpClient<ISmsService, SmsServiceMstat>()
-                                        .ConfigureHttpClient(httpClient => {
-                                            httpClient.BaseAddress = new Uri("https://backend.tms.m-stat.gr/api/v1/messages");
-                                        })
-                                        .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        if (configure is not null) {
+            services.Configure(configure);
+        }
+        services.AddHttpClient<ISmsService, SmsServiceOmniMessaging>()
+            .ConfigureHttpClient(httpClient => {
+                httpClient.BaseAddress = new Uri(SmsServiceOmniMessaging.BASE_URI);
+            })
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
     }
 
