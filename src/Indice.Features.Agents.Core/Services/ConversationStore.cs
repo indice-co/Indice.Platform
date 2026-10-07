@@ -178,12 +178,10 @@ public class ConversationStore : IConversationStore
                                 completion: (int)(response.Usage?.OutputTokenCount ?? 0), 
                                 model: string.IsNullOrWhiteSpace(response.ModelId) ? null : response.ModelId);
 
-        // if this is an empty usermessage with only the topic in the additional properties, we don't want to add it to the database,
-        // but we still want to add the assistant message
-        if (userMessage.Contents.Count == 0 && userMessage.AdditionalProperties?.ContainsKey("topic") == true) {
-            userRow = null;
-        }
-        if (userRow is not null) {
+        // An autostart turn (empty user message carrying only the topic) is not added to the database,
+        // but the assistant message it produced still is.
+        var isAutostart = IsAutostart(userMessage);
+        if (!isAutostart) {
             _db.Add(userRow);
             conversation.MessageCount += 1;
         }
@@ -192,7 +190,8 @@ public class ConversationStore : IConversationStore
         conversation.LastActivityAt = assistantRow.CreatedAt;
         conversation.InputTokenCount += response.Usage?.InputTokenCount ?? 0;
         conversation.OutputTokenCount += response.Usage?.OutputTokenCount ?? 0;
-        if (conversation.Title is null && _sessionOptions.TitleAutoGenerate) {
+        // The title is left for the first real user message; an empty one would stick as "".
+        if (!isAutostart && conversation.Title is null && _sessionOptions.TitleAutoGenerate) {
             conversation.Title = DeriveTitle(userMessage);
         }
 
@@ -210,6 +209,10 @@ public class ConversationStore : IConversationStore
 
     /// <inheritdoc/>
     public async Task AppendFailedTurnAsync(Guid conversationId, ChatMessage userMessage, CancellationToken cancellationToken) {
+        if (IsAutostart(userMessage)) {
+            // Nothing the user typed to salvage.
+            return;
+        }
         await using var transaction = await _db.Database.BeginTransactionAsync(cancellationToken);
         await EnsureConversationWritableAsync(conversationId, cancellationToken);
         var session = await _db.Conversations.FirstAsync(s => s.Id == conversationId, cancellationToken);
@@ -324,6 +327,11 @@ public class ConversationStore : IConversationStore
         Topic = s.Topic,
         Messages = messages,
     };
+
+    /// <summary>Whether the user message is an autostart turn: it carries a <see cref="ChatTopic"/> and no content other than blank text.</summary>
+    private static bool IsAutostart(ChatMessage userMessage) =>
+        userMessage.AdditionalProperties?.ContainsKey(nameof(ChatTopic)) == true &&
+        userMessage.Contents.All(content => content is TextContent text && string.IsNullOrWhiteSpace(text.Text));
 
     private static string DeriveTitle(ChatMessage firstUserMessage) {
         var normalized = firstUserMessage.Text.Replace('\r', ' ').Replace('\n', ' ').Trim() ?? string.Empty;
