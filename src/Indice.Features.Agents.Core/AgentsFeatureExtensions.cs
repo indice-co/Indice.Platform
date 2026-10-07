@@ -279,7 +279,9 @@ public static class AgentsFeatureExtensions
             var userInputCollector = sp.GetRequiredService<UserInputCollector>();
 
             var builder = new WorkflowBuilder(operationClassifier);
-            builder.AddEdge(operationClassifier, operationPort);
+            builder.AddSwitch(operationClassifier, sw => sw
+                .AddCase<OperationRequestPort.OperationRequest>(request => request is not null, operationPort)
+                .WithDefault(retriever));
             builder.AddEdge(operationPort, userInputRetriever);
             builder.AddSwitch(userInputRetriever, sw => sw
                 .AddCase<UserInputRequestPort.UserInputRequest>(request => request is not null, userInputPort)
