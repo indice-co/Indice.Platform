@@ -33,6 +33,7 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
         [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient,
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
+        AgentIdentityAIContextProvider identityProvider,
         UserClaimsAIContextProvider userClaimsProvider,
         ConversationStoreChatHistoryProvider historyProvider) : base("PurposeResponder") {
         _options = options.Value;
@@ -47,7 +48,7 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
             .AsAIAgent(
                 options: new ChatClientAgentOptions() {
                     ChatOptions = chatOptions,
-                    AIContextProviders = [userClaimsProvider],
+                    AIContextProviders = [identityProvider, userClaimsProvider],
                     Name = "DexPurposeResponder",
                     ChatHistoryProvider = historyProvider,
                     // Chat completions is stateless; the echoed request ConversationId must not be treated as server-side history.
