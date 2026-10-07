@@ -57,24 +57,39 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
 
     /// <summary>MFA onboarding add email page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         if (!ModelState.IsValid) {
+            PopulateView(user, returnUrl);
             return Page();
         }
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         if (!user.EmailConfirmed) {
             var result = await UserManager.SetEmailAsync(user, Input.Email);
             if (!result.Succeeded) {
                 AddModelErrors(result);
+                PopulateView(user, returnUrl);
                 return Page();
             }
         }
         // A confirmed address is not a second factor for this sign-in. Always send a code
         // and enable MFA only after MfaOnboardingVerifyEmail accepts it.
         if (!await SendVerificationEmailAsync(user)) {
+            PopulateView(user, returnUrl);
             ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
             return Page();
         }
         return RedirectToPage("/MfaOnboardingVerifyEmail", routeValues: new { returnUrl = Input.ReturnUrl ?? returnUrl });
+    }
+
+    /// <summary>
+    /// The POST view model starts empty. Confirmed addresses stay read-only, matching the value this handler actually uses.
+    /// </summary>
+    private void PopulateView(User user, string? returnUrl) {
+        if (user.EmailConfirmed) {
+            Input.Email = user.Email;
+        }
+        View.Email = Input.Email;
+        View.EmailConfirmed = user.EmailConfirmed;
+        View.ReturnUrl = Input.ReturnUrl ?? returnUrl;
     }
 }
 

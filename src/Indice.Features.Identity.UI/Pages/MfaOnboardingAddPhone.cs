@@ -57,15 +57,17 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
 
     /// <summary>MFA onboarding add phone page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         if (!ModelState.IsValid) {
+            PopulateView(user, returnUrl);
             return Page();
         }
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         var phoneNumber = user.PhoneNumber;
         if (!user.PhoneNumberConfirmed) {
             var result = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
             if (!result.Succeeded) {
                 AddModelErrors(result);
+                PopulateView(user, returnUrl);
                 return Page();
             }
             phoneNumber = Input.PhoneNumber;
@@ -73,10 +75,23 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
         // A confirmed number is not a second factor for this sign-in. Always send a code
         // and enable MFA only after MfaOnboardingVerifyPhone accepts it.
         if (!await SendVerificationSmsAsync(user, phoneNumber!)) {
+            PopulateView(user, returnUrl);
             ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
             return Page();
         }
         return RedirectToPage("/MfaOnboardingVerifyPhone", routeValues: new { returnUrl = Input.ReturnUrl ?? returnUrl });
+    }
+
+    /// <summary>
+    /// The POST view model starts empty. Confirmed numbers stay read-only, matching the value this handler actually uses.
+    /// </summary>
+    private void PopulateView(User user, string? returnUrl) {
+        if (user.PhoneNumberConfirmed) {
+            Input.PhoneNumber = user.PhoneNumber;
+        }
+        View.PhoneNumber = Input.PhoneNumber;
+        View.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
+        View.ReturnUrl = Input.ReturnUrl ?? returnUrl;
     }
 }
 
