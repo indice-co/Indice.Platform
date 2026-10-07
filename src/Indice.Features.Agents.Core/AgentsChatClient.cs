@@ -71,6 +71,9 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         if (string.IsNullOrWhiteSpace(selector)) {
             selector = routing.DefaultAgent?.Trim().ToLowerInvariant();
         }
+        if (message.AdditionalProperties.TryGetValue("ChatTopic", out ChatTopic? topic) && topic is not null && !string.IsNullOrWhiteSpace(topic.ReferenceType)) {
+            selector = topic.ReferenceType;
+        }
         string resolvedAgent;
         if (string.Equals(selector, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
             RouteDecision? decision = null;
