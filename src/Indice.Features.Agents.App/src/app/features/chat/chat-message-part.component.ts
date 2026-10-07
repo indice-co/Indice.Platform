@@ -6,6 +6,7 @@ import { ChatCalloutComponent } from './parts/chat-callout.component';
 import { ChatConfirmComponent } from './parts/chat-confirm.component';
 import { ChatHitlComponent } from './parts/chat-hitl.component';
 import { ChatHitlOtpComponent } from './parts/chat-hitl-otp.component';
+import { ChatHitlOperationComponent } from './parts/chat-hitl-operation.component';
 import { ChatHtmlComponent } from './parts/chat-html.component';
 import { ChatImageComponent } from './parts/chat-image.component';
 import { ChatOptionsComponent } from './parts/chat-options.component';
@@ -41,6 +42,7 @@ import {
     ChatConfirmComponent,
     ChatHitlComponent,
     ChatHitlOtpComponent,
+    ChatHitlOperationComponent,
     ChatHtmlComponent,
     ChatImageComponent,
     ChatOptionsComponent,
@@ -80,6 +82,12 @@ import {
           @case ('hitl-request-otp') {
             <app-chat-hitl-otp [request]="hitlRequest()" [disabled]="!interactive()" (pick)="pick.emit($event)" />
           }
+          @case ('hitl-request-operation') {
+            <app-chat-hitl-operation [request]="hitlRequest()" [disabled]="!interactive()" (pick)="pick.emit($event)" />
+          }
+          @case ('hitl-request-user-input') {
+            <!-- Prompt only: the answer is typed in the main composer, which attaches it via hitlResponseParts. -->
+          }
         }
       }
     }
@@ -105,5 +113,7 @@ export class ChatMessagePartComponent {
   protected readonly image = computed(() => parseImage(this.part().value, this.part().contentType, this.part().name));
   protected readonly callout = computed(() => parseCallout(this.part().value));
   protected readonly confirmation = computed(() => parseConfirmation(this.part().value));
-  protected readonly hitlRequest = computed(() => parseHitlRequest(this.part().value, this.part().requestId));
+  protected readonly hitlRequest = computed(() =>
+    parseHitlRequest(this.part().value, this.part().requestId, this.part().name),
+  );
 }

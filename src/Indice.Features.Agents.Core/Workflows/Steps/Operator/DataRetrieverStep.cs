@@ -60,11 +60,19 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
 
         // Persist a ConversationState snapshot so downstream shared steps (e.g. OtpAgent)
         // can use existing state extension helpers.
-        await context.SetConversationStateAsync(new ConversationState(message, message.AdditionalProperties![nameof(ConversationState.ConversationId)]!.ToString()!), cancellationToken);
+        //await context.SetConversationStateAsync(new ConversationState(message, message.AdditionalProperties![nameof(ConversationState.ConversationId)]!.ToString()!), cancellationToken);
 
         var userInput = message.Text ?? string.Empty;
-        if (message.AdditionalProperties.TryGetValue<ChatTopic>(nameof(ChatTopic), out var topic) && !string.IsNullOrEmpty(topic.ReferenceId)) {
-            userInput = topic.ReferenceId;
+        
+        if (message.AdditionalProperties?.TryGetValue(nameof(ChatTopic), out var topic) == true) {
+            var chatTopic = topic switch {
+                ChatTopic t => t,
+                JsonElement je => je.Deserialize<ChatTopic>(JsonSerializerOptions.Web),
+                _ => null
+            };
+            if (!string.IsNullOrEmpty(chatTopic?.ReferenceId)) {
+                userInput = chatTopic.ReferenceId;
+            }
         }
         var registry = await _mcpClientFactory.CreateAsync();
         var mcpTools = await registry.ListToolsAsync(options: null, cancellationToken);
@@ -91,7 +99,13 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
             """;
 
         var response = await agent.RunAsync<string>(prompt, cancellationToken: cancellationToken);
-        var rawPayload = response.Result?.Trim();
+        var rawPayload = "";
+        try {
+            rawPayload = response?.Result;
+        } catch {
+            // Ignore
+            rawPayload = response?.Text?.Trim();
+        }
         if (string.IsNullOrWhiteSpace(rawPayload)) {
             throw new InvalidOperationException("Case retrieval agent returned empty payload.");
         }

@@ -49,6 +49,8 @@ export type PartKind =
   | 'confirm'
   | 'hitl-request'
   | 'hitl-request-otp'
+  | 'hitl-request-operation'
+  | 'hitl-request-user-input'
   | 'unknown';
 
 /**
@@ -90,6 +92,10 @@ export function HitlControlResolver(name: string | undefined): PartKind {
   switch (name) {
     case 'OtpRequest':
       return 'hitl-request-otp';
+    case 'OperationRequest':
+      return 'hitl-request-operation';
+    case 'UserInputRequest':
+      return 'hitl-request-user-input';
     default:
       return 'hitl-request';
 
@@ -134,8 +140,28 @@ export interface OtpResponse {
   otp: string;
 }
 
+/** The server's operation selection request. Mirrors `OperationRequestPort.OperationRequest`. */
+export interface OperationRequest {
+  supportedOperations: string[];
+}
+
+/** The user's chosen operation. Mirrors `OperationRequestPort.OperationResponse`. */
+export interface OperationResponse {
+  selectedOperation: string;
+}
+
+/** The server's free-text input request. Mirrors `UserInputRequestPort.UserInputRequest`. */
+export interface UserInputRequest {
+  message: string;
+}
+
+/** The user's free-text answer. Mirrors `UserInputRequestPort.UserResponse`. */
+export interface UserInputResponse {
+  inputMessage: string;
+}
+
 /**
- * A question the workflow is waiting on a human to answer. Most payloads mirror the server's `HumanRequest`:
+ * A question the workflow is waiting on a human to answer.
  * `requestId` correlates the answer back to the port that asked, and `text` is the prompt.
  *
  * Newer payloads can arrive wrapped in a chat-message `data` envelope instead, carrying `contents`, `messageId`
@@ -150,6 +176,8 @@ export interface HitlRequest {
   messageId?: string;
   additionalProperties?: Record<string, unknown>;
   otp?: OtpRequest;
+  operation?: OperationRequest;
+  userInput?: UserInputRequest;
 }
 
 /** Reads the options out of a multiple-choice part value; anything unexpected yields an empty list. */
@@ -225,7 +253,7 @@ export function parseConfirmation(value: string | undefined): Confirmation | nul
  * well-formed JSON object, even one with no prompt: "is an answer owed?" and "does the form render?" have to be the
  * same predicate, or the composer would silently stop attaching answers for a payload the thread still shows.
  */
-export function parseHitlRequest(value: string | undefined, fallbackRequestId?: string): HitlRequest | null {
+export function parseHitlRequest(value: string | undefined, fallbackRequestId?: string, name?: string): HitlRequest | null {
   const parsed = parseObject<Record<string, unknown>>(value);
   if (!parsed) {
     return null;
@@ -238,14 +266,18 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
   const contents = objectArray(payload['Contents'] ?? payload['contents']);
   const challengeCode = text(payload['ChallengeCode']) ?? text(payload['challengeCode']);
   const expirationDate = text(payload['ExpirationDate']) ?? text(payload['expirationDate']);
+  const supportedOperations = stringArray(payload['SupportedOperations'] ?? payload['supportedOperations']);
+  const userInputMessage = text(payload['Message']) ?? text(payload['message']);
   return {
     requestId: text(payload['RequestId']) ?? text(payload['requestId']) ?? text(parsed['RequestId']) ?? text(parsed['requestId']) ?? fallbackRequestId,
-    text: text(payload['Text']) ?? text(payload['text']) ?? firstContentText(contents),
+    text: text(payload['Text']) ?? text(payload['text']) ?? firstContentText(contents) ?? userInputMessage,
     properties: stringMap(payload['Properties'] ?? payload['properties']),
     contents,
     messageId: text(payload['MessageId']) ?? text(payload['messageId']),
     additionalProperties: plainObject(payload['AdditionalProperties'] ?? payload['additionalProperties']),
     ...(challengeCode && expirationDate ? { otp: { challengeCode, expirationDate } } : {}),
+    ...(supportedOperations.length > 0 ? { operation: { supportedOperations } } : {}),
+    ...(userInputMessage && HitlControlResolver(name) === 'hitl-request-user-input' ? { userInput: { message: userInputMessage } } : {}),
   };
 }
 
@@ -260,9 +292,13 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
  */
 export function hitlResponseParts(request: HitlRequest, answer: string): IChatMessagePart[] {
   const requestId = request.requestId ?? '';
-  const payload: OtpResponse | { userInput: string } = request.otp
+  const payload: OtpResponse | OperationResponse | UserInputResponse | { userInput: string } = request.otp
     ? { challengeCode: request.otp.challengeCode, otp: answer }
-    : { userInput: answer };
+    : request.operation
+      ? { selectedOperation: answer }
+      : request.userInput
+        ? { inputMessage: answer }
+        : { userInput: answer };
   return [
     { value: answer, contentType: 'text/plain', requestId },
     { value: JSON.stringify(payload), contentType: HITL_RESPONSE_MEDIA_TYPE, requestId },
@@ -332,6 +368,13 @@ function stringMap(value: unknown): Record<string, string> | undefined {
   }
   const entries = Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === 'string');
   return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
+/** Narrows a payload member to a list of non-blank strings. */
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    : [];
 }
 
 /** Narrows a payload member to a plain JSON object. */

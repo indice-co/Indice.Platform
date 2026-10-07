@@ -105,7 +105,7 @@ public static class AgentsFeatureExtensions
     /// <see cref="Workflow"/> wiring them in order. Call after <c>AddDex(...)</c>.
     /// </summary>
     public static IServiceCollection AddAgentsDefaultPipeline(this IServiceCollection services) {
-        services.TryAddTransient<IntentClassifier>();
+        services.TryAddTransient<Indice.Features.Agents.Core.Workflows.Steps.IntentClassifier>();
         services.TryAddTransient<QueryRewriter>();
         services.TryAddTransient<Retriever>();
         services.TryAddTransient<Reranker>();
@@ -143,7 +143,7 @@ public static class AgentsFeatureExtensions
                 Links: [],
                 Icon: AgentsConstants.AgentIcons.Book),
             (sp, key) => {
-                var intent = sp.GetRequiredService<IntentClassifier>();
+                var intent = sp.GetRequiredService<Indice.Features.Agents.Core.Workflows.Steps.IntentClassifier>();
                 var rewrite = sp.GetRequiredService<QueryRewriter>();
                 var retrieve = sp.GetRequiredService<Retriever>();
                 var rerank = sp.GetRequiredService<Reranker>();
@@ -257,18 +257,35 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<OtpCodeValidatorStep>();
         services.TryAddTransient<DataPresenterStep>();
 
+        services.TryAddTransient<OperationClassifier>();
+        services.TryAddTransient<UserInputRetriever>();
+        services.TryAddTransient<UserInputCollector>();
+
         services.AddKeyedScoped(AgentsConstants.AgentNames.Operator, (sp, key) => {
+            var operationClassifier = sp.GetRequiredService<OperationClassifier>();
+            var userInputRetriever = sp.GetRequiredService<UserInputRetriever>();
+
             var retriever = sp.GetRequiredService<DataRetrieverStep>();
             var ownershipPrompt = sp.GetRequiredService<AuthenticationChallengeStep>();
             var ownershipValidate = sp.GetRequiredService<AuthenticationStep>();
             var otpSend = sp.GetRequiredService<OtpCodeSendStep>();
             var otpValidate = sp.GetRequiredService<OtpCodeValidatorStep>();
             var dataPresenter = sp.GetRequiredService<DataPresenterStep>();
-
+            
             var ownershipPort = ChallengeRequestPort.Create();
             var otpPort = OtpRequestPort.Create();
+            var operationPort = OperationRequestPort.Create();
+            var userInputPort = UserInputRequestPort.Create();
+            var userInputCollector = sp.GetRequiredService<UserInputCollector>();
 
-            var builder = new WorkflowBuilder(retriever);
+            var builder = new WorkflowBuilder(operationClassifier);
+            builder.AddEdge(operationClassifier, operationPort);
+            builder.AddEdge(operationPort, userInputRetriever);
+            builder.AddSwitch(userInputRetriever, sw => sw
+                .AddCase<UserInputRequestPort.UserInputRequest>(request => request is not null, userInputPort)
+                .WithDefault(retriever));
+            builder.AddEdge(userInputPort, userInputCollector);
+            builder.AddEdge(userInputCollector, retriever);
             builder.AddEdge(retriever, ownershipPrompt);
             builder.AddEdge(ownershipPrompt, ownershipPort);
             builder.AddEdge(ownershipPort, ownershipValidate);
