@@ -375,12 +375,30 @@ public IReadOnlySet<string> MfaImplicitLoginProviders { get; }
     /// <summary>Automatically signs in the given user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="scheme">Authenticates the current request using the specified scheme.</param>
-    public async Task<AuthenticationProperties?> AutoSignIn(TUser user, string scheme) {
+    /// <param name="additionalAuthenticationMethods">
+    /// Authentication methods proved during extended validation that are not yet on the partial sign-in.
+    /// MFA onboarding is the usual case: the partial cookie was issued at password login, before the second factor existed.
+    /// </param>
+    public async Task<AuthenticationProperties?> AutoSignIn(TUser user, string scheme, IEnumerable<string>? additionalAuthenticationMethods = null) {
         var authenticateResult = await Context!.AuthenticateAsync(scheme);
         AuthenticationProperties? authenticationProperties = default;
         if (authenticateResult.Succeeded) {
             authenticationProperties = authenticateResult.Properties;
-            await SignInWithClaimsAsync(user, authenticationProperties, authenticateResult.Principal.Claims.Where(x => x.Type == JwtClaimTypes.AuthenticationMethod || x.Type == BasicClaimTypes.DeviceId));
+            var claims = authenticateResult.Principal.Claims
+                .Where(x => x.Type == JwtClaimTypes.AuthenticationMethod || x.Type == BasicClaimTypes.DeviceId)
+                .ToList();
+            if (additionalAuthenticationMethods is not null) {
+                foreach (var method in additionalAuthenticationMethods) {
+                    if (string.IsNullOrWhiteSpace(method)) {
+                        continue;
+                    }
+                    if (claims.Any(x => x.Type == JwtClaimTypes.AuthenticationMethod && x.Value == method)) {
+                        continue;
+                    }
+                    claims.Add(new Claim(JwtClaimTypes.AuthenticationMethod, method));
+                }
+            }
+            await SignInWithClaimsAsync(user, authenticationProperties, claims);
             await Context!.SignOutAsync(scheme);
         }
         return authenticationProperties;

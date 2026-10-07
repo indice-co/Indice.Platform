@@ -55,7 +55,13 @@ public class UserActivityRequirementFilter<TUser> : ResultFilterAttribute where 
         var requirement = await userStateProvider.GetNextAsync(context.HttpContext, user);
         var returnUrl = context.HttpContext.Request.Query["returnUrl"].ToString();
         if (requirement == UserValidationRequirement.None) {
-            await signInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationScheme);
+            // The partial cookie was created at password login. MFA onboarding proves the second factor
+            // afterwards, so that method has to be added here or the token issued on the way back to the
+            // client is missing "mfa" until the next interactive sign-in.
+            string[]? completedAuthenticationMethods = RequirementKind == UserActivityRequirementKind.RequiresMfaOnboarding && user.TwoFactorEnabled
+                ? ["mfa"]
+                : null;
+            await signInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationScheme, completedAuthenticationMethods);
             // Check if external login is in the context of an OIDC request.
             var oidcContext = await pageModel.InteractionService.GetAuthorizationContextAsync(returnUrl);
             if (oidcContext is not null && oidcContext.IsNativeClient()) {
