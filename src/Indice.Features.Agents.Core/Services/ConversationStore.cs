@@ -164,7 +164,7 @@ public class ConversationStore : IConversationStore
     /// <inheritdoc/>
     public async Task<ChatMessage> AppendTurnAsync(Guid conversationId, ChatMessage userMessage, ChatResponse response,
         CancellationToken cancellationToken) {
-
+        
         await using var transaction = await _db.Database.BeginTransactionAsync(cancellationToken);
         await EnsureConversationWritableAsync(conversationId, cancellationToken);
         var conversation = await _db.Conversations.FirstAsync(s => s.Id == conversationId, cancellationToken);
@@ -177,13 +177,21 @@ public class ConversationStore : IConversationStore
                                 prompt: (int)(response.Usage?.InputTokenCount ?? 0), 
                                 completion: (int)(response.Usage?.OutputTokenCount ?? 0), 
                                 model: string.IsNullOrWhiteSpace(response.ModelId) ? null : response.ModelId);
-        _db.Add(userRow);
-        _db.Add(assistantRow);
 
+        // if this is an empty usermessage with only the topic in the additional properties, we don't want to add it to the database,
+        // but we still want to add the assistant message
+        if (userMessage.Contents.Count == 0 && userMessage.AdditionalProperties?.ContainsKey("topic") == true) {
+            userRow = null;
+        }
+        if (userRow is not null) {
+            _db.Add(userRow);
+            conversation.MessageCount += 1;
+        }
+        _db.Add(assistantRow);
+        conversation.MessageCount += 1;
         conversation.LastActivityAt = assistantRow.CreatedAt;
         conversation.InputTokenCount += response.Usage?.InputTokenCount ?? 0;
         conversation.OutputTokenCount += response.Usage?.OutputTokenCount ?? 0;
-        conversation.MessageCount += 2;
         if (conversation.Title is null && _sessionOptions.TitleAutoGenerate) {
             conversation.Title = DeriveTitle(userMessage);
         }
