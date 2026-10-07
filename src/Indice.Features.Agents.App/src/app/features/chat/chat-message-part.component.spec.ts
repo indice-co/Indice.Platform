@@ -26,7 +26,7 @@ const IMAGE_PART = {
   value: '{"uri":"https://cdn.example.com/a.png","caption":"Figure 1"}',
 };
 
-/** The port name `HitlControlResolver` maps to the free-text field; any other name gets the one-time-code boxes. */
+/** The ownership request uses the free-text field; the `OtpRequest` port gets the one-time-code boxes. */
 const FREE_TEXT_PORT = 'OwnershipVerificationRequestPort';
 
 const HITL_PART = {
