@@ -64,6 +64,7 @@ public abstract class BaseMfaOnboardingVerifyEmailModel : BasePageModel
         if (result) {
             user.EmailConfirmed = true;
             await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.Email.ToString());
+            await RememberVerifiedAuthenticationMethodAsync(CustomGrantTypes.Mfa);
             tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyEmailSuccessMessage);
         } else {
             tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail);

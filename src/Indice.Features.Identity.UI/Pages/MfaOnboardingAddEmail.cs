@@ -2,11 +2,9 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -63,28 +61,20 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        IdentityResult result;
         if (!user.EmailConfirmed) {
-            result = await UserManager.SetEmailAsync(user, Input.Email);
+            var result = await UserManager.SetEmailAsync(user, Input.Email);
             if (!result.Succeeded) {
                 AddModelErrors(result);
                 return Page();
             }
-            if (!await SendVerificationEmailAsync(user)) {
-                ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
-                return Page();
-            }
-            return RedirectToPage("/MfaOnboardingVerifyEmail", routeValues: new { Input.ReturnUrl });
         }
-        result = await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.Email.ToString());
-        if (!result.Succeeded) {
-            AddModelErrors(result);
+        // A confirmed address is not a second factor for this sign-in. Always send a code
+        // and enable MFA only after MfaOnboardingVerifyEmail accepts it.
+        if (!await SendVerificationEmailAsync(user)) {
+            ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
             return Page();
         }
-
-        TempData.Put(TempDataKey, AlertModel.Success(UserManager.MessageDescriber.MfaAddEmailSuccessMessage));
-        View.EmailConfirmed = user.EmailConfirmed;
-        return Page();
+        return RedirectToPage("/MfaOnboardingVerifyEmail", routeValues: new { returnUrl = Input.ReturnUrl ?? returnUrl });
     }
 }
 

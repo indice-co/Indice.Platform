@@ -61,6 +61,7 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
         var result = await UserManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, Input.Code!);
         if (result.Succeeded) {
             await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.PhoneNumber.ToString());
+            await RememberVerifiedAuthenticationMethodAsync(CustomGrantTypes.Mfa);
             tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyPhoneSuccessMessage);
         } else {
             tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone);

@@ -89,6 +89,7 @@ public abstract class BaseMfaOnboardingSetupAuthenticatorModel : BasePageModel
             await BuildViewModel(user, returnUrl);
             return Page();
         }
+        await RememberVerifiedAuthenticationMethodAsync(CustomGrantTypes.Mfa);
         var recoveryCodes = await UserManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10) ?? Enumerable.Empty<string>();
         TempData.Put(RecoveryCodesTempDataKey, new RecoveryCodesViewModel {
             RecoveryCodes = recoveryCodes.ToArray(),

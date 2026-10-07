@@ -5,7 +5,6 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -62,29 +61,22 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        IdentityResult result;
+        var phoneNumber = user.PhoneNumber;
         if (!user.PhoneNumberConfirmed) {
-            result = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+            var result = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
             if (!result.Succeeded) {
                 AddModelErrors(result);
                 return Page();
             }
-            var sent = await SendVerificationSmsAsync(user, Input.PhoneNumber!);
-            if (!sent) {
-                ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
-                return Page();
-            }
-            return RedirectToPage("/MfaOnboardingVerifyPhone", routeValues: new { Input.ReturnUrl });
+            phoneNumber = Input.PhoneNumber;
         }
-        result = await UserManager.SetTwoFactorAsync(user, Core.Models.AuthenticationMethodType.PhoneNumber.ToString());
-        if (!result.Succeeded) {
-            AddModelErrors(result);
+        // A confirmed number is not a second factor for this sign-in. Always send a code
+        // and enable MFA only after MfaOnboardingVerifyPhone accepts it.
+        if (!await SendVerificationSmsAsync(user, phoneNumber!)) {
+            ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
             return Page();
         }
-        
-        TempData.Put(TempDataKey, AlertModel.Success(UserManager.MessageDescriber.MfaAddPhoneSuccessMessage));
-        View.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
-        return Page();
+        return RedirectToPage("/MfaOnboardingVerifyPhone", routeValues: new { returnUrl = Input.ReturnUrl ?? returnUrl });
     }
 }
 

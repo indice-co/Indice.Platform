@@ -51,6 +51,16 @@ public abstract class BasePageModel : PageModel
     /// <summary>The <see cref="IUserRequirementProvider{User}"/> used to retrieve the next validation activity according to the user state.</summary>
     public IUserRequirementProvider<User> UserActivityProvider => _userActivityProvider ??= ServiceProvider.GetRequiredService<IUserRequirementProvider<User>>();
 
+    /// <summary>
+    /// Records that <paramref name="authenticationMethod"/> was verified during this extended-validation session.
+    /// The next full sign-in copies it into <c>amr</c>. Call this only after a successful OTP or authenticator check.
+    /// </summary>
+    /// <param name="authenticationMethod">The authentication method that was just verified.</param>
+    protected Task RememberVerifiedAuthenticationMethodAsync(string authenticationMethod) {
+        var signInManager = ServiceProvider.GetRequiredService<ExtendedSignInManager<User>>();
+        return signInManager.RememberVerifiedAuthenticationMethodAsync(authenticationMethod);
+    }
+
     /// <summary>Checks if the given return URL is safe for redirection.</summary>
     /// <param name="returnUrl">The URL to validate.</param>
     public bool IsValidReturnUrl(string? returnUrl) {

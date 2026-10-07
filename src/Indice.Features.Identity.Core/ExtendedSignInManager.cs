@@ -38,6 +38,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     public const int DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS = 90;
     private const string LOGIN_PROVIDER_KEY = "LoginProvider";
     private const string XSRF_KEY = "XsrfId";
+    // Methods verified in this request. Cookie auth can still return the incoming partial ticket
+    // after RememberVerifiedAuthenticationMethodAsync rewrites it, so same-request sign-in reads this too.
+    private const string VerifiedAuthenticationMethodsItemKey = "Indice.Identity.VerifiedAuthenticationMethods";
     private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
     private readonly IUserStore<TUser> _userStore;
     private readonly ISignInGuard<TUser> _signInGuard;
@@ -375,11 +378,12 @@ public IReadOnlySet<string> MfaImplicitLoginProviders { get; }
     /// <summary>Automatically signs in the given user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="scheme">Authenticates the current request using the specified scheme.</param>
-    /// <param name="additionalAuthenticationMethods">
-    /// Authentication methods proved during extended validation that are not yet on the partial sign-in.
-    /// MFA onboarding is the usual case: the partial cookie was issued at password login, before the second factor existed.
-    /// </param>
-    public async Task<AuthenticationProperties?> AutoSignIn(TUser user, string scheme, IEnumerable<string>? additionalAuthenticationMethods = null) {
+    /// <remarks>
+    /// Copies <c>amr</c> from the partial sign-in. Methods verified earlier in this session
+    /// (see <see cref="RememberVerifiedAuthenticationMethodAsync"/>) are included.
+    /// Configuring two-factor is not itself a verified method.
+    /// </remarks>
+    public async Task<AuthenticationProperties?> AutoSignIn(TUser user, string scheme) {
         var authenticateResult = await Context!.AuthenticateAsync(scheme);
         AuthenticationProperties? authenticationProperties = default;
         if (authenticateResult.Succeeded) {
@@ -387,21 +391,51 @@ public IReadOnlySet<string> MfaImplicitLoginProviders { get; }
             var claims = authenticateResult.Principal.Claims
                 .Where(x => x.Type == JwtClaimTypes.AuthenticationMethod || x.Type == BasicClaimTypes.DeviceId)
                 .ToList();
-            if (additionalAuthenticationMethods is not null) {
-                foreach (var method in additionalAuthenticationMethods) {
-                    if (string.IsNullOrWhiteSpace(method)) {
-                        continue;
-                    }
-                    if (claims.Any(x => x.Type == JwtClaimTypes.AuthenticationMethod && x.Value == method)) {
-                        continue;
-                    }
-                    claims.Add(new Claim(JwtClaimTypes.AuthenticationMethod, method));
+            foreach (var method in VerifiedAuthenticationMethods()) {
+                if (claims.Any(x => x.Type == JwtClaimTypes.AuthenticationMethod && x.Value == method)) {
+                    continue;
                 }
+                claims.Add(new Claim(JwtClaimTypes.AuthenticationMethod, method));
             }
             await SignInWithClaimsAsync(user, authenticationProperties, claims);
             await Context!.SignOutAsync(scheme);
         }
         return authenticationProperties;
+    }
+
+    /// <summary>
+    /// Records that <paramref name="authenticationMethod"/> was verified in this extended-validation session.
+    /// Call this only after a successful OTP or authenticator check. <see cref="AutoSignIn"/> then copies it into <c>amr</c>.
+    /// </summary>
+    /// <param name="authenticationMethod">The authentication method that was just verified, for example <see cref="CustomGrantTypes.Mfa"/>.</param>
+    public async Task RememberVerifiedAuthenticationMethodAsync(string authenticationMethod) {
+        if (string.IsNullOrWhiteSpace(authenticationMethod)) {
+            return;
+        }
+        var verifiedMethods = VerifiedAuthenticationMethods();
+        if (!verifiedMethods.Contains(authenticationMethod)) {
+            verifiedMethods.Add(authenticationMethod);
+        }
+        var scheme = ExtendedIdentityConstants.ExtendedValidationScheme;
+        var authenticateResult = await Context!.AuthenticateAsync(scheme);
+        if (!authenticateResult.Succeeded || authenticateResult.Principal?.Identity is not ClaimsIdentity identity) {
+            return;
+        }
+        if (identity.HasClaim(JwtClaimTypes.AuthenticationMethod, authenticationMethod)) {
+            return;
+        }
+        var updatedIdentity = new ClaimsIdentity(identity.Claims, identity.AuthenticationType, identity.NameClaimType, identity.RoleClaimType);
+        updatedIdentity.AddClaim(new Claim(JwtClaimTypes.AuthenticationMethod, authenticationMethod));
+        await Context.SignInAsync(scheme, new ClaimsPrincipal(updatedIdentity), authenticateResult.Properties);
+    }
+
+    private List<string> VerifiedAuthenticationMethods() {
+        if (Context!.Items.TryGetValue(VerifiedAuthenticationMethodsItemKey, out var stored) && stored is List<string> methods) {
+            return methods;
+        }
+        var created = new List<string>();
+        Context.Items[VerifiedAuthenticationMethodsItemKey] = created;
+        return created;
     }
 
     /// <summary>Gets the current device id from context (broser cookie or form post)</summary>
