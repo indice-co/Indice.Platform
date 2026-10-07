@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - 2026-10-07
 ### Fixed
-- Fixed a bug where in Singleton jobs the exclusive run would create an ef core multiple operations error.
+- Fixed an EF Core multiple-operation error caused by exclusive runs in singleton jobs.
 
 ## [8.55.0] - 2026-09-01
 ### Added
