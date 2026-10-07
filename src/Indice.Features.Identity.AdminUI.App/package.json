@@ -20,7 +20,7 @@
     "@angular/localize": "20.3.29",
     "@angular/platform-browser": "20.3.29",
     "@angular/platform-browser-dynamic": "20.3.29",
-    "@angular/router": "20.3.29",
+    "@angular/router": "20.3.32",
     "@ckeditor/ckeditor5-angular": "10.0.0",
     "@jsonforms/angular": "3.7.0",
     "@jsonforms/core": "3.7.0",
