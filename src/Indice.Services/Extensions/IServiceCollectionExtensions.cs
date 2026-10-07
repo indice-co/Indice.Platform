@@ -248,6 +248,8 @@ public static class IndiceServicesServiceCollectionExtensions
                     services.AddSmsServiceKapaTEL(configuration);
                     break;
                 case "mstat":
+                case "omnimessaging":
+                case "omni_messaging":
                     services.AddSmsServiceOmniMessaging(configuration);
                     break;
                 case "noop":
