@@ -1,6 +1,7 @@
 ﻿using Indice.AspNetCore.Features.Recaptcha;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -18,7 +19,15 @@ public static class RecaptchaFeatureExtensions {
         if (configureAction is not null) {
             services.Configure(configureAction);
         }
-        services.TryAddScoped<IRecaptchaService, RecaptchaService>();
+        services.AddScoped<IRecaptchaService>(serviceProvider => {
+            var options = serviceProvider.GetRequiredService<IOptions<RecaptchaOptions>>().Value;
+            return options.Provider switch {
+                CaptchaProviderType.HCaptcha => serviceProvider.GetRequiredService<HCaptchaService>(),
+                _ => serviceProvider.GetRequiredService<RecaptchaService>()
+            };
+        });
+        services.TryAddScoped<RecaptchaService>();
+        services.TryAddScoped<HCaptchaService>();
         services.AddHttpClient();
         return services;
     }
