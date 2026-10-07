@@ -69,7 +69,7 @@ public class SmsServiceApifon : ISmsService
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(destination));
         }
         // https://docs.apifon.com/apireference.html#sms-request
-        var payload = ApifonRequest.CreateSms(sender?.Id ?? Settings.Sender ?? Settings.SenderName!, recipients, body!, Settings.EnableUrlShortener);
+        var payload = ApifonRequest.CreateSms(sender?.Id ?? Settings.Sender ?? Settings.SenderName!, recipients, body!, Settings.EnableUrlShortener, Settings.CallbackUrl);
         var signature = payload.Sign(Settings.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, "application/json"),
@@ -130,6 +130,8 @@ public class SmsServiceApifonSettings : SmsServiceSettings
     public string Token { get; set; } = null!;
     /// <summary>If enabled all urls in the message will be replaced with shortened urls</summary>
     public bool EnableUrlShortener { get; set; } = false;
+    /// <summary>The callback URL for receiving delivery reports</summary>
+    public string? CallbackUrl { get; set; }
 }
 
 internal class ApifonResponse
@@ -168,7 +170,7 @@ internal class ApifonResponse
 
 internal class ApifonRequest
 {
-    public static ApifonRequest CreateSms(string from, string[] to, string message, bool enableUrlShortener) {
+    public static ApifonRequest CreateSms(string from, string[] to, string message, bool enableUrlShortener, string? callbackUrl = null) {
         var request = new ApifonRequest();
         Dictionary<string, ApifonListParameter>? parameters = null;
         if (enableUrlShortener) {
@@ -183,6 +185,7 @@ internal class ApifonRequest
         }
         request.Message.From = from;
         request.Message.Text = message;
+        request.CallbackUrl = callbackUrl;
         return request;
     }
 
