@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { SettingsStore } from '../settings-store.service';
 import { MediaSetting } from 'src/app/core/services/media-api.service';
 
 @Component({
     selector: 'app-media-settings',
     templateUrl: './media-settings.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MediaSettingsComponent implements OnInit {

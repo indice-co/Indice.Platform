@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { APP_LANGUAGES, ModalService, ToastType } from '@indice/ng-components';
 
@@ -12,6 +12,7 @@ import { combineLatest,  Subject, Subscription, take } from 'rxjs';
 @Component({
     selector: 'app-distribution-list-details-edit',
     templateUrl: './distribution-list-edit-details.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DistributionListDetailsEditComponent implements OnInit, OnDestroy {

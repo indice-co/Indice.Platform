@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastType } from '@indice/ng-components';
 import { FileParameter, CreateDistributionListRequest, MessagesApiClient, MessageType } from 'src/app/core/services/messages-api.service';
@@ -10,6 +10,7 @@ import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toa
 @Component({
     selector: 'app-distribution-list-create',
     templateUrl: './distribution-list-create.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DistributionListCreateComponent implements OnInit, AfterViewInit {

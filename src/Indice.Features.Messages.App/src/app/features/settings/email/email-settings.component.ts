@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent, IResultSet, ListViewType, MenuOption, ModalService, ToastType } from '@indice/ng-components';
 import { Observable, Subject, combineLatest } from 'rxjs';
@@ -11,6 +11,7 @@ import { TranslateService } from '@ngx-translate/core';
 @Component({
     selector: 'app-email-settings',
     templateUrl: './email-settings.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class EmailSettingsComponent extends BaseListComponent<MessageSender> implements OnInit, OnDestroy {

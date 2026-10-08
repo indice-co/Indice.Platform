@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction, FilterClause, SearchOption } from '@indice/ng-components';
@@ -14,6 +14,7 @@ import { trim } from 'lodash';
 @Component({
     selector: 'app-risk-results',
     templateUrl: './risk-results.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class RiskResultsComponent extends BaseListComponent<DbAggregateRuleExecutionResult> implements OnInit {
