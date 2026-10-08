@@ -143,6 +143,7 @@ public static class AgentsConstants
             - {{name}}: {{description}}
             {{/each}}
             The user message may contain a HISTORY: block with the recent conversation (oldest-first) followed by the latest message. Judge the latest message in that context — a follow-up such as "tell me more" belongs to the same agent that handled the previous turn.
+            When a user asks you about an id, or a case id they always want one of the operator agents.
             Return ONLY a JSON object with these fields:
             - AgentName: the exact name of ONE agent from the list above, or null if no listed agent fits.
             - IsInScope: true when one of the listed agents can handle the request; false otherwise.
