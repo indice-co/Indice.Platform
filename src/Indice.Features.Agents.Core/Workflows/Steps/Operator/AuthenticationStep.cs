@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -58,15 +60,42 @@ public sealed class AuthenticationStep : Executor<ChallengeRequestPort.Challenge
     }
 
     /// <summary>
-    /// Compares user input with the case field value, handling various field types.
+    /// Compares user input with the case field value, ignoring case, accents, separators (spaces, dashes, etc.)
+    /// and whether Greek or Latin characters were used.
     /// </summary>
     private static bool CompareInputWithCaseField(string userInput, string actualValue) {
-        if (string.IsNullOrWhiteSpace(userInput))
+        if (string.IsNullOrWhiteSpace(userInput) || string.IsNullOrWhiteSpace(actualValue))
             return false;
-        // Normalize inputs for comparison
-        var normalizedInput = userInput.Trim();
-        var normalizedActual = actualValue.Trim();
-        return string.Equals(normalizedInput, normalizedActual, StringComparison.OrdinalIgnoreCase);
+        var normalizedInput = NormalizeForComparison(userInput);
+        var normalizedActual = NormalizeForComparison(actualValue);
+        return normalizedInput.Length > 0 && string.Equals(normalizedInput, normalizedActual, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Greek letters mapped to their Latin equivalent. Letters that look alike on the keyboard (e.g. Ρ, Η, Χ) map to
+    /// their look-alike so that values such as plate numbers match regardless of the keyboard layout used.
+    /// </summary>
+    private static readonly Dictionary<char, string> GreekToLatin = new() {
+        ['Α'] = "A", ['Β'] = "B", ['Γ'] = "G", ['Δ'] = "D", ['Ε'] = "E", ['Ζ'] = "Z", ['Η'] = "H", ['Θ'] = "TH",
+        ['Ι'] = "I", ['Κ'] = "K", ['Λ'] = "L", ['Μ'] = "M", ['Ν'] = "N", ['Ξ'] = "KS", ['Ο'] = "O", ['Π'] = "P",
+        ['Ρ'] = "P", ['Σ'] = "S", ['Τ'] = "T", ['Υ'] = "Y", ['Φ'] = "F", ['Χ'] = "X", ['Ψ'] = "PS", ['Ω'] = "O"
+    };
+
+    /// <summary>Upper-cases, strips accents and non alphanumeric characters, and transliterates Greek to ASCII.</summary>
+    private static string NormalizeForComparison(string value) {
+        var decomposed = value.ToUpperInvariant().Normalize(NormalizationForm.FormD);
+        var builder = new StringBuilder(decomposed.Length);
+        foreach (var c in decomposed) {
+            if (CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.NonSpacingMark) {
+                continue;
+            }
+            if (GreekToLatin.TryGetValue(c, out var latin)) {
+                builder.Append(latin);
+            } else if (char.IsAsciiLetterOrDigit(c)) {
+                builder.Append(c);
+            }
+        }
+        return builder.ToString();
     }
 }
 
