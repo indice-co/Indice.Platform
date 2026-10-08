@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, TemplateRef } from '@angular/core';
+import { Component, ViewChild, OnInit, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -14,6 +14,7 @@ import { finalize } from 'rxjs/operators';
     selector: 'app-sign-in-logs',
     templateUrl: './sign-in-logs.component.html',
     providers: [NgbDateCustomParserFormatter],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SignInLogsComponent implements OnInit {

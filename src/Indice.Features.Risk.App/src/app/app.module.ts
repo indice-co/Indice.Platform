@@ -1,6 +1,6 @@
-import { NgModule } from '@angular/core';
+import { NgModule, provideZoneChangeDetection } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { AuthHttpInterceptor, AuthService, AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
 import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
@@ -42,6 +42,7 @@ import { RuleOptionsPageComponent } from './shared/rule-options-page/rule-option
         { provide: RISK_API_BASE_URL, useFactory: () => app.settings.api_url },
         { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
         { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
-        provideHttpClient(withInterceptorsFromDi())
+        provideZoneChangeDetection({ eventCoalescing: true }),
+        provideHttpClient(withXhr(), withInterceptorsFromDi())
     ] })
 export class AppModule { }
