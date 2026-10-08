@@ -5,6 +5,8 @@ using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using ModelContextProtocol.Protocol;
+using static Duende.IdentityModel.ClaimComparer;
 
 namespace Indice.Features.Agents.Core.Services;
 
@@ -19,10 +21,13 @@ public class IntentRouterService
     private readonly AIAgent _agent;
     private readonly AgentInfoRegistry _registry;
 
+    private readonly AgentsOptions.RoutingOptions _routing;
+
     /// <summary>Creates a new <see cref="IntentRouterService"/>.</summary>
-    public IntentRouterService([FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
+    public IntentRouterService([FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, IOptions<AgentsOptions> agentsOptions, IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         AgentInfoRegistry registry, UserClaimsAIContextProvider userClaimsProvider, ConversationStoreChatHistoryProvider historyProvider) {
         _registry = registry;
+        _routing = agentsOptions.Value.Routing;
         var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("IntentRouter", new {
             agents = registry.RoutableTargets().Select(agent => new { name = agent.Name, description = agent.Description }),
@@ -41,29 +46,53 @@ public class IntentRouterService
 
     /// <summary>Routes the latest user message to the agent that should handle it.</summary>
     /// <param name="message">The latest user message.</param>
-    /// <param name="conversationId">The conversation id, used to load recent history so follow-ups route in context.</param>
+    /// <param name="chatOptions">The chat options.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
     /// A <see cref="RouteDecision"/> whose <see cref="RouteDecision.AgentName"/> is the chosen agent, or
     /// <c>null</c> with a populated <see cref="RouteDecision.Reason"/> when the request is out of scope.
     /// </returns>
-    public async Task<RouteDecision> RouteAsync(ChatMessage message, string conversationId, CancellationToken cancellationToken = default) {
-        var session = await _agent.CreateSessionAsync(cancellationToken);
-        ConversationStoreChatHistoryProvider.SetSessionId(session, Guid.Parse(conversationId));
-        if (_registry.RoutableTargets().Any(x => x.Name == AgentsConstants.AgentNames.Operator) && TryGetChatTopic(message, out var topic)) {
+    public async Task<RouteDecision> RouteAsync(ChatMessage message, ChatOptions chatOptions, CancellationToken cancellationToken = default) {
+        var suggestedAgent = chatOptions.Instructions;
+
+        suggestedAgent = suggestedAgent?.Trim().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(suggestedAgent)) {
+            suggestedAgent = _routing.DefaultAgent?.Trim().ToLowerInvariant();
+        }
+        if (!string.Equals(suggestedAgent, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
+            suggestedAgent = string.IsNullOrWhiteSpace(suggestedAgent) ? AgentsConstants.AgentNames.Knowledge : suggestedAgent;
             return new RouteDecision {
-                AgentName = AgentsConstants.AgentNames.Operator,
-                IsInScope = true
+                AgentName = suggestedAgent,
+                Reason = "User selection",
+                IsInScope = true,
             };
         }
+        try {
+            var session = await _agent.CreateSessionAsync(cancellationToken);
+            if (chatOptions.ConversationId is not null) { 
+                ConversationStoreChatHistoryProvider.SetSessionId(session, Guid.Parse(chatOptions.ConversationId!));
+            }
+            if (_registry.RoutableTargets().Any(x => x.Name == AgentsConstants.AgentNames.Operator) && TryGetChatTopic(message, out var topic)) {
+                return new RouteDecision {
+                    AgentName = AgentsConstants.AgentNames.Operator,
+                    IsInScope = true
+                };
+            }
 
-        var response = await _agent.RunAsync<RouteDecision>(message.Text, session, cancellationToken: cancellationToken);
-        var result = response.Result;
-        return new RouteDecision {
-            AgentName = result.IsInScope && _registry.Find(result.AgentName ?? string.Empty) is not null ? result.AgentName : null,
-            Reason = result.Reason,
-            IsInScope = result.IsInScope
-        };
+            var response = await _agent.RunAsync<RouteDecision>(message.Text, session, cancellationToken: cancellationToken);
+            var result = response.Result;
+            return new RouteDecision {
+                AgentName = result.IsInScope && _registry.Find(result.AgentName ?? string.Empty) is not null ? result.AgentName : null,
+                Reason = result.Reason,
+                IsInScope = result.IsInScope
+            };
+        } catch (Exception exception) when (exception is not OperationCanceledException) {
+            return new RouteDecision {
+                Reason = exception.Message,
+                IsInScope = false,
+                HasError = true
+            };
+        }
     }
     private static bool TryGetChatTopic(ChatMessage message, out ChatTopic? topic) {
         topic = null;
