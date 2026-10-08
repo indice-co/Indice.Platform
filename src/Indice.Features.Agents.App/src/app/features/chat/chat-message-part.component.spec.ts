@@ -26,15 +26,26 @@ const IMAGE_PART = {
   value: '{"uri":"https://cdn.example.com/a.png","caption":"Figure 1"}',
 };
 
+/** The ownership request uses the free-text field; the `OtpRequest` port gets the one-time-code boxes. */
+const FREE_TEXT_PORT = 'OwnershipVerificationRequestPort';
+
 const HITL_PART = {
   contentType: HITL_REQUEST_MEDIA_TYPE,
+  name: FREE_TEXT_PORT,
   value: '{"Text":"What is the customer\'s VAT number?","RequestId":"a1b2","Properties":{}}',
 };
 
 /** What the server emits today: the correlation id alone, the question carried by sibling prose parts. */
 const HITL_BARE_PART = {
   contentType: HITL_REQUEST_MEDIA_TYPE,
+  name: FREE_TEXT_PORT,
   value: '{"Text":null,"RequestId":"a1b2","Properties":{}}',
+};
+
+const HITL_OTP_PART = {
+  contentType: HITL_REQUEST_MEDIA_TYPE,
+  name: 'OtpRequestPort',
+  value: '{"data":{"challengeCode":"challenge-1","expirationDate":"2026-07-01T12:00:00Z"}}',
 };
 
 describe('ChatMessagePartComponent', () => {
@@ -286,6 +297,143 @@ describe('ChatMessagePartComponent', () => {
       const host = render(HITL_BARE_PART);
       expect(host.querySelector('input')).toBeTruthy();
       expect(host.querySelector('p')).toBeNull();
+    });
+  });
+
+  describe('hitl one-time code', () => {
+    function boxes(host: HTMLElement): string[] {
+      return Array.from(host.querySelectorAll('app-chat-hitl-otp [aria-hidden="true"]')).map(
+        (box) => box.textContent?.trim() ?? '',
+      );
+    }
+
+    it('renders six empty boxes over a single field, with no send button', () => {
+      const host = render(HITL_OTP_PART);
+      expect(boxes(host)).toEqual(['', '', '', '', '', '']);
+      expect(host.querySelectorAll('input').length).toBe(1);
+      expect(host.querySelector('input')?.getAttribute('autocomplete')).toBe('one-time-code');
+      expect(buttons(host).length).toBe(0);
+    });
+
+    it('fills the boxes as digits are typed and sends nothing until the last one', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_OTP_PART);
+      typeAnswer(host, '00123');
+      expect(boxes(host)).toEqual(['0', '0', '1', '2', '3', '']);
+      expect(picked).toEqual([]);
+    });
+
+    it('sends the code as soon as the sixth digit lands, then locks', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_OTP_PART);
+      typeAnswer(host, '001234');
+      typeAnswer(host, '001234');
+      expect(picked).toEqual(['001234']);
+      expect(host.querySelector('input')?.disabled).toBeTrue();
+      expect(host.querySelector('[role="status"]')).toBeTruthy();
+    });
+
+    it('keeps only digits, and no more than six, from a pasted value', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_OTP_PART);
+      typeAnswer(host, 'Code: 12-34 56 78');
+      expect(host.querySelector('input')?.value).toBe('123456');
+      expect(picked).toEqual(['123456']);
+    });
+
+    it('drops a non-digit keystroke without sending', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_OTP_PART);
+      typeAnswer(host, '12a');
+      expect(host.querySelector('input')?.value).toBe('12');
+      expect(picked).toEqual([]);
+    });
+
+    it('is inert once the message is no longer the latest', () => {
+      const host = render(HITL_OTP_PART, { interactive: false });
+      expect(host.querySelector('input')?.disabled).toBeTrue();
+    });
+
+    it('renders nothing when the payload is malformed', () => {
+      const host = render({ contentType: HITL_REQUEST_MEDIA_TYPE, name: 'OtpRequestPort', value: 'not json' });
+      expect(host.querySelector('input')).toBeNull();
+    });
+  });
+
+  describe('hitl payment method', () => {
+    const HITL_PAYMENT_PART = {
+      contentType: HITL_REQUEST_MEDIA_TYPE,
+      name: 'PaymentRequest',
+      value: '{"data":{"methods":["Apple Pay","Google Pay"]}}',
+    };
+
+    function radios(host: HTMLElement): HTMLInputElement[] {
+      return Array.from(host.querySelectorAll('app-chat-hitl-payment input[type="radio"]'));
+    }
+
+    function payButton(host: HTMLElement): HTMLButtonElement {
+      return host.querySelector('app-chat-hitl-payment button[type="button"]') as HTMLButtonElement;
+    }
+
+    function choose(host: HTMLElement, index: number): void {
+      radios(host)[index].dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+    }
+
+    it('renders one radio per method and a pay button that waits for a choice', () => {
+      const host = render(HITL_PAYMENT_PART);
+      expect(radios(host).map((radio) => radio.value)).toEqual(['Apple Pay', 'Google Pay']);
+      expect(payButton(host).disabled).toBeTrue();
+      choose(host, 1);
+      expect(payButton(host).disabled).toBeFalse();
+    });
+
+    it('gives each method its brand icon, and a card for anything unrecognised', () => {
+      const host = render({
+        ...HITL_PAYMENT_PART,
+        value: '{"data":{"methods":["Apple Pay","Google Pay","Credit or debit card"]}}',
+      });
+      const icons = Array.from(host.querySelectorAll('app-chat-hitl-payment [data-icon]'));
+      expect(icons.map((icon) => icon.getAttribute('data-icon'))).toEqual(['apple', 'google', 'card']);
+      expect(icons.map((icon) => icon.querySelector('img')?.getAttribute('src') ?? null)).toEqual([
+        'apple-pay-mark.svg',
+        'google-pay-mark.svg',
+        null,
+      ]);
+      expect(icons[2].querySelector('svg')).toBeTruthy();
+    });
+
+    it('opens the sheet on pay and sends the chosen method once it is dismissed, then locks', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_PAYMENT_PART);
+      const sheet = host.querySelector('dialog') as HTMLDialogElement;
+      choose(host, 0);
+      payButton(host).click();
+      expect(sheet.open).toBeTrue();
+      expect(picked).toEqual([]);
+      sheet.dispatchEvent(new Event('close'));
+      sheet.dispatchEvent(new Event('close'));
+      fixture.detectChanges();
+      expect(picked).toEqual(['Apple Pay']);
+      expect(payButton(host).disabled).toBeTrue();
+      sheet.close();
+    });
+
+    it('is inert once the message is no longer the latest', () => {
+      const host = render(HITL_PAYMENT_PART, { interactive: false });
+      expect(payButton(host).disabled).toBeTrue();
+      expect(host.querySelector('fieldset')?.disabled).toBeTrue();
+    });
+
+    it('renders nothing when the payload carries no methods', () => {
+      const host = render({ contentType: HITL_REQUEST_MEDIA_TYPE, name: 'PaymentRequest', value: '{"data":{}}' });
+      expect(host.querySelector('input')).toBeNull();
+      expect(host.querySelector('dialog')).toBeNull();
     });
   });
 

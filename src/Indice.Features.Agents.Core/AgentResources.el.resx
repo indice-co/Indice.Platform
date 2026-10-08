@@ -117,49 +117,85 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="StepAnswerComposer" xml:space="preserve">
-    <value>Σύνθεση απάντησης</value>
-  </data>
-  <data name="StepCaseDataPresenter" xml:space="preserve">
-    <value>Παρουσίαση στοιχείων υπόθεσης</value>
-  </data>
-  <data name="StepCaseDataRetriever" xml:space="preserve">
-    <value>Ανάκτηση στοιχείων υπόθεσης</value>
-  </data>
-  <data name="StepIntentClassifier" xml:space="preserve">
-    <value>Ταξινόμηση πρόθεσης</value>
-  </data>
-  <data name="StepOtpAgent" xml:space="preserve">
-    <value>Αποστολή OTP</value>
-  </data>
-  <data name="StepOtpCodeSend" xml:space="preserve">
-    <value>Αποστολή OTP</value>
-  </data>
-  <data name="StepOtpCodeValidator" xml:space="preserve">
-    <value>Επαλήθευση κωδικού OTP</value>
-  </data>
-  <data name="StepOtpRetryChallengeBuilder" xml:space="preserve">
-    <value>Προετοιμασία νέας προσπάθειας OTP</value>
-  </data>
-  <data name="StepOutOfScopeResponder" xml:space="preserve">
-    <value>Προετοιμασία απάντησης</value>
-  </data>
-  <data name="StepOwnershipValidator" xml:space="preserve">
-    <value>Επικύρωση επιβεβαίωσης κατόχου</value>
-  </data>
-  <data name="StepOwnershipVerifier" xml:space="preserve">
-    <value>Επαλήθευση κατόχου υπόθεσης</value>
-  </data>
-  <data name="StepPurposeResponder" xml:space="preserve">
-    <value>Παροχή απάντησης</value>
-  </data>
-  <data name="StepQueryRewriter" xml:space="preserve">
-    <value>Αναδιατύπωση ερωτήματος</value>
-  </data>
-  <data name="StepReranker" xml:space="preserve">
-    <value>Επανακατάταξη αποτελεσμάτων</value>
-  </data>
-  <data name="StepRetriever" xml:space="preserve">
-    <value>Ανάκτηση σχετικού περιεχομένου</value>
-  </data>
+<data name="ChallengeSucceeded" xml:space="preserve">
+  <value>Ευχαριστούμε. Τα στοιχεία σας επιβεβαιώθηκαν.</value>
+</data>
+<data name="InvalidOtpMaxAttemptsReachedMessage" xml:space="preserve">
+  <value>Ο κωδικός επιβεβαίωσης δεν είναι σωστός και έχετε φτάσει τον μέγιστο αριθμό προσπαθειών. Παρακαλούμε δοκιμάστε ξανά.</value>
+</data>
+<data name="InvalidOtpRetryMessage" xml:space="preserve">
+  <value>Ο κωδικός επιβεβαίωσης δεν είναι σωστός. Δοκιμάστε ξανά. Προσπάθειες που απομένουν: {0}.</value>
+</data>
+<data name="OtpInputValidationEmpty" xml:space="preserve">
+  <value>Εισαγάγετε τον κωδικό επιβεβαίωσης που στείλαμε στο τηλέφωνό σας.</value>
+</data>
+<data name="OtpVerificationCodeSendMessage" xml:space="preserve">
+  <value>Στείλαμε έναν κωδικό επιβεβαίωσης στο {0}. Εισαγάγετε τον κωδικό για να συνεχίσετε.</value>
+</data>
+<data name="OtvpVerificationFailedMessage" xml:space="preserve">
+  <value>Ο κωδικός επιβεβαίωσης δεν είναι σωστός.</value>
+</data>
+<data name="OtvpVerificationSuccessMessage" xml:space="preserve">
+  <value>Η επιβεβαίωση ολοκληρώθηκε.</value>
+</data>
+<data name="PaymentCompletedMessage" xml:space="preserve">
+  <value>Ευχαριστούμε για την πληρωμή σας. Μπορείτε να παραλάβετε το αμάξι σας από το parking A2 μεταξύ 17:30-18:00. Παρακαλώ, να έχετε πρόχειρη την ταυτότητα σας.</value>
+</data>
+<data name="OwnershipVerificationFailedMaxAttemptsMessage" xml:space="preserve">
+  <value>Δεν μπορέσαμε να επιβεβαιώσουμε τα στοιχεία σας. Αποτυχημένες προσπάθειες: {0}.</value>
+</data>
+<data name="OwnershipVerificationMessagePrompt" xml:space="preserve">
+  <value>Εισαγάγετε τον αριθμό κυκλοφορίας του οχήματός σας για να συνεχίσετε.</value>
+</data>
+<data name="StepAnswerComposer" xml:space="preserve">
+  <value>Προετοιμασία απάντησης</value>
+</data>
+<data name="StepCaseDataPresenter" xml:space="preserve">
+  <value>Προετοιμασία στοιχείων</value>
+</data>
+<data name="StepCaseDataRetriever" xml:space="preserve">
+  <value>Ανάκτηση πληροφοριών</value>
+</data>
+<data name="StepIntentClassifier" xml:space="preserve">
+  <value>Κατανόηση του αιτήματος</value>
+</data>
+<data name="StepOtpAgent" xml:space="preserve">
+  <value>Αποστολή κωδικού επιβεβαίωσης</value>
+</data>
+<data name="StepOtpCodeSend" xml:space="preserve">
+  <value>Αποστολή κωδικού επιβεβαίωσης</value>
+</data>
+<data name="StepOtpCodeValidator" xml:space="preserve">
+  <value>Έλεγχος κωδικού επιβεβαίωσης</value>
+</data>
+<data name="StepOtpRetryChallengeBuilder" xml:space="preserve">
+  <value>Προετοιμασία νέας προσπάθειας</value>
+</data>
+<data name="StepOutOfScopeResponder" xml:space="preserve">
+  <value>Προετοιμασία απάντησης</value>
+</data>
+<data name="StepOwnershipValidator" xml:space="preserve">
+  <value>Έλεγχος στοιχείων</value>
+</data>
+<data name="StepOwnershipVerifier" xml:space="preserve">
+  <value>Επαλήθευση στοιχείων</value>
+</data>
+<data name="StepPurposeResponder" xml:space="preserve">
+  <value>Προετοιμασία απάντησης</value>
+</data>
+<data name="StepQueryRewriter" xml:space="preserve">
+  <value>Επεξεργασία του αιτήματος</value>
+</data>
+<data name="StepReranker" xml:space="preserve">
+  <value>Αξιολόγηση αποτελεσμάτων</value>
+</data>
+<data name="StepRetriever" xml:space="preserve">
+  <value>Αναζήτηση σχετικών πληροφοριών</value>
+</data>
+<data name="VerificationFailedMaxAttempts" xml:space="preserve">
+  <value>Δεν μπορέσαμε να επιβεβαιώσουμε τα στοιχεία σας και συμπληρώθηκε ο μέγιστος αριθμός των {0} προσπαθειών. Δοκιμάστε ξανά αργότερα.</value>
+</data>
+<data name="VerificationFailedRetry" xml:space="preserve">
+  <value>Τα στοιχεία που καταχωρίσατε δεν ταιριάζουν με τα αρχεία μας. Ελέγξτε τα και δοκιμάστε ξανά. Προσπάθεια {0} από {1}.</value>
+</data>
 </root>
