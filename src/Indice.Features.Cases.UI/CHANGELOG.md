@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `file-array` widget for case attachments in BackOffice. Selected files are listed in the form, and saved attachments can be downloaded or removed.
+- File requirements tooltip and localized validation messages for accepted file types, file count and file size. Rejected file names are shown in a list.
+- A way for developers to console log validation errors in case they are not shown by inputs. This is meant to be used in development only. You can now do this by adding an item in the `layout` like this `{ "debugForm": true }`. Make sure to also set your log level in your browser to verbose or anything equivalent that prints debug messages.
+
+File count limits are read from the data schema. File types and the maximum size of each file are set in the layout options:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "maxItems": 2
+    }
+  },
+  "required": []
+}
+```
+
+```json
+[
+  {
+    "key": "attachments",
+    "type": "file-array",
+    "options": {
+      "maxFileSizeBytes": 2000000,
+      "accept": [".pdf", ".docx", ".jpg", ".png"]
+    }
+  }
+]
+```
+
+`minItems` applies when `attachments` is present. The example allows the property to be omitted; add `"attachments"` to `required` to make it mandatory. `maxFileSizeBytes` is in bytes.
+
+### Fixed
+
+- Empty attachment row no longer appears when the form first renders.
+- Fixed the Cancel button when editing a case whose schema or layout was already parsed.
+- Cancelling case edits now clears pending uploads so they cannot replace saved attachments on the next save.
+- Fixed the case details submission date format by using `yyyy` instead of `YYYY`.
+
 ## [8.50.0] - 2026-06-16
 
 ### Overriding / extending translations

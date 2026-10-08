@@ -31,6 +31,7 @@ import { NgModule } from '@angular/core';
 import { QuillModule } from 'ngx-quill';
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
 import { BeautifyBooleanPipe, ValueFromPathPipe, ToReadableDatePipe } from './pipes.services';
+import { FileArrayWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/file-array-widget/file-array-widget.component';
 
 @NgModule({ declarations: [
         // components
@@ -46,6 +47,7 @@ import { BeautifyBooleanPipe, ValueFromPathPipe, ToReadableDatePipe } from './pi
         DeleteQueryModalComponent,
         // ajsf
         FileWidgetComponent,
+        FileArrayWidgetComponent,
         TailwindFrameworkComponent,
         SelectWidgetComponent,
         SubmitWidgetComponent,
