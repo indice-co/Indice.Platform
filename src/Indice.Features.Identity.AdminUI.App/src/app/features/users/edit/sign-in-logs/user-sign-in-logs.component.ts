@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { IdentityApiService, SignInLogEntry, SignInLogEntryResultSet } from 'src/app/core/services/identity-api.service';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
@@ -11,6 +11,7 @@ import { finalize } from 'rxjs/operators';
 @Component({
     selector: 'app-user-sign-in-logs',
     templateUrl: './user-sign-in-logs.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UserSignInLogsComponent implements OnInit {

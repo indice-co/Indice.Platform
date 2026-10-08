@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, Observable, takeUntil, switchMap, shareReplay, take } from 'rxjs';
 
@@ -8,6 +8,7 @@ import { ContactService } from '../contact.service';
 @Component({
     selector: 'app-contact-preferences',
     templateUrl: './contact-preferences.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ContactPreferencesComponent implements OnInit, OnDestroy {

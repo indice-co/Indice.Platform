@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { IdentityApiService, ApiScopeInfo } from 'src/app/core/services/identity-api.service';
@@ -7,6 +7,7 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 @Component({
     selector: 'app-scope-edit',
     templateUrl: './scope-edit.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ScopeEditComponent implements OnInit {

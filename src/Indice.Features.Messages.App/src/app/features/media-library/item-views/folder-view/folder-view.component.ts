@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnDestroy, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MediaFile, MediaFolder, FolderContent } from 'src/app/core/services/media-api.service';
 import { ModalService, ToastType } from '@indice/ng-components';
@@ -13,6 +13,7 @@ import { takeUntil } from 'rxjs/operators';
 @Component({
     selector: 'app-folder-view',
     templateUrl: './folder-view.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class FolderViewComponent implements OnInit, OnDestroy {
