@@ -61,7 +61,16 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Thank you..
+        ///   Looks up a localized string similar to Please type your reference number..
+        /// </summary>
+        internal static string AskReferenceNumber {
+            get {
+                return ResourceManager.GetString("AskReferenceNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thanks. Your details have been verified..
         /// </summary>
         internal static string ChallengeSucceeded {
             get {
@@ -70,7 +79,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The OTP code is invalid. You have reached the maximum number of attempts. Please start again..
+        ///   Looks up a localized string similar to That verification code isn&apos;t correct, and you&apos;ve reached the maximum number of attempts. Please try again..
         /// </summary>
         internal static string InvalidOtpMaxAttemptsReachedMessage {
             get {
@@ -79,7 +88,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to That OTP was not valid. Please try again - {0} attempt(s) left..
+        ///   Looks up a localized string similar to That verification code isn&apos;t correct. Please try again. Attempts remaining: {0}..
         /// </summary>
         internal static string InvalidOtpRetryMessage {
             get {
@@ -88,7 +97,25 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to I didn&apos;t receive an OTP code. Please enter the OTP sent to your phone..
+        ///   Looks up a localized string similar to Hello I am your Digital assistant. I am retrieving your data..
+        /// </summary>
+        internal static string OperatorWelcomeKnownCase {
+            get {
+                return ResourceManager.GetString("OperatorWelcomeKnownCase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hello I am your Digital assistant. With what can I help you?.
+        /// </summary>
+        internal static string OperatorWelcomeUknownCase {
+            get {
+                return ResourceManager.GetString("OperatorWelcomeUknownCase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the verification code we sent to your phone..
         /// </summary>
         internal static string OtpInputValidationEmpty {
             get {
@@ -97,7 +124,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A verification code was send to {0}. Please enter the OTP you received..
+        ///   Looks up a localized string similar to We&apos;ve sent a verification code to {0}. Enter the code to continue..
         /// </summary>
         internal static string OtpVerificationCodeSendMessage {
             get {
@@ -106,7 +133,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to OtvpVerificationFailedMessage.
+        ///   Looks up a localized string similar to That verification code isn&apos;t correct..
         /// </summary>
         internal static string OtvpVerificationFailedMessage {
             get {
@@ -115,7 +142,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The OTP is valid.
+        ///   Looks up a localized string similar to Verification complete..
         /// </summary>
         internal static string OtvpVerificationSuccessMessage {
             get {
@@ -124,7 +151,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ownership verification failed after {0} attempts..
+        ///   Looks up a localized string similar to We weren&apos;t able to verify your details. Failed attempts: {0}..
         /// </summary>
         internal static string OwnershipVerificationFailedMaxAttemptsMessage {
             get {
@@ -133,7 +160,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please enter your car license plate to complete the verification process..
+        ///   Looks up a localized string similar to Enter your vehicle&apos;s license plate number to continue..
         /// </summary>
         internal static string OwnershipVerificationMessagePrompt {
             get {
@@ -142,7 +169,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Composing answer.
+        ///   Looks up a localized string similar to Preparing response.
         /// </summary>
         internal static string StepAnswerComposer {
             get {
@@ -151,7 +178,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Retrieving details.
+        ///   Looks up a localized string similar to Preparing details.
         /// </summary>
         internal static string StepCaseDataPresenter {
             get {
@@ -160,7 +187,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Retrieving Data.
+        ///   Looks up a localized string similar to Retrieving information.
         /// </summary>
         internal static string StepCaseDataRetriever {
             get {
@@ -169,7 +196,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Classifying intent.
+        ///   Looks up a localized string similar to Understanding request.
         /// </summary>
         internal static string StepIntentClassifier {
             get {
@@ -178,7 +205,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sending OTP.
+        ///   Looks up a localized string similar to Sending verification code.
         /// </summary>
         internal static string StepOtpAgent {
             get {
@@ -187,7 +214,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sending OTP.
+        ///   Looks up a localized string similar to Sending verification code.
         /// </summary>
         internal static string StepOtpCodeSend {
             get {
@@ -196,7 +223,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Verifying OTP code.
+        ///   Looks up a localized string similar to Checking verification code.
         /// </summary>
         internal static string StepOtpCodeValidator {
             get {
@@ -205,7 +232,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Preparing OTP retry.
+        ///   Looks up a localized string similar to Preparing another attempt.
         /// </summary>
         internal static string StepOtpRetryChallengeBuilder {
             get {
@@ -223,7 +250,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Validating user.
+        ///   Looks up a localized string similar to Checking details.
         /// </summary>
         internal static string StepOwnershipValidator {
             get {
@@ -232,7 +259,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Verifying user.
+        ///   Looks up a localized string similar to Verifying details.
         /// </summary>
         internal static string StepOwnershipVerifier {
             get {
@@ -241,7 +268,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Answering.
+        ///   Looks up a localized string similar to Preparing response.
         /// </summary>
         internal static string StepPurposeResponder {
             get {
@@ -250,7 +277,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Rewriting query.
+        ///   Looks up a localized string similar to Refining request.
         /// </summary>
         internal static string StepQueryRewriter {
             get {
@@ -259,7 +286,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ranking results.
+        ///   Looks up a localized string similar to Reviewing results.
         /// </summary>
         internal static string StepReranker {
             get {
@@ -268,7 +295,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Retrieve relevant context.
+        ///   Looks up a localized string similar to Finding relevant information.
         /// </summary>
         internal static string StepRetriever {
             get {
@@ -277,7 +304,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Verification failed. Maximum {0} attempts reached. Please try again later..
+        ///   Looks up a localized string similar to We couldn&apos;t verify your details, and you&apos;ve reached the maximum number of {0} attempts. Please try again later..
         /// </summary>
         internal static string VerificationFailedMaxAttempts {
             get {
@@ -286,7 +313,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The information provided does not match our records. Attempt {0} of {1}. Please try again..
+        ///   Looks up a localized string similar to Those details don&apos;t match our records. Please check them and try again. Attempt {0} of {1}..
         /// </summary>
         internal static string VerificationFailedRetry {
             get {

@@ -257,13 +257,13 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<OtpCodeValidatorStep>();
         services.TryAddTransient<DataPresenterStep>();
 
-        services.TryAddTransient<OperationClassifier>();
-        services.TryAddTransient<UserInputRetriever>();
+        services.TryAddTransient<OperationSelectionStep>();
+        services.TryAddTransient<CaseReferenceResolverStep>();
         services.TryAddTransient<UserInputCollector>();
 
         services.AddKeyedScoped(AgentsConstants.AgentNames.Operator, (sp, key) => {
-            var operationClassifier = sp.GetRequiredService<OperationClassifier>();
-            var userInputRetriever = sp.GetRequiredService<UserInputRetriever>();
+            var operationClassifier = sp.GetRequiredService<OperationSelectionStep>();
+            var userInputRetriever = sp.GetRequiredService<CaseReferenceResolverStep>();
 
             var retriever = sp.GetRequiredService<DataRetrieverStep>();
             var ownershipPrompt = sp.GetRequiredService<AuthenticationChallengeStep>();

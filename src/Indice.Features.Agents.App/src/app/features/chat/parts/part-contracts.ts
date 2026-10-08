@@ -140,9 +140,15 @@ export interface OtpResponse {
   otp: string;
 }
 
+/** An operation the user may pick. Mirrors `OperationRequestPort.AllowedOperation`. */
+export interface AllowedOperation {
+  operation: string;
+  operationDescription: string;
+}
+
 /** The server's operation selection request. Mirrors `OperationRequestPort.OperationRequest`. */
 export interface OperationRequest {
-  supportedOperations: string[];
+  supportedOperations: AllowedOperation[];
 }
 
 /** The user's chosen operation. Mirrors `OperationRequestPort.OperationResponse`. */
@@ -266,7 +272,14 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
   const contents = objectArray(payload['Contents'] ?? payload['contents']);
   const challengeCode = text(payload['ChallengeCode']) ?? text(payload['challengeCode']);
   const expirationDate = text(payload['ExpirationDate']) ?? text(payload['expirationDate']);
-  const supportedOperations = stringArray(payload['SupportedOperations'] ?? payload['supportedOperations']);
+  const supportedOperations = (objectArray(payload['SupportedOperations'] ?? payload['supportedOperations']) ?? [])
+    .map((item) => {
+      const operation = text(item['Operation']) ?? text(item['operation']);
+      return operation
+        ? { operation, operationDescription: text(item['OperationDescription']) ?? text(item['operationDescription']) ?? operation }
+        : null;
+    })
+    .filter((item): item is AllowedOperation => item !== null);
   const userInputMessage = text(payload['Message']) ?? text(payload['message']);
   return {
     requestId: text(payload['RequestId']) ?? text(payload['requestId']) ?? text(parsed['RequestId']) ?? text(parsed['requestId']) ?? fallbackRequestId,
@@ -295,7 +308,7 @@ export function hitlResponseParts(request: HitlRequest, answer: string): IChatMe
   const payload: OtpResponse | OperationResponse | UserInputResponse | { userInput: string } = request.otp
     ? { challengeCode: request.otp.challengeCode, otp: answer }
     : request.operation
-      ? { selectedOperation: answer }
+      ? { selectedOperation: resolveOperation(request.operation, answer) }
       : request.userInput
         ? { inputMessage: answer }
         : { userInput: answer };
@@ -303,6 +316,19 @@ export function hitlResponseParts(request: HitlRequest, answer: string): IChatMe
     { value: answer, contentType: 'text/plain', requestId },
     { value: JSON.stringify(payload), contentType: HITL_RESPONSE_MEDIA_TYPE, requestId },
   ];
+}
+
+/**
+ * Maps an answer to the operation name the server expects. Buttons emit the description (what the thread shows), and
+ * a typed answer may be either the description or the name; anything unmatched is passed through as-is.
+ */
+function resolveOperation(request: OperationRequest, answer: string): string {
+  const normalized = answer.trim().toLowerCase();
+  const match = request.supportedOperations.find(
+    (candidate) =>
+      candidate.operationDescription.toLowerCase() === normalized || candidate.operation.toLowerCase() === normalized,
+  );
+  return match?.operation ?? answer;
 }
 
 /** The parts of an ordinary, unstructured user turn. */

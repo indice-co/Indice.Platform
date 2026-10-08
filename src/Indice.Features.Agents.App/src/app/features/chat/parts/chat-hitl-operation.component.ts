@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 
-import { HitlRequest } from './part-contracts';
+import { AllowedOperation, HitlRequest } from './part-contracts';
 
 /**
- * Renders an `OperationRequest` HITL part as a list of checkboxes of which only one may be ticked. The chosen operation
- * is emitted as plain text, which the chat page sends as the next user message; `hitlResponseParts` attaches the
- * structured `{ selectedOperation }` answer.
+ * Renders an `OperationRequest` HITL part as one button per allowed operation, labelled with its description. Clicking
+ * a button emits it as plain text, which the chat page sends as the next user message; `hitlResponseParts` attaches the
+ * structured `{ selectedOperation }` answer carrying the operation name.
  *
  * Locks itself on submit so nothing can fire two turns before the user message lands; `disabled` is the outer rule
  * (only the last message in the thread stays actionable).
@@ -20,16 +20,16 @@ import { HitlRequest } from './part-contracts';
           <p class="text-sm text-base-content/70">{{ ask.text }}</p>
         }
         <div class="flex flex-wrap gap-2" role="group" [attr.aria-label]="ask.text || 'Choose an operation'">
-          @for (operation of operations(); track operation) {
+          @for (operation of operations(); track operation.operation) {
             <button
               type="button"
               class="btn btn-sm"
-              [class.btn-primary]="selected() === operation"
-              [class.btn-outline]="selected() !== operation"
+              [class.btn-primary]="selected() === operation.operation"
+              [class.btn-outline]="selected() !== operation.operation"
               [disabled]="locked()"
               (click)="submit(operation)"
             >
-              {{ operation }}
+              {{ operation.operationDescription }}
             </button>
           }
         </div>
@@ -62,12 +62,16 @@ export class ChatHitlOperationComponent {
   /** Sent, and still the latest message: the answer is on its way but nothing has come back yet. */
   protected readonly sending = computed(() => this.picked() && !this.disabled());
 
-  protected submit(operation: string): void {
-    if (this.locked() || !operation) {
+  /**
+   * Emits the description, which becomes the visible user message; `hitlResponseParts` maps it back to the operation
+   * name sent as `selectedOperation`.
+   */
+  protected submit(operation: AllowedOperation): void {
+    if (this.locked()) {
       return;
     }
-    this.selected.set(operation);
+    this.selected.set(operation.operation);
     this.picked.set(true);
-    this.pick.emit(operation);
+    this.pick.emit(operation.operationDescription);
   }
 }

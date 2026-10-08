@@ -14,10 +14,12 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// </summary>
 [SendsMessage(typeof(OperationRequestPort.OperationRequest))]
 [SendsMessage(typeof(ChatMessage))]
-internal sealed class OperationClassifier : Executor<ChatMessage>
+internal sealed class OperationSelectionStep : Executor<ChatMessage>
 {
-    /// <summary>Creates a new <see cref="OperationClassifier"/>.</summary>
-    public OperationClassifier() : base(nameof(OperationClassifier)) {
+    private readonly AgentMessageLocalizer _messageLocalizer;
+    /// <summary>Creates a new <see cref="OperationSelectionStep"/>.</summary>
+    public OperationSelectionStep(AgentMessageLocalizer messageLocalizer) : base(nameof(OperationSelectionStep)) {
+        _messageLocalizer = messageLocalizer;
     }
 
     /// <inheritdoc/>
@@ -32,11 +34,11 @@ internal sealed class OperationClassifier : Executor<ChatMessage>
         
         //var userInput = message.Text ?? string.Empty;
         if (message.AdditionalProperties.TryGetValue<ChatTopic>(nameof(ChatTopic), out var additional) && !string.IsNullOrEmpty(additional.ReferenceType)) {
-            await context.Say(Id, "Hello I am your Digital assistant. I am retrieving you data.");
+            await context.Say(Id, _messageLocalizer.OperatorWelcomeKnownCase);
             await context.SendMessageAsync(message, cancellationToken);
             return;
         }
-        await context.Say(Id, "Hello I am your Digital assistant. With what can I help you?");
-        await context.SendMessageAsync(new OperationRequestPort.OperationRequest(["Service PickUp", "Appointment"]), cancellationToken);
+        await context.Say(Id, _messageLocalizer.OperatorWelcomeUknownCase);
+        await context.SendMessageAsync(new OperationRequestPort.OperationRequest([new("ServicePickUp", "Service PickUp"),new("Appointment", "Book a service appointment")]), cancellationToken);
     }
 }
