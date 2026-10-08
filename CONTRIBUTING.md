@@ -4,9 +4,22 @@
 
 | | Contents | |
 |---|---|---|
-| 🚦 [Workflow](#-the-workflow-in-5-steps) | 🐛 [Issues & plans](#-issues--plans) | 🗺️ [Where things live](#%EF%B8%8F-where-things-live) |
-| 🌿 [Branches & PR titles](#-branches--pr-titles) | ✍️ [Code rules](#%EF%B8%8F-code-rules-the-short-list) | 🧪 [Tests](#-tests) |
-| 📦 [Versions & changelog](#-versions--changelog) | ✅ [PR checklist](#-pr-checklist) | 🙋 [Questions](#-questions) |
+| 🚀 [Getting started](#-getting-started) | 🚦 [Workflow](#-the-workflow-in-5-steps) | 🐛 [Issues & plans](#-issues--plans) |
+| 🗺️ [Where things live](#%EF%B8%8F-where-things-live) | 🌿 [Branches & PR titles](#-branches--pr-titles) | ✍️ [Code rules](#%EF%B8%8F-code-rules-the-short-list) |
+| 🧪 [Tests](#-tests) | 📦 [Versions & changelog](#-versions--changelog) | ✅ [PR checklist](#-pr-checklist) |
+| 🙋 [Questions](#-questions) | | |
+
+## 🚀 Getting started
+
+You need the **.NET SDK 10** (the exact version is pinned in [`global.json`](global.json)) and **Node.js 24** with npm, which builds the Angular SPAs.
+
+Clone the repo, then run this script from the repo root:
+
+```powershell
+.\local-feed.ps1
+```
+
+It builds the whole solution in `Release`, packs every library into `.\artifacts`, and creates a local NuGet feed in `.\.nuget\packages`. Add that folder as a package source in your own app to try your changes before opening a PR. Nothing is published.
 
 ## 🚦 The workflow in 5 steps
 
@@ -29,9 +42,6 @@
 
 - ✅ **Preferred:** post the plan in the issue, so it can be discussed before the work is done.
 - ↪️ **Alternative:** if it is not in the issue, it **must** be in the PR description.
-
-
-Working on a SPA: `cd src\Indice.Features.<Product>.App`, then `npm install` once and `npm start`.
 
 ## 🗺️ Where things live
 
@@ -89,13 +99,13 @@ We use **xUnit v3**. Some testing is always preferred over none — cover what y
 ## 📦 Versions & changelog
 
 - ✅ **You:** add an entry to the package's `CHANGELOG.md` when a change is breaking or needs action from consumers (a SQL script, a config change, a renamed API). Not every package has one — skip it if there is none.
-- 🚫 **Not you:** don't change `VersionPrefix*` in [`src/Directory.Build.props`](src/Directory.Build.props) and don't run `pack.ps1`. Maintainers bump versions and publish to NuGet.
+- 🚫 **Not you:** don't change `VersionPrefix*` in [`src/Directory.Build.props`](src/Directory.Build.props) and don't publish packages. Maintainers bump versions and publish to NuGet.
 
 ## ✅ PR checklist
 
 - [ ] Linked to an issue (`Closes #123`)
 - [ ] The plan is in the issue, or in this PR's description
-- [ ] `dotnet build Indice.Platform.slnf` succeeds
+- [ ] `dotnet build Indice.Platform.slnx` succeeds
 - [ ] Tests added or updated, and passing
 - [ ] Public API has XML docs
 - [ ] `CHANGELOG.md` updated if the change is breaking
