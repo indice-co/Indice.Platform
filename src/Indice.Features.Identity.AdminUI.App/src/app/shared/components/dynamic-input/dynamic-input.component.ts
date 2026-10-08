@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, ChangeDetectionStrategy } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { ClaimValueType } from 'src/app/core/services/identity-api.service';
@@ -11,6 +11,7 @@ import { ClaimValueType } from 'src/app/core/services/identity-api.service';
             useExisting: forwardRef(() => DynamicInputComponent),
             multi: true
         }],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DynamicInputComponent implements ControlValueAccessor {

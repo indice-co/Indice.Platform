@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
@@ -13,6 +13,7 @@ import { ListViewComponent } from 'src/app/shared/components/list-view/list-view
 @Component({
     selector: 'app-user-logins',
     templateUrl: './user-logins.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UserLoginsComponent implements OnInit, OnDestroy {

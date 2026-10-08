@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { StepBaseComponent } from '../../../../../../shared/components/step-base/step-base.component';
 import { CreateClientRequest, CreateSecretRequest } from 'src/app/core/services/identity-api.service';
@@ -8,6 +8,7 @@ import { ClientWizardModel } from '../../models/client-wizard-model';
 @Component({
     selector: 'app-summary-step',
     templateUrl: './summary-step.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SummaryStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {

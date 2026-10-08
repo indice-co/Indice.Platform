@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { forkJoin } from 'rxjs';
@@ -8,6 +8,7 @@ import { ListContactCreateComponent } from 'src/app/shared/components/list-conta
 @Component({
     selector: 'app-contact-create',
     templateUrl: './contact-create.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ContactCreateComponent implements OnInit, AfterViewInit {

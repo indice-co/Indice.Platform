@@ -1,6 +1,6 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, ViewChild, OnDestroy, Inject } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, OnDestroy, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { APP_LANGUAGES, HeaderMetaItem, Icons, ViewLayoutComponent } from '@indice/ng-components';
+import { APP_LANGUAGES, HeaderMetaItem, Icons } from '@indice/ng-components';
 import { CampaignDetails } from 'src/app/core/services/messages-api.service';
 import { CampaignEditStore } from './campaign-edit-store.service';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
@@ -10,10 +10,11 @@ import { takeUntil } from 'rxjs/operators';
 @Component({
     selector: 'app-campaign-edit',
     templateUrl: './campaign-edit.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CampaignEditComponent implements OnInit, AfterViewChecked, OnDestroy {
-  @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;
+  public layoutTitle = '';
   private _campaignId?: string;
   private readonly _destroy$ = new Subject<void>();
 
@@ -45,7 +46,7 @@ export class CampaignEditComponent implements OnInit, AfterViewChecked, OnDestro
 
         combineLatest([layoutTitle$, status$])
           .subscribe(([translatedTitle, translatedStatus]) => {
-            this._layout.title = translatedTitle || 'Campaigns.EditTitleFormat';
+            this.layoutTitle = translatedTitle || 'Campaigns.EditTitleFormat';
             this.metaItems = []; // reset to avoid duplicates on language change
             if (campaign.published) {
               this.metaItems.push({
