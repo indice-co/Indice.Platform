@@ -51,6 +51,7 @@ export type PartKind =
   | 'hitl-request-otp'
   | 'hitl-request-operation'
   | 'hitl-request-user-input'
+  | 'hitl-request-payment'
   | 'unknown';
 
 /**
@@ -92,6 +93,8 @@ export function HitlControlResolver(name: string | undefined): PartKind {
   switch (name) {
     case 'OtpRequest':
       return 'hitl-request-otp';
+    case 'PaymentRequest':
+      return 'hitl-request-payment';
     case 'OperationRequest':
       return 'hitl-request-operation';
     case 'UserInputRequest':
@@ -166,6 +169,16 @@ export interface UserInputResponse {
   inputMessage: string;
 }
 
+/** The payment methods the user can choose from. Mirrors the server's `PaymentRequest`. */
+export interface PaymentRequest {
+  methods: string[];
+}
+
+/** The payment method the user chose. Mirrors the server's `PaymentResponse`. */
+export interface PaymentResponse {
+  method: string;
+}
+
 /**
  * A question the workflow is waiting on a human to answer.
  * `requestId` correlates the answer back to the port that asked, and `text` is the prompt.
@@ -184,6 +197,7 @@ export interface HitlRequest {
   otp?: OtpRequest;
   operation?: OperationRequest;
   userInput?: UserInputRequest;
+  payment?: PaymentRequest;
 }
 
 /** Reads the options out of a multiple-choice part value; anything unexpected yields an empty list. */
@@ -281,6 +295,7 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
     })
     .filter((item): item is AllowedOperation => item !== null);
   const userInputMessage = text(payload['Message']) ?? text(payload['message']);
+  const methods = textArray(payload['Methods'] ?? payload['methods']);
   return {
     requestId: text(payload['RequestId']) ?? text(payload['requestId']) ?? text(parsed['RequestId']) ?? text(parsed['requestId']) ?? fallbackRequestId,
     text: text(payload['Text']) ?? text(payload['text']) ?? firstContentText(contents) ?? userInputMessage,
@@ -291,6 +306,7 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
     ...(challengeCode && expirationDate ? { otp: { challengeCode, expirationDate } } : {}),
     ...(supportedOperations.length > 0 ? { operation: { supportedOperations } } : {}),
     ...(userInputMessage && HitlControlResolver(name) === 'hitl-request-user-input' ? { userInput: { message: userInputMessage } } : {}),
+    ...(methods ? { payment: { methods } } : {}),
   };
 }
 
@@ -300,17 +316,17 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
  * `ChatRequestValidator` validates, so a turn without it is a 400.
  *
  * It must be `text/plain` exactly. `ChatMessagePart.ToAIContent()` promotes only that one media type to
- * `TextContent`. The structured companion carries an OTP response for OTP challenges and user input otherwise.
+ * `TextContent`. The structured companion carries an OTP response for OTP challenges, the chosen method for a
+ * payment request and user input otherwise.
  * The part-level `requestId` is what the server's `ToAIContent()` uses for correlation.
  */
 export function hitlResponseParts(request: HitlRequest, answer: string): IChatMessagePart[] {
   const requestId = request.requestId ?? '';
-  const payload: OtpResponse | OperationResponse | UserInputResponse | { userInput: string } = request.otp
-    ? { challengeCode: request.otp.challengeCode, otp: answer }
-    : request.operation
-      ? { selectedOperation: resolveOperation(request.operation, answer) }
-      : request.userInput
-        ? { inputMessage: answer }
+    const payload: OtpResponse | PaymentResponse | OperationResponse | UserInputResponse | { userInput: string } =
+        request.otp ? { challengeCode: request.otp.challengeCode, otp: answer } :
+        request.operation ? { selectedOperation: resolveOperation(request.operation, answer) } :
+        request.userInput ? { inputMessage: answer } : 
+        request.payment ? { method: answer }    
         : { userInput: answer };
   return [
     { value: answer, contentType: 'text/plain', requestId },
@@ -394,6 +410,15 @@ function stringMap(value: unknown): Record<string, string> | undefined {
   }
   const entries = Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === 'string');
   return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
+/** Narrows a payload member to a list of usable text entries, dropping anything else; an empty list is "not supplied". */
+function textArray(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  const items = value.filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0);
+  return items.length > 0 ? items : undefined;
 }
 
 /** Narrows a payload member to a list of non-blank strings. */

@@ -256,6 +256,8 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<OtpCodeSendStep>();
         services.TryAddTransient<OtpCodeValidatorStep>();
         services.TryAddTransient<DataPresenterStep>();
+        services.TryAddTransient<PaymentMethodStep>();
+        services.TryAddTransient<PaymentCompletedStep>();
 
         services.TryAddTransient<OperationSelectionStep>();
         services.TryAddTransient<CaseReferenceResolverStep>();
@@ -271,12 +273,15 @@ public static class AgentsFeatureExtensions
             var otpSend = sp.GetRequiredService<OtpCodeSendStep>();
             var otpValidate = sp.GetRequiredService<OtpCodeValidatorStep>();
             var dataPresenter = sp.GetRequiredService<DataPresenterStep>();
-            
+            var paymentMethod = sp.GetRequiredService<PaymentMethodStep>();
+            var paymentCompleted = sp.GetRequiredService<PaymentCompletedStep>();
+
             var ownershipPort = ChallengeRequestPort.Create();
             var otpPort = OtpRequestPort.Create();
             var operationPort = OperationRequestPort.Create();
             var userInputPort = UserInputRequestPort.Create();
             var userInputCollector = sp.GetRequiredService<UserInputCollector>();
+            var paymentPort = PaymentRequestPort.Create();
 
             var builder = new WorkflowBuilder(operationClassifier);
             builder.AddSwitch(operationClassifier, sw => sw
@@ -305,7 +310,11 @@ public static class AgentsFeatureExtensions
                 .AddCase<OperationState>(message => message is not null, dataPresenter)
                 .WithDefault(otpPort));
 
-            builder.WithOutputFrom(dataPresenter, ownershipValidate, otpValidate);
+            builder.AddEdge(dataPresenter, paymentMethod);
+            builder.AddEdge(paymentMethod, paymentPort);
+            builder.AddEdge(paymentPort, paymentCompleted);
+
+            builder.WithOutputFrom(paymentCompleted, ownershipValidate, otpValidate);
             return builder.Build();
         });
 

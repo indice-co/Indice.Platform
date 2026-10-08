@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -15,6 +15,7 @@ import { AppTranslatedToaster } from '../../../../../shared/services/app-transla
 @Component({
     selector: 'app-campaign-details-edit-rightpane',
     templateUrl: './campaign-edit-details-rightpane.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {

@@ -88,7 +88,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to That verification code isn&apos;t correct. Please try again. Attempts remaining: {0}..
+        ///   Looks up a localized string similar to That OTP was not valid. Please try again - {0} attempt(s) left..
         /// </summary>
         internal static string InvalidOtpRetryMessage {
             get {
@@ -144,6 +144,15 @@ namespace Indice.Features.Agents.Core {
         /// <summary>
         ///   Looks up a localized string similar to Verification complete..
         /// </summary>
+        internal static string PaymentCompletedMessage {
+            get {
+                return ResourceManager.GetString("PaymentCompletedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The OTP is valid.
+        /// </summary>
         internal static string OtvpVerificationSuccessMessage {
             get {
                 return ResourceManager.GetString("OtvpVerificationSuccessMessage", resourceCulture);
@@ -151,7 +160,7 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to We weren&apos;t able to verify your details. Failed attempts: {0}..
+        ///   Looks up a localized string similar to Ownership verification failed after {0} attempts..
         /// </summary>
         internal static string OwnershipVerificationFailedMaxAttemptsMessage {
             get {

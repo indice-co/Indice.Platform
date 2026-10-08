@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
     selector: 'app-error',
     templateUrl: './error.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ErrorComponent implements OnInit {

@@ -4,6 +4,7 @@ import {
   OnDestroy,
   ViewChild,
   TemplateRef,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { NgForm } from "@angular/forms";
@@ -28,6 +29,7 @@ import { AuthService } from "src/app/core/services/auth.service";
     selector: "app-user-additional-details",
     templateUrl: "./user-additional-details.component.html",
     providers: [NgbDateCustomParserFormatter],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {

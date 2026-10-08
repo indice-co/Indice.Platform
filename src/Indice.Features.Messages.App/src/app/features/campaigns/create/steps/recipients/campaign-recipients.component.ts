@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 
 import { APP_LANGUAGES, MenuOption, SidePaneComponent } from '@indice/ng-components';
@@ -11,6 +11,7 @@ import { AppLanguagesService } from '../../../../../shared/services/app-language
 @Component({
     selector: 'app-campaign-recipients',
     templateUrl: './campaign-recipients.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CampaignRecipientsComponent implements OnInit {

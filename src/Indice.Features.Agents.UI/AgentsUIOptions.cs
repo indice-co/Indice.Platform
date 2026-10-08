@@ -30,7 +30,9 @@ public class AgentsUIOptions : SpaUIOptions
             if (DocumentTitle == DefaultAgentName) {
                 args[$"%({nameof(DocumentTitle)})"] = System.Net.WebUtility.HtmlEncode(assistantName);
             }
-            args[$"%({nameof(Theme)})"] = string.IsNullOrWhiteSpace(Theme) ? "dex" : Theme.Trim().ToLowerInvariant();
+var theme = string.IsNullOrWhiteSpace(Theme) ? "dex" : Theme.Trim().ToLowerInvariant();
+theme = System.Text.RegularExpressions.Regex.Replace(theme, "[^a-z0-9_-]", string.Empty);
+args[$"%({nameof(Theme)})"] = string.IsNullOrEmpty(theme) ? "dex" : theme;
         };
     }
 }
