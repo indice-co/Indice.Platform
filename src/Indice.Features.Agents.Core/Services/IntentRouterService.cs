@@ -40,22 +40,35 @@ public class IntentRouterService
     }
 
     /// <summary>Routes the latest user message to the agent that should handle it.</summary>
-    /// <param name="question">The latest user message text.</param>
+    /// <param name="message">The latest user message.</param>
     /// <param name="conversationId">The conversation id, used to load recent history so follow-ups route in context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
     /// A <see cref="RouteDecision"/> whose <see cref="RouteDecision.AgentName"/> is the chosen agent, or
     /// <c>null</c> with a populated <see cref="RouteDecision.Reason"/> when the request is out of scope.
     /// </returns>
-    public async Task<RouteDecision> RouteAsync(string question, string conversationId, CancellationToken cancellationToken = default) {
+    public async Task<RouteDecision> RouteAsync(ChatMessage message, string conversationId, CancellationToken cancellationToken = default) {
         var session = await _agent.CreateSessionAsync(cancellationToken);
         ConversationStoreChatHistoryProvider.SetSessionId(session, Guid.Parse(conversationId));
-        var response = await _agent.RunAsync<RouteDecision>(question, session, cancellationToken: cancellationToken);
+        if (_registry.RoutableTargets().Any(x => x.Name == AgentsConstants.AgentNames.Operator) && TryGetChatTopic(message, out var topic)) {
+            return new RouteDecision {
+                AgentName = AgentsConstants.AgentNames.Operator,
+                IsInScope = true
+            };
+        }
+
+        var response = await _agent.RunAsync<RouteDecision>(message.Text, session, cancellationToken: cancellationToken);
         var result = response.Result;
         return new RouteDecision {
             AgentName = result.IsInScope && _registry.Find(result.AgentName ?? string.Empty) is not null ? result.AgentName : null,
             Reason = result.Reason,
             IsInScope = result.IsInScope
         };
+    }
+    private static bool TryGetChatTopic(ChatMessage message, out ChatTopic? topic) {
+        topic = null;
+        return message.AdditionalProperties?.TryGetValue("ChatTopic", out topic) == true
+            && topic is not null
+            && !string.IsNullOrWhiteSpace(topic.ReferenceId);
     }
 }

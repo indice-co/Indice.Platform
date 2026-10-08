@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
 
+import { assistantName } from '../models/brand';
+
 /** Landing page shown after sign-out (post_logout_redirect_uri). */
 @Component({
   selector: 'app-logged-out',
@@ -10,7 +12,7 @@ import { AuthService } from '@indice/ng-auth';
     <div class="flex min-h-screen flex-col items-center justify-center gap-6 bg-base-200 p-6 text-center">
       <div>
         <h1 class="text-2xl font-semibold text-base-content">You've been signed out</h1>
-        <p class="mt-2 text-base-content/60">Sign in again to continue chatting with Dex.</p>
+        <p class="mt-2 text-base-content/60">Sign in again to continue chatting with {{ assistantName }}.</p>
       </div>
       <div class="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
         <button type="button" class="btn btn-primary rounded-full" (click)="signIn()">Sign in</button>
@@ -22,6 +24,8 @@ import { AuthService } from '@indice/ng-auth';
 })
 export class LoggedOutComponent {
   private readonly auth = inject(AuthService);
+  /** Display name of the assistant. */
+  protected readonly assistantName = assistantName;
 
   signIn(): void {
     this.auth.signinRedirect({ location: '/' });

@@ -14,9 +14,12 @@ public class ChatRequestValidator : AbstractValidator<ChatRequest>
 
     /// <summary>Creates a new <see cref="ChatRequestValidator"/>.</summary>
     public ChatRequestValidator(IMagicBytesValidator magicBytesValidator) {
+        // An autostart request (a topic with a reference id) may carry no text: the workflow is grounded on the reference.
         RuleFor(x => x.Text)
             .NotEmpty()
-            .MinimumLength(1)
+            .When(x => string.IsNullOrWhiteSpace(x.Topic?.ReferenceId));
+
+        RuleFor(x => x.Text)
             .MaximumLength(2000);
 
         RuleFor(x => x.AuthorName)
