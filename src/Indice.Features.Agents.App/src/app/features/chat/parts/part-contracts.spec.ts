@@ -246,6 +246,19 @@ describe('parseHitlRequest', () => {
     }
   });
 
+  it('reads the payment methods in either casing, dropping entries that are not usable text', () => {
+    expect(parseHitlRequest('{"data":{"methods":["Apple Pay"," ",7,"Card"]}}', 'request-1')?.payment).toEqual({
+      methods: ['Apple Pay', 'Card'],
+    });
+    expect(parseHitlRequest('{"Data":{"Methods":["Apple Pay"]}}')?.payment).toEqual({ methods: ['Apple Pay'] });
+  });
+
+  it('does not interpret missing or empty methods as a payment request', () => {
+    for (const data of [{}, { methods: [] }, { methods: 'Apple Pay' }, { methods: [' '] }]) {
+      expect(parseHitlRequest(JSON.stringify({ data }))?.payment).toBeUndefined();
+    }
+  });
+
   it('reads the PascalCase payload the server actually emits', () => {
     // `HumanRequest` has no [JsonPropertyName] attributes and JsonPart serialises with the default options, so this
     // is the shape on the wire — the only payload here that is not camelCase.
@@ -387,6 +400,14 @@ describe('hitlResponseParts', () => {
     expect(structured.contentType).toBe(HITL_RESPONSE_MEDIA_TYPE);
     expect(structured.requestId).toBe('request-1');
     expect(parseResponse(structured.value)).toEqual({ challengeCode: 'challenge-1', otp: '001234' });
+  });
+
+  it('answers a payment request with the chosen method', () => {
+    const request = parseHitlRequest('{"data":{"methods":["Apple Pay","Card"]}}', 'request-1')!;
+    const [text, structured] = hitlResponseParts(request, 'Apple Pay');
+    expect(text).toEqual({ value: 'Apple Pay', contentType: 'text/plain', requestId: 'request-1' });
+    expect(structured.contentType).toBe(HITL_RESPONSE_MEDIA_TYPE);
+    expect(parseResponse(structured.value)).toEqual({ method: 'Apple Pay' });
   });
 
   it('leads with the plain-text answer, which is the part the server validates', () => {

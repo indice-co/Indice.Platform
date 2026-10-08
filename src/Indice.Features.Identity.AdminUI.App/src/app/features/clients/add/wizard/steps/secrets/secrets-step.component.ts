@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
@@ -12,6 +12,7 @@ import { ValidationSummaryComponent } from 'src/app/shared/components/validation
 @Component({
     selector: 'app-secrets-step',
     templateUrl: './secrets-step.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SecretsStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
