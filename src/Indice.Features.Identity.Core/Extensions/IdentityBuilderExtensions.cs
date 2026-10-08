@@ -4,24 +4,30 @@ using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.EmailValidation;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
+using Indice.Features.Identity.Core.PhoneNumberValidation;
 using Indice.Features.Identity.Core.TokenProviders;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+
+
 #if NET9_0_OR_GREATER
 using Indice.Features.Identity.Core.TokenCleanup;
 using Duende.IdentityServer.EntityFramework;
+using Duende.IdentityServer.Services;
 #endif
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Extensions on <see cref="IdentityBuilder"/>.</summary>
-public static class IdentityBuilderExtensions {
+public static class IdentityBuilderExtensions
+{
     /// <summary>Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies.</summary>
     /// <typeparam name="TUser">The type of <see cref="User"/> used by the identity system.</typeparam>
     /// <param name="builder">The type of builder for configuring identity services.</param>
@@ -53,9 +59,15 @@ public static class IdentityBuilderExtensions {
     /// <typeparam name="TUser">The type of <see cref="User"/> used by the identity system.</typeparam>
     /// <param name="builder">The type of builder for configuring identity services.</param>
     public static IdentityBuilder AddExtendedUserManager<TUser>(this IdentityBuilder builder) where TUser : User, new() {
+        builder.Services.AddGeoIPResolver();
         builder.Services.AddPlatformEventHandler<UserBlockedEvent, UserBlockedEventHandler>();
         builder.Services.AddPlatformEventHandler<UserLoginEvent, UserLoginEventHandler>();
         builder.Services.AddPlatformEventHandler<UserPasswordLoginEvent, UserPasswordLoginEventHandler>();
+        builder.Services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
+        builder.Services.AddPlatformEventHandler<TwoFactorPreferenceChangedEvent, TwoFactorPreferenceChangedEventHandler>();
+        builder.Services.AddPlatformEventHandler<PasswordChangedEvent, UserPasswordChangedEventHandler>();
+        builder.Services.AddPlatformEventHandler<AccountLockedEvent, AccountLockedEventHandler>();
+        builder.Services.AddPlatformEventHandler<PasswordSetEvent, UserPasswordSetEventHandler>();
         builder.AddEntityFrameworkStores<ExtendedIdentityDbContext<TUser, Role>>()
                .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<TUser, Role>, TUser, Role>>()
                .AddUserManager<ExtendedUserManager<TUser>>();
@@ -173,21 +185,32 @@ public static class IdentityBuilderExtensions {
     /// <param name="authenticationMethod">An authentication method to apply in the identity system.</param>
     /// <param name="otherAuthenticationMethods">The authentication methods to apply in the identity system.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
+    [Obsolete("This method is obsolete. Use AddAuthenticationMethodProvider with factory instead for better localization support. This method will be removed in a future version.", false)]
     public static IdentityBuilder AddAuthenticationMethodProvider(this IdentityBuilder builder, AuthenticationMethod authenticationMethod, params AuthenticationMethod[] otherAuthenticationMethods) {
-        var allMethods = (otherAuthenticationMethods ?? []).Prepend(authenticationMethod);
-        foreach (var method in allMethods) {
-            builder.Services.AddSingleton(method);
-        }
-        builder.Services.AddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
-        return builder;
+        var allMethods = (otherAuthenticationMethods ?? []).Prepend(authenticationMethod).ToList();
+
+        // Convert existing authentication method instances to configurations and use the factory pattern
+        return builder.AddAuthenticationMethods(innerBuilder => {
+            innerBuilder.UseInMemoryProvider(methods => {
+                methods.AddRange(allMethods.Select(m => new AuthenticationMethodConfiguration {
+                    MethodType = m.GetType(),
+                    SupportsMfa = true,
+                    Enabled = true
+                }));
+            });
+        });
     }
 
-    /// <summary>Registers an implementation of <see cref="IAuthenticationMethodProvider"/>.</summary>
-    /// <typeparam name="TAuthenticationMethodProvider"></typeparam>
+    /// <summary>Registers the <see cref="AuthenticationMethodProviderInMemory"/> which is an in-memory static provider for <see cref="IAuthenticationMethodProvider"/>. Using the factory pattern with localization support via <see cref="IdentityMessageDescriber"/></summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <param name="configure">Action to configure authentication methods.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder AddAuthenticationMethodProvider<TAuthenticationMethodProvider>(this IdentityBuilder builder) where TAuthenticationMethodProvider : IAuthenticationMethodProvider {
-        builder.Services.AddTransient(typeof(IAuthenticationMethodProvider), typeof(TAuthenticationMethodProvider));
+    public static IdentityBuilder AddAuthenticationMethods(
+        this IdentityBuilder builder,
+        Action<AuthenticationMethodBuilder> configure) {
+        var innerBuilder = new AuthenticationMethodBuilder(builder.Services);
+        configure(innerBuilder);
+
         return builder;
     }
 
@@ -224,6 +247,114 @@ public static class IdentityBuilderExtensions {
         return builder;
     }
 
+    /// <summary>
+    /// Registers the <see cref="EmailDomainBlacklistValidator{TUser}"/> with optional enable/disable flag.
+    /// By default, validation is enabled.
+    /// </summary>
+    /// <typeparam name="TUser">The type of user.</typeparam>
+    /// <param name="builder">The identity builder.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <param name="configureAction">An optional action to configure the <see cref="EmailBlacklistOptions"/>.</param>
+    /// <returns>The identity builder.</returns>
+    public static IdentityBuilder AddEmailDomainBlacklistValidator<TUser>(
+        this IdentityBuilder builder,
+        IConfiguration configuration,
+        Action<EmailBlacklistOptions>? configureAction = null
+    ) where TUser : User {
+        var settings = new EmailBlacklistOptions() {
+            Enabled = configuration.GetIdentityOption<bool?>(EmailBlacklistOptions.Name, nameof(EmailBlacklistOptions.Enabled)) ?? true,
+            Domains = configuration.GetIdentityOption<string?>(EmailBlacklistOptions.Name, nameof(EmailBlacklistOptions.Domains))
+        };
+        configureAction?.Invoke(settings);
+
+        builder.Services.Configure<EmailBlacklistOptions>(options => {
+            options.Enabled = settings.Enabled;
+            options.Domains = settings.Domains;
+        });
+
+        if (!settings.Enabled)
+            return builder;
+
+        // Providers
+        builder.Services.AddSingleton<IEmailDomainBlacklistProvider, ConfigEmailDomainBlacklistProvider>();
+        builder.Services.AddSingleton<IEmailDomainBlacklistProvider, FileEmailDomainBlacklistProvider>();
+
+        // Validator
+        builder.AddUserValidator<EmailDomainBlacklistValidator<TUser>>();
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds phone number blacklist validation to the specified identity builder.
+    /// </summary>
+    /// <typeparam name="TUser">The type of user to validate.</typeparam>
+    /// <param name="builder">The identity builder.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <param name="configureAction">An optional action used to configure phone number blacklist options.</param>
+    /// <returns>The specified <paramref name="builder"/>.</returns>
+    public static IdentityBuilder AddPhoneNumberBlacklistValidator<TUser>(
+        this IdentityBuilder builder,
+        IConfiguration configuration,
+        Action<PhoneNumberBlacklistOptions>? configureAction = null
+    ) where TUser : User {
+        var settings = new PhoneNumberBlacklistOptions {
+            Enabled = configuration.GetIdentityOption<bool?>(
+                PhoneNumberBlacklistOptions.SectionName,
+                nameof(PhoneNumberBlacklistOptions.Enabled)) ?? true,
+            Numbers = configuration.GetIdentityOption<string?>(
+                PhoneNumberBlacklistOptions.SectionName,
+                nameof(PhoneNumberBlacklistOptions.Numbers))
+        };
+
+        configureAction?.Invoke(settings);
+
+        builder.Services.Configure<PhoneNumberBlacklistOptions>(options => {
+            options.Enabled = settings.Enabled;
+            options.Numbers = settings.Numbers;
+        });
+
+        if (!settings.Enabled) {
+            return builder;
+        }
+
+        builder.Services.AddSingleton<
+            IPhoneNumberBlacklistProvider,
+            ConfigurationPhoneNumberBlacklistProvider>();
+
+        builder.Services.AddSingleton<
+            IPhoneNumberBlacklistProvider,
+            FilePhoneNumberBlacklistProvider>();
+
+        builder.AddUserValidator<PhoneNumberBlacklistValidator<TUser>>();
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Registers <see cref="EmailDomainBlacklistValidator"/> using <see cref="User"/> as the user type.
+    /// This is a convenience overload of <see cref="AddEmailDomainBlacklistValidator{TUser}(IdentityBuilder, IConfiguration, Action{EmailBlacklistOptions})"/>
+    /// so you don’t need to specify the generic type explicitly.
+    /// </summary>
+    /// <param name="builder">The <see cref="IdentityBuilder"/> instance.</param>
+    /// <param name="configuration">The application <see cref="IConfiguration"/> used to read the enable/disable flag and file path.</param>
+    /// <returns>The <see cref="IdentityBuilder"/> instance, allowing further chaining.</returns>
+    public static IdentityBuilder AddEmailDomainBlacklistValidator(
+        this IdentityBuilder builder,
+        IConfiguration configuration
+    ) => builder.AddEmailDomainBlacklistValidator<User>(configuration);
+
+    /// <summary>
+    /// Adds phone number blacklist validation for the default <see cref="User"/> type.
+    /// </summary>
+    /// <param name="builder">The identity builder.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The specified <paramref name="builder"/>.</returns>
+    public static IdentityBuilder AddPhoneNumberBlacklistValidator(
+        this IdentityBuilder builder,
+        IConfiguration configuration
+    ) => builder.AddPhoneNumberBlacklistValidator<User>(configuration);
+
     /// <summary>Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.</summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
     /// <remarks>The <see cref="IdentityMessageDescriber"/> is registered to defaults.</remarks>
@@ -255,17 +386,4 @@ public static class IdentityBuilderExtensions {
         builder.AddExtendedErrorDescriber<ExtendedIdentityErrorDescriber>();
         return builder;
     }
-
-#if NET9_0_OR_GREATER
-    /// <summary>
-    /// Registers an alternative implementation of <see cref="TokenCleanupService"/>   
-    /// that user an alternative way to delete records and removes events. 
-    /// </summary>
-    /// <param name="builder">instance</param>
-    /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
-    public static IdentityBuilder AddFastCleanUpService(this IdentityBuilder builder) {
-        builder.Services.AddTransient<ITokenCleanupService, FastTokenCleanupService>();
-        return builder;
-    }
-#endif
 }

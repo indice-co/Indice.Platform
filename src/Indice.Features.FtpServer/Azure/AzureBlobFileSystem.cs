@@ -46,7 +46,7 @@ public class AzureBlobFileSystem(BlobContainerClient container, string rootPath)
     internal async Task InitAsync() {
         // ensure root directory exists
         await CreateAzureBlobDirectoryAsync(RootPath);
-        var resultSegment = Container.GetBlobsByHierarchyAsync(prefix: RootPath, delimiter: Delimiter).AsPages(default, null);
+        var resultSegment = Container.GetBlobsByHierarchyAsync(new() { Prefix = RootPath, Delimiter = Delimiter }).AsPages(default, null);
         await foreach (var page in resultSegment) {
             if (page.Values.Count > 0) {
 
@@ -77,7 +77,7 @@ public class AzureBlobFileSystem(BlobContainerClient container, string rootPath)
 
         var result = new List<IUnixFileSystemEntry>();
 
-        var resultSegment = Container.GetBlobsByHierarchyAsync(prefix: dir.Prefix, delimiter: Delimiter).AsPages(default, null);
+        var resultSegment = Container.GetBlobsByHierarchyAsync(new() { Prefix = dir.Prefix, Delimiter = Delimiter }).AsPages(default, null);
 
         await foreach (var page in resultSegment) {
             foreach (var item in page.Values) {
@@ -99,7 +99,7 @@ public class AzureBlobFileSystem(BlobContainerClient container, string rootPath)
     /// <inheritdoc/>
     public async Task<IUnixFileSystemEntry?> GetEntryByNameAsync(IUnixDirectoryEntry directoryEntry, string name, CancellationToken cancellationToken) {
         var dir = ((AzureBlobDirectoryEntry)directoryEntry).Item;
-        var resultSegment = Container.GetBlobsByHierarchyAsync(prefix: dir.Prefix, delimiter: Delimiter).AsPages(default, null);
+        var resultSegment = Container.GetBlobsByHierarchyAsync(new() { Prefix = dir.Prefix, Delimiter = Delimiter }).AsPages(default, null);
 
         await foreach (var page in resultSegment) {
             foreach (var item in page.Values) {
@@ -143,7 +143,7 @@ public class AzureBlobFileSystem(BlobContainerClient container, string rootPath)
     public async Task UnlinkAsync(IUnixFileSystemEntry entry, CancellationToken cancellationToken) {
         if (((AzureBlobFileSystemEntry)entry).IsFolder) {
             var dir = ((AzureBlobDirectoryEntry)entry).Item;
-            var segment = Container.GetBlobsAsync(prefix: dir.Prefix);
+            var segment = Container.GetBlobsAsync(new() { Prefix = dir.Prefix }, cancellationToken: cancellationToken);
             await foreach (var blob in segment) {
                 await Container.DeleteBlobIfExistsAsync(blob.Name, DeleteSnapshotsOption.IncludeSnapshots);
             }

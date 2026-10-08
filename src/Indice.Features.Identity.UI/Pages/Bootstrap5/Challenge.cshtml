@@ -1,9 +1,10 @@
 ﻿@page "/external-login"
 
-@inject IIdentityViewLocalizer Localizer
+@inject IdentityUILocalizer Localizer
+
 
 @model BaseChallengeModel
 
 @{
-    ViewData["Title"] = Localizer["Redirecting..."];
+    ViewData["Title"] = Localizer.Challenge_PageTitle;
 }

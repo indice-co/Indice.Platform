@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿#if NET8_0
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Indice.AspNetCore.Swagger;
@@ -382,3 +383,5 @@ public static class SwaggerConfig
         return scopes;
     }
 }
+
+#endif

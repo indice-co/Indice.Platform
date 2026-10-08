@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -40,6 +41,11 @@ public class SmsServiceApifon : ISmsService
     internal static readonly string APIFON_BASE_URL = "https://ars.apifon.com";
     /// <summary>The Apifon IM service gateway endpoint.</summary>
     internal static readonly string SERVICE_ENDPOINT = "/services/api/v1/sms/send";
+    /// <summary>Cached JSON serializer options: CamelCase, ignore null values.</summary>
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new() {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
     /// <summary>The settings required to configure the service.</summary>
     protected SmsServiceApifonSettings Settings { get; }
     /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
@@ -51,10 +57,7 @@ public class SmsServiceApifon : ISmsService
     public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         HttpResponseMessage httpResponse;
         ApifonResponse response;
-        var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-        if (recipients == null) {
-            throw new ArgumentNullException(nameof(destination));
-        }
+        var recipients = (destination ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries);
         if (recipients.Length == 0) {
             throw new ArgumentException("Recipients list cannot be empty.", nameof(destination));
         }
@@ -83,8 +86,8 @@ public class SmsServiceApifon : ISmsService
         request.Headers.Add("X-ApifonWS-Date", payload.RequestDate.ToString("r"));
         request.Headers.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Settings.Token}:{signature}");
         try {
-            Logger.LogInformation("The full request sent to Apifon: {RequestMessage}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
-            Logger.LogInformation("The following payload was sent to Apifon: {RequestPayload}", payload.ToJson());
+            Logger.LogDebug("The full request sent to Apifon: {RequestMessage}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
+            Logger.LogDebug("The following payload was sent to Apifon: {RequestPayload}", payload.ToJson());
             httpResponse = await HttpClient.SendAsync(request);
         } catch (Exception ex) {
             Logger.LogError(ex, "SMS Delivery took too long");
@@ -92,12 +95,12 @@ public class SmsServiceApifon : ISmsService
         }
         var responseString = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode) {
-            Logger.LogInformation("SMS Delivery failed. {StatusCode} : {ResponseString}", httpResponse.StatusCode, responseString);
+            Logger.LogWarning("SMS Delivery failed. {StatusCode} : {ResponseString}", httpResponse.StatusCode, responseString);
             throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
         }
         response = JsonSerializer.Deserialize<ApifonResponse>(responseString, GetJsonSerializerOptions())!;
         if (response.HasError) {
-            Logger.LogInformation("SMS Delivery failed. {ResponseStatus}. ResponseId: {ResponseId}", response.Status?.Description, response.Id);
+            Logger.LogWarning("SMS Delivery failed. {ResponseStatus}. ResponseId: {ResponseId}", response.Status?.Description, response.Id);
             throw new SmsServiceException($"SMS Delivery failed. {response.Status?.Description} responseId {response.Id}");
         } else {
             Logger.LogInformation("SMS message successfully sent: {Result}", response.Results!.FirstOrDefault().Key);
@@ -105,7 +108,7 @@ public class SmsServiceApifon : ISmsService
         var messageId = response.Id;
         var messageIds = response.Results?.Values.SelectMany(x => x?.Select(y => y.Id)!)?.ToList();
         if (messageIds?.Count > 0) {
-            messageId = string.Join(",", messageIds);
+            messageId = string.Join(',', messageIds);
         }
         return new SendReceipt(messageId, DateTimeOffset.UtcNow);
     }
@@ -116,10 +119,7 @@ public class SmsServiceApifon : ISmsService
     public bool Supports(string deliveryChannel) => "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Get default JSON serializer options: CamelCase, ignore null values.</summary>
-    protected static JsonSerializerOptions GetJsonSerializerOptions() => new JsonSerializerOptions {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    protected static JsonSerializerOptions GetJsonSerializerOptions() => JsonSerializerOptions;
 }
 
 /// <summary>Options for configuring <see cref="SmsServiceApifon"/>.</summary>
@@ -151,7 +151,7 @@ internal class ApifonResponse
     [JsonPropertyName("result_info")]
     public ResultInfo? Status { get; set; }
 
-    public bool HasError => !(Status?.StatusCode >= 200 && Status?.StatusCode < 300);
+    public bool HasError => Status is null || !(Status.StatusCode >= 200 && Status.StatusCode < 300);
 
     internal class ResultDetails
     {
@@ -198,19 +198,18 @@ internal class ApifonRequest
 
     internal static Dictionary<string, ApifonListParameter> ExtractParametersAndReplaceUrlsFromMessage(ref string message) {
         int instance = 0;
-        List<string> extractedLinks = new List<string>();
-        Regex regex = new Regex(@"https?://[^\s""<>]*[^\s""<>.,!?)]", RegexOptions.Compiled);
+        var extractedLinks = new List<string>();
+        var regex = new Regex(@"https?://[^\s""<>]*[^\s""<>.,!?)]", RegexOptions.Compiled);
         message = regex.Replace(message, match => {
             extractedLinks.Add(match.Value);
             return $"{{apifon_lp_{instance++}}}";
         });
-        Console.WriteLine(message);
         var parameters = new Dictionary<string, ApifonListParameter>();
         instance = 0;
         foreach (var link in extractedLinks) {
             var name = $"apifon_lp_{instance}";
             parameters.Add(name, new ApifonListParameter() {
-                Url = link,
+                Url = WebUtility.HtmlDecode(link),
                 Data = new Data() { Name = name },
                 Redirect = true
             });
@@ -236,7 +235,7 @@ internal class ApifonRequest
     [JsonPropertyName("date")]
     public DateTime? DateToSend { get; set; }
     [JsonIgnore]
-    public DateTime RequestDate { get; set; } = DateTime.Now.ToUniversalTime();
+    public DateTime RequestDate { get; set; } = DateTime.UtcNow;
 
     internal class ApifonMessage
     {

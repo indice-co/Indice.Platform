@@ -34,6 +34,8 @@ public class SignInLogEntry
     public string? SubjectId { get; set; }
     /// <summary>The display name of the subject.</summary>
     public string? SubjectName { get; set; }
+    /// <summary>Indicates whether the user associated with the log entry exists in the system.</summary>
+    public bool SubjectUnknown { get; set; }
     /// <summary>The unique identifier of the resource.</summary>
     public string? ResourceId { get; set; } = null!;
     /// <summary>The name of the resource.</summary>

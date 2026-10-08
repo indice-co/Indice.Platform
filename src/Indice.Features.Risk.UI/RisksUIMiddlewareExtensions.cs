@@ -11,6 +11,6 @@ public static class RisksUIMiddlewareExtensions
     /// <param name="options"></param>
     /// <returns></returns>
     public static IApplicationBuilder UseRisksUI(this IApplicationBuilder builder, Action<RisksUIOptions>? options = null) {
-        return builder.UseSpaUI("risks-app", typeof(RisksUIMiddlewareExtensions).Assembly, options);
+        return builder.UseSpaUI("browser", typeof(RisksUIMiddlewareExtensions).Assembly, options);
     }
 }

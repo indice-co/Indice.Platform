@@ -1,5 +1,5 @@
 // gauge-chart.component.ts
-import { Component, Input, OnInit, ViewChild, ElementRef, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ElementRef, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Chart, ChartConfiguration, ArcElement, Tooltip, Legend, DoughnutController } from 'chart.js';
 
 // Register needed components for Chart.js v3+
@@ -8,18 +8,21 @@ Chart.register(ArcElement, Tooltip, Legend, DoughnutController);
 export interface GaugeChartItem { name: string; value: number; color: string; }
 
 @Component({
-  selector: 'app-gauge-chart',
-  template: `<canvas #gaugeCanvas></canvas>`,
-  styles: [`
+    selector: 'app-gauge-chart',
+    template: `<canvas #gaugeCanvas></canvas>`,
+    styles: [`
     :host { display: block; }
     canvas { max-width: 400px; max-height: 400px; position: relative; left: 50%; transform: translateX(-50%); }
-  `]
+  `],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class DoughnutChartComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('gaugeCanvas', { static: true }) gaugeCanvas!: ElementRef<HTMLCanvasElement>;
 
   /** Items to render. Each item: { name, value, color } */
   @Input() items: GaugeChartItem[] = [];
+  @Input() options: any = {};
 
   private chart?: Chart<'doughnut'>;
 
@@ -61,7 +64,7 @@ export class DoughnutChartComponent implements OnInit, OnChanges, OnDestroy {
           onComplete: () => {
             delayed = true;
           },
-          delay: (context) => {
+          delay: (context: { type: string; mode: string; dataIndex: number; datasetIndex: number }) => {
             let delay = 0;
             if (context.type === 'data' && context.mode === 'default' && !delayed) {
               delay = context.dataIndex * 100 + context.datasetIndex * 100;
@@ -77,10 +80,11 @@ export class DoughnutChartComponent implements OnInit, OnChanges, OnDestroy {
           legend: { position: 'bottom' },
           tooltip: {
             callbacks: {
-              label: (ctx: any) => `${ctx.label}: ${ctx.parsed}`
+              label: (ctx: { label: string; parsed: number }) => `${ctx.label}: ${ctx.parsed}`
             }
           }
-        }
+        },
+        ...this.options
       }
     };
     this.chart = new Chart(this.gaugeCanvas.nativeElement, config);

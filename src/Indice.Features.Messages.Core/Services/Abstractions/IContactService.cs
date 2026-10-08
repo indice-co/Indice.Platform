@@ -48,11 +48,19 @@ public interface IContactService
     /// <summary>Updates an existing campaign.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <param name="request">The data for the communication preferences.</param>
-    Task UpdatePreference(string recipientId, UpdatPreferenceRequest request);
+    Task UpdatePreference(string recipientId, UpdatePreferenceRequest request);
     /// <summary>Updates an existing campaign.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <param name="preference">The data for the communication preferences.</param>
     Task UpdateContactPreferences(string recipientId, ContactPreference preference);
+    /// <summary>Retrieves potential duplicate contacts .</summary>
+    /// <param name="mainContact">The contact for which we need to look for duplicates.</param>
+    /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    Task<ResultSet<Contact>> GetDuplicates(Contact mainContact, ListOptions options);
+    /// <summary>Replaces the given Contact Id List with the Id of the main contact to all the appropriate tables</summary>
+    /// <param name="mainContact">The main-resolved contactId.</param>
+    /// <param name="duplicateContactsIds">The duplicate contact Ids.</param>
+    Task MergeContacts(Contact mainContact, List<Guid> duplicateContactsIds);
 }
 
 /// <summary>Extensions on the <see cref="IContactService"/></summary>

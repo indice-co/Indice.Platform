@@ -44,4 +44,35 @@ public static class DatabaseConfigurationExtensions
             options.ReloadOnInterval = TimeSpan.FromSeconds(30);
             options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("AppSettingsDb"));
         }));
+
+    /// <summary>Registers and configures the <see cref="EntityConfigurationProvider{T}"/> using some default values.</summary>
+    /// <typeparam name="TContext">The type of the <see cref="DbContext"/>.</typeparam>
+    /// <param name="builder">A builder for the application host.</param>
+    /// <param name="configureAction">The <see cref="EntityConfigurationOptions"/> to use.</param>
+    /// <returns>The <see cref="IHostApplicationBuilder"/>.</returns>
+    public static IHostApplicationBuilder AddDatabaseSettings<TContext>(this IHostApplicationBuilder builder, Action<EntityConfigurationOptions, IConfiguration> configureAction) where TContext : DbContext, IAppSettingsDbContext {
+        var options = new EntityConfigurationOptions();
+        configureAction?.Invoke(options, builder.Configuration);
+        var result = options.Validate();
+        if (!result.Succedded) {
+            throw new ArgumentException(result.Error);
+        }
+        builder.Configuration.Add(new EntityConfigurationSource<TContext>(options));
+        if (typeof(TContext).Equals(typeof(DefaultAppSettingsDbContext))) {
+            builder.Services.AddDbContext<TContext>(options.ConfigureDbContext);
+        }
+        builder.Services.AddTransient<IAppSettingsDbContext, TContext>();
+        return builder;
+    }
+
+    /// <summary>Registers and configures the <see cref="EntityConfigurationProvider{T}"/> using some default values. These are A database connection string named <strong>AppSettingsDb</strong> and a refresh interval of <strong>30 secconds</strong>.</summary>
+    /// <param name="builder">A builder for the application host.</param>
+    /// <param name="configureAction">The <see cref="EntityConfigurationOptions"/> to use.</param>
+    /// <returns>The <see cref="IHostApplicationBuilder"/>.</returns>
+    /// <remarks>The database will not create the table <strong>[config].[AppSetting]</strong> by itself. Using the internal DbContext for app settings means that we need to manually create the table and schema in our target database</remarks>
+    public static IHostApplicationBuilder AddDatabaseSettingsDefaults(this IHostApplicationBuilder builder, Action<EntityConfigurationOptions, IConfiguration>? configureAction = null) =>
+        AddDatabaseSettings<DefaultAppSettingsDbContext>(builder, configureAction ?? new Action<EntityConfigurationOptions, IConfiguration>((options, configuration) => {
+            options.ReloadOnInterval = TimeSpan.FromSeconds(30);
+            options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("AppSettingsDb"));
+        }));
 }

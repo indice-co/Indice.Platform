@@ -1,0 +1,143 @@
+<div class="row">
+    <div class="col-sm-12">
+        <div class="page-title-box">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="page-title m-0">Add Scope</h4>
+                    <p class="text-muted font-14">Create a new API scope.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form class="needs-validation"
+                      [ngClass]="{ 'was-validated': scopeForm.submitted }"
+                      (ngSubmit)="scopeForm.form.valid && submit()"
+                      novalidate
+                      #scopeForm="ngForm">
+                    <div class="mb-3 row">
+                        <label for="scope-name"
+                               class="col-sm-2 col-form-label">
+                            Name <span class="text-danger">*</span>
+                        </label>
+                        <div class="col-sm-10">
+                            <input class="form-control"
+                                   type="text"
+                                   id="scope-name"
+                                   name="scope-name"
+                                   [(ngModel)]="scope.name"
+                                   required
+                                   maxlength="200"
+                                   #name="ngModel" />
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="scope-display-name"
+                               class="col-sm-2 col-form-label">
+                            Display Name
+                        </label>
+                        <div class="col-sm-10">
+                            <input class="form-control"
+                                   type="text"
+                                   id="scope-display-name"
+                                   name="scope-display-name"
+                                   [(ngModel)]="scope.displayName"
+                                   maxlength="200"
+                                   #displayName="ngModel" />
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="scope-description"
+                               class="col-sm-2 col-form-label">
+                            Description
+                        </label>
+                        <div class="col-sm-10">
+                            <textarea id="scope-description"
+                                      name="scope-description"
+                                      class="form-control"
+                                      rows="3"
+                                      maxlength="1000"
+                                      [(ngModel)]="scope.description"
+                                      #description="ngModel">
+                            </textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="scope-required"
+                               class="col-sm-2 col-form-label">
+                            Required
+                        </label>
+                        <div class="col-sm-10">
+                            <div class="form-check col-form-label custom-control custom-checkbox">
+                                <input class="form-check-input custom-control-input"
+                                       type="checkbox"
+                                       id="scope-required"
+                                       name="scope-required"
+                                       [(ngModel)]="scope.required"
+                                       #required="ngModel" />
+                                <label class="custom-control-label"
+                                       for="scope-required">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="scope-emphasize"
+                               class="col-sm-2 col-form-label">
+                            Emphasize
+                        </label>
+                        <div class="col-sm-10">
+                            <div class="form-check col-form-label custom-control custom-checkbox">
+                                <input class="form-check-input custom-control-input"
+                                       type="checkbox"
+                                       id="scope-emphasize"
+                                       name="scope-emphasize"
+                                       [(ngModel)]="scope.emphasize"
+                                       #emphasize="ngModel" />
+                                <label class="custom-control-label"
+                                       for="scope-emphasize">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="scope-show-in-discovery"
+                               class="col-sm-2 col-form-label">
+                            Show in Discovery Document
+                        </label>
+                        <div class="col-sm-10">
+                            <div class="form-check col-form-label custom-control custom-checkbox">
+                                <input class="form-check-input custom-control-input"
+                                       type="checkbox"
+                                       id="scope-show-in-discovery"
+                                       name="scope-show-in-discovery"
+                                       [(ngModel)]="scope.showInDiscoveryDocument"
+                                       #showInDiscovery="ngModel" />
+                                <label class="custom-control-label"
+                                       for="scope-show-in-discovery">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div>
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                <i class="material-icons align-middle">save</i> Save
+                            </button>
+                            <button type="button"
+                                    class="btn btn-secondary ml-1"
+                                    (click)="cancel()">
+                                <i class="material-icons align-middle">cancel</i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

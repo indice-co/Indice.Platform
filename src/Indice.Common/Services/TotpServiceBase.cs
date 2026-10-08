@@ -6,7 +6,7 @@ namespace Indice.Services;
 /// <summary>Base abstract class for creating a TOTP service.</summary>
 public abstract class TotpServiceBase
 {
-    private const int CACHE_EXPIRATION_SECONDS = 30;
+    private const int CACHE_EXPIRATION_SECONDS = 120;
 
     /// <summary>Creates a new instance of <see cref="TotpServiceBase"/>.</summary>
     /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
@@ -77,7 +77,7 @@ public abstract class TotpServiceBase
     protected async Task AddCacheKeyAsync(string cacheKey) {
         var unixTime = DateTimeOffset.UtcNow.AddSeconds(CACHE_EXPIRATION_SECONDS).ToUnixTimeSeconds();
         await ServiceProvider.GetRequiredService<IDistributedCache>().SetStringAsync(cacheKey, unixTime.ToString(), new DistributedCacheEntryOptions {
-            AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(120)
+            AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(CACHE_EXPIRATION_SECONDS)
         });
     }
 
@@ -106,8 +106,8 @@ public abstract class TotpServiceBase
 
     /// <summary>Gets a modifier for the TOTP.</summary>
     /// <param name="purpose">The purpose.</param>
-    /// <param name="phoneNumber">The phone number.</param>
-    protected static string GetModifier(string purpose, string phoneNumber) => $"{purpose}:{phoneNumber}";
+    /// <param name="recipient">The recipient. Could be a phone number, email, or user ID.</param>
+    protected static string GetModifier(string purpose, string? recipient) => $"{purpose}:{recipient}";
 }
 
 /// <summary>Supported TOTP delivery factors.</summary>

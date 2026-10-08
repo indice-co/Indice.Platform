@@ -6,7 +6,7 @@ using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Handlers;
 using Indice.Features.Messages.Core.Hosting;
 using Indice.Features.Messages.Core.Manager;
-using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
@@ -18,7 +18,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -44,7 +43,12 @@ public static class HostBuilderExtensions
         });
         builder.Services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
             messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
+            messageWorkerOptions.DatabaseCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
+            messageWorkerOptions.DatabaseCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
+            messageWorkerOptions.DatabaseCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
+            messageWorkerOptions.DatabaseCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
         });
+
         builder.Services.AddHostedService<StartupSeedHostedService>();
         builder.Services.TryAddSingleton(options.FunctionDisablePredicate);
         builder.Services.AddDecorator<IFunctionMetadataProvider, ExtendedFunctionMetadataProvider>();
@@ -71,6 +75,10 @@ public static class HostBuilderExtensions
             });
             services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
                 messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
+                messageWorkerOptions.DatabaseCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
+                messageWorkerOptions.DatabaseCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
+                messageWorkerOptions.DatabaseCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
+                messageWorkerOptions.DatabaseCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
             });
             services.AddHostedService<StartupSeedHostedService>();
             services.TryAddSingleton(options.FunctionDisablePredicate);
@@ -88,6 +96,7 @@ public static class HostBuilderExtensions
         services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
         services.TryAddTransient<IDistributionListService, DistributionListService>();
         services.TryAddTransient<IMessageService, MessageService>();
+        services.TryAddTransient<IMessageEventService, MessageEventService>();
         services.TryAddTransient<IContactService, ContactService>();
         services.TryAddTransient<ICampaignService, CampaignService>();
         services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
@@ -97,15 +106,18 @@ public static class HostBuilderExtensions
         services.TryAddTransient<CreateCampaignRequestValidator>();
         services.TryAddTransient<CreateMessageTypeRequestValidator>();
         services.TryAddTransient<NotificationsManager>();
+        services.TryAddTransient<IMessagingDatabaseCleanUpService, MessagingDatabaseCleanUpService>();
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         services.TryAddScoped<UserNameAccessorAggregate>();
+        services.TryAddTransient<IPartialTemplateResolverFactory, DbBackedPartialTemplateResolverFactory>();
 
-        services.Configure<CampaignStatisticOptions>(opt => {
-            opt.EnableStatics = options.CampaignStatisticOptions.EnableStatics;
+
+        services.Configure<AnalyticsOptions>(opt => {
+            opt.Enabled = options.CampaignStatisticOptions.Enabled;
         });
-        services.AddSingleton<CampaignEventQueue>();
-        services.AddSingleton<IHostedService, CampaignEventHandler>();
+        services.AddSingleton<MessageEventQueue>();
+        services.AddSingleton<IHostedService, MessageEventHostedServcie>();
         return services;
     }
 
@@ -117,6 +129,8 @@ public static class HostBuilderExtensions
         services.TryAddTransient<ICampaignJobHandler<SendSmsEvent>, SendSmsHandler>();
         services.TryAddTransient<ICampaignJobHandler<MarkMessagesReadEvent>, MarkReadEventHandler>();
         services.TryAddTransient<ICampaignJobHandler<MarkMessagesUnreadEvent>, MarkUnreadEventHandler>();
+        services.TryAddTransient<ICampaignJobHandler<MergeContactsEvent>, MergeContactsEventHandler>();
+        services.TryAddTransient<ICampaignJobHandler<MessagingDatabaseCleanUpTimerEvent>, MessagingDatabaseCleanUpHandler>();
         services.AddTransient<MessageJobHandlerFactory>();
         return services;
     }
@@ -135,14 +149,14 @@ public static class HostBuilderExtensions
     public static MessageOptions UseEventDispatcherAzure(this MessageOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions>? configure = null) {
         options.Services.AddEventDispatcherAzure(KeyedServiceNames.EventDispatcherServiceKey, (serviceProvider, options) => {
             var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
-                ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
+                ConnectionStringName = EventDispatcherAzure.CONNECTION_STRING_NAME,
                 Enabled = true,
                 EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
                 ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
             };
             configure?.Invoke(serviceProvider, eventDispatcherOptions);
             options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
-            options.ConnectionString = eventDispatcherOptions.ConnectionString;
+            options.ConnectionStringName = eventDispatcherOptions.ConnectionStringName;
             options.Enabled = eventDispatcherOptions.Enabled;
             options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
             options.QueueMessageEncoding = eventDispatcherOptions.QueueMessageEncoding;
@@ -159,14 +173,14 @@ public static class HostBuilderExtensions
         options.Services!.AddEventDispatcherAzureServiceBus(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey,
             (serviceProvider, options) => {
                 var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
-                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
+                    ConnectionStringName = EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME,
                     Enabled = true,
                     EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
                     ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
                 };
                 configure?.Invoke(serviceProvider, eventDispatcherOptions);
                 options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
-                options.ConnectionString = eventDispatcherOptions.ConnectionString;
+                options.ConnectionStringName = eventDispatcherOptions.ConnectionStringName;
                 options.Enabled = eventDispatcherOptions.Enabled;
                 options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
                 options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
@@ -224,6 +238,14 @@ public static class HostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageOptions UseEmailServiceSendGrid(this MessageOptions options, IConfiguration configuration) {
         options.Services.AddEmailServiceSendGrid(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses WeMail to send emails.</summary>
+    /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageOptions UseEmailServiceWeMail(this MessageOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceWeMail(configuration);
         return options;
     }
 
@@ -336,7 +358,8 @@ public static class HostBuilderExtensions
                                                             EventNames.SendPushNotification,
                                                             EventNames.SendSms,
                                                             EventNames.MarkAllAsRead,
-                                                            EventNames.MarkAllAsUnread
+                                                            EventNames.MarkAllAsUnread,
+                                                            EventNames.MergeContacts
                                                             );
 
     internal static readonly ExtendedFunctionMetadataProviderDisablePredicate ExcludeServiceBusTriggers =
@@ -346,8 +369,8 @@ public static class HostBuilderExtensions
                                                             $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendPushNotification}",
                                                             $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendSms}",
                                                             $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.MarkAllAsRead}",
-                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.MarkAllAsUnread}");
-
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.MarkAllAsUnread}",
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.MergeContacts}");
     internal static ExtendedFunctionMetadataProviderDisablePredicate ExcludeFunctions(params string[] functionNames) {
         return (fn, Configuration) => functionNames.Any(x => x.Equals(fn.Name, StringComparison.OrdinalIgnoreCase));
     }

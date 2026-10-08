@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Identity.Server;
+using Indice.Features.Identity.Server.ActivityLog;
 using Indice.Features.Identity.Server.Options;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,8 +31,12 @@ public static class IdentityServerEndpointRouteBuilderExtensions
         builder.MapTotps();
         // Sign in logs API.
         builder.MapSignInLogs();
+        // Activity logs API.
+        builder.MapActivityLogs();
         // Database settings endpoints.
         builder.MapDatabaseSettings();
+        // Recaptcha endpoints.
+        builder.MapRecaptcha();
         return builder;
     }
 

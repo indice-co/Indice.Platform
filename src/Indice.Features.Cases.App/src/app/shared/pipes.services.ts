@@ -1,6 +1,9 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
-@Pipe({ name: 'beautifyBoolean' })
+@Pipe({
+    name: 'beautifyBoolean',
+    standalone: false
+})
 export class BeautifyBooleanPipe implements PipeTransform {
   transform(value: boolean | undefined): string {
     return value ? '<span class="ms-Icon ms-Icon--StatusCircleCheckmark text-green-500 text-3xl"></span>' : '<span class="ms-Icon ms-Icon--StatusCircleBlock2 text-red-500 text-3xl"></span>';
@@ -8,8 +11,9 @@ export class BeautifyBooleanPipe implements PipeTransform {
 }
 
 @Pipe({
-  name: 'valueFromPath',
-  pure: true
+    name: 'valueFromPath',
+    pure: true,
+    standalone: false
 })
 export class ValueFromPathPipe implements PipeTransform {
   constructor() { }
@@ -42,8 +46,9 @@ export class ValueFromPathPipe implements PipeTransform {
 }
 
 @Pipe({
-  name: 'toReadableDate',
-  pure: true
+    name: 'toReadableDate',
+    pure: true,
+    standalone: false
 })
 export class ToReadableDatePipe implements PipeTransform {
   transform(value: any): string {

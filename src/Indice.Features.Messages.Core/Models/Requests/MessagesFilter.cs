@@ -16,3 +16,10 @@ public class MessagesFilter
     /// <summary>The Channel Kind of the message.</summary>
     internal MessageChannelKind? MessageChannelKind { get; set; }
 }
+
+/// <summary>Model used to mark as read all user messages that match the provided filter criteria.</summary>
+public class MarkAsReadRequest : MessagesFilter
+{
+    /// <summary>The search term</summary>
+    public string? Search { get; set; }
+}

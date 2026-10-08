@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿#if NET8_0
+using System.Reflection;
 using Indice.Serialization;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -117,3 +118,4 @@ public class PolymorphicSchemaFilter : ISchemaFilter
         };
     }
 }
+#endif

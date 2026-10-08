@@ -11,22 +11,24 @@ public class FileServiceAzureStorage : IFileService
 {
     /// <summary>The connection string parameter name. The setting key that will be searched inside the configuration.</summary>
     public const string CONNECTION_STRING_NAME = "StorageConnection";
+
+    private readonly AzureClientFactory _azureClientFactory;
     private readonly string? _containerName;
-    private readonly string _connectionString;
+    private readonly string _connectionStringName;
 
     /// <summary>Constructs the service.</summary>
-    /// <param name="connectionString">The connection string to the Azure Storage account.</param>
+    /// <param name="azureClientFactory">The Azure client factory.</param>    
+    /// <param name="connectionStringName">The connection string name to the Azure Storage account.</param>
     /// <param name="containerName">Usually The environment name (ex. Development, Production).</param>
-    /// <exception cref="ArgumentNullException">Then <paramref name="connectionString"/> is null</exception>
-    /// <exception cref="ArgumentException">Then <paramref name="connectionString"/> is empty</exception>
-    public FileServiceAzureStorage(string connectionString, string? containerName) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+    public FileServiceAzureStorage(AzureClientFactory azureClientFactory, string connectionStringName, string? containerName) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionStringName);
+        _azureClientFactory = azureClientFactory;
         if (!string.IsNullOrEmpty(containerName)) {
             _containerName = Regex.Replace(containerName, @"\s+", "-").ToLowerInvariant();
         } else {
             _containerName = null;
         }
-        _connectionString = connectionString;
+        _connectionStringName = connectionStringName;
     }
 
     /// <inheritdoc />
@@ -35,8 +37,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath[folder!.Length..] : filePath;
-        var container = new BlobContainerClient(_connectionString, folder);
-        await container.CreateIfNotExistsAsync();
+        var container = _azureClientFactory.GetOrCreateBlobContainerClient(_connectionStringName, folder!);
         var blobClient = container.GetBlobClient(filename);
         var fileExtension = Path.GetExtension(filePath);
         if (string.IsNullOrWhiteSpace(saveOptions.ContentType) && !string.IsNullOrEmpty(fileExtension)) {
@@ -61,8 +62,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
-        var container = new BlobContainerClient(_connectionString, folder);
-        await container.CreateIfNotExistsAsync();
+        var container = _azureClientFactory.GetOrCreateBlobContainerClient(_connectionStringName, folder!);
         var exists = await container.ExistsAsync();
         if (!exists) {
             throw new FileNotFoundServiceException($"Container {folder} not found.");
@@ -89,13 +89,13 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
-        var container = new BlobContainerClient(_connectionString, folder);
+        var container = _azureClientFactory.GetOrCreateBlobContainerClient(_connectionStringName, folder!);
         var exists = await container.ExistsAsync();
         if (!exists) {
             throw new FileNotFoundServiceException($"Container {folder} not found.");
         }
         var results = new List<string>();
-        var segment = container.GetBlobsAsync(prefix: filename);
+        var segment = container.GetBlobsAsync(new GetBlobsOptions() { Prefix = filename });
 
         // Enumerate the blobs returned for each page.
         await foreach (var blob in segment) {
@@ -124,7 +124,7 @@ public class FileServiceAzureStorage : IFileService
         destinationPath = destinationPath.TrimStart('\\', '/');
         var sourceFolder = _containerName ?? Path.GetDirectoryName(sourcePath);
         var sourceFilename = _containerName == null ? sourcePath.Substring(sourceFolder!.Length) : sourcePath;
-        var sourceContainer = new BlobContainerClient(_connectionString, sourceFolder);
+        var sourceContainer = _azureClientFactory.GetOrCreateBlobContainerClient(_connectionStringName, sourceFolder!);
 
         var exists = await sourceContainer.ExistsAsync();
         if (!exists) {
@@ -134,7 +134,7 @@ public class FileServiceAzureStorage : IFileService
         var targertFilename = _containerName == null ? destinationPath.Substring(targetFolder!.Length) : destinationPath;
         bool moveUnderTheSameContainer = sourceFolder!.Equals(targetFolder, StringComparison.InvariantCultureIgnoreCase);
         bool isDirectory = sourcePath.EndsWith('/');
-        var targetContainer = moveUnderTheSameContainer ? sourceContainer : new BlobContainerClient(_connectionString, targetFolder);
+        var targetContainer = moveUnderTheSameContainer ? sourceContainer : _azureClientFactory.GetOrCreateBlobContainerClient(_connectionStringName, targetFolder!);
         if (!moveUnderTheSameContainer) {
             await targetContainer.CreateIfNotExistsAsync();
         }
@@ -150,8 +150,8 @@ public class FileServiceAzureStorage : IFileService
 
         if (!isDirectory) {
             await copyAction(sourceContainer.GetBlobClient(sourceFilename), targetContainer.GetBlobClient(targertFilename));
-        } else { 
-            var segment = sourceContainer.GetBlobsAsync(prefix: sourceFilename);
+        } else {
+            var segment = sourceContainer.GetBlobsAsync(new GetBlobsOptions { Prefix = sourceFilename });
             await foreach (var blob in segment) {
                 //await sourceContainer.DeleteBlobIfExistsAsync(blob.Name, DeleteSnapshotsOption.IncludeSnapshots);
                 await copyAction(sourceContainer.GetBlobClient(blob.Name), targetContainer.GetBlobClient(blob.Name.Replace(sourceFilename, targertFilename)));
@@ -166,7 +166,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
-        var container = new BlobContainerClient(_connectionString, folder);
+        var container = _azureClientFactory.GetOrCreateBlobContainerClient(_connectionStringName, folder!);
         var exists = await container.ExistsAsync();
         if (!exists) {
             throw new FileNotFoundServiceException($"Container {folder} not found.");
@@ -196,7 +196,7 @@ public class FileServiceAzureStorage : IFileService
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
         var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
-        var container = new BlobContainerClient(_connectionString, folder);
+        var container = _azureClientFactory.GetOrCreateBlobContainerClient(_connectionStringName, folder!);
         var exists = await container.ExistsAsync();
         if (!exists) {
             throw new FileNotFoundServiceException($"Container {folder} not found.");
@@ -206,7 +206,7 @@ public class FileServiceAzureStorage : IFileService
             var blob = container.GetBlobClient(filename);
             deleted = await blob.DeleteIfExistsAsync();
         } else {
-            var segment = container.GetBlobsAsync(prefix: filename);
+            var segment = container.GetBlobsAsync(new GetBlobsOptions { Prefix = filename });
             await foreach (var blob in segment) {
                 await container.DeleteBlobIfExistsAsync(blob.Name, DeleteSnapshotsOption.IncludeSnapshots);
             }

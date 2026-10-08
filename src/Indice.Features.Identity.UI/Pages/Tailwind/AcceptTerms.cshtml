@@ -2,15 +2,15 @@
 
 @model BaseAcceptTermsModel
 
-@inject IIdentityViewLocalizer Localizer
+@inject IdentityUILocalizer Localizer
 
 @{
-    ViewData["Title"] = Localizer["Terms & conditions acceptance"].Value;
+    ViewData["Title"] = Localizer.AcceptTerms_PageTitle;
 
 }
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@ViewData["Title"]" image-src="" />
+        <vc:page-heading title="@Localizer.AcceptTerms_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
         <partial name="_Alert" model="Model.View.Alert" />
         <div class="row">
@@ -19,10 +19,10 @@
         <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post">
             <div class="row justify-items-center place-items-center">
                 <div class="col-span-6 flex flex-col">
-                    <button class="btn btn-primary" type="submit">@Localizer["Accept"]</button>
+                    <button class="btn btn-primary" type="submit">@Localizer.AcceptTerms_Accept</button>
                 </div>
                 <div class="col-span-6 flex flex-col">
-                    <a class="btn btn-primary no-underline" href="~/">@Localizer["Reject"]</a>
+                    <a class="btn btn-primary no-underline" href="~/">@Localizer.AcceptTerms_Reject</a>
                 </div>
             </div>
             <input type="hidden" asp-for="View.ReturnUrl" />

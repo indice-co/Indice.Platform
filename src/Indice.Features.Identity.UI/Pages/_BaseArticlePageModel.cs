@@ -75,12 +75,13 @@ public abstract class BaseArticlePageModel : PageModel
         if (raw.HasValue && raw.Value) {
             var http = HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient();
             var html = await http.GetStringAsync(articleUrl);
-            var doc = new HtmlDocument();
-            doc.OptionFixNestedTags = true;
-            doc.OptionAutoCloseOnEnd = true;
-            doc.OptionDefaultStreamEncoding = Encoding.UTF8;
-            doc.OptionWriteEmptyNodes = true;
-            doc.OptionOutputAsXml = true;
+            var doc = new HtmlDocument {
+                OptionFixNestedTags = true,
+                OptionAutoCloseOnEnd = true,
+                OptionDefaultStreamEncoding = Encoding.UTF8,
+                OptionWriteEmptyNodes = true,
+                OptionOutputAsXml = true
+            };
             doc.LoadHtml(html);
             var mainNode = doc.DocumentNode.SelectSingleNode("//main")!;
             var articleNode = mainNode.SelectSingleNode("//article");
@@ -96,10 +97,10 @@ public abstract class BaseArticlePageModel : PageModel
     /// <summary>
     /// Recursively delete nodes not in the attributeWhitelist
     /// </summary>
-    private static HtmlNode CleanNodes(HtmlNode node, string[] nodeWhitelist, string[] attributeWhitelist) {
+    private static HtmlNode? CleanNodes(HtmlNode node, string[] nodeWhitelist, string[] attributeWhitelist) {
         if (SkipNode(node)) {
             var nextNode = node.NextSibling;
-            node.ParentNode.RemoveChild(node);
+            node.ParentNode!.RemoveChild(node);
 
             return nextNode;
         }
@@ -123,11 +124,11 @@ public abstract class BaseArticlePageModel : PageModel
             if (!nodeWhitelist.Contains(node.Name)) {
                 var nodeList = node.ChildNodes.ToList();
                 foreach (var child in nodeList) {
-                    node.ParentNode.InsertBefore(child, node);
+                    node.ParentNode!.InsertBefore(child, node);
                 }
 
                 var nextNode = node.NextSibling;
-                node.ParentNode.RemoveChild(node);
+                node.ParentNode!.RemoveChild(node);
 
                 return nextNode;
             }

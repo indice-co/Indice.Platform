@@ -1,31 +1,39 @@
 <div [class]="options?.htmlClass || ''">
-       <label *ngIf="options?.title"
-              [attr.for]="'currency-control' + layoutNode?._id"
-              [class]="options?.labelHtmlClass || ''"
-              [style.display]="options?.notitle ? 'none' : ''"
-              [innerHTML]="options?.title"></label>
-       <input *ngIf="boundControl"
-              [formControl]="formControl"
-              type="hidden">
-       <input [class]="options?.fieldHtmlClass || ''"
-              [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
-              [attr.list]="'control' + layoutNode?._id + 'Autocomplete'"
-              [attr.maxlength]="options?.maxLength"
-              [attr.minlength]="options?.minLength"
-              [attr.pattern]="options?.pattern"
-              [attr.placeholder]="options?.placeholder"
-              [attr.required]="options?.required"
-              [disabled]="controlDisabled"
-              [id]="'currency-control' + layoutNode?._id"
-              [name]="'input' + controlName"
-              [readonly]="options?.readonly ? 'readonly' : null"
-              type="text"
-              (input)="updateValue($event)"
-              (blur)="onBlur($event)"
-              [(ngModel)]="displayValue" >
-       <datalist *ngIf="options?.typeahead?.source"
-                 [id]="'control' + layoutNode?._id + 'Autocomplete'">
-              <option *ngFor="let word of options?.typeahead?.source"
-                      [value]="word">
-       </datalist>
-</div>
+  @if (options?.title) {
+    <label
+      [attr.for]="'currency-control' + layoutNode?._id"
+      [class]="options?.labelHtmlClass || ''"
+      [style.display]="options?.notitle ? 'none' : ''"
+    [innerHTML]="options?.title"></label>
+  }
+  @if (boundControl) {
+    <input
+      [formControl]="formControl"
+      type="hidden">
+  }
+  <input [class]="options?.fieldHtmlClass || ''"
+    [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
+    [attr.list]="'control' + layoutNode?._id + 'Autocomplete'"
+    [attr.maxlength]="options?.maxLength"
+    [attr.minlength]="options?.minLength"
+    [attr.pattern]="options?.pattern"
+    [attr.placeholder]="options?.placeholder"
+    [attr.required]="options?.required"
+    [disabled]="controlDisabled"
+    [id]="'currency-control' + layoutNode?._id"
+    [name]="'input' + controlName"
+    [readonly]="options?.readonly ? 'readonly' : null"
+    type="text"
+    (input)="updateValue($event)"
+    (blur)="onBlur($event)"
+    [(ngModel)]="displayValue" >
+    @if (options?.typeahead?.source) {
+      <datalist
+        [id]="'control' + layoutNode?._id + 'Autocomplete'">
+        @for (word of options?.typeahead?.source; track word) {
+          <option
+            [value]="word">
+          }
+        </datalist>
+      }
+    </div>

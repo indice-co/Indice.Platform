@@ -18,8 +18,9 @@ public static class SpaUIMiddlewareExtensions
     public static IApplicationBuilder UseSpaUI<TOptions>(this IApplicationBuilder builder, string embeddedUIRoot = "spa-ui-dist", Assembly? assembly = null, Action<TOptions>? optionsAction = null) where TOptions : SpaUIOptions, new() {
         assembly ??= Assembly.GetCallingAssembly();
         var configuration = builder.ApplicationServices.GetRequiredService<IConfiguration>();
+        
         var options = new TOptions {
-            Version = assembly.GetName().Version!.ToString(fieldCount: 3),
+            Version = GetVersion(assembly),
             Authority = configuration["General:Authority"],
             Host = configuration["General:Host"]
         };
@@ -38,4 +39,13 @@ public static class SpaUIMiddlewareExtensions
     /// <param name="optionsAction">Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</param>
     public static IApplicationBuilder UseSpaUI(this IApplicationBuilder builder, string embeddedUIRoot = "spa-ui-dist", Assembly? assembly = null, Action<SpaUIOptions>? optionsAction = null) =>
         builder.UseSpaUI<SpaUIOptions>(embeddedUIRoot, assembly, optionsAction);
+
+    private static string GetVersion(Assembly assembly) {
+        var version = assembly.GetName().Version!.ToString(fieldCount: 3);
+        var informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion?.Split('+')[0];
+        if (!string.IsNullOrWhiteSpace(informationalVersion) && informationalVersion.StartsWith($"{version}-")) {
+            version = informationalVersion;
+        }
+        return version;
+    }
 }

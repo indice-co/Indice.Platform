@@ -27,7 +27,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
     private readonly ServiceBusAdministrationClient? _serviceBusAdministrationClient;
     private readonly bool _enabled;
     private readonly bool _useCompression;
-    private readonly Func<ClaimsPrincipal> _claimsPrincipalSelector;
+    private readonly Func<ClaimsPrincipal?> _claimsPrincipalSelector;
     private readonly Func<string?> _tenantIdSelector;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly ConcurrentDictionary<string, ServiceBusSender> _senders = new();
@@ -40,7 +40,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
     /// <param name="useCompression">When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.</param>
     /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
     /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
-    public EventDispatcherAzureServiceBus(ServiceBusClient serviceBusClient, ServiceBusAdministrationClient? serviceBusAdministrationClient, string environmentName, bool enabled, bool useCompression, Func<ClaimsPrincipal> claimsPrincipalSelector, Func<string> tenantIdSelector) {
+    public EventDispatcherAzureServiceBus(ServiceBusClient serviceBusClient, ServiceBusAdministrationClient? serviceBusAdministrationClient, string environmentName, bool enabled, bool useCompression, Func<ClaimsPrincipal?> claimsPrincipalSelector, Func<string> tenantIdSelector) {
         _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         _serviceBusClient = serviceBusClient;
         _serviceBusAdministrationClient = serviceBusAdministrationClient;
@@ -53,7 +53,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
     }
 
     /// <inheritdoc/>
-    public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal? actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string? queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class {
+    public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal? actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string? queueName = null, bool prependEnvironmentInQueueName = true, string? sessionId = null) where TEvent : class {
         if (!_enabled) {
             return;
         }
@@ -97,6 +97,9 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
                                                      : new ServiceBusMessage(new BinaryData(payloadBytes));
         message.ScheduledEnqueueTime = DateTimeOffset.UtcNow.Add(visibilityTimeout ?? TimeSpan.Zero);
         message.ContentType = contentType;
+        if (!string.IsNullOrWhiteSpace(sessionId)) {
+            message.SessionId = sessionId;
+        }
         await sender.SendMessageAsync(message);
     }
 
@@ -112,14 +115,17 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
 /// <summary>Options for configuring <see cref="EventDispatcherAzureServiceBus"/>.</summary>
 public class EventDispatcherAzureServiceBusOptions
 {
-    /// <summary>The connection string to the Azure Storage account. By default it searches for <see cref="EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</summary>
-    public string? ConnectionString { get; set; }
+    /// <summary>The configuration key/name used to resolve Azure Service Bus settings. 
+    /// By default it searches for <see cref="EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME"/> in 
+    /// the <c>ConnectionStrings</c> section. When using Entra ID/managed identity, this value should identify 
+    /// the configuration section/name that contains the required Service Bus settings.</summary>
+    public string? ConnectionStringName { get; set; }
     /// <summary>The environment name to use. Defaults to <see cref="IHostEnvironment.EnvironmentName"/>.</summary>
     public string EnvironmentName { get; set; } = "Production";
     /// <summary>Provides a way to enable/disable event dispatching at will. Defaults to true.</summary>
     public bool Enabled { get; set; } = true;
     /// <summary>A function that retrieves the current thread user from the current operation context.</summary>
-    public Func<ClaimsPrincipal>? ClaimsPrincipalSelector { get; set; }
+    public Func<ClaimsPrincipal?>? ClaimsPrincipalSelector { get; set; }
     /// <summary>A function that retrieves the current tenant id by any means possible. This is optional.</summary>
     public Func<string>? TenantIdSelector { get; set; }
     /// <summary>When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.</summary>
@@ -148,7 +154,7 @@ public class ConfigureEventDispatcherAzureServiceBusOptions : IConfigureOptions<
 
     /// <inheritdoc />
     public void Configure(EventDispatcherAzureServiceBusOptions options) {
-        options.ConnectionString = _configuration.GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME);
+        options.ConnectionStringName = options.ConnectionStringName ?? EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME;
         options.EnvironmentName = _hostEnvironment.EnvironmentName;
         options.ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!);
         options.Enabled = true;

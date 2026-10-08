@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild, TemplateRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
@@ -17,12 +17,14 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-api-resource-secrets',
     templateUrl: './api-resource-secrets.component.html',
-    providers: [NgbDateCustomParserFormatter]
+    providers: [NgbDateCustomParserFormatter],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ApiResourceSecretsComponent implements OnInit, OnDestroy {
     @ViewChild('apiSecretsList', { static: true }) private _apiSecretsList: ListViewComponent;
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('form', { static: false }) private _form: NgForm;
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
     private _getDataSubscription: Subscription;

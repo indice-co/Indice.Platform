@@ -14,7 +14,7 @@ public static class ClaimsPrincipalExtensions
         if (principal == null) {
             throw new ArgumentNullException(nameof(principal));
         }
-        return principal?.Identities != null && principal.Identities.Any(x => x.AuthenticationType == authenticationScheme); 
+        return principal.Identities != null && principal.Identities.Any(x => x.AuthenticationType == authenticationScheme);
     }
 
     /// <summary>Returns true if the principal is partially signed in with the <see cref="ExtendedIdentityConstants.ExtendedValidationScheme"/>.</summary>

@@ -230,6 +230,6 @@ internal sealed record CacheTagMetadata(string TagPrefix, string[]? RouteValueNa
         return CreateTag(tagPrefix, [.. routeParams, .. claimParams]);
     }
 
-    internal static string CreateTag(string tagPrefix, IEnumerable<KeyValuePair<string, object?>> keyValuePairs) =>
-        tagPrefix + TAG_PART_DELIMITER + string.Join(TAG_PART_DELIMITER, keyValuePairs.Select(x => $"{x.Key}:{x.Value}"));
+    internal static string CreateTag(string tagPrefix, IEnumerable<KeyValuePair<string, object?>> keyValuePairs)
+        => string.Join(TAG_PART_DELIMITER, [tagPrefix, .. keyValuePairs.Select(x => $"{x.Key}:{x.Value}")]);
 }

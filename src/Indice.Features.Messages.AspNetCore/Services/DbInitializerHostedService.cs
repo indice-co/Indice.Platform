@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace Indice.Features.Media.AspNetCore.Services.Hosting;
 
@@ -59,6 +60,8 @@ internal class DbInitializerHostedService : BackgroundService
             RelationalDatabaseCreator databaseCreator = (RelationalDatabaseCreator)context.Database.GetService<IDatabaseCreator>();
             await databaseCreator.CreateTablesAsync();
         } catch (SqlException ex) {
+            _logger.LogError(ex, "DbInitializerHostedService. Database update failed for MediaDbContext");
+        } catch (NpgsqlException ex) {
             _logger.LogError(ex, "DbInitializerHostedService. Database update failed for MediaDbContext");
         } catch (DbUpdateException ex) {
             _logger.LogError(ex, "DbInitializerHostedService. Database update failed for MediaDbContext");

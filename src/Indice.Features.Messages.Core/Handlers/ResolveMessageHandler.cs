@@ -4,6 +4,7 @@ using HandlebarsDotNet.Extension.Json;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Serialization;
@@ -23,7 +24,8 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <param name="messageService">A service that contains message related operations.</param>
     /// <param name="logger">A logger</param>
     /// <param name="options">Configuration for workers.</param>
-    /// <param name="campaignEventQueue">Campaign event listener queue</param>
+    /// <param name="messageEventQueue">Campaign event listener queue</param>
+    /// <param name="partialTemplateResolverFactory">Factory for creating partial template resolvers per channel.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ResolveMessageHandler(
         IEventDispatcherFactory eventDispatcherFactory,
@@ -32,23 +34,26 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         IMessageService messageService,
         ILogger<ResolveMessageHandler> logger,
         Microsoft.Extensions.Options.IOptions<MessageWorkerOptions> options,
-        CampaignEventQueue campaignEventQueue
+        MessageEventQueue messageEventQueue,
+        IPartialTemplateResolverFactory partialTemplateResolverFactory
     ) {
         EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
         ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
         MessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        CampaignEventQueue = campaignEventQueue;
+        MessageEventQueue = messageEventQueue;
         Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        PartialTemplateResolverFactory = partialTemplateResolverFactory ?? throw new ArgumentNullException(nameof(partialTemplateResolverFactory));
     }
     private IEventDispatcherFactory EventDispatcherFactory { get; }
     private IContactResolver ContactResolver { get; }
     private IContactService ContactService { get; }
     private IMessageService MessageService { get; }
     private ILogger<ResolveMessageHandler> Logger { get; }
-    private CampaignEventQueue CampaignEventQueue { get; }
+    private MessageEventQueue MessageEventQueue { get; }
     private MessageWorkerOptions Options { get; }
+    private IPartialTemplateResolverFactory PartialTemplateResolverFactory { get; }
 
     /// <summary>Decides whether to insert or update a resolved contact.</summary>
     /// <param name="event">The event model used when a contact is resolved from an external system.</param>
@@ -68,8 +73,8 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
 
     private async Task<Contact> GetCampaignContactWithPreferences(ResolveMessageEvent @event, CampaignCreatedEvent campaign) {
         Contact? contact = null;
-        var contactNotUpdatedAWhileNow = !@event.Contact!.UpdatedAt.HasValue
-                                       || (DateTimeOffset.UtcNow - @event.Contact.UpdatedAt.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
+        var contactNotUpdatedAWhileNow = !@event.Contact!.LastResolutionDate.HasValue
+                                       || (DateTimeOffset.UtcNow - @event.Contact.LastResolutionDate.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
         if (!@event.Contact.IsAnonymous) {
             contact = await ContactService.GetByRecipientId(@event.Contact.RecipientId);
             if (contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) {
@@ -103,11 +108,12 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     }
 
 
-    private static void GenerateMessageContent(CampaignCreatedEvent campaign, Contact? contact) {
+    private void GenerateMessageContent(CampaignCreatedEvent campaign, Contact? contact) {
         var handlebars = Handlebars.Create();
-        handlebars.Configuration.TextEncoder = new HtmlEncoder();
         handlebars.Configuration.UseJson();
         foreach (var content in campaign!.Content) {
+            handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(content.Key);
+            handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(content.Key);
             dynamic templateData = new {
                 id = campaign.Id,
                 title = campaign.Title,
@@ -127,8 +133,8 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
                     : null
             };
             var messageContent = campaign.Content[content.Key];
-            messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);
-            messageContent.Body = handlebars.Compile(content.Value.Body)(templateData);
+            messageContent.Title = handlebars.Compile(content.Value.Title!)(templateData);
+            messageContent.Body = handlebars.Compile(content.Value.Body!)(templateData);
         }
     }
 
@@ -149,6 +155,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         if (contactChannels.HasFlag(MessageChannelKind.Inbox)) {
             await LogEvent(campaign, contact, MessageChannelKind.Inbox, messageId);
         }
+
         if (contactChannels.HasFlag(MessageChannelKind.PushNotification)) {
             await LogEvent(campaign, contact, MessageChannelKind.PushNotification, messageId);
             await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false, messageId: messageId),
@@ -167,12 +174,15 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     }
 
     private async Task LogEvent(CampaignCreatedEvent campaign, Contact contact, MessageChannelKind kind, Guid messageId) {
-        await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+        await MessageEventQueue.EnqueueAsync(new MessageEvent() {
             CampaignId = campaign.Id,
             ContactId = contact.Id!.Value,
             MessageId = messageId,
             Type = MessageEventType.Created.ToString(),
-            Channel = kind.ToString()
+            Channel = kind.ToString(),
+            Recipient = contact.GetReceiverByChannel(kind),
+            Title = campaign.Content[kind.ToString()].Title ?? "",
+            Success = true
         });
     }
 }

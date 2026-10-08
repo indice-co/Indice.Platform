@@ -86,6 +86,13 @@ public static class IServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>Adds the default implementation of <see cref="IMagicBytesValidator"/>.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddMagicBytesValidator(this IServiceCollection services) {
+        services.TryAddSingleton<IMagicBytesValidator, MagicBytesValidator>();
+        return services;
+    }
+
     /// <summary>Adds the default implementation of <see cref="IZoneInfoProvider"/>.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     public static IServiceCollection AddZoneInfoProvider(this IServiceCollection services) {

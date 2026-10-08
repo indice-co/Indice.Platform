@@ -21,24 +21,22 @@ public class ExtendedEmailTokenProvider<TUser> : EmailTokenProvider<TUser> where
 
     /// <inheritdoc />
     public async override Task<string> GenerateAsync(string purpose, UserManager<TUser> manager, TUser user) {
-        if (manager is null) {
-            throw new ArgumentNullException(nameof(manager));
-        }
-        var token = await manager.CreateSecurityTokenAsync(user).ConfigureAwait(false);
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(user);
+        var token = await user.GetSecurityToken(purpose, manager).ConfigureAwait(false);
         var modifier = await GetUserModifierAsync(purpose, manager, user).ConfigureAwait(false);
         return _rfc6238AuthenticationService.GenerateCode(token, modifier).ToString("D6", CultureInfo.InvariantCulture);
     }
 
     /// <inheritdoc />
     public async override Task<bool> ValidateAsync(string purpose, string token, UserManager<TUser> manager, TUser user) {
-        if (manager is null) {
-            throw new ArgumentNullException(nameof(manager));
-        }
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(user);
         if (!int.TryParse(token, out var code)) {
             return false;
         }
-        var securityToken = await manager.CreateSecurityTokenAsync(user).ConfigureAwait(false);
+        var securityToken = await user.GetSecurityToken(purpose, manager).ConfigureAwait(false);
         var modifier = await GetUserModifierAsync(purpose, manager, user).ConfigureAwait(false);
-        return securityToken != null && _rfc6238AuthenticationService.ValidateCode(securityToken, code, modifier);
+        return securityToken is not null && _rfc6238AuthenticationService.ValidateCode(securityToken, code, modifier);
     }
 }

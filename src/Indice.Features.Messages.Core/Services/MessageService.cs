@@ -8,6 +8,7 @@ using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Serialization;
 using Indice.Types;
@@ -23,41 +24,45 @@ public class MessageService : IMessageService
     /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
     /// <param name="campaignInboxOptions">Options used to configure the Campaigns inbox API feature.</param>
     /// <param name="contactResolver">Contact resolver service</param>
-    /// <param name="contactService"></param>
-    /// <param name="campaignEventQueue">Event queue</param>
+    /// <param name="contactService">Contacts management service</param>
+    /// <param name="messageEventQueue">Event queue</param>
+    /// <param name="partialTemplateResolverFactory">Partial template resolver factory</param>
     /// <exception cref="ArgumentNullException"></exception>
     public MessageService(CampaignsDbContext dbContext,
         IOptions<MessageInboxOptions> campaignInboxOptions,
         IContactResolver contactResolver,
         IContactService contactService,
-        CampaignEventQueue campaignEventQueue) {
+        MessageEventQueue messageEventQueue,
+        IPartialTemplateResolverFactory partialTemplateResolverFactory) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
         ContactService = contactService;
         CampaignInboxOptions = campaignInboxOptions?.Value ?? throw new ArgumentNullException(nameof(campaignInboxOptions));
-        CampaignEventQueue = campaignEventQueue;
+        MessageEventQueue = messageEventQueue;
+        PartialTemplateResolverFactory = partialTemplateResolverFactory ?? throw new ArgumentNullException(nameof(partialTemplateResolverFactory));
     }
 
     private CampaignsDbContext DbContext { get; }
     private MessageInboxOptions CampaignInboxOptions { get; }
     private IContactResolver ContactResolver { get; }
     private IContactService ContactService { get; }
-    private CampaignEventQueue CampaignEventQueue { get; }
+    private MessageEventQueue MessageEventQueue { get; }
+    private IPartialTemplateResolverFactory PartialTemplateResolverFactory { get; }
 
     /// <inheritdoc />
     public async Task<ResultSet<Message>?> GetList(string recipientId, ListOptions<MessagesFilter>? options) {
-        var userMessages = await GetUserMessagesQuery(recipientId, options?.Filter, options?.Search).ToResultSetAsync(options);
+        var userMessages = await GetUserMessagesQuery(recipientId, options?.Filter ?? new MessagesFilter(), options?.Search).ToResultSetAsync(options);
         if (userMessages?.Items != null && userMessages.Items.Any(i => i.RequiresSubstitutions)) {
-            await ApplyHandlebarsSubstitutions(recipientId, userMessages);
+            await ApplyHandlebarsSubstitutions(recipientId, userMessages, MessageChannelKind.Inbox);
         }
         return userMessages;
     }
 
     /// <inheritdoc />
     public async Task<Message?> GetById(Guid id, string recipientId, MessageChannelKind? channel = MessageChannelKind.Inbox) {
-        var userMessage = await GetUserMessagesQuery(recipientId, new MessagesFilter { MessageChannelKind = channel }).SingleOrDefaultAsync(x => x.Id == id);
+        var userMessage = await GetUserMessagesQuery(recipientId, new MessagesFilter { MessageChannelKind = channel, ShowExpired = true }).SingleOrDefaultAsync(x => x.Id == id);
         if (userMessage?.RequiresSubstitutions == true && channel == MessageChannelKind.Inbox) {
-            await ApplyHandlebarsSubstitutions(recipientId, userMessage);
+            await ApplyHandlebarsSubstitutions(recipientId, userMessage, MessageChannelKind.Inbox);
         }
         return userMessage;
     }
@@ -77,12 +82,19 @@ public class MessageService : IMessageService
         }
 
         if (message.ContactId.HasValue) {
-            await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+            var inboxTitle = string.Empty;
+            if (message.Content.TryGetValue(MessageChannelKind.Inbox.ToString(), out var contentValue)) {
+                inboxTitle = contentValue.Title ?? "";
+            }
+            await MessageEventQueue.EnqueueAsync(new MessageEvent() {
                 CampaignId = message.CampaignId,
                 ContactId = message.ContactId.Value,
                 MessageId = message.Id,
-                Type = MessageEventType.MarkedAsDeleted.ToString(),
-                Channel = MessageChannelKind.Inbox.ToString()
+                Type = MessageEventType.Deleted.ToString(),
+                Channel = MessageChannelKind.Inbox.ToString(),
+                Recipient = recipientId,
+                Title = inboxTitle,
+                Success = true
             });
         }
         await DbContext.SaveChangesAsync();
@@ -110,12 +122,15 @@ public class MessageService : IMessageService
             message = await CreateMessageAndMarkAsRead(id, recipientId);
         }
         if (message.ContactId.HasValue) {
-            await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+            await MessageEventQueue.EnqueueAsync(new MessageEvent() {
                 CampaignId = message.CampaignId,
                 ContactId = message.ContactId.Value,
                 MessageId = message.Id,
-                Type = MessageEventType.MarkedAsRead.ToString(),
-                Channel = MessageChannelKind.Inbox.ToString()
+                Type = MessageEventType.Read.ToString(),
+                Channel = MessageChannelKind.Inbox.ToString(),
+                Recipient = recipientId,
+                Title = message.GetContentTitle(MessageChannelKind.Inbox),
+                Success = true
             });
         }
         await DbContext.SaveChangesAsync();
@@ -170,12 +185,15 @@ public class MessageService : IMessageService
             message.IsRead = false;
             message.ReadDate = null;
             if (message.ContactId.HasValue) {
-                await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+                await MessageEventQueue.EnqueueAsync(new MessageEvent() {
                     CampaignId = message.CampaignId,
                     ContactId = message.ContactId.Value,
                     MessageId = message.Id,
-                    Type = MessageEventType.MarkedAsUnread.ToString(),
-                    Channel = MessageChannelKind.Inbox.ToString()
+                    Type = MessageEventType.UnRead.ToString(),
+                    Channel = MessageChannelKind.Inbox.ToString(),
+                    Recipient = recipientId,
+                    Title = message.GetContentTitle(MessageChannelKind.Inbox),
+                    Success = true
                 });
             }
             await DbContext.SaveChangesAsync();
@@ -213,20 +231,21 @@ public class MessageService : IMessageService
             );
         var messageChannelKind = MessageChannelKind.Inbox;
         if (filter is not null) {
-            if (filter.ShowExpired.HasValue) {
+            var showNotExpired = filter.ShowExpired is not true;
+            if (showNotExpired) {
                 query = query.Where(x => !x.Campaign.ActivePeriod!.To.HasValue || x.Campaign.ActivePeriod.To.Value >= DateTime.UtcNow);
             }
             if (filter.TypeId?.Length > 0) {
                 query = query.Where(x => x.Campaign.Type != null && filter.TypeId.Contains(x.Campaign.Type.Id));
             }
-            if (filter.ActiveFrom.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod!.From ?? DateTimeOffset.MaxValue) > filter.ActiveFrom.Value);
+            if (filter.ActiveFrom is DateTimeOffset activeFrom) {
+                query = query.Where(x => (x.Campaign.ActivePeriod!.From ?? DateTimeOffset.MaxValue) > activeFrom);
             }
-            if (filter.ActiveTo.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod!.To ?? DateTimeOffset.MinValue) < filter.ActiveTo.Value);
+            if (filter.ActiveTo is DateTimeOffset activeTo) {
+                query = query.Where(x => (x.Campaign.ActivePeriod!.To ?? DateTimeOffset.MinValue) < activeTo);
             }
-            if (filter.IsRead.HasValue) {
-                query = query.Where(x => ((bool?)x.Message!.IsRead ?? false) == filter.IsRead);
+            if (filter.IsRead is bool isRead) {
+                query = query.Where(x => ((bool?)x.Message!.IsRead ?? false) == isRead);
             }
             if (filter.MessageChannelKind.HasValue && filter.MessageChannelKind != MessageChannelKind.None) {
                 messageChannelKind = filter.MessageChannelKind.Value;
@@ -275,9 +294,10 @@ public class MessageService : IMessageService
         });
     }
 
-    private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, ResultSet<Message> userMessages) {
+    private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, ResultSet<Message> userMessages, MessageChannelKind channelKind) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
+        handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(channelKind.ToString());
         var contact = await ContactResolver.Resolve(userIdentitfier);
         var contactExpandoObject = contact is not null
             ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
@@ -289,14 +309,15 @@ public class MessageService : IMessageService
                         ? JsonSerializer.Deserialize<ExpandoObject>(message.CampaignData, JsonSerializerOptionDefaults.GetDefaultSettings())
                         : null
             };
-            message.Title = handlebars.Compile(message.Title)(templateData);
-            message.Content = handlebars.Compile(message.Content)(templateData);
+            message.Title = handlebars.Compile(message.Title!)(templateData);
+            message.Content = handlebars.Compile(message.Content!)(templateData);
         }
     }
 
-    private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, Message userMessage) {
+    private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, Message userMessage, MessageChannelKind channelKind) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
+        handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(channelKind.ToString());
         var contact = await ContactResolver.Resolve(userIdentitfier);
         dynamic templateData = new {
             contact = contact is not null
@@ -306,14 +327,15 @@ public class MessageService : IMessageService
                         ? JsonSerializer.Deserialize<ExpandoObject>(userMessage.CampaignData, JsonSerializerOptionDefaults.GetDefaultSettings())
                         : null
         };
-        userMessage.Title = handlebars.Compile(userMessage.Title)(templateData);
-        userMessage.Content = handlebars.Compile(userMessage.Content)(templateData);
+        userMessage.Title = handlebars.Compile(userMessage.Title!)(templateData);
+        userMessage.Content = handlebars.Compile(userMessage.Content!)(templateData);
     }
 
     private MessageContentDictionary GetMessageContent(DbCampaign dbCampaign, Contact? contact) {
         if (dbCampaign.MessageChannelKind.HasFlag(MessageChannelKind.Inbox) && dbCampaign.Content.ContainsKey(MessageChannelKind.Inbox.ToString())) {
             var handlebars = Handlebars.Create();
             handlebars.Configuration.TextEncoder = new HtmlEncoder();
+            handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(MessageChannelKind.Inbox.ToString());
             dynamic templateData = new {
                 contact = contact is not null
                             ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
@@ -323,8 +345,8 @@ public class MessageService : IMessageService
                             : null
             };
             var messageContent = dbCampaign.Content[MessageChannelKind.Inbox.ToString()];
-            messageContent.Title = handlebars.Compile(messageContent.Title)(templateData);
-            messageContent.Body = handlebars.Compile(messageContent.Body)(templateData);
+            messageContent.Title = handlebars.Compile(messageContent.Title!)(templateData);
+            messageContent.Body = handlebars.Compile(messageContent.Body!)(templateData);
         }
         return dbCampaign.Content;
     }

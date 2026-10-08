@@ -1,8 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text.Json.Serialization;
 using FluentValidation;
-using Indice.AspNetCore.Filters;
-using Indice.AspNetCore.Swagger;
 using Indice.Events;
 using Indice.Features.Media.AspNetCore;
 using Indice.Features.Media.AspNetCore.Services.Hosting;
@@ -11,18 +9,21 @@ using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Manager;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
 using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -45,6 +46,7 @@ public static class MessageFeatureExtensions
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.ManagementGroupName;
             options.FileUploadLimit = apiOptions.FileUploadLimit;
+            options.MapTranslations = apiOptions.MapTranslations;
         })
         .AddMessageInbox(options => {
             options.PathPrefix = apiOptions.PathPrefix;
@@ -52,7 +54,7 @@ public static class MessageFeatureExtensions
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.InboxGroupName;
-            options.CampaignStatisticOptions = apiOptions.CampaignStatisticOptions;
+            options.AnalyticsOptions = apiOptions.AnalyticsOptions;
         });
     }
 
@@ -65,8 +67,11 @@ public static class MessageFeatureExtensions
         configureAction?.Invoke(apiOptions);
 
         // Configure authorization. It's important to register the authorization policy provider at this point.
+        //
+
         services.AddAuthorization(policy => policy.AddCampaignsManagementPolicy(apiOptions.RequiredScope))
                 .AddTransient<IAuthorizationHandler, BeCampaignManagerHandler>();
+        services.AddTransient<IAuthorizationHandler, CanSendCampaignHandler>();
 
         services.AddCampaignCore(apiOptions);
 
@@ -79,23 +84,19 @@ public static class MessageFeatureExtensions
             options.RequiredScope = apiOptions.RequiredScope;
             options.GroupName = apiOptions.GroupName;
             options.FileUploadLimit = apiOptions.FileUploadLimit;
+            options.MapTranslations = apiOptions.MapTranslations;
         });
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
         // Register framework services.
         services.AddHttpContextAccessor();
-        // Register events.
         services.TryAddSingleton<MediaBaseHrefResolver>();
-        services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
-        services.TryAddTransient<IContactService, ContactService>();
-        services.TryAddTransient<ITemplateService, TemplateService>();
-        services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
-        services.TryAddTransient<NotificationsManager>();
-        services.TryAddTransient<IDistributionListService, DistributionListService>();
-        services.TryAddTransient<ICampaignService, CampaignService>();
-        services.TryAddTransient<IMessageTypeService, MessageTypeService>();
-        services.TryAddTransient<IMessageSenderService, MessageSenderService>();
-        services.TryAddTransient<CreateCampaignRequestValidator>();
-        services.TryAddTransient<CreateMessageTypeRequestValidator>();
+        services.AddTranslationGraph(options => {
+            options.DefaultTranslationsBaseName = "Messages.Ui.TranslationApi";
+            options.DefaultTranslationsLocation = "Indice.Features.Messages.AspNetCore";
+            options.DefaultEndpointRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/msg-i18n.{lang:culture}.json";
+            options.ConfigureCachePolicy = new Action<OutputCachePolicyBuilder>(policy => { policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag(); });
+            options.AvailableLanguagesRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/languages";
+        });
         return services;
     }
 
@@ -118,11 +119,11 @@ public static class MessageFeatureExtensions
         });
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
 
-        services.Configure<CampaignStatisticOptions>(opt => {
-            opt.EnableStatics = apiOptions.CampaignStatisticOptions.EnableStatics;
+        services.Configure<AnalyticsOptions>(opt => {
+            opt.Enabled = apiOptions.AnalyticsOptions.Enabled;
         });
-        services.AddSingleton<CampaignEventQueue>();
-        services.AddSingleton<IHostedService, CampaignEventHandler>();
+        services.AddSingleton<MessageEventQueue>();
+        services.AddSingleton<IHostedService, MessageEventHostedServcie>();
         return services;
     }
 
@@ -141,7 +142,7 @@ public static class MessageFeatureExtensions
             if (!options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(TypeConverterJsonAdapterFactory))) {
                 options.JsonSerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
-        }); 
+        });
         services.PostConfigure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => {
             if (!options.SerializerOptions.Converters.OfType<JsonStringEnumConverter>().Any()) {
                 options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -150,37 +151,37 @@ public static class MessageFeatureExtensions
                 options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
         });
-        // Post configure Swagger options.
-        //services.PostConfigure<SwaggerGenOptions>(options => {
-        //    var enumFlagsSchemaFilterExists = options.SchemaFilterDescriptors.Any(x => x.Type == typeof(EnumFlagsSchemaFilter));
-        //    if (!enumFlagsSchemaFilterExists) {
-        //        options.SchemaFilter<EnumFlagsSchemaFilter>();
-        //    }
-        //});
         // Register validators.
         services.AddValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>();
+        services.TryAddTransient<CreateCampaignRequestValidator>();
+        services.TryAddTransient<CreateMessageTypeRequestValidator>();
         // Register framework services.
         services.AddResponseCaching();
         services.AddOutputCache();
         services.AddEndpointParameterFluentValidation(typeof(UpdateMessageTypeRequestValidator).Assembly);
         // Register custom services.
+        services.TryAddTransient<IContactService, ContactService>();
+        services.TryAddTransient<ITemplateService, TemplateService>();
         services.TryAddTransient<ICampaignService, CampaignService>();
+        services.TryAddTransient<IPartialTemplateResolverFactory, DbBackedPartialTemplateResolverFactory>();
+        services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
         services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<IDistributionListService, DistributionListService>();
         services.TryAddTransient<IMessageService, MessageService>();
+        services.TryAddTransient<IMessageEventService, MessageEventService>();
         services.TryAddScoped<IUserNameAccessor, UserNameFromClaimsAccessor>();
         services.TryAddScoped<UserNameAccessorAggregate>();
         services.TryAddTransient<IFileService, FileServiceNoop>();
         services.TryAddTransient<IFileServiceFactory, DefaultFileServiceFactory>();
-        services.TryAddTransient<IContactResolver, ContactResolverNoop>();
+        services.TryAddTransient<IContactResolver, ContactResolverNoop>(); 
+        services.TryAddTransient<NotificationsManager>();
         services.AddEventDispatcherNoop();
         services.AddFilesNoop();
         // Register application DbContext.
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDb"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
         services.AddHostedService<DbInitializerHostedService>();
-
         return services;
     }
 
@@ -237,23 +238,23 @@ public static class MessageFeatureExtensions
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static void UseEventDispatcherAzure(this MessageEndpointOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions>? configure = null) {
-        options.Services!.AddEventDispatcherAzure(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey, 
+        options.Services!.AddEventDispatcherAzure(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey,
             (serviceProvider, options) => {
-            var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
-                ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
-                Enabled = true,
-                EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
-                ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
-            };
-            configure?.Invoke(serviceProvider, eventDispatcherOptions);
-            options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
-            options.ConnectionString = eventDispatcherOptions.ConnectionString;
-            options.Enabled = eventDispatcherOptions.Enabled;
-            options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
-            options.QueueMessageEncoding = eventDispatcherOptions.QueueMessageEncoding;
-            options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
-            options.UseCompression = true;
-        });
+                var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
+                    ConnectionStringName = EventDispatcherAzure.CONNECTION_STRING_NAME,
+                    Enabled = true,
+                    EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
+                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
+                };
+                configure?.Invoke(serviceProvider, eventDispatcherOptions);
+                options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
+                options.ConnectionStringName = eventDispatcherOptions.ConnectionStringName;
+                options.Enabled = eventDispatcherOptions.Enabled;
+                options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
+                options.QueueMessageEncoding = eventDispatcherOptions.QueueMessageEncoding;
+                options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
+                options.UseCompression = true;
+            });
     }
 
     /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
@@ -263,14 +264,14 @@ public static class MessageFeatureExtensions
         options.Services!.AddEventDispatcherAzureServiceBus(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey,
             (serviceProvider, options) => {
                 var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
-                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
+                    ConnectionStringName = EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME,
                     Enabled = true,
                     EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
                     ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
                 };
                 configure?.Invoke(serviceProvider, eventDispatcherOptions);
                 options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
-                options.ConnectionString = eventDispatcherOptions.ConnectionString;
+                options.ConnectionStringName = eventDispatcherOptions.ConnectionStringName;
                 options.Enabled = eventDispatcherOptions.Enabled;
                 options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
                 options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;

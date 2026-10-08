@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
 using System.Security;
 using System.Text;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.Core.Totp;
@@ -11,6 +13,7 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
 {
     private readonly Rfc6238AuthenticationService _rfc6238AuthenticationService;
     private readonly IStringLocalizer<TotpServiceSecurityToken> _localizer;
+    private readonly ExtendedUserManager<User> _extendedUserManager;
 
     /// <summary>Creates a new instance of <see cref="TotpServiceSecurityToken"/>.</summary>
     /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
@@ -23,15 +26,18 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
     ) : base(serviceProvider) {
         _rfc6238AuthenticationService = rfc6238AuthenticationService ?? throw new ArgumentNullException(nameof(rfc6238AuthenticationService));
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+        _extendedUserManager = serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
     }
 
     /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
-    /// <param name="configureAction"></param>
+    /// <param name="configureAction">An action to configure the TOTP parameters.</param>
     public Task<TotpResult> SendAsync(Action<TotpServiceSecurityTokenParametersBuilder> configureAction) {
         var builder = new TotpServiceSecurityTokenParametersBuilder();
         configureAction(builder);
         var @params = builder.Build();
-        return SendAsync(@params.SecurityToken, @params.Message, @params.Subject, @params.PhoneNumber, @params.DeliveryChannel, @params.Purpose);
+        return SendAsync(@params.SecurityToken, @params.Message, @params.Subject,
+            @params.PhoneNumber, @params.Email, @params.UserId,
+            @params.DeliveryChannel, @params.Purpose, @params.Template, @params.Data, @params.Classification);
     }
 
     /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
@@ -39,47 +45,111 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
     /// <param name="message">The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
     /// <param name="subject">The subject of message.</param>
     /// <param name="phoneNumber">The receiver's phone number.</param>
+    /// <param name="email">The receiver's email.</param>
+    /// <param name="userId">The user ID.</param>
     /// <param name="channel">The delivery channel.</param>
     /// <param name="purpose">Optional reason to generate the TOTP.</param>
+    /// <param name="template">The template to use.</param>
+    /// <param name="data">Additional data to be included in the message.</param>
+    /// <param name="classification">The classification of the message.</param>
     public async Task<TotpResult> SendAsync(
         string securityToken,
         string message,
         string subject,
-        string phoneNumber,
+        string? phoneNumber = null,
+        string? email = null,
+        string? userId = null,
         TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
-        string? purpose = null
+        string? purpose = null,
+        string? template = null,
+        string? data = null,
+        string? classification = null
     ) {
+
+        User? resolvedUser = null;
+        if (!string.IsNullOrWhiteSpace(userId)) {
+            resolvedUser = await _extendedUserManager.FindByIdAsync(userId);
+            if (resolvedUser == null) {
+                return TotpResult.ErrorResult(_localizer["The specified user does not exist."]);
+            }
+            phoneNumber = resolvedUser.PhoneNumber;
+            email = resolvedUser.Email;
+        }
+        if (!ValidateChannel(channel, phoneNumber, email, resolvedUser, out var error)) {
+            return TotpResult.ErrorResult(error);
+        }
+
         purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
-        var modifier = GetModifier(purpose, phoneNumber);
+        var recipient = GetRecipient(phoneNumber, email, userId);
+        var modifier = GetModifier(purpose, recipient);
         var encodedToken = Encoding.Unicode.GetBytes(securityToken);
         var token = _rfc6238AuthenticationService.GenerateCode(encodedToken, modifier).ToString("D6", CultureInfo.InvariantCulture);
-        message = _localizer[message, token];
-        var cacheKey = $"{nameof(TotpServiceSecurityToken)}:{phoneNumber}:{channel}:{token}:{purpose}";
+        var cacheKey = $"{nameof(TotpServiceSecurityToken)}:{recipient}:{channel}:{token}:{purpose}";
         if (await CacheKeyExistsAsync(cacheKey)) {
             return TotpResult.RateLimitedResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."], await GetCacheKeyExpirationAsync(cacheKey));
         }
+        
+        message = _localizer[message, token];
         await SendToChannelAsync(
             channel,
             new TotpRecipient {
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber ?? "",
+                Email = email ?? "",
+                UserId = userId,
             },
             new TotpMessage {
                 Message = message,
-                Subject = subject
+                Subject = subject,
+                EmailTemplate = template,
+                Data = data,
+                Category = classification
             }
         );
         await AddCacheKeyAsync(cacheKey);
         return TotpResult.SuccessResult;
     }
+    private string GetRecipient(string? phoneNumber, string? email, string? userId) =>
+        !string.IsNullOrWhiteSpace(userId) ? userId :
+            !string.IsNullOrWhiteSpace(phoneNumber) ? phoneNumber :
+                email ?? throw new SecurityException("No recipient was provided.");
+
+    private bool ValidateChannel(TotpDeliveryChannel channel, string? phoneNumber, string? email, User? user, out string Error) {
+        if (channel is TotpDeliveryChannel.None or TotpDeliveryChannel.Telephone or TotpDeliveryChannel.EToken) {
+            Error = _localizer["Delivery channel '{0}' is not supported.", channel];
+            return false;
+        }
+        if (user == null && string.IsNullOrWhiteSpace(phoneNumber) && string.IsNullOrWhiteSpace(email)) {
+            Error = _localizer["No recipient was provided."];
+            return false;
+        }
+        if (user == null && channel == TotpDeliveryChannel.PushNotification) {
+            Error = _localizer["User is required for PushNotification channel."];
+            return false;
+        }
+        if ((channel == TotpDeliveryChannel.Sms || channel == TotpDeliveryChannel.Viber) && string.IsNullOrWhiteSpace(phoneNumber)) {
+            Error = _localizer["Phone number is required for SMS and Viber channels."];
+            return false;
+        } else if (channel == TotpDeliveryChannel.Email && string.IsNullOrWhiteSpace(email)) {
+            Error = _localizer["Email is required for Email channel."];
+            return false;
+        }
+        Error = string.Empty;
+        return true;
+    }
+
 
     /// <summary>Verifies the TOTP received for the given user.</summary>
     /// <param name="securityToken">A security code. This should be a secret.</param>
     /// <param name="phoneNumber">The receiver's phone number.</param>
     /// <param name="code">The TOTP code to verify.</param>
     /// <param name="purpose">Optional reason to generate the TOTP.</param>
+    /// <param name="email">The receiver's email.</param>
+    /// <param name="userId">The user ID.</param>
     public Task<TotpResult> VerifyAsync(
         string securityToken,
-        string phoneNumber,
+        string? phoneNumber,
+        string? email,
+        string? userId,
         string code,
         string? purpose = null
     ) {
@@ -87,7 +157,8 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
         if (!int.TryParse(code, out var codeInt)) {
             return Task.FromResult(TotpResult.InvalidFormatResult(_localizer["Totp must be an integer value."]));
         }
-        var modifier = GetModifier(purpose, phoneNumber);
+        var recipient = GetRecipient(phoneNumber, email, userId);
+        var modifier = GetModifier(purpose, recipient);
         var encodedToken = Encoding.Unicode.GetBytes(securityToken);
         var isValidTotp = _rfc6238AuthenticationService.ValidateCode(encodedToken, codeInt, modifier);
         return Task.FromResult(isValidTotp ? TotpResult.SuccessResult : TotpResult.InvalidCodeResult(_localizer["The verification code is invalid."]));

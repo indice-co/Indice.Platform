@@ -1,13 +1,8 @@
-﻿using Azure.Core.GeoJson;
-using IdentityModel;
-using Indice.AspNetCore.Http.Filters;
-using Indice.Features.Identity.Server;
+﻿using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Security;
-using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Routing;
@@ -31,7 +26,6 @@ public static class DashboardApi
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
 
-        group.WithOpenApi();
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
 
@@ -46,12 +40,12 @@ public static class DashboardApi
         group.MapGet("summary", DashboardHandlers.GetSystemSummary)
              .WithName(nameof(DashboardHandlers.GetSystemSummary))
              .WithSummary("Gets some useful information as a summary of the system.")
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
+             .WithOpenApiSecurityRequirement("oauth2", allowedScopes)
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersOrClientsReader)
              .CacheOutput(policy => policy.SetAuthorized(ctx => ctx.User.FindSubjectId()!)
                                           .Expire(TimeSpan.FromMinutes(5))
                                           .Tag(CacheTagPrefix))
-             .WithCacheTag(CacheTagPrefix, [], [JwtClaimTypes.Subject]);
+             .WithCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject]);
 
         group.MapGet("ui", DashboardHandlers.GetUiFeatures)
              .WithName(nameof(DashboardHandlers.GetUiFeatures))

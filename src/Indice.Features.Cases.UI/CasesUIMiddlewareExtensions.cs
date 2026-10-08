@@ -11,5 +11,5 @@ public static class CasesUIMiddlewareExtensions
     /// <param name="builder">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
     /// <param name="optionsAction">Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</param>
     public static IApplicationBuilder UseCasesUI(this IApplicationBuilder builder, Action<CasesUIOptions>? optionsAction = null) =>
-        builder.UseSpaUI("cases-app", typeof(CasesUIMiddlewareExtensions).Assembly, optionsAction);
+        builder.UseSpaUI("browser", typeof(CasesUIMiddlewareExtensions).Assembly, optionsAction);
 }

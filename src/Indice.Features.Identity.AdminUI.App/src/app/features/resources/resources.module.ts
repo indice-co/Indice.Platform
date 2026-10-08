@@ -22,6 +22,11 @@ import { ApiResourceSecretsComponent } from './api/edit/secrets/api-resource-sec
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { UserClaimsStepComponent } from './add/wizard/steps/user-claims/user-claims-step.component';
 import { BasicInfoStepComponent } from './add/wizard/steps/basic-info/basic-info-step.component';
+import { ScopesComponent } from './scopes/scopes.component';
+import { ScopeAddComponent } from './scopes/add/scope-add.component';
+import { ScopeEditComponent } from './scopes/edit/scope-edit.component';
+import { ScopeDetailsComponent } from './scopes/edit/details/scope-details.component';
+import { ScopeClaimsComponent } from './scopes/edit/claims/scope-claims.component';
 
 @NgModule({
     declarations: [
@@ -40,7 +45,12 @@ import { BasicInfoStepComponent } from './add/wizard/steps/basic-info/basic-info
         UserClaimsStepComponent,
         ApiResourceClaimsComponent,
         ApiResourceScopeAddComponent,
-        ApiResourceSecretsComponent
+        ApiResourceSecretsComponent,
+        ScopesComponent,
+        ScopeAddComponent,
+        ScopeEditComponent,
+        ScopeDetailsComponent,
+        ScopeClaimsComponent
     ],
     imports: [
         CommonModule,

@@ -1,0 +1,445 @@
+import { provideZonelessChangeDetection } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideMarkdown } from 'ngx-markdown';
+
+import { ChatMessagePartComponent } from './chat-message-part.component';
+import {
+  CALLOUT_MEDIA_TYPE,
+  CONFIRM_MEDIA_TYPE,
+  HITL_REQUEST_MEDIA_TYPE,
+  IMAGE_MEDIA_TYPE,
+  MULTIPLE_CHOICE_MEDIA_TYPE,
+} from './parts/part-contracts';
+
+const CHOICE_PART = {
+  contentType: MULTIPLE_CHOICE_MEDIA_TYPE,
+  value: '{"options":["Tell me about faq","Tell me about identity"]}',
+};
+
+const CONFIRM_PART = {
+  contentType: CONFIRM_MEDIA_TYPE,
+  value: '{"prompt":"Look it up?","confirmText":"Yes, go ahead","cancelText":"No thanks"}',
+};
+
+const IMAGE_PART = {
+  contentType: IMAGE_MEDIA_TYPE,
+  value: '{"uri":"https://cdn.example.com/a.png","caption":"Figure 1"}',
+};
+
+/** The ownership request uses the free-text field; the `OtpRequest` port gets the one-time-code boxes. */
+const FREE_TEXT_PORT = 'OwnershipVerificationRequestPort';
+
+const HITL_PART = {
+  contentType: HITL_REQUEST_MEDIA_TYPE,
+  name: FREE_TEXT_PORT,
+  value: '{"Text":"What is the customer\'s VAT number?","RequestId":"a1b2","Properties":{}}',
+};
+
+/** What the server emits today: the correlation id alone, the question carried by sibling prose parts. */
+const HITL_BARE_PART = {
+  contentType: HITL_REQUEST_MEDIA_TYPE,
+  name: FREE_TEXT_PORT,
+  value: '{"Text":null,"RequestId":"a1b2","Properties":{}}',
+};
+
+const HITL_OTP_PART = {
+  contentType: HITL_REQUEST_MEDIA_TYPE,
+  name: 'OtpRequestPort',
+  value: '{"data":{"challengeCode":"challenge-1","expirationDate":"2026-07-01T12:00:00Z"}}',
+};
+
+describe('ChatMessagePartComponent', () => {
+  let fixture: ComponentFixture<ChatMessagePartComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ChatMessagePartComponent],
+      providers: [provideZonelessChangeDetection(), provideMarkdown()],
+    }).compileComponents();
+    fixture = TestBed.createComponent(ChatMessagePartComponent);
+  });
+
+  function render(
+    part: { contentType?: string; value?: string; name?: string },
+    options: { interactive?: boolean; first?: boolean } = {},
+  ): HTMLElement {
+    fixture.componentRef.setInput('part', part);
+    fixture.componentRef.setInput('interactive', options.interactive ?? true);
+    fixture.componentRef.setInput('first', options.first ?? false);
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  function buttons(host: HTMLElement): HTMLButtonElement[] {
+    return Array.from(host.querySelectorAll('button'));
+  }
+
+  function bubbleOf(host: HTMLElement): DOMTokenList | undefined {
+    return host.querySelector('.markdown')?.classList;
+  }
+
+  function typeAnswer(host: HTMLElement, value: string): void {
+    const field = host.querySelector('input') as HTMLInputElement;
+    field.value = value;
+    field.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+  }
+
+  describe('prose', () => {
+    it('renders a markdown part through the markdown renderer', async () => {
+      // ngx-markdown renders asynchronously, so the text only lands once the fixture settles.
+      const host = render({ contentType: 'text/markdown', value: 'Hello **world**' });
+      expect(host.querySelector('.markdown')).toBeTruthy();
+      await fixture.whenStable();
+      expect(host.querySelector('.markdown')?.innerHTML).toContain('<strong>world</strong>');
+    });
+
+    it('carries its own bubble chrome, since the thread no longer wraps the parts', () => {
+      const bubble = bubbleOf(render({ contentType: 'text/markdown', value: 'hi' }));
+      expect(bubble).toContain('rounded-box');
+      expect(bubble).toContain('border-base-300');
+    });
+
+    it('gets the bubble tail only when it is the first part of the message', () => {
+      const first = bubbleOf(render({ contentType: 'text/markdown', value: 'hi' }, { first: true }));
+      expect(first).toContain('rounded-tl-sm');
+      const later = bubbleOf(render({ contentType: 'text/markdown', value: 'hi' }, { first: false }));
+      expect(later).not.toContain('rounded-tl-sm');
+    });
+  });
+
+  describe('image', () => {
+    it('renders the envelope as a captioned figure', () => {
+      const host = render(IMAGE_PART);
+      const image = host.querySelector('img');
+      expect(image?.getAttribute('src')).toBe('https://cdn.example.com/a.png');
+      expect(host.querySelector('figcaption')?.textContent?.trim()).toBe('Figure 1');
+    });
+
+    it('uses the caption as the alt text as well', () => {
+      // One string does both jobs: the visible caption and the image's text alternative.
+      expect(render(IMAGE_PART).querySelector('img')?.getAttribute('alt')).toBe('Figure 1');
+    });
+
+    it('renders a raw image/* part whose value is the uri itself', () => {
+      const host = render({ contentType: 'image/png', value: 'data:image/png;base64,AAAA' });
+      expect(host.querySelector('img')?.getAttribute('src')).toBe('data:image/png;base64,AAAA');
+      expect(host.querySelector('figcaption')).toBeNull();
+      // No caption anywhere to describe it, so it is decorative rather than unlabelled.
+      expect(host.querySelector('img')?.getAttribute('alt')).toBe('');
+    });
+
+    it('captions a raw image/* part from the part name', () => {
+      // The bare shape has no payload to hold a caption; the part name is what makes it a peer of the envelope.
+      const host = render({
+        contentType: 'image/png',
+        value: 'data:image/png;base64,AAAA',
+        name: 'The same mark, carried as a bare image/png part.',
+      });
+      expect(host.querySelector('figcaption')?.textContent?.trim()).toBe(
+        'The same mark, carried as a bare image/png part.',
+      );
+      expect(host.querySelector('img')?.getAttribute('alt')).toBe('The same mark, carried as a bare image/png part.');
+    });
+
+    it('renders nothing once the browser reports the image failed to load', () => {
+      const host = render(IMAGE_PART);
+      host.querySelector('img')!.dispatchEvent(new Event('error'));
+      fixture.detectChanges();
+      expect(host.querySelector('img')).toBeNull();
+      expect(host.querySelector('figure')).toBeNull();
+    });
+
+    it('renders nothing for a uri whose scheme is not allowed', () => {
+      const host = render({ contentType: IMAGE_MEDIA_TYPE, value: '{"uri":"javascript:alert(1)"}' });
+      expect(host.querySelector('img')).toBeNull();
+    });
+  });
+
+  describe('callout', () => {
+    it('renders an alert with the class for its severity', () => {
+      const value = '{"severity":"warning","title":"Careful","text":"Body"}';
+      const alert = render({ contentType: CALLOUT_MEDIA_TYPE, value }).querySelector('.alert');
+      expect(alert?.classList).toContain('alert-warning');
+      expect(alert?.textContent).toContain('Careful');
+      expect(alert?.textContent).toContain('Body');
+    });
+
+    it('falls back to the info style for a severity it does not know', () => {
+      const value = '{"severity":"catastrophic","text":"Body"}';
+      const alert = render({ contentType: CALLOUT_MEDIA_TYPE, value }).querySelector('.alert');
+      expect(alert?.classList).toContain('alert-info');
+    });
+
+    it('renders nothing when the callout has no body', () => {
+      const host = render({ contentType: CALLOUT_MEDIA_TYPE, value: '{"severity":"info"}' });
+      expect(host.querySelector('.alert')).toBeNull();
+    });
+  });
+
+  describe('multiple choice', () => {
+    it('renders one button per option', () => {
+      const labels = buttons(render(CHOICE_PART)).map((button) => button.textContent?.trim());
+      expect(labels).toEqual(['Tell me about faq', 'Tell me about identity']);
+    });
+
+    it('emits the picked option so the page can send it as a user message', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((option) => picked.push(option));
+      buttons(render(CHOICE_PART))[1].click();
+      expect(picked).toEqual(['Tell me about identity']);
+    });
+
+    it('locks the list after the first pick so a double-click cannot send twice', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((option) => picked.push(option));
+      const host = render(CHOICE_PART);
+      buttons(host)[0].click();
+      fixture.detectChanges();
+      buttons(host)[0].click();
+      expect(picked).toEqual(['Tell me about faq']);
+      expect(buttons(host).every((button) => button.disabled)).toBeTrue();
+    });
+
+    it('disables the options of a message that is no longer the latest', () => {
+      const host = render(CHOICE_PART, { interactive: false });
+      expect(buttons(host).length).toBe(2);
+      expect(buttons(host).every((button) => button.disabled)).toBeTrue();
+    });
+
+    it('renders nothing when the payload is malformed', () => {
+      const host = render({ contentType: MULTIPLE_CHOICE_MEDIA_TYPE, value: 'not json' });
+      expect(buttons(host).length).toBe(0);
+    });
+  });
+
+  describe('confirmation', () => {
+    it('renders the prompt and both labelled buttons', () => {
+      const host = render(CONFIRM_PART);
+      expect(host.textContent).toContain('Look it up?');
+      expect(buttons(host).map((button) => button.textContent?.trim())).toEqual([
+        'Yes, go ahead',
+        'No thanks',
+      ]);
+    });
+
+    it('emits the label of whichever button was pressed', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((option) => picked.push(option));
+      buttons(render(CONFIRM_PART))[1].click();
+      expect(picked).toEqual(['No thanks']);
+    });
+
+    it('locks after the first pick so the second button cannot also fire', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((option) => picked.push(option));
+      const host = render(CONFIRM_PART);
+      buttons(host)[0].click();
+      fixture.detectChanges();
+      buttons(host)[1].click();
+      expect(picked).toEqual(['Yes, go ahead']);
+    });
+
+    it('is disabled once the message is no longer the latest', () => {
+      const host = render(CONFIRM_PART, { interactive: false });
+      expect(buttons(host).every((button) => button.disabled)).toBeTrue();
+    });
+  });
+
+  describe('hitl request', () => {
+    it('renders the prompt and a field to answer it in', () => {
+      const host = render(HITL_PART);
+      expect(host.textContent).toContain("What is the customer's VAT number?");
+      expect(host.querySelector('input')).toBeTruthy();
+    });
+
+    it('keeps submit disabled until something has been typed', () => {
+      const host = render(HITL_PART);
+      expect(buttons(host)[0].disabled).toBeTrue();
+      typeAnswer(host, 'EL123456789');
+      expect(buttons(host)[0].disabled).toBeFalse();
+    });
+
+    it('emits the typed answer so the page can send it as a user message', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_PART);
+      typeAnswer(host, '  EL123456789  ');
+      buttons(host)[0].click();
+      expect(picked).toEqual(['EL123456789']);
+    });
+
+    it('locks after the first submit so a double-click cannot send twice', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_PART);
+      typeAnswer(host, 'EL123456789');
+      buttons(host)[0].click();
+      fixture.detectChanges();
+      buttons(host)[0].click();
+      expect(picked).toEqual(['EL123456789']);
+      expect(host.querySelector('input')?.disabled).toBeTrue();
+    });
+
+    it('is inert once the message is no longer the latest', () => {
+      const host = render(HITL_PART, { interactive: false });
+      expect(host.querySelector('input')?.disabled).toBeTrue();
+      expect(buttons(host).every((button) => button.disabled)).toBeTrue();
+    });
+
+    it('renders nothing when the payload is malformed', () => {
+      const host = render({ contentType: HITL_REQUEST_MEDIA_TYPE, value: 'not json' });
+      expect(host.querySelector('input')).toBeNull();
+      expect(buttons(host).length).toBe(0);
+    });
+
+    it('still offers a field for the bare payload the server sends today', () => {
+      const host = render(HITL_BARE_PART);
+      expect(host.querySelector('input')).toBeTruthy();
+      expect(host.querySelector('p')).toBeNull();
+    });
+  });
+
+  describe('hitl one-time code', () => {
+    function boxes(host: HTMLElement): string[] {
+      return Array.from(host.querySelectorAll('app-chat-hitl-otp [aria-hidden="true"]')).map(
+        (box) => box.textContent?.trim() ?? '',
+      );
+    }
+
+    it('renders six empty boxes over a single field, with no send button', () => {
+      const host = render(HITL_OTP_PART);
+      expect(boxes(host)).toEqual(['', '', '', '', '', '']);
+      expect(host.querySelectorAll('input').length).toBe(1);
+      expect(host.querySelector('input')?.getAttribute('autocomplete')).toBe('one-time-code');
+      expect(buttons(host).length).toBe(0);
+    });
+
+    it('fills the boxes as digits are typed and sends nothing until the last one', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_OTP_PART);
+      typeAnswer(host, '00123');
+      expect(boxes(host)).toEqual(['0', '0', '1', '2', '3', '']);
+      expect(picked).toEqual([]);
+    });
+
+    it('sends the code as soon as the sixth digit lands, then locks', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_OTP_PART);
+      typeAnswer(host, '001234');
+      typeAnswer(host, '001234');
+      expect(picked).toEqual(['001234']);
+      expect(host.querySelector('input')?.disabled).toBeTrue();
+      expect(host.querySelector('[role="status"]')).toBeTruthy();
+    });
+
+    it('keeps only digits, and no more than six, from a pasted value', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_OTP_PART);
+      typeAnswer(host, 'Code: 12-34 56 78');
+      expect(host.querySelector('input')?.value).toBe('123456');
+      expect(picked).toEqual(['123456']);
+    });
+
+    it('drops a non-digit keystroke without sending', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_OTP_PART);
+      typeAnswer(host, '12a');
+      expect(host.querySelector('input')?.value).toBe('12');
+      expect(picked).toEqual([]);
+    });
+
+    it('is inert once the message is no longer the latest', () => {
+      const host = render(HITL_OTP_PART, { interactive: false });
+      expect(host.querySelector('input')?.disabled).toBeTrue();
+    });
+
+    it('renders nothing when the payload is malformed', () => {
+      const host = render({ contentType: HITL_REQUEST_MEDIA_TYPE, name: 'OtpRequestPort', value: 'not json' });
+      expect(host.querySelector('input')).toBeNull();
+    });
+  });
+
+  describe('hitl payment method', () => {
+    const HITL_PAYMENT_PART = {
+      contentType: HITL_REQUEST_MEDIA_TYPE,
+      name: 'PaymentRequest',
+      value: '{"data":{"methods":["Apple Pay","Google Pay"]}}',
+    };
+
+    function radios(host: HTMLElement): HTMLInputElement[] {
+      return Array.from(host.querySelectorAll('app-chat-hitl-payment input[type="radio"]'));
+    }
+
+    function payButton(host: HTMLElement): HTMLButtonElement {
+      return host.querySelector('app-chat-hitl-payment button[type="button"]') as HTMLButtonElement;
+    }
+
+    function choose(host: HTMLElement, index: number): void {
+      radios(host)[index].dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+    }
+
+    it('renders one radio per method and a pay button that waits for a choice', () => {
+      const host = render(HITL_PAYMENT_PART);
+      expect(radios(host).map((radio) => radio.value)).toEqual(['Apple Pay', 'Google Pay']);
+      expect(payButton(host).disabled).toBeTrue();
+      choose(host, 1);
+      expect(payButton(host).disabled).toBeFalse();
+    });
+
+    it('gives each method its brand icon, and a card for anything unrecognised', () => {
+      const host = render({
+        ...HITL_PAYMENT_PART,
+        value: '{"data":{"methods":["Apple Pay","Google Pay","Credit or debit card"]}}',
+      });
+      const icons = Array.from(host.querySelectorAll('app-chat-hitl-payment [data-icon]'));
+      expect(icons.map((icon) => icon.getAttribute('data-icon'))).toEqual(['apple', 'google', 'card']);
+      expect(icons.map((icon) => icon.querySelector('img')?.getAttribute('src') ?? null)).toEqual([
+        'apple-pay-mark.svg',
+        'google-pay-mark.svg',
+        null,
+      ]);
+      expect(icons[2].querySelector('svg')).toBeTruthy();
+    });
+
+    it('opens the sheet on pay and sends the chosen method once it is dismissed, then locks', () => {
+      const picked: string[] = [];
+      fixture.componentInstance.pick.subscribe((answer) => picked.push(answer));
+      const host = render(HITL_PAYMENT_PART);
+      const sheet = host.querySelector('dialog') as HTMLDialogElement;
+      choose(host, 0);
+      payButton(host).click();
+      expect(sheet.open).toBeTrue();
+      expect(picked).toEqual([]);
+      sheet.dispatchEvent(new Event('close'));
+      sheet.dispatchEvent(new Event('close'));
+      fixture.detectChanges();
+      expect(picked).toEqual(['Apple Pay']);
+      expect(payButton(host).disabled).toBeTrue();
+      sheet.close();
+    });
+
+    it('is inert once the message is no longer the latest', () => {
+      const host = render(HITL_PAYMENT_PART, { interactive: false });
+      expect(payButton(host).disabled).toBeTrue();
+      expect(host.querySelector('fieldset')?.disabled).toBeTrue();
+    });
+
+    it('renders nothing when the payload carries no methods', () => {
+      const host = render({ contentType: HITL_REQUEST_MEDIA_TYPE, name: 'PaymentRequest', value: '{"data":{}}' });
+      expect(host.querySelector('input')).toBeNull();
+      expect(host.querySelector('dialog')).toBeNull();
+    });
+  });
+
+  it('renders nothing at all for an unknown content type', () => {
+    const host = render({ contentType: 'application/vnd.indice.not-invented-yet+json', value: '{"a":1}' });
+    expect(host.textContent?.trim()).toBe('');
+    expect(host.children.length).toBe(0);
+  });
+});

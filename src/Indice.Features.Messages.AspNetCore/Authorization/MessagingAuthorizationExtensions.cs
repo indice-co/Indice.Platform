@@ -31,5 +31,9 @@ public static class MessagingAuthorizationExtensions
 
     /// <summary>Adds campaigns management Authorization.</summary>
     /// <param name="builder">Used for building policies during application startup.</param>
-    public static AuthorizationPolicyBuilder RequireCampaignsManagement(this AuthorizationPolicyBuilder builder) => builder.AddRequirements(new BeCampaignManagerRequirement());
+    public static AuthorizationPolicyBuilder RequireCampaignsManagement(this AuthorizationPolicyBuilder builder) => builder.AddRequirements(new BeCampaignManagerRequirement());    
+    
+    /// <summary>Adds Send management Authorization.</summary>
+    /// <param name="builder">Used for building policies during application startup.</param>
+    public static AuthorizationPolicyBuilder RequireCanSendMessage(this AuthorizationPolicyBuilder builder) => builder.AddRequirements(new CanSendCampaignRequirement());
 }

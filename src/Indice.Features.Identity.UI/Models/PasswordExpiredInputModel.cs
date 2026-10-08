@@ -9,4 +9,6 @@ public class PasswordExpiredInputModel
     public string? NewPasswordConfirmation { get; set; }
     /// <summary>The return URL.</summary>
     public string? ReturnUrl { get; set; }
+    /// <summary>Device Id.</summary>
+    public string? DeviceId { get; set; }
 }

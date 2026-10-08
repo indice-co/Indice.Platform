@@ -1,0 +1,100 @@
+<p *ngIf="!scope">Loading scope details...</p>
+<form class="needs-validation"
+      *ngIf="scope"
+      [ngClass]="{ 'was-validated': scopeForm.submitted }"
+      (ngSubmit)="scopeForm.form.valid && submit()"
+      novalidate
+      [formReadonly]="!canEdit"
+      #scopeForm="ngForm">
+    <div class="mb-3 row">
+        <label for="scope-name"
+               class="col-sm-2 col-form-label">
+            Scope Id
+        </label>
+        <div class="col-sm-10 col-form-label">
+            <span class="col-form-label"
+                  id="scope-name"
+                  name="scope-name">
+                {{ scope.name }}
+            </span>
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label for="scope-display-name"
+               class="col-sm-2 col-form-label">
+            Display Name
+        </label>
+        <div class="col-sm-10">
+            <input class="form-control"
+                   type="text"
+                   id="scope-display-name"
+                   name="scope-display-name"
+                   [(ngModel)]="scope.displayName"
+                   maxlength="200"
+                   #displayName="ngModel" />
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label for="scope-description"
+               class="col-sm-2 col-form-label">
+            Description
+        </label>
+        <div class="col-sm-10">
+            <textarea id="scope-description"
+                      name="scope-description"
+                      class="form-control"
+                      rows="3"
+                      maxlength="1000"
+                      [(ngModel)]="scope.description"
+                      #description="ngModel">
+            </textarea>
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label for="scope-show-in-discovery"
+               class="col-sm-2 col-form-label">
+            Show in Discovery Document
+        </label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input"
+                       type="checkbox"
+                       id="scope-show-in-discovery"
+                       name="scope-show-in-discovery"
+                       [(ngModel)]="scope.showInDiscoveryDocument"
+                       #showInDiscovery="ngModel" />
+                <label class="custom-control-label"
+                       for="scope-show-in-discovery">
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label for="scope-emphasize"
+               class="col-sm-2 col-form-label">
+            Emphasize
+        </label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input"
+                       type="checkbox"
+                       id="scope-emphasize"
+                       name="scope-emphasize"
+                       [(ngModel)]="scope.emphasize"
+                       #emphasize="ngModel" />
+                <label class="custom-control-label"
+                       for="scope-emphasize">
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="mb-3"
+         *ngIf="canEdit">
+        <div>
+            <button type="submit"
+                    class="btn btn-primary">
+                <i class="material-icons align-middle">save</i> Save
+            </button>
+        </div>
+    </div>
+</form>

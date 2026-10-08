@@ -17,6 +17,7 @@ namespace Indice.Features.Identity.UI.Validators;
 public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
 {
     private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
+    private readonly IOptionsSnapshot<IdentityOptions> _identityOptions;
 
     /// <summary>Creates a new instance of <see cref="LoginInputModelValidator"/> class.</summary>
     /// <param name="describer">The <see cref="IdentityMessageDescriber"/> used to provide localized error messages.</param>
@@ -36,6 +37,7 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
         CallingCodesProvider callingCodesProvider,
         IOptions<IdentityUIOptions> identityUiOptions
     ) {
+        _identityOptions = identityOptions ?? throw new ArgumentNullException(nameof(identityOptions));
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         RuleFor(x => x.FirstName).NotEmpty().WithName(describer.UI_Validator_Register_FirstName_FieldName);
         RuleFor(x => x.LastName).NotEmpty().WithName(describer.UI_Validator_Register_LastName_FieldName);
@@ -45,9 +47,13 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
                 .WithMessage(describer.UI_Validator_Register_UserName_InvalidFormat);
             RuleFor(x => x.UserName).Must(UserNameNotBeAssignedToAnotherUser).WithMessage(describer.UI_Validator_Register_UserName_AlreadyExists);
         }
-        ;
         RuleFor(x => x.Password).NotEmpty().WithName(describer.UI_Validator_Register_Password_FieldName);
-        //RuleFor(x => x.PhoneNumber).UserPhoneNumber(configuration).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
+        if (identityUiOptions.Value.EnablePasswordConfirmation) {
+            RuleFor(x => x.PasswordConfirmation)
+                 .Cascade(CascadeMode.Stop)
+                 .NotEmpty().WithMessage(describer.UI_Validator_Register_PasswordConfirmation_Empty_Error)
+                 .Equal(x => x.Password).WithMessage(describer.UI_Validator_Register_PasswordConfirmation_Mismatch_Error);
+        }
         RuleFor(x => x.Email).NotEmpty().EmailAddress().WithName(describer.UI_Validator_Register_Email_FieldName);
         RuleFor(x => x.Email).Must(EmailNotBeAssignedToAnotherUser).WithMessage(describer.UI_Validator_Register_Email_AlreadyExists);
         RuleFor(x => x.HasAcceptedTerms).Equal(true).WithMessage(describer.UI_Validator_Register_AcceptTerms_Message);
@@ -58,9 +64,12 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
         RuleFor(x => x.PhoneNumberWithCallingCode)
             .UserPhoneNumber(configuration, callingCodesProvider)
             .WithMessage(describer.UI_Validator_Register_PhoneNumber_InvalidFormat);
+        RuleFor(x => x.ZoneInfo).Must(ZoneInfoMustBeValid).WithMessage(describer.UI_Validator_Register_ZoneInfo_InvalidFormat);
     }
 
-    private bool EmailNotBeAssignedToAnotherUser(string? email) => !string.IsNullOrWhiteSpace(email) && !_dbContext.Users.Any(x => x.Email == email);
+    private static bool ZoneInfoMustBeValid(string? zoneInfo) => string.IsNullOrWhiteSpace(zoneInfo) || TimeZoneInfo.TryFindSystemTimeZoneById(zoneInfo, out var result);
+
+    private bool EmailNotBeAssignedToAnotherUser(string? email) => !_identityOptions.Value.User.RequireUniqueEmail || (!string.IsNullOrWhiteSpace(email) && !_dbContext.Users.Any(x => x.Email == email));
 
     private bool UserNameNotBeAssignedToAnotherUser(string? userΝame) => !string.IsNullOrWhiteSpace(userΝame) && !_dbContext.Users.Any(x => x.UserName == userΝame);
 }

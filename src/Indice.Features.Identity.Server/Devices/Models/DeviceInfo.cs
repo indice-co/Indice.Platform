@@ -15,6 +15,8 @@ public class DeviceInfo
     public DevicePlatform Platform { get; set; }
     /// <summary>Device name.</summary>
     public string? Name { get; set; }
+    /// <summary>The httpclient used to serve this request. Can be a browser app or a custom native application.</summary>
+    public string? UserAgentFamily { get; set; }
     /// <summary>Device model.</summary>
     public string? Model { get; set; }
     /// <summary>Device OS version.</summary>
@@ -29,6 +31,8 @@ public class DeviceInfo
     public bool SupportsPinLogin { get; set; }
     /// <summary>Flag for fingerprint support.</summary>
     public bool SupportsFingerprintLogin { get; set; }
+    /// <summary>The public key Id of the device.</summary>
+    public string? PublicKeyId { get; set; }
     /// <summary>Indicates whether the device is blocked.</summary>
     public bool RequiresPassword { get; set; }
     /// <summary>The date that the device can be activated for trust.</summary>
@@ -63,6 +67,7 @@ internal static class DeviceInfoExtensions
         MfaSessionExpirationDate = device.MfaSessionExpirationDate,
         Model = device.Model,
         Name = device.Name,
+        UserAgentFamily = device.UserAgentFamily,
         OsVersion = device.OsVersion,
         Platform = device.Platform,
         RegistrationId = device.Id,

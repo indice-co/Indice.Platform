@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RecipientMessageEvents, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { ModalService } from '@indice/ng-components';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 
 @Component({
-  selector: 'app-campaign-message-timeline',
-  templateUrl: './campaign-message-timeline.component.html'
+    selector: 'app-campaign-message-timeline',
+    templateUrl: './campaign-message-timeline.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class CampaignMessageTimelineComponent implements OnInit {
   public _campaignId: string | undefined;

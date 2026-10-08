@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
@@ -6,7 +6,9 @@ import { ClientWizardModel } from '../../models/client-wizard-model';
 
 @Component({
     selector: 'app-urls-step',
-    templateUrl: './urls-step.component.html'
+    templateUrl: './urls-step.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class UrlsStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
     constructor() {

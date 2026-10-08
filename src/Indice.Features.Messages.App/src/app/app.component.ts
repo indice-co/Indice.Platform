@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TenantService } from '@indice/ng-auth';
 
 import { settings } from 'src/app/core/models/settings';
 import { IAppSettings } from './core/models/settings.model';
 
 @Component({
-  selector: 'app-root',
-  template: `
+    selector: 'app-root',
+    template: `
     <ng-progress ngProgressHttp/>
     <lib-shell-layout [sidebarFooterTemplate]="sidebarFooter"></lib-shell-layout>
     <ng-template #sidebarFooter>
@@ -15,7 +15,9 @@ import { IAppSettings } from './core/models/settings.model';
         <span class="ml-1" style="color: red">♥</span>
       </span> v{{ settings.version }}
     </ng-template>
-  `
+  `,
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class AppComponent {
   constructor(tenantService: TenantService) {

@@ -4,7 +4,8 @@ import { MenuOption } from '@indice/ng-components';
 
 @Component({
     selector: 'lib-radio-buttons-list',
-    templateUrl: './radio-buttons-list.component.html'
+    templateUrl: './radio-buttons-list.component.html',
+    standalone: false
 })
 export class RadioButtonsListComponent implements OnInit {
     constructor() { }

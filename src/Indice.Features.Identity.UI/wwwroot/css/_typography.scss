@@ -1,39 +1,25 @@
 ﻿html {
-    font-size: 14px;
-
     @include phone {
-        html {
-            font-size: 1.2rem;
-        }
-
         .display-4 {
             font-size: 2rem;
         }
     }
 
     @include tablet {
-        html {
-            font-size: 1.2rem;
-        }
-
         .display-4 {
             font-size: 2rem;
         }
     }
 
     @include laptop {
-        html {
-            font-size: 1.4rem;
-        }
-
         .display-4 {
             font-size: 2.5rem;
         }
     }
 
     @include desktop {
-        html {
-            font-size: 1.6rem;
+        .display-4 {
+            font-size: 3.5rem;
         }
     }
 }
@@ -49,4 +35,3 @@ body {
         color: $text-color;
     }
 }
-

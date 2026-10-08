@@ -1,4 +1,4 @@
-import { Component, TemplateRef } from '@angular/core';
+import { Component, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { ToastService } from '../../../services/app-toast.service';
 
@@ -6,7 +6,9 @@ import { ToastService } from '../../../services/app-toast.service';
     selector: 'app-toasts',
     templateUrl: './toast.component.html',
     styleUrls: ['./toast.component.scss'],
-    host: { '[class.ngb-toasts]': 'true' }
+    host: { '[class.ngb-toasts]': 'true' },
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class AppToastsComponent {
     constructor(public toastService: ToastService) { }

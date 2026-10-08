@@ -17,6 +17,8 @@ public class EnvelopeTests
         var json = JsonSerializer.Serialize(message);
         var messageResult = JsonSerializer.Deserialize<Envelope>(json)!;
         var data = messageResult.ReadAs<DummyPayload>();
+        Assert.NotNull(data);
+        Assert.Equal(payload.MyText, data.MyText);
     }
 
     public class DummyPayload

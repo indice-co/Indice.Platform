@@ -343,23 +343,23 @@ li.idp {
 }
 
 .idp-govgr {
-    background-color: rgb(0, 51, 117);
 
     a {
-        background-image: url(../img/idps/GovGr.svg);
+        background-image: url(../img/idps/GovGr-Light.svg);
         background-repeat: no-repeat;
         background-position: 12px center;
+        background-size: 24px !important;
         padding-left: 36px;
         width: 100%;
 
         &:active {
-            background-image: url(../img/idps/GovGr.svg);
+            background-image: url(../img/idps/GovGr-Light.svg);
         }
 
         &:not([disabled]) {
             &:not(.disabled) {
                 &:active {
-                    background-image: url(../img/idps/GovGr.svg);
+                    background-image: url(../img/idps/GovGr-Light.svg);
                 }
             }
         }
@@ -376,8 +376,10 @@ li.idp {
         }
 
         &.btn-govgr {
-            color: #fff;
+            /*--bs-btn-color: #00AEEF;*/
+            --bs-btn-color: #fff;
             background-color: rgb(0, 51, 117);
+            font-weight: 600;
 
 
             &:hover {

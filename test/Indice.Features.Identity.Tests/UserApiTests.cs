@@ -16,9 +16,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Xunit;
 
 namespace Indice.Features.Identity.Tests;
+
 public class UserApiTests : IAsyncLifetime
 {
     // Private fields
@@ -29,8 +29,8 @@ public class UserApiTests : IAsyncLifetime
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(configurationBuilder => {
             configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?> {
-                 ["test"] = "test"
-             });
+                ["test"] = "test"
+            });
         });
         builder.ConfigureServices((context, services) => {
             // configure dependencies
@@ -52,7 +52,8 @@ public class UserApiTests : IAsyncLifetime
                     .AddInMemoryApiResources([])
                     .AddInMemoryClients([])
                     .AddAspNetIdentity<User>()
-                    .AddInMemoryPersistedGrants();
+                    .AddInMemoryPersistedGrants()
+                    ;
             // indice stuff
             services.AddDefaultPlatformEventService();
             services.AddPlatformEventHandler<UserCreatedEvent, UserCreatedAssertionHanbdler>();
@@ -60,8 +61,9 @@ public class UserApiTests : IAsyncLifetime
             services.AddOutputCache();
             services.AddLogging();
             services.AddLocalization()
+                    .AddActionRateLimiter(context.Configuration)
                     .AddRouting()
-                    .AddAuthorization(authOptions => 
+                    .AddAuthorization(authOptions =>
                         authOptions.AddPolicy(IdentityEndpoints.Policies.BeUsersWriter, policy => {
                             policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                                   .RequireAuthenticatedUser()
@@ -106,19 +108,19 @@ public class UserApiTests : IAsyncLifetime
                 new() { Type = "locale", Value = "el" }
             ],
             Roles = ["Developer"]
-        }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
-        var responseJson = await response.Content.ReadAsStringAsync();
+        }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web), cancellationToken: TestContext.Current.CancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         Assert.True(response.IsSuccessStatusCode, responseJson);
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         await _serviceProvider.DisposeAsync();
     }
 
-    public Task InitializeAsync() {
+    public ValueTask InitializeAsync() {
         var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
         dbContext.SeedInitialData();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     public class UserCreatedAssertionHanbdler : IPlatformEventHandler<UserCreatedEvent>

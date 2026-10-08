@@ -9,11 +9,10 @@ using Elsa.Serialization;
 using Elsa.Server.Api.Extensions;
 using Elsa.Server.Api.Mapping;
 using Elsa.Server.Api.Services;
-using IdentityModel;
+using Duende.IdentityModel;
 using Indice.Features.Cases.Workflows;
 using Indice.Features.Cases.Workflows.Bookmarks;
 using Indice.Features.Cases.Workflows.Data;
-using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Localization;
 using Indice.Features.Cases.Workflows.Serialization;
@@ -38,6 +37,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using NodaTime;
+using Duende.AccessTokenManagement;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -52,7 +52,9 @@ public static class CasesWorkflowFeatureExtensions
     public static IHostApplicationBuilder AddCasesWorkflow(this IHostApplicationBuilder builder, Action<CasesWorkflowOptions>? configureAction = null) {
 
         // Configure options given by the consumer.
-        var workflowOptions = new CasesWorkflowOptions(builder.Services);
+        var workflowOptions = new CasesWorkflowOptions(builder.Services) {
+            ServerBaseUrl = builder.Configuration.GetHost()
+        };
         configureAction?.Invoke(workflowOptions);
         builder.Services.Configure<CasesWorkflowOptions>(options => {
             options.ConfigureDbContext = workflowOptions.ConfigureDbContext;
@@ -61,8 +63,8 @@ public static class CasesWorkflowFeatureExtensions
             options.GetWorkflowAssembly = workflowOptions.GetWorkflowAssembly;
             options.RetentionServicesEnabled = workflowOptions.RetentionServicesEnabled;
             options.RetentionSpecificationFilter = workflowOptions.RetentionSpecificationFilter;
-            options.ServerBasePath = workflowOptions.ServerBasePath;
             options.ServerBaseUrl = workflowOptions.ServerBaseUrl;
+            options.ServerHttpActivitiesBasePath = workflowOptions.ServerHttpActivitiesBasePath;
             options.RegisterControllers = workflowOptions.RegisterControllers;
             options.RegisterStaticFiles = workflowOptions.RegisterStaticFiles;
             options.RegisterAuthentication = workflowOptions.RegisterAuthentication;
@@ -93,7 +95,7 @@ public static class CasesWorkflowFeatureExtensions
                 if (casesWorkflowOptions.ServerBaseUrl is { } baseUrl) {
                     http.BaseUrl = new Uri(baseUrl);
                 }
-                if (casesWorkflowOptions.ServerBasePath is { } basePath) {
+                if (casesWorkflowOptions.ServerHttpActivitiesBasePath is { } basePath) {
                     http.BasePath = basePath;
                 }
             })
@@ -144,15 +146,18 @@ public static class CasesWorkflowFeatureExtensions
         builder.Services.TryAddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
         builder.Services.TryAddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
         builder.Services.AddClientCredentialsTokenManagement().AddClient("workflow", options => {
-            options.TokenEndpoint = builder.Configuration.GetAuthority(tryInternal: true) + "/connect/token";
-            options.ClientId = builder.Configuration.GetApiSecret("ClientId");
-            options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
-            options.Scope = builder.Configuration.GetApiResourceName();
+            options.TokenEndpoint = new (builder.Configuration.GetAuthority(tryInternal: true) + "/connect/token");
+            options.ClientId = ClientId.Parse(builder.Configuration.GetApiSecret("ClientId"));
+            options.ClientSecret = ClientSecret.Parse(builder.Configuration.GetApiSecret("ClientSecret"));
+            options.Scope = Scope.Parse(builder.Configuration.GetApiResourceName()!);
         });
         builder.Services.AddHttpClient<CasesManagerHttpClient>((serviceProvider, httpClient) => {
-                httpClient.BaseAddress = serviceProvider.GetServerLoopbackUri();
+                var loopbackUri = builder.Configuration.TryGetEndpoint("ServerLoopbackUri");
+                httpClient.BaseAddress = string.IsNullOrWhiteSpace(loopbackUri) ?
+                                            serviceProvider.GetServerLoopbackUri() :
+                                            new(loopbackUri);
             })
-            .AddClientCredentialsTokenHandler("workflow")
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("workflow"))
             .ClearResilienceHandlers();
         builder.Services.AddScoped<ICasesManager, CasesManagerHttp>();
         

@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { forkJoin } from 'rxjs';
@@ -6,8 +6,10 @@ import { Contact, CreateDistributionListContactRequest, MessagesApiClient } from
 import { ListContactCreateComponent } from 'src/app/shared/components/list-contact-create/list-contact-create.component';
 
 @Component({
-  selector: 'app-distribution-list-contact-create',
-  templateUrl: './distribution-list-contact-create.component.html'
+    selector: 'app-distribution-list-contact-create',
+    templateUrl: './distribution-list-contact-create.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class DistributionListContactCreateComponent implements OnInit, AfterViewInit {
   @ViewChild('distributionListContactCreateComponent', { static: false }) public distributionListContactCreateComponent!: ListContactCreateComponent;

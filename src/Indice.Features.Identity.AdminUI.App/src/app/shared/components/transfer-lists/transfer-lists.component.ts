@@ -1,11 +1,13 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 import { TransferListsOptions } from './transfer-lists-options';
 
 @Component({
     selector: 'app-transfer-lists',
     templateUrl: './transfer-lists.component.html',
-    styleUrls: ['./transfer-lists.component.scss']
+    styleUrls: ['./transfer-lists.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class TransferListsComponent {
     @Input() public source: Array<any> = [];

@@ -23,6 +23,8 @@ public static partial class IdentityEndpoints
         public const string Users = "identity:users";
         /// <summary>A scope that allows using the totp endpoints on IdentityServer.</summary>
         public const string Totp = "identity:totp";
+        /// <summary>A scope that allows reading the secret for a user device.</summary>
+        public const string UserDeviceSecret = "identity:users.devices.secret.read";
     }
 
     /// <summary>Identity API policies.</summary>
@@ -40,6 +42,8 @@ public static partial class IdentityEndpoints
         public const string BeClientsWriter = nameof(BeClientsWriter);
         /// <summary>A user must have the 'Admin' flag or own one of the <see cref="BasicRoleNames.Administrator"/>, <see cref="BasicRoleNames.AdminUIAdministrator"/>, <see cref="BasicRoleNames.AdminUIUsersReader"/> or <see cref="BasicRoleNames.AdminUIClientsReader"/> roles.</summary>
         public const string BeUsersOrClientsReader = nameof(BeUsersOrClientsReader);
+        /// <summary>A user must have the 'Admin' flag or own the scope <see cref="IdentityEndpoints.SubScopes.UserDeviceSecret"/> or has the <see cref="BeUsersReader"/> policy.</summary>
+        public const string BeUserDeviceSecretReader = nameof(BeUserDeviceSecretReader);
     }
 
     /// <summary>Feature flags for Identity Server API.</summary>
@@ -47,52 +51,12 @@ public static partial class IdentityEndpoints
     {
         /// <summary>Enables API for public registration API.</summary>
         public const string PublicRegistration = nameof(PublicRegistration);
-        /// <summary>Enables API for public registration API.</summary>
+        /// <summary>Enables the dashboard metrics API.</summary>
         public const string DashboardMetrics = nameof(DashboardMetrics);
-        /// <summary>Enables API for public registration API.</summary>
+        /// <summary>Enables the RSS feed API.</summary>
         public const string RssFeed = nameof(RssFeed);
+        /// <summary>Disables the account blocking API. When not set, account blocking is enabled by default.</summary>
+        public const string DisableAccountBlocking = nameof(DisableAccountBlocking);
     }
 
-    /// <summary>Rate limiting config for Identity Server API.</summary>
-    internal static partial class RateLimiter
-    {
-        public static IReadOnlyList<string> Endpoints { get; } = new List<string> {
-            "account/forgot-password",
-            "account/forgot-password/confirmation",
-            "account/password-options",
-            "account/username-exists",
-            "account/validate-password",
-            "totp",
-            "account/calling-codes",
-            "my/account/picture",
-            "my/account/email",
-            "my/account/phone-number",
-            "my/account/email/change",
-            "my/account/phone-number/change",
-            "my/account/email/confirmation",
-            "my/account/phone-number/confirmation",
-            "my/account/email/change-confirmation",
-            "my/account/phone-number/change-confirmation"
-        };
-
-        public static class Policies
-        {
-            public static readonly string ForgotPassword = Endpoints[0];
-            public static readonly string ForgotPasswordConfirmation = Endpoints[1];
-            public static readonly string PasswordOptions = Endpoints[2];
-            public static readonly string UserNameExists = Endpoints[3];
-            public static readonly string ValidatePassword = Endpoints[4];
-            public static readonly string Totp = Endpoints[5];
-            public static readonly string CallingCodes = Endpoints[6];
-            public static readonly string UploadPicture = Endpoints[7];
-            public static readonly string UpdateEmail = Endpoints[8];
-            public static readonly string UpdatePhoneNumber = Endpoints[9];
-            public static readonly string ChangeEmail = Endpoints[10];
-            public static readonly string ChangePhoneNumber = Endpoints[11];
-            public static readonly string EmailConfirmation = Endpoints[12];
-            public static readonly string PhoneNumberConfirmation = Endpoints[13];
-            public static readonly string EmailChangeConfirmation = Endpoints[14];
-            public static readonly string ChangePhoneNumberConfirmation = Endpoints[15];
-        }
-    }
 }

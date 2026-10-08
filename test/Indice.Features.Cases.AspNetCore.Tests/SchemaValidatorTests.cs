@@ -38,8 +38,8 @@ public class SchemaValidatorTests
                 ""attachmentId""
             ]
         }
-    }"; 
- 
+    }";
+
     [Fact]
     public void IsValid_EmptySchema_Throws() {
         Assert.Throws<ArgumentNullException>(() => _schemaValidator.IsValid(It.IsAny<string>(), It.IsAny<string>()));
@@ -74,25 +74,59 @@ public class SchemaValidatorTests
         var result = _schemaValidator.IsValid(Schema, data);
         Assert.True(result);
     }
-    
+
     [Fact]
     public void IsValid_ValidObject_JObjectData_True() {
         var data = Newtonsoft.Json.Linq.JObject.Parse("{\"firstName\": \"john\",\"lastName\": \"doe\"}");
         var result = _schemaValidator.IsValid(Schema, data);
         Assert.True(result);
     }
-    
+
     [Fact]
     public void IsValid_NotValidObject_JArrayData_False() {
         var data = Newtonsoft.Json.Linq.JArray.Parse("[{\"propertyA\":\"123\"}]");
         var result = _schemaValidator.IsValid(SchemaArray, data);
         Assert.False(result);
-    } 
-    
+    }
+
     [Fact]
     public void IsValid_ValidObject_JArrayData_True() {
         var data = Newtonsoft.Json.Linq.JArray.Parse("[{\"attachmentId\":\"123\"}]");
         var result = _schemaValidator.IsValid(SchemaArray, data);
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void IsValid_PropertyEnumWithNames_True() {
+        var schema = """
+            {
+              "$schema": "http://json-schema.org/draft-07/schema#",
+              "title": "My schema",
+              "description": "My description",
+              "type": "object",
+              "properties": {
+                "anEnumProperty": {
+                  "type": "string",
+                  "enum": [
+                    "1",
+                    "2"
+                  ],
+                  "enumNames": [
+                    "The first Value",
+                    "The second Value"
+                  ]
+                }
+              }
+            }
+            """;
+
+        var data = """
+                {
+            		"anEnumProperty": "1"
+            	}
+            """;
+
+        var result = _schemaValidator.IsValid(schema, data);
         Assert.True(result);
     }
 }

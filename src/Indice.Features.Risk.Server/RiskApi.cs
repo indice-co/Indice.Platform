@@ -28,7 +28,7 @@ public static class RiskApi
                               .RequireAssertion(context => context.User.HasScope(options.ApiScope) || context.User.IsSystemClient())
                            );
         var requiredScopes = options.ApiScope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
+        group.WithOpenApiSecurityRequirement("oauth2", requiredScopes);
 
         // POST: /api/risk/events
         group.MapPost("risk/events", RiskApiHandlers.CreateRiskEvent)

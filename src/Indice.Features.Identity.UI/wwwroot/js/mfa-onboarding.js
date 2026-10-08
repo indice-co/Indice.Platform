@@ -6,16 +6,20 @@
             self: undefined,
             init: function () {
                 self = this;
-                self.selectedMethodType(null);
                 self.authenticationMethods(viewModelParams.authenticationMethods.map(function (method, index) {
-                    return new self.authenticationMethod(method.displayName, method.description, method.type, index === 0);
+                    var selected = index === 0;
+                    if (selected) {
+                        self.selectedMethodType(method.type);
+                    }
+                    return new self.authenticationMethod(method.displayName, method.description, method.type, selected, viewModelParams.icons[method.code]);
                 }));
             },
-            authenticationMethod: function (displayName, description, type, selected) {
+            authenticationMethod: function (displayName, description, type, selected, iconClass) {
                 return {
                     displayName: displayName,
                     description: description,
                     type: type,
+                    iconClass: iconClass,
                     selected: ko.observable(selected)
                 };
             },

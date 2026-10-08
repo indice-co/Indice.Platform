@@ -1,9 +1,9 @@
 import {
   ChangeDetectorRef,
   Component,
-  ComponentFactoryResolver,
   OnInit,
   ViewChild,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
@@ -33,9 +33,11 @@ import { Subscription } from "rxjs";
 import { UserStore } from "../edit/user-store.service";
 
 @Component({
-  selector: "app-user-add",
-  templateUrl: "./user-add.component.html",
-  providers: [UserStore],
+    selector: "app-user-add",
+    templateUrl: "./user-add.component.html",
+    providers: [UserStore],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class UserAddComponent implements OnInit {
   @ViewChild("validationSummary", { static: false })
@@ -72,7 +74,6 @@ export class UserAddComponent implements OnInit {
   }
 
   constructor(
-    private _componentFactoryResolver: ComponentFactoryResolver,
     private _changeDetectionRef: ChangeDetectorRef,
     private _formBuilder: UntypedFormBuilder,
     private _api: IdentityApiService,
@@ -163,11 +164,9 @@ export class UserAddComponent implements OnInit {
   }
 
   private loadStep(step: WizardStepDescriptor): void {
-    const componentFactory =
-      this._componentFactoryResolver.resolveComponentFactory(step.component);
     const viewContainerRef = this._wizardStepHost.viewContainerRef;
     viewContainerRef.clear();
-    const componentRef = viewContainerRef.createComponent(componentFactory);
+    const componentRef = viewContainerRef.createComponent(step.component);
     // Keep a reference of the instance of the step component.
     this._loadedStepInstance =
       componentRef.instance as StepBaseComponent<UserWizardModel>;

@@ -1,9 +1,8 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Security.Claims;
 using System.Web;
-using IdentityModel.Client;
+using Duende.IdentityModel.Client;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
@@ -59,7 +58,7 @@ internal class ContactProviderIdentityServer : IContactProvider
         return result!.Items.Select(x => x.ToContact(_caseOptions)).ToResultSet(result.Count);
     }
 
-    public async Task<Contact?> GetByReferenceAsync(UserActor user, string reference, string caseTypeCode) {
+    public async Task<Contact?> GetByReferenceAsync(UserActor user, string reference) {
         if (string.IsNullOrWhiteSpace(reference)) {
             return default;
         }

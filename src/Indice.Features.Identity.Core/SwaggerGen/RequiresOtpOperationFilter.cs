@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿#if NET8_0
+using System.Reflection;
 using Indice.Features.Identity.Core.Mvc.Filters;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -37,3 +38,4 @@ public class RequiresOtpOperationFilter : IOperationFilter
         });
     }
 }
+#endif

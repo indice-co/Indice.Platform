@@ -25,4 +25,12 @@ public class DbAttachment
     public byte[]? Data { get; set; }
     /// <summary>The file URI.</summary>
     public string? Uri { get; set; }
+    /// <summary>
+    /// Generates a relative file path for the campaign using the campaign's GUID and file extension.
+    /// </summary>
+    /// <remarks>The returned path is suitable for organizing campaign files in a directory structure based on
+    /// their GUIDs. The file extension is included without a leading period, regardless of the input format.</remarks>
+    /// <returns>A string representing the relative path in the format "campaigns/{prefix}/{guid}.{extension}", where the prefix
+    /// is derived from the first two characters of the GUID and the extension is the file type.</returns>
+    public string GetPath() => $"campaigns/{Guid.ToString("N")[..2]}/{Guid:N}.{FileExtension.TrimStart('.')}";
 }

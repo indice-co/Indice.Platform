@@ -3,6 +3,7 @@ using Indice.Events;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Security;
@@ -64,6 +65,50 @@ public class AdminCaseServiceTests : IAsyncLifetime
 
         Assert.NotEmpty(result.Items);
     }
+
+    /// <summary>
+    /// Regression: when access rules apply, paging (Skip/Take) pushes the query into a subquery.
+    /// An explicit join on Checkpoints caused SQL Server to fail with "Invalid column name 'CheckpointTypeId'".
+    /// Runs against SQL Server so it catches translation regressions after EF Core/package upgrades.
+    /// </summary>
+    [Fact]
+    public async Task GetCases_WithAccessRules_AndPaging_DoesNotThrow() {
+        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+        var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
+        var caseAuthorization = Substitute.For<ICaseAuthorizationProvider>();
+        caseAuthorization
+            .GetCaseMembership(Arg.Any<IQueryable<CasePartial>>(), Arg.Any<UserActor>())
+            .Returns(call => Task.FromResult(call.Arg<IQueryable<CasePartial>>()));
+        var adminCaseService = new AdminCaseService(
+            dbContext,
+            options,
+            caseAuthorization,
+            Substitute.For<IAdminCaseMessageService>(),
+            Substitute.For<IPlatformEventService>()
+        );
+        var listOptions = new ListOptions<GetCasesListFilter> {
+            Page = 1,
+            Size = 10,
+            Filter = new GetCasesListFilter { ShowAll = false }
+        };
+
+        var exception = await Record.ExceptionAsync(() => adminCaseService.GetCases(User().UserToActor(options.Value), listOptions));
+
+        Assert.Null(exception);
+    }
+
+    private static ClaimsPrincipal User() {
+        var claims = new List<Claim> {
+            new Claim(BasicClaimTypes.Scope, CasesCoreConstants.DefaultScopeName),
+            new Claim(BasicClaimTypes.Subject, "c0902ebf-ccdf-4621-b940-9b6384745149"),
+            new Claim(BasicClaimTypes.Email, "user@test.gr"),
+            new Claim(BasicClaimTypes.GivenName, "Test"),
+            new Claim(BasicClaimTypes.FamilyName, "User"),
+            new Claim(BasicClaimTypes.Role, "CasesManager")
+        };
+        return new ClaimsPrincipal(new ClaimsIdentity(claims, "Basic"));
+    }
+
     private static ClaimsPrincipal Admin() {
         var claims = new List<Claim> {
             new Claim(BasicClaimTypes.Scope, CasesCoreConstants.DefaultScopeName),
@@ -77,7 +122,7 @@ public class AdminCaseServiceTests : IAsyncLifetime
         return new ClaimsPrincipal(identity);
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>(); 
         if (await dbContext.Database.EnsureCreatedAsync() || !dbContext.Cases.Any()) {
             // seed here.
@@ -85,7 +130,7 @@ public class AdminCaseServiceTests : IAsyncLifetime
         }
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         await dbContext.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();

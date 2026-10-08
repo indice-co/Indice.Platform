@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
-    <SpaProjectName>messages-app</SpaProjectName>
+    <SpaProjectName>browser</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Messages.App</SpaSourceFolder>
-    <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
+    <SpaDistFolder>$(SpaSourceFolder)\dist\messages-app</SpaDistFolder>
     <PackageReadmeFile>CHANGELOG.md</PackageReadmeFile>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Campaigns;Notifications</PackageTags>
@@ -13,9 +13,9 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html" />
+    <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html;$(SpaDistFolder)\**\3rdpartylicenses.txt;$(SpaDistFolder)\**\prerendered-routes.json" />
     <EmbeddedResource Include="$(SpaProjectName)\index.html" />
-    <None Include="CHANGELOG.md" Pack="true" PackagePath="\"/>
+    <None Include="CHANGELOG.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixCore)-*" />

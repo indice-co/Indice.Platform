@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>    
+    <TargetFrameworks></TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
+    <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
+    <!--<VersionSuffix>beta18</VersionSuffix>-->
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
+    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixAspNet)-*" />
+    <PackageReference Include="Indice.Features.Agents.Core" Version="$(VersionPrefixAgents)-*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
+    <ProjectReference Include="..\Indice.Features.Agents.Core\Indice.Features.Agents.Core.csproj" />
+  </ItemGroup>
+
+</Project>

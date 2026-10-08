@@ -1,10 +1,8 @@
-﻿using System;
-using Indice.Features.Identity.Core;
+﻿using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.IdentityValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Indice.Features.Identity.Tests;
 //https://andrewlock.net/simplifying-theory-test-data-with-xunit-combinatorial/
@@ -63,10 +61,10 @@ public class IdentityValidationActivityTests : IAsyncLifetime
         Assert.Equal(UserActivityRequirementKind.RequiresEmailVerification, request.Result?.Kind);
     }
 
-    public Task InitializeAsync() {
-        return Task.CompletedTask;
+    public ValueTask InitializeAsync() {
+        return ValueTask.CompletedTask;
     }
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         await ServiceProvider.DisposeAsync();
     }
 }

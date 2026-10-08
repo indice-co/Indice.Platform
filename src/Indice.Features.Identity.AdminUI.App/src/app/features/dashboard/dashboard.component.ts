@@ -1,17 +1,20 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { IdentityApiService, BlogItemInfo, BlogItemInfoResultSet, SummaryInfo } from 'src/app/core/services/identity-api.service';
+import { IdentityApiService, BlogItemInfo, BlogItemInfoResultSet, SummaryInfo, SignInLocationSet, SeriesTimeFrame } from 'src/app/core/services/identity-api.service';
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html'
+    selector: 'app-dashboard',
+    templateUrl: './dashboard.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private _getDataSubscription: Subscription;
   private _getNewsSubscription: Subscription;
+  private _getLocationsSubscription: Subscription;
   private _postsToLoad = 9;
   private _currentPostsPage = 1;
 
@@ -23,6 +26,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public blogItems: BlogItemInfo[] = [];
   public totalNumberOfPosts = 0;
   public summary = new SummaryInfo();
+  public signInLocations: SignInLocationSet = new SignInLocationSet();
 
   public ngOnInit(): void {
     const getSummary = this._api.getSystemSummary();
@@ -37,6 +41,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.blogItems = result.posts.items;
       this.summary = result.summary;
     });
+
+    this._getLocationsSubscription = this._api.getSignInLocations(SeriesTimeFrame.Last7Days).subscribe((locations: SignInLocationSet) => {
+      this.signInLocations = locations;
+    });
   }
 
   public ngOnDestroy(): void {
@@ -45,6 +53,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     if (this._getNewsSubscription) {
       this._getNewsSubscription.unsubscribe();
+    }
+    if (this._getLocationsSubscription) {
+      this._getLocationsSubscription.unsubscribe();
     }
   }
 

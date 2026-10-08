@@ -1,9 +1,11 @@
-﻿using System;
-#if NET9_0_OR_GREATER
+﻿#if NET9_0_OR_GREATER
 using IdSrvModels = Duende.IdentityServer.Models;
 using Duende.IdentityServer.EntityFramework.Entities;
 using Duende.IdentityServer.EntityFramework.Options;
 using Duende.IdentityServer.Services;
+using Duende.IdentityServer.EntityFramework;
+using Indice.Features.Identity.Core.TokenCleanup;
+using Indice.Features.Identity.Core.Cache;
 #else
 using IdSrvModels = IdentityServer4.Models;
 using IdentityServer4.EntityFramework.Entities;
@@ -34,6 +36,24 @@ public static class IdentityServerBuilderExtensions
     /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
     public static IIdentityServerBuilder AddDelegationGrantValidator(this IIdentityServerBuilder builder) {
         builder.AddExtensionGrantValidator<DelegationGrantValidator>();
+        return builder;
+    }
+
+    /// <summary>Adds support for anonymous guest access tokens through the <c>urn:indice:guest</c> grant.</summary>
+    /// <typeparam name="TIdentityServerBuilder">The type of the builder.</typeparam>
+    /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
+    public static TIdentityServerBuilder AddGuestGrantValidator<TIdentityServerBuilder>(this TIdentityServerBuilder builder) where TIdentityServerBuilder : IIdentityServerBuilder =>
+        builder.AddGuestGrantValidator<TIdentityServerBuilder, GuestGrantValidator>();
+
+    /// <summary>Adds support for anonymous guest access tokens through the <c>urn:indice:guest</c> grant, using a custom validator.</summary>
+    /// <typeparam name="TIdentityServerBuilder">The type of the builder.</typeparam>
+    /// <typeparam name="TValidator">A <see cref="GuestGrantValidator"/> subclass that overrides <c>GetClaimsAsync</c> to validate additional request data and enrich the issued claims.</typeparam>
+    /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
+    public static TIdentityServerBuilder AddGuestGrantValidator<TIdentityServerBuilder, TValidator>(this TIdentityServerBuilder builder)
+        where TIdentityServerBuilder : IIdentityServerBuilder
+        where TValidator : GuestGrantValidator {
+        builder.Services.AddPushNotificationServiceNoop();
+        builder.AddExtensionGrantValidator<TValidator>();
         return builder;
     }
 
@@ -129,4 +149,29 @@ public static class IdentityServerBuilderExtensions
         options.PushedAuthorizationRequests = new TableConfiguration(nameof(PushedAuthorizationRequest));
 #endif
     }
+
+#if NET9_0_OR_GREATER
+    /// <summary>
+    /// Registers an alternative implementation of <see cref="TokenCleanupService"/>   
+    /// that user an alternative way to delete records and removes events. 
+    /// </summary>
+    /// <param name="builder">instance</param>
+    /// <returns>The current <see cref="IIdentityServerBuilder"/> instance.</returns>
+    public static TIdentityServerBuilder AddFastCleanUpService<TIdentityServerBuilder>(this TIdentityServerBuilder builder) where TIdentityServerBuilder : IIdentityServerBuilder {
+        builder.Services.AddTransient<ITokenCleanupService, FastTokenCleanupService>();
+        return builder;
+    }
+
+    /// <summary>
+    /// Registers an alternative implementation of <see cref="ICache{T}"/> using <c>HybridCache</c>
+    /// </summary>
+    /// <param name="builder">instance</param>
+    /// <returns>The current <see cref="IIdentityServerBuilder"/> instance.</returns>
+    public static TIdentityServerBuilder AddHybridCache<TIdentityServerBuilder>(this TIdentityServerBuilder builder) where TIdentityServerBuilder : IIdentityServerBuilder {
+        // Add HybridCache service
+        builder.Services.AddHybridCache();
+        builder.Services.AddTransient(typeof(ICache<>), typeof(DuendeHybridCache<>));
+        return builder;
+    }
+#endif
 }

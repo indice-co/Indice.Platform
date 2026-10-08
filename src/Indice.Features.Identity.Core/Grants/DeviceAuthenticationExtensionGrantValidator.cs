@@ -22,6 +22,7 @@ using Indice.Features.Identity.Core.DeviceAuthentication.Services;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Extensions;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -155,12 +156,13 @@ internal class DeviceAuthenticationExtensionGrantValidator(
         }
     }
 
-    private Task RaiseUserLoginSuccessEvent(User user, ExtensionGrantValidationContext context) => EventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
+    private async Task RaiseUserLoginSuccessEvent(User user, ExtensionGrantValidationContext context) => await EventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
         user!.UserName!,
         user.Id,
         user!.UserName!,
         clientId: context.Request.ClientId,
         clientName: context.Request.Client.ClientName,
+        sessionId: await HttpContextAccessor.HttpContext!.GetOrCreateSessionId(SessionIdPrefixes.DeviceAuthentication),
         authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
     ));
 

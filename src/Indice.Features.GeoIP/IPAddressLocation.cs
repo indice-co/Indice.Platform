@@ -22,6 +22,10 @@ public sealed class IPAddressLocation
     public string? PostalCode { get; set; }
     /// <summary>The continent name.</summary>
     public string? Continent { get; set; }
+    /// <summary>The autonomous system number (ASN).</summary>
+    public long? Asn { get; set; }
+    /// <summary>The autonomous system organization.</summary>
+    public string? AsOrganization { get; set; }
     /// <summary>
     /// Gets or sets the geographical coordinates represented as a nullable <see cref="GeoPoint"/>.
     /// </summary>

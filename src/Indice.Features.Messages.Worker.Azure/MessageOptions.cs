@@ -21,5 +21,6 @@ public class MessageOptions : MessageWorkerOptions
     public ExtendedFunctionMetadataProviderDisablePredicate FunctionDisablePredicate { get; set; } = HostBuilderExtensions.ExcludeServiceBusTriggers;
 
     /// <summary>Configuration for campaign statistics feature.</summary>
-    public CampaignStatisticOptions CampaignStatisticOptions { get; set; } = new CampaignStatisticOptions();
+    public AnalyticsOptions CampaignStatisticOptions { get; set; } = new AnalyticsOptions();
+
 }

@@ -1,7 +1,8 @@
 import { AfterContentInit, Directive, ElementRef, Input } from '@angular/core';
 
 @Directive({
-    selector: 'form[formReadonly]'
+    selector: 'form[formReadonly]',
+    standalone: false
 })
 export class FormReadonlyDirective implements AfterContentInit {
     private _readonly: boolean;

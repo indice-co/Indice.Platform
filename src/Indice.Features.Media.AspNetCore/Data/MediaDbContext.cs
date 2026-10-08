@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Indice.Features.Media.AspNetCore.Data.Mappings;
+﻿using Indice.Features.Media.AspNetCore.Data.Mappings;
 using Indice.Features.Media.AspNetCore.Data.Models;
 using Indice.Features.Media.AspNetCore.Services;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +13,7 @@ public class MediaDbContext : DbContext
     /// <summary>Creates a new instance of <see cref="MediaDbContext"/>.</summary>
     /// <param name="options">The options to be used by <see cref="MediaDbContext"/>.</param>
     public MediaDbContext(DbContextOptions<MediaDbContext> options) : base(options) {
-        if (Debugger.IsAttached) {
-            Database.EnsureCreated();
-        }
+        
     }
 
     /// <summary>Media folders table.</summary>
@@ -32,7 +29,16 @@ public class MediaDbContext : DbContext
         builder.ApplyConfiguration(new DbMediaFolderMap(schemaName));
         builder.ApplyConfiguration(new DbMediaFileMap(schemaName));
         builder.ApplyConfiguration(new DbMediaSettingMap(schemaName));
+        if (Database.IsSqlServer()) {
+            builder.Entity<DbMediaFile>().Property(x => x.Data).HasColumnType("image");
+
+        } else if (IsNpgsql()) {
+            builder.Entity<DbMediaFile>().Property(x => x.Data).HasColumnType("bytea");
+        }
     }
+
+    internal bool IsNpgsql() => "Npgsql.EntityFrameworkCore.PostgreSQL".Equals(Database.ProviderName, StringComparison.OrdinalIgnoreCase);
+    internal bool IsSqlServer() => "Microsoft.EntityFrameworkCore.SqlServer".Equals(Database.ProviderName, StringComparison.OrdinalIgnoreCase);
 
     /// <inheritdoc />
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default) {

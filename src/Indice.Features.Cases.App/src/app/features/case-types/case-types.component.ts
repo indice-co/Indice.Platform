@@ -8,9 +8,10 @@ import { CaseTypePartial, CasesApiService, CaseTypePartialResultSet } from 'src/
 import { CaseTypeDeleteModalComponent } from './case-type-delete-modal/case-type-delete-modal.component';
 
 @Component({
-  selector: 'app-case-types',
-  templateUrl: './case-types.component.html',
-  styleUrls: ['./case-types.component.scss']
+    selector: 'app-case-types',
+    templateUrl: './case-types.component.html',
+    styleUrls: ['./case-types.component.css'],
+    standalone: false
 })
 export class CaseTypesComponent extends BaseListComponent<CaseTypePartial> implements OnInit {
 

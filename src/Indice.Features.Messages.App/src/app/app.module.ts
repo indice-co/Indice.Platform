@@ -1,10 +1,10 @@
 import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient, withXhr } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { APP_LANGUAGES, APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
+import { APP_LANGUAGES, APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG, BREADCRUMB_LABEL_RESOLVER } from '@indice/ng-components';
 import { AuthHttpInterceptor, AUTH_SETTINGS, IndiceAuthModule, TenantHeaderInterceptor, TenantService, TENANT_PREFIX_URL } from '@indice/ng-auth';
 import { AppComponent } from './app.component';
 import { AppLanguagesService } from './shared/services/app-languages.service';
@@ -56,6 +56,7 @@ import { PageIllustrationComponent } from './shared/components/page-illustration
 import { RadioButtonsListComponent } from './shared/components/radio-buttons-list/radio-buttons-list.component';
 import { ListContactCreateComponent } from './shared/components/list-contact-create/list-contact-create.component';
 import { SafePipe } from './shared/pipes/safe.pipe';
+import { SumPipe } from './shared/pipes/sum.pipe';
 import { ShellConfig } from './shell.config';
 import { TemplateContentEditComponent } from './features/templates/edit/content/template-edit-content.component';
 import { TemplateCreateComponent } from './features/templates/create/template-create.component';
@@ -65,6 +66,7 @@ import { TemplateEditComponent } from './features/templates/edit/template-edit.c
 import { TemplatesComponent } from './features/templates/templates.component';
 import { FileUploadComponent } from './shared/components/file-upload/file-upload.component';
 import { DoughnutChartComponent } from './shared/components/doughnut-chart/doughnut-chart.component';
+import { LineChartComponent } from './shared/components/line-chart/line-chart.component';
 import { MultiFileUploadComponent } from './shared/components/multi-file-upload/multi-file-upload.component';
 import { CampaignAttachmentsComponent } from './features/campaigns/create/steps/attachments/campaign-attachments.component';
 import { CampaignAttachmentsEditRightpaneComponent } from './features/campaigns/edit/details/rightpane/campaign-edit-attachments-rightpane.component';
@@ -91,6 +93,12 @@ import { MediaSettingEditComponent } from './features/settings/media/edit/media-
 import { CodeEditorModule } from '@acrodata/code-editor';
 import { NgProgressbar } from 'ngx-progressbar';
 import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
+import { ContactDuplicatesComponent } from './features/contacts/contact/duplicates/contact-duplicates.component';
+import { MessageEventsComponent } from './features/events/message-events.component';
+import { TranslateModule, provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { AppBreadcrumbTranslateService } from './shared/services/app-breadcrumb-translate-service';
+
 registerLocaleData(localeGreek);
 
 const providers: Provider[] = [
@@ -109,14 +117,17 @@ const providers: Provider[] = [
   {
     provide: HIGHLIGHT_OPTIONS,
     useValue: {
-      lineNumbers: false,
-      coreLibraryLoader: () => import('highlight.js/lib/core'),
-      languages: {
-        json: () => import('highlight.js/lib/languages/json')
-      }
+      fullLibraryLoader: () => import('highlight.js'),
+      lineNumbers: true,
     }
   },
+  provideTranslateService({
+    loader: provideTranslateHttpLoader({ prefix: `${app.settings.api_url}/msg-i18n.`, useHttpBackend: true }),
+      fallbackLang: 'en'
+    }),
   { provide: APP_LANGUAGES, useClass: AppLanguagesService },
+  { provide: BREADCRUMB_LABEL_RESOLVER, useClass: AppBreadcrumbTranslateService }
+  
 ]
 
 if (app.settings.tenantId) {
@@ -128,6 +139,8 @@ if (app.settings.tenantId) {
     AppComponent,
     BasicModalComponent,
     BeautifyBooleanPipe,
+    CampaignAttachmentsComponent,
+    CampaignAttachmentsEditRightpaneComponent,
     CampaignBasicInfoComponent,
     CampaignContentComponent,
     CampaignContentEditComponent,
@@ -135,12 +148,20 @@ if (app.settings.tenantId) {
     CampaignDetailsEditComponent,
     CampaignDetailsEditRightpaneComponent,
     CampaignEditComponent,
+    CampaignMessagesComponent,
+    CampaignMessageTimelineComponent,
     CampaignPreviewComponent,
     CampaignRecipientsComponent,
     CampaignReportsComponent,
-    CampaignMessagesComponent,
-    CampaignMessageTimelineComponent,
     CampaignsComponent,
+    ContactCampaignsComponent,
+    ContactComponent,
+    ContactCreateComponent,
+    ContactDetailsComponent,
+    ContactDuplicatesComponent,
+    ContactEditComponent,
+    ContactPreferencesComponent,
+    ContactsListComponent,
     DashboardComponent,
     DistributionListContactCreateComponent,
     DistributionListContactEditComponent,
@@ -149,72 +170,72 @@ if (app.settings.tenantId) {
     DistributionListDetailsEditComponent,
     DistributionListDetailsEditRightpaneComponent,
     DistributionListEditComponent,
-    DistributionListsComponent,
     DistributionListImportContactsComponent,
-    ContactsListComponent,
-    ContactComponent,
-    ContactDetailsComponent,
-    ContactCampaignsComponent,
-    ContactEditComponent,
-    ContactPreferencesComponent,
-    ContactCreateComponent,
+    DistributionListsComponent,
+    DocumentEditComponent,
+    DocumentEditRightpaneComponent,
+    DocumentUploadComponent,
+    DoughnutChartComponent,
+    EmailSendersCreateComponent,
+    EmailSendersEditComponent,
+    EmailSettingsComponent,
+    FileUploadComponent,
+    FolderCreateComponent,
+    FolderEditComponent,
+    FolderViewComponent,
     HomeComponent,
+    HttpStatusComponent,
+    LineChartComponent,
+    ListContactCreateComponent,
+    ListViewComponent,
     LocalDropDownMenuComponent,
     LogOutComponent,
+    MediaLibraryComponent,
+    MediaSettingEditComponent,
+    MediaSettingsComponent,
+    MessageEventsComponent,
     MessageTypeCreateComponent,
     MessageTypeEditComponent,
     MessageTypesComponent,
+    MultiFileUploadComponent,
     PageIllustrationComponent,
     RadioButtonsListComponent,
+    ReadOnlyViewComponent,
     SafePipe,
+    SettingsComponent,
+    SumPipe,
     TemplateContentEditComponent,
     TemplateCreateComponent,
     TemplateDetailsEditComponent,
     TemplateDetailsEditRightpaneComponent,
     TemplateEditComponent,
     TemplatesComponent,
-    ListContactCreateComponent,
-    HttpStatusComponent,
-    FileUploadComponent,
-    MultiFileUploadComponent,
-    CampaignAttachmentsComponent,
-    CampaignAttachmentsEditRightpaneComponent,
-    SettingsComponent,
-    EmailSettingsComponent,
-    EmailSendersCreateComponent,
-    EmailSendersEditComponent,
-    MediaLibraryComponent,
     TreeBreadcrumbComponent,
     TreeBreadcrumbItemComponent,
-    FolderCreateComponent,
-    DocumentUploadComponent,
-    FolderViewComponent,
-    DocumentEditComponent,
-    DocumentEditRightpaneComponent,
-    FolderEditComponent,
-    ListViewComponent,
-    ReadOnlyViewComponent,
-    MediaSettingsComponent,
-  MediaSettingEditComponent,
-  DoughnutChartComponent
   ],
   imports: [
     AppRoutingModule,
     BrowserModule,
+    CodeEditorModule,
     CommonModule,
     FormsModule,
     HighlightModule,
     HttpClientModule,
     IndiceAuthModule,
     IndiceComponentsModule.forRoot(),
-    ReactiveFormsModule,
-    CodeEditorModule,
     NgProgressbar,
-    NgProgressHttp
+    NgProgressHttp,
+    TranslateModule.forRoot(),
+    ReactiveFormsModule
   ],
   providers: [
     ...providers,
-    provideHttpClient(withInterceptors([progressInterceptor]))
+    /*{
+      provide: TranslateLoader,
+      useClass: ApiTranslateLoader,
+      deps: [HttpClient, MESSAGES_API_BASE_URL],
+    },*/
+    provideHttpClient(withXhr(), withInterceptors([progressInterceptor]))
   ],
   bootstrap: [AppComponent]
 })

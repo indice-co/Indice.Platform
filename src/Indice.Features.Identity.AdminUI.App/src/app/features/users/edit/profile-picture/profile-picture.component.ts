@@ -4,6 +4,7 @@ import {
   OnDestroy,
   TemplateRef,
   ViewChild,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { Subscription } from "rxjs";
@@ -15,9 +16,11 @@ import {
 import { ToastService } from "src/app/layout/services/app-toast.service";
 
 @Component({
-  selector: "app-user-profile-picture",
-  templateUrl: "./profile-picture.component.html",
-  styleUrls: ["./profile-picture.component.scss"],
+    selector: "app-user-profile-picture",
+    templateUrl: "./profile-picture.component.html",
+    styleUrls: ["./profile-picture.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class UserProfilePictureComponent implements OnDestroy {
   @ViewChild("modalContent", { static: false })

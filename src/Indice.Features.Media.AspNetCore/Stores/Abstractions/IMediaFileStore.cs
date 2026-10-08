@@ -17,13 +17,16 @@ public interface IMediaFileStore
     Task<List<DbMediaFile>> GetList(Expression<Func<DbMediaFile, bool>>? query = null);
     /// <summary>Creates a new file.</summary>
     /// <param name="file">The file.</param>
-    Task<Guid> Create(DbMediaFile file);
+    /// <param name="normalizePath">Will go about normalizing the structure path according to parent structure, naming conventions and url safe rules. Defaults to true.</param>
+    Task<Guid> Create(DbMediaFile file, bool normalizePath = true);
     /// <summary>Bulk create new files.</summary>
     /// <param name="files">The files.</param>
-    Task<List<Guid>> CreateMany(List<DbMediaFile> files);
+    /// <param name="normalizePath">Will go about normalizing the structure path according to parent structure, naming conventions and url safe rules. Defaults to true.</param>
+    Task<List<Guid>> CreateMany(List<DbMediaFile> files, bool normalizePath = true);
     /// <summary>Updates an existing file.</summary>
     /// <param name="file">The file.</param>
-    Task Update(DbMediaFile file);
+    /// <param name="normalizePath">Will go about normalizing the structure path according to parent structure, naming conventions and url safe rules. Defaults to true.</param>
+    Task Update(DbMediaFile file, bool normalizePath = true);
     /// <summary>Deletes an existing file.</summary>
     /// <param name="fileId">The file Id.</param>
     Task Delete(Guid fileId);

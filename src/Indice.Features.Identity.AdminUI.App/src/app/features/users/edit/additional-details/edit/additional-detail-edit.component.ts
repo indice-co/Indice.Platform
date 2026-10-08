@@ -1,7 +1,7 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { ClaimType } from '../../details/models/claim-type.model';
@@ -14,7 +14,9 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 @Component({
     selector: 'app-additional-detail-edit',
     templateUrl: './additional-detail-edit.component.html',
-    providers: [NgbDateCustomParserFormatter]
+    providers: [NgbDateCustomParserFormatter],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class AdditionalDetailEditComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
@@ -31,7 +33,7 @@ export class AdditionalDetailEditComponent implements OnInit, OnDestroy {
         this._claimId = +this._route.snapshot.params['id'];
         const getUser = this._userStore.getUser(this._userId);
         const getClaims = this._userStore.getAllClaims();
-        this._getDataSubscription = forkJoin([getUser, getClaims]).pipe(map((responses: [SingleUserInfo, ClaimTypeInfo[]]) => {
+        this._getDataSubscription = combineLatest([getUser, getClaims]).pipe(map((responses: [SingleUserInfo, ClaimTypeInfo[]]) => {
             return {
                 user: responses[0],
                 claims: responses[1] as ClaimType[]

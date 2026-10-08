@@ -21,6 +21,7 @@
                       {{ displayName }}  
                       <span *ngIf="blocked" class="badge bg-light font-12 text-danger">blocked</span>
                       <span *ngIf="locked" class="badge bg-light font-12 text-warning">locked</span>
+                      <span *ngIf="isAdmin" class="badge bg-light font-12 text-info">Global Administrator</span>
                     </h5>
                     <p class="card-text m-b-5">
                       {{ userName }}
@@ -99,6 +100,16 @@
               >Devices</a
             >
           </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [routerLink]="['sessions']"
+              routerLinkActive="active"
+              role="tab"
+              id="user-sessions-tab"
+              >Sessions</a
+            >
+          </li>
           <li class="nav-item" *ngIf="signInLogsEnabled">
             <a
               class="nav-link"
@@ -107,6 +118,16 @@
               role="tab"
               id="user-sign-in-logs-tab"
               >Sign In Logs</a
+            >
+          </li>
+          <li class="nav-item" *ngIf="activityLogsEnabled">
+            <a
+              class="nav-link"
+              [routerLink]="['activity-logs']"
+              routerLinkActive="active"
+              role="tab"
+              id="user-activity-logs-tab"
+              >Activity Logs</a
             >
           </li>
         </ul>

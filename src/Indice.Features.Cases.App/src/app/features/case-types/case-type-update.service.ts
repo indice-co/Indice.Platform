@@ -1,7 +1,9 @@
 import { tap, catchError } from 'rxjs/operators';
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { ToasterService, ToastType } from "@indice/ng-components";
+import { ToastType } from "@indice/ng-components";
+import { TranslateService } from "@ngx-translate/core";
+import { TranslatedToasterService } from "src/app/shared/services/translated-toaster.service";
 import { CasesApiService, CaseTypeRequest, ICaseTypeRequest } from "src/app/core/services/cases-api.service";
 import { SubmitWidgetComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component";
 import { TailwindFrameworkComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component";
@@ -16,7 +18,8 @@ export class CaseTypeUpdateService {
 
     constructor(
         private _api: CasesApiService,
-        private toaster: ToasterService,
+        private toaster: TranslatedToasterService,
+        private translate: TranslateService,
         private router: Router) { }
 
     public widgets = {
@@ -261,10 +264,28 @@ export class CaseTypeUpdateService {
                     });
                 }
             });
+            this.applyValidationTranslations(createLayout);
             return createLayout;
         } else {
+            this.applyValidationTranslations(this.layout);
             return this.layout;
         }
+    }
+
+    /** Localizes the `validationMessages.required` entries in the case-type form layout. */
+    private applyValidationTranslations(layout: any[]): void {
+        const required = this.translate.instant('validation.required');
+        const walk = (items: any[]) => {
+            items?.forEach((item: any) => {
+                if (item?.validationMessages?.required !== undefined) {
+                    item.validationMessages.required = required;
+                }
+                if (item?.items) {
+                    walk(item.items);
+                }
+            });
+        };
+        walk(layout);
     }
 
     public onCreateSubmit(event: ICaseTypeRequest): void {
@@ -286,11 +307,11 @@ export class CaseTypeUpdateService {
         });
         this._api.createCaseType(request).pipe(
             tap(_ => {
-                this.toaster.show(ToastType.Success, "Επιτυχία", "Η δημιουργία τύπου υπόθεσης ήταν επιτυχής.")
+                this.toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeCreated.body')
                 this.router.navigate(['/case-types']);
             }),
             catchError(err => {
-                this.toaster.show(ToastType.Error, "Whoops!", err.detail)
+                this.toaster.show(ToastType.Error, 'toasts.error.title', err.detail)
                 return EMPTY
             })
         ).subscribe();
@@ -316,10 +337,10 @@ export class CaseTypeUpdateService {
         })
         this._api.updateCaseType(caseTypeId, request).pipe(
             tap(_ => {
-                this.toaster.show(ToastType.Success, "Επιτυχία!", "Η επεξεργασία του τύπου υπόθεσης ήταν επιτυχής")
+                this.toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeUpdated.body')
             }),
             catchError(err => {
-                this.toaster.show(ToastType.Error, "Whoops!", err.detail)
+                this.toaster.show(ToastType.Error, 'toasts.error.title', err.detail)
                 return EMPTY
             })
         ).subscribe();

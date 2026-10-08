@@ -47,6 +47,8 @@ public class CustomGrantTypes
     public const string DeviceAuthentication = "device_authentication";
     /// <summary>OTP authenticate.</summary>
     public const string Mfa = "mfa";
+    /// <summary>Anonymous guest access.</summary>
+    public const string Guest = "urn:indice:guest";
 }
 
 /// <summary>Contains constants for client property keys.</summary>
@@ -102,4 +104,121 @@ public class IdentityServerFeatures
     public const string SignInLogs = nameof(SignInLogs);
     /// <summary>Impossible travel.</summary>
     public const string ImpossibleTravel = nameof(ImpossibleTravel);
+    /// <summary>Activity logs.</summary>
+    public const string ActivityLogs = nameof(ActivityLogs);
+    /// <summary>Disable security notifications.</summary>
+    public const string DisableSecurityNotifications = nameof(DisableSecurityNotifications);
+}
+
+
+/// <summary>Rate limiting config for Identity Server API.</summary>
+public static partial class RateLimiterPolicies
+{
+    /// <summary>Rate limiting policy for forgot password endpoint.</summary>
+    public static readonly string ForgotPassword = "account/forgot-password";
+    /// <summary>Rate limiting policy for forgot password confirmation endpoint.</summary>
+    public static readonly string ForgotPasswordConfirmation = "account/forgot-password/confirmation";
+    /// <summary>Rate limiting policy for password options endpoint.</summary>
+    public static readonly string PasswordOptions = "account/password-options";
+    /// <summary>Rate limiting policy for username exists endpoint.</summary>
+    public static readonly string UserNameExists = "account/username-exists";
+    /// <summary>Rate limiting policy for validate password endpoint.</summary>
+    public static readonly string ValidatePassword = "account/validate-password";
+    /// <summary>Rate limiting policy for TOTP endpoint.</summary>
+    public static readonly string Totp = "totp";
+    /// <summary>Rate limiting policy for calling codes endpoint.</summary>
+    public static readonly string CallingCodes = "account/calling-codes";
+    /// <summary>Rate limiting policy for upload picture endpoint.</summary>
+    public static readonly string UploadPicture = "my/account/picture";
+    /// <summary>Rate limiting policy for update email endpoint.</summary>
+    public static readonly string UpdateEmail = "my/account/email";
+    /// <summary>Rate limiting policy for update phone number endpoint.</summary>
+    public static readonly string UpdatePhoneNumber = "my/account/phone-number";
+    /// <summary>Rate limiting policy for change email endpoint.</summary>
+    public static readonly string ChangeEmail = "my/account/email/change";
+    /// <summary>Rate limiting policy for change phone number endpoint.</summary>
+    public static readonly string ChangePhoneNumber = "my/account/phone-number/change";
+    /// <summary>Rate limiting policy for email confirmation endpoint.</summary>
+    public static readonly string EmailConfirmation = "my/account/email/confirmation";
+    /// <summary>Rate limiting policy for phone number confirmation endpoint.</summary>
+    public static readonly string PhoneNumberConfirmation = "my/account/phone-number/confirmation";
+    /// <summary>Rate limiting policy for email change confirmation endpoint.</summary>
+    public static readonly string EmailChangeConfirmation = "my/account/email/change-confirmation";
+    /// <summary>Rate limiting policy for change phone number confirmation endpoint.</summary>
+    public static readonly string ChangePhoneNumberConfirmation = "my/account/phone-number/change-confirmation";
+    /// <summary>Rate limiting policy for a public secure pages.</summary>
+    public static readonly string PublicPage = "secure-page";
+    /// <summary>Rate limiting policy for register page.</summary>
+    public static readonly string RegisterPage = "register";
+    /// <summary>Rate limiting policy for forgot password page.</summary>
+    public static readonly string ForgotPasswordPage = "forgot-password";
+    /// <summary>Rate limiting policy for login page.</summary>
+    public static readonly string LoginPage = "login";
+    /// <summary>Rate limiting policy for add email page.</summary>
+    public static readonly string LoginAddEmailPage = "login/add-email";
+    /// <summary>Rate limiting policy for MFA onboarding add email page.</summary>
+    public static readonly string MfaAddEmailPage = "login/mfa/onboarding/add-email";
+    /// <summary>Rate limiting policy for recaptcha endpoint.</summary>
+    public static readonly string RecaptchaEndpoint = "recaptchavalidate";
+    /// <summary>Rate limiting policy for add phone page.</summary>
+    public static readonly string AddPhonePage = "login/add-phone";
+    /// <summary>Rate limiting policy for MFA onboarding add phone page.</summary>
+    public static readonly string MfaAddPhonePage = "login/mfa/onboarding/add-phone";
+    /// <summary>Rate limiting policy for MFA onboarding authenticator app setup page.</summary>
+    public static readonly string MfaSetupAuthenticatorPage = "login/mfa/onboarding/setup-authenticator";
+    /// <summary>Rate limiting policy for profile page.</summary>
+    public static readonly string ProfilePage = "manage/profile";
+    /// <summary>Rate limiting policy for verify phone page.</summary>
+    public static readonly string VerifyPhonePage = "login/verify-phone";
+    
+
+    /// <summary>All rate limiting policies.</summary>
+    public static IReadOnlyList<string> All { get; } = new List<string> {
+            ForgotPassword,
+            ForgotPasswordConfirmation,
+            PasswordOptions,
+            UserNameExists,
+            ValidatePassword,
+            Totp,
+            CallingCodes,
+            UploadPicture,
+            UpdateEmail,
+            UpdatePhoneNumber,
+            ChangeEmail,
+            ChangePhoneNumber,
+            EmailConfirmation,
+            PhoneNumberConfirmation,
+            EmailChangeConfirmation,
+            ChangePhoneNumberConfirmation,
+            PublicPage,
+            RegisterPage,
+            ForgotPasswordPage,
+            LoginPage,
+            LoginAddEmailPage,
+            MfaAddEmailPage,
+            RecaptchaEndpoint,
+            AddPhonePage,
+            MfaAddPhonePage,
+            MfaSetupAuthenticatorPage,
+            ProfilePage,
+            VerifyPhonePage
+        };
+}
+
+/// <summary>Contains constants for keys used in <see cref="Microsoft.AspNetCore.Http.HttpContext.Items"/>.</summary>
+public static class HttpContextItemKeys
+{
+    /// <summary>
+    /// Key for the sign-in session id used to correlate login-related events and flowed into the issued token's <c>SessionId</c>.
+    /// </summary>
+    public const string SessionId = "__session_id__";
+}
+
+/// <summary>Functional prefixes for the sign-in session id, identifying the auth flow that created it.</summary>
+public static class SessionIdPrefixes
+{
+    /// <summary>Resource owner password (ROPC) flow.</summary>
+    public const string Password = "pwd";
+    /// <summary>Device authentication (biometric/pin) flow.</summary>
+    public const string DeviceAuthentication = "dv";
 }

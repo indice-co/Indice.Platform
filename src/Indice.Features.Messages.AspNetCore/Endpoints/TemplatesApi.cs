@@ -32,7 +32,7 @@ internal static class TemplatesApi
                                            .RequireCampaignsManagement()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 
-        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.WithHandledException<BusinessException>()
              .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -43,6 +43,11 @@ internal static class TemplatesApi
              .WithName(nameof(TemplatesHandlers.GetTemplates))
              .WithSummary("Gets the list of all templates using the provided ListOptions.")
              .WithDescription(TemplatesHandlers.GET_TEMPLATES_DESCRIPTION);
+
+        group.MapGet("partials", TemplatesHandlers.GetPartialTemplates)
+             .WithName(nameof(TemplatesHandlers.GetPartialTemplates))
+             .WithSummary("Gets every Partial/Layout template with full Content.")
+             .WithDescription(TemplatesHandlers.GET_PARTIAL_TEMPLATES_DESCRIPTION);
 
         group.MapGet("{templateId}", TemplatesHandlers.GetTemplateById)
              .WithName(nameof(TemplatesHandlers.GetTemplateById))

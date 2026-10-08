@@ -1,11 +1,10 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
-import { FilterClause, SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
+import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ToasterService, ViewAction, FilterClause, SearchOption } from '@indice/ng-components';
 import { User } from 'oidc-client-ts';
 import { Observable, Subscription } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import { ParamsService } from 'src/app/core/services/params.service';
 import { RiskApiService, RiskEvent, RiskEventResultSet } from 'src/app/core/services/risk-api.service';
 import { DataService } from 'src/app/core/services/data.service';
@@ -13,6 +12,8 @@ import { DataService } from 'src/app/core/services/data.service';
 @Component({
     selector: 'app-risk-events',
     templateUrl: './risk-events.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements OnInit {
     newItemLink: string;
@@ -62,6 +63,11 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
                 dataType: 'string'
             },
             {
+                field: 'sourceTransId',
+                name: 'ΚΩΔΙΚΟΣ ΣΥΣΧΕΤΙΣΗΣ',
+                dataType: 'string'
+            },
+            {
                 field: 'daterange',
                 name: 'ΗΜ. ΔΗΜΙΟΥΡΓΙΑΣ',
                 dataType: 'daterange'
@@ -100,23 +106,6 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
         super.ngOnInit();
     }
 
-    applySessionIdFilter(item: RiskEvent): void {
-        if (!item.sessionId) {
-            this.toasterService.show(ToastType.Warning, 'Προσοχή', 'Το συγκεκριμένο συμβάν δεν διαθέτει κωδικό συνεδρίας (session id) για να φιλτραριστεί το αποτέλεσμα.');
-            return;
-        }
-        const sessionIdFilter = {
-          member: 'sessionId',
-          value: item.sessionId,
-          operator: 'eq' as FilterClause.Op,
-          dataType: 'string' as FilterClause.Dt,
-          uiOperator: '=',
-          uiValue: item.sessionId
-        } as FilterClause;
-        this.filters.push(sessionIdFilter);
-        this.advancedSearchChanged(this.filters);
-    }
-
     loadItems(): Observable<IResultSet<RiskEvent>> {
         let extraFilters: string[] = [];
         this.filters?.forEach(x => extraFilters.push(this.stringifyFilterClause(x)));
@@ -141,6 +130,9 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
             )
             .pipe(
                 take(1),
+                tap((result: RiskEventResultSet) => {
+                  this.count = result.count;
+                }),
                 map((result: RiskEventResultSet) => (result as IResultSet<RiskEvent>))
             );
     }

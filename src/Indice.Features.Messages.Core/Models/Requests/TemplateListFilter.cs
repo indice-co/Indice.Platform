@@ -11,4 +11,6 @@ public class ContactListFilter
     public string? Email { get; set; }
     /// <summary>The phone number for the contact to search.</summary>
     public string? PhoneNumber { get; set; }
+    /// <summary>Filter by anonymous contacts or not.</summary>
+    public bool? Anonymous { get; set; }
 }

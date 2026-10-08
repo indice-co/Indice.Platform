@@ -17,11 +17,13 @@ import { UserRolesComponent } from "./edit/roles/user-roles.component";
 import { UsersComponent } from "./users.component";
 import { UsersRoutingModule } from "./users-routing.module";
 import { UserSignInLogsComponent } from "./edit/sign-in-logs/user-sign-in-logs.component";
+import { UserActivityLogsComponent } from "./edit/activity-logs/user-activity-logs.component";
 import { ExtendedInfoStepComponent } from "./add/wizard/steps/extended-info/extended-info-step.component";
 import { UserClaimsStepComponent } from "./add/wizard/steps/claims/user-claims-step.component";
 import { UserRolesStepComponent } from "./add/wizard/steps/roles/user-roles-step.component";
 import { UserProfilePictureComponent } from "./edit/profile-picture/profile-picture.component";
 import { ImgUserPictureDirective } from "src/app/shared/directives/user-picture.directive";
+import { UserSessionsComponent } from "./edit/sessions/user-sessions.component";
 
 @NgModule({
   declarations: [
@@ -31,12 +33,14 @@ import { ImgUserPictureDirective } from "src/app/shared/directives/user-picture.
     UserApplicationsComponent,
     UserDetailsComponent,
     UserDevicesComponent,
+    UserSessionsComponent,
     UserEditComponent,
     UserLoginsComponent,
     UserRolesComponent,
     UserProfilePictureComponent,
     UsersComponent,
     UserSignInLogsComponent,
+    UserActivityLogsComponent,
     ExtendedInfoStepComponent,
     UserClaimsStepComponent,
     UserRolesStepComponent,

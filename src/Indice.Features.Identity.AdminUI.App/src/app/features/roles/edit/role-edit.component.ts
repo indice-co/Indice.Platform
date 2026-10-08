@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
@@ -8,7 +8,9 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({
     selector: 'app-role-edit',
-    templateUrl: './role-edit.component.html'
+    templateUrl: './role-edit.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class RoleEditComponent implements OnInit {
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;

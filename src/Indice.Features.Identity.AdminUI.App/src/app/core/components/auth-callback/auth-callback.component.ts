@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { User } from 'oidc-client-ts';
@@ -6,7 +6,9 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-auth-callback',
-    templateUrl: './auth-callback.component.html'
+    templateUrl: './auth-callback.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class AuthCallbackComponent implements OnInit {
     constructor(private _authService: AuthService, private _router: Router) { }

@@ -11,16 +11,20 @@ public class IpOverrideMiddleware
     private readonly RequestDelegate _next;
     private readonly IpOverrideMiddlewareOptions _options;
 
-    /// <summary></summary>
-    /// <param name="next"></param>
-    /// <param name="options"></param>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="IpOverrideMiddleware"/> class.
+    /// </summary>
+    /// <param name="next">The next middleware in the request pipeline.</param>
+    /// <param name="options">The configuration options for IP address overriding.</param>
     public IpOverrideMiddleware(RequestDelegate next, IpOverrideMiddlewareOptions options) {
         _next = next;
         _options = options ?? throw new ArgumentNullException(nameof(options));
     }
 
-    /// <summary></summary>
-    /// <param name="context"></param>
+    /// <summary>
+    /// Processes the current HTTP request, overriding the client IP address when configured.
+    /// </summary>
+    /// <param name="context">The HTTP context for the current request.</param>
     public Task Invoke(HttpContext context) {
         var ipAddressOption = _options.IpAddress;
         if (!string.IsNullOrWhiteSpace(ipAddressOption)) {

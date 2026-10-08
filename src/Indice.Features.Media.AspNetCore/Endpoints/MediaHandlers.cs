@@ -97,4 +97,9 @@ internal static class MediaHandlers
         await mediaManager.DeleteFile(fileId);
         return TypedResults.NoContent();
     }
+
+    internal static async Task<NoContent> Discover(MediaManager mediaManager) {
+        await mediaManager.DiscoverStructure();
+        return TypedResults.NoContent();
+    }
 }

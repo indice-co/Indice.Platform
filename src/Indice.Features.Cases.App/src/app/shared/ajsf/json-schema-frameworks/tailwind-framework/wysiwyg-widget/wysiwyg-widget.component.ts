@@ -2,9 +2,10 @@ import { JsonSchemaFormService } from '@ajsf-extended/core';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-wysiwyg-widget',
-  templateUrl: './wysiwyg-widget.component.html',
-  styleUrls: ['./wysiwyg-widget.component.scss']
+    selector: 'app-wysiwyg-widget',
+    templateUrl: './wysiwyg-widget.component.html',
+    styleUrls: ['./wysiwyg-widget.component.css'],
+    standalone: false
 })
 export class WysiwygWidgetComponent implements OnInit {
   formControl: any;

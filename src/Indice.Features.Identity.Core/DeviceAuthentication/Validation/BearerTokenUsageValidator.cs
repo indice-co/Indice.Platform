@@ -1,7 +1,11 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Validation;
 #else
@@ -62,7 +66,7 @@ internal class BearerTokenUsageValidator
                 };
             }
         } else {
-            _logger.LogTrace("[{ClassName}] Unexpected header format: '{Header}'.", nameof(BearerTokenUsageValidator), header?.ReplaceLineEndings());
+            _logger.LogTrace("[{ClassName}] Unexpected header format: '{Header}'.", nameof(BearerTokenUsageValidator), header.ReplaceLineEndings());
         }
         return new BearerTokenUsageValidationResult();
     }

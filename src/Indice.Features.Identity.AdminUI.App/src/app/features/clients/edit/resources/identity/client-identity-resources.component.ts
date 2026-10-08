@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { TableColumn } from '@swimlane/ngx-datatable';
@@ -10,7 +10,9 @@ import { ClientStore } from '../../client-store.service';
 
 @Component({
     selector: 'app-client-identity-resources',
-    templateUrl: './client-identity-resources.component.html'
+    templateUrl: './client-identity-resources.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ClientIdentityResourcesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

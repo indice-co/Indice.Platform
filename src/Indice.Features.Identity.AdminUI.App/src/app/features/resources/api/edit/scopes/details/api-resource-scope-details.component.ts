@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
@@ -13,7 +13,9 @@ import { TranslateInputService } from 'src/app/shared/components/translate-input
 @Component({
     selector: 'app-api-resource-scope-details',
     templateUrl: './api-resource-scope-details.component.html',
-    providers: [TranslateInputService]
+    providers: [TranslateInputService],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ApiResourceScopeDetailsComponent implements OnInit, OnDestroy {
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;

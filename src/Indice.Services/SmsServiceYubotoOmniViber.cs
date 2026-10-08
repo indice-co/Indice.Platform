@@ -24,7 +24,7 @@ public class SmsServiceYubotoOmniViber : SmsServiceYubotoOmniBase, ISmsService
         var phoneNumbers = GetRecipientsFromDestination(destination);
         var requestBody = SendRequest.CreateViber(phoneNumbers, (sender?.Id ?? Settings.Sender ?? Settings.SenderName)!, body!, Settings.ViberFallbackEnabled, Settings.Validity);
         var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
-        Logger.LogInformation("The following payload was sent to Yuboto: {0}", jsonData);
+        Logger.LogDebug("The following payload was sent to Yuboto: {requestBody}", jsonData);
         var data = new StringContent(jsonData, Encoding.UTF8, "application/json");
         var httpResponseMessage = await HttpClient.PostAsync("Send", data);
         if (!httpResponseMessage.IsSuccessStatusCode) {
@@ -36,12 +36,11 @@ public class SmsServiceYubotoOmniViber : SmsServiceYubotoOmniBase, ISmsService
             throw new SmsServiceException(errorMessage);
         }
         var responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
-        Logger.LogInformation("The following response was received from Yuboto: {0}", responseContent);
+        Logger.LogDebug("The following response was received from Yuboto: {responseContent}", responseContent);
         var response = JsonSerializer.Deserialize<SendResponse>(responseContent);
         if (!response!.IsSuccess) {
-            var errorMessage = $"SMS Delivery failed: {response.ErrorCode} - {response.ErrorMessage}";
-            Logger.LogError(errorMessage);
-            throw new SmsServiceException(errorMessage);
+            Logger.LogError("SMS Delivery failed: {responseErrorCode} - {responseErrorMessage}", response.ErrorCode, response.ErrorMessage);
+            throw new SmsServiceException($"SMS Delivery failed: {response.ErrorCode} - {response.ErrorMessage}");
         }
         Logger.LogInformation("SMS message successfully sent.");
         if (response.Messages?.Count > 0) {
@@ -51,5 +50,6 @@ public class SmsServiceYubotoOmniViber : SmsServiceYubotoOmniBase, ISmsService
     }
 
     /// <inheritdoc />
-    public bool Supports(string deliveryChannel) => "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
+    public bool Supports(string deliveryChannel) => "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase) ||
+                                                    ("SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase) && Settings.ViberFallbackEnabled);
 }

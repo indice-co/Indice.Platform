@@ -42,25 +42,32 @@ public abstract class BaseMfaOnboardingModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         Input.ReturnUrl = returnUrl;
         View.ReturnUrl = returnUrl;
-        View.AuthenticationMethods = await AuthenticationMethodProvider.GetAllMethodsAsync();
+        View.AuthenticationMethods = await GetMfaAuthenticationMethods();
+        Input.SelectedAuthenticationMethod = View.AuthenticationMethods.First().Type;
         return Page();
     }
 
     /// <summary>MFA onboarding page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         if (!ModelState.IsValid) {
-            View.AuthenticationMethods = await AuthenticationMethodProvider.GetAllMethodsAsync();
+            View.AuthenticationMethods = await GetMfaAuthenticationMethods();
             return Page();
         }
         await Task.CompletedTask;
         var redirectUrl = Input.SelectedAuthenticationMethod switch {
             AuthenticationMethodType.PhoneNumber => Url.PageLink("/MfaOnboardingAddPhone", values: new { returnUrl = Input.ReturnUrl }),
-            _ => throw new NotImplementedException("Only SMS authentication method as second factor is currently supported."),
+            AuthenticationMethodType.Email => Url.PageLink("/MfaOnboardingAddEmail", values: new { returnUrl = Input.ReturnUrl }),
+            AuthenticationMethodType.AuthenticatorApp => Url.PageLink("/MfaOnboardingSetupAuthenticator", values: new { returnUrl = Input.ReturnUrl }),
+            _ => throw new NotImplementedException("Only PhoneNumber, Email, and AuthenticatorApp authentication methods are currently supported."),
         };
         TempData.Put(TempDataKey, new MfaOnboardingTempDataModel {
             SelectedAuthenticationMethod = Input.SelectedAuthenticationMethod.Value
         });
         return Redirect(redirectUrl ?? throw new InvalidOperationException("No URL was generated to redirect."));
+    }
+    private async Task<AuthenticationMethod[]> GetMfaAuthenticationMethods() {
+        var allMethods = await AuthenticationMethodProvider.GetAllMethodsAsync();
+        return [.. allMethods.Where(x => x.SupportsMfaOnboarding)];
     }
 }
 

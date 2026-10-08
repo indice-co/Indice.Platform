@@ -580,6 +580,26 @@ public static class FileExtensions
 
     private static readonly string[] _fileSizeSuffixes = ["byte", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
 
+    private static readonly Lazy<IDictionary<string, string>> _reverseMappings = new(() => {
+        var reverse = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var pair in _mappings) {
+            reverse.TryAdd(pair.Value, pair.Key);
+        }
+        return reverse;
+    });
+
+    /// <summary>Gets the file extension (including the leading dot) associated with the given mime type.</summary>
+    /// <param name="mimeType">The mime type (e.g. "image/png").</param>
+    /// <param name="extension">When this method returns <see langword="true"/>, contains the file extension (e.g. ".png"); otherwise <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if a known extension exists for the given mime type; otherwise <see langword="false"/>.</returns>
+    public static bool TryGetFileExtension(string mimeType, out string? extension) {
+        extension = null;
+        if (string.IsNullOrWhiteSpace(mimeType)) {
+            return false;
+        }
+        return _reverseMappings.Value.TryGetValue(mimeType, out extension);
+    }
+
     /// <summary>Gets the mime type by using a file extension. If not found, defaults to 'application/octet-stream';</summary>
     /// <param name="extension">The file extension.</param>
     /// <returns></returns>

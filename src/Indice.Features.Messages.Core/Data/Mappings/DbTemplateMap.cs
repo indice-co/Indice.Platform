@@ -1,5 +1,6 @@
 ﻿using Indice.Configuration;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -29,6 +30,7 @@ public class DbTemplateMap : IEntityTypeConfiguration<DbTemplate>
         builder.Property(x => x.IgnoreUserPreferences).IsRequired();
         builder.Property(x => x.Content).HasRequiredJsonConversion().IsRequired();
         builder.Property(x => x.Data).HasJsonConversion();
+        builder.Property(x => x.Type).IsRequired().HasDefaultValue(TemplateType.Full);
         builder.Property(x => x.CreatedBy).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.UpdatedBy).HasMaxLength(TextSizePresets.M128);
         // Configure indexes.

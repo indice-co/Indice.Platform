@@ -18,9 +18,9 @@ public static class MappingExtensions
     public static PropertyBuilder HasJsonConversion<TProperty>(this PropertyBuilder<TProperty?> builder) where TProperty : class {
         // https://docs.microsoft.com/en-us/ef/core/modeling/value-comparers
         var valueComparer = new ValueComparer<TProperty>(
-            equalsExpression: (obj1, obj2) =>
-                (obj1 != default(TProperty) ? JsonSerializer.Serialize(obj1, JsonStringValueConverter<TProperty>.SerializerOptions) : null) ==
-                (obj2 != default(TProperty) ? JsonSerializer.Serialize(obj2, JsonStringValueConverter<TProperty>.SerializerOptions) : null),
+            equalsExpression: (left, right) =>
+                (left != default(TProperty) ? JsonSerializer.Serialize(left, JsonStringValueConverter<TProperty>.SerializerOptions) : null) ==
+                (right != default(TProperty) ? JsonSerializer.Serialize(right, JsonStringValueConverter<TProperty>.SerializerOptions) : null),
             hashCodeExpression: obj => obj.GetHashCode(),
             snapshotExpression: obj => JsonSerializer.Deserialize<TProperty>(JsonSerializer.Serialize(obj, JsonStringValueConverter<TProperty>.SerializerOptions), JsonStringValueConverter<TProperty>.SerializerOptions)!
         );
@@ -39,9 +39,9 @@ public static class MappingExtensions
     public static PropertyBuilder HasRequiredJsonConversion<TProperty>(this PropertyBuilder<TProperty> builder) where TProperty : class {
         // https://docs.microsoft.com/en-us/ef/core/modeling/value-comparers
         var valueComparer = new ValueComparer<TProperty>(
-            equalsExpression: (obj1, obj2) =>
-                (obj1 != default(TProperty) ? JsonSerializer.Serialize(obj1, JsonStringValueConverter<TProperty>.SerializerOptions) : null) ==
-                (obj2 != default(TProperty) ? JsonSerializer.Serialize(obj2, JsonStringValueConverter<TProperty>.SerializerOptions) : null),
+            equalsExpression: (left, right) =>
+                (left != default(TProperty) ? JsonSerializer.Serialize(left, JsonStringValueConverter<TProperty>.SerializerOptions) : null) ==
+                (right != default(TProperty) ? JsonSerializer.Serialize(right, JsonStringValueConverter<TProperty>.SerializerOptions) : null),
             hashCodeExpression: obj => obj.GetHashCode(),
             snapshotExpression: obj => JsonSerializer.Deserialize<TProperty>(JsonSerializer.Serialize(obj, JsonStringValueConverter<TProperty>.SerializerOptions), JsonStringValueConverter<TProperty>.SerializerOptions)!
         );

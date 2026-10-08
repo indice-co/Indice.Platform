@@ -24,4 +24,44 @@ public class EventDispatcherOptionsBuilderTests
         Assert.Equal("invoice-created", options.QueueName);
         Assert.False(options.PrependEnvironmentInQueueName);
     }
+
+    [Fact]
+    public void CanBuildEventDispatcherRaiseOptionsWithSessionId() {
+        var builder = new EventDispatcherRaiseOptionsBuilder();
+        var options = builder.UsingPrincipal(new ClaimsPrincipal(
+                                 new ClaimsIdentity(
+                                     [new Claim("first_name", "Jane")])
+                                 )
+                             )
+                             .Delay(TimeSpan.FromMinutes(30))
+                             .WrapInEnvelope(true)
+                             .WithQueueName("order-created")
+                             .PrependEnvironmentInQueueName(true)
+                             .WithSessionId("session-123")
+                             .Build();
+        Assert.Equal("Jane", options.ClaimsPrincipal!.FindFirstValue("first_name"));
+        Assert.Equal(TimeSpan.FromMinutes(30), options.VisibilityTimeout);
+        Assert.True(options.Wrap);
+        Assert.Equal("order-created", options.QueueName);
+        Assert.True(options.PrependEnvironmentInQueueName);
+        Assert.Equal("session-123", options.SessionId);
+    }
+
+    [Fact]
+    public void WithSessionId_ThrowsArgumentException_WhenSessionIdIsNull() {
+        var builder = new EventDispatcherRaiseOptionsBuilder();
+        Assert.Throws<ArgumentException>(() => builder.WithSessionId(null!));
+    }
+
+    [Fact]
+    public void WithSessionId_ThrowsArgumentException_WhenSessionIdIsEmpty() {
+        var builder = new EventDispatcherRaiseOptionsBuilder();
+        Assert.Throws<ArgumentException>(() => builder.WithSessionId(string.Empty));
+    }
+
+    [Fact]
+    public void WithSessionId_ThrowsArgumentException_WhenSessionIdIsWhitespace() {
+        var builder = new EventDispatcherRaiseOptionsBuilder();
+        Assert.Throws<ArgumentException>(() => builder.WithSessionId("   "));
+    }
 }

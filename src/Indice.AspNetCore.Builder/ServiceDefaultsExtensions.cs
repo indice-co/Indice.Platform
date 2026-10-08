@@ -1,9 +1,8 @@
 using System.Reflection;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Unicode;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Indice.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
@@ -25,6 +24,28 @@ namespace Microsoft.Extensions.Hosting;
 /// </summary>
 public static class ServiceDefaultsExtensions
 {
+    /// <summary>
+    /// Options to control JSON serialization behavior for health check responses.
+    /// </summary>
+    public sealed class HealthCheckJsonOptions
+    {
+        /// <summary>
+        /// Determines whether exceptions in health check results include their stack trace when serialized.
+        /// <para>
+        /// Defaults to <c>false</c> to prevent leaking potentially sensitive information in production environments.
+        /// </para>
+        /// </summary>
+        public bool IncludeStackTrace { get; set; } = false;
+
+        /// <summary>
+        /// Determines whether inner exceptions are included when serializing exceptions in health check results.
+        /// <para>
+        /// Defaults to <c>true</c> to provide detailed context about the cause of a failure.
+        /// </para>
+        /// </summary>
+        public bool IncludeInnerExceptions { get; set; } = true;
+    }
+
     /// <summary>
     /// Adds webserive defaults for ConfigureOpenTelemetry, AddDefaultHealthChecks, ConfigureHttpClientDefaults
     /// </summary>
@@ -147,8 +168,16 @@ public static class ServiceDefaultsExtensions
     /// Adds default healthcheck endpoints
     /// </summary>
     /// <param name="builder">The builder to configure</param>
+    /// <param name="configureHealthChecks">Health checks options to configure</param>
     /// <returns>The <see cref="IHostApplicationBuilder"/> for further configuration.</returns>
-    public static IHostApplicationBuilder AddDefaultHealthChecks(this IHostApplicationBuilder builder) {
+    public static IHostApplicationBuilder AddDefaultHealthChecks(
+        this IHostApplicationBuilder builder,
+        Action<HealthCheckJsonOptions>? configureHealthChecks = null) {
+        var options = new HealthCheckJsonOptions();
+        configureHealthChecks?.Invoke(options);
+
+        builder.Services.AddSingleton(options);
+
         // these are registered always but used in product`
         builder.Services.AddRequestTimeouts(
             configure: static timeouts =>
@@ -173,6 +202,11 @@ public static class ServiceDefaultsExtensions
     /// <param name="app">The <see cref="WebApplication"/> to configure</param>
     /// <returns>The <see cref="WebApplication"/> for further configuration</returns>
     public static WebApplication MapHealthCheckDefaults(this WebApplication app) {
+        _jsonSerializerOptions ??= new Lazy<JsonSerializerOptions>(() => {
+            var healthOptions = app.Services.GetRequiredService<HealthCheckJsonOptions>();
+            return CreateJsonOptions(healthOptions);
+        });
+
         // Adding health checks endpoints to applications in non-development environments has security implications.
         // See https://aka.ms/dotnet/aspire/healthchecks for details before enabling these endpoints in non-development environments.
         if (app.Environment.IsDevelopment()) {
@@ -209,21 +243,20 @@ public static class ServiceDefaultsExtensions
     }
 
     private static Task WriteResponse(HttpContext context, HealthReport healthReport) {
-        var responseJson = JsonSerializer.Serialize(healthReport, _jsonSerializerOptions.Value);
+        var responseJson = JsonSerializer.Serialize(healthReport, _jsonSerializerOptions!.Value);
         context.Response.ContentType = "application/json; charset=utf-8";
         return context.Response.WriteAsync(responseJson);
     }
 
-    private static readonly Lazy<JsonSerializerOptions> _jsonSerializerOptions = new(CreateJsonOptions);
+    private static Lazy<JsonSerializerOptions>? _jsonSerializerOptions;
 
-    private static JsonSerializerOptions CreateJsonOptions() {
-        var options = new JsonSerializerOptions {
+    private static JsonSerializerOptions CreateJsonOptions(HealthCheckJsonOptions healthOptions) {
+        JsonSerializerOptions options = new(JsonSerializerDefaults.Web) {
             WriteIndented = true,
-            AllowTrailingCommas = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
         options.Converters.Add(new JsonStringEnumConverter());
+        options.Converters.Add(new ExceptionJsonConverter(healthOptions.IncludeStackTrace, healthOptions.IncludeInnerExceptions));
         return options;
     }
 }

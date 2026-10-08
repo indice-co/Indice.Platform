@@ -58,8 +58,8 @@ export class MediaLibraryStore {
         if (this._folderContent) {
             return this._folderContent
                 .pipe(mergeMap((content) => {
-                    if (this._currentFolderId === folderId) {
-                        return of(content);
+                  if (this._currentFolderId === folderId) {
+                      return of(new MediaFolder({ id: content.id, name: content.name! }));
                     }
                     let folderDetails = content.folders?.find(f => f.id == folderId);
                     if (folderDetails) {

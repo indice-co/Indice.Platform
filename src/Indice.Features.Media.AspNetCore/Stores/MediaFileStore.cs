@@ -48,18 +48,22 @@ internal class MediaFileStore : IMediaFileStore
         return await _dbContext.Files.Where(f => f.FolderId.HasValue && folderIds.Contains(f.FolderId.Value)).ToListAsync();
     }
     /// <inheritdoc/>
-    public async Task<Guid> Create(DbMediaFile file) {
-        file.Path = await MediaFolderStore.FindPathAsync(_dbContext, file.FolderId, file.Name);
+    public async Task<Guid> Create(DbMediaFile file, bool normalizePath = true) {
+        if (normalizePath) {
+            file.Path = await MediaFolderStore.FindPathAsync(_dbContext, file.FolderId, file.Name);
+        }
         _dbContext.Files.Add(file);
         await _dbContext.SaveChangesAsync();
         return file.Id;
     }
 
-    public async Task<List<Guid>> CreateMany(List<DbMediaFile> files) {
-        var folderid = files.FirstOrDefault()?.FolderId;
-        var paths = await MediaFolderStore.FindPathsAsync(_dbContext, folderid, files.Select(x => x.Name).ToArray());
-        for (var i = 0; i < paths.Length; i++) {
-            files[i].Path = paths[i];
+    public async Task<List<Guid>> CreateMany(List<DbMediaFile> files, bool normalizePath = true) {
+        if (normalizePath) {
+            var folderid = files.FirstOrDefault()?.FolderId;
+            var paths = await MediaFolderStore.FindPathsAsync(_dbContext, folderid, files.Select(x => x.Name).ToArray());
+            for (var i = 0; i < paths.Length; i++) {
+                files[i].Path = paths[i];
+            }
         }
         _dbContext.Files.AddRange(files);
         await _dbContext.SaveChangesAsync();
@@ -67,8 +71,10 @@ internal class MediaFileStore : IMediaFileStore
     }
 
     /// <inheritdoc/>
-    public async Task Update(DbMediaFile file) {
-        file.Path = await MediaFolderStore.FindPathAsync(_dbContext, file.FolderId, file.Name);
+    public async Task Update(DbMediaFile file, bool normalizePath = true) {
+        if (normalizePath) {
+            file.Path = await MediaFolderStore.FindPathAsync(_dbContext, file.FolderId, file.Name);
+        }
         _dbContext.Files.Update(file);
         await _dbContext.SaveChangesAsync();
     }

@@ -24,24 +24,22 @@ public class ExtendedPhoneNumberTokenProvider<TUser> : PhoneNumberTokenProvider<
 
     /// <inheritdoc />
     public override async Task<string> GenerateAsync(string purpose, UserManager<TUser> userManager, TUser user) {
-        if (userManager is null) {
-            throw new ArgumentNullException(nameof(userManager));
-        }
-        var token = await userManager.CreateSecurityTokenAsync(user);
-        var modifier = await GetUserModifierAsync(purpose, userManager, user);
-        return _rfc6238AuthenticationService.GenerateCode(token, modifier).ToString("D6", CultureInfo.InvariantCulture);
+        ArgumentNullException.ThrowIfNull(userManager);
+        ArgumentNullException.ThrowIfNull(user);
+        var securityToken = await user.GetSecurityToken(purpose, userManager).ConfigureAwait(false);
+        var modifier = await GetUserModifierAsync(purpose, userManager, user).ConfigureAwait(false);
+        return _rfc6238AuthenticationService.GenerateCode(securityToken, modifier).ToString("D6", CultureInfo.InvariantCulture);
     }
 
     /// <inheritdoc />
     public override async Task<bool> ValidateAsync(string purpose, string token, UserManager<TUser> userManager, TUser user) {
-        if (userManager is null) {
-            throw new ArgumentNullException(nameof(userManager));
-        }
+        ArgumentNullException.ThrowIfNull(userManager);
+        ArgumentNullException.ThrowIfNull(user);
         if (!int.TryParse(token, out var code)) {
             return false;
         }
-        var securityToken = await userManager.CreateSecurityTokenAsync(user);
-        var modifier = await GetUserModifierAsync(purpose, userManager, user);
+        var securityToken = await user.GetSecurityToken(purpose, userManager).ConfigureAwait(false);
+        var modifier = await GetUserModifierAsync(purpose, userManager, user).ConfigureAwait(false);
         return securityToken is not null && _rfc6238AuthenticationService.ValidateCode(securityToken, code, modifier);
     }
 }

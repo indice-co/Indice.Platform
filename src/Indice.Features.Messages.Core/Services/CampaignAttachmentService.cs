@@ -70,7 +70,7 @@ public class CampaignAttachmentService : ICampaignAttachmentService
         DbContext.Attachments.Remove(dbAttachment);
         await DbContext.SaveChangesAsync();
 
-        var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension?.TrimStart('.')}";
+        var path = dbAttachment.GetPath();
         await FileService.DeleteAsync(path);
     }
 
@@ -84,7 +84,7 @@ public class CampaignAttachmentService : ICampaignAttachmentService
         if (dbAttachment is null) {
             return null;
         }
-        var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension?.TrimStart('.')}";
+        var path = dbAttachment.GetPath();
         var data = await FileService.GetAsync(path);
         if (data is null) {
             return null;

@@ -7,11 +7,13 @@ import { UserAdditionalDetailsComponent } from './edit/additional-details/user-a
 import { UserApplicationsComponent } from './edit/applications/user-applications.component';
 import { UserDetailsComponent } from './edit/details/user-details.component';
 import { UserDevicesComponent } from './edit/devices/user-devices.component';
+import { UserSessionsComponent } from './edit/sessions/user-sessions.component';
 import { UserEditComponent } from './edit/user-edit.component';
 import { UserLoginsComponent } from './edit/logins/user-logins.component';
 import { UserRolesComponent } from './edit/roles/user-roles.component';
 import { UsersComponent } from './users.component';
 import { UserSignInLogsComponent } from './edit/sign-in-logs/user-sign-in-logs.component';
+import { UserActivityLogsComponent } from './edit/activity-logs/user-activity-logs.component';
 import { UiFeaturesGuardService } from 'src/app/core/services/ui-features-guard.service';
 import { Features } from 'src/app/core/models/features';
 
@@ -28,7 +30,9 @@ const routes: Routes = [
       { path: 'applications', component: UserApplicationsComponent },
       { path: 'external-logins', component: UserLoginsComponent },
       { path: 'devices', component: UserDevicesComponent },
-      { path: 'sign-in-logs', component: UserSignInLogsComponent, canActivate: [UiFeaturesGuardService], data: { feature: Features.SignInLogs } }
+      { path: 'sessions', component: UserSessionsComponent },
+      { path: 'sign-in-logs', component: UserSignInLogsComponent, canActivate: [UiFeaturesGuardService], data: { feature: Features.SignInLogs } },
+      { path: 'activity-logs', component: UserActivityLogsComponent, canActivate: [UiFeaturesGuardService], data: { feature: Features.ActivityLogs } }
     ]
   }
 ];

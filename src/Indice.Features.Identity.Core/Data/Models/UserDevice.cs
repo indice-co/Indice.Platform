@@ -1,6 +1,6 @@
 ﻿using Indice.Types;
-using Indice.Features.Identity.Core.Types;
 using Indice.Features.Identity.Core.Models;
+using Indice.AspNetCore;
 
 namespace Indice.Features.Identity.Core.Data.Models;
 
@@ -24,6 +24,8 @@ public class UserDevice
     public DevicePlatform Platform { get; set; }
     /// <summary>Device name.</summary>
     public string? Name { get; set; }
+    /// <summary>The httpclient used to serve this request. Can be a browser app or a custom native application.</summary>
+    public string? UserAgentFamily { get; set; }
     /// <summary>Device model.</summary>
     public string? Model { get; set; }
     /// <summary>Device OS version.</summary>
@@ -40,6 +42,8 @@ public class UserDevice
     public bool SupportsPinLogin => !string.IsNullOrWhiteSpace(Password);
     /// <summary>Device public key (when <see cref="InteractionMode"/> is equal to <see cref="InteractionMode.Fingerprint"/>).</summary>
     public string? PublicKey { get; set; }
+    /// <summary>Device public key Id when public key is populated.</summary>
+    public string? PublicKeyId { get; internal set; }
     /// <summary>Flag for fingerprint support.</summary>
     public bool SupportsFingerprintLogin => !string.IsNullOrWhiteSpace(PublicKey);
     /// <summary>Extra metadata for the device.</summary>
@@ -87,7 +91,7 @@ public class UserDevice
     }
 
     /// <summary>The user associated with this device.</summary>
-    public virtual User? User { get; set; }
+    public virtual User? User { get; set; }    
 
     /// <summary>
     /// 
@@ -114,6 +118,7 @@ public class UserDevice
             MfaSessionExpirationDate = asOfDate.Value.AddDays(mfaRememberDurationInDays),
             Model = userAgent.DeviceModel,
             Name = userAgent.DisplayName,
+            UserAgentFamily = userAgent.UserAgentFamily,
             OsVersion = userAgent.Os,
             Platform = userAgent.DevicePlatform,
             TrustActivationDate = asOfDate,

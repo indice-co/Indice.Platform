@@ -1,6 +1,6 @@
 ﻿using FubarDev.FtpServer.FileSystem;
 using Indice.Features.FtpServer.Azure;
-using Microsoft.Extensions.Azure;
+using Indice.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FubarDev.FtpServer;
@@ -21,13 +21,8 @@ public static class AzureBlobExtensions
             builder.Services.Configure(configureAction);
             var options = new AzureBlobFileSystemOptions();
             configureAction?.Invoke(options);
-            if (!string.IsNullOrWhiteSpace(options.ConnectrionString)) {
-                //https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection?tabs=web-app-builder
-                builder.Services.AddAzureClients(clientBuilder => {
-                    clientBuilder.AddBlobServiceClient(options.ConnectrionString);
-                });
-            }
         }
+        builder.Services.AddSingleton<AzureClientFactory>();
         builder.Services.AddSingleton<IFileSystemClassFactory, AzureBlobFileSystemProvider>();
         return builder;
     }

@@ -1,4 +1,8 @@
-﻿using IdentityModel;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
+using IdentityModel;
+#endif
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Security;

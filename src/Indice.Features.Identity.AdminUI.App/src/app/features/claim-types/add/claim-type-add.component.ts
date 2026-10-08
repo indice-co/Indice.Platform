@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { CreateClaimTypeRequest, ClaimValueType, IdentityApiService, ClaimTypeInfo, HttpValidationProblemDetails, ProblemDetails } from 'src/app/core/services/identity-api.service';
@@ -7,7 +7,9 @@ import { ValidationSummaryComponent } from 'src/app/shared/components/validation
 
 @Component({
     selector: 'app-claim-type-add',
-    templateUrl: './claim-type-add.component.html'
+    templateUrl: './claim-type-add.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ClaimTypeAddComponent implements OnInit {
     @ViewChild('validationSummary', { static: false }) private _validationSummary: ValidationSummaryComponent;

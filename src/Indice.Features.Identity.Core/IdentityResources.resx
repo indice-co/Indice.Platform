@@ -214,7 +214,7 @@
     <value>Welcome to {0}! Please confirm your email to get started.</value>
   </data>
   <data name="PasswordChangedEventSubject" xml:space="preserve">
-    <value>Your password was changed</value>
+    <value>Your Password has been Changed</value>
   </data>
   <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
     <value>Security Notification {0}</value>
@@ -270,6 +270,9 @@
   <data name="MfaValidationError" xml:space="preserve">
     <value>The OTP code is not valid.</value>
   </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Invalid recovery code entered.</value>
+  </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Your account is temporarily locked. Please contact a system administrator.</value>
   </data>
@@ -320,6 +323,14 @@
     <value>New Password</value>
     <comment>UI Validators</comment>
   </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>The field 'Confirm Password' is required.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>The password confirmation does not match the password.</value>
+    <comment>UI Validators</comment>
+  </data>
   <data name="UI_Validator_EnableMfaSms_PhoneNumber_FieldName" xml:space="preserve">
     <value>Phone Number</value>
     <comment>UI Validators</comment>
@@ -338,6 +349,14 @@
   </data>
   <data name="UI_Validator_ForgotPasswordConfirmation_Token_FieldName" xml:space="preserve">
     <value>Token</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>The field 'Confirm Password' is required.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>The password confirmation does not match the password.</value>
     <comment>UI Validators</comment>
   </data>
   <data name="UI_Validator_ForgotPassword_Email_FieldName" xml:space="preserve">
@@ -451,5 +470,109 @@
   <data name="UI_Validator_VerifyPhone_Code_FieldName" xml:space="preserve">
     <value>Code</value>
     <comment>UI Validators</comment>
+  </data>
+  <data name="AccountLockedEventSubject" xml:space="preserve">
+    <value>Your account has been temporarily locked</value>
+  </data>
+  <data name="AccountLockedEventDescription" xml:space="preserve">
+    <value>Your account has been temporarily locked due to multiple unsuccessful login attempts. This lock is a security measure to protect your information. Please try again later.</value>
+  </data>
+  <data name="PasswordChangedEventDescription" xml:space="preserve">
+    <value>Your password has been successfully changed.</value>
+  </data>
+  <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
+    <value>Two-Factor Authentication Method Changed</value>
+  </data>
+  <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
+    <value>Your two-factor authentication method has been updated to: {0}.</value>
+  </data>
+  <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
+    <value>Please choose your new password to continue.</value>
+  </data>
+  <data name="MfaAddEmailValidationEmailEmpty" xml:space="preserve">
+    <value>Please select your email so we can verify it before we continue.</value>
+  </data>
+  <data name="MfaAddEmailValidationEmailAlreadyConfirmed" xml:space="preserve">
+    <value>Your email is already confirmed. Continue to enable MFA.</value>
+  </data>
+  <data name="MfaAddEmailSuccessMessage" xml:space="preserve">
+    <value>You have successfully enabled MFA for your account. Login to access your account.</value>
+  </data>
+  <data name="MfaVerifyEmailValidationMissingEmail" xml:space="preserve">
+    <value>Please enter the code that you have received at your email.</value>
+  </data>
+  <data name="MfaVerifyEmailSuccessMessage" xml:space="preserve">
+    <value>Your email was successfully validated. Please press the 'Next' button to continue.</value>
+  </data>
+  <data name="MfaEmailBody" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="MfaEmailSubject" xml:space="preserve">
+    <value>OTP login</value>
+  </data>
+  <data name="AuthMethod_Sms_DisplayName" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="AuthMethod_Sms_Description" xml:space="preserve">
+    <value>Users will receive a text message containing a verification code.</value>
+  </data>
+  <data name="AuthMethod_Email_DisplayName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="AuthMethod_Email_Description" xml:space="preserve">
+    <value>Users will receive a TOTP in their verified email address.</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_DisplayName" xml:space="preserve">
+    <value>Authenticator (recommended)</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_Description" xml:space="preserve">
+    <value>Use an authenticator app to generate verification codes.</value>
+  </data>
+  <data name="AuthMethod_Fido2_DisplayName" xml:space="preserve">
+    <value>FIDO2</value>
+  </data>
+  <data name="AuthMethod_Fido2_Description" xml:space="preserve">
+    <value>Use a hardware security key for authentication.</value>
+  </data>
+  <data name="AuthMethod_Viber_DisplayName" xml:space="preserve">
+    <value>Viber</value>
+  </data>
+  <data name="AuthMethod_Viber_Description" xml:space="preserve">
+    <value>Users will receive a Viber message containing a verification code.</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_DisplayName" xml:space="preserve">
+    <value>Push notification</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
+    <value>Provide a push notification using a trusted device.</value>
+  </data>
+  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
+    <value>The field 'Timezone' has invalid format.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>The field 'Confirm Password' is required.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>The password confirmation does not match the password.</value>
+    <comment>UI Validators</comment>
+  </data>
+  <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
+    <value>Recovery code verification</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
+    <value>You have requested to log in with a recovery code. This login will not be remembered until you provide an MFA method.</value>
+  </data>
+  <data name="MfaTokenNotExpired" xml:space="preserve">
+    <value>Last token has not expired yet. Please wait a few seconds and try again.</value>
+  </data>
+  <data name="PasswordSetEventSubject" xml:space="preserve">
+    <value>Your Password has been changed</value>
+  </data>
+  <data name="PasswordSetEventDescription" xml:space="preserve">
+    <value>Your password has been successfully changed.</value>
+  </data>
+  <data name="LimitAttemptsReached" xml:space="preserve">
+    <value>You have exceeded the maximum number of failed attempts.</value>
   </data>
 </root>

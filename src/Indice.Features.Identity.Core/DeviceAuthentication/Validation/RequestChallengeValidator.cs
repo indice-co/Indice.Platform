@@ -1,7 +1,11 @@
 ﻿using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Validation;
@@ -86,7 +90,7 @@ internal class RequestChallengeValidator
     protected static bool ValidateCodeVerifierAgainstCodeChallenge(string codeVerifier, string codeChallenge) {
         var codeVerifierBytes = Encoding.ASCII.GetBytes(codeVerifier);
         var hashedBytes = codeVerifierBytes.Sha256();
-        var transformedCodeVerifier = Base64Url.Encode(hashedBytes);
+        var transformedCodeVerifier = Base64UrlEncoder.Encode(hashedBytes);
         // https://github.com/IdentityModel/IdentityModel/blob/main/src/TimeConstantComparer.cs
         return TimeConstantComparer.IsEqual(transformedCodeVerifier.Sha256(), codeChallenge);
     }

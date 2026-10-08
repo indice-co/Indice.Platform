@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
-using IdentityModel.Client;
+using Duende.IdentityModel.Client;
 using Indice.Extensions;
 using Indice.Features.GovGr.Configuration;
 using Indice.Features.GovGr.Interfaces;

@@ -9,7 +9,9 @@ public static class MessagesApi
     /// <summary>Authentication scheme name used by Messages API.</summary>
     public const string AuthenticationScheme = "Bearer";
     /// <summary>Messages API scope.</summary>
-    public const string Scope = "messages";
+    public const string Scope = "messages";    
+    /// <summary>Send API scope.</summary>
+    public const string SendScope = "messages:send";
     /// <summary>Default database schema.</summary>
     public const string DatabaseSchema = "cmp";
 
@@ -40,6 +42,8 @@ public static class EventNames
     public const string MarkAllAsRead = "my-messages-mark-all-read";
     /// <summary>Name for the event that is raised when user trigger mark all as unread.</summary>
     public const string MarkAllAsUnread = "my-messages-mark-all-unread";
+    /// <summary>Name for the event that is raised when contacts are merged.</summary>
+    public const string MergeContacts = "contacts-merge";
 }
 
 /// <summary>Placeholder for prefixing Messages API endpoints.</summary>

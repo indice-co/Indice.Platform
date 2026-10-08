@@ -30,7 +30,6 @@ internal class RouteMatcher
             return false;
         }
         var isMatch = false;
-        var patternParameters = pattern.Parameters.Select(parameter => "{" + parameter.Name + "}");
         for (var index = 0; index < requestUriSegments.Count(); index++) {
             var segment = requestUriSegments.ElementAt(index);
             var patternSegment = patternSegments.ElementAtOrDefault(index);

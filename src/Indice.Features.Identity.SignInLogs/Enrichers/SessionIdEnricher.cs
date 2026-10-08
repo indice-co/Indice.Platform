@@ -26,5 +26,5 @@ public sealed class SessionIdEnricher : ISignInLogEntryEnricher
     public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Synchronous;
 
     /// <inheritdoc />
-    public async ValueTask EnrichAsync(SignInLogEntry logEntry) => logEntry.SessionId = await _userSession.GetSessionIdAsync();
+    public async ValueTask EnrichAsync(SignInLogEntry logEntry) => logEntry.SessionId ??= await _userSession.GetSessionIdAsync();
 }

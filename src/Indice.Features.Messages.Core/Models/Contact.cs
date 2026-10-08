@@ -31,7 +31,10 @@ public class Contact
     internal bool HasPhoneNumber => !string.IsNullOrWhiteSpace(PhoneNumber);
     /// <summary>Check if the contact has email or phone.</summary>
     internal bool IsEmpty => !HasEmail && !HasPhoneNumber;
-
+    /// <summary>Resolved using a contact resolver.</summary>
+    public bool Resolved { get; set; }
+    /// <summary>Indicates the last time the contact was resolved using the contact resolver service.</summary>
+    public DateTimeOffset? LastResolutionDate { get; set; }
     /// <summary>Communication Preferences </summary>
     public ContactPreference Preference { get; set; } = new ContactPreference();
 
@@ -57,10 +60,10 @@ public class Contact
         if (!ignoreUserPreferences) {
             var typeCommunicationPreference = Preference?.Communication?.FirstOrDefault(x => x.MessageType.Id == campaignType?.Id);
             if (typeCommunicationPreference != null) {
-                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels);
+                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels, MessageChannelKind.Inbox);
                 availableChannels &= userSelectedChannels;
             } else if (Preference?.DefaultChannels != null) {
-                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(Preference.DefaultChannels);
+                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(Preference.DefaultChannels, MessageChannelKind.Inbox);
                 availableChannels &= userSelectedChannels;
             }
         }
@@ -73,7 +76,14 @@ public class Contact
         }
         if (IsAnonymous) {
             availableChannels &= ~MessageChannelKind.PushNotification;
+            availableChannels &= ~MessageChannelKind.Inbox;
         }
         return availableChannels;
     }
+    /// <summary>Gets the recipient identifier for the specified channel.</summary>
+    public string GetReceiverByChannel(MessageChannelKind channel) => channel switch {
+        MessageChannelKind.Email => Email ?? "",
+        MessageChannelKind.SMS => PhoneNumber ?? "",
+        _ => RecipientId ?? ""
+    };
 }

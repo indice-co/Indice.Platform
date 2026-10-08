@@ -1,6 +1,4 @@
-﻿#nullable enable
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace Indice.Globalization;
@@ -143,4 +141,3 @@ public partial struct PhoneNumber : IFormattable
     /// <param name="value">The value to convert.</param>
     public static explicit operator PhoneNumber(string value) => Parse(value);
 }
-#nullable disable

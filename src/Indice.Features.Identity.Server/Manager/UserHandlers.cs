@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using IdentityModel;
+using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Extensions;
@@ -28,6 +28,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
+using System.Text;
+using Indice.Security;
+using Microsoft.AspNetCore.Session;
+using Microsoft.AspNetCore.Mvc;
+using Indice.Features.Identity.Core.Guards;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -213,15 +220,15 @@ internal static class UserHandlers
         }
 
         // handle claims addition
-        var claims = request.Claims?.Count > 0 ? request.Claims.Where(x => x.Type != JwtClaimTypes.GivenName &&
-                                                                           x.Type != JwtClaimTypes.FamilyName)
+        var claims = request.Claims?.Count > 0 ? request.Claims.Where(x => x.Type != BasicClaimTypes.GivenName &&
+                                                                           x.Type != BasicClaimTypes.FamilyName)
                                                                .Select(x => new Claim(x.Type!, x.Value!))
                                                                .ToList() : [];
         if (!string.IsNullOrEmpty(request.FirstName)) {
-            claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
+            claims.Add(new Claim(BasicClaimTypes.GivenName, request.FirstName));
         }
         if (!string.IsNullOrEmpty(request.LastName)) {
-            claims.Add(new Claim(JwtClaimTypes.FamilyName, request.LastName));
+            claims.Add(new Claim(BasicClaimTypes.FamilyName, request.LastName));
         }
         if (claims.Any()) {
             claims.ForEach(c => user.Claims.Add(new() { ClaimType = c.Type, ClaimValue = c.Value, UserId = user.Id }));
@@ -259,13 +266,21 @@ internal static class UserHandlers
             var errors = ValidationErrors.AddError(nameof(request.UserName), "EmailAsUserName policy is applied to the identity system. Email and UserName properties should have the same value. User is not updated.");
             return TypedResults.ValidationProblem(errors);
         }
-        if (!PhoneNumber.TryParse(request.PhoneNumber!, out var phoneNumber)) {
+        var trimmedPhoneNumber = request.PhoneNumber?.Trim();
+        if (!PhoneNumber.TryParse(trimmedPhoneNumber ?? string.Empty, out var phoneNumber) && !string.IsNullOrWhiteSpace(trimmedPhoneNumber)) {
             var errors = ValidationErrors.AddError(nameof(request.PhoneNumber), "The provided phone number is not valid.");
             return TypedResults.ValidationProblem(errors);
         }
-        user.UserName = request.UserName;
-        user.Email = request.Email;
-        user.PhoneNumber = request.PhoneNumber;
+        if (string.IsNullOrWhiteSpace(trimmedPhoneNumber) && request.PhoneNumberConfirmed) {
+            var errors = ValidationErrors.AddError(nameof(request.PhoneNumberConfirmed), "The phone number cannot be confirmed as it is not a valid phone number.");
+            return TypedResults.ValidationProblem(errors);
+        }
+        user.UserName = request.UserName?.Trim();
+        user.Email = request.Email?.Trim();
+        user.PhoneNumber = trimmedPhoneNumber switch {
+            { Length: > 0 } => phoneNumber.ToString(),
+            _ => null
+        };
         user.TwoFactorEnabled = request.TwoFactorEnabled;
         user.TwoFactorPolicy = request.TwoFactorPolicy;
         user.PasswordExpirationPolicy = request.PasswordExpirationPolicy;
@@ -298,6 +313,7 @@ internal static class UserHandlers
         return TypedResults.Ok(new SingleUserInfo {
             Id = userId,
             CreateDate = user.CreateDate,
+            LastSignInDate = user.LastSignInDate,
             Email = user.Email,
             EmailConfirmed = user.EmailConfirmed,
             LockoutEnabled = user.LockoutEnabled,
@@ -305,8 +321,13 @@ internal static class UserHandlers
             PhoneNumber = user.PhoneNumber,
             PhoneNumberConfirmed = user.PhoneNumberConfirmed,
             TwoFactorEnabled = user.TwoFactorEnabled,
+            TwoFactorPolicy = user.TwoFactorPolicy,
+            AccessFailedCount = user.AccessFailedCount,
+            PasswordExpirationDate = user.PasswordExpirationDate,
+            PasswordExpirationPolicy = user.PasswordExpirationPolicy,
             UserName = user.UserName,
             Blocked = user.Blocked,
+            IsAdmin = user.Admin,
             Claims = user.Claims.Select(x => new ClaimInfo {
                 Id = x.Id,
                 Type = x.ClaimType,
@@ -374,7 +395,7 @@ internal static class UserHandlers
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
         if (role.IsManagementRole()) {
-            var clientId = currentUser.FindFirst(JwtClaimTypes.ClientId);
+            var clientId = currentUser.FindFirst(BasicClaimTypes.ClientId);
             await persistedGrantService.RemoveAllGrantsAsync(userId, clientId?.Value);
         }
         return TypedResults.NoContent();
@@ -542,10 +563,12 @@ internal static class UserHandlers
             LastSignInDate = device.LastSignInDate,
             Model = device.Model,
             Name = device.Name,
+            UserAgentFamily = device.UserAgentFamily,
             OsVersion = device.OsVersion,
             Platform = device.Platform,
             SupportsFingerprintLogin = device.SupportsFingerprintLogin,
-            SupportsPinLogin = device.SupportsPinLogin
+            SupportsPinLogin = device.SupportsPinLogin,
+            PublicKeyId = device.PublicKeyId
         })
         .ToResultSet();
         return TypedResults.Ok(response);
@@ -588,14 +611,15 @@ internal static class UserHandlers
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteUserExternalLogin(
         ExtendedUserManager<User> userManager,
         string userId,
-        string provider
+        string provider,
+        string providerKey
     ) {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
             return TypedResults.NotFound();
         }
         var externalLogins = await userManager.GetLoginsAsync(user);
-        var externalLogin = externalLogins.SingleOrDefault(x => x.LoginProvider == provider);
+        var externalLogin = externalLogins.SingleOrDefault(x => x.LoginProvider == provider && x.ProviderKey == providerKey);
         if (externalLogin == null) {
             return TypedResults.NotFound();
         }
@@ -604,6 +628,59 @@ internal static class UserHandlers
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
         return TypedResults.NoContent();
+    }
+
+    internal static async Task<Ok<ResultSet<ServerSideSessionInfo>>> GetUserSessions(
+#if NET9_0_OR_GREATER
+        [FromServices]IServerSideSessionStore? sessionStore,
+#endif
+        string userId,
+        CancellationToken cancellationToken) {
+#if !NET9_0_OR_GREATER
+        return TypedResults.Ok(new ResultSet<ServerSideSessionInfo>());
+#else
+        if (string.IsNullOrWhiteSpace(userId) || sessionStore is null) {
+            return TypedResults.Ok(new ResultSet<ServerSideSessionInfo>());
+        }
+        var sessions = await sessionStore.GetSessionsAsync(new SessionFilter { SubjectId = userId }, cancellationToken);
+        return TypedResults.Ok(sessions.Select(x => new ServerSideSessionInfo {
+            Key = x.Key,
+            SessionId = x.SessionId,
+            SubjectId = x.SubjectId,
+            Scheme = x.Scheme,
+            DisplayName = x.DisplayName,
+            Created = x.Created,
+            Renewed = x.Renewed,
+            Expires = x.Expires,
+            Ticket = x.Ticket
+        }).ToResultSet());
+#endif
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> RemoveUserSession(
+#if NET9_0_OR_GREATER
+        [FromServices]ISessionManagementService? sessionManagement,
+        [FromServices]ExtendedUserManager<User> userManager,
+#endif
+        string userId,
+        string sessionId,
+        CancellationToken cancellationToken) {
+#if !NET9_0_OR_GREATER
+        return TypedResults.ValidationProblem(ValidationErrors.Create(), detail: "Not supported");
+#else
+        if (sessionManagement is null) {
+            return TypedResults.ValidationProblem(ValidationErrors.Create(), detail: "Not supported");
+        }
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        await sessionManagement.RemoveSessionsAsync(new RemoveSessionsContext {
+            SessionId = sessionId,
+            SubjectId = userId
+        }, cancellationToken);
+        return TypedResults.NoContent();
+#endif
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SetUserBlock(
@@ -655,13 +732,108 @@ internal static class UserHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var result = await userManager.ResetPasswordAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault());
+        var result = await userManager.ResetPasswordAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault(), suppressNotification: request.SuppressNotification.GetValueOrDefault(), selfServicePasswordReset: false);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
         if (request.ChangePasswordAfterFirstSignIn == true) {
             await userManager.SetPasswordExpiredAsync(user, true);
         }
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> RemovePassword(
+        ExtendedUserManager<User> userManager,
+        ClaimsPrincipal currentUser,
+        string userId
+    ) {
+        var currentUserId = currentUser.FindSubjectId();
+        if (!string.IsNullOrWhiteSpace(currentUserId) && currentUserId.Equals(userId, StringComparison.OrdinalIgnoreCase)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(userId), "Cannot remove the password for the current logon user"));
+        }
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var result = await userManager.RemovePasswordAsync(user);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        return TypedResults.NoContent();
+    }
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ResetMfa(
+        ExtendedUserManager<User> userManager,
+        IPlatformEventService platformEvents,
+        ClaimsPrincipal currentUser,
+        string userId
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var result = await userManager.ResetTwoFactorAsync(user);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        await platformEvents.Publish(new ResetMfaEvent(UserEventContext.InitializeFromUser(user)));
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<Ok<List<JsonWebKey>>, NotFound>> GetUserDeviceSecrets(
+        ExtendedUserManager<User> userManager,
+        string userId,
+        string deviceId,
+        CancellationToken cancellationToken
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null) {
+            return TypedResults.NotFound();
+        }
+
+        var device = await userManager.GetDeviceByIdAsync(user, deviceId, cancellationToken);
+        if (device is null) {
+            return TypedResults.NotFound();
+        }
+
+        var keys = new List<JsonWebKey>();
+        var symmetricKey = JsonWebKeyConverter.ConvertFromSymmetricSecurityKey(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(device.Id.ToString())) {
+            KeyId = string.IsNullOrWhiteSpace(device.PublicKeyId)
+            ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex).ToLowerInvariant()
+            : $"{device.PublicKeyId} symmetric"
+        });
+
+        keys.Add(symmetricKey);
+
+        if (device.PublicKey is not null) {
+            using var rsa = RSA.Create();
+            rsa.ImportFromPem(device.PublicKey.ToCharArray());
+
+            var asymmetricKey = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa) {
+                KeyId = string.IsNullOrWhiteSpace(device.PublicKeyId)
+                    ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex).ToLowerInvariant()
+                    : device.PublicKeyId
+            });
+
+            keys.Add(asymmetricKey);
+        }
+
+        return TypedResults.Ok(keys);
+    }
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ResetActionCounter(
+        IActionRateLimiter actionRateLimiter, 
+        IPlatformEventService platformEvents,
+        ExtendedUserManager<User> userManager,
+        ClaimsPrincipal currentUser,
+        string userId
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        if(!await actionRateLimiter.ResetActionCounterAsync(userId)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(userId), "Action counter reset failed."));
+        }
+        await platformEvents.Publish(new ResetActionCounterEvent(UserEventContext.InitializeFromUser(user)));
         return TypedResults.NoContent();
     }
 }

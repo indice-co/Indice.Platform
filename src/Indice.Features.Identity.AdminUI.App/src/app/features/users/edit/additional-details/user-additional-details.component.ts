@@ -4,13 +4,14 @@ import {
   OnDestroy,
   ViewChild,
   TemplateRef,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { NgForm } from "@angular/forms";
 
-import { Subscription, forkJoin } from "rxjs";
+import { Subscription, combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
-import { TableColumn } from "@swimlane/ngx-datatable";
+import { CellContext, TableColumn } from "@swimlane/ngx-datatable";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { UserStore } from "../user-store.service";
 import {
@@ -25,16 +26,18 @@ import { ToastService } from "src/app/layout/services/app-toast.service";
 import { AuthService } from "src/app/core/services/auth.service";
 
 @Component({
-  selector: "app-user-additional-details",
-  templateUrl: "./user-additional-details.component.html",
-  providers: [NgbDateCustomParserFormatter],
+    selector: "app-user-additional-details",
+    templateUrl: "./user-additional-details.component.html",
+    providers: [NgbDateCustomParserFormatter],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
   @ViewChild("form", { static: false }) private _form: NgForm;
   @ViewChild("actionsTemplate", { static: true })
-  private _actionsTemplate: TemplateRef<HTMLElement>;
+  private _actionsTemplate: TemplateRef<CellContext<any>>;
   @ViewChild("nameTemplate", { static: true })
-  public _nameTemplate: TemplateRef<HTMLElement>;
+  public _nameTemplate: TemplateRef<CellContext<any>>;
   private _getDataSubscription: Subscription;
   private _user: SingleUserInfo;
   private _discouragedClaims: Array<string> = [
@@ -99,7 +102,7 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
     const userId = this._route.parent.snapshot.params["id"];
     const getUser = this._userStore.getUser(userId);
     const getAllClaims = this._userStore.getAllClaims();
-    this._getDataSubscription = forkJoin([getUser, getAllClaims])
+    this._getDataSubscription = combineLatest([getUser, getAllClaims])
       .pipe(
         map((responses: [SingleUserInfo, ClaimTypeInfo[]]) => {
           return {

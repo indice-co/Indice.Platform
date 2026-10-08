@@ -1,0 +1,12 @@
+.options-section {
+    color: black;
+    font-weight: bold;
+}
+
+.option-key {
+    border-style: none;
+}
+
+.option-description {
+    resize: vertical;
+}

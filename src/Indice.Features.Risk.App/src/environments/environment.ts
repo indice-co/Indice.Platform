@@ -1,5 +1,3 @@
-const title = document.title;
-
 export const environment = {
   api_url: 'https://localhost:2001',
   auth_settings: {

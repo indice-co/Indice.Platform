@@ -39,15 +39,21 @@ public abstract class BasePasswordExpiredModel : BasePageModel
     [BindProperty]
     public PasswordExpiredInputModel Input { get; set; } = new PasswordExpiredInputModel();
 
+    /// <summary>View model for the password-expired page.</summary>
+    public PasswordExpiredViewModel View { get; set; } = new PasswordExpiredViewModel();
+
     /// <summary>Key used for setting and retrieving temp data.</summary>
     public static string TempDataKey => "info_message";
 
     /// <summary>Extended validation password expired page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
-        await Task.CompletedTask;
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var message = user.LastSignInDate is null ?
+            UserManager.MessageDescriber.PasswordExpiredFirstTimeUserMessage :
+            UserManager.MessageDescriber.PasswordExpiredMessage;
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Info(UserManager.MessageDescriber.PasswordExpiredMessage)
+            Alert = AlertModel.Info(message)
         });
         Input.ReturnUrl = returnUrl;
         return Page();
@@ -59,7 +65,7 @@ public abstract class BasePasswordExpiredModel : BasePageModel
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.ResetPasswordAsync(user, Input.NewPassword!);
+        var result = await UserManager.ResetPasswordAsync(user, Input.NewPassword!, selfServicePasswordReset: true);
         if (!result.Succeeded) {
             AddModelErrors(result);
             return Page();

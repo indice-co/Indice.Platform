@@ -4,8 +4,9 @@ import { Modal } from '@indice/ng-components';
 import { CasesApiService, SaveQueryRequest } from 'src/app/core/services/cases-api.service';
 
 @Component({
-  selector: 'app-query-modal',
-  templateUrl: './query-modal.component.html'
+    selector: 'app-query-modal',
+    templateUrl: './query-modal.component.html',
+    standalone: false
 })
 export class QueriesModalComponent implements OnInit {
   public friendlyName: string | undefined;

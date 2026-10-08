@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
@@ -8,7 +8,9 @@ import { ResourceWizardModel } from '../../../models/resource-wizard-model';
 
 @Component({
     selector: 'app-user-claims-step',
-    templateUrl: './user-claims-step.component.html'
+    templateUrl: './user-claims-step.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class UserClaimsStepComponent extends StepBaseComponent<ResourceWizardModel> implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SwalPortalTargets } from '@sweetalert2/ngx-sweetalert2';
@@ -15,7 +15,9 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-user-details',
     templateUrl: './user-details.component.html',
-    providers: [NgbDateCustomParserFormatter]
+    providers: [NgbDateCustomParserFormatter],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class UserDetailsComponent implements OnInit, OnDestroy {
     private _updateUserSubscription: Subscription;
@@ -40,6 +42,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     public newPassword = '';
     public changePasswordAfterFirstSignIn = false;
     public bypassPasswordValidation = false;
+    public suppressNotification = false;
     public bypassEmailAsUserNamePolicy = false;
     public resetPasswordProblemDetails: ProblemDetails;
     public updateUserProblemDetails: ProblemDetails;
@@ -52,7 +55,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         const userId = this._route.parent.snapshot.params['id'];
         const getUser = this._userStore.getUser(userId);
         const getClaims = this._userStore.getAllClaims();
-        this._getDataSubscription = forkJoin([getUser, getClaims]).pipe(map((responses: [SingleUserInfo, ClaimTypeInfo[]]) => {
+        this._getDataSubscription = combineLatest([getUser, getClaims]).pipe(map((responses: [SingleUserInfo, ClaimTypeInfo[]]) => {
             return {
                 user: responses[0],
                 claims: responses[1] as ClaimType[]
@@ -96,16 +99,27 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         });
     }
 
+    public resetMfa(): void {
+        this._userStore.resetMfa(this.user.id).subscribe(_ => {
+            this._toast.showSuccess(`Users '${this.user.userName}' MFA configuration has been reset.`);
+        });
+    }
+
+
+    public resetActionCounter(): void {
+        this._userStore.resetActionCounter(this.user.id).subscribe(_ => {
+            this._toast.showSuccess(`Users '${this.user.userName}' action counter has been reset.`);
+        });
+    }
+
     public toggleBlock(): void {
-        if (!this.user.blocked) {
-            this._userStore.blockUser(this.user.id).subscribe(_ => {
-                this._toast.showSuccess(`User '${this.user.userName}' was blocked.`);
-            });
-        } else {
-            this._userStore.unblockUser(this.user.id).subscribe(_ => {
-                this._toast.showSuccess(`User '${this.user.userName}' was unblocked.`);
-            });
-        }
+        const wasBlocked = this.user.blocked;
+        const action$ = !wasBlocked
+            ? this._userStore.blockUser(this.user.id)
+            : this._userStore.unblockUser(this.user.id);
+        action$.subscribe(_ => {
+            this._toast.showSuccess(`User '${this.user.userName}' was ${wasBlocked ? 'unblocked' : 'blocked'}.`);
+        });
     }
 
     public showResetPassword(content: any): void {
@@ -115,7 +129,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     public resetPassword() {
         this.resetPasswordProblemDetails = null;
         this._userStore
-            .resetPassword(this.user.id, this.newPassword, this.changePasswordAfterFirstSignIn, this.bypassPasswordValidation)
+            .resetPassword(this.user.id, this.newPassword, this.changePasswordAfterFirstSignIn, this.bypassPasswordValidation, this.suppressNotification)
             .subscribe(_ => {
                 this.userPasswordExpirationPolicy = this.user.passwordExpirationPolicy ? this.user.passwordExpirationPolicy : '';
                 this._toast.showSuccess(`Password for user '${this.user.userName}' was reset successfully.`);

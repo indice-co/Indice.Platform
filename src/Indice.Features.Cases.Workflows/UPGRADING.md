@@ -11,7 +11,7 @@
 ```sql
 -- 7.47 namespaces and older version
 UPDATE [Elsa].[WorkflowInstances]
-SET [data] = REPLACE([data], N'Indice.Features.Cases.Data.Models.AuditMeta, Indice.Features.Cases.AspNetCore', N'Indice.Features.Cases.Workflows.Integration, Indice.Features.Cases.Workflows')
+SET [data] = REPLACE([data], N'Indice.Features.Cases.Data.Models.AuditMeta, Indice.Features.Cases.AspNetCore', N'Indice.Features.Cases.Workflows.Integrations, Indice.Features.Cases.Workflows')
 WHERE PATINDEX(N'%Indice.Features.Cases.Data.Models.AuditMeta, Indice.Features.Cases.AspNetCore%', [data]) > 0
 
 UPDATE [Elsa].[WorkflowInstances]
@@ -27,12 +27,12 @@ SET [data] = REPLACE([data], N'Indice.Features.Cases.Models.EditCaseRequest, Ind
 WHERE PATINDEX(N'%Indice.Features.Cases.Models.EditCaseRequest, Indice.Features.Cases.AspNetCore%', [data]) > 0
 
 UPDATE [Elsa].[WorkflowInstances]
-SET [data] = REPLACE([data], N'Indice.Features.Cases.Models.Responses.Case, Indice.Features.Cases.AspNetCore', N'Indice.Features.Cases.Workflows.Integration.Case, Indice.Features.Cases.Workflows')
+SET [data] = REPLACE([data], N'Indice.Features.Cases.Models.Responses.Case, Indice.Features.Cases.AspNetCore', N'Indice.Features.Cases.Workflows.Integrations.Case, Indice.Features.Cases.Workflows')
 WHERE PATINDEX(N'%Indice.Features.Cases.Models.Responses.Case, Indice.Features.Cases.AspNetCore%', [data]) > 0
 
 -- previous rc version namespaces
 UPDATE [Elsa].[WorkflowInstances]
-SET [data] = REPLACE([data], N'Indice.Features.Cases.Core.Models.AuditMeta, Indice.Features.Cases.Core', N'Indice.Features.Cases.Workflows.Integration, Indice.Features.Cases.Workflows')
+SET [data] = REPLACE([data], N'Indice.Features.Cases.Core.Models.AuditMeta, Indice.Features.Cases.Core', N'Indice.Features.Cases.Workflows.Integrations, Indice.Features.Cases.Workflows')
 WHERE PATINDEX(N'%Indice.Features.Cases.Core.Models.AuditMeta, Indice.Features.Cases.Core%', [data]) > 0
 
 UPDATE [Elsa].[WorkflowInstances]
@@ -48,7 +48,7 @@ SET [data] = REPLACE([data], N'Indice.Features.Cases.Core.Models.EditCaseRequest
 WHERE PATINDEX(N'%Indice.Features.Cases.Core.Models.EditCaseRequest, Indice.Features.Cases.AspNetCore%', [data]) > 0
 
 UPDATE [Elsa].[WorkflowInstances]
-SET [data] = REPLACE([data], N'Indice.Features.Cases.Core.Models.Responses.Case, Indice.Features.Cases.AspNetCore', N'Indice.Features.Cases.Workflows.Integration.Case, Indice.Features.Cases.Workflows')
+SET [data] = REPLACE([data], N'Indice.Features.Cases.Core.Models.Responses.Case, Indice.Features.Cases.AspNetCore', N'Indice.Features.Cases.Workflows.Integrations.Case, Indice.Features.Cases.Workflows')
 WHERE PATINDEX(N'%Indice.Features.Cases.Core.Models.Responses.Case, Indice.Features.Cases.AspNetCore%', [data]) > 0
 ```
 

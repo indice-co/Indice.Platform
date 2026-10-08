@@ -1,0 +1,85 @@
+﻿using System.Security.Claims;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Stores;
+#else
+using IdentityServer4.Models;
+using IdentityServer4.Stores;
+#endif
+using Indice.Events;
+using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Events.Models;
+using Indice.Features.GeoIP;
+using Indice.Security;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
+
+namespace Indice.Features.Identity.Core;
+
+/// <summary>An event handler that publishes a security notification when an administrator sets/resets a user's password.</summary>
+public sealed class UserPasswordSetEventHandler : IPlatformEventHandler<PasswordSetEvent>
+{
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ExtendedSignInManager<User> _signInManager;
+    private readonly IClientStore _clientStore;
+    private readonly IPAddressLocator _ipAddressLocator;
+    private readonly IPlatformEventService _platformEvents;
+
+    /// <summary>Creates a new instance of <see cref="UserPasswordSetEventHandler"/>.</summary>
+    /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
+    /// <param name="signInManager">The signin manager used to facilitate the discovery of the current device.</param>
+    /// <param name="clientStore">Retrieval of client configuration.</param>
+    /// <param name="ipAddressLocator">The ip locator service</param>
+    /// <param name="platformEvents">Platform event service</param>
+    public UserPasswordSetEventHandler(
+        IHttpContextAccessor httpContextAccessor,
+        ExtendedSignInManager<User> signInManager,
+        IClientStore clientStore,
+        IPAddressLocator ipAddressLocator,
+        IPlatformEventService platformEvents) {
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+        _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
+        _ipAddressLocator = ipAddressLocator ?? throw new ArgumentNullException(nameof(ipAddressLocator));
+        _platformEvents = platformEvents ?? throw new ArgumentNullException(nameof(platformEvents));
+    }
+
+    /// <inheritdoc />
+    public async Task Handle(PasswordSetEvent @event, PlatformEventArgs args) {
+        if (@event.SuppressNotification) {
+            return;
+        }
+
+        var clientId = _httpContextAccessor?.HttpContext?.GetClientIdFromReturnUrl() ?? _httpContextAccessor?.HttpContext?.User.FindFirstValue(BasicClaimTypes.ClientId);
+        var userManager = (ExtendedUserManager<User>)_signInManager.UserManager;
+        var user = await _signInManager.UserManager.FindByIdAsync(@event.User.Id);
+        var deviceId = await _signInManager.GetMfaDeviceIdentifierAsync(user!);
+        var ipLocation = _ipAddressLocator.GetLocationMetadata(_httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress!);
+        var claims = await userManager.GetClaimsAsync(user!);
+        var userLocale = claims.FirstOrDefault(c => c.Type == BasicClaimTypes.Locale)?.Value;
+
+        UserDevice? userDevice = null;
+        var userAgentHeader = _httpContextAccessor?.HttpContext?.Request.Headers[HeaderNames.UserAgent];
+
+        if (!deviceId.IsEmpty) {
+            // If the device id is available populate data.
+            userDevice = await userManager.GetDeviceByIdAsync(user!, deviceId.Value!);
+            if (userDevice is null && !string.IsNullOrWhiteSpace(userAgentHeader)) {
+                userDevice = UserDevice.FromUserAgent(userAgentHeader!, deviceId, @event.User.Id, 0);
+            }
+        }
+
+        Client? client = null;
+        if (!string.IsNullOrWhiteSpace(clientId)) {
+            client = await _clientStore.FindClientByIdAsync(clientId);
+        }
+        await _platformEvents.Publish(new SecurityNotificationEvent(nameof(PasswordSetEvent), UserEventContext.InitializeFromUser(user!), ipLocation) {
+            UserDevice = userDevice is not null ? UserDeviceEventContext.InitializeFromUserDevice(userDevice) : null,
+            Device = DeviceEventContext.FromUserAgent(userAgentHeader),
+            Client = client is not null ? ClientEventContext.InitializeFromClient(client) : null,
+            TimeStamp = DateTimeOffset.UtcNow,
+            Locale = userLocale
+        });
+    }
+}

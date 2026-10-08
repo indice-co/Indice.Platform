@@ -1,0 +1,77 @@
+<ng-template let-modal #content>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">
+            Session Details
+        </h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+    </div>
+    <div class="modal-body">
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <tbody>
+                    <tr>
+                        <th scope="row">Key</th>
+                        <td>{{ selectedSession?.key }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Session Id</th>
+                        <td>{{ selectedSession?.sessionId }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Subject Id</th>
+                        <td>{{ selectedSession?.subjectId }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Scheme</th>
+                        <td>{{ selectedSession?.scheme }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Display Name</th>
+                        <td>{{ selectedSession?.displayName || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Created</th>
+                        <td>{{ selectedSession?.created | date:'medium' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Renewed</th>
+                        <td>{{ selectedSession?.renewed | date:'medium' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Expires</th>
+                        <td>
+                            {{ selectedSession?.expires ? (selectedSession?.expires | date:'medium') : 'Never' }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</ng-template>
+<swal title="Delete?" text="This session will be deleted. If the user is actively using this session, they will be logged out." type="warning" [showCancelButton]="true" (confirm)="delete()" #deleteAlert>
+</swal>
+<div class="row mt-3">
+    <div class="col-12">
+        <app-list-view [trackByProp]="'key'"
+                       [clientSide]="true"
+                       [rowsPerPage]="10"
+                       [canFilter]="false"
+                       [columns]="columns"
+                       [rows]="rows"
+                       [defaultSortField]="'created'"
+                       [defaultSortDirection]="'asc'"
+                       #userSessionsList></app-list-view>
+    </div>
+</div>
+<ng-template let-row="row" let-value="value" #actionsTemplate>
+    <a role="button" class="icon-link text-primary" (click)="showDetails(row, content)" title="Details">
+        <i class="material-icons align-middle">view_headline</i>
+    </a>
+    <a class="icon-link text-primary" role="button" *ngIf="canEditUser" (click)="showDeleteAlert(row)" title="Delete">
+        <i class="material-icons align-middle text-danger">delete</i>
+    </a>
+</ng-template>
+
+<ng-template let-row="row" let-value="value" #dateTemplate>
+    {{ value ? (value | date: 'dd/MM/yyyy HH:mm:ss') : '-' }}
+</ng-template>

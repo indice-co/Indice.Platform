@@ -25,7 +25,7 @@ public class CasesJsonSchemaValidator : ISchemaValidator
             _ => JsonNode.Parse(JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()))
         };
 
-        var validate = mySchema.Evaluate(jsonNode, new EvaluationOptions {
+        var validate = mySchema.Evaluate(jsonNode.ToJsonDocument().RootElement, new EvaluationOptions {
             OutputFormat = OutputFormat.List
         });
 

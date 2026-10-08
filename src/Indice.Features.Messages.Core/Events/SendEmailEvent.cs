@@ -1,5 +1,4 @@
-﻿using System.Threading.Channels;
-using Indice.Features.Messages.Core.Models;
+﻿using Indice.Features.Messages.Core.Models;
 
 namespace Indice.Features.Messages.Core.Events;
 
@@ -50,13 +49,17 @@ public class SendEmailEvent
     /// <summary>
     /// Converts the current <see cref="SendEmailEvent"/> to a <see cref="MessageEvent"/> with the specified type.
     /// </summary>
-    /// <param name="type">the type of the event</param>
+    /// <param name="type">The type of the event.</param>
+    /// <param name="succeeded">Indicates whether the event succeeded.</param>
     /// <returns></returns>
-    public MessageEvent ToMessageEvent(string type) => new MessageEvent {
+    public MessageEvent ToMessageEvent(string type, bool succeeded) => new MessageEvent {
         CampaignId = CampaignId,
         ContactId = ContactId,
         MessageId = MessageId,
         Type = type,
-        Channel = MessageChannelKind.Email.ToString()
+        Channel = MessageChannelKind.Email.ToString(),
+        Recipient = RecipientEmail!,
+        Title = Title ?? "",
+        Success = succeeded
     };
 }

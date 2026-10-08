@@ -2,6 +2,7 @@
   Alertify
 ===================*/
 
+@use 'variables' as *;
 .alertify,.alertify-logs {
   z-index: 99;
 }

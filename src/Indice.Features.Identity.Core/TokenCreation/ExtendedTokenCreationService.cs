@@ -11,7 +11,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Globalization;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
 
 namespace Indice.Features.Identity.Core.TokenCreation;
 /// <inheritdoc />

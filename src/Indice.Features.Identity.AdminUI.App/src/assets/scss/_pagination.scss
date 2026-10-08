@@ -1,6 +1,8 @@
 /* ==============
   Pagination
 ===================*/
+@use 'variables' as *;
+
 .page-link {
   color: $primary;
 }

@@ -2,7 +2,7 @@
 
 @model BaseError40XModel
 
-@inject IIdentityViewLocalizer Localizer
+@inject IdentityUILocalizer Localizer
 
 @{
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
@@ -18,8 +18,8 @@
             </a>
         </h3>
         <h1 class="page-message glitch" data-text="@Model">@Model.ErrorStatusCode</h1>
-        <h2 indice-if="!string.IsNullOrEmpty(error?.Title)" class="page-message-title">@Localizer[error!.Title]</h2>
-        <p indice-if="!string.IsNullOrEmpty(error?.Message)" class="page-message-description">@Localizer[error!.Message]</p>
-        <a class="btn btn-outline-light btn-lg" asp-page="/Home">@Localizer["Go back home"]</a>
+        <h2 indice-if="!string.IsNullOrEmpty(error?.Title)" class="page-message-title">error!.Title</h2>
+        <p indice-if="!string.IsNullOrEmpty(error?.Message)" class="page-message-description">error!.Message</p>
+        <a class="btn btn-outline-light btn-lg" asp-page="/Home">@Localizer.Error_Go_back_home</a>
     </article>
 </section>

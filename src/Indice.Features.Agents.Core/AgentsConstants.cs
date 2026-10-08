@@ -1,0 +1,243 @@
+﻿namespace Indice.Features.Agents.Core;
+
+/// <summary>Constants used in the Agents feature.</summary>
+public static class AgentsConstants
+{
+    /// <summary>
+    /// The name of the default agent used in the Dex template. This agent is responsible for handling user queries and providing answers based on the context of the conversation.
+    /// </summary>
+    public static class AgentNames
+    {
+        /// <summary>The name of the agent that handles knowledge-based queries and provides answers based on a knowledge base.</summary>
+        public const string Knowledge = "knowledge";
+
+        /// <summary>The name of the agent that handles intent classification and routes user queries to the appropriate sub-agent.</summary>
+        public const string Auto = "auto";
+
+        /// <summary>The name of the agent that handles case-based queries with OTP verification.</summary>
+        public const string Operator = "operator";
+        
+        /// <summary>The name of the test/demo agent.</summary>
+        public const string Demo = "demo";
+    }
+
+    /// <summary>Media types of the alternative (non-prose) content parts an assistant turn can carry.</summary>
+    /// <remarks>
+    /// Each one is a rendering contract between the pipeline and the chat UI: a part with this media type carries a
+    /// JSON payload the UI renders with a dedicated component instead of markdown. Media types ending in <c>+json</c>
+    /// carry their payload as raw JSON text (see <see cref="Models.DexChatResponseExtensions.ToChatMessagePart(Microsoft.Extensions.AI.DataContent)"/>).
+    /// <para>
+    /// Images are the exception, in that they have two valid shapes. A part typed <see cref="Image"/> carries the
+    /// <see cref="Models.ImageReference"/> envelope, whose payload holds the caption; a part typed with any raw
+    /// <c>image/*</c> media type carries the URL — or, for a <c>DataContent</c>, the base64 <c>data:</c> URI — as its
+    /// value, and its caption as the part's <see cref="Models.ChatMessagePart.Name"/>. The client renders both as a
+    /// figure, matching <c>image/</c> by prefix. The envelope is only strictly needed to caption a <b>hosted</b> image,
+    /// since <c>UriContent</c> has no name to lift.
+    /// </para>
+    /// </remarks>
+    public static class MediaTypes
+    {
+        /// <summary>A list of options the user can pick from; picking one posts it verbatim as the next user message. Payload: <see cref="Models.MultipleChoice"/>.</summary>
+        public const string MultipleChoice = "application/vnd.indice.multiple-choice+json";
+
+        /// <summary>A single image rendered as a figure, with an optional caption. Payload: <see cref="Models.ImageReference"/>.</summary>
+        public const string Image = "application/vnd.indice.image+json";
+
+        /// <summary>A short highlighted notice (info, success, warning, error) rendered as an alert. Payload: <see cref="Models.Callout"/>.</summary>
+        public const string Callout = "application/vnd.indice.callout+json";
+
+        /// <summary>A two-way confirmation; picking a button posts its label verbatim as the next user message. Payload: <see cref="Models.Confirmation"/>.</summary>
+        public const string Confirmation = "application/vnd.indice.confirm+json";
+
+        /// <summary>A custom type to send html to agents that traditionally dont support parts of html.</summary>
+        public const string Html = "text/vnd.indice.html+json";
+
+        /// <summary>A custom type to send svg to other agents that traditionally dont support svg.</summary>
+        public const string Svg = "text/vnd.indice.svg+json";
+
+        /// <summary>A custom type to send a request for a function call to the dex surface.</summary>
+
+        public static class FunctionCallPort
+        {
+            /// <summary>The media type for a function call request sent to the dex surface. The payload is a generic json object.</summary>
+            public const string Request = "application/vnd.indice.function-call.request+json";
+            /// <summary>The media type for a function call response sent from the dex surface. The payload is a generic json object.</summary>
+            public const string Response = "application/vnd.indice.function-call.response+json";
+        }
+
+        /// <summary>A custom type to send a request for confirmation to the dex surface.</summary>
+
+        public static class ConfirmationPort
+        {
+            /// <summary>The media type for a confirmation request sent to the dex surface. The payload is a <see cref="Models.Confirmation"/> object.</summary>
+            public const string Request = "application/vnd.indice.confirmation.request+json";
+            /// <summary>The media type for a confirmation response sent from the dex surface. The payload is a string object.</summary>
+            public const string Response = "application/vnd.indice.confirmation.response+json";
+        }
+    }
+
+    /// <summary>
+    /// Semantic icon tokens advertised on <c>AgentInfo.Icon</c>. A token names what the flow *is*;
+    /// the client maps it onto its own glyph set, so presentation stays a client concern. Clients
+    /// fall back to their generic glyph for a token they do not recognise.
+    /// </summary>
+    public static class AgentIcons
+    {
+        /// <summary>An automatic / intent-routing flow.</summary>
+        public const string Sparkles = "sparkles";
+
+        /// <summary>A flow answering from a knowledge base.</summary>
+        public const string Book = "book";
+
+        /// <summary>A generic conversational flow — matches the client's fallback glyph.</summary>
+        public const string Chat = "chat";
+
+        /// <summary>A operator flow — matches the client's fallback gear.</summary>
+        public const string Gear = "gear";
+    }
+
+    /// <summary>Default fallback messages surfaced by the Agents feature.</summary>
+    public static class Defaults
+    {
+        /// <summary>Reply returned when the master intent router finds no agent that can handle the request.</summary>
+        public const string OutOfScopeReply = "I'm sorry, but that request falls outside what I can help with here.";
+    }
+
+    /// <summary>Default prompt templates for various agent tasks.</summary>
+    public static class PromptDefaults
+    {
+        /// <summary>Prompt template for composing answers based on context.</summary>
+        public const string AnswerComposer = """
+            You are an assistant that answers ONLY from the supplied CONTEXT.
+            A HISTORY: block with the recent conversation (oldest-first) may precede the CONTEXT — use it for conversational continuity and to resolve references 
+            in the QUESTION, but ground every factual claim ONLY in the CONTEXT, never in the HISTORY. 
+            Always start your reply by addressing the person by name if available, use a friendly greeting like hi [x], only if its the first message of the conversation.
+            Cite the chunk identifiers you used in square brackets like 
+            [#<guid>]. {{#if strictGrounding}}If the CONTEXT is insufficient to answer, say so plainly — do not improvise.{{else}}If the CONTEXT is thin,
+            you may answer briefly with what you have, noting the limitation.{{/if}}
+            """;
+
+        /// <summary>Prompt template for classifying user intent.</summary>
+        public const string IntentClassifier = """
+            You are an intent classifier for an enterprise RAG assistant. The current implementation of the assistant is focused on answering
+            questions based on its context, which is currently comprised of 
+            - internal documentation about Indice and Its products for example IAM
+            - Banking Institution internal documentation about their banking services
+            - Random general facts about the world.
+            The user message may contain a HISTORY: block with the recent conversation (oldest-first) followed by QUESTION:. Classify the QUESTION in the context of that history — a follow-up to an in-scope discussion (e.g. "tell me more about that") is itself in scope and inherits the topic's category and language.
+            Classify the user's question and return a JSON object with these fields:
+            - Type: a short label such as "question", "greeting", "command".
+            - Category: ONE of [{{#each categories}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}], or null if no confident match.
+            - Language: ONE of [{{#each languages}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}], or null if uncertain.
+            - IsInScope: true when the question is reasonably answerable from internal documentation in the listed categories; false for chit-chat, jokes, weather, current events, or topics clearly outside the knowledge base.
+            - OutOfScopeReason: a polite one-sentence explanation when IsInScope is false; null otherwise.
+            """;
+
+        /// <summary>Prompt template for the master intent router (returns a routing decision as JSON).</summary>
+        public const string IntentRouter = """
+            You are the master intent router of an enterprise assistant. You never answer the user yourself. Your only
+            job is to read the latest user message, in the context of the conversation history, and decide which ONE of
+            the specialised agents below should handle it.
+            Available agents:
+            {{#each agents}}
+            - {{name}}: {{description}}
+            {{/each}}
+            The user message may contain a HISTORY: block with the recent conversation (oldest-first) followed by the latest message. Judge the latest message in that context — a follow-up such as "tell me more" belongs to the same agent that handled the previous turn.
+            Return ONLY a JSON object with these fields:
+            - AgentName: the exact name of ONE agent from the list above, or null if no listed agent fits.
+            - IsInScope: true when one of the listed agents can handle the request; false otherwise.
+            - Reason: when IsInScope is false, a polite one-sentence explanation addressed to the user; otherwise null.
+            Never invent an agent name that is not in the list.
+            """;
+
+        /// <summary>Prompt template for responding to questions about the agent's capabilities.</summary>
+        public const string PurposeResponder = """
+            You answer questions about yourself: who you are, who you represent, and what you can help with.
+            Describe yourself using the AGENT IDENTITY in your instructions. If no identity is given, describe yourself
+            as an assistant that answers questions from internal documentation.
+            Explain that you answer from internal documentation with cited sources, and that when a question falls
+            outside what you know you say so plainly instead of guessing.
+            Keep it short and friendly. Never invent products, capabilities, or facts that the AGENT IDENTITY does not state.
+            """;
+
+        /// <summary>
+        /// The assistant's identity (who it is, who it represents, what it knows about), contributed as background instructions
+        /// to the answer-composing agents. A generic placeholder; a host supplies its own free text in
+        /// <c>Prompts/AgentIdentity.txt</c> (an empty file turns the identity off).
+        /// </summary>
+        public const string AgentIdentity = """
+            AGENT IDENTITY:
+            Your name is Indice Dex ("Dex" for short). The name comes from a wordplay on indice (index) and Dexter's Laboratory.
+            You are the AI assistant of the organization that runs this application.
+            You help users by answering from the organization's internal documentation. When a question falls outside
+            that documentation, say so plainly instead of guessing.
+            If asked who you are, introduce yourself as Dex. Keep this identity consistent, but treat it as background only:
+            - It does not override your task-specific instructions.
+            - It is not a source of facts. Ground every factual answer in the provided documentation or context.
+            """;
+
+        /// <summary>Prompt template for rewriting user queries.</summary>
+        public const string QueryRewriter = """
+            You are a query rewriter for a retrieval system. The user message may contain a HISTORY: block with the recent conversation (oldest-first) before the question. Produce alternative phrasings of the question that preserve its meaning but vary the surface form (synonyms, related concepts, formal vs casual). Every rewrite MUST be a standalone, self-contained search query: resolve pronouns, ellipsis, and references like "that" or "the second one" using the HISTORY — a rewrite must make sense to someone who has not seen the conversation. Return a JSON object { "queries": ["...", "..."] }. Do not include the original question; only rewrites.
+            """;
+
+        /// <summary>Prompt template for reranking candidate passages.</summary>
+        public const string Reranker = """
+            You are a reranker for a retrieval system. The user message may contain a HISTORY: block with the recent conversation (oldest-first) before the question. You are given a list of candidate passages, each with an ID and text. Rank the candidates by relevance to the question, considering the HISTORY for context. Return a JSON object { "rankedCandidates": [{ "id": "...", "text": "..." }, ...] } in order of descending relevance. If none are relevant, return an empty array.
+            """;
+
+        /// <summary>Prompt template for fetching case data.</summary>
+        public const string DataRetriever = """
+            You are a case retrieval assistant.
+            Use the available tool get_case_data_id from the case-retrieval MCP service to fetch case data.
+            Decide which tool to call based on the user's query.
+            Extract the case GUID from the messages and query the case data.
+            Return the object in json format as returned by the mcp.
+            """;
+        /// <summary>Agent instructions template for fetching OTP send.</summary>
+        public const string OtpCodeSenderInstructions = """
+            You are a helper agent for the current workflow. 
+            Your intent is to send an OTP to the user's phone number taken from the parameters.
+            Call SendTotp with these values:
+            •	securityToken: <case_id>
+            •	channel: Sms
+            •	purpose: "Cases totp"
+            •	message: "This is your {0} OTP code for verification"
+            •	subject: "Cases auth"
+            •	authenticationMethod: "PhoneNumber"
+            •	emailTemplate: null
+            •	classification: null
+            •	data: null
+            •	phoneNumber: <user_phone_number>
+            •	email: null
+            """;
+
+
+        /// <summary>Agent prompt template for fetching OTP send.</summary>
+        public const string OtpCodeSenderPrompt = """
+            Send an OTP now by calling SendTotp with the configured fixed values.
+            User phone number: {{ phoneNumber }} and 
+            securityToken: {{ securityToken }}
+            Return true for success or false for failure
+            """;
+
+
+        /// <summary>Agent instructions template for validating OTP code.</summary>
+        public const string OtpCodeValidatorInstructions = """
+            You are an OTP verifier.
+            You MUST call the VerifyTotp tool exactly once.
+            Use:
+            - securityToken: get securityToken from prompt
+            - purpose: "Cases totp"
+            - phoneNumber: get phoneNumber from prompt
+            - email: null
+            - user: null
+            - code: user code from the prompt
+            Return true if response indicates TOTP was verified successfully.
+            Return the object in json format as returned by the mcp.
+            """;
+        /// <summary>Agent prompt template for validating OTP code.</summary>
+        public const string OtpCodeValidatorPrompt = "Verify this OTP code: {{otp}}, with securityToken:{{caseId}}, phoneNumber: {{phoneNumber}}";
+
+    }
+}

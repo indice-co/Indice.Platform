@@ -52,17 +52,18 @@ internal abstract class BaseCaseService
     protected IQueryable<Case> GetCasesInternal(bool fetchPublicData, bool includeAttachmentData = false, string? schemaKey = null) {
         var query =
             from c in DbContext.Cases.AsQueryable().AsNoTracking()
+            let publicData = !c.Draft && fetchPublicData // if fetchPublicData works only for non-draft cases
             select new Case {
                 Id = c.Id,
                 ReferenceNumber = c.ReferenceNumber,
                 CheckpointType = new CheckpointType {
-                    Id = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
-                    Status = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Status : c.Checkpoint.CheckpointType.Status,
-                    Code = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Code : c.Checkpoint.CheckpointType.Code,
-                    Title = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Title : c.Checkpoint.CheckpointType.Title,
-                    Description = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Description : c.Checkpoint.CheckpointType.Description,
+                    Id = publicData ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
+                    Status = publicData ? c.PublicCheckpoint.CheckpointType.Status : c.Checkpoint.CheckpointType.Status,
+                    Code = publicData ? c.PublicCheckpoint.CheckpointType.Code : c.Checkpoint.CheckpointType.Code,
+                    Title = publicData ? c.PublicCheckpoint.CheckpointType.Title : c.Checkpoint.CheckpointType.Title,
+                    Description = publicData ? c.PublicCheckpoint.CheckpointType.Description : c.Checkpoint.CheckpointType.Description,
                     Translations =
-                        fetchPublicData ? c.PublicCheckpoint.CheckpointType.Translations : c.Checkpoint.CheckpointType.Translations,
+                        publicData ? c.PublicCheckpoint.CheckpointType.Translations : c.Checkpoint.CheckpointType.Translations,
                 },
                 CreatedByWhen = c.CreatedBy.When,
                 CreatedById = c.CreatedBy.Id,
@@ -92,7 +93,7 @@ internal abstract class BaseCaseService
                     FileExtension = attachment.FileExtension,
                     Data = includeAttachmentData ? attachment.Data : null
                 }).ToList(),
-                Data = fetchPublicData ? c.PublicData.Data : c.Data.Data,
+                Data = publicData ? c.PublicData.Data : c.Data.Data,
                 AssignedToName = c.AssignedTo!.Name,
                 Channel = c.Channel,
                 Draft = c.Draft,

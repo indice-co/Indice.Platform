@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Hosting.Data;
 
 /// <summary>A <see cref="DbContext"/> for hosting multiple <see cref="IMessageQueue{T}"/>.</summary>
-public class TaskDbContext : DbContext
+public class TaskDbContext : DbContext, ITaskDbContext
 {
     /// <summary>Creates a new instance of <see cref="TaskDbContext"/>.</summary>
     /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
@@ -25,9 +25,7 @@ public class TaskDbContext : DbContext
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
-        builder.ApplyConfiguration(new DbQMessageMap());
-        builder.ApplyConfiguration(new DbScheduledTaskMap());
-        builder.ApplyConfiguration(new DbLockMap());
+        builder.ApplyWorkerConfiguration(providerName: Database.ProviderName);
     }
 
 }

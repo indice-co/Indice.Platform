@@ -15,7 +15,7 @@
         </div>
     </div>
 </div>
-@if (!string.IsNullOrWhiteSpace(Model.Title))
+@if (!string.IsNullOrWhiteSpace(Model.Title?.ToString()))
 {
     <h3>@Settings.Value.ApplicationName</h3>
     <h1>@Model.Title</h1>

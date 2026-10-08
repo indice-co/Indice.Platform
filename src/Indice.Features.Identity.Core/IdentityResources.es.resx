@@ -214,7 +214,7 @@
     <value>¡Bienvenido al servicio {0}!</value>
   </data>
   <data name="PasswordChangedEventSubject" xml:space="preserve">
-    <value>Cambio de contraseña</value>
+    <value>Su contraseña ha sido cambiada</value>
   </data>
   <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
     <value>Notificación de seguridad para {0}</value>
@@ -269,6 +269,9 @@
   </data>
   <data name="MfaValidationError" xml:space="preserve">
     <value>El código OTP no es válido.</value>
+  </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Código de recuperación no válido.</value>
   </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Su cuenta está temporalmente bloqueada. Por favor, contacte con un administrador del sistema.</value>
@@ -407,5 +410,119 @@
   </data>
   <data name="UI_Validator_VerifyPhone_Code_FieldName" xml:space="preserve">
     <value>Código</value>
+  </data>
+  <data name="AccountLockedEventSubject" xml:space="preserve">
+    <value>Su cuenta ha sido bloqueada temporalmente</value>
+  </data>
+  <data name="AccountLockedEventDescription" xml:space="preserve">
+    <value>Su cuenta ha sido bloqueada temporalmente debido a múltiples intentos de inicio de sesión fallidos. Este bloqueo es una medida de seguridad para proteger su información. Por favor, inténtelo de nuevo más tarde.</value>
+  </data>
+  <data name="PasswordChangedEventDescription" xml:space="preserve">
+    <value>Su contraseña ha sido cambiada exitosamente.</value>
+  </data>
+  <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
+    <value>Método de autenticación de dos factores cambiado</value>
+  </data>
+  <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
+    <value>Su método de autenticación de dos factores ha sido actualizado a: {0}.</value>
+  </data>
+  <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
+    <value>Por favor, elija su nueva contraseña para continuar.</value>
+  </data>
+  <data name="MfaAddEmailValidationEmailEmpty" xml:space="preserve">
+    <value>Por favor, seleccione su dirección de correo electrónico para que podamos verificarla antes de continuar.</value>
+  </data>
+  <data name="MfaAddEmailValidationEmailAlreadyConfirmed" xml:space="preserve">
+    <value>Su dirección de correo electrónico ya está confirmada. Continúe para activar MFA.</value>
+  </data>
+  <data name="MfaAddEmailSuccessMessage" xml:space="preserve">
+    <value>Ha activado exitosamente MFA para su cuenta. Inicie sesión para acceder a su cuenta.</value>
+  </data>
+  <data name="MfaVerifyEmailValidationMissingEmail" xml:space="preserve">
+    <value>Por favor, ingrese el código que recibió en su correo electrónico.</value>
+  </data>
+  <data name="MfaVerifyEmailSuccessMessage" xml:space="preserve">
+    <value>Su dirección de correo electrónico fue validada exitosamente. Por favor, presione el botón 'Siguiente' para continuar.</value>
+  </data>
+  <data name="MfaEmailBody" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="MfaEmailSubject" xml:space="preserve">
+    <value>Inicio de sesión OTP</value>
+  </data>
+  <data name="AuthMethod_Sms_DisplayName" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="AuthMethod_Sms_Description" xml:space="preserve">
+    <value>Los usuarios recibirán un mensaje de texto con un código de verificación.</value>
+  </data>
+  <data name="AuthMethod_Email_DisplayName" xml:space="preserve">
+    <value>Correo electrónico</value>
+  </data>
+  <data name="AuthMethod_Email_Description" xml:space="preserve">
+    <value>Los usuarios recibirán un TOTP en su dirección de correo electrónico verificada.</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_DisplayName" xml:space="preserve">
+    <value>Aplicación de autenticación (recomendado)</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_Description" xml:space="preserve">
+    <value>Use una aplicación de autenticación para generar códigos de verificación.</value>
+  </data>
+  <data name="AuthMethod_Fido2_DisplayName" xml:space="preserve">
+    <value>FIDO2</value>
+  </data>
+  <data name="AuthMethod_Fido2_Description" xml:space="preserve">
+    <value>Use una llave de seguridad de hardware para la autenticación.</value>
+  </data>
+  <data name="AuthMethod_Viber_DisplayName" xml:space="preserve">
+    <value>Viber</value>
+  </data>
+  <data name="AuthMethod_Viber_Description" xml:space="preserve">
+    <value>Los usuarios recibirán un mensaje de Viber con un código de verificación.</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_DisplayName" xml:space="preserve">
+    <value>Notificación push</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
+    <value>Reciba una notificación push mediante un dispositivo de confianza.</value>
+  </data>
+  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
+    <value>El campo 'Zona horaria' tiene un formato inválido.</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
+    <value>Verificación con código de recuperación</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
+    <value>Ha solicitado iniciar sesión con un código de recuperación. Este inicio de sesión no se recordará hasta que proporcione un método MFA.</value>
+  </data>
+  <data name="MfaTokenNotExpired" xml:space="preserve">
+    <value>Su código actual aún no ha expirado. Por favor, espere antes de solicitar uno nuevo.</value>
+  </data>
+  <data name="PasswordSetEventSubject" xml:space="preserve">
+    <value>Su contraseña ha sido cambiada</value>
+  </data>
+  <data name="PasswordSetEventDescription" xml:space="preserve">
+    <value>Su contraseña ha sido cambiada exitosamente.</value>
+  </data>
+  <data name="LimitAttemptsReached" xml:space="preserve">
+    <value>Ha superado el número máximo de intentos fallidos.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>El campo 'Confirmar contraseña' es obligatorio.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>La confirmación de la contraseña no coincide con la contraseña.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>El campo 'Confirmar contraseña' es obligatorio.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>La confirmación de la contraseña no coincide con la contraseña.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>El campo 'Confirmar contraseña' es obligatorio.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>La confirmación de la contraseña no coincide con la contraseña.</value>
   </data>
 </root>

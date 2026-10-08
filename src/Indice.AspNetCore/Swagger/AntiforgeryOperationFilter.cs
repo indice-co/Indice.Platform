@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿#if NET8_0
+using System.Reflection;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
@@ -49,3 +50,4 @@ public class AntiforgeryOperationFilter : IOperationFilter
         });
     }
 }
+#endif

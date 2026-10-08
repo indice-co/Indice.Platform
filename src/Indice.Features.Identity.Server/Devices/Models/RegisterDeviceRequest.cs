@@ -13,6 +13,8 @@ public class RegisterDeviceRequest
     public string? PnsHandle { get; set; }
     /// <summary>Device name.</summary>
     public string? Name { get; set; }
+    /// <summary>The httpclient used to serve this request. Can be a browser app or a custom native application.</summary>
+    public string? UserAgentFamily { get; set; }
     /// <summary>Client device platform.</summary>
     [Required]
     public DevicePlatform Platform { get; set; }

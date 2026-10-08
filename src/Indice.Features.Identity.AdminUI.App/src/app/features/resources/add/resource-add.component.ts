@@ -2,8 +2,8 @@ import {
   Component,
   OnInit,
   ViewChild,
-  ComponentFactoryResolver,
   ChangeDetectorRef,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import {
   UntypedFormGroup,
@@ -22,6 +22,8 @@ import {
   IdentityApiService,
   ApiResourceInfo,
   CreateResourceRequest,
+  CreateApiScopeRequest,
+  ApiScopeInfo,
 } from "src/app/core/services/identity-api.service";
 import { ToastService } from "src/app/layout/services/app-toast.service";
 import { ApiResourceStore } from "../api/api-resource-store.service";
@@ -29,9 +31,11 @@ import { UserClaimsStepComponent } from "./wizard/steps/user-claims/user-claims-
 import { BasicInfoStepComponent } from "./wizard/steps/basic-info/basic-info-step.component";
 
 @Component({
-  selector: "app-resource-add",
-  templateUrl: "./resource-add.component.html",
-  providers: [ApiResourceStore],
+    selector: "app-resource-add",
+    templateUrl: "./resource-add.component.html",
+    providers: [ApiResourceStore],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ResourceAddComponent implements OnInit {
   @ViewChild(WizardStepDirective, { static: false })
@@ -41,7 +45,6 @@ export class ResourceAddComponent implements OnInit {
   private _navigationOrigin: string;
 
   constructor(
-    private _componentFactoryResolver: ComponentFactoryResolver,
     private _formBuilder: UntypedFormBuilder,
     private _changeDetectionRef: ChangeDetectorRef,
     private _api: IdentityApiService,
@@ -143,6 +146,26 @@ export class ResourceAddComponent implements OnInit {
           this._router.navigate(["../identity"], { relativeTo: this._route });
         });
     }
+    if (resourceType === "scope") {
+      const scopeRequest = {
+        name: this.form.get("name").value,
+        displayName: this.form.get("displayName").value,
+        description: this.form.get("description").value,
+        userClaims: this.form.get("userClaims").value,
+        required: false,
+        emphasize: false,
+        showInDiscoveryDocument: true,
+        translations: {}
+      } as CreateApiScopeRequest;
+      this._api
+        .createApiScope(scopeRequest)
+        .subscribe((scope: ApiScopeInfo) => {
+          this._toast.showSuccess(
+            `API scope '${scope.name}' was created successfully.`
+          );
+          this._router.navigate(["/app/resources/scopes"]);
+        });
+    }
   }
 
   private validateFormFields(formGroup: UntypedFormGroup) {
@@ -157,11 +180,9 @@ export class ResourceAddComponent implements OnInit {
   }
 
   private loadStep(step: WizardStepDescriptor): void {
-    const componentFactory =
-      this._componentFactoryResolver.resolveComponentFactory(step.component);
     const viewContainerRef = this._wizardStepHost.viewContainerRef;
     viewContainerRef.clear();
-    const componentRef = viewContainerRef.createComponent(componentFactory);
+    const componentRef = viewContainerRef.createComponent(step.component);
     // Keep a reference of the instance of the step component.
     this._loadedStepInstance =
       componentRef.instance as StepBaseComponent<ResourceWizardModel>;

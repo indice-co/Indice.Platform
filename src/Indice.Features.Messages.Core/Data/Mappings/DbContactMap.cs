@@ -32,5 +32,6 @@ public class DbContactMap : IEntityTypeConfiguration<DbContact>
         builder.Property(x => x.RecipientId).HasMaxLength(TextSizePresets.S64).IsRequired(false);
         // Configure indexes.
         builder.HasIndex(x => x.RecipientId).IsUnique(true);
+        builder.HasIndex(x => new { x.RecipientId, x.Resolved });
     }
 }

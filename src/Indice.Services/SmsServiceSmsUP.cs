@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.Globalization;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -16,6 +17,9 @@ public class SmsServiceSmsUp : ISmsService
     internal static readonly string SMSUP_BASE_URL = "https://api.gateway360.com/api/3.0/sms/send";
     /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
     protected HttpClient HttpClient { get; }
+    /// <summary>The hosting environment.</summary>
+    public IHostEnvironment Environment { get; }
+
     /// <summary>Represents a type used to perform logging.</summary>
     protected ILogger<SmsServiceSmsUp> Logger { get; }
     /// <summary>The settings required to configure the service.</summary>
@@ -24,10 +28,12 @@ public class SmsServiceSmsUp : ISmsService
     /// <inheritdoc/>
     public SmsServiceSmsUp(
         HttpClient httpClient,
+        IHostEnvironment hostEnvironment,
         IOptionsSnapshot<SmsServiceSmsUpSettings> settings,
         ILogger<SmsServiceSmsUp> logger) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        Environment = hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         ArgumentException.ThrowIfNullOrWhiteSpace(Settings.ApiKey);
@@ -62,7 +68,7 @@ public class SmsServiceSmsUp : ISmsService
                                                 From = sender?.Id ?? Settings.Sender!, // fallback sender
                                                 To = recipient,
                                                 Text = body ?? subject ?? string.Empty,
-                                                Custom = Guid.NewGuid().ToString()
+                                                Custom = $"app:{Environment.ApplicationName}-env:{Environment.EnvironmentName}",
                                             }).ToList();
         var request = new SmsUpRequest {
             ApiKey = Settings.ApiKey!,

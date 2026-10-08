@@ -65,8 +65,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task PatchCaseData(UserActor user, Guid caseId, JsonNode patch, bool patchPublicData) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var caseData = (await GetCaseById(caseId, patchPublicData, false)).DataAsJsonNode();
-
+        var @case = await GetCaseById(caseId, patchPublicData, false) ?? throw new ArgumentNullException(nameof(caseId), @"Case does not exist.");
+        var caseData = @case.DataAsJsonNode();
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = caseData.Merge(patch) });
     }
 
@@ -78,7 +78,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task PatchCaseData(UserActor user, Guid caseId, JsonPatch operations, bool patchPublicData) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var caseData = (await GetCaseById(caseId, patchPublicData, false)).DataAsJsonNode();
+        var @case = await GetCaseById(caseId, patchPublicData, false) ?? throw new ArgumentNullException(nameof(caseId), @"Case does not exist.");
+        var caseData = @case.DataAsJsonNode();
 
         var patchResult = operations.Apply(caseData);
         if (!patchResult.IsSuccess) {
@@ -180,8 +181,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         } else {
             var accessMatch = Data.Models.DbCaseAccessRule.AccessMatchPredicate(userId, userRoles, inputGroupId);
             query = (from @case in queryCases
-                     join checkpoint in DbContext.Checkpoints
-                        on @case.CheckpointId equals checkpoint.Id
+                     where @case.CheckpointId != null
+                     // use the navigation instead of an explicit join so EF reuses the same
+                     // Checkpoint join (and projects CheckpointTypeId) when paging pushes the query down.
+                     let checkpoint = @case.Checkpoint
 
                      let caseAccess = DbContext.CaseAccessRules
                                     .Where(accessMatch)
@@ -331,16 +334,16 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
 
-        if (options.Filter.From != null) {
-            query = query.Where(c => c.CreatedByWhen >= options.Filter.From.Value.Date);
+        if (options.Filter?.From is DateTimeOffset from) {
+            query = query.Where(c => c.CreatedByWhen >= from.Date);
         }
 
-        if (options.Filter.To != null) {
-            query = query.Where(c => c.CreatedByWhen <= options.Filter.To.Value.Date.AddDays(1));
+        if (options.Filter?.To is DateTimeOffset to) {
+            query = query.Where(c => c.CreatedByWhen <= to.Date.AddDays(1));
         }
 
         // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
-        if (options.Filter.CaseTypeCodes?.Length > 0) {
+        if (options.Filter!.CaseTypeCodes?.Length > 0) {
             // Create a different expression based on the filter operator
             var expressionsEq = options.Filter.CaseTypeCodes
                 .Where(x => x.Operator == FilterOperator.Eq)
@@ -417,8 +420,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (options.Filter.Data?.Length > 0) {
             // Execute the query with all the previous filters and 
             // select the case Ids
-            var caseIds = (await query.ToListAsync()).Select(x => x.Id);
-
+            var caseIds = await query.Select(x => x.Id).ToListAsync();
             // For those Ids, execute a second query to filter the cases by caseData json filter
             var caseData = await DbContext.CaseData
                 .AsNoTracking()
@@ -435,7 +437,6 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (options.Sort is null) {
             options.Sort = $"{nameof(CasePartial.CreatedByWhen)}";
         }
-
         var result = await query.ToResultSetAsync(options);
 
         // translate case types
@@ -446,14 +447,17 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return result;
     }
 
-    public async Task<Case> GetCaseById(Guid caseId, bool fetchPublicData, bool? includeAttachmentData = null) {
+    public async Task<Case?> GetCaseById(Guid caseId, bool fetchPublicData, bool? includeAttachmentData = null) {
         var query =
             from c in GetCasesInternal(fetchPublicData, includeAttachmentData ?? false, SchemaKey)
             where c.Id == caseId
             select c;
 
         var @case = await query.FirstOrDefaultAsync();
-        @case!.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+        if (@case == null) {
+            return null;
+        }
+        @case.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         @case.CheckpointType = @case.CheckpointType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;
     }
@@ -523,8 +527,12 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<CaseAttachment?> GetAttachmentByField(UserActor user, Guid caseId, string fieldName) {
-        var json = (await GetCaseById(caseId, false, false)).DataAsJsonNode();
+        var @case = await GetCaseById(caseId, false, false);
+        if (@case is null) return null;
+
+        var json = @case.DataAsJsonNode();
         if (json is null) return null;
+
         var attachmentId = json[fieldName]?.GetValue<Guid?>();
         if (attachmentId.HasValue) {
             var attachment = await GetAttachment(caseId, attachmentId.Value);
@@ -637,6 +645,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<List<CasePartial>> GetRelatedCases(UserActor user, Guid caseId) {
         // Check that user role can view this case
         var @case = await GetCaseById(caseId, false, false);
+        if (@case is null) {
+            return [];
+        }
+
         var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {
             Filter = new GetCasesListFilter {
                 Metadata = [new FilterClause("metadata.ExternalCorrelationKey", @case.Metadata!["ExternalCorrelationKey"], FilterOperator.Eq, JsonDataType.String)]

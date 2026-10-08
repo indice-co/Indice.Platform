@@ -6,10 +6,9 @@
     <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Duende.AccessTokenManagement" Version="3.2.0" />
+    <PackageReference Include="Duende.AccessTokenManagement" Version="4.2.0" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Indice.Features.Cases.Core" Version="$(VersionPrefixCases)-*" />
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.6.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
@@ -18,5 +17,13 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
     <InternalsVisibleTo Include="Indice.Features.Cases.Server" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Cases.Ui.TranslationApi.el.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Cases.Ui.TranslationApi.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

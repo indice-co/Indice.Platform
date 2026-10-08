@@ -17,6 +17,10 @@ public class UpdateContactRequest
     public string? Email { get; set; }
     /// <summary>The phone number.</summary>
     public string? PhoneNumber { get; set; }
+    /// <summary>Gets or sets a value indicating whether the contact has been resolved via an external contact provider.</summary>
+    public bool? Resolved { get; set; }
+    /// <summary>The date the contact was last resolved.</summary>
+    public DateTimeOffset? LastResolutionDate { get; set; }
     /// <summary>The id of the distribution list.</summary>
     public Guid? DistributionListId { get; set; }
     /// <summary>Communication Preferences</summary>

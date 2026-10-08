@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { forkJoin, Subscription } from 'rxjs';
@@ -12,7 +12,9 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-client-details',
     templateUrl: './client-details.component.html',
-    providers: [TranslateInputService]
+    providers: [TranslateInputService],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ClientDetailsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
@@ -44,8 +46,13 @@ export class ClientDetailsComponent implements OnInit, OnDestroy {
         const getExternalProviders$ = this._identityApi.getExternalProviders();
         this._getDataSubscription = forkJoin([getClient$, getExternalProviders$]).subscribe((result: [SingleClientInfo, ExternalProviderResultSet]) => {
             this.client = result[0];
-            this.externalProviders = result[1].items.map((provider: ExternalProvider) =>
-                new SelectableExternalProvider(this.client.identityProviderRestrictions.indexOf(provider.authenticationScheme) > -1 ? false : true, provider.displayName, provider.authenticationScheme));
+            const hasRestrictions = this.client.identityProviderRestrictions && this.client.identityProviderRestrictions.length > 0;
+            this.externalProviders = result[1].items.map((provider: ExternalProvider) => {
+                // If no restrictions, select all providers
+                // If restrictions exist, only select providers in the restrictions list
+                const isSelected = !hasRestrictions || (this.client.identityProviderRestrictions?.indexOf(provider.authenticationScheme) ?? -1) > -1;
+                return new SelectableExternalProvider(isSelected, provider.displayName, provider.authenticationScheme);
+            });
             if (!this.client.translations) {
                 this.client.translations = {} as { [key: string]: ClientTranslation; };
                 return;

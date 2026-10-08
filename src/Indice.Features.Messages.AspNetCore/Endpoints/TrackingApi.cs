@@ -26,7 +26,7 @@ internal static class TrackingApi
         group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
                                            .RequireAuthenticatedUser());
 
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2");
+        group.WithOpenApiSecurityRequirement("oauth2");
 
         group.WithHandledException<BusinessException>()
              .ProducesProblem(StatusCodes.Status401Unauthorized)

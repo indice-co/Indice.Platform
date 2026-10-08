@@ -1,7 +1,7 @@
 /* ==============
   General
 ===================*/
-
+@use 'variables' as *;
 body {
   background: $bg-body;
   margin: 0;

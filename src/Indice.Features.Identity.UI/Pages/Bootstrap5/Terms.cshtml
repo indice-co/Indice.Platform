@@ -2,14 +2,18 @@
 
 @model BaseTermsModel
 
-@inject IIdentityViewLocalizer Localizer
+@inject IdentityUILocalizer Localizer
 
 @{
     ViewData["body-css-class"] = "article-page";
-    ViewData["Title"] = Localizer[Model.View.Title];
+    ViewData["Title"] = Localizer.Terms_PageTitle.Value;
 }
 
 <article class="p-0 py-md-4 px-md-5">
-    <vc:page-heading title="" image-src="" />
+    <vc:page-heading title="@Localizer.Terms_PageHeader" image-src="" />
     <md path="@Model.View.MarkdownPath" class="markdown-body"></md>
+    @if (Model.LastUpdateDate.HasValue)
+    {
+        <p class="terms-last-update">@Localizer.AcceptTerms_LastUpdated <span>@Model.LastUpdateDate?.ToString("dd MMMM, yyyy")</span></p>
+    }
 </article>

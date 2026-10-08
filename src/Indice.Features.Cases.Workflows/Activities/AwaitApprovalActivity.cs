@@ -6,6 +6,7 @@ using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Localization;
 using Indice.Features.Cases.Workflows.Models;
+using CustomOutcomeNames = Indice.Features.Cases.Workflows.CasesWorkflowConstants.WorkflowVariables.OutcomeNames;
 using Approval = Indice.Features.Cases.Workflows.Integrations.Approval;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -62,10 +63,13 @@ public class AwaitApprovalActivity(ICasesManager casesManager, WorkflowSharedRes
     protected override async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
         var approval = context.Input as InvokeApprovalRequest;
+        if (approval is null) {
+            return Outcome(CustomOutcomeNames.Failed);
+        }
 
         // Set activity's output properties 
         Output = new ApprovalOutput {
-            Action = approval!.Action,
+            Action = approval.Action,
             Comment = approval.Comment
         };
         Action = approval.Action.ToString();
@@ -74,7 +78,10 @@ public class AwaitApprovalActivity(ICasesManager casesManager, WorkflowSharedRes
         await CasesManager.AddApprovalWithComment(
             caseId: CaseId.Value,
             action: Enum.Parse<Approval>(approval.Action.ToString()),
-            reason: sharedResourceService.GetLocalizedHtmlStringWithCulture(approval.Comment!, approval.Actor.CurrentCulture ?? "el"),
+            reason: sharedResourceService.GetLocalizedHtmlStringWithCulture(
+                key: approval.Comment ?? string.Empty,
+                culture: approval.Actor.CurrentCulture ?? CasesWorkflowConstants.DefaultTranslationLanguage
+            ),
             isPrivate: !PublicActions.Contains(approval.Action.ToString()),
             actor: approval.Actor
         );

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
@@ -8,7 +8,9 @@ import { ApiResourceInfo } from 'src/app/core/services/identity-api.service';
 @Component({
     selector: 'app-api-resource-edit',
     templateUrl: './api-resource-edit.component.html',
-    providers: [ApiResourceStore]
+    providers: [ApiResourceStore],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ApiResourceEditComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

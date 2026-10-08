@@ -1,9 +1,8 @@
-import { AfterViewChecked, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, Inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
-import Handlebars from "handlebars";
 import * as app from 'src/app/core/models/settings';
-import { LibTabComponent, LibTabGroupComponent, MenuOption, SidePaneComponent } from '@indice/ng-components';
+import { APP_LANGUAGES, LibTabComponent, LibTabGroupComponent, MenuOption, SidePaneComponent } from '@indice/ng-components';
 import { Hyperlink, MessageChannelKind, MessageContent, MessageSender, MessageSenderResultSet } from 'src/app/core/services/messages-api.service';
 import { ValidationService } from 'src/app/core/services/validation.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
@@ -13,13 +12,17 @@ import { SettingsStore } from 'src/app/features/settings/settings-store.service'
 import { MediaFile } from 'src/app/core/services/media-api.service';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
 import { languages } from '@codemirror/language-data';
+import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization for non-template rendered dropdown
+import { PartialTemplatesStore } from './partial-templates-store.service';
 
 // codew mirror
 
 @Component({
-  selector: 'app-campaign-content',
-  templateUrl: './campaign-content.component.html',
-  styleUrl: './campaign-content.component.scss'
+    selector: 'app-campaign-content',
+    templateUrl: './campaign-content.component.html',
+    styleUrl: './campaign-content.component.css',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 //https://github.com/acrodata/code-editor/blob/main/projects/dev-app/src/app/home/home.component.ts
 export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChecked {
@@ -46,7 +49,9 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     private _utilities: UtilitiesService,
     private _formBuilder: FormBuilder,
     private _store: SettingsStore,
-    private _fileUtilitiesService: FileUtilitiesService
+    private _fileUtilitiesService: FileUtilitiesService,
+    private _partialStore: PartialTemplatesStore,
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
   // Input & Output parameters
@@ -92,23 +97,23 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     return this.channelsContent.value.length <= 1;
   }
 
+  // Key placeholders (HTML will apply | translate)
   public channelsState: { [key: string]: ChannelState; } = {
-    'inbox': { name: 'Inbox', description: 'Ειδοποίηση μέσω πρoσωπικού μήνυμα.', value: MessageChannelKind.Inbox, checked: false },
-    'pushNotification': { name: 'Push Notification', description: 'Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.', value: MessageChannelKind.PushNotification, checked: false },
-    'email': { name: 'Email', description: 'Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου', value: MessageChannelKind.Email, checked: false },
-    'sms': { name: 'SMS', description: 'Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.', value: MessageChannelKind.SMS, checked: false }
+    'inbox': { name: 'Campaigns.ChannelInbox', description: 'Campaigns.ChannelInboxDescription', value: MessageChannelKind.Inbox, checked: false },
+    'pushNotification': { name: 'Campaigns.ChannelPushNotification', description: 'Campaigns.ChannelPushNotificationDescription', value: MessageChannelKind.PushNotification, checked: false },
+    'email': { name: 'Campaigns.ChannelEmail', description: 'Campaigns.ChannelEmailDescription', value: MessageChannelKind.Email, checked: false },
+    'sms': { name: 'Campaigns.ChannelSms', description: 'Campaigns.ChannelSmsDescription', value: MessageChannelKind.SMS, checked: false }
   };
-
 
   public ngOnInit(): void {
     if (!this.additionalData.actionLink) {
       this.additionalData.actionLink = new Hyperlink({
-        text: "Click me!",
-        href: "https://www.indice.gr"
-      })
+        text: 'Campaigns.ActionLinkDefaultText', // key placeholder
+        href: 'https://www.indice.gr'
+      });
     }
     if (!this.additionalData.title) {
-      this.additionalData.title = "Welcome"
+      this.additionalData.title = 'Campaigns.DefaultTitle'; // key placeholder
     }
     if (!this.additionalData.mediaBaseHref) {
       this.additionalData.mediaBaseHref = `${app.settings.api_url}`;
@@ -119,13 +124,11 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
             if (x?.value) {
               this.additionalData.mediaBaseHref = x.value.endsWith('/') ? x.value.substring(0, x.value.length - 1) : x.value;
             }
-          })
+          });
       }
     }
   }
-  public ngAfterViewChecked(): void {
-  
-  }
+  public ngAfterViewChecked(): void { }
 
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes.content?.currentValue) {
@@ -137,7 +140,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
       let index = 0;
       for (const channel in contentValue) {
         if (Object.prototype.hasOwnProperty.call(contentValue, channel)) {
-          const content = <MessageContent>contentValue[channel];
+          const content = contentValue[channel] as MessageContent;
           const channelForm = this._formBuilder.group({
             channel: channel,
             sender: [content.sender],
@@ -150,7 +153,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
           }
           this.channelsContent.push(channelForm);
           if (index === 0) {
-            this._setSubjectPreview(content.title);
+            this._setSubjectPreview(content.title, channel);
             this._setBodyPreview(content.body, channel);
           }
         }
@@ -204,14 +207,14 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
   public onContentTabChanged(tab: LibTabComponent): void {
     const index = tab.index || 0;
     this.hideMetadata = index === 0;
-    const formGroup = <FormGroup>this.channelsContent.controls[index - 1];
+    const formGroup = this.channelsContent.controls[index - 1] as FormGroup;
     if (!formGroup) {
       return;
     }
     const subject = formGroup.controls['subject'].value;
     const body = formGroup.controls['body'].value;
     const channel = formGroup.controls['channel'].value;
-    this._setSubjectPreview(subject);
+    this._setSubjectPreview(subject, channel);
     this._setBodyPreview(body, channel);
   }
 
@@ -223,7 +226,8 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
 
   public onSubjectInput(content: FormGroup): void {
     const subject = content.controls['subject'].value;
-    this._setSubjectPreview(subject);
+    const channel = content.controls['channel'].value;
+    this._setSubjectPreview(subject, channel);
   }
 
   public onBodyInput(content: FormGroup): void {
@@ -233,7 +237,6 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
   }
 
   public onBodyInputValue(body: any, channel: any): void {
-    
     this._setBodyPreview(body, channel);
   }
 
@@ -268,53 +271,65 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     }
   }
 
-  private _setSubjectPreview(value: string | undefined): void {
+  private _setSubjectPreview(value: string | undefined, channel?: any): void {
     if (!value) {
       this.subjectPreview = '';
+      return;
     }
-    try {
-      const template = Handlebars.compile(value);
-      this.subjectPreview = template(this.samplePayload);
-    } catch (error) { }
+    this._partialStore.envFor(channel).subscribe(env => {
+      try {
+        const template = env.compile(value);
+        this.subjectPreview = template(this.samplePayload, {
+          data: { 'partial-block': () => '' }
+        });
+      } catch (error) { }
+    });
   }
   private _setBodyPreview(value: string | undefined, channel?: any): void {
     if (!value) {
       this.bodyPreview = '';
+      return;
     }
-    try {
-      const template = Handlebars.compile(value);
-      const isPlainText = channel?.toLowerCase() != 'email' && channel?.toLowerCase() != 'inbox'
-      if (isPlainText) {
-          this.bodyPreview = `<pre style="white-space: pre-wrap">${template(this.samplePayload)}</pre>`;
-          return;
-      }
-      this.bodyPreview = template(this.samplePayload);
-    } catch (error) { }
+    this._partialStore.envFor(channel).subscribe(env => {
+      try {
+        const template = env.compile(value);
+        const rendered = template(this.samplePayload, {
+          data: { 'partial-block': () => '' }
+        });
+        const isPlainText = channel?.toLowerCase() != 'email' && channel?.toLowerCase() != 'inbox';
+        this.bodyPreview = isPlainText
+          ? `<pre style="white-space: pre-wrap">${rendered}</pre>`
+          : rendered;
+      } catch (error) { }
+    });
   }
   private _loadMessageSenders(): void {
-    this._store
-      .getMessageSenders()
-      .pipe(map((messageSenders: MessageSenderResultSet) => {
-        this.selectedSenderId = this.content?.email?.sender
-          ? new MenuOption(`${this.content.email.sender.displayName} <${this.content.email.sender.sender}>`, this.content.email.sender.id, undefined, this.content?.email?.sender)
-          : undefined;
-        if (messageSenders.items) {
-          this.messageSenders = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
-          this.messageSenders.push(...messageSenders.items.map(s => {
-            let sender = {
-              id: s.id,
-              sender: s.sender,
-              displayName: s.displayName
-            }
-            if (s.isDefault) {
-              this.selectedSenderId ??= new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined);
-              return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined)
-            }
-            return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, sender)
-          }));
-        }
-      }))
-      .subscribe();
+    // Localize placeholder (component controls third-party dropdown)
+    this._lang.translateKey('Campaigns.SelectSenderPlaceholder').subscribe(placeholder => {
+      this._store
+        .getMessageSenders()
+        .pipe(map((messageSenders: MessageSenderResultSet) => {
+          this.selectedSenderId = this.content?.email?.sender
+            ? new MenuOption(`${this.content.email.sender.displayName} <${this.content.email.sender.sender}>`, this.content.email.sender.id, undefined, this.content?.email?.sender)
+            : undefined;
+          if (messageSenders.items) {
+            this.messageSenders = [new MenuOption(placeholder || 'Campaigns.SelectSenderPlaceholder', null)];
+            this.messageSenders.push(...messageSenders.items.map(s => {
+              let sender = {
+                id: s.id,
+                sender: s.sender,
+                displayName: s.displayName
+              }
+              if (s.isDefault) {
+                this.selectedSenderId ??= new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined);
+                return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined)
+              }
+              return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, sender)
+            }));
+          }
+        }))
+        .subscribe();
+    });
   }
 
   public log(event: any) {

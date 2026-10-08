@@ -20,6 +20,22 @@ public static class HttpContextExtensions
         return MfaDeviceIdentifier.Empty;
     }
 
+    /// <summary>Gets the current sign-in session id or creates one prefixed with <paramref name="prefix"/> (the originating auth flow).</summary>
+    public static ValueTask<string?> GetOrCreateSessionId(this HttpContext httpContext, string prefix) {
+        if (httpContext.Items.TryGetValue(HttpContextItemKeys.SessionId, out var value) && value is not null) {
+            return new ValueTask<string?>(value.ToString());
+        }
+        
+        var sessionId = $"{prefix}.{Guid.NewGuid()}";
+        httpContext.Items[HttpContextItemKeys.SessionId] = sessionId;
+
+        return new ValueTask<string?>(sessionId);
+    }
+
+    /// <summary>Tries to resolve the sign-in session id from the current HTTP request.</summary>
+    public static string? GetSessionId(this HttpContext httpContext) =>
+        httpContext.Items.TryGetValue(Indice.Features.Identity.Core.HttpContextItemKeys.SessionId, out var value) ? value?.ToString() : null;
+
     private static string? FindDeviceId(HttpContext httpContext) {
         ArgumentNullException.ThrowIfNull(httpContext);
         var deviceId = default(StringValues);

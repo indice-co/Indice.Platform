@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
-  selector: 'app-root',
-  template: '<lib-shell-layout></lib-shell-layout>'
+    selector: 'app-root',
+    template: '<lib-shell-layout></lib-shell-layout>',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class AppComponent {
   

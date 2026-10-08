@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using Humanizer;
-using IdentityModel;
+using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.Extensions;
@@ -31,7 +31,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Org.BouncyCastle.Asn1.X9;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -110,15 +109,13 @@ internal static class ClientHandlers
                     clientScope => clientScope.Scope,
                     apiScope => apiScope.Scope,
                     (clientScope, apiScope) => apiScope.Scope
-                )
-                .Select(x => x),
+                ),
                 IdentityResources = x.AllowedScopes.Join(
                     configurationDbContext.IdentityResources,
                     clientScope => clientScope.Scope,
                     identityResource => identityResource.Name,
                     (clientScope, identityResource) => identityResource.Name
-                )
-                .Select(x => x),
+                ),
                 Claims = x.Claims.Select(x => new ClaimInfo {
                     Id = x.Id,
                     Type = x.Type,
@@ -367,6 +364,12 @@ internal static class ClientHandlers
             ClientId = client.Id
         };
         client.AllowedGrantTypes = [grantTypeToAdd];
+#if NET9_0_OR_GREATER
+        if (IdSrvModels.GrantType.ClientCredentials.Equals(grantTypeToAdd.GrantType, StringComparison.OrdinalIgnoreCase)) {
+            // ensure that client has secret if client credentials grant type is added
+            client.RequireClientSecret = true;
+        }
+#endif
         await configurationDbContext.SaveChangesAsync();
         await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.Ok(new GrantTypeInfo {

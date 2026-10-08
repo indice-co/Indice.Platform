@@ -2,7 +2,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Web;
-using IdentityModel.Client;
+using Duende.IdentityModel.Client;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Security;
@@ -81,7 +81,8 @@ public class ContactResolverIdentity : IContactResolver
                     ConsentCommercial = GetCommercialConsent(identityUser.Claims),
                     ConsentCommercialDate = GetCommercialConsentDate(identityUser.Claims),
                     DefaultChannels = GetCommunicationPreferences(identityUser.Claims)
-                }
+                },
+                Resolved = true
             })
              .ToArray()
         };
@@ -112,6 +113,8 @@ public class ContactResolverIdentity : IContactResolver
             PhoneNumber = identityUser.PhoneNumber,
             FirstName = FindClaimValue(identityUser.Claims, BasicClaimTypes.GivenName),
             LastName = FindClaimValue(identityUser.Claims, BasicClaimTypes.FamilyName),
+            Resolved = true,
+            LastResolutionDate = DateTimeOffset.UtcNow,
             Preference = new ContactPreference {
                 Locale = FindClaimValue(identityUser.Claims, BasicClaimTypes.Locale),
                 ConsentCommercial = GetCommercialConsent(identityUser.Claims),

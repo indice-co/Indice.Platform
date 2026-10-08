@@ -3,6 +3,7 @@ using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Manager;
 using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
@@ -50,6 +51,7 @@ public class MessageManagerTests : IAsyncLifetime
             .AddTransient(serviceProvider => new DatabaseSchemaNameResolver("cmp"))
             .AddTransient<IUserNameAccessor, UserNameAccessorNoOp>()
             .AddTransient<UserNameAccessorAggregate>()
+            .AddTransient<IPartialTemplateResolverFactory, DbBackedPartialTemplateResolverFactory>()
             .AddFiles(x => x.AddFilesInMemory(KeyedServiceNames.FileServiceKey))
             .AddOptions()
             .Configure<MessageManagementOptions>(configuration);
@@ -117,7 +119,8 @@ public class MessageManagerTests : IAsyncLifetime
             templates: new Dictionary<MessageChannelKind, MessageContent> {
                 [MessageChannelKind.Inbox] = new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company."),
                 [MessageChannelKind.PushNotification] = new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.")
-            }
+            },
+            mediaBaseHref: new ("https://media.test")
         );
         Assert.True(result.Succeeded);
         Assert.NotEqual(default, result.CampaignId);
@@ -130,7 +133,8 @@ public class MessageManagerTests : IAsyncLifetime
             recipientId: Guid.NewGuid().ToString(),
             title: "Welcome",
             channels: MessageChannelKind.Inbox | MessageChannelKind.PushNotification,
-            template: new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.")
+            template: new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company."),
+            mediaBaseHref: new("https://media.test")
         );
         Assert.True(result.Succeeded);
         Assert.NotEqual(default, result.CampaignId);
@@ -143,11 +147,11 @@ public class MessageManagerTests : IAsyncLifetime
         public string Resolve() => "static";
     }
 
-    public Task InitializeAsync() {
-        return Task.CompletedTask;
+    public ValueTask InitializeAsync() {
+        return ValueTask.CompletedTask;
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();

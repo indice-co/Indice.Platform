@@ -1,15 +1,19 @@
 ﻿using System.Security;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Configuration;
+using Indice.Features.Identity.Core.Guards;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.Mvc.Localization;
 using Indice.Features.Identity.Core.Mvc.Razor;
 using Indice.Features.Identity.Core.Totp;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -61,6 +65,74 @@ public static class IServiceCollectionExtensions
         });
         services.TryAddTransient<TotpServiceFactory>();
         services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
+        return services;
+    }
+
+    /// <summary>Adds a database backed, purpose-scoped action attempt guard.</summary>
+    /// <param name="services">The services available in the application.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">An optional action to further configure <see cref="ActionRateLimiterOptions"/>.</param>
+    public static IServiceCollection AddActionRateLimiter(this IServiceCollection services, IConfiguration configuration, Action<ActionRateLimiterOptions>? configure = null) {
+        var options = new ActionRateLimiterOptions {
+            MaxAttempts = configuration.GetIdentityOption<int?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.MaxAttempts)) ?? ActionRateLimiterOptions.DefaultMaxAttempts,
+            Window = configuration.GetIdentityOption<TimeSpan?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.Window)) ?? ActionRateLimiterOptions.DefaultWindow,
+            Enabled = configuration.GetIdentityOption<bool?>(ActionRateLimiterOptions.Name, nameof(ActionRateLimiterOptions.Enabled)) ?? true
+        };
+        configure?.Invoke(options);
+        services.Configure<ActionRateLimiterOptions>(o => {
+            o.MaxAttempts = options.MaxAttempts;
+            o.Window = options.Window;
+            o.Enabled = options.Enabled;
+        });
+        if (options.Enabled) {
+            services.TryAddScoped<IActionRateLimiter, ActionRateLimiter>();
+        } else { 
+            services.TryAddScoped<IActionRateLimiter, NoOpActionRateLimiter>();
+        }
+        return services;
+    }
+
+    /// <summary>Adds a NoOp action rate limiter that does not enforce any limits.</summary>
+    /// <param name="services">The services available in the application.</param>
+    public static IServiceCollection AddActionRateLimiterNoOp(this IServiceCollection services) {
+        services.AddScoped<IActionRateLimiter, NoOpActionRateLimiter>();
+        return services;
+    }
+
+
+    /// <summary>
+    /// Configures the OpenIdConnect handlers and OAuth based handlers to persist the state parameter into the server-side IDistributedCache.
+    /// </summary>
+    /// <param name="services">The service collection to configure.</param>
+    /// <param name="schemes">The schemes to configure. If none provided, then all OpenIdConnect schemes will use the cache.</param>
+    public static IServiceCollection AddExternalProviderStateDataFormatterCache(this IServiceCollection services, params string[] schemes) {
+        services.AddSingleton<IPostConfigureOptions<OpenIdConnectOptions>>(svcs => new ConfigureExternalProviderOptions(schemes, svcs));
+        services.AddSingleton<IPostConfigureOptions<OAuthOptions>>(svcs => new ConfigureExternalProviderOptions(schemes, svcs));
+        return services;
+    }
+
+    /// <summary>
+    /// Adds OAuth state data formatter cache configuration for external providers to the service collection.
+    /// </summary>
+    /// <typeparam name="TOptions">The OAuth options type to configure.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="schemes">The authentication schemes to configure.</param>
+    /// <returns>The service collection for method chaining.</returns>
+    public static IServiceCollection AddExternalProviderOAuthStateDataFormatterCache<TOptions>(this IServiceCollection services, params string[] schemes) where TOptions : OAuthOptions {
+        services.AddSingleton<IPostConfigureOptions<TOptions>>(svcs => new ConfigureOAuthOptions<TOptions>(schemes, svcs));
+        return services;
+    }
+
+    /// <summary>
+    /// Adds external provider OpenID Connect state data formatter cache configuration for the specified authentication
+    /// schemes.
+    /// </summary>
+    /// <typeparam name="TOptions">The type of <see cref="OpenIdConnectOptions"/> to configure.</typeparam>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>
+    /// <param name="schemes">The authentication schemes to configure.</param>
+    /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
+    public static IServiceCollection AddExternalProviderOidStateDataFormatterCache<TOptions>(this IServiceCollection services, params string[] schemes) where TOptions : OpenIdConnectOptions {
+        services.AddSingleton<IPostConfigureOptions<TOptions>>(svcs => new ConfigureOpenIdOptions<TOptions>(schemes, svcs));
         return services;
     }
 }

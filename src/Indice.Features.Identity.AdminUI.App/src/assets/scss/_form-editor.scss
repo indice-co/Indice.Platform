@@ -1,6 +1,7 @@
 /* ==============
   Form Editor
 ===================*/
+@use 'variables' as *;
 
 .mce-panel {
   border-color: darken($light,5%) !important;

@@ -5,6 +5,99 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.47.0] - 2026-05-13
+### Added partial template functionality
+
+To categorize the new template types a new column must be added. This column is not nullable, defaults to 0 (Full template) and all the existing templates should be categorized as Full.
+<br>
+Example script:
+```sql
+ALTER TABLE [cmp].[Template]
+ADD [Type] TINYINT NOT NULL 
+CONSTRAINT DF_Template_TemplateType DEFAULT 0;
+```
+**Note:** This example assumes SQLServer.
+
+## [8.31.0] - 2025-01-07
+### Added Messaging Database Cleanup Job
+The following configuration should be added in the appsettings.json and local.settings.json to determine the frequency of the clean up job:
+``` json
+"MessageJobsOptions:DatabaseCleanUpCronExpression": "0 0 2 * * *"
+```
+**Note:** This configuration is required for Azure Worker deployments. For self-hosted workers, 
+this value is used as the default if not specified.
+
+## [8.21.0] - 2025-10-27
+### Added New column Recipient in MessageEvent table
+Keep track of the actual recipient (email, phone number, etc) in the MessageEvent table for easier querying and reporting.
+
+```sql
+-- 1) Add new columns to [cmp].[MessageEvent]
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns 
+    WHERE Name = N'Recipient' AND Object_ID = Object_ID(N'[cmp].[MessageEvent]')
+)
+BEGIN
+    ALTER TABLE [cmp].[MessageEvent]
+    ADD Recipient NVARCHAR(128),
+        Title NVARCHAR(128),
+        Success BIT;
+END
+GO
+
+-- 2) Update existing records to populate the new Recipient, Title and Success columns
+UPDATE [cmp].[MessageEvent]
+SET Recipient = 
+    CASE Events.Channel
+         WHEN 'SMS' THEN ct.PhoneNumber
+         WHEN 'Email' THEN ct.Email
+         ELSE COALESCE(ct.RecipientId, '')
+    END,
+    Success = 1,
+    Title  =   CASE 
+         WHEN Events.Channel = 'SMS' AND msg.Content IS NOT NULL THEN COALESCE(JSON_VALUE(msg.Content, '$.sms.title'), JSON_VALUE(msg.Content, '$.SMS.title'))
+         WHEN Events.Channel = 'Email' AND msg.Content IS NOT NULL  THEN COALESCE(JSON_VALUE(msg.Content, '$.email.title'), JSON_VALUE(msg.Content, '$.Email.title'))
+         WHEN Events.Channel = 'Inbox' AND msg.Content IS NOT NULL THEN COALESCE(JSON_VALUE(msg.Content, '$.inbox.title'), JSON_VALUE(msg.Content, '$.Inbox.title'))
+         WHEN msg.Content IS NOT NULL THEN COALESCE(JSON_VALUE(msg.Content, '$.pushNotification.title'), JSON_VALUE(msg.Content, '$.PushNotification.title'))
+         ELSE '(deleted)'
+    END
+FROM  [cmp].[MessageEvent] as Events
+INNER JOIN [cmp].Contact as ct
+ ON Events.ContactId = ct.Id
+LEFT JOIN [cmp].Message as msg
+ ON msg.Id = Events.MessageId
+```
+
+## [8.17.3] - 2025-09-30
+### Added New column
+```sql
+ALTER TABLE [cmp].[Contact] 
+    ADD [LastResolutionDate]     [datetimeoffset](7)      NULL
+GO
+```
+
+
+## [8.16.0] - 2025-09-19
+
+### Added New column
+```sql
+ALTER TABLE [cmp].[Contact] 
+    ADD [Resolved]     bit      NULL
+GO
+CREATE NONCLUSTERED INDEX [IX_Contact_RecipientId_Resolved] 
+    ON [cmp].[Contact] ([RecipientId] ASC, [Resolved] ASC)
+GO
+CREATE NONCLUSTERED INDEX [IX_Campaign_CreatedAt]
+    ON [cmp].[Campaign] ([CreatedAt] ASC)
+GO
+CREATE NONCLUSTERED INDEX [IX_MessageEvent_Type]
+    ON [cmp].[MessageEvent] ([Type] ASC)
+GO
+CREATE NONCLUSTERED INDEX [IX_MessageEvent_Channel]
+    ON [cmp].[MessageEvent] ([Channel] ASC)
+GO
+```
 
 ## [8.1.10] - 2025-08-05
 
@@ -281,7 +374,7 @@ ADD [MediaBaseHref] [nvarchar](1024) NULL
 ## [7.4.1] - 2023-09-22
 ### Changed
 - CampaignId is returned in PushNotification data in property "messageId". 
-  Intentioanally added for naming consistency. external MessageId == internal CampaignId.
+  Intentionally added for naming consistency. external MessageId == internal CampaignId.
 
 ## [7.3.8] - 2023-08-07
 ### Added

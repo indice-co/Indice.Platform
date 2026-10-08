@@ -1,12 +1,12 @@
 import { ActivatedRoute } from '@angular/router';
-import { Component, OnInit, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 
 import { map } from 'rxjs/operators';
 import { Subscription, forkJoin } from 'rxjs';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { ClientStore } from '../../client-store.service';
 import { GrantTypeStateMatrixService } from './grant-type-state-matrix.service';
 import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
@@ -16,7 +16,9 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-client-grant-types',
-    templateUrl: './client-grant-types.component.html'
+    templateUrl: './client-grant-types.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ClientGrantTypesComponent implements OnInit, OnDestroy {
     constructor(
@@ -27,7 +29,7 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
         private authService: AuthService
     ) { }
 
-    @ViewChild('actionsTemplate', { static: true }) private actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) private actionsTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('grantTypesform', { static: false }) private form: NgForm;
     @ViewChild('deleteAlert', { static: false }) private deleteAlert: SwalComponent;
     private getDataSubscription: Subscription;

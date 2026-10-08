@@ -15,6 +15,11 @@ internal static class TemplatesHandlers
         return TypedResults.Ok(templates);
     }
 
+    public static async Task<Ok<ResultSet<Template>>> GetPartialTemplates(ITemplateService templateService) {
+        var templates = await templateService.GetPartialsAndLayouts();
+        return TypedResults.Ok(templates);
+    }
+
     public static async Task<Results<Ok<Template>, NotFound>> GetTemplateById(GuidOrAlias templateId, ITemplateService templateService) {
         var template = await templateService.GetById(templateId);
         if (template is null) {
@@ -68,6 +73,11 @@ Retrieves a list of available templates.
     
 Parameters:
 - options: List parameters including sorting, searching, page number, and page size.
+";
+
+    public static readonly string GET_PARTIAL_TEMPLATES_DESCRIPTION = @"
+Retrieves every template of type Partial or Layout, including full Content per channel.
+Intended for client-side Handlebars partial registration during campaign preview.
 ";
 
     public static readonly string GET_TEMPLATE_BY_ID_DESCRIPTION = @"

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { TableColumn } from '@swimlane/ngx-datatable';
@@ -10,7 +10,9 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-api-resource-claims',
-    templateUrl: './api-resource-claims.component.html'
+    templateUrl: './api-resource-claims.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ApiResourceClaimsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

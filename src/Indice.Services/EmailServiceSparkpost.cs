@@ -30,7 +30,7 @@ public class EmailServiceSparkPost : IEmailService
         IHtmlRenderingEngine htmlRenderingEngine
     ) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
-        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender!, Settings.SenderName));
+        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender, Settings.SenderName));
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
@@ -107,8 +107,8 @@ public class EmailServiceSparkPostSettings
     /// <summary>The configuration section name.</summary>
     public const string Name = "SparkPost";
     /// <summary>The default sender address (ex. no-reply@indice.gr).</summary>
-    public string? Sender { get; set; }
-    /// <summary>The default sender name (ex. INDICE OE)</summary>
+    public string Sender { get; set; } = null!;
+    /// <summary>The default sender name (ex. INDICE SA)</summary>
     public string? SenderName { get; set; }
     /// <summary>Optional email addresses that are always added as blind carbon copy recipients.</summary>
     public string? BccRecipients { get; set; }

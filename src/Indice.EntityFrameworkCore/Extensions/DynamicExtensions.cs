@@ -296,7 +296,6 @@ public static class DynamicExtensions
             LambdaExpression innerExpression,
             LambdaExpression outerExpression) {
             //Func<TSource, TOut>
-            var delegateType = typeof(Func<,>).MakeGenericType(outerExpression.Body.Type, innerExpression.Parameters[0].Type);
             //var expr = Expression.Lambda(delegateType, lambdaExpression.Body, propertySelector.Parameters);
             var expr = Expression.Lambda(outerExpression.Body, innerExpression.Parameters);
             if (innerExpression.Body is MemberExpression memberExpression) {

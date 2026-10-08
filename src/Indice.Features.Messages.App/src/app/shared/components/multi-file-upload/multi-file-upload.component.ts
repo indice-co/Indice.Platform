@@ -1,8 +1,10 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     selector: 'app-multi-file-upload',
-    templateUrl: './multi-file-upload.component.html'
+    templateUrl: './multi-file-upload.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class MultiFileUploadComponent implements OnInit {
     @ViewChild('fileInput', { static: false }) public _fileInput: ElementRef | undefined;

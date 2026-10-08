@@ -1,4 +1,8 @@
-﻿using IdentityModel;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
+using IdentityModel;
+#endif
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 
@@ -46,17 +50,6 @@ public class UiLocalesRequestCultureProvider : RequestCultureProvider
         if (string.IsNullOrWhiteSpace(value)) {
             return null;
         }
-        var cultureName = value;
-        var uiCultureName = value;
-        if (cultureName == null && uiCultureName == null) {
-            return null;
-        }
-        if (cultureName != null && uiCultureName == null) {
-            uiCultureName = cultureName;
-        }
-        if (cultureName == null && uiCultureName != null) {
-            cultureName = uiCultureName;
-        }
-        return new ProviderCultureResult(cultureName, uiCultureName);
+        return new ProviderCultureResult(value, value);
     }
 }

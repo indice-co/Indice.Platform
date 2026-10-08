@@ -1,8 +1,9 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
+using System.Security.Claims;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Features.Identity.UI;
 
@@ -27,12 +28,33 @@ public class IdentityUIOptions
     /// </list>
     /// </remarks>
     public string HomePageSlogan { get; set; } = "Welcome to the {0} Digital Services <strong>Portal</strong>";
+
+    /// <summary>
+    /// A function that resolves the terms and conditions url based on the current culture. 
+    /// It will be used in the login and register pages. If not set, the default behavior is to use the <see cref="TermsUrl"/> property as-is. Use this resolver for culture-specific URLs.
+    /// </summary>
+    public Func<CultureInfo, string?>? TermsUrlResolver { get; set; }
+
+    /// <summary>
+    /// A function that resolves the privacy url based on the current culture. 
+    /// It will be used in the login and register pages. If not set, the default behavior is to use the <see cref="PrivacyUrl"/> property as-is. Use this resolver for culture-specific URLs.
+    /// </summary>
+    public Func<CultureInfo, string?>? PrivacyUrlResolver { get; set; }
+
     /// <summary>An absolute URL to the <strong>terms and conditions</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
-    /// <remarks>If left null the <strong>./legal/terms.md</strong> will be used. If populated it will do a redirect to this URL</remarks>
-    public string? TermsUrl { get; set; }
+    /// <remarks>If left null the <strong>./legal/terms.md</strong> will be used. If populated it will do a redirect to this URL. This value is not format-expanded; use <see cref="TermsUrlResolver"/> for culture-specific URLs.</remarks>
+    public string? TermsUrl {
+        get => TermsUrlResolver != null ? TermsUrlResolver(CultureInfo.CurrentCulture) : field;
+        set => field = TermsUrlResolver != null ? null : value;
+    }
+
     /// <summary>An absolute URL to the <strong>privacy</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
     /// <remarks>If left null the <strong>./legal/privacy.md</strong> will be used. If populated it will do a redirect to this URL</remarks>
-    public string? PrivacyUrl { get; set; }
+    public string? PrivacyUrl {
+        get => PrivacyUrlResolver != null ? PrivacyUrlResolver(CultureInfo.CurrentCulture) : field;
+        set => field = PrivacyUrlResolver != null ? null : value;
+    }
+
     /// <summary>An absolute URL to the <strong>Contact us</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
     /// <remarks>If left null the <strong>Contact Us</strong> link in the footer will disappear. If populated it will do a redirect to this URL. By default it is empty</remarks>
     public string? ContactUsUrl { get; set; }
@@ -43,6 +65,9 @@ public class IdentityUIOptions
     public bool HasCustomOnBoarding => !"/Register".Equals(OnBoardingPage);
     /// <summary>Controls whether an external Identity user will go through the associate screen or not.</summary>
     public bool AutoProvisionExternalUsers { get; set; } = true;
+    /// <summary>Controls which external login providers should be auto provisioned.</summary>
+    /// <remarks>use scheme names like Microsoft, Apple, Google etc </remarks>
+    public List<string> AutoProvisionExternalUsersFor { get; set; } = [];
     /// <summary>Controls whether an external identity user be associated to an existing one using the email account.</summary>
     public bool AutoAssociateExternalUsers { get; set; } = true;
     /// <summary>Controls whether The self service /register page is accessible.</summary>
@@ -77,22 +102,41 @@ public class IdentityUIOptions
     public bool OverrideDefaultStaticFileMiddleware { get; set; } = true;
     /// <summary>Stores the calling code along with the phone number.</summary>
     public bool EnablePhoneNumberCallingCodes { get; set; } = false;
+    /// <summary>Automatically signs in the user after registration.</summary>
+    public bool AutomaticSigninAfterRegister { get; set; } = false;
     /// <summary>Event handlers for various UI specific operations.</summary>
     public UiPageEvents Events { get; set; } = new UiPageEvents();
+    /// <summary>When this property is true, the email edit option will be disabled in the profile management page.</summary>
+    public bool DisableEmailEdit { get; set; } = false;
+    /// <summary>When this property is true, the phone edit option will be disabled in the profile management page.</summary>
+    public bool DisablePhoneEdit { get; set; } = false;
     /// <summary>
     /// Used with <see cref="Indice.Globalization.PhoneNumber"/> instances to convert to predictable string for storage.
     /// </summary>
     public string PhoneNumberStoreFormat => EnablePhoneNumberCallingCodes ? "G" : "N";
 
+    /// <summary>The production environment names.</summary>
+    public StringValues ProductionEnvironments => new StringValues(ProductionEnvironmentsSet.ToArray());
+
+    /// <summary>
+    /// A collection of production environment names. Used to determine whether the environment is production and exclude the ribbon in the UI.
+    /// </summary>
+    public HashSet<string> ProductionEnvironmentsSet { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "prod", "Production", "live" };
+
+
     /// <summary>Services shown in the homepage.</summary>
-    public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {
-        new HomePageLink("Admin","~/admin", CssClass:"admin", VisibilityPredicate: user => user.IsAdmin())
-    };
+    public List<HomePageLink> HomepageLinks { get; } = [
+        new ("Admin","~/admin", CssClass:"admin", VisibilityPredicate: user => user.IsAdmin())
+    ];
     /// <summary>
     /// Should show the Add Email page before sending the confirmation email prompt (in case of pernding confirmation login) or Confirm emai immediately.
     /// </summary>
     /// <remarks>Useful when user store is from a migrated database and we need to force users to add an email where an email is not present. Defaults to true.</remarks>
     public bool ShowAddEmailPrompt { get; set; } = true;
+
+    /// <summary>Controls whether password confirmation fields are displayed on register, password expired, change password, and forgot password confirmation pages.</summary>
+    /// <remarks>Defaults to false.</remarks>
+    public bool EnablePasswordConfirmation { get; set; } = false;
 
     /// <summary>Adds a homepage link to the a service definition cards.</summary>
     /// <param name="displayName">The label.</param>

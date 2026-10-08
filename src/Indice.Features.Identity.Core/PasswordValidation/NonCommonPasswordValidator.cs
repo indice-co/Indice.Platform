@@ -69,7 +69,8 @@ public class DefaultPasswordBlacklistProvider : IPasswordBlacklistProvider
     protected HashSet<string> Blacklist { get; } = new HashSet<string> {
         "12345", "123456", "123456789", "test1", "password", "12345678", "zinch", "g_czechout", "asdf", "qwerty", "1234567890", "1234567", "Aa123456.", "iloveyou", "1234", "abc123", "111111",
         "123123", "dubsmash", "test", "princess", "qwertyuiop", "sunshine", "BvtTest123", "11111", "letmein", "football", "admin", "welcome", "monkey", "login", "starwars", "dragon", "passw0rd",
-        "master", "hello", "freedom", "whatever", "qazwsx", "trustno1", "654321", "jordan23", "harley", "password1", "666666", "!@#$%^&*", "charlie", "aa123456", "donald", "google", "facebook"
+        "master", "hello", "freedom", "whatever", "qazwsx", "trustno1", "654321", "jordan23", "harley", "password1", "666666", "!@#$%^&*", "charlie", "aa123456", "donald", "google", "facebook",
+        "pass@123","admin123", "12345678910", "p@ssw0rd", "aa@123456",  "admintelecom", "admin@123", "112233"
     };
 
     /// <inheritdoc/>

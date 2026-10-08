@@ -10,79 +10,92 @@ public class IdentityMessageDescriber
 {
     /// <summary>User already has email '0'.</summary>
     /// <param name="email">The email address.</param>
-    public virtual string EmailAlreadyExists(string email) => string.Format(IdentityResources.Culture, IdentityResources.UserAlreadyHasEmail, email);
+    public virtual string EmailAlreadyExists(string email) => string.Format(IdentityResources.UserAlreadyHasEmail, email);
     /// <summary>User's email is already confirmed.</summary>
-    public virtual string EmailAlreadyConfirmed => string.Format(IdentityResources.Culture, IdentityResources.EmailAlreadyConfirmed);
+    public virtual string EmailAlreadyConfirmed => IdentityResources.EmailAlreadyConfirmed;
     /// <summary>User already has phone number '{0}'.</summary>
     /// <param name="phoneNumber">The phone number.</param>
-    public virtual string UserAlreadyHasPhoneNumber(string phoneNumber) => string.Format(IdentityResources.Culture, IdentityResources.UserAlreadyHasPhoneNumber, phoneNumber);
+    public virtual string UserAlreadyHasPhoneNumber(string phoneNumber) => string.Format(IdentityResources.UserAlreadyHasPhoneNumber, phoneNumber);
     /// <summary>User's phone number is already confirmed.</summary>
-    public virtual string PhoneNumberAlreadyConfirmed => string.Format(IdentityResources.Culture, IdentityResources.PhoneNumberAlreadyConfirmed);
+    public virtual string PhoneNumberAlreadyConfirmed => IdentityResources.PhoneNumberAlreadyConfirmed;
     /// <summary>SMS verification code is {token}.</summary>
     /// <param name="token">Phone number verification token.</param>
-    public virtual string PhoneNumberVerificationMessage(string token) => string.Format(IdentityResources.Culture, IdentityResources.PhoneNumberVerificationMessage, token);
+    public virtual string PhoneNumberVerificationMessage(string token) => string.Format(IdentityResources.PhoneNumberVerificationMessage, token);
     /// <summary>SMS verification code is {token}.</summary>
     /// <param name="token">Phone number change verification token.</param>
-    public virtual string PhoneNumberChangeVerificationMessage(string token) => string.Format(IdentityResources.Culture, IdentityResources.PhoneNumberChangeVerificationMessage, token);
+    public virtual string PhoneNumberChangeVerificationMessage(string token) => string.Format(IdentityResources.PhoneNumberChangeVerificationMessage, token);
     /// <summary>Confirm your account.</summary>
-    public virtual string UpdateEmailMessageSubject => string.Format(IdentityResources.Culture, IdentityResources.EmailUpdateMessageSubject);
+    public virtual string UpdateEmailMessageSubject => IdentityResources.EmailUpdateMessageSubject;
     /// <summary>Email verification code is {0}.</summary>
-    public virtual string UpdateEmailMessageBody<TUser>(TUser user, string token, string? returnUrl) where TUser : class => string.Format(IdentityResources.Culture, IdentityResources.EmailUpdateMessageBody, token);
+    public virtual string UpdateEmailMessageBody<TUser>(TUser user, string token, string? returnUrl) where TUser : class => string.Format(IdentityResources.EmailUpdateMessageBody, token);
     /// <summary>Forgot password.</summary>
-    public virtual string ForgotPasswordMessageSubject => string.Format(IdentityResources.Culture, IdentityResources.ForgotPasswordMessageSubject);
+    public virtual string ForgotPasswordMessageSubject => IdentityResources.ForgotPasswordMessageSubject;
     /// <summary>Email verification code is {0}.</summary>
-    public virtual string ForgotPasswordMessageBody<TUser>(TUser user, string token, string? confirmationUrl) where TUser : class => string.Format(IdentityResources.Culture, IdentityResources.ForgotPasswordMessageBody, confirmationUrl);
+    public virtual string ForgotPasswordMessageBody<TUser>(TUser user, string token, string? confirmationUrl) where TUser : class => string.Format(IdentityResources.ForgotPasswordMessageBody, confirmationUrl);
     /// <summary>Subject sent on message when <see cref="OtpAuthenticateExtensionGrantValidator"/> is used.</summary>
-    public virtual string OtpSecuredValidatorOtpSubject => string.Format(IdentityResources.Culture, IdentityResources.OtpSecuredValidatorOtpSubject);
+    public virtual string OtpSecuredValidatorOtpSubject => IdentityResources.OtpSecuredValidatorOtpSubject;
     /// <summary>Message sent on message when <see cref="OtpAuthenticateExtensionGrantValidator"/> is used. Should contain the '{0}' placeholder for the generated token.</summary>
-    public virtual string OtpSecuredValidatorOtpBody() => string.Format(IdentityResources.Culture, IdentityResources.OtpSecuredValidatorOtpBody, "{0}");
+    public virtual string OtpSecuredValidatorOtpBody() => string.Format(IdentityResources.OtpSecuredValidatorOtpBody, "{0}");
     /// <summary>Registration OTP code for device {0} is {1}.</summary>
-    public virtual string DeviceRegistrationCodeMessage(string? deviceName, InteractionMode interactionMode) => string.Format(IdentityResources.Culture, IdentityResources.DeviceRegistrationOtpCode, deviceName, "{0}");
+    public virtual string DeviceRegistrationCodeMessage(string? deviceName, InteractionMode interactionMode) => string.Format(IdentityResources.DeviceRegistrationOtpCode, deviceName, "{0}");
     /// <summary>User cannot add a device because the limit is reached.</summary>
-    public virtual string MaxNumberOfDevices() => string.Format(IdentityResources.Culture, IdentityResources.MaxNumberOfDevices);
+    public virtual string MaxNumberOfDevices() => IdentityResources.MaxNumberOfDevices;
     /// <summary>User tries to set the number of allowed devices to a value greater than the allowed one.</summary>
-    public virtual string LargeNumberOfDevices(int userMaxDevicesCount, int maxAllowedRegisteredDevices) => string.Format(IdentityResources.Culture, IdentityResources.LargeNumberOfDevices, userMaxDevicesCount, maxAllowedRegisteredDevices);
+    public virtual string LargeNumberOfDevices(int userMaxDevicesCount, int maxAllowedRegisteredDevices) => string.Format(IdentityResources.LargeNumberOfDevices, userMaxDevicesCount, maxAllowedRegisteredDevices);
     /// <summary>User tries to set the number of allowed devices to a value lower than the current number.</summary>
-    public virtual string LargeNumberOfUserDevices(int userDevicesCount, int maxAllowedRegisteredDevices) => string.Format(IdentityResources.Culture, IdentityResources.LargeNumberOfUserDevices, userDevicesCount, maxAllowedRegisteredDevices);
+    public virtual string LargeNumberOfUserDevices(int userDevicesCount, int maxAllowedRegisteredDevices) => string.Format(IdentityResources.LargeNumberOfUserDevices, userDevicesCount, maxAllowedRegisteredDevices);
     /// <summary>User tries to set the number of allowed devices to a value lower than 1.</summary>
-    public virtual string InsufficientNumberOfDevices() => string.Format(IdentityResources.Culture, IdentityResources.InsufficientNumberOfDevices);
+    public virtual string InsufficientNumberOfDevices() => IdentityResources.InsufficientNumberOfDevices;
     /// <summary>Device is pending trust activation.</summary>
-    public virtual string DevicePendingTrustActivation() => string.Format(IdentityResources.Culture, IdentityResources.DevicePendingTrustActivation);
+    public virtual string DevicePendingTrustActivation() => IdentityResources.DevicePendingTrustActivation;
     /// <summary>User cannot add any other trusted devices.</summary>
-    public virtual string TrustedDevicesLimitReached() => string.Format(IdentityResources.Culture, IdentityResources.TrustedDevicesLimitReached);
+    public virtual string TrustedDevicesLimitReached() => IdentityResources.TrustedDevicesLimitReached;
     /// <summary>Device is already trusted.</summary>
-    public virtual string DeviceAlreadyTrusted() => string.Format(IdentityResources.Culture, IdentityResources.DeviceAlreadyTrusted);
+    public virtual string DeviceAlreadyTrusted() => IdentityResources.DeviceAlreadyTrusted;
     /// <summary>Message content when <strong>RequiresOtpAttribute</strong> is used.</summary>
     public virtual string RequiresOtpMessage() => IdentityResources.RequiresOtpMessage;
     /// <summary>Message content when <strong>TrustDeviceRequiresOtpAttribute</strong> is used.</summary>
     public virtual string TrustedDeviceRequiresOtpMessage(UserDevice device) => IdentityResources.TrustedDeviceRequiresOtpMessage;
     /// <summary>Message content for an invalid phone number format.</summary>
-    public virtual string InvalidPhoneNumber() => IdentityResources.InvalidPhoneNumber;
+    public virtual string InvalidPhoneNumber => IdentityResources.InvalidPhoneNumber;
     /// <summary>Message content for suspicious login attempt (Impossible Travel).</summary>
-    public virtual string ImpossibleTravelOtpMessage() => string.Format(IdentityResources.Culture, IdentityResources.ImpossibleTravelOtpMessage, "{0}");
+    public virtual string ImpossibleTravelOtpMessage() => string.Format(IdentityResources.ImpossibleTravelOtpMessage, "{0}");
     /// <summary>Subject content for suspicious login attempt (Impossible Travel).</summary>
-    public virtual string ImpossibleTravelOtpSubject => string.Format(IdentityResources.Culture, IdentityResources.ImpossibleTravelOtpSubject);
+    public virtual string ImpossibleTravelOtpSubject => IdentityResources.ImpossibleTravelOtpSubject;
     /// <summary>Subject content for confirmation email.</summary>
-    public virtual string RegisterEmailSubject(string applicationName) => string.Format(IdentityResources.Culture, IdentityResources.RegisterEmailSubject, applicationName);
+    public virtual string RegisterEmailSubject(string applicationName) => string.Format(IdentityResources.RegisterEmailSubject, applicationName);
     /// <summary>Subject content for confirmation email.</summary>
-    public virtual string ConfirmationEmailSubject => string.Format(IdentityResources.Culture, IdentityResources.ConfirmationEmailSubject);
+    public virtual string ConfirmationEmailSubject => IdentityResources.ConfirmationEmailSubject;
     /// <summary>Subject content for confirmation of email change .</summary>
-    public virtual string ConfirmationEmailChangeSubject => string.Format(IdentityResources.Culture, IdentityResources.ConfirmationEmailChangeSubject);
+    public virtual string ConfirmationEmailChangeSubject => IdentityResources.ConfirmationEmailChangeSubject;
 
     /// <summary>Email verification code is {0}.</summary>
-    public virtual string ChangeEmailMessageBody<TUser>(TUser user, string token, string newEmail, string? returnUrl) where TUser : class => string.Format(IdentityResources.Culture, IdentityResources.EmailChangeMessageBody, token);
+    public virtual string ChangeEmailMessageBody<TUser>(TUser user, string token, string newEmail, string? returnUrl) where TUser : class => string.Format(IdentityResources.EmailChangeMessageBody, token);
     /// <summary>OTP Subject for phone update confirmation.</summary>
-    public virtual string PhoneVerificationSmsSubject => string.Format(IdentityResources.Culture, IdentityResources.PhoneVerificationSmsSubject);
+    public virtual string PhoneVerificationSmsSubject => IdentityResources.PhoneVerificationSmsSubject;
     /// <summary>OTP Subject for phone change confirmation.</summary>
-    public virtual string PhoneChangeVerificationSmsSubject => string.Format(IdentityResources.Culture, IdentityResources.PhoneChangeVerificationSmsSubject);
+    public virtual string PhoneChangeVerificationSmsSubject => IdentityResources.PhoneChangeVerificationSmsSubject;
     /// <summary>OTP body for phone confirmation.</summary>
-    public virtual string PhoneVerificationSmsBody(string code) => string.Format(IdentityResources.Culture, IdentityResources.PhoneVerificationSmsBody, code);
+    public virtual string PhoneVerificationSmsBody(string code) => string.Format(IdentityResources.PhoneVerificationSmsBody, code);
 
     /// <summary>Security event subject.</summary>
     public virtual string SecurityEventSubject(string activity) =>
         activity switch {
+            nameof(PasswordSetEvent) => IdentityResources.PasswordSetEventSubject,
             nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventSubject,
-            _ => string.Format(IdentityResources.Culture, IdentityResources.SecurityNotificationDefaultSubject, activity.Replace("Event", "").Humanize())
+            nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventSubject,
+            nameof(TwoFactorPreferenceChangedEvent) => IdentityResources.TwoFactorPreferenceChangedEventSubject,
+            _ => string.Format(IdentityResources.SecurityNotificationDefaultSubject, activity.Replace("Event", "").Humanize())
+        };
+
+    /// <summary>Security event descriptions.</summary>
+    public virtual string SecurityEventDescription(string activity, string? description) =>
+        activity switch {
+            nameof(PasswordSetEvent) => IdentityResources.PasswordSetEventDescription,
+            nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventDescription,
+            nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventDescription,
+            nameof(TwoFactorPreferenceChangedEvent) => string.Format(IdentityResources.TwoFactorPreferenceChangedEventDescription, description),
+            _ => description ?? string.Empty
         };
 
     /// <summary>Add email page validation empty email</summary>
@@ -97,22 +110,42 @@ public class IdentityMessageDescriber
     /// <summary>Forgot password confirmation error</summary>
     public virtual string ForgotPasswordConfirmationError => IdentityResources.ForgotPasswordConfirmationError;
 
+    /// <summary>MFA token not expired message</summary>
+    public virtual string MfaTokenNotExpired => IdentityResources.MfaTokenNotExpired;
     /// <summary>Login page validation invalid credentials error</summary>
     public virtual string LoginValidationInvalidCredentials => IdentityResources.LoginValidationInvalidCredentials;
     /// <summary>Mfa onboarding AddPhone Validation Phone Empty</summary>
     public virtual string MfaAddPhoneValidationPhoneEmpty => IdentityResources.MfaAddPhoneValidationPhoneEmpty;
+    /// <summary>Mfa onboarding AddEmail Validation Email Already Confirmed</summary>
+    public virtual string MfaAddEmailValidationEmailAlreadyConfirmed => IdentityResources.MfaAddEmailValidationEmailAlreadyConfirmed;
+    /// <summary>Mfa onboarding AddEmail Validation Email Empty</summary>
+    public virtual string MfaAddEmailValidationEmailEmpty => IdentityResources.MfaAddEmailValidationEmailEmpty;
+
+    /// <summary>Mfa onboarding AddPhone Validation success message</summary>
+    public virtual string MfaAddEmailSuccessMessage => IdentityResources.MfaAddEmailSuccessMessage;
     /// <summary>Mfa onboarding AddPhone Validation success message</summary>
     public virtual string MfaAddPhoneSuccessMessage => IdentityResources.MfaAddPhoneSuccessMessage;
     /// <summary>Mfa onboarding AddPhone Validation already confirmed</summary>
     public virtual string MfaAddPhoneValidationPhoneAlreadyConfirmed => IdentityResources.MfaAddPhoneValidationPhoneAlreadyConfirmed;
     /// <summary>Mfa onboarding AddPhone Validation missing phone</summary>
     public virtual string MfaVerifyPhoneValidationMissingPhone => IdentityResources.MfaVerifyPhoneValidationMissingPhone;
+
+    /// <summary>Mfa onboarding email Validation missing email</summary>
+    public virtual string MfaVerifyEmailValidationMissingEmail => IdentityResources.MfaVerifyEmailValidationMissingEmail;
+
     /// <summary>Mfa onboarding verfication success message</summary>
     public virtual string MfaVerifyPhoneSuccessMessage => IdentityResources.MfaVerifyPhoneSuccessMessage;
+
+    /// <summary>Mfa onboarding email verification success message</summary>
+    public virtual string MfaVerifyEmailSuccessMessage => IdentityResources.MfaVerifyEmailSuccessMessage;
     /// <summary>Password changed successfully message.</summary>
     public virtual string PasswordChangedSuccessfully => IdentityResources.PasswordChangedSuccessfully;
     /// <summary>Password expired message.</summary>
     public virtual string PasswordExpiredMessage => IdentityResources.PasswordExpiredMessage;
+
+    /// <summary>Choose Password message for new users.</summary>
+    public virtual string PasswordExpiredFirstTimeUserMessage => IdentityResources.PasswordExpiredFirstTimeUserMessage;
+
     /// <summary>Profile external login added success message.</summary>
     public virtual string ProfileExternalLoginAddedSuccessMessage => IdentityResources.ProfileExternalLoginAddedSuccessMessage;
     /// <summary>Registration phone confriamtion message prompt</summary>
@@ -123,10 +156,20 @@ public class IdentityMessageDescriber
     /// <summary>Mfa message subject</summary>
     public virtual string MfaSmsBody => IdentityResources.MfaSmsBody;
 
+    /// <summary>Mfa email subject</summary>
+    public virtual string MfaEmailSubject => IdentityResources.MfaEmailSubject;
+    /// <summary>Mfa email body</summary>
+    public virtual string MfaEmailBody => IdentityResources.MfaEmailBody;
+
     /// <summary>Mfa validation error message</summary>
     public virtual string MfaValidationError => IdentityResources.MfaValidationError;
+    /// <summary>Mfa invalid recovery code error message.</summary>
+    public virtual string MfaInvalidRecoveryCode => IdentityResources.MfaInvalidRecoveryCode;
     /// <summary>Login error message when user is locked out.</summary>
     public virtual string LoginErrorLockedMessage => IdentityResources.LoginErrorLockedMessage;
+
+    /// <summary>Error message when the user has reached the configured attempt limit.</summary>
+    public virtual string LimitAttemptsReached => IdentityResources.LimitAttemptsReached;
 
     #region Add Password UI
     /// <summary>Gets the field name used for validating the "New Password" input in the Add Password UI.</summary>
@@ -158,27 +201,11 @@ public class IdentityMessageDescriber
     public virtual string UI_Validator_AddPhone_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_AddPhone_PhoneNumber_InvalidFormat;
     #endregion
 
-    #region Change Password UI
-    /// <summary>Gets the field name used for validating the "Old Password" input in the Change Password UI.</summary>
-    public virtual string UI_Validator_ChangePassword_OldPassword_FieldName => IdentityResources.UI_Validator_ChangePassword_OldPassword_FieldName;
-    /// <summary>Gets the field name used for validating the "New Password" input in the Change Password UI.</summary>
-    public virtual string UI_Validator_ChangePassword_NewPassword_FieldName => IdentityResources.UI_Validator_ChangePassword_NewPassword_FieldName;
-    #endregion
-
     #region Enable Mfa Sms UI
     /// <summary>Gets the field name used for validating the "Phone Number" input in the Enable MFA SMS UI.</summary>
     public virtual string UI_Validator_EnableMfaSms_PhoneNumber_FieldName => IdentityResources.UI_Validator_EnableMfaSms_PhoneNumber_FieldName;
     /// <summary>Gets the error message displayed when the phone number format is invalid in the Enable MFA SMS UI.</summary>
     public virtual string UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat;
-    #endregion
-
-    #region Forgot Password Confirmation UI
-    /// <summary>Gets the field name used for validating the "Email" input in the Forgot Password Confirmation UI.</summary>
-    public virtual string UI_Validator_ForgotPasswordConfirmation_Email_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_Email_FieldName;
-    /// <summary>Gets the field name used for validating the "New Password" input in the Forgot Password Confirmation UI.</summary>
-    public virtual string UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName;
-    /// <summary>Gets the field name used for validating the "Token" input in the Forgot Password Confirmation UI.</summary>
-    public virtual string UI_Validator_ForgotPasswordConfirmation_Token_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_Token_FieldName;
     #endregion
 
     #region Forgot Password UI
@@ -244,14 +271,84 @@ public class IdentityMessageDescriber
     public virtual string UI_Validator_Register_CallingCode_FieldName => IdentityResources.UI_Validator_Register_CallingCode_FieldName;
     /// <summary>Gets the error message displayed when the "PhoneNumberWithCallingCode" input is invalid in the Register UI.</summary>
     public virtual string UI_Validator_Register_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_Register_PhoneNumber_InvalidFormat;
+    /// <summary>Gets the error message displayed when the "ZoneInfo" input is invalid in the Register UI.</summary>
+    public virtual string UI_Validator_Register_ZoneInfo_InvalidFormat => IdentityResources.UI_Validator_Register_ZoneInfo_InvalidFormat;
+    /// <summary>The message displayed when the password confirmation field is empty in the Register UI.</summary>
+    public virtual string UI_Validator_Register_PasswordConfirmation_Empty_Error => IdentityResources.UI_Validator_Register_PasswordConfirmation_Empty_Error;
+    /// <summary>The message displayed when the password confirmation does not match the password in the Register UI.</summary>
+    public virtual string UI_Validator_Register_PasswordConfirmation_Mismatch_Error => IdentityResources.UI_Validator_Register_PasswordConfirmation_Mismatch_Error;
     #endregion
 
-    #region Verify Phone UI
+    #region Change Password UI
+    /// <summary>Gets the field name used for validating the "Old Password" input in the Change Password UI.</summary>
+    public virtual string UI_Validator_ChangePassword_OldPassword_FieldName => IdentityResources.UI_Validator_ChangePassword_OldPassword_FieldName;
+    /// <summary>Gets the field name used for validating the "New Password" input in the Change Password UI.</summary>
+    public virtual string UI_Validator_ChangePassword_NewPassword_FieldName => IdentityResources.UI_Validator_ChangePassword_NewPassword_FieldName;
+    /// <summary>The message displayed when the new password confirmation field is empty in the Change Password UI.</summary>
+    public virtual string UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error => IdentityResources.UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error;
+    /// <summary>The message displayed when the new password confirmation does not match the new password in the Change Password UI.</summary>
+    public virtual string UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error => IdentityResources.UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error;
+    #endregion
+
+    #region Forgot Password Confirmation UI
+    /// <summary>Gets the field name used for validating the "Email" input in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_Email_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_Email_FieldName;
+    /// <summary>Gets the field name used for validating the "New Password" input in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName;
+    /// <summary>The message displayed when the new password confirmation field is empty in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error => IdentityResources.UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error;
+    /// <summary>The message displayed when the new password confirmation does not match the new password in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error => IdentityResources.UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error;
+    /// <summary>Gets the field name used for validating the "Token" input in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_Token_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_Token_FieldName;
+    #endregion
     /// <summary>Gets the field name used for validating the "PhoneNumber" input in the Verify Phone UI.</summary>
     public virtual string UI_Validator_VerifyPhone_PhoneNumber_FieldName => IdentityResources.UI_Validator_VerifyPhone_PhoneNumber_FieldName;
     /// <summary>Gets the error message displayed when the "PhoneNumber" input is invalid in the Verify Phone UI.</summary>
     public virtual string UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat;
     /// <summary>Gets the field name used for validating the "Code" input in the Verify Phone UI.</summary>
     public virtual string UI_Validator_VerifyPhone_Code_FieldName => IdentityResources.UI_Validator_VerifyPhone_Code_FieldName;
+
+    #region Authentication Methods
+    /// <summary>Display name for SMS authentication method.</summary>
+    public virtual string AuthMethod_Sms_DisplayName => IdentityResources.AuthMethod_Sms_DisplayName;
+    /// <summary>Description for SMS authentication method.</summary>
+    public virtual string AuthMethod_Sms_Description => IdentityResources.AuthMethod_Sms_Description;
+
+    /// <summary>Display name for Email authentication method.</summary>
+    public virtual string AuthMethod_Email_DisplayName => IdentityResources.AuthMethod_Email_DisplayName;
+    /// <summary>Description for Email authentication method.</summary>
+    public virtual string AuthMethod_Email_Description => IdentityResources.AuthMethod_Email_Description;
+
+    /// <summary>Display name for Authenticator App authentication method.</summary>
+    public virtual string AuthMethod_AuthenticatorApp_DisplayName => IdentityResources.AuthMethod_AuthenticatorApp_DisplayName;
+    /// <summary>Description for Authenticator App authentication method.</summary>
+    public virtual string AuthMethod_AuthenticatorApp_Description => IdentityResources.AuthMethod_AuthenticatorApp_Description;
+
+    /// <summary>Display name for FIDO2 authentication method.</summary>
+    public virtual string AuthMethod_Fido2_DisplayName => IdentityResources.AuthMethod_Fido2_DisplayName;
+    /// <summary>Description for FIDO2 authentication method.</summary>
+    public virtual string AuthMethod_Fido2_Description => IdentityResources.AuthMethod_Fido2_Description;
+
+    /// <summary>Display name for Viber authentication method.</summary>
+    public virtual string AuthMethod_Viber_DisplayName => IdentityResources.AuthMethod_Viber_DisplayName;
+    /// <summary>Description for Viber authentication method.</summary>
+    public virtual string AuthMethod_Viber_Description => IdentityResources.AuthMethod_Viber_Description;
+
+    /// <summary>Display name for Trusted Device authentication method.</summary>
+    public virtual string AuthMethod_TrustedDevice_DisplayName => IdentityResources.AuthMethod_TrustedDevice_DisplayName;
+    /// <summary>Description for Trusted Device authentication method.</summary>
+    public virtual string AuthMethod_TrustedDevice_Description => IdentityResources.AuthMethod_TrustedDevice_Description;
+    /// <summary>Display name for Recovery Code authentication method.</summary>
+    public virtual string AuthMethod_RecoveryCode_DisplayName => IdentityResources.AuthMethod_RecoveryCode_DisplayName;
+    /// <summary>Description for Recovery Code authentication method.</summary>
+    public virtual string AuthMethod_RecoveryCode_Description => IdentityResources.AuthMethod_RecoveryCode_Description;
     #endregion
+    /// <summary>
+    /// Retrieves a localized string for the specified label, or returns the label itself if no localized value is
+    /// found.
+    /// </summary>
+    /// <param name="label">The key or identifier for the string to retrieve from the resource manager. Cannot be null.</param>
+    /// <returns>The localized string corresponding to the specified label, or the label itself if no localization is available.</returns>
+    public virtual string GetGenericString(string label) => IdentityResources.ResourceManager.GetString(label, IdentityResources.Culture) ?? label;
 }

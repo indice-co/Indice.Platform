@@ -8,7 +8,7 @@ public class FileUploadRequest
 {
     /// <summary>File data</summary>
     [Required]
-    public IFormFile? File { get; set; }
+    public IFormFile File { get; set; } = null!;
 
     /// <summary>
     /// Bind method
@@ -21,7 +21,7 @@ public class FileUploadRequest
         var form = await context.Request.ReadFormAsync();
         var file = form.Files[nameof(File)];
         return new FileUploadRequest {
-            File = file
+            File = file!
         };
     }
 }

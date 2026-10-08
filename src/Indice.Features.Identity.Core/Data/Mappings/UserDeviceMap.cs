@@ -22,11 +22,13 @@ internal class UserDeviceMap<TUser> : IEntityTypeConfiguration<UserDevice> where
         builder.HasIndex(x => x.DeviceId);
         // Configure properties.
         builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
+        builder.Property(x => x.UserAgentFamily).HasMaxLength(TextSizePresets.M256);
         builder.Property(x => x.UserId).IsRequired();
         builder.Property(x => x.DeviceId).IsRequired();
         builder.Property(x => x.Data).HasJsonConversion();
         builder.Property(x => x.Tags).HasStringArrayConversion();
         builder.Property(x => x.PnsHandle).HasMaxLength(TextSizePresets.M512);
+        builder.Property(x => x.PublicKeyId).HasMaxLength(TextSizePresets.S32);
         // Configure relationships.
         builder.HasOne(x => x.User).WithMany(x => x.Devices).HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
     }

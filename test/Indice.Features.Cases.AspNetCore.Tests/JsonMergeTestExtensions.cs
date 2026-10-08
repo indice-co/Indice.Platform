@@ -10,7 +10,7 @@ public static class JsonMergeTestExtensions
 {
     /// <summary>Simulates data fetching from the db.</summary>
     internal static JsonNode FromDb(this string jsonString) {
-        dynamic converted = new JsonStringValueConverter<dynamic>().ConvertFromProvider(jsonString);
+        dynamic converted = new JsonStringValueConverter<dynamic>().ConvertFromProvider(jsonString)!;
         return JsonNode.Parse(((JsonElement)converted).GetRawText())!;
     }
 
@@ -24,7 +24,7 @@ public static class JsonMergeTestExtensions
 
     /// <summary>Simulates data storing to the db.</summary>
     internal static string ToDb(this JsonNode jsonNode) {
-        dynamic converted = new JsonStringValueConverter<dynamic>().ConvertToProvider(jsonNode);
+        dynamic converted = new JsonStringValueConverter<dynamic>().ConvertToProvider(jsonNode)!;
         return converted;
     }
 

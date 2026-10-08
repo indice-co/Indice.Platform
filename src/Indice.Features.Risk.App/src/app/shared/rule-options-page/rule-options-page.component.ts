@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DataService } from 'src/app/core/services/data.service';
 import { RiskApiService } from 'src/app/core/services/risk-api.service';
 import { ToasterService, ToastType } from "@indice/ng-components";
@@ -6,7 +6,9 @@ import { ToasterService, ToastType } from "@indice/ng-components";
 @Component({
     selector: 'app-rule-options-page',
     templateUrl: './rule-options-page.component.html',
-    styleUrls: ['./rule-options-page.component.scss']
+    styleUrls: ['./rule-options-page.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class RuleOptionsPageComponent implements OnInit {

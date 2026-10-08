@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { forkJoin } from 'rxjs';
@@ -6,8 +6,10 @@ import { Contact, CreateContactRequest, MessagesApiClient } from 'src/app/core/s
 import { ListContactCreateComponent } from 'src/app/shared/components/list-contact-create/list-contact-create.component';
 
 @Component({
-  selector: 'app-contact-create',
-  templateUrl: './contact-create.component.html'
+    selector: 'app-contact-create',
+    templateUrl: './contact-create.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ContactCreateComponent implements OnInit, AfterViewInit {
   @ViewChild('#contactCreateComponent', { static: false }) public contactCreateComponent!: ListContactCreateComponent;
@@ -39,6 +41,7 @@ export class ContactCreateComponent implements OnInit, AfterViewInit {
         phoneNumber: contact.phoneNumber,
         recipientId: contact.recipientId,
         salutation: contact.salutation,
+        resolved: contact.resolved || false,
         communicationPreference: contact.preference
       });
       return this._api.createContact(body);

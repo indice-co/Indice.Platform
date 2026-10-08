@@ -1,42 +1,65 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Indice.Serialization;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Indice.Services.Tests;
 
 public class LockManagerAzureTests
 {
-    private readonly string _connectionString = "UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://127.0.0.1";
     private readonly ILockManager _LockManager;
     private readonly IFileService _FileService;
+
     public LockManagerAzureTests() {
-        if (_connectionString.StartsWith("UseDevelopmentStorage=true;")) {
-            StorageEmulator.Start();
-        }
-        _LockManager = new LockManagerAzure(new LockManagerAzureOptions {
+        var services = new ServiceCollection();
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["ConnectionStrings:Storage"] =
+                    "UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://127.0.0.1"
+            })
+            .Build();
+
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddSingleton<AzureClientFactory>();
+
+        services.AddSingleton(new LockManagerAzureOptions {
             EnvironmentName = "test",
-            ConnectionString = _connectionString
+            ConnectionStringName = "Storage"
         });
-        _FileService = new FileServiceAzureStorage(_connectionString, "test");
+
+        services.AddSingleton<ILockManager, LockManagerAzure>();
+
+        services.AddTransient<IFileService>(sp =>
+            new FileServiceAzureStorage(
+                sp.GetRequiredService<AzureClientFactory>(),
+                "test",
+                null));
+
+        var provider = services.BuildServiceProvider();
+
+        _LockManager = provider.GetRequiredService<ILockManager>();
+        _FileService = provider.GetRequiredService<IFileService>();
     }
 
     [Fact(Skip = "Should integrate azurite on build yaml")]
-    public async Task AquireLockTest() {
+    public async Task AcquireLockTest() {
         var duration = TimeSpan.FromSeconds(15);
         var name = "constantinos"; // using a random name :)
-        var @lock = await _LockManager.AcquireLock(name, duration);
+        var @lock = await _LockManager.AcquireLock(name, duration, TestContext.Current.CancellationToken);
         await using (@lock) {
-            await Task.Delay(TimeSpan.FromSeconds(0.5));
+            await Task.Delay(TimeSpan.FromSeconds(0.5), TestContext.Current.CancellationToken);
         }
-        var @lock2 = await _LockManager.AcquireLock(name, duration);
+        var @lock2 = await _LockManager.AcquireLock(name, duration, TestContext.Current.CancellationToken);
         await using (@lock2) {
-            await Task.Delay(TimeSpan.FromSeconds(0.5));
+            await Task.Delay(TimeSpan.FromSeconds(0.5), TestContext.Current.CancellationToken);
         }
-        var result = await _LockManager.TryAcquireLock(name);
+        var result = await _LockManager.TryAcquireLock(name, cancellationToken: TestContext.Current.CancellationToken);
         if (result.Ok) {
             await using (result.Lock) {
-                await Task.Delay(TimeSpan.FromSeconds(0.5));
+                await Task.Delay(TimeSpan.FromSeconds(0.5), TestContext.Current.CancellationToken);
             }
         }
     }
@@ -47,16 +70,38 @@ public class LockManagerAzureTests
         var durationGreaterThanMax = TimeSpan.FromSeconds(100);
         var name = "constantinos"; // using a random name :)
 
-        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(name, durationLessThanMin));
-        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(name, durationGreaterThanMax));
+        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(name, durationLessThanMin, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(name, durationGreaterThanMax, TestContext.Current.CancellationToken));
     }
 
     [Fact(Skip = "Only for debug purposes")]
     public async Task FunctionLockingTestMaster() {
         var duration = TimeSpan.FromSeconds(60);
         var operation = "MasterProductImport"; // using a random name :)
-        var @lock = await _LockManager.AcquireLock(operation, duration);
+        var @lock = await _LockManager.AcquireLock(operation, duration, TestContext.Current.CancellationToken);
         await _FileService.SaveAsync($"messages/{operation}.json", Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new Tuple<string, string>(@lock.LeaseId, @lock.Name))));
+    }
+
+
+    [Fact(Skip = "Only for debug purposes")]
+    public async Task LockingDurationValidationTest() {
+        var duration = TimeSpan.FromSeconds(10);
+        var operation = "MasterProductImport"; // using a random name :)
+        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(operation, duration, TestContext.Current.CancellationToken));
+
+        duration = TimeSpan.FromSeconds(30);
+        var @lock = await _LockManager.AcquireLock(operation, duration, TestContext.Current.CancellationToken);
+        Assert.NotNull(@lock);
+        await _LockManager.ReleaseLock(@lock);
+
+        duration = TimeSpan.FromSeconds(60);
+        @lock = await _LockManager.AcquireLock(operation, duration, TestContext.Current.CancellationToken);
+        Assert.NotNull(@lock);
+        await _LockManager.ReleaseLock(@lock);
+
+        duration = TimeSpan.FromSeconds(70);
+        await Assert.ThrowsAsync<LockManagerException>(() => _LockManager.AcquireLock(operation, duration, TestContext.Current.CancellationToken));
+        
     }
 
     [Fact(Skip = "Only for debug purposes")]
@@ -64,8 +109,9 @@ public class LockManagerAzureTests
         var operation = "MasterProductImport"; // using a random name :)
         var bytes = await _FileService.GetAsync($"messages/{operation}.json");
         var message = JsonSerializer.Deserialize<(string LeaseId, string Name)>(Encoding.UTF8.GetString(bytes), JsonSerializerOptionDefaults.GetDefaultSettings());
-        var @lock = await _LockManager.Renew(message.Name, message.LeaseId);
-        await Task.Delay(TimeSpan.FromSeconds(10));
+        var @lock = await _LockManager.Renew(message.Name, message.LeaseId, TestContext.Current.CancellationToken);
+        Assert.NotNull(@lock);
+        await Task.Delay(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
     }
 
     [Fact(Skip = "Only for debug purposes")]
@@ -74,7 +120,7 @@ public class LockManagerAzureTests
         await _LockManager.ExclusiveRun(operation, async (token) => {
             await Task.Delay(TimeSpan.FromSeconds(10), token);
             Console.WriteLine("operation run...");
-        }, cancellationToken: default, new ExclusiveRunOptions {
+        }, cancellationToken: TestContext.Current.CancellationToken, new ExclusiveRunOptions {
             LockDuration = 30,
             RetryIntervalInSeconds = null
         });
@@ -87,7 +133,7 @@ public class LockManagerAzureTests
         var source = new CancellationTokenSource();
         source.CancelAfter(TimeSpan.FromSeconds(2));
 
-        using var lock1 = await _LockManager.AcquireLock(operation, TimeSpan.FromSeconds(59));
+        using var lock1 = await _LockManager.AcquireLock(operation, TimeSpan.FromSeconds(59), TestContext.Current.CancellationToken);
 
         var exclusiveRunTask = _LockManager.ExclusiveRun(operation, async (token) => {
             await Task.Delay(TimeSpan.FromSeconds(1), token);

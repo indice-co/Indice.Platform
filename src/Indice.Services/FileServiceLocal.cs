@@ -20,7 +20,7 @@ public class FileServiceLocal : IFileService
 
     /// <inheritdoc />
     public Task<bool> DeleteAsync(string filePath, bool isDirectory = false) {
-        filePath = Path.Combine(BaseDirectoryPath, filePath);
+        filePath = Path.Join(BaseDirectoryPath, filePath);
         GuardExists(filePath, isDirectory);
         if (!isDirectory) {
             File.Delete(filePath);
@@ -34,14 +34,14 @@ public class FileServiceLocal : IFileService
 
     /// <inheritdoc />
     public Task<byte[]> GetAsync(string filePath) {
-        filePath = Path.Combine(BaseDirectoryPath, filePath);
+        filePath = Path.Join(BaseDirectoryPath, filePath);
         GuardExists(filePath);
         return Task.FromResult(File.ReadAllBytes(filePath));
     }
 
     /// <inheritdoc />
     public Task<IEnumerable<string>> SearchAsync(string path) {
-        var folderPath = Path.Combine(BaseDirectoryPath, path);
+        var folderPath = Path.Join(BaseDirectoryPath, path);
         if (!GuardExists(folderPath, isDirectory: true, throwOnError: false)) {
             return Task.FromResult(Enumerable.Empty<string>());
         }
@@ -54,7 +54,7 @@ public class FileServiceLocal : IFileService
 
     /// <inheritdoc />
     public Task<FileProperties?> GetPropertiesAsync(string filePath) {
-        filePath = Path.Combine(BaseDirectoryPath, filePath);
+        filePath = Path.Join(BaseDirectoryPath, filePath);
         GuardExists(filePath);
         var info = new FileInfo(filePath);
         return Task.FromResult(new FileProperties {
@@ -69,7 +69,7 @@ public class FileServiceLocal : IFileService
 
     /// <inheritdoc />
     public async Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions? saveOptions) {
-        filePath = Path.Combine(BaseDirectoryPath, filePath);
+        filePath = Path.Join(BaseDirectoryPath, filePath);
         var directory = Path.GetDirectoryName(filePath)!;
         if (!Directory.Exists(directory)) {
             Directory.CreateDirectory(directory);
@@ -81,8 +81,8 @@ public class FileServiceLocal : IFileService
 
     /// <inheritdoc />
     public Task MoveAsync(string sourcePath, string destinationPath) {
-        sourcePath = Path.Combine(BaseDirectoryPath, sourcePath);
-        destinationPath = Path.Combine(BaseDirectoryPath, destinationPath);
+        sourcePath = Path.Join(BaseDirectoryPath, sourcePath);
+        destinationPath = Path.Join(BaseDirectoryPath, destinationPath);
         var isDirectory = GuardExists(sourcePath, isDirectory: true, throwOnError: false);
         var isFile = GuardExists(sourcePath, isDirectory: false, throwOnError: false);
         if (!isDirectory && !isFile) {
@@ -100,7 +100,7 @@ public class FileServiceLocal : IFileService
     private static bool GuardExists(string path, bool isDirectory = false, bool throwOnError = true) {
         var exists = isDirectory ? Directory.Exists(path) : File.Exists(path);
         if (!exists && throwOnError) {
-            throw new Exception($"file or directory '{path}' not found.");
+            throw new FileNotFoundServiceException($"file or directory '{path}' not found.");
         }
         return exists;
     }

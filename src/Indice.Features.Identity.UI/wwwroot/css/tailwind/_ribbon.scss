@@ -5,15 +5,21 @@
         @apply text-sm text-[10px] font-bold text-white uppercase text-center w-24 bg-tenant-900 shadow-lg absolute md:top-[20px] top-0 left-0 md:-left-[24px] md:rotate-[322deg] w-full;
     }
 
-    &.development {
+    &.development, &.dev {
         span {
-            @apply bg-white;
+            @apply text-white bg-tenant-900;
         }
     }
 
-    &.sandbox {
+    &.sandbox, &.test, &.uat {
         span {
-            @apply bg-yellow-600 text-black;
+            @apply text-black bg-warning-900;
+        }
+    }
+
+    &.pre, &.staging, &.stage {
+        span {
+            @apply bg-black text-white;
         }
     }
 }

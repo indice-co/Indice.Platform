@@ -4,8 +4,9 @@ import { Modal, ModalOptions } from '@indice/ng-components';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 
 @Component({
-  selector: 'app-delete-query-modal',
-  templateUrl: './delete-query-modal.component.html'
+    selector: 'app-delete-query-modal',
+    templateUrl: './delete-query-modal.component.html',
+    standalone: false
 })
 export class DeleteQueryModalComponent implements OnInit {
   public query: any;

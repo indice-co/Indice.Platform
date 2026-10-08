@@ -1,5 +1,4 @@
 ﻿using Indice.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
@@ -12,6 +11,7 @@ public static class IServiceCollectionFileExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureOptions>? configure = null) {
+        services.TryAddSingleton<AzureClientFactory>();
         services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => GetFileServiceAzureStorage(serviceProvider, configure));
         return services;
     }
@@ -22,8 +22,8 @@ public static class IServiceCollectionFileExtensions
             ContainerName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
         };
         configure?.Invoke(options);
-        var connectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(options.ConnectionStringName);
-        return new FileServiceAzureStorage(connectionString!, options.ContainerName);
+        var blobContainerCache = serviceProvider.GetRequiredService<AzureClientFactory>();
+        return new FileServiceAzureStorage(blobContainerCache, options.ConnectionStringName, options.ContainerName);
     };
 
     /// <summary>The factory that creates the default instance and configuration for <see cref="FileServiceLocal"/>.</summary>
@@ -102,6 +102,7 @@ public static class IServiceCollectionFileExtensions
 
     /// <summary>Adds <see cref="FileServiceAzureStorage"/> implementation.</summary>
     public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceAzureOptions>? configure = null) {
+        builder.Services.TryAddSingleton<AzureClientFactory>();
         builder.Services.AddKeyedTransient<IFileService, FileServiceAzureStorage>(serviceKey: name, implementationFactory: (sp, serviceKey) => GetFileServiceAzureStorage(sp, configure));
         return builder;
     }
@@ -117,6 +118,6 @@ public static class IServiceCollectionFileExtensions
 
         /// <summary>Specifies the contract for a collection of service descriptors.</summary>
         public IServiceCollection Services { get; }
-    }   
+    }
 }
 

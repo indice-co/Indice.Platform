@@ -1,0 +1,41 @@
+name: Code analysis (JavaScript)
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+
+jobs:
+  run-codeql-javascript:
+    permissions:
+      security-events: write
+    runs-on: windows-2025
+    steps:
+
+    - name: Harden Runner
+      uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+      with:
+        egress-policy: audit
+
+    - name: Checkout Repository
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      with:
+        node-version: 24
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8
+      with:
+        languages: javascript-typescript
+        build-mode: none
+        config-file: ./.github/workflows/codeql/codeql-config.yml
+      
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8
+      with:
+        category: "/language:javascript-typescript"
+
+    

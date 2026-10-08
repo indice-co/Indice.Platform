@@ -1,12 +1,14 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { EnhancedComboboxComponent } from '@indice/ng-components';
 import { lastValueFrom } from 'rxjs';
 import { settings } from 'src/app/core/models/settings';
 import { MessagesApiClient, ContactResultSet, Contact } from 'src/app/core/services/messages-api.service';
 
 @Component({
-  selector: 'app-list-contact-create',
-  templateUrl: './list-contact-create.component.html'
+    selector: 'app-list-contact-create',
+    templateUrl: './list-contact-create.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ListContactCreateComponent implements AfterViewInit {
 
@@ -77,7 +79,7 @@ export class ListContactCreateComponent implements AfterViewInit {
 
   private _fetchContacts(searchTerm: string | undefined): Promise<ContactResultSet> {
     return lastValueFrom(
-      this._api.getContacts(this._page, this._pageSize, 'email', searchTerm, undefined, undefined, undefined, undefined, true)
+      this._api.getContacts(this._page, this._pageSize, 'email', searchTerm, undefined, undefined, undefined, undefined, undefined, true)
     );
   }
 
@@ -112,7 +114,7 @@ export class ListContactCreateComponent implements AfterViewInit {
     }
     (<any>contact)._edit = true;
     this.contactsCombobox.selectedItems.unshift(contact);
-    this.contactsCombobox.busy = true;
+    this.isLoading = false;
   }
 
   public submit(): void {

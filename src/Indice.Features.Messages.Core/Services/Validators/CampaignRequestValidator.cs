@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Indice.Configuration;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -22,9 +23,12 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
         _templateService = serviceProvider.GetRequiredService<ITemplateService>();
         RuleFor(campaign => campaign.Title)
             .NotEmpty()
-            .WithMessage("Please provide a title for the campaign.")
+            .WithMessage("Campaign title is required.")
+            .When(campaign => !campaign.MessageTemplateId.HasValue);
+        RuleFor(campaign => campaign.Title)
             .MaximumLength(TextSizePresets.M128)
-            .WithMessage($"Campaign title cannot exceed {TextSizePresets.M128} characters.");
+            .WithMessage($"Campaign title cannot exceed {TextSizePresets.M128} characters.")
+            .When(campaign => !string.IsNullOrWhiteSpace(campaign.Title));
         RuleFor(campaign => campaign.Content)
             .Must(content => content.Count > 0)
             .When(campaign => !campaign.MessageTemplateId.HasValue)
@@ -33,9 +37,9 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
             .When(campaign => !campaign.MessageTemplateId.HasValue)
             .WithMessage("Channels provided in the content are not valid.");
         RuleFor(campaign => campaign.MessageTemplateId)
-            .Must(BeExistingTemplateId)
+            .MustAsync(BeExistingFullTemplateId)
             .When(campaign => campaign.MessageTemplateId.HasValue) // Check that TemplateId is valid, when it is provided.
-            .WithMessage("Specified template id is not valid.");
+            .WithMessage("The template either does not exist or is not Full.");
         RuleFor(campaign => campaign.RecipientListId)
             .Must(id => id is null)
             .When(campaign => campaign.IsGlobal) // DistributionListId property must not be provided when campaign is global.
@@ -57,7 +61,8 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
             .WithMessage($"Campaign action text cannot exceed {TextSizePresets.M128} characters.");
         RuleFor(campaign => campaign.ActionLink!.Href)
             .MaximumLength(TextSizePresets.L1024)
-            .Matches(@"^https?:\/\/\w+(\.\w+)*(:[0-9]+)?(\/.*)?$")
+            .Must(href => Uri.IsWellFormedUriString(href, UriKind.Absolute) && 
+                (href!.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || href.StartsWith("https://", StringComparison.OrdinalIgnoreCase)))
             .When(x => !string.IsNullOrWhiteSpace(x.ActionLink?.Href))
             .WithMessage($"Campaign action URL is not valid.");
     }
@@ -66,5 +71,11 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
 
     private bool BeExistingDistributionListId(GuidOrAlias? id) => _distributionListService.GetById(id).Result is not null;
 
-    private bool BeExistingTemplateId(GuidOrAlias? id) => _templateService.GetById(id).Result is not null;
+    private async Task<bool> BeExistingFullTemplateId(GuidOrAlias? id, CancellationToken cancellationToken) {
+        var template =  await _templateService.GetById(id);
+        if (template is not null && template.Type == TemplateType.Full) {
+            return true;
+        }
+        return false;
+    }
 }

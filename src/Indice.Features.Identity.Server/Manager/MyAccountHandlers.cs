@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using IdentityModel;
+using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Extensions;
@@ -35,6 +35,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
+using Indice.Features.Identity.Core.Extensions;
+using Indice.Features.Identity.Core.Guards;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -93,7 +95,7 @@ internal static partial class MyAccountHandlers
         ClaimsPrincipal currentUser,
         ConfirmEmailRequest request
     ) {
-        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var userId = currentUser.FindFirstValue(BasicClaimTypes.Subject);
         var user = await userManager.Users
                                     .Include(x => x.Claims)
                                     .Where(x => x.Id == userId)
@@ -159,7 +161,7 @@ internal static partial class MyAccountHandlers
         ClaimsPrincipal currentUser,
         ConfirmEmailChangeRequest request
     ) {
-        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var userId = currentUser.FindFirstValue(BasicClaimTypes.Subject);
         var user = await userManager.Users
                                     .Include(x => x.Claims)
                                     .Where(x => x.Id == userId)
@@ -184,7 +186,8 @@ internal static partial class MyAccountHandlers
         IOptions<ExtendedEndpointOptions> endpointOptions,
         ClaimsPrincipal currentUser,
         ISmsServiceFactory smsServiceFactory,
-        UpdateUserPhoneNumberRequest request
+        UpdateUserPhoneNumberRequest request,
+        IActionRateLimiter actionRateLimiter
     ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user == null) {
@@ -203,10 +206,15 @@ internal static partial class MyAccountHandlers
         if (!endpointOptions.Value.PhoneNumber.SendOtpOnUpdate) {
             return TypedResults.NoContent();
         }
+        if (!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, "Sms:PhoneNumberChange")) {
+            return TypedResults.ValidationProblem(
+                ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(),
+                userManager.MessageDescriber.LimitAttemptsReached)
+            );
+        }
         var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
-
         var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber!);
-        await smsService.SendAsync(request.PhoneNumber!, string.Empty, userManager.MessageDescriber.PhoneNumberVerificationMessage(token));
+        await smsService.SendAsync(request.PhoneNumber!, string.Empty, userManager.MessageDescriber.PhoneNumberVerificationMessage(token)); 
         return TypedResults.NoContent();
     }
 
@@ -215,7 +223,8 @@ internal static partial class MyAccountHandlers
         IOptions<ExtendedEndpointOptions> endpointOptions,
         ClaimsPrincipal currentUser,
         ISmsServiceFactory smsServiceFactory,
-        ChangeUserPhoneNumberRequest request
+        ChangeUserPhoneNumberRequest request,
+        IActionRateLimiter actionRateLimiter
     ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user == null) {
@@ -225,6 +234,11 @@ internal static partial class MyAccountHandlers
         if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase) && await userManager.IsPhoneNumberConfirmedAsync(user)) {
             return TypedResults.ValidationProblem(
                 ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber))
+            );
+        }
+        if(!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, "Sms:PhoneNumberChange")) {
+            return TypedResults.ValidationProblem(
+                ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.LimitAttemptsReached)
             );
         }
         var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
@@ -238,7 +252,7 @@ internal static partial class MyAccountHandlers
         ClaimsPrincipal currentUser,
         ConfirmPhoneNumberRequest request
     ) {
-        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var userId = currentUser.FindFirstValue(BasicClaimTypes.Subject);
         var user = await userManager
             .Users
             .Include(x => x.Claims)
@@ -263,7 +277,7 @@ internal static partial class MyAccountHandlers
         ClaimsPrincipal currentUser,
         ConfirmPhoneNumberChangeRequest request
     ) {
-        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var userId = currentUser.FindFirstValue(BasicClaimTypes.Subject);
         var user = await userManager
             .Users
             .Include(x => x.Claims)
@@ -284,7 +298,7 @@ internal static partial class MyAccountHandlers
         ClaimsPrincipal currentUser,
         SetUserBlockRequest request
     ) {
-        if (!await featureManager.IsEnabledAsync(IdentityEndpoints.Features.PublicRegistration)) {
+        if (await featureManager.IsEnabledAsync(IdentityEndpoints.Features.DisableAccountBlocking)) {
             return TypedResults.NotFound();
         }
         var user = await userManager.GetUserAsync(currentUser);
@@ -348,9 +362,13 @@ internal static partial class MyAccountHandlers
         if (user == null) {
             return TypedResults.NoContent();
         }
+        if (user.Claims.Count is 0) {
+            _ = await userManager.GetClaimsAsync(user);
+        }
         var code = await userManager.GeneratePasswordResetTokenAsync(user);
-        var data = new EmailChangeEmailModel {
-            DisplayName = currentUser.FindDisplayName() ?? user.UserName,
+        
+        var data = new ForgotPasswordEmailModel {
+            DisplayName = user.FindDisplayName() ?? user.Email!,
             ReturnUrl = request.ReturnUrl,
             Subject = userManager.MessageDescriber.ForgotPasswordMessageSubject,
             Token = code,
@@ -360,7 +378,7 @@ internal static partial class MyAccountHandlers
         await emailService.SendAsync(message => {
             var builder = message
                 .To(user.Email!)
-                .WithSubject(userManager.MessageDescriber.ForgotPasswordMessageSubject);
+                .WithSubject(data.Subject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.ForgotPasswordTemplate)) {
                 builder.UsingTemplate(endpointOptions.Value.Email.ForgotPasswordTemplate)
                        .WithData(data);
@@ -574,7 +592,7 @@ internal static partial class MyAccountHandlers
     }
 
     internal static async Task<Results<NoContent, NotFound>> RevokeConsents(
-        ExtendedUserManager<User> userManager, 
+        ExtendedUserManager<User> userManager,
         IPersistedGrantService grants,
         IEventService events,
         ClaimsPrincipal currentUser,
@@ -723,15 +741,15 @@ internal static partial class MyAccountHandlers
         };
         if (!string.IsNullOrWhiteSpace(request.FirstName)) {
             user.Claims.Add(new IdentityUserClaim<string> {
-                ClaimType = JwtClaimTypes.GivenName,
-                ClaimValue = request.FirstName ?? string.Empty,
+                ClaimType = BasicClaimTypes.GivenName,
+                ClaimValue = request.FirstName,
                 UserId = user.Id
             });
         }
         if (!string.IsNullOrWhiteSpace(request.LastName)) {
             user.Claims.Add(new IdentityUserClaim<string> {
-                ClaimType = JwtClaimTypes.FamilyName,
-                ClaimValue = request.LastName ?? string.Empty,
+                ClaimType = BasicClaimTypes.FamilyName,
+                ClaimValue = request.LastName,
                 UserId = user.Id
             });
         }
@@ -750,7 +768,7 @@ internal static partial class MyAccountHandlers
         if (request.HasConsentedToCommercialCommunications) {
             user.Claims.Add(new() {
                 ClaimType = BasicClaimTypes.ConsentCommercial,
-                ClaimValue = request.HasConsentedToCommercialCommunications ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+                ClaimValue = bool.TrueString.ToLower(),
                 UserId = user.Id
             });
             user.Claims.Add(new() {
@@ -766,7 +784,6 @@ internal static partial class MyAccountHandlers
         var result = new Dictionary<string, (string Description, string? Hint)>();
         var passwordOptions = userManager.Options.Password;
         var errorDescriber = userManager.ErrorDescriber;
-        var messageDescriber = userManager.MessageDescriber;
         result.Add(nameof(IdentityErrorDescriber.PasswordTooShort),
             (userManager.ErrorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description, Hint: errorDescriber.PasswordTooShortRequirement(passwordOptions.RequiredLength)));
         if (passwordOptions.RequiredUniqueChars > 1) {
@@ -917,7 +934,7 @@ internal static partial class MyAccountHandlers
                                       }
                                       return info;
                                   }).ToList();
-            
+
             return consents;
         } catch (Exception) { }
         return [];

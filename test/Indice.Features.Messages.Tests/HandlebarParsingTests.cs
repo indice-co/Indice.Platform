@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using HandlebarsDotNet;
 using HandlebarsDotNet.Extension.Json;
+using Indice.Features.Messages.Core.Rendering;
 using Xunit;
 
 namespace Indice.Features.Messages.Tests;
@@ -35,4 +36,38 @@ public class HandlebarParsingTests
         Assert.Equal(expected, output);
     }
 
+
+    [InlineData(
+    "{\"inbox\":{\"title\":\"Test sms encoding\",\"body\":\"Placeholder for real value\"},\"sms\":{\"title\":\"Test sms encoding\",\"body\":\"Hellooo\\n\\n&\\n\\nGoodbye\"}}",
+    "SMS: {{data.sms.body}}",
+    "SMS",
+    "SMS: Hellooo\n\n&\n\nGoodbye")]
+
+    [InlineData(
+    "{\"inbox\":{\"title\":\"Test sms encoding\",\"body\":\"Placeholder for real value\"},\"sms\":{\"title\":\"Test sms encoding\",\"body\":\"Hellooo\\n\\n&\\n\\nGoodbye\"},\"email\":{\"title\":\"Test email encoding\",\"body\":\"Hellooo\\n\\n&\\n\\nGoodbye\"}}",
+    "Email: {{data.email.body}}",
+    "Email",
+    "Email: Hellooo\n\n&amp;\n\nGoodbye")]
+
+    [InlineData(
+    "{\"sms\":{\"title\":\"incharge - Ολοκλήρωση Φόρτισης\",\"body\":\"Η φόρτιση στον σταθμο 50 €.\"},\"email\":{\"title\":\"Test email encoding\",\"body\":\"Hellooo\\n\\n&\\n\\nGoodbye\"}}",
+    "sms: {{data.sms.body}}",
+    "sms",
+    "sms: Η φόρτιση στον σταθμο 50 €.")]
+
+    [Theory]
+    public static void TestHandlebarsTextEncoder(string data, string template, string channel, string expected) {
+        var handlebars = Handlebars.Create();
+        handlebars.Configuration.UseJson();
+        handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(channel);
+        dynamic templateData = new {
+            title = "Welcome",
+            data = data is not null && (data is not string || !string.IsNullOrWhiteSpace(data))
+                    ? JsonDocument.Parse(data)
+                    : null
+        };
+        var output = handlebars.Compile(template)(templateData);
+        Assert.Equal(expected, output);
+    }
 }
+

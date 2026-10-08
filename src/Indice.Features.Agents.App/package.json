@@ -1,0 +1,58 @@
+{
+  "name": "indice.dex.app",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "build:template": "ng build --configuration template",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "generate:api": "cd src/app/core/services && nswag run dex-api.nswag"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/common": "^20.3.0",
+    "@angular/compiler": "^20.3.0",
+    "@angular/core": "^20.3.0",
+    "@angular/forms": "^20.3.0",
+    "@angular/platform-browser": "^20.3.0",
+    "@angular/router": "^20.3.0",
+    "@indice/ng-auth": "0.5.2",
+    "ngx-markdown": "^20.0.0",
+    "marked": "^15.0.0",
+    "oidc-client-ts": "^3.5.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.3.6",
+    "@angular/cli": "^20.3.6",
+    "@angular/compiler-cli": "^20.3.0",
+    "@tailwindcss/postcss": "^4.3.1",
+    "@types/jasmine": "~5.1.0",
+    "daisyui": "^5.5.23",
+    "jasmine-core": "~5.9.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "nswag": "^14.7.1",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.1",
+    "typescript": "~5.9.2"
+  }
+}

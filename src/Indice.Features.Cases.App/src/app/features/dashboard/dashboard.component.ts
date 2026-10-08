@@ -7,8 +7,9 @@ import { settings } from 'src/app/core/models/settings';
 import { ReportTag } from 'src/app/core/services/cases-api.service';
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html'
+    selector: 'app-dashboard',
+    templateUrl: './dashboard.component.html',
+    standalone: false
 })
 export class DashboardComponent implements OnInit {
   public metaItems: HeaderMetaItem[] | null = [];

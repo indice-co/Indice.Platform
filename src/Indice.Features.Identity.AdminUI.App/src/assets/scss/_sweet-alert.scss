@@ -1,6 +1,7 @@
 /* =========== */
 /* Sweet Alert2 */
 /* =========== */
+@use 'variables' as *;
 
 .swal2-container {
   font-family: $font-primary;

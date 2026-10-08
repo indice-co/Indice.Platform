@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Indice.Features.GeoIP\Indice.Features.GeoIP.csproj" />
+  </ItemGroup>
+
+</Project>

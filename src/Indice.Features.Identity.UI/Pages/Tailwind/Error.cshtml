@@ -1,11 +1,11 @@
 ﻿@page "/error"
 
-@inject IIdentityViewLocalizer Localizer
+@inject IdentityUILocalizer Localizer
 
 @model BaseErrorModel
 
 @{
-    var error = Localizer["Oops! Seems we encountered an error."].Value;
+    var error = Localizer.Error_Oops_Seems_We_Encountered_An_Error.Value;
 }
 
 <div class="content-wrapper">
@@ -15,12 +15,12 @@
             @if (Model is { Message: { Length: > 0 } })
             {
                 <strong>
-                    <em>: @Model.Message</em>
+                    @Model.Title <em>: @Model.Message</em>
                 </strong>
             }
             @if (Model is { RequestId: { Length: > 0 } })
             {
-                <div class="request-id">@Localizer["Request Id"]: @Model.RequestId</div>
+                <div class="request-id">@Localizer.Error_Request_Id: @Model.RequestId</div>
             }
         </p>
     </div>

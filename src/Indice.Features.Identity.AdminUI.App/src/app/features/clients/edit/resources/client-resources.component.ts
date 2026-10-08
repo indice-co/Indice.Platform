@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
@@ -7,7 +7,9 @@ import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 
 @Component({
     selector: 'app-client-resources',
-    templateUrl: './client-resources.component.html'
+    templateUrl: './client-resources.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ClientResourcesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

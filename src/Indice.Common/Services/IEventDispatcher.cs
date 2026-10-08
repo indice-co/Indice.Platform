@@ -14,7 +14,8 @@ public interface IEventDispatcher
     /// <param name="wrap">Wrap around an envelope object. Defaults to true.</param>
     /// <param name="queueName">The name of the queue. If not specified, the name of <typeparamref name="TEvent"/> in kebab case is used.</param>
     /// <param name="prependEnvironmentInQueueName">When set to true, it prepends the queue name with the environment name. For example <b>production-my-queue-name</b>. Defaults to true.</param>
-    Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal? actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string? queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class;
+    /// <param name="sessionId">The session identifier for the message. When supported by the underlying implementation, this can be used to partition messages and preserve ordering within a session.</param>
+    Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal? actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string? queueName = null, bool prependEnvironmentInQueueName = true, string? sessionId = null) where TEvent : class;
 }
 
 /// <summary>Extension methods on <see cref="IEventDispatcher"/>.</summary>
@@ -29,11 +30,11 @@ public static class IEventDispatcherExtensions
         var optionsBuilder = new EventDispatcherRaiseOptionsBuilder();
         configure?.Invoke(optionsBuilder);
         var options = optionsBuilder.Build();
-        return eventDispatcher.RaiseEventAsync(payload, options.ClaimsPrincipal, options.VisibilityTimeout, options.Wrap, options.QueueName, options.PrependEnvironmentInQueueName);
+        return eventDispatcher.RaiseEventAsync(payload, options.ClaimsPrincipal, options.VisibilityTimeout, options.Wrap, options.QueueName, options.PrependEnvironmentInQueueName, options.SessionId);
     }
 }
 
-/// <summary>Options for configuring <see cref="IEventDispatcher.RaiseEventAsync{TEvent}(TEvent, ClaimsPrincipal, TimeSpan?, bool, string, bool)"/> method.</summary>
+/// <summary>Options for configuring <see cref="IEventDispatcher.RaiseEventAsync{TEvent}(TEvent, ClaimsPrincipal, TimeSpan?, bool, string, bool, string)"/> method.</summary>
 public class EventDispatcherRaiseOptions
 {
     /// <summary>A <see cref="System.Security.Claims.ClaimsPrincipal"/> instance that contains information about the entity that triggered the event.</summary>
@@ -46,6 +47,8 @@ public class EventDispatcherRaiseOptions
     public string? QueueName { get; set; }
     /// <summary>When set to true, it prepends the queue name with the environment name. For example <b>production-my-queue-name</b>. Defaults to true.</summary>
     public bool PrependEnvironmentInQueueName { get; set; } = true;
+    /// <summary>The session identifier for the message. When supported by the underlying implementation, this can be used to partition messages and preserve ordering within a session.</summary>
+    public string? SessionId { get; set; }
 }
 
 /// <summary>An abstraction for implementing a builder for <see cref="EventDispatcherRaiseOptions"/>.</summary>
@@ -75,6 +78,10 @@ public interface IEventDispatcherRaiseOptionsBuilder
     /// <param name="prepend">Prepend.</param>
     /// <returns>The builder to construct the <see cref="EventDispatcherRaiseOptions"/> instance.</returns>
     IEventDispatcherRaiseOptionsBuilder PrependEnvironmentInQueueName(bool prepend = true);
+    /// <summary>Defines the session identifier for the message. When supported by the underlying implementation, this can be used to partition messages and preserve ordering within a session.</summary>
+    /// <param name="sessionId">The session identifier.</param>
+    /// <returns>The builder to construct the <see cref="EventDispatcherRaiseOptions"/> instance.</returns>
+    IEventDispatcherRaiseOptionsBuilder WithSessionId(string sessionId);
     /// <summary>Creates the actual instance of <see cref="EventDispatcherRaiseOptions"/>.</summary>
     EventDispatcherRaiseOptions Build();
 }
@@ -122,6 +129,15 @@ public class EventDispatcherRaiseOptionsBuilder : IEventDispatcherRaiseOptionsBu
     public IEventDispatcherRaiseOptionsBuilder At(DateTime dateTime) {
         var visibilityTimeout = dateTime - DateTime.UtcNow;
         Options.VisibilityTimeout = visibilityTimeout <= TimeSpan.Zero ? null : visibilityTimeout;
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IEventDispatcherRaiseOptionsBuilder WithSessionId(string sessionId) {
+        if (string.IsNullOrWhiteSpace(sessionId)) {
+            throw new ArgumentException("SessionId cannot be null or whitespace.", nameof(sessionId));
+        }
+        Options.SessionId = sessionId;
         return this;
     }
 }

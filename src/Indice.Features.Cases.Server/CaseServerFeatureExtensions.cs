@@ -1,15 +1,17 @@
-﻿using FluentValidation;
+﻿using Duende.AccessTokenManagement;
+using FluentValidation;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
 using Indice.Features.Cases.Server.Endpoints.Validators;
-using Indice.Features.Cases.Server.Extensions;
 using Indice.Features.Cases.Server.Integration;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -57,25 +59,38 @@ public static class CaseServerFeatureExtensions
             options.GroupName = serverOptions.GroupName;
             options.ConfigureLimitUpload = serverOptions.ConfigureLimitUpload;
             options.ByPassAccessRulesForElevatedUsers = serverOptions.ByPassAccessRulesForElevatedUsers;
+            options.MapTranslations = serverOptions.MapTranslations;
         });
         builder.Services.AddLimitUpload(serverOptions.ConfigureLimitUpload);
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessRoleBasedHandler>();
         builder.Services.AddClientCredentialsTokenManagement().AddClient("cases", options => {
-            options.TokenEndpoint = builder.Configuration.GetAuthority(tryInternal: true) + "/connect/token";
-            options.ClientId = builder.Configuration.GetApiSecret("ClientId");
-            options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
-            options.Scope = serverOptions.RequiredScope;
+            options.TokenEndpoint = new Uri(builder.Configuration.GetAuthority(tryInternal: true) + "/connect/token");
+            options.ClientId = ClientId.Parse(builder.Configuration.GetApiSecret("ClientId")!);
+            options.ClientSecret = ClientSecret.Parse(builder.Configuration.GetApiSecret("ClientSecret")!);
+            options.Scope = Scope.Parse(serverOptions.RequiredScope);
         });
         builder.Services.AddHttpClient<WorkflowHttpClient>((serviceProvider, httpClient) => {
-                httpClient.BaseAddress = serviceProvider.GetServerLoopbackUri();
+                var loopbackUri = builder.Configuration.TryGetEndpoint("ServerLoopbackUri");
+                httpClient.BaseAddress = string.IsNullOrWhiteSpace(loopbackUri) ?
+                                            serviceProvider.GetServerLoopbackUri() :
+                                            new (loopbackUri);
             })
             .ClearResilienceHandlers()
-            .AddClientCredentialsTokenHandler("cases");
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("cases"));
         builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
         builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessMemberHandler>();
+        builder.Services.AddTransient<IAuthorizationHandler, CasesAccessOwnerHandler>();
         builder.Services.AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>();
-        
+        // Client side UI translations served as a JSON graph from the embedded resx files.
+        builder.Services.AddTranslationGraph(options => {
+            options.DefaultTranslationsBaseName = "Cases.Ui.TranslationApi";
+            options.DefaultTranslationsLocation = "Indice.Features.Cases.Server";
+            options.DefaultEndpointRoutePattern = serverOptions.PathPrefix.Value!.TrimEnd('/') + "/cases-i18n.{lang:culture}.json";
+            options.AvailableLanguagesRoutePattern = serverOptions.PathPrefix.Value!.TrimEnd('/') + "/languages";
+            options.ConfigureCachePolicy = policy => policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag();
+        });
+
         return builder;
     }
 
@@ -83,6 +98,7 @@ public static class CaseServerFeatureExtensions
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <returns>The <see cref="IEndpointRouteBuilder"/> for further configuration.</returns>
     public static IEndpointRouteBuilder MapCases(this IEndpointRouteBuilder routes) {
+        bool mapTranslations = routes.ServiceProvider.GetService<IOptions<CaseServerOptions>>()?.Value.MapTranslations ?? false;
         // my account
         routes.MapMyCases();
         routes.MapMyCaseTypes();
@@ -99,6 +115,10 @@ public static class CaseServerFeatureExtensions
         routes.MapLookup();
         routes.MapAdminAccessRules();
         routes.MapIntegration();
+        // translations
+        if (mapTranslations) { 
+            routes.MapTranslationGraph();
+        }
         return routes;
     }
 }

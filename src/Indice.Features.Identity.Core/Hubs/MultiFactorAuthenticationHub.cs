@@ -41,14 +41,14 @@ public class MultiFactorAuthenticationHub : Hub, IMultiFactorAuthenticationHub
     /// <inheritdoc />
     [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ApiAuthenticationScheme)]
     public async Task LoginApproved(string connectionId, string otpCode) {
-        var userId = Context.UserIdentifier ?? throw new InvalidOperationException();
+        _ = Context.UserIdentifier ?? throw new InvalidOperationException();
         await Clients.Client(connectionId).SendAsync("LoginApproved", otpCode);
     }
 
     /// <inheritdoc />
     [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ApiAuthenticationScheme)]
     public async Task LoginRejected(string connectionId) {
-        var userId = Context.UserIdentifier ?? throw new InvalidOperationException();
+        _ = Context.UserIdentifier ?? throw new InvalidOperationException();
         await Clients.Client(connectionId).SendAsync("LoginRejected");
     }
 }

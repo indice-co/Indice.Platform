@@ -1,0 +1,71 @@
+name: Build process
+
+on:
+  workflow_call:
+    secrets:
+      NUGET_AUTH_TOKEN:
+        required: true
+
+permissions:  
+  contents: read
+
+jobs:
+  run-build:
+    runs-on: windows-2025
+    steps:
+
+    - name: Harden Runner
+      uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+      with:
+        egress-policy: audit
+
+    - name: Checkout Repository
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      with:
+        global-json-file: ./global.json
+        source-url: https://api.nuget.org/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      with:
+        node-version: 24
+
+    - name: Create .nuget dir
+      shell: pwsh
+      run: |
+        if (!(Test-Path -Path ".\.nuget" )) {
+          New-Item -ItemType "directory" -Path ".\.nuget"
+        }
+        if (!(Test-Path -Path ".\.nuget\packages" )) {
+          New-Item -ItemType "directory" -Path ".\.nuget\packages"
+        }
+                
+    - name: dotnet restore
+      shell: pwsh
+      run: dotnet restore Indice.Platform.slnx
+
+    - name: dotnet build SPAs
+      shell: pwsh
+      run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
+
+    - name: dotnet build
+      shell: pwsh
+      run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
+    
+    - name: dotnet test
+      shell: pwsh
+      run: dotnet test Indice.Platform.slnf --no-build --configuration Release --report-trx --results-directory "${{ github.workspace }}/TestResults"
+    
+    - name: Test Reporter
+      uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
+      if: always()
+      with:
+        name: DotNET Tests
+        path: "TestResults/*.trx"                            
+        reporter: dotnet-trx
+        fail-on-error: true

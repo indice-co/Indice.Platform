@@ -1,0 +1,169 @@
+using System.Runtime.CompilerServices;
+using Indice.Features.Agents.Core.Extensions;
+using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Services;
+using Indice.Features.Agents.Core.Workflows.Steps;
+using Indice.Features.Agents.Core.Workflows.Steps.Operator;
+using Microsoft.Agents.AI;
+using Microsoft.Agents.AI.Workflows;
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+
+namespace Indice.Features.Agents.Core;
+
+/// <summary>Entry point for executing the Dex RAG pipeline against a single user question.</summary>
+public interface IDexChatClient : IChatClient
+{
+}
+
+/// <inheritdoc/>
+/// <summary>
+/// Creates a new <see cref="AgentsChatClient"/> instance.
+/// </summary>
+/// <param name="serviceProvider">The service provider for resolving dependencies.</param>
+public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
+{
+    private static IReadOnlyDictionary<string, string> CreateStepLabels(AgentMessageLocalizer localizer) => new Dictionary<string, string>(StringComparer.Ordinal) {
+        [nameof(IntentClassifier)] = localizer.StepIntentClassifier,
+        [nameof(QueryRewriter)] = localizer.StepQueryRewriter,
+        [nameof(Retriever)] = localizer.StepRetriever,
+        [nameof(Reranker)] = localizer.StepReranker,
+        [nameof(AnswerComposer)] = localizer.StepAnswerComposer,
+        [nameof(PurposeResponder)] = localizer.StepPurposeResponder,
+        [nameof(OutOfScopeResponder)] = localizer.StepOutOfScopeResponder,
+        [nameof(DataRetrieverStep)] = localizer.StepCaseDataRetriever,
+        [nameof(AuthenticationChallengeStep)] = localizer.StepOwnershipVerifier,
+        [nameof(OtpCodeValidatorStep)] = localizer.StepOtpCodeValidator,
+        [nameof(DataPresenterStep)] = localizer.StepCaseDataPresenter,
+        [nameof(AuthenticationStep)] = localizer.StepOwnershipValidator,
+        [nameof(OtpCodeSendStep)] = localizer.StepOtpCodeSend
+    };
+
+    /// <inheritdoc/>
+    public async Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default) {
+        var stream = GetStreamingResponseAsync(messages, options, cancellationToken);
+        var response = await stream.ToChatResponseAsync();
+        // Step progress contents are ephemeral (streaming UI only) and must not survive in the composed response.
+        foreach (var message in response.Messages) {
+            message.Contents = message.Contents.Where(content => content is not StepProgressContent).ToList();
+        }
+        return response;
+    }
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default) {
+        if (messages.Count() != 1) {
+            throw new ArgumentException("DexChatClient only supports a single user message per request. No batching allowed.", nameof(messages));
+        }
+        var message = messages.First();
+        options ??= new ChatOptions();
+        options.ConversationId ??= Guid.NewGuid().ToString()!;
+
+        message.AdditionalProperties ??= new();
+        message.AdditionalProperties[nameof(options.ConversationId)] = options.ConversationId;
+
+        //var state = new ConversationState(message, options.ConversationId);
+        // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
+        // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
+        var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
+        var selector = options.Instructions?.Trim().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(selector)) {
+            selector = routing.DefaultAgent?.Trim().ToLowerInvariant();
+        }
+        string resolvedAgent;
+        if (string.Equals(selector, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
+            RouteDecision? decision = null;
+            string? routeError = null;
+            try {
+                var router = serviceProvider.GetRequiredService<IntentRouterService>();
+                decision = await router.RouteAsync(message, options.ConversationId, cancellationToken);
+            } catch (Exception exception) when (exception is not OperationCanceledException) {
+                routeError = exception.Message;
+            }
+            if (routeError is not null) {
+                yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = options.ConversationId };
+                yield break;
+            } else if (decision!.AgentName is null) {
+                yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = options.ConversationId };
+                yield break;
+            }
+            resolvedAgent = decision.AgentName;
+        } else {
+            resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
+        }
+        var sessionId = new AgentSessionId(Guid.Parse(options.ConversationId), resolvedAgent);
+        var workflow = serviceProvider.GetRequiredKeyedService<Workflow>(resolvedAgent);
+        // Checkpointing: state written via QueueStateUpdateAsync is snapshotted at each superstep into the durable
+        // EF-backed store, so it survives across HTTP requests. On a follow-up turn the latest checkpoint of the
+        // conversation (sessionId == ConversationId) is restored and the new user message is injected into the resumed run.
+        var checkpointManager = serviceProvider.GetRequiredService<CheckpointManager>();
+        StreamingRun run;
+        if (message.HasFunctionResultContent()) {
+            var callId = message.GetFunctionResultContentCallId();
+            var checkpointInfo = new CheckpointInfo(sessionId, callId.CheckpointId!);
+            run = await InProcessExecution.ResumeStreamingAsync(workflow, checkpointInfo, checkpointManager, cancellationToken: cancellationToken);
+        } else {
+            run = await InProcessExecution.RunStreamingAsync(workflow, message, checkpointManager, sessionId: sessionId, cancellationToken: cancellationToken);
+        }
+        await using var _ = run;
+
+        var messageLocalizer = serviceProvider.GetService<AgentMessageLocalizer>() ?? new AgentMessageLocalizer();
+        var stepLabels = CreateStepLabels(messageLocalizer);
+
+        string? failure = null;
+        RequestInfoEvent? pendingRequest = null;
+        await foreach (var evt in run.WatchStreamAsync().WithCancellation(cancellationToken)) {
+            switch (evt) {
+                case AgentResponseUpdateEvent updateEvent:
+                    var update = updateEvent.Update.AsChatResponseUpdate();
+                    update.ConversationId = options.ConversationId;
+                    yield return update;
+                    break;
+                // One progress event per step start; unmapped executor ids are skipped. Emitted as ephemeral content, stripped from the composed response.
+                case ExecutorInvokedEvent invoked when stepLabels.TryGetValue(invoked.ExecutorId, out var label):
+                    yield return new ChatResponseUpdate(ChatRole.Assistant, [new StepProgressContent(label)]) { ConversationId = options.ConversationId };
+                    break;
+                case RequestInfoEvent requestInfoEvent when !message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
+                    // Defer emission until the superstep checkpoint is committed (raised via SuperStepCompletedEvent).
+                    pendingRequest = requestInfoEvent;
+                    break;
+                case SuperStepCompletedEvent superStepCompleted when pendingRequest is not null && superStepCompleted.CompletionInfo?.Checkpoint is not null:
+                    var requestUpdate = pendingRequest.AsAgentResponseUpdate(superStepCompleted.CompletionInfo.Checkpoint)
+                                                      .AsChatResponseUpdate();
+                    requestUpdate.ConversationId = options.ConversationId;
+                    yield return requestUpdate;
+                    yield break;
+                case RequestInfoEvent requestInfoEvent when message.HasFunctionResultContent(requestInfoEvent.Request.RequestId):
+                    var response = requestInfoEvent.Request.CreateResponse(message.GetFunctionResult(requestInfoEvent.Request.PortInfo)!);
+                    await run.SendResponseAsync(response);
+                    break;
+                // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor
+                // exceptions ("Error invoking handler for ..."), so walk to the innermost exception for the real cause.
+                case WorkflowErrorEvent error:
+                    var exception = error.Data as Exception;
+                    while (exception?.InnerException is not null) {
+                        exception = exception.InnerException;
+                    }
+                    failure ??= exception?.Message ?? "Workflow failed without exception details.";
+                    yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(failure)]) { ConversationId = options.ConversationId };
+                    break;
+                default:
+                    //Console.WriteLine(evt);
+                    break;
+            }
+
+        }
+
+        // Cancellation just stops the stream rather than raising a failure event — surface it as cancellation.
+        cancellationToken.ThrowIfCancellationRequested();
+    }
+
+    /// <inheritdoc/>
+    public object? GetService(Type serviceType, object? serviceKey = null) => serviceKey is null ? serviceProvider.GetService(serviceType) : serviceProvider.GetKeyedService(serviceType, serviceKey);
+
+    /// <inheritdoc/>
+    public void Dispose() {
+
+    }
+}

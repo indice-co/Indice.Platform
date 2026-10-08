@@ -19,7 +19,7 @@ namespace Indice.Features.Identity.Core {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class IdentityResources {
@@ -61,6 +61,24 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your account has been temporarily locked due to multiple unsuccessful login attempts. This lock is a security measure to protect your information. Please try again later..
+        /// </summary>
+        internal static string AccountLockedEventDescription {
+            get {
+                return ResourceManager.GetString("AccountLockedEventDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your account has been temporarily locked.
+        /// </summary>
+        internal static string AccountLockedEventSubject {
+            get {
+                return ResourceManager.GetString("AccountLockedEventSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A confirmation email has been sent to the address below..
         /// </summary>
         internal static string AddEmailConfirmationEmailSend {
@@ -84,6 +102,132 @@ namespace Indice.Features.Identity.Core {
         internal static string AddPhoneValidationPhoneEmpty {
             get {
                 return ResourceManager.GetString("AddPhoneValidationPhoneEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use an authenticator app to generate verification codes..
+        /// </summary>
+        internal static string AuthMethod_AuthenticatorApp_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_AuthenticatorApp_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authenticator (recommended).
+        /// </summary>
+        internal static string AuthMethod_AuthenticatorApp_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_AuthenticatorApp_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Users will receive a TOTP in their verified email address..
+        /// </summary>
+        internal static string AuthMethod_Email_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_Email_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email.
+        /// </summary>
+        internal static string AuthMethod_Email_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_Email_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use a hardware security key for authentication..
+        /// </summary>
+        internal static string AuthMethod_Fido2_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_Fido2_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FIDO2.
+        /// </summary>
+        internal static string AuthMethod_Fido2_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_Fido2_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have requested to log in with a recovery code. This login will not be remembered until you provide an MFA method..
+        /// </summary>
+        internal static string AuthMethod_RecoveryCode_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_RecoveryCode_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recovery code verification.
+        /// </summary>
+        internal static string AuthMethod_RecoveryCode_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_RecoveryCode_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Users will receive a text message containing a verification code..
+        /// </summary>
+        internal static string AuthMethod_Sms_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_Sms_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SMS.
+        /// </summary>
+        internal static string AuthMethod_Sms_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_Sms_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Provide a push notification using a trusted device..
+        /// </summary>
+        internal static string AuthMethod_TrustedDevice_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_TrustedDevice_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Push notification.
+        /// </summary>
+        internal static string AuthMethod_TrustedDevice_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_TrustedDevice_DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Users will receive a Viber message containing a verification code..
+        /// </summary>
+        internal static string AuthMethod_Viber_Description {
+            get {
+                return ResourceManager.GetString("AuthMethod_Viber_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Viber.
+        /// </summary>
+        internal static string AuthMethod_Viber_DisplayName {
+            get {
+                return ResourceManager.GetString("AuthMethod_Viber_DisplayName", resourceCulture);
             }
         }
         
@@ -250,6 +394,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You have exceeded the maximum number of failed attempts..
+        /// </summary>
+        internal static string LimitAttemptsReached {
+            get {
+                return ResourceManager.GetString("LimitAttemptsReached", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your account is temporarily locked. Please contact a system administrator..
         /// </summary>
         internal static string LoginErrorLockedMessage {
@@ -273,6 +426,33 @@ namespace Indice.Features.Identity.Core {
         internal static string MaxNumberOfDevices {
             get {
                 return ResourceManager.GetString("MaxNumberOfDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have successfully enabled MFA for your account. Login to access your account..
+        /// </summary>
+        internal static string MfaAddEmailSuccessMessage {
+            get {
+                return ResourceManager.GetString("MfaAddEmailSuccessMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your email is already confirmed. Continue to enable MFA..
+        /// </summary>
+        internal static string MfaAddEmailValidationEmailAlreadyConfirmed {
+            get {
+                return ResourceManager.GetString("MfaAddEmailValidationEmailAlreadyConfirmed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please select your email so we can verify it before we continue..
+        /// </summary>
+        internal static string MfaAddEmailValidationEmailEmpty {
+            get {
+                return ResourceManager.GetString("MfaAddEmailValidationEmailEmpty", resourceCulture);
             }
         }
         
@@ -304,6 +484,33 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}.
+        /// </summary>
+        internal static string MfaEmailBody {
+            get {
+                return ResourceManager.GetString("MfaEmailBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OTP login.
+        /// </summary>
+        internal static string MfaEmailSubject {
+            get {
+                return ResourceManager.GetString("MfaEmailSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid recovery code entered..
+        /// </summary>
+        internal static string MfaInvalidRecoveryCode {
+            get {
+                return ResourceManager.GetString("MfaInvalidRecoveryCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your OTP code for login is: {0}.
         /// </summary>
         internal static string MfaSmsBody {
@@ -322,11 +529,38 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Last token has not expired yet. Please wait a few seconds and try again..
+        /// </summary>
+        internal static string MfaTokenNotExpired {
+            get {
+                return ResourceManager.GetString("MfaTokenNotExpired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The OTP code is not valid..
         /// </summary>
         internal static string MfaValidationError {
             get {
                 return ResourceManager.GetString("MfaValidationError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your email was successfully validated. Please press the &apos;Next&apos; button to continue..
+        /// </summary>
+        internal static string MfaVerifyEmailSuccessMessage {
+            get {
+                return ResourceManager.GetString("MfaVerifyEmailSuccessMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please enter the code that you have received at your email..
+        /// </summary>
+        internal static string MfaVerifyEmailValidationMissingEmail {
+            get {
+                return ResourceManager.GetString("MfaVerifyEmailValidationMissingEmail", resourceCulture);
             }
         }
         
@@ -367,7 +601,16 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your password was changed.
+        ///   Looks up a localized string similar to Your password has been successfully changed..
+        /// </summary>
+        internal static string PasswordChangedEventDescription {
+            get {
+                return ResourceManager.GetString("PasswordChangedEventDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your Password has been Changed.
         /// </summary>
         internal static string PasswordChangedEventSubject {
             get {
@@ -385,11 +628,38 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please choose your new password to continue..
+        /// </summary>
+        internal static string PasswordExpiredFirstTimeUserMessage {
+            get {
+                return ResourceManager.GetString("PasswordExpiredFirstTimeUserMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your password has expired. Please choose a new password..
         /// </summary>
         internal static string PasswordExpiredMessage {
             get {
                 return ResourceManager.GetString("PasswordExpiredMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your password has been successfully changed..
+        /// </summary>
+        internal static string PasswordSetEventDescription {
+            get {
+                return ResourceManager.GetString("PasswordSetEventDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your Password has been changed.
+        /// </summary>
+        internal static string PasswordSetEventSubject {
+            get {
+                return ResourceManager.GetString("PasswordSetEventSubject", resourceCulture);
             }
         }
         
@@ -520,6 +790,24 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your two-factor authentication method has been updated to: {0}..
+        /// </summary>
+        internal static string TwoFactorPreferenceChangedEventDescription {
+            get {
+                return ResourceManager.GetString("TwoFactorPreferenceChangedEventDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Two-Factor Authentication Method Changed.
+        /// </summary>
+        internal static string TwoFactorPreferenceChangedEventSubject {
+            get {
+                return ResourceManager.GetString("TwoFactorPreferenceChangedEventSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Email.
         /// </summary>
         internal static string UI_Validator_AddEmail_Email_FieldName {
@@ -583,6 +871,24 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Confirm Password&apos; is required..
+        /// </summary>
+        internal static string UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The password confirmation does not match the password..
+        /// </summary>
+        internal static string UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Old Password.
         /// </summary>
         internal static string UI_Validator_ChangePassword_OldPassword_FieldName {
@@ -633,6 +939,24 @@ namespace Indice.Features.Identity.Core {
         internal static string UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName {
             get {
                 return ResourceManager.GetString("UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Confirm Password&apos; is required..
+        /// </summary>
+        internal static string UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The password confirmation does not match the password..
+        /// </summary>
+        internal static string UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error", resourceCulture);
             }
         }
         
@@ -844,6 +1168,24 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Confirm Password&apos; is required..
+        /// </summary>
+        internal static string UI_Validator_Register_PasswordConfirmation_Empty_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_PasswordConfirmation_Empty_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The password confirmation does not match the password..
+        /// </summary>
+        internal static string UI_Validator_Register_PasswordConfirmation_Mismatch_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_PasswordConfirmation_Mismatch_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The field &apos;Phone Number&apos; has invalid format..
         /// </summary>
         internal static string UI_Validator_Register_PhoneNumber_InvalidFormat {
@@ -885,6 +1227,15 @@ namespace Indice.Features.Identity.Core {
         internal static string UI_Validator_Register_UserName_InvalidFormat {
             get {
                 return ResourceManager.GetString("UI_Validator_Register_UserName_InvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Timezone&apos; has invalid format..
+        /// </summary>
+        internal static string UI_Validator_Register_ZoneInfo_InvalidFormat {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_ZoneInfo_InvalidFormat", resourceCulture);
             }
         }
         

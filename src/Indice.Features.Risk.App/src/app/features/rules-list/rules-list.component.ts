@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
 import { BaseListComponent, IResultSet, Icons, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
@@ -11,7 +11,9 @@ import { RiskApiService, RiskRuleDto, RiskRuleDtoResultSet } from 'src/app/core/
 
 @Component({
     selector: 'app-rules-list',
-    templateUrl: './rules-list.component.html'
+    templateUrl: './rules-list.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class RulesListComponent extends BaseListComponent<RiskRuleDto> implements OnInit {
     newItemLink: string;

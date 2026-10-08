@@ -1,0 +1,331 @@
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+
+import { AgentInfo, ChatMessagePart, ChatTopic, DexApiService, DexChatResponse, IChatMessagePart, LikeRequest } from '../../core/services/dex-api.service';
+import { ChatStreamFrame, ChatStreamService } from '../../core/services/chat-stream.service';
+import { assistantName } from '../../core/models/brand';
+import { ConversationsStore } from '../../core/services/conversations.store';
+import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
+import { ChatComposerComponent } from './chat-composer.component';
+import { ChatThreadComponent } from './chat-thread.component';
+import { EXAMPLE_PROMPTS, ThreadMessage, responseToThreadMessage, toThreadMessage } from './chat.models';
+import { HITL_REQUEST_MEDIA_TYPE, hitlResponseParts, parseHitlRequest, textParts } from './parts/part-contracts';
+
+/**
+ * The Dex chat surface: conversation thread + composer, wired to the streaming API.
+ *
+ * Which conversation is open is owned by `ConversationsStore` — the rail (in the shell) sets it,
+ * this page renders it. `loadedId` records the thread actually fetched so a session the stream
+ * just created is adopted without a redundant round-trip.
+ */
+@Component({
+  selector: 'app-chat-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ChatThreadComponent, ChatComposerComponent],
+  templateUrl: './chat-page.component.html',
+})
+export class ChatPageComponent {
+  /** Display name of the assistant. */
+  protected readonly assistantName = assistantName;
+
+  private readonly dex = inject(DexApiService);
+  private readonly streamSvc = inject(ChatStreamService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly store = inject(ConversationsStore);
+  private readonly router = inject(Router);
+
+  protected readonly messages = signal<ThreadMessage[]>([]);
+  protected readonly threadLoading = signal(false);
+
+  protected readonly examplePrompts = EXAMPLE_PROMPTS;
+  /** A brand-new, unsent chat — the hero and composer render centered, ChatGPT-style. */
+  protected readonly isEmptySession = computed(
+    () =>
+      this.messages().length === 0 &&
+      !this.isStreaming() &&
+      !this.threadLoading() &&
+      !this.store.activeId(),
+  );
+
+  /**
+   * The human-in-the-loop question the thread is waiting on, if any — the latest turn is the assistant's and it
+   * carries a request part. Derived rather than stored, so it survives a thread reload and clears itself the moment
+   * `send` appends the user turn, exactly like the `isLatest` rule that disables a spent options list.
+   */
+  protected readonly pendingHitlRequest = computed(() => {
+    const messages = this.messages();
+    const latest = messages[messages.length - 1];
+    if (latest?.role !== 'Assistant') {
+      return null;
+    }
+    const part = latest.content.parts?.find((candidate) => candidate.contentType === HITL_REQUEST_MEDIA_TYPE);
+    return part ? parseHitlRequest(part.value, part.requestId) : null;
+  });
+
+  protected readonly isStreaming = signal(false);
+  /** The DexChatResponse the stream is assembling — the invariant says the patched document IS one. */
+  protected readonly streamResponse = signal<DexChatResponse | null>(null);
+  protected readonly streamingMessage = computed(() => responseToThreadMessage(this.streamResponse()));
+  protected readonly currentStep = signal<string | null>(null);
+  protected readonly error = signal<string | null>(null);
+  protected readonly questionsTotal = signal<number | null>(null);
+  /** Whether the open conversation is read-only — the composer disables and no new turns are sent. */
+  protected readonly conversationReadOnly = signal(false);
+
+  /** The modes discovered from GET /agents; empty (picker hidden) when discovery fails. */
+  protected readonly agents = signal<AgentInfo[]>([]);
+  /** The composer's picked mode; `null` falls back to the first discovered agent. */
+  protected readonly selectedAgentName = signal<string | null>(null);  /**
+   * The record this visit is about, deep-linked as `?refid=...&reftype=...`. It is sent once, with the
+   * conversation-creating turn, and grounds the server-side workflow so it can skip asking what the visit is
+   * about. Follow-up turns carry nothing: the conversation is already grounded.
+   */
+  private readonly externalReference = signal<ChatTopic | null>(readExternalReference());
+
+  /** The raw patch target for the turn's `delta` frames — plain JSON; `streamResponse` is its typed projection. */
+  private streamDocument: Record<string, any> = {};
+  private patcher = new JsonPointerPatch();
+  private streamSub?: Subscription;
+  private threadSub?: Subscription;
+  /** The conversation whose thread is on screen — `null` for an unsent new chat. */
+  private loadedId: string | null = null;
+
+  constructor() {
+    effect(() => {
+      const id = this.store.activeId();
+      if (id === this.loadedId) {
+        // Already on screen, or a session this page just streamed into existence.
+        return;
+      }
+      this.loadedId = id;
+      if (id) {
+        this.loadThread(id);
+      } else {
+        this.resetThread();
+      }
+    });
+    this.loadAgents();
+    this.autostart();
+  }
+
+  protected setLike(change: { messageId: string; like: boolean | null }): void {
+    const sessionId = this.store.activeId();
+    if (!sessionId) {
+      return;
+    }
+    const previous = this.messages();
+    // Optimistic: reflect the rating immediately, roll back if the server rejects it.
+    this.messages.update((list) =>
+      list.map((message) => (message.messageId === change.messageId ? { ...message, liked: change.like } : message)),
+    );
+    this.dex
+      .like(sessionId, change.messageId, new LikeRequest({ like: change.like ?? undefined }))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => {
+          this.messages.set(previous);
+          this.error.set('Could not save your feedback.');
+        },
+      });
+  }
+
+  protected send(text: string): void {
+    const value = text.trim();
+    if (!value || this.isStreaming() || this.conversationReadOnly()) {
+      return;
+    }
+    this.cancelStream();
+    this.error.set(null);
+    // Read before the turn is appended: once it is, this message is no longer the latest and the request is spent.
+    // The answer rides on whatever the next turn is, so typing in the composer answers just as the inline form does.
+    const pending = this.pendingHitlRequest();
+    const parts = pending ? hitlResponseParts(pending, value) : textParts(value);
+    this.messages.update((list) => [
+      ...list,
+      {
+        role: 'User',
+        content: { parts: parts.map((part) => new ChatMessagePart(part)) },
+        createdAt: new Date(),
+      },
+    ]);
+    this.startTurn(parts, this.selectedAgentName() ?? this.agents()[0]?.name ?? null);
+  }
+
+  /**
+   * Starts the conversation by itself when the page was deep-linked with a `refid` (`reftype` is optional): an empty turn
+   * that carries only the reference, so no user bubble is shown and the server stores no user message. The agent is
+   * left to the server's default, which routes a grounded conversation to its workflow.
+   */
+  private autostart(): void {
+    if (!this.externalReference()?.referenceId || this.store.activeId()) {
+      return;
+    }
+    this.startTurn([], null);
+  }
+
+  /** Opens the stream for a turn — creating the conversation when none is open — and feeds its frames to the thread. */
+  private startTurn(parts: IChatMessagePart[], agentName: string | null): void {
+    this.isStreaming.set(true);
+    this.streamResponse.set(null);
+    this.currentStep.set('Working…');
+    this.streamDocument = {};
+    this.patcher = new JsonPointerPatch();
+
+    const sessionId = this.store.activeId();
+    const stream$ = sessionId
+      ? this.streamSvc.streamMessage(sessionId, parts, agentName)
+      : this.streamSvc.streamCreate(parts, agentName, this.externalReference());
+    this.streamSub = stream$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (frame) => this.onFrame(frame),
+      error: (err: unknown) => {
+        this.isStreaming.set(false);
+        this.currentStep.set(null);
+        this.error.set(err instanceof Error ? err.message : 'The request failed.');
+      },
+      complete: () => this.finalizeIfStreaming(),
+    });
+  }
+
+  protected stop(): void {
+    this.cancelStream();
+    this.finalizeIfStreaming();
+  }
+
+  private onFrame(frame: ChatStreamFrame): void {
+    switch (frame.type) {
+      case 'start':
+        if (!this.store.activeId() && frame.conversationId) {
+          // Claim the id before publishing it, so the effect sees no change and skips the fetch.
+          this.loadedId = frame.conversationId;
+          this.store.adopt(frame.conversationId);
+          this.externalReference.set(null);
+          // Drop the deep link from the address bar, so a reload does not ground (or autostart) a second conversation.
+          void this.router.navigate([], {
+            queryParams: { refid: null, reftype: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+          });
+        }
+        break;
+      case 'status':
+        this.currentStep.set(frame.value ?? null);
+        break;
+      case 'delta':
+        this.patcher.apply(this.streamDocument, frame);
+        this.streamResponse.set(DexChatResponse.fromJS(this.streamDocument));
+        break;
+      case 'error':
+        // The document is abandoned per protocol — the server persisted no answer.
+        this.error.set(frame.reason ?? 'The assistant could not complete the answer.');
+        this.resetStreamingState();
+        break;
+      case 'done':
+        this.finalize();
+        break;
+    }
+  }
+
+  /** Terminal success: the assembled document is complete — settle it into the thread. */
+  private finalize(): void {
+    const answer = this.streamingMessage();
+    if (answer) {
+      this.messages.update((list) => [...list, answer]);
+    }
+    this.questionsTotal.set(this.streamResponse()?.usage?.questionsLimitCount ?? null);
+    this.resetStreamingState();
+    // Refresh the rail so the new/updated session and its title appear in order.
+    this.store.refresh();
+  }
+
+  /** Stream ended without `done` (stop pressed / connection closed): keep the partial answer visible. */
+  private finalizeIfStreaming(): void {
+    if (!this.isStreaming()) {
+      return;
+    }
+    const partial = this.streamingMessage();
+    if (partial?.content.parts?.some((part) => part.value)) {
+      this.messages.update((list) => [...list, partial]);
+    }
+    this.resetStreamingState();
+  }
+
+  private resetStreamingState(): void {
+    this.isStreaming.set(false);
+    this.streamResponse.set(null);
+    this.currentStep.set(null);
+  }
+
+  /** Fetch and show an existing conversation, superseding any load still in flight. */
+  private loadThread(id: string): void {
+    this.cancelStream();
+    this.threadSub?.unsubscribe();
+    this.threadLoading.set(true);
+    this.error.set(null);
+    this.streamResponse.set(null);
+    this.currentStep.set(null);
+    this.isStreaming.set(false);
+    this.conversationReadOnly.set(false);
+    this.threadSub = this.dex
+      .getChatSession(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (session) => {
+          this.messages.set((session.messages ?? []).map(toThreadMessage));
+          this.questionsTotal.set(session.usage?.questionsLimitCount ?? null);
+          this.conversationReadOnly.set(session.readOnly ?? false);
+          this.threadLoading.set(false);
+        },
+        error: () => {
+          this.threadLoading.set(false);
+          this.error.set('Could not load this conversation.');
+        },
+      });
+  }
+
+  /** Clear the surface for an unsent new chat. */
+  private resetThread(): void {
+    this.cancelStream();
+    this.threadSub?.unsubscribe();
+    this.threadSub = undefined;
+    this.messages.set([]);
+    this.streamResponse.set(null);
+    this.currentStep.set(null);
+    this.error.set(null);
+    this.isStreaming.set(false);
+    this.threadLoading.set(false);
+    this.questionsTotal.set(null);
+    this.conversationReadOnly.set(false);
+  }
+
+  private loadAgents(): void {
+    this.dex
+      .discovery()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (agents) => this.agents.set(agents ?? []),
+        // Non-fatal: without a modes list the picker stays hidden and requests carry no agentName.
+        error: () => this.agents.set([]),
+      });
+  }
+
+  private cancelStream(): void {
+    this.streamSub?.unsubscribe();
+    this.streamSub = undefined;
+  }
+}
+
+/** Reads the `refid`/`reftype` deep-link parameters of the hosting page, if any. */
+function readExternalReference(): ChatTopic | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const params = new URLSearchParams(window.location.search);
+  const referenceId = params.get('refid')?.trim();
+  const referenceType = params.get('reftype')?.trim();
+  return referenceId ? new ChatTopic({
+    referenceId: referenceId,
+    referenceType: referenceType
+  }) : null;
+}

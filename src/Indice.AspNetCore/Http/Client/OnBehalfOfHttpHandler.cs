@@ -1,4 +1,3 @@
-using IdentityModel.Client;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +6,7 @@ using Indice.Security;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
+using Duende.IdentityModel.Client;
 
 namespace Indice.AspNetCore.Http.Client;
 

@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks></TargetFrameworks>
+    <UserSecretsId>5e2a0d48-99c4-458f-80d0-195b817853ef</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="FAQ.md" />
+    <None Remove="favicon-16.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="FAQ.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="favicon-16.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Indice.Features.Agents.Core\Indice.Features.Agents.Core.csproj" />
+  </ItemGroup>
+
+</Project>

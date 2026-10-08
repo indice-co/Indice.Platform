@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
-    <SpaProjectName>adminui-app</SpaProjectName>
+    <SpaProjectName>browser</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Identity.AdminUI.App</SpaSourceFolder>
-    <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
+    <SpaDistFolder>$(SpaSourceFolder)\dist\adminui-app</SpaDistFolder>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
@@ -12,7 +12,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html" />
+    <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html;$(SpaDistFolder)\**\3rdpartylicenses.txt;$(SpaDistFolder)\**\prerendered-routes.json" />
     <EmbeddedResource Include="$(SpaProjectName)\index.html" />
   </ItemGroup>
   <ItemGroup>
