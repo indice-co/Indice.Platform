@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, TemplateRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
 
@@ -18,6 +18,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
     selector: 'app-api-resource-secrets',
     templateUrl: './api-resource-secrets.component.html',
     providers: [NgbDateCustomParserFormatter],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApiResourceSecretsComponent implements OnInit, OnDestroy {

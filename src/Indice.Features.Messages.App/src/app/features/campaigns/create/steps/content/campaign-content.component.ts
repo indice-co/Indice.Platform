@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, Inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, Inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
 import * as app from 'src/app/core/models/settings';
@@ -21,6 +21,7 @@ import { PartialTemplatesStore } from './partial-templates-store.service';
     selector: 'app-campaign-content',
     templateUrl: './campaign-content.component.html',
     styleUrl: './campaign-content.component.css',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 //https://github.com/acrodata/code-editor/blob/main/projects/dev-app/src/app/home/home.component.ts

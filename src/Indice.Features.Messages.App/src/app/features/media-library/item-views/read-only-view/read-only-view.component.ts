@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { tap } from 'rxjs/operators';
 import { MediaFile, FolderContent, MediaApiClient } from 'src/app/core/services/media-api.service';
 import { ToastType } from '@indice/ng-components';
@@ -8,6 +8,7 @@ import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toa
 @Component({
     selector: 'app-read-only-view',
     templateUrl: './read-only-view.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ReadOnlyViewComponent implements OnInit {
