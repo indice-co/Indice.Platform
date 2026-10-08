@@ -21,6 +21,8 @@ public static partial class IdentityEndpoints
         public const string Clients = "identity:clients";
         /// <summary>A scope that allows managing users on IdentityServer.</summary>
         public const string Users = "identity:users";
+        /// <summary>A scope that allows reading users on IdentityServer.</summary>
+        public const string UsersRead = "identity:users.read";
         /// <summary>A scope that allows using the totp endpoints on IdentityServer.</summary>
         public const string Totp = "identity:totp";
         /// <summary>A scope that allows reading the secret for a user device.</summary>
