@@ -256,6 +256,8 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<OtpCodeSendStep>();
         services.TryAddTransient<OtpCodeValidatorStep>();
         services.TryAddTransient<DataPresenterStep>();
+        services.TryAddTransient<PaymentMethodStep>();
+        services.TryAddTransient<PaymentCompletedStep>();
 
         services.AddKeyedScoped(AgentsConstants.AgentNames.Operator, (sp, key) => {
             var retriever = sp.GetRequiredService<DataRetrieverStep>();
@@ -264,9 +266,12 @@ public static class AgentsFeatureExtensions
             var otpSend = sp.GetRequiredService<OtpCodeSendStep>();
             var otpValidate = sp.GetRequiredService<OtpCodeValidatorStep>();
             var dataPresenter = sp.GetRequiredService<DataPresenterStep>();
+            var paymentMethod = sp.GetRequiredService<PaymentMethodStep>();
+            var paymentCompleted = sp.GetRequiredService<PaymentCompletedStep>();
 
             var ownershipPort = ChallengeRequestPort.Create();
             var otpPort = OtpRequestPort.Create();
+            var paymentPort = PaymentRequestPort.Create();
 
             var builder = new WorkflowBuilder(retriever);
             builder.AddEdge(retriever, ownershipPrompt);
@@ -286,7 +291,11 @@ public static class AgentsFeatureExtensions
                 .AddCase<OperationState>(message => message is not null, dataPresenter)
                 .WithDefault(otpPort));
 
-            builder.WithOutputFrom(dataPresenter, ownershipValidate, otpValidate);
+            builder.AddEdge(dataPresenter, paymentMethod);
+            builder.AddEdge(paymentMethod, paymentPort);
+            builder.AddEdge(paymentPort, paymentCompleted);
+
+            builder.WithOutputFrom(paymentCompleted, ownershipValidate, otpValidate);
             return builder.Build();
         });
 
