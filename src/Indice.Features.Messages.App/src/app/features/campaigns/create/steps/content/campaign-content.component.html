@@ -69,13 +69,13 @@
                   <div class="inline-flex items-center">
                     <span class="mr-1 align-middle">
                         <i class="ms-Icon ms-Icon--Accounts" [ngClass]="{
-                          'ms-Icon--Accounts': tab.labelText === 'Email',
-                          'ms-Icon--Chat': tab.labelText === 'SMS',
-                          'ms-Icon--CellPhone': tab.labelText === 'Push Notification',
-                          'ms-Icon--Inbox': tab.labelText === 'Inbox'
+                          'ms-Icon--Accounts': tab.labelText() === 'Email',
+                          'ms-Icon--Chat': tab.labelText() === 'SMS',
+                          'ms-Icon--CellPhone': tab.labelText() === 'Push Notification',
+                          'ms-Icon--Inbox': tab.labelText() === 'Inbox'
                          }"></i>
                     </span>
-                    <span>{{ tab.labelText | translate }}</span>
+                    <span>{{ tab.labelText() | translate }}</span>
                   </div>
                 </ng-template>
                 <ng-container *ngTemplateOutlet="contentTemplate; context: { $implicit: contentForm }"></ng-container>

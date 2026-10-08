@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { AgentInfo, ChatMessagePart, ChatTopic, DexApiService, DexChatResponse, LikeRequest } from '../../core/services/dex-api.service';
+import { AgentInfo, ChatMessagePart, ChatTopic, DexApiService, DexChatResponse, IChatMessagePart, LikeRequest } from '../../core/services/dex-api.service';
 import { ChatStreamFrame, ChatStreamService } from '../../core/services/chat-stream.service';
+import { assistantName } from '../../core/models/brand';
 import { ConversationsStore } from '../../core/services/conversations.store';
 import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
 import { ChatComposerComponent } from './chat-composer.component';
@@ -25,10 +27,14 @@ import { HITL_REQUEST_MEDIA_TYPE, hitlResponseParts, parseHitlRequest, textParts
   templateUrl: './chat-page.component.html',
 })
 export class ChatPageComponent {
+  /** Display name of the assistant. */
+  protected readonly assistantName = assistantName;
+
   private readonly dex = inject(DexApiService);
   private readonly streamSvc = inject(ChatStreamService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly store = inject(ConversationsStore);
+  private readonly router = inject(Router);
 
   protected readonly messages = signal<ThreadMessage[]>([]);
   protected readonly threadLoading = signal(false);
@@ -101,6 +107,7 @@ export class ChatPageComponent {
       }
     });
     this.loadAgents();
+    this.autostart();
   }
 
   protected setLike(change: { messageId: string; like: boolean | null }): void {
@@ -143,6 +150,23 @@ export class ChatPageComponent {
         createdAt: new Date(),
       },
     ]);
+    this.startTurn(parts, this.selectedAgentName() ?? this.agents()[0]?.name ?? null);
+  }
+
+  /**
+   * Starts the conversation by itself when the page was deep-linked with a `refid` (`reftype` is optional): an empty turn
+   * that carries only the reference, so no user bubble is shown and the server stores no user message. The agent is
+   * left to the server's default, which routes a grounded conversation to its workflow.
+   */
+  private autostart(): void {
+    if (!this.externalReference()?.referenceId || this.store.activeId()) {
+      return;
+    }
+    this.startTurn([], null);
+  }
+
+  /** Opens the stream for a turn — creating the conversation when none is open — and feeds its frames to the thread. */
+  private startTurn(parts: IChatMessagePart[], agentName: string | null): void {
     this.isStreaming.set(true);
     this.streamResponse.set(null);
     this.currentStep.set('Working…');
@@ -150,7 +174,6 @@ export class ChatPageComponent {
     this.patcher = new JsonPointerPatch();
 
     const sessionId = this.store.activeId();
-    const agentName = this.selectedAgentName() ?? this.agents()[0]?.name ?? null;
     const stream$ = sessionId
       ? this.streamSvc.streamMessage(sessionId, parts, agentName)
       : this.streamSvc.streamCreate(parts, agentName, this.externalReference());
@@ -178,6 +201,12 @@ export class ChatPageComponent {
           this.loadedId = frame.conversationId;
           this.store.adopt(frame.conversationId);
           this.externalReference.set(null);
+          // Drop the deep link from the address bar, so a reload does not ground (or autostart) a second conversation.
+          void this.router.navigate([], {
+            queryParams: { refid: null, reftype: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+          });
         }
         break;
       case 'status':

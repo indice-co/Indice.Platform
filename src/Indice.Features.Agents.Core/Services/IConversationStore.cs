@@ -39,6 +39,8 @@ public interface IConversationStore
     /// inserts both messages, bumps <c>LastActivityAt</c>, increments cumulative token totals, and — when the
     /// conversation title is still <c>null</c> and the title-auto-generate option is enabled — derives a title from
     /// the user message. Returns the persisted assistant <see cref="ChatMessage"/>.
+    /// An autostart turn — a user message carrying a <see cref="ChatTopic"/> and no content other than blank text —
+    /// persists the assistant message only and leaves the title for the first real user message.
     /// </summary>
     Task<ChatMessage> AppendTurnAsync(Guid conversationId, ChatMessage userMessage, ChatResponse response, CancellationToken cancellationToken);
 
@@ -46,7 +48,8 @@ public interface IConversationStore
     /// Persists only the user message of a failed turn (the pipeline produced no assistant answer): inserts the row,
     /// bumps <c>LastActivityAt</c>, increments <c>MessageCount</c> by one, and — when the conversation title is still
     /// <c>null</c> and the title-auto-generate option is enabled — derives a title from the user message. The
-    /// unanswered question still counts toward the session's question limit.
+    /// unanswered question still counts toward the session's question limit. A failed autostart turn (see
+    /// <see cref="AppendTurnAsync"/>) persists nothing.
     /// </summary>
     Task AppendFailedTurnAsync(Guid conversationId, ChatMessage userMessage, CancellationToken cancellationToken);
 

@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { IdentityApiService, HttpValidationProblemDetails, ProblemDetails, CreateAppSettingRequest, AppSettingInfo } from 'src/app/core/services/identity-api.service';
@@ -8,6 +8,7 @@ import { ValidationSummaryComponent } from 'src/app/shared/components/validation
 @Component({
     selector: 'app-setting-add',
     templateUrl: './setting-add.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SettingAddComponent {
