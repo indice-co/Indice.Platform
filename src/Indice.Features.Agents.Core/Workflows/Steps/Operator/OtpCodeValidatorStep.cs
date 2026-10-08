@@ -9,6 +9,7 @@ using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
@@ -32,6 +33,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
     private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly IPromptTemplateRenderer _prompts;
     private readonly string _model;
+    private readonly ILogger<OtpCodeValidatorStep> _logger;
 
     /// <summary>Creates a new <see cref="OtpCodeValidatorStep"/>.</summary>
     public OtpCodeValidatorStep(
@@ -42,7 +44,9 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         UserClaimsAIContextProvider userClaimsProvider,
         [FromKeyedServices("id")] IMcpClientFactory mcpClientFactory,
         AgentMessageLocalizer messageLocalizer,
-        IPromptTemplateRenderer prompts) : base(nameof(OtpCodeValidatorStep)) {
+        IPromptTemplateRenderer prompts,
+        ILogger<OtpCodeValidatorStep> logger) : base(nameof(OtpCodeValidatorStep)) {
+        _logger = logger;
         _openAIClient = openAIClient;
         _options = options.Value;
         _models = models.Value;
@@ -62,19 +66,26 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         ArgumentNullException.ThrowIfNull(response);
         
         if (string.IsNullOrWhiteSpace(response.Otp?.Trim())) {
+            _logger.LogInformation("Empty OTP received for challenge {ChallengeCode}; asking user again.", response.ChallengeCode);
             await context.Say(Id, _messageLocalizer.OtpInputValidationEmpty);
             await context.SendMessageAsync(new OtpRequestPort.OtpRequest(response.ChallengeCode, DateTime.UtcNow));
             return;
         }
 
         var caseData = await context.GetOperatorStateAsync(cancellationToken);
-        var payload = await ValidateOtp(response, caseData, cancellationToken);
+        string payload;
+        try {
+            payload = await ValidateOtp(response, caseData, cancellationToken);
+        } catch (Exception ex) when (ex is not OperationCanceledException) {
+            _logger.LogError(ex, "OTP validation call failed for case {ReferenceId}.", caseData.ReferenceId);
+            throw;
+        }
 
         OtpVerificationResultPayload verification;
         try {
             verification = OtpVerificationResultPayload.Deserialize(payload);
-
-        } catch (JsonException) {
+        } catch (JsonException ex) {
+            _logger.LogError(ex, "OTP validation agent returned an invalid payload for case {ReferenceId}.", caseData.ReferenceId);
             verification = new OtpVerificationResultPayload(false, $"MCP results is not valid:{payload}", false, false, false, 0);
         }
 
@@ -88,12 +99,14 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         var attempt = (await context.GetApprovalStateAsync(cancellationToken)) + 1;
         await context.SetApprovalStateAsync(attempt, cancellationToken);
         if (attempt >= _maxValidationAttempts) {
+            _logger.LogWarning("OTP validation failed for case {ReferenceId}: maximum attempts ({MaxAttempts}) reached. Ending workflow.", caseData.ReferenceId, _maxValidationAttempts);
             await context.SetApprovalStateAsync(null, cancellationToken);
             await context.Say(Id, _messageLocalizer.InvalidOtpMaxAttemptsReachedMessage);
             await context.YieldOutputAsync(OperationState.End);
             return;
         }
 
+        _logger.LogInformation("Invalid OTP for case {ReferenceId} (attempt {Attempt}/{MaxAttempts}, rate limited: {IsRateLimited}). Asking user to retry.", caseData.ReferenceId, attempt, _maxValidationAttempts, verification.IsRateLimited);
         await context.Say(Id, _messageLocalizer.InvalidOtpRetryMessage(Math.Max(_maxValidationAttempts - attempt, 0)));
         await context.SendMessageAsync(new OtpRequestPort.OtpRequest(response.ChallengeCode, DateTime.UtcNow));
 
@@ -116,6 +129,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         var registry = await _mcpClientFactory.CreateAsync(cancellationToken);
         var mcpTools = await registry.ListToolsAsync(options: null, cancellationToken);
         if (mcpTools.Count == 0) {
+            _logger.LogError("No MCP tools discovered for service {McpServiceKey}.", McpServiceKey);
             throw new InvalidOperationException($"No MCP tools discovered for service '{McpServiceKey}'.");
         }
 

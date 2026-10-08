@@ -2,6 +2,7 @@ using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI.Workflows;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 
@@ -12,10 +13,12 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 public sealed class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse, OperationState>
 {
     private readonly AgentMessageLocalizer _messageLocalizer;
+    private readonly ILogger<PaymentCompletedStep> _logger;
 
     /// <summary>Creates a new <see cref="PaymentCompletedStep"/>.</summary>
-    public PaymentCompletedStep(AgentMessageLocalizer messageLocalizer) : base(nameof(PaymentCompletedStep)) {
+    public PaymentCompletedStep(AgentMessageLocalizer messageLocalizer, ILogger<PaymentCompletedStep> logger) : base(nameof(PaymentCompletedStep)) {
         _messageLocalizer = messageLocalizer;
+        _logger = logger;
     }
 
     /// <inheritdoc/>
@@ -24,6 +27,7 @@ public sealed class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentRe
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(response);
+        _logger.LogInformation("Payment method selected; completing operator workflow.");
         await context.Say(Id, _messageLocalizer.PaymentCompletedMessage, cancellationToken);
         return OperationState.End;
     }

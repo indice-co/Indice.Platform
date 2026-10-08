@@ -2,6 +2,7 @@ using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI.Workflows;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
@@ -18,10 +19,12 @@ public sealed class AuthenticationStep : Executor<ChallengeRequestPort.Challenge
 {
     private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly int _maxValidationAttempts;
+    private readonly ILogger<AuthenticationStep> _logger;
 
     /// <summary>Creates a new <see cref="AuthenticationStep"/>.</summary>
-    public AuthenticationStep(AgentMessageLocalizer messageLocalizer, IOptions<CustomerWorkflowOptions> options) : base(nameof(AuthenticationStep)) {
+    public AuthenticationStep(AgentMessageLocalizer messageLocalizer, IOptions<CustomerWorkflowOptions> options, ILogger<AuthenticationStep> logger) : base(nameof(AuthenticationStep)) {
         _messageLocalizer = messageLocalizer ?? throw new ArgumentNullException(nameof(messageLocalizer));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _maxValidationAttempts = options.Value.MaxOwnershipValidationAttempts;
     }
 
@@ -35,6 +38,9 @@ public sealed class AuthenticationStep : Executor<ChallengeRequestPort.Challenge
 
         var caseData = await context.GetOperatorStateAsync(cancellationToken);
         var verificationData = caseData.ChallengValue!;
+        if (string.IsNullOrWhiteSpace(verificationData)) {
+            _logger.LogWarning("No challenge value found in operator state for case {ReferenceId}; ownership validation will fail.", caseData.ReferenceId);
+        }
 
         // Validate the input against the actual case field value
         var isValid = CompareInputWithCaseField(userInput, verificationData);
@@ -43,11 +49,13 @@ public sealed class AuthenticationStep : Executor<ChallengeRequestPort.Challenge
             var attempt = (await context.GetApprovalStateAsync(cancellationToken)) + 1;
             await context.SetApprovalStateAsync(attempt, cancellationToken);
             if (attempt >= _maxValidationAttempts) {
+                _logger.LogWarning("Ownership validation failed for case {ReferenceId}: maximum attempts ({MaxAttempts}) reached. User typed:{userInput}, Server data: {verificationData}. Ending workflow.", caseData.ReferenceId, _maxValidationAttempts, userInput, verificationData);
                 await context.SetApprovalStateAsync(null, cancellationToken);
                 await context.Say(Id, _messageLocalizer.OwnershipVerificationFailedMaxAttemptsMessage(_maxValidationAttempts));
                 await context.YieldOutputAsync(OperationState.End);
                 return;
             }
+            _logger.LogInformation("Ownership validation failed for case {ReferenceId} (attempt {Attempt}/{MaxAttempts}). User typed:{userInput}, Server data: {verificationData}.Asking user to retry.", caseData.ReferenceId, attempt, _maxValidationAttempts, userInput, verificationData);
             await context.Say(Id, _messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts));
             await context.SendMessageAsync(new ChallengeRequestPort.ChallengeRequest(_messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts)));
             return;

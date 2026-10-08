@@ -7,6 +7,7 @@ using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
@@ -25,6 +26,7 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
     private readonly IMcpClientFactory _mcpClientFactory;
     private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly string _model;
+    private readonly ILogger<OtpCodeSendStep> _logger;
 
     /// <summary>Creates a new <see cref="OtpCodeSendStep"/>.</summary>
     public OtpCodeSendStep(
@@ -34,7 +36,9 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
         IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
         [FromKeyedServices("id")] IMcpClientFactory mcpClientFactory,
-        AgentMessageLocalizer messageLocalizer) : base(nameof(OtpCodeSendStep)) {
+        AgentMessageLocalizer messageLocalizer,
+        ILogger<OtpCodeSendStep> logger) : base(nameof(OtpCodeSendStep)) {
+        _logger = logger;
         _openAIClient = openAIClient;
         _options = options.Value;
         _models = models.Value;
@@ -54,7 +58,15 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
         var caseData = await context.GetOperatorStateAsync(cancellationToken);
         var maskedPhoneNumber = MaskPhone(caseData.PhoneNumber);
         var securityToken = Guid.NewGuid().ToString();
-        await SendOtpCode(caseData, securityToken, cancellationToken);
+        if (string.IsNullOrWhiteSpace(caseData.PhoneNumber)) {
+            _logger.LogWarning("No phone number for case {ReferenceId}; OTP delivery will rely on email fallback.", caseData.ReferenceId);
+        }
+        try {
+            await SendOtpCode(caseData, securityToken, cancellationToken);
+        } catch (Exception ex) when (ex is not OperationCanceledException) {
+            _logger.LogError(ex, "Failed to send OTP code for case {ReferenceId}.", caseData.ReferenceId);
+            throw;
+        }
         var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedPhoneNumber);
         await context.Say(Id, otpPrompt);
         return new OtpRequestPort.OtpRequest(ChallengeCode: securityToken, ExpirationDate: DateTime.UtcNow.AddMinutes(2));
@@ -66,6 +78,7 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
         var registry = await _mcpClientFactory.CreateAsync();
         var mcpTools = await registry.ListToolsAsync(options: null, cancellationToken);
         if (mcpTools.Count == 0) {
+            _logger.LogError("No MCP tools discovered for service 'Identity'.");
             throw new InvalidOperationException("No MCP tools discovered for service 'Identity'.");
         }
 
