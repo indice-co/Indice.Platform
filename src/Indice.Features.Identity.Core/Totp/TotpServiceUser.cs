@@ -8,7 +8,6 @@ using Indice.Features.Identity.Core.Models;
 using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.Core.Totp;
@@ -17,7 +16,7 @@ namespace Indice.Features.Identity.Core.Totp;
 /// <typeparam name="TUser">The type of user entity.</typeparam>
 public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
 {
-    private const int CACHE_EXPIRACTION_SECONDS = 5 * 60;
+    private const int CACHE_EXPIRATION_SECONDS = 5 * 60;
     private readonly IStringLocalizer<TotpServiceUser<TUser>> _localizer;
 
     /// <summary>Creates a new instance of <see cref="TotpServiceUser{TUser}"/>.</summary>
@@ -190,7 +189,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
                 }
             );
         }
-        await AddCacheKeyAsync(cacheKey, TimeSpan.FromSeconds(CACHE_EXPIRACTION_SECONDS));
+        await AddCacheKeyAsync(cacheKey, TimeSpan.FromSeconds(CACHE_EXPIRATION_SECONDS));
         return TotpResult.SuccessResult;
     }
 
