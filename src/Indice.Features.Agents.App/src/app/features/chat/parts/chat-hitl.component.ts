@@ -20,11 +20,6 @@ import { HitlRequest } from './part-contracts';
   template: `
     @if (request(); as ask) {
       <div class="flex flex-col gap-2">
-        <!-- Usually absent: the server sends the question as prose parts beside this one, so the field stands alone. -->
-        <!--  @if (ask.text) {
-           <p class="text-sm text-base-content/70">{{ ask.text }}</p>
-         }
-        -->
         <div class="flex flex-wrap items-center gap-2">
           <input
             type="text"
