@@ -49,13 +49,11 @@ public sealed class AuthenticationStep : Executor<ChallengeRequestPort.Challenge
             var attempt = (await context.GetApprovalStateAsync(cancellationToken)) + 1;
             await context.SetApprovalStateAsync(attempt, cancellationToken);
             if (attempt >= _maxValidationAttempts) {
-                _logger.LogInformation("Ownership validation failed for case {ReferenceId}: maximum attempts ({MaxAttempts}) reached. Ending workflow.", caseData.ReferenceId, _maxValidationAttempts);
                 await context.SetApprovalStateAsync(null, cancellationToken);
                 await context.Say(Id, _messageLocalizer.OwnershipVerificationFailedMaxAttemptsMessage(_maxValidationAttempts));
                 await context.YieldOutputAsync(OperationState.End);
                 return;
             }
-            _logger.LogInformation("Ownership validation failed for case {ReferenceId} (attempt {Attempt}/{MaxAttempts}). Asking user to retry.", caseData.ReferenceId, attempt, _maxValidationAttempts);
             await context.Say(Id, _messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts));
             await context.SendMessageAsync(new ChallengeRequestPort.ChallengeRequest(_messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts)));
             return;

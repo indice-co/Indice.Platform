@@ -66,7 +66,6 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         ArgumentNullException.ThrowIfNull(response);
         
         if (string.IsNullOrWhiteSpace(response.Otp?.Trim())) {
-            _logger.LogInformation("Empty OTP received for challenge {ChallengeCode}; asking user again.", response.ChallengeCode);
             await context.Say(Id, _messageLocalizer.OtpInputValidationEmpty);
             await context.SendMessageAsync(new OtpRequestPort.OtpRequest(response.ChallengeCode, DateTime.UtcNow));
             return;

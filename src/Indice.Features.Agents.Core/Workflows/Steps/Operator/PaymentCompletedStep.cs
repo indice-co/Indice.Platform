@@ -27,7 +27,6 @@ public sealed class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentRe
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(response);
-        _logger.LogInformation("Payment method selected; completing operator workflow.");
         await context.Say(Id, _messageLocalizer.PaymentCompletedMessage, cancellationToken);
         return OperationState.End;
     }
