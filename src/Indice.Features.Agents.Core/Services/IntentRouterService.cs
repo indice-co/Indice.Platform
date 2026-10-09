@@ -61,8 +61,15 @@ public class IntentRouterService
         }
         if (!string.Equals(suggestedAgent, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
             suggestedAgent = string.IsNullOrWhiteSpace(suggestedAgent) ? AgentsConstants.AgentNames.Knowledge : suggestedAgent;
+            var selected = _registry.Find(suggestedAgent);
+            if (selected is null) {
+                return new RouteDecision {
+                    Reason = $"Agent '{suggestedAgent}' is not registered.",
+                    HasError = true
+                };
+            }
             return new RouteDecision {
-                AgentName = suggestedAgent,
+                AgentName = selected.Name,
                 Reason = "User selection",
                 IsInScope = true,
             };
@@ -81,10 +88,11 @@ public class IntentRouterService
 
             var response = await _agent.RunAsync<RouteDecision>(message.Text, session, cancellationToken: cancellationToken);
             var result = response.Result;
+            var agent = result.IsInScope ? _registry.Find(result.AgentName ?? string.Empty) : null;
             return new RouteDecision {
-                AgentName = result.IsInScope && _registry.Find(result.AgentName ?? string.Empty) is not null ? result.AgentName : null,
+                AgentName = agent?.Name,
                 Reason = result.Reason,
-                IsInScope = result.IsInScope
+                IsInScope = agent is not null
             };
         } catch (Exception exception) when (exception is not OperationCanceledException) {
             return new RouteDecision {
