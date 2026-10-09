@@ -1,0 +1,12 @@
+@* Article group (Pages/Bootstrap5/Article): long-form reading pages (terms, privacy, accept terms) in a wide card. *@
+@{
+    Layout = "_IdentityLayout";
+    ViewData["Shell"] = "article";
+}
+
+@section meta { @RenderSection("meta", required: false) }
+@section css { @RenderSection("css", required: false) }
+@section hero { @RenderSection("hero", required: false) }
+@section scripts { @RenderSection("scripts", required: false) }
+
+@RenderBody()

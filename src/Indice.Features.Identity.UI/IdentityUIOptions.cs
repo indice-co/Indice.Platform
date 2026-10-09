@@ -58,6 +58,9 @@ public class IdentityUIOptions
     /// <summary>An absolute URL to the <strong>Contact us</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
     /// <remarks>If left null the <strong>Contact Us</strong> link in the footer will disappear. If populated it will do a redirect to this URL. By default it is empty</remarks>
     public string? ContactUsUrl { get; set; }
+    /// <summary>Extra links rendered in the site footer, after the built-in ones (Discovery, Privacy, Terms, Contact us).</summary>
+    /// <remarks>The first 4 links (built-in and custom) are shown inline; any remaining links are listed in a "more" (&#8942;) menu.</remarks>
+    public List<FooterLink> FooterLinks { get; set; } = [];
     /// <summary>The absolute page path (not the url) that points to a custom on boarding process start. For example <strong>/OnBoarding/Welcome</strong> would be the route pointing to a page under the physical path: <strong>/Pages/OnBoarding/Welcome.cshtml</strong></summary>
     /// <remarks>This will replace all register links pointing to the native register page <strong>/Register</strong> but will not shut down native registration. In order to shut down registration use <seealso cref="EnableRegisterPage"/>.</remarks>
     public string OnBoardingPage { get; set; } = "/Register";
@@ -88,8 +91,17 @@ public class IdentityUIOptions
     public int PictureMaxSideSize { get; set; } = 512;
     /// <summary>RGB color to be used with email default templates for links.</summary>
     public string EmailLinkColorHex { get; set; } = "1abc9c";
-    /// <summary>RGB color to be used with email default templates for links.</summary>
-    public string HtmlBodyBackgroundCssClass { get; set; } = "gradient-bg";
+    /// <summary>Extra CSS class(es) appended to the <c>&lt;body&gt;</c> element. Empty by default; the selected <see cref="Theme"/> owns the page background.</summary>
+    public string HtmlBodyBackgroundCssClass { get; set; } = string.Empty;
+    /// <summary>The visual theme of the end-user UI (Bootstrap5 variant). Emitted as <c>data-theme</c> on the <c>&lt;html&gt;</c> element. Defaults to <see cref="IdentityUIThemes.Split"/>.</summary>
+    /// <remarks>
+    /// Built-in values: <see cref="IdentityUIThemes.Minimal"/>, <see cref="IdentityUIThemes.Split"/>, <see cref="IdentityUIThemes.Columns"/> and <see cref="IdentityUIThemes.Panel"/>.
+    /// The markup is identical for every theme; a theme is a set of <c>--idui-*</c> CSS custom property values scoped to <c>[data-theme="name"]</c>.
+    /// Any other value selects a host-defined theme: ship a stylesheet (for example through the <c>_Styles</c> partial) that declares those properties for it.
+    /// </remarks>
+    public string Theme { get; set; } = IdentityUIThemes.Split;
+    /// <summary>Controls whether the "made by" credit is rendered in the footer. Defaults to true.</summary>
+    public bool ShowMadeByCredit { get; set; } = true;
     /// <summary>Contains additional valid return URLs. It's used in the login page.</summary>
     public HashSet<string> ValidReturnUrls { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     /// <summary>Remember me duration.</summary>
@@ -133,6 +145,13 @@ public class IdentityUIOptions
     /// </summary>
     /// <remarks>Useful when user store is from a migrated database and we need to force users to add an email where an email is not present. Defaults to true.</remarks>
     public bool ShowAddEmailPrompt { get; set; } = true;
+
+    /// <summary>The method used to confirm the user's email address during the extended validation flow (add email).</summary>
+    /// <remarks>
+    /// <see cref="EmailConfirmationMethod.Link"/> sends a confirmation link; <see cref="EmailConfirmationMethod.Otp"/> sends a one-time code 
+    /// that the user must enter in a subsequent step. Defaults to <see cref="EmailConfirmationMethod.Link"/>.
+    /// </remarks>
+    public EmailConfirmationMethod EmailConfirmationMethod { get; set; } = EmailConfirmationMethod.Link;
 
     /// <summary>Controls whether password confirmation fields are displayed on register, password expired, change password, and forgot password confirmation pages.</summary>
     /// <remarks>Defaults to false.</remarks>
@@ -183,4 +202,14 @@ public class UiPageEvents
 {
     /// <summary>Triggered when a user is registering from the /register page.</summary>
     public UIPageUserRegisteringEventHandler? OnUserRegistering { get; set; }
+}
+
+
+/// <summary>The method used to confirm a user's email address.</summary>
+public enum EmailConfirmationMethod
+{
+    /// <summary>A confirmation link is sent to the user's email. The user confirms by clicking the link.</summary>
+    Link,
+    /// <summary>A one-time code (OTP) is sent to the user's email. The user confirms by entering the code in a dedicated step.</summary>
+    Otp
 }

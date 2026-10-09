@@ -1,0 +1,21 @@
+﻿@page "/terms"
+
+@model BaseTermsModel
+
+@inject IdentityUILocalizer Localizer
+
+@{
+    Layout = "_ArticleLayout";
+    ViewData["Title"] = Localizer.Terms_PageTitle.Value;
+}
+
+<article class="article-card">
+    <header class="article-card__header">
+        <h1 class="article-card__title">@Localizer.Terms_PageHeader</h1>
+        @if (Model.LastUpdateDate.HasValue)
+        {
+            <p class="article-card__meta">@Localizer.AcceptTerms_LastUpdated <time datetime="@Model.LastUpdateDate?.ToString("yyyy-MM-dd")">@Model.LastUpdateDate?.ToString("dd MMMM, yyyy")</time></p>
+        }
+    </header>
+    <md path="@Model.View.MarkdownPath" class="article-card__body markdown-body"></md>
+</article>

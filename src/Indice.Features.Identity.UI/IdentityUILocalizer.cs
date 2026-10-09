@@ -832,6 +832,43 @@ public class IdentityUILocalizer
 
     #endregion
 
+    #region MfaOnBoardingComplete
+
+    /// <summary>Gets the localized string for "Setup complete".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_PageTitle => new HtmlString(IdentityLabels.MfaOnBoardingComplete_PageTitle);
+
+    /// <summary>Gets the localized string for "You're all set".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_PageHeader => new HtmlString(IdentityLabels.MfaOnBoardingComplete_PageHeader);
+
+    /// <summary>Gets the localized string for "Multi-factor authentication is now enabled for your account.".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_Message => new HtmlString(IdentityLabels.MfaOnBoardingComplete_Message);
+
+    /// <summary>Gets the localized format string for the destination note (with {0} placeholder for the masked email/phone).</summary>
+    public virtual HtmlString MfaOnBoardingComplete_Destination(string maskedDestination) => new HtmlString(string.Format(IdentityLabels.MfaOnBoardingComplete_Destination, System.Net.WebUtility.HtmlEncode(maskedDestination)));
+
+    /// <summary>Gets the localized string for "You will be asked for a verification code the next time you sign in.".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_NextSignIn => new HtmlString(IdentityLabels.MfaOnBoardingComplete_NextSignIn);
+
+    /// <summary>Gets the localized string for "Continue".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_Continue => new HtmlString(IdentityLabels.MfaOnBoardingComplete_Continue);
+
+    /// <summary>Gets the localized string for "Authentication method".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_MethodLabel => new HtmlString(IdentityLabels.MfaOnBoardingComplete_MethodLabel);
+
+    /// <summary>Gets the localized string for "Use the code from your authenticator app when you sign in.".</summary>
+    public virtual HtmlString MfaOnBoardingComplete_AuthenticatorHint => new HtmlString(IdentityLabels.MfaOnBoardingComplete_AuthenticatorHint);
+
+    /// <summary>Gets the localized display name of the given authentication method.</summary>
+    /// <param name="method">The authentication method.</param>
+    public virtual HtmlString MfaOnBoardingComplete_MethodName(Indice.Features.Identity.Core.Models.AuthenticationMethodType method) => new HtmlString(method switch {
+        Indice.Features.Identity.Core.Models.AuthenticationMethodType.Email => IdentityLabels.MfaOnBoardingComplete_Method_Email,
+        Indice.Features.Identity.Core.Models.AuthenticationMethodType.PhoneNumber => IdentityLabels.MfaOnBoardingComplete_Method_PhoneNumber,
+        Indice.Features.Identity.Core.Models.AuthenticationMethodType.AuthenticatorApp => IdentityLabels.MfaOnBoardingComplete_Method_AuthenticatorApp,
+        _ => method.ToString()
+    });
+
+    #endregion
+
     #region MfaOnBoardingAddEmail
 
     /// <summary>
@@ -1280,6 +1317,18 @@ public class IdentityUILocalizer
 
     #endregion
 
+    #region VerifyEmail
+    /// <summary>Gets the localized string for "Verify email" page title.</summary>
+    public virtual HtmlString VerifyEmail_PageTitle => new HtmlString(IdentityLabels.VerifyEmail_PageTitle);
+    /// <summary>Gets the localized string for "Verify email" page header.</summary>
+    public virtual HtmlString VerifyEmail_PageHeader => new HtmlString(IdentityLabels.VerifyEmail_PageHeader);
+    /// <summary>Gets the localized prompt "Enter the code we sent to {0}.", formatted with the HTML-encoded email.</summary>
+    /// <param name="email">The email the code was sent to.</param>
+    public virtual HtmlString VerifyEmail_Prompt(string email) => new HtmlString(string.Format(IdentityLabels.VerifyEmail_Prompt, System.Net.WebUtility.HtmlEncode(email)));
+    /// <summary>Gets the localized text that introduces the OTP code in the email confirmation email.</summary>
+    public virtual HtmlString Email_ConfirmYourEmail_OtpCode => new HtmlString(IdentityLabels.Email_ConfirmYourEmail_OtpCode);
+    #endregion
+
     /// <summary> Label for the Preferred Language field in profile sidebar.</summary>     
     public virtual HtmlString ProfileSidebar_ConfirmEmailSentTo => new HtmlString(IdentityLabels.ProfileSidebar_ConfirmEmailSentTo);
     /// <summary> Label for Manage Profile action in profile sidebar.</summary>
@@ -1390,5 +1439,48 @@ public class IdentityUILocalizer
     public virtual HtmlString Register_PageHeader => new HtmlString(IdentityLabels.Register_PageHeader);
     /// <summary>Gets the localized HTML content for the page header displayed during phone number verification.</summary>
     public virtual HtmlString VerifyPhone_PageHeader => new HtmlString(IdentityLabels.VerifyPhone_PageHeader);
+    #endregion
+
+    #region Layout (redesign)
+    /// <summary>Hero title rendered next to the login and register forms (split, columns and panel templates).</summary>
+    public virtual HtmlString Hero_Title => new HtmlString(IdentityLabels.Hero_Title);
+    /// <summary>Hero subtitle rendered under <see cref="Hero_Title"/>.</summary>
+    public virtual HtmlString Hero_Subtitle => new HtmlString(IdentityLabels.Hero_Subtitle);
+    /// <summary>The "made by" credit rendered in the footer. May contain HTML.</summary>
+    public virtual HtmlString Footer_MadeBy => new HtmlString(IdentityLabels.Footer_MadeBy);
+    /// <summary>Accessible label of the footer links navigation.</summary>
+    public virtual HtmlString Footer_LinksLabel => new HtmlString(IdentityLabels.Footer_LinksLabel);
+    /// <summary>Accessible label of the footer "more links" menu toggle.</summary>
+    public virtual HtmlString Footer_MoreLinks => new HtmlString(IdentityLabels.Footer_MoreLinks);
+    /// <summary>Subtitle of the register card.</summary>
+    public virtual HtmlString Register_Subtitle => new HtmlString(IdentityLabels.Register_Subtitle);
+    /// <summary>Accessible label of the avatar button that opens the account panel.</summary>
+    public virtual HtmlString Nav_OpenMenu => new HtmlString(IdentityLabels.Nav_OpenMenu);
+    /// <summary>Accessible label of the button that closes the account panel.</summary>
+    public virtual HtmlString Nav_CloseMenu => new HtmlString(IdentityLabels.Nav_CloseMenu);
+    /// <summary>Link text for signing in with a different account.</summary>
+    public virtual HtmlString Account_SwitchAccount => new HtmlString(IdentityLabels.Account_SwitchAccount);
+    /// <summary>Accessible label of the account navigation.</summary>
+    public virtual HtmlString Account_NavLabel => new HtmlString(IdentityLabels.Account_NavLabel);
+    /// <summary>Text of the skip link that jumps to the main content.</summary>
+    public virtual HtmlString SkipToContent => new HtmlString(IdentityLabels.SkipToContent);
+    /// <summary>Accessible label of the reveal-password button when the password is hidden.</summary>
+    public virtual HtmlString Password_Show => new HtmlString(IdentityLabels.Password_Show);
+    /// <summary>Accessible label of the reveal-password button when the password is visible.</summary>
+    public virtual HtmlString Password_Hide => new HtmlString(IdentityLabels.Password_Hide);
+    /// <summary>Text shown before the countdown until an OTP can be re-sent.</summary>
+    public virtual HtmlString Mfa_ResendAvailableIn => new HtmlString(IdentityLabels.Mfa_ResendAvailableIn);
+    /// <summary>Title of the profile photo card.</summary>
+    public virtual HtmlString Profile_Photo => new HtmlString(IdentityLabels.Profile_Photo);
+    /// <summary>Call to action on the profile photo.</summary>
+    public virtual HtmlString Profile_PhotoUpload => new HtmlString(IdentityLabels.Profile_PhotoUpload);
+    /// <summary>Help text next to the profile photo.</summary>
+    public virtual HtmlString Profile_PhotoHelp => new HtmlString(IdentityLabels.Profile_PhotoHelp);
+    /// <summary>Upload constraints for the profile photo. {0} is the size limit in MB, {1} the maximum side in pixels.</summary>
+    public virtual HtmlString Profile_PhotoConstraints(double maxSizeMb, int maxSidePx) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_PhotoConstraints, maxSizeMb, maxSidePx));
+    /// <summary>Title of the account details card on the profile page.</summary>
+    public virtual HtmlString Profile_AccountDetails => new HtmlString(IdentityLabels.Profile_AccountDetails);
+    /// <summary>Title of the profile details card on the profile page.</summary>
+    public virtual HtmlString Profile_DetailsSection => new HtmlString(IdentityLabels.Profile_DetailsSection);
     #endregion
 }

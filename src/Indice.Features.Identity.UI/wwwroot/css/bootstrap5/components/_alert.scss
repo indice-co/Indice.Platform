@@ -1,0 +1,12 @@
+﻿@use '../abstracts/tokens' as t;
+
+.alert {
+    border: 0;
+    border-radius: var(--idui-radius);
+    font-size: t.$font-size-sm;
+
+    ul {
+        margin: 0;
+        padding-left: 1.25rem;
+    }
+}

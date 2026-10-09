@@ -18,25 +18,25 @@ a.deck-item {
     }
 
     .deck-icon {
-        @apply inline-block p-6 mb-[1.53846rem] bg-cover bg-no-repeat bg-[url('../img/icons/avatar.svg')];
+        @apply inline-block p-6 mb-[1.53846rem] bg-cover bg-no-repeat bg-[url('../../img/icons/avatar.svg')];
         background-position: center center;
     }
 
     &.b2b-e-shop {
         .deck-icon {
-            @apply bg-[url('../img/icons/shopping-basket.svg')];
+            @apply bg-[url('../../img/icons/shopping-basket.svg')];
         }
     }
 
     &.admin {
         .deck-icon {
-            @apply bg-[url('../img/icons/security-check.svg')];
+            @apply bg-[url('../../img/icons/security-check.svg')];
         }
     }
 
     &.developers {
         .deck-icon {
-            @apply bg-[url('../img/icons/coding.svg')];
+            @apply bg-[url('../../img/icons/coding.svg')];
         }
     }
 }
