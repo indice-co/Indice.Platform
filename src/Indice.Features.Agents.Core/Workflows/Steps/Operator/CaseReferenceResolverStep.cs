@@ -29,6 +29,7 @@ internal sealed class CaseReferenceResolverStep : Executor<OperationRequestPort.
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(operationResponse);
         var state = await context.GetConversationStateAsync(cancellationToken);
+        //TODO: Handle user SelectedOperation
         var message = state.Message;
 
         if (message.AdditionalProperties?.ContainsKey(nameof(ChatTopic)) == true) {
