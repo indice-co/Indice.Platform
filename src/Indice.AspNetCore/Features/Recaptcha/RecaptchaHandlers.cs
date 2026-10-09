@@ -16,7 +16,8 @@ internal static partial class RecaptchaHandlers
             return TypedResults.Ok(new RecaptchaValidateResponse {
                 Success = false,
                 RequiresV2 = false,
-                SiteKeyV2 = null
+                SiteKeyV2 = null,
+                Provider = recaptchaService.Provider
             });
         }
         var remoteIp = httpContext.Connection.RemoteIpAddress?.ToString();
@@ -24,7 +25,8 @@ internal static partial class RecaptchaHandlers
         return TypedResults.Ok(new RecaptchaValidateResponse {
             Success = result.Success,
             RequiresV2 = result.RequiresV2Fallback,
-            SiteKeyV2 = result.RequiresV2Fallback ? recaptchaService.SiteKeyV2 : null
+            SiteKeyV2 = result.RequiresV2Fallback ? recaptchaService.SiteKeyV2 : null,
+            Provider = recaptchaService.Provider
         });
     }
 }
@@ -46,4 +48,6 @@ public class RecaptchaValidateResponse
     public bool RequiresV2 { get; set; }
     /// <summary>The site key for reCAPTCHA v2, if a fallback is required.</summary>
     public string? SiteKeyV2 { get; set; }
+    /// <summary>The active captcha provider.</summary>
+    public CaptchaProviderType Provider { get; set; }
 }

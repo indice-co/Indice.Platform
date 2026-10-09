@@ -16,7 +16,7 @@
         <div id="recaptchaV2" class="g-recaptcha"></div>
         <span id="recaptchaV2Error" class="text-danger"></span>
     </div>
-            
+
     <script src="https://www.google.com/recaptcha/api.js?render=@recaptchaSiteKey" csp-nonce></script>
     <script csp-nonce="true">
         document.addEventListener('DOMContentLoaded', function() {
@@ -31,7 +31,7 @@
         const recaptchaV2Error = document.getElementById('recaptchaV2Error');
         let v2WidgetId = null;
         let isSubmitting = false;
-        
+
         // Execute reCAPTCHA v3 (invisible, runs in background)
         async function executeRecaptchaV3() {
             try {

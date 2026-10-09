@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Recaptcha;
 
-/// <summary>Service for validating Google reCAPTCHA tokens.</summary>
+/// <summary>Service for validating captcha tokens.</summary>
 /// <remarks>
 /// This service handles both v3 (invisible, score-based) and v2 (checkbox) validation.
 /// Typical flow:
@@ -36,11 +36,15 @@ public interface IRecaptchaService
 
     /// <summary>Gets the site key for v2.</summary>
     string? SiteKeyV2 { get; }
+
+    /// <summary>Gets the configured captcha provider.</summary>
+    CaptchaProviderType Provider { get; }
 }
 
 /// <summary>Implementation of the reCAPTCHA validation service.</summary>
-public class RecaptchaService : IRecaptchaService
-{
+public class RecaptchaService : IRecaptchaService {
+    private const string GoogleVerifyUrl = "https://www.google.com/recaptcha/api/siteverify";
+
     private static readonly JsonSerializerOptions JsonOptions = new() {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         PropertyNameCaseInsensitive = true
@@ -61,7 +65,12 @@ public class RecaptchaService : IRecaptchaService
     }
 
     /// <inheritdoc/>
-    public bool IsEnabled => !string.IsNullOrWhiteSpace(_options.SiteKey) && !string.IsNullOrWhiteSpace(_options.SecretKey);
+    public CaptchaProviderType Provider => CaptchaProviderType.Recaptcha;
+
+    /// <inheritdoc/>
+    public bool IsEnabled => _options.Provider == CaptchaProviderType.Recaptcha
+                          && !string.IsNullOrWhiteSpace(_options.SiteKey)
+                          && !string.IsNullOrWhiteSpace(_options.SecretKey);
     /// <inheritdoc/>
     public bool IsEnabledInLogin => _options.EnabledInLoginPage;
     /// <inheritdoc/>
@@ -91,7 +100,12 @@ public class RecaptchaService : IRecaptchaService
 
         // Determine which version and use appropriate secret key
         var isV2 = string.Equals(version, "v2", StringComparison.OrdinalIgnoreCase);
-        var secretKey = isV2 ? _options.EffectiveSecretKeyV2 : _options.SecretKey;
+        var (secretKey, verifyUrl) = (isV2 ? _options.EffectiveSecretKeyV2 : _options.SecretKey, GoogleVerifyUrl);
+
+        if (string.IsNullOrWhiteSpace(secretKey) || string.IsNullOrWhiteSpace(verifyUrl)) {
+            _logger.LogWarning("reCAPTCHA validation failed - provider not configured correctly.");
+            return new RecaptchaValidationResult { Success = false, Score = 0.0m };
+        }
 
         try {
             var httpClient = _httpClientFactory.CreateClient();
@@ -106,13 +120,13 @@ public class RecaptchaService : IRecaptchaService
             }
             using var content = new FormUrlEncodedContent(formData);
             var response = await httpClient.PostAsync(
-                "https://www.google.com/recaptcha/api/siteverify",
+                verifyUrl,
                 content,
                 cancellationToken
             );
 
             var jsonResponse = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<GoogleRecaptchaResponse>(jsonResponse, JsonOptions);
+            var result = JsonSerializer.Deserialize<RecaptchaResponse>(jsonResponse, JsonOptions);
 
             if (result is null) {
                 _logger.LogError("Failed to deserialize reCAPTCHA response: {Response}", jsonResponse);
@@ -155,7 +169,7 @@ public class RecaptchaService : IRecaptchaService
         }
     }
 
-    private sealed class GoogleRecaptchaResponse
+    private sealed class RecaptchaResponse
     {
         public bool Success { get; set; }
         public double Score { get; set; }
@@ -171,6 +185,33 @@ public class RecaptchaService : IRecaptchaService
     }
 }
 
+/// <summary>Implementation of the reCAPTCHA validation service.</summary>
+public class NoOpRecaptchaService : IRecaptchaService
+{
+    private readonly RecaptchaOptions _options;
+    /// <summary>Creates a new instance of <see cref="RecaptchaService"/>.</summary>
+    public NoOpRecaptchaService(IOptions<RecaptchaOptions> options) {
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+    }
+    /// <inheritdoc/>
+    public CaptchaProviderType Provider => CaptchaProviderType.None;
+    /// <inheritdoc/>
+    public bool IsEnabled => false;
+    /// <inheritdoc/>
+    public bool IsEnabledInLogin => false;
+    /// <inheritdoc/>
+    public decimal ScoreThreshold => 0;
+    /// <inheritdoc/>
+    public string? SiteKey => null;
+    /// <inheritdoc/>
+    public string? SiteKeyV2 => null;
+
+    /// <inheritdoc/>
+    public async Task<RecaptchaValidationResult> ValidateAsync(string? token, string? version = "v3", string? remoteIp = null, CancellationToken cancellationToken = default) {
+        return new RecaptchaValidationResult {Success = true};
+        
+    }
+}
 /// <summary>Result of reCAPTCHA validation.</summary>
 public class RecaptchaValidationResult
 {
