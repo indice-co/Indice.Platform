@@ -7,11 +7,21 @@ namespace Indice.Features.Agents.Core.Extensions;
 /// <summary>Extension methods for <see cref="TypeId"/>.</summary>
 public static class TypeIdExtensions
 {
-    private static readonly ConcurrentDictionary<string, Type?> _cache = new(StringComparer.Ordinal);
+    private static readonly ConcurrentDictionary<string, Type> _cache = new(StringComparer.Ordinal);
 
     /// <summary>Resolves the CLR <see cref="Type"/> represented by a <see cref="TypeId"/>, or <c>null</c> if it cannot be found.</summary>
-    public static Type? ToClrType(this TypeId typeId)
-        => _cache.GetOrAdd(typeId.ToString(), _ => Resolve(typeId));
+    public static Type? ToClrType(this TypeId typeId) {
+        var key = typeId.ToString();
+        if (_cache.TryGetValue(key, out var cached)) {
+            return cached;
+        }
+        // Only successful resolutions are cached, so a miss is retried once the assembly gets loaded.
+        var resolved = Resolve(typeId);
+        if (resolved is not null) {
+            _cache.TryAdd(key, resolved);
+        }
+        return resolved;
+    }
 
     /// <summary>Resolves the CLR <see cref="Type"/> represented by a <see cref="TypeId"/>, throwing if it cannot be found.</summary>
     public static Type ToRequiredClrType(this TypeId typeId)
