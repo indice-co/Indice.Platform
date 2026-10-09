@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { SignInLocationSet } from 'src/app/core/services/identity-api.service';
 
 interface MapPoint {
@@ -17,6 +17,7 @@ interface MapPoint {
     selector: 'app-sign-in-locations-map',
     templateUrl: './sign-in-locations-map.component.html',
     styleUrls: ['./sign-in-locations-map.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SignInLocationsMapComponent implements OnChanges {

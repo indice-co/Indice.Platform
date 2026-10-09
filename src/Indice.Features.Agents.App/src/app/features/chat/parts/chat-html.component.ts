@@ -50,6 +50,38 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input 
       background: color-mix(in oklch, var(--color-primary) 12%, transparent);
       color: var(--color-primary);
     }
+    /* Sectioned data card (Cards/*.hbs): stacked header / rows / facts / footer divided by hairlines. */
+    .dex-html .dex-sheet {
+      max-width: 30rem; padding: 0; margin: 0.25rem 0; overflow: hidden;
+      border: 1px solid var(--color-base-300); border-radius: 1rem;
+      background: var(--color-base-100);
+    }
+    .dex-html .dex-sheet > * { margin: 0; padding: 0.875rem 1.125rem; }
+    .dex-html .dex-sheet > * + * { border-top: 1px solid var(--color-base-300); }
+    .dex-html .dex-sheet p { margin: 0; }
+    .dex-html .dex-sheet h3 { margin: 0.125rem 0 0.5rem; font-size: 1.25rem; }
+    .dex-html .dex-sheet-head, .dex-html .dex-sheet-row, .dex-html .dex-sheet-foot {
+      display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; align-items: flex-start; justify-content: space-between;
+    }
+    .dex-html .dex-sheet-media { text-align: center; }
+    .dex-html .dex-sheet-media img { display: inline-block; max-width: 100%; height: auto; max-height: 10rem; border-radius: 0; }
+    .dex-html .dex-sheet-row { align-items: center; }
+    .dex-html .dex-sheet-foot { align-items: flex-end; background: var(--color-base-200); }
+    .dex-html .dex-eyebrow, .dex-html .dex-facts dt {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+    }
+    .dex-html .dex-lead { font-size: 1.05rem; font-weight: 500; }
+    .dex-html .dex-plate {
+      flex: none; padding: 0.3rem 0.7rem 0.3rem 1.2rem;
+      border: 1.5px solid var(--color-base-content); border-radius: 0.375rem;
+      box-shadow: inset 0.6rem 0 0 var(--color-info);
+      font-family: var(--font-mono); font-size: 1.05rem; font-weight: 600; letter-spacing: 0.1em;
+    }
+    .dex-html .dex-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: 0.75rem 1.25rem; }
+    .dex-html .dex-facts dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+    .dex-html .dex-amount { font-size: 1.6rem; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+    .dex-html .dex-code { font-family: var(--font-mono); font-size: 0.9rem; letter-spacing: 0.04em; overflow-wrap: anywhere; }
   `,
   template: `
     @if (content(); as fragment) {

@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { APP_LANGUAGES, HeaderMetaItem, Icons, LibStepperComponent, StepperType, ToastType } from '@indice/ng-components';
 import { StepSelectedEvent } from '@indice/ng-components';
@@ -17,6 +17,7 @@ import { AppTranslatedToaster } from '../../../shared/services/app-translated-to
 @Component({
   selector: 'app-campaign-create',
   templateUrl: './campaign-create.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class CampaignCreateComponent implements OnInit, AfterViewChecked, OnDestroy {

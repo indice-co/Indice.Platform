@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, OnDestroy, Inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, OnDestroy, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { APP_LANGUAGES, ToastType } from '@indice/ng-components';
 import { finalize } from 'rxjs/operators';
@@ -12,6 +12,7 @@ import { AppTranslatedToaster } from '../../../../../shared/services/app-transla
 @Component({
     selector: 'app-campaign-edit-attachments-rightpane',
     templateUrl: './campaign-edit-attachments-rightpane.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CampaignAttachmentsEditRightpaneComponent implements OnInit, OnDestroy {

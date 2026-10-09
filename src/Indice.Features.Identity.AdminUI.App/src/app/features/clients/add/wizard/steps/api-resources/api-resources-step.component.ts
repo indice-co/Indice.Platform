@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
 import { ApiResourceInfo } from 'src/app/core/services/identity-api.service';
@@ -9,6 +9,7 @@ import { ClientWizardModel } from '../../models/client-wizard-model';
 @Component({
     selector: 'app-api-resources-step',
     templateUrl: './api-resources-step.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApiResourcesStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
