@@ -98,7 +98,6 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         var attempt = (await context.GetApprovalStateAsync(cancellationToken)) + 1;
         await context.SetApprovalStateAsync(attempt, cancellationToken);
         if (attempt >= _maxValidationAttempts) {
-            _logger.LogWarning("OTP validation failed for case {ReferenceId}: maximum attempts ({MaxAttempts}) reached. Ending workflow.", caseData.ReferenceId, _maxValidationAttempts);
             await context.SetApprovalStateAsync(null, cancellationToken);
             await context.Say(Id, _messageLocalizer.InvalidOtpMaxAttemptsReachedMessage);
             await context.YieldOutputAsync(OperationState.End);
