@@ -3,7 +3,6 @@
 @{
     var isCaptchaEnabled = CaptchaService.IsEnabled;
     var captchaSiteKey = CaptchaService.SiteKey;
-    var captchaSiteKeyV2 = CaptchaService.SiteKeyV2;
     var showInForm = (Model.IsLoginForm && CaptchaService.IsEnabledInLogin) || !Model.IsLoginForm;
 }
 
