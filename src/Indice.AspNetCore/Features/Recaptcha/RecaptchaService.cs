@@ -197,6 +197,14 @@ public class NoOpRecaptchaService : IRecaptchaService
     public CaptchaProviderType Provider => CaptchaProviderType.None;
     /// <inheritdoc/>
     public bool IsEnabled => false;
+    /// <inheritdoc/>
+    public bool IsEnabledInLogin => false;
+    /// <inheritdoc/>
+    public decimal ScoreThreshold => 0;
+    /// <inheritdoc/>
+    public string? SiteKey => null;
+    /// <inheritdoc/>
+    public string? SiteKeyV2 => null;
 
     /// <inheritdoc/>
     public async Task<RecaptchaValidationResult> ValidateAsync(string? token, string? version = "v3", string? remoteIp = null, CancellationToken cancellationToken = default) {

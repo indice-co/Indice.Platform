@@ -48,7 +48,7 @@ public class HCaptchaService : IRecaptchaService
     public string? SiteKeyV2 => _options.EffectiveSiteKeyV2;
 
     /// <inheritdoc/>
-    public async Task<RecaptchaValidationResult> ValidateAsync(string? token, string? version = "v3", string? remoteIp = null, CancellationToken cancellationToken = default) {
+    public async Task<RecaptchaValidationResult> ValidateAsync(string? token, string? version = "HCaptcha", string? remoteIp = null, CancellationToken cancellationToken = default) {
         if (!IsEnabled) {
             _logger.LogDebug("reCAPTCHA validation skipped - not configured.");
             return new RecaptchaValidationResult { Success = true, Score = 1.0m };
@@ -64,8 +64,8 @@ public class HCaptchaService : IRecaptchaService
         }
 
         // Determine which version and use appropriate secret key
-        var isV2 = string.Equals(version, "v2", StringComparison.OrdinalIgnoreCase);
-        var (secretKey, verifyUrl) = (isV2 ? _options.EffectiveSecretKeyV2 : _options.SecretKey, HCaptchaVerifyUrl);
+        var secretKey = _options.SecretKey;
+        var verifyUrl = HCaptchaVerifyUrl;
 
         if (string.IsNullOrWhiteSpace(secretKey) || string.IsNullOrWhiteSpace(verifyUrl)) {
             _logger.LogWarning("reCAPTCHA validation failed - provider not configured correctly.");
@@ -98,24 +98,17 @@ public class HCaptchaService : IRecaptchaService
                 return new RecaptchaValidationResult { Success = false, Score = 0.0m };
             }
 
-            // Calculate score: v2 returns binary success/fail (1.0 or 0.0), v3 returns score 0.0-1.0
-            var score = isV2 ? (result.Success ? 1.0m : 0.0m) : (decimal)result.Score;
-
-            // v3 requires v2 fallback if score is below configured threshold
-            var requiresV2Fallback = !isV2 && result.Success && score > _options.ScoreThreshold;
+            var score = (decimal)result.Score;
 
             if (!result.Success) {
                 _logger.LogWarning("hCAPTCHA validation failed. Error codes: {ErrorCodes}",
                     string.Join(", ", result.ErrorCodes ?? []));
-            } else if (requiresV2Fallback) {
-                _logger.LogInformation("hCAPTCHA v3 score {Score} below threshold {Threshold}, requiring v2 fallback.",
-                    score, _options.ScoreThreshold);
             }
 
             return new RecaptchaValidationResult {
                 Success = result.Success,
                 Score = score,
-                RequiresV2Fallback = requiresV2Fallback,
+                RequiresV2Fallback = false,
                 ErrorCodes = result.ErrorCodes?.ToList(),
                 Action = result.Action
             };
