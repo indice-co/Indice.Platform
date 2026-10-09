@@ -105,7 +105,7 @@ public static class AgentsFeatureExtensions
     /// <see cref="Workflow"/> wiring them in order. Call after <c>AddDex(...)</c>.
     /// </summary>
     public static IServiceCollection AddAgentsDefaultPipeline(this IServiceCollection services) {
-        services.TryAddTransient<IntentClassifier>();
+        services.TryAddTransient<Indice.Features.Agents.Core.Workflows.Steps.IntentClassifier>();
         services.TryAddTransient<QueryRewriter>();
         services.TryAddTransient<Retriever>();
         services.TryAddTransient<Reranker>();
@@ -143,7 +143,7 @@ public static class AgentsFeatureExtensions
                 Links: [],
                 Icon: AgentsConstants.AgentIcons.Book),
             (sp, key) => {
-                var intent = sp.GetRequiredService<IntentClassifier>();
+                var intent = sp.GetRequiredService<Indice.Features.Agents.Core.Workflows.Steps.IntentClassifier>();
                 var rewrite = sp.GetRequiredService<QueryRewriter>();
                 var retrieve = sp.GetRequiredService<Retriever>();
                 var rerank = sp.GetRequiredService<Reranker>();
@@ -259,7 +259,14 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<PaymentMethodStep>();
         services.TryAddTransient<PaymentCompletedStep>();
 
+        services.TryAddTransient<OperationSelectionStep>();
+        services.TryAddTransient<CaseReferenceResolverStep>();
+        services.TryAddTransient<UserInputCollector>();
+
         services.AddKeyedScoped(AgentsConstants.AgentNames.Operator, (sp, key) => {
+            var operationClassifier = sp.GetRequiredService<OperationSelectionStep>();
+            var userInputRetriever = sp.GetRequiredService<CaseReferenceResolverStep>();
+
             var retriever = sp.GetRequiredService<DataRetrieverStep>();
             var ownershipPrompt = sp.GetRequiredService<AuthenticationChallengeStep>();
             var ownershipValidate = sp.GetRequiredService<AuthenticationStep>();
@@ -271,9 +278,21 @@ public static class AgentsFeatureExtensions
 
             var ownershipPort = ChallengeRequestPort.Create();
             var otpPort = OtpRequestPort.Create();
+            var operationPort = OperationRequestPort.Create();
+            var userInputPort = UserInputRequestPort.Create();
+            var userInputCollector = sp.GetRequiredService<UserInputCollector>();
             var paymentPort = PaymentRequestPort.Create();
 
-            var builder = new WorkflowBuilder(retriever);
+            var builder = new WorkflowBuilder(operationClassifier);
+            builder.AddSwitch(operationClassifier, sw => sw
+                .AddCase<OperationRequestPort.OperationRequest>(request => request is not null, operationPort)
+                .WithDefault(retriever));
+            builder.AddEdge(operationPort, userInputRetriever);
+            builder.AddSwitch(userInputRetriever, sw => sw
+                .AddCase<UserInputRequestPort.UserInputRequest>(request => request is not null, userInputPort)
+                .WithDefault(retriever));
+            builder.AddEdge(userInputPort, userInputCollector);
+            builder.AddEdge(userInputCollector, retriever);
             builder.AddEdge(retriever, ownershipPrompt);
             builder.AddEdge(ownershipPrompt, ownershipPort);
             builder.AddEdge(ownershipPort, ownershipValidate);

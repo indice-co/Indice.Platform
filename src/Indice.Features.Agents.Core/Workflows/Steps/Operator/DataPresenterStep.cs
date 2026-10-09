@@ -1,5 +1,3 @@
-using System.Net.Mime;
-using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
@@ -22,12 +20,12 @@ public sealed class DataPresenterStep : Executor<OperationState, OperationState>
 
     /// <inheritdoc/>
     public override async ValueTask<OperationState> HandleAsync(
-        OperationState message,
+        OperationState state,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-        ArgumentNullException.ThrowIfNull(message);
-        var state = await context.GetOperatorStateAsync(cancellationToken);
-        var presentation = _presentationFormatter.Render(state);
+        ArgumentNullException.ThrowIfNull(state);
+        var operatorState = await context.GetOperatorStateAsync(cancellationToken);
+        var presentation = _presentationFormatter.Render(operatorState);
         await context.AddEventAsync(new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [presentation])), cancellationToken);
         return OperationState.End;
     }

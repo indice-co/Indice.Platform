@@ -103,4 +103,18 @@ public class AgentMessageLocalizer
     /// </summary>
     public virtual string ChallengeSucceeded => AgentResources.ChallengeSucceeded;
 
+    /// <summary>
+    /// Message to display when the user starts the conversation and the case is known to the system
+    /// </summary>
+    public virtual string OperatorWelcomeKnownCase => AgentResources.OperatorWelcomeKnownCase;
+    /// <summary>
+    /// Message to display when the user starts the conversation and the case is known to the system
+    /// </summary>
+    public virtual string OperatorWelcomeUknownCase => AgentResources.OperatorWelcomeUknownCase;
+
+    /// <summary>
+    /// Message to display and request form the user the reference number.
+    /// </summary>
+    public virtual string AskReferenceNumber => AgentResources.AskReferenceNumber;
+    
 }

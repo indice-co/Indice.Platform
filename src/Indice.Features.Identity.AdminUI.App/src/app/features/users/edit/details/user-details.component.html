@@ -168,18 +168,26 @@
             <button type="button" class="btn btn-danger m-r-5 float-end" (click)="deleteAlert.fire()" [disabled]="currentUserId === user.id">
                 <i class="material-icons align-middle m-r-5">delete</i>Delete
             </button>
-            <button type="button" class="btn btn-secondary m-r-5 float-end" (click)="blockAlert.fire()" [disabled]="currentUserId === user.id">
-                <i class="material-icons align-middle m-r-5">{{ !user.blocked ? 'lock' : 'lock_open' }}</i>{{ !user.blocked ? 'Block' : 'Unblock' }}
-            </button>
-            <button type="button" class="btn btn-secondary m-r-5 float-end" (click)="showResetPassword(content)" [disabled]="currentUserId === user.id">
-                <i class="material-icons align-middle m-r-5">vpn_key</i>Reset Password
-            </button>
-            <button type="button" class="btn btn-secondary m-r-5 float-end" (click)="resetMfaAlert.fire()">
-                <i class="material-icons align-middle m-r-5">refresh</i>Reset 2FA
-            </button>
-            <button type="button" class="btn btn-secondary m-r-5 float-end" (click)="resetActionCounterAlert.fire()">
-                <i class="material-icons align-middle m-r-5">refresh</i>Reset Action counter
-            </button>
+            <div class="float-end m-r-5" ngbDropdown placement="top-end" container="body">
+                <button type="button" class="btn btn-secondary" ngbDropdownToggle>
+                    <i class="material-icons align-middle m-r-5">more_horiz</i>Actions
+                </button>
+                <div ngbDropdownMenu class="shadow">
+                    <button type="button" ngbDropdownItem (click)="resetActionCounterAlert.fire()">
+                        <i class="material-icons align-middle m-r-5">exposure_zero</i>Reset Action counter
+                    </button>
+                    <button type="button" ngbDropdownItem (click)="resetMfaAlert.fire()">
+                        <i class="material-icons align-middle m-r-5">refresh</i>Reset 2FA
+                    </button>
+                    <button type="button" ngbDropdownItem (click)="showResetPassword(content)" [disabled]="currentUserId === user.id">
+                        <i class="material-icons align-middle m-r-5">vpn_key</i>Reset Password
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button type="button" ngbDropdownItem class="text-warning" (click)="blockAlert.fire()" [disabled]="currentUserId === user.id">
+                        <i class="material-icons align-middle m-r-5">{{ !user.blocked ? 'lock' : 'lock_open' }}</i>{{ !user.blocked ? 'Block' : 'Unblock' }}
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </form>
