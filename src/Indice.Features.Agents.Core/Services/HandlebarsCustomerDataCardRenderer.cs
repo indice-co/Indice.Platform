@@ -5,6 +5,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using HandlebarsDotNet;
+using HandlebarsDotNet.Extension.Json;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Extensions.AI;
@@ -51,6 +52,8 @@ public sealed class HandlebarsCustomerDataCardRenderer : ICustomerDataCardRender
     /// <summary>Creates a new <see cref="HandlebarsCustomerDataCardRenderer"/> reading templates from <paramref name="templatesDirectory"/>.</summary>
     public HandlebarsCustomerDataCardRenderer(string templatesDirectory) {
         _baseDirectory = templatesDirectory;
+        // Lets templates walk the raw payload, e.g. {{raw.data.fullName}}.
+        _handlebars.Configuration.UseJson();
     }
 
     /// <inheritdoc/>
@@ -87,7 +90,8 @@ public sealed class HandlebarsCustomerDataCardRenderer : ICustomerDataCardRender
             ["referenceId"] = record.ReferenceId,
             ["referenceType"] = record.DataType,
             ["title"] = DeriveTitle(record),
-            ["fields"] = fields
+            ["fields"] = fields,
+            ["raw"] = record.Data
         };
     }
 

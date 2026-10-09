@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, RouterViewAction, ViewAction } from '@indice/ng-components';
 import { Observable, combineLatest, Subject } from 'rxjs';
@@ -9,6 +9,7 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 @Component({
     selector: 'app-campaigns',
     templateUrl: './campaigns.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CampaignsComponent extends BaseListComponent<Campaign> implements OnInit, OnDestroy {

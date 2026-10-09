@@ -112,10 +112,10 @@ Your `DbContext` must target the same database and more restrictively be on the 
 services.AddWorkerHost(options => options.UseStoreRelational<BankingDbContext>(builder => builder.UseSqlServer(connectionString)));
 ```
 
-### 1. Implement `ITaskDbContext` on your `DbContext`
+### 1. Implement `ITaskDbContext` and `ILockDbContext` on your `DbContext`
 
 ```csharp
-public class BankingDbContext : DbContext, ITaskDbContext
+public class BankingDbContext : DbContext, ITaskDbContext, ILockDbContext
 {
     public BankingDbContext(DbContextOptions<BankingDbContext> options) : base(options) { }
 

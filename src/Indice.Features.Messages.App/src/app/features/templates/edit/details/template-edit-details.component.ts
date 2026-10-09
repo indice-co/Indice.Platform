@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { APP_LANGUAGES, ModalService, ToastType } from '@indice/ng-components';
@@ -13,6 +13,7 @@ import { takeUntil } from 'rxjs/operators';
 @Component({
     selector: 'app-campaign-details-edit',
     templateUrl: './template-edit-details.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TemplateDetailsEditComponent implements OnInit, OnDestroy {

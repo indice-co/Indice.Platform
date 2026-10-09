@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnDestroy, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalService, ToastType } from '@indice/ng-components';
 import { MediaFile, MediaFolder, FolderContent } from 'src/app/core/services/media-api.service';
@@ -12,6 +12,7 @@ import { takeUntil } from 'rxjs/operators';
 @Component({
     selector: 'app-list-view',
     templateUrl: './list-view.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ListViewComponent implements OnInit, OnDestroy {

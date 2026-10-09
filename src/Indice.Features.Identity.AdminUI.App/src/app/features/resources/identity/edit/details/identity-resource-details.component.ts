@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Subscription } from 'rxjs';
@@ -11,6 +11,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-identity-resource-details',
     templateUrl: './identity-resource-details.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class IdentityResourceDetailsComponent implements OnInit, OnDestroy {
