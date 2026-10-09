@@ -29,11 +29,11 @@ internal sealed class CaseReferenceResolverStep : Executor<OperationRequestPort.
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(operationResponse);
         var state = await context.GetConversationStateAsync(cancellationToken);
-        //TODO: Handle user SelectedOperation
-        var message = state.Message;
-
-        if (message.AdditionalProperties?.ContainsKey(nameof(ChatTopic)) == true) {
-            await context.SendMessageAsync(message, cancellationToken);
+        state.Message.AdditionalProperties ??= new();
+        state.Message.AdditionalProperties[nameof(OperationRequestPort.OperationResponse)] = operationResponse;
+        await context.SetConversationStateAsync(state, cancellationToken);
+        if (state.Message.AdditionalProperties.ContainsKey(nameof(ChatTopic))) {
+            await context.SendMessageAsync(state.Message, cancellationToken);
             return;
         }
         await context.Say(Id, _messageLocalizer.AskReferenceNumber, cancellationToken);

@@ -194,6 +194,14 @@ public static class AgentsConstants
             Extract the case GUID from the messages and query the case data.
             Return the object in json format as returned by the mcp.
             """;
+
+
+        /// <summary>Prompt template for fetching case data.</summary>
+        public const string CaseTypeRetriever = """
+            You are a case retrieval assistant.
+            Use the available tool get_case_types from the case-retrieval MCP service to fetch the case types.
+            Return the object in json format as returned by the mcp.
+            """;
         /// <summary>Agent instructions template for fetching OTP send.</summary>
         public const string OtpCodeSenderInstructions = """
             You are a helper agent for the current workflow. 
