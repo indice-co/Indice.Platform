@@ -56,23 +56,25 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(completed);
         var caseData = await context.GetOperatorStateAsync(cancellationToken);
-        var maskedPhoneNumber = MaskPhone(caseData.PhoneNumber);
+        var useSms = caseData.UsesSmsForOtp;
+        var maskedRecipient = useSms ? MaskPhone(caseData.PhoneNumber) : MaskEmail(caseData.Email);
+
         var securityToken = Guid.NewGuid().ToString();
         if (string.IsNullOrWhiteSpace(caseData.PhoneNumber)) {
             _logger.LogWarning("No phone number for case {ReferenceId}; OTP delivery will rely on email fallback.", caseData.ReferenceId);
         }
         try {
-            await SendOtpCode(caseData, securityToken, cancellationToken);
+            await SendOtpCode(caseData, useSms, securityToken, cancellationToken);
         } catch (Exception ex) when (ex is not OperationCanceledException) {
             _logger.LogError(ex, "Failed to send OTP code for case {ReferenceId}.", caseData.ReferenceId);
             throw;
         }
-        var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedPhoneNumber);
+        var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedRecipient);
         await context.Say(Id, otpPrompt);
         return new OtpRequestPort.OtpRequest(ChallengeCode: securityToken, ExpirationDate: DateTime.UtcNow.AddMinutes(2));
     }
 
-    private async Task SendOtpCode(CustomerState caseData, string securityToken, CancellationToken cancellationToken) {
+    private async Task SendOtpCode(CustomerState caseData, bool sms, string securityToken, CancellationToken cancellationToken) {
 
         // Fetch OTP tools from the Identity MCP server at runtime.
         var registry = await _mcpClientFactory.CreateAsync();
@@ -96,8 +98,9 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
             });
         // Execute only the send leg now; OTP code collection is done by the workflow host via RequestPort.
         var sendPrompt = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeSenderPrompt), new {
-            phoneNumber = caseData.PhoneNumber,
-            email = caseData.Email,
+            channel = sms ? "Sms" : "Email",
+            phoneNumber = sms ? caseData.PhoneNumber : null,
+            email = sms ? null : caseData.Email,
             securityToken
         });
         await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
@@ -109,5 +112,14 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
         }
         var digits = System.Text.RegularExpressions.Regex.Replace(phone, @"\D", "");
         return digits.Length < 4 ? "your registered phone" : $"***{digits[^4..]}";
+    }
+
+    private static string MaskEmail(string? email) {
+        if (string.IsNullOrWhiteSpace(email)) {
+            return "your registered email";
+        }
+
+        var at = email.IndexOf('@');
+        return at < 1 ? "your registered email" : $"{email[0]}***{email[at..]}";
     }
 }
