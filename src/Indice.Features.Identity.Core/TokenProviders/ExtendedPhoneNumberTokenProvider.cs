@@ -28,7 +28,7 @@ public class ExtendedPhoneNumberTokenProvider<TUser> : PhoneNumberTokenProvider<
         ArgumentNullException.ThrowIfNull(user);
         var securityToken = await user.GetSecurityToken(purpose, userManager).ConfigureAwait(false);
         var modifier = await GetUserModifierAsync(purpose, userManager, user).ConfigureAwait(false);
-        return _rfc6238AuthenticationService.GenerateCode(securityToken, modifier).ToString("D6", CultureInfo.InvariantCulture);
+        return _rfc6238AuthenticationService.GenerateCode(securityToken, modifier).ToString("D" + _rfc6238AuthenticationService.CodeLength, CultureInfo.InvariantCulture);
     }
 
     /// <inheritdoc />
