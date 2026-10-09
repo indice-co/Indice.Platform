@@ -33,7 +33,7 @@ internal sealed class OperationSelectionStep : Executor<ChatMessage>
         await context.SetConversationStateAsync(new ConversationState(message, message.AdditionalProperties![nameof(ConversationState.ConversationId)]!.ToString()!), cancellationToken);
         
         //var userInput = message.Text ?? string.Empty;
-        if (message.AdditionalProperties.TryGetValue<ChatTopic>(nameof(ChatTopic), out var additional) && !string.IsNullOrEmpty(additional.ReferenceType)) {
+        if (message.AdditionalProperties.TryGetValue<ChatTopic>(nameof(ChatTopic), out var additional) && !string.IsNullOrWhiteSpace(additional.ReferenceId)) {
             await context.Say(Id, _messageLocalizer.OperatorWelcomeKnownCase);
             await context.SendMessageAsync(message, cancellationToken);
             return;

@@ -31,7 +31,7 @@ internal sealed class CaseReferenceResolverStep : Executor<OperationRequestPort.
         var state = await context.GetConversationStateAsync(cancellationToken);
         var message = state.Message;
 
-        if (message.AdditionalProperties?.ContainsKey(nameof(ChatTopic)) == true) {
+        if (message.AdditionalProperties?.ContainsKey(nameof(ChatTopic)) is true) {
             await context.SendMessageAsync(message, cancellationToken);
             return;
         }

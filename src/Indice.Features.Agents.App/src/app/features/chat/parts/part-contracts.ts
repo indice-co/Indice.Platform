@@ -421,13 +421,6 @@ function textArray(value: unknown): string[] | undefined {
   return items.length > 0 ? items : undefined;
 }
 
-/** Narrows a payload member to a list of non-blank strings. */
-function stringArray(value: unknown): string[] {
-  return Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
-    : [];
-}
-
 /** Narrows a payload member to a plain JSON object. */
 function plainObject(value: unknown): Record<string, unknown> | undefined {
   return typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined;
