@@ -111,8 +111,8 @@ public static class WorkerHostConfiguration
         if (!options.Services.Any(sd => sd.ServiceType == typeof(TContext))) {
             options.Services.AddDbContext<TContext>(configureDatabase);
         }
-        options.Services.TryAddScoped<ILockDbContext>(sp => sp.GetRequiredService<TContext>());
-        options.Services.TryAddScoped<ITaskDbContext>(sp => sp.GetRequiredService<TContext>());
+        options.Services.TryAddScoped<ILockDbContext, TContext>(); // this creates its own lifetime based on ILockDbContext key
+        options.Services.TryAddScoped<ITaskDbContext>(sp => sp.GetRequiredService<TContext>()); // this shares the lifetime of the TContext key
         options.ScheduledTaskStoreType = typeof(ScheduledTaskStoreEF<>);
         options.QueueStoreType = typeof(MessageQueueRelational<>);
         options.LockStoreType = typeof(LockManagerRelational);
