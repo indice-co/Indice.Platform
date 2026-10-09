@@ -23,11 +23,10 @@ public static class RecaptchaFeatureExtensions {
             var options = serviceProvider.GetRequiredService<IOptions<RecaptchaOptions>>().Value;
             return options.Provider switch {
                 CaptchaProviderType.HCaptcha => serviceProvider.GetRequiredService<HCaptchaService>(),
-                _ => serviceProvider.GetRequiredService<RecaptchaService>()
+                CaptchaProviderType.Recaptcha => serviceProvider.GetRequiredService<RecaptchaService>(),
+                _ => serviceProvider.GetRequiredService<NoOpRecaptchaService>()
             };
         });
-        services.TryAddScoped<RecaptchaService>();
-        services.TryAddScoped<HCaptchaService>();
         services.AddHttpClient();
         return services;
     }

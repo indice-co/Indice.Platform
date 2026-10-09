@@ -185,6 +185,25 @@ public class RecaptchaService : IRecaptchaService {
     }
 }
 
+/// <summary>Implementation of the reCAPTCHA validation service.</summary>
+public class NoOpRecaptchaService : IRecaptchaService
+{
+    private readonly RecaptchaOptions _options;
+    /// <summary>Creates a new instance of <see cref="RecaptchaService"/>.</summary>
+    public NoOpRecaptchaService(IOptions<RecaptchaOptions> options) {
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+    }
+    /// <inheritdoc/>
+    public CaptchaProviderType Provider => CaptchaProviderType.None;
+    /// <inheritdoc/>
+    public bool IsEnabled => false;
+
+    /// <inheritdoc/>
+    public async Task<RecaptchaValidationResult> ValidateAsync(string? token, string? version = "v3", string? remoteIp = null, CancellationToken cancellationToken = default) {
+        return new RecaptchaValidationResult {Success = true};
+        
+    }
+}
 /// <summary>Result of reCAPTCHA validation.</summary>
 public class RecaptchaValidationResult
 {
