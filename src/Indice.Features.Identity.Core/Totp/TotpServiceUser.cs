@@ -6,6 +6,7 @@ using Indice.Features.Identity.Core.Models;
 using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.Core.Totp;
@@ -184,7 +185,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
                 }
             );
         }
-        await AddCacheKeyAsync(cacheKey);
+        await AddCacheKeyAsync(cacheKey, ServiceProvider.GetRequiredService<System.Security.Rfc6238AuthenticationService>().Duration);
         return TotpResult.SuccessResult;
     }
 
