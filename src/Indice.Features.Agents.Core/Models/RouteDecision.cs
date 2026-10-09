@@ -34,9 +34,7 @@ public class RouteDecision
     public ChatResponseUpdate AsChatResponseUpdate(string conversationId) {
         if (HasError) {
             return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(Reason)]) { ConversationId = conversationId };
-        } else if (AgentName is null) {
-            return new ChatResponseUpdate(ChatRole.Assistant, Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = conversationId };
-        }
+        } 
         return new ChatResponseUpdate(ChatRole.Assistant, Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = conversationId };
     }
 }
