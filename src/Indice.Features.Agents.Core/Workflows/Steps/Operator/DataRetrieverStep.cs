@@ -101,10 +101,10 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
         var response = await agent.RunAsync<string>(prompt, cancellationToken: cancellationToken);
         var rawPayload = "";
         try {
-            rawPayload = response?.Result;
+            rawPayload = response.Result;
         } catch {
             // Ignore
-            rawPayload = response?.Text?.Trim();
+            rawPayload = response.Text?.Trim();
         }
         if (string.IsNullOrWhiteSpace(rawPayload)) {
             throw new InvalidOperationException("Case retrieval agent returned empty payload.");
