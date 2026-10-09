@@ -76,6 +76,11 @@
     <Project Path="src/Indice.Features.Risk.UI/Indice.Features.Risk.UI.csproj" />
     <Project Path="src/Indice.Functions.Builder/Indice.Functions.Builder.csproj" />
     <Project Path="src/Indice.Hosting/Indice.Hosting.csproj" />
+    <Project Path="src/Indice.Hosting.UI/Indice.Hosting.UI.csproj" />
+    <Project Path="src/Indice.Hosting.App/Indice.Hosting.App.esproj">
+      <Build />
+      <Deploy />
+    </Project>
     <Project Path="src/Indice.Services/Indice.Services.csproj" />
   </Folder>
   <Folder Name="/test/">
