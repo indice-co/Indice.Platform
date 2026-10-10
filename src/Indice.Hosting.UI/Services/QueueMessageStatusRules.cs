@@ -1,5 +1,6 @@
 using Indice.Hosting.Data.Models;
 using Indice.Hosting.Models;
+using Indice.Hosting.Services;
 using Indice.Hosting.UI.Models;
 
 namespace Indice.Hosting.UI.Services;
@@ -10,13 +11,10 @@ namespace Indice.Hosting.UI.Services;
 /// </summary>
 public static class QueueMessageStatusRules
 {
-    /// <summary>The suffix of a poison queue (see <c>DefaultQueueNameResolver</c>).</summary>
-    public const string PoisonSuffix = "-poison";
-
-    /// <summary>Removes the <see cref="PoisonSuffix"/> from a physical queue name.</summary>
+    /// <summary>Removes the <see cref="HostingConventions.PoisonSuffix"/> from a physical queue name.</summary>
     /// <param name="queueName">The physical queue name.</param>
     public static string GetLogicalQueueName(string queueName) =>
-        queueName.EndsWith(PoisonSuffix, StringComparison.Ordinal) ? queueName[..^PoisonSuffix.Length] : queueName;
+        queueName.EndsWith(HostingConventions.PoisonSuffix, StringComparison.Ordinal) ? queueName[..^HostingConventions.PoisonSuffix.Length] : queueName;
 
     /// <summary>Classifies a message.</summary>
     /// <param name="queueName">The physical queue name.</param>
@@ -25,7 +23,7 @@ public static class QueueMessageStatusRules
     /// <param name="dequeueCount">The number of failed attempts.</param>
     /// <param name="utcNow">The current time (UTC).</param>
     public static QueueMessageStatus Classify(string queueName, QMessageState state, DateTime date, int dequeueCount, DateTime utcNow) {
-        if (queueName.EndsWith(PoisonSuffix, StringComparison.Ordinal) || state == QMessageState.Poison) {
+        if (queueName.EndsWith(HostingConventions.PoisonSuffix, StringComparison.Ordinal) || state == QMessageState.Poison) {
             return QueueMessageStatus.Poison;
         }
         if (state == QMessageState.Dequeued) {
@@ -43,17 +41,17 @@ public static class QueueMessageStatusRules
     /// <param name="utcNow">The current time (UTC).</param>
     public static IQueryable<DbQMessage> WhereStatus(this IQueryable<DbQMessage> query, QueueMessageStatus status, DateTime utcNow) => status switch {
         // EF translates only the EndsWith(string) overload, so no StringComparison here.
-        QueueMessageStatus.Poison => query.Where(x => x.QueueName.EndsWith(PoisonSuffix) || x.State == QMessageState.Poison),
-        QueueMessageStatus.Dequeued => query.Where(x => !(x.QueueName.EndsWith(PoisonSuffix) || x.State == QMessageState.Poison)
+        QueueMessageStatus.Poison => query.Where(x => x.QueueName.EndsWith(HostingConventions.PoisonSuffix) || x.State == QMessageState.Poison),
+        QueueMessageStatus.Dequeued => query.Where(x => !(x.QueueName.EndsWith(HostingConventions.PoisonSuffix) || x.State == QMessageState.Poison)
                                                      && x.State == QMessageState.Dequeued),
-        QueueMessageStatus.Scheduled => query.Where(x => !(x.QueueName.EndsWith(PoisonSuffix) || x.State == QMessageState.Poison)
+        QueueMessageStatus.Scheduled => query.Where(x => !(x.QueueName.EndsWith(HostingConventions.PoisonSuffix) || x.State == QMessageState.Poison)
                                                       && x.State != QMessageState.Dequeued
                                                       && x.Date > utcNow),
-        QueueMessageStatus.Retrying => query.Where(x => !(x.QueueName.EndsWith(PoisonSuffix) || x.State == QMessageState.Poison)
+        QueueMessageStatus.Retrying => query.Where(x => !(x.QueueName.EndsWith(HostingConventions.PoisonSuffix) || x.State == QMessageState.Poison)
                                                      && x.State != QMessageState.Dequeued
                                                      && x.Date <= utcNow
                                                      && x.DequeueCount > 0),
-        QueueMessageStatus.Enqueued => query.Where(x => !(x.QueueName.EndsWith(PoisonSuffix) || x.State == QMessageState.Poison)
+        QueueMessageStatus.Enqueued => query.Where(x => !(x.QueueName.EndsWith(HostingConventions.PoisonSuffix) || x.State == QMessageState.Poison)
                                                      && x.State != QMessageState.Dequeued
                                                      && x.Date <= utcNow
                                                      && x.DequeueCount == 0),

@@ -2,7 +2,6 @@ using Indice.Hosting.UI;
 using Indice.Hosting.UI.Endpoints;
 using Indice.Hosting.UI.Models;
 using Indice.Security;
-using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +22,11 @@ internal static class WorkerDashboardApi
                           .WithTags("Workers");
 
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-                                           .RequireAssertion(context => (!string.IsNullOrEmpty(options.RequiredScope) && context.User.HasScope(options.RequiredScope)) || context.User.IsAdmin()));
+            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
+        // group.RequireAuthorization(pb => 
+        //     pb.RequireAuthenticatedUser()
+        //     .RequireAssertion(context => (!string.IsNullOrEmpty(options.RequiredScope) && context.User.HasScope(options.RequiredScope)) || context.User.IsAdmin()));
+        
         group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);

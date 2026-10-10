@@ -1,5 +1,10 @@
 ﻿namespace Indice.Hosting;
 
+public class HostingConventions
+{
+    public const string PoisonSuffix = "-poison";
+}
+
 internal class JobGroups
 {
     public const string InternalJobsGroup = nameof(InternalJobsGroup);

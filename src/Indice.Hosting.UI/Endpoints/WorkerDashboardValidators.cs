@@ -3,11 +3,11 @@ using Indice.Hosting.UI.Models;
 
 namespace Indice.Hosting.UI.Endpoints;
 
-/// <summary>Validates <see cref="MessageIdsRequest"/>. Wired via <c>WithParameterValidation&lt;MessageIdsRequest&gt;()</c>.</summary>
+/// <summary>Validates <see cref="MessageIdsRequest"/>.</summary>
 public class MessageIdsRequestValidator : AbstractValidator<MessageIdsRequest>
 {
     /// <summary>The maximum number of messages in one bulk action.</summary>
-    public const int MaxIds = 1000;
+    private const int MaxIds = 10;
 
     /// <summary>Creates a new <see cref="MessageIdsRequestValidator"/>.</summary>
     public MessageIdsRequestValidator() {

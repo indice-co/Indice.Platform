@@ -1,0 +1,6 @@
+- [ ] Min auto refresh 30 seconds
+- [ ] Print actual queries done and check indices
+- [ ] GetDate issue db column does not include timezone
+- [ ] Think about etl analytics
+- [ ] Think about adding sth like otel counter, gauge, histogram, summary
+- 
