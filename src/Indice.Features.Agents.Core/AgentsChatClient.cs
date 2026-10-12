@@ -8,6 +8,7 @@ using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core;
@@ -22,7 +23,7 @@ public interface IDexChatClient : IChatClient
 /// Creates a new <see cref="AgentsChatClient"/> instance.
 /// </summary>
 /// <param name="serviceProvider">The service provider for resolving dependencies.</param>
-public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
+public class AgentsChatClient(IServiceProvider serviceProvider, ILogger<AgentsChatClient> logger) : IDexChatClient
 {
     private static IReadOnlyDictionary<string, string> CreateStepLabels(AgentMessageLocalizer localizer) => new Dictionary<string, string>(StringComparer.Ordinal) {
         [nameof(IntentClassifier)] = localizer.StepIntentClassifier,
@@ -121,6 +122,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                 // exceptions ("Error invoking handler for ..."), so walk to the innermost exception for the real cause.
                 case WorkflowErrorEvent error:
                     var exception = error.Data as Exception;
+                    logger.LogError(exception, "Workflow error occurred");
                     while (exception?.InnerException is not null) {
                         exception = exception.InnerException;
                     }

@@ -72,22 +72,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         }
 
         var caseData = await context.GetOperatorStateAsync(cancellationToken);
-        string payload;
-        try {
-            payload = await ValidateOtp(response, caseData, cancellationToken);
-        } catch (Exception ex) when (ex is not OperationCanceledException) {
-            _logger.LogError(ex, "OTP validation call failed for case {ReferenceId}.", caseData.ReferenceId);
-            throw;
-        }
-
-        OtpVerificationResultPayload verification;
-        try {
-            verification = OtpVerificationResultPayload.Deserialize(payload);
-        } catch (JsonException ex) {
-            _logger.LogError(ex, "OTP validation agent returned an invalid payload for case {ReferenceId}.", caseData.ReferenceId);
-            verification = new OtpVerificationResultPayload(false, $"MCP results is not valid:{payload}", false, false, false, 0);
-        }
-
+        OtpVerificationResultPayload verification = await ValidateOtp(response, caseData, cancellationToken);
         if (verification.Success) {
             await context.SetApprovalStateAsync(null, cancellationToken);
             await context.Say(Id, _messageLocalizer.OtvpVerificationSuccessMessage);
@@ -121,7 +106,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
 
     }
 
-    private async Task<string> ValidateOtp(OtpRequestPort.OtpResponse response, CustomerState caseData, CancellationToken cancellationToken) {
+    private async Task<OtpVerificationResultPayload> ValidateOtp(OtpRequestPort.OtpResponse response, CustomerState caseData, CancellationToken cancellationToken) {
 
         // Fetch OTP tools from the Identity MCP server at runtime.
         var registry = await _mcpClientFactory.CreateAsync(cancellationToken);
@@ -151,8 +136,8 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
             phoneNumber = useSms ? caseData.PhoneNumber : null,
             email = useSms ? null : caseData.Email
         });
-        var result = await agent.RunAsync<string>(prompt, cancellationToken: cancellationToken);
-        return result.Text;
+        var result = await agent.RunAsync<OtpVerificationResultPayload>(prompt, cancellationToken: cancellationToken);
+        return result.Result;
     }
 }
 
