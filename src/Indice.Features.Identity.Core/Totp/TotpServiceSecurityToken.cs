@@ -83,7 +83,8 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
         var recipient = GetRecipient(phoneNumber, email, userId);
         var modifier = GetModifier(purpose, recipient);
         var encodedToken = Encoding.Unicode.GetBytes(securityToken);
-        var token = _rfc6238AuthenticationService.GenerateCode(encodedToken, modifier).ToString("D6", CultureInfo.InvariantCulture);
+        var token = _rfc6238AuthenticationService.GenerateCode(encodedToken, modifier)
+                                                 .ToString("D" + _rfc6238AuthenticationService.CodeLength, CultureInfo.InvariantCulture);
         var cacheKey = $"{nameof(TotpServiceSecurityToken)}:{recipient}:{channel}:{token}:{purpose}";
         if (await CacheKeyExistsAsync(cacheKey)) {
             return TotpResult.RateLimitedResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."], await GetCacheKeyExpirationAsync(cacheKey));
@@ -105,7 +106,7 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
                 Category = classification
             }
         );
-        await AddCacheKeyAsync(cacheKey);
+        await AddCacheKeyAsync(cacheKey, _rfc6238AuthenticationService.Duration);
         return TotpResult.SuccessResult;
     }
     private string GetRecipient(string? phoneNumber, string? email, string? userId) =>
