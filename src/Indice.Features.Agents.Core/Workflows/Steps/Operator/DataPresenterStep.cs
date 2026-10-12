@@ -26,13 +26,13 @@ public sealed class DataPresenterStep : Executor<OperationState, OperationState>
         OperationState state,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
-        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(state);
         var operatorState = await context.GetOperatorStateAsync(cancellationToken);
         AIContent presentation;
         try {
             presentation = _presentationFormatter.Render(operatorState);
         } catch (Exception ex) {
-            _logger.LogError(ex, "Failed to render customer data card for case {ReferenceId} ({DataType}).", state.ReferenceId, state.DataType);
+            _logger.LogError(ex, "Failed to render customer data card for case {ReferenceId} ({DataType}).", operatorState.ReferenceId, operatorState.DataType);
             throw;
         }
         await context.AddEventAsync(new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [presentation])), cancellationToken);
