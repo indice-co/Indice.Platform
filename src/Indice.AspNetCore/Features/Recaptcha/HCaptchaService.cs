@@ -45,7 +45,7 @@ public class HCaptchaService : IRecaptchaService
     public string? SiteKey => _options.SiteKey;
 
     /// <inheritdoc/>
-    public string? SiteKeyV2 => _options.EffectiveSiteKeyV2;
+    public string? SiteKeyV2 => string.Empty;
 
     /// <inheritdoc/>
     public async Task<RecaptchaValidationResult> ValidateAsync(string? token, string? version = "HCaptcha", string? remoteIp = null, CancellationToken cancellationToken = default) {
@@ -65,9 +65,8 @@ public class HCaptchaService : IRecaptchaService
 
         // Determine which version and use appropriate secret key
         var secretKey = _options.SecretKey;
-        var verifyUrl = HCaptchaVerifyUrl;
 
-        if (string.IsNullOrWhiteSpace(secretKey) || string.IsNullOrWhiteSpace(verifyUrl)) {
+        if (string.IsNullOrWhiteSpace(secretKey)) {
             _logger.LogWarning("reCAPTCHA validation failed - provider not configured correctly.");
             return new RecaptchaValidationResult { Success = false, Score = 0.0m };
         }
@@ -85,7 +84,7 @@ public class HCaptchaService : IRecaptchaService
             }
             using var content = new FormUrlEncodedContent(formData);
             var response = await httpClient.PostAsync(
-                verifyUrl,
+                HCaptchaVerifyUrl,
                 content,
                 cancellationToken
             );
