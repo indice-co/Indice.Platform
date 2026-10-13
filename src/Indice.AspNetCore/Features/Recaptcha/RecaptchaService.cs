@@ -25,6 +25,14 @@ public interface IRecaptchaService
 
     /// <summary>Checks if reCAPTCHA is enabled.</summary>
     bool IsEnabled { get; }
+
+    /// <summary>Determines whether validation should be performed.</summary>
+    /// <param name="isEnabled">Indicates whether validation is enabled.</param>
+    /// <param name="version">The version to validate against. Defaults to "v3".</param>
+    /// <param name="token">The optional token used for validation.</param>
+    /// <returns><see langword="true"/> if validation is required; otherwise,<see langword="false"/>.</returns>
+    bool ShouldValidate(bool isEnabled, string? version = "v3", string? token = null);
+
     /// <summary>Checks if reCAPTCHA is enabled in login form.</summary>
     bool IsEnabledInLogin { get; }
 
@@ -71,6 +79,7 @@ public class RecaptchaService : IRecaptchaService {
     public bool IsEnabled => _options.Provider == CaptchaProviderType.Recaptcha
                           && !string.IsNullOrWhiteSpace(_options.SiteKey)
                           && !string.IsNullOrWhiteSpace(_options.SecretKey);
+
     /// <inheritdoc/>
     public bool IsEnabledInLogin => _options.EnabledInLoginPage;
     /// <inheritdoc/>
@@ -81,6 +90,11 @@ public class RecaptchaService : IRecaptchaService {
 
     /// <inheritdoc/>
     public string? SiteKeyV2 => _options.EffectiveSiteKeyV2;
+
+    /// <inheritdoc/>
+    public bool ShouldValidate(bool isEnabled, string? version = null, string? token = null) {
+        return isEnabled && version == "v2" && !string.IsNullOrWhiteSpace(token);
+    }
 
     /// <inheritdoc/>
     public async Task<RecaptchaValidationResult> ValidateAsync(string? token, string? version = "v3", string? remoteIp = null, CancellationToken cancellationToken = default) {
@@ -210,6 +224,11 @@ public class NoOpRecaptchaService : IRecaptchaService
     public async Task<RecaptchaValidationResult> ValidateAsync(string? token, string? version = "v3", string? remoteIp = null, CancellationToken cancellationToken = default) {
         return new RecaptchaValidationResult {Success = true};
         
+    }
+
+    /// <inheritdoc/>
+    public bool ShouldValidate(bool isEnabled, string? version = null, string? token = null) {
+        return false;
     }
 }
 /// <summary>Result of reCAPTCHA validation.</summary>

@@ -48,6 +48,11 @@ public class HCaptchaService : IRecaptchaService
     public string? SiteKeyV2 => string.Empty;
 
     /// <inheritdoc/>
+    public bool ShouldValidate(bool isEnabled, string? version = null, string? token = null) {
+        return isEnabled;
+    }
+
+    /// <inheritdoc/>
     public async Task<RecaptchaValidationResult> ValidateAsync(string? token, string? version = "HCaptcha", string? remoteIp = null, CancellationToken cancellationToken = default) {
         if (!IsEnabled) {
             _logger.LogDebug("reCAPTCHA validation skipped - not configured.");
