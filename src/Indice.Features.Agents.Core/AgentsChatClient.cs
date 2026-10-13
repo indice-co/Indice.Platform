@@ -63,37 +63,16 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
         message.AdditionalProperties ??= new();
         message.AdditionalProperties[nameof(options.ConversationId)] = options.ConversationId;
 
-        //var state = new ConversationState(message, options.ConversationId);
-        // options.Instructions carries the agent/workflow selector from the HTTP layer (ChatRequest.AgentName).
-        // A missing selector maps to the configured default agent (Routing.DefaultAgent, normally "auto").
-        var routing = serviceProvider.GetRequiredService<IOptions<AgentsOptions>>().Value.Routing;
-        var selector = options.Instructions?.Trim().ToLowerInvariant();
-        if (string.IsNullOrWhiteSpace(selector)) {
-            selector = routing.DefaultAgent?.Trim().ToLowerInvariant();
+        // options.Instructions carries the agent/workflow suggestedAgent from the HTTP layer (ChatRequest.AgentName).
+        // A missing suggestedAgent maps to the configured default agent (Routing.DefaultAgent, normally "auto").
+        var router = serviceProvider.GetRequiredService<IntentRouterService>();
+        var decision = await router.RouteAsync(message, options, cancellationToken);
+        if (!decision.IsInScope) {
+            yield return decision.AsChatResponseUpdate(options.ConversationId);
+            yield break;
         }
-        string resolvedAgent;
-        if (string.Equals(selector, AgentsConstants.AgentNames.Auto, StringComparison.OrdinalIgnoreCase)) {
-            RouteDecision? decision = null;
-            string? routeError = null;
-            try {
-                var router = serviceProvider.GetRequiredService<IntentRouterService>();
-                decision = await router.RouteAsync(message, options.ConversationId, cancellationToken);
-            } catch (Exception exception) when (exception is not OperationCanceledException) {
-                routeError = exception.Message;
-            }
-            if (routeError is not null) {
-                yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(routeError)]) { ConversationId = options.ConversationId };
-                yield break;
-            } else if (decision!.AgentName is null) {
-                yield return new ChatResponseUpdate(ChatRole.Assistant, decision.Reason ?? AgentsConstants.Defaults.OutOfScopeReply) { ConversationId = options.ConversationId };
-                yield break;
-            }
-            resolvedAgent = decision.AgentName;
-        } else {
-            resolvedAgent = string.IsNullOrWhiteSpace(selector) ? AgentsConstants.AgentNames.Knowledge : selector;
-        }
-        var sessionId = new AgentSessionId(Guid.Parse(options.ConversationId), resolvedAgent);
-        var workflow = serviceProvider.GetRequiredKeyedService<Workflow>(resolvedAgent);
+        var sessionId = new AgentSessionId(Guid.Parse(options.ConversationId), decision.AgentName);
+        var workflow = serviceProvider.GetRequiredKeyedService<Workflow>(decision.AgentName);
         // Checkpointing: state written via QueueStateUpdateAsync is snapshotted at each superstep into the durable
         // EF-backed store, so it survives across HTTP requests. On a follow-up turn the latest checkpoint of the
         // conversation (sessionId == ConversationId) is restored and the new user message is injected into the resumed run.
@@ -149,7 +128,6 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                     yield return new ChatResponseUpdate(ChatRole.Assistant, [new ErrorContent(failure)]) { ConversationId = options.ConversationId };
                     break;
                 default:
-                    //Console.WriteLine(evt);
                     break;
             }
 
