@@ -55,6 +55,7 @@ internal abstract class BaseCaseService
             let publicData = !c.Draft && fetchPublicData // if fetchPublicData works only for non-draft cases
             select new Case {
                 Id = c.Id,
+                ReferenceId = c.ReferenceId,
                 ReferenceNumber = c.ReferenceNumber,
                 CheckpointType = new CheckpointType {
                     Id = publicData ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
@@ -134,6 +135,7 @@ internal abstract class BaseCaseService
     /// <param name="metadata">The metadata the case might have.</param>
     /// <param name="channel">The channel the case was created from.</param>
     /// <param name="assignee">The assigned of the case (optional).</param>
+    /// <param name="referenceId">The reference id of the case</param>
     /// <returns></returns>
     protected async Task<DbCase> CreateDraftInternal(
         ICaseMessageService caseMessageService,
@@ -143,7 +145,8 @@ internal abstract class BaseCaseService
         ContactMeta? customer,
         Dictionary<string, string> metadata,
         string channel,
-        UserActor? assignee = null) {
+        UserActor? assignee = null,
+        string? referenceId = null) {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (caseType == null) throw new ArgumentNullException(nameof(caseType));
         if (string.IsNullOrEmpty(channel)) throw new ArgumentNullException(nameof(channel));
@@ -160,7 +163,8 @@ internal abstract class BaseCaseService
             Metadata = metadata,
             Draft = true,
             Channel = channel,
-            AssignedTo = assignee == null ? null : AuditMeta.Create(assignee)
+            AssignedTo = assignee == null ? null : AuditMeta.Create(assignee),
+            ReferenceId = referenceId
         };
 
         // If enabled get a new reference number from the sequence.

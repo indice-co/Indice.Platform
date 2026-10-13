@@ -37,7 +37,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         string caseTypeCode,
         string? groupId,
         ContactMeta? customer,
-        Dictionary<string, string> metadata) {
+        Dictionary<string, string> metadata,
+        string? referenceId) {
         var caseType = await DbContext.CaseTypes.Where(x => x.Code == caseTypeCode).SingleAsync();
         var entity = await CreateDraftInternal(
             _adminCaseMessageService,
@@ -47,7 +48,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             customer,
             metadata,
             CasesCoreConstants.Channels.Agent,
-            user);
+            user,
+            referenceId: referenceId);
         return new() { Id = entity.Id, Created = DateTimeOffset.UtcNow };
     }
 
@@ -150,6 +152,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             query = queryCases
                 .Select(@case => new CasePartial {
                     Id = @case.Id,
+                    ReferenceId = @case.ReferenceId,
                     ReferenceNumber = @case.ReferenceNumber,
                     OwnerId = @case.Owner.Reference,
                     OwnerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
@@ -234,6 +237,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
                      select new CasePartial {
                          Id = @case.Id,
+                         ReferenceId = @case.ReferenceId,
                          ReferenceNumber = @case.ReferenceNumber,
                          OwnerId = @case.Owner.Reference,
                          OwnerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
@@ -272,6 +276,20 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             query = await _memberAuthorizationProvider.GetCaseMembership(query, user);
         } catch (ResourceUnauthorizedException) {
             return new List<CasePartial>().ToResultSet();
+        }
+
+        if (options.Filter.ReferenceIds?.Length > 0) {
+            foreach (var refId in options.Filter.ReferenceIds) {
+                if (!int.TryParse(refId.Value, out var value)) {
+                    continue;
+                }
+                query = refId.Operator switch {
+                    FilterOperator.Eq => query.Where(c => c.ReferenceId!.Equals(refId.Value)),
+                    FilterOperator.Neq => query.Where(c => !c.ReferenceId!.Equals(refId.Value)),
+                    FilterOperator.Contains => query.Where(c => c.ReferenceId!.Contains(refId.Value)),
+                    _ => query
+                };
+            }
         }
 
         // filter ReferenceNumbers
