@@ -110,7 +110,8 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <summary>Updates the specified user in the backing store.</summary>
     /// <param name="user">The user to update.</param>
     /// <param name="bypassEmailAsUserNamePolicy">Bypasses the EmailAsUserName policy, if enabled.</param>
-    public async Task<IdentityResult> UpdateAsync(TUser user, bool bypassEmailAsUserNamePolicy) {
+    /// <param name="previousUser">The previous snapshot of user entity.</param>
+    public async Task<IdentityResult> UpdateAsync(TUser user, bool bypassEmailAsUserNamePolicy, UserEventContext? previousUser = null) {
         if (EmailAsUserName && !bypassEmailAsUserNamePolicy) {
             user.UserName = user.Email;
         }
@@ -119,6 +120,10 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
 
         if (!result.Succeeded) {
             await PublishBlacklistEvents(user, result);
+        }
+
+        if (result.Succeeded && previousUser != null) {
+            await _eventService.Publish(new UserUpdatedEvent(previousUser,UserEventContext.InitializeFromUser(user)));
         }
 
         return result;

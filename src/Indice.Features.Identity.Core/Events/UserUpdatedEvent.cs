@@ -5,12 +5,12 @@ namespace Indice.Features.Identity.Core.Events;
 
 /// <summary>An event that is raised when a new user is created through <see cref="ExtendedUserManager{User}"/>.</summary>
 /// <remarks>Creates a new instance of <see cref="UserUpdatedEvent"/>.</remarks>
-/// <param name="oldUser">The old user entity.</param>
-/// <param name="newUser">The new user entity.</param>
-public class UserUpdatedEvent(UserEventContext oldUser, UserEventContext newUser) : IPlatformEvent
+/// <param name="PreviousUser">The previous snapshot of user entity.</param>
+/// <param name="User">The user entity.</param>
+public class UserUpdatedEvent(UserEventContext PreviousUser, UserEventContext User) : IPlatformEvent
 {
-    /// <summary>The old user entity.</summary>
-    public UserEventContext OldUser { get; } = oldUser;
-    /// <summary>The new user entity.</summary>
-    public UserEventContext NewUser { get; } = newUser;
+    /// <summary>The previous snapshot of user entity.</summary>
+    public UserEventContext PreviousUser { get; } = PreviousUser;
+    /// <summary>The user entity.</summary>
+    public UserEventContext User { get; } = User;
 }
