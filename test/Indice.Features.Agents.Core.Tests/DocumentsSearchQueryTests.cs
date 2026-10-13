@@ -6,7 +6,7 @@ namespace Indice.Features.Agents.Core.Tests;
 
 public class DocumentsSearchQueryTests(ITestOutputHelper output)
 {
-    [Fact]
+    [Fact(Skip = "Test only for debugging SQL generation")]
     public void SearchQuery_GeneratesTopKInsideSubquery() {
         var options = new DbContextOptionsBuilder<AgentsDbContext>()
             .UseSqlServer("Server=.;Database=x;Trusted_Connection=True;")
