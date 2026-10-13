@@ -48,8 +48,8 @@ public class HCaptchaService : IRecaptchaService
     public string? SiteKeyV2 => string.Empty;
 
     /// <inheritdoc/>
-    public bool ShouldValidate(bool isEnabled, string? version = null, string? token = null) {
-        return isEnabled;
+    public bool ShouldValidate(string? version = null, string? token = null) {
+        return IsEnabled;
     }
 
     /// <inheritdoc/>

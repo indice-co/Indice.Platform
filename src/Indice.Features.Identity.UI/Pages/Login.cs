@@ -143,7 +143,7 @@ public abstract class BaseLoginModel : BasePageModel
         // Validate reCAPTCHA if enabled
         // Note: For v3, token is pre-validated via /RecaptchaValidate endpoint to check score before form submission.
         //       For v2, this is the first and only validation (v2 is shown when v3 score < threshold).
-        if (RecaptchaService.ShouldValidate(RecaptchaService.IsEnabled, Input.RecaptchaVersion, Input.RecaptchaToken)) {
+        if (RecaptchaService.ShouldValidate(Input.RecaptchaVersion, Input.RecaptchaToken)) {
             var remoteIp = HttpContext.Connection.RemoteIpAddress?.ToString();
             var recaptchaResult = await RecaptchaService.ValidateAsync(Input.RecaptchaToken, Input.RecaptchaVersion, remoteIp);
             if (!recaptchaResult.Success) {

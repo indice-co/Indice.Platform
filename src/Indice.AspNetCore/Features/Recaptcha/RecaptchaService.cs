@@ -31,7 +31,7 @@ public interface IRecaptchaService
     /// <param name="version">The version to validate against. Defaults to "v3".</param>
     /// <param name="token">The optional token used for validation.</param>
     /// <returns><see langword="true"/> if validation is required; otherwise,<see langword="false"/>.</returns>
-    bool ShouldValidate(bool isEnabled, string? version = "v3", string? token = null);
+    bool ShouldValidate(string? version = "v3", string? token = null);
 
     /// <summary>Checks if reCAPTCHA is enabled in login form.</summary>
     bool IsEnabledInLogin { get; }
@@ -92,8 +92,8 @@ public class RecaptchaService : IRecaptchaService {
     public string? SiteKeyV2 => _options.EffectiveSiteKeyV2;
 
     /// <inheritdoc/>
-    public bool ShouldValidate(bool isEnabled, string? version = null, string? token = null) {
-        return isEnabled && version == "v2" && !string.IsNullOrWhiteSpace(token);
+    public bool ShouldValidate(string? version = null, string? token = null) {
+        return IsEnabled && version == "v2" && !string.IsNullOrWhiteSpace(token);
     }
 
     /// <inheritdoc/>
@@ -227,7 +227,7 @@ public class NoOpRecaptchaService : IRecaptchaService
     }
 
     /// <inheritdoc/>
-    public bool ShouldValidate(bool isEnabled, string? version = null, string? token = null) {
+    public bool ShouldValidate(string? version = null, string? token = null) {
         return false;
     }
 }
