@@ -55,8 +55,10 @@ public class DocumentsSearchQueryTests(ITestOutputHelper output)
         Assert.Contains("SELECT TOP(@p)", sql);
         Assert.True(sql.IndexOf("TOP(@p)") > sql.IndexOf("FROM ("), "TOP must be inside the derived table");
         Assert.Contains("VECTOR_DISTANCE('cosine'", sql);
-        Assert.True(sql.IndexOf("@category") < sql.IndexOf(") AS [c1]"), "Category filter must be inside the subquery");
-        Assert.True(sql.IndexOf("@language") < sql.IndexOf(") AS [c1]"), "Language filter must be inside the subquery");
+var subqueryEnd = sql.IndexOf(") AS [c1]", StringComparison.Ordinal);
+        Assert.True(subqueryEnd >= 0, "Derived table must be present");
+        Assert.InRange(sql.IndexOf("[Category]", StringComparison.Ordinal), 0, subqueryEnd - 1);
+        Assert.InRange(sql.IndexOf("[Language]", StringComparison.Ordinal), 0, subqueryEnd - 1);
         Assert.DoesNotContain("[Data]", sql);
     }
 }
