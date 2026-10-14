@@ -1,4 +1,4 @@
-import { Directive, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { JsonFormsControl } from '@jsonforms/angular';
 import { Actions, getData, getErrorAt, JsonFormsState, StatePropsOfControl } from '@jsonforms/core';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
@@ -8,7 +8,8 @@ import { addClasses, ErrorObject, formatErrors, presentField } from '../jsonform
  * Base of the Tailwind control renderers. Exposes the ajsf-like `options`, label, css classes,
  * visibility (`condition`, `case-channel`) and help block that the ajsf Tailwind framework provided.
  */
-@Directive()
+// a component, not a directive: JSON Forms' JsonFormsAbstractControl is a component and directives cannot extend components
+@Component({ template: '' })
 export abstract class TailwindControl extends JsonFormsControl {
     protected caseDetailsService = inject(CaseDetailsService);
     /** The ajsf widget name, used for the `schema-form-<widget>` css class. */
