@@ -3,6 +3,7 @@
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
+    <SixLaborsLicenseFile>$(MSBuildThisFileDirectory)..\..\sixlabors.lic</SixLaborsLicenseFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Examples\**" />
