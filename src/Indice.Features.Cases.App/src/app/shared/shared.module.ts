@@ -11,7 +11,7 @@ import { CaseCustomActionComponent } from './components/case-custom-action/case-
 import { CanvasTileComponent } from './components/canvas-tile/canvas-tile.component';
 import { DisplayCaseTypesComponent } from './components/select-case-type/display-case-types/display-case-types.component';
 import { DeleteQueryModalComponent } from './components/delete-query-modal/delete-query-modal.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { QuillModule } from 'ngx-quill';
@@ -50,7 +50,7 @@ import { JsonFormsTailwindModule } from './jsonforms/jsonforms-tailwind.module';
         JsonFormsTailwindModule,
         // pipes
         BeautifyBooleanPipe,
-        TranslateModule,
+        TranslatePipe,
         ValueFromPathPipe,
         ToReadableDatePipe
     ], imports: [CommonModule,
@@ -69,7 +69,7 @@ import { JsonFormsTailwindModule } from './jsonforms/jsonforms-tailwind.module';
                 ]
             }
         }),
-        TranslateModule,
+        TranslatePipe,
         NgxMaskDirective,
         NgxMaskPipe], providers: [
         provideNgxMask(),

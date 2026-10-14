@@ -15,7 +15,7 @@ import { SharedModule } from './shared/shared.module';
 import { NotificationsModule } from './features/notifications/notifications.module';
 import { CaseTypesModule } from './features/case-types/case-types.module';
 import { AcceptLanguageHttpInterceptor } from './core/services/accept-language-http-interceptor.service';
-import { TranslateModule, TranslateService, provideTranslateService } from '@ngx-translate/core';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CaseTypeService } from './core/services/case-type.service';
 import { FormsModule } from '@angular/forms';
@@ -44,8 +44,7 @@ import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
         CaseTypesModule,
         NotificationsModule,
         NgProgressbar,
-        NgProgressHttp,
-        TranslateModule.forRoot()], providers: [
+        NgProgressHttp], providers: [
         provideTranslateService({
             loader: provideTranslateHttpLoader({ prefix: `${app.settings.api_url}/cases-i18n.`, useHttpBackend: true }),
             fallbackLang: 'en'

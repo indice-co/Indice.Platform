@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonFormsModule } from '@jsonforms/angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { QuillModule } from 'ngx-quill';
 import { CheckboxControlComponent } from './controls/checkbox.control';
 import { CurrencyControlComponent } from './controls/currency.control';
@@ -52,7 +52,7 @@ import { LayoutRendererComponent } from './layouts/layout.renderer';
         FormsModule,
         JsonFormsModule,
         QuillModule,
-        TranslateModule
+        TranslatePipe
     ],
     exports: [
         JsonFormsModule
