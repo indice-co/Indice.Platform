@@ -28,7 +28,18 @@ public static class WorkflowExtensions
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A value task representing the asynchronous operation.</returns>
         public ValueTask Say(string executorId, string message, CancellationToken cancellationToken = default)
-            => context.AddEventAsync(new AgentResponseUpdateEvent(executorId, new AgentResponseUpdate(ChatRole.Assistant, [new TextContent(message)])), cancellationToken);
+            => Say(context, executorId, new TextContent(message), cancellationToken);
+
+        /// <summary>
+        /// Sends a message as the assistant via the workflow context that surfaces to the workflow runner as an <see cref="AgentResponseUpdateEvent"/>. 
+        /// </summary>
+        /// <remarks>Used to bubble up messages from the assistant to the workflow runner and eventually to the client as something other than text.</remarks>
+        /// <param name="executorId">The executor ID.</param>
+        /// <param name="content">The content to send.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A value task representing the asynchronous operation.</returns>
+        public ValueTask Say(string executorId, AIContent content, CancellationToken cancellationToken = default)
+            => context.AddEventAsync(new AgentResponseUpdateEvent(executorId, new AgentResponseUpdate(ChatRole.Assistant, [content])), cancellationToken);
     }
 
     /// <summary>
