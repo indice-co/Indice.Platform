@@ -7,7 +7,6 @@ using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
-using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Cards;
@@ -26,6 +25,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using static System.Net.Mime.MediaTypeNames;
 using static Indice.Features.Agents.Core.AgentsOptions;
+using Indice.Features.Agents.Core.Services.Validation;
+using Indice.Features.Agents.Core.Services.DataResolver;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -248,10 +249,13 @@ public static class AgentsFeatureExtensions
         services.AddMcpClient("cases")
                 .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:CasesMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
 
-        services.TryAddTransient<ICustomerDataResolver, DefaultCustomerDataResolver>();
+        services.TryAddKeyedTransient<ICustomerDataResolver, ServicePickUpDataResolver>(ServicePickUpDataResolver.DefaultKey);
+        services.TryAddTransient<CustomerDataResolverFactory>();
         services.TryAddTransient<ICustomerDataCardRenderer, HandlebarsCustomerDataCardRenderer>();
         services.TryAddTransient<DataRetrieverStep>();
         services.TryAddTransient<AuthenticationChallengeStep>();
+        services.TryAddKeyedTransient<IChallengeValidator, DefaultChallengeValidator>(DefaultChallengeValidator.Default);
+        services.TryAddTransient<ChallengeValidatorFactory>();
         services.TryAddTransient<AuthenticationStep>();
         services.TryAddTransient<OtpCodeSendStep>();
         services.TryAddTransient<OtpCodeValidatorStep>();

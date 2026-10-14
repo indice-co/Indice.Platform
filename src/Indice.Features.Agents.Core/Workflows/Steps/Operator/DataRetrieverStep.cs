@@ -2,7 +2,7 @@ using System.Text.Json;
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
-using Indice.Features.Agents.Core.Services;
+using Indice.Features.Agents.Core.Services.DataResolver;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
@@ -28,7 +28,7 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
     private readonly IPromptTemplateRenderer _promptRenderer;
     private readonly UserClaimsAIContextProvider _userClaimsProvider;
     private readonly IMcpClientFactory _mcpClientFactory;
-    private readonly ICustomerDataResolver _caseDataExtractor;
+    private readonly CustomerDataResolverFactory _resolverFactory;
     private readonly string _model;
     private readonly ILogger<DataRetrieverStep> _logger;
 
@@ -39,7 +39,7 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
         [FromKeyedServices(McpServiceKey)] IMcpClientFactory mcpClientFactory,
-        ICustomerDataResolver caseDataExtractor,
+        CustomerDataResolverFactory resolverFactory,
         ILogger<DataRetrieverStep> logger) : base(nameof(DataRetrieverStep)) {
         _logger = logger;
         _openAIClient = openAIClient;
@@ -48,7 +48,7 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
         _promptRenderer = prompts;
         _userClaimsProvider = userClaimsProvider;
         _mcpClientFactory = mcpClientFactory;
-        _caseDataExtractor = caseDataExtractor;
+        _resolverFactory = resolverFactory ?? throw new ArgumentNullException(nameof(resolverFactory));
         _model = _options.AzureOpenAI.Deployments.Reasoning!;
     }
 
@@ -65,7 +65,7 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
         //await context.SetConversationStateAsync(new ConversationState(message, message.AdditionalProperties![nameof(ConversationState.ConversationId)]!.ToString()!), cancellationToken);
 
         var userInput = message.Text ?? string.Empty;
-        
+
         if (message.AdditionalProperties?.TryGetValue(nameof(ChatTopic), out var topic) is true) {
             var chatTopic = topic switch {
                 ChatTopic t => t,
@@ -85,7 +85,10 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
         // Render the verification prompt using template
         var chatOptions = _models.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = _promptRenderer.Render(nameof(AgentsConstants.PromptDefaults.DataRetriever));
-        chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. mcpTools];
+        // Wrap MCP tools so the raw output is captured here and never sent back to the model.
+        var capturingTools = mcpTools.Select(t => new McpCapturingToolFunction(t)).ToList();
+        chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. capturingTools];
+
 
         var agent = _openAIClient
             .GetChatClient(_model)
@@ -101,52 +104,39 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
             Query: {userInput}
             """;
 
-        var response = await agent.RunAsync<string>(prompt, cancellationToken: cancellationToken);
-        var rawPayload = "";
-        try {
-            rawPayload = response.Result;
-        } catch {
-            // Ignore
-            rawPayload = response.Text?.Trim();
+        var tokens = await agent.RunAsync(prompt, cancellationToken: cancellationToken);
+        // Use the raw MCP tool output, not the LLM re-generated JSON, which can corrupt values.
+        var rawResult = capturingTools.Select(t => t.Result).LastOrDefault(r => r is not null);
+        var caseNode = rawResult is null ? null : WorkflowExtensions.ExtractDataFromToolResults([new ChatMessage(ChatRole.Tool, [new FunctionResultContent(string.Empty, rawResult)])]);
+        if (caseNode is null) {
+            throw new InvalidOperationException($"Case retrieval agent returned no case data for query '{userInput}'.");
         }
-        if (string.IsNullOrWhiteSpace(rawPayload)) {
-            _logger.LogError("Case retrieval agent returned an empty payload.");
-            throw new InvalidOperationException("Case retrieval agent returned empty payload.");
-        }
-
-        JsonElement caseData;
-        try {
-            caseData = JsonDocument.Parse(rawPayload).RootElement;
-        } catch (JsonException ex) {
-            _logger.LogError(ex, "Failed to parse case retrieval payload as JSON.");
-            throw new InvalidOperationException("Failed to parse case retrieval payload as JSON.", ex);
-        }
-
-        var caseId = _caseDataExtractor.ExtractCaseId(caseData);
-        var phoneNumber = _caseDataExtractor.ExtractPhoneNumber(caseData);
-        var email = _caseDataExtractor.ExtractEmail(caseData);
-        var verificationValue = _caseDataExtractor.ExtractChallengeValue(caseData);
-        if (string.IsNullOrWhiteSpace(phoneNumber) && string.IsNullOrWhiteSpace(email)) {
-            _logger.LogError("No phone number or email found in case data for case {CaseId}; OTP cannot be delivered.", caseId);
-            throw new InvalidOperationException("No phone number or email found in case data for OTP delivery.");
-        }
-        var validationResult = _caseDataExtractor.Validate(caseData);
+        var caseType = caseNode["caseType"]?["code"]?.GetValue<string>();
+        var caseData = caseNode["data"];
+        var resolver = _resolverFactory.Create(caseType);
+        var caseId = caseNode["id"]?.GetValue<string>();
+        var phoneNumber = resolver.ExtractPhoneNumber(caseData);
+        var email = resolver.ExtractEmail(caseData);
+        var verificationValue = resolver.ExtractChallengeValue(caseData);
+        var validationResult = resolver.Validate(caseData);
         if (!validationResult.Succeeded) {
             _logger.LogError("Case data validation failed for case {CaseId}: {ValidationError}", caseId, validationResult.ErrorMessage);
             throw new InvalidOperationException($"Case data validation failed: {validationResult.ErrorMessage}");
         }
 
         await context.SetOperatorStateAsync(new CustomerState() {
-            Data = caseData,
-            DataType = _caseDataExtractor.ExtractDataType(caseData),
+            Data = caseNode?.Deserialize<JsonElement>() ?? default,
+            DataType = caseType,
             ReferenceId = caseId,
             PhoneNumber = phoneNumber,
             Email = email,
-            ChallengValue = verificationValue
+            ChallengeValue = verificationValue
         }, cancellationToken);
 
         return OperationState.Next(nameof(AuthenticationChallengeStep));
     }
+
+
 }
 /// <summary>
 /// Output of the CaseDataRetriever step containing the retrieved case data and related context.

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using Indice.Features.Agents.Core.Models;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
@@ -102,5 +103,61 @@ public static class WorkflowExtensions
         public AgentFunctionCallId GetFunctionResultContentCallId(string? requestId = null) =>
             AgentFunctionCallId.Parse(GetFunctionResultContent(chatMessage, requestId)?.CallId ?? throw new InvalidOperationException("Function result content not found."));
 
+    }
+
+
+    /// <summary>
+    /// Extension methods for a collection of <see cref="ChatMessage"/> instances.
+    /// </summary>
+    /// <param name="messages">The collection of chat messages.</param>
+    extension(IEnumerable<ChatMessage> messages)
+    {
+        /// <summary>
+        /// Extracts structured data from the tool results within the chat messages.
+        /// </summary>
+        public JsonNode? ExtractDataFromToolResults() {
+            foreach (var result in messages.SelectMany(m => m.Contents).OfType<FunctionResultContent>().Reverse()) {
+                var node = result.Result switch {
+                    JsonNode n => n,
+                    JsonElement je => JsonNode.Parse(je.GetRawText()),
+                    string s => TryParse(s),
+                    TextContent tc => TryParse(tc.Text),
+                    IEnumerable<AIContent> contents => contents.OfType<TextContent>()
+                        .Select(t => TryParse(t.Text))
+                        .FirstOrDefault(n => n is JsonObject),
+                    null => null,
+                    var other => JsonSerializer.SerializeToNode(other, JsonSerializerOptions.Web)
+                };
+                if (node is not JsonObject obj) {
+                    continue;
+                }
+                // MCP CallToolResult: prefer structuredContent, fall back to text content blocks.
+                if (obj["structuredContent"] is JsonObject structured) {
+                    return structured;
+                }
+                if (obj["content"] is JsonArray content) {
+                    foreach (var block in content) {
+                        if (block is JsonObject blockObj && blockObj["text"] is JsonValue text && text.TryGetValue<string>(out var json) && TryParse(json) is JsonObject parsed) {
+                            return parsed;
+                        }
+                    }
+                }
+                if (obj.ContainsKey("id")) {
+                    return obj;
+                }
+            }
+            return null;
+        }
+    }
+
+    private static JsonNode? TryParse(string? json) {
+        if (string.IsNullOrWhiteSpace(json)) {
+            return null;
+        }
+        try {
+            return JsonNode.Parse(json);
+        } catch (JsonException) {
+            return null;
+        }
     }
 }

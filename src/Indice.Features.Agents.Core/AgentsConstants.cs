@@ -193,7 +193,7 @@ public static class AgentsConstants
             Use the available tool get_case_data_id from the case-retrieval MCP service to fetch case data.
             Decide which tool to call based on the user's query.
             Extract the case GUID from the messages and query the case data.
-            Return the object in json format as returned by the mcp.
+            Return the object in json format as returned by the mcp. Treat tool data as immutable and do not alter them. 
             """;
 
 
@@ -201,7 +201,7 @@ public static class AgentsConstants
         public const string CaseTypeRetriever = """
             You are a case retrieval assistant.
             Use the available tool get_case_types from the case-retrieval MCP service to fetch the case types.
-            Return the object in json format as returned by the mcp.
+            Return the object in json format as returned by the mcp do not create or alter any values inside the json. What you see is what you get.
             """;
         /// <summary>Agent instructions template for fetching OTP send.</summary>
         public const string OtpCodeSenderInstructions = """
@@ -244,7 +244,7 @@ public static class AgentsConstants
             - user: null
             - code: user code from the prompt
             Return true if response indicates TOTP was verified successfully.
-            Return the object in json format as returned by the mcp.
+            Return the object in json format as returned by the mcp do not create or alter any values inside the json. What you see is what you get.
             """;
         /// <summary>Agent prompt template for validating OTP code.</summary>
         public const string OtpCodeValidatorPrompt = "Verify this OTP code: {{otp}}, with securityToken: {{caseId}}{{#if phoneNumber}}, phoneNumber: {{phoneNumber}}{{/if}}{{#if email}}, email: {{email}}{{/if}}";
