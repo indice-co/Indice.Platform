@@ -23,13 +23,9 @@ internal class CheckpointTypeService : ICheckpointTypeService
             return await GetAdminDistinctCheckpointsTypes();
         }
 
-        var roleClaims = user.Roles;
-
-        var checkpointTypeIds = await _dbContext.CaseAccessRules
+        var accessRules = _dbContext.CaseAccessRules
             .AsQueryable()
-            .Where(r => roleClaims.Contains(r.MemberRole!))
-            .Select(c => c.RuleCheckpointTypeId)
-            .ToListAsync();
+            .Where(DbCaseAccessRule.AccessMatchPredicate(user.Id, user.Roles, user.GroupId));
 
         /*
          * The logic behind this query is:
@@ -44,7 +40,8 @@ internal class CheckpointTypeService : ICheckpointTypeService
          */
         var checkpointTypes = await (
                 from c in _dbContext.CheckpointTypes
-                where checkpointTypeIds.Contains(c.Id)
+                // the user can see a checkpoint type either through a rule on the checkpoint type itself or through a rule on its case type
+                where accessRules.Any(r => r.RuleCheckpointTypeId == c.Id || r.RuleCaseTypeId == c.CaseTypeId)
                 group c by c.Code into grouped
                 select grouped.FirstOrDefault()
             ).ToListAsync();
