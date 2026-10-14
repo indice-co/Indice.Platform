@@ -98,10 +98,11 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
             """;
         await agent.RunAsync(prompt, cancellationToken: cancellationToken);
         // Use the raw MCP tool output, not the LLM re-generated JSON, which can corrupt values.
-        var rawResult = capturingTools.Select(t => t.Result).LastOrDefault(r => r is not null);
-        var caseNode = rawResult is null ? null : WorkflowExtensions.ExtractDataFromToolResults([new ChatMessage(ChatRole.Tool, [new FunctionResultContent(string.Empty, rawResult)])]);
-
-        JsonElement caseData = caseNode?.Deserialize<JsonElement>() ?? default;
+        if (!capturingTools.TryGetToolResult(out var caseNode, out var error)) {
+            _logger.LogError("Case data retrieval failed for service {McpServiceKey}: {Error}", McpServiceKey, error);
+            throw new InvalidOperationException($"Case data retrieval failed for service '{McpServiceKey}': {error}");
+        }
+        var caseData = caseNode.Deserialize<JsonElement>();
         var caseId = _caseDataExtractor.ExtractCaseId(caseData);
         var phoneNumber = _caseDataExtractor.ExtractPhoneNumber(caseData);
         var email = _caseDataExtractor.ExtractEmail(caseData);
