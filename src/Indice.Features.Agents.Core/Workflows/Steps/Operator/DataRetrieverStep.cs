@@ -79,7 +79,9 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
         // Render the verification prompt using template
         var chatOptions = _models.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = _promptRenderer.Render(nameof(AgentsConstants.PromptDefaults.DataRetriever));
-        chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. mcpTools];
+        // Wrap MCP tools so the raw output is captured here and never sent back to the model.
+        var capturingTools = mcpTools.Select(t => new McpCapturingToolFunction(t)).ToList();
+        chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. capturingTools];
 
         var agent = _openAIClient
             .GetChatClient(_model)
@@ -94,22 +96,13 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
             Retrieve the case information.
             Query: {userInput}
             """;
-
-        var response = await agent.RunAsync<string>(prompt, cancellationToken: cancellationToken);
-        var rawPayload = response.Result?.Trim();
-        if (string.IsNullOrWhiteSpace(rawPayload)) {
-            _logger.LogError("Case retrieval agent returned an empty payload.");
-            throw new InvalidOperationException("Case retrieval agent returned empty payload.");
+        await agent.RunAsync(prompt, cancellationToken: cancellationToken);
+        // Use the raw MCP tool output, not the LLM re-generated JSON, which can corrupt values.
+        if (!capturingTools.TryGetToolResult(out var caseNode, out var error)) {
+            _logger.LogError("Case data retrieval failed for service {McpServiceKey}: {Error}", McpServiceKey, error);
+            throw new InvalidOperationException($"Case data retrieval failed for service '{McpServiceKey}': {error}");
         }
-
-        JsonElement caseData;
-        try {
-            caseData = JsonDocument.Parse(rawPayload).RootElement;
-        } catch (JsonException ex) {
-            _logger.LogError(ex, "Failed to parse case retrieval payload as JSON.");
-            throw new InvalidOperationException("Failed to parse case retrieval payload as JSON.", ex);
-        }
-
+        var caseData = caseNode.Deserialize<JsonElement>();
         var caseId = _caseDataExtractor.ExtractCaseId(caseData);
         var phoneNumber = _caseDataExtractor.ExtractPhoneNumber(caseData);
         var email = _caseDataExtractor.ExtractEmail(caseData);
