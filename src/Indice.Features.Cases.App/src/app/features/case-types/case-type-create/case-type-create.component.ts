@@ -12,8 +12,6 @@ import { CaseTypeRequest } from '../../../core/services/cases-api.service';
 })
 export class CaseTypeCreateComponent implements OnInit {
 
-  public widgets = this.caseTypesService.widgets;
-  public framework = this.caseTypesService.framework;
   public schema = this.caseTypesService.schema;
   public layout = this.caseTypesService.onLoadLayout();
   public data: any = {};

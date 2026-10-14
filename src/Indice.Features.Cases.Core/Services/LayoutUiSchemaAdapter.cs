@@ -128,6 +128,10 @@ public static partial class LayoutUiSchemaAdapter
         if (type is "submit" or "button") {
             return CreateElement(type == "submit" ? "Submit" : "Button", label, options);
         }
+        if (type == "label-only") {
+            // A label without a key: static text, blank space or a link built from the form data ("data-bind").
+            return CreateElement("LabelOnly", label, options);
+        }
         if (items is not null) {
             if (type is not null && !KnownContainerTypes.Contains(type)) {
                 warnings.Add($"{path}: unknown container type '{type}'; converted to a vertical layout.");
@@ -199,8 +203,9 @@ public static partial class LayoutUiSchemaAdapter
         return options;
     }
 
+    // ajsf flex containers default to "column" when no direction is given.
     private static bool IsColumnFlex(JsonObject node) =>
-        (GetString(node, "flex-flow") ?? GetString(node, "flex-direction"))?.Contains("column", StringComparison.OrdinalIgnoreCase) == true;
+        (GetString(node, "flex-flow") ?? GetString(node, "flex-direction"))?.Contains("row", StringComparison.OrdinalIgnoreCase) != true;
 
     private static string? GetString(JsonObject node, string property) =>
         node[property] is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;

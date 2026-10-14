@@ -1,4 +1,3 @@
-import { JsonSchemaFormModule } from '@ajsf-extended/core';
 import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS, withInterceptors, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
@@ -44,7 +43,6 @@ import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
         CasesModule,
         CaseTypesModule,
         NotificationsModule,
-        JsonSchemaFormModule,
         NgProgressbar,
         NgProgressHttp,
         TranslateModule.forRoot()], providers: [

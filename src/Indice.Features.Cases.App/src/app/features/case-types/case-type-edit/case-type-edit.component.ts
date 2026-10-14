@@ -15,10 +15,6 @@ export class CaseTypeEditComponent implements OnInit {
 
   private caseTypeId: string = '';
 
-  public widgets = this.caseTypesService.widgets;
-
-  public framework = this.caseTypesService.framework;
-
   public schema = this.caseTypesService.schema;
 
   public layout = this.caseTypesService.onLoadLayout(this.caseTypeId);

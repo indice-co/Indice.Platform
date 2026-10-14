@@ -1,5 +1,4 @@
 import { NotificationsComponent } from './notifications.component';
-import { JsonSchemaFormModule } from "@ajsf-extended/core";
 import { CommonModule } from "@angular/common";
 import { provideHttpClient, withInterceptorsFromDi, withXhr } from "@angular/common/http";
 import { NgModule } from "@angular/core";
@@ -19,6 +18,5 @@ import { SharedModule } from "src/app/shared/shared.module";
         FormsModule,
         RouterModule,
         SharedModule,
-        JsonSchemaFormModule,
         IndiceComponentsModule], providers: [provideHttpClient(withXhr(), withInterceptorsFromDi())] })
 export class NotificationsModule { }

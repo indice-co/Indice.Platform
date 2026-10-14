@@ -131,6 +131,31 @@ public class LayoutUiSchemaAdapterTests
         Assert.Equal(false, (bool?)control["label"]);
     }
 
+    [Theory]
+    [InlineData("""{"type":"flex","flex-flow":"row wrap","items":["name"]}""", "HorizontalLayout")]
+    [InlineData("""{"type":"flex","flex-flow":"column","items":["name"]}""", "VerticalLayout")]
+    [InlineData("""{"type":"flex","items":["name"]}""", "VerticalLayout")]
+    public void Convert_Flex_UsesTheFlexDirection(string flex, string expectedType) {
+        var layout = new JsonArray(JsonNode.Parse(flex));
+
+        var element = LayoutUiSchemaAdapter.Convert(layout).UiSchema!["elements"]![0]!;
+
+        Assert.Equal(expectedType, (string?)element["type"]);
+    }
+
+    [Fact]
+    public void Convert_LabelOnlyWithoutKey_ProducesLabelOnlyElement() {
+        var layout = JsonNode.Parse("""[{"title":"Update","type":"label-only","extraType":"data-bind href","data":"{baseAddress}/api/update/{id}","linkText":"Update"}]""");
+
+        var result = LayoutUiSchemaAdapter.Convert(layout);
+
+        Assert.Empty(result.Warnings);
+        var element = result.UiSchema!["elements"]![0]!;
+        Assert.Equal("LabelOnly", (string?)element["type"]);
+        Assert.Equal("Update", (string?)element["label"]);
+        Assert.Equal("{baseAddress}/api/update/{id}", (string?)element["options"]!["data"]);
+    }
+
     [Fact]
     public void Convert_ScriptsAreCopiedToOptions() {
         var layout = JsonNode.Parse("""[{"key":"amount","onChange":"(value, model) => {}","onInit":"(value, model, metadata) => {}"}]""");

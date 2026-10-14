@@ -1,4 +1,3 @@
-import { JsonSchemaFormModule } from "@ajsf-extended/core";
 import { CommonModule } from "@angular/common";
 import { provideHttpClient, withInterceptorsFromDi, withXhr } from "@angular/common/http";
 import { NgModule } from "@angular/core";
@@ -25,7 +24,6 @@ import { CaseTypeFormComponent } from "./case-type-form/case-type-form.component
         FormsModule,
         RouterModule,
         SharedModule,
-        JsonSchemaFormModule,
         IndiceComponentsModule], providers: [
         CaseTypeUpdateService,
         provideHttpClient(withXhr(), withInterceptorsFromDi())
