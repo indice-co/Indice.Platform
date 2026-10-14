@@ -1,6 +1,6 @@
+using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
-using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 
@@ -25,7 +25,7 @@ public sealed class DataPresenterStep : Executor<OperationState, OperationState>
         ArgumentNullException.ThrowIfNull(state);
         var operatorState = await context.GetOperatorStateAsync(cancellationToken);
         var presentation = _presentationFormatter.Render(operatorState);
-        await context.AddEventAsync(new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [presentation])), cancellationToken);
+        await context.Say(Id, presentation, cancellationToken);
         return OperationState.End;
     }
 }
