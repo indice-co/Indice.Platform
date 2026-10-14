@@ -3,6 +3,7 @@ import { ToastType } from '@indice/ng-components';
 import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 import { EMPTY, forkJoin, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { JsonPointer } from '@ajsf-extended/core';
 import { Case, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDetails } from 'src/app/core/services/cases-api.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
 import { SubmitWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
@@ -145,9 +146,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
         for (const key in this._fileUploadService.files) {
             if (this._fileUploadService.files.hasOwnProperty(key)) {
                 // we may have 'garbage' attachments that we should not send to server!!!
-                let path = key;
-                path = path.replace(/\//g, '.'); // https://stackoverflow.com/a/63616567/19162333
-                path = path.substring(1);
+                const path = JsonPointer.parse(key);
                 if (get(event, path)) { // https://lodash.com/docs/4.17.15#get
                     const fileParam = { data: this._fileUploadService.files[key], fileName: this._fileUploadService.files[key].name };
                     callsDict[key] = this._api.uploadAdminCaseAttachment(this.case?.id!, fileParam);
@@ -163,7 +162,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                             if (response.hasOwnProperty(key) && key !== '') {
                                 // transform path to object key (eg. "/home/attachmentId") to a string that lodash update (https://lodash.com/docs/4.17.15#update)
                                 // can understand (eg "home.attachmentId") and update its value with the response attachment id
-                                update(event, key.slice(1).replace('/', '.'), () => response[key].id!);
+                                update(event, JsonPointer.parse(key), () => response[key].id!);
                             }
                         }
 
@@ -247,12 +246,6 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     public isValid(event: boolean) {
         this.formIsValid.emit(event);
         this.latestIsValid = event;
-    }
-
-    public validationErrors(event: any) {
-        if (Array.isArray(this.layout) && this.layout.some((item: any) => item.debugForm === true)) {
-                console.debug('Form validation errors', event);
-        }
     }
 
     onSubmitExternal(): void {
