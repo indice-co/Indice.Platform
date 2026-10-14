@@ -4,6 +4,7 @@ import {
   OnDestroy,
   ViewChild,
   TemplateRef,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { CellContext, TableColumn } from "@swimlane/ngx-datatable";
 import { map, Subscription } from "rxjs";
@@ -23,6 +24,7 @@ import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
     selector: "app-user-claims-step",
     templateUrl: "./user-claims-step.component.html",
     providers: [NgbDateCustomParserFormatter],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UserClaimsStepComponent

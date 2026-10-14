@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastType } from '@indice/ng-components';
 import { SettingsStore } from '../../settings-store.service';
@@ -8,6 +8,7 @@ import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toa
 @Component({
     selector: 'app-media-setting-edit',
     templateUrl: './media-setting-edit.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MediaSettingEditComponent implements OnInit, AfterViewInit {

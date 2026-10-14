@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
 
@@ -14,6 +14,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-client-claims',
     templateUrl: './client-claims.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ClientClaimsComponent implements OnInit, OnDestroy {

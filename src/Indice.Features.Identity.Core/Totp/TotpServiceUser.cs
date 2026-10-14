@@ -1,5 +1,7 @@
 ﻿using System.Dynamic;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Models;
@@ -14,6 +16,7 @@ namespace Indice.Features.Identity.Core.Totp;
 /// <typeparam name="TUser">The type of user entity.</typeparam>
 public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
 {
+    private const int CACHE_EXPIRATION_SECONDS = 5 * 60;
     private readonly IStringLocalizer<TotpServiceUser<TUser>> _localizer;
 
     /// <summary>Creates a new instance of <see cref="TotpServiceUser{TUser}"/>.</summary>
@@ -143,7 +146,9 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
         tokenProvider ??= TokenOptions.DefaultPhoneProvider;
         var token = await UserManager.GenerateUserTokenAsync(user, tokenProvider, purpose);
         message = _localizer[message, token];
-        var cacheKey = $"{nameof(TotpServiceUser<TUser>)}:{user.Id}:{channel}:{purpose}";
+        var securityToken = await UserManager.CreateSecurityTokenAsync(user);
+        var tokenHash = Convert.ToHexString(HMACSHA256.HashData(securityToken, Encoding.UTF8.GetBytes(token)));
+        var cacheKey = $"{nameof(TotpServiceUser<TUser>)}:{user.Id}:{channel}:{purpose}:{tokenHash}";
         if (await CacheKeyExistsAsync(cacheKey)) {
             return TotpResult.RateLimitedResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."], await GetCacheKeyExpirationAsync(cacheKey));
         }
@@ -184,7 +189,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
                 }
             );
         }
-        await AddCacheKeyAsync(cacheKey);
+        await AddCacheKeyAsync(cacheKey, TimeSpan.FromSeconds(CACHE_EXPIRATION_SECONDS));
         return TotpResult.SuccessResult;
     }
 

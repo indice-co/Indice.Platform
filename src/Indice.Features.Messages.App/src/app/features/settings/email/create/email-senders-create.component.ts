@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastType } from '@indice/ng-components';
 import { MessagesApiClient, CreateMessageSenderRequest, MessageSender } from 'src/app/core/services/messages-api.service';
@@ -8,6 +8,7 @@ import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toa
 @Component({
     selector: 'app-email-senders-create',
     templateUrl: './email-senders-create.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class EmailSendersCreateComponent implements OnInit {

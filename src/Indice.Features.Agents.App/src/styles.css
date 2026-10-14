@@ -5,10 +5,13 @@
 @source './app/**/*.{html,ts}';
 @source './index.html';
 
+@plugin 'daisyui/theme' {
+  themes: light --default;
+}
+
 /* ── Dex theme — Indice red on white: white surfaces, ink text, Dex-logo red primary ── */
 @plugin 'daisyui/theme' {
   name: 'dex';
-  default: true;
   color-scheme: light;
 
   --color-base-100: oklch(100% 0 0);

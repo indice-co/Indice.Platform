@@ -104,14 +104,15 @@ public static class WorkerHostConfiguration
     /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
     /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
     /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-    public static WorkerHostOptions UseStoreRelational<TContext>(this WorkerHostOptions options, Action<DbContextOptionsBuilder>? configureAction = null) where TContext : DbContext, ITaskDbContext {
+    public static WorkerHostOptions UseStoreRelational<TContext>(this WorkerHostOptions options, Action<DbContextOptionsBuilder>? configureAction = null) where TContext : DbContext, ITaskDbContext, ILockDbContext {
         Action<IServiceProvider, DbContextOptionsBuilder> configureDatabase = configureAction is not null
             ? (_, builder) => configureAction(builder)
             : (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("WorkerDb"));
         if (!options.Services.Any(sd => sd.ServiceType == typeof(TContext))) {
             options.Services.AddDbContext<TContext>(configureDatabase);
         }
-        options.Services.TryAddScoped<ITaskDbContext>(sp => sp.GetRequiredService<TContext>());
+        options.Services.TryAddScoped<ILockDbContext, TContext>(); // this creates its own lifetime based on ILockDbContext key
+        options.Services.TryAddScoped<ITaskDbContext>(sp => sp.GetRequiredService<TContext>()); // this shares the lifetime of the TContext key
         options.ScheduledTaskStoreType = typeof(ScheduledTaskStoreEF<>);
         options.QueueStoreType = typeof(MessageQueueRelational<>);
         options.LockStoreType = typeof(LockManagerRelational);

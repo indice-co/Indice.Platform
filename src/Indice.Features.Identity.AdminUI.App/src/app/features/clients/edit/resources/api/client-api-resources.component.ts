@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { TableColumn } from '@swimlane/ngx-datatable';
@@ -11,6 +11,7 @@ import { ClientStore } from '../../client-store.service';
 @Component({
     selector: 'app-client-api-resources',
     templateUrl: './client-api-resources.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ClientApiResourcesComponent implements OnInit, OnDestroy {

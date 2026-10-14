@@ -15,6 +15,7 @@ import { filter } from 'rxjs';
 
 import { AuthGuestService } from '../auth/auth-guest.service';
 import { injectSignedIn } from '../auth/auth-state';
+import { assistantName, brandLogo } from '../models/brand';
 import { ConversationsStore } from '../services/conversations.store';
 import { AppSidebarComponent } from './app-sidebar.component';
 
@@ -83,8 +84,8 @@ const COLLAPSED_KEY = 'dex.rail.collapsed';
           </button>
 
           <a routerLink="/" class="flex min-w-0 items-center gap-2">
-            <img src="dex-logo.png" alt="Dex" class="size-7 shrink-0 rounded-full" />
-            <span class="text-base font-semibold tracking-tight text-base-content">Dex</span>
+            <img [src]="logo()" [alt]="assistantName" class="size-7 shrink-0 rounded-full" />
+            <span class="text-base font-semibold tracking-tight text-base-content">{{ assistantName }}</span>
           </a>
 
           @if (signedIn() !== false) {
@@ -183,6 +184,11 @@ const COLLAPSED_KEY = 'dex.rail.collapsed';
   `,
 })
 export class ShellComponent {
+  /** Brand mark of the active theme. */
+  protected readonly logo = brandLogo;
+  /** Display name of the assistant. */
+  protected readonly assistantName = assistantName;
+
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly auth = inject(AuthService);

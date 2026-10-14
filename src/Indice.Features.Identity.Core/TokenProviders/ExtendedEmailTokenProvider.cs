@@ -25,7 +25,7 @@ public class ExtendedEmailTokenProvider<TUser> : EmailTokenProvider<TUser> where
         ArgumentNullException.ThrowIfNull(user);
         var token = await user.GetSecurityToken(purpose, manager).ConfigureAwait(false);
         var modifier = await GetUserModifierAsync(purpose, manager, user).ConfigureAwait(false);
-        return _rfc6238AuthenticationService.GenerateCode(token, modifier).ToString("D6", CultureInfo.InvariantCulture);
+        return _rfc6238AuthenticationService.GenerateCode(token, modifier).ToString("D" + _rfc6238AuthenticationService.CodeLength, CultureInfo.InvariantCulture);
     }
 
     /// <inheritdoc />

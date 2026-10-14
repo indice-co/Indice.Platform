@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild, OnDestroy, Inject } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild, OnDestroy, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 
 import { APP_LANGUAGES, MenuOption } from '@indice/ng-components';
@@ -11,6 +11,7 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 @Component({
   selector: 'app-campaign-basic-info',
   templateUrl: './campaign-basic-info.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class CampaignBasicInfoComponent implements OnInit, OnDestroy {

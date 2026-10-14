@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ToasterService, ViewAction, FilterClause, SearchOption } from '@indice/ng-components';
@@ -12,6 +12,7 @@ import { DataService } from 'src/app/core/services/data.service';
 @Component({
     selector: 'app-risk-events',
     templateUrl: './risk-events.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements OnInit {

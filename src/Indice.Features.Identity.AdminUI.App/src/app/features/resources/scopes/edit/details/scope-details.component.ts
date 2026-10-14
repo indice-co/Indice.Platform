@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { IdentityApiService, ApiScopeInfo, UpdateApiScopeRequest } from 'src/app/core/services/identity-api.service';
@@ -8,6 +8,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-scope-details',
     templateUrl: './scope-details.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ScopeDetailsComponent implements OnInit {

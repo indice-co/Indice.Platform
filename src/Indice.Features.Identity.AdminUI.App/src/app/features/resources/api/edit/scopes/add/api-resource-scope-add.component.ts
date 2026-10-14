@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ComponentFactoryResolver, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -16,6 +16,7 @@ import { BasicInfoStepComponent } from 'src/app/features/resources/add/wizard/st
 @Component({
     selector: 'app-api-resource-scope-add',
     templateUrl: './api-resource-scope-add.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApiResourceScopeAddComponent implements OnInit {
@@ -24,7 +25,7 @@ export class ApiResourceScopeAddComponent implements OnInit {
     private _formValidatedSubscription: Subscription;
     private _apiResourceId: number;
 
-    constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _formBuilder: UntypedFormBuilder, private _changeDetectionRef: ChangeDetectorRef,
+    constructor(private _formBuilder: UntypedFormBuilder, private _changeDetectionRef: ChangeDetectorRef,
                 private _apiResourceStore: ApiResourceStore, private _toast: ToastService, private _router: Router, private _route: ActivatedRoute) { }
 
     public wizardStepIndex = 0;
@@ -114,10 +115,9 @@ export class ApiResourceScopeAddComponent implements OnInit {
     }
 
     private loadStep(step: WizardStepDescriptor): void {
-        const componentFactory = this._componentFactoryResolver.resolveComponentFactory(step.component);
         const viewContainerRef = this._wizardStepHost.viewContainerRef;
         viewContainerRef.clear();
-        const componentRef = viewContainerRef.createComponent(componentFactory);
+        const componentRef = viewContainerRef.createComponent(step.component);
         // Keep a reference of the instance of the step component.
         this._loadedStepInstance = componentRef.instance as StepBaseComponent<ResourceWizardModel>;
         // Pass data to the dynamically loaded component.

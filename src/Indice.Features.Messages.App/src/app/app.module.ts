@@ -1,6 +1,6 @@
 import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient, withXhr } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -235,7 +235,7 @@ if (app.settings.tenantId) {
       useClass: ApiTranslateLoader,
       deps: [HttpClient, MESSAGES_API_BASE_URL],
     },*/
-    provideHttpClient(withInterceptors([progressInterceptor]))
+    provideHttpClient(withXhr(), withInterceptors([progressInterceptor]))
   ],
   bootstrap: [AppComponent]
 })

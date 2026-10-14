@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, forwardRef, Input, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo } from 'ckeditor5';
 
@@ -10,6 +10,7 @@ import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo } fro
             useExisting: forwardRef(() => TranslateInputComponent),
             multi: true
         }],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TranslateInputComponent implements ControlValueAccessor, OnInit {

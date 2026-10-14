@@ -1,8 +1,9 @@
 
-import { Output, EventEmitter, Input, Component } from '@angular/core';
+import { Output, EventEmitter, Input, Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     template: '',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export abstract class StepBaseComponent<T> {

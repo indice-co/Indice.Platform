@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { TableColumn } from '@swimlane/ngx-datatable';
@@ -10,6 +10,7 @@ import { ApiResourceStore } from '../../../api-resource-store.service';
 @Component({
     selector: 'app-api-resource-scope-claims',
     templateUrl: './api-resource-scope-claims.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApiResourceScopeClaimsComponent implements OnInit, OnDestroy {

@@ -26,6 +26,27 @@ public class ChatRequestValidatorTests
     }
 
     [Fact]
+    public async Task Empty_Text_With_Topic_Reference_Passes() {
+        var request = new ChatRequest { Parts = [], Topic = new ChatTopic { ReferenceId = "42", ReferenceType = "operator" } };
+        var result = await _validator.TestValidateAsync(request, cancellationToken: TestContext.Current.CancellationToken);
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public async Task Empty_Text_Without_Topic_Fails() {
+        var request = new ChatRequest { Text = string.Empty };
+        var result = await _validator.TestValidateAsync(request, cancellationToken: TestContext.Current.CancellationToken);
+        result.ShouldHaveValidationErrorFor(x => x.Text);
+    }
+
+    [Fact]
+    public async Task Empty_Text_With_Topic_Without_Reference_Fails() {
+        var request = new ChatRequest { Text = string.Empty, Topic = new ChatTopic { ReferenceType = "operator" } };
+        var result = await _validator.TestValidateAsync(request, cancellationToken: TestContext.Current.CancellationToken);
+        result.ShouldHaveValidationErrorFor(x => x.Text);
+    }
+
+    [Fact]
     public async Task More_Than_Five_Parts_Fails() {
         var request = new ChatRequest { Text = "Hello" };
         for (var i = 0; i < 5; i++) {

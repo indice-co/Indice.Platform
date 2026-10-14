@@ -11,7 +11,7 @@ namespace Indice.Hosting.Data;
 /// </summary>
 /// <remarks>
 /// <code>
-/// public class BankingDbContext : DbContext, ITaskDbContext
+/// public class BankingDbContext : DbContext, ITaskDbContext, ILockDbContext
 /// {
 ///     public DbSet&lt;Order&gt; Orders { get; set; }
 ///
@@ -29,8 +29,6 @@ public interface ITaskDbContext
     DbSet<DbQMessage> Queue => Set<DbQMessage>();
     /// <summary>Tasks.</summary>
     DbSet<DbScheduledTask> Tasks => Set<DbScheduledTask>();
-    /// <summary>Locks.</summary>
-    DbSet<DbLock> Locks => Set<DbLock>();
     /// <inheritdoc cref="DbContext.Database"/>
     DatabaseFacade Database { get; }
     /// <inheritdoc cref="DbContext.Add{TEntity}"/>
@@ -41,4 +39,19 @@ public interface ITaskDbContext
     void AddRange(IEnumerable<object> entities);
     /// <inheritdoc cref="DbContext.SaveChangesAsync(CancellationToken)"/>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+}
+
+/// <summary>
+/// ILockDbContext
+/// </summary>
+public interface ILockDbContext
+{
+    /// <inheritdoc cref="DbContext.Set{TEntity}()"/>
+    DbSet<TEntity> Set<TEntity>() where TEntity : class;
+    
+    /// <inheritdoc cref="DbContext.Database"/>
+    DatabaseFacade Database { get; }
+    
+    /// <summary>Locks.</summary>
+    DbSet<DbLock> Locks => Set<DbLock>();
 }

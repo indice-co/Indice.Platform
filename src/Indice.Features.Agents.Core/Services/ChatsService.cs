@@ -56,6 +56,10 @@ public class ChatsService : IChatsService
             CreatedAt = DateTimeOffset.UtcNow,
             AuthorName = chatRequest.AuthorName
         };
+        if (conversation.Topic is not null) {
+            userMessage.AdditionalProperties ??= new();
+            userMessage.AdditionalProperties[nameof(ChatTopic)] = conversation.Topic;
+        }
         var response = await _dexClient.GetResponseAsync(userMessage, new ChatOptions { ConversationId = conversation.Id.ToString(), Instructions = chatRequest.AgentName }, cancellationToken);
         ChatMessage persisted;
         try {
