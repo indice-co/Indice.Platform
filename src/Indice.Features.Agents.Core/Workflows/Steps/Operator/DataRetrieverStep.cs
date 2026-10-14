@@ -79,7 +79,9 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
         // Render the verification prompt using template
         var chatOptions = _models.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = _promptRenderer.Render(nameof(AgentsConstants.PromptDefaults.DataRetriever));
-        chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. mcpTools];
+        // Wrap MCP tools so the raw output is captured here and never sent back to the model.
+        var capturingTools = mcpTools.Select(t => new McpCapturingToolFunction(t)).ToList();
+        chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. capturingTools];
 
         var agent = _openAIClient
             .GetChatClient(_model)
@@ -94,22 +96,12 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
             Retrieve the case information.
             Query: {userInput}
             """;
+        await agent.RunAsync(prompt, cancellationToken: cancellationToken);
+        // Use the raw MCP tool output, not the LLM re-generated JSON, which can corrupt values.
+        var rawResult = capturingTools.Select(t => t.Result).LastOrDefault(r => r is not null);
+        var caseNode = rawResult is null ? null : WorkflowExtensions.ExtractDataFromToolResults([new ChatMessage(ChatRole.Tool, [new FunctionResultContent(string.Empty, rawResult)])]);
 
-        var response = await agent.RunAsync<string>(prompt, cancellationToken: cancellationToken);
-        var rawPayload = response.Result?.Trim();
-        if (string.IsNullOrWhiteSpace(rawPayload)) {
-            _logger.LogError("Case retrieval agent returned an empty payload.");
-            throw new InvalidOperationException("Case retrieval agent returned empty payload.");
-        }
-
-        JsonElement caseData;
-        try {
-            caseData = JsonDocument.Parse(rawPayload).RootElement;
-        } catch (JsonException ex) {
-            _logger.LogError(ex, "Failed to parse case retrieval payload as JSON.");
-            throw new InvalidOperationException("Failed to parse case retrieval payload as JSON.", ex);
-        }
-
+        JsonElement caseData = caseNode?.Deserialize<JsonElement>() ?? default;
         var caseId = _caseDataExtractor.ExtractCaseId(caseData);
         var phoneNumber = _caseDataExtractor.ExtractPhoneNumber(caseData);
         var email = _caseDataExtractor.ExtractEmail(caseData);
