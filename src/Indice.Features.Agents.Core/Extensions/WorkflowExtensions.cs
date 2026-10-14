@@ -158,7 +158,7 @@ public static class WorkflowExtensions
                 .Select(t => TryParse(t.Text))
                 .FirstOrDefault(n => n is JsonObject),
             null => null,
-            var other => JsonSerializer.SerializeToNode(other, JsonSerializerOptions.Web)
+            _ => JsonSerializer.SerializeToNode(rawResult, JsonSerializerOptions.Web)
         };
         if (node is not JsonObject obj) {
             return null;
