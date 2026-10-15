@@ -194,7 +194,11 @@ public sealed class ApifonWebHookHttpHandler : IWebhookHttpHandler
         using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_settings.WebhookSecret));
         var expectedHmac = hmac.ComputeHash(Encoding.UTF8.GetBytes($"{reference}:{timestamp}"));
 
-        return !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hmacToken!), expectedHmac);
+        try {
+            return !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hmacToken!), expectedHmac);
+        } catch (FormatException) {
+            return true;
+        }
     }
 }
 
