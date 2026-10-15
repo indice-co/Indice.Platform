@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
@@ -14,6 +14,7 @@ import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 @Component({
     selector: 'app-user-applications',
     templateUrl: './user-applications.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UserApplicationsComponent implements OnInit, OnDestroy {

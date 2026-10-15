@@ -1,10 +1,11 @@
-import { Input, Component } from '@angular/core';
+import { Input, Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { HttpValidationProblemDetails } from 'src/app/core/services/identity-api.service';
 
 @Component({
     selector: 'app-validation-summary',
     templateUrl: './validation-summary.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ValidationSummaryComponent {

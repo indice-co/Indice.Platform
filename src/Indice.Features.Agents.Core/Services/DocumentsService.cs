@@ -111,52 +111,48 @@ public class DocumentsService : IDocumentsService
     public async Task<IReadOnlyList<RetrievedChunk>> SearchAsync(ReadOnlyMemory<float> queryVector, RetrievalFilters filters, int topK, double minScore, CancellationToken cancellationToken) {
         var sqlVector = new SqlVector<float>(queryVector);
         var maxDistance = 1 - minScore;
+        var category = filters.Category;
+        var language = filters.Language;
 
-        // CTE-based approach: CROSS APPLY for vector distance, then join only top K results
-        var sql = @"
-            ;WITH RankedChunks AS (
-                SELECT TOP({0})
-                    c.Id,
-                    dist.Distance
-                FROM [dex].[Chunk] c
-                CROSS APPLY (
-                    SELECT VECTOR_DISTANCE('cosine', c.Embedding, {1}) AS Distance
-                ) dist
-                WHERE dist.Distance <= {2}
-                ORDER BY dist.Distance
-            )
-            SELECT 
-                c.Id, 
-                c.DocumentId, 
-                c.HeadingPath, 
-                c.Title, 
-                c.Content, 
-                c.TokenCount, 
-                d.Title AS DocumentTitle, 
-                d.Source AS DocumentSource, 
-                d.IsPrivate AS DocumentIsPrivate, 
-                d.ContentHash AS DocumentContentHash, 
-                CASE
-                    WHEN b.DocumentId IS NULL THEN N'application/markdown'
-                    ELSE b.ContentType
-                END AS BlobContentType, 
-                CASE
-                    WHEN b.DocumentId IS NULL THEN CAST(-1 AS bigint)
-                    ELSE b.ContentLength
-                END AS BlobLength, 
-                CASE
-                    WHEN b.DocumentId IS NULL THEN d.Title
-                    ELSE b.FileName
-                END AS BlobFileName,
-                rc.Distance
-            FROM [dex].[Chunk] AS c
-            INNER JOIN RankedChunks AS rc ON c.Id = rc.Id
-            INNER JOIN [dex].[Document] AS d ON c.DocumentId = d.Id
-            LEFT JOIN [dex].[Blob] AS b ON d.Id = b.DocumentId
-            ORDER BY rc.Distance";
+        var candidates = _db.Set<DbChunk>().AsNoTracking();
+        if (!string.IsNullOrEmpty(category)) {
+            candidates = candidates.Where(c => c.Category == null || c.Category == category);
+        }
+        if (!string.IsNullOrEmpty(language)) {
+            candidates = candidates.Where(c => c.Language == null || c.Language == language);
+        }
 
-        var rows = await _db.Database
-            .SqlQueryRaw<SearchResultDto>(sql, topK, sqlVector, maxDistance)
+        // Stage 1: rank by vector distance and keep only the top K ids.
+        // Distinct() is a no-op on {Id, Distance} (Id is the PK) but it stops EF from pushing the projection
+        // through the subquery, so Distance is materialized once as a column instead of VECTOR_DISTANCE
+        // (and the Embedding column) being re-evaluated in the outer query.
+        var ranked = candidates
+            .Select(c => new { c.Id, Distance = EF.Functions.VectorDistance("cosine", c.Embedding, sqlVector) })
+            .Where(x => x.Distance <= maxDistance)
+            .OrderBy(x => x.Distance)
+            .Take(topK)
+            .Distinct();
+
+        // Stage 2: join the K survivors back to chunk/document/blob metadata.
+        var rows = await ranked
+            .Join(_db.Set<DbChunk>(), r => r.Id, c => c.Id, (r, c) => new { r.Distance, Chunk = c })
+            .OrderBy(x => x.Distance)
+            .Select(x => new SearchResultDto {
+                Id = x.Chunk.Id,
+                DocumentId = x.Chunk.DocumentId,
+                Title = x.Chunk.Title ?? string.Empty,
+                HeadingPath = x.Chunk.HeadingPath,
+                Content = x.Chunk.Content,
+                TokenCount = x.Chunk.TokenCount,
+                DocumentTitle = x.Chunk.Document.Title,
+                DocumentSource = x.Chunk.Document.Source,
+                DocumentIsPrivate = x.Chunk.Document.IsPrivate,
+                DocumentContentHash = x.Chunk.Document.ContentHash,
+                BlobContentType = x.Chunk.Document.Blob == null ? "application/markdown" : x.Chunk.Document.Blob.ContentType,
+                BlobLength = x.Chunk.Document.Blob == null ? -1L : x.Chunk.Document.Blob.ContentLength,
+                BlobFileName = x.Chunk.Document.Blob == null ? x.Chunk.Document.Title : x.Chunk.Document.Blob.FileName,
+                Distance = x.Distance,
+            })
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
@@ -181,7 +177,7 @@ public class DocumentsService : IDocumentsService
         }).ToList();
     }
 
-    // DTO for CTE query results
+    // Projection target for the two-stage vector search query
     private class SearchResultDto
     {
         public Guid Id { get; set; }

@@ -6,6 +6,7 @@ import { AuthRenewComponent } from './core/auth/auth-renew.component';
 import { authSettledGuard } from './core/auth/auth-settled.guard';
 import { LoggedOutComponent } from './core/auth/logged-out.component';
 import { ShellComponent } from './core/layout/shell.component';
+import { assistantName } from './core/models/brand';
 import { ChatPageComponent } from './features/chat/chat-page.component';
 import { ProfilePageComponent } from './features/profile/profile-page.component';
 
@@ -22,13 +23,13 @@ export const routes: Routes = [
     component: ShellComponent,
     canActivate: [authSettledGuard],
     children: [
-      { path: '', component: ChatPageComponent, title: 'Dex — Chat' },
+      { path: '', component: ChatPageComponent, title: `${assistantName} — Chat` },
       // Guests are sent to sign in; AuthGuardService carries the URL so they land back here.
       {
         path: 'profile',
         component: ProfilePageComponent,
         canActivate: [AuthGuardService],
-        title: 'Dex — Profile',
+        title: `${assistantName} — Profile`,
       },
     ],
   },

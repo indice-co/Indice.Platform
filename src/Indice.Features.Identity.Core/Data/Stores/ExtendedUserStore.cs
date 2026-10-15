@@ -396,7 +396,7 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
 
 
     private static async Task<(MemoryStream? OutputStream, string ContentType, List<IdentityError> Errors)> SetUserPictureInternalAsync(Stream inputStream, int sideSize = 256, double scale = 1, int translateX = 0, int translateY = 0, int viewPortSize = 256, CancellationToken cancellationToken = default) {
-        using var image = Image.Load(inputStream, out var format);
+        using var image = Image.Load(inputStream);
         // manipulate image resize to max side size.
         var maxSide = Math.Max(image.Width, image.Height);
         var errors = new List<IdentityError>();
@@ -448,7 +448,8 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
         if (!size.HasValue && string.IsNullOrEmpty(contentType)) {
             return (Stream: originalStream, ContentType: originalContentType);
         }
-        using var image = Image.Load(originalStream, out var format);
+        using var image = Image.Load(originalStream);
+        var format = image.Metadata.DecodedImageFormat!;
         var resizeOptions = new ResizeOptions() {
             Size = new Size(size ?? image.Width, size ?? image.Height),
             Mode = ResizeMode.Pad

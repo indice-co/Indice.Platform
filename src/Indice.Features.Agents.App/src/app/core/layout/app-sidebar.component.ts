@@ -11,6 +11,7 @@ import {
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
+import { assistantName, brandLogo } from '../models/brand';
 import { ConversationListItem } from '../services/dex-api.service';
 import { PoweredByComponent } from './powered-by.component';
 import { SidebarAccountComponent } from './sidebar-account.component';
@@ -35,10 +36,10 @@ const COLLAPSED_LIMIT = 8;
       <div class="flex shrink-0 flex-col gap-1 px-3 pt-3">
         <div class="flex items-center gap-2.5" [class.justify-center]="collapsed()">
           <a routerLink="/" class="flex min-w-0 items-center gap-2.5" (click)="navigated.emit()">
-            <img src="dex-logo.png" alt="Dex" class="size-8 shrink-0 rounded-full" />
+            <img [src]="logo()" [alt]="assistantName" class="size-8 shrink-0 rounded-full" />
             @if (!collapsed()) {
               <span class="min-w-0 leading-tight">
-                <span class="block text-lg font-semibold tracking-tight text-base-content">Dex</span>
+                <span class="block text-lg font-semibold tracking-tight text-base-content">{{ assistantName }}</span>
                 <span
                   class="-mt-0.5 block truncate font-mono text-[0.6rem] uppercase
                          tracking-[0.22em] text-base-content/45"
@@ -302,6 +303,11 @@ const COLLAPSED_LIMIT = 8;
   `,
 })
 export class AppSidebarComponent {
+  /** Brand mark of the active theme. */
+  protected readonly logo = brandLogo;
+  /** Display name of the assistant. */
+  protected readonly assistantName = assistantName;
+
   /** The caller's conversations, most-recently-active first. */
   readonly sessions = input<ConversationListItem[]>([]);
   /** The open conversation, highlighted in the list. */

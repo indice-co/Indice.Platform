@@ -10,12 +10,12 @@ namespace Indice.Hosting.Services;
 /// <summary><see cref="ILockManager"/> implementation for a relational database.</summary>
 public class LockManagerRelational : ILockManager
 {
-    private readonly ITaskDbContext _dbContext;
+    private readonly ILockDbContext _dbContext;
     private readonly LockManagerQueryDescriptor _queryDescriptor;
 
     /// <summary>Constructs the <see cref="LockManagerRelational"/>.</summary>
     /// <param name="dbContext">Contains the required tables to implement a locking mechanism using a relational database.</param>
-    public LockManagerRelational(ITaskDbContext dbContext) {
+    public LockManagerRelational(ILockDbContext dbContext) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _queryDescriptor = new LockManagerQueryDescriptor(dbContext);
     }
@@ -74,7 +74,7 @@ public class LockManagerRelational : ILockManager
 
 internal class LockManagerQueryDescriptor
 {
-    public LockManagerQueryDescriptor(ITaskDbContext context) {
+    public LockManagerQueryDescriptor(ILockDbContext context) {
         switch (context.Database.ProviderName) {
             case "Npgsql.EntityFrameworkCore.PostgreSQL":
                 AcquireLock = PostgreSqlLockManagerQueries.AcquireLock;

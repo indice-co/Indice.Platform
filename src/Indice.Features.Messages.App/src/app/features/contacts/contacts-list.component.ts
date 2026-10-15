@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
 import { Observable, combineLatest, Subject } from 'rxjs';
@@ -9,6 +9,7 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 @Component({
     selector: 'app-contacts',
     templateUrl: './contacts-list.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ContactsListComponent extends BaseListComponent<Contact> implements OnInit {

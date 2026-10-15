@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
@@ -8,6 +8,7 @@ import { ClientWizardModel } from '../../models/client-wizard-model';
 @Component({
     selector: 'app-extended-info-step',
     templateUrl: './extended-info-step.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ExtendedInfoStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, HostListener, Inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, HostListener, Inject, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {  APP_LANGUAGES, ToastType } from '@indice/ng-components';
 
@@ -12,6 +12,7 @@ import { AppTranslatedToaster } from '../../../../shared/services/app-translated
 @Component({
     selector: 'app-campaign-content-edit',
     templateUrl: './campaign-edit-content.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CampaignContentEditComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { CreateFolderRequest, CreateFolderResponse } from 'src/app/core/services/media-api.service';
@@ -8,6 +8,7 @@ import { AppTranslatedToaster } from '../../../shared/services/app-translated-to
 @Component({
     selector: 'app-folder-create',
     templateUrl: './folder-create.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class FolderCreateComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, TemplateRef } from '@angular/core';
+import { Component, ViewChild, OnInit, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { IdentityApiService, RoleInfoResultSet, RoleInfo } from 'src/app/core/services/identity-api.service';
@@ -9,6 +9,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-roles',
     templateUrl: './roles.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class RolesComponent implements OnInit {

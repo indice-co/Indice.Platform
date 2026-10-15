@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FolderContent, FolderTreeStructure, MediaApiClient } from 'src/app/core/services/media-api.service';
 import { IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
@@ -8,6 +8,7 @@ import { mergeMap, tap, filter } from 'rxjs/operators';
 @Component({
     selector: 'app-media-library',
     templateUrl: './media-library.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MediaLibraryComponent implements OnInit {

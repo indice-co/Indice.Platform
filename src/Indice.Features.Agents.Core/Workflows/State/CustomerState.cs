@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace Indice.Features.Agents.Core.Workflows.State;
 
@@ -42,4 +43,8 @@ public class CustomerState
     /// Gets or sets the type of verification challenge, if specified.
     /// </summary>
     public string? ChallengeType { get; set; }
+
+    /// <summary>Whether the one-time password goes out over SMS (a phone number is on file) rather than email.</summary>
+    [JsonIgnore]
+    public bool UsesSmsForOtp => !string.IsNullOrWhiteSpace(PhoneNumber);
 }

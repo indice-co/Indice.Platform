@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Hosting.Data;
 
 /// <summary>A <see cref="DbContext"/> for hosting multiple <see cref="IMessageQueue{T}"/>.</summary>
-public class TaskDbContext : DbContext, ITaskDbContext
+public class TaskDbContext : DbContext, ITaskDbContext, ILockDbContext
 {
     /// <summary>Creates a new instance of <see cref="TaskDbContext"/>.</summary>
     /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>

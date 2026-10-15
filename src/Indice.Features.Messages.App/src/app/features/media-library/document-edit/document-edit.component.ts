@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { HeaderMetaItem, ViewLayoutComponent, ToastType } from '@indice/ng-components';
+import { HeaderMetaItem, ToastType } from '@indice/ng-components';
 import { MediaFile, MediaFolder } from 'src/app/core/services/media-api.service';
 import { MediaLibraryStore } from '../media-library-store.service';
 import { map, mergeMap } from 'rxjs/operators';
@@ -12,10 +12,11 @@ import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toa
 @Component({
     selector: 'app-document-edit',
     templateUrl: './document-edit.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DocumentEditComponent implements OnInit {
-  @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;
+  public layoutTitle = '';
   private _documentId?: string;
 
   constructor(
@@ -38,7 +39,7 @@ export class DocumentEditComponent implements OnInit {
       this._mediaStore.getFileDetails(this._documentId!)
         .pipe(mergeMap((file: MediaFile) => {
           this.file = file;
-          this._layout.title = `Αρχείο - ${file.name}`;
+          this.layoutTitle = `Αρχείο - ${file.name}`;
           return this.file.folderId ? this._mediaStore.getFolderDetails(this.file.folderId).pipe(map((folder: MediaFolder) => folder?.name)) : of(undefined)
         }))
         .subscribe((folderName: string | undefined) => {

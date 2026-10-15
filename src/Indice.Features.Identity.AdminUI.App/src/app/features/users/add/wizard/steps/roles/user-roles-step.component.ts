@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { StepBaseComponent } from "src/app/shared/components/step-base/step-base.component";
 import { UserWizardModel } from "../../models/user-wizard.model";
 import { Subscription } from "rxjs";
@@ -12,6 +12,7 @@ import {
 @Component({
     selector: "app-roles-step",
     templateUrl: "./user-roles-step.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UserRolesStepComponent
