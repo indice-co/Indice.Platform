@@ -560,13 +560,12 @@ public static class IndiceServicesServiceCollectionExtensions
             SingleReader = true,
             SingleWriter = false
         }));
-
+        services.TryAddScoped<IWebhookHandler, NoOpWebHookHandler>();
         services.AddHostedService<WebhookEventSink>();
-
+        
         switch (provider) {
             case "apifon":
                 services.AddScoped<IWebhookHttpHandler, ApifonWebHookHttpHandler>();
-                services.TryAddScoped<IWebhookHandler, NoOpWebHookHandler>();
                 break;
         }
 
