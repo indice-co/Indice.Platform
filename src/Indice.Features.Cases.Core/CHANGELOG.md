@@ -6,9 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [8.60.0] - 2026-10-30 (sample date)
-### Addition of ReferenceId column in Case table
+### Change type of ReferenceNumber column in Case table
 ```sql
-IF COL_LENGTH(N'[case].[Case]', N'ReferenceId') IS NULL
 BEGIN
     ALTER TABLE [case].[Case]
     ALTER COLUMN ReferenceNumber NVARCHAR(128);
@@ -18,8 +17,8 @@ GO
 
 ### For performance reasons, the following index were added to the `case` schema in cases db.
 ```sql
-CREATE NONCLUSTERED INDEX [IX_Case_ReferenceId]
-    ON [case].[Case]([ReferenceId] ASC);
+CREATE NONCLUSTERED INDEX [IX_Case_ReferenceNumber]
+    ON [case].[Case]([ReferenceNumber] ASC);
 GO
 ```
 

@@ -28,7 +28,7 @@ internal static class AdminCasesHandlers
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService) =>
-        TypedResults.Ok(await adminCaseService.CreateDraft(currentUser.UserToActor(casesOptions.Value), request.CaseTypeCode, request.GroupId, request.Owner, request.Metadata, request.ReferenceId));
+        TypedResults.Ok(await adminCaseService.CreateDraft(currentUser.UserToActor(casesOptions.Value), request.CaseTypeCode, request.GroupId, request.Owner, request.Metadata, request.ReferenceNumber));
 
     public static async Task<Ok<ResultSet<CaseAttachment>>> GetCaseAttachments(Guid caseId, IAdminCaseService adminCaseService) =>
         TypedResults.Ok(await adminCaseService.GetAttachments(caseId));

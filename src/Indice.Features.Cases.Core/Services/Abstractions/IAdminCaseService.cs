@@ -19,7 +19,7 @@ public interface IAdminCaseService
     /// <param name="groupId">The id to group the case (eg in banking business it can be the BranchId of the customer).</param>
     /// <param name="customer">The customer metadata that initiated the case.</param>
     /// <param name="metadata">The metadata the case might have.</param>
-    /// <param name="referenceId">The reference id the case might have.</param>
+    /// <param name="referenceNumber">The reference number the case might have.</param>
     /// <returns></returns>
     Task<CreateCaseResponse> CreateDraft(UserActor user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata, string? referenceNumber);
 
