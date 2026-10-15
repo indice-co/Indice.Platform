@@ -537,11 +537,12 @@ public static class IndiceServicesServiceCollectionExtensions
     }
 
     /// <summary>
-    /// 
+    /// Registers webhook services for the specified SMS provider when webhooks are enabled.
     /// </summary>
-    /// <param name="services"></param>
-    /// <param name="configuration"></param>
-    /// <returns></returns>
+    /// <param name="services">The service collection to register the webhook services with.</param>
+    /// <param name="configuration">The application configuration containing the webhook settings.</param>
+    /// <param name="provider">The SMS provider identifier used to register the corresponding webhook handlers.</param>
+    /// <returns>The same service collection so additional service registrations can be chained.</returns>
     public static IServiceCollection AddWebHookServices(this IServiceCollection services, IConfiguration configuration, string provider) {
         var enableWebhooks = configuration.GetSection(SmsServiceSettings.Name).GetValue<bool>(nameof(SmsServiceSettings.WebhooksEnabled));
         var channelCapacity = configuration.GetSection(SmsServiceSettings.Name).GetValue<int>(nameof(SmsServiceSettings.WebhookChannelCapacity));
