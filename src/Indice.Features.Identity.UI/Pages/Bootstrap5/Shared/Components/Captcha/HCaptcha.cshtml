@@ -1,0 +1,49 @@
+@inject Indice.AspNetCore.Features.Recaptcha.IRecaptchaService CaptchaService
+@model RecaptchaViewModel
+@{
+    var isCaptchaEnabled = CaptchaService.IsEnabled;
+    var captchaSiteKey = CaptchaService.SiteKey;
+    var showInForm = (Model.IsLoginForm && CaptchaService.IsEnabledInLogin) || !Model.IsLoginForm;
+}
+
+@if (isCaptchaEnabled && showInForm)
+{
+    <input type="hidden" id="recaptchaToken" name="Input.RecaptchaToken" />
+    <input type="hidden" id="recaptchaVersion" name="Input.RecaptchaVersion" value="HCaptcha" />
+    <div id="captcha-1" class="h-captcha">
+    </div>
+    <script csp-nonce>
+        var widgetID;
+        function onSubmit(token) {
+        console.log('onSubmit called with token: ' + token);
+        var form = document.getElementById('@Model.FormId');
+        var recaptchaTokenInput = document.getElementById('recaptchaToken');
+        recaptchaTokenInput.value = token;
+        const publishButton = form.querySelector('button[id="@Model.ButtonId"]');
+        form.requestSubmit(publishButton);
+        }
+
+        function validate(event) {
+        console.log('Validate triggered');
+        event.preventDefault();
+        hcaptcha.execute(widgetID, { async: true })
+        .then(({ response, key }) => {
+        console.log(response, key);
+        onSubmit(response);
+        })
+        .catch(err => {
+        console.error(err);
+        });
+        }
+        function onLoad() {
+        widgetID = hcaptcha.render('captcha-1', {
+        sitekey: '@captchaSiteKey',
+        "size": "invisible"
+        });
+        @* console.log('onLoad triggered'); *@
+        var element = document.getElementById('@Model.ButtonId');
+        element.onclick = validate;
+        }
+    </script>
+    <script src="https://js.hcaptcha.com/1/api.js?onload=onLoad&render=explicit" async defer csp-nonce></script>
+}

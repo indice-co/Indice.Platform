@@ -1,6 +1,6 @@
+using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.State;
-using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
@@ -35,7 +35,7 @@ public sealed class DataPresenterStep : Executor<OperationState, OperationState>
             _logger.LogError(ex, "Failed to render customer data card for case {ReferenceId} ({DataType}).", state.ReferenceId, state.DataType);
             throw;
         }
-        await context.AddEventAsync(new AgentResponseUpdateEvent(Id, new AgentResponseUpdate(ChatRole.Assistant, [presentation])), cancellationToken);
+        await context.Say(Id, presentation, cancellationToken);
         return OperationState.End;
     }
 }
