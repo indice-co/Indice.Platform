@@ -1,9 +1,11 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Indice.Features.Agents.Core.Models;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Agents.AI.Workflows.Checkpointing;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Extensions;
@@ -55,7 +57,7 @@ public static class WorkflowExtensions
         /// <param name="checkpoint">The checkpoint info.</param>
         /// <returns>The agent response update.</returns>
         public AgentResponseUpdate AsAgentResponseUpdate(CheckpointInfo checkpoint)
-            => new (ChatRole.Assistant, [new FunctionCallContent(new AgentFunctionCallId(requestInfoEvent.Request.RequestId, checkpoint.CheckpointId), requestInfoEvent.Request.PortInfo.PortId, new Dictionary<string, object?>() { ["data"] = requestInfoEvent.Request.Data })]);
+            => new(ChatRole.Assistant, [new FunctionCallContent(new AgentFunctionCallId(requestInfoEvent.Request.RequestId, checkpoint.CheckpointId), requestInfoEvent.Request.PortInfo.PortId, new Dictionary<string, object?>() { ["data"] = requestInfoEvent.Request.Data })]);
     }
 
     /// <summary>
@@ -116,49 +118,63 @@ public static class WorkflowExtensions
 
     }
 
-
     /// <summary>
-    /// Extension methods for a collection of <see cref="ChatMessage"/> instances.
+    /// Extension methods for a collection of <see cref="McpCapturingToolFunction"/> instances.
     /// </summary>
-    /// <param name="messages">The collection of chat messages.</param>
-    extension(IEnumerable<ChatMessage> messages)
+    /// <param name="tools">The capturing tool functions.</param>
+    extension(IEnumerable<McpCapturingToolFunction> tools)
     {
         /// <summary>
-        /// Extracts structured data from the tool results within the chat messages.
+        /// Tries to get the structured data from the last raw MCP tool result captured by the tools.
         /// </summary>
-        public JsonNode? ExtractDataFromToolResults() {
-            foreach (var result in messages.SelectMany(m => m.Contents).OfType<FunctionResultContent>().Reverse()) {
-                var node = result.Result switch {
-                    JsonNode n => n,
-                    JsonElement je => JsonNode.Parse(je.GetRawText()),
-                    string s => TryParse(s),
-                    TextContent tc => TryParse(tc.Text),
-                    IEnumerable<AIContent> contents => contents.OfType<TextContent>()
-                        .Select(t => TryParse(t.Text))
-                        .FirstOrDefault(n => n is JsonObject),
-                    null => null,
-                    var other => JsonSerializer.SerializeToNode(other, JsonSerializerOptions.Web)
-                };
-                if (node is not JsonObject obj) {
-                    continue;
-                }
-                // MCP CallToolResult: prefer structuredContent, fall back to text content blocks.
-                if (obj["structuredContent"] is JsonObject structured) {
-                    return structured;
-                }
-                if (obj["content"] is JsonArray content) {
-                    foreach (var block in content) {
-                        if (block is JsonObject blockObj && blockObj["text"] is JsonValue text && text.TryGetValue<string>(out var json) && TryParse(json) is JsonObject parsed) {
-                            return parsed;
-                        }
-                    }
-                }
-                if (obj.ContainsKey("id")) {
-                    return obj;
-                }
+        /// <param name="result">When this method returns, contains the extracted data if successful; otherwise, <see langword="null"/>.</param>
+        /// <param name="error">When this method returns, contains the reason of failure if unsuccessful; otherwise, <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if a supported tool result was captured; otherwise, <see langword="false"/>.</returns>
+        public bool TryGetToolResult([NotNullWhen(true)] out JsonNode? result, out string? error) {
+            result = null;
+            var rawResult = tools.Select(t => t.Result).LastOrDefault(r => r is not null);
+            if (rawResult is null) {
+                error = "No MCP tool result was captured; the model did not invoke any tool.";
+                return false;
             }
+            var node = NormalizeToolResult(rawResult);
+            if (node is null) {
+                error = $"Unsupported MCP tool result payload of type '{rawResult.GetType().Name}'.";
+                return false;
+            }
+            result = node;
+            error = null;
+            return true;
+        }
+    }
+
+    private static JsonNode? NormalizeToolResult(object? rawResult) {
+        var node = rawResult switch {
+            JsonNode n => n,
+            JsonElement je => JsonNode.Parse(je.GetRawText()),
+            string s => TryParse(s),
+            TextContent tc => TryParse(tc.Text),
+            IEnumerable<AIContent> contents => contents.OfType<TextContent>()
+                .Select(t => TryParse(t.Text))
+                .FirstOrDefault(n => n is JsonObject),
+            null => null,
+            _ => JsonSerializer.SerializeToNode(rawResult, JsonSerializerOptions.Web)
+        };
+        if (node is not JsonObject obj) {
             return null;
         }
+        // MCP CallToolResult: prefer structuredContent, fall back to text content blocks.
+        if (obj["structuredContent"] is JsonObject structured) {
+            return structured;
+        }
+        if (obj["content"] is JsonArray content) {
+            foreach (var block in content) {
+                if (block is JsonObject blockObj && blockObj["text"] is JsonValue text && text.TryGetValue<string>(out var json) && TryParse(json) is JsonObject parsed) {
+                    return parsed;
+                }
+            }
+        }
+        return obj;
     }
 
     private static JsonNode? TryParse(string? json) {

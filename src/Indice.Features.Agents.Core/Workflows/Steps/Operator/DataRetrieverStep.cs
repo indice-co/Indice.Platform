@@ -89,7 +89,6 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
         var capturingTools = mcpTools.Select(t => new McpCapturingToolFunction(t)).ToList();
         chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. capturingTools];
 
-
         var agent = _openAIClient
             .GetChatClient(_model)
             .AsIChatClient()

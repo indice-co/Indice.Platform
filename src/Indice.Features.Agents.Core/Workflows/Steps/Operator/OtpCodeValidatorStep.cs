@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Extensions;
@@ -54,7 +55,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         _mcpClientFactory = mcpClientFactory;
         _messageLocalizer = messageLocalizer;
         _prompts = prompts;
-        _model = _options.AzureOpenAI.Deployments.Reasoning!; 
+        _model = _options.AzureOpenAI.Deployments.Reasoning!;
         _maxValidationAttempts = customerWorkflowOptions.Value.MaxOtpValidationAttempts;
     }
 
@@ -64,16 +65,16 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(response);
-        
+
         if (string.IsNullOrWhiteSpace(response.Otp?.Trim())) {
             await context.Say(Id, _messageLocalizer.OtpInputValidationEmpty);
             await context.SendMessageAsync(new OtpRequestPort.OtpRequest(response.ChallengeCode, DateTime.UtcNow));
             return;
         }
 
-        var caseData = await context.GetOperatorStateAsync(cancellationToken);
-        OtpVerificationResultPayload verification = await ValidateOtp(response, caseData, cancellationToken);
-        if (verification.Success) {
+        var workflowData = await context.GetOperatorStateAsync(cancellationToken);
+        var otpVerificationResult = await ValidateOtp(response, workflowData, cancellationToken);
+        if (otpVerificationResult.Success) {
             await context.SetApprovalStateAsync(null, cancellationToken);
             await context.Say(Id, _messageLocalizer.OtvpVerificationSuccessMessage);
             await context.SendMessageAsync(OperationState.Next(nameof(DataPresenterStep)));
@@ -89,7 +90,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
             return;
         }
 
-        _logger.LogInformation("Invalid OTP for case {ReferenceId} (attempt {Attempt}/{MaxAttempts}, rate limited: {IsRateLimited}). Asking user to retry.", caseData.ReferenceId, attempt, _maxValidationAttempts, verification.IsRateLimited);
+        _logger.LogInformation("Invalid OTP for case {ReferenceId} (attempt {Attempt}/{MaxAttempts}, rate limited: {IsRateLimited}). Asking user to retry.", workflowData.ReferenceId, attempt, _maxValidationAttempts, otpVerificationResult.IsRateLimited);
         await context.Say(Id, _messageLocalizer.InvalidOtpRetryMessage(Math.Max(_maxValidationAttempts - attempt, 0)));
         await context.SendMessageAsync(new OtpRequestPort.OtpRequest(response.ChallengeCode, DateTime.UtcNow));
 
@@ -106,7 +107,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
 
     }
 
-    private async Task<OtpVerificationResultPayload> ValidateOtp(OtpRequestPort.OtpResponse response, CustomerState caseData, CancellationToken cancellationToken) {
+    private async Task<OtpVerificationResultPayload> ValidateOtp(OtpRequestPort.OtpResponse response, CustomerState workflowData, CancellationToken cancellationToken) {
 
         // Fetch OTP tools from the Identity MCP server at runtime.
         var registry = await _mcpClientFactory.CreateAsync(cancellationToken);
@@ -118,7 +119,9 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
 
         var chatOptions = _models.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeValidatorInstructions));
-        chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. mcpTools];
+        // Wrap MCP tools so the raw output is captured here and never sent back to the model.
+        var capturingTools = mcpTools.Select(t => new McpCapturingToolFunction(t)).ToList();
+        chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. capturingTools];
 
         var agent = _openAIClient
             .GetChatClient(_model)
@@ -129,15 +132,26 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
                 Name = "DexOtpCodeValidatorAgent"
             });
 
-        var useSms = caseData.UsesSmsForOtp;
+        var useSms = workflowData.UsesSmsForOtp;
         var prompt = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeValidatorPrompt), new {
             otp = response.Otp.Trim(),
             caseId = response.ChallengeCode,
-            phoneNumber = useSms ? caseData.PhoneNumber : null,
-            email = useSms ? null : caseData.Email
+            phoneNumber = useSms ? workflowData.PhoneNumber : null,
+            email = useSms ? null : workflowData.Email
         });
-        var result = await agent.RunAsync<OtpVerificationResultPayload>(prompt, cancellationToken: cancellationToken);
-        return result.Result;
+        await agent.RunAsync(prompt, cancellationToken: cancellationToken);
+        // Use the raw MCP tool output, not the LLM re-generated JSON, which can corrupt values.
+        if (capturingTools.TryGetToolResult(out var otpVerificationResult, out var error)) {
+            try {
+                return otpVerificationResult is null ? new OtpVerificationResultPayload(false, "MCP result is not valid: null", false, false, false, 0)
+                    : OtpVerificationResultPayload.Deserialize(otpVerificationResult.ToJsonString());
+            } catch (JsonException ex) {
+                _logger.LogError(ex, "OTP validation tool returned an invalid payload for case {ReferenceId}.", workflowData.ReferenceId);
+                return new OtpVerificationResultPayload(false, $"MCP result is not valid: {otpVerificationResult}", false, false, false, 0);
+            }
+        }
+        _logger.LogError("Case data retrieval failed for service {McpServiceKey}: {Error}", McpServiceKey, error);
+        throw new InvalidOperationException($"Case data retrieval failed for service '{McpServiceKey}': {error}");
     }
 }
 
