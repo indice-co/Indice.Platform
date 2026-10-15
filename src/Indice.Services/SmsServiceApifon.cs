@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Services;
 
@@ -140,6 +141,61 @@ public class SmsServiceApifonSettings : SmsServiceSettings
     public string WebhookUrl { get; set; } = string.Empty;
     /// <summary>The secret to be used for hashing the request.</summary>
     public string WebhookSecret { get; set; } = string.Empty;
+}
+
+/// <inheritdoc/>
+public sealed class ApifonWebHookHttpHandler : IWebhookHttpHandler
+{
+    private readonly SmsServiceApifonSettings _settings;
+
+    /// <inheritdoc/>
+    public ApifonWebHookHttpHandler(IOptionsSnapshot<SmsServiceApifonSettings> settings) {
+        _settings = settings.Value;
+    }
+
+    /// <inheritdoc/>
+    public async Task<WebhookHttpResult> ParseAsync(IDictionary<string, StringValues> requestHeaders, IEnumerable<KeyValuePair<string, StringValues>> requestParameters, Stream requestBody, CancellationToken cancellationToken) {
+        if (IsSignatureInvalid(requestParameters)) {
+            return WebhookHttpResult.BadRequest();
+        }
+
+        using var reader = new StreamReader(requestBody);
+        var bodyString = await reader.ReadToEndAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(bodyString)) {
+            return WebhookHttpResult.BadRequest();
+        }
+
+        var payload = JsonSerializer.Deserialize<ApifonWebhookResponse>(bodyString);
+        var incomingEvent = new WebhookEvent {
+            Provider = "Apifon",
+            EventType = "SmsDelivery",
+            MessageId = payload!.ReferenceId,
+            EventId = payload!.RequestId,
+            Recipient = payload.Data.FirstOrDefault()!.To,
+            Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(payload.Data.FirstOrDefault()!.Timestamp)
+        };
+
+        return WebhookHttpResult.Ok([incomingEvent]);
+    }
+
+    private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {
+        var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
+        var hmacToken = parameters.GetValueOrDefault("hmac");
+        var reference = parameters.GetValueOrDefault("ref");
+        var timestamp = parameters.GetValueOrDefault("ts");
+
+        if (string.IsNullOrWhiteSpace(_settings.WebhookSecret) ||
+            string.IsNullOrWhiteSpace(hmacToken) ||
+            string.IsNullOrWhiteSpace(reference) ||
+            string.IsNullOrWhiteSpace(timestamp)) {
+            return true;
+        }
+
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_settings.WebhookSecret));
+        var expectedHmac = hmac.ComputeHash(Encoding.UTF8.GetBytes($"{reference}:{timestamp}"));
+
+        return !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hmacToken!), expectedHmac);
+    }
 }
 
 internal class ApifonResponse
@@ -293,6 +349,69 @@ internal class ApifonRequest
         [JsonPropertyName("name")]
         public required string Name { get; set; }
     }
+}
+
+internal sealed class ApifonWebhookResponse
+{
+    [JsonPropertyName("url")]
+    public string Url { get; set; }
+
+    [JsonPropertyName("request_id")]
+    public string RequestId { get; set; }
+
+    [JsonPropertyName("reference_id")]
+    public string ReferenceId { get; set; }
+
+    [JsonPropertyName("data")]
+    public List<ApifonWebhookItem> Data { get; set; }
+
+    [JsonPropertyName("account_id")]
+    public int AccountId { get; set; }
+
+    [JsonPropertyName("type")]
+    public string Type { get; set; }
+}
+
+internal sealed class ApifonWebhookItem
+{
+    [JsonPropertyName("from")]
+    public string From { get; set; }
+
+    [JsonPropertyName("to")]
+    public string To { get; set; }
+
+    [JsonPropertyName("message_id")]
+    public string MessageId { get; set; }
+
+    [JsonPropertyName("custom_id")]
+    public string CustomId { get; set; }
+
+    [JsonPropertyName("status")]
+    public ApifonWebhookStatus Status { get; set; }
+
+    [JsonPropertyName("error_code")]
+    public string ErrorCode { get; set; }
+
+    [JsonPropertyName("timestamp")]
+    public long Timestamp { get; set; }
+
+    [JsonPropertyName("price")]
+    public string Price { get; set; }
+
+    [JsonPropertyName("vat")]
+    public string Vat { get; set; }
+
+    [JsonPropertyName("mccmnc")]
+    public string Mccmnc { get; set; }
+}
+
+internal sealed class ApifonWebhookStatus
+{
+    [JsonPropertyName("code")]
+    public int Code { get; set; }
+
+    [JsonPropertyName("text")]
+    public string Text { get; set; }
 }
 
 internal static class ApifonSmsServiceExtensions {

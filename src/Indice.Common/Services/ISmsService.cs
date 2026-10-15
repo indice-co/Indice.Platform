@@ -56,6 +56,10 @@ public class SmsServiceSettings
     public bool ViberFallbackEnabled { get; set; } = false;
     /// <summary>The number of a seconds that a message is considered active. Defaults to 4320 seconds.</summary>
     public int Validity { get; set; } = 4320;
+    /// <summary>Indicates whether webhook processing is enabled. Defaults to <see langword="false"/>.</summary>
+    public bool WebhooksEnabled { get; set; } = false;
+    /// <summary>The maximum number of webhook event batches that can be queued before producers experience backpressure.</summary>
+    public int WebhookChannelCapacity { get; set; } = 100;
 }
 
 /// <summary> The send receipt object representing a send message by either the <see cref="IEmailService"/> or the <see cref="ISmsService"/>. </summary>

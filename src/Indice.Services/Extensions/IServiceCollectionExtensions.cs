@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Security.Claims;
+using System.Threading.Channels;
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Services;
@@ -14,7 +15,6 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>Extensions on the <see cref="IServiceCollection"/>.</summary>
 public static class IndiceServicesServiceCollectionExtensions
 {
-
     /// <summary>Adds Indice common services.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -258,6 +258,7 @@ public static class IndiceServicesServiceCollectionExtensions
                     break;
             }
         }
+        services.AddWebHookServices(configuration);
         return services;
     }
 
@@ -531,6 +532,42 @@ public static class IndiceServicesServiceCollectionExtensions
         where TEvent : IPlatformEvent
         where TEventHandler : class, IPlatformEventHandler<TEvent> {
         services.TryAddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
+        return services;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddWebHookServices(this IServiceCollection services, IConfiguration configuration) {
+        var enableWebhooks = configuration.GetSection(SmsServiceSettings.Name).GetValue<bool>(nameof(SmsServiceSettings.WebhooksEnabled));
+        var channelCapacity = configuration.GetSection(SmsServiceSettings.Name).GetValue<int>(nameof(SmsServiceSettings.WebhookChannelCapacity));
+
+        if (!enableWebhooks) {
+            return services;
+        }
+
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(channelCapacity);
+
+        var smsProvider = configuration.GetSection(SmsServiceSettings.Name).GetValue<string>("Provider");
+
+        services.TryAddSingleton(Channel.CreateBounded<List<WebhookEvent>>(new BoundedChannelOptions(channelCapacity) {
+            FullMode = BoundedChannelFullMode.Wait,
+            SingleReader = true,
+            SingleWriter = false
+        }));
+
+        services.AddHostedService<WebhookEventSink>();
+
+        switch (smsProvider) {
+            case "apifon":
+                services.AddScoped<IWebhookHttpHandler, ApifonWebHookHttpHandler>();
+                services.AddScoped<IWebhookHandler, NoOpWebHookHandler>();
+                break;
+        }
+
         return services;
     }
 }
