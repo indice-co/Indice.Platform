@@ -5,7 +5,6 @@ using Indice.Features.Agents.Core.Models;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Agents.AI.Workflows.Checkpointing;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Extensions;

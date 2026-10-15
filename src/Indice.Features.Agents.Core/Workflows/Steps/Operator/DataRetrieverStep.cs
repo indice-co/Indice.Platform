@@ -103,12 +103,10 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
             Query: {userInput}
             """;
 
-        var tokens = await agent.RunAsync(prompt, cancellationToken: cancellationToken);
+        await agent.RunAsync(prompt, cancellationToken: cancellationToken);
         // Use the raw MCP tool output, not the LLM re-generated JSON, which can corrupt values.
-        var rawResult = capturingTools.Select(t => t.Result).LastOrDefault(r => r is not null);
-        var caseNode = rawResult is null ? null : WorkflowExtensions.ExtractDataFromToolResults([new ChatMessage(ChatRole.Tool, [new FunctionResultContent(string.Empty, rawResult)])]);
-        if (caseNode is null) {
-            throw new InvalidOperationException($"Case retrieval agent returned no case data for query '{userInput}'.");
+        if(!capturingTools.TryGetToolResult(out var caseNode, out var error)) {
+            throw new InvalidOperationException($"Case retrieval agent failed: {error}");
         }
         var caseType = caseNode["caseType"]?["code"]?.GetValue<string>();
         var caseData = caseNode["data"];
