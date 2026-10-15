@@ -1,5 +1,5 @@
 import { GroupByReportResult, ReportTag } from './../../../core/services/cases-api.service';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 import { ChartItem, ChartType } from 'chart.js';
 import Chart from 'chart.js/auto'
@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 @Component({
     selector: 'app-canvas-tile',
     templateUrl: './canvas-tile.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CanvasTileComponent implements OnInit {

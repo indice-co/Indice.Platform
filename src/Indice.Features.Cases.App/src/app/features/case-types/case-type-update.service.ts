@@ -5,11 +5,7 @@ import { ToastType } from "@indice/ng-components";
 import { TranslateService } from "@ngx-translate/core";
 import { TranslatedToasterService } from "src/app/shared/services/translated-toaster.service";
 import { CasesApiService, CaseTypeRequest, ICaseTypeRequest } from "src/app/core/services/cases-api.service";
-import { SubmitWidgetComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component";
-import { TailwindFrameworkComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component";
 import { EMPTY } from 'rxjs';
-import { InputWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/input-widget/input-widget.component';
-import { TextAreaWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/text-area-widget/text-area-widget.component';
 
 @Injectable({
     providedIn: 'root'
@@ -21,17 +17,6 @@ export class CaseTypeUpdateService {
         private toaster: TranslatedToasterService,
         private translate: TranslateService,
         private router: Router) { }
-
-    public widgets = {
-        "submit": SubmitWidgetComponent,
-        "text": InputWidgetComponent,
-        "number": InputWidgetComponent,
-        "textarea": TextAreaWidgetComponent
-    };
-
-    public framework = {
-        framework: TailwindFrameworkComponent
-    };
 
     public schema: any = {
         "type": "object",
