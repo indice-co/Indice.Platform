@@ -29,9 +29,9 @@ public class ServicePickUpDataResolver : ICustomerDataResolver
             Data = caseData.Deserialize<JsonElement>(),
             DataType = caseData["caseType"]?["code"]?.GetValue<string>() ?? throw new InvalidOperationException("DataType not found in case data."),
             ReferenceId = caseData["id"]?.GetValue<string>() ?? throw new InvalidOperationException("ReferenceId not found in case data."),
-            PhoneNumber = caseData["phoneNumber"]?.GetValue<string>(),
-            Email = caseData["email"]?.GetValue<string>(),
-            ChallengeValue = caseData["carPlate"]?.GetValue<string>(),
+            PhoneNumber = caseData["data"]["phoneNumber"]?.GetValue<string>(),
+            Email = caseData["data"]["email"]?.GetValue<string>(),
+            ChallengeValue = caseData["data"]["carPlate"]?.GetValue<string>(),
             ChallengeType = "carPlate"
         };
     }
