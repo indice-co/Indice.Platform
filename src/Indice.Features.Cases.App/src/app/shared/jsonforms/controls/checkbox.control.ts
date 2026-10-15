@@ -15,6 +15,7 @@ import { TailwindControl } from './tailwind-control';
             [checked]="data === true"
             [id]="id"
             [attr.readonly]="readonly ? 'readonly' : null"
+            [disabled]="readonly"
             (change)="setValue($any($event.target).checked)">
           @if (title) {
             <span [style.display]="notitle ? 'none' : ''" [innerHTML]="title"></span>

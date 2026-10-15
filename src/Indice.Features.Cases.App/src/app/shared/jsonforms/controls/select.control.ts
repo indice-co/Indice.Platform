@@ -11,6 +11,7 @@ import { TailwindControl } from './tailwind-control';
         <select
           [class]="fieldClass"
           [attr.readonly]="readonly ? 'readonly' : null"
+          [disabled]="readonly"
           [attr.required]="options.required"
           [id]="id"
           (change)="onSelect($event)">

@@ -157,6 +157,17 @@ public class LayoutUiSchemaAdapterTests
     }
 
     [Fact]
+    public void Convert_KeylessButton_IsSkippedWithWarning() {
+        var layout = JsonNode.Parse("""[{"type":"button","title":"Click"},{"type":"submit","title":"Save"}]""");
+
+        var result = LayoutUiSchemaAdapter.Convert(layout);
+
+        Assert.Single(result.Warnings);
+        var element = Assert.Single(result.UiSchema!["elements"]!.AsArray());
+        Assert.Equal("Submit", (string?)element!["type"]);
+    }
+
+    [Fact]
     public void Convert_ScriptsAreCopiedToOptions() {
         var layout = JsonNode.Parse("""[{"key":"amount","onChange":"(value, model) => {}","onInit":"(value, model, metadata) => {}"}]""");
 

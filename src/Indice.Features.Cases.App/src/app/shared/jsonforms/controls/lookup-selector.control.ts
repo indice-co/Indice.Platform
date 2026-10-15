@@ -20,6 +20,7 @@ import { TailwindControl } from './tailwind-control';
           <select
             [class]="fieldClass"
             [attr.readonly]="readonly ? 'readonly' : null"
+            [disabled]="readonly"
             [attr.required]="options.required"
             [id]="id"
             (change)="onSelect($event)">
@@ -61,7 +62,7 @@ export class LookupSelectorControlComponent extends TailwindControl {
         // Did a field this field depends on change?
         let filterFieldValueChanged = false;
         for (const key in this.lookupFilterFieldValues) {
-            if (this.rootData?.[key] && this.rootData[key] != this.lookupFilterFieldValues[key]) {
+            if (this.rootData?.[key] !== this.lookupFilterFieldValues[key]) {
                 filterFieldValueChanged = true;
                 this.lookupFilterFieldValues[key] = this.rootData[key];
             }
@@ -69,6 +70,11 @@ export class LookupSelectorControlComponent extends TailwindControl {
         if (filterFieldValueChanged) {
             // Deferred: updating the data while the state is being delivered would give stale state to the other renderers.
             queueMicrotask(() => this.setValue(undefined));
+            if (!this.hasAllFilterFieldValues()) {
+                // A field it depends on was cleared: nothing to choose from.
+                this.selectList = [];
+                return;
+            }
             this.addSubscription(this.api.getLookup(this.options['lookup-name'], undefined, undefined, undefined, undefined, this.addFilterFieldValuesToFilterTerms().map(x => x.toString()))
                 .subscribe((lookUpItems: LookupItemResultSet) => this.createSelectList(lookUpItems)));
         }
@@ -84,13 +90,17 @@ export class LookupSelectorControlComponent extends TailwindControl {
         // The case owner is the customer that filters the lookup.
         this.addSubscription(this.caseDetailsService.caseDetails$.pipe(take(1)).subscribe((caseDetails: Case) => {
             this.lookupFilterTerms = this.createFilterTerms(caseDetails.ownerId);
-            const filterValues = Object.values(this.lookupFilterFieldValues);
-            if (!this.lookupFilterFields || (filterValues.length > 0 && filterValues.every(value => value !== null && value !== undefined))) {
+            if (!this.lookupFilterFields || this.hasAllFilterFieldValues()) {
                 this.addSubscription(this.lookupsService.getLookup(this.options['lookup-name'], this.addFilterFieldValuesToFilterTerms())
                     .pipe(take(1))
                     .subscribe((lookUpItems: LookupItemResultSet) => this.createSelectList(lookUpItems)));
             }
         }));
+    }
+
+    private hasAllFilterFieldValues(): boolean {
+        const filterValues = Object.values(this.lookupFilterFieldValues);
+        return filterValues.length > 0 && filterValues.every(value => value !== null && value !== undefined);
     }
 
     onSelect(event: Event): void {

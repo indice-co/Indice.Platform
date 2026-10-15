@@ -125,8 +125,13 @@ public static partial class LayoutUiSchemaAdapter
         if (type is "html" or "help") {
             return CreateElement("Html", label, options);
         }
-        if (type is "submit" or "button") {
-            return CreateElement(type == "submit" ? "Submit" : "Button", label, options);
+        if (type == "submit") {
+            return CreateElement("Submit", label, options);
+        }
+        if (type == "button") {
+            // ajsf buttons only act through an "onClick" function, which a stored JSON layout cannot hold.
+            warnings.Add($"{path}: 'button' items have no action in a stored layout; the item was skipped.");
+            return null;
         }
         if (type == "label-only") {
             // A label without a key: static text, blank space or a link built from the form data ("data-bind").

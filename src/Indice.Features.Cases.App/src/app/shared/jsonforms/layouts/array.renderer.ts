@@ -15,7 +15,7 @@ import { addClasses, presentField } from '../jsonforms-utilities';
         }
         @for (item of items; track $index) {
           <div class="list-group-item">
-            @if (!readonly && items.length > minItems) {
+            @if (!readonly && options.removable !== false && items.length > minItems) {
               <button class="close pull-right" type="button" (click)="removeItem($index)">
                 <span aria-hidden="true">&times;</span>
                 <span class="sr-only">Close</span>
@@ -24,7 +24,7 @@ import { addClasses, presentField } from '../jsonforms-utilities';
             <jsonforms-outlet [renderProps]="item"></jsonforms-outlet>
           </div>
         }
-        @if (!readonly && (maxItems === undefined || items.length < maxItems)) {
+        @if (!readonly && options.addable !== false && (maxItems === undefined || items.length < maxItems)) {
           <button type="button" class="btn btn-info float-right m-2 btn-default" (click)="addItem()">{{ addButtonText }}</button>
         }
       </div>

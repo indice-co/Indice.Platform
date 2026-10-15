@@ -7,7 +7,7 @@ import { Case, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDet
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
 import { get, isEqual, update } from 'lodash';
 import { Router } from '@angular/router';
-import { createAjv } from '@jsonforms/core';
+import { createAjv, Generate } from '@jsonforms/core';
 import { CasesJsonFormsConfig } from 'src/app/shared/jsonforms/jsonforms-utilities';
 import { tailwindRenderers } from 'src/app/shared/jsonforms/tailwind-renderers';
 
@@ -79,7 +79,9 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
         }
         // extract layout from case type
         let layout = (typeof this.case.caseType?.layout! !== 'string') ? this.case.caseType?.layout! : JSON.parse(this.case.caseType?.layout!);
-        const uiSchema = structuredClone(this.case.caseType?.uiSchema);
+        this.schema = (typeof this.case.caseType?.dataSchema! !== 'string') ? this.case.caseType?.dataSchema! : JSON.parse(this.case.caseType?.dataSchema!);
+        // no layout: generate the UI schema JSON Forms would generate, so that a submit can be added to it
+        const uiSchema = structuredClone(this.case.caseType?.uiSchema) ?? Generate.uiSchema(this.schema);
         if (!this.formEditable) {
             if (this.case.draft) {
                 // case is draft, we need all form properties available and ignore layout restrictions (eg readonly, or html class disable)
@@ -98,7 +100,6 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
         this.readonly = !this.formEditable && !this.case.draft;
         this.formsConfig = { draft: this.case.draft, onSubmit: data => this.onSubmit(data) };
         this.ajv = createAjv({ useDefaults: !!this.case.draft }); // use schema defaults only for draft cases!
-        this.schema = (typeof this.case.caseType?.dataSchema! !== 'string') ? this.case.caseType?.dataSchema! : JSON.parse(this.case.caseType?.dataSchema!);
         this.layout = layout;
         this.uiSchema = uiSchema;
         this.data = this.initialData;
