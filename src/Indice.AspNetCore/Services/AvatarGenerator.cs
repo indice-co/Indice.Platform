@@ -26,7 +26,7 @@ public class AvatarGenerator
     public AvatarGenerator(AvatarOptions options) {
         // https://www.materialpalette.com
         if (options?.Palette is null || options.Palette.Count == 0) {
-            _backgroundColours = new[] {
+            _backgroundColours = [
                 new AvatarColor("f44336", "ffffff"), // red
                 new AvatarColor("e91e63", "ffffff"), // pink
                 new AvatarColor("9c27b0", "ffffff"), // purple
@@ -46,7 +46,7 @@ public class AvatarGenerator
                 new AvatarColor("795548", "ffffff"), // brown
                 new AvatarColor("bdbdbd", "000000"), // grey
                 new AvatarColor("607d8b", "ffffff"), // blue-grey
-            };
+            ];
         } else {
             _backgroundColours = options.Palette.ToArray();
         }
@@ -83,26 +83,30 @@ public class AvatarGenerator
         using (var image = new Image<Rgba32>(size, size)) {
             // image center.
             var center = new PointF((float)image.Width / 2, (float)image.Height / 2);
+            var backgroundBrush = new SolidBrush(accentColor.Background);
             if (circular) {
-                image.Mutate(x => x.Fill(Color.Transparent)
-                                   .Fill(accentColor.Background, new EllipsePolygon(center, (float)image.Width / 2)));
+                image.Mutate(x => x.Paint(canvas => {
+                    canvas.Clear(new SolidBrush(Color.Transparent));
+                    canvas.FillEllipse(backgroundBrush, center, new SizeF(image.Width, image.Height));
+                }));
             } else {
-                image.Mutate(x => x.Fill(accentColor.Background));
+                image.Mutate(x => x.Paint(canvas => canvas.Fill(backgroundBrush)));
             }
             // For production application we would recomend you create a FontCollection singleton and manually install the ttf fonts yourself as using SystemFonts can be expensive and you risk font existing or not existing on a deployment by deployment basis.
             var font = _openSansFont.Get("Open Sans").CreateFont(70, FontStyle.Regular); // for scaling water mark size is largly ignored.
             // Measure the text size.
-            var textSize = TextMeasurer.MeasureSize(avatarText, new TextOptions(font));
+            var textSize = TextMeasurer.MeasureAdvance(avatarText, new TextOptions(font));
             // Find out how much we need to scale the text to fill the space (up or down).
             var scalingFactor = Math.Min(image.Width * 0.5f / textSize.Width, image.Height * 0.5f / textSize.Height);
             // Create a new font.
-            var scaledFont = new Font(font, scalingFactor * font.Size);
+            var scaledFont = font.Family.CreateFont(scalingFactor * font.Size, FontStyle.Regular);
             var textOptions = new RichTextOptions(scaledFont) {
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 Origin = center
             };
-            image.Mutate(x => x.DrawText(textOptions, avatarText, accentColor.Color));
+            var textBrush = new SolidBrush(accentColor.Color);
+            image.Mutate(x => x.Paint(canvas => canvas.DrawText(textOptions, avatarText, textBrush, null)));
             image.Save(output, contentType switch { 
                 "image/jpeg" => JpegFormat.Instance, 
                 "image/png" => PngFormat.Instance, 
@@ -123,20 +127,23 @@ public class AvatarColor
     /// <param name="background">The background color.</param>
     /// <param name="color">The foreground color.</param>
     public AvatarColor(string background, string? color = null) {
-        Background = Rgba32.ParseHex(background);
+        Background = SixLabors.ImageSharp.Color.ParseHex(background);
         if (!string.IsNullOrWhiteSpace(color)) {
-            Color = Rgba32.ParseHex(color);
+            Color = SixLabors.ImageSharp.Color.ParseHex(color);
         } else {
             Color = PerceivedBrightness(Background) > 130 ? SixLabors.ImageSharp.Color.Black : SixLabors.ImageSharp.Color.White;
         }
     }
 
     /// <summary>The background color.</summary>
-    public Rgba32 Background { get; }
+    public SixLabors.ImageSharp.Color Background { get; }
     /// <summary>The foreground color.</summary>
-    public Rgba32 Color { get; }
+    public SixLabors.ImageSharp.Color Color { get; }
 
-    private int PerceivedBrightness(Rgba32 color) => (int)Math.Sqrt(((double)color.R * color.R * .299) + ((double)color.G * color.G * .587) + ((double)color.B *color.B * .114));
+    private static int PerceivedBrightness(SixLabors.ImageSharp.Color color) {
+        var pixel = color.ToPixel<Rgba32>();
+        return (int)Math.Sqrt(((double)pixel.R * pixel.R * .299) + ((double)pixel.G * pixel.G * .587) + ((double)pixel.B * pixel.B * .114));
+    }
 }
 
 
