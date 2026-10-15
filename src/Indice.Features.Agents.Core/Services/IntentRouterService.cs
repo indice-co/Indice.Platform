@@ -22,12 +22,17 @@ public class IntentRouterService
     private readonly AgentInfoRegistry _registry;
 
     private readonly AgentsOptions.RoutingOptions _routing;
+    private readonly SystemOneDecisionService _systemOne;
+    private readonly AgentMessageLocalizer _localizer;
 
     /// <summary>Creates a new <see cref="IntentRouterService"/>.</summary>
     public IntentRouterService([FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, IOptions<AgentsOptions> agentsOptions, IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
-        AgentInfoRegistry registry, UserClaimsAIContextProvider userClaimsProvider, ConversationStoreChatHistoryProvider historyProvider) {
+        AgentInfoRegistry registry, UserClaimsAIContextProvider userClaimsProvider, ConversationStoreChatHistoryProvider historyProvider,
+        SystemOneDecisionService systemOne, AgentMessageLocalizer localizer) {
         _registry = registry;
         _routing = agentsOptions.Value.Routing;
+        _systemOne = systemOne;
+        _localizer = localizer;
         var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("IntentRouter", new {
             agents = registry.RoutableTargets().Select(agent => new { name = agent.Name, description = agent.Description }),
@@ -86,6 +91,12 @@ public class IntentRouterService
                 };
             }
 
+            // System-one first; null means it is off, failed or unsure — the Reasoning-model agent below decides instead.
+            var systemOneDecision = await RouteWithSystemOneAsync(message, chatOptions.ConversationId, cancellationToken);
+            if (systemOneDecision is not null) {
+                return systemOneDecision;
+            }
+
             var response = await _agent.RunAsync<RouteDecision>(message.Text, session, cancellationToken: cancellationToken);
             var result = response.Result;
             var agent = result.IsInScope ? _registry.Find(result.AgentName ?? string.Empty) : null;
@@ -102,6 +113,52 @@ public class IntentRouterService
             };
         }
     }
+    private async Task<RouteDecision?> RouteWithSystemOneAsync(ChatMessage message, string? conversationId, CancellationToken cancellationToken) {
+        if (!_systemOne.IsEnabled) {
+            return null;
+        }
+        var targets = _registry.RoutableTargets();
+        if (targets.Count == 0) {
+            return null;
+        }
+        var decision = await _systemOne.DecideAsync(BuildSystemOneRequest(message, conversationId, targets), cancellationToken);
+        return decision is null ? null : ToRouteDecision(decision);
+    }
+
+    private static SystemOneDecisionRequest BuildSystemOneRequest(ChatMessage message, string? conversationId, IReadOnlyList<AgentInfo> targets) =>
+        new() {
+            ConversationId = Guid.TryParse(conversationId, out var id) ? id : null,
+            Message = message.Text,
+            ContextPrompt = nameof(AgentsConstants.PromptDefaults.IntentRouterSystemOne),
+            Questions = {
+                [InScopeQuestion] = SystemOneQuestion.Noul("Can one of the assistant's agents handle the latest message?", required: true),
+                [AgentQuestion] = SystemOneQuestion.Choice("Which agent should handle the latest message?",
+                    targets.ToDictionary(agent => agent.Name, agent => agent.Description)),
+            }
+        };
+
+    private RouteDecision? ToRouteDecision(SystemOneDecision decision) {
+        if (!decision.Get(InScopeQuestion)!.IsTrue) {
+            return new RouteDecision {
+                Reason = _localizer.OutOfScopeReply,
+                IsInScope = false
+            };
+        }
+        // The agent only matters for an in-scope message (no agent fits an out-of-scope one); there an unsure one goes to the LLM.
+        var agentAnswer = decision.Get(AgentQuestion);
+        if (agentAnswer is not { IsConfident: true }) {
+            return null;
+        }
+        var agent = _registry.Find(agentAnswer.Choice!);
+        return agent is null ? null : new RouteDecision {
+            AgentName = agent.Name,
+            IsInScope = true
+        };
+    }
+
+    private const string InScopeQuestion = "in_scope";
+    private const string AgentQuestion = "agent";
+
     private static bool TryGetChatTopic(ChatMessage message, out ChatTopic? topic) {
         topic = null;
         return message.AdditionalProperties?.TryGetValue("ChatTopic", out topic) == true

@@ -94,6 +94,7 @@ public static class AgentsFeatureExtensions
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
         services.TryAddSingleton<AgentInfoRegistry>();
+        services.AddHttpClient<SystemOneDecisionService>();
         services.TryAddTransient<IntentRouterService>();
         services.TryAddScoped<AgentMessageLocalizer>();
         services.AddAgentsDefaultPipeline();

@@ -31,6 +31,9 @@ public class AgentsOptions
     /// <summary>Master-router behavior (the default agent an unspecified request maps to).</summary>
     public RoutingOptions Routing { get; set; } = new();
 
+    /// <summary>System-one decision model behavior (confidence threshold).</summary>
+    public SystemOneOptions SystemOne { get; set; } = new();
+
     /// <summary>
     /// When true we enable additional triggers and debug handles for development and testing.
     /// This is not a security boundary; do not rely on it to protect sensitive data. 
@@ -58,6 +61,12 @@ public class AgentsOptions
         /// <summary>API key. Prefer Managed Identity in production; this template uses keys for simplicity.</summary>
         public string? ApiKey { get; set; }
 
+        /// <summary>Endpoint of the resource hosting the <see cref="AzureOpenAIDeployments.SystemOne"/> deployment. Falls back to <see cref="Endpoint"/>.</summary>
+        public string? SystemOneEndpoint { get; set; }
+
+        /// <summary>API key for <see cref="SystemOneEndpoint"/>. Falls back to <see cref="ApiKey"/>.</summary>
+        public string? SystemOneApiKey { get; set; }
+
         /// <summary>Deployment names per role.</summary>
         public AzureOpenAIDeployments Deployments { get; set; } = new();
 
@@ -76,6 +85,12 @@ public class AgentsOptions
 
         /// <summary>Embedding deployment used for chunk and query vectorization.</summary>
         public string? Embedding { get; set; }
+
+        /// <summary>
+        /// Optional system-one decision deployment (e.g. Microsoft-Decision-1) used by the intent router and the intent
+        /// classifier before they fall back to the <see cref="Reasoning"/> model. Leave empty for the LLM-only path.
+        /// </summary>
+        public string? SystemOne { get; set; }
     }
     /// <summary>Retrieval-time knobs.</summary>
     public class RetrievalOptions
@@ -181,6 +196,16 @@ public class AgentsOptions
         /// master intent router; set it to a specific agent name (e.g. <c>knowledge</c>) to bypass routing.
         /// </summary>
         public string DefaultAgent { get; set; } = AgentsConstants.AgentNames.Auto;
+    }
+
+    /// <summary>System-one decision model behavior.</summary>
+    public class SystemOneOptions
+    {
+        /// <summary>
+        /// Minimum confidence a decision needs to be acted on; below it the caller falls back to the reasoning model.
+        /// A choice's confidence is the probability of the chosen option, a noul's is <c>max(p, 1 - p)</c>.
+        /// </summary>
+        public double MinConfidence { get; set; } = 0.7;
     }
 }
 

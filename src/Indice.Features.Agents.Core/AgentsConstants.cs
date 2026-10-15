@@ -151,6 +151,30 @@ public static class AgentsConstants
             Never invent an agent name that is not in the list.
             """;
 
+        /// <summary>
+        /// Context the intent router sends to the system-one decision model (Microsoft-Decision-1) as <c>state.context</c>.
+        /// It is the model's only description of what is in scope, so a host should describe its own knowledge base in
+        /// <c>Prompts/IntentRouterSystemOne.txt</c>.
+        /// </summary>
+        public const string IntentRouterSystemOne = """
+            Dex is Indice's AI assistant. It answers from a knowledge base that covers:
+            - Indice IAM (Identity): identity and access management - sign-in, passwords, MFA, devices, audit, branding, and how to use and configure the Indice Identity products.
+            - A banking institution's internal documentation about its banking services.
+            Questions about these topics, and follow-ups to them, are in scope. Small talk, jokes, weather, current events and unrelated general knowledge are out of scope.
+            """;
+
+        /// <summary>
+        /// Context the intent classifier sends to the system-one decision model (Microsoft-Decision-1) as <c>state.context</c>.
+        /// It is the model's only description of what is in scope, so a host should describe its own knowledge base in
+        /// <c>Prompts/IntentClassifierSystemOne.txt</c>.
+        /// </summary>
+        public const string IntentClassifierSystemOne = """
+            Dex is Indice's AI assistant. It answers from a knowledge base that covers:
+            - Indice IAM (Identity): identity and access management - sign-in, passwords, MFA, devices, audit, branding, and how to use and configure the Indice Identity products.
+            - A banking institution's internal documentation about its banking services.
+            Questions about these topics, and follow-ups to them, are in scope. Small talk, jokes, weather, current events and unrelated general knowledge are out of scope.
+            """;
+
         /// <summary>Prompt template for responding to questions about the agent's capabilities.</summary>
         public const string PurposeResponder = """
             You answer questions about yourself: who you are, who you represent, and what you can help with.

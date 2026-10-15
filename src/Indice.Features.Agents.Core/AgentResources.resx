@@ -138,6 +138,9 @@
 <data name="OtvpVerificationSuccessMessage" xml:space="preserve">
   <value>Verification complete.</value>
 </data>
+<data name="OutOfScopeReply" xml:space="preserve">
+  <value>I'm sorry, but that request falls outside what I can help with here.</value>
+</data>
 <data name="PaymentCompletedMessage" xml:space="preserve">
   <value>Thank you for your payment.</value>
 </data>

@@ -31,6 +31,8 @@ public sealed class AgentsOptionsValidator : IValidateOptions<AgentsOptions>
             failures.Add("Dex:Retrieval:RerankSnippetLength must be positive.");
         if (string.IsNullOrWhiteSpace(options.Routing.DefaultAgent))
             failures.Add("Dex:Routing:DefaultAgent must be configured (e.g. \"auto\").");
+        if (!string.IsNullOrWhiteSpace(options.AzureOpenAI.Deployments.SystemOne) && options.SystemOne.MinConfidence is <= 0 or > 1)
+            failures.Add("Dex:SystemOne:MinConfidence must be greater than 0 and at most 1.");
 
         return failures.Count > 0
             ? ValidateOptionsResult.Fail(failures)
