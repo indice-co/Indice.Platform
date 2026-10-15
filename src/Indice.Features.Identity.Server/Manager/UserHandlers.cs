@@ -301,7 +301,9 @@ internal static class UserHandlers
                 });
             }
         }
-        var identityResult = await userManager.UpdateAsync(user, request.BypassEmailAsUserNamePolicy, previousUser);
+
+        var userUpdateOptions = new ExtendedUserManager<User>.UserUpdateOptions(user, request.BypassEmailAsUserNamePolicy, previousUser);
+        var identityResult = await userManager.UpdateAsync(userUpdateOptions);
         if (!identityResult.Succeeded) {
             return TypedResults.ValidationProblem(identityResult.Errors.ToDictionary());
         }
