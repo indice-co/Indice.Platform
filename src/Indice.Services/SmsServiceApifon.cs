@@ -443,7 +443,11 @@ internal static class ApifonSmsServiceExtensions {
         var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
         var hex = Convert.ToHexString(hash);
         request.ReferenceId = referenceId;
-        request.CallbackUrl = $"{baseUrl}?hmac={hex}&ref={referenceId}&ts={Uri.EscapeDataString(timestamp.ToString("O"))}";
+        var callbackUri = new UriBuilder(baseUrl);
+        var existingQuery = callbackUri.Query.TrimStart('?');
+        var callbackQuery = $"hmac={hex}&ref={referenceId}&ts={Uri.EscapeDataString(timestamp.ToString("O"))}";
+        callbackUri.Query = string.IsNullOrEmpty(existingQuery) ? callbackQuery : $"{existingQuery}&{callbackQuery}";
+        request.CallbackUrl = callbackUri.Uri.AbsoluteUri;
         return request;
     }
 }
