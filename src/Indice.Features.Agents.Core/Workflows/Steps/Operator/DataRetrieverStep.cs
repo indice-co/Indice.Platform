@@ -105,7 +105,7 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
 
         await agent.RunAsync(prompt, cancellationToken: cancellationToken);
         // Use the raw MCP tool output, not the LLM re-generated JSON, which can corrupt values.
-        if(!capturingTools.TryGetToolResult(out var caseNode, out var error)) {
+        if (!capturingTools.TryGetToolResult(out var caseNode, out var error) || caseNode is null) {
             throw new InvalidOperationException($"Case retrieval agent failed: {error}");
         }
         var caseType = caseNode["caseType"]?["code"]?.GetValue<string>();
@@ -122,7 +122,7 @@ internal sealed class DataRetrieverStep : Executor<ChatMessage, OperationState>
         }
 
         await context.SetOperatorStateAsync(new CustomerState() {
-            Data = caseNode?.Deserialize<JsonElement>() ?? default,
+            Data = caseNode.Deserialize<JsonElement>(),
             DataType = caseType,
             ReferenceId = caseId,
             PhoneNumber = phoneNumber,
