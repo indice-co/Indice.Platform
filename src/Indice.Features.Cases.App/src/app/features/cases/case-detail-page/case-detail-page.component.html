@@ -12,7 +12,7 @@
                                                   [keyValuePairs]="{
                                                     'caseDetails.caseId': model?.id,
                                                     'caseDetails.referenceNumber': model?.referenceNumber?.toString(),
-                                                    'caseDetails.submitDate': model?.createdByWhen | date:'dd/MM/YYYY',
+                                                    'caseDetails.submitDate': model?.createdByWhen | date:'dd/MM/yyyy',
                                                     'caseDetails.caseType':model?.caseType?.title,
                                                     'caseDetails.channel':model?.channel,
                                                     'caseDetails.checkpoint':model?.checkpointType?.title ??model?.checkpointType?.code,

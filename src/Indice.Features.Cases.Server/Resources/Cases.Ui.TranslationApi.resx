@@ -237,6 +237,9 @@
   <data name="common.download" xml:space="preserve">
     <value>Download</value>
   </data>
+  <data name="common.uploadDocuments" xml:space="preserve">
+    <value>Upload Attachments</value>
+  </data>
   <data name="common.yes" xml:space="preserve">
     <value>Yes</value>
   </data>
@@ -254,6 +257,39 @@
   </data>
   <data name="common.noDocumentSubmitted" xml:space="preserve">
     <value>No document has been submitted.</value>
+  </data>
+  <data name="fileUpload.requirements" xml:space="preserve">
+    <value>File requirements</value>
+  </data>
+  <data name="fileUpload.acceptedTypes" xml:space="preserve">
+    <value>Accepted file types</value>
+  </data>
+  <data name="fileUpload.minimumFiles" xml:space="preserve">
+    <value>Minimum files</value>
+  </data>
+  <data name="fileUpload.maximumFiles" xml:space="preserve">
+    <value>Maximum files</value>
+  </data>
+  <data name="fileUpload.maximumFileSize" xml:space="preserve">
+    <value>Maximum file size</value>
+  </data>
+  <data name="fileUpload.invalidType" xml:space="preserve">
+    <value>Unsupported file types. Accepted types: {{types}}.</value>
+  </data>
+  <data name="fileUpload.fileTooLarge" xml:space="preserve">
+    <value>Files exceed the {{size}} limit.</value>
+  </data>
+  <data name="fileUpload.tooManyFiles" xml:space="preserve">
+    <value>You can attach up to {{count}} files.</value>
+  </data>
+  <data name="fileUpload.tooManyFilesOne" xml:space="preserve">
+    <value>You can attach up to {{count}} file.</value>
+  </data>
+  <data name="fileUpload.tooFewFiles" xml:space="preserve">
+    <value>Attach at least {{count}} files.</value>
+  </data>
+  <data name="fileUpload.tooFewFilesOne" xml:space="preserve">
+    <value>Attach at least {{count}} file.</value>
   </data>
   <data name="home.pleaseWait" xml:space="preserve">
     <value>please wait...</value>

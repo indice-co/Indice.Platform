@@ -237,6 +237,9 @@
   <data name="common.download" xml:space="preserve">
     <value>Λήψη</value>
   </data>
+  <data name="common.uploadDocuments" xml:space="preserve">
+    <value>Ανεβάστε Έγγραφα</value>
+  </data>
   <data name="common.yes" xml:space="preserve">
     <value>Ναι</value>
   </data>
@@ -254,6 +257,39 @@
   </data>
   <data name="common.noDocumentSubmitted" xml:space="preserve">
     <value>Δεν έχει υποβληθεί κάποιο έγγραφο.</value>
+  </data>
+  <data name="fileUpload.requirements" xml:space="preserve">
+    <value>Προϋποθέσεις αρχείων</value>
+  </data>
+  <data name="fileUpload.acceptedTypes" xml:space="preserve">
+    <value>Αποδεκτοί τύποι αρχείων</value>
+  </data>
+  <data name="fileUpload.minimumFiles" xml:space="preserve">
+    <value>Ελάχιστος αριθμός αρχείων</value>
+  </data>
+  <data name="fileUpload.maximumFiles" xml:space="preserve">
+    <value>Μέγιστος αριθμός αρχείων</value>
+  </data>
+  <data name="fileUpload.maximumFileSize" xml:space="preserve">
+    <value>Μέγιστο μέγεθος αρχείου</value>
+  </data>
+  <data name="fileUpload.invalidType" xml:space="preserve">
+    <value>Μη αποδεκτοί τύποι αρχείων. Αποδεκτοί τύποι: {{types}}.</value>
+  </data>
+  <data name="fileUpload.fileTooLarge" xml:space="preserve">
+    <value>Τα αρχεία υπερβαίνουν το όριο των {{size}}.</value>
+  </data>
+  <data name="fileUpload.tooManyFiles" xml:space="preserve">
+    <value>Μπορείτε να επισυνάψετε έως {{count}} αρχεία.</value>
+  </data>
+  <data name="fileUpload.tooManyFilesOne" xml:space="preserve">
+    <value>Μπορείτε να επισυνάψετε έως {{count}} αρχείο.</value>
+  </data>
+  <data name="fileUpload.tooFewFiles" xml:space="preserve">
+    <value>Επισυνάψτε τουλάχιστον {{count}} αρχεία.</value>
+  </data>
+  <data name="fileUpload.tooFewFilesOne" xml:space="preserve">
+    <value>Επισυνάψτε τουλάχιστον {{count}} αρχείο.</value>
   </data>
   <data name="home.pleaseWait" xml:space="preserve">
     <value>παρακαλώ περιμένετε...</value>

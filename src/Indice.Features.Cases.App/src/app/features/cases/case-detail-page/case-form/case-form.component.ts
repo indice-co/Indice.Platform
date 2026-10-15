@@ -3,6 +3,7 @@ import { ToastType } from '@indice/ng-components';
 import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 import { EMPTY, forkJoin, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { JsonPointer } from '@ajsf-extended/core';
 import { Case, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDetails } from 'src/app/core/services/cases-api.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
 import { SubmitWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
@@ -20,6 +21,7 @@ import { LookupSelectorWidgetComponent } from 'src/app/shared/ajsf/json-schema-f
 import { WysiwygWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
 import { HrefWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/href-widget/href-widget.component';
 import { LabelOnlyWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/label-only-widget/label-only-widget.component';
+import { FileArrayWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/file-array-widget/file-array-widget.component';
 
 
 @Component({
@@ -41,6 +43,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     // Add custom widget
     public widgets = {
         "file": FileWidgetComponent,
+        "file-array": FileArrayWidgetComponent,
         "submit": SubmitWidgetComponent,
         "select": SelectWidgetComponent,
         "lookup": LookupWidgetComponent,
@@ -143,9 +146,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
         for (const key in this._fileUploadService.files) {
             if (this._fileUploadService.files.hasOwnProperty(key)) {
                 // we may have 'garbage' attachments that we should not send to server!!!
-                let path = key;
-                path = path.replace(/\//g, '.'); // https://stackoverflow.com/a/63616567/19162333
-                path = path.substring(1);
+                const path = JsonPointer.parse(key);
                 if (get(event, path)) { // https://lodash.com/docs/4.17.15#get
                     const fileParam = { data: this._fileUploadService.files[key], fileName: this._fileUploadService.files[key].name };
                     callsDict[key] = this._api.uploadAdminCaseAttachment(this.case?.id!, fileParam);
@@ -161,7 +162,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                             if (response.hasOwnProperty(key) && key !== '') {
                                 // transform path to object key (eg. "/home/attachmentId") to a string that lodash update (https://lodash.com/docs/4.17.15#update)
                                 // can understand (eg "home.attachmentId") and update its value with the response attachment id
-                                update(event, key.slice(1).replace('/', '.'), () => response[key].id!);
+                                update(event, JsonPointer.parse(key), () => response[key].id!);
                             }
                         }
 
@@ -256,8 +257,9 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     onCancel(): void {
         this.showForm = false;
         this.changeDetector.detectChanges(); // enforce the instantaneous deletion of form
-        this.schema = JSON.parse(this.case?.caseType?.dataSchema!);
-        this.layout = JSON.parse(this.case?.caseType?.layout!);
+        this._fileUploadService.reset();
+        this.schema = this.case?.caseType?.dataSchema!;
+        this.layout = this.case?.caseType?.layout!;
         this.data = this.initialData;
         this.populateForm(this.data);
         this.showForm = true;
