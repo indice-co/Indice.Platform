@@ -10,7 +10,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Thanks the user once a payment method has been chosen and produces the terminal response.
 /// No payment is taken: the step is a demonstration of the payment round-trip.
 /// </summary>
-public sealed class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse, OperationState>
+public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse, OperationState>
 {
     private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly ILogger<PaymentCompletedStep> _logger;

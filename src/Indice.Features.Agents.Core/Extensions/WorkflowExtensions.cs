@@ -115,6 +115,32 @@ public static class WorkflowExtensions
         public AgentFunctionCallId GetFunctionResultContentCallId(string? requestId = null) =>
             AgentFunctionCallId.Parse(GetFunctionResultContent(chatMessage, requestId)?.CallId ?? throw new InvalidOperationException("Function result content not found."));
 
+        /// <summary>
+        /// Tries to read a typed value from <see cref="ChatMessage.AdditionalProperties"/>.
+        /// Handles values stored either as <typeparamref name="T"/> or as a <see cref="JsonElement"/>.
+        /// </summary>
+        /// <typeparam name="T">The expected value type.</typeparam>
+        /// <param name="key">The property key. Defaults to the name of <typeparamref name="T"/>.</param>
+        /// <param name="value">The resolved value, if found.</param>
+        /// <param name="options">Serializer options used when the value is a <see cref="JsonElement"/>. Defaults to <see cref="JsonSerializerOptions.Web"/>.</param>
+        /// <returns><see langword="true"/> if a non-null value was resolved; otherwise <see langword="false"/>.</returns>
+        public bool TryGetAdditionalProperty<T>(
+            string key,
+            [NotNullWhen(true)] out T? value,
+            JsonSerializerOptions? options = null) where T : class {
+            ArgumentNullException.ThrowIfNull(chatMessage);
+            value = null;
+            if (chatMessage.AdditionalProperties?.TryGetValue(key, out var raw) is not true) {
+                return false;
+            }
+            value = raw switch {
+                T t => t,
+                JsonElement je when je.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined)
+                    => je.Deserialize<T>(options ?? JsonSerializerOptions.Web),
+                _ => null
+            };
+            return value is not null;
+        }
     }
 
     /// <summary>

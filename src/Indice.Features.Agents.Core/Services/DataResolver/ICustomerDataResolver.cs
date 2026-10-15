@@ -1,10 +1,11 @@
-﻿using System.Text.Json.Nodes;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Nodes;
 using Indice.Features.Agents.Core.Workflows.State;
 
 namespace Indice.Features.Agents.Core.Services.DataResolver;
 
 /// <summary>
-/// Extracts structured fields from a raw JSON case payload and maps them into a <see cref="CustomerState"/>.
+/// Extracts structured fields from a raw JSON case payload and maps them into a <see cref="CustomerData"/>.
 /// </summary>
 /// <remarks>
 /// Register a custom implementation as a keyed service, using the case type code as the key, to override
@@ -15,47 +16,44 @@ namespace Indice.Features.Agents.Core.Services.DataResolver;
 public interface ICustomerDataResolver
 {
     /// <summary>
-    /// Extracts the case identifier from the JSON payload.
-    /// </summary>
+    /// Resolves the raw JSON case payload into a structured <see cref="CustomerData"/> object.
+    ///</summary>
     /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
-    /// <returns>The case identifier string.</returns>
-    string ExtractCaseId(JsonNode caseData);
+    /// <returns>The resolved <see cref="CustomerData"/>.</returns>
+    CustomerData Resolve(JsonNode caseData);
 
     /// <summary>
-    /// Extracts the phone number used for OTP delivery from the JSON payload.
-    /// Returns <see langword="null"/> when the field is absent or empty.
+    /// Validates the extracted data value to ensure required fields are present and meet expected criteria.
     /// </summary>
-    /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
-    string? ExtractPhoneNumber(JsonNode caseData);
+    /// <param name="data">The resolved <see cref="CustomerData"/> to validate.</param>
+    OperationResult Validate(CustomerData data);
 
     /// <summary>
-    /// Extracts the e-mail address used as a fallback OTP channel from the JSON payload.
-    /// Returns <see langword="null"/> when the field is absent or empty.
+    /// Resolves and validates the raw JSON case payload in a single call.
     /// </summary>
     /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
-    string? ExtractEmail(JsonNode caseData);
-    
-    /// <summary>
-    /// Extracts the data type of the retrieved case from the JSON payload.
-    /// Returns <see langword="null"/> when the field is absent or empty.
-    /// </summary>
-    /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
-    string ExtractDataType(JsonNode caseData);
-
-    /// <summary>
-    /// Extracts the value the end-user must supply to verify their identity (e.g. car plate, VIN, contract number).
-    /// Returns <see langword="null"/> when the field is absent or not applicable.
-    /// </summary>
-    /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
-    string? ExtractChallengeValue(JsonNode caseData);
-
-    /// <summary>
-    /// Validates the extracted verification value against the case data to ensure it is present and meets expected criteria.
-    /// </summary>
-    /// <param name="caseData">The root <see cref="JsonNode"/> returned by the case retrieval agent.</param>
-    OperationResult Validate(JsonNode caseData);
-
-
+    /// <param name="data">The resolved <see cref="CustomerData"/> when successful; otherwise <see langword="null"/>.</param>
+    /// <param name="error">The error message when unsuccessful; otherwise <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if the data was resolved and is valid; otherwise <see langword="false"/>.</returns>
+    bool TryResolve(JsonNode caseData, [NotNullWhen(true)] out CustomerData? data, out string? error) {
+        ArgumentNullException.ThrowIfNull(caseData);
+        data = null;
+        CustomerData resolved;
+        try {
+            resolved = Resolve(caseData);
+        } catch (InvalidOperationException ex) {
+            error = ex.Message;
+            return false;
+        }
+        var result = Validate(resolved);
+        if (!result.Succeeded) {
+            error = result.ErrorMessage;
+            return false;
+        }
+        data = resolved;
+        error = null;
+        return true;
+    }
 }
 
 

@@ -9,7 +9,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// <summary>
 /// Presents selected case data after OTP verification completes.
 /// </summary>
-public sealed class DataPresenterStep : Executor<OperationState, OperationState>
+public class DataPresenterStep : Executor<OperationState, OperationState>
 {
     private readonly ICustomerDataCardRenderer _presentationFormatter;
     /// <summary>Creates a new <see cref="DataPresenterStep"/>.</summary>
@@ -23,9 +23,9 @@ public sealed class DataPresenterStep : Executor<OperationState, OperationState>
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(state);
-        var operatorState = await context.GetOperatorStateAsync(cancellationToken);
+        var operatorState = await context.GetOperatorStateAsync(cancellationToken: cancellationToken);
         var presentation = _presentationFormatter.Render(operatorState);
-        await context.Say(Id, presentation, cancellationToken);
+        await context.Say(Id, presentation, cancellationToken: cancellationToken);
         return OperationState.End;
     }
 }

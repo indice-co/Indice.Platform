@@ -1,4 +1,6 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using Indice.Features.Agents.Core.Workflows.State;
 
 namespace Indice.Features.Agents.Core.Services.DataResolver;
 
@@ -18,40 +20,30 @@ namespace Indice.Features.Agents.Core.Services.DataResolver;
 public class ServicePickUpDataResolver : ICustomerDataResolver
 {
     /// <summary>The service key under which the default resolver is registered.</summary>
-    public const string DefaultKey = "default";
+    public const string ServiceKey = "ServicePickUp";
 
     /// <inheritdoc/>
-    public virtual string ExtractCaseId(JsonNode caseData) =>
-        caseData?["id"]?.GetValue<string>()
-            ?? throw new InvalidOperationException("ReferenceId not found in case data.");
-
-    /// <inheritdoc/>
-    public virtual string? ExtractPhoneNumber(JsonNode caseData) =>
-        caseData?["phoneNumber"]?.GetValue<string>();
-
-    /// <inheritdoc/>
-    public virtual string? ExtractEmail(JsonNode caseData) =>
-        caseData?["email"]?.GetValue<string>();
-
-    /// <inheritdoc/>
-    public virtual string? ExtractChallengeValue(JsonNode caseData) =>
-        caseData?["carPlate"]?.GetValue<string>();
-
-
-    /// <inheritdoc/>
-    public virtual OperationResult Validate(JsonNode caseData) {
-        var verificationValue = ExtractChallengeValue(caseData);
-        if (string.IsNullOrWhiteSpace(verificationValue))
-            return OperationResult.Failure("Verification value is missing or empty.");
-
-        if (string.IsNullOrWhiteSpace(ExtractPhoneNumber(caseData)) && string.IsNullOrWhiteSpace(ExtractEmail(caseData)))
-            return OperationResult.Failure("Phone number and email are missing or empty.");
-        return OperationResult.Success();
+    public virtual CustomerData Resolve(JsonNode caseData) {
+        ArgumentNullException.ThrowIfNull(caseData);
+        return new CustomerData {
+            Data = caseData.Deserialize<JsonElement>(),
+            DataType = caseData["caseType"]?["code"]?.GetValue<string>() ?? throw new InvalidOperationException("DataType not found in case data."),
+            ReferenceId = caseData["id"]?.GetValue<string>() ?? throw new InvalidOperationException("ReferenceId not found in case data."),
+            PhoneNumber = caseData["phoneNumber"]?.GetValue<string>(),
+            Email = caseData["email"]?.GetValue<string>(),
+            ChallengeValue = caseData["carPlate"]?.GetValue<string>(),
+            ChallengeType = "carPlate"
+        };
     }
 
     /// <inheritdoc/>
-    public string ExtractDataType(JsonNode caseData) {
-        return caseData?["caseType"]?["code"]?.GetValue<string>()
-            ?? throw new InvalidOperationException("DataType not found in case data.");
+    public virtual OperationResult Validate(CustomerData data) {
+        ArgumentNullException.ThrowIfNull(data);
+        if (string.IsNullOrWhiteSpace(data.ChallengeValue))
+            return OperationResult.Failure("Verification value is missing or empty.");
+
+        if (string.IsNullOrWhiteSpace(data.PhoneNumber) && string.IsNullOrWhiteSpace(data.Email))
+            return OperationResult.Failure("Phone number and email are missing or empty.");
+        return OperationResult.Success();
     }
 }

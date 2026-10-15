@@ -17,7 +17,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 [SendsMessage(typeof(ChallengeRequestPort.ChallengeRequest))]
 [SendsMessage(typeof(OperationState))]
 [YieldsOutput(typeof(OperationState))]
-public sealed class AuthenticationStep : Executor<ChallengeRequestPort.ChallengeResponse>
+public class AuthenticationStep : Executor<ChallengeRequestPort.ChallengeResponse>
 {
     private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly int _maxValidationAttempts;
@@ -51,18 +51,18 @@ public sealed class AuthenticationStep : Executor<ChallengeRequestPort.Challenge
 
         if (!isValid) {
             var attempt = (await context.GetApprovalStateAsync(cancellationToken)) + 1;
-            await context.SetApprovalStateAsync(attempt, cancellationToken);
             if (attempt >= _maxValidationAttempts) {
-                await context.SetApprovalStateAsync(null, cancellationToken);
+                await context.SetApprovalStateAsync(null, cancellationToken: cancellationToken);
                 await context.Say(Id, _messageLocalizer.OwnershipVerificationFailedMaxAttemptsMessage(_maxValidationAttempts));
                 await context.YieldOutputAsync(OperationState.End);
                 return;
             }
+            await context.SetApprovalStateAsync(attempt, cancellationToken: cancellationToken);
             await context.Say(Id, _messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts));
             await context.SendMessageAsync(new ChallengeRequestPort.ChallengeRequest(_messageLocalizer.VerificationFailedRetry(attempt, _maxValidationAttempts)));
             return;
         }
-        await context.SetApprovalStateAsync(null, cancellationToken);
+        await context.SetApprovalStateAsync(null, cancellationToken: cancellationToken);
         await context.Say(Id, _messageLocalizer.ChallengeSucceeded);
         await context.SendMessageAsync(OperationState.Next(nameof(OtpCodeSendStep)));
     }

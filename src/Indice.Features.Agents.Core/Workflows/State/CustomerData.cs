@@ -6,7 +6,7 @@ namespace Indice.Features.Agents.Core.Workflows.State;
 /// <summary>
 /// Represents customer case data and verification details stored in workflow state.
 /// </summary>
-public class CustomerState
+public class CustomerData
 {
     /// <summary>
     /// Gets or sets the retrieved case data as a JSON payload.

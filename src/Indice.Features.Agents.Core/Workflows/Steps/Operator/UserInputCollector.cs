@@ -6,7 +6,7 @@ using Microsoft.Extensions.AI;
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 
 /// <summary>Turns the user's free-text answer into the <see cref="ChatMessage"/> consumed by the next step.</summary>
-internal sealed class UserInputCollector : Executor<UserInputRequestPort.UserResponse, ChatMessage>
+internal class UserInputCollector : Executor<UserInputRequestPort.UserResponse, ChatMessage>
 {
     /// <summary>Creates a new <see cref="UserInputCollector"/>.</summary>
     public UserInputCollector() : base(nameof(UserInputCollector)) {

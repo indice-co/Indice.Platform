@@ -13,7 +13,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// </summary>
 [SendsMessage(typeof(UserInputRequestPort.UserInputRequest))]
 [SendsMessage(typeof(ChatMessage))]
-internal sealed class CaseReferenceResolverStep : Executor<OperationRequestPort.OperationResponse>
+public class CaseReferenceResolverStep : Executor<OperationRequestPort.OperationResponse>
 {
     private readonly AgentMessageLocalizer _messageLocalizer;
 
@@ -31,7 +31,7 @@ internal sealed class CaseReferenceResolverStep : Executor<OperationRequestPort.
         var state = await context.GetConversationStateAsync(cancellationToken);
         state.Message.AdditionalProperties ??= new();
         state.Message.AdditionalProperties[nameof(OperationRequestPort.OperationResponse)] = operationResponse;
-        await context.SetConversationStateAsync(state, cancellationToken);
+        await context.SetConversationStateAsync(state, cancellationToken: cancellationToken);
         if (state.Message.AdditionalProperties.ContainsKey(nameof(ChatTopic))) {
             await context.SendMessageAsync(state.Message, cancellationToken);
             return;

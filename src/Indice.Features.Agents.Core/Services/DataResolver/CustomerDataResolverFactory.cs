@@ -4,7 +4,7 @@ namespace Indice.Features.Agents.Core.Services.DataResolver;
 
 /// <summary>
 /// Resolves the <see cref="ICustomerDataResolver"/> to use for a given case type from keyed registrations,
-/// falling back to the resolver registered under <see cref="ServicePickUpDataResolver.DefaultKey"/>.
+/// falling back to the resolver registered under <see cref="ServicePickUpDataResolver.ServiceKey"/>.
 /// </summary>
 public sealed class CustomerDataResolverFactory
 {
@@ -24,6 +24,6 @@ public sealed class CustomerDataResolverFactory
                 return resolver;
             }
         }
-        return _serviceProvider.GetRequiredKeyedService<ICustomerDataResolver>(ServicePickUpDataResolver.DefaultKey);
+        return _serviceProvider.GetRequiredKeyedService<ICustomerDataResolver>(ServicePickUpDataResolver.ServiceKey);
     }
 }

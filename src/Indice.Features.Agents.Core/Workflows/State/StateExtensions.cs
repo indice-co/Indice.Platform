@@ -31,14 +31,14 @@ public static class IWorkflowContextStateExtensions
     }
 
     /// <summary>Reads the <see cref="CustomerState"/> from the workflow context.</summary>
-    public static async Task<CustomerState> GetOperatorStateAsync(this IWorkflowContext context, CancellationToken cancellationToken = default) {
-        return await context.ReadStateAsync<CustomerState>(nameof(CustomerState), scopeName: ConversationScope, cancellationToken: cancellationToken) ??
-               throw new InvalidOperationException("CustomerState not found in workflow context.");
+    public static async Task<CustomerData> GetOperatorStateAsync(this IWorkflowContext context, CancellationToken cancellationToken = default) {
+        return await context.ReadStateAsync<CustomerData>(nameof(CustomerData), scopeName: ConversationScope, cancellationToken: cancellationToken) ??
+               throw new InvalidOperationException("CustomerData not found in workflow context.");
     }
 
     /// <summary>Writes the <see cref="CustomerState"/> to the workflow context.</summary>
-    public static async Task SetOperatorStateAsync(this IWorkflowContext context, CustomerState state, CancellationToken cancellationToken = default) {
-        await context.QueueStateUpdateAsync(nameof(CustomerState), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
+    public static async Task SetOperatorStateAsync(this IWorkflowContext context, CustomerData state, CancellationToken cancellationToken = default) {
+        await context.QueueStateUpdateAsync(nameof(CustomerData), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
     }
     /// <summary>Reads the <see cref="AuthenticationStep"/> from the workflow context.</summary>
     public static async Task<int> GetApprovalStateAsync(this IWorkflowContext context, CancellationToken cancellationToken = default) {

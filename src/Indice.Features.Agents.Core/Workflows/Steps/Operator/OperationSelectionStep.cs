@@ -17,7 +17,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// </summary>
 [SendsMessage(typeof(OperationRequestPort.OperationRequest))]
 [SendsMessage(typeof(ChatMessage))]
-internal sealed class OperationSelectionStep : Executor<ChatMessage>
+public class OperationSelectionStep : Executor<ChatMessage>
 {
     private const string McpServiceKey = "cases";
 
@@ -51,7 +51,7 @@ internal sealed class OperationSelectionStep : Executor<ChatMessage>
         ArgumentNullException.ThrowIfNull(message);
         // Persist a ConversationState snapshot so downstream shared steps (e.g. OtpAgent)
         // can use existing state extension helpers.
-        await context.SetConversationStateAsync(new ConversationState(message, message.AdditionalProperties![nameof(ConversationState.ConversationId)]!.ToString()!), cancellationToken);
+        await context.SetConversationStateAsync(new ConversationState(message, message.AdditionalProperties![nameof(ConversationState.ConversationId)]!.ToString()!), cancellationToken: cancellationToken);
 
         //var userInput = message.Text ?? string.Empty;
         if (message.AdditionalProperties.TryGetValue<ChatTopic>(nameof(ChatTopic), out var additional) && !string.IsNullOrWhiteSpace(additional.ReferenceId)) {
