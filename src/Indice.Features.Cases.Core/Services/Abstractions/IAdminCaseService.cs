@@ -21,7 +21,7 @@ public interface IAdminCaseService
     /// <param name="metadata">The metadata the case might have.</param>
     /// <param name="referenceId">The reference id the case might have.</param>
     /// <returns></returns>
-    Task<CreateCaseResponse> CreateDraft(UserActor user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata, string? referenceId);
+    Task<CreateCaseResponse> CreateDraft(UserActor user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata, string? referenceNumber);
 
     /// <summary>Update the case with the case data and does a json instance-schema validation of the case type's schema (<see cref="CaseType.DataSchema"/>).</summary>
     /// <param name="user">The user that will update the case.</param>

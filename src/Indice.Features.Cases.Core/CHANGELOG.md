@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 IF COL_LENGTH(N'[case].[Case]', N'ReferenceId') IS NULL
 BEGIN
     ALTER TABLE [case].[Case]
-    ADD [ReferenceId] NVARCHAR(128) NULL;
+    ALTER COLUMN ReferenceNumber NVARCHAR(128);
 END;
 GO
 ```

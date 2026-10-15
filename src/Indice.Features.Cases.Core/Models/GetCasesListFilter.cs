@@ -44,9 +44,6 @@ public class GetCasesListFilter
     /// <summary>Construct filter clauses based on the metadata you are adding to the cases in your installation.</summary>
     public FilterClause[]? Metadata { get; set; } = [];
 
-    /// <summary>The reference id of the case to filter.</summary>
-    public FilterClause[]? ReferenceIds { get; set; } = [];
-
     /// <summary>The reference number of the case to filter.</summary>
     public FilterClause[]? ReferenceNumbers { get; set; } = [];
 

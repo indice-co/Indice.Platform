@@ -27,10 +27,8 @@ public class GetMyCasesListFilter
     public FilterClause[]? Metadata { get; set; }
     /// <summary>Determines whether draft cases should be included in result</summary>
     public bool? IncludeDrafts { get; set; }
-    /// <summary>The reference id filter.</summary>
-    public string[]? ReferenceIds { get; set; }
     /// <summary>The reference number filter.</summary>
-    public int[]? ReferenceNumbers { get; set; }
+    public string[]? ReferenceNumbers { get; set; }
     /// <summary>Determines whether case data should be included in result.</summary>
     public bool? IncludeData { get; set; }
 } 

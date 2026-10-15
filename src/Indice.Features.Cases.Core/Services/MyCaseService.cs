@@ -41,7 +41,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         ContactMeta? customer,
         Dictionary<string, string> metadata,
         string? channel,
-        string? referenceId = null) {
+        string? referenceNumber = null) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(caseTypeCode);
 
@@ -54,7 +54,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             customer,
             metadata,
             string.IsNullOrEmpty(channel) ? CasesCoreConstants.Channels.Customer : channel,
-            referenceId: referenceId);
+            referenceNumber: referenceNumber);
 
         return new CreateCaseResponse {
             Id = entity.Id,
@@ -149,20 +149,15 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
         }
 
-        // filter by Reference Id
-        if (filter?.ReferenceIds is { Length: > 0 } referenceIds) {
-            var expressions = referenceIds.Select<string, Expression<Func<DbCase, bool>>>(referenceId => c => c.ReferenceId == referenceId);
+        // filter by Reference Number
+        if (filter?.ReferenceNumbers is { Length: > 0 } referenceNumbers) {
+            var expressions = referenceNumbers.Select<string, Expression<Func<DbCase, bool>>>(referenceNumber => c => c.ReferenceNumber == referenceNumber);
             // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Code == checkpoint1 OR == checkpoint2 etc
             var aggregatedExpression = expressions.Aggregate((expression, next) => {
                 var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
                 return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
             });
             dbCaseQueryable = dbCaseQueryable.Where(aggregatedExpression);
-        }
-
-        // filter ReferenceNumbers
-        if (filter?.ReferenceNumbers is { Length: > 0 } referenceNumbers) {
-            dbCaseQueryable = dbCaseQueryable.Where(dbCase => dbCase.ReferenceNumber.HasValue && referenceNumbers.Contains(dbCase.ReferenceNumber.Value));
         }
 
         // filter Statuses
@@ -216,7 +211,6 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                          : string.Empty
                                      select new MyCasePartial {
                                          Id = c.Id,
-                                         ReferenceId = c.ReferenceId,
                                          ReferenceNumber = c.ReferenceNumber,
                                          Created = c.CreatedBy.When,
                                          CaseTypeCode = c.CaseType.Code,
