@@ -213,6 +213,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <strong>yuboto, yuboto_viber, vonage, twilio, smsup, apifon, apifon_im, kapatel, mstat, none</strong>
     /// </remarks>
     public static IServiceCollection AddSmsService(this IServiceCollection services, IConfiguration configuration) {
+        services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
         var providerNamesText = configuration.GetSection(SmsServiceSettings.Name).GetValue<string>("Provider");
         ArgumentException.ThrowIfNullOrWhiteSpace(providerNamesText, "Sms:Provider");
         var providerNames = providerNamesText.ToLowerInvariant().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -258,7 +259,7 @@ public static class IndiceServicesServiceCollectionExtensions
                     break;
             }
         }
-        services.AddWebHookServices(configuration);
+        services.AddWebHookServices(configuration, providerNames.FirstOrDefault()!);
         return services;
     }
 
@@ -541,7 +542,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services"></param>
     /// <param name="configuration"></param>
     /// <returns></returns>
-    public static IServiceCollection AddWebHookServices(this IServiceCollection services, IConfiguration configuration) {
+    public static IServiceCollection AddWebHookServices(this IServiceCollection services, IConfiguration configuration, string provider) {
         var enableWebhooks = configuration.GetSection(SmsServiceSettings.Name).GetValue<bool>(nameof(SmsServiceSettings.WebhooksEnabled));
         var channelCapacity = configuration.GetSection(SmsServiceSettings.Name).GetValue<int>(nameof(SmsServiceSettings.WebhookChannelCapacity));
 
@@ -550,8 +551,7 @@ public static class IndiceServicesServiceCollectionExtensions
         }
 
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(channelCapacity);
-
-        var smsProvider = configuration.GetSection(SmsServiceSettings.Name).GetValue<string>("Provider");
+        ArgumentException.ThrowIfNullOrWhiteSpace(provider);
 
         services.TryAddSingleton(Channel.CreateBounded<List<WebhookEvent>>(new BoundedChannelOptions(channelCapacity) {
             FullMode = BoundedChannelFullMode.Wait,
@@ -561,10 +561,10 @@ public static class IndiceServicesServiceCollectionExtensions
 
         services.AddHostedService<WebhookEventSink>();
 
-        switch (smsProvider) {
+        switch (provider) {
             case "apifon":
                 services.AddScoped<IWebhookHttpHandler, ApifonWebHookHttpHandler>();
-                services.AddScoped<IWebhookHandler, NoOpWebHookHandler>();
+                services.TryAddScoped<IWebhookHandler, NoOpWebHookHandler>();
                 break;
         }
 
