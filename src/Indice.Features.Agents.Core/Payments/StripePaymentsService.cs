@@ -52,10 +52,6 @@ internal sealed class StripePaymentsService(
     public PaymentProviderPublicKey GetPublicKey() => new() { PublishableKey = _options.PublishableKey };
 
     public async Task<PaymentSessionModel?> CreateOrReuseAttemptAsync(string userId, Guid conversationId, CancellationToken cancellationToken = default) {
-        var ownsChat = await db.Conversations.AnyAsync(x => x.Id == conversationId && x.UserId == userId && !x.Hidden, cancellationToken);
-        if (!ownsChat) {
-            return null;
-        }
         var attempts = db.PaymentSessions.Where(x => x.ConversationId == conversationId);
         var live = await attempts.Where(x => x.Status == PaymentAuthorizationStatus.Created || x.Status == PaymentAuthorizationStatus.Succeeded)
                                  .OrderByDescending(x => x.CreatedAt)
