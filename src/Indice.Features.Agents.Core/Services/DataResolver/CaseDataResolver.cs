@@ -17,7 +17,7 @@ namespace Indice.Features.Agents.Core.Services.DataResolver;
 /// </code>
 /// Case types without a registered resolver fall back to this default implementation.
 /// </remarks>
-public class ServicePickUpDataResolver : ICustomerDataResolver
+public class CaseDataResolver : ICustomerDataResolver
 {
     /// <summary>The service key under which the default resolver is registered.</summary>
     public const string ServiceKey = "ServicePickUp";
@@ -29,9 +29,9 @@ public class ServicePickUpDataResolver : ICustomerDataResolver
             Data = caseData.Deserialize<JsonElement>(),
             DataType = caseData["caseType"]?["code"]?.GetValue<string>() ?? throw new InvalidOperationException("DataType not found in case data."),
             ReferenceId = caseData["id"]?.GetValue<string>() ?? throw new InvalidOperationException("ReferenceId not found in case data."),
-            PhoneNumber = caseData["data"]["phoneNumber"]?.GetValue<string>(),
-            Email = caseData["data"]["email"]?.GetValue<string>(),
-            ChallengeValue = caseData["data"]["carPlate"]?.GetValue<string>(),
+            PhoneNumber = caseData["data"]?["phoneNumber"]?.GetValue<string>(),
+            Email = caseData["data"]?["email"]?.GetValue<string>(),
+            ChallengeValue = caseData["data"]?["carPlate"]?.GetValue<string>(),
             ChallengeType = "carPlate"
         };
     }

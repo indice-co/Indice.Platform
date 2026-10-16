@@ -249,7 +249,7 @@ public static class AgentsFeatureExtensions
         services.AddMcpClient("cases")
                 .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:CasesMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
 
-        services.TryAddKeyedTransient<ICustomerDataResolver, ServicePickUpDataResolver>(ServicePickUpDataResolver.ServiceKey);
+        services.TryAddKeyedTransient<ICustomerDataResolver, CaseDataResolver>(CaseDataResolver.ServiceKey);
         services.TryAddTransient<CustomerDataResolverFactory>();
         services.TryAddTransient<ICustomerDataCardRenderer, HandlebarsCustomerDataCardRenderer>();
         services.TryAddTransient<DataRetrieverStep>();
