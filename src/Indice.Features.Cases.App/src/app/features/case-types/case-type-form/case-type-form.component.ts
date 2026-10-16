@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ICaseTypeRequest } from 'src/app/core/services/cases-api.service';
 
 @Component({
     selector: 'app-case-type-form',
     templateUrl: './case-type-form.component.html',
     styleUrls: ['./case-type-form.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseTypeFormComponent implements OnInit {
