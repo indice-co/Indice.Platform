@@ -166,7 +166,7 @@ public class IntentRouterService
     private static string DescribeAgent(AgentInfo agent) {
         var description = agent.Description;
         if (agent.Capabilities is { Count: > 0 } capabilities) {
-            description += $" Capabilities: {string.Join("; ", capabilities.Select(capability => $"{capability.Name} - {capability.Description}"))}.";
+            description += $" Capabilities: {string.Join("; ", capabilities.Select(capability => $"{capability.Name} - {capability.Description.TrimEnd('.')}"))}.";
         }
         if (agent.Domains is { Count: > 0 } domains) {
             description += $" Domains: {string.Join(", ", domains)}.";
