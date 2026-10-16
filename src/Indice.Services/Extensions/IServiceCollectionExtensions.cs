@@ -259,7 +259,7 @@ public static class IndiceServicesServiceCollectionExtensions
                     break;
             }
         }
-        services.AddWebHookServices(configuration, providerNames.FirstOrDefault()!);
+        services.AddWebhookServices(configuration, providerNames.FirstOrDefault()!);
         return services;
     }
 
@@ -543,7 +543,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configuration">The application configuration containing the webhook settings.</param>
     /// <param name="provider">The SMS provider identifier used to register the corresponding webhook handlers.</param>
     /// <returns>The same service collection so additional service registrations can be chained.</returns>
-    public static IServiceCollection AddWebHookServices(this IServiceCollection services, IConfiguration configuration, string provider) {
+    public static IServiceCollection AddWebhookServices(this IServiceCollection services, IConfiguration configuration, string provider) {
         var settings = configuration.GetSection(SmsServiceSettings.Name).Get<SmsServiceSettings>() ?? new SmsServiceSettings();
         var enableWebhooks = settings.WebhooksEnabled;
         var channelCapacity = settings.WebhookChannelCapacity;

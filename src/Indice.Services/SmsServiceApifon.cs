@@ -137,8 +137,6 @@ public class SmsServiceApifonSettings : SmsServiceSettings
     public string Token { get; set; } = null!;
     /// <summary>If enabled all urls in the message will be replaced with shortened urls</summary>
     public bool EnableUrlShortener { get; set; } = false;
-    /// <summary>The base URL to be used for callback events.</summary>
-    public string WebhookUrl { get; set; } = string.Empty;
     /// <summary>The secret to be used for hashing the request.</summary>
     public string WebhookSecret { get; set; } = string.Empty;
 }
