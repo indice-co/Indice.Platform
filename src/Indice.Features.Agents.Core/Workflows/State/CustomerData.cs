@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace Indice.Features.Agents.Core.Workflows.State;
@@ -7,7 +6,7 @@ namespace Indice.Features.Agents.Core.Workflows.State;
 /// <summary>
 /// Represents customer case data and verification details stored in workflow state.
 /// </summary>
-public class CustomerState
+public class CustomerData
 {
     /// <summary>
     /// Gets or sets the retrieved case data as a JSON payload.
@@ -37,7 +36,7 @@ public class CustomerState
     /// <summary>
     /// Gets or sets the value used to verify the customer's identity, if available.
     /// </summary>
-    public string? ChallengValue { get; set; }
+    public string? ChallengeValue { get; set; }
 
     /// <summary>
     /// Gets or sets the type of verification challenge, if specified.
