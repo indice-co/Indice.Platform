@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalService } from '@indice/ng-components';
 import { CasesApiService, Query } from 'src/app/core/services/cases-api.service';
@@ -8,6 +8,7 @@ import { DeleteQueryModalComponent } from 'src/app/shared/components/delete-quer
 @Component({
     selector: 'app-queries-page',
     templateUrl: './queries-page.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class QueriesPageComponent implements OnInit {
