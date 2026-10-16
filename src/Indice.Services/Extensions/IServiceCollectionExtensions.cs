@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Security.Claims;
+using System.Threading.Channels;
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Services;
@@ -14,7 +15,6 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>Extensions on the <see cref="IServiceCollection"/>.</summary>
 public static class IndiceServicesServiceCollectionExtensions
 {
-
     /// <summary>Adds Indice common services.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -213,6 +213,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <strong>yuboto, yuboto_viber, vonage, twilio, smsup, apifon, apifon_im, kapatel, mstat, none</strong>
     /// </remarks>
     public static IServiceCollection AddSmsService(this IServiceCollection services, IConfiguration configuration) {
+        services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
         var providerNamesText = configuration.GetSection(SmsServiceSettings.Name).GetValue<string>("Provider");
         ArgumentException.ThrowIfNullOrWhiteSpace(providerNamesText, "Sms:Provider");
         var providerNames = providerNamesText.ToLowerInvariant().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -258,6 +259,7 @@ public static class IndiceServicesServiceCollectionExtensions
                     break;
             }
         }
+        services.AddWebhookServices(configuration, providerNames.FirstOrDefault()!);
         return services;
     }
 
@@ -531,6 +533,42 @@ public static class IndiceServicesServiceCollectionExtensions
         where TEvent : IPlatformEvent
         where TEventHandler : class, IPlatformEventHandler<TEvent> {
         services.TryAddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
+        return services;
+    }
+
+    /// <summary>
+    /// Registers webhook services for the specified SMS provider when webhooks are enabled.
+    /// </summary>
+    /// <param name="services">The service collection to register the webhook services with.</param>
+    /// <param name="configuration">The application configuration containing the webhook settings.</param>
+    /// <param name="provider">The SMS provider identifier used to register the corresponding webhook handlers.</param>
+    /// <returns>The same service collection so additional service registrations can be chained.</returns>
+    public static IServiceCollection AddWebhookServices(this IServiceCollection services, IConfiguration configuration, string provider) {
+        var settings = configuration.GetSection(SmsServiceSettings.Name).Get<SmsServiceSettings>() ?? new SmsServiceSettings();
+        var enableWebhooks = settings.WebhooksEnabled;
+        var channelCapacity = settings.WebhookChannelCapacity;
+
+        if (!enableWebhooks) {
+            return services;
+        }
+
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(channelCapacity);
+        ArgumentException.ThrowIfNullOrWhiteSpace(provider);
+
+        services.TryAddSingleton(Channel.CreateBounded<List<WebhookEvent>>(new BoundedChannelOptions(channelCapacity) {
+            FullMode = BoundedChannelFullMode.Wait,
+            SingleReader = true,
+            SingleWriter = false
+        }));
+        services.TryAddScoped<IWebhookHandler, NoOpWebHookHandler>();
+        services.AddHostedService<WebhookEventSink>();
+        
+        switch (provider) {
+            case "apifon":
+                services.AddScoped<IWebhookHttpHandler, ApifonWebHookHttpHandler>();
+                break;
+        }
+
         return services;
     }
 }
