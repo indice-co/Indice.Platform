@@ -165,7 +165,15 @@ public sealed class ApifonWebHookHttpHandler : IWebhookHttpHandler
             return WebhookHttpResult.BadRequest();
         }
 
-        var payload = JsonSerializer.Deserialize<ApifonWebhookResponse>(bodyString);
+        ApifonWebhookResponse? payload;
+        try {
+            payload = JsonSerializer.Deserialize<ApifonWebhookResponse>(bodyString);
+        } catch (JsonException) {
+            return WebhookHttpResult.BadRequest("Invalid Apifon webhook JSON.");
+        }
+        if (payload?.Data is not { Count: > 0 } || payload.Data.Any(item => item is null)) {
+            return WebhookHttpResult.BadRequest("Apifon webhook data must contain at least one non-null item.");
+        }
         var incomingEvent = new WebhookEvent {
             Provider = "Apifon",
             EventType = "SmsDelivery",
