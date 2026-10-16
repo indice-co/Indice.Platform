@@ -59,7 +59,7 @@ public class SmsServiceSettings
     /// <summary>Indicates whether webhook processing is enabled. Defaults to <see langword="false"/>.</summary>
     public bool WebhooksEnabled { get; set; } = false;
     /// <summary>The base URL to be used for callback events.</summary>
-    public string? WebhookUrl { get; set; }
+    public string? CallbackUrl { get; set; }
     /// <summary>The maximum number of webhook event batches that can be queued before producers experience backpressure.</summary>
     public int WebhookChannelCapacity { get; set; } = 100;
 }

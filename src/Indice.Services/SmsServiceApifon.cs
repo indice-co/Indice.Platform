@@ -33,8 +33,8 @@ public class SmsServiceApifon : ISmsService
         if (string.IsNullOrWhiteSpace(Settings.ApiKey)) {
             throw new ArgumentException($"SMS settings {nameof(SmsServiceApifonSettings.ApiKey)} is empty.");
         }
-        if (!string.IsNullOrWhiteSpace(Settings.WebhookUrl) && string.IsNullOrWhiteSpace(Settings.WebhookSecret)) {
-            throw new ArgumentException($"{nameof(SmsServiceApifonSettings.WebhookSecret)} cannot be empty if a {nameof(SmsServiceApifonSettings.WebhookUrl)} is provided.");
+        if (!string.IsNullOrWhiteSpace(Settings.CallbackUrl) && string.IsNullOrWhiteSpace(Settings.WebhookSecret)) {
+            throw new ArgumentException($"{nameof(SmsServiceApifonSettings.WebhookSecret)} cannot be empty if a {nameof(SmsServiceApifonSettings.CallbackUrl)} is provided.");
         }
     }
 
@@ -73,8 +73,8 @@ public class SmsServiceApifon : ISmsService
         }
         // https://docs.apifon.com/apireference.html#sms-request
         var payload = ApifonRequest.CreateSms(sender?.Id ?? Settings.Sender ?? Settings.SenderName!, recipients, body!, Settings.EnableUrlShortener);
-        if (!string.IsNullOrWhiteSpace(Settings.WebhookUrl)) {
-            payload.WithCallbackUrl(Settings.WebhookUrl, Settings.WebhookSecret);
+        if (!string.IsNullOrWhiteSpace(Settings.CallbackUrl)) {
+            payload.WithCallbackUrl(Settings.CallbackUrl, Settings.WebhookSecret);
         }
         
         var signature = payload.Sign(Settings.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);

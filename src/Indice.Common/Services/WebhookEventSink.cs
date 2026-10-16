@@ -30,7 +30,9 @@ public sealed class WebhookEventSink : BackgroundService
             while (await _channelReader.WaitToReadAsync(stoppingToken)) {
                 await DrainAsync(drainToken);
             }
-        } catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { }
+        } catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) {
+            _logger.LogDebug("Webhook event sink stopping due to cancellation request.");
+        }
 
         try {
             await DrainAsync(drainToken);
