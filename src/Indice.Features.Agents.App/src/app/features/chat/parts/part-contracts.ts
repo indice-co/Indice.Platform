@@ -49,6 +49,8 @@ export type PartKind =
   | 'confirm'
   | 'hitl-request'
   | 'hitl-request-otp'
+  | 'hitl-request-operation'
+  | 'hitl-request-user-input'
   | 'hitl-request-payment'
   | 'unknown';
 
@@ -93,6 +95,10 @@ export function HitlControlResolver(name: string | undefined): PartKind {
       return 'hitl-request-otp';
     case 'PaymentRequest':
       return 'hitl-request-payment';
+    case 'OperationRequest':
+      return 'hitl-request-operation';
+    case 'UserInputRequest':
+      return 'hitl-request-user-input';
     default:
       return 'hitl-request';
 
@@ -137,6 +143,32 @@ export interface OtpResponse {
   otp: string;
 }
 
+/** An operation the user may pick. Mirrors `OperationRequestPort.AllowedOperation`. */
+export interface AllowedOperation {
+  operation: string;
+  operationDescription: string;
+}
+
+/** The server's operation selection request. Mirrors `OperationRequestPort.OperationRequest`. */
+export interface OperationRequest {
+  supportedOperations: AllowedOperation[];
+}
+
+/** The user's chosen operation. Mirrors `OperationRequestPort.OperationResponse`. */
+export interface OperationResponse {
+  selectedOperation: string;
+}
+
+/** The server's free-text input request. Mirrors `UserInputRequestPort.UserInputRequest`. */
+export interface UserInputRequest {
+  message: string;
+}
+
+/** The user's free-text answer. Mirrors `UserInputRequestPort.UserResponse`. */
+export interface UserInputResponse {
+  inputMessage: string;
+}
+
 /** The payment methods the user can choose from. Mirrors the server's `PaymentRequest`. */
 export interface PaymentRequest {
   methods: string[];
@@ -148,7 +180,7 @@ export interface PaymentResponse {
 }
 
 /**
- * A question the workflow is waiting on a human to answer. Most payloads mirror the server's `HumanRequest`:
+ * A question the workflow is waiting on a human to answer.
  * `requestId` correlates the answer back to the port that asked, and `text` is the prompt.
  *
  * Newer payloads can arrive wrapped in a chat-message `data` envelope instead, carrying `contents`, `messageId`
@@ -163,6 +195,8 @@ export interface HitlRequest {
   messageId?: string;
   additionalProperties?: Record<string, unknown>;
   otp?: OtpRequest;
+  operation?: OperationRequest;
+  userInput?: UserInputRequest;
   payment?: PaymentRequest;
 }
 
@@ -239,7 +273,7 @@ export function parseConfirmation(value: string | undefined): Confirmation | nul
  * well-formed JSON object, even one with no prompt: "is an answer owed?" and "does the form render?" have to be the
  * same predicate, or the composer would silently stop attaching answers for a payload the thread still shows.
  */
-export function parseHitlRequest(value: string | undefined, fallbackRequestId?: string): HitlRequest | null {
+export function parseHitlRequest(value: string | undefined, fallbackRequestId?: string, name?: string): HitlRequest | null {
   const parsed = parseObject<Record<string, unknown>>(value);
   if (!parsed) {
     return null;
@@ -252,15 +286,26 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
   const contents = objectArray(payload['Contents'] ?? payload['contents']);
   const challengeCode = text(payload['ChallengeCode']) ?? text(payload['challengeCode']);
   const expirationDate = text(payload['ExpirationDate']) ?? text(payload['expirationDate']);
+  const supportedOperations = (objectArray(payload['SupportedOperations'] ?? payload['supportedOperations']) ?? [])
+    .map((item) => {
+      const operation = text(item['Operation']) ?? text(item['operation']);
+      return operation
+        ? { operation, operationDescription: text(item['OperationDescription']) ?? text(item['operationDescription']) ?? operation }
+        : null;
+    })
+    .filter((item): item is AllowedOperation => item !== null);
+  const userInputMessage = text(payload['Message']) ?? text(payload['message']);
   const methods = textArray(payload['Methods'] ?? payload['methods']);
   return {
     requestId: text(payload['RequestId']) ?? text(payload['requestId']) ?? text(parsed['RequestId']) ?? text(parsed['requestId']) ?? fallbackRequestId,
-    text: text(payload['Text']) ?? text(payload['text']) ?? firstContentText(contents),
+    text: text(payload['Text']) ?? text(payload['text']) ?? firstContentText(contents) ?? userInputMessage,
     properties: stringMap(payload['Properties'] ?? payload['properties']),
     contents,
     messageId: text(payload['MessageId']) ?? text(payload['messageId']),
     additionalProperties: plainObject(payload['AdditionalProperties'] ?? payload['additionalProperties']),
     ...(challengeCode && expirationDate ? { otp: { challengeCode, expirationDate } } : {}),
+    ...(supportedOperations.length > 0 ? { operation: { supportedOperations } } : {}),
+    ...(userInputMessage && HitlControlResolver(name) === 'hitl-request-user-input' ? { userInput: { message: userInputMessage } } : {}),
     ...(methods ? { payment: { methods } } : {}),
   };
 }
@@ -277,16 +322,29 @@ export function parseHitlRequest(value: string | undefined, fallbackRequestId?: 
  */
 export function hitlResponseParts(request: HitlRequest, answer: string): IChatMessagePart[] {
   const requestId = request.requestId ?? '';
-  let payload: OtpResponse | PaymentResponse | { userInput: string } = { userInput: answer };
-  if (request.otp) {
-    payload = { challengeCode: request.otp.challengeCode, otp: answer };
-  } else if (request.payment) {
-    payload = { method: answer };
-  }
+    const payload: OtpResponse | PaymentResponse | OperationResponse | UserInputResponse | { userInput: string } =
+        request.otp ? { challengeCode: request.otp.challengeCode, otp: answer } :
+        request.operation ? { selectedOperation: resolveOperation(request.operation, answer) } :
+        request.userInput ? { inputMessage: answer } : 
+        request.payment ? { method: answer }    
+        : { userInput: answer };
   return [
     { value: answer, contentType: 'text/plain', requestId },
     { value: JSON.stringify(payload), contentType: HITL_RESPONSE_MEDIA_TYPE, requestId },
   ];
+}
+
+/**
+ * Maps an answer to the operation name the server expects. Buttons emit the description (what the thread shows), and
+ * a typed answer may be either the description or the name; anything unmatched is passed through as-is.
+ */
+function resolveOperation(request: OperationRequest, answer: string): string {
+  const normalized = answer.trim().toLowerCase();
+  const match = request.supportedOperations.find(
+    (candidate) =>
+      candidate.operationDescription.toLowerCase() === normalized || candidate.operation.toLowerCase() === normalized,
+  );
+  return match?.operation ?? answer;
 }
 
 /** The parts of an ordinary, unstructured user turn. */
