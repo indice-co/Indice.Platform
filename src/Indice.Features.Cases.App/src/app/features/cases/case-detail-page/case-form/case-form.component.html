@@ -36,18 +36,18 @@
         }
       </h3>
       @if (showForm) {
-        <json-schema-form
+        <jsonforms
           (keydown.enter)="$event.preventDefault()"
           [schema]="schema"
-          [(data)]="data"
-          [layout]="layout"
-          [framework]="framework"
-          [options]="jsonFormOptions"
-          [widgets]="widgets"
-          (onChanges)="onFormChanges($event)"
-          (isValid)="isValid($event)"
-          (onSubmit)="onSubmit($event)">
-        </json-schema-form>
+          [data]="data"
+          [uischema]="uiSchema"
+          [renderers]="renderers"
+          [readonly]="readonly"
+          [ajv]="ajv"
+          [config]="formsConfig"
+          (dataChange)="onFormChanges($event)"
+          (errors)="isValid(!$event?.length)">
+        </jsonforms>
       }
       @if (!this.case.draft && formEditable) {
         <button

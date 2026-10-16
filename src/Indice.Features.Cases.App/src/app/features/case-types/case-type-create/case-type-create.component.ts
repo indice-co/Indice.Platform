@@ -1,5 +1,5 @@
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CaseTypeUpdateService } from '../case-type-update.service';
 import { CaseTypeRequest } from '../../../core/services/cases-api.service';
 
@@ -7,12 +7,11 @@ import { CaseTypeRequest } from '../../../core/services/cases-api.service';
     selector: 'app-case-type-create',
     templateUrl: './case-type-create.component.html',
     styleUrls: ['./case-type-create.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseTypeCreateComponent implements OnInit {
 
-  public widgets = this.caseTypesService.widgets;
-  public framework = this.caseTypesService.framework;
   public schema = this.caseTypesService.schema;
   public layout = this.caseTypesService.onLoadLayout();
   public data: any = {};
