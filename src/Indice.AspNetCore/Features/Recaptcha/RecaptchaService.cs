@@ -27,7 +27,6 @@ public interface IRecaptchaService
     bool IsEnabled { get; }
 
     /// <summary>Determines whether validation should be performed.</summary>
-    /// <param name="isEnabled">Indicates whether validation is enabled.</param>
     /// <param name="version">The version to validate against. Defaults to "v3".</param>
     /// <param name="token">The optional token used for validation.</param>
     /// <returns><see langword="true"/> if validation is required; otherwise,<see langword="false"/>.</returns>

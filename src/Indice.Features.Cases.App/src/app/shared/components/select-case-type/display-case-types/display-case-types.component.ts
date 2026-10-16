@@ -1,10 +1,11 @@
-import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, Input, OnInit, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CaseTypePartial } from 'src/app/core/services/cases-api.service';
 
 @Component({
     selector: 'app-display-case-types',
     templateUrl: './display-case-types.component.html',
     styleUrls: ['./display-case-types.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DisplayCaseTypesComponent implements OnInit {

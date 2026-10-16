@@ -1,5 +1,5 @@
 import { map, take } from 'rxjs/operators';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BaseListComponent, Icons, IResultSet, RouterViewAction, ViewAction, ListViewType, ModalService } from '@indice/ng-components';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -11,6 +11,7 @@ import { CaseTypeDeleteModalComponent } from './case-type-delete-modal/case-type
     selector: 'app-case-types',
     templateUrl: './case-types.component.html',
     styleUrls: ['./case-types.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseTypesComponent extends BaseListComponent<CaseTypePartial> implements OnInit {

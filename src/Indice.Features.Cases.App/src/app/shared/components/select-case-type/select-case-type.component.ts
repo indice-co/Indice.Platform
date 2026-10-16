@@ -1,5 +1,5 @@
 import { CaseTypePartialResultSet, Contact } from './../../../core/services/cases-api.service';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { CasesApiService, CaseTypePartial } from 'src/app/core/services/cases-api.service';
 
@@ -7,6 +7,7 @@ import { CasesApiService, CaseTypePartial } from 'src/app/core/services/cases-ap
     selector: 'app-select-case-type',
     templateUrl: './select-case-type.component.html',
     styleUrls: ['./select-case-type.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SelectCaseTypeComponent implements OnInit {

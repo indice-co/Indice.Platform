@@ -9,7 +9,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Requests user to verify ownership of the case by confirming a specific field.
 /// Uses a prompt template to generate the verification request with the field name and masked value.
 /// </summary>
-public sealed class AuthenticationChallengeStep : Executor<OperationState, ChallengeRequestPort.ChallengeRequest>
+public class AuthenticationChallengeStep : Executor<OperationState, ChallengeRequestPort.ChallengeRequest>
 {
     private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly ILogger<AuthenticationChallengeStep> _logger;
