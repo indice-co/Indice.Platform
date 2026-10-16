@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CustomCaseAction, SuccessMessage } from 'src/app/core/services/cases-api.service';
 
 @Component({
     selector: 'app-case-custom-action',
     templateUrl: './case-custom-action.component.html',
     styleUrls: ['./case-custom-action.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseCustomActionComponent implements OnInit {

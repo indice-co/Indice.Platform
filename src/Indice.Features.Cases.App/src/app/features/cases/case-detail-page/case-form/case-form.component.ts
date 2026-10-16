@@ -1,31 +1,22 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ToastType } from '@indice/ng-components';
 import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 import { EMPTY, forkJoin, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Case, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDetails } from 'src/app/core/services/cases-api.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
-import { SubmitWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
-import { TailwindFrameworkComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component';
-import { SelectWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/select-widget/select-widget.component';
 import { get, isEqual, update } from 'lodash';
-import { CurrencyWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/currency-widget/currency-widget.component';
-import { DateWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/date-widget/date-widget.component';
-import { LookupWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-widget/lookup-widget.component';
-import { InputWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/input-widget/input-widget.component';
-import { TextAreaWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/text-area-widget/text-area-widget.component';
 import { Router } from '@angular/router';
-import { FileWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/file-widget/file-widget.component';
-import { LookupSelectorWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-selector-widget/lookup-selector-widget.component';
-import { WysiwygWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
-import { HrefWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/href-widget/href-widget.component';
-import { LabelOnlyWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/label-only-widget/label-only-widget.component';
+import { createAjv, Generate } from '@jsonforms/core';
+import { CasesJsonFormsConfig } from 'src/app/shared/jsonforms/jsonforms-utilities';
+import { tailwindRenderers } from 'src/app/shared/jsonforms/tailwind-renderers';
 
 
 @Component({
     selector: 'app-case-form',
     templateUrl: './case-form.component.html',
     styleUrls: ['./case-form.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
@@ -38,38 +29,19 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     @Output() updateDataEvent = new EventEmitter<{ draft: boolean }>();
     @Output() formIsValid = new EventEmitter<boolean>();
     @Output() unSavedChanges = new EventEmitter<boolean>();
-    // Add custom widget
-    public widgets = {
-        "file": FileWidgetComponent,
-        "submit": SubmitWidgetComponent,
-        "select": SelectWidgetComponent,
-        "lookup": LookupWidgetComponent,
-        "lookup-selector": LookupSelectorWidgetComponent,
-        "date": DateWidgetComponent,
-        "currency": CurrencyWidgetComponent,
-        "text": InputWidgetComponent,
-        "number": InputWidgetComponent,
-        "textarea": TextAreaWidgetComponent,
-        "wysiwyg": WysiwygWidgetComponent,
-        "href": HrefWidgetComponent,
-        "label-only": LabelOnlyWidgetComponent
-    };
-    // Add custom framework
-    public framework = {
-        framework: TailwindFrameworkComponent
-    };
-    public jsonFormOptions: any = {
-        addSubmit: false, // Don't show a submit button if layout does not have one
-        setSchemaDefaults: false, // Always use schema defaults for empty fields
-        draft: false
-    };
+    public renderers = tailwindRenderers;
+    public formsConfig: CasesJsonFormsConfig = {};
+    public ajv = createAjv();
+    public readonly = false;
     private copiedLayout: any;
     private initialData: any;
     public formIsDirty: boolean = false;
     public showForm = true;
     public data: any;
     public schema: any;
+    // the ajsf layout, still read for its onChange / onInit scripts
     public layout: any;
+    public uiSchema: any;
     public lastChange: any;
     onChangeCallbackDictionary: any = {};
 
@@ -107,20 +79,29 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
         }
         // extract layout from case type
         let layout = (typeof this.case.caseType?.layout! !== 'string') ? this.case.caseType?.layout! : JSON.parse(this.case.caseType?.layout!);
-        // since layout is reset we need to transform it
+        this.schema = (typeof this.case.caseType?.dataSchema! !== 'string') ? this.case.caseType?.dataSchema! : JSON.parse(this.case.caseType?.dataSchema!);
+        // no layout: generate the UI schema JSON Forms would generate, so that a submit can be added to it
+        const uiSchema = structuredClone(this.case.caseType?.uiSchema) ?? Generate.uiSchema(this.schema);
         if (!this.formEditable) {
-            this.transformLayout(layout, !this.formEditable, this.case.draft);
+            if (this.case.draft) {
+                // case is draft, we need all form properties available and ignore layout restrictions (eg readonly, or html class disable)
+                this.removeReadonlyProperties(uiSchema);
+            }
             // here we need to check if case has become editable: we need to "enable" checkboxes
             // note: this won't affect checkboxes that have "disableCheckbox" class in their layout!
             if (this.formContainer?.nativeElement && (this.formEditable || this.case?.draft)) {
                 this.formContainer.nativeElement.classList.remove('disableCheckbox');
             }
         }
-        this.jsonFormOptions.draft = this.case.draft;
-        this.jsonFormOptions.setSchemaDefaults = this.case.draft; // use schema defaults only for draft cases!
-        this.jsonFormOptions.addSubmit = this.case.draft || this.formEditable;
-        this.schema = (typeof this.case.caseType?.dataSchema! !== 'string') ? this.case.caseType?.dataSchema! : JSON.parse(this.case.caseType?.dataSchema!);
+        if (this.case.draft || this.formEditable) {
+            this.addSubmit(uiSchema);
+        }
+        // not draft and not editable: the form is view-only
+        this.readonly = !this.formEditable && !this.case.draft;
+        this.formsConfig = { draft: this.case.draft, onSubmit: data => this.onSubmit(data) };
+        this.ajv = createAjv({ useDefaults: !!this.case.draft }); // use schema defaults only for draft cases!
         this.layout = layout;
+        this.uiSchema = uiSchema;
         this.data = this.initialData;
         this.populateForm(this.data);
         this.showForm = true;
@@ -139,14 +120,11 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     public onSubmit(event: any): void {
         // we have to send user's document(s) to the server
         const callsDict: { [key: string]: Observable<CasesAttachmentLink> } = { '': of({} as CasesAttachmentLink) };
-        // what is the key of the dictionary here? the dataPointer (e.g. "/homeAddress/attachmentId") that was added in the file-upload widget
+        // what is the key of the dictionary here? the data path (e.g. "homeAddress.attachmentId") that was added in the file control
         for (const key in this._fileUploadService.files) {
             if (this._fileUploadService.files.hasOwnProperty(key)) {
                 // we may have 'garbage' attachments that we should not send to server!!!
-                let path = key;
-                path = path.replace(/\//g, '.'); // https://stackoverflow.com/a/63616567/19162333
-                path = path.substring(1);
-                if (get(event, path)) { // https://lodash.com/docs/4.17.15#get
+                if (get(event, key)) { // https://lodash.com/docs/4.17.15#get
                     const fileParam = { data: this._fileUploadService.files[key], fileName: this._fileUploadService.files[key].name };
                     callsDict[key] = this._api.uploadAdminCaseAttachment(this.case?.id!, fileParam);
                 }
@@ -159,9 +137,9 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                     (response: { [key: string]: CasesAttachmentLink }) => {
                         for (const key in response) {
                             if (response.hasOwnProperty(key) && key !== '') {
-                                // transform path to object key (eg. "/home/attachmentId") to a string that lodash update (https://lodash.com/docs/4.17.15#update)
-                                // can understand (eg "home.attachmentId") and update its value with the response attachment id
-                                update(event, key.slice(1).replace('/', '.'), () => response[key].id!);
+                                // the key is a data path (eg "home.attachmentId") that lodash update (https://lodash.com/docs/4.17.15#update)
+                                // understands; update its value with the response attachment id
+                                update(event, key, () => response[key].id!);
                             }
                         }
 
@@ -211,6 +189,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     // property-level onChange implementation from:
     // https://github.com/hamzahamidi/ajsf/issues/37
     onFormChanges(entity: any) {
+        this.latestModel = entity;
         if (!this.case?.draft) { // this logic applies only for non-draft cases
             // this will only work if setSchemaDefaults is set to FALSE, because, at initialization, ajsf adds to data the properties with default values from schema!
             if (!isEqual(entity, this.initialData)) {
@@ -222,9 +201,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
             }
         }
 
-        // ajsf's (onChanges) is very trigger happy and often is invoked with a fake empty
-        // object, so ignore it
-        if (Object.keys(entity).length === 0 && entity.constructor === Object) {
+        // ignore an empty form
+        if (!entity || (Object.keys(entity).length === 0 && entity.constructor === Object)) {
             return;
         }
 
@@ -264,50 +242,29 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
         this.changeDetector.detectChanges();
     }
 
-    private transformLayout(layout: any, viewOnlyMode: boolean = true, draft?: boolean): void {
-        // first check for draft, and override json layout
-        if (draft) {
-            // case is draft, we need all form properties available and ignore layout restrictions (eg readonly, or html class disable)
-            this.removeReadonlyProperties(layout);
+    /** Removes `readonly` and the `disableCheckbox` class from every UI schema element. */
+    private removeReadonlyProperties(uiSchema: any): void {
+        if (!uiSchema) {
             return;
         }
-        // case is not draft, check for editability
-        if (viewOnlyMode) {
-            this.addReadonlyProperties(layout);
-            return;
+        const options = uiSchema.options;
+        if (options) {
+            delete options.readonly;
+            if (options.htmlClass && options.htmlClass.indexOf('disableCheckbox') > -1) {
+                options.htmlClass = options.htmlClass.replace('disableCheckbox', '');
+            }
+            this.removeReadonlyProperties(options.detail); // array item layout
         }
-
-        // form is editable
-        this.jsonFormOptions.addSubmit = true;
+        uiSchema.elements?.forEach((element: any) => this.removeReadonlyProperties(element));
     }
 
-    private removeReadonlyProperties(layout: any): void {
-        const activateElement = (element: any) => {
-            delete element.readonly;
-            if (element.htmlClass && element.htmlClass.indexOf('disableCheckbox') > -1) {
-                element.htmlClass = element.htmlClass.replace('disableCheckbox', '');
-            }
+    /** Adds a submit button at the end of the form when the layout has none, as ajsf `addSubmit` did. */
+    private addSubmit(uiSchema: any): void {
+        const hasSubmit = (element: any): boolean =>
+            element?.type === 'Submit' || !!element?.elements?.some(hasSubmit) || (!!element?.options?.detail && hasSubmit(element.options.detail));
+        if (Array.isArray(uiSchema?.elements) && !hasSubmit(uiSchema)) {
+            uiSchema.elements.push({ type: 'Submit' });
         }
-
-        layout?.forEach((element: any) => {
-            activateElement(element);
-            if (element.hasOwnProperty('items')) {
-                this.removeReadonlyProperties(element.items);;
-            }
-        });
-    }
-
-    private addReadonlyProperties(layout: any): void {
-        if (!Array.isArray(layout)) {
-            return;
-        }
-        // form is view-only -> add readonly property to all objects of layout object!
-        layout?.forEach((element: any) => {
-            element.readonly = "true";
-            if (element.hasOwnProperty('items')) { // ajsf sections may have items, which may be flex containers, which may have items...
-                this.addReadonlyProperties(element.items);
-            }
-        });
     }
 
     private deleteEmptyStringProperties(obj: any) {
