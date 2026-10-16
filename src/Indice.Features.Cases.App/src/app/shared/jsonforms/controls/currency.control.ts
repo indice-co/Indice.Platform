@@ -50,7 +50,10 @@ export class CurrencyControlComponent extends TailwindControl {
         if (inputNumber === undefined && text !== '') {
             return;
         }
-        this.setValue(inputNumber);
+        // store the number as a string when the schema types the property as string (and not number), so it passes validation
+        const types: string[] = ([] as string[]).concat(this.scopedSchema?.type ?? []);
+        const isString = types.includes('string') && !types.includes('number') && !types.includes('integer');
+        this.setValue(isString && inputNumber !== undefined ? inputNumber.toString() : inputNumber);
     }
 
     onBlur(event: FocusEvent): void {
@@ -59,7 +62,10 @@ export class CurrencyControlComponent extends TailwindControl {
         (event.target as HTMLInputElement).value = this.displayValue;
     }
 
-    private static toLocaleString(locale: string, value: number, decimalPlaces: number): string {
+    private static toLocaleString(locale: string, value: number | string, decimalPlaces: number): string {
+        if (typeof value === 'string') {
+            value = value.trim() === '' || isNaN(Number(value)) ? value as any : Number(value);
+        }
         return value?.toLocaleString(locale, {
             minimumFractionDigits: decimalPlaces,
             maximumFractionDigits: decimalPlaces
