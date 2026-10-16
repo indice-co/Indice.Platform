@@ -174,16 +174,16 @@ public sealed class ApifonWebHookHttpHandler : IWebhookHttpHandler
         if (payload?.Data is not { Count: > 0 } || payload.Data.Any(item => item is null)) {
             return WebhookHttpResult.BadRequest("Apifon webhook data must contain at least one non-null item.");
         }
-        var incomingEvent = new WebhookEvent {
+        var incomingEvents = payload!.Data.Select(item => new WebhookEvent {
             Provider = "Apifon",
             EventType = "SmsDelivery",
-            MessageId = payload!.ReferenceId,
-            EventId = payload!.RequestId,
-            Recipient = payload.Data.FirstOrDefault()!.To,
-            Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(payload.Data.FirstOrDefault()!.Timestamp)
-        };
+            MessageId = item.MessageId,
+            EventId = payload.RequestId,
+            Recipient = item.To,
+            Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(item.Timestamp)
+        }).ToList();
 
-        return WebhookHttpResult.Ok([incomingEvent]);
+        return WebhookHttpResult.Ok(incomingEvents);
     }
 
     private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {
