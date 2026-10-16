@@ -11,6 +11,7 @@
 // Type-only: the generated shape of a part, so the builders below cannot drift from the wire contract. It adds no
 // runtime dependency, which is what keeps this file importable from a spec without a TestBed.
 import type { IChatMessagePart } from '../../../core/services/dex-api.service';
+import type { PaymentSession } from '../../../core/services/payment.service';
 
 /** A list of options the user can pick from; picking one posts it verbatim as the next user message. */
 export const MULTIPLE_CHOICE_MEDIA_TYPE = 'application/vnd.indice.multiple-choice+json';
@@ -39,6 +40,30 @@ export const HITL_REQUEST_MEDIA_TYPE = 'application/vnd.indice.function-call.req
  */
 export const HITL_RESPONSE_MEDIA_TYPE = 'application/vnd.indice.function-call.response+json';
 
+/** The inline Stripe card payment form; the chat stays locked until the payment is authorized. */
+export const STRIPE_PAYMENT_MEDIA_TYPE = 'application/vnd.indice.payment.stripe+json';
+
+/** Payload of {@link STRIPE_PAYMENT_MEDIA_TYPE}: the case being paid (paid once), the key and the server-created attempt. */
+export interface StripePayment {
+  method: string;
+  caseId: string;
+  publishableKey?: string | null;
+  session?: PaymentSession | null;
+}
+
+/** Parses a {@link STRIPE_PAYMENT_MEDIA_TYPE} part; `null` when the case id is missing. */
+export function parseStripePayment(value: string | undefined): StripePayment | null {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(value) as Partial<StripePayment> | null;
+    return parsed && typeof parsed.caseId === 'string' && parsed.caseId
+      ? { method: parsed.method ?? 'Stripe', caseId: parsed.caseId, publishableKey: parsed.publishableKey ?? null, session: parsed.session ?? null }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 /** What `ChatMessagePartComponent` renders a part as. */
 export type PartKind =
   | 'markdown'
@@ -52,6 +77,7 @@ export type PartKind =
   | 'hitl-request-operation'
   | 'hitl-request-user-input'
   | 'hitl-request-payment'
+  | 'payment-stripe'
   | 'unknown';
 
 /**
@@ -75,8 +101,10 @@ export function partKind(contentType: string | undefined): PartKind {
       return 'callout';
     case CONFIRM_MEDIA_TYPE:
       return 'confirm';
+    case STRIPE_PAYMENT_MEDIA_TYPE:
+      return 'payment-stripe';
     case HITL_REQUEST_MEDIA_TYPE:
-      console.log('partKind: hitl-request');
+      console.log
       return 'hitl-request';
     default:
       return contentType?.startsWith('image/') ? 'image' : 'unknown';

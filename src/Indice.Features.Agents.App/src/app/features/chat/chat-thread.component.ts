@@ -67,6 +67,7 @@ import { isTextPart } from './parts/part-contracts';
                           [first]="$first"
                           [interactive]="turn.isLatest && !streaming()"
                           (pick)="pick.emit($event)"
+                          (paymentCompleted)="paymentCompleted.emit()"
                         />
                       }
                     </div>
@@ -203,6 +204,8 @@ export class ChatThreadComponent {
 
   /** Emits text the user picked from an interactive part (an option, a confirmation button), to be sent as the next user message. */
   readonly pick = output<string>();
+  /** Emits when an inline payment part reports the payment as authorized. */
+  readonly paymentCompleted = output<void>();
   /** Emits when the user rates an assistant answer: `like` true/false, or null to clear the rating. */
   readonly likeChanged = output<{ messageId: string; like: boolean | null }>();
 

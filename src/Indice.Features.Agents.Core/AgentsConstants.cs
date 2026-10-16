@@ -65,6 +65,13 @@ public static class AgentsConstants
             public const string Response = "application/vnd.indice.function-call.response+json";
         }
 
+        /// <summary>Payment provider widgets rendered inline in the chat.</summary>
+        public static class Payment
+        {
+            /// <summary>Renders the Stripe card payment form inline and locks the chat until the payment is authorized. Payload: <c>{ "method": string }</c>.</summary>
+            public const string Stripe = "application/vnd.indice.payment.stripe+json";
+        }
+
         /// <summary>A custom type to send a request for confirmation to the dex surface.</summary>
 
         public static class ConfirmationPort

@@ -32,7 +32,8 @@ public class ServicePickUpDataResolver : ICustomerDataResolver
             PhoneNumber = caseData["data"]["phoneNumber"]?.GetValue<string>(),
             Email = caseData["data"]["email"]?.GetValue<string>(),
             ChallengeValue = caseData["data"]["carPlate"]?.GetValue<string>(),
-            ChallengeType = "carPlate"
+            ChallengeType = "carPlate",
+            PaymentAmount = 11.15M
         };
     }
 

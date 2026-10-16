@@ -43,7 +43,8 @@ export type PaymentAuthStatus = 'Created' | 'Succeeded' | 'Failed' | 'Cancelled'
 /** A payment attempt (session) as returned by the API. */
 export interface PaymentSession {
   id?: string;
-  conversationId?: string;
+  caseId?: string;
+  conversationId?: string | null;
   /** The Stripe PaymentIntent client_secret the card is confirmed against. */
   paymentSessionSecret?: string | null;
   paymentAuthorizationStatus?: PaymentAuthStatus | null;
@@ -56,27 +57,11 @@ export interface PaymentSession {
 export class PaymentService {
   private readonly http = inject(HttpClient);
 
-  /**
-   * Initiate (or idempotently reuse) the payment authorization for the given chat. Returns the
-   * session with its `paymentSessionSecret`. A chat that already has a live attempt
-   * (Created/Succeeded) returns the previously issued secret rather than authorizing again.
-   *
-   * A 401 propagates so the caller can send the user to sign in.
-   */
-  createPaymentAttempt(chatId: string): Observable<PaymentSession> {
-    return this.withTransientRetry(
-      this.http.post<PaymentSession>(
-        `${settings.api_url}/my/chats/${encodeURIComponent(chatId)}/payment-attempts`,
-        null,
-      ),
-    );
-  }
-
-  /** The chat's current payment attempt — polled by the status page until the webhook lands. */
-  getCurrentPaymentAttempt(chatId: string): Observable<PaymentSession> {
+  /** The case's current payment attempt — polled until the webhook lands. */
+  getCurrentPaymentAttempt(caseId: string): Observable<PaymentSession> {
     return this.withTransientRetry(
       this.http.get<PaymentSession>(
-        `${settings.api_url}/my/chats/${encodeURIComponent(chatId)}/payment-attempts/current`,
+        `${settings.api_url}/my/cases/${encodeURIComponent(caseId)}/payment-attempts/current`,
       ),
     );
   }

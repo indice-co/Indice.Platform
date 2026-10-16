@@ -24,30 +24,20 @@ internal static class PaymentsApi
         group.WithHandledException<BusinessException>()
              .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("payment-provider/public-key", PaymentsHandlers.GetPublicKey)
-             .AllowAnonymous()
-             .WithName(nameof(PaymentsHandlers.GetPublicKey))
-             .WithSummary("Get the payment provider publishable key.");
-
         group.MapPost("webhooks/stripe", PaymentsHandlers.StripeWebhook)
              .AllowAnonymous()
              .ExcludeFromDescription()
              .DisableAntiforgery();
 
-        var chats = group.MapGroup("my/chats/{chatId:guid}/payment-attempts");
+        var chats = group.MapGroup("my/cases/{caseId}/payment-attempts");
         chats.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
         chats.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         chats.ProducesProblem(StatusCodes.Status401Unauthorized);
 
-        chats.MapPost(string.Empty, PaymentsHandlers.CreatePaymentAttempt)
-             .WithName(nameof(PaymentsHandlers.CreatePaymentAttempt))
-             .WithSummary("Create or reuse the payment attempt of a chat session.")
-             .WithDescription("Creates a manual-capture Stripe PaymentIntent for the hold amount and returns its client secret. Idempotent: a chat with a live attempt (Created/Succeeded) gets the existing attempt back.");
-
         chats.MapGet("current", PaymentsHandlers.GetCurrentPaymentAttempt)
              .WithName(nameof(PaymentsHandlers.GetCurrentPaymentAttempt))
-             .WithSummary("Get the latest payment attempt of a chat session.");
+             .WithSummary("Get the latest payment attempt of a case.");
 
         return routes;
     }

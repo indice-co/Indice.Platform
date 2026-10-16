@@ -20,6 +20,7 @@ public class DbPaymentSessionMap : IEntityTypeConfiguration<DbPaymentSession>
         builder.Property(x => x.Currency).HasMaxLength(TextSizePresets.S16);
         builder.Property(x => x.FailureReason).HasMaxLength(TextSizePresets.M512);
         builder.HasIndex(x => x.PaymentIntentId).IsUnique();
-        builder.HasIndex(x => new { x.ConversationId, x.CreatedAt });
+        builder.Property(x => x.CaseId).HasMaxLength(TextSizePresets.M128).IsRequired();
+        builder.HasIndex(x => new { x.CaseId, x.CreatedAt });
     }
 }

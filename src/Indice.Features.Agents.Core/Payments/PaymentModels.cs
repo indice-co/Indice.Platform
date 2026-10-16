@@ -18,7 +18,9 @@ public class PaymentSessionModel
 {
     /// <summary>The payment session id.</summary>
     public Guid Id { get; set; }
-    /// <summary>The chat this payment belongs to.</summary>
+    /// <summary>The case this payment belongs to.</summary>
+    public string CaseId { get; set; } = string.Empty;
+    /// <summary>The chat the payment was started from.</summary>
     public Guid ConversationId { get; set; }
     /// <summary>The PaymentIntent <c>client_secret</c> the card is confirmed against.</summary>
     public string? PaymentSessionSecret { get; set; }

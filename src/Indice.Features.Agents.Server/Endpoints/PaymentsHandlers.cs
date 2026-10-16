@@ -11,18 +11,9 @@ namespace Indice.Features.Agents.Server.Endpoints;
 /// <summary>Logic-free handlers for the chat payments endpoints.</summary>
 internal static class PaymentsHandlers
 {
-    /// <summary>GET /api/payment-provider/public-key — the Stripe publishable key.</summary>
-    public static Ok<PaymentProviderPublicKey> GetPublicKey(IPaymentsService payments) => TypedResults.Ok(payments.GetPublicKey());
-
-    /// <summary>POST /api/my/chats/{chatId}/payment-attempts — creates or reuses the chat's payment attempt.</summary>
-    public static async Task<Results<Ok<PaymentSessionModel>, NotFound>> CreatePaymentAttempt(Guid chatId, ClaimsPrincipal user, IPaymentsService payments, CancellationToken cancellationToken) {
-        var session = await payments.CreateOrReuseAttemptAsync(user.FindSubjectId()!, chatId, cancellationToken);
-        return session is null ? TypedResults.NotFound() : TypedResults.Ok(session);
-    }
-
-    /// <summary>GET /api/my/chats/{chatId}/payment-attempts/current — the chat's latest payment attempt.</summary>
-    public static async Task<Results<Ok<PaymentSessionModel>, NotFound>> GetCurrentPaymentAttempt(Guid chatId, ClaimsPrincipal user, IPaymentsService payments, CancellationToken cancellationToken) {
-        var session = await payments.GetCurrentAttemptAsync(user.FindSubjectId()!, chatId, cancellationToken);
+    /// <summary>GET /api/my/cases/{caseId}/payment-attempts/current — the case's latest payment attempt.</summary>
+    public static async Task<Results<Ok<PaymentSessionModel>, NotFound>> GetCurrentPaymentAttempt(string caseId, ClaimsPrincipal user, IPaymentsService payments, CancellationToken cancellationToken) {
+        var session = await payments.GetCurrentAttemptAsync(user.FindSubjectId()!, caseId, cancellationToken);
         return session is null ? TypedResults.NotFound() : TypedResults.Ok(session);
     }
 

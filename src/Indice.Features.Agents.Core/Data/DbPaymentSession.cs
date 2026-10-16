@@ -2,12 +2,14 @@ using Indice.Features.Agents.Core.Payments;
 
 namespace Indice.Features.Agents.Core.Data;
 
-/// <summary>A Stripe manual-capture payment attempt bound to a chat session.</summary>
+/// <summary>A Stripe manual-capture payment attempt bound to a case. A case is paid once.</summary>
 public class DbPaymentSession
 {
     /// <summary>Primary key.</summary>
     public Guid Id { get; set; } = Guid.NewGuid();
-    /// <summary>The chat session this payment belongs to.</summary>
+    /// <summary>The case this payment belongs to (the payment key).</summary>
+    public string CaseId { get; set; } = string.Empty;
+    /// <summary>The chat session the payment was started from, if any.</summary>
     public Guid ConversationId { get; set; }
     /// <summary><c>sub</c> claim of the paying user.</summary>
     public string UserId { get; set; } = string.Empty;
