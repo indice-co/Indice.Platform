@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Modal, ModalOptions } from '@indice/ng-components';
 export class WarningViewModel {
   public title: string | undefined;
@@ -7,6 +7,7 @@ export class WarningViewModel {
 @Component({
     selector: 'app-case-warning-modal',
     templateUrl: './case-warning-modal.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 /**

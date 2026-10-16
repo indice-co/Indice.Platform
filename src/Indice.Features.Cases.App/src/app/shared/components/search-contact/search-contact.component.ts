@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CasesApiService, Contact } from 'src/app/core/services/cases-api.service';
@@ -6,6 +6,7 @@ import { CasesApiService, Contact } from 'src/app/core/services/cases-api.servic
     selector: 'app-search-contact',
     templateUrl: './search-contact.component.html',
     styleUrls: ['./search-contact.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SearchContactComponent {
