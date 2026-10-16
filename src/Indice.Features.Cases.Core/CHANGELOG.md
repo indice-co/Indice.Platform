@@ -15,13 +15,6 @@ END;
 GO
 ```
 
-### For performance reasons, the following index were added to the `case` schema in cases db.
-```sql
-CREATE NONCLUSTERED INDEX [IX_Case_ReferenceNumber]
-    ON [case].[Case]([ReferenceNumber] ASC);
-GO
-```
-
 ## [8.1.0] - 2025-06-15
 ### For performance reasons, the following indexes were added to the `case` schema in cases db.
 ```sql
