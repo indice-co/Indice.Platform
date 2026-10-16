@@ -2,13 +2,10 @@ using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Models;
 
-/// <summary>
-/// A system-one decision in which every required question was answered confidently. Returned by
-/// <c>SystemOneDecisionService.DecideAsync</c>; a <c>null</c> result there means "fall back to the LLM".
-/// </summary>
+/// <summary>The answers of a system-one decision, returned by <see cref="Services.ISystemOneClient.DecideAsync"/>.</summary>
 public class SystemOneDecision
 {
-    /// <summary>The answers, keyed by question name.</summary>
+    /// <summary>The answers, keyed by question name. A question the model did not answer is missing.</summary>
     public IReadOnlyDictionary<string, SystemOneAnswer> Answers { get; init; } = new Dictionary<string, SystemOneAnswer>();
 
     /// <summary>Token usage of the decision call.</summary>

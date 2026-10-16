@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ModelContextProtocol.Protocol;
 using static Duende.IdentityModel.ClaimComparer;
@@ -13,8 +15,9 @@ namespace Indice.Features.Agents.Core.Services;
 /// <summary>
 /// Master intent router. Classifies the latest user message against the <see cref="AgentInfoRegistry"/> of
 /// available agents and returns the name of the agent that should handle it, or an out-of-scope decision
-/// when no registered agent fits. One Reasoning-model call — it mirrors <c>IntentClassifier</c>, but routes
-/// <em>across</em> agents rather than classifying intent <em>within</em> the knowledge pipeline.
+/// when no registered agent fits. It asks the system-one decision model (<see cref="ISystemOneClient"/>) first when
+/// one is configured, and falls back to one Reasoning-model call when that model is off, fails or is unsure. It mirrors
+/// <c>IntentClassifier</c>, but routes <em>across</em> agents rather than classifying intent <em>within</em> the knowledge pipeline.
 /// </summary>
 public class IntentRouterService
 {
@@ -22,21 +25,32 @@ public class IntentRouterService
     private readonly AgentInfoRegistry _registry;
 
     private readonly AgentsOptions.RoutingOptions _routing;
-    private readonly SystemOneDecisionService _systemOne;
+    private readonly ISystemOneClient _systemOne;
+    private readonly IConversationStore _store;
     private readonly AgentMessageLocalizer _localizer;
+    private readonly ILogger<IntentRouterService> _logger;
+    private readonly bool _systemOneEnabled;
+    private readonly double _minConfidence;
+    private readonly string _systemOneContext;
 
     /// <summary>Creates a new <see cref="IntentRouterService"/>.</summary>
     public IntentRouterService([FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, IOptions<AgentsOptions> agentsOptions, IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         AgentInfoRegistry registry, UserClaimsAIContextProvider userClaimsProvider, ConversationStoreChatHistoryProvider historyProvider,
-        SystemOneDecisionService systemOne, AgentMessageLocalizer localizer) {
+        ISystemOneClient systemOne, IConversationStore store, AgentMessageLocalizer localizer, ILogger<IntentRouterService> logger) {
         _registry = registry;
         _routing = agentsOptions.Value.Routing;
         _systemOne = systemOne;
+        _store = store;
         _localizer = localizer;
-        var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
-        chatOptions.Instructions = prompts.Render("IntentRouter", new {
+        _logger = logger;
+        _systemOneEnabled = !string.IsNullOrWhiteSpace(agentsOptions.Value.AzureOpenAI.Deployments.SystemOne);
+        _minConfidence = agentsOptions.Value.SystemOne.MinConfidence;
+        var routerModel = new {
             agents = registry.RoutableTargets().Select(agent => new { name = agent.Name, description = agent.Description }),
-        });
+        };
+        _systemOneContext = prompts.Render(nameof(AgentsConstants.PromptDefaults.IntentRouterSystemOne));
+        var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
+        chatOptions.Instructions = prompts.Render("IntentRouter", routerModel);
         _agent = chatClient.AsAIAgent(
             options: new ChatClientAgentOptions() {
                 ChatOptions = chatOptions,
@@ -114,31 +128,59 @@ public class IntentRouterService
         }
     }
     private async Task<RouteDecision?> RouteWithSystemOneAsync(ChatMessage message, string? conversationId, CancellationToken cancellationToken) {
-        if (!_systemOne.IsEnabled) {
+        if (!_systemOneEnabled) {
             return null;
         }
         var targets = _registry.RoutableTargets();
-        if (targets.Count == 0) {
+        try {
+            var messages = await GetSystemOneMessagesAsync(message, conversationId, cancellationToken);
+            var decision = await _systemOne.DecideAsync(messages, BuildSystemOneOptions(targets), cancellationToken);
+            return ToRouteDecision(decision);
+        } catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested) {
+            _logger.LogWarning(exception, "System-one routing failed; falling back to the LLM.");
             return null;
         }
-        var decision = await _systemOne.DecideAsync(BuildSystemOneRequest(message, conversationId, targets), cancellationToken);
-        return decision is null ? null : ToRouteDecision(decision);
     }
 
-    private static SystemOneDecisionRequest BuildSystemOneRequest(ChatMessage message, string? conversationId, IReadOnlyList<AgentInfo> targets) =>
+    private async Task<List<ChatMessage>> GetSystemOneMessagesAsync(ChatMessage message, string? conversationId, CancellationToken cancellationToken) {
+        List<ChatMessage> messages = Guid.TryParse(conversationId, out var id) && id != Guid.Empty
+            ? [.. await _store.GetHistoryAsync(id, cancellationToken)]
+            : [];
+        messages.Add(message);
+        return messages;
+    }
+
+    private SystemOneDecisionOptions BuildSystemOneOptions(IReadOnlyList<AgentInfo> targets) =>
         new() {
-            ConversationId = Guid.TryParse(conversationId, out var id) ? id : null,
-            Message = message.Text,
-            ContextPrompt = nameof(AgentsConstants.PromptDefaults.IntentRouterSystemOne),
+            Instructions = _systemOneContext,
             Questions = {
-                [InScopeQuestion] = SystemOneQuestion.Noul("Can one of the assistant's agents handle the latest message?", required: true),
-                [AgentQuestion] = SystemOneQuestion.Choice("Which agent should handle the latest message?",
-                    targets.ToDictionary(agent => agent.Name, agent => agent.Description)),
+                [InScopeQuestion] = SystemOneQuestion.Noul("Can one of the assistant's agents handle the latest message?",
+                    whenTrue: "One of the agents can handle it, including a follow-up to an earlier turn",
+                    whenFalse: "Small talk, general knowledge, or anything none of the agents covers"),
+                [AgentQuestion] = SystemOneQuestion.Choice("Which agent should handle the latest message? A follow-up belongs to the agent that handled the previous turn.",
+                    targets.ToDictionary(agent => agent.Name, DescribeAgent)),
             }
         };
 
+    // The option text of an agent: its description, capabilities and domains, as registered in its AgentInfo.
+    private static string DescribeAgent(AgentInfo agent) {
+        var description = agent.Description;
+        if (agent.Capabilities is { Count: > 0 } capabilities) {
+            description += $" Capabilities: {string.Join("; ", capabilities.Select(capability => $"{capability.Name} - {capability.Description}"))}.";
+        }
+        if (agent.Domains is { Count: > 0 } domains) {
+            description += $" Domains: {string.Join(", ", domains)}.";
+        }
+        return description;
+    }
+
     private RouteDecision? ToRouteDecision(SystemOneDecision decision) {
-        if (!decision.Get(InScopeQuestion)!.IsTrue) {
+        var inScopeAnswer = decision.Get(InScopeQuestion);
+        if (!IsConfident(inScopeAnswer)) {
+            _logger.LogDebug("System-one is unsure whether the message is in scope (confidence {Confidence}); falling back to the LLM.", inScopeAnswer?.Confidence);
+            return null;
+        }
+        if (!inScopeAnswer.IsTrue) {
             return new RouteDecision {
                 Reason = _localizer.OutOfScopeReply,
                 IsInScope = false
@@ -146,7 +188,8 @@ public class IntentRouterService
         }
         // The agent only matters for an in-scope message (no agent fits an out-of-scope one); there an unsure one goes to the LLM.
         var agentAnswer = decision.Get(AgentQuestion);
-        if (agentAnswer is not { IsConfident: true }) {
+        if (!IsConfident(agentAnswer)) {
+            _logger.LogDebug("System-one is unsure about the agent (choice {Choice}, confidence {Confidence}); falling back to the LLM.", agentAnswer?.Choice, agentAnswer?.Confidence);
             return null;
         }
         var agent = _registry.Find(agentAnswer.Choice!);
@@ -155,6 +198,8 @@ public class IntentRouterService
             IsInScope = true
         };
     }
+
+    private bool IsConfident([NotNullWhen(true)] SystemOneAnswer? answer) => answer is not null && answer.Confidence >= _minConfidence;
 
     private const string InScopeQuestion = "in_scope";
     private const string AgentQuestion = "agent";

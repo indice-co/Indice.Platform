@@ -24,7 +24,6 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using static System.Net.Mime.MediaTypeNames;
 using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -69,6 +68,15 @@ public static class AgentsFeatureExtensions
             return innerClient.GetEmbeddingClient(opts.Deployments.Embedding!).AsIEmbeddingGenerator(opts.EmbeddingDimensions);
         });
 
+        services.AddHttpClient(nameof(AzureOpenAIDeployments.SystemOne));
+        services.TryAddTransient<ISystemOneClient>(sp => {
+            var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI;
+            var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(AzureOpenAIDeployments.SystemOne));
+            var endpoint = string.IsNullOrWhiteSpace(opts.SystemOneEndpoint) ? opts.Endpoint! : opts.SystemOneEndpoint;
+            var apiKey = string.IsNullOrWhiteSpace(opts.SystemOneApiKey) ? opts.ApiKey! : opts.SystemOneApiKey;
+            return new FoundrySystemOneClient(httpClient, new Uri(endpoint), apiKey, opts.Deployments.SystemOne ?? string.Empty);
+        });
+
         services.AddDbContext<AgentsDbContext>((sp, options) => {
             var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value;
             var configureDbContext = opts.ConfigureDbContext ?? (
@@ -94,7 +102,6 @@ public static class AgentsFeatureExtensions
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
         services.TryAddSingleton<AgentInfoRegistry>();
-        services.AddHttpClient<SystemOneDecisionService>();
         services.TryAddTransient<IntentRouterService>();
         services.TryAddScoped<AgentMessageLocalizer>();
         services.AddAgentsDefaultPipeline();
@@ -223,7 +230,7 @@ public static class AgentsFeatureExtensions
         // IntentRouterService to pick one of the routable agents registered below.
         services.AddSingleton(new AgentInfo(
             Name: AgentsConstants.AgentNames.Operator,
-            Description: "This is an operator agent that can handle tools and provide solutions based on predefined rules.",
+            Description: "Retrieves and handles a case by its case or reference ID, using tools and predefined rules.",
             InputContentTypes: ["text/plain"],
              OutputContentTypes: ["text/markdown", "text/html", 
                                   AgentsConstants.MediaTypes.FunctionCallPort.Request],

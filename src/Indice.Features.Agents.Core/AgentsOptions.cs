@@ -87,8 +87,8 @@ public class AgentsOptions
         public string? Embedding { get; set; }
 
         /// <summary>
-        /// Optional system-one decision deployment (e.g. Microsoft-Decision-1) used by the intent router and the intent
-        /// classifier before they fall back to the <see cref="Reasoning"/> model. Leave empty for the LLM-only path.
+        /// Optional system-one decision deployment (e.g. Microsoft-Decision-1) used by the master intent router before it
+        /// falls back to the <see cref="Reasoning"/> model. Leave empty for the LLM-only path.
         /// </summary>
         public string? SystemOne { get; set; }
     }
