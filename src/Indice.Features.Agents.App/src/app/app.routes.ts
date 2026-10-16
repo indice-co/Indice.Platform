@@ -8,6 +8,8 @@ import { LoggedOutComponent } from './core/auth/logged-out.component';
 import { ShellComponent } from './core/layout/shell.component';
 import { assistantName } from './core/models/brand';
 import { ChatPageComponent } from './features/chat/chat-page.component';
+import { PaymentPageComponent } from './features/payment/payment-page.component';
+import { PaymentStatusComponent } from './features/payment/payment-status.component';
 import { ProfilePageComponent } from './features/profile/profile-page.component';
 
 export const routes: Routes = [
@@ -30,6 +32,12 @@ export const routes: Routes = [
         component: ProfilePageComponent,
         canActivate: [AuthGuardService],
         title: `${assistantName} — Profile`,
+      },
+      { path: 'payment/:chatId', component: PaymentPageComponent, title: `${assistantName} — Payment` },
+      {
+        path: 'payment/:chatId/status',
+        component: PaymentStatusComponent,
+        title: `${assistantName} — Payment`,
       },
     ],
   },

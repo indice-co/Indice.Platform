@@ -1,0 +1,46 @@
+<main class="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-8">
+  @if (status() === 'initializing' || status() === 'redirecting') {
+    <section class="flex flex-col items-center gap-3 py-12 text-base-content/70" aria-busy="true">
+      <span class="loading loading-spinner loading-lg" aria-hidden="true"></span>
+      <p>Preparing payment…</p>
+    </section>
+  } @else if (status() === 'error') {
+    <section class="flex flex-col items-center gap-3 py-12 text-center">
+      <div class="text-4xl font-bold text-error" aria-hidden="true">!</div>
+      <p class="text-lg font-semibold">Something went wrong</p>
+      <p class="text-sm text-base-content/70">{{ errorMessage() }}</p>
+      <button type="button" class="btn btn-outline btn-sm" (click)="retry()">Try again</button>
+    </section>
+  } @else {
+    <section class="flex flex-col gap-3">
+      <h1 class="text-xl font-bold">Payment</h1>
+      <p class="text-sm text-base-content/70">Enter your card details.</p>
+
+      <div class="rounded-box border border-base-300 bg-base-100 px-4 py-3.5">
+        <div #cardElement></div>
+      </div>
+      <p class="min-h-5 text-sm text-error" role="alert">{{ cardError() }}</p>
+
+      @if (holdAmountText(); as amount) {
+        <p class="whitespace-pre-line text-xs leading-snug text-base-content/70">
+          A temporary hold of {{ amount }} will be placed on your card. Only the final amount will be
+          charged and the rest will be released.
+        </p>
+      }
+    </section>
+
+    <button
+      type="button"
+      class="btn btn-primary w-full"
+      [disabled]="status() === 'confirming'"
+      (click)="pay()"
+    >
+      @if (status() === 'confirming') {
+        <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+        Processing…
+      } @else {
+        Authorize payment
+      }
+    </button>
+  }
+</main>
