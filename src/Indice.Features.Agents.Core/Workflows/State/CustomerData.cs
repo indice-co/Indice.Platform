@@ -43,6 +43,11 @@ public class CustomerData
     /// </summary>
     public string? ChallengeType { get; set; }
 
+    /// <summary>
+    /// Gets or sets the amount on hold for the customer's payment, if applicable.
+    /// </summary>
+    public decimal? PaymentAmount { get; set; }
+
     /// <summary>Whether the one-time password goes out over SMS (a phone number is on file) rather than email.</summary>
     [JsonIgnore]
     public bool UsesSmsForOtp => !string.IsNullOrWhiteSpace(PhoneNumber);

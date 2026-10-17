@@ -11,7 +11,7 @@ import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
 import { ChatComposerComponent } from './chat-composer.component';
 import { ChatThreadComponent } from './chat-thread.component';
 import { EXAMPLE_PROMPTS, ThreadMessage, responseToThreadMessage, toThreadMessage } from './chat.models';
-import { HITL_REQUEST_MEDIA_TYPE, hitlResponseParts, parseHitlRequest, textParts } from './parts/part-contracts';
+import { HITL_REQUEST_MEDIA_TYPE, STRIPE_PAYMENT_MEDIA_TYPE, hitlResponseParts, parseHitlRequest, textParts } from './parts/part-contracts';
 
 /**
  * The Dex chat surface: conversation thread + composer, wired to the streaming API.
@@ -65,6 +65,20 @@ export class ChatPageComponent {
   });
 
   protected readonly isStreaming = signal(false);
+  /** Message ids (or index keys) whose inline payment has been authorized — those no longer lock the chat. */
+  private readonly completedPayments = signal<ReadonlySet<string>>(new Set());
+  /**
+   * The chat is frozen while the latest assistant turn carries an inline Stripe payment that has not completed yet.
+   */
+  protected readonly paymentPending = computed(() => {
+    const messages = this.messages();
+    const latest = messages[messages.length - 1];
+    if (latest?.role !== 'Assistant') {
+      return false;
+    }
+    const hasStripe = latest.content.parts?.some((part) => part.contentType === STRIPE_PAYMENT_MEDIA_TYPE) ?? false;
+    return hasStripe && !this.completedPayments().has(this.paymentKey(messages.length - 1, latest));
+  });
   /** The DexChatResponse the stream is assembling — the invariant says the patched document IS one. */
   protected readonly streamResponse = signal<DexChatResponse | null>(null);
   protected readonly streamingMessage = computed(() => responseToThreadMessage(this.streamResponse()));
@@ -131,9 +145,24 @@ export class ChatPageComponent {
       });
   }
 
+  /** The inline payment on the latest turn was authorized server-side: unfreeze the chat. */
+  protected paymentCompleted(): void {
+    const messages = this.messages();
+    const index = messages.length - 1;
+    if (index < 0) {
+      return;
+    }
+    const key = this.paymentKey(index, messages[index]);
+    this.completedPayments.update((set) => new Set(set).add(key));
+  }
+
+  private paymentKey(index: number, message: ThreadMessage): string {
+    return message.messageId ?? `#${index}`;
+  }
+
   protected send(text: string): void {
     const value = text.trim();
-    if (!value || this.isStreaming() || this.conversationReadOnly()) {
+    if (!value || this.isStreaming() || this.conversationReadOnly() || this.paymentPending()) {
       return;
     }
     this.cancelStream();

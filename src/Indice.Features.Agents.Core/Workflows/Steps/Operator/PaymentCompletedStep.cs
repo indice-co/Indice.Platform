@@ -1,4 +1,10 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Indice.Features.Agents.Core.Extensions;
+using Indice.Features.Agents.Core.Payments;
+using Indice.Security;
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI.Workflows;
@@ -12,12 +18,24 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// </summary>
 public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse, OperationState>
 {
+    private const string StripeMethod = "Stripe";
+    private static readonly JsonSerializerOptions PayloadJsonOptions = new(JsonSerializerDefaults.Web) {
+        Converters = { new JsonStringEnumConverter() }
+    };
     private readonly AgentMessageLocalizer _messageLocalizer;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly AgentsClaimsPrincipalSelector _claimsPrincipalSelector;
     private readonly ILogger<PaymentCompletedStep> _logger;
 
     /// <summary>Creates a new <see cref="PaymentCompletedStep"/>.</summary>
-    public PaymentCompletedStep(AgentMessageLocalizer messageLocalizer, ILogger<PaymentCompletedStep> logger) : base(nameof(PaymentCompletedStep)) {
+    public PaymentCompletedStep(
+        AgentMessageLocalizer messageLocalizer,
+        IServiceScopeFactory scopeFactory,
+        AgentsClaimsPrincipalSelector claimsPrincipalSelector,
+        ILogger<PaymentCompletedStep> logger) : base(nameof(PaymentCompletedStep)) {
         _messageLocalizer = messageLocalizer;
+        _scopeFactory = scopeFactory;
+        _claimsPrincipalSelector = claimsPrincipalSelector;
         _logger = logger;
     }
 
@@ -27,7 +45,46 @@ public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(response);
+        if (string.Equals(response.Method?.Trim(), StripeMethod, StringComparison.OrdinalIgnoreCase)) {
+            await SendStripePaymentAsync(context, cancellationToken);
+            return OperationState.End;
+        }
         await context.Say(Id, _messageLocalizer.PaymentCompletedMessage, cancellationToken);
         return OperationState.End;
     }
+
+    // The case is the payment key (paid once per case). The attempt and the publishable key are resolved here so the
+    // UI renders the card form straight from the chat part, without extra round-trips.
+    private async Task SendStripePaymentAsync(IWorkflowContext context, CancellationToken cancellationToken) {
+        var caseData = await context.GetOperatorStateAsync(cancellationToken);
+        var conversation = await context.GetConversationStateAsync(cancellationToken);
+        var caseId = caseData.ReferenceId;
+        using var scope = _scopeFactory.CreateScope();
+        var payments = scope.ServiceProvider.GetService<IPaymentsService>();
+        if (payments is null || string.IsNullOrWhiteSpace(caseId)) {
+            _logger.LogWarning("Stripe payment requested but payments are not enabled or the case reference is missing.");
+            await context.Say(Id, _messageLocalizer.PaymentCompletedMessage, cancellationToken);
+            return;
+        }
+        var userId = _claimsPrincipalSelector()?.FindSubjectId() ?? conversation.ConversationId;
+        Guid conversationId = Guid.Parse(conversation.ConversationId);
+        var session = await payments.CreateOrReuseAttemptAsync(userId, caseId, caseData.PaymentAmount!.Value, conversationId, cancellationToken);
+        var payload = new StripePaymentPayload(
+            Method: StripeMethod,
+            CaseId: caseId,
+            PublishableKey: payments.GetPublicKey().PublishableKey,
+            Session: session);
+        var stripePart = new DataContent(JsonSerializer.SerializeToUtf8Bytes(payload, PayloadJsonOptions), AgentsConstants.MediaTypes.Payment.Stripe) {
+            Name = "StripePayment"
+        };
+        _logger.LogDebug("Stripe selected; sending the inline Stripe payment form for case {CaseId}.", caseId);
+        await context.Say(Id, stripePart, cancellationToken);
+    }
+
+    /// <summary>Payload of the <see cref="AgentsConstants.MediaTypes.Payment.Stripe"/> chat part.</summary>
+    /// <param name="Method">The selected payment method.</param>
+    /// <param name="CaseId">The case being paid.</param>
+    /// <param name="PublishableKey">The Stripe publishable key.</param>
+    /// <param name="Session">The case's payment attempt (with the client secret while it is confirmable).</param>
+    public record StripePaymentPayload(string Method, string CaseId, string? PublishableKey, PaymentSessionModel? Session);
 }
