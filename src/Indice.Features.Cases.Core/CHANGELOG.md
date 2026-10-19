@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.60.0] - 2026-10-30 (sample date)
+### Change type of ReferenceNumber column in Case table
+```sql
+BEGIN
+    ALTER TABLE [case].[Case]
+    ALTER COLUMN ReferenceNumber NVARCHAR(128);
+END;
+GO
+```
+
+### For performance reasons, the following index were added to the `case` schema in cases db.
+```sql
+CREATE NONCLUSTERED INDEX [IX_Case_GroupId]
+    ON [case].[Case]([GroupId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX
+    [IX_Case_ReferenceNumber_CaseTypeId]
+ON [case].[Case]
+(
+    [ReferenceNumber],
+    [CaseTypeId]
+)
+GO
+```
 
 ## [8.1.0] - 2025-06-15
 ### For performance reasons, the following indexes were added to the `case` schema in cases db.

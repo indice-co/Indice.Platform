@@ -31,6 +31,6 @@ public class DbCase
     public virtual List<DbComment> Comments { get; set; } = [];
     public virtual List<DbCaseData> Versions { get; set; } = [];
     public virtual List<DbCaseApproval> Approvals { get; set; } = [];
-    public virtual int? ReferenceNumber { get; set; }
+    public string? ReferenceNumber { get; set; }
 }
 #pragma warning restore 1591

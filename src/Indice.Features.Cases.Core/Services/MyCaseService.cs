@@ -40,7 +40,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         string? groupId,
         ContactMeta? customer,
         Dictionary<string, string> metadata,
-        string? channel) {
+        string? channel,
+        string? referenceNumber = null) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(caseTypeCode);
 
@@ -52,7 +53,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             groupId,
             customer,
             metadata,
-            string.IsNullOrEmpty(channel) ? CasesCoreConstants.Channels.Customer : channel);
+            string.IsNullOrEmpty(channel) ? CasesCoreConstants.Channels.Customer : channel,
+            referenceNumber: referenceNumber);
 
         return new CreateCaseResponse {
             Id = entity.Id,
@@ -147,9 +149,15 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
         }
 
-        // filter ReferenceNumbers
+        // filter by Reference Number
         if (filter?.ReferenceNumbers is { Length: > 0 } referenceNumbers) {
-            dbCaseQueryable = dbCaseQueryable.Where(dbCase => dbCase.ReferenceNumber.HasValue && referenceNumbers.Contains(dbCase.ReferenceNumber.Value));
+            var expressions = referenceNumbers.Select<string, Expression<Func<DbCase, bool>>>(referenceNumber => c => c.ReferenceNumber == referenceNumber);
+            // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Code == checkpoint1 OR == checkpoint2 etc
+            var aggregatedExpression = expressions.Aggregate((expression, next) => {
+                var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
+            });
+            dbCaseQueryable = dbCaseQueryable.Where(aggregatedExpression);
         }
 
         // filter Statuses
