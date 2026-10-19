@@ -48,7 +48,8 @@ export class CaseTypeService extends DataService {
   }
 
   public getDistinctCheckpointTypes():Observable<CheckpointType[]> {
-    return this.getDataFromCacheOrHttp(this.distinctCheckpointsKey, this._api.getDistinctCheckpointTypes());
+    return this.getDataFromCacheOrHttp(this.distinctCheckpointsKey,
+      this._api.getCheckpointTypesList(undefined, undefined, undefined, undefined, undefined, true).pipe(map(result => result.items ?? [])));
   }
 }
 

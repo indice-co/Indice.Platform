@@ -1,0 +1,73 @@
+<ng-template #list>
+  <div class="flex items-center justify-between gap-2 mb-2">
+    @if (!caseTypeId) {
+      <select class="form-select max-w-xs"
+        [ngModel]="selectedCaseTypeId"
+        (ngModelChange)="caseTypeChanged($event)">
+        <option [ngValue]="undefined">{{ 'checkpointTypes.allCaseTypes' | translate }}</option>
+        @for (caseType of caseTypes; track caseType.id) {
+          <option [ngValue]="caseType.id">{{ caseType.title }} ({{ caseType.code }})</option>
+        }
+      </select>
+    }
+    @if (embedded) {
+      <a [routerLink]="['/checkpoint-types/create']"
+        [queryParams]="createQueryParams()"
+        class="btn-submit">{{ 'checkpointTypes.create.title' | translate }}</a>
+    }
+  </div>
+  <lib-list-view [items]="items"
+    [page]="page"
+    [page-size]="pageSize"
+    [count]="count"
+    [sort]="sort"
+    [sort-dir]="sortdir"
+    [busy]="!items"
+    (pageChanged)="pageChanged($event)"
+    (pageSizeChanged)="pageSizeChanged($event)"
+    (sortChanged)="sortChanged($event)"
+    (sortdirChanged)="sortdirChanged($event)">
+    @if (!caseTypeId) {
+      <lib-list-column [title]="'checkpointTypes.column.caseType' | translate">
+        <ng-template let-item>{{ item.caseTypeCode }}</ng-template>
+      </lib-list-column>
+    }
+    <lib-list-column [title]="'checkpointTypes.column.code' | translate">
+      <ng-template let-item>{{ item.code }}</ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'checkpointTypes.column.title' | translate">
+      <ng-template let-item>{{ item.title }}</ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'checkpointTypes.column.status' | translate">
+      <ng-template let-item>{{ item.status }}</ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'checkpointTypes.column.private' | translate">
+      <ng-template let-item>{{ (item.private ? 'common.yes' : 'common.no') | translate }}</ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'checkpointTypes.column.actions' | translate">
+      <ng-template let-item>
+        <a [routerLink]="['/checkpoint-types', item.id, 'edit']"
+          class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
+          <span>{{ 'common.edit' | translate }}</span>
+        </a>
+        &nbsp;
+        <button type="button"
+          (click)="openDeleteModal(item)"
+          class="bg-red-600 hover:bg-red-800 cursor-pointer text-white font-bold p-2 inline-flex rounded text-xs">
+          <span>{{ 'common.delete' | translate }}</span>
+        </button>
+      </ng-template>
+    </lib-list-column>
+  </lib-list-view>
+</ng-template>
+
+@if (embedded) {
+  <ng-container *ngTemplateOutlet="list"></ng-container>
+} @else {
+  <lib-view-layout [title]="'checkpointTypes.title' | translate"
+    [busy]="!items"
+    [actions]="formActions"
+    (onSearch)="searchChanged($event)">
+    <ng-container *ngTemplateOutlet="list"></ng-container>
+  </lib-view-layout>
+}

@@ -15,6 +15,10 @@ import { CaseTypeEditComponent } from './features/case-types/case-type-edit/case
 import { QueriesPageComponent } from './features/cases/queries-page/queries-page.component';
 import { GeneralCasesComponent } from './features/cases/general-cases/general-cases.component';
 import { CaseTypeSpecificCasesComponent } from './features/cases/case-type-specific-cases/case-type-specific-cases.component';
+import { CheckpointTypesComponent } from './features/checkpoint-types/checkpoint-types.component';
+import { CheckpointTypeEditComponent } from './features/checkpoint-types/checkpoint-type-edit/checkpoint-type-edit.component';
+import { AccessRulesComponent } from './features/access-rules/access-rules.component';
+import { AccessRuleCreateComponent } from './features/access-rules/access-rule-create/access-rule-create.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent, data: { title: 'Αυθεντικοποίηση', breadcrumb: { title: 'breadcrumb.authCallback' } } },
@@ -48,6 +52,21 @@ const routes: Routes = [
           { path: '', component: CaseTypesComponent, data: { title: 'Τύποι Υπόθεσης', breadcrumb: { title: 'breadcrumb.caseTypes' } } },
           { path: 'create', component: CaseTypeCreateComponent, pathMatch: 'full', data: { title: 'Δημιουργία Υπόθεσης', breadcrumb: { title: 'breadcrumb.createCaseType' } } },
           { path: ':caseTypeId/edit', component: CaseTypeEditComponent, pathMatch: 'full', data: { title: 'Επεξεργασία Τύπου Υπόθεσης', breadcrumb: { title: 'breadcrumb.editCaseType' } } }
+        ]
+      },
+      {
+        path: 'checkpoint-types', pathMatch: 'prefix', canActivate: [adminGuard], data: { title: 'Checkpoint Types', breadcrumb: { title: 'breadcrumb.checkpointTypes' } },
+        children: [
+          { path: '', component: CheckpointTypesComponent, data: { title: 'Checkpoint Types', breadcrumb: { title: 'breadcrumb.checkpointTypes' } } },
+          { path: 'create', component: CheckpointTypeEditComponent, pathMatch: 'full', data: { title: 'Create Checkpoint Type', breadcrumb: { title: 'breadcrumb.createCheckpointType' } } },
+          { path: ':checkpointTypeId/edit', component: CheckpointTypeEditComponent, pathMatch: 'full', data: { title: 'Edit Checkpoint Type', breadcrumb: { title: 'breadcrumb.editCheckpointType' } } }
+        ]
+      },
+      {
+        path: 'access-rules', pathMatch: 'prefix', canActivate: [adminGuard], data: { title: 'Access Rules', breadcrumb: { title: 'breadcrumb.accessRules' } },
+        children: [
+          { path: '', component: AccessRulesComponent, data: { title: 'Access Rules', breadcrumb: { title: 'breadcrumb.accessRules' } } },
+          { path: 'create', component: AccessRuleCreateComponent, pathMatch: 'full', data: { title: 'Create Access Rule', breadcrumb: { title: 'breadcrumb.createAccessRule' } } }
         ]
       }
     ]

@@ -237,6 +237,11 @@ export interface ICasesApiService {
      * @return OK
      */
     getDistinctCheckpointTypes(): Observable<CheckpointType[]>;
+    getCheckpointTypesList(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, caseTypeId?: string | null | undefined, distinct?: boolean | null | undefined): Observable<CheckpointTypeResultSet>;
+    getCheckpointTypeById(checkpointTypeId: string): Observable<CheckpointType>;
+    createCheckpointType(body: CheckpointTypeRequest): Observable<CheckpointType>;
+    updateCheckpointType(checkpointTypeId: string, body: CheckpointTypeRequest): Observable<CheckpointType>;
+    deleteCheckpointType(checkpointTypeId: string): Observable<void>;
     /**
      * Search contacts.
      * @param reference (optional) 
@@ -3753,6 +3758,129 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Get the checkpoint types. Use the Distinct filter to get the distinct checkpoint types grouped by code.
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param caseTypeId (optional) Filter by case type id.
+     * @param distinct (optional) Return the distinct checkpoint types grouped by code.
+     * @return OK
+     */
+    getCheckpointTypesList(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, caseTypeId?: string | null | undefined, distinct?: boolean | null | undefined): Observable<CheckpointTypeResultSet> {
+        let url_ = this.baseUrl + "/manage/checkpoint-types?";
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new globalThis.Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new globalThis.Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new globalThis.Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (caseTypeId !== undefined && caseTypeId !== null)
+            url_ += "CaseTypeId=" + encodeURIComponent("" + caseTypeId) + "&";
+        if (distinct !== undefined && distinct !== null)
+            url_ += "Distinct=" + encodeURIComponent("" + distinct) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+        return this.sendCheckpointTypeRequest("get", url_, undefined, 200, data => CheckpointTypeResultSet.fromJS(data));
+    }
+
+    /**
+     * Get a specific checkpoint type by Id.
+     * @return OK
+     */
+    getCheckpointTypeById(checkpointTypeId: string): Observable<CheckpointType> {
+        if (checkpointTypeId === undefined || checkpointTypeId === null)
+            throw new globalThis.Error("The parameter 'checkpointTypeId' must be defined.");
+        const url_ = this.baseUrl + "/manage/checkpoint-types/" + encodeURIComponent("" + checkpointTypeId);
+        return this.sendCheckpointTypeRequest("get", url_, undefined, 200, data => CheckpointType.fromJS(data));
+    }
+
+    /**
+     * Create a new checkpoint type.
+     * @return Created
+     */
+    createCheckpointType(body: CheckpointTypeRequest): Observable<CheckpointType> {
+        const url_ = this.baseUrl + "/manage/checkpoint-types";
+        return this.sendCheckpointTypeRequest("post", url_, body, 201, data => CheckpointType.fromJS(data));
+    }
+
+    /**
+     * Update a specific checkpoint type.
+     * @return OK
+     */
+    updateCheckpointType(checkpointTypeId: string, body: CheckpointTypeRequest): Observable<CheckpointType> {
+        if (checkpointTypeId === undefined || checkpointTypeId === null)
+            throw new globalThis.Error("The parameter 'checkpointTypeId' must be defined.");
+        const url_ = this.baseUrl + "/manage/checkpoint-types/" + encodeURIComponent("" + checkpointTypeId);
+        return this.sendCheckpointTypeRequest("put", url_, body, 200, data => CheckpointType.fromJS(data));
+    }
+
+    /**
+     * Delete a specific checkpoint type.
+     * @return No Content
+     */
+    deleteCheckpointType(checkpointTypeId: string): Observable<void> {
+        if (checkpointTypeId === undefined || checkpointTypeId === null)
+            throw new globalThis.Error("The parameter 'checkpointTypeId' must be defined.");
+        const url_ = this.baseUrl + "/manage/checkpoint-types/" + encodeURIComponent("" + checkpointTypeId);
+        return this.sendCheckpointTypeRequest("delete", url_, undefined, 204, () => null as any);
+    }
+
+    private sendCheckpointTypeRequest<T>(method: string, url_: string, body: any, okStatus: number, parse: (data: any) => T): Observable<T> {
+        let options_ : any = {
+            body: body !== undefined ? JSON.stringify(body) : undefined,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders(body !== undefined ? {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            } : {
+                "Accept": "application/json"
+            })
+        };
+        const process = (response: HttpResponseBase): Observable<T> => {
+            const status = response.status;
+            const responseBlob =
+                response instanceof HttpResponse ? response.body :
+                (response as any).error instanceof Blob ? (response as any).error : undefined;
+            let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+                const data = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                if (status === okStatus) {
+                    return _observableOf(parse(data));
+                } else if (status === 400) {
+                    return throwException("Bad Request", status, _responseText, _headers, HttpValidationProblemDetails.fromJS(data));
+                } else if (status === 401) {
+                    return throwException("Unauthorized", status, _responseText, _headers, ProblemDetails.fromJS(data));
+                } else if (status === 403) {
+                    return throwException("Forbidden", status, _responseText, _headers, ProblemDetails.fromJS(data));
+                } else if (status === 404) {
+                    return throwException("Not Found", status, _responseText, _headers);
+                } else if (status === 500) {
+                    return throwException("Internal Server Error", status, _responseText, _headers, ProblemDetails.fromJS(data));
+                }
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        };
+        return this.http.request(method, url_, options_).pipe(_observableMergeMap((response_ : any) => process(response_)))
+            .pipe(_observableCatch((response_: any) => {
+                if (response_ instanceof HttpResponseBase) {
+                    return process(response_);
+                }
+                return _observableThrow(response_) as any as Observable<T>;
+            }));
+    }
+
+    /**
      * Search contacts.
      * @param reference (optional) 
      * @param caseTypeCode (optional) 
@@ -6085,6 +6213,8 @@ export interface ICheckpoint {
 
 export class CheckpointType implements ICheckpointType {
     id?: string;
+    caseTypeId?: string | undefined;
+    caseTypeCode?: string | undefined;
     code?: string;
     title?: string;
     description?: string;
@@ -6104,6 +6234,8 @@ export class CheckpointType implements ICheckpointType {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.caseTypeId = _data["caseTypeId"];
+            this.caseTypeCode = _data["caseTypeCode"];
             this.code = _data["code"];
             this.title = _data["title"];
             this.description = _data["description"];
@@ -6129,6 +6261,8 @@ export class CheckpointType implements ICheckpointType {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["caseTypeId"] = this.caseTypeId;
+        data["caseTypeCode"] = this.caseTypeCode;
         data["code"] = this.code;
         data["title"] = this.title;
         data["description"] = this.description;
@@ -6147,9 +6281,131 @@ export class CheckpointType implements ICheckpointType {
 
 export interface ICheckpointType {
     id?: string;
+    caseTypeId?: string | undefined;
+    caseTypeCode?: string | undefined;
     code?: string;
     title?: string;
     description?: string;
+    status?: CaseStatus;
+    private?: boolean;
+    translations?: { [key: string]: CheckpointTypeTranslation; } | undefined;
+}
+
+export class CheckpointTypeResultSet implements ICheckpointTypeResultSet {
+    count?: number;
+    items?: CheckpointType[];
+
+    constructor(data?: ICheckpointTypeResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CheckpointType.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CheckpointTypeResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new CheckpointTypeResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface ICheckpointTypeResultSet {
+    count?: number;
+    items?: CheckpointType[];
+}
+
+export class CheckpointTypeRequest implements ICheckpointTypeRequest {
+    caseTypeId!: string;
+    code!: string;
+    title?: string | undefined;
+    description?: string | undefined;
+    status?: CaseStatus;
+    private?: boolean;
+    translations?: { [key: string]: CheckpointTypeTranslation; } | undefined;
+
+    constructor(data?: ICheckpointTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.caseTypeId = _data["caseTypeId"];
+            this.code = _data["code"];
+            this.title = _data["title"];
+            this.description = _data["description"];
+            this.status = _data["status"];
+            this.private = _data["private"];
+            if (_data["translations"]) {
+                this.translations = {} as any;
+                for (let key in _data["translations"]) {
+                    if (_data["translations"].hasOwnProperty(key))
+                        (this.translations as any)![key] = _data["translations"][key] ? CheckpointTypeTranslation.fromJS(_data["translations"][key]) : new CheckpointTypeTranslation();
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): CheckpointTypeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CheckpointTypeRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["caseTypeId"] = this.caseTypeId;
+        data["code"] = this.code;
+        data["title"] = this.title;
+        data["description"] = this.description;
+        data["status"] = this.status;
+        data["private"] = this.private;
+        if (this.translations) {
+            data["translations"] = {};
+            for (let key in this.translations) {
+                if (this.translations.hasOwnProperty(key))
+                    (data["translations"] as any)[key] = this.translations[key] ? this.translations[key].toJSON() : undefined as any;
+            }
+        }
+        return data;
+    }
+}
+
+export interface ICheckpointTypeRequest {
+    caseTypeId: string;
+    code: string;
+    title?: string | undefined;
+    description?: string | undefined;
     status?: CaseStatus;
     private?: boolean;
     translations?: { [key: string]: CheckpointTypeTranslation; } | undefined;

@@ -1,0 +1,55 @@
+<lib-view-layout [title]="'accessRules.title' | translate"
+  [busy]="!items"
+  [actions]="formActions">
+  <div class="flex flex-wrap items-end gap-2 mb-2">
+    <input type="text" class="form-input" name="roleFilter" [placeholder]="'accessRules.column.role' | translate" [(ngModel)]="roleFilter" />
+    <input type="text" class="form-input" name="groupFilter" [placeholder]="'accessRules.column.group' | translate" [(ngModel)]="groupFilter" />
+    <select class="form-select" name="checkpointTypeFilter" [(ngModel)]="checkpointTypeFilter">
+      <option [ngValue]="undefined">{{ 'accessRules.allCheckpointTypes' | translate }}</option>
+      @for (option of checkpointTypeOptions; track option.id) {
+        <option [ngValue]="option.id">{{ option.label }}</option>
+      }
+    </select>
+    <button type="button" class="btn-submit" (click)="applyFilters()">{{ 'common.search' | translate }}</button>
+  </div>
+  <lib-list-view [items]="items"
+    [page]="page"
+    [page-size]="pageSize"
+    [count]="count"
+    [busy]="!items"
+    (pageChanged)="pageChanged($event)"
+    (pageSizeChanged)="pageSizeChanged($event)">
+    <lib-list-column [title]="'accessRules.column.target' | translate">
+      <ng-template let-item>
+        @if (item.ruleCaseTypeId) {
+          <span>{{ 'accessRules.target.caseType' | translate }}: {{ caseTypeCodes[item.ruleCaseTypeId] || item.ruleCaseTypeId }}</span>
+        }
+        @if (item.ruleCheckpointTypeId) {
+          <span>{{ 'accessRules.target.checkpointType' | translate }}: {{ checkpointTypeCodes[item.ruleCheckpointTypeId] || item.ruleCheckpointTypeId }}</span>
+        }
+        @if (item.ruleCaseId) {
+          <span> {{ 'accessRules.target.case' | translate }}: {{ item.ruleCaseId }}</span>
+        }
+      </ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'accessRules.column.member' | translate">
+      <ng-template let-item>
+        @if (item.memberRole) { <span>{{ 'accessRules.column.role' | translate }}: {{ item.memberRole }}</span> }
+        @if (item.memberGroupId) { <span>{{ 'accessRules.column.group' | translate }}: {{ item.memberGroupId }}</span> }
+        @if (item.memberUserId) { <span>{{ 'accessRules.column.user' | translate }}: {{ item.memberUserId }}</span> }
+      </ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'accessRules.column.accessLevel' | translate">
+      <ng-template let-item>{{ levelLabel(item.accessLevel) | translate }}</ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'accessRules.column.actions' | translate">
+      <ng-template let-item>
+        <button type="button"
+          (click)="openDeleteModal(item)"
+          class="bg-red-600 hover:bg-red-800 cursor-pointer text-white font-bold p-2 inline-flex rounded text-xs">
+          <span>{{ 'common.delete' | translate }}</span>
+        </button>
+      </ng-template>
+    </lib-list-column>
+  </lib-list-view>
+</lib-view-layout>
