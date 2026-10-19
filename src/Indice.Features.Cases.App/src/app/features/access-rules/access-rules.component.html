@@ -4,7 +4,8 @@
   <div class="flex flex-wrap items-end gap-2 mb-2">
     <input type="text" class="form-input" name="roleFilter" [placeholder]="'accessRules.column.role' | translate" [(ngModel)]="roleFilter" />
     <input type="text" class="form-input" name="groupFilter" [placeholder]="'accessRules.column.group' | translate" [(ngModel)]="groupFilter" />
-    <select class="form-select" name="checkpointTypeFilter" [(ngModel)]="checkpointTypeFilter">
+    <label class="sr-only" for="checkpointTypeFilter">{{ 'accessRules.target.checkpointType' | translate }}</label>
+    <select id="checkpointTypeFilter" class="form-select" name="checkpointTypeFilter" [(ngModel)]="checkpointTypeFilter">
       <option [ngValue]="undefined">{{ 'accessRules.allCheckpointTypes' | translate }}</option>
       @for (option of checkpointTypeOptions; track option.id) {
         <option [ngValue]="option.id">{{ option.label }}</option>

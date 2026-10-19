@@ -9,11 +9,13 @@ using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Requests;
 using Indice.Types;
+using Microsoft.Data.SqlClient;
 
 namespace Indice.Features.Cases.Core.Services;
 
 internal class CheckpointTypeService : ICheckpointTypeService
 {
+    private const string RequiredCheckpointTypeCode = "Submitted";
     private readonly CasesDbContext _dbContext;
 
     public CheckpointTypeService(CasesDbContext dbContext) {
@@ -113,7 +115,11 @@ internal class CheckpointTypeService : ICheckpointTypeService
         var entity = new DbCheckpointType { Id = Guid.NewGuid() };
         Map(request, entity);
         _dbContext.CheckpointTypes.Add(entity);
-        await _dbContext.SaveChangesAsync();
+        try {
+            await _dbContext.SaveChangesAsync();
+        } catch (DbUpdateException ex) when (IsDuplicateCheckpointCodeViolation(ex)) {
+            throw DuplicateCheckpointCodeException();
+        }
         return (await GetById(entity.Id))!;
     }
 
@@ -121,6 +127,10 @@ internal class CheckpointTypeService : ICheckpointTypeService
         var entity = await _dbContext.CheckpointTypes.FirstOrDefaultAsync(x => x.Id == id);
         if (entity is null) {
             return null;
+        }
+        if (string.Equals(entity.Code, RequiredCheckpointTypeCode, StringComparison.OrdinalIgnoreCase) &&
+            (!string.Equals(entity.Code, request.Code, StringComparison.Ordinal) || entity.CaseTypeId != request.CaseTypeId)) {
+            throw new BusinessException("The required Submitted checkpoint type cannot be renamed or moved.");
         }
         if (entity.CaseTypeId != request.CaseTypeId) {
             if (!await _dbContext.CaseTypes.AnyAsync(x => x.Id == request.CaseTypeId)) {
@@ -133,8 +143,15 @@ internal class CheckpointTypeService : ICheckpointTypeService
         if (await _dbContext.CheckpointTypes.AnyAsync(x => x.Id != id && x.CaseTypeId == request.CaseTypeId && x.Code == request.Code)) {
             throw new BusinessException("A checkpoint type with the same code already exists for this case type.", nameof(request.Code));
         }
+        if (entity.Private != request.Private && await _dbContext.Checkpoints.AnyAsync(x => x.CheckpointTypeId == id)) {
+            throw new BusinessException("Checkpoint type visibility cannot be changed because it is used by existing cases.", nameof(request.Private));
+        }
         Map(request, entity);
-        await _dbContext.SaveChangesAsync();
+        try {
+            await _dbContext.SaveChangesAsync();
+        } catch (DbUpdateException ex) when (IsDuplicateCheckpointCodeViolation(ex)) {
+            throw DuplicateCheckpointCodeException();
+        }
         return await GetById(id);
     }
 
@@ -142,6 +159,9 @@ internal class CheckpointTypeService : ICheckpointTypeService
         var entity = await _dbContext.CheckpointTypes.FirstOrDefaultAsync(x => x.Id == id);
         if (entity is null) {
             return false;
+        }
+        if (string.Equals(entity.Code, RequiredCheckpointTypeCode, StringComparison.OrdinalIgnoreCase)) {
+            throw new BusinessException("The required Submitted checkpoint type cannot be deleted.", nameof(id));
         }
         if (await _dbContext.Checkpoints.AnyAsync(x => x.CheckpointTypeId == id)) {
             throw new BusinessException("Checkpoint type cannot be deleted because it is used by existing cases.", nameof(id));
@@ -152,6 +172,13 @@ internal class CheckpointTypeService : ICheckpointTypeService
         await _dbContext.SaveChangesAsync();
         return true;
     }
+
+    private static bool IsDuplicateCheckpointCodeViolation(DbUpdateException exception) =>
+        exception.InnerException is SqlException { Number: 2601 or 2627 } sqlException &&
+        sqlException.Message.Contains("IX_CheckpointType_CaseTypeId_Code", StringComparison.OrdinalIgnoreCase);
+
+    private static BusinessException DuplicateCheckpointCodeException() =>
+        new("A checkpoint type with the same code already exists for this case type.", nameof(CheckpointTypeRequest.Code));
 
     private static void Map(CheckpointTypeRequest request, DbCheckpointType entity) {
         entity.CaseTypeId = request.CaseTypeId;

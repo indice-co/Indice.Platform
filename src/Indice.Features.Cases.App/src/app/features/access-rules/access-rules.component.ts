@@ -46,11 +46,11 @@ export class AccessRulesComponent extends BaseListComponent<AccessRule> implemen
   ngOnInit(): void {
     forkJoin({
       caseTypes: this._caseTypeService.getCaseTypes().pipe(take(1)),
-      checkpointTypes: this._api.getCheckpointTypesList(1, 1000, 'caseTypeCode')
+      checkpointTypes: this._caseTypeService.getCheckpointTypes().pipe(take(1))
     }).subscribe(({ caseTypes, checkpointTypes }) => {
       (caseTypes.items ?? []).forEach(x => this.caseTypeCodes[x.id!] = x.code!);
-      (checkpointTypes.items ?? []).forEach(x => this.checkpointTypeCodes[x.id!] = `${x.caseTypeCode} / ${x.code}`);
-      this.checkpointTypeOptions = (checkpointTypes.items ?? []).map(x => ({ id: x.id!, label: `${x.caseTypeCode} / ${x.code}` }));
+      checkpointTypes.forEach(x => this.checkpointTypeCodes[x.id!] = `${x.caseTypeCode} / ${x.code}`);
+      this.checkpointTypeOptions = checkpointTypes.map(x => ({ id: x.id!, label: `${x.caseTypeCode} / ${x.code}` }));
       super.ngOnInit();
     });
   }

@@ -11,6 +11,7 @@
           </select>
         </div>
         <div>
+          <label class="sr-only" for="targetId">{{ (targetType === 'caseType' ? 'accessRules.target.caseType' : 'accessRules.target.checkpointType') | translate }} *</label>
           <select id="targetId" name="targetId" class="form-select w-full" required [(ngModel)]="targetId">
             @if (targetType === 'caseType') {
               @for (caseType of caseTypes; track caseType.id) {
@@ -34,6 +35,7 @@
           </select>
         </div>
         <div>
+          <label class="sr-only" for="memberValue">{{ (memberType === 'role' ? 'accessRules.column.role' : memberType === 'group' ? 'accessRules.column.group' : 'accessRules.column.user') | translate }} *</label>
           <input id="memberValue" name="memberValue" type="text" class="form-input w-full" required [(ngModel)]="memberValue" />
         </div>
         </div>

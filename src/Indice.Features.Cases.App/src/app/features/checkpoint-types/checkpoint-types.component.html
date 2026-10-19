@@ -1,7 +1,9 @@
 <ng-template #list>
   <div class="flex items-center justify-between gap-2 mb-2">
     @if (!caseTypeId) {
+      <label class="sr-only" for="caseTypeFilter">{{ 'checkpointTypes.column.caseType' | translate }}</label>
       <select class="form-select max-w-xs"
+        id="caseTypeFilter"
         [ngModel]="selectedCaseTypeId"
         (ngModelChange)="caseTypeChanged($event)">
         <option [ngValue]="undefined">{{ 'checkpointTypes.allCaseTypes' | translate }}</option>

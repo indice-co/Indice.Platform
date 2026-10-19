@@ -1,8 +1,8 @@
 import { DataService } from './data.service';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { CasesApiService, CaseTypePartial, CaseTypePartialResultSet, CheckpointType } from './cases-api.service';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -47,7 +47,28 @@ export class CaseTypeService extends DataService {
   }
 
   public getDistinctCheckpointTypes():Observable<CheckpointType[]> {
-    return this._api.getDistinctCheckpointTypes();
+    return this._api.getCheckpointTypesList(undefined, undefined, undefined, undefined, undefined, true).pipe(
+      map(result => result.items ?? [])
+    );
+  }
+
+  public getCheckpointTypes(): Observable<CheckpointType[]> {
+    const pageSize = 1000;
+    return this._api.getCheckpointTypesList(1, pageSize, 'caseTypeCode').pipe(
+      switchMap(result => {
+        const items = result.items ?? [];
+        const pageCount = Math.ceil((result.count ?? items.length) / pageSize);
+        if (pageCount <= 1) {
+          return of(items);
+        }
+        return forkJoin(Array.from(
+          { length: pageCount - 1 },
+          (_, index) => this._api.getCheckpointTypesList(index + 2, pageSize, 'caseTypeCode')
+        )).pipe(
+          map(pages => [...items, ...pages.flatMap(page => page.items ?? [])])
+        );
+      })
+    );
   }
 }
 

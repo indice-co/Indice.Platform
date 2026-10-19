@@ -36,9 +36,9 @@ internal static class AdminCheckpointTypesHandlers
         return TypedResults.Ok(checkpointType);
     }
 
-    public static async Task<Created<CheckpointType>> CreateCheckpointType(ICheckpointTypeService checkpointTypeService, CheckpointTypeRequest request) {
+    public static async Task<CreatedAtRoute<CheckpointType>> CreateCheckpointType(ICheckpointTypeService checkpointTypeService, CheckpointTypeRequest request) {
         var checkpointType = await checkpointTypeService.Create(request);
-        return TypedResults.Created($"{checkpointType.Id}", checkpointType);
+        return TypedResults.CreatedAtRoute(checkpointType, nameof(GetCheckpointTypeById), new { checkpointTypeId = checkpointType.Id });
     }
 
     public static async Task<Results<Ok<CheckpointType>, NotFound>> UpdateCheckpointType(ICheckpointTypeService checkpointTypeService, Guid checkpointTypeId, CheckpointTypeRequest request) {
@@ -55,4 +55,3 @@ internal static class AdminCheckpointTypesHandlers
         return TypedResults.NoContent();
     }
 }
-

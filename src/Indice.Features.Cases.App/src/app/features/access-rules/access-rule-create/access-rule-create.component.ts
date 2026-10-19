@@ -33,7 +33,7 @@ export class AccessRuleCreateComponent implements OnInit {
 
   ngOnInit(): void {
     this._caseTypeService.getCaseTypes().pipe(take(1)).subscribe(result => this.caseTypes = result.items ?? []);
-    this._api.getCheckpointTypesList(1, 1000, 'caseTypeCode').subscribe(result => this.checkpointTypes = result.items ?? []);
+    this._caseTypeService.getCheckpointTypes().pipe(take(1)).subscribe(result => this.checkpointTypes = result);
   }
 
   public submit(): void {
