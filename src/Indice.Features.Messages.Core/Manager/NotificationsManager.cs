@@ -188,9 +188,10 @@ public class NotificationsManager(
         }
         // If a distribution list id is not set, then we create a new list.
         if (!request.RecipientListId.HasValue) {
-            var maxLength = TextSizePresets.M128 - (" - {timestamp}".Length);
+            var uniqueSuffix = $" - {timestamp}";
+            var maxLength = TextSizePresets.M128 - uniqueSuffix.Length;
             var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
-                Name = $"{request.Title.Truncate(maxLength)} - {timestamp}",
+                Name = request.Title.Truncate(maxLength) + uniqueSuffix,
                 IsSystemGenerated = true
             }, request.GetIncludedContacts());
             request.RecipientListId = createdList.Id;
