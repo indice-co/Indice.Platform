@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.AspNetCore.Middleware;
+namespace Indice.AspNetCore.Features.Webhooks;
 
 /// <summary>
 /// Provides endpoint mapping extensions for webhook integrations.
@@ -30,9 +30,7 @@ public static class WebhooksEndpointExtensions
             .WithDescription("Endpoints for receiving and processing webhook notifications from external providers.")
             .AllowAnonymous();
 
-        group.ProducesProblem(StatusCodes.Status500InternalServerError)
-            .ProducesProblem(StatusCodes.Status401Unauthorized)
-            .ProducesProblem(StatusCodes.Status403Forbidden);
+        group.ProducesProblem(StatusCodes.Status500InternalServerError);
             
         group.MapPost("{provider}", HandleWebhook)
             .WithName("ReceiveWebhook")
@@ -42,10 +40,8 @@ public static class WebhooksEndpointExtensions
                 Receives a webhook notification from the specified provider, validates the request,
                 and processes the notification using the provider-specific webhook handler.
                 """)
-            .Produces(StatusCodes.Status202Accepted)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status500InternalServerError);
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest);
 
         return group;
     }

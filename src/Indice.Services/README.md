@@ -238,6 +238,40 @@ services.AddSmsService(configuration);
 }
 ```
 
+### 🔗 Webhooks
+
+Webhook services can be registered independently of SMS services, allowing webhook handling for SMS providers or other integrations.
+
+Register webhook services directly:
+
+```csharp
+services.AddWebhookServices<YourWebhookHandler, YourWebhookHttpHandler>(configuration);
+```
+
+For SMS provider-specific webhooks:
+
+```csharp
+services.AddSmsWebhooks<YourWebhookHandler>(configuration);
+```
+
+Configuration:
+
+```json
+{
+  "WebhookSettings": {
+    "Enabled": true,
+    "ChannelCapacity": 100
+  }
+}
+```
+
+- `Enabled`: Enables or disables webhook processing. Defaults to `false`.
+- `ChannelCapacity`: Maximum number of pending webhook batches. Must be greater than zero when enabled.
+
+Events are processed asynchronously by the hosted `WebhookEventSink`. When webhooks are disabled, webhook services are not registered.
+
+**Currently supported SMS providers:** `apifon`.
+
 ### 🔔 Push Notifications
 
 Send push notifications via Azure Notification Hubs:

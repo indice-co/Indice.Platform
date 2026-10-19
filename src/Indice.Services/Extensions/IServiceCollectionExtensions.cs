@@ -4,6 +4,7 @@ using System.Threading.Channels;
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Services;
+using Indice.Services.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -213,9 +214,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <strong>yuboto, yuboto_viber, vonage, twilio, smsup, apifon, apifon_im, kapatel, mstat, none</strong>
     /// </remarks>
     public static IServiceCollection AddSmsService(this IServiceCollection services, IConfiguration configuration) {
-        var providerNamesText = configuration.GetSection(SmsServiceSettings.Name).GetValue<string>("Provider");
-        ArgumentException.ThrowIfNullOrWhiteSpace(providerNamesText, "Sms:Provider");
-        var providerNames = providerNamesText.ToLowerInvariant().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var providerNames = configuration.GetSmsProviders();
         foreach (var name in providerNames) {
             switch (name) {
                 case "yuboto":
@@ -258,7 +257,6 @@ public static class IndiceServicesServiceCollectionExtensions
                     break;
             }
         }
-        services.AddWebhookServices(configuration, providerNames.FirstOrDefault()!);
         return services;
     }
 
@@ -536,38 +534,50 @@ public static class IndiceServicesServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers webhook services for the specified SMS provider when webhooks are enabled.
+    /// Registers webhook services when webhooks are enabled.
     /// </summary>
-    /// <param name="services">The service collection to register the webhook services with.</param>
-    /// <param name="configuration">The application configuration containing the webhook settings.</param>
-    /// <param name="provider">The SMS provider identifier used to register the corresponding webhook handlers.</param>
-    /// <returns>The same service collection so additional service registrations can be chained.</returns>
-    public static IServiceCollection AddWebhookServices(this IServiceCollection services, IConfiguration configuration, string provider) {
-        var settings = configuration.GetSection(SmsServiceSettings.Name).Get<SmsServiceSettings>() ?? new SmsServiceSettings();
-        var enableWebhooks = settings.WebhooksEnabled;
-        var channelCapacity = settings.WebhookChannelCapacity;
-
+    /// <typeparam name="THandler">The webhook event handler type.</typeparam>
+    /// <typeparam name="THttpHandler">The webhook HTTP handler type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The service collection.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The configured channel capacity is less than or equal to zero.</exception>
+    public static IServiceCollection AddWebhookServices<THandler, THttpHandler>(this IServiceCollection services, IConfiguration configuration) 
+        where THandler : class, IWebhookHandler
+        where THttpHandler : class, IWebhookHttpHandler {
+        var settings = configuration.GetSection(WebhooksSettings.Name).Get<WebhooksSettings>() ?? new WebhooksSettings();
+        var enableWebhooks = settings.Enabled;
         if (!enableWebhooks) {
             return services;
         }
-
+        var channelCapacity = settings.ChannelCapacity;
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(channelCapacity);
-        ArgumentException.ThrowIfNullOrWhiteSpace(provider);
-
         services.TryAddSingleton(Channel.CreateBounded<List<WebhookEvent>>(new BoundedChannelOptions(channelCapacity) {
             FullMode = BoundedChannelFullMode.Wait,
             SingleReader = true,
             SingleWriter = false
         }));
-        services.TryAddScoped<IWebhookHandler, NoOpWebhookHandler>();
+        services.AddScoped<IWebhookHandler, THandler>();
+        services.AddScoped<IWebhookHttpHandler, THttpHandler>();
         services.AddHostedService<WebhookEventSink>();
-        
+        return services;
+    }
+
+    /// <summary>
+    /// Registers SMS webhook services for the configured provider.
+    /// </summary>
+    /// <typeparam name="THandler">The webhook event handler type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddSmsWebhooks<THandler>(this IServiceCollection services, IConfiguration configuration)
+        where THandler : class, IWebhookHandler {
+        var provider = configuration.GetDefaultSmsProvider();
         switch (provider) {
             case "apifon":
-                services.AddScoped<IWebhookHttpHandler, ApifonWebhookHttpHandler>();
+                services.AddWebhookServices<THandler, ApifonWebhookHttpHandler>(configuration);
                 break;
         }
-
         return services;
     }
 }

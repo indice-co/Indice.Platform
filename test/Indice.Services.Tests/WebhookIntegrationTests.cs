@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Channels;
-using Indice.AspNetCore.Middleware;
+using Indice.AspNetCore.Features.Webhooks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -20,10 +20,10 @@ public sealed class WebhookIntegrationTests
         var webhookSecret = "Tx43Joi7HFw8k9K2Yqa1DPy5t6W0Zsm7";
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["Webhooks:Enabled"] = true.ToString(),
+                ["Webhooks:ChannelCapacity"] = "100",
                 ["Sms:Provider"] = "apifon",
-                ["Sms:WebhooksEnabled"] = true.ToString(),
-                ["Sms:WebhookSecret"] = webhookSecret,
-                ["Sms:WebhookChannelCapacity"] = "100"
+                ["Sms:WebhookSecret"] = webhookSecret
             })
             .Build();
 
@@ -33,6 +33,7 @@ public sealed class WebhookIntegrationTests
                 webHost.ConfigureServices(services => {
                     services.AddRouting();
                     services.AddSmsService(configuration);
+                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
                 });
                 webHost.Configure(app => {
                     app.UseRouting();
@@ -60,7 +61,7 @@ public sealed class WebhookIntegrationTests
         var request = GetValidApifonPayload(webhookSecret);
         using var response = await host.GetTestClient().SendAsync(request, TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     private static HttpRequestMessage GetValidApifonPayload(string webhookSecret) {
