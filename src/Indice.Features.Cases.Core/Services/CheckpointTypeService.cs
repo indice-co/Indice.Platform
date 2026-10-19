@@ -80,8 +80,9 @@ internal class CheckpointTypeService : ICheckpointTypeService
                 .Where(DbCaseAccessRule.AccessMatchPredicate(user.Id, user.Roles, user.GroupId));
             query = query.Where(c => accessRules.Any(r => r.RuleCheckpointTypeId == c.Id || r.RuleCaseTypeId == c.CaseTypeId));
         }
-        if (filter.CaseTypeId.HasValue) {
-            query = query.Where(c => c.CaseTypeId == filter.CaseTypeId.Value);
+        var caseTypeId = filter.CaseTypeId;
+        if (caseTypeId is Guid value) {
+            query = query.Where(c => c.CaseTypeId == value);
         }
         if (!string.IsNullOrWhiteSpace(options.Search)) {
             var search = options.Search.Trim();
@@ -121,8 +122,13 @@ internal class CheckpointTypeService : ICheckpointTypeService
         if (entity is null) {
             return null;
         }
-        if (entity.CaseTypeId != request.CaseTypeId && !await _dbContext.CaseTypes.AnyAsync(x => x.Id == request.CaseTypeId)) {
-            throw new BusinessException("Case type does not exist.", nameof(request.CaseTypeId));
+        if (entity.CaseTypeId != request.CaseTypeId) {
+            if (!await _dbContext.CaseTypes.AnyAsync(x => x.Id == request.CaseTypeId)) {
+                throw new BusinessException("Case type does not exist.", nameof(request.CaseTypeId));
+            }
+            if (await _dbContext.Checkpoints.AnyAsync(x => x.CheckpointTypeId == id)) {
+                throw new BusinessException("Checkpoint type cannot be moved to another case type because it is used by existing cases.", nameof(request.CaseTypeId));
+            }
         }
         if (await _dbContext.CheckpointTypes.AnyAsync(x => x.Id != id && x.CaseTypeId == request.CaseTypeId && x.Code == request.Code)) {
             throw new BusinessException("A checkpoint type with the same code already exists for this case type.", nameof(request.Code));

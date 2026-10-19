@@ -10,7 +10,6 @@ import { map } from 'rxjs/operators';
 export class CaseTypeService extends DataService {
   private readonly key: string = 'caseTypeCacheKey';
   private readonly checkCreationKey: string = 'checkCreationKey';
-  private readonly distinctCheckpointsKey: string = 'distinctCheckpointsKey';
 
   constructor(
     private _api: CasesApiService) {
@@ -48,8 +47,7 @@ export class CaseTypeService extends DataService {
   }
 
   public getDistinctCheckpointTypes():Observable<CheckpointType[]> {
-    return this.getDataFromCacheOrHttp(this.distinctCheckpointsKey,
-      this._api.getCheckpointTypesList(undefined, undefined, undefined, undefined, undefined, true).pipe(map(result => result.items ?? [])));
+    return this._api.getDistinctCheckpointTypes();
   }
 }
 

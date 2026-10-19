@@ -3671,8 +3671,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getDistinctCheckpointTypes(): Observable<CheckpointType[]> {
-        let url_ = this.baseUrl + "/manage/checkpoint-types";
-        url_ = url_.replace(/[?&]$/, "");
+        let url_ = this.baseUrl + "/manage/checkpoint-types?Distinct=true";
 
         let options_ : any = {
             observe: "response",
@@ -3707,9 +3706,10 @@ export class CasesApiService implements ICasesApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
+            const items200 = resultData200 ? resultData200["items"] : undefined;
+            if (Array.isArray(items200)) {
                 result200 = [] as any;
-                for (let item of resultData200)
+                for (let item of items200)
                     result200!.push(CheckpointType.fromJS(item));
             }
             else {
