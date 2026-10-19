@@ -213,7 +213,6 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <strong>yuboto, yuboto_viber, vonage, twilio, smsup, apifon, apifon_im, kapatel, mstat, none</strong>
     /// </remarks>
     public static IServiceCollection AddSmsService(this IServiceCollection services, IConfiguration configuration) {
-        services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
         var providerNamesText = configuration.GetSection(SmsServiceSettings.Name).GetValue<string>("Provider");
         ArgumentException.ThrowIfNullOrWhiteSpace(providerNamesText, "Sms:Provider");
         var providerNames = providerNamesText.ToLowerInvariant().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -560,12 +559,12 @@ public static class IndiceServicesServiceCollectionExtensions
             SingleReader = true,
             SingleWriter = false
         }));
-        services.TryAddScoped<IWebhookHandler, NoOpWebHookHandler>();
+        services.TryAddScoped<IWebhookHandler, NoOpWebhookHandler>();
         services.AddHostedService<WebhookEventSink>();
         
         switch (provider) {
             case "apifon":
-                services.AddScoped<IWebhookHttpHandler, ApifonWebHookHttpHandler>();
+                services.AddScoped<IWebhookHttpHandler, ApifonWebhookHttpHandler>();
                 break;
         }
 

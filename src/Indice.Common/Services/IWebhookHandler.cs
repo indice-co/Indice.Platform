@@ -8,7 +8,7 @@ public interface IWebhookHandler
 }
 
 /// <summary>A no-operation implementation of <see cref="IWebhookHandler"/> that does nothing when handling webhook events.</summary>
-public sealed class NoOpWebHookHandler : IWebhookHandler
+public sealed class NoOpWebhookHandler : IWebhookHandler
 {
     /// <inheritdoc/>
     public async Task HandleAsync(List<WebhookEvent> events, CancellationToken cancellationToken) => await Task.CompletedTask;

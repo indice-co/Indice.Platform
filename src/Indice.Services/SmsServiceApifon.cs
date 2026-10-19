@@ -142,12 +142,12 @@ public class SmsServiceApifonSettings : SmsServiceSettings
 }
 
 /// <inheritdoc/>
-public sealed class ApifonWebHookHttpHandler : IWebhookHttpHandler
+public sealed class ApifonWebhookHttpHandler : IWebhookHttpHandler
 {
     private readonly SmsServiceApifonSettings _settings;
 
     /// <inheritdoc/>
-    public ApifonWebHookHttpHandler(IOptionsSnapshot<SmsServiceApifonSettings> settings) {
+    public ApifonWebhookHttpHandler(IOptionsSnapshot<SmsServiceApifonSettings> settings) {
         _settings = settings.Value;
     }
 
