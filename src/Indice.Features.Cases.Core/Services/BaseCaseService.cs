@@ -134,6 +134,7 @@ internal abstract class BaseCaseService
     /// <param name="metadata">The metadata the case might have.</param>
     /// <param name="channel">The channel the case was created from.</param>
     /// <param name="assignee">The assigned of the case (optional).</param>
+    /// <param name="referenceNumber">The reference number of the case</param>
     /// <returns></returns>
     protected async Task<DbCase> CreateDraftInternal(
         ICaseMessageService caseMessageService,
@@ -143,7 +144,8 @@ internal abstract class BaseCaseService
         ContactMeta? customer,
         Dictionary<string, string> metadata,
         string channel,
-        UserActor? assignee = null) {
+        UserActor? assignee = null,
+        string? referenceNumber = null) {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (caseType == null) throw new ArgumentNullException(nameof(caseType));
         if (string.IsNullOrEmpty(channel)) throw new ArgumentNullException(nameof(channel));
@@ -160,12 +162,13 @@ internal abstract class BaseCaseService
             Metadata = metadata,
             Draft = true,
             Channel = channel,
-            AssignedTo = assignee == null ? null : AuditMeta.Create(assignee)
+            AssignedTo = assignee == null ? null : AuditMeta.Create(assignee),
+            ReferenceNumber = referenceNumber
         };
 
         // If enabled get a new reference number from the sequence.
-        if (Options.ReferenceNumberEnabled) {
-            entity.ReferenceNumber = await DbContext.GetNextReferenceNumber();
+        if (Options.ReferenceNumberEnabled && string.IsNullOrWhiteSpace(referenceNumber)) {
+            entity.ReferenceNumber = (await DbContext.GetNextReferenceNumber()).ToString();
         }
 
         // Create entity
