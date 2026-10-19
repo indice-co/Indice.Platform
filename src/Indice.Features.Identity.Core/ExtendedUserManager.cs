@@ -85,6 +85,12 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <summary>Whether the user should confirm their phone number after signing in.</summary>
     public bool RequirePostSignInConfirmedPhoneNumber { get; }
 
+    /// <summary>Options for updating a user.</summary>
+    /// <param name="user">The user to update.</param>
+    /// <param name="bypassEmailAsUserNamePolicy">Bypasses the EmailAsUserName policy, if enabled.</param>
+    /// <param name="previousUser">The previous snapshot of user entity.</param>
+    public sealed record UserUpdateOptions(TUser user, bool bypassEmailAsUserNamePolicy, UserEventContext? previousUser);
+
     #region Method Overrides
     /// <inheritdoc />
     public async override Task<IdentityResult> CreateAsync(TUser user) {
@@ -105,13 +111,15 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     }
 
     /// <inheritdoc />
-    public override Task<IdentityResult> UpdateAsync(TUser user) => UpdateAsync(user, bypassEmailAsUserNamePolicy: false);
+    public override Task<IdentityResult> UpdateAsync(TUser user) => UpdateAsync(new UserUpdateOptions(user: user, bypassEmailAsUserNamePolicy: false, previousUser: null));
 
     /// <summary>Updates the specified user in the backing store.</summary>
-    /// <param name="user">The user to update.</param>
-    /// <param name="bypassEmailAsUserNamePolicy">Bypasses the EmailAsUserName policy, if enabled.</param>
-    public async Task<IdentityResult> UpdateAsync(TUser user, bool bypassEmailAsUserNamePolicy) {
-        if (EmailAsUserName && !bypassEmailAsUserNamePolicy) {
+    /// <param name="options">The options for this update operation.</param>
+    public async Task<IdentityResult> UpdateAsync(UserUpdateOptions options) {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(options.user);
+        var user = options.user;
+        if (EmailAsUserName && !options.bypassEmailAsUserNamePolicy) {
             user.UserName = user.Email;
         }
 
@@ -119,6 +127,10 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
 
         if (!result.Succeeded) {
             await PublishBlacklistEvents(user, result);
+        }
+
+        if (result.Succeeded && options.previousUser != null) {
+            await _eventService.Publish(new UserUpdatedEvent(options.previousUser, UserEventContext.InitializeFromUser(user)));
         }
 
         return result;
