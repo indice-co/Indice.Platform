@@ -307,7 +307,7 @@ internal sealed class SmsServiceOmniRequest
                     ? new OmniSms {
                         From = sender,
                         Text = message,
-                        Charset = useUtf8 ? "UTF8" : "GSM"
+                        Charset = useUtf8 ? "UTF-8" : "GSM"
                     }
                     : null,
                 Viber = useViber
