@@ -21,7 +21,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 [SendsMessage(typeof(OtpRequestPort.OtpRequest))]
 [SendsMessage(typeof(OperationState))]
 [YieldsOutput(typeof(OperationState))]
-public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
+public class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
 {
     private const string McpServiceKey = "Identity";
 
@@ -107,7 +107,7 @@ public sealed class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
 
     }
 
-    private async Task<OtpVerificationResultPayload> ValidateOtp(OtpRequestPort.OtpResponse response, CustomerState workflowData, CancellationToken cancellationToken) {
+    private async Task<OtpVerificationResultPayload> ValidateOtp(OtpRequestPort.OtpResponse response, CustomerData workflowData, CancellationToken cancellationToken) {
 
         // Fetch OTP tools from the Identity MCP server at runtime.
         var registry = await _mcpClientFactory.CreateAsync(cancellationToken);

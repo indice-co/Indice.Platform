@@ -37,7 +37,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         string caseTypeCode,
         string? groupId,
         ContactMeta? customer,
-        Dictionary<string, string> metadata) {
+        Dictionary<string, string> metadata,
+        string? referenceNumber) {
         var caseType = await DbContext.CaseTypes.Where(x => x.Code == caseTypeCode).SingleAsync();
         var entity = await CreateDraftInternal(
             _adminCaseMessageService,
@@ -47,7 +48,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             customer,
             metadata,
             CasesCoreConstants.Channels.Agent,
-            user);
+            user,
+            referenceNumber: referenceNumber);
         return new() { Id = entity.Id, Created = DateTimeOffset.UtcNow };
     }
 
@@ -277,20 +279,14 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         // filter ReferenceNumbers
         if (options.Filter.ReferenceNumbers?.Length > 0) {
             foreach (var refNumber in options.Filter.ReferenceNumbers) {
-                if (!int.TryParse(refNumber.Value, out var value)) {
-                    continue;
-                }
                 query = refNumber.Operator switch {
-                    FilterOperator.Eq => query.Where(c => (c.ReferenceNumber ?? 0) == value),
-                    FilterOperator.Neq => query.Where(c => (c.ReferenceNumber ?? 0) != value),
-                    FilterOperator.Contains => query.Where(c =>
-                        c.ReferenceNumber.HasValue && c.ReferenceNumber.Value.ToString().Contains(value.ToString())),
+                    FilterOperator.Eq => query.Where(c => c.ReferenceNumber!.Equals(refNumber.Value)),
+                    FilterOperator.Neq => query.Where(c => !c.ReferenceNumber!.Equals(refNumber.Value)),
+                    FilterOperator.Contains => query.Where(c => c.ReferenceNumber!.Contains(refNumber.Value)),
                     _ => query
                 };
             }
         }
-
-
 
         // filter CustomerId
         if (options.Filter.OwnerIds?.Length > 0) {
