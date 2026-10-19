@@ -57,7 +57,7 @@ public sealed class HandlebarsCustomerDataCardRenderer : ICustomerDataCardRender
     }
 
     /// <inheritdoc/>
-    public DataContent Render(CustomerState record) {
+    public DataContent Render(CustomerData record) {
         ArgumentNullException.ThrowIfNull(record);
         var model = BuildModel(record);
         var html = Compile(record.DataType)(model);
@@ -82,7 +82,7 @@ public sealed class HandlebarsCustomerDataCardRenderer : ICustomerDataCardRender
     }
 
     /// <summary>Projects the payload onto the flat, presentation-friendly model the templates bind against.</summary>
-    private static Dictionary<string, object?> BuildModel(CustomerState record) {
+    private static Dictionary<string, object?> BuildModel(CustomerData record) {
         var fields = new List<Dictionary<string, object?>>();
         Flatten(record.Data, prefix: string.Empty, depth: 0, fields);
         return new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase) {
@@ -95,7 +95,7 @@ public sealed class HandlebarsCustomerDataCardRenderer : ICustomerDataCardRender
         };
     }
 
-    private static string DeriveTitle(CustomerState record) {
+    private static string DeriveTitle(CustomerData record) {
         if (record.Data.ValueKind == JsonValueKind.Object) {
             foreach (var candidate in new[] { "title", "name", "subject", "description" }) {
                 if (record.Data.TryGetProperty(candidate, out var value) && value.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(value.GetString())) {
