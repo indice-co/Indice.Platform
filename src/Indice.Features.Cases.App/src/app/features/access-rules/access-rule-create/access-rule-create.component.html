@@ -2,6 +2,7 @@
   <main class="details-view-container">
     <div class="bg-white shadow-sm rounded-sm w-full p-4">
       <form #form="ngForm" (ngSubmit)="form.valid && submit()" class="space-y-4 max-w-2xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:items-end">
         <div>
           <label class="block text-sm font-medium text-gray-700" for="targetType">{{ 'accessRules.column.target' | translate }} *</label>
           <select id="targetType" name="targetType" class="form-select w-full" [(ngModel)]="targetType" (ngModelChange)="targetId = undefined">
@@ -22,6 +23,8 @@
             }
           </select>
         </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:items-end">
         <div>
           <label class="block text-sm font-medium text-gray-700" for="memberType">{{ 'accessRules.column.member' | translate }} *</label>
           <select id="memberType" name="memberType" class="form-select w-full" [(ngModel)]="memberType">
@@ -32,6 +35,7 @@
         </div>
         <div>
           <input id="memberValue" name="memberValue" type="text" class="form-input w-full" required [(ngModel)]="memberValue" />
+        </div>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700" for="accessLevel">{{ 'accessRules.column.accessLevel' | translate }} *</label>
