@@ -46,13 +46,12 @@ export class CaseTypeService extends DataService {
     return this.getDataFromCacheOrHttp(this.checkCreationKey, this._api.getCaseTypesList(true));
   }
 
-  public getDistinctCheckpointTypes():Observable<CheckpointType[]> {
-    return this._api.getCheckpointTypesList(undefined, undefined, undefined, undefined, undefined, true).pipe(
-      map(result => result.items ?? [])
-    );
-  }
-
-  public getCheckpointTypes(): Observable<CheckpointType[]> {
+  public getCheckpointTypes(distinct = false): Observable<CheckpointType[]> {
+    if (distinct) {
+      return this._api.getCheckpointTypesList(undefined, undefined, undefined, undefined, undefined, true).pipe(
+        map(result => result.items ?? [])
+      );
+    }
     const pageSize = 1000;
     return this._api.getCheckpointTypesList(1, pageSize, 'caseTypeCode').pipe(
       switchMap(result => {
