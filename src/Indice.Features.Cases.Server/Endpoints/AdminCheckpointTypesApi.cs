@@ -45,7 +45,8 @@ internal static class AdminCheckpointTypesApi
 
         group.MapGet("{checkpointTypeId:guid}", AdminCheckpointTypesHandlers.GetCheckpointTypeById)
             .WithName(nameof(AdminCheckpointTypesHandlers.GetCheckpointTypeById))
-            .WithSummary("Get a specific checkpoint type by Id.");
+            .WithSummary("Get a specific checkpoint type by Id.")
+            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer)); // equivalent to BeCasesAdministrator
 
         group.MapPost(string.Empty, AdminCheckpointTypesHandlers.CreateCheckpointType)
             .WithName(nameof(AdminCheckpointTypesHandlers.CreateCheckpointType))
