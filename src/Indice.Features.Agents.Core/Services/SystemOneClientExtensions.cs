@@ -12,7 +12,7 @@ public static class SystemOneClientExtensions
     /// <param name="options">The questions to answer and the optional context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The answers, keyed by question name.</returns>
-    /// <exception cref="ArgumentException">None of the <paramref name="messages"/> has text.</exception>
+    /// <exception cref="ArgumentException">The last of the <paramref name="messages"/> has no text.</exception>
     /// <exception cref="HttpRequestException">The decision endpoint returned an unsuccessful status code.</exception>
     public static Task<SystemOneDecision> DecideAsync(this ISystemOneClient client, IEnumerable<ChatMessage> messages, SystemOneDecisionOptions options, CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(client);

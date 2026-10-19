@@ -156,7 +156,7 @@ public class IntentRouterService
             Questions = {
                 [InScopeQuestion] = SystemOneQuestion.Noul("Can one of the assistant's agents handle the latest message?",
                     whenTrue: "One of the agents can handle it, including a follow-up to an earlier turn",
-                    whenFalse: "Small talk, general knowledge, or anything none of the agents covers"),
+                    whenFalse: "None of the agents can handle the message, including any follow-up to an earlier turn"),
                 [AgentQuestion] = SystemOneQuestion.Choice("Which agent should handle the latest message? A follow-up belongs to the agent that handled the previous turn.",
                     targets.ToDictionary(agent => agent.Name, DescribeAgent)),
             }

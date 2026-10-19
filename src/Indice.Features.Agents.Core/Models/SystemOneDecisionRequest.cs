@@ -16,18 +16,19 @@ public class SystemOneDecisionRequest
 
     /// <summary>
     /// Creates a request about the last of the <paramref name="messages"/>; the earlier ones become the history and the
-    /// <paramref name="options"/>' instructions the context. Messages without text are skipped.
+    /// <paramref name="options"/>' instructions the context. Earlier messages without text are skipped.
     /// </summary>
     /// <param name="messages">The conversation, oldest first.</param>
     /// <param name="options">The questions to answer and the optional context.</param>
-    /// <exception cref="ArgumentException">None of the <paramref name="messages"/> has text.</exception>
+    /// <exception cref="ArgumentException">The last of the <paramref name="messages"/> has no text.</exception>
     public static SystemOneDecisionRequest From(IEnumerable<ChatMessage> messages, SystemOneDecisionOptions options) {
         ArgumentNullException.ThrowIfNull(messages);
         ArgumentNullException.ThrowIfNull(options);
-        var turns = messages.Where(message => !string.IsNullOrWhiteSpace(message.Text)).ToList();
-        if (turns.Count == 0) {
-            throw new ArgumentException("At least one message with text is required.", nameof(messages));
+        var input = messages.ToList();
+        if (input.Count == 0 || string.IsNullOrWhiteSpace(input[^1].Text)) {
+            throw new ArgumentException("The last message must contain text.", nameof(messages));
         }
+        var turns = input.Where(message => !string.IsNullOrWhiteSpace(message.Text)).ToList();
         return new SystemOneDecisionRequest {
             State = new SystemOneState {
                 Context = string.IsNullOrWhiteSpace(options.Instructions) ? null : options.Instructions.Trim(),
