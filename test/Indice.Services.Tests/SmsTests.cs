@@ -43,7 +43,7 @@ public class SmsTests
             ["Sms:SenderName"] = senderName,
             ["Sms:TestMode"] = true.ToString(),
             ["Sms:EnableUrlShortener"] = true.ToString(),
-            ["Sms:WebhookUrl"] = string.Empty,
+            ["Sms:CallbackUrl"] = string.Empty,
             ["Sms:WebhookSecret"] = string.Empty
         };
         var configuration = new ConfigurationBuilder()
