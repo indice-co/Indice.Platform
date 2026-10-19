@@ -169,7 +169,7 @@ public class NotificationsManager(
                 return CreateCampaignResult.Fail(errorMessages);
             }
         }
-        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var isNewDistributionList = false;
         if (string.IsNullOrWhiteSpace(request.Title) && !request.MessageTemplateId.HasValue) {
             return CreateCampaignResult.Fail("Title is required when MessageTemplateId is not provided.");
