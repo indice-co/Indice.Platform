@@ -71,11 +71,13 @@ public static class AgentsFeatureExtensions
 
         services.AddHttpClient(nameof(AzureOpenAIDeployments.SystemOne));
         services.TryAddTransient<ISystemOneClient>(sp => {
-            var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI;
+            var agentsOptions = sp.GetRequiredService<IOptions<AgentsOptions>>().Value;
+            var opts = agentsOptions.AzureOpenAI;
             var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(AzureOpenAIDeployments.SystemOne));
             var endpoint = string.IsNullOrWhiteSpace(opts.SystemOneEndpoint) ? opts.Endpoint! : opts.SystemOneEndpoint;
             var apiKey = string.IsNullOrWhiteSpace(opts.SystemOneApiKey) ? opts.ApiKey! : opts.SystemOneApiKey;
-            return new FoundrySystemOneClient(httpClient, new Uri(endpoint), apiKey, opts.Deployments.SystemOne ?? string.Empty);
+            var enabled = agentsOptions.SystemOne.Enabled && !string.IsNullOrWhiteSpace(opts.Deployments.SystemOne);
+            return new FoundrySystemOneClient(httpClient, new Uri(endpoint), apiKey, opts.Deployments.SystemOne ?? string.Empty, enabled);
         });
 
         services.AddDbContext<AgentsDbContext>((sp, options) => {
@@ -184,7 +186,7 @@ public static class AgentsFeatureExtensions
         services.AddRoutableAgent(
             new AgentInfo(
                 Name: AgentsConstants.AgentNames.Demo,
-                Description: "Its the demo agent for testing capabilities.",
+                Description: "Its the demo agent that mainly acts as a placeholder and tests capabilities.",
                 InputContentTypes: ["text/plain"],
                 OutputContentTypes: ["text/markdown"],
                 Capabilities: [new AgentCapability("Demo Agent", "Its the demo agent for testing new workflow interactions.")],

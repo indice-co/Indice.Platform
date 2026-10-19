@@ -88,7 +88,7 @@ public class AgentsOptions
 
         /// <summary>
         /// Optional system-one decision deployment (e.g. Microsoft-Decision-1) used by the master intent router before it
-        /// falls back to the <see cref="Reasoning"/> model. Leave empty for the LLM-only path.
+        /// falls back to the <see cref="Reasoning"/> model. Used only when <see cref="SystemOneOptions.Enabled"/> is <c>true</c>.
         /// </summary>
         public string? SystemOne { get; set; }
     }
@@ -201,6 +201,12 @@ public class AgentsOptions
     /// <summary>System-one decision model behavior.</summary>
     public class SystemOneOptions
     {
+        /// <summary>
+        /// Turns the system-one decision model on. Defaults to <c>false</c>: the master intent router uses only the
+        /// <see cref="AzureOpenAIDeployments.Reasoning"/> model, even when <see cref="AzureOpenAIDeployments.SystemOne"/> is configured.
+        /// </summary>
+        public bool Enabled { get; set; }
+
         /// <summary>
         /// Minimum confidence a decision needs to be acted on; below it the caller falls back to the reasoning model.
         /// A choice's confidence is the probability of the chosen option, a noul's is <c>max(p, 1 - p)</c>.

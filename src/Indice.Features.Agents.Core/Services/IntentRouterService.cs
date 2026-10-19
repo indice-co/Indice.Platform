@@ -43,7 +43,7 @@ public class IntentRouterService
         _store = store;
         _localizer = localizer;
         _logger = logger;
-        _systemOneEnabled = !string.IsNullOrWhiteSpace(agentsOptions.Value.AzureOpenAI.Deployments.SystemOne);
+        _systemOneEnabled = agentsOptions.Value.SystemOne.Enabled && !string.IsNullOrWhiteSpace(agentsOptions.Value.AzureOpenAI.Deployments.SystemOne);
         _minConfidence = agentsOptions.Value.SystemOne.MinConfidence;
         var routerModel = new {
             agents = registry.RoutableTargets().Select(agent => new { name = agent.Name, description = agent.Description }),

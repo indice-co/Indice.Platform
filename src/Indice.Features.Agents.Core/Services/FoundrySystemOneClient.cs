@@ -25,24 +25,31 @@ public sealed class FoundrySystemOneClient : ISystemOneClient
     private readonly Uri _decisionUri;
     private readonly string _apiKey;
     private readonly string _deploymentName;
+    private readonly bool _enabled;
 
     /// <summary>Creates a new <see cref="FoundrySystemOneClient"/>.</summary>
     /// <param name="httpClient">The HTTP client that sends the requests.</param>
     /// <param name="endpoint">The Foundry resource endpoint, e.g. <c>https://my-resource.services.ai.azure.com</c>.</param>
     /// <param name="apiKey">The resource API key.</param>
     /// <param name="deploymentName">The decision model deployment name, e.g. <c>Decision-1</c>.</param>
-    public FoundrySystemOneClient(HttpClient httpClient, Uri endpoint, string apiKey, string deploymentName) {
+    /// <param name="enabled">Whether the decision model is on; when <c>false</c> every decision comes back without answers and nothing is sent.</param>
+    public FoundrySystemOneClient(HttpClient httpClient, Uri endpoint, string apiKey, string deploymentName, bool enabled) {
         ArgumentNullException.ThrowIfNull(httpClient);
         ArgumentNullException.ThrowIfNull(endpoint);
         _httpClient = httpClient;
         _decisionUri = new Uri($"{endpoint.AbsoluteUri.TrimEnd('/')}/{DecisionPath}");
         _apiKey = apiKey;
         _deploymentName = deploymentName;
+        _enabled = enabled;
     }
 
     /// <inheritdoc/>
+    /// <remarks>When the client is disabled the decision has no answers, so a caller treats every question as unsure.</remarks>
     public async Task<SystemOneDecision> DecideAsync(SystemOneDecisionRequest request, CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(request);
+        if (!_enabled) {
+            return new SystemOneDecision();
+        }
         var body = new SystemOneDecisionRequest {
             Model = request.Model ?? _deploymentName,
             State = request.State,
