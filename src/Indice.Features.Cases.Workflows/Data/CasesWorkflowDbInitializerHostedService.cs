@@ -46,8 +46,10 @@ internal class CasesWorkflowDbInitializerHostedService : BackgroundService
                 var dbContext = scope.ServiceProvider.GetRequiredService<ElsaContext>();
                 var seedOptions = scope.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowDbInitializerOptions>>();
                 await dbContext.InitializeAsync(seedOptions, _contentSerializer);
-            } catch (Exception ex) {
-                _logger.LogError(ex, "Failed to run CasesWorkflowDbInitializer");
+            } catch (DbUpdateException ex) {
+                _logger.LogError(ex, "Failed to run CasesWorkflowDbInitializer due to database update error.");
+            } catch (InvalidOperationException ex) {
+                _logger.LogError(ex, "Failed to run CasesWorkflowDbInitializer due to invalid service operation.");
             }
         }
         await base.StartAsync(cancellationToken);
