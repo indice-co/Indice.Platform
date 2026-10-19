@@ -33,9 +33,6 @@ public class SmsServiceApifon : ISmsService
         if (string.IsNullOrWhiteSpace(Settings.ApiKey)) {
             throw new ArgumentException($"SMS settings {nameof(SmsServiceApifonSettings.ApiKey)} is empty.");
         }
-        if (!string.IsNullOrWhiteSpace(Settings.CallbackUrl) && string.IsNullOrWhiteSpace(Settings.WebhookSecret)) {
-            throw new ArgumentException($"{nameof(SmsServiceApifonSettings.WebhookSecret)} cannot be empty if a {nameof(SmsServiceApifonSettings.CallbackUrl)} is provided.");
-        }
     }
 
     /// <summary>The Apifon base URL address.</summary>
@@ -185,13 +182,16 @@ public sealed class ApifonWebhookHttpHandler : IWebhookHttpHandler
     }
 
     private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {
+        if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
+            return false;
+        }
+
         var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
         var hmacToken = parameters.GetValueOrDefault("hmac");
         var reference = parameters.GetValueOrDefault("ref");
         var timestamp = parameters.GetValueOrDefault("ts");
 
-        if (string.IsNullOrWhiteSpace(_settings.WebhookSecret) ||
-            string.IsNullOrWhiteSpace(hmacToken) ||
+        if (string.IsNullOrWhiteSpace(hmacToken) ||
             string.IsNullOrWhiteSpace(reference) ||
             string.IsNullOrWhiteSpace(timestamp)) {
             return true;
@@ -202,7 +202,7 @@ public sealed class ApifonWebhookHttpHandler : IWebhookHttpHandler
 
         try {
             return !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hmacToken!), expectedHmac);
-        } catch (FormatException) {
+        } catch {
             return true;
         }
     }
@@ -446,6 +446,11 @@ internal static class ApifonSmsServiceExtensions {
 
     /// <summary>Generates a callback URL with a reference identifier for an Apifon request.</summary>
     public static TRequest WithCallbackUrl<TRequest>(this TRequest request, string baseUrl, string secretKey) where TRequest : ApifonRequest {
+        var callbackUri = new UriBuilder(baseUrl);
+        if (string.IsNullOrWhiteSpace(secretKey)) {
+            request.CallbackUrl = callbackUri.Uri.AbsoluteUri;
+            return request;
+        }
         var timestamp = DateTimeOffset.UtcNow;
         var referenceId = Guid.NewGuid().ToString("N");
         var payload = $"{referenceId}:{timestamp:O}";
@@ -453,10 +458,11 @@ internal static class ApifonSmsServiceExtensions {
         var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
         var hex = Convert.ToHexString(hash);
         request.ReferenceId = referenceId;
-        var callbackUri = new UriBuilder(baseUrl);
         var existingQuery = callbackUri.Query.TrimStart('?');
         var callbackQuery = $"hmac={hex}&ref={referenceId}&ts={Uri.EscapeDataString(timestamp.ToString("O"))}";
-        callbackUri.Query = string.IsNullOrEmpty(existingQuery) ? callbackQuery : $"{existingQuery}&{callbackQuery}";
+        callbackUri.Query = string.IsNullOrWhiteSpace(existingQuery)
+            ? callbackQuery
+            : $"{existingQuery}&{callbackQuery}";
         request.CallbackUrl = callbackUri.Uri.AbsoluteUri;
         return request;
     }
