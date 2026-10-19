@@ -6,7 +6,7 @@
 <swal [title]="'Require re-register multifactor authentication'" [text]="'User will have his mfa configuration reset. This includes any Authenticator App keys. According to the TwoFactorPolicy The user will be requested to re register multifactor authentication.'" type="warning"
       [showCancelButton]="true" (confirm)="resetMfa()" #resetMfaAlert>
 </swal>
-<swal [title]="'Reset action counter'" [text]="'You will reset user attempt action counter.'" type="warning"
+<swal [title]="'Clear action counter limits'" text="Clears user's action counter limits." type="warning"
       [showCancelButton]="true" (confirm)="resetActionCounter()" #resetActionCounterAlert>
 </swal>
 <ng-template let-modal #content>
@@ -174,7 +174,7 @@
                 </button>
                 <div ngbDropdownMenu class="shadow">
                     <button type="button" ngbDropdownItem (click)="resetActionCounterAlert.fire()">
-                        <i class="material-icons align-middle m-r-5">exposure_zero</i>Reset Action counter
+                        <i class="material-icons align-middle m-r-5">exposure_zero</i>Clear limits
                     </button>
                     <button type="button" ngbDropdownItem (click)="resetMfaAlert.fire()">
                         <i class="material-icons align-middle m-r-5">refresh</i>Reset 2FA

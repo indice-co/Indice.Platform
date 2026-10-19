@@ -1,5 +1,5 @@
 import { CaseTypePartial } from './../../core/services/cases-api.service';
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { AuthService } from "@indice/ng-auth";
 import { ToastType } from "@indice/ng-components";
 import { TranslateService } from "@ngx-translate/core";
@@ -14,6 +14,7 @@ import { CaseTypeService } from '../../core/services/case-type.service';
     selector: 'app-notifications',
     templateUrl: './notifications.component.html',
     styleUrls: ['./notifications.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class NotificationsComponent implements OnInit {

@@ -5470,6 +5470,7 @@ export class CaseType implements ICaseType {
     description?: string;
     dataSchema?: any;
     layout?: any;
+    uiSchema?: any;
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
     layoutTranslations?: { [key: string]: string; } | undefined;
     tags?: string;
@@ -5498,6 +5499,7 @@ export class CaseType implements ICaseType {
             this.description = _data["description"];
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
+            this.uiSchema = _data["uiSchema"];
             if (_data["translations"]) {
                 this.translations = {} as any;
                 for (let key in _data["translations"]) {
@@ -5542,6 +5544,7 @@ export class CaseType implements ICaseType {
         data["description"] = this.description;
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
+        data["uiSchema"] = this.uiSchema;
         if (this.translations) {
             data["translations"] = {};
             for (let key in this.translations) {
@@ -5579,6 +5582,7 @@ export interface ICaseType {
     description?: string;
     dataSchema?: any;
     layout?: any;
+    uiSchema?: any;
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
     layoutTranslations?: { [key: string]: string; } | undefined;
     tags?: string;
@@ -5598,6 +5602,7 @@ export class CaseTypePartial implements ICaseTypePartial {
     description?: string;
     dataSchema?: any;
     layout?: any;
+    uiSchema?: any;
     layoutTranslations?: { [key: string]: string; } | undefined;
     tags?: string;
     config?: any;
@@ -5626,6 +5631,7 @@ export class CaseTypePartial implements ICaseTypePartial {
             this.description = _data["description"];
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
+            this.uiSchema = _data["uiSchema"];
             if (_data["layoutTranslations"]) {
                 this.layoutTranslations = {} as any;
                 for (let key in _data["layoutTranslations"]) {
@@ -5670,6 +5676,7 @@ export class CaseTypePartial implements ICaseTypePartial {
         data["description"] = this.description;
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
+        data["uiSchema"] = this.uiSchema;
         if (this.layoutTranslations) {
             data["layoutTranslations"] = {};
             for (let key in this.layoutTranslations) {
@@ -5707,6 +5714,7 @@ export interface ICaseTypePartial {
     description?: string;
     dataSchema?: any;
     layout?: any;
+    uiSchema?: any;
     layoutTranslations?: { [key: string]: string; } | undefined;
     tags?: string;
     config?: any;
