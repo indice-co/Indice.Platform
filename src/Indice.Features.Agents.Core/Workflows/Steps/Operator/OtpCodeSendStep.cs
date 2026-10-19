@@ -16,7 +16,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Sends an OTP using MCP tools and produces a challenge prompt.
 /// The workflow pauses after this step and waits for the user OTP input on a request port.
 /// </summary>
-public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.OtpRequest>
+public class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.OtpRequest>
 {
     private readonly AzureOpenAIClient _openAIClient;
     private readonly AgentsOptions _options;
@@ -74,7 +74,7 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
         return new OtpRequestPort.OtpRequest(ChallengeCode: securityToken, ExpirationDate: DateTime.UtcNow.AddMinutes(2));
     }
 
-    private async Task SendOtpCode(CustomerState caseData, bool sms, string securityToken, CancellationToken cancellationToken) {
+    private async Task SendOtpCode(CustomerData caseData, bool sms, string securityToken, CancellationToken cancellationToken) {
 
         // Fetch OTP tools from the Identity MCP server at runtime.
         var registry = await _mcpClientFactory.CreateAsync();
