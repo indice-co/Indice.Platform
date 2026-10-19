@@ -29,6 +29,9 @@ const IMAGE_PART = {
 /** The ownership request uses the free-text field; the `OtpRequest` port gets the one-time-code boxes. */
 const FREE_TEXT_PORT = 'OwnershipVerificationRequestPort';
 
+/** The runtime port id produced by `OtpRequestPort.Create()`, which `HitlControlResolver` maps to the OTP control. */
+const OTP_PORT = 'OtpRequest';
+
 const HITL_PART = {
   contentType: HITL_REQUEST_MEDIA_TYPE,
   name: FREE_TEXT_PORT,
@@ -44,7 +47,7 @@ const HITL_BARE_PART = {
 
 const HITL_OTP_PART = {
   contentType: HITL_REQUEST_MEDIA_TYPE,
-  name: 'OtpRequestPort',
+  name: OTP_PORT,
   value: '{"data":{"challengeCode":"challenge-1","expirationDate":"2026-07-01T12:00:00Z"}}',
 };
 
@@ -359,7 +362,7 @@ describe('ChatMessagePartComponent', () => {
     });
 
     it('renders nothing when the payload is malformed', () => {
-      const host = render({ contentType: HITL_REQUEST_MEDIA_TYPE, name: 'OtpRequestPort', value: 'not json' });
+      const host = render({ contentType: HITL_REQUEST_MEDIA_TYPE, name: OTP_PORT, value: 'not json' });
       expect(host.querySelector('input')).toBeNull();
     });
   });

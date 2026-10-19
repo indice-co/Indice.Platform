@@ -2242,7 +2242,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
         public System.Guid Id { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("referenceNumber")]
-        public int? ReferenceNumber { get; set; }
+        public string ReferenceNumber { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("ownerId")]
         public string OwnerId { get; set; }

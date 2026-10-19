@@ -17,7 +17,7 @@ public interface ICustomerDataCardRenderer
     /// 
     /// <summary>
     /// Renders <paramref name="input"/> into a <c>text/html</c> <see cref="DataContent"/> part, using the
-    /// template registered for <see cref="CustomerState.DataType"/> and falling back to a generic card.
+    /// template registered for <see cref="CustomerData.DataType"/> and falling back to a generic card.
     /// </summary>
-    DataContent Render(CustomerState input);
+    DataContent Render(CustomerData input);
 }
