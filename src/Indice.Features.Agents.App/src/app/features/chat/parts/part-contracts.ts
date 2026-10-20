@@ -49,6 +49,8 @@ export interface StripePayment {
   caseId: string;
   publishableKey?: string | null;
   session?: PaymentSession | null;
+  /** Optional Payment Element method order, e.g. `['apple_pay', 'google_pay', 'card']`. */
+  paymentMethodOrder?: string[] | null;
 }
 
 /** Parses a {@link STRIPE_PAYMENT_MEDIA_TYPE} part; `null` when the case id is missing. */
@@ -57,7 +59,13 @@ export function parseStripePayment(value: string | undefined): StripePayment | n
   try {
     const parsed = JSON.parse(value) as Partial<StripePayment> | null;
     return parsed && typeof parsed.caseId === 'string' && parsed.caseId
-      ? { method: parsed.method ?? 'Stripe', caseId: parsed.caseId, publishableKey: parsed.publishableKey ?? null, session: parsed.session ?? null }
+      ? {
+          method: parsed.method ?? 'Stripe',
+          caseId: parsed.caseId,
+          publishableKey: parsed.publishableKey ?? null,
+          session: parsed.session ?? null,
+          paymentMethodOrder: Array.isArray(parsed.paymentMethodOrder) ? parsed.paymentMethodOrder : null,
+        }
       : null;
   } catch {
     return null;

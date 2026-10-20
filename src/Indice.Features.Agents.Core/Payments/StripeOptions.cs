@@ -16,4 +16,6 @@ public class StripeOptions
     public string Currency { get; set; } = "eur";
     /// <summary>The pre-authorization (hold) amount in major currency units. Defaults to 50.</summary>
     public decimal DefaultHoldAmount { get; set; } = 50m;
+    /// <summary>Optional display order of the Payment Element methods (e.g. <c>apple_pay</c>, <c>google_pay</c>, <c>card</c>). The enabled methods themselves are managed in the Stripe Dashboard.</summary>
+    public string[]? PaymentMethodOrder { get; set; }
 }

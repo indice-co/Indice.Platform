@@ -39,4 +39,6 @@ public class PaymentProviderPublicKey
 {
     /// <summary>The Stripe publishable key.</summary>
     public string? PublishableKey { get; set; }
+    /// <summary>Optional display order of the payment methods in the Payment Element.</summary>
+    public string[]? PaymentMethodOrder { get; set; }
 }

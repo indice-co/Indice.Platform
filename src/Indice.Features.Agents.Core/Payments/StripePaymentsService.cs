@@ -53,7 +53,7 @@ internal sealed class StripePaymentsService(
     private readonly StripeOptions _options = options.Value;
     private PaymentIntentService PaymentIntents => new(stripeClient);
 
-    public PaymentProviderPublicKey GetPublicKey() => new() { PublishableKey = _options.PublishableKey };
+    public PaymentProviderPublicKey GetPublicKey() => new() { PublishableKey = _options.PublishableKey, PaymentMethodOrder = _options.PaymentMethodOrder };
 
     public async Task<PaymentSessionModel?> CreateOrReuseAttemptAsync(string userId, string caseId, decimal amount, Guid conversationId, CancellationToken cancellationToken = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(caseId);
@@ -69,13 +69,14 @@ internal sealed class StripePaymentsService(
             Amount = ToMinorUnits(amount),
             Currency = _options.Currency,
             CaptureMethod = "manual",
-            PaymentMethodTypes = ["card"],
+            // Methods (card, Apple Pay, Google Pay) are managed in the Stripe Dashboard; redirects are disallowed so payment completes inside the chat.
+            AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions { Enabled = true, AllowRedirects = "never" },
             Metadata = new Dictionary<string, string> {
                 ["caseId"] = caseId,
                 ["conversationId"] = conversationId.ToString(),
                 ["userId"] = userId
             }
-        }, new RequestOptions { IdempotencyKey = $"dex-payment-attempts:{caseId}:{attemptNumber}" }, cancellationToken);
+        }, new RequestOptions { IdempotencyKey = $"dex-travlos-attempts:{caseId}:{attemptNumber}" }, cancellationToken);
 
         // The idempotency key may hand back a PaymentIntent already stored by a concurrent request.
         var existing = await db.PaymentSessions.FirstOrDefaultAsync(x => x.PaymentIntentId == paymentIntent.Id, cancellationToken);

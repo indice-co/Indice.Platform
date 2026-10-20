@@ -121,7 +121,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
                 // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor
                 // exceptions ("Error invoking handler for ..."), so walk to the innermost exception for the real cause.
                 case WorkflowErrorEvent error:
-                    var logger = serviceProvider.GetService<ILogger<AgentsChatClient>>);
+                    var logger = serviceProvider.GetRequiredService<ILogger<AgentsChatClient>>();
                     var exception = error.Data as Exception;
                     logger.LogError(exception, "Workflow error occurred");
                     while (exception?.InnerException is not null) {

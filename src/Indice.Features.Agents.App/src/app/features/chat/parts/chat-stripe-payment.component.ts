@@ -12,7 +12,13 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import type { Stripe, StripeCardElement, StripeElementLocale } from '@stripe/stripe-js';
+import type {
+  Appearance,
+  Stripe,
+  StripeElementLocale,
+  StripeElements,
+  StripePaymentElement,
+} from '@stripe/stripe-js';
 
 import { settings } from '../../../core/models/settings';
 import { PaymentService } from '../../../core/services/payment.service';
@@ -25,7 +31,7 @@ const POLL_INTERVAL_MS = 2000;
 const POLL_MAX_ATTEMPTS = 15;
 
 /**
- * Inline Stripe card payment rendered in the chat for `application/vnd.indice.payment.stripe+json`.
+ * Inline Stripe Payment Element (card, Apple Pay, Google Pay) rendered in the chat for `application/vnd.indice.payment.stripe+json`.
  * The workflow creates the case's payment attempt server-side and ships it, with the publishable key, in the part,
  * so the card form mounts straight away. After confirming the manual-capture pre-auth the component polls the
  * case's current attempt (webhook-driven) until it is `Succeeded`, then emits `completed` to unfreeze the chat.
@@ -36,7 +42,7 @@ const POLL_MAX_ATTEMPTS = 15;
   template: `
     <div class="card w-full max-w-md border border-base-300 bg-base-100 shadow-sm">
       <div class="card-body gap-3 p-4">
-        <h3 class="card-title text-base">Card payment</h3>
+        <h3 class="card-title text-base">Payment</h3>
 
         @switch (status()) {
           @case ('initializing') {
@@ -56,20 +62,17 @@ const POLL_MAX_ATTEMPTS = 15;
           @default {
             @if (holdAmountText(); as amount) {
               <p class="text-sm text-base-content/70">
-                A temporary hold of <strong>{{ amount }}</strong> will be placed on your card. Only the final amount is charged.
+                will be placed on your payment method. Only the final amount is charged.
               </p>
             }
-            <div
-              #cardElement
-              class="block w-full rounded-field border border-base-300 bg-base-100 px-3 py-3 focus-within:border-primary"
-            ></div>
+            <div #cardElement class="block w-full"></div>
             @if (cardError()) {
               <p class="text-sm text-error">{{ cardError() }}</p>
             }
             <button
               type="button"
               class="btn btn-primary"
-              [disabled]="disabled() || status() !== 'ready'"
+              [disabled]="disabled() || status() !== 'ready' || !elementComplete()"
               (click)="pay()"
             >
               @if (status() === 'confirming' || status() === 'verifying') {
@@ -103,6 +106,7 @@ export class ChatStripePaymentComponent {
   protected readonly status = signal<PayStatus>('initializing');
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly cardError = signal('');
+  protected readonly elementComplete = signal(false);
   private readonly clientSecret = signal<string | null>(null);
   protected readonly holdAmountText = computed(() => {
     const amount = this.payment()?.session?.firstCaptureAmount;
@@ -110,7 +114,8 @@ export class ChatStripePaymentComponent {
   });
 
   private stripe: Stripe | null = null;
-  private card: StripeCardElement | null = null;
+  private elements: StripeElements | null = null;
+  private card: StripePaymentElement | null = null;
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
   private destroyed = false;
   private started = false;
@@ -143,6 +148,8 @@ export class ChatStripePaymentComponent {
   protected retry(): void {
     this.card?.destroy();
     this.card = null;
+    this.elements = null;
+    this.elementComplete.set(false);
     this.status.set('initializing');
     this.errorMessage.set(null);
     this.cardError.set('');
@@ -152,13 +159,23 @@ export class ChatStripePaymentComponent {
 
   protected async pay(): Promise<void> {
     const secret = this.clientSecret();
-    if (this.disabled() || !this.stripe || !this.card || !secret || this.status() !== 'ready') {
+    if (this.disabled() || !this.stripe || !this.elements || !secret || this.status() !== 'ready') {
       return;
     }
     this.status.set('confirming');
     this.cardError.set('');
-    const { error, paymentIntent } = await this.stripe.confirmCardPayment(secret, {
-      payment_method: { card: this.card },
+    const { error: submitError } = await this.elements.submit();
+    if (submitError) {
+      this.cardError.set(submitError.message ?? '');
+      this.status.set('ready');
+      return;
+    }
+    // Redirect methods are disabled server-side, so confirmation always resolves in place.
+    const { error, paymentIntent } = await this.stripe.confirmPayment({
+      elements: this.elements,
+      clientSecret: secret,
+      redirect: 'if_required',
+      confirmParams: { return_url: window.location.href },
     });
     if (error) {
       this.cardError.set(error.message ?? '');
@@ -241,9 +258,36 @@ export class ChatStripePaymentComponent {
       }
     }
     if (this.card) return;
-    this.card = this.stripe.elements({ locale: this.locale }).create('card', { hidePostalCode: true });
+    const clientSecret = this.clientSecret();
+    if (!clientSecret) return;
+    this.elements = this.stripe.elements({ clientSecret, locale: this.locale, appearance: this.appearance(host) });
+    const paymentMethodOrder = this.payment()?.paymentMethodOrder ?? undefined;
+    this.card = this.elements.create('payment', {
+      layout: 'tabs',
+      paymentMethodOrder,
+      wallets: { applePay: 'auto', googlePay: 'auto' },
+    });
     this.card.mount(host);
-    this.card.on('change', (event) => this.cardError.set(event.error ? (event.error.message ?? '') : ''));
+    this.card.on('change', (event) => {
+      this.elementComplete.set(event.complete);
+      this.cardError.set('');
+    });
+  }
+
+  // Maps the active DaisyUI theme onto Stripe's appearance so the iframe matches the chat.
+  private appearance(host: HTMLElement): Appearance {
+    const css = getComputedStyle(host);
+    const color = (name: string) => css.getPropertyValue(name).trim() || undefined;
+    return {
+      theme: 'stripe',
+      variables: {
+        colorPrimary: color('--color-primary'),
+        colorBackground: color('--color-base-100'),
+        colorText: color('--color-base-content'),
+        colorDanger: color('--color-error'),
+        borderRadius: color('--radius-field'),
+      },
+    };
   }
 
   private complete(): void {

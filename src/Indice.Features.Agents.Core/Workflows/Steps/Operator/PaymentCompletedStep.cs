@@ -68,12 +68,14 @@ public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse,
         }
         var userId = _claimsPrincipalSelector()?.FindSubjectId() ?? conversation.ConversationId;
         Guid conversationId = Guid.Parse(conversation.ConversationId);
-        var session = await payments.CreateOrReuseAttemptAsync(userId, caseId, caseData.PaymentAmount!.Value, conversationId, cancellationToken);
+        var session = await payments.CreateOrReuseAttemptAsync(userId, caseId, caseData.PaymentAmount??1.52M, conversationId, cancellationToken);
+        var publicKey = payments.GetPublicKey();
         var payload = new StripePaymentPayload(
             Method: StripeMethod,
             CaseId: caseId,
-            PublishableKey: payments.GetPublicKey().PublishableKey,
-            Session: session);
+            PublishableKey: publicKey.PublishableKey,
+            Session: session,
+            PaymentMethodOrder: publicKey.PaymentMethodOrder);
         var stripePart = new DataContent(JsonSerializer.SerializeToUtf8Bytes(payload, PayloadJsonOptions), AgentsConstants.MediaTypes.Payment.Stripe) {
             Name = "StripePayment"
         };
@@ -86,5 +88,6 @@ public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse,
     /// <param name="CaseId">The case being paid.</param>
     /// <param name="PublishableKey">The Stripe publishable key.</param>
     /// <param name="Session">The case's payment attempt (with the client secret while it is confirmable).</param>
-    public record StripePaymentPayload(string Method, string CaseId, string? PublishableKey, PaymentSessionModel? Session);
+    /// <param name="PaymentMethodOrder">Optional display order of the payment methods.</param>
+    public record StripePaymentPayload(string Method, string CaseId, string? PublishableKey, PaymentSessionModel? Session, string[]? PaymentMethodOrder = null);
 }
