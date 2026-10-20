@@ -1,45 +1,50 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { JsonFormsAngularService, JsonFormsBaseRenderer } from '@jsonforms/angular';
 import { composePaths, getAjv, getConfig, getData, getSchema, isVisible, JsonFormsState, Resolve, toDataPath, UISchemaElement } from '@jsonforms/core';
+import { NgIcon } from '@ng-icons/core';
+import { TranslateService } from '@ngx-translate/core';
 import { get } from 'lodash';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import { addClasses, presentField } from '../jsonforms-utilities';
 
 /**
- * ajsf `label-only` widget: shows a value as text (enums by name, booleans as Ναι / Όχι, `extraType: currency`),
+ * ajsf `label-only` widget: shows a value as text (enums by name, booleans as yes / no, `extraType: currency`),
  * or a link built from the form data (`extraType: "data-bind href"`, `data: "{baseAddress}/api/{id}"`).
  * Used for `Control`s with `options.widget: label-only` and for `LabelOnly` elements (no `key` in the layout).
  */
 @Component({
     selector: 'app-jf-label-only',
+    imports: [NgIcon],
     template: `
     @if (shown) {
       <div [class]="wrapperClass">
         @if (title) {
-          <h2 class="block text-sm" [class]="options.labelHtmlClass || ''" [style.display]="notitle ? 'none' : ''" [innerHTML]="title"></h2>
+          <div [class]="labelClass" [style.display]="notitle ? 'none' : ''" [innerHTML]="title"></div>
         }
         @if (!options.extraType?.includes('href')) {
-          <div class="mt-1">
-            <p>{{ displayValue }}</p>
-          </div>
+          <p class="jf-static">{{ displayValue }}</p>
         } @else {
-          <a [href]="displayValue" [title]="title" [class]="options.fieldHtmlClass || ''" target="_blank">{{ options.linkText }}</a>
+          <a [href]="displayValue" [title]="title" class="link link-primary inline-flex items-center gap-1.5" [class]="options.fieldHtmlClass || ''" target="_blank" rel="noopener">
+            {{ options.linkText }}
+            <ng-icon name="lucideExternalLink" size="0.875rem" class="shrink-0" />
+          </a>
         }
       </div>
     }`,
-    styles: ['h2 { margin-top: 20px; }'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    host: { '[class.jf-hidden]': '!shown' },
+    changeDetection: ChangeDetectionStrategy.Eager
 })
 export class LabelOnlyRendererComponent extends JsonFormsBaseRenderer<UISchemaElement> implements OnInit {
     private jsonFormsService = inject(JsonFormsAngularService);
     private caseDetailsService = inject(CaseDetailsService);
+    private translate = inject(TranslateService);
     options: any = {};
     title: string | null = null;
     notitle = false;
     shown = true;
     displayValue: any;
     wrapperClass = '';
+    labelClass = '';
 
     ngOnInit(): void {
         this.addSubscription(this.jsonFormsService.$state.subscribe((state: JsonFormsState) => this.update(state)));
@@ -56,7 +61,8 @@ export class LabelOnlyRendererComponent extends JsonFormsBaseRenderer<UISchemaEl
         this.title = field.title;
         this.notitle = field.notitle;
         this.shown = field.shown;
-        this.wrapperClass = addClasses(this.options.htmlClass, 'schema-form-label-only', 'form-group');
+        this.wrapperClass = addClasses('jf-field', 'form-group', 'schema-form-label-only', this.options.htmlClass);
+        this.labelClass = addClasses('jf-label', this.options.labelHtmlClass);
         this.displayValue = this.resolveDisplayValue(scope ? get(rootData, dataPath) : undefined, rootData, schema?.type);
     }
 
@@ -73,7 +79,7 @@ export class LabelOnlyRendererComponent extends JsonFormsBaseRenderer<UISchemaEl
         } else if (this.options.extraType === 'currency') {
             value = parseFloat(value).toLocaleString('el');
         } else if (typeof value === 'boolean') {
-            value = value ? 'Ναι' : 'Όχι';
+            value = this.translate.instant(value ? 'common.yes' : 'common.no');
         } else if (hasEnum) {
             (this.options.enum as any[]).forEach((enumValue, index) => {
                 if (value === enumValue) {

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <title>Cases UI</title>
+  <rect width="32" height="32" rx="8" fill="#1B6C80" />
+  <g transform="rotate(-6 16 16)">
+    <rect x="5.5" y="5.5" width="21" height="21" rx="4" stroke="#fff" stroke-width="1.25" opacity=".5" />
+    <path fill="#fff" d="M9.5 12.2c0-.83.67-1.5 1.5-1.5h3.3c.4 0 .78.16 1.06.44l1.3 1.3c.14.14.33.22.53.22h3.81c.83 0 1.5.67 1.5 1.5v7.04c0 .83-.67 1.5-1.5 1.5H11c-.83 0-1.5-.67-1.5-1.5z" />
+  </g>
+</svg>

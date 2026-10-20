@@ -1,18 +1,25 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import moment from 'moment';
-import { TailwindControl } from './tailwind-control';
+import { CaseFormControl } from './case-form-control';
+import { FieldWrapperComponent } from './field-wrapper.component';
 
-/** ajsf `date` widget, also used for every string field with `format: date`. */
+/**
+ * ajsf `date` widget, also used for every string field with `format: date`. The `jf-date` styles re-order the WebKit
+ * date fields so the value reads day / month / year whatever the browser locale (see styles/jsonforms.css).
+ */
 @Component({
     selector: 'app-jf-date',
+    imports: [FieldWrapperComponent],
     template: `
     @if (shown) {
       <app-jf-field [control]="this">
         <input
           type="date"
-          [class]="fieldClass"
+          [class]="fieldClass + ' jf-date'"
           [attr.placeholder]="options.placeholder"
           [attr.required]="options.required"
+          [attr.aria-invalid]="invalid"
+          [attr.aria-describedby]="describedBy"
           [id]="id"
           [readonly]="readonly"
           [min]="min"
@@ -21,36 +28,9 @@ import { TailwindControl } from './tailwind-control';
           (input)="setValue($any($event.target).value)">
       </app-jf-field>
     }`,
-    // https://stackoverflow.com/questions/7372038/is-there-any-way-to-change-input-type-date-format
-    styles: [`
-    input[type="date"]::-webkit-datetime-edit,
-    input[type="date"]::-webkit-inner-spin-button,
-    input[type="date"]::-webkit-clear-button {
-        color: #fff;
-        position: relative;
-    }
-    input[type="date"]::-webkit-datetime-edit-year-field {
-        position: absolute !important;
-        padding: 2px;
-        color: #000;
-        left: 52px;
-    }
-    input[type="date"]::-webkit-datetime-edit-month-field {
-        position: absolute !important;
-        padding: 2px;
-        color: #000;
-        left: 28px;
-    }
-    input[type="date"]::-webkit-datetime-edit-day-field {
-        position: absolute !important;
-        color: #000;
-        padding: 2px;
-        left: 4px;
-    }`],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
-export class DateControlComponent extends TailwindControl {
+export class DateControlComponent extends CaseFormControl {
     protected widget = 'date';
     min = '';
     max = '';

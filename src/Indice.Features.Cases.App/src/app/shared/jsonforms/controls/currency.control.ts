@@ -1,19 +1,24 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { TailwindControl } from './tailwind-control';
+import { CaseFormControl } from './case-form-control';
+import { FieldWrapperComponent } from './field-wrapper.component';
 
 /** ajsf `currency` widget: a number typed and shown in the Greek format (`1.234,56`). */
 @Component({
     selector: 'app-jf-currency',
+    imports: [FieldWrapperComponent],
     template: `
     @if (shown) {
       <app-jf-field [control]="this">
         <input
           type="text"
-          [class]="fieldClass"
+          inputmode="decimal"
+          [class]="fieldClass + ' jf-numeric'"
           [attr.maxlength]="options.maxLength"
           [attr.minlength]="options.minLength"
           [attr.placeholder]="options.placeholder"
           [attr.required]="options.required"
+          [attr.aria-invalid]="invalid"
+          [attr.aria-describedby]="describedBy"
           [id]="id"
           [readonly]="readonly"
           [value]="displayValue"
@@ -22,10 +27,9 @@ import { TailwindControl } from './tailwind-control';
           (blur)="onBlur($event)">
       </app-jf-field>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
-export class CurrencyControlComponent extends TailwindControl {
+export class CurrencyControlComponent extends CaseFormControl {
     protected widget = 'currency';
     private readonly allowNegativeNumbers = true;
     private readonly decimalPlaces = 2;

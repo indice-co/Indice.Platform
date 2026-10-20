@@ -1,20 +1,26 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { LookupItemResultSet } from 'src/app/core/services/cases-api.service';
 import { LookupsService } from 'src/app/core/services/lookups.service';
-import { TailwindControl } from './tailwind-control';
+import { CaseFormControl } from './case-form-control';
+import { FieldWrapperComponent } from './field-wrapper.component';
 
 /** ajsf `lookup` widget: a text input with the lookup items ("value - name") as suggestions; the field holds the value. */
 @Component({
     selector: 'app-jf-lookup',
+    imports: [FieldWrapperComponent, FormsModule],
     template: `
     @if (shown) {
       <app-jf-field [control]="this">
         <input
           type="text"
+          autocomplete="off"
           [class]="fieldClass"
           [attr.list]="id + 'Autocomplete'"
           [attr.placeholder]="options.placeholder"
           [attr.required]="options.required"
+          [attr.aria-invalid]="invalid"
+          [attr.aria-describedby]="describedBy"
           [id]="id"
           [readonly]="readonly"
           [(ngModel)]="searchTerm"
@@ -26,10 +32,9 @@ import { TailwindControl } from './tailwind-control';
         </datalist>
       </app-jf-field>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
-export class LookupControlComponent extends TailwindControl implements OnInit {
+export class LookupControlComponent extends CaseFormControl implements OnInit {
     protected widget = 'lookup';
     private lookupsService = inject(LookupsService);
     private changeDetector = inject(ChangeDetectorRef);

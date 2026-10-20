@@ -13,8 +13,8 @@ import { addClasses, arrayIndicesOf, evaluateCondition, isShownForChannel } from
         <div [innerHTML]="options.helpvalue ?? options.description"></div>
       </div>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    host: { '[class.jf-hidden]': '!shown' },
+    changeDetection: ChangeDetectionStrategy.Eager
 })
 export class HtmlRendererComponent extends JsonFormsBaseRenderer<UISchemaElement> implements OnInit {
     private jsonFormsService = inject(JsonFormsAngularService);
@@ -25,7 +25,7 @@ export class HtmlRendererComponent extends JsonFormsBaseRenderer<UISchemaElement
 
     ngOnInit(): void {
         this.options = this.uischema.options ?? {};
-        this.wrapperClass = addClasses(this.options.htmlClass, 'schema-form-html', 'form-group');
+        this.wrapperClass = addClasses('jf-html', 'form-group', 'schema-form-html', this.options.htmlClass);
         this.addSubscription(this.jsonFormsService.$state.subscribe((state: JsonFormsState) => {
             this.shown = isShownForChannel(this.options, this.caseDetailsService.caseDetails?.channel)
                 && evaluateCondition(this.options.condition, getData(state), arrayIndicesOf(this.path));

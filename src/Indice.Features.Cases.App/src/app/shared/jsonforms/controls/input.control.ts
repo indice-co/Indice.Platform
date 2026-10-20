@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { TailwindControl } from './tailwind-control';
+import { CaseFormControl } from './case-form-control';
+import { FieldWrapperComponent } from './field-wrapper.component';
 
 // ajsf input type from the schema format (ajsf `getInputType`).
 const formatInputTypes: { [format: string]: string } = { 'color': 'color', 'date-time': 'datetime-local', 'email': 'email', 'uri': 'url' };
@@ -7,6 +8,7 @@ const formatInputTypes: { [format: string]: string } = { 'color': 'color', 'date
 /** Text and number inputs (ajsf `text` / `number` widgets, and every string or number field without a widget). */
 @Component({
     selector: 'app-jf-input',
+    imports: [FieldWrapperComponent],
     template: `
     @if (shown) {
       <app-jf-field [control]="this">
@@ -18,6 +20,8 @@ const formatInputTypes: { [format: string]: string } = { 'color': 'color', 'date
           [attr.pattern]="options.pattern"
           [attr.placeholder]="options.placeholder"
           [attr.required]="options.required"
+          [attr.aria-invalid]="invalid"
+          [attr.aria-describedby]="describedBy"
           [id]="id"
           [readonly]="readonly"
           [type]="inputType"
@@ -32,10 +36,9 @@ const formatInputTypes: { [format: string]: string } = { 'color': 'color', 'date
         }
       </app-jf-field>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
-export class InputControlComponent extends TailwindControl {
+export class InputControlComponent extends CaseFormControl {
     protected widget = 'text';
     inputType = 'text';
 

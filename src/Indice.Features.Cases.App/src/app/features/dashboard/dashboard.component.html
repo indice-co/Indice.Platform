@@ -1,42 +1,244 @@
-<lib-view-layout [title]="'dashboard.welcome' | translate:{ name: $safeNavigationMigration(user?.profile?.name) }"
-  [meta-items]="metaItems">
-  <div class="cards-deck-1 mb-4">
-    <div class="grid grid-cols-3 gap-x-5 gap-y-0">
-      @if (tiles.GroupedByCasetype) {
-        <app-canvas-tile
-          [title]="'dashboard.groupedByCasetype' | translate"
-        [canvasId]="reportTag.GroupedByCasetype"></app-canvas-tile>
+<div class="page">
+  <app-page-header [title]="'dashboard.desk' | translate">
+    <!-- The finding: the one fact on the desk that most needs attention, with the way to act on it. -->
+    <p class="mt-1 min-h-6 text-[0.9375rem] text-quiet">
+      @if (finding(); as finding) {
+        {{ finding.text }}
+        @if (finding.queryParams) {
+          <a class="link ml-1 font-medium text-base-content" routerLink="/cases" [queryParams]="finding.queryParams" (click)="resetListFilters()">
+            {{ 'dashboard.openTheList' | translate }}
+          </a>
+        }
       }
-      @if (tiles.AgentGroupedByCasetype) {
-        <app-canvas-tile
-          [title]="'dashboard.agentGroupedByCasetype' | translate"
-        [canvasId]="reportTag.AgentGroupedByCasetype"></app-canvas-tile>
+    </p>
+    <a actions class="btn btn-ghost" routerLink="/cases">
+      <ng-icon name="lucideFolders" size="1rem" /> {{ 'dashboard.allCases' | translate }}
+    </a>
+    @if (canCreateCase()) {
+      <a actions class="btn btn-primary" [routerLink]="[{ outlets: { rightpane: ['new-case'] } }]" [relativeTo]="null">
+        <ng-icon name="lucidePlus" size="1rem" /> {{ 'cases.newCase' | translate }}
+      </a>
+    }
+  </app-page-header>
+
+  <!-- Open work: the figure the page leads with, and the route those cases are waiting on. The stops add up to it. -->
+  <section class="panel mb-6 grid lg:grid-cols-3" [attr.aria-label]="'dashboard.openCases' | translate">
+    <div class="border-base-200 p-5 max-lg:border-b lg:border-r">
+      <h2 class="text-sm font-semibold">{{ 'dashboard.openCases' | translate }}</h2>
+      @if (desk.value(); as desk) {
+        <a class="mt-2 block w-fit text-[2.375rem] leading-[2.75rem] tracking-[-0.02em] kbd-ref hover:underline hover:decoration-2 hover:underline-offset-4"
+           routerLink="/cases" [queryParams]="openListParams()" (click)="resetListFilters()">{{ desk.open === null ? '—' : (desk.open | number) }}</a>
+      } @else {
+        <div class="skeleton mt-2 h-11 w-24"></div>
       }
-      @if (tiles.CustomerGroupedByCasetype) {
-        <app-canvas-tile
-          [title]="'dashboard.customerGroupedByCasetype' | translate"
-        [canvasId]="reportTag.CustomerGroupedByCasetype"></app-canvas-tile>
-      }
-      @if (tiles.GroupedByStatus) {
-        <app-canvas-tile
-          [title]="'dashboard.groupedByStatus' | translate"
-        [canvasId]="reportTag.GroupedByStatus"></app-canvas-tile>
-      }
-      @if (tiles.AgentGroupedByStatus) {
-        <app-canvas-tile
-          [title]="'dashboard.agentGroupedByStatus' | translate"
-        [canvasId]="reportTag.AgentGroupedByStatus"></app-canvas-tile>
-      }
-      @if (tiles.CustomerGroupedByStatus) {
-        <app-canvas-tile
-          [title]="'dashboard.customerGroupedByStatus' | translate"
-        [canvasId]="reportTag.CustomerGroupedByStatus"></app-canvas-tile>
-      }
-      @if (isAdmin && tiles.GroupedByGroupId) {
-        <app-canvas-tile
-          [title]="'dashboard.groupedByGroupId' | translate"
-        [canvasId]="reportTag.GroupedByGroupId"></app-canvas-tile>
+      <p class="mt-1 text-[0.8125rem] text-quiet">{{ 'dashboard.openCasesHint' | translate }}</p>
+      <p class="mt-5 flex items-baseline gap-2">
+        @if (desk.value(); as desk) {
+          <span class="text-xl leading-7 kbd-ref">{{ desk.mine === null ? '—' : (desk.mine | number) }}</span>
+        } @else {
+          <span class="skeleton inline-block h-7 w-8"></span>
+        }
+        <span class="text-[0.8125rem] text-quiet">{{ 'dashboard.assignedToYouHint' | translate }}</span>
+      </p>
+    </div>
+
+    <div class="min-w-0 p-5 lg:col-span-2">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <h2 class="text-sm font-semibold">{{ 'dashboard.route' | translate }}</h2>
+        <ul class="flex items-center gap-4 text-xs text-quiet">
+          @for (status of routeStatuses; track status) {
+            <li class="inline-flex items-center gap-1.5" [class]="ink(status)"><span class="ink-dot"></span>{{ statusKey(status) | translate }}</li>
+          }
+        </ul>
+      </div>
+      @if (routeStations(); as stations) {
+        @if (stations.length) {
+          <app-checkpoint-route [stations]="stations" [peakLabel]="'dashboard.mostWaiting' | translate" (activate)="resetListFilters()" />
+        } @else {
+          <p class="rounded-field border border-dashed border-base-300 px-4 py-3 text-quiet">{{ 'dashboard.nothingOpen' | translate }}</p>
+        }
+      } @else {
+        <div class="grid grid-cols-4 gap-6 pt-1">
+          @for (stop of [1, 2, 3, 4]; track stop) {
+            <div class="space-y-3"><div class="skeleton h-9 w-14"></div><div class="skeleton h-3 w-full"></div><div class="skeleton h-4 w-24"></div></div>
+          }
+        </div>
       }
     </div>
+  </section>
+
+  <!-- Columns: 3 × ⅓ on one 24px gutter; the intake chart spans two, so every row below lands on the same lines. -->
+  <div class="mb-6 grid gap-6 lg:grid-cols-3">
+    <section class="panel min-w-0 lg:col-span-2">
+      <div class="panel-head">
+        <div>
+          <h2 class="text-base font-semibold">{{ 'dashboard.intake' | translate }}</h2>
+          <p class="text-xs text-quiet">{{ 'dashboard.intakeHint' | translate: { count: (intakeTotal() | number) } }}</p>
+        </div>
+        <div class="join" role="group" [attr.aria-label]="'dashboard.view' | translate">
+          <button type="button" class="btn btn-ghost btn-xs join-item btn-square" [class.btn-active]="!showIntakeTable()" (click)="showIntakeTable.set(false)"
+                  [attr.aria-pressed]="!showIntakeTable()" [attr.aria-label]="'dashboard.chartView' | translate">
+            <ng-icon name="lucideChartColumn" size="0.95rem" />
+          </button>
+          <button type="button" class="btn btn-ghost btn-xs join-item btn-square" [class.btn-active]="showIntakeTable()" (click)="showIntakeTable.set(true)"
+                  [attr.aria-pressed]="showIntakeTable()" [attr.aria-label]="'dashboard.tableView' | translate">
+            <ng-icon name="lucideTable2" size="0.95rem" />
+          </button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="mb-4 flex flex-wrap items-end gap-x-5 gap-y-1">
+          <div>
+            <p class="text-[0.8125rem] text-quiet">{{ 'dashboard.newThisWeek' | translate }}</p>
+            @if (weeks.value()) {
+              <p class="text-[1.75rem] leading-9 kbd-ref">{{ thisWeek() === null ? '—' : (thisWeek() | number) }}</p>
+            } @else {
+              <div class="skeleton h-9 w-14"></div>
+            }
+          </div>
+          <p class="pb-1 text-[0.8125rem] text-quiet">
+            @if (weekDelta() !== null) {
+              <span class="font-medium text-base-content kbd-ref">{{ weekDelta()! > 0 ? '+' : '' }}{{ weekDelta() }}%</span>
+              {{ 'dashboard.vsPreviousWeek' | translate }}.
+            }
+            @if (desk.value()?.today !== null && desk.value()?.today !== undefined) {
+              {{ 'dashboard.newToday' | translate: { count: desk.value()!.today } }}.
+            }
+          </p>
+        </div>
+        @if (!weeks.value()) {
+          <div class="skeleton h-44 w-full"></div>
+        } @else if (showIntakeTable()) {
+          <table class="table">
+            <thead>
+              <tr><th>{{ 'dashboard.week' | translate }}</th><th class="text-right">{{ 'dashboard.cases' | translate }}</th></tr>
+            </thead>
+            <tbody>
+              @for (bar of intake(); track bar.key) {
+                <tr>
+                  <td class="kbd-ref">{{ bar.detail }}</td>
+                  <td class="text-right font-medium kbd-ref">{{ bar.value === null ? '—' : (bar.value | number) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <app-column-chart [bars]="intake()" (activate)="resetListFilters()" />
+        }
+      </div>
+    </section>
+
+    <section class="panel min-w-0">
+      <div class="panel-head">
+        <div>
+          <h2 class="text-base font-semibold">{{ 'dashboard.aging' | translate }}</h2>
+          <p class="text-xs text-quiet">{{ 'dashboard.agingHint' | translate }}</p>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="mb-4 min-w-0">
+          <p class="text-[0.8125rem] text-quiet">{{ 'dashboard.oldestOpen' | translate }}</p>
+          @if (desk.value(); as desk) {
+            @if (desk.oldest; as oldest) {
+              <a class="block w-fit text-[1.75rem] leading-9 kbd-ref hover:underline hover:underline-offset-4" [routerLink]="['/cases', oldest.id, 'details']">
+                {{ (oldestAge() === 1 ? 'dashboard.ageDay' : 'dashboard.ageDays') | translate: { count: oldestAge() } }}
+              </a>
+              <p class="truncate text-[0.8125rem] text-quiet">
+                {{ oldest.caseType?.title }}@if (oldest.referenceNumber) {, <span class="ref text-base-content">{{ oldest.referenceNumber }}</span>}
+              </p>
+            } @else {
+              <p class="text-[1.75rem] leading-9 text-quiet">—</p>
+              <p class="text-[0.8125rem] text-quiet">{{ 'dashboard.nothingOpen' | translate }}</p>
+            }
+          } @else {
+            <div class="skeleton h-9 w-24"></div>
+          }
+        </div>
+        @if (aging.value()) {
+          <app-bar-list [data]="agingRows()" (activate)="resetListFilters()" />
+        } @else {
+          <div class="space-y-3">
+            @for (row of [1, 2, 3, 4]; track row) {
+              <div class="skeleton h-6 w-full"></div>
+            }
+          </div>
+        }
+      </div>
+    </section>
   </div>
-</lib-view-layout>
+
+  @if (channels.length || groupTag()) {
+    <section [attr.aria-label]="'dashboard.breakdown' | translate">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <h2 class="text-base font-semibold">{{ 'dashboard.breakdown' | translate }}</h2>
+        @if (channels.length > 1) {
+          <div class="join" role="radiogroup" [attr.aria-label]="'dashboard.channel.label' | translate">
+            @for (option of channels; track option) {
+              <button type="button" role="radio" class="btn btn-sm join-item" [class.btn-active]="channel() === option"
+                      [attr.aria-checked]="channel() === option" (click)="channel.set(option)">
+                {{ channelReports[option].label | translate }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div [class]="breakdownColumns() === 3 ? 'grid gap-6 lg:grid-cols-3' : 'grid gap-6 lg:grid-cols-2'">
+        @if (statusTag(); as tag) {
+          <section class="panel min-w-0">
+            <div class="panel-head"><h3>{{ reportTitles[tag] | translate }}</h3></div>
+            <div class="panel-body transition-opacity" [class.opacity-55]="statusReport.isLoading() && statusReport.hasValue()">
+              @if (statusReport.hasValue() || statusReport.error()) {
+                @if (statusSegments().length) {
+                  <app-stacked-bar [data]="statusSegments()" [ariaLabel]="reportTitles[tag] | translate" [totalLabel]="'dashboard.total' | translate" />
+                } @else {
+                  <p class="rounded-field border border-dashed border-base-300 px-4 py-3 text-quiet">{{ 'dashboard.noData' | translate }}</p>
+                }
+              } @else {
+                <div class="skeleton h-40 w-full"></div>
+              }
+            </div>
+          </section>
+        }
+        @if (caseTypeTag(); as tag) {
+          <section class="panel min-w-0">
+            <div class="panel-head"><h3>{{ reportTitles[tag] | translate }}</h3></div>
+            <div class="panel-body transition-opacity" [class.opacity-55]="caseTypeReport.isLoading() && caseTypeReport.hasValue()">
+              @if (caseTypeReport.hasValue() || caseTypeReport.error()) {
+                @if (caseTypeBars().length) {
+                  <app-bar-list [data]="caseTypeBars()" [limit]="6" [otherLabel]="otherLabel()" (activate)="resetListFilters()" />
+                } @else {
+                  <p class="rounded-field border border-dashed border-base-300 px-4 py-3 text-quiet">{{ 'dashboard.noData' | translate }}</p>
+                }
+              } @else {
+                <div class="skeleton h-40 w-full"></div>
+              }
+            </div>
+          </section>
+        }
+        <!-- Not scoped by the channel switch: the report has no per-channel variant, so its header says so. -->
+        @if (groupTag(); as tag) {
+          <section class="panel min-w-0">
+            <div class="panel-head">
+              <h3>{{ reportTitles[tag] | translate }}</h3>
+              @if (channels.length > 1) {
+                <span class="text-xs text-quiet">{{ 'dashboard.channel.all' | translate }}</span>
+              }
+            </div>
+            <div class="panel-body">
+              @if (groupReport.hasValue() || groupReport.error()) {
+                @if (groupBars().length) {
+                  <app-bar-list [data]="groupBars()" [limit]="6" [otherLabel]="otherLabel()" (activate)="resetListFilters()" />
+                } @else {
+                  <p class="rounded-field border border-dashed border-base-300 px-4 py-3 text-quiet">{{ 'dashboard.noData' | translate }}</p>
+                }
+              } @else {
+                <div class="skeleton h-40 w-full"></div>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    </section>
+  }
+</div>

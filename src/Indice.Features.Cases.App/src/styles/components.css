@@ -1,0 +1,555 @@
+@layer components {
+  /* ── The frame and the sheet ──────────────────────────────────────────────── */
+
+  /*
+   * The sidebar and the top bar share the frame tint with no rule between them; the routed page is a white sheet that
+   * butts against both and stands 8px off the window's right and bottom edges. The sheet's top cap stays put while the
+   * window scrolls, so the page always reads as a sheet inside the frame. Below `lg` the frame folds away and the sheet
+   * becomes the screen.
+   */
+  .app-sheet {
+    min-height: calc(100dvh - var(--cases-topbar-height));
+    background-color: var(--color-base-100);
+
+    @media (width >= 64rem) {
+      min-height: calc(100dvh - var(--cases-topbar-height) - var(--cases-sheet-radius) - var(--cases-sheet-inset));
+      margin: 0 var(--cases-sheet-inset) var(--cases-sheet-inset) 0;
+      border: var(--border) solid var(--cases-sheet-edge);
+      border-top: 0;
+      border-radius: 0 0 var(--cases-sheet-radius) var(--cases-sheet-radius);
+    }
+  }
+
+  /* The cap sits on the frame tint, so the frame shows in its corners while content scrolls under it. */
+  .app-sheet-cap {
+    display: none;
+
+    @media (width >= 64rem) {
+      position: sticky;
+      top: var(--cases-topbar-height);
+      z-index: 15;
+      display: block;
+      height: var(--cases-sheet-radius);
+      padding-right: var(--cases-sheet-inset);
+      background-color: var(--cases-frame);
+
+      &::before {
+        content: "";
+        display: block;
+        height: 100%;
+        border: var(--border) solid var(--cases-sheet-edge);
+        border-bottom: 0;
+        border-radius: var(--cases-sheet-radius) var(--cases-sheet-radius) 0 0;
+        background-color: var(--color-base-100);
+      }
+    }
+  }
+
+  /* Content column of every routed page. */
+  .page {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--cases-content-max);
+    padding: 1.25rem 1rem 3rem;
+
+    @media (width >= 40rem) {
+      padding: 1.5rem 1.5rem 3rem;
+    }
+
+    @media (width >= 64rem) {
+      padding: 0.5rem 2rem 3.5rem;
+    }
+  }
+
+  /* A block of work on the sheet. Borders, never shadows; the edge is no heavier than the sheet's. */
+  .panel {
+    background-color: var(--color-base-100);
+    border: var(--border) solid var(--color-base-300);
+    border-radius: var(--radius-box);
+  }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 3.25rem;
+    padding: 0.875rem 1.25rem 0.25rem;
+
+    & > h2,
+    & > h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.5rem;
+    }
+  }
+
+  .panel-body {
+    padding: 1.25rem;
+  }
+
+  .panel-head + .panel-body {
+    padding-top: 0.75rem;
+  }
+
+  /* A head that sits on a table or a list keeps a rule under it. */
+  .panel-head.is-ruled {
+    padding-bottom: 0.875rem;
+    border-bottom: var(--border) solid var(--color-base-200);
+  }
+
+  /* Small secondary text that still clears 4.5:1. */
+  .text-quiet {
+    color: var(--cases-text-muted);
+  }
+
+  /* ── Sidebar: labelled rows on the frame; the active row is a neutral pill ── */
+
+  .nav-index {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    & a {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      min-height: 2rem;
+      padding: 0.375rem 0.625rem;
+      border-radius: var(--radius-field);
+      color: color-mix(in oklab, var(--color-base-content) 84%, transparent);
+      line-height: 1.25rem;
+      transition: background-color 120ms ease, color 120ms ease;
+
+      & ng-icon {
+        flex: none;
+        color: var(--cases-text-muted);
+      }
+
+      &:hover {
+        background-color: color-mix(in oklab, var(--cases-frame-active) 60%, transparent);
+        color: var(--color-base-content);
+      }
+
+      &.is-active {
+        background-color: var(--cases-frame-active);
+        color: var(--color-base-content);
+        font-weight: 500;
+
+        & ng-icon {
+          color: var(--color-base-content);
+        }
+      }
+    }
+  }
+
+  .nav-index-label {
+    padding: 1.5rem 0.625rem 0.375rem;
+    font-size: 0.75rem;
+    color: var(--cases-text-muted);
+  }
+
+  /* ── Case lifecycle: the stamp and its small companions ──────────────────── */
+
+  .ink-submitted {
+    --ink: var(--cases-status-submitted-ink);
+    --mark: var(--cases-status-submitted);
+  }
+
+  .ink-inprogress {
+    --ink: var(--cases-status-inprogress-ink);
+    --mark: var(--cases-status-inprogress);
+  }
+
+  .ink-completed {
+    --ink: var(--cases-status-completed-ink);
+    --mark: var(--cases-status-completed);
+  }
+
+  .ink-deleted {
+    --ink: var(--cases-status-deleted-ink);
+    --mark: var(--cases-status-deleted);
+  }
+
+  /* The signature element: a rubber stamp, double ruled, slightly off-square. One per screen. */
+  .stamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.3125rem 0.75rem;
+    border: 2px solid var(--ink, var(--color-primary));
+    outline: 1px solid var(--ink, var(--color-primary));
+    outline-offset: 2px;
+    border-radius: 0.3rem;
+    color: var(--ink, var(--color-primary));
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    white-space: nowrap;
+    transform: rotate(-2deg);
+    mix-blend-mode: multiply;
+
+    [data-theme="cases-dark"] & {
+      mix-blend-mode: normal;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme]) & {
+        mix-blend-mode: normal;
+      }
+    }
+  }
+
+  .stamp-sm {
+    padding: 0.125rem 0.45rem;
+    border-width: 1.5px;
+    outline-offset: 1.5px;
+    font-size: 0.75rem;
+    transform: rotate(-1.5deg);
+  }
+
+  /* A dot of ink next to a text label: lifecycle in lists and tables. */
+  .ink-dot {
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: var(--mark, var(--cases-text-muted));
+  }
+
+  /* The lifecycle as a pale tag in its own hue (histories, small summaries). Never squeezed. */
+  .status-pill {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    height: 1.25rem;
+    padding: 0 0.4375rem;
+    border-radius: var(--radius-selector);
+    background-color: color-mix(in oklab, var(--mark, var(--cases-status-deleted)) 18%, var(--color-base-100));
+    color: var(--ink, var(--cases-text-muted));
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* ── People: initials on a pale tint of their own (identity, not data) ───── */
+
+  .person-mark {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    background-color: var(--tint, var(--cases-person-1));
+    color: var(--cases-person-ink);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+
+  .person-mark.is-lg {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.75rem;
+  }
+
+  /* ── Tables ───────────────────────────────────────────────────────────────── */
+
+  .data-table {
+    & thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      height: 2.5rem;
+      border-bottom: var(--border) solid var(--color-base-300);
+      background-color: var(--color-base-100);
+      color: var(--cases-text-muted);
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    & tbody td {
+      height: 2.875rem;
+      vertical-align: middle;
+    }
+
+    /* Identifiers keep the table's size in the mono face. */
+    & .ref {
+      font-size: 1em;
+    }
+
+    /* The identity column stays in view while a wide table scrolls sideways. */
+    & :where(thead th, tbody td):first-child {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background-color: var(--color-base-100);
+    }
+
+    & tbody tr.is-link {
+      cursor: pointer;
+
+      & > td {
+        transition: background-color 100ms ease;
+      }
+
+      &:hover > td,
+      &:focus-visible > td {
+        background-color: var(--color-base-200);
+      }
+
+      &:focus-visible {
+        outline-offset: -2px;
+      }
+    }
+  }
+
+  /* ── KPI strip: figures in one container divided by rules, not separate cards ── */
+
+  .ledger {
+    display: grid;
+    grid-template-columns: repeat(var(--ledger-cols, 4), minmax(0, 1fr));
+
+    & > * {
+      padding: 1rem 1.25rem 1.125rem;
+      border-left: var(--border) solid var(--color-base-300);
+    }
+
+    & > *:first-child {
+      border-left: 0;
+    }
+
+    @media (width < 64rem) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      & > * {
+        border-top: var(--border) solid var(--color-base-300);
+      }
+
+      & > *:nth-child(-n + 2) {
+        border-top: 0;
+      }
+
+      & > *:nth-child(odd) {
+        border-left: 0;
+      }
+    }
+
+    @media (width < 30rem) {
+      grid-template-columns: minmax(0, 1fr);
+
+      & > * {
+        border-left: 0;
+      }
+
+      & > *:nth-child(n + 2) {
+        border-top: var(--border) solid var(--color-base-300);
+      }
+    }
+  }
+
+  /* ── Charts (hand-built SVG/HTML; see the dashboard widgets) ─────────────── */
+
+  .chart-grid {
+    stroke: var(--cases-chart-grid);
+    stroke-width: 1;
+  }
+
+  .chart-axis {
+    stroke: var(--cases-chart-axis);
+    stroke-width: 1;
+  }
+
+  .chart-label {
+    fill: var(--cases-text-muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chart-tooltip {
+    pointer-events: none;
+    position: absolute;
+    z-index: 5;
+    min-width: 7rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: var(--radius-field);
+    background-color: var(--color-neutral);
+    color: var(--color-neutral-content);
+    font-size: 0.75rem;
+    line-height: 1.3;
+    box-shadow: 0 6px 20px -8px rgb(0 0 0 / 0.35);
+
+    & strong {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+  }
+
+  /* ── The route: open checkpoints as stops on one line (dashboard) ────────── */
+
+  .route {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+
+    @media (width >= 48rem) {
+      grid-template-columns: repeat(var(--stops, 4), minmax(0, 1fr));
+    }
+  }
+
+  .route-link {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1rem minmax(0, 1fr) auto;
+    grid-template-areas: "dot label count";
+    align-items: center;
+    column-gap: 0.75rem;
+    padding: 0.625rem 0.5rem;
+    border-radius: var(--radius-field);
+
+    &:hover .route-label {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    @media (width >= 48rem) {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: 2.25rem 1.25rem auto;
+      grid-template-areas: "count" "dot" "label";
+      row-gap: 0.5rem;
+      padding: 0.25rem 1.25rem 0.5rem 0;
+
+      /* The line runs from this stop's dot to the next stop's. */
+      .route-stop:not(:last-child) > &::after {
+        content: "";
+        position: absolute;
+        top: calc(0.25rem + 2.25rem + 0.5rem + 0.625rem - 1px);
+        left: 0.875rem;
+        right: 0;
+        height: 2px;
+        background-color: var(--cases-chart-axis);
+      }
+    }
+  }
+
+  .route-count {
+    grid-area: count;
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+    text-align: right;
+
+    @media (width >= 48rem) {
+      font-size: 1.75rem;
+      line-height: 2.25rem;
+      text-align: left;
+    }
+  }
+
+  .route-stop.is-peak .route-count {
+    color: var(--cases-chart-1);
+  }
+
+  .route-dot {
+    position: relative;
+    z-index: 1;
+    grid-area: dot;
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 9999px;
+    background-color: var(--mark);
+    outline: 3px solid var(--color-base-100);
+  }
+
+  .route-label {
+    grid-area: label;
+    min-width: 0;
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+  }
+
+  .route-note {
+    display: block;
+    color: var(--cases-chart-1);
+    font-size: 0.75rem;
+  }
+
+  /* ── Small helpers ────────────────────────────────────────────────────────── */
+
+  /* Figures that line up or update. */
+  .kbd-ref {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* Identifiers people read and quote: case references, customer and tax numbers, branch codes, keys. */
+  .ref {
+    font-family: var(--font-mono);
+    font-size: 0.9375em;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  /* Read-only key/value list (case details, side info). */
+  .facts {
+    display: grid;
+    grid-template-columns: minmax(7rem, auto) minmax(0, 1fr);
+    gap: 0.5rem 1rem;
+
+    & dt {
+      color: var(--cases-text-muted);
+    }
+
+    & dd {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+}
+
+/*
+ * Flat controls: DaisyUI draws a hairline inset and a drop under buttons that only `--depth` hides, and a text shadow
+ * that stays in the computed style. Unlayered, so it wins over the DaisyUI layers.
+ */
+.btn,
+.file-input {
+  --btn-shadow: 0 0 #0000;
+  --btn-inset: 0 0 #0000;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.btn {
+  font-weight: 500;
+}
+
+/* The credit's heart is the outline icon filled in. */
+.heart-mark svg {
+  fill: currentColor;
+}
+
+/* Loading placeholders are flat bars at the size of what they stand for: no shimmer. */
+.skeleton {
+  background-image: none;
+  background-color: var(--color-base-200);
+  animation: none;
+}
+
+/* DaisyUI's table sits in a sub-layer of utilities, so the tighter cell padding has to live there too. */
+@layer utilities {
+  .data-table :where(th, td) {
+    padding-inline: 0.75rem;
+  }
+
+  /* The outer cells line up with the toolbar and the pager above and below the table. */
+  .data-table :where(th, td):first-child {
+    padding-left: 1rem;
+  }
+
+  .data-table :where(th, td):last-child {
+    padding-right: 1rem;
+  }
+}

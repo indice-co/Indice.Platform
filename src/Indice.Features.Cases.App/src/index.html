@@ -2,10 +2,15 @@
 <html lang="el">
 <head>
   <meta charset="utf-8">
-  <title>Διαχείριση Υποθέσεων</title>
+  <title>Cases UI</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- Paint the frame colour of the remembered (or OS) theme before the app loads. -->
+  <script>try { var t = localStorage.getItem('cases-ui.theme'); if (t) document.documentElement.setAttribute('data-theme', t === 'dark' ? 'cases-dark' : 'cases'); } catch (e) { }</script>
+  <style>html{background:#ebf0ee}@media (prefers-color-scheme:dark){html:not([data-theme]){background:#0d1110}}html[data-theme=cases-dark]{background:#0d1110}body{margin:0}</style>
 </head>
 <body>
   <app-root></app-root>

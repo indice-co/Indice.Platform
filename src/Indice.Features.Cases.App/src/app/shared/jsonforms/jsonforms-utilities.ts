@@ -12,7 +12,10 @@ export interface CasesJsonFormsConfig extends JsonFormsAngularConfig {
     onSubmit?: (data: any) => void;
 }
 
-/** What a renderer needs to draw a field the way the ajsf Tailwind framework did. */
+/** The required marker appended to field titles (titles are rendered as HTML). */
+export const REQUIRED_MARKER = ' <span class="jf-required">*</span>';
+
+/** What a renderer needs to draw a field with the ajsf semantics the case-type layouts were written for. */
 export interface FieldPresentation {
     /** Schema keywords merged with the UI schema options (the ajsf `options` object). */
     options: any;
@@ -49,7 +52,7 @@ export function presentField(
     const notitle = uischema.label === false || isTrue(options.notitle);
     let title: string | null = typeof uischema.label === 'string' ? uischema.label : options.title ?? fixTitle(lastSegment(scopeOf(uischema) ?? ''));
     if (title && addAsterisk && !notitle && options.required && !title.includes('*')) {
-        title += ' <strong class="text-red-500">*</strong>';
+        title += REQUIRED_MARKER;
     }
     return {
         options,

@@ -1,0 +1,75 @@
+/*
+ * Case-type layouts live in the database and can carry Tailwind classes in `htmlClass`, `fieldHtmlClass`,
+ * `labelHtmlClass` and `itemLabelHtmlClass`. Tailwind only generates classes it finds in source files, so the utilities
+ * the previous UI happened to generate (its own markup plus the precompiled @indice/ng-components styles) are listed
+ * here to keep existing layouts rendering as before. The grid helpers at the end are the usual layout vocabulary for
+ * new layouts. Colours of the retired brand (dark-green, dusty-orange) are intentionally not carried over.
+ */
+@source inline("!inline !visible -left-3 -ml-1 -ml-px -mr-12 -mt-1 -mx-4 -my-2 -space-y-px -z-1 absolute align-bottom align-middle align-top animate-pulse animate-spin antialiased appearance-none");
+@source inline("bg-blue-100 bg-blue-200 bg-blue-50 bg-blue-600 bg-gray-100 bg-gray-200 bg-gray-300 bg-gray-50 bg-gray-600 bg-gray-700 bg-green-100 bg-indigo-600 bg-red-100 bg-red-600 bg-slate-400/25 bg-transparent bg-white bg-yellow-100");
+@source inline("block blur border border-2 border-b border-b-1 border-b-2 border-blue-200 border-blue-500 border-blue-600 border-collapse border-gray-100 border-gray-200 border-gray-300 border-indigo-500 border-l border-l-2 border-l-4 border-t border-t-4 border-transparent bottom-0 break-all");
+@source inline("col-span-1 col-span-4 container cursor-not-allowed cursor-pointer dark:bg-gray-600 dark:focus:ring-gray-800 dark:hover:bg-gray-700 dark:text-gray-500 disabled:opacity-75 divide-gray-200 divide-gray-300 divide-y");
+@source inline("duration-100 duration-200 duration-300 duration-75 ease-in ease-out fill-current filter fixed flex flex-1 flex-auto flex-col flex-grow flex-shrink flex-shrink-0 flex-wrap float-right flow-root");
+@source inline("focus:bg-white focus:border-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-2 focus:ring-4 focus:ring-gray-200 focus:ring-gray-300 focus:ring-gray-500 focus:ring-indigo-500 focus:ring-offset-1 focus:text-blue-700 focus:z-10");
+@source inline("font-bold font-extrabold font-medium font-normal font-semibold font-thin gap-1 gap-2 gap-4 gap-6 gap-x-2 gap-x-5 gap-y-0 gap-y-1 grid grid-cols-1 grid-cols-2 grid-cols-3 grid-cols-4 grid-flow-col grid-flow-row");
+@source inline("group-hover:bg-blue-800 group-hover:bg-gray-300 group-hover:border-gray-400 group-hover:text-blue-800 group-hover:text-gray-700 group-hover:text-gray-900 grow");
+@source inline("h-0 h-0.5 h-10 h-12 h-14 h-2 h-2.5 h-3 h-32 h-4 h-5 h-6 h-8 h-9 h-full hidden");
+@source inline("hover:bg-blue-50 hover:bg-blue-800 hover:bg-blue-900 hover:bg-gray-100 hover:bg-gray-400 hover:bg-gray-50 hover:bg-gray-700 hover:bg-red-800 hover:bg-transparent hover:border-blue-800 hover:border-gray-300 hover:border-gray-400 hover:cursor-pointer hover:opacity-75 hover:shadow-md hover:text-blue-400 hover:text-gray-100 hover:text-gray-500 hover:text-gray-700 hover:text-indigo-900 hover:text-red-900");
+@source inline("inline inline-block inline-flex inset-0 inset-y-0 invisible italic items-center items-end items-start justify-between justify-center justify-end justify-stretch leading-6 leading-none leading-tight left-0 left-4");
+@source inline("lg:-mx-6 lg:col-span-4 lg:col-span-8 lg:gap-x-5 lg:grid lg:grid-cols-12 lg:grid-cols-2 lg:px-0 lg:px-8 lg:py-0 lg:text-sm lg:w-auto");
+@source inline("m-2 m-4 max-h-64 max-h-96 max-w-18 max-w-2xl max-w-4xl max-w-6xl max-w-sm max-w-xs mb-1 mb-10 mb-2 mb-3 mb-4 mb-6");
+@source inline("md:block md:border-l-0 md:border-t-4 md:col-span-3 md:col-span-9 md:divide-y-0 md:flex md:flex-1 md:grid-cols-2 md:items-end md:pb-0 md:pl-0 md:pt-4 md:px-6 md:rounded-lg md:space-x-8 md:space-y-0 md:text-lg me-2");
+@source inline("min-h-full min-h-screen min-w-0 min-w-full ml-1 ml-2 ml-3 ml-4 ml-5 ml-6 mr-1 mr-2 mr-4 mr-5 mt-0.5 mt-1 mt-2 mt-3 mt-4 mt-5 mt-6 mt-8 mt-auto mx-1 mx-2 mx-auto my-2");
+@source inline("opacity-0 opacity-100 opacity-25 opacity-40 opacity-50 opacity-75 ordinal origin-top-right overflow-hidden overflow-x-auto overflow-y-auto");
+@source inline("p-1 p-2 p-20 p-3 p-4 p-5 pb-10 pb-2 pb-4 pb-5 pb-8 pl-1 pl-2 pl-3 pl-4 pointer-events-none pr-1 pr-1.5 pr-10 pr-2 pr-3 pr-4 pr-5 pr-8 pt-1 pt-12 pt-2 pt-5");
+@source inline("px-1 px-1.5 px-2 px-2.5 px-3 px-4 px-5 px-6 py-0.5 py-1 py-1.5 py-12 py-16 py-2 py-20 py-3 py-4 py-5 py-6");
+@source inline("read-only:bg-gray-100 relative right-0 ring-1 ring-8 ring-black ring-black/5 ring-white rotate-180 rounded rounded-b rounded-bl-md rounded-br-md rounded-full rounded-lg rounded-md rounded-sm rounded-tl-md rounded-tr-md rounded-xl");
+@source inline("select-none shadow shadow-lg shadow-md shadow-sm shadow-xl shrink shrink-0");
+@source inline("sm:-mx-6 sm:flex sm:flex-row-reverse sm:grid sm:h-10 sm:items-center sm:items-start sm:max-w-lg sm:ml-4 sm:mt-0 sm:mt-4 sm:mx-0 sm:my-8 sm:p-0 sm:p-6 sm:pr-2 sm:pr-20 sm:px-0 sm:px-6 sm:py-20 sm:text-4xl sm:text-left sm:text-right sm:text-sm sm:w-10 sm:w-auto sm:w-full");
+@source inline("space-x-4 space-x-6 space-y-1 space-y-2 space-y-4 space-y-5 space-y-6 space-y-8 sr-only static sticky table table-auto table-fixed");
+@source inline("text-2xl text-3xl text-4xl text-[16px] text-[18px] text-base text-black text-blue-400 text-blue-500 text-blue-600 text-blue-800 text-blue-900 text-center text-ellipsis");
+@source inline("text-gray-100 text-gray-200 text-gray-300 text-gray-400 text-gray-500 text-gray-600 text-gray-700 text-gray-800 text-gray-900 text-green-400 text-green-500 text-green-800 text-indigo-600 text-left text-lg");
+@source inline("text-red-400 text-red-500 text-red-600 text-red-800 text-right text-sky-400 text-sm text-white text-xs text-yellow-400 text-yellow-800 top-0 top-4 tracking-tight tracking-tighter tracking-wide");
+@source inline("transform transition transition-all transition-opacity translate-x-0 translate-x-1/2 translate-x-5 truncate underline uppercase visible");
+@source inline("w-0 w-0.5 w-10 w-10/12 w-12 w-14 w-2 w-2.5 w-2/3 w-3/4 w-4 w-40 w-48 w-5 w-5/6 w-56 w-6 w-8 w-8/12 w-80 w-auto w-full whitespace-normal whitespace-nowrap z-10 z-30 z-40 z-50");
+
+/* Layout vocabulary for new case-type layouts. */
+@source inline("{sm:,md:,lg:,xl:,}grid-cols-{1,2,3,4,5,6,7,8,9,10,11,12}");
+@source inline("{sm:,md:,lg:,xl:,}col-span-{1,2,3,4,5,6,7,8,9,10,11,12,full}");
+@source inline("{sm:,md:,lg:,}w-{1/2,1/3,2/3,1/4,3/4,full}");
+@source inline("{sm:,md:,lg:,}basis-{1/2,1/3,2/3,1/4,3/4,full}");
+
+/*
+ * Legacy class names that layouts and workflow-defined actions still use.
+ * ajsf / bootstrap-era hooks are re-pointed to the DaisyUI look so old configuration needs no edits.
+ */
+@layer components {
+  .hideContent {
+    display: none;
+  }
+
+  .code-editor {
+    display: block;
+    max-width: 100%;
+    overflow: auto;
+    padding: 0.875rem 1rem;
+    border: var(--border) solid var(--color-base-300);
+    border-left: 3px solid var(--color-primary);
+    border-radius: var(--radius-field);
+    background-color: var(--color-base-200);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    overflow-wrap: break-word;
+    page-break-inside: avoid;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .field-info {
+    margin-top: 0.2rem !important;
+    padding-top: 0.2rem !important;
+  }
+}

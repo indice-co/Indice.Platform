@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
-import { FilterClause } from '@indice/ng-components';
 import { cloneDeep } from 'lodash';
 import { take } from 'rxjs/operators';
 import { Case, CasesApiService, LookupItemResultSet } from 'src/app/core/services/cases-api.service';
 import { LookupsService } from 'src/app/core/services/lookups.service';
+import { FilterClause } from 'src/app/ui/list/filtering';
 import { isShownForChannel } from '../jsonforms-utilities';
-import { TailwindControl } from './tailwind-control';
+import { CaseFormControl, FieldKind } from './case-form-control';
+import { FieldWrapperComponent } from './field-wrapper.component';
 
 /**
  * ajsf `lookup-selector` widget: a select filled from a lookup, filtered by the case customer, `lookup-filter-terms`
@@ -13,6 +14,7 @@ import { TailwindControl } from './tailwind-control';
  */
 @Component({
     selector: 'app-jf-lookup-selector',
+    imports: [FieldWrapperComponent],
     template: `
     @if (shown) {
       <app-jf-field [control]="this">
@@ -22,6 +24,8 @@ import { TailwindControl } from './tailwind-control';
             [attr.readonly]="readonly ? 'readonly' : null"
             [disabled]="readonly"
             [attr.required]="options.required"
+            [attr.aria-invalid]="invalid"
+            [attr.aria-describedby]="describedBy"
             [id]="id"
             (change)="onSelect($event)">
             <option value="" [selected]="data === undefined || data === null"></option>
@@ -34,11 +38,11 @@ import { TailwindControl } from './tailwind-control';
         }
       </app-jf-field>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
-export class LookupSelectorControlComponent extends TailwindControl {
+export class LookupSelectorControlComponent extends CaseFormControl {
     protected widget = 'lookup-selector';
+    protected override fieldKind: FieldKind = 'select';
     private lookupsService = inject(LookupsService);
     private api = inject(CasesApiService);
     private changeDetector = inject(ChangeDetectorRef);

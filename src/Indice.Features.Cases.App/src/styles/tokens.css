@@ -1,0 +1,132 @@
+/*
+ * Cases UI tokens that DaisyUI does not model. Everything else (surfaces, brand, semantic states, radii) lives in the
+ * DaisyUI themes declared in styles.css, so prefer the DaisyUI variables and reach for these only for:
+ *  - the frame: the tinted ground the sidebar and top bar share, and the measures of the sheet the pages sit on,
+ *  - the case lifecycle "ink" scale (Submitted → In progress → Completed, plus Deleted). It is an ordered scale, not a
+ *    good/bad signal, so it never reuses success / warning / error,
+ *  - chart furniture, the neutral bar colour and the open-cases aging scale used by the dashboard,
+ *  - the tints that tell people apart (avatars), which are identity, never data.
+ * The `-ink` variants are the text-safe steps (≥ 4.5:1 on base-100); the plain steps are for marks (dots, bars, rings).
+ * Selectors mirror DaisyUI's theme selectors so a theme switch swaps these together with the DaisyUI variables.
+ */
+:root,
+[data-theme="cases"] {
+  --cases-sidebar-width: 14.25rem;
+  --cases-topbar-height: 3rem;
+  --cases-sheet-inset: 0.5rem;
+  --cases-sheet-radius: 1rem;
+  --cases-content-max: 100rem;
+  --cases-sidepane-width: 30rem;
+
+  --cases-frame: #ebf0ee;
+  --cases-frame-active: #dce4e1;
+  --cases-sheet-edge: #dfe5e3;
+  --cases-text-muted: #59625f;
+
+  --cases-status-submitted: #8fc4cf;
+  --cases-status-inprogress: #1b6c80;
+  --cases-status-completed: #0f3d45;
+  --cases-status-deleted: #b3bbb8;
+  --cases-status-submitted-ink: #24707f;
+  --cases-status-inprogress-ink: #155a6b;
+  --cases-status-completed-ink: #0f3d45;
+  --cases-status-deleted-ink: #59625f;
+
+  --cases-chart-1: #1b6c80;
+  --cases-chart-bar: #c5cecb;
+  --cases-chart-grid: #e7ecea;
+  --cases-chart-axis: #c5cecb;
+
+  --cases-age-1: #d3dad8;
+  --cases-age-2: #b3bdba;
+  --cases-age-3: #87938f;
+  --cases-age-4: #b9770e;
+
+  --cases-person-1: #dcebf6;
+  --cases-person-2: #f6e3d6;
+  --cases-person-3: #dcf0e2;
+  --cases-person-4: #efdcf0;
+  --cases-person-5: #f3edd2;
+  --cases-person-6: #d8eeee;
+  --cases-person-ink: #1f2725;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --cases-frame: #0d1110;
+    --cases-frame-active: #1f2725;
+    --cases-sheet-edge: #252d2b;
+    --cases-text-muted: #a2adaa;
+
+    --cases-status-submitted: #2f6a76;
+    --cases-status-inprogress: #4fb0c4;
+    --cases-status-completed: #b2e1e9;
+    --cases-status-deleted: #4a5351;
+    --cases-status-submitted-ink: #7fc0cc;
+    --cases-status-inprogress-ink: #9bd5df;
+    --cases-status-completed-ink: #cdeef4;
+    --cases-status-deleted-ink: #a2adaa;
+
+    --cases-chart-1: #4fb0c4;
+    --cases-chart-bar: #3b4542;
+    --cases-chart-grid: #232a28;
+    --cases-chart-axis: #3b4542;
+
+    --cases-age-1: #303836;
+    --cases-age-2: #4a5552;
+    --cases-age-3: #6e7b77;
+    --cases-age-4: #e3a43c;
+
+    --cases-person-1: #1d3446;
+    --cases-person-2: #45301f;
+    --cases-person-3: #1d3a27;
+    --cases-person-4: #3c2440;
+    --cases-person-5: #3a3419;
+    --cases-person-6: #173a3a;
+    --cases-person-ink: #e8eeec;
+  }
+}
+
+[data-theme="cases-dark"] {
+  --cases-frame: #0d1110;
+  --cases-frame-active: #1f2725;
+  --cases-sheet-edge: #252d2b;
+  --cases-text-muted: #a2adaa;
+
+  --cases-status-submitted: #2f6a76;
+  --cases-status-inprogress: #4fb0c4;
+  --cases-status-completed: #b2e1e9;
+  --cases-status-deleted: #4a5351;
+  --cases-status-submitted-ink: #7fc0cc;
+  --cases-status-inprogress-ink: #9bd5df;
+  --cases-status-completed-ink: #cdeef4;
+  --cases-status-deleted-ink: #a2adaa;
+
+  --cases-chart-1: #4fb0c4;
+  --cases-chart-bar: #3b4542;
+  --cases-chart-grid: #232a28;
+  --cases-chart-axis: #3b4542;
+
+  --cases-age-1: #303836;
+  --cases-age-2: #4a5552;
+  --cases-age-3: #6e7b77;
+  --cases-age-4: #e3a43c;
+
+  --cases-person-1: #1d3446;
+  --cases-person-2: #45301f;
+  --cases-person-3: #1d3a27;
+  --cases-person-4: #3c2440;
+  --cases-person-5: #3a3419;
+  --cases-person-6: #173a3a;
+  --cases-person-ink: #e8eeec;
+}
+
+/* Not `inline`: base styles and components read these as CSS variables. */
+@theme {
+  --font-sans: "IBM Plex Sans Variable", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+@theme inline {
+  --color-muted: var(--cases-text-muted);
+}

@@ -1,106 +1,176 @@
-@if (model$ | async; as model) {
-  <lib-view-layout [title]="'caseDetails.title' | translate"
-    >
-    @if (caseActions$ | async; as caseActions) {
-      <main class="details-view-container">
-        <div class="lg:grid lg:grid-cols-12 lg:gap-x-5">
-          <aside class="py-6 px-2 sm:px-6 lg:py-0 lg:px-0 lg:col-span-4 md:col-span-3">
-            <section aria-labelledby="menu"
-              class="min-w-full">
-              <div class="bg-white shadow rounded-sm">
-                <app-case-detail-info [title]="'caseDetails.basicInfo' | translate"
-                                                  [keyValuePairs]="{
-                                                    'caseDetails.caseId': $safeNavigationMigration(model?.id),
-                                                    'caseDetails.referenceNumber': $safeNavigationMigration(model?.referenceNumber?.toString()),
-                                                    'caseDetails.submitDate': $safeNavigationMigration(model?.createdByWhen) | date:'dd/MM/YYYY',
-                                                    'caseDetails.caseType':$safeNavigationMigration(model?.caseType?.title),
-                                                    'caseDetails.channel':$safeNavigationMigration(model?.channel),
-                                                    'caseDetails.checkpoint':model?.checkpointType?.title ??model?.checkpointType?.code,
-                                                    'caseDetails.assignedTo':model?.assignedToName || ' - '}">
-                </app-case-detail-info>
-                <app-case-detail-info [title]="'caseDetails.customerInfo' | translate"
-                                                  [keyValuePairs]="{
-                                                    'caseDetails.customerId': $safeNavigationMigration(model?.ownerId),
-                                                    'caseDetails.customerName': $safeNavigationMigration(model?.ownerName),
-                                                    'caseDetails.taxId':$safeNavigationMigration(model?.ownerTin),
-                                                    'caseDetails.groupId':$safeNavigationMigration(model?.groupId)}">
-                </app-case-detail-info>
-                @if (model?.metadata?.UserRole) {
-                  <app-case-detail-info
-                    [title]="'caseDetails.userInfo' | translate"
-                                                  [keyValuePairs]="{
-                                                    'caseDetails.userSurname': $safeNavigationMigration(model?.metadata?.UserSurname),
-                                                    'caseDetails.userFirstName': $safeNavigationMigration(model?.metadata?.UserFirstName),
-                                                    'caseDetails.userRole':$safeNavigationMigration(model?.metadata?.UserRole),
-                                                    'caseDetails.userCustomerId':$safeNavigationMigration(model?.metadata?.UserCustomerId)}">
-                  </app-case-detail-info>
-                }
-              </div>
-              @if (caseActions.hasAssignment || model.draft) {
-                <div class="bg-white shadow rounded-sm"
-                  >
-                  <div class="mt-2 px-4 py-4 flow-root">
-                    <app-case-assignment [caseId]="model.id"
-                      [enabled]="caseActions.hasAssignment"
-                    (caseAssigned)="onActionsChanged()"></app-case-assignment>
-                    <!-- TODO: will we add unassignment button? -->
-                    <!-- <app-case-unassignment [enabled]="caseActions.hasUnassignment"></app-case-unassignment> -->
-                    <app-case-discard-draft [caseId]="model.id"
-                      [enabled]="model.draft"
-                      (caseDiscarded)="onCaseDiscarded()">
-                    </app-case-discard-draft>
+<div class="page">
+  <a routerLink="/cases" class="mt-4 inline-flex items-center gap-1 text-[0.8125rem] text-quiet link link-hover">
+    <ng-icon name="lucideArrowLeft" size="0.9rem" /> {{ 'cases.title' | translate }}
+  </a>
+
+  @if (model(); as model) {
+    <header class="mt-2 mb-6 flex flex-wrap items-start justify-between gap-4">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <h1 class="text-[1.375rem] leading-[1.75rem] font-semibold tracking-[-0.01em]">{{ model.caseType?.title }}</h1>
+          @if (model.referenceNumber) {
+            <span class="ref -ml-2 text-base text-quiet" [title]="'caseDetails.referenceNumber' | translate">{{ model.referenceNumber }}</span>
+          }
+          @if (model.draft) {
+            <app-status-stamp [label]="'caseDetails.draft' | translate" />
+          } @else if (model.checkpointType) {
+            <app-status-stamp [status]="model.checkpointType.status" [label]="model.checkpointType.title ?? model.checkpointType.code"
+                              [tooltip]="'caseDetails.checkpoint' | translate" />
+          }
+        </div>
+        <ul class="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-[0.8125rem] text-quiet">
+          @if (model.ownerName) {
+            <li class="inline-flex items-center gap-1.5" [title]="'caseDetails.customerName' | translate">
+              <ng-icon name="lucideUser" size="0.95rem" /> {{ model.ownerName }}
+            </li>
+          }
+          @if (model.createdByWhen) {
+            <li class="inline-flex items-center gap-1.5" [title]="'caseDetails.submitDate' | translate">
+              <ng-icon name="lucideCalendar" size="0.95rem" /> <span class="kbd-ref">{{ model.createdByWhen | date: 'dd/MM/yyyy' }}</span>
+            </li>
+          }
+          <li class="inline-flex items-center gap-1.5" [title]="'caseDetails.assignedTo' | translate">
+            @if (model.assignedToName) {
+              <app-person class="text-base-content" [name]="model.assignedToName" />
+            } @else {
+              <ng-icon name="lucideHand" size="0.95rem" /> {{ 'caseDetails.unassigned' | translate }}
+            }
+          </li>
+        </ul>
+      </div>
+      @if (canDownloadPdf()) {
+        <button type="button" class="btn" [disabled]="!formValid() || formUnSavedChanges()" [title]="'caseDetails.print.info' | translate"
+                (click)="downloadPdf()">
+          <ng-icon name="lucideFileDown" size="1rem" /> {{ 'caseDetails.print.button' | translate }}
+        </button>
+      }
+    </header>
+
+    <!-- Main column: the case data, then its history. The side column spans both rows; extra height goes to the last row. -->
+    <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_23rem] xl:grid-rows-[auto_1fr]">
+      <section class="panel min-w-0 xl:col-start-1 xl:row-start-1">
+        <div class="panel-head">
+          <h2 class="flex items-center gap-2">
+            {{ 'caseDetails.form.caseData' | translate }}
+          </h2>
+          @if (caseActions()?.hasEdit) {
+            <span class="inline-flex items-center gap-1 text-xs text-quiet"><ng-icon name="lucidePencil" size="0.8rem" /> {{ 'caseDetails.form.editable' | translate }}</span>
+          }
+        </div>
+        <div class="panel-body">
+          @if (caseActions(); as caseActions) {
+            <app-case-form [case]="model"
+                           [formEditable]="caseActions.hasEdit"
+                           (updateDataEvent)="updateData()"
+                           (formIsValid)="formValid.set($event)"
+                           (unSavedChanges)="formUnSavedChanges.set($event)" />
+          } @else {
+            <div class="space-y-4">
+              @for (row of [1, 2, 3, 4]; track row) {
+                <div class="skeleton h-10 w-full"></div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <aside class="flex min-w-0 flex-col gap-6 xl:col-start-2 xl:row-span-2 xl:row-start-1">
+        @if (caseActions(); as caseActions) {
+          @if (caseActions.hasAssignment || caseActions.hasApproval || model.draft || caseActions.customActions?.length) {
+            <section class="panel">
+              <div class="panel-head"><h2>{{ 'caseDetails.actions.title' | translate }}</h2></div>
+              <div class="divide-y divide-base-300">
+                @if (caseActions.hasAssignment) {
+                  <div class="px-5 py-4">
+                    <h3 class="font-semibold">{{ 'caseDetails.assignment.assignToMe' | translate }}</h3>
+                    <p class="mt-1 text-[0.8125rem] text-quiet">{{ 'caseDetails.assignment.info' | translate }}</p>
+                    <button type="button" class="btn btn-outline btn-sm mt-3 w-full" [disabled]="assigning()" (click)="assignToMe()">
+                      <ng-icon name="lucideHand" size="0.95rem" /> {{ 'caseDetails.assignment.assignToMe' | translate }}
+                    </button>
                   </div>
-                </div>
-              }
-              @if (relatedCases$ | async; as relatedCases) {
-                @if (relatedCases.length) {
-                  <app-case-related class="bg-white shadow rounded-sm mt-2 px-4 py-1 flow-root" [relatedCases]="relatedCases"></app-case-related>
                 }
-              }
-              <div class="bg-white shadow rounded-sm">
-                @if (timelineEntries$ | async; as timelineEntries) {
-                  <div class="mt-2 px-4 py-1 flow-root">
-                    <app-case-timeline [timelineEntries]="timelineEntries" [hideStatuses]="caseTypeConfig?.hideStatuses ?? false"></app-case-timeline>
+                @if (caseActions.hasApproval) {
+                  <div class="px-5 py-4">
+                    <h3 class="mb-3 font-semibold">{{ 'modals.approval.title' | translate }}</h3>
+                    <app-case-decision [caseId]="model.id!"
+                                       [formValid]="formValid()"
+                                       [formUnSavedChanges]="formUnSavedChanges()"
+                                       [showWarningModal]="showWarningModal()"
+                                       [warningModalState]="warningModalState"
+                                       [caseTypeConfig]="caseTypeConfig" />
+                  </div>
+                }
+                @for (action of caseActions.customActions ?? []; track action.id) {
+                  <app-case-custom-action class="px-5 py-4" [action]="action" (actionTriggered)="onCustomActionTrigger($event)" />
+                }
+                @if (model.draft) {
+                  <div class="px-5 py-4">
+                    <h3 class="font-semibold">{{ 'caseDetails.discardDraft.title' | translate }}</h3>
+                    <p class="mt-1 text-[0.8125rem] text-quiet">{{ 'caseDetails.discardDraft.info' | translate }}</p>
+                    <button type="button" class="btn btn-ghost btn-sm mt-3 w-full text-error" (click)="discardDraft()">
+                      <ng-icon name="lucideTrash2" size="0.95rem" /> {{ 'caseDetails.discardDraft.title' | translate }}
+                    </button>
                   </div>
                 }
               </div>
             </section>
-          </aside>
-          <div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-8 md:col-span-9">
-            @if (model) {
-              <div class="bg-white shadow-sm rounded-sm"
-                >
-                <div class="px-4 py-5 sm:px-6">
-                  <app-case-form [case]="model"
-                    [formEditable]="caseActions.hasEdit"
-                    (updateDataEvent)="updateData($event)"
-                    (formIsValid)="isValid($event)"
-                  (unSavedChanges)="formDataHasChanged($event)"></app-case-form>
-                  <app-case-print-pdf [caseId]="model.id"
-                                                [enabled]="caseTypeConfig?.checkpointsThatAllowDownload ? caseTypeConfig?.checkpointsThatAllowDownload.includes($safeNavigationMigration(model.checkpointType?.code))
-                                                : (model.checkpointType?.status === caseStatus.Completed || model.checkpointType?.status === caseStatus.InProgress)"
-                    [buttonDisabled]="!formValid || formUnSavedChanges"
-                    (pdfButtonClicked)="onPdfButtonClicked($event)">
-                  </app-case-print-pdf>
-                  @for (action of (caseActions.customActions || []); track action) {
-                    <app-case-custom-action [action]="action"
-                      (actionTriggered)="onCustomActionTrigger($event)">
-                    </app-case-custom-action>
-                  }
-                  <app-approval-buttons [formUnSavedChanges]="formUnSavedChanges"
-                    [formValid]="formValid"
-                    [caseId]="model.id"
-                    [enabled]="caseActions.hasApproval"
-                    [showWarningModal]="showWarningModal"
-                    [warningModalState]="warningModalState"
-                    [caseTypeConfig]="caseTypeConfig">
-                  </app-approval-buttons>
-                </div>
+          }
+        }
+
+        <section class="panel">
+          <div class="panel-head"><h2>{{ 'caseDetails.basicInfo' | translate }}</h2></div>
+          <div class="panel-body space-y-5">
+            <ng-container *ngTemplateOutlet="facts; context: { $implicit: basicFacts() }" />
+            <div>
+              <h3 class="mb-2 text-xs font-semibold text-quiet">{{ 'caseDetails.customerInfo' | translate }}</h3>
+              <ng-container *ngTemplateOutlet="facts; context: { $implicit: customerFacts() }" />
+            </div>
+            @if (model.metadata?.['UserRole']) {
+              <div>
+                <h3 class="mb-2 text-xs font-semibold text-quiet">{{ 'caseDetails.userInfo' | translate }}</h3>
+                <ng-container *ngTemplateOutlet="facts; context: { $implicit: userFacts() }" />
               </div>
             }
           </div>
-        </div>
-      </main>
+        </section>
+
+        @if (relatedCases().length) {
+          <section class="panel overflow-hidden">
+            <div class="panel-head"><h2>{{ 'caseDetails.related.title' | translate }}</h2></div>
+            <app-case-related [relatedCases]="relatedCases()" />
+          </section>
+        }
+
+      </aside>
+
+      @if (timelineEntries(); as entries) {
+        <section class="panel min-w-0 xl:col-start-1 xl:row-start-2">
+          <div class="panel-head"><h2>{{ 'caseDetails.timeline.title' | translate }}</h2></div>
+          <div class="panel-body">
+            <app-case-timeline [timelineEntries]="entries" [hideStatuses]="caseTypeConfig?.hideStatuses ?? false" />
+          </div>
+        </section>
+      }
+    </div>
+  } @else {
+    <div class="mt-3 mb-6 space-y-3" aria-busy="true">
+      <div class="skeleton h-8 w-72"></div>
+      <div class="skeleton h-4 w-96 max-w-full"></div>
+    </div>
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_23rem]">
+      <div class="skeleton h-96"></div>
+      <div class="skeleton h-64"></div>
+    </div>
+  }
+</div>
+
+<ng-template #facts let-items>
+  <dl class="facts text-[0.8125rem]">
+    @for (fact of items; track fact.label) {
+      @if (fact.value) {
+        <dt>{{ fact.label | translate }}</dt>
+        <dd class="kbd-ref" [class.ref]="fact.mono">{{ fact.value }}</dd>
+      }
     }
-  </lib-view-layout>
-}
+  </dl>
+</ng-template>

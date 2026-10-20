@@ -1,0 +1,62 @@
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* The body is the frame; pages sit on the sheet (see the shell). */
+  body {
+    background-color: var(--cases-frame);
+    color: var(--color-base-content);
+    font-size: 0.875rem;
+    line-height: 1.43;
+  }
+
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+
+  /* Figures keep their width wherever they line up or update. */
+  table, output, time {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-accent-content);
+  }
+
+  /* Rows, tabs and plain links get the same visible focus as DaisyUI controls. */
+  :where(a, [role="link"], [role="tab"], tr[tabindex], summary):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+/* The http progress bar (ngx-progressbar) wears the brand colour. */
+:root {
+  --ng-progress-color: var(--color-primary);
+  --ng-progress-thickness: 2px;
+  --ng-progress-spinner-thickness: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

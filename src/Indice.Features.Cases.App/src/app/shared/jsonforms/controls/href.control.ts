@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { TailwindControl } from './tailwind-control';
+import { NgIcon } from '@ng-icons/core';
+import { CaseFormControl } from './case-form-control';
+import { FieldWrapperComponent } from './field-wrapper.component';
 
 /** ajsf `href` widget: a text input, shown as a link when read-only. */
 @Component({
     selector: 'app-jf-href',
+    imports: [FieldWrapperComponent, NgIcon],
     template: `
     @if (shown) {
       <app-jf-field [control]="this">
@@ -16,19 +19,25 @@ import { TailwindControl } from './tailwind-control';
             [attr.pattern]="options.pattern"
             [attr.placeholder]="options.placeholder"
             [attr.required]="options.required"
+            [attr.aria-invalid]="invalid"
+            [attr.aria-describedby]="describedBy"
             [id]="id"
             [value]="data ?? ''"
             (input)="setValue($any($event.target).value)">
         } @else {
-          <div class="mb-2 read-only:bg-gray-100 border rounded px-3 py-2">
-            <a [href]="data" class="text-blue-600" target="_blank">{{ data }}</a>
+          <div class="jf-static jf-readonly-box">
+            <a [href]="data" class="link link-primary inline-flex items-center gap-1.5 break-all" target="_blank" rel="noopener">
+              {{ data }}
+              @if (data) {
+                <ng-icon name="lucideExternalLink" size="0.875rem" class="shrink-0" />
+              }
+            </a>
           </div>
         }
       </app-jf-field>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
-export class HrefControlComponent extends TailwindControl {
+export class HrefControlComponent extends CaseFormControl {
     protected widget = 'href';
 }

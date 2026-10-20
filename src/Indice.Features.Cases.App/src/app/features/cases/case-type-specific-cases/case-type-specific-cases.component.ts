@@ -1,114 +1,117 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ModalService, SearchOption } from '@indice/ng-components';
-import { TranslateService } from '@ngx-translate/core';
-import { CasesApiService, CaseTypePartialResultSet, CheckpointType, } from 'src/app/core/services/cases-api.service';
-import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
+import { NgIcon } from '@ng-icons/core';
+import { TranslatePipe } from '@ngx-translate/core';
+import { take } from 'rxjs/operators';
+import { CaseTypePartialResultSet, CheckpointType } from 'src/app/core/services/cases-api.service';
+import { GridColumn, ValueFromPathPipe } from 'src/app/shared/pipes';
+import { EmptyStateComponent } from 'src/app/ui/feedback/empty-state.component';
+import { FilterBarComponent } from 'src/app/ui/list/filter-bar.component';
+import { SearchOption } from 'src/app/ui/list/filtering';
+import { PagerComponent } from 'src/app/ui/list/pager.component';
+import { PageHeaderComponent } from 'src/app/ui/page/page-header.component';
+import { PersonComponent } from 'src/app/ui/people/person.component';
+import { StatusMarkComponent } from 'src/app/ui/status/case-status';
 import { GeneralCasesComponent } from '../general-cases/general-cases.component';
-import { CaseTypeService } from 'src/app/core/services/case-type.service';
-import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
-import { map } from 'rxjs';
 
+/**
+ * The cases of one case type (sidebar shortcuts). The case-type filter is fixed, the columns and extra filters come from
+ * the case type's `gridColumnConfig` / `gridFilterConfig`, and extra filters are sent as metadata clauses.
+ */
 @Component({
-    selector: 'app-case-type-specific-cases-component',
-    templateUrl: '../general-cases/general-cases.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-case-type-specific-cases',
+  imports: [
+    DatePipe, DecimalPipe, RouterLink, NgIcon, TranslatePipe, ValueFromPathPipe,
+    PageHeaderComponent, FilterBarComponent, PagerComponent, EmptyStateComponent, StatusMarkComponent, PersonComponent
+  ],
+  templateUrl: '../general-cases/general-cases.component.html'
 })
 export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implements OnInit {
-  constructor(
-    protected _route: ActivatedRoute,
-    protected _router: Router,
-    protected _api: CasesApiService,
-    protected _filterCachingService: FilterCachingService,
-    protected _modalService: ModalService,
-    protected _caseTypeService: CaseTypeService,
-    protected _translate: TranslateService,
-    protected _lang: AppLanguagesService,
-  ) {
-    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService, _translate, _lang);
-    this._route.params.subscribe(() => {
-      this.initialize();
-    })
-  }
 
-  public ngOnInit(): void {
+  public override ngOnInit(): void {
+    // Re-initialise whenever the sidebar switches to another case type (the component instance is reused).
+    this.route.params
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.items.set(null);
+        this.initialize();
+      });
     super.ngOnInit();
   }
 
-  protected initColumns() {
-    super.initColumns();
+  /** The case type the list was last initialised for; the base ngOnInit calls initialize() again for the same one. */
+  private initializedFor: string | undefined;
 
-    this._caseTypeService.getCaseType(this.getFilterCacheKey()).pipe(
-      map(caseType => {
-        //add additional columns to display in the table
-        let gridConfigColumns: ({ title: string; itemProperty?: undefined; } | { title: string; itemProperty: string; })[] | undefined = caseType?.gridColumnConfig! || []
-
-        if (gridConfigColumns != undefined && gridConfigColumns?.length > 0) {
-          this.columns = gridConfigColumns!;
-        } else {
-          this.columns = super.setDefaultColumns();
-          super.initColumns();
-        }
-      })
-    ).subscribe();
+  public override initialize(): void {
+    if (this.initializedFor === this.getFilterCacheKey()) {
+      return;
+    }
+    this.initializedFor = this.getFilterCacheKey();
+    super.initialize();
   }
 
-  getOtherSearchOptions(caseTypes: CaseTypePartialResultSet): SearchOption[] | undefined {
+  protected override initColumns(): void {
+    super.initColumns();
+    this.caseTypeService.getCaseType(this.getFilterCacheKey()).pipe(take(1)).subscribe(caseType => {
+      // A case type may define its own columns.
+      const gridColumns: GridColumn[] = caseType?.gridColumnConfig || [];
+      if (gridColumns.length > 0) {
+        this.columns.set(gridColumns);
+      } else {
+        this.columns.set(this.defaultColumns());
+        super.initColumns();
+      }
+    });
+  }
+
+  protected override getOtherSearchOptions(caseTypes: CaseTypePartialResultSet): SearchOption[] | undefined {
     const code = this.getFilterCacheKey();
     const caseType = caseTypes?.items?.find(x => x.code == code);
-    return caseType?.gridFilterConfig! || [];
+    return caseType?.gridFilterConfig || [];
   }
 
-  getCaseTypeCheckpoints(checkpointTypes: CheckpointType[]) {
-    const checkpointTypeSearchOption: SearchOption = {
+  protected override getCaseTypeCheckpoints(checkpointTypes: CheckpointType[]): SearchOption {
+    return {
       field: 'checkpointTypeCodes',
-      name: this._translate.instant('cases.checkpointType'),
+      name: this.translate.instant('cases.checkpointType'),
       dataType: 'array',
-      options: [],
-      multiTerm: true
-    }
-    // fill checkpointTypeSearchOption's SelectInputOptions
-    for (let checkpointType of checkpointTypes) {
-      checkpointTypeSearchOption.options?.push({ value: checkpointType?.code, label: checkpointType?.title ?? checkpointType?.code! })
-    }
-    return checkpointTypeSearchOption;
+      multiTerm: true,
+      options: checkpointTypes.map(checkpointType => ({ value: checkpointType?.code, label: checkpointType?.title ?? checkpointType?.code! }))
+    };
   }
 
-  //add all case types to search options
-  getCaseTypeSearchOption(caseTypes: CaseTypePartialResultSet) {
-    const caseTypeSearchOption: SearchOption = {
-      field: 'caseTypeCodes',
-      name: this._translate.instant('cases.caseType'),
-      dataType: 'array',
-      options: [],
-      multiTerm: true,
-      readonly: true
-    }
+  /** Only this case type, as a chip that cannot be removed. */
+  protected override getCaseTypeSearchOption(caseTypes: CaseTypePartialResultSet): SearchOption {
     const code = this.getFilterCacheKey();
     const caseType = caseTypes.items?.find(x => x.code == code);
-    caseTypeSearchOption.options?.push({ value: caseType?.code, label: caseType?.title! })
-    this.caseTypeTitle = caseType?.title!;
-    return caseTypeSearchOption;
+    this.caseTypeTitle.set(caseType?.title ?? '');
+    return {
+      field: 'caseTypeCodes',
+      name: this.translate.instant('cases.caseType'),
+      dataType: 'array',
+      multiTerm: true,
+      readonly: true,
+      options: [{ value: caseType?.code, label: caseType?.title! }]
+    };
   }
 
-  getExtraMetadataFilters(caseTypes: CaseTypePartialResultSet | undefined): string[] | undefined {
+  /** The case type's extra filter fields are matched against case metadata. */
+  protected override getExtraMetadataFilters(caseTypes: CaseTypePartialResultSet | undefined): string[] | undefined {
     const code = this.getFilterCacheKey();
-    const metadata: string[] = [];
     const caseType = caseTypes?.items?.find(x => x.code == code);
-    if (caseType && caseType.gridFilterConfig) {
-      const gridFilterConfig = caseType.gridFilterConfig;
-      const fields: string[] = gridFilterConfig.map((config: any) => config.field);
+    const metadata: string[] = [];
+    if (caseType?.gridFilterConfig) {
+      const fields: string[] = caseType.gridFilterConfig.map((config: any) => config.field);
       for (const field of fields) {
-        this.filters?.filter(f => f.member === field)?.forEach(f => metadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
+        this.filters().filter(f => f.member === field).forEach(f => metadata.push(`metadata.${this.stringifyFilterClause(f)}`));
       }
     }
     return metadata;
   }
 
-  getFilterCacheKey(): string {
-    const code = this._route.snapshot.paramMap.get('caseTypeCode');
-    return code!;
+  protected override getFilterCacheKey(): string {
+    return this.route.snapshot.paramMap.get('caseTypeCode')!;
   }
 }
-

@@ -1,16 +1,99 @@
-<lib-side-view-layout [title]="title || ('cases.create.title' | translate)"
-  (ok)="createDraft()"
-  [ok-close-dialog]="true"
-  [ok-label]="'cases.newCase' | translate"
-  [disabled]="!(contact && caseTypeCode)">
-  <form class="space-y-8 divide-y divide-gray-200 py-5">
-    <app-select-case-type (selectedCaseTypeEvent)="caseTypeCode = $event"
-      (sidePanelTitleEvent)="title = $event"
-    (selectedContactEvent)="contact = $event"></app-select-case-type>
-    @if (caseTypeCode) {
-      <app-search-contact (selectedContactEvent)="contact = $event"
-        [caseTypeCode]="caseTypeCode"
-      ></app-search-contact>
+<app-side-pane [title]="'cases.create.title' | translate"
+               [subtitle]="(step() === 1 ? 'cases.create.chooseType' : 'cases.create.chooseCustomer') | translate"
+               [okLabel]="'cases.create.submit' | translate"
+               [disabled]="!(contact() && caseType())"
+               (ok)="createDraft()">
+  <ul class="steps steps-horizontal mb-6 w-full text-xs">
+    <li class="step step-primary">{{ 'cases.create.stepType' | translate }}</li>
+    <li class="step" [class.step-primary]="step() === 2">{{ 'cases.create.stepCustomer' | translate }}</li>
+  </ul>
+
+  @if (caseType(); as selected) {
+    <div class="flex items-center gap-3 rounded-box border border-base-300 bg-base-200/60 px-4 py-3">
+      <ng-icon name="lucideFolderOpen" size="1.1rem" class="text-primary" />
+      <div class="min-w-0 flex-1">
+        <p class="text-xs text-quiet">{{ 'cases.caseType' | translate }}</p>
+        <p class="truncate font-semibold">{{ selected.title }}</p>
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="selectCaseType(undefined)">{{ 'cases.create.change' | translate }}</button>
+    </div>
+
+    <form class="mt-6" (ngSubmit)="search()">
+      <label for="contact-search" class="mb-1 block text-[0.8125rem] font-medium">{{ 'cases.searchContact.contact' | translate }}</label>
+      <div class="join w-full">
+        <label class="input join-item w-full">
+          <ng-icon name="lucideSearch" size="1rem" class="text-quiet" />
+          <input id="contact-search" name="searchValue" class="grow" autocomplete="off"
+                 [placeholder]="'cases.searchContact.placeholder' | translate"
+                 [ngModel]="searchValue()" (ngModelChange)="searchValue.set($event)" />
+        </label>
+        <button type="submit" class="btn join-item">{{ 'common.search' | translate }}</button>
+      </div>
+    </form>
+
+    <div class="mt-4">
+      @if (contacts.isLoading()) {
+        <div class="space-y-2">
+          @for (row of [1, 2, 3]; track row) {
+            <div class="skeleton h-16 w-full"></div>
+          }
+        </div>
+      } @else if (contacts.value(); as results) {
+        @if (results.length) {
+          <fieldset class="space-y-2">
+            <legend class="sr-only">{{ 'cases.searchContact.contact' | translate }}</legend>
+            @for (result of results; track $index) {
+              <label class="flex cursor-pointer items-start gap-3 rounded-box border px-4 py-3 transition-colors"
+                     [class]="contact() === result ? 'border-primary bg-accent/60' : 'border-base-300 hover:bg-base-200/60'">
+                <input type="radio" name="contact" class="radio radio-primary radio-sm mt-0.5" [checked]="contact() === result" (change)="contact.set(result)" />
+                <span class="min-w-0">
+                  <span class="block font-semibold">{{ result.firstName }} {{ result.lastName }}</span>
+                  <span class="block text-[0.8125rem] text-quiet">
+                    {{ 'cases.searchContact.referenceNumber' | translate }}: <span class="kbd-ref">{{ result.reference }}</span>
+                    @if (result.tin) {
+                      , {{ 'cases.searchContact.taxId' | translate }}: <span class="kbd-ref">{{ result.tin }}</span>
+                    }
+                  </span>
+                </span>
+              </label>
+            }
+          </fieldset>
+        } @else {
+          <app-empty-state icon="lucideSearchX" [title]="'cases.searchContact.noResults' | translate" [message]="'cases.searchContact.noResultsHint' | translate" />
+        }
+      }
+    </div>
+  } @else {
+    @if (caseTypes.isLoading()) {
+      <div class="space-y-2">
+        @for (row of [1, 2, 3, 4]; track row) {
+          <div class="skeleton h-11 w-full"></div>
+        }
+      </div>
+    } @else {
+      @for (group of caseTypes.value() ?? []; track group.name) {
+        <section class="mb-5">
+          <h3 class="mb-1.5 text-xs font-semibold text-quiet">{{ group.name }}</h3>
+          <ul class="divide-y divide-base-300 overflow-hidden rounded-box border border-base-300">
+            @for (item of group.caseTypes; track item.code) {
+              <li>
+                <button type="button" class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-accent/50 focus-visible:bg-accent/50"
+                        (click)="selectCaseType(item)">
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate font-medium">{{ item.title }}</span>
+                    @if (item.description) {
+                      <span class="block truncate text-[0.8125rem] text-quiet">{{ item.description }}</span>
+                    }
+                  </span>
+                  <ng-icon name="lucideChevronRight" size="1rem" class="text-quiet" />
+                </button>
+              </li>
+            }
+          </ul>
+        </section>
+      } @empty {
+        <app-empty-state icon="lucideFolderOpen" [title]="'cases.create.noTypes' | translate" />
+      }
     }
-  </form>
-</lib-side-view-layout>
+  }
+</app-side-pane>

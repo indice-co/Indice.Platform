@@ -118,97 +118,97 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="dashboard.groupedByCasetype" xml:space="preserve">
-    <value>Total Cases by Case Type</value>
+    <value>Cases by case type</value>
   </data>
   <data name="dashboard.agentGroupedByCasetype" xml:space="preserve">
-    <value>Branch Cases by Case Type</value>
+    <value>Branch cases by case type</value>
   </data>
   <data name="dashboard.customerGroupedByCasetype" xml:space="preserve">
-    <value>eBanking Cases by Case Type</value>
+    <value>eBanking cases by case type</value>
   </data>
   <data name="dashboard.groupedByStatus" xml:space="preserve">
-    <value>Total Cases by Status</value>
+    <value>Cases by status</value>
   </data>
   <data name="dashboard.agentGroupedByStatus" xml:space="preserve">
-    <value>Branch Cases by Status</value>
+    <value>Branch cases by status</value>
   </data>
   <data name="dashboard.customerGroupedByStatus" xml:space="preserve">
-    <value>eBanking Cases by Status</value>
+    <value>eBanking cases by status</value>
   </data>
   <data name="dashboard.groupedByGroupId" xml:space="preserve">
-    <value>Total Cases by Branch</value>
+    <value>Cases by branch</value>
   </data>
   <data name="cases.customerId" xml:space="preserve">
-    <value>Customer Number</value>
+    <value>Customer number</value>
   </data>
   <data name="cases.customerName" xml:space="preserve">
-    <value>Customer Name</value>
+    <value>Customer name</value>
   </data>
   <data name="cases.referenceNumber" xml:space="preserve">
-    <value>Case Number</value>
+    <value>Case number</value>
   </data>
   <data name="cases.taxId" xml:space="preserve">
-    <value>Tax Id</value>
+    <value>Tax ID</value>
   </data>
   <data name="cases.groupId" xml:space="preserve">
     <value>Branch</value>
   </data>
   <data name="cases.caseType" xml:space="preserve">
-    <value>Case Type</value>
+    <value>Case type</value>
   </data>
   <data name="cases.checkpointType" xml:space="preserve">
     <value>Checkpoint</value>
   </data>
   <data name="cases.assignedTo" xml:space="preserve">
-    <value>Assigned To</value>
+    <value>Assigned to</value>
   </data>
   <data name="cases.submitDate" xml:space="preserve">
-    <value>Submission Date</value>
+    <value>Submitted</value>
   </data>
   <data name="cases.choose" xml:space="preserve">
     <value>Choose</value>
   </data>
   <data name="caseDetails.caseId" xml:space="preserve">
-    <value>Case Id</value>
+    <value>Case ID</value>
   </data>
   <data name="caseDetails.referenceNumber" xml:space="preserve">
-    <value>Case Number</value>
+    <value>Case number</value>
   </data>
   <data name="caseDetails.submitDate" xml:space="preserve">
-    <value>Submission Date</value>
+    <value>Submitted</value>
   </data>
   <data name="caseDetails.caseType" xml:space="preserve">
-    <value>Case Type</value>
+    <value>Case type</value>
   </data>
   <data name="caseDetails.channel" xml:space="preserve">
     <value>Channel</value>
   </data>
   <data name="caseDetails.checkpoint" xml:space="preserve">
-    <value>Current Checkpoint</value>
+    <value>Current checkpoint</value>
   </data>
   <data name="caseDetails.assignedTo" xml:space="preserve">
-    <value>Assigned To</value>
+    <value>Assigned to</value>
   </data>
   <data name="caseDetails.customerId" xml:space="preserve">
-    <value>Customer Id</value>
+    <value>Customer ID</value>
   </data>
   <data name="caseDetails.customerName" xml:space="preserve">
-    <value>Customer Name</value>
+    <value>Customer name</value>
   </data>
   <data name="caseDetails.taxId" xml:space="preserve">
-    <value>Customer Tax Id</value>
+    <value>Tax ID</value>
   </data>
   <data name="caseDetails.groupId" xml:space="preserve">
-    <value>Customer Branch</value>
+    <value>Branch</value>
   </data>
   <data name="caseDetails.userSurname" xml:space="preserve">
-    <value>User Surname</value>
+    <value>User surname</value>
   </data>
   <data name="caseDetails.userFirstName" xml:space="preserve">
-    <value>User First Name</value>
+    <value>User first name</value>
   </data>
   <data name="caseDetails.userRole" xml:space="preserve">
-    <value>User Role</value>
+    <value>User role</value>
   </data>
   <data name="caseDetails.userCustomerId" xml:space="preserve">
     <value>User Customer Number</value>
@@ -256,16 +256,16 @@
     <value>No document has been submitted.</value>
   </data>
   <data name="home.pleaseWait" xml:space="preserve">
-    <value>please wait...</value>
+    <value>Please wait…</value>
   </data>
   <data name="dashboard.welcome" xml:space="preserve">
-    <value>Welcome, {{name}}!</value>
+    <value>Welcome, {{name}}</value>
   </data>
   <data name="notifications.title" xml:space="preserve">
     <value>Notifications</value>
   </data>
   <data name="notifications.subscribeHeading" xml:space="preserve">
-    <value>Subscribe to email notifications</value>
+    <value>Email notifications</value>
   </data>
   <data name="notifications.description" xml:space="preserve">
     <value>You will receive an email when new cases are submitted.</value>
@@ -274,25 +274,25 @@
     <value>Cases</value>
   </data>
   <data name="cases.saveSearch" xml:space="preserve">
-    <value>Save Search</value>
+    <value>Save search</value>
   </data>
   <data name="cases.mySearches" xml:space="preserve">
-    <value>My Searches</value>
+    <value>My searches</value>
   </data>
   <data name="cases.noSavedSearches" xml:space="preserve">
-    <value>You have no saved searches!</value>
+    <value>No saved searches yet</value>
   </data>
   <data name="cases.newCase" xml:space="preserve">
-    <value>New Case</value>
+    <value>New case</value>
   </data>
   <data name="cases.create.title" xml:space="preserve">
-    <value>Submit Case - Select case type</value>
+    <value>New case</value>
   </data>
   <data name="cases.searchContact.placeholder" xml:space="preserve">
     <value>Enter reference/customer number</value>
   </data>
   <data name="cases.searchContact.contact" xml:space="preserve">
-    <value>Contact</value>
+    <value>Customer or contact</value>
   </data>
   <data name="cases.searchContact.referenceNumber" xml:space="preserve">
     <value>Reference number</value>
@@ -301,34 +301,34 @@
     <value>Tax Id</value>
   </data>
   <data name="caseDetails.title" xml:space="preserve">
-    <value>Case Details</value>
+    <value>Case details</value>
   </data>
   <data name="caseDetails.basicInfo" xml:space="preserve">
-    <value>Basic Case Information</value>
+    <value>Details</value>
   </data>
   <data name="caseDetails.customerInfo" xml:space="preserve">
-    <value>Customer/Contact Information</value>
+    <value>Customer or contact</value>
   </data>
   <data name="caseDetails.userInfo" xml:space="preserve">
-    <value>User Information</value>
+    <value>User</value>
   </data>
   <data name="caseDetails.form.newCaseInfo" xml:space="preserve">
     <value>The case will not be visible to other users until it is finally submitted.</value>
   </data>
   <data name="caseDetails.form.caseData" xml:space="preserve">
-    <value>Case Data</value>
+    <value>Case data</value>
   </data>
   <data name="caseDetails.timeline.title" xml:space="preserve">
     <value>History</value>
   </data>
   <data name="caseDetails.timeline.attachment" xml:space="preserve">
-    <value>File Attachment</value>
+    <value>File attachment</value>
   </data>
   <data name="caseDetails.timeline.customer" xml:space="preserve">
     <value>Customer</value>
   </data>
   <data name="caseDetails.timeline.publicStatus" xml:space="preserve">
-    <value>Public Status</value>
+    <value>Public status</value>
   </data>
   <data name="caseDetails.assignment.assignToMe" xml:space="preserve">
     <value>Assign to me</value>
@@ -340,58 +340,58 @@
     <value>Release case</value>
   </data>
   <data name="caseDetails.discardDraft.title" xml:space="preserve">
-    <value>Cancel Case</value>
+    <value>Cancel case</value>
   </data>
   <data name="caseDetails.print.title" xml:space="preserve">
     <value>Download the case PDF.</value>
   </data>
   <data name="caseDetails.print.info" xml:space="preserve">
-    <value>Applies only to saved cases.</value>
+    <value>Available once the case is saved.</value>
   </data>
   <data name="caseDetails.print.button" xml:space="preserve">
     <value>Case PDF</value>
   </data>
   <data name="caseTypes.title" xml:space="preserve">
-    <value>Case Types List</value>
+    <value>Case types</value>
   </data>
   <data name="caseTypes.column.title" xml:space="preserve">
-    <value>TITLE</value>
+    <value>Title</value>
   </data>
   <data name="caseTypes.column.code" xml:space="preserve">
-    <value>CODE</value>
+    <value>Code</value>
   </data>
   <data name="caseTypes.column.tags" xml:space="preserve">
-    <value>TAGS</value>
+    <value>Tags</value>
   </data>
   <data name="caseTypes.column.actions" xml:space="preserve">
-    <value>ACTIONS</value>
+    <value>Actions</value>
   </data>
   <data name="caseTypes.create.title" xml:space="preserve">
-    <value>Create Case Type</value>
+    <value>New case type</value>
   </data>
   <data name="caseTypes.edit.title" xml:space="preserve">
-    <value>Edit Case Type</value>
+    <value>Edit case type</value>
   </data>
   <data name="caseTypes.delete.title" xml:space="preserve">
-    <value>Delete Case Type</value>
+    <value>Delete case type</value>
   </data>
   <data name="caseTypes.delete.confirm" xml:space="preserve">
-    <value>Are you sure you want to delete this case type?</value>
+    <value>This case type will be deleted:</value>
   </data>
   <data name="caseTypes.form.legend" xml:space="preserve">
-    <value>Case Type</value>
+    <value>Case type</value>
   </data>
   <data name="caseTypes.form.code" xml:space="preserve">
     <value>Code</value>
   </data>
   <data name="caseTypes.form.codePlaceholder" xml:space="preserve">
-    <value>The code...</value>
+    <value>e.g. MORTGAGE</value>
   </data>
   <data name="caseTypes.form.titleLabel" xml:space="preserve">
     <value>Title</value>
   </data>
   <data name="caseTypes.form.titlePlaceholder" xml:space="preserve">
-    <value>The case title...</value>
+    <value>e.g. Mortgage application</value>
   </data>
   <data name="caseTypes.form.order" xml:space="preserve">
     <value>Order within category</value>
@@ -400,43 +400,43 @@
     <value>Description</value>
   </data>
   <data name="caseTypes.form.descriptionPlaceholder" xml:space="preserve">
-    <value>Description...</value>
+    <value>What this kind of case is for</value>
   </data>
   <data name="caseTypes.form.translations" xml:space="preserve">
-    <value>Translation</value>
+    <value>Translations</value>
   </data>
   <data name="caseTypes.form.layoutTranslations" xml:space="preserve">
-    <value>Layout Translation</value>
+    <value>Layout translations</value>
   </data>
   <data name="caseTypes.form.tags" xml:space="preserve">
     <value>Tags</value>
   </data>
   <data name="caseTypes.form.canCreateRoles" xml:space="preserve">
-    <value>Allowed roles for case creation (csv without spaces e.g. Role1,Role2)</value>
+    <value>Roles that can create cases (comma-separated, no spaces, e.g. Role1,Role2)</value>
   </data>
   <data name="modals.query.description" xml:space="preserve">
-    <value>Please give your search a friendly name</value>
+    <value>Name the search so you can find it in My searches.</value>
   </data>
   <data name="modals.query.namePlaceholder" xml:space="preserve">
-    <value>Search name</value>
+    <value>e.g. Pending mortgage cases</value>
   </data>
   <data name="modals.deleteQuery.title" xml:space="preserve">
-    <value>Delete Search</value>
+    <value>Delete search</value>
   </data>
   <data name="modals.deleteQuery.confirm" xml:space="preserve">
-    <value>Do you want to delete the search?</value>
+    <value>This saved search will be deleted:</value>
   </data>
   <data name="modals.approval.title" xml:space="preserve">
-    <value>Case Decision</value>
+    <value>Decision</value>
   </data>
   <data name="modals.approval.willApprove" xml:space="preserve">
-    <value>The case will be approved!</value>
+    <value>The case will be approved.</value>
   </data>
   <data name="modals.approval.willReject" xml:space="preserve">
-    <value>The case will be rejected!</value>
+    <value>The case will be rejected with the reason below.</value>
   </data>
   <data name="modals.approval.rejectionReason" xml:space="preserve">
-    <value>Rejection Reason</value>
+    <value>Rejection reason</value>
   </data>
   <data name="modals.approval.commentPlaceholder" xml:space="preserve">
     <value>Optional comment...</value>
@@ -445,13 +445,13 @@
     <value>Approve</value>
   </data>
   <data name="modals.approval.approveTooltip" xml:space="preserve">
-    <value>Approve Case</value>
+    <value>Approve case</value>
   </data>
   <data name="modals.approval.reject" xml:space="preserve">
     <value>Reject</value>
   </data>
   <data name="modals.approval.rejectTooltip" xml:space="preserve">
-    <value>Reject Case</value>
+    <value>Reject case</value>
   </data>
   <data name="cases.refresh" xml:space="preserve">
     <value>Refresh</value>
@@ -463,10 +463,10 @@
     <value>Approve case</value>
   </data>
   <data name="caseDetails.approveWarning.description" xml:space="preserve">
-    <value>You have not printed the case PDF, do you want to proceed with its approval?</value>
+    <value>You haven't downloaded the case PDF. Approve the case anyway?</value>
   </data>
   <data name="notifications.otherCategory" xml:space="preserve">
-    <value>Others</value>
+    <value>Other</value>
   </data>
   <data name="validation.required" xml:space="preserve">
     <value>Required field.</value>
@@ -475,7 +475,7 @@
     <value>Success</value>
   </data>
   <data name="toasts.error.title" xml:space="preserve">
-    <value>Whoops!</value>
+    <value>Action failed</value>
   </data>
   <data name="toasts.saveSuccess.title" xml:space="preserve">
     <value>Saved successfully</value>
@@ -490,10 +490,10 @@
     <value>Your changes could not be saved.</value>
   </data>
   <data name="toasts.unsavedChanges.title" xml:space="preserve">
-    <value>You have unsaved changes!</value>
+    <value>You have unsaved changes</value>
   </data>
   <data name="toasts.unsavedChanges.body" xml:space="preserve">
-    <value>Please save your changes.</value>
+    <value>Save your changes before approving the case.</value>
   </data>
   <data name="toasts.caseApproved" xml:space="preserve">
     <value>The case has been approved.</value>
@@ -544,19 +544,19 @@
     <value>Invalid file type.</value>
   </data>
   <data name="nav.dashboard" xml:space="preserve">
-    <value>Home</value>
+    <value>Dashboard</value>
   </data>
   <data name="nav.cases" xml:space="preserve">
     <value>Cases</value>
   </data>
   <data name="nav.caseTypes" xml:space="preserve">
-    <value>Case Management</value>
+    <value>Case types</value>
   </data>
   <data name="nav.notifications" xml:space="preserve">
     <value>Notifications</value>
   </data>
   <data name="nav.logout" xml:space="preserve">
-    <value>Logout</value>
+    <value>Sign out</value>
   </data>
   <data name="breadcrumb.authCallback" xml:space="preserve">
     <value>Authentication</value>
@@ -580,25 +580,25 @@
     <value>Case</value>
   </data>
   <data name="breadcrumb.caseDetails" xml:space="preserve">
-    <value>Case Details</value>
+    <value>Case details</value>
   </data>
   <data name="breadcrumb.caseTypes" xml:space="preserve">
-    <value>Case Types</value>
+    <value>Case types</value>
   </data>
   <data name="breadcrumb.createCaseType" xml:space="preserve">
-    <value>Create Case Type</value>
+    <value>New case type</value>
   </data>
   <data name="breadcrumb.editCaseType" xml:space="preserve">
-    <value>Edit Case Type</value>
+    <value>Edit case type</value>
   </data>
   <data name="breadcrumb.notifications" xml:space="preserve">
     <value>Notifications</value>
   </data>
   <data name="breadcrumb.newCase" xml:space="preserve">
-    <value>New Case</value>
+    <value>New case</value>
   </data>
   <data name="breadcrumb.queries" xml:space="preserve">
-    <value>Searches</value>
+    <value>My searches</value>
   </data>
   <data name="breadcrumb.logout" xml:space="preserve">
     <value>Logout</value>
@@ -607,49 +607,49 @@
     <value>Forbidden</value>
   </data>
   <data name="breadcrumb.pageNotFound" xml:space="preserve">
-    <value>Page Not Found</value>
+    <value>Page not found</value>
   </data>
   <data name="nav.checkpointTypes" xml:space="preserve">
-    <value>Checkpoint Types</value>
+    <value>Checkpoint types</value>
   </data>
   <data name="nav.accessRules" xml:space="preserve">
-    <value>Access Rules</value>
+    <value>Access rules</value>
   </data>
   <data name="breadcrumb.checkpointTypes" xml:space="preserve">
-    <value>Checkpoint Types</value>
+    <value>Checkpoint types</value>
   </data>
   <data name="breadcrumb.createCheckpointType" xml:space="preserve">
-    <value>Create Checkpoint Type</value>
+    <value>New checkpoint type</value>
   </data>
   <data name="breadcrumb.editCheckpointType" xml:space="preserve">
-    <value>Edit Checkpoint Type</value>
+    <value>Edit checkpoint type</value>
   </data>
   <data name="breadcrumb.accessRules" xml:space="preserve">
-    <value>Access Rules</value>
+    <value>Access rules</value>
   </data>
   <data name="breadcrumb.createAccessRule" xml:space="preserve">
-    <value>Create Access Rule</value>
+    <value>New access rule</value>
   </data>
   <data name="checkpointTypes.title" xml:space="preserve">
-    <value>Checkpoint Types</value>
+    <value>Checkpoint types</value>
   </data>
   <data name="checkpointTypes.allCaseTypes" xml:space="preserve">
     <value>All case types</value>
   </data>
   <data name="checkpointTypes.create.title" xml:space="preserve">
-    <value>New Checkpoint Type</value>
+    <value>New checkpoint type</value>
   </data>
   <data name="checkpointTypes.edit.title" xml:space="preserve">
-    <value>Edit Checkpoint Type</value>
+    <value>Edit checkpoint type</value>
   </data>
   <data name="checkpointTypes.delete.title" xml:space="preserve">
-    <value>Delete Checkpoint Type</value>
+    <value>Delete checkpoint type</value>
   </data>
   <data name="checkpointTypes.delete.confirm" xml:space="preserve">
-    <value>Are you sure you want to delete the checkpoint type?</value>
+    <value>This checkpoint type will be deleted:</value>
   </data>
   <data name="checkpointTypes.column.caseType" xml:space="preserve">
-    <value>Case Type</value>
+    <value>Case type</value>
   </data>
   <data name="checkpointTypes.column.code" xml:space="preserve">
     <value>Code</value>
@@ -670,19 +670,19 @@
     <value>Actions</value>
   </data>
   <data name="accessRules.title" xml:space="preserve">
-    <value>Access Rules</value>
+    <value>Access rules</value>
   </data>
   <data name="accessRules.allCheckpointTypes" xml:space="preserve">
     <value>All checkpoint types</value>
   </data>
   <data name="accessRules.create.title" xml:space="preserve">
-    <value>New Access Rule</value>
+    <value>New access rule</value>
   </data>
   <data name="accessRules.delete.title" xml:space="preserve">
-    <value>Delete Access Rule</value>
+    <value>Delete access rule</value>
   </data>
   <data name="accessRules.delete.confirm" xml:space="preserve">
-    <value>Are you sure you want to delete the access rule?</value>
+    <value>Delete this access rule? Members lose the access it grants.</value>
   </data>
   <data name="accessRules.column.target" xml:space="preserve">
     <value>Resource</value>
@@ -700,16 +700,16 @@
     <value>User</value>
   </data>
   <data name="accessRules.column.accessLevel" xml:space="preserve">
-    <value>Access Level</value>
+    <value>Access level</value>
   </data>
   <data name="accessRules.column.actions" xml:space="preserve">
     <value>Actions</value>
   </data>
   <data name="accessRules.target.caseType" xml:space="preserve">
-    <value>Case Type</value>
+    <value>Case type</value>
   </data>
   <data name="accessRules.target.checkpointType" xml:space="preserve">
-    <value>Checkpoint Type</value>
+    <value>Checkpoint type</value>
   </data>
   <data name="accessRules.target.case" xml:space="preserve">
     <value>Case</value>
@@ -734,5 +734,452 @@
   </data>
   <data name="toasts.accessRuleDeleted.body" xml:space="preserve">
     <value>The access rule has been deleted.</value>
+  </data>
+  <data name="common.close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="nav.main" xml:space="preserve">
+    <value>Main navigation</value>
+  </data>
+  <data name="nav.administration" xml:space="preserve">
+    <value>Administration</value>
+  </data>
+  <data name="nav.settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="shell.openMenu" xml:space="preserve">
+    <value>Open menu</value>
+  </data>
+  <data name="shell.closeMenu" xml:space="preserve">
+    <value>Close menu</value>
+  </data>
+  <data name="shell.breadcrumb" xml:space="preserve">
+    <value>Breadcrumb</value>
+  </data>
+  <data name="shell.language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="shell.account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="shell.theme" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="shell.themeSystem" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="shell.themeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="shell.themeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="shell.skipToContent" xml:space="preserve">
+    <value>Skip to content</value>
+  </data>
+  <data name="list.range" xml:space="preserve">
+    <value>{{from}}–{{to}} of {{count}}</value>
+  </data>
+  <data name="list.noResults" xml:space="preserve">
+    <value>No results</value>
+  </data>
+  <data name="list.perPage" xml:space="preserve">
+    <value>Per page</value>
+  </data>
+  <data name="list.pagination" xml:space="preserve">
+    <value>Pages</value>
+  </data>
+  <data name="list.previousPage" xml:space="preserve">
+    <value>Previous page</value>
+  </data>
+  <data name="list.nextPage" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="list.filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="list.filterField" xml:space="preserve">
+    <value>Field</value>
+  </data>
+  <data name="list.chooseField" xml:space="preserve">
+    <value>Choose a field</value>
+  </data>
+  <data name="list.operator" xml:space="preserve">
+    <value>Condition</value>
+  </data>
+  <data name="list.op.eq" xml:space="preserve">
+    <value>is</value>
+  </data>
+  <data name="list.op.neq" xml:space="preserve">
+    <value>is not</value>
+  </data>
+  <data name="list.op.contains" xml:space="preserve">
+    <value>contains</value>
+  </data>
+  <data name="list.value" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="list.chooseValue" xml:space="preserve">
+    <value>Choose a value</value>
+  </data>
+  <data name="list.from" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="list.to" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="list.addFilter" xml:space="preserve">
+    <value>Add filter</value>
+  </data>
+  <data name="list.removeFilter" xml:space="preserve">
+    <value>Remove filter</value>
+  </data>
+  <data name="list.clearFilters" xml:space="preserve">
+    <value>Clear filters</value>
+  </data>
+  <data name="list.sortBy" xml:space="preserve">
+    <value>Sort by</value>
+  </data>
+  <data name="list.loadFailed" xml:space="preserve">
+    <value>The list could not be loaded</value>
+  </data>
+  <data name="list.loadFailedHint" xml:space="preserve">
+    <value>Check your connection, then refresh.</value>
+  </data>
+  <data name="status.Submitted" xml:space="preserve">
+    <value>Submitted</value>
+  </data>
+  <data name="status.InProgress" xml:space="preserve">
+    <value>In progress</value>
+  </data>
+  <data name="status.Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="status.Deleted" xml:space="preserve">
+    <value>Deleted</value>
+  </data>
+  <data name="status.unknown" xml:space="preserve">
+    <value>No status</value>
+  </data>
+  <data name="errors.notFound.title" xml:space="preserve">
+    <value>Page not found</value>
+  </data>
+  <data name="errors.notFound.message" xml:space="preserve">
+    <value>The address may be mistyped, or the page has moved.</value>
+  </data>
+  <data name="errors.forbidden.title" xml:space="preserve">
+    <value>You don't have access to this page</value>
+  </data>
+  <data name="errors.forbidden.message" xml:space="preserve">
+    <value>Ask an administrator to give you access.</value>
+  </data>
+  <data name="errors.backToDashboard" xml:space="preserve">
+    <value>Back to the dashboard</value>
+  </data>
+  <data name="dashboard.subtitle" xml:space="preserve">
+    <value>Your open work and how cases are moving.</value>
+  </data>
+  <data name="dashboard.allCases" xml:space="preserve">
+    <value>All cases</value>
+  </data>
+  <data name="dashboard.desk" xml:space="preserve">
+    <value>Your desk</value>
+  </data>
+  <data name="dashboard.openCases" xml:space="preserve">
+    <value>Open cases</value>
+  </data>
+  <data name="dashboard.openCasesHint" xml:space="preserve">
+    <value>Submitted or in progress</value>
+  </data>
+  <data name="dashboard.assignedToYou" xml:space="preserve">
+    <value>Assigned to you</value>
+  </data>
+  <data name="dashboard.assignedToYouHint" xml:space="preserve">
+    <value>of them assigned to you</value>
+  </data>
+  <data name="dashboard.newThisWeek" xml:space="preserve">
+    <value>New in the last 7 days</value>
+  </data>
+  <data name="dashboard.vsPreviousWeek" xml:space="preserve">
+    <value>vs the 7 days before</value>
+  </data>
+  <data name="dashboard.newToday" xml:space="preserve">
+    <value>{{count}} today</value>
+  </data>
+  <data name="dashboard.oldestOpen" xml:space="preserve">
+    <value>Oldest open case</value>
+  </data>
+  <data name="dashboard.ageDay" xml:space="preserve">
+    <value>1 day</value>
+  </data>
+  <data name="dashboard.ageDays" xml:space="preserve">
+    <value>{{count}} days</value>
+  </data>
+  <data name="dashboard.nothingOpen" xml:space="preserve">
+    <value>Nothing is waiting</value>
+  </data>
+  <data name="dashboard.intake" xml:space="preserve">
+    <value>New cases per week</value>
+  </data>
+  <data name="dashboard.intakeHint" xml:space="preserve">
+    <value>{{count}} in the last 8 weeks</value>
+  </data>
+  <data name="dashboard.view" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="dashboard.chartView" xml:space="preserve">
+    <value>Chart</value>
+  </data>
+  <data name="dashboard.tableView" xml:space="preserve">
+    <value>Table</value>
+  </data>
+  <data name="dashboard.week" xml:space="preserve">
+    <value>Week</value>
+  </data>
+  <data name="dashboard.cases" xml:space="preserve">
+    <value>Cases</value>
+  </data>
+  <data name="dashboard.thisWeek" xml:space="preserve">
+    <value>This week</value>
+  </data>
+  <data name="dashboard.aging" xml:space="preserve">
+    <value>How long open cases have waited</value>
+  </data>
+  <data name="dashboard.agingHint" xml:space="preserve">
+    <value>Time since submission</value>
+  </data>
+  <data name="dashboard.age.underTwoDays" xml:space="preserve">
+    <value>Under 2 days</value>
+  </data>
+  <data name="dashboard.age.twoToSevenDays" xml:space="preserve">
+    <value>2 to 7 days</value>
+  </data>
+  <data name="dashboard.age.sevenToThirtyDays" xml:space="preserve">
+    <value>7 to 30 days</value>
+  </data>
+  <data name="dashboard.age.overThirtyDays" xml:space="preserve">
+    <value>Over 30 days</value>
+  </data>
+  <data name="dashboard.breakdown" xml:space="preserve">
+    <value>Breakdown</value>
+  </data>
+  <data name="dashboard.channel.label" xml:space="preserve">
+    <value>Channel</value>
+  </data>
+  <data name="dashboard.channel.all" xml:space="preserve">
+    <value>All channels</value>
+  </data>
+  <data name="dashboard.channel.agent" xml:space="preserve">
+    <value>Branch</value>
+  </data>
+  <data name="dashboard.channel.customer" xml:space="preserve">
+    <value>eBanking</value>
+  </data>
+  <data name="dashboard.noData" xml:space="preserve">
+    <value>Nothing to show yet</value>
+  </data>
+  <data name="dashboard.noGroup" xml:space="preserve">
+    <value>No branch</value>
+  </data>
+  <data name="dashboard.other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="cases.allCases" xml:space="preserve">
+    <value>All cases</value>
+  </data>
+  <data name="cases.resultCount" xml:space="preserve">
+    <value>{{count}} cases</value>
+  </data>
+  <data name="cases.searchPlaceholder" xml:space="preserve">
+    <value>Search cases</value>
+  </data>
+  <data name="cases.empty" xml:space="preserve">
+    <value>No cases yet</value>
+  </data>
+  <data name="cases.emptyHint" xml:space="preserve">
+    <value>Cases you can access appear here once they are submitted.</value>
+  </data>
+  <data name="cases.noMatches" xml:space="preserve">
+    <value>No cases match these filters</value>
+  </data>
+  <data name="cases.noMatchesHint" xml:space="preserve">
+    <value>Remove a filter or change the search to see more.</value>
+  </data>
+  <data name="cases.mySearchesHint" xml:space="preserve">
+    <value>Saved filters for the case list.</value>
+  </data>
+  <data name="cases.noSavedSearchesHint" xml:space="preserve">
+    <value>Filter the case list and choose Save search to keep the filters here.</value>
+  </data>
+  <data name="cases.create.chooseType" xml:space="preserve">
+    <value>Choose the type of case</value>
+  </data>
+  <data name="cases.create.chooseCustomer" xml:space="preserve">
+    <value>Find the customer or contact</value>
+  </data>
+  <data name="cases.create.stepType" xml:space="preserve">
+    <value>Case type</value>
+  </data>
+  <data name="cases.create.stepCustomer" xml:space="preserve">
+    <value>Customer</value>
+  </data>
+  <data name="cases.create.change" xml:space="preserve">
+    <value>Change</value>
+  </data>
+  <data name="cases.create.submit" xml:space="preserve">
+    <value>Create case</value>
+  </data>
+  <data name="cases.create.noTypes" xml:space="preserve">
+    <value>You can't create cases of any type</value>
+  </data>
+  <data name="cases.searchContact.noResults" xml:space="preserve">
+    <value>No customers found</value>
+  </data>
+  <data name="cases.searchContact.noResultsHint" xml:space="preserve">
+    <value>Check the number and search again.</value>
+  </data>
+  <data name="caseDetails.form.discardChanges" xml:space="preserve">
+    <value>Discard changes</value>
+  </data>
+  <data name="caseDetails.form.editable" xml:space="preserve">
+    <value>Editable</value>
+  </data>
+  <data name="caseDetails.timeline.private" xml:space="preserve">
+    <value>Private</value>
+  </data>
+  <data name="caseDetails.actions.title" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="caseDetails.decision.formInvalid" xml:space="preserve">
+    <value>Complete the required fields of the case to approve it.</value>
+  </data>
+  <data name="caseDetails.discardDraft.info" xml:space="preserve">
+    <value>The case has not been submitted yet. Cancelling deletes it.</value>
+  </data>
+  <data name="caseDetails.discardDraft.confirm" xml:space="preserve">
+    <value>The draft and everything entered in it will be deleted.</value>
+  </data>
+  <data name="caseDetails.draft" xml:space="preserve">
+    <value>Draft</value>
+  </data>
+  <data name="caseDetails.unassigned" xml:space="preserve">
+    <value>Unassigned</value>
+  </data>
+  <data name="caseDetails.related.title" xml:space="preserve">
+    <value>Related cases</value>
+  </data>
+  <data name="caseDetails.related.open" xml:space="preserve">
+    <value>Open case</value>
+  </data>
+  <data name="caseForm.createCase" xml:space="preserve">
+    <value>Create case</value>
+  </data>
+  <data name="caseForm.addItem" xml:space="preserve">
+    <value>Add {{title}}</value>
+  </data>
+  <data name="caseForm.removeItem" xml:space="preserve">
+    <value>Remove item</value>
+  </data>
+  <data name="modals.query.nameLabel" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="toasts.searchSaved.body" xml:space="preserve">
+    <value>The search has been saved to My searches.</value>
+  </data>
+  <data name="toasts.searchDeleted.body" xml:space="preserve">
+    <value>The search has been deleted.</value>
+  </data>
+  <data name="caseTypes.column.menu" xml:space="preserve">
+    <value>Menu item</value>
+  </data>
+  <data name="caseTypes.create.action" xml:space="preserve">
+    <value>New case type</value>
+  </data>
+  <data name="caseTypes.empty.title" xml:space="preserve">
+    <value>No case types yet</value>
+  </data>
+  <data name="caseTypes.empty.message" xml:space="preserve">
+    <value>Create a case type to define the form and workflow of a kind of case.</value>
+  </data>
+  <data name="caseTypes.form.sectionBasics" xml:space="preserve">
+    <value>Basics</value>
+  </data>
+  <data name="caseTypes.form.sectionBehaviour" xml:space="preserve">
+    <value>Behaviour</value>
+  </data>
+  <data name="caseTypes.form.sectionDefinition" xml:space="preserve">
+    <value>Form definition</value>
+  </data>
+  <data name="caseTypes.form.sectionCaseList" xml:space="preserve">
+    <value>Case list</value>
+  </data>
+  <data name="caseTypes.form.isMenuItem" xml:space="preserve">
+    <value>Show in the menu</value>
+  </data>
+  <data name="caseTypes.form.isMenuItemHint" xml:space="preserve">
+    <value>Adds a shortcut to the cases of this type under Cases.</value>
+  </data>
+  <data name="caseTypes.form.config" xml:space="preserve">
+    <value>Case type configuration</value>
+  </data>
+  <data name="caseTypes.form.dataSchema" xml:space="preserve">
+    <value>Schema</value>
+  </data>
+  <data name="caseTypes.form.layout" xml:space="preserve">
+    <value>Layout</value>
+  </data>
+  <data name="caseTypes.form.gridFilterConfig" xml:space="preserve">
+    <value>List filters</value>
+  </data>
+  <data name="caseTypes.form.gridColumnConfig" xml:space="preserve">
+    <value>List columns</value>
+  </data>
+  <data name="caseTypes.form.invalidJson" xml:space="preserve">
+    <value>This is not valid JSON.</value>
+  </data>
+  <data name="caseTypes.form.fixJson" xml:space="preserve">
+    <value>Fix the invalid JSON to save.</value>
+  </data>
+  <data name="checkpointTypes.create.action" xml:space="preserve">
+    <value>New checkpoint type</value>
+  </data>
+  <data name="checkpointTypes.empty.title" xml:space="preserve">
+    <value>No checkpoint types</value>
+  </data>
+  <data name="checkpointTypes.empty.message" xml:space="preserve">
+    <value>Checkpoint types are the steps a case moves through.</value>
+  </data>
+  <data name="accessRules.create.action" xml:space="preserve">
+    <value>New access rule</value>
+  </data>
+  <data name="accessRules.empty.title" xml:space="preserve">
+    <value>No access rules</value>
+  </data>
+  <data name="accessRules.empty.message" xml:space="preserve">
+    <value>Access rules give roles, groups or users access to case types and checkpoints.</value>
+  </data>
+  <data name="dashboard.route" xml:space="preserve">
+    <value>Where open cases are waiting</value>
+  </data>
+  <data name="dashboard.mostWaiting" xml:space="preserve">
+    <value>Most waiting</value>
+  </data>
+  <data name="dashboard.openTheList" xml:space="preserve">
+    <value>Open the list</value>
+  </data>
+  <data name="dashboard.findingOld.one" xml:space="preserve">
+    <value>1 open case has waited more than 30 days.</value>
+  </data>
+  <data name="dashboard.findingOld.other" xml:space="preserve">
+    <value>{{count}} open cases have waited more than 30 days.</value>
+  </data>
+  <data name="dashboard.findingNoneOld" xml:space="preserve">
+    <value>No open case has waited more than 30 days.</value>
+  </data>
+  <data name="dashboard.total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="notifications.summary" xml:space="preserve">
+    <value>of {{total}} case types</value>
   </data>
 </root>

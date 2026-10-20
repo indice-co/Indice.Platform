@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ToastType } from '@indice/ng-components';
+import { NgIcon } from '@ng-icons/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { tap } from 'rxjs/operators';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
-import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
-import { TailwindControl } from './tailwind-control';
+import { ToastService, ToastType } from 'src/app/ui/feedback/toast.service';
+import { CaseFormControl, FieldKind } from './case-form-control';
+import { FieldWrapperComponent } from './field-wrapper.component';
 
 /**
  * ajsf `file` widget. A selected file is kept in `FileUploadService.files`, keyed by the data path (eg `homePhone.attachmentId`),
@@ -12,6 +14,7 @@ import { TailwindControl } from './tailwind-control';
  */
 @Component({
     selector: 'app-jf-file',
+    imports: [FieldWrapperComponent, NgIcon, TranslatePipe],
     template: `
     @if (shown) {
       <app-jf-field [control]="this">
@@ -22,36 +25,35 @@ import { TailwindControl } from './tailwind-control';
               [accept]="accept"
               [class]="fieldClass"
               [attr.required]="options.required"
+              [attr.aria-invalid]="invalid"
+              [attr.aria-describedby]="describedBy"
               [id]="id"
               (change)="onFileSelect($event)">
           }
-          <p class="text-sm text-gray-900">{{ 'common.noDocumentSubmitted' | translate }}</p>
+          <p class="jf-file-empty text-quiet text-xs">{{ 'common.noDocumentSubmitted' | translate }}</p>
         } @else {
-          <div class="flex align-items-center justify-content-center align-middle">
-            <button type="button" (click)="onDownload()" class="btn-default">
-              <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
-              </svg>
+          <div class="jf-attachment">
+            <ng-icon name="lucidePaperclip" size="1rem" class="text-quiet" />
+            <button type="button" class="btn btn-ghost btn-sm" (click)="onDownload()">
+              <ng-icon name="lucideDownload" size="1rem" />
               <span>{{ 'common.download' | translate }}</span>
             </button>
             @if (!readonly) {
-              <button (click)="setValue(undefined)" type="button" class="ml-2 bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
-                <svg class="w-6 h-6 text-gray-800 text-black" style="color: rgb(31 41 55 / 1) !important" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
-                </svg>
-                <span class="sr-only">{{ 'common.removeAttachment' | translate }}</span>
+              <button type="button" class="btn btn-ghost btn-sm btn-square ml-auto text-error" (click)="setValue(undefined)"
+                      [attr.aria-label]="'common.removeAttachment' | translate" [attr.title]="'common.removeAttachment' | translate">
+                <ng-icon name="lucideTrash2" size="1rem" />
               </button>
             }
           </div>
         }
       </app-jf-field>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
-export class FileControlComponent extends TailwindControl {
+export class FileControlComponent extends CaseFormControl {
     protected widget = 'file';
-    private toaster = inject(TranslatedToasterService);
+    protected override fieldKind: FieldKind = 'file-input';
+    private toaster = inject(ToastService);
     private api = inject(CasesApiService);
     private fileUploadService = inject(FileUploadService);
 

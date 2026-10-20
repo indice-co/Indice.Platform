@@ -1,46 +1,134 @@
-<lib-view-layout [title]="('cases.title' | translate) + ' ' + (caseTypeTitle || '')"
-  [busy]="!items"
-  [actions]="formActions"
-  [meta-items]="metaItems"
-  (onAction)="actionHandler($event)"
-  (onSearch)="searchChanged($event)">
-  <div class="text-right">
-    <button class="btn-submit"
-      [ngClass]="{'opacity-50 cursor-not-allowed': !queryParamsHasFilter}"
-      [disabled]="!queryParamsHasFilter"
-      (click)="openQueryModal()">
-    {{ 'cases.saveSearch' | translate }}</button>
-  </div>
-  <lib-list-view [items]="items"
-    [search-options]="searchOptions"
-    [filters]="filters"
-    [page]="page"
-    [page-size]="pageSize"
-    [count]="count"
-    [sort-options]="sortOptions"
-    [sort]="sort"
-    [sort-dir]="sortdir"
-    [busy]="!items"
-    (advancedSearchChanged)="advancedSearchChanged($event)"
-    (pageChanged)="pageChanged($event)"
-    (pageSizeChanged)="pageSizeChanged($event)"
-    (sortChanged)="sortChanged($event)"
-    (sortdirChanged)="sortdirChanged($event)">
-    @for (column of columns; track column) {
-      <lib-list-column [title]="('cases.' + column.title[0].toLowerCase() + column.title.slice(1)) | translate">
-        <ng-template let-item>{{ item | valueFromPath: column }}</ng-template>
-      </lib-list-column>
+<div class="page">
+  <app-page-header [title]="caseTypeTitle() || ('cases.title' | translate)"
+                   [subtitle]="items() ? ('cases.resultCount' | translate: { count: (count() | number) }) : ''">
+    @if (caseTypeTitle()) {
+      <a eyebrow routerLink="/cases" class="mb-1 inline-flex items-center gap-1 text-[0.8125rem] text-quiet link link-hover">
+        <ng-icon name="lucideArrowLeft" size="0.9rem" /> {{ 'cases.allCases' | translate }}
+      </a>
     }
-    <lib-list-column>
-      <ng-template let-item>
-        <a href="#"
-          [routerLinkActive]="['nav-link-profile-active']"
-          [routerLinkActiveOptions]="{ exact: true }"
-          [routerLink]="['/cases', item.id, 'details']"
-          class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
-          <span>{{'cases.choose' | translate}}</span>
-        </a>
-      </ng-template>
-    </lib-list-column>
-  </lib-list-view>
-</lib-view-layout>
+    <a actions class="btn btn-ghost" [routerLink]="[{ outlets: { rightpane: ['queries'] } }]" [relativeTo]="null" queryParamsHandling="preserve">
+      <ng-icon name="lucideBookmark" size="1rem" /> {{ 'cases.mySearches' | translate }}
+    </a>
+    @if (canCreateCase()) {
+      <a actions class="btn btn-primary" [routerLink]="[{ outlets: { rightpane: [newItemLink] } }]" [relativeTo]="null" queryParamsHandling="preserve">
+        <ng-icon name="lucidePlus" size="1rem" /> {{ 'cases.newCase' | translate }}
+      </a>
+    }
+  </app-page-header>
+
+  <section class="panel overflow-hidden">
+    <div class="flex flex-wrap items-center gap-2 border-b border-base-300 px-4 py-3">
+      <label class="input input-sm w-full sm:w-72">
+        <ng-icon name="lucideSearch" size="1rem" class="text-quiet" />
+        <input type="search" class="grow" [placeholder]="'cases.searchPlaceholder' | translate" [value]="search() ?? ''"
+               (input)="searchChanged($any($event.target).value)" [attr.aria-label]="'common.search' | translate" />
+      </label>
+      @if (searchOptions().length) {
+        <button type="button" class="btn btn-sm" [class.btn-active]="filterOpen()" (click)="filterOpen.set(!filterOpen())"
+                [attr.aria-expanded]="filterOpen()">
+          <ng-icon name="lucideListFilter" size="1rem" /> {{ 'list.filter' | translate }}
+          @if (removableFilterCount()) {
+            <span class="badge badge-primary badge-xs kbd-ref">{{ removableFilterCount() }}</span>
+          }
+        </button>
+      }
+      <div class="ml-auto flex items-center gap-1">
+        @for (option of sortOptions(); track option.value) {
+          @if (option.value === sort()) {
+            <button type="button" class="btn btn-ghost btn-sm" (click)="toggleSortDirection()"
+                    [attr.aria-label]="('list.sortBy' | translate) + ' ' + option.label">
+              <ng-icon [name]="sortdir() === 'asc' ? 'lucideArrowUp' : 'lucideArrowDown'" size="1rem" class="text-quiet" />
+              {{ option.label }}
+            </button>
+          }
+        }
+        <button type="button" class="btn btn-ghost btn-sm" [disabled]="!queryParamsHasFilter()" (click)="openQueryModal()">
+          <ng-icon name="lucideBookmarkPlus" size="1rem" /> {{ 'cases.saveSearch' | translate }}
+        </button>
+        <button type="button" class="btn btn-ghost btn-sm btn-square tooltip tooltip-bottom" [attr.data-tip]="'cases.refresh' | translate"
+                [attr.aria-label]="'cases.refresh' | translate" (click)="refresh()">
+          <ng-icon name="lucideRefreshCw" size="1rem" [class.animate-spin]="loading()" />
+        </button>
+      </div>
+    </div>
+
+    @if (filterOpen() || filters().length) {
+      <app-filter-bar class="border-b border-base-300 px-4 py-3" [searchOptions]="searchOptions()" [filters]="filters()" [open]="filterOpen()"
+                      (filtersChange)="advancedSearchChanged($event)" (openChange)="filterOpen.set($event)" />
+    }
+
+    <div class="overflow-x-auto">
+      <table class="table data-table text-[0.8125rem]">
+        <thead>
+          <tr>
+            @for (column of columns(); track column.title) {
+              <th [class.text-right]="isDateColumn(column)">{{ columnKey(column) | translate }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody class="transition-opacity" [class.opacity-55]="loading() && items()">
+          @if (items() === null) {
+            @for (row of skeletonRows; track row) {
+              <tr>
+                @for (column of columns(); track column.title) {
+                  <td><div class="skeleton h-4 w-20"></div></td>
+                }
+              </tr>
+            }
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr class="is-link" tabindex="0" (click)="onRowClick($event, item)" (keydown.enter)="openCase(item)">
+                @for (column of columns(); track column.title; let first = $first) {
+                  <td class="whitespace-nowrap" [class.text-right]="isDateColumn(column)">
+                    @switch (column.itemProperty ?? column.title) {
+                      @case ('checkpointType.title') {
+                        <app-status-mark [status]="item.checkpointType?.status" [label]="item | valueFromPath: column" />
+                      }
+                      @case ('createdByWhen') {
+                        <span class="kbd-ref" [title]="item.createdByWhen | date: 'dd/MM/yyyy, HH:mm'">{{ item.createdByWhen | date: 'dd/MM/yy, HH:mm' }}</span>
+                      }
+                      @case ('assignedToName') {
+                        @if (item.assignedToName) {
+                          <app-person class="max-w-48" [name]="item.assignedToName" />
+                        } @else {
+                          <span class="text-quiet">—</span>
+                        }
+                      }
+                      @default {
+                        @let value = item | valueFromPath: column;
+                        @if (first) {
+                          <a class="font-medium text-base-content hover:underline" [class.ref]="isIdColumn(column)" [routerLink]="['/cases', item.id, 'details']">{{ value }}</a>
+                        } @else if (value === '-') {
+                          <span class="text-quiet">—</span>
+                        } @else {
+                          <span class="block max-w-48 truncate" [class.ref]="isIdColumn(column)" [title]="value">{{ value }}</span>
+                        }
+                      }
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (items()?.length === 0 && !loading()) {
+      @if (failed()) {
+        <app-empty-state icon="lucideTriangleAlert" [title]="'list.loadFailed' | translate" [message]="'list.loadFailedHint' | translate">
+          <button type="button" class="btn btn-sm" (click)="refresh()">{{ 'cases.refresh' | translate }}</button>
+        </app-empty-state>
+      } @else if (filters().length || search()) {
+        <app-empty-state icon="lucideSearchX" [title]="'cases.noMatches' | translate" [message]="'cases.noMatchesHint' | translate" />
+      } @else {
+        <app-empty-state icon="lucideInbox" [title]="'cases.empty' | translate" [message]="'cases.emptyHint' | translate" />
+      }
+    }
+
+    @if (count() > 0) {
+      <app-pager class="border-t border-base-300 px-4 py-3" [page]="page()" [pageSize]="pageSize()" [count]="count()"
+                 (pageChange)="pageChanged($event)" (pageSizeChange)="pageSizeChanged($event)" />
+    }
+  </section>
+</div>
