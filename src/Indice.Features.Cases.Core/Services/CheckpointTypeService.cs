@@ -146,6 +146,9 @@ internal class CheckpointTypeService : ICheckpointTypeService
         if (entity.Private != request.Private && await _dbContext.Checkpoints.AnyAsync(x => x.CheckpointTypeId == id)) {
             throw new BusinessException("Checkpoint type visibility cannot be changed because it is used by existing cases.", nameof(request.Private));
         }
+        if (entity.Status != request.Status && await _dbContext.Checkpoints.AnyAsync(x => x.CheckpointTypeId == id)) {
+            throw new BusinessException("Checkpoint type status cannot be changed because it is used by existing cases.", nameof(request.Status));
+        }
         Map(request, entity);
         try {
             await _dbContext.SaveChangesAsync();
