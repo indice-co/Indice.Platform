@@ -5,7 +5,7 @@ using Stripe;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-/// <summary>Extensions to register the chat payments (Stripe manual capture) services.</summary>
+/// <summary>Extensions to register the chat payments (Stripe) services.</summary>
 public static class AgentsPaymentsFeatureExtensions
 {
     /// <summary>Registers <see cref="IPaymentsService"/> with <see cref="StripeOptions"/> bound from the <c>Stripe</c> configuration section.</summary>
@@ -18,7 +18,6 @@ public static class AgentsPaymentsFeatureExtensions
         optionsBuilder.Validate(x => !string.IsNullOrWhiteSpace(x.PublishableKey), "Stripe:PublishableKey is required.")
                       .Validate(x => !string.IsNullOrWhiteSpace(x.SecretKey), "Stripe:SecretKey is required.")
                       .Validate(x => !string.IsNullOrWhiteSpace(x.WebhookSecret), "Stripe:WebhookSecret is required.")
-                      .Validate(x => x.DefaultHoldAmount > 0, "Stripe:DefaultHoldAmount must be positive.")
                       .ValidateOnStart();
         services.TryAddSingleton<IStripeClient>(sp => new StripeClient(sp.GetRequiredService<IOptions<StripeOptions>>().Value.SecretKey));
         services.TryAddSingleton(TimeProvider.System);

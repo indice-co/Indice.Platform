@@ -12,15 +12,15 @@ public class DbPaymentSessionMap : IEntityTypeConfiguration<DbPaymentSession>
         builder.ToTable("PaymentSession", "dex");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.UserId).HasMaxLength(TextSizePresets.M128).IsRequired();
+        builder.Property(x => x.TenantId).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.PaymentIntentId).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.ClientSecret).HasMaxLength(TextSizePresets.M256);
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(TextSizePresets.S32);
-        builder.Property(x => x.FirstCaptureAmount).HasPrecision(18, 2);
-        builder.Property(x => x.CapturedAmount).HasPrecision(18, 2);
+        builder.Property(x => x.Amount).HasPrecision(18, 2);
         builder.Property(x => x.Currency).HasMaxLength(TextSizePresets.S16);
         builder.Property(x => x.FailureReason).HasMaxLength(TextSizePresets.M512);
         builder.HasIndex(x => x.PaymentIntentId).IsUnique();
         builder.Property(x => x.CaseId).HasMaxLength(TextSizePresets.M128).IsRequired();
-        builder.HasIndex(x => new { x.CaseId, x.CreatedAt });
+        builder.HasIndex(x => new { x.CaseId }).HasDatabaseName("IX_PaymentSession_CaseId");
     }
 }

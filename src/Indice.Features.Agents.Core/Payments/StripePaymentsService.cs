@@ -7,12 +7,12 @@ using Stripe;
 
 namespace Indice.Features.Agents.Core.Payments;
 
-/// <summary>Chat payments: Stripe card pre-authorization with manual capture.</summary>
+/// <summary>Chat payments: Stripe one-step payment (the full amount is charged on confirmation).</summary>
 public interface IPaymentsService
 {
     /// <summary>The publishable key for the browser.</summary>
     PaymentProviderPublicKey GetPublicKey();
-    /// <summary>Creates a manual-capture PaymentIntent for the case, or returns the live attempt when one exists (idempotent). A case is paid once.</summary>
+    /// <summary>Creates a PaymentIntent for the case, or returns the live attempt when one exists (idempotent). A case is paid once.</summary>
     /// <param name="userId">The paying user.</param>
     /// <param name="caseId">The case the payment is for.</param>
     /// <param name="amount">The amount to be charged.</param>
@@ -24,24 +24,11 @@ public interface IPaymentsService
     /// <summary>Verifies and applies a Stripe webhook event.</summary>
     /// <exception cref="StripeException">The signature is invalid.</exception>
     Task HandleWebhookAsync(string json, string? signatureHeader, CancellationToken cancellationToken = default);
-    /// <summary>Captures the final amount (capped to the hold) of the case's authorized attempt. A zero amount cancels and releases the hold.</summary>
-    Task<PaymentSessionModel?> CaptureAsync(string caseId, decimal amount, CancellationToken cancellationToken = default);
-    /// <summary>Cancels the case's live attempt and releases the hold.</summary>
+    /// <summary>Cancels the case's unpaid attempt.</summary>
     Task<PaymentSessionModel?> CancelAsync(string caseId, CancellationToken cancellationToken = default);
 }
 
-/// <summary>Hook for the business flow that runs once a payment is authorized (or fails/cancels). Called from the webhook.</summary>
-public interface IPaymentEventHandler
-{
-    /// <summary>Called when the status of a payment attempt changes.</summary>
-    Task OnStatusChangedAsync(PaymentSessionModel session, CancellationToken cancellationToken = default);
-}
-
-public class NoOpPaymentEventHandler : IPaymentEventHandler
-{
-    public Task OnStatusChangedAsync(PaymentSessionModel session, CancellationToken cancellationToken = default) => Task.CompletedTask;
-}
-
+/// <summary>Stripe implementation of <see cref="IPaymentsService"/>.</summary>
 public class StripePaymentsService(
     AgentsDbContext db,
     IStripeClient stripeClient,
@@ -52,9 +39,9 @@ public class StripePaymentsService(
 {
     private readonly StripeOptions _options = options.Value;
     private PaymentIntentService PaymentIntents => new(stripeClient);
-
+    ///<inheritdoc/>
     public PaymentProviderPublicKey GetPublicKey() => new() { PublishableKey = _options.PublishableKey, PaymentMethodOrder = _options.PaymentMethodOrder };
-
+    ///<inheritdoc/>
     public async Task<PaymentSessionModel?> CreateOrReuseAttemptAsync(string userId, string caseId, decimal amount, Guid conversationId, CancellationToken cancellationToken = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(caseId);
         var attempts = db.PaymentSessions.Where(x => x.CaseId == caseId);
@@ -71,8 +58,7 @@ public class StripePaymentsService(
         var paymentIntent = await PaymentIntents.CreateAsync(new PaymentIntentCreateOptions {
             Amount = ToMinorUnits(amount),
             Currency = _options.Currency,
-            CaptureMethod = "manual",
-            // Methods (card, Apple Pay, Google Pay) are managed in the Stripe Dashboard; redirects are disallowed so payment completes inside the chat.
+            // Methods
             AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions { Enabled = true, AllowRedirects = "never" },
             Metadata = new Dictionary<string, string> {
                 ["caseId"] = caseId,
@@ -94,7 +80,7 @@ public class StripePaymentsService(
             PaymentIntentId = paymentIntent.Id,
             ClientSecret = paymentIntent.ClientSecret,
             Status = PaymentAuthorizationStatus.Created,
-            FirstCaptureAmount = amount,
+            Amount = amount,
             Currency = _options.Currency,
             CreatedAt = now,
             UpdatedAt = now
@@ -103,7 +89,7 @@ public class StripePaymentsService(
         await db.SaveChangesAsync(cancellationToken);
         return ToModel(session);
     }
-
+    ///<inheritdoc/>
     public async Task<PaymentSessionModel?> GetCurrentAttemptAsync(string userId, string caseId, CancellationToken cancellationToken = default) {
         var session = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.UserId == userId)
                                               .OrderByDescending(x => x.CreatedAt)
@@ -113,16 +99,15 @@ public class StripePaymentsService(
         }
         return session is null ? null : ToModel(session);
     }
-
     // The webhook is the primary source of truth but can be late or missing (e.g. no forwarding in development).
-    // An attempt still marked Created is reconciled against its PaymentIntent so an authorized intent is never re-confirmed.
+    // An attempt still marked Created is reconciled against its PaymentIntent so a paid intent is never re-confirmed.
     private async Task SyncWithStripeAsync(DbPaymentSession session, CancellationToken cancellationToken) {
         if (session.Status != PaymentAuthorizationStatus.Created) {
             return;
         }
         var intent = await PaymentIntents.GetAsync(session.PaymentIntentId, cancellationToken: cancellationToken);
         PaymentAuthorizationStatus? status = intent.Status switch {
-            "requires_capture" or "succeeded" => PaymentAuthorizationStatus.Succeeded,
+            "succeeded" => PaymentAuthorizationStatus.Succeeded,
             "canceled" => PaymentAuthorizationStatus.Cancelled,
             _ => null
         };
@@ -130,22 +115,18 @@ public class StripePaymentsService(
             return;
         }
         session.Status = status.Value;
-        if (intent.Status == "succeeded" && intent.AmountReceived > 0) {
-            session.CapturedAmount = intent.AmountReceived / 100m;
-        }
         session.UpdatedAt = timeProvider.GetUtcNow();
         await db.SaveChangesAsync(cancellationToken);
         await eventHandler.OnStatusChangedAsync(ToModel(session), cancellationToken);
     }
-
+    ///<inheritdoc/>
     public async Task HandleWebhookAsync(string json, string? signatureHeader, CancellationToken cancellationToken = default) {
         var stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, _options.WebhookSecret, throwOnApiVersionMismatch: false);
         if (stripeEvent.Data.Object is not PaymentIntent paymentIntent) {
             return;
         }
         PaymentAuthorizationStatus? status = stripeEvent.Type switch {
-            EventTypes.ChargeSucceeded => PaymentAuthorizationStatus.Succeeded,
-            EventTypes.PaymentIntentAmountCapturableUpdated or EventTypes.PaymentIntentSucceeded => PaymentAuthorizationStatus.Succeeded,
+            EventTypes.PaymentIntentSucceeded => PaymentAuthorizationStatus.Succeeded,
             EventTypes.PaymentIntentPaymentFailed => PaymentAuthorizationStatus.Failed,
             EventTypes.PaymentIntentCanceled => PaymentAuthorizationStatus.Cancelled,
             _ => null
@@ -163,37 +144,13 @@ public class StripePaymentsService(
         }
         session.Status = status.Value;
         session.FailureReason = paymentIntent.LastPaymentError?.Message;
-        if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded && paymentIntent.AmountReceived > 0) {
-            session.CapturedAmount = paymentIntent.AmountReceived / 100m;
-        }
         session.UpdatedAt = timeProvider.GetUtcNow();
         await db.SaveChangesAsync(cancellationToken);
         await eventHandler.OnStatusChangedAsync(ToModel(session), cancellationToken);
     }
-
-    public async Task<PaymentSessionModel?> CaptureAsync(string caseId, decimal amount, CancellationToken cancellationToken = default) {
-        if (amount <= 0) {
-            return await CancelAsync(caseId, cancellationToken);
-        }
-        var session = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.Status == PaymentAuthorizationStatus.Succeeded && x.CapturedAmount == null)
-                                              .OrderByDescending(x => x.CreatedAt)
-                                              .FirstOrDefaultAsync(cancellationToken);
-        if (session is null) {
-            return null;
-        }
-        var amountToCapture = Math.Min(amount, session.FirstCaptureAmount);
-        var paymentIntent = await PaymentIntents.CaptureAsync(session.PaymentIntentId, new PaymentIntentCaptureOptions {
-            AmountToCapture = ToMinorUnits(amountToCapture)
-        }, new RequestOptions { IdempotencyKey = $"dex-payment-capture:{session.PaymentIntentId}" }, cancellationToken);
-        session.CapturedAmount = paymentIntent.AmountReceived / 100m;
-        session.UpdatedAt = timeProvider.GetUtcNow();
-        await db.SaveChangesAsync(cancellationToken);
-        return ToModel(session);
-    }
-
+    ///<inheritdoc/>
     public async Task<PaymentSessionModel?> CancelAsync(string caseId, CancellationToken cancellationToken = default) {
-        var session = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.CapturedAmount == null
-                                                       && (x.Status == PaymentAuthorizationStatus.Created || x.Status == PaymentAuthorizationStatus.Succeeded))
+        var session = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.Status == PaymentAuthorizationStatus.Created)
                                               .OrderByDescending(x => x.CreatedAt)
                                               .FirstOrDefaultAsync(cancellationToken);
         if (session is null) {
@@ -219,8 +176,7 @@ public class StripePaymentsService(
         // Only a confirmable attempt needs its secret on the wire.
         PaymentSessionSecret = session.Status == PaymentAuthorizationStatus.Created ? session.ClientSecret : null,
         PaymentAuthorizationStatus = session.Status,
-        FirstCaptureAmount = session.FirstCaptureAmount,
-        CapturedAmount = session.CapturedAmount,
+        Amount = session.Amount,
         Currency = session.Currency
     };
 }

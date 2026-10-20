@@ -49,7 +49,7 @@ export interface PaymentSession {
   paymentSessionSecret?: string | null;
   paymentAuthorizationStatus?: PaymentAuthStatus | null;
   /** The pre-auth (hold) amount, in major currency units. */
-  firstCaptureAmount?: number | null;
+  amount?: number | null;
   currency?: string | null;
 }
 

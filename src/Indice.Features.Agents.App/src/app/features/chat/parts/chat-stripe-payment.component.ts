@@ -51,7 +51,7 @@ const POLL_MAX_ATTEMPTS = 15;
             </div>
           }
           @case ('completed') {
-            <div role="alert" class="alert alert-success text-sm">Payment authorized. Thank you!</div>
+            Payment completed. Thank you!
           }
           @case ('error') {
             <div role="alert" class="alert alert-error text-sm">{{ errorMessage() }}</div>
@@ -62,7 +62,7 @@ const POLL_MAX_ATTEMPTS = 15;
           @default {
             @if (holdAmountText(); as amount) {
               <p class="text-sm text-base-content/70">
-                A temporary hold of <strong>{{ amount }}</strong> will be placed on your payment method. Only the final amount is charged.
+                Amount to pay: <strong>{{ amount }}</strong>
               </p>
             }
             <div #cardElement class="block w-full"></div>
@@ -109,7 +109,7 @@ export class ChatStripePaymentComponent {
   protected readonly elementComplete = signal(false);
   private readonly clientSecret = signal<string | null>(null);
   protected readonly holdAmountText = computed(() => {
-    const amount = this.payment()?.session?.firstCaptureAmount;
+    const amount = this.payment()?.session?.amount;
     return amount != null && amount > 0 ? `${amount.toFixed(2)}€` : null;
   });
 
@@ -182,7 +182,7 @@ export class ChatStripePaymentComponent {
       this.status.set('ready');
       return;
     }
-    if (paymentIntent?.status === 'requires_capture' || paymentIntent?.status === 'succeeded') {
+    if (paymentIntent?.status === 'succeeded' || paymentIntent?.status === 'processing') {
       // Do not trust the client result alone: wait for the webhook-driven server state.
       this.status.set('verifying');
       this.poll(0);

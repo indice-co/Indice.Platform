@@ -44,7 +44,7 @@ public class CustomerData
     public string? ChallengeType { get; set; }
 
     /// <summary>
-    /// Gets or sets the amount on hold for the customer's payment, if applicable.
+    /// Gets or sets the amount to be charged for the customer's payment, if applicable.
     /// </summary>
     public decimal? PaymentAmount { get; set; }
 

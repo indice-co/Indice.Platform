@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Builder;
 
-/// <summary>HTTP surface for chat payments: Stripe card pre-authorization with manual capture.</summary>
+/// <summary>HTTP surface for chat payments: Stripe one-step payment.</summary>
 internal static class PaymentsApi
 {
     /// <summary>Maps the payment endpoints.</summary>
