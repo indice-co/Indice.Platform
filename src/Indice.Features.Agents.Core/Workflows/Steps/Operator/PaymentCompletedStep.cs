@@ -68,7 +68,7 @@ public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse,
         }
         var userId = _claimsPrincipalSelector()?.FindSubjectId() ?? conversation.ConversationId;
         Guid conversationId = Guid.Parse(conversation.ConversationId);
-        var session = await payments.CreateOrReuseAttemptAsync(userId, caseId, caseData.PaymentAmount!.Value, conversationId, cancellationToken);
+        var session = await payments.CreateOrReuseAttemptAsync(userId, caseId, AgentsConstants.DefaultTenantId, caseData.PaymentAmount!.Value, conversationId, cancellationToken);
         var publicKey = payments.GetPublicKey();
         var payload = new StripePaymentPayload(
             Method: StripeMethod,

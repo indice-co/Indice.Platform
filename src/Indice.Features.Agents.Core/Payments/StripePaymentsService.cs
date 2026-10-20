@@ -15,17 +15,18 @@ public interface IPaymentsService
     /// <summary>Creates a PaymentIntent for the case, or returns the live attempt when one exists (idempotent). A case is paid once.</summary>
     /// <param name="userId">The paying user.</param>
     /// <param name="caseId">The case the payment is for.</param>
+    /// <param name="tenantId">The tenant the case belongs to.</param>
     /// <param name="amount">The amount to be charged.</param>
     /// <param name="conversationId">The chat the payment is started from.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    Task<PaymentSessionModel?> CreateOrReuseAttemptAsync(string userId, string caseId, decimal amount, Guid conversationId, CancellationToken cancellationToken = default);
+    Task<PaymentSessionModel?> CreateOrReuseAttemptAsync(string userId, string caseId, string tenantId, decimal amount, Guid conversationId, CancellationToken cancellationToken = default);
     /// <summary>The latest payment attempt of the case.</summary>
-    Task<PaymentSessionModel?> GetCurrentAttemptAsync(string userId, string caseId, CancellationToken cancellationToken = default);
+    Task<PaymentSessionModel?> GetCurrentAttemptAsync(string userId, string caseId, string tenantId, CancellationToken cancellationToken = default);
     /// <summary>Verifies and applies a Stripe webhook event.</summary>
     /// <exception cref="StripeException">The signature is invalid.</exception>
     Task HandleWebhookAsync(string json, string? signatureHeader, CancellationToken cancellationToken = default);
     /// <summary>Cancels the case's unpaid attempt.</summary>
-    Task<PaymentSessionModel?> CancelAsync(string caseId, CancellationToken cancellationToken = default);
+    Task<PaymentSessionModel?> CancelAsync(string caseId, string tenantId, CancellationToken cancellationToken = default);
 }
 
 /// <summary>Stripe implementation of <see cref="IPaymentsService"/>.</summary>
@@ -42,9 +43,9 @@ public class StripePaymentsService(
     ///<inheritdoc/>
     public PaymentProviderPublicKey GetPublicKey() => new() { PublishableKey = _options.PublishableKey, PaymentMethodOrder = _options.PaymentMethodOrder };
     ///<inheritdoc/>
-    public async Task<PaymentSessionModel?> CreateOrReuseAttemptAsync(string userId, string caseId, decimal amount, Guid conversationId, CancellationToken cancellationToken = default) {
+    public async Task<PaymentSessionModel?> CreateOrReuseAttemptAsync(string userId, string caseId, string tenantId, decimal amount, Guid conversationId, CancellationToken cancellationToken = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(caseId);
-        var attempts = db.PaymentSessions.Where(x => x.CaseId == caseId);
+        var attempts = db.PaymentSessions.Where(x => x.CaseId == caseId && x.TenantId == tenantId);
         var live = await attempts.Where(x => x.Status == PaymentAuthorizationStatus.Created || x.Status == PaymentAuthorizationStatus.Succeeded)
                                  .OrderByDescending(x => x.CreatedAt)
                                  .FirstOrDefaultAsync(cancellationToken);
@@ -65,7 +66,7 @@ public class StripePaymentsService(
                 ["conversationId"] = conversationId.ToString(),
                 ["userId"] = userId
             }
-        }, new RequestOptions { IdempotencyKey = $"dex-{DateTime.Now.Ticks}-attempts:{caseId}:{attemptNumber}" }, cancellationToken);
+        }, new RequestOptions { IdempotencyKey = $"dex-{tenantId}-attempts:{caseId}:{attemptNumber}" }, cancellationToken);
 
         // The idempotency key may hand back a PaymentIntent already stored by a concurrent request.
         var existing = await db.PaymentSessions.FirstOrDefaultAsync(x => x.PaymentIntentId == paymentIntent.Id, cancellationToken);
@@ -75,6 +76,7 @@ public class StripePaymentsService(
         var now = timeProvider.GetUtcNow();
         var session = new DbPaymentSession {
             CaseId = caseId,
+            TenantId = tenantId,
             ConversationId = conversationId,
             UserId = userId,
             PaymentIntentId = paymentIntent.Id,
@@ -90,8 +92,8 @@ public class StripePaymentsService(
         return ToModel(session);
     }
     ///<inheritdoc/>
-    public async Task<PaymentSessionModel?> GetCurrentAttemptAsync(string userId, string caseId, CancellationToken cancellationToken = default) {
-        var session = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.UserId == userId)
+    public async Task<PaymentSessionModel?> GetCurrentAttemptAsync(string userId, string caseId, string tenantId, CancellationToken cancellationToken = default) {
+        var session = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.TenantId == tenantId)
                                               .OrderByDescending(x => x.CreatedAt)
                                               .FirstOrDefaultAsync(cancellationToken);
         if (session is not null) {
@@ -126,7 +128,7 @@ public class StripePaymentsService(
             return;
         }
         PaymentAuthorizationStatus? status = stripeEvent.Type switch {
-            EventTypes.PaymentIntentSucceeded => PaymentAuthorizationStatus.Succeeded,
+            EventTypes.ChargeSucceeded or EventTypes.PaymentIntentSucceeded => PaymentAuthorizationStatus.Succeeded,
             EventTypes.PaymentIntentPaymentFailed => PaymentAuthorizationStatus.Failed,
             EventTypes.PaymentIntentCanceled => PaymentAuthorizationStatus.Cancelled,
             _ => null
@@ -149,8 +151,8 @@ public class StripePaymentsService(
         await eventHandler.OnStatusChangedAsync(ToModel(session), cancellationToken);
     }
     ///<inheritdoc/>
-    public async Task<PaymentSessionModel?> CancelAsync(string caseId, CancellationToken cancellationToken = default) {
-        var session = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.Status == PaymentAuthorizationStatus.Created)
+    public async Task<PaymentSessionModel?> CancelAsync(string caseId, string tenantId, CancellationToken cancellationToken = default) {
+        var session = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.TenantId == tenantId && x.Status == PaymentAuthorizationStatus.Created)
                                               .OrderByDescending(x => x.CreatedAt)
                                               .FirstOrDefaultAsync(cancellationToken);
         if (session is null) {

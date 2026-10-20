@@ -3,6 +3,9 @@
 /// <summary>Constants used in the Agents feature.</summary>
 public static class AgentsConstants
 {
+    /// <summary>The default tenant ID used in the Dex template.</summary>
+    public const string DefaultTenantId = "indice";
+
     /// <summary>
     /// The name of the default agent used in the Dex template. This agent is responsible for handling user queries and providing answers based on the context of the conversation.
     /// </summary>
