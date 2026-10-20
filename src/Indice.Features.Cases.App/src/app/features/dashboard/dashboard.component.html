@@ -8,11 +8,11 @@
 </header>
 
 <!-- Case pipeline: the one bold element of the page -->
-@switch (pipeline.state().status) {
+@switch (metrics.state().status) {
   @case ('hidden') {}
   @case ('error') {
     <section class="panel mb-6 p-6">
-      <ng-container *ngTemplateOutlet="cardError; context: { $implicit: pipeline }" />
+      <ng-container *ngTemplateOutlet="cardError; context: { $implicit: metrics }" />
     </section>
   }
   @case ('loading') {
@@ -51,7 +51,7 @@
           @for (stage of view.stages; track stage.key; let last = $last) {
             <li class="relative border-base-300 not-last:border-b sm:not-last:border-r sm:not-last:border-b-0">
               <a class="flex h-full flex-col gap-2 px-5 py-4 transition-colors hover:bg-base-200/60 sm:px-6"
-                [class.pointer-events-none]="!stage.available" routerLink="/cases" [queryParams]="stage.link">
+                [class.pointer-events-none]="!stage.link" routerLink="/cases" [queryParams]="stage.link">
                 <span class="stamp self-start" [class]="'stamp-' + stage.key">
                   @switch (stage.key) {
                     @case ('submitted') { <svg lucideInbox class="size-3.5"></svg> }
@@ -73,6 +73,22 @@
             </li>
           }
         </ol>
+        @if (attentionView(); as attention) {
+          <div class="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-base-300 px-5 py-3 text-sm sm:px-6">
+            <span class="text-base-content/70">{{ 'dashboard.attention.title' | translate }}</span>
+            <span class="inline-flex items-center gap-2" [class.attention]="attention.unassigned > 0">
+              <svg lucideUserX class="size-4 opacity-70"></svg>
+              <span class="docket font-semibold">{{ attention.unassigned | number }}</span>
+              {{ 'dashboard.attention.unassigned' | translate }}
+            </span>
+            <a class="inline-flex items-center gap-2 hover:text-primary" [class.attention]="attention.stale > 0"
+              [class.pointer-events-none]="!attention.staleLink" routerLink="/cases" [queryParams]="attention.staleLink">
+              <svg lucideClockAlert class="size-4 opacity-70"></svg>
+              <span class="docket font-semibold">{{ attention.stale | number }}</span>
+              {{ 'dashboard.attention.stale' | translate: { days: attention.staleAfterDays } }}
+            </a>
+          </div>
+        }
         @if (view.total === 0) {
           <p class="border-t border-base-300 px-6 py-3 text-sm text-base-content/70">{{ 'dashboard.pipeline.empty' | translate }}</p>
         }
@@ -92,10 +108,8 @@
           </h2>
           <p class="text-sm text-base-content/70">{{ 'dashboard.myQueue.subtitle' | translate }}</p>
         </div>
-        @if (myQueue.state(); as state) {
-          @if (state.status === 'ready') {
-            <a class="docket text-3xl font-semibold hover:text-primary" routerLink="/cases" [queryParams]="myQueueLink()">{{ state.value.count | number }}</a>
-          }
+        @if (myQueueCount() !== null) {
+          <a class="docket text-3xl font-semibold hover:text-primary" routerLink="/cases" [queryParams]="myQueueLink()">{{ myQueueCount() | number }}</a>
         }
       </div>
       <div class="flex-1 px-2 pt-3 pb-2">
@@ -105,11 +119,11 @@
         }
         @if (myQueue.state(); as state) {
           @if (state.status === 'ready') {
-            @if (state.value.items.length) {
-              <ng-container *ngTemplateOutlet="caseList; context: { $implicit: state.value.items }" />
-              @if (state.value.count > state.value.items.length) {
+            @if (state.value.length) {
+              <ng-container *ngTemplateOutlet="caseList; context: { $implicit: state.value }" />
+              @if ((myQueueCount() ?? 0) > state.value.length) {
                 <a class="link link-hover link-primary mx-3 mt-1 mb-2 inline-block text-sm" routerLink="/cases" [queryParams]="myQueueLink()">
-                  {{ 'dashboard.myQueue.viewAll' | translate: { count: state.value.count } }}
+                  {{ 'dashboard.myQueue.viewAll' | translate: { count: myQueueCount() } }}
                 </a>
               }
             } @else {
@@ -122,7 +136,7 @@
   }
 
   <!-- New this week + 14 day intake -->
-  @if (intake.state().status !== 'hidden') {
+  @if (metrics.state().status !== 'hidden') {
     <section class="panel p-5 lg:col-span-3" aria-labelledby="intake-title">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -147,9 +161,9 @@
         }
       </div>
       <div class="mt-4">
-        @switch (intake.state().status) {
+        @switch (metrics.state().status) {
           @case ('loading') { <div class="skeleton h-40 w-full"></div> }
-          @case ('error') { <ng-container *ngTemplateOutlet="cardError; context: { $implicit: intake }" /> }
+          @case ('error') { <ng-container *ngTemplateOutlet="cardError; context: { $implicit: metrics }" /> }
         }
         @if (intakeView(); as view) {
           <app-bar-chart [categories]="view.categories" [values]="view.values" [emphasis]="view.values.length - 1"

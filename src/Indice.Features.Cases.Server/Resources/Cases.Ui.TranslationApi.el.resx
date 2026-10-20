@@ -1179,4 +1179,13 @@
   <data name="jsonforms.attachedFile" xml:space="preserve">
     <value>Συνημμένο αρχείο</value>
   </data>
+  <data name="dashboard.attention.title" xml:space="preserve">
+    <value>Χρειάζονται προσοχή</value>
+  </data>
+  <data name="dashboard.attention.unassigned" xml:space="preserve">
+    <value>ανοιχτές, χωρίς ανάθεση</value>
+  </data>
+  <data name="dashboard.attention.stale" xml:space="preserve">
+    <value>ανοιχτές για περισσότερες από {{days}} ημέρες</value>
+  </data>
 </root>

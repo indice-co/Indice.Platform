@@ -1,41 +1,26 @@
 import { Injectable, inject } from '@angular/core';
 import { Params } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
-import { Observable, forkJoin, map, of, shareReplay, switchMap } from 'rxjs';
+import { Observable, map, of, shareReplay } from 'rxjs';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
-import { CasePartial, CaseStatus, CasesApiService, GroupByReportResult, ReportTag } from 'src/app/core/services/cases-api.service';
+import {
+  CaseDashboardMetrics, CasePartial, CaseStatus, CasesApiService, GroupByReportResult, ReportTag
+} from 'src/app/core/services/cases-api.service';
 import { FilterClause, Operators } from 'src/app/ui/list/filter-clause';
 
 /** Distinct checkpoint type codes per checkpoint status. */
 export type StatusCodes = Record<CaseStatus, string[]>;
 
-export interface CountQuery {
-  from?: Date;
-  to?: Date;
-  /** Checkpoint type codes (ORed by the server). An empty array is treated as "matches nothing". */
-  codes?: string[];
-  assignedTo?: string;
-}
-
-export interface PipelineCounts {
-  submitted: number;
-  inProgress: number;
-  completed: number;
-  codes: StatusCodes;
-}
-
-export interface IntakeDay {
-  date: Date;
-  count: number;
-}
+/** Days of daily intake requested from the server; the last 7 are "this week". */
+export const INTAKE_DAYS = 14;
+/** Open cases older than this many days count as stale. */
+export const STALE_AFTER_DAYS = 7;
 
 const DAY = 24 * 60 * 60 * 1000;
 
 /**
- * Dashboard KPIs computed on the client from `size=0` list calls (the API returns only `count`).
- *
- * Dates are sent as UTC midnight of the local calendar day: the server compares on `DateTimeOffset.Date`,
- * so a local midnight (e.g. 21:00Z for UTC+3) would shift every range back one day.
+ * Dashboard data. The figures come from the server's dashboard metrics endpoint (one call, same visibility rules as the
+ * case list); checkpoint type codes are loaded only to build links into the case list with equivalent filters.
  */
 @Injectable()
 export class DashboardMetricsService {
@@ -60,50 +45,29 @@ export class DashboardMetricsService {
     return this._auth.getSubjectId();
   }
 
-  /** Today as UTC midnight of the local calendar date, shifted by `offsetDays`. */
+  /**
+   * Today as UTC midnight of the local calendar date, shifted by `offsetDays`. Used for date filters in list links:
+   * the server compares on `DateTimeOffset.Date`, so a local midnight (e.g. 21:00Z for UTC+3) would shift ranges back a day.
+   */
   public static day(offsetDays = 0): Date {
     const now = new Date();
     return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) + offsetDays * DAY);
   }
 
-  public count(query: CountQuery): Observable<number> {
-    if (query.codes && query.codes.length === 0) {
-      return of(0); // an empty code list would mean "no filter" to the API
-    }
-    return this._api
-      .getCases(1, 0, undefined, undefined, undefined, undefined, undefined, query.from, query.to, undefined, undefined,
-        toCheckpointTerms(query.codes), undefined, undefined, undefined, undefined, undefined, query.assignedTo)
-      .pipe(map(result => result.count ?? 0));
+  public metrics(): Observable<CaseDashboardMetrics> {
+    return this._api.getDashboardMetrics(INTAKE_DAYS, STALE_AFTER_DAYS);
   }
 
-  public pipeline(): Observable<PipelineCounts> {
-    return this.statusCodes$.pipe(
-      switchMap(codes => forkJoin({
-        submitted: this.count({ codes: codes.Submitted }),
-        inProgress: this.count({ codes: codes.InProgress }),
-        completed: this.count({ codes: codes.Completed })
-      }).pipe(map(counts => ({ ...counts, codes }))))
-    );
-  }
-
-  /** Cases submitted per day for the last `days` days, oldest first, ending today. */
-  public intake(days = 14): Observable<IntakeDay[]> {
-    const dates = Array.from({ length: days }, (_, i) => DashboardMetricsService.day(i - days + 1));
-    return forkJoin(dates.map(date => this.count({ from: date, to: date }))).pipe(
-      map(counts => counts.map((count, i) => ({ date: dates[i], count })))
-    );
-  }
-
-  /** Cases assigned to the current user; restricted to open checkpoints when the statuses are known. */
-  public myQueue(openCodes: string[] | null): Observable<{ count: number; items: CasePartial[] }> {
+  /** The latest cases assigned to the current user; restricted to open checkpoints when the statuses are known. */
+  public myQueue(openCodes: string[] | null): Observable<CasePartial[]> {
     const assignedTo = this.userId;
     if (!assignedTo || (openCodes && openCodes.length === 0)) {
-      return of({ count: 0, items: [] });
+      return of([]);
     }
     return this._api
       .getCases(1, 5, 'createdByWhen-', undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
         toCheckpointTerms(openCodes ?? undefined), undefined, undefined, undefined, undefined, undefined, assignedTo)
-      .pipe(map(result => ({ count: result.count ?? 0, items: result.items ?? [] })));
+      .pipe(map(result => result.items ?? []));
   }
 
   public latest(): Observable<CasePartial[]> {
@@ -125,6 +89,10 @@ export class DashboardMetricsService {
 
   public static fromFilter(date: Date): FilterClause {
     return new FilterClause('dateRange', date, Operators.GREATER_THAN_EQUAL.value, 'datetime');
+  }
+
+  public static toFilter(date: Date): FilterClause {
+    return new FilterClause('dateRange', date, Operators.LESS_THAN_EQUAL.value, 'datetime');
   }
 
   public static assignedToFilter(userId: string): FilterClause {

@@ -3,7 +3,9 @@
     <Authors>Thanos Panousis, Dimitris Karkanas</Authors>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
-    <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
+    <!--<VersionPrefix>$(VersionPrefixCases)</VersionPrefix>-->
+    <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
+    <VersionSuffix>beta01</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Duende.AccessTokenManagement" Version="4.2.0" />

@@ -4,10 +4,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '@indice/ng-auth';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { catchError, of, switchMap } from 'rxjs';
 import {
   LucideCalendarPlus, LucideChevronRight, LucideCircleAlert, LucideCircleCheck, LucideHourglass, LucideInbox, LucideMinus,
-  LucideRefreshCw, LucideTrendingDown, LucideTrendingUp, LucideUserCheck
+  LucideRefreshCw, LucideTrendingDown, LucideTrendingUp, LucideUserCheck, LucideUserX, LucideClockAlert
 } from '@lucide/angular';
 import { settings } from 'src/app/core/models/settings';
 import { CasePartial, ReportTag } from 'src/app/core/services/cases-api.service';
@@ -15,7 +15,7 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 import { BarChartComponent } from './bar-chart.component';
 import { BreakdownListComponent } from './breakdown-list.component';
 import { CardLoader } from './card-loader';
-import { DashboardMetricsService } from './dashboard-metrics.service';
+import { DashboardMetricsService, STALE_AFTER_DAYS } from './dashboard-metrics.service';
 
 const REPORTS: { tag: ReportTag; title: string; adminOnly?: boolean }[] = [
   { tag: ReportTag.GroupedByCasetype, title: 'dashboard.groupedByCasetype' },
@@ -35,9 +35,11 @@ const M = DashboardMetricsService;
   imports: [
     RouterLink, DatePipe, DecimalPipe, PercentPipe, SlicePipe, NgTemplateOutlet, TranslatePipe, BarChartComponent, BreakdownListComponent,
     LucideCalendarPlus, LucideChevronRight, LucideCircleAlert, LucideCircleCheck, LucideHourglass, LucideInbox, LucideMinus,
-    LucideRefreshCw, LucideTrendingDown, LucideTrendingUp, LucideUserCheck
+    LucideRefreshCw, LucideTrendingDown, LucideTrendingUp, LucideUserCheck, LucideUserX, LucideClockAlert
   ],
-  templateUrl: './dashboard.component.html'
+  templateUrl: './dashboard.component.html',
+  // non-zero "needs attention" figures get the highlighter treatment
+  styles: `.attention { box-shadow: inset 0 -0.45em 0 color-mix(in oklab, var(--app-highlight) 45%, transparent); }`
 })
 export class DashboardComponent {
   private readonly _metrics = inject(DashboardMetricsService);
@@ -58,14 +60,13 @@ export class DashboardComponent {
     new Intl.DateTimeFormat(this._languages.selected().toLowerCase(), { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()));
 
   // --- cards (each loads on its own) ---
-  protected readonly pipeline = new CardLoader(() => this._metrics.pipeline(), this._destroyRef);
-  protected readonly intake = new CardLoader(() => this._metrics.intake(14), this._destroyRef);
+  /** All headline figures, from the dashboard metrics endpoint. */
+  protected readonly metrics = new CardLoader(() => this._metrics.metrics(), this._destroyRef);
+  /** Checkpoint codes per status, only needed to link KPIs to the case list; `null` when they could not be loaded. */
+  private readonly _codes = toSignal(this._metrics.statusCodes$.pipe(catchError(() => of(null))));
   protected readonly myQueue = new CardLoader(() => this._metrics.statusCodes$.pipe(
     catchError(() => of(null)), // statuses unknown: fall back to everything assigned to me
-    switchMap(codes => {
-      const open = codes ? [...codes.Submitted, ...codes.InProgress] : null;
-      return this._metrics.myQueue(open).pipe(map(queue => ({ ...queue, open })));
-    })
+    switchMap(codes => this._metrics.myQueue(codes ? [...codes.Submitted, ...codes.InProgress] : null))
   ), this._destroyRef);
   protected readonly latest = new CardLoader(() => this._metrics.latest(), this._destroyRef);
   protected readonly reports = REPORTS
@@ -73,53 +74,80 @@ export class DashboardComponent {
     .map(r => ({ ...r, loader: new CardLoader(() => this._metrics.report(r.tag), this._destroyRef) }));
 
   // --- derived views ---
+  private readonly _openCodes = computed(() => {
+    const codes = this._codes();
+    return codes ? [...codes.Submitted, ...codes.InProgress] : null;
+  });
+
   protected readonly pipelineView = computed(() => {
-    const state = this.pipeline.state();
+    const state = this.metrics.state();
     if (state.status !== 'ready') {
       return null;
     }
-    const { submitted, inProgress, completed, codes } = state.value;
+    const statuses = state.value.statuses;
+    const codes = this._codes();
+    const submitted = statuses?.submitted ?? 0;
+    const inProgress = statuses?.inProgress ?? 0;
+    const completed = statuses?.completed ?? 0;
     const total = submitted + inProgress + completed;
-    const stage = (key: string, label: string, count: number, stageCodes: string[]) => ({
-      key, label, count, share: total ? count / total : 0, link: M.casesLink(M.codeFilters(stageCodes)), available: stageCodes.length > 0
+    const link = (stageCodes: string[] | undefined) => stageCodes?.length ? M.casesLink(M.codeFilters(stageCodes)) : null;
+    const stage = (key: string, label: string, count: number, stageCodes: string[] | undefined) => ({
+      key, label, count, share: total ? count / total : 0, link: link(stageCodes)
     });
     return {
       open: submitted + inProgress,
-      openLink: M.casesLink(M.codeFilters([...codes.Submitted, ...codes.InProgress])),
+      openLink: link(this._openCodes() ?? undefined),
       total,
       stages: [
-        stage('submitted', 'dashboard.status.submitted', submitted, codes.Submitted),
-        stage('inprogress', 'dashboard.status.inProgress', inProgress, codes.InProgress),
-        stage('completed', 'dashboard.status.completed', completed, codes.Completed)
+        stage('submitted', 'dashboard.status.submitted', submitted, codes?.Submitted),
+        stage('inprogress', 'dashboard.status.inProgress', inProgress, codes?.InProgress),
+        stage('completed', 'dashboard.status.completed', completed, codes?.Completed)
       ]
     };
   });
 
-  protected readonly intakeView = computed(() => {
-    const state = this.intake.state();
+  /** Open cases that need someone's attention: nobody assigned, or waiting longer than the stale threshold. */
+  protected readonly attentionView = computed(() => {
+    const state = this.metrics.state();
     if (state.status !== 'ready') {
       return null;
     }
-    const days = state.value;
-    const format = new Intl.DateTimeFormat(this._languages.selected().toLowerCase(), { weekday: 'short', day: 'numeric', timeZone: 'UTC' });
-    const thisWeek = days.slice(-7).reduce((sum, d) => sum + d.count, 0);
-    const previousWeek = days.slice(0, -7).reduce((sum, d) => sum + d.count, 0);
+    const staleAfterDays = state.value.staleAfterDays ?? STALE_AFTER_DAYS;
+    const openCodes = this._openCodes();
+    return {
+      unassigned: state.value.unassigned ?? 0,
+      stale: state.value.stale ?? 0,
+      staleAfterDays,
+      // the list has no "unassigned" filter, so only the stale figure links to it
+      staleLink: openCodes?.length ? M.casesLink([...M.codeFilters(openCodes), M.toFilter(M.day(-staleAfterDays))]) : null
+    };
+  });
+
+  protected readonly intakeView = computed(() => {
+    const state = this.metrics.state();
+    if (state.status !== 'ready') {
+      return null;
+    }
+    const days = state.value.intake ?? [];
+    const format = new Intl.DateTimeFormat(this._languages.selected().toLowerCase(), { weekday: 'short', day: 'numeric' });
+    const thisWeek = state.value.newThisWeek ?? 0;
     return {
       thisWeek,
-      delta: thisWeek - previousWeek,
-      categories: days.map(d => format.format(d.date)),
-      values: days.map(d => d.count),
+      delta: thisWeek - (state.value.newPreviousWeek ?? 0),
+      categories: days.map(d => d.date ? format.format(d.date) : ''),
+      values: days.map(d => d.count ?? 0),
       link: M.casesLink([M.fromFilter(M.day(-6))])
     };
   });
 
+  protected readonly myQueueCount = computed(() => {
+    const state = this.metrics.state();
+    return state.status === 'ready' ? state.value.assignedToMe ?? 0 : null;
+  });
+
   protected readonly myQueueLink = computed(() => {
-    const state = this.myQueue.state();
     const userId = this._metrics.userId;
-    if (state.status !== 'ready' || !userId) {
-      return null;
-    }
-    return M.casesLink([M.assignedToFilter(userId), ...M.codeFilters(state.value.open ?? [])]);
+    return userId ? M.casesLink([M.assignedToFilter(userId), ...M.codeFilters(this._openCodes() ?? [])]) : null;
   });
 
   protected statusClass(item: CasePartial): string {

@@ -38,6 +38,12 @@ ON [case].[Case]
 GO
 ```
 
+### Added
+- `GET {prefix}/manage/dashboard/metrics` (`IAdminDashboardService`): back-office dashboard figures in one call, computed over the cases the
+  user can see with the same visibility rules as the case list. Returns case counts per status, open cases assigned to the current user,
+  unassigned and stale open cases, cases created this week vs. the previous week and daily intake. Optional query parameters:
+  `intakeDays` (1-90, default 14) and `staleAfterDays` (1-365, default 7). Days are server calendar days.
+
 
 ## [8.1.0] - 2025-06-15
 ### For performance reasons, the following indexes were added to the `case` schema in cases db.

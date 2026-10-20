@@ -1179,4 +1179,13 @@
   <data name="jsonforms.attachedFile" xml:space="preserve">
     <value>Attached file</value>
   </data>
+  <data name="dashboard.attention.title" xml:space="preserve">
+    <value>Needs attention</value>
+  </data>
+  <data name="dashboard.attention.unassigned" xml:space="preserve">
+    <value>open, nobody assigned</value>
+  </data>
+  <data name="dashboard.attention.stale" xml:space="preserve">
+    <value>open for more than {{days}} days</value>
+  </data>
 </root>
