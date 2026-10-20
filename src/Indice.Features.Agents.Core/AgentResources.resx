@@ -150,6 +150,9 @@
 	<data name="PaymentCompletedMessage" xml:space="preserve">
   <value>Thank you for your payment.</value>
 </data>
+	<data name="OutOfScopeReply" xml:space="preserve">
+  <value>I'm sorry, but that request falls outside what I can help with here.</value>
+</data>
 	<data name="OwnershipVerificationFailedMaxAttemptsMessage" xml:space="preserve">
     <value>We weren't able to verify your details. Failed attempts: {0}.</value>
   </data>

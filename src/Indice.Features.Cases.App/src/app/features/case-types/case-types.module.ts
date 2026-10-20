@@ -12,6 +12,7 @@ import { CaseTypesComponent } from "./case-types.component";
 import { CaseTypeUpdateService } from "./case-type-update.service";
 import { CaseTypeDeleteModalComponent } from './case-type-delete-modal/case-type-delete-modal.component';
 import { CaseTypeFormComponent } from "./case-type-form/case-type-form.component";
+import { CheckpointTypesModule } from "../checkpoint-types/checkpoint-types.module";
 
 @NgModule({ declarations: [
         CaseTypeFormComponent,
@@ -24,6 +25,7 @@ import { CaseTypeFormComponent } from "./case-type-form/case-type-form.component
         FormsModule,
         RouterModule,
         SharedModule,
+        CheckpointTypesModule,
         IndiceComponentsModule], providers: [
         CaseTypeUpdateService,
         provideHttpClient(withXhr(), withInterceptorsFromDi())

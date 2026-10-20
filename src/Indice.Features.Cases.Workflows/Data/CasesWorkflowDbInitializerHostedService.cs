@@ -36,6 +36,26 @@ internal class CasesWorkflowDbInitializerHostedService : BackgroundService
     }
 
     /// <summary>
+    /// Ensures the database exists before the remaining hosted services (e.g. Elsa's startup runner) start querying it.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    public override async Task StartAsync(CancellationToken cancellationToken) {
+        if (_environment.IsDevelopment()) {
+            try {
+                using var scope = _serviceScopeFactory.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<ElsaContext>();
+                var seedOptions = scope.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowDbInitializerOptions>>();
+                await dbContext.InitializeAsync(seedOptions, _contentSerializer);
+            } catch (DbUpdateException ex) {
+                _logger.LogError(ex, "Failed to run CasesWorkflowDbInitializer due to database update error.");
+            } catch (InvalidOperationException ex) {
+                _logger.LogError(ex, "Failed to run CasesWorkflowDbInitializer due to invalid service operation.");
+            }
+        }
+        await base.StartAsync(cancellationToken);
+    }
+
+    /// <summary>
     /// Executes the background service's logic.
     /// </summary>
     /// <param name="stoppingToken">The cancellation token.</param>
@@ -47,9 +67,7 @@ internal class CasesWorkflowDbInitializerHostedService : BackgroundService
         try {
             using var scope = _serviceScopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ElsaContext>();
-            var seedOptions = scope.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowDbInitializerOptions>>();
-            await dbContext.InitializeAsync(seedOptions, _contentSerializer);
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
             if (!await dbContext.WorkflowDefinitions.AnyAsync(x => x.Name == "HelloWorld"))
                 await SeedSampleWorkflowDefinition(scope, stoppingToken);
         } catch (Exception ex) {

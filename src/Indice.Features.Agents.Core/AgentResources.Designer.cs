@@ -142,6 +142,15 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to I&apos;m sorry, but that request falls outside what I can help with here..
+        /// </summary>
+        internal static string OutOfScopeReply {
+            get {
+                return ResourceManager.GetString("OutOfScopeReply", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Verification complete..
         /// </summary>
         internal static string PaymentCompletedMessage {

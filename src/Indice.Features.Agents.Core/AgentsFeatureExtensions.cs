@@ -23,7 +23,6 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using static System.Net.Mime.MediaTypeNames;
 using static Indice.Features.Agents.Core.AgentsOptions;
 using Indice.Features.Agents.Core.Services.Validation;
 using Indice.Features.Agents.Core.Services.DataResolver;
@@ -68,6 +67,17 @@ public static class AgentsFeatureExtensions
             var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI;
             var innerClient = sp.GetRequiredService<AzureOpenAIClient>();
             return innerClient.GetEmbeddingClient(opts.Deployments.Embedding!).AsIEmbeddingGenerator(opts.EmbeddingDimensions);
+        });
+
+        services.AddHttpClient(nameof(AzureOpenAIDeployments.SystemOne));
+        services.TryAddTransient<ISystemOneClient>(sp => {
+            var agentsOptions = sp.GetRequiredService<IOptions<AgentsOptions>>().Value;
+            var opts = agentsOptions.AzureOpenAI;
+            var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(AzureOpenAIDeployments.SystemOne));
+            var endpoint = string.IsNullOrWhiteSpace(opts.SystemOneEndpoint) ? opts.Endpoint! : opts.SystemOneEndpoint;
+            var apiKey = string.IsNullOrWhiteSpace(opts.SystemOneApiKey) ? opts.ApiKey! : opts.SystemOneApiKey;
+            var enabled = agentsOptions.SystemOne.Enabled && !string.IsNullOrWhiteSpace(opts.Deployments.SystemOne);
+            return new FoundrySystemOneClient(httpClient, new Uri(endpoint), apiKey, opts.Deployments.SystemOne ?? string.Empty, enabled);
         });
 
         services.AddDbContext<AgentsDbContext>((sp, options) => {
@@ -176,7 +186,7 @@ public static class AgentsFeatureExtensions
         services.AddRoutableAgent(
             new AgentInfo(
                 Name: AgentsConstants.AgentNames.Demo,
-                Description: "Its the demo agent for testing capabilities.",
+                Description: "Its the demo agent that mainly acts as a placeholder and tests capabilities.",
                 InputContentTypes: ["text/plain"],
                 OutputContentTypes: ["text/markdown"],
                 Capabilities: [new AgentCapability("Demo Agent", "Its the demo agent for testing new workflow interactions.")],
@@ -223,7 +233,7 @@ public static class AgentsFeatureExtensions
         // IntentRouterService to pick one of the routable agents registered below.
         services.AddSingleton(new AgentInfo(
             Name: AgentsConstants.AgentNames.Operator,
-            Description: "This is an operator agent that can handle tools and provide solutions based on predefined rules.",
+            Description: "Retrieves and handles a case by its case or reference ID, using tools and predefined rules.",
             InputContentTypes: ["text/plain"],
              OutputContentTypes: ["text/markdown", "text/html", 
                                   AgentsConstants.MediaTypes.FunctionCallPort.Request],

@@ -23,7 +23,7 @@ public sealed class IntentClassifier : Executor<ChatMessage, IntentOutput>
 
     /// <summary>Creates a new <see cref="IntentClassifier"/>.</summary>
     public IntentClassifier(
-        [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, 
+        [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient,
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         ConversationStoreChatHistoryProvider historyProvider) : base("IntentClassifier") {
@@ -53,6 +53,7 @@ public sealed class IntentClassifier : Executor<ChatMessage, IntentOutput>
         var conversationId = message.AdditionalProperties![nameof(ConversationState.ConversationId)]!.ToString()!;
         var conversationState = new ConversationState(message, conversationId);
         await context.SetConversationStateAsync(conversationState, cancellationToken);
+
         var agentSession = await _agent.CreateSessionAsync(cancellationToken);
         
         ConversationStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(conversationId));

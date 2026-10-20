@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -608,5 +608,131 @@
   </data>
   <data name="breadcrumb.pageNotFound" xml:space="preserve">
     <value>Δεν βρέθηκε η σελίδα</value>
+  </data>
+  <data name="nav.checkpointTypes" xml:space="preserve">
+    <value>Τύποι Σημείων Ελέγχου</value>
+  </data>
+  <data name="nav.accessRules" xml:space="preserve">
+    <value>Κανόνες Πρόσβασης</value>
+  </data>
+  <data name="breadcrumb.checkpointTypes" xml:space="preserve">
+    <value>Τύποι Σημείων Ελέγχου</value>
+  </data>
+  <data name="breadcrumb.createCheckpointType" xml:space="preserve">
+    <value>Δημιουργία Τύπου Σημείου Ελέγχου</value>
+  </data>
+  <data name="breadcrumb.editCheckpointType" xml:space="preserve">
+    <value>Επεξεργασία Τύπου Σημείου Ελέγχου</value>
+  </data>
+  <data name="breadcrumb.accessRules" xml:space="preserve">
+    <value>Κανόνες Πρόσβασης</value>
+  </data>
+  <data name="breadcrumb.createAccessRule" xml:space="preserve">
+    <value>Δημιουργία Κανόνα Πρόσβασης</value>
+  </data>
+  <data name="checkpointTypes.title" xml:space="preserve">
+    <value>Τύποι Σημείων Ελέγχου</value>
+  </data>
+  <data name="checkpointTypes.allCaseTypes" xml:space="preserve">
+    <value>Όλοι οι τύποι υπόθεσης</value>
+  </data>
+  <data name="checkpointTypes.create.title" xml:space="preserve">
+    <value>Νέος Τύπος Σημείου Ελέγχου</value>
+  </data>
+  <data name="checkpointTypes.edit.title" xml:space="preserve">
+    <value>Επεξεργασία Τύπου Σημείου Ελέγχου</value>
+  </data>
+  <data name="checkpointTypes.delete.title" xml:space="preserve">
+    <value>Διαγραφή Τύπου Σημείου Ελέγχου</value>
+  </data>
+  <data name="checkpointTypes.delete.confirm" xml:space="preserve">
+    <value>Είστε σίγουροι ότι θέλετε να διαγράψετε τον τύπο σημείου ελέγχου;</value>
+  </data>
+  <data name="checkpointTypes.column.caseType" xml:space="preserve">
+    <value>Τύπος Υπόθεσης</value>
+  </data>
+  <data name="checkpointTypes.column.code" xml:space="preserve">
+    <value>Κωδικός</value>
+  </data>
+  <data name="checkpointTypes.column.title" xml:space="preserve">
+    <value>Τίτλος</value>
+  </data>
+  <data name="checkpointTypes.column.description" xml:space="preserve">
+    <value>Περιγραφή</value>
+  </data>
+  <data name="checkpointTypes.column.status" xml:space="preserve">
+    <value>Κατάσταση</value>
+  </data>
+  <data name="checkpointTypes.column.private" xml:space="preserve">
+    <value>Ιδιωτικό</value>
+  </data>
+  <data name="checkpointTypes.column.actions" xml:space="preserve">
+    <value>Ενέργειες</value>
+  </data>
+  <data name="accessRules.title" xml:space="preserve">
+    <value>Κανόνες Πρόσβασης</value>
+  </data>
+  <data name="accessRules.allCheckpointTypes" xml:space="preserve">
+    <value>Όλοι οι τύποι σημείων ελέγχου</value>
+  </data>
+  <data name="accessRules.create.title" xml:space="preserve">
+    <value>Νέος Κανόνας Πρόσβασης</value>
+  </data>
+  <data name="accessRules.delete.title" xml:space="preserve">
+    <value>Διαγραφή Κανόνα Πρόσβασης</value>
+  </data>
+  <data name="accessRules.delete.confirm" xml:space="preserve">
+    <value>Είστε σίγουροι ότι θέλετε να διαγράψετε τον κανόνα πρόσβασης;</value>
+  </data>
+  <data name="accessRules.column.target" xml:space="preserve">
+    <value>Πόρος</value>
+  </data>
+  <data name="accessRules.column.member" xml:space="preserve">
+    <value>Μέλος</value>
+  </data>
+  <data name="accessRules.column.role" xml:space="preserve">
+    <value>Ρόλος</value>
+  </data>
+  <data name="accessRules.column.group" xml:space="preserve">
+    <value>Ομάδα</value>
+  </data>
+  <data name="accessRules.column.user" xml:space="preserve">
+    <value>Χρήστης</value>
+  </data>
+  <data name="accessRules.column.accessLevel" xml:space="preserve">
+    <value>Επίπεδο Πρόσβασης</value>
+  </data>
+  <data name="accessRules.column.actions" xml:space="preserve">
+    <value>Ενέργειες</value>
+  </data>
+  <data name="accessRules.target.caseType" xml:space="preserve">
+    <value>Τύπος Υπόθεσης</value>
+  </data>
+  <data name="accessRules.target.checkpointType" xml:space="preserve">
+    <value>Τύπος Σημείου Ελέγχου</value>
+  </data>
+  <data name="accessRules.target.case" xml:space="preserve">
+    <value>Υπόθεση</value>
+  </data>
+  <data name="accessRules.level.read" xml:space="preserve">
+    <value>Ανάγνωση</value>
+  </data>
+  <data name="accessRules.level.manage" xml:space="preserve">
+    <value>Διαχείριση</value>
+  </data>
+  <data name="accessRules.level.administer" xml:space="preserve">
+    <value>Διαχειριστής</value>
+  </data>
+  <data name="toasts.checkpointTypeSaved.body" xml:space="preserve">
+    <value>Ο τύπος σημείου ελέγχου αποθηκεύτηκε.</value>
+  </data>
+  <data name="toasts.checkpointTypeDeleted.body" xml:space="preserve">
+    <value>Ο τύπος σημείου ελέγχου διαγράφηκε.</value>
+  </data>
+  <data name="toasts.accessRuleCreated.body" xml:space="preserve">
+    <value>Ο κανόνας πρόσβασης δημιουργήθηκε.</value>
+  </data>
+  <data name="toasts.accessRuleDeleted.body" xml:space="preserve">
+    <value>Ο κανόνας πρόσβασης διαγράφηκε.</value>
   </data>
 </root>

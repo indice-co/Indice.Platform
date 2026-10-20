@@ -5,4 +5,6 @@ export class Icons {
   public static CaseTypes = `ms-Icon ms-Icon--AccountManagement`;
   public static Notifications = `ms-Icon ms-Icon--WorkItemAlert`;
   public static MenuItem = `ms-Icon ms-Icon--FormProcessing`;
+  public static CheckpointTypes = `ms-Icon ms-Icon--Flag`;
+  public static AccessRules = `ms-Icon ms-Icon--Permissions`;
 }
