@@ -1,4 +1,5 @@
 ﻿using Indice.Configuration;
+using Indice.Services;
 using Indice.Types;
 
 namespace Microsoft.Extensions.Configuration;
@@ -309,4 +310,30 @@ public static class IConfigurationExtensions
         }
         return false;
     }
+
+    /// <summary>
+    /// Gets the configured SMS provider names.
+    /// </summary>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>Lowercase, trimmed provider names.</returns>
+    /// <exception cref="ArgumentException">The provider configuration is missing or whitespace.</exception>
+    public static string[] GetSmsProviders(this IConfiguration configuration) {
+        var providerNames = configuration
+            .GetSection(SmsServiceSettings.Name)
+            .GetValue<string>("Provider");
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(providerNames, $"{SmsServiceSettings.Name}:Provider");
+
+        return providerNames
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(static provider => provider.ToLowerInvariant())
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Gets the primary configured SMS provider.
+    /// </summary>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The primary provider name.</returns>
+    public static string GetDefaultSmsProvider(this IConfiguration configuration) => configuration.GetSmsProviders().First();
 }

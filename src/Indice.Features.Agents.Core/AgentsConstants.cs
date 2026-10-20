@@ -161,6 +161,17 @@ public static class AgentsConstants
             Never invent an agent name that is not in the list.
             """;
 
+        /// <summary>
+        /// Background facts for the system-one decision model (Microsoft-Decision-1) in the master intent router, sent as
+        /// <c>state.context</c>. Facts only: the questions, the agents (as the choice options, from their
+        /// <see cref="Models.AgentInfo"/>) and the answer format are separate parts of the request. A host can override
+        /// it in <c>Prompts/IntentRouterSystemOne.txt</c>.
+        /// </summary>
+        public const string IntentRouterSystemOne = """
+            The conversation is between a user and an enterprise assistant. The assistant hands each message to one of its agents.
+            Questions about the assistant itself, such as who it is or what it can do, are in scope.
+            """;
+
         /// <summary>Prompt template for responding to questions about the agent's capabilities.</summary>
         public const string PurposeResponder = """
             You answer questions about yourself: who you are, who you represent, and what you can help with.

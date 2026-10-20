@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -608,5 +608,131 @@
   </data>
   <data name="breadcrumb.pageNotFound" xml:space="preserve">
     <value>Page Not Found</value>
+  </data>
+  <data name="nav.checkpointTypes" xml:space="preserve">
+    <value>Checkpoint Types</value>
+  </data>
+  <data name="nav.accessRules" xml:space="preserve">
+    <value>Access Rules</value>
+  </data>
+  <data name="breadcrumb.checkpointTypes" xml:space="preserve">
+    <value>Checkpoint Types</value>
+  </data>
+  <data name="breadcrumb.createCheckpointType" xml:space="preserve">
+    <value>Create Checkpoint Type</value>
+  </data>
+  <data name="breadcrumb.editCheckpointType" xml:space="preserve">
+    <value>Edit Checkpoint Type</value>
+  </data>
+  <data name="breadcrumb.accessRules" xml:space="preserve">
+    <value>Access Rules</value>
+  </data>
+  <data name="breadcrumb.createAccessRule" xml:space="preserve">
+    <value>Create Access Rule</value>
+  </data>
+  <data name="checkpointTypes.title" xml:space="preserve">
+    <value>Checkpoint Types</value>
+  </data>
+  <data name="checkpointTypes.allCaseTypes" xml:space="preserve">
+    <value>All case types</value>
+  </data>
+  <data name="checkpointTypes.create.title" xml:space="preserve">
+    <value>New Checkpoint Type</value>
+  </data>
+  <data name="checkpointTypes.edit.title" xml:space="preserve">
+    <value>Edit Checkpoint Type</value>
+  </data>
+  <data name="checkpointTypes.delete.title" xml:space="preserve">
+    <value>Delete Checkpoint Type</value>
+  </data>
+  <data name="checkpointTypes.delete.confirm" xml:space="preserve">
+    <value>Are you sure you want to delete the checkpoint type?</value>
+  </data>
+  <data name="checkpointTypes.column.caseType" xml:space="preserve">
+    <value>Case Type</value>
+  </data>
+  <data name="checkpointTypes.column.code" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="checkpointTypes.column.title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="checkpointTypes.column.description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="checkpointTypes.column.status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="checkpointTypes.column.private" xml:space="preserve">
+    <value>Private</value>
+  </data>
+  <data name="checkpointTypes.column.actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="accessRules.title" xml:space="preserve">
+    <value>Access Rules</value>
+  </data>
+  <data name="accessRules.allCheckpointTypes" xml:space="preserve">
+    <value>All checkpoint types</value>
+  </data>
+  <data name="accessRules.create.title" xml:space="preserve">
+    <value>New Access Rule</value>
+  </data>
+  <data name="accessRules.delete.title" xml:space="preserve">
+    <value>Delete Access Rule</value>
+  </data>
+  <data name="accessRules.delete.confirm" xml:space="preserve">
+    <value>Are you sure you want to delete the access rule?</value>
+  </data>
+  <data name="accessRules.column.target" xml:space="preserve">
+    <value>Resource</value>
+  </data>
+  <data name="accessRules.column.member" xml:space="preserve">
+    <value>Member</value>
+  </data>
+  <data name="accessRules.column.role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="accessRules.column.group" xml:space="preserve">
+    <value>Group</value>
+  </data>
+  <data name="accessRules.column.user" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="accessRules.column.accessLevel" xml:space="preserve">
+    <value>Access Level</value>
+  </data>
+  <data name="accessRules.column.actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="accessRules.target.caseType" xml:space="preserve">
+    <value>Case Type</value>
+  </data>
+  <data name="accessRules.target.checkpointType" xml:space="preserve">
+    <value>Checkpoint Type</value>
+  </data>
+  <data name="accessRules.target.case" xml:space="preserve">
+    <value>Case</value>
+  </data>
+  <data name="accessRules.level.read" xml:space="preserve">
+    <value>Read</value>
+  </data>
+  <data name="accessRules.level.manage" xml:space="preserve">
+    <value>Manage</value>
+  </data>
+  <data name="accessRules.level.administer" xml:space="preserve">
+    <value>Administer</value>
+  </data>
+  <data name="toasts.checkpointTypeSaved.body" xml:space="preserve">
+    <value>The checkpoint type has been saved.</value>
+  </data>
+  <data name="toasts.checkpointTypeDeleted.body" xml:space="preserve">
+    <value>The checkpoint type has been deleted.</value>
+  </data>
+  <data name="toasts.accessRuleCreated.body" xml:space="preserve">
+    <value>The access rule has been created.</value>
+  </data>
+  <data name="toasts.accessRuleDeleted.body" xml:space="preserve">
+    <value>The access rule has been deleted.</value>
   </data>
 </root>
