@@ -205,13 +205,15 @@ public class AgentsOptions
         /// Turns the system-one decision model on. Defaults to <c>false</c>: the master intent router uses only the
         /// <see cref="AzureOpenAIDeployments.Reasoning"/> model, even when <see cref="AzureOpenAIDeployments.SystemOne"/> is configured.
         /// </summary>
+        /// <remarks>Defaults to <c>false</c>.</remarks>
         public bool Enabled { get; set; }
 
         /// <summary>
         /// Minimum confidence a decision needs to be acted on; below it the caller falls back to the reasoning model.
         /// A choice's confidence is the probability of the chosen option, a noul's is <c>max(p, 1 - p)</c>.
         /// </summary>
-        public double MinConfidence { get; set; } = 0.7;
+        /// <remarks>Defaults to <c>0.85</c>.</remarks>
+        public double MinConfidence { get; set; } = 0.85;
     }
 }
 

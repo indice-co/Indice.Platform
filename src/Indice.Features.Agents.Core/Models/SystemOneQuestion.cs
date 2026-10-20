@@ -1,6 +1,6 @@
 namespace Indice.Features.Agents.Core.Models;
 
-/// <summary>One typed question of a <see cref="SystemOneDecisionOptions"/>.</summary>
+/// <summary>One typed question of a <see cref="SystemOneDecisionRequest"/>.</summary>
 public class SystemOneQuestion
 {
     /// <summary>The kind of decision asked for.</summary>

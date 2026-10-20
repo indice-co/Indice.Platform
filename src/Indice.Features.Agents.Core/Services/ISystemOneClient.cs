@@ -5,9 +5,7 @@ namespace Indice.Features.Agents.Core.Services;
 
 /// <summary>
 /// A client for a system-one decision model (e.g. Microsoft-Decision-1), which answers typed, bounded questions about a
-/// conversation with probabilities instead of generated text. The client only sends the request and parses the answers;
-/// <see cref="SystemOneClientExtensions.DecideAsync(ISystemOneClient, IEnumerable{ChatMessage}, SystemOneDecisionOptions, CancellationToken)"/>
-/// builds the request from chat messages, like <see cref="IChatClient"/>.
+/// conversation with probabilities instead of generated text.
 /// </summary>
 public interface ISystemOneClient
 {

@@ -26,4 +26,5 @@ public class SystemOneAnswer
     /// <c>max(p, 1 - p)</c> for a noul. The caller compares it with its own threshold.
     /// </summary>
     public double Confidence { get; init; }
+
 }

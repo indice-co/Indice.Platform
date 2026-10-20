@@ -14,4 +14,5 @@ public class SystemOneDecision
     /// <summary>Returns the answer to the question <paramref name="name"/>, or <c>null</c> when it was not asked or not answered.</summary>
     /// <param name="name">The question name.</param>
     public SystemOneAnswer? Get(string name) => Answers.TryGetValue(name, out var answer) ? answer : null;
+
 }

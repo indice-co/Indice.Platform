@@ -1,5 +1,3 @@
-using Microsoft.Extensions.AI;
-
 namespace Indice.Features.Agents.Core.Models;
 
 /// <summary>A request to a system-one decision model: the state to judge and the typed questions to answer about it.</summary>
@@ -13,33 +11,6 @@ public class SystemOneDecisionRequest
 
     /// <summary>The questions to answer, keyed by the name the answers come back under.</summary>
     public Dictionary<string, SystemOneQuestion> Questions { get; init; } = [];
-
-    /// <summary>
-    /// Creates a request about the last of the <paramref name="messages"/>; the earlier ones become the history and the
-    /// <paramref name="options"/>' instructions the context. Earlier messages without text are skipped.
-    /// </summary>
-    /// <param name="messages">The conversation, oldest first.</param>
-    /// <param name="options">The questions to answer and the optional context.</param>
-    /// <exception cref="ArgumentException">The last of the <paramref name="messages"/> has no text.</exception>
-    public static SystemOneDecisionRequest From(IEnumerable<ChatMessage> messages, SystemOneDecisionOptions options) {
-        ArgumentNullException.ThrowIfNull(messages);
-        ArgumentNullException.ThrowIfNull(options);
-        var input = messages.ToList();
-        if (input.Count == 0 || string.IsNullOrWhiteSpace(input[^1].Text)) {
-            throw new ArgumentException("The last message must contain text.", nameof(messages));
-        }
-        var turns = input.Where(message => !string.IsNullOrWhiteSpace(message.Text)).ToList();
-        return new SystemOneDecisionRequest {
-            State = new SystemOneState {
-                Context = string.IsNullOrWhiteSpace(options.Instructions) ? null : options.Instructions.Trim(),
-                History = turns.Count > 1
-                    ? [.. turns.Take(turns.Count - 1).Select(turn => new SystemOneTurn { Role = turn.Role.Value, Text = turn.Text })]
-                    : null,
-                Message = turns[^1].Text,
-            },
-            Questions = options.Questions,
-        };
-    }
 }
 
 /// <summary>The state a <see cref="SystemOneDecisionRequest"/> asks about: the latest message, the history before it and the context.</summary>
