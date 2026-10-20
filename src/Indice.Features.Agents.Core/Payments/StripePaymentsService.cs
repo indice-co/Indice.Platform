@@ -37,12 +37,12 @@ public interface IPaymentEventHandler
     Task OnStatusChangedAsync(PaymentSessionModel session, CancellationToken cancellationToken = default);
 }
 
-internal sealed class NoOpPaymentEventHandler : IPaymentEventHandler
+public class NoOpPaymentEventHandler : IPaymentEventHandler
 {
     public Task OnStatusChangedAsync(PaymentSessionModel session, CancellationToken cancellationToken = default) => Task.CompletedTask;
 }
 
-internal sealed class StripePaymentsService(
+public class StripePaymentsService(
     AgentsDbContext db,
     IStripeClient stripeClient,
     IOptions<StripeOptions> options,
@@ -62,6 +62,9 @@ internal sealed class StripePaymentsService(
                                  .OrderByDescending(x => x.CreatedAt)
                                  .FirstOrDefaultAsync(cancellationToken);
         if (live is not null) {
+            await SyncWithStripeAsync(live, cancellationToken);
+        }
+        if (live is not null && live.Status is PaymentAuthorizationStatus.Created or PaymentAuthorizationStatus.Succeeded) {
             return ToModel(live);
         }
         var attemptNumber = await attempts.CountAsync(cancellationToken) + 1;
@@ -76,7 +79,7 @@ internal sealed class StripePaymentsService(
                 ["conversationId"] = conversationId.ToString(),
                 ["userId"] = userId
             }
-        }, new RequestOptions { IdempotencyKey = $"dex-travlos-attempts:{caseId}:{attemptNumber}" }, cancellationToken);
+        }, new RequestOptions { IdempotencyKey = $"dex-{DateTime.Now.Ticks}-attempts:{caseId}:{attemptNumber}" }, cancellationToken);
 
         // The idempotency key may hand back a PaymentIntent already stored by a concurrent request.
         var existing = await db.PaymentSessions.FirstOrDefaultAsync(x => x.PaymentIntentId == paymentIntent.Id, cancellationToken);
@@ -102,11 +105,37 @@ internal sealed class StripePaymentsService(
     }
 
     public async Task<PaymentSessionModel?> GetCurrentAttemptAsync(string userId, string caseId, CancellationToken cancellationToken = default) {
-        var session = await db.PaymentSessions.AsNoTracking()
-                                              .Where(x => x.CaseId == caseId && x.UserId == userId)
+        var session = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.UserId == userId)
                                               .OrderByDescending(x => x.CreatedAt)
                                               .FirstOrDefaultAsync(cancellationToken);
+        if (session is not null) {
+            await SyncWithStripeAsync(session, cancellationToken);
+        }
         return session is null ? null : ToModel(session);
+    }
+
+    // The webhook is the primary source of truth but can be late or missing (e.g. no forwarding in development).
+    // An attempt still marked Created is reconciled against its PaymentIntent so an authorized intent is never re-confirmed.
+    private async Task SyncWithStripeAsync(DbPaymentSession session, CancellationToken cancellationToken) {
+        if (session.Status != PaymentAuthorizationStatus.Created) {
+            return;
+        }
+        var intent = await PaymentIntents.GetAsync(session.PaymentIntentId, cancellationToken: cancellationToken);
+        PaymentAuthorizationStatus? status = intent.Status switch {
+            "requires_capture" or "succeeded" => PaymentAuthorizationStatus.Succeeded,
+            "canceled" => PaymentAuthorizationStatus.Cancelled,
+            _ => null
+        };
+        if (status is null) {
+            return;
+        }
+        session.Status = status.Value;
+        if (intent.Status == "succeeded" && intent.AmountReceived > 0) {
+            session.CapturedAmount = intent.AmountReceived / 100m;
+        }
+        session.UpdatedAt = timeProvider.GetUtcNow();
+        await db.SaveChangesAsync(cancellationToken);
+        await eventHandler.OnStatusChangedAsync(ToModel(session), cancellationToken);
     }
 
     public async Task HandleWebhookAsync(string json, string? signatureHeader, CancellationToken cancellationToken = default) {
@@ -115,6 +144,7 @@ internal sealed class StripePaymentsService(
             return;
         }
         PaymentAuthorizationStatus? status = stripeEvent.Type switch {
+            EventTypes.ChargeSucceeded => PaymentAuthorizationStatus.Succeeded,
             EventTypes.PaymentIntentAmountCapturableUpdated or EventTypes.PaymentIntentSucceeded => PaymentAuthorizationStatus.Succeeded,
             EventTypes.PaymentIntentPaymentFailed => PaymentAuthorizationStatus.Failed,
             EventTypes.PaymentIntentCanceled => PaymentAuthorizationStatus.Cancelled,

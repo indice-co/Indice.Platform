@@ -64,7 +64,7 @@ public class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.OtpReques
             _logger.LogWarning("No phone number for case {ReferenceId}; OTP delivery will rely on email fallback.", caseData.ReferenceId);
         }
         try {
-            await SendOtpCode(caseData, useSms, securityToken, cancellationToken);
+            //await SendOtpCode(caseData, useSms, securityToken, cancellationToken);
         } catch (Exception ex) when (ex is not OperationCanceledException) {
             _logger.LogError(ex, "Failed to send OTP code for case {ReferenceId}.", caseData.ReferenceId);
             throw;

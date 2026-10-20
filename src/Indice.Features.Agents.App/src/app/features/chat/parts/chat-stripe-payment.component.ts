@@ -62,7 +62,7 @@ const POLL_MAX_ATTEMPTS = 15;
           @default {
             @if (holdAmountText(); as amount) {
               <p class="text-sm text-base-content/70">
-                will be placed on your payment method. Only the final amount is charged.
+                A temporary hold of <strong>{{ amount }}</strong> will be placed on your payment method. Only the final amount is charged.
               </p>
             }
             <div #cardElement class="block w-full"></div>
@@ -135,13 +135,13 @@ export class ChatStripePaymentComponent {
       }
     });
 
-    // The interactive instance (latest turn, not streaming) uses the shipped attempt directly. Spent turns re-read the
-    // server state once so a reloaded, already-paid case shows as completed rather than a stale form.
+    // The part payload is a snapshot from when the workflow emitted it (status Created). After a reload the case
+    // may already be paid, so always read the current server state first (synced with Stripe server-side).
     effect(() => {
       const payment = this.payment();
       if (!payment || this.started) return;
       this.started = true;
-      untracked(() => (this.disabled() ? this.refresh() : this.init(payment)));
+      untracked(() => this.refresh());
     });
   }
 
@@ -191,22 +191,7 @@ export class ChatStripePaymentComponent {
     this.status.set('ready');
   }
 
-  // Uses the attempt the workflow created server-side; no API round-trip needed.
-  private init(payment: StripePayment): void {
-    const session = payment.session;
-    if (session?.paymentAuthorizationStatus === 'Succeeded') {
-      this.complete();
-      return;
-    }
-    if (!session?.paymentSessionSecret) {
-      this.fail('The payment could not be initialized. Please try again.');
-      return;
-    }
-    this.status.set('ready');
-    this.clientSecret.set(session.paymentSessionSecret);
-  }
-
-  // Re-reads the case's attempt (retry / historical turn); new attempts are only created by the workflow.
+  // Reads the case's current attempt (initial load, reload, retry); new attempts are only created by the workflow.
   private refresh(): void {
     const caseId = this.payment()?.caseId;
     if (!caseId) {
