@@ -49,7 +49,7 @@ export function presentField(
     const notitle = uischema.label === false || isTrue(options.notitle);
     let title: string | null = typeof uischema.label === 'string' ? uischema.label : options.title ?? fixTitle(lastSegment(scopeOf(uischema) ?? ''));
     if (title && addAsterisk && !notitle && options.required && !title.includes('*')) {
-        title += ' <strong class="text-red-500">*</strong>';
+        title += ' <span class="text-error" aria-hidden="true">*</span>';
     }
     return {
         options,

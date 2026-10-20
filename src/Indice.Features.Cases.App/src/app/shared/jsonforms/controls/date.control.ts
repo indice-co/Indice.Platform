@@ -1,59 +1,66 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import moment from 'moment';
+import { FieldWrapperComponent } from './field-wrapper.component';
 import { TailwindControl } from './tailwind-control';
 
 /** ajsf `date` widget, also used for every string field with `format: date`. */
 @Component({
     selector: 'app-jf-date',
+    imports: [FieldWrapperComponent],
     template: `
     @if (shown) {
       <app-jf-field [control]="this">
-        <input
-          type="date"
-          [class]="fieldClass"
-          [attr.placeholder]="options.placeholder"
-          [attr.required]="options.required"
-          [id]="id"
-          [readonly]="readonly"
-          [min]="min"
-          [max]="max"
-          [value]="data ?? ''"
-          (input)="setValue($any($event.target).value)">
+        @if (showEditor) {
+          <input
+            type="date"
+            [class]="fieldClass"
+            [attr.placeholder]="options.placeholder"
+            [attr.required]="options.required"
+            [id]="id"
+            [min]="min"
+            [max]="max"
+            [value]="data ?? ''"
+            (input)="setValue($any($event.target).value)">
+        }
       </app-jf-field>
     }`,
-    // https://stackoverflow.com/questions/7372038/is-there-any-way-to-change-input-type-date-format
+    // Shows the date as dd/mm/yyyy whatever the browser locale (https://stackoverflow.com/questions/7372038).
     styles: [`
     input[type="date"]::-webkit-datetime-edit,
     input[type="date"]::-webkit-inner-spin-button,
     input[type="date"]::-webkit-clear-button {
-        color: #fff;
+        color: transparent;
         position: relative;
     }
     input[type="date"]::-webkit-datetime-edit-year-field {
         position: absolute !important;
         padding: 2px;
-        color: #000;
+        color: var(--color-base-content);
         left: 52px;
     }
     input[type="date"]::-webkit-datetime-edit-month-field {
         position: absolute !important;
         padding: 2px;
-        color: #000;
+        color: var(--color-base-content);
         left: 28px;
     }
     input[type="date"]::-webkit-datetime-edit-day-field {
         position: absolute !important;
-        color: #000;
+        color: var(--color-base-content);
         padding: 2px;
         left: 4px;
     }`],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
 export class DateControlComponent extends TailwindControl {
     protected widget = 'date';
     min = '';
     max = '';
+
+    override get readonlyText(): string {
+        const date = moment(this.data, 'YYYY-MM-DD', true);
+        return date.isValid() ? date.format('DD/MM/YYYY') : super.readonlyText;
+    }
 
     protected override onStateChange(): void {
         this.min = this.options.min !== undefined
