@@ -272,6 +272,12 @@ Events are processed asynchronously by the hosted `WebhookEventSink`. When webho
 
 **Currently supported SMS providers:** `apifon`.
 
+Don't forget to also register Webhook endpoints for accepting and processing events:
+
+```csharp
+app.MapWebhooks();
+```
+
 ### 🔔 Push Notifications
 
 Send push notifications via Azure Notification Hubs:
