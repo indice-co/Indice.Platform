@@ -40,7 +40,14 @@ export class CheckpointTypeEditComponent implements OnInit {
     }
     if (this.checkpointTypeId) {
       this.busy = true;
-      this._api.getCheckpointTypeById(this.checkpointTypeId).subscribe((item: CheckpointType) => {
+      this._api.getCheckpointTypeById(this.checkpointTypeId).pipe(
+        catchError(err => {
+          this.busy = false;
+          this._toaster.show(ToastType.Error, 'toasts.error.title', err?.detail ?? err?.title ?? err?.message);
+          this.goBack();
+          return EMPTY;
+        })
+      ).subscribe((item: CheckpointType) => {
         this.model = new CheckpointTypeRequest({
           caseTypeId: item.caseTypeId!,
           code: item.code!,
