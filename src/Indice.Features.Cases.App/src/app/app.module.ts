@@ -14,6 +14,8 @@ import { CASES_API_BASE_URL, CasesApiService } from './core/services/cases-api.s
 import { SharedModule } from './shared/shared.module';
 import { NotificationsModule } from './features/notifications/notifications.module';
 import { CaseTypesModule } from './features/case-types/case-types.module';
+import { CheckpointTypesModule } from './features/checkpoint-types/checkpoint-types.module';
+import { AccessRulesModule } from './features/access-rules/access-rules.module';
 import { AcceptLanguageHttpInterceptor } from './core/services/accept-language-http-interceptor.service';
 import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -42,6 +44,8 @@ import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
         SharedModule,
         CasesModule,
         CaseTypesModule,
+        CheckpointTypesModule,
+        AccessRulesModule,
         NotificationsModule,
         NgProgressbar,
         NgProgressHttp], providers: [

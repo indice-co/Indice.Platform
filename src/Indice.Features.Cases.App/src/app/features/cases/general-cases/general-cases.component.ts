@@ -134,7 +134,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
         });
         forkJoin({
             caseTypes: this._api.getCaseTypesList(),
-            checkpointTypes: this._caseTypeService.getDistinctCheckpointTypes()
+            checkpointTypes: this._caseTypeService.getCheckpointTypes(true)
         }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
             //TODO: this should not be needed - we assign this so its available for the async calls
             this.caseTypes = caseTypes;
