@@ -150,6 +150,9 @@
 	<data name="PaymentCompletedMessage" xml:space="preserve">
   <value>Ευχαριστούμε για την πληρωμή σας. Μπορείτε να παραλάβετε το αμάξι σας από το parking A2 μεταξύ 17:30-18:00. Παρακαλώ, να έχετε πρόχειρη την ταυτότητα σας.</value>
 </data>
+	<data name="OutOfScopeReply" xml:space="preserve">
+  <value>Λυπάμαι, αλλά αυτό το αίτημα είναι εκτός του πεδίου στο οποίο μπορώ να βοηθήσω.</value>
+</data>
 	<data name="OwnershipVerificationFailedMaxAttemptsMessage" xml:space="preserve">
     <value>Δεν μπορέσαμε να επιβεβαιώσουμε τα στοιχεία σας. Αποτυχημένες προσπάθειες: {0}.</value>
   </data>
