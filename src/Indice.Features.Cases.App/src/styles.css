@@ -106,7 +106,7 @@ div.form-container.disableCheckbox input[type="checkbox"] {
     pointer-events: none;
 }
 
-.ng-invalid.ng-touched {
+.ng-invalid.ng-touched:not(form):not([formGroup]):not([formGroupName]):not([ngModelGroup]) {
     border: 1px solid #f44336;
 }
 

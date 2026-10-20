@@ -1,0 +1,44 @@
+<lib-view-layout [title]="(isEdit ? 'checkpointTypes.edit.title' : 'checkpointTypes.create.title') | translate" [busy]="busy">
+  <main class="details-view-container">
+    <div class="bg-white shadow-sm rounded-sm w-full p-4">
+      <form #form="ngForm" (ngSubmit)="form.valid && submit()" class="space-y-4 max-w-2xl">
+        <div>
+          <label class="block text-sm font-medium text-gray-700" for="caseTypeId">{{ 'checkpointTypes.column.caseType' | translate }} *</label>
+          <select id="caseTypeId" name="caseTypeId" class="form-select w-full" required [(ngModel)]="model.caseTypeId">
+            @for (caseType of caseTypes; track caseType.id) {
+              <option [ngValue]="caseType.id">{{ caseType.title }} ({{ caseType.code }})</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700" for="code">{{ 'checkpointTypes.column.code' | translate }} *</label>
+          <input id="code" name="code" type="text" class="form-input w-full" required maxlength="64" [(ngModel)]="model.code" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700" for="title">{{ 'checkpointTypes.column.title' | translate }}</label>
+          <input id="title" name="title" type="text" class="form-input w-full" [(ngModel)]="model.title" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700" for="description">{{ 'checkpointTypes.column.description' | translate }}</label>
+          <textarea id="description" name="description" rows="3" class="form-textarea w-full" [(ngModel)]="model.description"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700" for="status">{{ 'checkpointTypes.column.status' | translate }}</label>
+          <select id="status" name="status" class="form-select w-full" [(ngModel)]="model.status">
+            @for (status of statuses; track status) {
+              <option [ngValue]="status">{{ status }}</option>
+            }
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <input id="private" name="private" type="checkbox" class="form-checkbox" [(ngModel)]="model.private" />
+          <label class="text-sm font-medium text-gray-700" for="private">{{ 'checkpointTypes.column.private' | translate }}</label>
+        </div>
+        <div class="flex gap-2">
+          <button type="submit" class="btn-submit" [disabled]="busy || form.invalid">{{ 'common.save' | translate }}</button>
+          <button type="button" class="btn-return" (click)="goBack()">{{ 'common.return' | translate }}</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</lib-view-layout>
