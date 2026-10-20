@@ -20,6 +20,11 @@ export class CaseTypeService extends DataService {
     return this.getDataFromCacheOrHttp(this.key, this._api.getCaseTypesList());
   }
 
+  public invalidateCaseTypes(): void {
+    this.removeDataFromCache(this.key);
+    this.removeDataFromCache(this.checkCreationKey);
+  }
+
   public getCaseType(code: string): Observable<CaseTypePartial | undefined> {
     return this.getCaseTypes().pipe(
       map(caseTypes => caseTypes.items?.find(x => x.code === code)),
