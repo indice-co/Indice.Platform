@@ -122,6 +122,7 @@ public static class CaseServerFeatureExtensions
         routes.MapAdminQueries();
         routes.MapAdminReports();
         routes.MapAdminWorkflowInvoker();
+        routes.MapExternalIntegrationWorkflow();
         routes.MapLookup();
         routes.MapAdminAccessRules();
         routes.MapIntegration();
