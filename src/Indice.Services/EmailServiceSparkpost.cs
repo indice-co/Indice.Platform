@@ -168,8 +168,7 @@ public sealed class SparkPostWebhookHttpHandler(IOptionsSnapshot<EmailServiceSpa
                             ?? GetString(data, "raw_rcpt_to")
                             ?? GetString(data, "sms_dst")
                             ?? string.Empty,
-                        Subject = GetString(data, "subject"),
-                        Payload = data.DeepClone()
+                        Subject = GetString(data, "subject")
                     };
                 }
             }
