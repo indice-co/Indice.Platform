@@ -9,8 +9,8 @@
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/svg+xml" href="%(Path)/favicon.svg" />
     <style>html{background:#eef1f6}@media (prefers-color-scheme: dark){html{background:#10172a}}</style>
-    <link rel="stylesheet" href="%(Path)/styles.css?v=%(ProductVersion)" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="%(Path)/styles.css?v=%(ProductVersion)"></noscript>
+    <link rel="stylesheet" href="%(Path)/styles-*.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="%(Path)/styles-*.css"></noscript>
     %(HeadContent)
 </head>
 <body>
@@ -28,7 +28,8 @@
               caseListFilters="%(CaseListFilters)">
     </app-root>
     <link rel="modulepreload" href="%(Path)/chunk-*.js">
-    <script src="%(Path)/polyfills.js?v=%(ProductVersion)" type="module"></script>
-    <script src="%(Path)/main.js?v=%(ProductVersion)" type="module"></script>
+    <!-- Do not append query strings (e.g. ?v=) to module scripts: lazy chunks import main by its bare URL and a different URL would evaluate it twice. -->
+    <script src="%(Path)/polyfills-*.js" type="module"></script>
+    <script src="%(Path)/main-*.js" type="module"></script>
 </body>
 </html>

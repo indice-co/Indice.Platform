@@ -2,7 +2,7 @@
   "name": "cases-app",
   "version": "1.0.0",
   "scripts": {
-    "build:template": "ng build --optimization --output-hashing none -c template",
+    "build:template": "ng build --optimization -c template",
     "build": "ng build --configuration production --optimization",
     "lint": "ng lint",
     "ng": "ng",
