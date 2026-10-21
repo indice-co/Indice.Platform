@@ -122,13 +122,29 @@ public class StripePaymentsService(
         };
         session.UpdatedAt = now;
         if (status is null) {
-            await db.SaveChangesAsync(cancellationToken);
+            await db.PaymentSessions.Where(x => x.Id == session.Id && x.Status == PaymentAuthorizationStatus.Created)
+                                    .ExecuteUpdateAsync(s => s.SetProperty(x => x.UpdatedAt, now), cancellationToken);
+            await db.Entry(session).ReloadAsync(cancellationToken);
             return;
         }
-        session.Status = status.Value;
-        session.FailureReason = intent.LastPaymentError?.Message;
-        await db.SaveChangesAsync(cancellationToken);
+        await TryTransitionAsync(session, status.Value, intent.LastPaymentError?.Message, cancellationToken);
+    }
+    // Atomic compare-and-set from Created: concurrent webhooks and reconciliation cannot overwrite a final status,
+    // and only the single winning writer dispatches the status notification. The tracked entity is reloaded either way.
+    private async Task<bool> TryTransitionAsync(DbPaymentSession session, PaymentAuthorizationStatus status, string? failureReason, CancellationToken cancellationToken) {
+        var now = DateTimeOffset.UtcNow;
+        var affected = await db.PaymentSessions
+            .Where(x => x.Id == session.Id && x.Status == PaymentAuthorizationStatus.Created)
+            .ExecuteUpdateAsync(s => s.SetProperty(x => x.Status, status)
+                                      .SetProperty(x => x.FailureReason, failureReason)
+                                      .SetProperty(x => x.UpdatedAt, now), cancellationToken);
+        await db.Entry(session).ReloadAsync(cancellationToken);
+        if (affected == 0) {
+            logger.LogInformation("Payment {PaymentIntentId} transition to {Status} skipped; current status is {Current}.", session.PaymentIntentId, status, session.Status);
+            return false;
+        }
         await eventHandler.OnStatusChangedAsync(ToModel(session), cancellationToken);
+        return true;
     }
     ///<inheritdoc/>
     public async Task HandleWebhookAsync(string json, string? signatureHeader, CancellationToken cancellationToken = default) {
@@ -150,17 +166,10 @@ public class StripePaymentsService(
             logger.LogWarning("Stripe event {EventType} for unknown PaymentIntent {PaymentIntentId}.", stripeEvent.Type, paymentIntent.Id);
             return;
         }
-        if (session.Status == status) {
-            return; // Stripe retries and duplicates events.
+        if (session.Status != PaymentAuthorizationStatus.Created) {
+            return; // Already finalized (Stripe retries/duplicates events, or another writer won).
         }
-        if (session.Status == PaymentAuthorizationStatus.Succeeded || session.Status == PaymentAuthorizationStatus.Failed || session.Status == PaymentAuthorizationStatus.Cancelled) {
-            return; // Do not update a session that has already been finalized by a previous webhook or by a manual cancellation.
-        }
-        session.Status = status.Value;
-        session.FailureReason = paymentIntent.LastPaymentError?.Message;
-        session.UpdatedAt = DateTimeOffset.UtcNow;
-        await db.SaveChangesAsync(cancellationToken);
-        await eventHandler.OnStatusChangedAsync(ToModel(session), cancellationToken);
+        await TryTransitionAsync(session, status.Value, paymentIntent.LastPaymentError?.Message, cancellationToken);
     }
     ///<inheritdoc/>
     public async Task<PaymentSessionModel?> CancelAsync(string caseId, string tenantId, CancellationToken cancellationToken = default) {
@@ -175,9 +184,7 @@ public class StripePaymentsService(
         } catch (StripeException ex) {
             throw new BusinessException($"The payment could not be cancelled: {ex.StripeError?.Message ?? ex.Message}");
         }
-        session.Status = PaymentAuthorizationStatus.Cancelled;
-        session.UpdatedAt = DateTimeOffset.UtcNow;
-        await db.SaveChangesAsync(cancellationToken);
+        await TryTransitionAsync(session, PaymentAuthorizationStatus.Cancelled, null, cancellationToken);
         return ToModel(session);
     }
 
