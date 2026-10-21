@@ -7,7 +7,7 @@ import { EMPTY, forkJoin, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { get, isEqual, update } from 'lodash';
 import { LucideInfo, LucidePencil, LucideRotateCcw } from '@lucide/angular';
-import { Case, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDetails } from 'src/app/core/services/cases-api.service';
+import { Case, CasesApiService, CasesAttachmentLink, EditCaseRequest } from 'src/app/core/services/cases-api.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
 import { CasesJsonFormsConfig } from 'src/app/shared/jsonforms/jsonforms-utilities';
 import { tailwindRenderers } from 'src/app/shared/jsonforms/tailwind-renderers';
@@ -126,8 +126,7 @@ export class CaseFormComponent implements OnDestroy {
                   this._toaster.show(ToastType.Success, 'toasts.caseSubmitted.title', 'toasts.caseSubmitted.body', 5000);
                   this.updateDataEvent.emit({ draft: true });
                 }),
-                catchError((err: ProblemDetails) => {
-                  this._toaster.show(ToastType.Error, 'toasts.caseSubmitError.title', err.detail || 'toasts.caseSubmitError.body', 5000);
+                catchError(() => {
                   this._router.navigate(['/cases']);
                   return EMPTY;
                 })
@@ -144,18 +143,12 @@ export class CaseFormComponent implements OnDestroy {
                   this._toaster.show(ToastType.Success, 'toasts.saveSuccess.title', 'toasts.saveSuccess.body', 5000);
                   this._fileUploadService.reset();
                 }),
-                catchError(() => {
-                  this._toaster.show(ToastType.Error, 'toasts.saveError.title', 'toasts.saveError.body', 5000);
-                  return EMPTY;
-                })
+                catchError(() => EMPTY)
               )
               .subscribe();
           }
         }),
-        catchError(() => {
-          this._toaster.show(ToastType.Error, 'toasts.caseSubmitError.title', 'toasts.attachmentsError.body', 5000);
-          return EMPTY;
-        })
+        catchError(() => EMPTY)
       )
       .subscribe();
   }

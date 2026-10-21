@@ -1188,4 +1188,13 @@
   <data name="dashboard.attention.stale" xml:space="preserve">
     <value>ανοιχτές για περισσότερες από {{days}} ημέρες</value>
   </data>
+  <data name="toasts.error.body" xml:space="preserve">
+    <value>Ο διακομιστής δεν μπόρεσε να ολοκληρώσει το αίτημα. Δοκιμάστε ξανά και επικοινωνήστε με την υποστήριξη αν συνεχιστεί.</value>
+  </data>
+  <data name="toasts.forbidden.body" xml:space="preserve">
+    <value>Δεν έχετε δικαίωμα για αυτή την ενέργεια.</value>
+  </data>
+  <data name="toasts.offline.body" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η σύνδεση με τον διακομιστή. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</value>
+  </data>
 </root>

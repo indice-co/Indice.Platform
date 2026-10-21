@@ -19,7 +19,7 @@ import { ToastService, ToastType } from './toast.service';
           }
           <div class="min-w-0 whitespace-normal">
             @if (toast.title) { <p class="font-semibold">{{ toast.title }}</p> }
-            @if (toast.body) { <p class="text-sm opacity-90">{{ toast.body }}</p> }
+            @if (toast.body) { <p class="text-sm whitespace-pre-line opacity-90">{{ toast.body }}</p> }
           </div>
           <button type="button" class="btn btn-ghost btn-xs btn-circle" (click)="toasts.dismiss(toast.id)" aria-label="Dismiss">
             <svg lucideX class="size-3.5"></svg>

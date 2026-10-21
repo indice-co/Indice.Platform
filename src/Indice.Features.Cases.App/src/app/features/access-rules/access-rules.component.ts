@@ -200,10 +200,7 @@ export class AccessRulesComponent implements OnInit {
     }).pipe(
       filter(Boolean),
       switchMap(() => this._api.deleteAccessRule(item.id!)),
-      catchError(err => {
-        this._toaster.show(ToastType.Error, 'toasts.error.title', err?.detail ?? err?.title);
-        return EMPTY;
-      })
+      catchError(() => EMPTY)
     ).subscribe(() => {
       this._toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.accessRuleDeleted.body');
       this.list.refresh();

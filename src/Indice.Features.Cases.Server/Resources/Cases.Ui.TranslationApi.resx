@@ -1188,4 +1188,13 @@
   <data name="dashboard.attention.stale" xml:space="preserve">
     <value>open for more than {{days}} days</value>
   </data>
+  <data name="toasts.error.body" xml:space="preserve">
+    <value>The server could not complete the request. Try again, and contact support if it keeps happening.</value>
+  </data>
+  <data name="toasts.forbidden.body" xml:space="preserve">
+    <value>You don't have permission to do this.</value>
+  </data>
+  <data name="toasts.offline.body" xml:space="preserve">
+    <value>Could not reach the server. Check your connection and try again.</value>
+  </data>
 </root>

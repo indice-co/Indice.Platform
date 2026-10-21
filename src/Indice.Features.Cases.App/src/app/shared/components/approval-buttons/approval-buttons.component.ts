@@ -134,10 +134,7 @@ export class ApprovalButtonsComponent implements OnInit {
         this._toaster.show(ToastType.Success, undefined, action === Approval.Approve ? 'toasts.caseApproved' : 'toasts.caseRejected', 5000);
         this._router.navigate(['/cases']);
       },
-      error: () => {
-        this._toaster.show(ToastType.Error, 'toasts.caseDecisionError.title', 'toasts.caseDecisionError.body', 5000);
-        this._router.navigate(['/cases']);
-      }
+      error: () => this._router.navigate(['/cases'])
     });
   }
 }

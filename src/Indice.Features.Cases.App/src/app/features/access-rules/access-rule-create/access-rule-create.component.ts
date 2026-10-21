@@ -135,10 +135,7 @@ export class AccessRuleCreateComponent implements OnInit {
     });
     this.busy.set(true);
     this._api.createAccessRule(request).pipe(
-      catchError(err => {
-        this._toaster.show(ToastType.Error, 'toasts.error.title', err?.detail ?? err?.title);
-        return EMPTY;
-      }),
+      catchError(() => EMPTY),
       finalize(() => this.busy.set(false))
     ).subscribe(() => {
       this._toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.accessRuleCreated.body');

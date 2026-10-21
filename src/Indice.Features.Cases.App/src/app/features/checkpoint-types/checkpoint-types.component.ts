@@ -183,10 +183,7 @@ export class CheckpointTypesComponent implements OnInit {
     }).pipe(
       filter(Boolean),
       switchMap(() => this._api.deleteCheckpointType(item.id!)),
-      catchError(err => {
-        this._toaster.show(ToastType.Error, 'toasts.error.title', err?.detail ?? err?.title);
-        return EMPTY;
-      })
+      catchError(() => EMPTY)
     ).subscribe(() => {
       this._toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.checkpointTypeDeleted.body');
       this.list.refresh();

@@ -105,10 +105,7 @@ export class NotificationsComponent implements OnInit {
     const caseTypeIds = this.categories().flatMap(c => c.notificationSubscriptions.filter(n => n.subscribed).map(n => n.caseTypeId));
     this.saving.set(true);
     this._api.subscribe(new NotificationSubscriptionRequest({ caseTypeIds })).pipe(
-      catchError(() => {
-        this._toaster.show(ToastType.Error, 'toasts.saveError.title', 'toasts.settingsSaveError.body', 5000);
-        return EMPTY;
-      }),
+      catchError(() => EMPTY),
       finalize(() => this.saving.set(false))
     ).subscribe(() => this._toaster.show(ToastType.Success, 'toasts.saveSuccess.title', 'toasts.settingsSaved.body', 5000));
   }

@@ -11,13 +11,14 @@ import { provideQuillConfig } from 'ngx-quill';
 import { settings } from './core/models/settings';
 import { CASES_API_BASE_URL } from './core/services/cases-api.service';
 import { AcceptLanguageHttpInterceptor } from './core/services/accept-language-http-interceptor.service';
+import { problemDetailsInterceptor } from './core/services/problem-details.interceptor';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withComponentInputBinding(), withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })),
-    provideHttpClient(withXhr(), withInterceptors([progressInterceptor]), withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptors([progressInterceptor, problemDetailsInterceptor]), withInterceptorsFromDi()),
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: AcceptLanguageHttpInterceptor, multi: true },
     provideIndiceAuth(),

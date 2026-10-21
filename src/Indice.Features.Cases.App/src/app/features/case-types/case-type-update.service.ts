@@ -22,10 +22,7 @@ export class CaseTypeUpdateService {
         this._toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeCreated.body');
         this._router.navigate(['/case-types']);
       }),
-      catchError(err => {
-        this._toaster.show(ToastType.Error, 'toasts.error.title', err?.detail ?? err?.title);
-        return EMPTY;
-      })
+      catchError(() => EMPTY)
     );
   }
 
@@ -36,10 +33,7 @@ export class CaseTypeUpdateService {
         this._caseTypeService.invalidateCaseTypes();
         this._toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeUpdated.body');
       }),
-      catchError(err => {
-        this._toaster.show(ToastType.Error, 'toasts.error.title', err?.detail ?? err?.title);
-        return EMPTY;
-      })
+      catchError(() => EMPTY)
     );
   }
 
