@@ -44,7 +44,7 @@ public class ElsaClient : IElsaClient
         var endpointSegment = string.IsNullOrWhiteSpace(endpointName)
             ? string.Empty
             : $"/{Uri.EscapeDataString(endpointName)}";
-        var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(request, JsonSerializerOptionDefaults.GetDefaultSettings()), Encoding.UTF8, "application/json");
+        using var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(request, JsonSerializerOptionDefaults.GetDefaultSettings()), Encoding.UTF8, "application/json");
         var response = await _httpClient.PostAsync($"{activitiesBasePath}/api/cases/{workflowId}{endpointSegment}", content, cancellationToken);
 
         await ThrowOrProceedResponse(response, cancellationToken);
