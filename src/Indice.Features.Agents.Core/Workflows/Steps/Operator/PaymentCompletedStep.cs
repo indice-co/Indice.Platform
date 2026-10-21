@@ -26,6 +26,7 @@ public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse,
     private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly AgentsClaimsPrincipalSelector _claimsPrincipalSelector;
+    private readonly IPaymentsService _paymentsService;
     private readonly ILogger<PaymentCompletedStep> _logger;
 
     /// <summary>Creates a new <see cref="PaymentCompletedStep"/>.</summary>
@@ -33,10 +34,12 @@ public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse,
         AgentMessageLocalizer messageLocalizer,
         IServiceScopeFactory scopeFactory,
         AgentsClaimsPrincipalSelector claimsPrincipalSelector,
+        IPaymentsService paymentsService,
         ILogger<PaymentCompletedStep> logger) : base(nameof(PaymentCompletedStep)) {
         _messageLocalizer = messageLocalizer;
         _scopeFactory = scopeFactory;
         _claimsPrincipalSelector = claimsPrincipalSelector;
+        _paymentsService = paymentsService;
         _logger = logger;
     }
 
@@ -61,21 +64,14 @@ public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse,
         var conversation = await context.GetConversationStateAsync(cancellationToken);
         var caseId = caseData.ReferenceId;
         using var scope = _scopeFactory.CreateScope();
-        var payments = scope.ServiceProvider.GetService<IPaymentsService>();
-        if (payments is null || string.IsNullOrWhiteSpace(caseId)) {
-            _logger.LogWarning("Stripe payment requested but payments are not enabled or the case reference is missing.");
-            await context.Say(Id, _messageLocalizer.PaymentCompletedMessage, cancellationToken);
-            return;
-        }
         if (caseData.PaymentAmount is not > 0m) {
             _logger.LogWarning("Stripe payment requested for case {CaseId} but the payment amount is missing or not positive ({Amount}).", caseId, caseData.PaymentAmount);
-            await context.Say(Id, _messageLocalizer.PaymentCompletedMessage, cancellationToken);
-            return;
+            throw new InvalidOperationException($"Stripe payment requested for case {caseId} but the payment amount is missing or not positive ({caseData.PaymentAmount}).");
         }
         var userId = _claimsPrincipalSelector()?.FindSubjectId() ?? conversation.ConversationId;
         Guid conversationId = Guid.Parse(conversation.ConversationId);
-        var session = await payments.CreateOrReuseAttemptAsync(userId, caseId, AgentsConstants.DefaultTenantId, caseData.PaymentAmount.Value, conversationId, cancellationToken);
-        var publicKey = payments.GetPublicKey();
+        var session = await _paymentsService.CreateOrReuseAttemptAsync(userId, caseId, AgentsConstants.DefaultTenantId, caseData.PaymentAmount.Value, conversationId, cancellationToken);
+        var publicKey = _paymentsService.GetPublicKey();
         var payload = new StripePaymentPayload(
             Method: StripeMethod,
             CaseId: caseId,

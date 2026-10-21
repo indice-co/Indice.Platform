@@ -25,8 +25,6 @@ public interface IPaymentsService
     /// <summary>Verifies and applies a Stripe webhook event.</summary>
     /// <exception cref="StripeException">The signature is invalid.</exception>
     Task HandleWebhookAsync(string json, string? signatureHeader, CancellationToken cancellationToken = default);
-    /// <summary>Cancels the case's unpaid attempt.</summary>
-    Task<PaymentSessionModel?> CancelAsync(string caseId, string tenantId, CancellationToken cancellationToken = default);
 }
 
 /// <summary>Stripe implementation of <see cref="IPaymentsService"/>.</summary>
@@ -170,22 +168,6 @@ public class StripePaymentsService(
             return; // Already finalized (Stripe retries/duplicates events, or another writer won).
         }
         await TryTransitionAsync(session, status.Value, paymentIntent.LastPaymentError?.Message, cancellationToken);
-    }
-    ///<inheritdoc/>
-    public async Task<PaymentSessionModel?> CancelAsync(string caseId, string tenantId, CancellationToken cancellationToken = default) {
-        var session = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.TenantId == tenantId && x.Status == PaymentAuthorizationStatus.Created)
-                                              .OrderByDescending(x => x.CreatedAt)
-                                              .FirstOrDefaultAsync(cancellationToken);
-        if (session is null) {
-            return null;
-        }
-        try {
-            await PaymentIntents.CancelAsync(session.PaymentIntentId, cancellationToken: cancellationToken);
-        } catch (StripeException ex) {
-            throw new BusinessException($"The payment could not be cancelled: {ex.StripeError?.Message ?? ex.Message}");
-        }
-        await TryTransitionAsync(session, PaymentAuthorizationStatus.Cancelled, null, cancellationToken);
-        return ToModel(session);
     }
 
     private static long ToMinorUnits(decimal amount) => (long)Math.Round(amount * 100m, MidpointRounding.AwayFromZero);
