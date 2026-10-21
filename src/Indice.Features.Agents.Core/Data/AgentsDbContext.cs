@@ -29,7 +29,7 @@ public class AgentsDbContext : DbContext
     /// <summary>Durable workflow checkpoint blobs, keyed per run (conversation).</summary>
     public DbSet<DbCheckpoint> Checkpoints => Set<DbCheckpoint>();
 
-    /// <summary>Stripe manual-capture payment attempts, per chat session.</summary>
+    /// <summary>Stripe one-step payment attempts, one live attempt per case.</summary>
     public DbSet<DbPaymentSession> PaymentSessions => Set<DbPaymentSession>();
 
     /// <inheritdoc/>

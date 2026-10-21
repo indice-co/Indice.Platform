@@ -112,7 +112,6 @@ export function partKind(contentType: string | undefined): PartKind {
     case STRIPE_PAYMENT_MEDIA_TYPE:
       return 'payment-stripe';
     case HITL_REQUEST_MEDIA_TYPE:
-      console.log
       return 'hitl-request';
     default:
       return contentType?.startsWith('image/') ? 'image' : 'unknown';
@@ -125,7 +124,6 @@ export function partKind(contentType: string | undefined): PartKind {
  * discipline `chat-stream.service.ts` applies to unknown SSE frame types.
  */
 export function HitlControlResolver(name: string | undefined): PartKind {
-  console.log(`HitlControlResolver: ${name}`);
   switch (name) {
     case 'OtpRequest':
       return 'hitl-request-otp';

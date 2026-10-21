@@ -73,7 +73,6 @@ public class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         }
 
         var workflowData = await context.GetOperatorStateAsync(cancellationToken);
-        //var otpVerificationResult = new OtpVerificationResultPayload(true, null, false, false, false, 0);
         var otpVerificationResult = await ValidateOtp(response, workflowData, cancellationToken);
         if (otpVerificationResult.Success) {
             await context.SetApprovalStateAsync(null, cancellationToken);

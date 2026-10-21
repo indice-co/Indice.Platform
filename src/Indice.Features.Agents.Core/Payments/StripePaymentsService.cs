@@ -93,6 +93,7 @@ public class StripePaymentsService(
     }
     ///<inheritdoc/>
     public async Task<PaymentSessionModel?> GetCurrentAttemptAsync(string userId, string caseId, string tenantId, CancellationToken cancellationToken = default) {
+        //TODO: Consider filtering by userId to avoid exposing other users' attempts. The caseId is already unique per tenant.
         var session = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.TenantId == tenantId)
                                               .OrderByDescending(x => x.CreatedAt)
                                               .FirstOrDefaultAsync(cancellationToken);
@@ -143,6 +144,9 @@ public class StripePaymentsService(
         }
         if (session.Status == status) {
             return; // Stripe retries and duplicates events.
+        }
+        if (session.Status == PaymentAuthorizationStatus.Succeeded || session.Status == PaymentAuthorizationStatus.Failed || session.Status == PaymentAuthorizationStatus.Cancelled) {
+            return; // Do not update a session that has already been finalized by a previous webhook or by a manual cancellation.
         }
         session.Status = status.Value;
         session.FailureReason = paymentIntent.LastPaymentError?.Message;

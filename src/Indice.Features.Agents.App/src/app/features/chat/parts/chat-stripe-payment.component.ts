@@ -33,7 +33,7 @@ const POLL_MAX_ATTEMPTS = 15;
 /**
  * Inline Stripe Payment Element (card, Apple Pay, Google Pay) rendered in the chat for `application/vnd.indice.payment.stripe+json`.
  * The workflow creates the case's payment attempt server-side and ships it, with the publishable key, in the part,
- * so the card form mounts straight away. After confirming the manual-capture pre-auth the component polls the
+ * so the card form mounts straight away. After confirming the payment the component polls the
  * case's current attempt (webhook-driven) until it is `Succeeded`, then emits `completed` to unfreeze the chat.
  */
 @Component({

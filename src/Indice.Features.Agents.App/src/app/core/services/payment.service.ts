@@ -37,7 +37,7 @@ export function isUnauthenticated(error: unknown): boolean {
   return error instanceof HttpErrorResponse && error.status === 401;
 }
 
-/** Lifecycle of the manual-capture pre-authorization (Stripe PaymentIntent). */
+/** Lifecycle of the one-step payment (Stripe PaymentIntent, charged on confirmation). */
 export type PaymentAuthStatus = 'Created' | 'Succeeded' | 'Failed' | 'Cancelled';
 
 /** A payment attempt (session) as returned by the API. */
@@ -48,7 +48,7 @@ export interface PaymentSession {
   /** The Stripe PaymentIntent client_secret the card is confirmed against. */
   paymentSessionSecret?: string | null;
   paymentAuthorizationStatus?: PaymentAuthStatus | null;
-  /** The pre-auth (hold) amount, in major currency units. */
+  /** The amount charged, in major currency units. */
   amount?: number | null;
   currency?: string | null;
 }

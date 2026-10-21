@@ -13,8 +13,9 @@ using Microsoft.Extensions.Logging;
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 
 /// <summary>
-/// Thanks the user once a payment method has been chosen and produces the terminal response.
-/// No payment is taken: the step is a demonstration of the payment round-trip.
+/// Handles the chosen payment method and produces the terminal response. When Stripe is selected, the case's
+/// payment attempt is created (or reused) and the inline Stripe payment form is sent to the chat; for any other
+/// method the user is simply thanked.
 /// </summary>
 public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse, OperationState>
 {
@@ -66,9 +67,14 @@ public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse,
             await context.Say(Id, _messageLocalizer.PaymentCompletedMessage, cancellationToken);
             return;
         }
+        if (caseData.PaymentAmount is not > 0m) {
+            _logger.LogWarning("Stripe payment requested for case {CaseId} but the payment amount is missing or not positive ({Amount}).", caseId, caseData.PaymentAmount);
+            await context.Say(Id, _messageLocalizer.PaymentCompletedMessage, cancellationToken);
+            return;
+        }
         var userId = _claimsPrincipalSelector()?.FindSubjectId() ?? conversation.ConversationId;
         Guid conversationId = Guid.Parse(conversation.ConversationId);
-        var session = await payments.CreateOrReuseAttemptAsync(userId, caseId, AgentsConstants.DefaultTenantId, caseData.PaymentAmount!.Value, conversationId, cancellationToken);
+        var session = await payments.CreateOrReuseAttemptAsync(userId, caseId, AgentsConstants.DefaultTenantId, caseData.PaymentAmount.Value, conversationId, cancellationToken);
         var publicKey = payments.GetPublicKey();
         var payload = new StripePaymentPayload(
             Method: StripeMethod,

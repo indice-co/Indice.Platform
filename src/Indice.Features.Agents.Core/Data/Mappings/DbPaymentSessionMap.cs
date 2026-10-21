@@ -21,6 +21,6 @@ public class DbPaymentSessionMap : IEntityTypeConfiguration<DbPaymentSession>
         builder.Property(x => x.FailureReason).HasMaxLength(TextSizePresets.M512);
         builder.HasIndex(x => x.PaymentIntentId).IsUnique();
         builder.Property(x => x.CaseId).HasMaxLength(TextSizePresets.M128).IsRequired();
-        builder.HasIndex(x => new { x.CaseId }).HasDatabaseName("IX_PaymentSession_CaseId");
+        builder.HasIndex(x => new { x.TenantId, x.CaseId, x.CreatedAt }).HasDatabaseName("IX_PaymentSession_TenantId_CaseId_CreatedAt");
     }
 }
