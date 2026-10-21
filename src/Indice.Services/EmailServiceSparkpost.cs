@@ -137,7 +137,7 @@ public sealed class SparkPostWebhookHttpHandler(IOptionsSnapshot<EmailServiceSpa
             yield break;
 
         foreach (var item in items) {
-            if (item?["msys"] is not JsonObject msys)
+            if (item is not JsonObject envelope || envelope["msys"] is not JsonObject msys)
                 continue;
 
             foreach (var family in msys) {
