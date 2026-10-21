@@ -139,7 +139,7 @@ public sealed class SparkPostWebhookHttpHandler(IOptionsSnapshot<EmailServiceSpa
         var validItems = items
             .Select(item => item is JsonObject envelope && envelope["msys"] is JsonObject msys
                 ? (Envelope: envelope, Msys: msys)
-                : (Envelope: (JsonObject?)null, Msys: (JsonObject?)null))
+                : (Envelope: null, Msys: null))
             .Where(entry => entry.Envelope is not null && entry.Msys is not null);
 
         foreach (var entry in validItems) {
