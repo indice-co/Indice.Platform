@@ -6,7 +6,7 @@
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
     <!--<VersionPrefix>$(VersionPrefixCases)</VersionPrefix>-->
     <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
-    <VersionSuffix>beta02</VersionSuffix>
+    <VersionSuffix>beta03</VersionSuffix>
   </PropertyGroup>
   
   <ItemGroup>

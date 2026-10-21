@@ -10,7 +10,7 @@
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Cases;CaseManagement</PackageTags>
     <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
-    <VersionSuffix>beta02</VersionSuffix>
+    <VersionSuffix>beta03</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
