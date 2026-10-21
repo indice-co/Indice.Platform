@@ -136,11 +136,14 @@ public sealed class SparkPostWebhookHttpHandler(IOptionsSnapshot<EmailServiceSpa
         if (root is not JsonArray items)
             yield break;
 
-        foreach (var item in items) {
-            if (item is not JsonObject envelope || envelope["msys"] is not JsonObject msys)
-                continue;
+        var validItems = items
+            .Select(item => item is JsonObject envelope && envelope["msys"] is JsonObject msys
+                ? (Envelope: envelope, Msys: msys)
+                : (Envelope: (JsonObject?)null, Msys: (JsonObject?)null))
+            .Where(entry => entry.Envelope is not null && entry.Msys is not null);
 
-            foreach (var family in msys) {
+        foreach (var entry in validItems) {
+            foreach (var family in entry.Msys!) {
                 var familyEvents = family.Value switch {
                     JsonObject obj => new[] { obj },
                     JsonArray array => array.OfType<JsonObject>(),
