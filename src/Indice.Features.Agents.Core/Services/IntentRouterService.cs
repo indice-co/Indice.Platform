@@ -79,6 +79,9 @@ public class IntentRouterService
     /// <c>null</c> with a populated <see cref="RouteDecision.Reason"/> when the request is out of scope.
     /// </returns>
     public async Task<RouteDecision> RouteAsync(ChatMessage message, ChatOptions chatOptions, CancellationToken cancellationToken = default) {
+        if (await TryRouteToActiveWorkflowAsync(message, chatOptions.ConversationId, cancellationToken) is { } pinned) {
+            return pinned;
+        }
         var suggestedAgent = chatOptions.Instructions;
 
         suggestedAgent = suggestedAgent?.Trim().ToLowerInvariant();
@@ -99,9 +102,6 @@ public class IntentRouterService
                 Reason = "User selection",
                 IsInScope = true,
             };
-        }
-        if (await TryRouteToActiveWorkflowAsync(message, chatOptions.ConversationId, cancellationToken) is { } pinned) {
-            return pinned;
         }
         if (_registry.RoutableTargets().Any(x => x.Name == AgentsConstants.AgentNames.Operator) && TryGetChatTopic(message, out var topic)) {
             return new RouteDecision {
@@ -204,29 +204,29 @@ public class IntentRouterService
     /// coerced into the port's response so the run resumes from the checkpoint instead of being re-classified.
     /// </summary>
     private async Task<RouteDecision?> TryRouteToActiveWorkflowAsync(ChatMessage message, string? conversationId, CancellationToken cancellationToken) {
-        if (message.HasFunctionResultContent()) {
-            var callId = message.GetFunctionResultContentCallId();
-            return await PinAsync(callId.CheckpointId, cancellationToken);
-        }
         if (!Guid.TryParse(conversationId, out var id) || id == Guid.Empty) {
             return null;
+        }
+        if (message.HasFunctionResultContent()) {
+            var callId = message.GetFunctionResultContentCallId();
+            return await PinAsync(id, callId.CheckpointId, cancellationToken);
         }
         var history = await _store.GetHistoryAsync(id, cancellationToken);
         if (!history.TryGetPendingPortRequest(out var pendingRequest)) {
             return null;
         }
-        var decision = await PinAsync(AgentFunctionCallId.Parse(pendingRequest.CallId).CheckpointId, cancellationToken);
+        var decision = await PinAsync(id, AgentFunctionCallId.Parse(pendingRequest.CallId).CheckpointId, cancellationToken);
         if (decision is not null && PortResponseCoercer.TryCoerce(pendingRequest, message.Text, out var result)) {
             message.Contents.Insert(0, result);
         }
         return decision;
     }
 
-    private async Task<RouteDecision?> PinAsync(string? checkpointId, CancellationToken cancellationToken) {
+    private async Task<RouteDecision?> PinAsync(Guid conversationId, string? checkpointId, CancellationToken cancellationToken) {
         if (string.IsNullOrWhiteSpace(checkpointId)) {
             return null;
         }
-        var session = await _checkpoints.FindSessionByCheckpointIdAsync(checkpointId, cancellationToken);
+        var session = await _checkpoints.FindSessionByCheckpointIdAsync(conversationId, checkpointId, cancellationToken);
         var agent = session?.AgentName is { } agentName ? _registry.Find(agentName) : null;
         if (agent is null) {
             return null;
