@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Case data form renderers for what the JSON Forms angular-material set supports and the Cases form did not:
+  nested objects (`Control` on an object property, so schemas without a UI schema render at any depth), `Label` elements,
+  `options.multi` (textarea), `options.toggle`, `options.slider`, `format: date-time` / `time`, arrays of enum values (checkboxes),
+  `oneOf` / `anyOf` / `allOf`, the `ListWithDetail` element, and `options.table: true` (with optional `options.columns`) for arrays.
+  Elements no renderer accepts show their value as JSON instead of "No applicable renderer found".
+- Read-only cases render as a two-column list of labels and values instead of a form of read-only fields.
+- When the user cannot open cases, the cases list shows an info button where the "New case" button would be, explaining why.
+### Changed
+- On a case type's list, "New case" is shown only when that case type can be created, and opens with it already chosen.
+### Fixed
+- Editable checkboxes in the case data form could not be ticked.
+
 ## [8.50.0] - 2026-06-16
 
 ### Overriding / extending translations

@@ -1179,6 +1179,33 @@
   <data name="jsonforms.attachedFile" xml:space="preserve">
     <value>Attached file</value>
   </data>
+  <data name="jsonforms.unsupportedField" xml:space="preserve">
+    <value>This field cannot be edited here; its value is kept as it is.</value>
+  </data>
+  <data name="jsonforms.alternative" xml:space="preserve">
+    <value>Option {{number}}</value>
+  </data>
+  <data name="jsonforms.switchAlternative.message" xml:space="preserve">
+    <value>Switching option clears what was entered for the current one.</value>
+  </data>
+  <data name="jsonforms.switchAlternative.confirm" xml:space="preserve">
+    <value>Switch</value>
+  </data>
+  <data name="jsonforms.noItems" xml:space="preserve">
+    <value>No items yet.</value>
+  </data>
+  <data name="jsonforms.selectItem" xml:space="preserve">
+    <value>Select an item to see its details.</value>
+  </data>
+  <data name="cases.cannotCreate.title" xml:space="preserve">
+    <value>You cannot open cases here</value>
+  </data>
+  <data name="cases.cannotCreate.message" xml:space="preserve">
+    <value>New cases can only be opened for case types that allow one of your roles, and none does. If you need to open cases, ask an administrator.</value>
+  </data>
+  <data name="cases.cannotCreate.caseTypeMessage" xml:space="preserve">
+    <value>New “{{caseType}}” cases can only be opened by the roles this case type allows, and yours is not one of them. If you need to open such cases, ask an administrator.</value>
+  </data>
   <data name="dashboard.attention.title" xml:space="preserve">
     <value>Needs attention</value>
   </data>

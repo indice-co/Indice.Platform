@@ -10,7 +10,7 @@ import { LucideInfo, LucidePencil, LucideRotateCcw } from '@lucide/angular';
 import { Case, CasesApiService, CasesAttachmentLink, EditCaseRequest } from 'src/app/core/services/cases-api.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
 import { CasesJsonFormsConfig } from 'src/app/shared/jsonforms/jsonforms-utilities';
-import { tailwindRenderers } from 'src/app/shared/jsonforms/tailwind-renderers';
+import { displayRenderers, tailwindRenderers } from 'src/app/shared/jsonforms/tailwind-renderers';
 import { ToastType, TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 
 /** Renders the case data with JSON Forms and handles submit (drafts) / save (editable cases). */
@@ -32,7 +32,8 @@ export class CaseFormComponent implements OnDestroy {
   public readonly formIsValid = output<boolean>();
   public readonly unSavedChanges = output<boolean>();
 
-  protected readonly renderers = tailwindRenderers;
+  /** The form renderers, or the label / value renderers of the read-only view. */
+  protected readonly renderers = signal(tailwindRenderers);
   protected readonly formsConfig = signal<CasesJsonFormsConfig>({});
   protected readonly ajv = signal(createAjv());
   protected readonly readonly = signal(false);
@@ -88,6 +89,7 @@ export class CaseFormComponent implements OnDestroy {
     }
     // not draft and not editable: the form is view-only
     this.readonly.set(!formEditable && !caseModel.draft);
+    this.renderers.set(this.readonly() ? displayRenderers : tailwindRenderers);
     this.formsConfig.set({ draft: caseModel.draft, onSubmit: data => this.onSubmit(data) });
     this.ajv.set(createAjv({ useDefaults: !!caseModel.draft })); // schema defaults only for draft cases
     this._layout = parse(caseModel.caseType?.layout);

@@ -28,7 +28,6 @@
     "@ngx-translate/http-loader": "18.0.0",
     "chart.js": "4.5.1",
     "daisyui": "5.7.50",
-    "f": "^1.4.0",
     "file-saver": "^2.0.5",
     "lodash": "4.18.1",
     "moment": "2.31.0",

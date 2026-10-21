@@ -1179,6 +1179,33 @@
   <data name="jsonforms.attachedFile" xml:space="preserve">
     <value>Συνημμένο αρχείο</value>
   </data>
+  <data name="jsonforms.unsupportedField" xml:space="preserve">
+    <value>Αυτό το πεδίο δεν επεξεργάζεται εδώ· η τιμή του διατηρείται ως έχει.</value>
+  </data>
+  <data name="jsonforms.alternative" xml:space="preserve">
+    <value>Επιλογή {{number}}</value>
+  </data>
+  <data name="jsonforms.switchAlternative.message" xml:space="preserve">
+    <value>Η αλλαγή επιλογής διαγράφει ό,τι έχει συμπληρωθεί για την τρέχουσα.</value>
+  </data>
+  <data name="jsonforms.switchAlternative.confirm" xml:space="preserve">
+    <value>Αλλαγή</value>
+  </data>
+  <data name="jsonforms.noItems" xml:space="preserve">
+    <value>Δεν υπάρχουν εγγραφές ακόμη.</value>
+  </data>
+  <data name="jsonforms.selectItem" xml:space="preserve">
+    <value>Επιλέξτε μια εγγραφή για να δείτε τα στοιχεία της.</value>
+  </data>
+  <data name="cases.cannotCreate.title" xml:space="preserve">
+    <value>Δεν μπορείτε να ανοίξετε υποθέσεις εδώ</value>
+  </data>
+  <data name="cases.cannotCreate.message" xml:space="preserve">
+    <value>Νέες υποθέσεις ανοίγουν μόνο σε τύπους υποθέσεων που το επιτρέπουν σε κάποιον από τους ρόλους σας, και κανένας δεν το επιτρέπει. Αν χρειάζεται να ανοίγετε υποθέσεις, απευθυνθείτε σε έναν διαχειριστή.</value>
+  </data>
+  <data name="cases.cannotCreate.caseTypeMessage" xml:space="preserve">
+    <value>Νέες υποθέσεις «{{caseType}}» ανοίγουν μόνο από τους ρόλους που επιτρέπει αυτός ο τύπος, και ο δικός σας δεν είναι ανάμεσά τους. Αν χρειάζεται να ανοίγετε τέτοιες υποθέσεις, απευθυνθείτε σε έναν διαχειριστή.</value>
+  </data>
   <data name="dashboard.attention.title" xml:space="preserve">
     <value>Χρειάζονται προσοχή</value>
   </data>

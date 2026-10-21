@@ -6,7 +6,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@indice/ng-auth';
 import { Observable, filter, forkJoin } from 'rxjs';
 import {
-  LucideArrowDown, LucideArrowUp, LucideBookmark, LucideBookmarkPlus, LucideCircleAlert, LucideFolderSearch, LucidePlus,
+  LucideArrowDown, LucideArrowUp, LucideBookmark, LucideBookmarkPlus, LucideCircleAlert, LucideFolderSearch, LucideInfo, LucidePlus,
   LucideRefreshCw, LucideSearchX
 } from '@lucide/angular';
 import { settings } from 'src/app/core/models/settings';
@@ -68,7 +68,7 @@ const ASSIGNED_TO = 'assignedTo';
 export const CASES_LIST_IMPORTS = [
   DatePipe, RouterLink, TranslatePipe, ValueFromPathPipe, PageHeaderComponent, SearchInputComponent, FilterBarComponent, PaginationComponent,
   EmptyStateComponent, LucidePlus, LucideRefreshCw, LucideBookmark, LucideBookmarkPlus, LucideArrowUp, LucideArrowDown, LucideFolderSearch,
-  LucideSearchX, LucideCircleAlert
+  LucideSearchX, LucideCircleAlert, LucideInfo
 ];
 
 /**
@@ -98,7 +98,8 @@ export class GeneralCasesComponent {
   private readonly _lang = toSignal(inject(AppLanguagesService).onLanguageChange());
   private readonly _caseTypes = signal<CaseTypePartial[] | undefined>(undefined);
   private readonly _checkpointTypes = signal<CheckpointType[]>([]);
-  protected readonly canCreateCase = signal(false);
+  /** The case types the user may open cases of; undefined until loaded. */
+  private readonly _creatableCaseTypes = signal<CaseTypePartial[] | undefined>(undefined);
 
   protected readonly list = new ListState<CasePartial>({
     pageSize: 10,
@@ -110,6 +111,22 @@ export class GeneralCasesComponent {
   protected readonly currentCaseType = computed(() => {
     const code = this.caseTypeCode();
     return code ? this._caseTypes()?.find(c => c.code === code) : undefined;
+  });
+
+  /** Whether the user may open a case here (of this case type on a case type page); undefined while unknown. */
+  protected readonly canCreateCase = computed<boolean | undefined>(() => {
+    const creatable = this._creatableCaseTypes();
+    if (!creatable) {
+      return undefined;
+    }
+    const code = this.caseTypeCode();
+    return code ? creatable.some(c => c.code === code) : creatable.length > 0;
+  });
+
+  /** Opens the new case pane, with this page's case type already chosen. */
+  protected readonly newCaseLink = computed(() => {
+    const code = this.caseTypeCode();
+    return this.pane.link('new-case', code ? { type: code } : undefined);
   });
 
   protected readonly assignedToMe = computed(() => this.list.filters().some(f => f.member === ASSIGNED_TO));
@@ -190,7 +207,7 @@ export class GeneralCasesComponent {
       this._checkpointTypes.set(checkpointTypes);
       this._caseTypes.set(caseTypes.items ?? []);
     });
-    this._caseTypeService.getCanCreateCaseTypes().subscribe(result => this.canCreateCase.set((result.count ?? 0) > 0));
+    this._caseTypeService.getCanCreateCaseTypes().subscribe(result => this._creatableCaseTypes.set(result.items ?? []));
 
     // (re)activate once case types are known and whenever the case type route param changes (component reuse)
     effect(() => {

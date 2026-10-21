@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FieldWrapperComponent } from './field-wrapper.component';
+import { formatCurrency } from '../jsonforms-utilities';
 import { TailwindControl } from './tailwind-control';
 
 /** ajsf `currency` widget: a number typed and shown in the Greek format (`1.234,56`). */
@@ -42,7 +43,7 @@ export class CurrencyControlComponent extends TailwindControl {
 
     protected override onStateChange(): void {
         if (!this.editing) {
-            this.displayValue = CurrencyControlComponent.toLocaleString(this.locale, this.data, this.decimalPlaces);
+            this.displayValue = formatCurrency(this.data, this.decimalPlaces, this.locale);
         }
     }
 
@@ -65,18 +66,8 @@ export class CurrencyControlComponent extends TailwindControl {
 
     onBlur(event: FocusEvent): void {
         this.editing = false;
-        this.displayValue = CurrencyControlComponent.toLocaleString(this.locale, this.data, this.decimalPlaces);
+        this.displayValue = formatCurrency(this.data, this.decimalPlaces, this.locale);
         (event.target as HTMLInputElement).value = this.displayValue;
-    }
-
-    private static toLocaleString(locale: string, value: number | string, decimalPlaces: number): string {
-        if (typeof value === 'string') {
-            value = value.trim() === '' || isNaN(Number(value)) ? value as any : Number(value);
-        }
-        return value?.toLocaleString(locale, {
-            minimumFractionDigits: decimalPlaces,
-            maximumFractionDigits: decimalPlaces
-        }) || '';
     }
 
     private static fromLocaleString(locale: string, inputText: string, decimalPlaces: number, allowNegativeNumbers: boolean = true): number | undefined {

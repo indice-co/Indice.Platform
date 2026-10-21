@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CasesApiService, CaseTypePartial, Contact, ContactMeta, CreateDraftCaseRequest } from 'src/app/core/services/cases-api.service';
@@ -16,7 +16,7 @@ import { SIDE_PANE_OUTLET, SidePaneLayoutComponent } from 'src/app/ui/side-pane/
         <li>
           <h3 class="mb-1 font-semibold">{{ 'cases.create.chooseType' | translate }}</h3>
           <p class="mb-3 text-sm text-base-content/70">{{ 'cases.create.chooseTypeHint' | translate }}</p>
-          <app-select-case-type (selectedCaseType)="onCaseType($event)" />
+          <app-select-case-type [preselectedCode]="type()" (selectedCaseType)="onCaseType($event)" />
         </li>
         @if (caseType(); as caseType) {
           <li>
@@ -38,6 +38,9 @@ import { SIDE_PANE_OUTLET, SidePaneLayoutComponent } from 'src/app/ui/side-pane/
 export class CaseCreatePageComponent {
   private readonly _api = inject(CasesApiService);
   private readonly _router = inject(Router);
+
+  /** Case type code to start with (`new-case;type=X`, from a case type's list). */
+  public readonly type = input<string>();
 
   protected readonly caseType = signal<CaseTypePartial | undefined>(undefined);
   protected readonly contact = signal<Contact | undefined>(undefined);

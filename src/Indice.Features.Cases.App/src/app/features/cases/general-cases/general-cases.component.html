@@ -10,11 +10,29 @@
       <svg lucideRefreshCw class="size-4" [class.animate-spin]="list.loading()"></svg>
     </button>
     @if (canCreateCase()) {
-      <a class="btn btn-primary btn-sm" [routerLink]="pane.link('new-case')" queryParamsHandling="preserve"
+      <a class="btn btn-primary btn-sm" [routerLink]="newCaseLink()" queryParamsHandling="preserve"
         [title]="'cases.submitNewCase' | translate">
         <svg lucidePlus class="size-4"></svg>
         {{ 'cases.newCase' | translate }}
       </a>
+    } @else if (canCreateCase() === false) {
+      <!-- no New case button: say why, so its absence does not read as a fault -->
+      <div class="dropdown dropdown-end">
+        <button type="button" tabindex="0" class="btn btn-ghost btn-sm btn-square text-base-content/60"
+          [attr.aria-label]="'cases.cannotCreate.title' | translate" [title]="'cases.cannotCreate.title' | translate">
+          <svg lucideInfo class="size-4"></svg>
+        </button>
+        <div tabindex="0" role="note" class="dropdown-content z-20 mt-2 w-72 rounded-box border border-base-300 bg-base-100 p-4 text-sm shadow-lg">
+          <p class="font-semibold">{{ 'cases.cannotCreate.title' | translate }}</p>
+          <p class="mt-1 text-base-content/70">
+            @if (currentCaseType(); as caseType) {
+              {{ 'cases.cannotCreate.caseTypeMessage' | translate: { caseType: caseType.title } }}
+            } @else {
+              {{ 'cases.cannotCreate.message' | translate }}
+            }
+          </p>
+        </div>
+      </div>
     }
   </div>
 </app-page-header>

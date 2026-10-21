@@ -12,9 +12,12 @@ export type SidePaneSize = 'sm' | 'md' | 'lg';
 export class SidePaneService {
   private readonly _router = inject(Router);
 
-  /** Router link commands that open `path` in the side pane, e.g. `[routerLink]="pane.link('new-case')"`. */
-  public link(path: string): any[] {
-    return ['/', { outlets: { [SIDE_PANE_OUTLET]: [path] } }];
+  /**
+   * Router link commands that open `path` in the side pane, e.g. `[routerLink]="pane.link('new-case')"`.
+   * `params` become matrix params of the pane route (`new-case;type=X`), bound to the pane component's inputs.
+   */
+  public link(path: string, params?: Record<string, string>): any[] {
+    return ['/', { outlets: { [SIDE_PANE_OUTLET]: params ? [path, params] : [path] } }];
   }
 
   public open(path: string): Promise<boolean> {

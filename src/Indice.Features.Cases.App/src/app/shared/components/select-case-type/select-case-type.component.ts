@@ -1,4 +1,4 @@
-import { Component, computed, inject, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import { map } from 'rxjs';
@@ -58,6 +58,8 @@ interface CaseTypeCategory {
 })
 export class SelectCaseTypeComponent {
   private readonly _api = inject(CasesApiService);
+  /** Code of a case type to select once the list has loaded (ignored when the user cannot create it). */
+  public readonly preselectedCode = input<string>();
   public readonly selectedCaseType = output<CaseTypePartial | undefined>();
 
   private readonly _caseTypes = toSignal(this._api.getCaseTypesList(true).pipe(map(result => result.items ?? [])));
@@ -77,6 +79,16 @@ export class SelectCaseTypeComponent {
     // uncategorised case types go last
     return [...groups.values()].sort((a, b) => (a.name === undefined ? 1 : 0) - (b.name === undefined ? 1 : 0));
   });
+
+  constructor() {
+    effect(() => {
+      const code = this.preselectedCode();
+      const caseType = code ? this._caseTypes()?.find(c => c.code === code) : undefined;
+      if (caseType) {
+        untracked(() => this.select(caseType));
+      }
+    });
+  }
 
   protected select(caseType: CaseTypePartial | undefined): void {
     this.selected.set(caseType);
