@@ -109,8 +109,11 @@ export class ChatStripePaymentComponent {
   protected readonly elementComplete = signal(false);
   private readonly clientSecret = signal<string | null>(null);
   protected readonly holdAmountText = computed(() => {
-    const amount = this.payment()?.session?.amount;
-    return amount != null && amount > 0 ? `${amount.toFixed(2)}€` : null;
+    const session = this.payment()?.session;
+    const amount = session?.amount;
+    return amount != null && amount > 0
+      ? new Intl.NumberFormat(undefined, { style: 'currency', currency: session?.currency ?? 'EUR' }).format(amount)
+      : null;
   });
 
   private stripe: Stripe | null = null;

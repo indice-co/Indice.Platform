@@ -67,7 +67,7 @@ import { isTextPart } from './parts/part-contracts';
                           [first]="$first"
                           [interactive]="turn.isLatest && !streaming()"
                           (pick)="pick.emit($event)"
-                          (paymentCompleted)="paymentCompleted.emit()"
+                          (paymentCompleted)="turn.isLatest && paymentCompleted.emit()"
                         />
                       }
                     </div>
