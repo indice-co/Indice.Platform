@@ -331,9 +331,31 @@ public static class IConfigurationExtensions
     }
 
     /// <summary>
+    /// Gets the configured Email provider names.
+    /// </summary>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>Provider names.</returns>
+    /// <exception cref="ArgumentException">The provider configuration is missing or whitespace.</exception>
+    public static string[] GetEmailProviders(this IConfiguration configuration) {
+        var providerNamesText = configuration
+            .GetSection(EmailServiceSettings.Name)
+            .GetValue<string>("Provider");
+
+        return (providerNamesText ?? EmailServiceSmtp.ServiceName)
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    }
+
+    /// <summary>
     /// Gets the primary configured SMS provider.
     /// </summary>
     /// <param name="configuration">The application configuration.</param>
     /// <returns>The primary provider name.</returns>
     public static string GetDefaultSmsProvider(this IConfiguration configuration) => configuration.GetSmsProviders().First();
+
+    /// <summary>
+    /// Gets the primary configured Email provider.
+    /// </summary>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The primary provider name.</returns>
+    public static string GetDefaultEmailProvider(this IConfiguration configuration) => configuration.GetEmailProviders().First();
 }

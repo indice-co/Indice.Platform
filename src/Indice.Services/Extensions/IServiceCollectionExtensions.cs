@@ -67,8 +67,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <strong>Smtp, SparkPost, SendGrid, Brevo, None, AzureCommunicationServices</strong>
     /// </remarks>
     public static EmailServiceBuilder AddEmailService(this IServiceCollection services, IConfiguration configuration) {
-        var providerNamesText = configuration.GetSection(EmailServiceSettings.Name).GetValue<string>("Provider");
-        var providerNames = (providerNamesText ?? EmailServiceSmtp.ServiceName).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var providerNames = configuration.GetEmailProviders();
         foreach (var name in providerNames) {
             switch (name) {
                 case EmailServiceSmtp.ServiceName:
@@ -576,6 +575,24 @@ public static class IndiceServicesServiceCollectionExtensions
         switch (provider) {
             case "apifon":
                 services.AddWebhookServices<THandler, ApifonWebhookHttpHandler>(configuration);
+                break;
+        }
+        return services;
+    }
+
+    /// <summary>
+    /// Registers Email webhook services for the configured provider.
+    /// </summary>
+    /// <typeparam name="THandler">The webhook event handler type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddEmailWebhooks<THandler>(this IServiceCollection services, IConfiguration configuration)
+        where THandler : class, IWebhookHandler {
+        var provider = configuration.GetDefaultEmailProvider();
+        switch (provider) {
+            case EmailServiceSparkPost.ServiceName:
+                services.AddWebhookServices<THandler, SparkPostWebhookHttpHandler>(configuration);
                 break;
         }
         return services;
