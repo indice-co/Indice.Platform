@@ -539,9 +539,10 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <typeparam name="THttpHandler">The webhook HTTP handler type.</typeparam>
     /// <param name="services">The service collection.</param>
     /// <param name="configuration">The application configuration.</param>
+    /// <param name="providerName"></param>
     /// <returns>The service collection.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The configured channel capacity is less than or equal to zero.</exception>
-    public static IServiceCollection AddWebhookServices<THandler, THttpHandler>(this IServiceCollection services, IConfiguration configuration) 
+    public static IServiceCollection AddWebhookServices<THandler, THttpHandler>(this IServiceCollection services, IConfiguration configuration, string providerName) 
         where THandler : class, IWebhookHandler
         where THttpHandler : class, IWebhookHttpHandler {
         var settings = configuration.GetSection(WebhooksSettings.Name).Get<WebhooksSettings>() ?? new WebhooksSettings();
@@ -556,8 +557,8 @@ public static class IndiceServicesServiceCollectionExtensions
             SingleReader = true,
             SingleWriter = false
         }));
-        services.AddScoped<IWebhookHandler, THandler>();
-        services.AddScoped<IWebhookHttpHandler, THttpHandler>();
+        services.TryAddScoped<IWebhookHandler, THandler>();
+        services.AddKeyedScoped<IWebhookHttpHandler, THttpHandler>(providerName);
         services.AddHostedService<WebhookEventSink>();
         return services;
     }
@@ -574,7 +575,7 @@ public static class IndiceServicesServiceCollectionExtensions
         var provider = configuration.GetDefaultSmsProvider();
         switch (provider) {
             case "apifon":
-                services.AddWebhookServices<THandler, ApifonWebhookHttpHandler>(configuration);
+                services.AddWebhookServices<THandler, ApifonWebhookHttpHandler>(configuration, provider);
                 break;
         }
         return services;
@@ -592,7 +593,7 @@ public static class IndiceServicesServiceCollectionExtensions
         var provider = configuration.GetDefaultEmailProvider();
         switch (provider) {
             case EmailServiceSparkPost.ServiceName:
-                services.AddWebhookServices<THandler, SparkPostWebhookHttpHandler>(configuration);
+                services.AddWebhookServices<THandler, SparkPostWebhookHttpHandler>(configuration, provider);
                 break;
         }
         return services;
