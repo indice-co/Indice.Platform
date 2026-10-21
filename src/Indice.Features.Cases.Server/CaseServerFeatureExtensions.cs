@@ -79,7 +79,7 @@ public static class CaseServerFeatureExtensions
             })
             .ClearResilienceHandlers()
             .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("cases"));
-        builder.Services.AddHttpClient<IElsaClient, ElsaClient>((serviceProvider, httpClient) => {
+        builder.Services.AddHttpClient<ElsaClient, ElsaClient>((serviceProvider, httpClient) => {
                 var loopbackUri = builder.Configuration.TryGetEndpoint("ServerLoopbackUri");
                 httpClient.BaseAddress = string.IsNullOrWhiteSpace(loopbackUri) ?
                                             serviceProvider.GetServerLoopbackUri() :
@@ -122,7 +122,7 @@ public static class CaseServerFeatureExtensions
         routes.MapAdminQueries();
         routes.MapAdminReports();
         routes.MapAdminWorkflowInvoker();
-        routes.MapExternalIntegrationWorkflow();
+        routes.MapCallbackWorkflow();
         routes.MapLookup();
         routes.MapAdminAccessRules();
         routes.MapIntegration();

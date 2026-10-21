@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
-internal static class ExternalIntegrationHandler
+internal static class CallbackHandler
 {
 
 
@@ -21,7 +21,7 @@ internal static class ExternalIntegrationHandler
         [FromRoute] Guid caseId,
         [FromRoute] string? endpointName,
         [FromBody] JsonNode request,
-        [FromServices] IElsaClient casesService,
+        [FromServices] ElsaClient casesService,
         ClaimsPrincipal user,
         IOptions<CasesOptions> caseOptions
     ) {
@@ -45,7 +45,7 @@ internal static class ExternalIntegrationHandler
         return TypedResults.NoContent();
     }
 
-    private static async Task<(int, string)> SendMessage(IElsaClient casesClient, Guid caseId, string? endpointName, object request) {
+    private static async Task<(int, string)> SendMessage(ElsaClient casesClient, Guid caseId, string? endpointName, object request) {
         try {
             await casesClient.SendExternalMessage(caseId, endpointName, request);
         } catch (ElsaClient.CasesClientException<ValidationProblemDetails> ex) {

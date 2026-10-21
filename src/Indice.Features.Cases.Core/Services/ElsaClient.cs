@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Core.Services;
 
 /// <summary>HTTP client for invoking external workflow messages for cases.</summary>
-public class ElsaClient : IElsaClient
+public class ElsaClient
 {
     private readonly HttpClient _httpClient;
     private readonly CasesClientOptions _casesClientOptions;
