@@ -28,7 +28,8 @@ public static class ExternalIntegrationApi
                 .RequireAuthenticatedUser()
                 .AddAuthenticationSchemes("Bearer")
                 .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-                .RequireCasesAccess(CasesAccessLevel.Manage)); // equivalent to BeCasesManager
+                .RequireCasesAccess(CasesAccessLevel.Manage)
+                .RequireCasesRecordAccess(CasesAccessLevel.Manage));
 
         group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
