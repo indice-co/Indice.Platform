@@ -25,6 +25,9 @@ internal static class ExternalIntegrationHandler
         ClaimsPrincipal user,
         IOptions<CasesOptions> caseOptions
     ) {
+        if (request is not JsonObject) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("", "The request body must be a JSON object."));
+        }
         request["actor"] = user.UserToActor(caseOptions.Value).ToJsonNode();
         var (statusCode, error) = await SendMessage(casesService, caseId, endpointName, request);
         if (statusCode != StatusCodes.Status200OK) {
@@ -61,6 +64,7 @@ internal static class ExternalIntegrationHandler
                     ? ex.Result!.Extensions["message"]?.ToString()!
                     : string.Empty);
             }
+            throw;
         } catch (ElsaClient.CasesClientException ex) {
             if (ex.StatusCode == StatusCodes.Status404NotFound) {
                 return (StatusCodes.Status404NotFound, string.Empty);

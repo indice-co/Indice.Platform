@@ -204,5 +204,5 @@ public class ElsaClient : IElsaClient
 public class CasesClientOptions
 {
     /// <summary>Gets or sets the root path where HTTP workflow activities are exposed.</summary>
-    public string? ServerHttpActivitiesBasePath { get; set; }
+    public string? ServerHttpActivitiesBasePath { get; set; } = "/http-activities";
 }
