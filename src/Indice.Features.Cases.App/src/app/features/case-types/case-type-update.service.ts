@@ -5,6 +5,7 @@ import { ToastType } from "@indice/ng-components";
 import { TranslateService } from "@ngx-translate/core";
 import { TranslatedToasterService } from "src/app/shared/services/translated-toaster.service";
 import { CasesApiService, CaseTypeRequest, ICaseTypeRequest } from "src/app/core/services/cases-api.service";
+import { CaseTypeService } from "src/app/core/services/case-type.service";
 import { EMPTY } from 'rxjs';
 
 @Injectable({
@@ -16,7 +17,8 @@ export class CaseTypeUpdateService {
         private _api: CasesApiService,
         private toaster: TranslatedToasterService,
         private translate: TranslateService,
-        private router: Router) { }
+        private router: Router,
+        private caseTypeService: CaseTypeService) { }
 
     public schema: any = {
         "type": "object",
@@ -292,6 +294,7 @@ export class CaseTypeUpdateService {
         });
         this._api.createCaseType(request).pipe(
             tap(_ => {
+                this.caseTypeService.invalidateCaseTypes();
                 this.toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeCreated.body')
                 this.router.navigate(['/case-types']);
             }),
@@ -322,6 +325,7 @@ export class CaseTypeUpdateService {
         })
         this._api.updateCaseType(caseTypeId, request).pipe(
             tap(_ => {
+                this.caseTypeService.invalidateCaseTypes();
                 this.toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeUpdated.body')
             }),
             catchError(err => {

@@ -13,7 +13,7 @@ import { CasesApiService, CaseTypeRequest } from 'src/app/core/services/cases-ap
 })
 export class CaseTypeEditComponent implements OnInit {
 
-  private caseTypeId: string = '';
+  public caseTypeId: string = '';
 
   public schema = this.caseTypesService.schema;
 
