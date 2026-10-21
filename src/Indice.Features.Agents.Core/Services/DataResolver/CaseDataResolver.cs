@@ -32,7 +32,7 @@ public class CaseDataResolver : ICustomerDataResolver
             PhoneNumber = caseData["data"]?["phoneNumber"]?.GetValue<string>(),
             Email = caseData["data"]?["email"]?.GetValue<string>(),
             ChallengeValue = caseData["data"]?["carPlate"]?.GetValue<string>(),
-            PaymentAmount = caseData["data"]?["serviceInfo"]["amount"]?.GetValue<decimal>(),
+            PaymentAmount = caseData["data"]?["serviceInfo"]?["amount"]?.GetValue<decimal>(),
             ChallengeType = "carPlate"
         };
     }
