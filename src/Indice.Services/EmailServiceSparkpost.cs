@@ -106,7 +106,7 @@ public class EmailServiceSparkPost : IEmailService
 }
 
 /// <inheritdoc/>
-public sealed class SparkPostWebhookHttpHandler(IOptionsSnapshot<EmailServiceSparkPostSettings> options, ILogger<SparkPostWebhookHttpHandler> logger) : IWebhookHttpHandler
+public sealed class SparkPostWebhookHttpHandler(IOptions<EmailServiceSparkPostSettings> options) : IWebhookHttpHandler
 {
     private readonly EmailServiceSparkPostSettings _options = options.Value;
 
