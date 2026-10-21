@@ -16,4 +16,6 @@ public class StripeOptions
     public string Currency { get; set; } = "eur";
     /// <summary>Optional display order of the Payment Element methods (e.g. <c>apple_pay</c>, <c>google_pay</c>, <c>card</c>). The enabled methods themselves are managed in the Stripe Dashboard.</summary>
     public string[]? PaymentMethodOrder { get; set; }
+    /// <summary>Minimum time between two reconciliations of a pending attempt against Stripe when the webhook has not landed yet. Defaults to 5 seconds.</summary>
+    public TimeSpan ReconciliationInterval { get; set; } = TimeSpan.FromSeconds(5);
 }

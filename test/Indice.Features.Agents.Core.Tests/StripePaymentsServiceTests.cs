@@ -115,6 +115,41 @@ public class StripePaymentsServiceTests
     }
 
     [Fact]
+    public async Task GetCurrentAttempt_MapsDeclinedIntentToFailed_WithReason() {
+        var (service, db, stripe, handler) = CreateService();
+        await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
+        stripe.IntentStatus = "requires_payment_method";
+        stripe.LastPaymentError = "Your card was declined.";
+
+        var session = await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
+
+        Assert.NotNull(session);
+        Assert.Equal(PaymentAuthorizationStatus.Failed, session.PaymentAuthorizationStatus);
+        Assert.Null(session.PaymentSessionSecret);
+        var stored = Assert.Single(db.PaymentSessions);
+        Assert.Equal(PaymentAuthorizationStatus.Failed, stored.Status);
+        Assert.Equal("Your card was declined.", stored.FailureReason);
+        Assert.Equal(PaymentAuthorizationStatus.Failed, Assert.Single(handler.Changes).PaymentAuthorizationStatus);
+    }
+
+    [Fact]
+    public async Task GetCurrentAttempt_ThrottlesStripeReconciliation() {
+        var interval = TimeSpan.FromMilliseconds(300);
+        var (service, _, stripe, _) = CreateService(interval);
+        await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
+        await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
+        var callsAfterFirstSync = stripe.Requests.Count(x => x.Method == HttpMethod.Get);
+
+        await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
+        await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
+        Assert.Equal(callsAfterFirstSync, stripe.Requests.Count(x => x.Method == HttpMethod.Get));
+
+        await Task.Delay(interval * 2);
+        await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
+        Assert.Equal(callsAfterFirstSync + 1, stripe.Requests.Count(x => x.Method == HttpMethod.Get));
+    }
+
+    [Fact]
     public async Task GetCurrentAttempt_DoesNotCallStripe_OnceTerminal() {
         var (service, _, stripe, _) = CreateService();
         await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
@@ -160,7 +195,8 @@ public class StripePaymentsServiceTests
         Assert.Empty(stripe.Requests);
     }
 
-    private static (StripePaymentsService Service, AgentsDbContext Db, FakeStripeClient Stripe, RecordingPaymentEventHandler Handler) CreateService() {
+    // Reconciliation is not throttled by default so every read hits the fake Stripe client; the throttle test opts in.
+    private static (StripePaymentsService Service, AgentsDbContext Db, FakeStripeClient Stripe, RecordingPaymentEventHandler Handler) CreateService(TimeSpan? reconciliationInterval = null) {
         var options = new DbContextOptionsBuilder<AgentsDbContext>()
             .UseInMemoryDatabase(databaseName: $"StripePayments-{Guid.NewGuid()}")
             .Options;
@@ -170,9 +206,8 @@ public class StripePaymentsServiceTests
         var service = new StripePaymentsService(
             db,
             stripe,
-            Options.Create(new StripeOptions { PublishableKey = "pk_test", SecretKey = "sk_test", WebhookSecret = "whsec_test" }),
+            Options.Create(new StripeOptions { PublishableKey = "pk_test", SecretKey = "sk_test", WebhookSecret = "whsec_test", ReconciliationInterval = reconciliationInterval ?? TimeSpan.Zero }),
             handler,
-            TimeProvider.System,
             NullLogger<StripePaymentsService>.Instance);
         return (service, db, stripe, handler);
     }
@@ -197,6 +232,8 @@ public class StripePaymentsServiceTests
         public List<Request> Requests { get; } = [];
         /// <summary>The status Stripe reports for every existing PaymentIntent.</summary>
         public string IntentStatus { get; set; } = "requires_payment_method";
+        /// <summary>When set, Stripe reports this as the intent's <c>last_payment_error</c> (a declined confirmation).</summary>
+        public string? LastPaymentError { get; set; }
 
         public string ApiBase => "https://api.stripe.com";
         public string ApiKey => "sk_test";
@@ -213,7 +250,11 @@ public class StripePaymentsServiceTests
                 var create = (PaymentIntentCreateOptions)options;
                 intent = new PaymentIntent { Id = id, ClientSecret = $"{id}_secret", Status = "requires_payment_method", Amount = create.Amount ?? 0, Currency = create.Currency };
             } else if (method == HttpMethod.Get && path.StartsWith("/v1/payment_intents/", StringComparison.Ordinal)) {
-                intent = new PaymentIntent { Id = path["/v1/payment_intents/".Length..], Status = IntentStatus };
+                intent = new PaymentIntent {
+                    Id = path["/v1/payment_intents/".Length..],
+                    Status = IntentStatus,
+                    LastPaymentError = LastPaymentError is null ? null : new StripeError { Message = LastPaymentError }
+                };
             } else if (method == HttpMethod.Post && path.EndsWith("/cancel", StringComparison.Ordinal)) {
                 IntentStatus = "canceled";
                 intent = new PaymentIntent { Id = path["/v1/payment_intents/".Length..^"/cancel".Length], Status = IntentStatus };

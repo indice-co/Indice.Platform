@@ -20,7 +20,6 @@ public static class AgentsPaymentsFeatureExtensions
                       .Validate(x => !string.IsNullOrWhiteSpace(x.WebhookSecret), "Stripe:WebhookSecret is required.")
                       .ValidateOnStart();
         services.TryAddSingleton<IStripeClient>(sp => new StripeClient(sp.GetRequiredService<IOptions<StripeOptions>>().Value.SecretKey));
-        services.TryAddSingleton(TimeProvider.System);
         services.TryAddTransient<IPaymentEventHandler, NoOpPaymentEventHandler>();
         services.TryAddTransient<IPaymentsService, StripePaymentsService>();
         return services;

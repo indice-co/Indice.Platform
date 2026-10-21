@@ -35,7 +35,6 @@ public class StripePaymentsService(
     IStripeClient stripeClient,
     IOptions<StripeOptions> options,
     IPaymentEventHandler eventHandler,
-    TimeProvider timeProvider,
     ILogger<StripePaymentsService> logger) : IPaymentsService
 {
     private readonly StripeOptions _options = options.Value;
@@ -73,7 +72,7 @@ public class StripePaymentsService(
         if (existing is not null) {
             return ToModel(existing);
         }
-        var now = timeProvider.GetUtcNow();
+        var now = DateTimeOffset.UtcNow;
         var session = new DbPaymentSession {
             CaseId = caseId,
             TenantId = tenantId,
@@ -103,22 +102,31 @@ public class StripePaymentsService(
         return session is null ? null : ToModel(session);
     }
     // The webhook is the primary source of truth but can be late or missing (e.g. no forwarding in development).
-    // An attempt still marked Created is reconciled against its PaymentIntent so a paid intent is never re-confirmed.
+    // An attempt still marked Created is reconciled against its PaymentIntent so a paid intent is never re-confirmed
+    // and a declined one surfaces as Failed. The UI polls frequently, so Stripe is asked at most once per ReconciliationInterval.
     private async Task SyncWithStripeAsync(DbPaymentSession session, CancellationToken cancellationToken) {
         if (session.Status != PaymentAuthorizationStatus.Created) {
+            return;
+        }
+        var now = DateTimeOffset.UtcNow;
+        if (session.UpdatedAt > session.CreatedAt && now - session.UpdatedAt < _options.ReconciliationInterval) {
             return;
         }
         var intent = await PaymentIntents.GetAsync(session.PaymentIntentId, cancellationToken: cancellationToken);
         PaymentAuthorizationStatus? status = intent.Status switch {
             "succeeded" => PaymentAuthorizationStatus.Succeeded,
             "canceled" => PaymentAuthorizationStatus.Cancelled,
+            // A declined confirmation drops the intent back to requires_payment_method and records the error.
+            "requires_payment_method" when intent.LastPaymentError is not null => PaymentAuthorizationStatus.Failed,
             _ => null
         };
+        session.UpdatedAt = now;
         if (status is null) {
+            await db.SaveChangesAsync(cancellationToken);
             return;
         }
         session.Status = status.Value;
-        session.UpdatedAt = timeProvider.GetUtcNow();
+        session.FailureReason = intent.LastPaymentError?.Message;
         await db.SaveChangesAsync(cancellationToken);
         await eventHandler.OnStatusChangedAsync(ToModel(session), cancellationToken);
     }
@@ -150,7 +158,7 @@ public class StripePaymentsService(
         }
         session.Status = status.Value;
         session.FailureReason = paymentIntent.LastPaymentError?.Message;
-        session.UpdatedAt = timeProvider.GetUtcNow();
+        session.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(cancellationToken);
         await eventHandler.OnStatusChangedAsync(ToModel(session), cancellationToken);
     }
@@ -168,7 +176,7 @@ public class StripePaymentsService(
             throw new BusinessException($"The payment could not be cancelled: {ex.StripeError?.Message ?? ex.Message}");
         }
         session.Status = PaymentAuthorizationStatus.Cancelled;
-        session.UpdatedAt = timeProvider.GetUtcNow();
+        session.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(cancellationToken);
         return ToModel(session);
     }
