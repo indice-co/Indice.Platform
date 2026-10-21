@@ -151,9 +151,13 @@ public static class WorkflowExtensions
     {
         /// <summary>
         /// Tries to find the workflow port request that is still waiting for the user: a <see cref="FunctionCallContent"/>
-        /// on the last assistant message whose call id is an <see cref="AgentFunctionCallId"/> carrying a checkpoint, with no
-        /// later <see cref="FunctionResultContent"/> answering it.
+        /// on the last assistant message whose call id is an <see cref="AgentFunctionCallId"/> carrying a checkpoint.
         /// </summary>
+        /// <remarks>
+        /// Only a committed assistant turn proves the workflow consumed a reply: a failed or cancelled turn persists the user
+        /// message (including any function result) without an assistant message, so later user messages are ignored here and
+        /// the request stays pending until the workflow answers.
+        /// </remarks>
         /// <param name="request">When this method returns, contains the pending request if found; otherwise, <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if a pending port request was found; otherwise, <see langword="false"/>.</returns>
         public bool TryGetPendingPortRequest([NotNullWhen(true)] out FunctionCallContent? request) {
@@ -171,11 +175,6 @@ public static class WorkflowExtensions
             var call = history[lastAssistantIndex].Contents.OfType<FunctionCallContent>()
                 .LastOrDefault(c => AgentFunctionCallId.TryParse(c.CallId, out var id) && !string.IsNullOrWhiteSpace(id!.CheckpointId));
             if (call is null) {
-                return false;
-            }
-            var requestId = AgentFunctionCallId.Parse(call.CallId).RequestId;
-            var answered = history.Skip(lastAssistantIndex + 1).Any(message => message.HasFunctionResultContent(requestId));
-            if (answered) {
                 return false;
             }
             request = call;
