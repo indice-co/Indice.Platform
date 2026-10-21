@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Indice.Features.Agents.Core.Data;
+using Indice.Features.Agents.Core.Models;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Agents.AI.Workflows.Checkpointing;
 using Microsoft.EntityFrameworkCore;
@@ -47,5 +48,21 @@ public sealed class PersistedCheckpointStore(AgentsDbContext dbContext) : JsonCh
         // cannot translate DateTimeOffset ordering. Oldest-first ordering is a CheckpointManager contract.
         var rows = await query.Select(x => new { x.CheckpointId, x.CreatedAt }).ToListAsync();
         return rows.OrderBy(x => x.CreatedAt).Select(x => new CheckpointInfo(sessionId, x.CheckpointId)).ToList();
+    }
+
+    /// <summary>Finds the session (conversation and owning agent) a checkpoint was committed under.</summary>
+    /// <param name="checkpointId">The checkpoint identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The owning <see cref="AgentSessionId"/>, or <see langword="null"/> when the checkpoint is unknown.</returns>
+    public async ValueTask<AgentSessionId?> FindSessionByCheckpointIdAsync(string checkpointId, CancellationToken cancellationToken = default) {
+        if (string.IsNullOrWhiteSpace(checkpointId)) {
+            return null;
+        }
+        var sessionId = await dbContext.Set<DbCheckpoint>()
+            .AsNoTracking()
+            .Where(x => x.CheckpointId == checkpointId)
+            .Select(x => x.SessionId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return sessionId is not null && AgentSessionId.TryParse(sessionId, out var agentSessionId) ? agentSessionId : null;
     }
 }

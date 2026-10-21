@@ -144,6 +144,46 @@ public static class WorkflowExtensions
     }
 
     /// <summary>
+    /// Extension methods for a conversation history.
+    /// </summary>
+    /// <param name="history">The conversation history, oldest-first.</param>
+    extension(IReadOnlyList<ChatMessage> history)
+    {
+        /// <summary>
+        /// Tries to find the workflow port request that is still waiting for the user: a <see cref="FunctionCallContent"/>
+        /// on the last assistant message whose call id is an <see cref="AgentFunctionCallId"/> carrying a checkpoint, with no
+        /// later <see cref="FunctionResultContent"/> answering it.
+        /// </summary>
+        /// <param name="request">When this method returns, contains the pending request if found; otherwise, <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if a pending port request was found; otherwise, <see langword="false"/>.</returns>
+        public bool TryGetPendingPortRequest([NotNullWhen(true)] out FunctionCallContent? request) {
+            request = null;
+            var lastAssistantIndex = -1;
+            for (var i = history.Count - 1; i >= 0; i--) {
+                if (history[i].Role == ChatRole.Assistant) {
+                    lastAssistantIndex = i;
+                    break;
+                }
+            }
+            if (lastAssistantIndex < 0) {
+                return false;
+            }
+            var call = history[lastAssistantIndex].Contents.OfType<FunctionCallContent>()
+                .LastOrDefault(c => AgentFunctionCallId.TryParse(c.CallId, out var id) && !string.IsNullOrWhiteSpace(id!.CheckpointId));
+            if (call is null) {
+                return false;
+            }
+            var requestId = AgentFunctionCallId.Parse(call.CallId).RequestId;
+            var answered = history.Skip(lastAssistantIndex + 1).Any(message => message.HasFunctionResultContent(requestId));
+            if (answered) {
+                return false;
+            }
+            request = call;
+            return true;
+        }
+    }
+
+    /// <summary>
     /// Extension methods for a collection of <see cref="McpCapturingToolFunction"/> instances.
     /// </summary>
     /// <param name="tools">The capturing tool functions.</param>
