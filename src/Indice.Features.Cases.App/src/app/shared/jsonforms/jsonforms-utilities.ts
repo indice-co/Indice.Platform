@@ -60,9 +60,16 @@ export function presentField(
     };
 }
 
-/** ajsf `case-channel` option: the field is only shown for cases of that channel ('Agent' or 'Customer'). */
+/** ajsf `case-channel` option: the field is only shown for cases of that channel (e.g. 'Managed' or 'External'). */
 export function isShownForChannel(options: any, caseChannel: string | undefined): boolean {
-    return !options?.['case-channel'] || options['case-channel'] === caseChannel;
+    return !options?.['case-channel'] || normalizeChannel(options['case-channel']) === normalizeChannel(caseChannel);
+}
+
+/** Legacy channel names, still found on older cases and UI schemas, mapped to their current names. */
+const legacyChannels: Record<string, string> = { Agent: 'Managed', Customer: 'External' };
+
+function normalizeChannel(channel: string | undefined): string | undefined {
+    return channel && Object.hasOwn(legacyChannels, channel) ? legacyChannels[channel] : channel;
 }
 
 /** ajsf layouts store booleans as `true` or `"true"`. */

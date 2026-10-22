@@ -174,14 +174,15 @@
   }
 </div>
 
-<!-- Server reports -->
+<!-- Server reports: two columns, so each channel's pair (by case type, by status) shares a row -->
 @if (reports.length) {
-  <div class="mb-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-    @for (report of reports; track report.tag) {
+  <div class="mb-6 grid gap-6 md:grid-cols-2">
+    @for (report of reports; track $index) {
+      @let title = report.title | translate: { channel: channelLabel(report.channel) };
       @if (report.loader.state(); as state) {
         @if (state.status !== 'hidden') {
           <section class="panel p-5">
-            <h2 class="mb-4 font-semibold">{{ report.title | translate }}</h2>
+            <h2 class="mb-4 font-semibold">{{ title }}</h2>
             @switch (state.status) {
               @case ('loading') {
                 <div class="space-y-3" aria-busy="true">
@@ -191,7 +192,7 @@
               @case ('error') { <ng-container *ngTemplateOutlet="cardError; context: { $implicit: report.loader }" /> }
               @case ('ready') {
                 @if (state.value.length) {
-                  <app-breakdown-list [data]="state.value" [label]="report.title | translate" />
+                  <app-breakdown-list [data]="state.value" [label]="title" />
                 } @else {
                   <p class="text-sm text-base-content/70">{{ 'dashboard.noData' | translate }}</p>
                 }

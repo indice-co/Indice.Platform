@@ -74,8 +74,9 @@ export class DashboardMetricsService {
     return this._api.getCases(1, 5, 'createdByWhen-').pipe(map(result => result.items ?? []));
   }
 
-  public report(tag: ReportTag): Observable<GroupByReportResult[]> {
-    return this._api.getCaseReport(tag);
+  /** A server report, optionally limited to the cases of one channel. */
+  public report(tag: ReportTag, channel?: string): Observable<GroupByReportResult[]> {
+    return this._api.getCaseReport(tag, channel);
   }
 
   /** Query params that open the cases list with filters equivalent to a KPI. */

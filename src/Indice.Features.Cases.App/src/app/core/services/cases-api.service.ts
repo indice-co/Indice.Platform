@@ -315,9 +315,10 @@ export interface ICasesApiService {
     deleteQuery(queryId: string): Observable<void>;
     /**
      * Get case report
+     * @param channel (optional)
      * @return OK
      */
-    getCaseReport(reportTag: ReportTag): Observable<GroupByReportResult[]>;
+    getCaseReport(reportTag: ReportTag, channel?: string | null | undefined): Observable<GroupByReportResult[]>;
     /**
      * Get the dashboard metrics
      * @param intakeDays (optional) Number of days, ending today, to report daily intake for (1-90). Defaults to 14.
@@ -4816,14 +4817,17 @@ export class CasesApiService implements ICasesApiService {
 
     /**
      * Get case report
+     * @param channel (optional)
      * @return OK
      */
-    getCaseReport(reportTag: ReportTag): Observable<GroupByReportResult[]> {
+    getCaseReport(reportTag: ReportTag, channel?: string | null | undefined): Observable<GroupByReportResult[]> {
         let url_ = this.baseUrl + "/manage/reports?";
         if (reportTag === undefined || reportTag === null)
             throw new globalThis.Error("The parameter 'reportTag' must be defined and cannot be null.");
         else
             url_ += "reportTag=" + encodeURIComponent("" + reportTag) + "&";
+        if (channel !== undefined && channel !== null)
+            url_ += "channel=" + encodeURIComponent("" + channel) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {

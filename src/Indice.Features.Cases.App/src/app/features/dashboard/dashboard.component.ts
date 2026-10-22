@@ -2,7 +2,7 @@ import { Component, DestroyRef, computed, inject } from '@angular/core';
 import { DatePipe, DecimalPipe, NgTemplateOutlet, PercentPipe, SlicePipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@indice/ng-auth';
 import { catchError, of, switchMap } from 'rxjs';
 import {
@@ -17,13 +17,20 @@ import { BreakdownListComponent } from './breakdown-list.component';
 import { CardLoader } from './card-loader';
 import { DashboardMetricsService, STALE_AFTER_DAYS } from './dashboard-metrics.service';
 
-const REPORTS: { tag: ReportTag; title: string; adminOnly?: boolean }[] = [
+type Report = { tag: ReportTag; title: string; channel?: string; adminOnly?: boolean };
+
+/** Repeated for each channel of `settings.dashboardChannels`; the title gets the channel's label as `channel`. */
+const CHANNEL_REPORTS: Report[] = [
+  { tag: ReportTag.GroupedByCasetype, title: 'dashboard.channelGroupedByCasetype' },
+  { tag: ReportTag.GroupedByStatus, title: 'dashboard.channelGroupedByStatus' }
+];
+const DASHBOARD_CHANNELS = [...new Set(settings.dashboardChannels.split(',').map(c => c.trim()).filter(c => c))];
+
+/** The totals, then a row per channel, then the admin's. */
+const REPORTS: Report[] = [
   { tag: ReportTag.GroupedByCasetype, title: 'dashboard.groupedByCasetype' },
   { tag: ReportTag.GroupedByStatus, title: 'dashboard.groupedByStatus' },
-  { tag: ReportTag.AgentGroupedByCasetype, title: 'dashboard.agentGroupedByCasetype' },
-  { tag: ReportTag.CustomerGroupedByCasetype, title: 'dashboard.customerGroupedByCasetype' },
-  { tag: ReportTag.AgentGroupedByStatus, title: 'dashboard.agentGroupedByStatus' },
-  { tag: ReportTag.CustomerGroupedByStatus, title: 'dashboard.customerGroupedByStatus' },
+  ...DASHBOARD_CHANNELS.flatMap(channel => CHANNEL_REPORTS.map(report => ({ ...report, channel }))),
   { tag: ReportTag.GroupedByGroupId, title: 'dashboard.groupedByGroupId', adminOnly: true }
 ];
 
@@ -45,6 +52,7 @@ export class DashboardComponent {
   private readonly _metrics = inject(DashboardMetricsService);
   private readonly _auth = inject(AuthService);
   private readonly _languages = inject(AppLanguagesService);
+  private readonly _translate = inject(TranslateService);
   private readonly _destroyRef = inject(DestroyRef);
 
   private readonly _user = toSignal(this._auth.user$, { initialValue: this._auth.getCurrentUser() });
@@ -71,7 +79,7 @@ export class DashboardComponent {
   protected readonly latest = new CardLoader(() => this._metrics.latest(), this._destroyRef);
   protected readonly reports = REPORTS
     .filter(r => this.showReport(r.tag) && (!r.adminOnly || this._auth.isAdmin()))
-    .map(r => ({ ...r, loader: new CardLoader(() => this._metrics.report(r.tag), this._destroyRef) }));
+    .map(r => ({ ...r, loader: new CardLoader(() => this._metrics.report(r.tag, r.channel), this._destroyRef) }));
 
   // --- derived views ---
   private readonly _openCodes = computed(() => {
@@ -152,6 +160,16 @@ export class DashboardComponent {
 
   protected statusClass(item: CasePartial): string {
     return item.checkpointType?.status ? `stamp-${item.checkpointType.status.toLowerCase()}` : 'stamp-neutral';
+  }
+
+  /** `channels.<channel>` when translated, otherwise the channel as is. */
+  protected channelLabel(channel: string | undefined): string {
+    if (!channel) {
+      return '';
+    }
+    const key = `channels.${channel}`;
+    const translated = this._translate.instant(key);
+    return translated && translated !== key ? translated : channel;
   }
 
   private showReport(tag: ReportTag): boolean {

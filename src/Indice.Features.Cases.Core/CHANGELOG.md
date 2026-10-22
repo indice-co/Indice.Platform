@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- `GET /manage/reports` takes an optional `channel` that limits any report to the cases of that channel.
+  The `Agent*` / `Customer*` report tags remain, as the `Managed` / `External` channel reports.
+### Changed
+- The default case channels are renamed: `Agent` is now `Managed` (cases created through the manage API) and `Customer`
+  is now `External` (cases created through the my API). No migration: the old names stay on the cases already stored
+  and count as the new ones everywhere a channel is compared (reports, which cases a customer can open, the
+  `case-channel` UI schema option). The workflow `Get Channel` activity returns `Managed` / `External` for them too,
+  so workflow definitions that compare its output with `Agent` / `Customer` must compare with `Managed` / `External`.
+- `POST /manage/cases` creates the case with the request's `channel` (any name, up to 128 characters) instead of always
+  `Agent`; it defaults to `Managed`. The request is now validated like the one of `POST /my/cases`.
+
 ## [8.59.0] - 2026-10-20
 ### The following unique index was added to the `case` schema in cases db.
 ```sql

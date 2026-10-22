@@ -14,8 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Elements no renderer accepts show their value as JSON instead of "No applicable renderer found".
 - Read-only cases render as a two-column list of labels and values instead of a form of read-only fields.
 - When the user cannot open cases, the cases list shows an info button where the "New case" button would be, explaining why.
+- `CasesUIOptions.DashboardChannels`: the dashboard shows a "by case type" and a "by status" report for each listed case
+  channel, a row per channel. Defaults to `Managed` and `External`; an empty list shows none. These reports follow
+  `DashboardTags` through `GroupedByCasetype` / `GroupedByStatus`. A channel is labelled by its `channels.<name>`
+  translation when there is one, otherwise by its name.
 ### Changed
 - On a case type's list, "New case" is shown only when that case type can be created, and opens with it already chosen.
+- The channel reports replace the fixed Agent/Customer (branch/eBanking) dashboard reports, so the `Agent*` / `Customer*`
+  entries of `DashboardTags` no longer select a report; to hide the channel reports set `DashboardChannels` to an empty list.
+  Translation keys: `dashboard.agentGroupedByCasetype`, `dashboard.customerGroupedByCasetype`, `dashboard.agentGroupedByStatus`
+  and `dashboard.customerGroupedByStatus` are replaced by `dashboard.channelGroupedByCasetype` / `dashboard.channelGroupedByStatus`
+  (with a `{{channel}}` parameter) and `channels.Managed` / `channels.External`.
+- The `case-channel` UI schema option treats the legacy `Agent` / `Customer` channel names as `Managed` / `External`.
 ### Fixed
 - Editable checkboxes in the case data form could not be ticked.
 

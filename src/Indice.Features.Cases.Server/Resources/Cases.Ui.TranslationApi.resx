@@ -120,20 +120,20 @@
   <data name="dashboard.groupedByCasetype" xml:space="preserve">
     <value>Total Cases by Case Type</value>
   </data>
-  <data name="dashboard.agentGroupedByCasetype" xml:space="preserve">
-    <value>Branch Cases by Case Type</value>
-  </data>
-  <data name="dashboard.customerGroupedByCasetype" xml:space="preserve">
-    <value>eBanking Cases by Case Type</value>
-  </data>
   <data name="dashboard.groupedByStatus" xml:space="preserve">
     <value>Total Cases by Status</value>
   </data>
-  <data name="dashboard.agentGroupedByStatus" xml:space="preserve">
-    <value>Branch Cases by Status</value>
+  <data name="dashboard.channelGroupedByCasetype" xml:space="preserve">
+    <value>{{channel}} Cases by Case Type</value>
   </data>
-  <data name="dashboard.customerGroupedByStatus" xml:space="preserve">
-    <value>eBanking Cases by Status</value>
+  <data name="dashboard.channelGroupedByStatus" xml:space="preserve">
+    <value>{{channel}} Cases by Status</value>
+  </data>
+  <data name="channels.Managed" xml:space="preserve">
+    <value>Managed</value>
+  </data>
+  <data name="channels.External" xml:space="preserve">
+    <value>External</value>
   </data>
   <data name="dashboard.groupedByGroupId" xml:space="preserve">
     <value>Total Cases by Branch</value>

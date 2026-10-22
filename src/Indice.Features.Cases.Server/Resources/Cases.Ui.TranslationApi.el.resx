@@ -120,20 +120,20 @@
   <data name="dashboard.groupedByCasetype" xml:space="preserve">
     <value>Συνολικές Υποθέσεις ανά Τύπο Υπόθεσης</value>
   </data>
-  <data name="dashboard.agentGroupedByCasetype" xml:space="preserve">
-    <value>Υποθέσεις από Κατάστημα ανά Τύπο Υπόθεσης</value>
-  </data>
-  <data name="dashboard.customerGroupedByCasetype" xml:space="preserve">
-    <value>Υποθέσεις μέσω eBanking ανά Τύπο Υπόθεσης</value>
-  </data>
   <data name="dashboard.groupedByStatus" xml:space="preserve">
     <value>Συνολικές Υποθέσεις ανά Status</value>
   </data>
-  <data name="dashboard.agentGroupedByStatus" xml:space="preserve">
-    <value>Υποθέσεις από Κατάστημα ανά Status</value>
+  <data name="dashboard.channelGroupedByCasetype" xml:space="preserve">
+    <value>Υποθέσεις ανά Τύπο Υπόθεσης ({{channel}})</value>
   </data>
-  <data name="dashboard.customerGroupedByStatus" xml:space="preserve">
-    <value>Υποθέσεις μέσω eBanking ανά Status</value>
+  <data name="dashboard.channelGroupedByStatus" xml:space="preserve">
+    <value>Υποθέσεις ανά Status ({{channel}})</value>
+  </data>
+  <data name="channels.Managed" xml:space="preserve">
+    <value>Διαχειριζόμενο κανάλι</value>
+  </data>
+  <data name="channels.External" xml:space="preserve">
+    <value>Εξωτερικό κανάλι</value>
   </data>
   <data name="dashboard.groupedByGroupId" xml:space="preserve">
     <value>Συνολικές Υποθέσεις ανά Καταστημα</value>
