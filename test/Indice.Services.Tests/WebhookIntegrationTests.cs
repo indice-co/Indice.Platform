@@ -51,7 +51,7 @@ public sealed class WebhookIntegrationTests
             services.GetRequiredService<Channel<List<WebhookEvent>>>());
 
         Assert.NotNull(
-            services.GetRequiredService<IWebhookHttpHandler>());
+            services.GetRequiredKeyedService<IWebhookHttpHandler>("apifon"));
 
         Assert.Contains(
             services.GetServices<IHostedService>(),
