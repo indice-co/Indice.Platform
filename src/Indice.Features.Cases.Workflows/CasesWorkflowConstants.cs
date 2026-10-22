@@ -13,13 +13,27 @@ public static class CasesWorkflowConstants
     public static string DefaultTranslationLanguage = "el";
 
     /// <summary>Cases Api default channels.</summary>
+    /// <remarks>Callers may create cases with any other channel name.</remarks>
     public static class Channels
     {
-        /// <summary>Customer channel, for the cases that have been created through MyCases interface</summary>
+        /// <summary>External channel, the default for the cases that have been created through MyCases interface</summary>
+        public const string External = nameof(External);
+
+        /// <summary>Managed channel, the default for the cases that have been created through AdminCases interface</summary>
+        public const string Managed = nameof(Managed);
+
+        /// <summary>Legacy name of <see cref="External"/>, still stored on the cases created before the rename.</summary>
         public const string Customer = nameof(Customer);
 
-        /// <summary>Agent channel, for the cases that have been created through AdminCases interface</summary>
+        /// <summary>Legacy name of <see cref="Managed"/>, still stored on the cases created before the rename.</summary>
         public const string Agent = nameof(Agent);
+
+        /// <summary>Maps a legacy channel name to its current one. Any other name is returned as is.</summary>
+        public static string? Normalize(string? channel) => channel switch {
+            Agent => Managed,
+            Customer => External,
+            _ => channel
+        };
     }
 
     /// <summary>Global Workflow variables</summary>

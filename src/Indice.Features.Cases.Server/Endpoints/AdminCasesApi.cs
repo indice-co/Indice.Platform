@@ -1,5 +1,6 @@
 ﻿using System.Net.Mime;
 using Indice.AspNetCore.Configuration;
+using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
@@ -43,7 +44,8 @@ internal static class AdminCasesApi
 
         group.MapPost(string.Empty, AdminCasesHandlers.CreateDraftAdminCase)
             .WithName(nameof(AdminCasesHandlers.CreateDraftAdminCase))
-            .WithSummary("Create a new case in draft mode.");
+            .WithSummary("Create a new case in draft mode.")
+            .WithParameterValidation<CreateDraftCaseRequest>();
 
         group.MapPost("{caseId}/data/init", AdminCasesHandlers.InitializeCaseData)
             .WithName(nameof(AdminCasesHandlers.InitializeCaseData))

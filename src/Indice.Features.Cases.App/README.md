@@ -20,13 +20,15 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 ```ng build --configuration=on-premises-uat```
 ```ng build --configuration=on-premises-dev```
 
-## Running unit tests
+## UI and theming
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+The UI is built with [Tailwind CSS 4](https://tailwindcss.com) + [daisyUI 5](https://daisyui.com) and [Lucide](https://lucide.dev) icons (`@lucide/angular`, one standalone component per icon: `<svg lucideFolderOpen class="size-4"></svg>`).
 
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+- Themes `cases` (light) and `cases-dark` are defined in `src/styles.css` with daisyUI theme variables (`--color-primary`, `--color-base-100`, …). Re-brand by overriding those.
+- A few app-level variables cover what daisyUI has no token for: `--app-sidebar-*` (sidebar chrome), `--app-highlight` (the highlighter accent used for active / attention states) and `--app-chart-1..6` (chart series).
+- The light / dark / system choice is stored per browser (`ThemeService`).
+- Reusable building blocks live in `src/app/ui`: `ListState` (URL-synced paging / sorting / filtering), `FilterBar`, `Pagination`, `SearchInput`, `EmptyState`, `PageHeader`, `DialogService` (incl. `confirm()`), `ToastService` and the `rightpane` side pane.
+- UI strings are served by the Cases server (`Indice.Features.Cases.Server/Resources/Cases.Ui.TranslationApi*.resx`).
 
 ## Further help
 

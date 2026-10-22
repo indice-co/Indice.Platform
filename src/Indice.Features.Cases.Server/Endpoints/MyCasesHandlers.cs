@@ -95,7 +95,7 @@ internal static class MyCasesHandlers
         var @case = await myCaseService.GetCaseById(caseId);
         var file = await CreatePdf(@case!, caseTemplateService, casePdfService);
         var fileName = $"{@case!.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
-        await platformEventService.Publish(new CaseDownloadedEvent(@case, CasesCoreConstants.Channels.Customer));
+        await platformEventService.Publish(new CaseDownloadedEvent(@case, CasesCoreConstants.Channels.External));
         return TypedResults.File(file, MediaTypeNames.Application.Pdf, fileName);
     }
 

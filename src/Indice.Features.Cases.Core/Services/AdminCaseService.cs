@@ -38,7 +38,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         string? groupId,
         ContactMeta? customer,
         Dictionary<string, string> metadata,
-        string? referenceNumber) {
+        string? referenceNumber,
+        string? channel = null) {
         var caseType = await DbContext.CaseTypes.Where(x => x.Code == caseTypeCode).SingleAsync();
         var entity = await CreateDraftInternal(
             _adminCaseMessageService,
@@ -47,7 +48,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             groupId,
             customer,
             metadata,
-            CasesCoreConstants.Channels.Agent,
+            string.IsNullOrWhiteSpace(channel) ? CasesCoreConstants.Channels.Managed : channel,
             user,
             referenceNumber: referenceNumber);
         return new() { Id = entity.Id, Created = DateTimeOffset.UtcNow };
