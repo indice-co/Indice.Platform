@@ -5,11 +5,10 @@
     <SpaProjectName>browser</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Cases.App</SpaSourceFolder>
     <SpaDistFolder>$(SpaSourceFolder)\dist\cases-app</SpaDistFolder>    
-    <!--<VersionPrefix>$(VersionPrefixCases)</VersionPrefix>-->
+    <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
     <PackageReadmeFile>CHANGELOG.md</PackageReadmeFile>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Cases;CaseManagement</PackageTags>
-    <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
