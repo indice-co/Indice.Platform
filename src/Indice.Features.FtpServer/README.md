@@ -92,6 +92,8 @@ Every result carries the following data, also available through `IFtpServerCapac
 | `passiveListenerFailures` | Number of `PASV` requests that failed (e.g. port range exhausted). |
 | `available` | How many new transfers can be started right now (min of free control connections and free passive ports). |
 
+When `InspectOperatingSystemPorts` is enabled, only sockets whose local address conflicts with the addresses the FTP control listener is bound to are counted (taking wildcard and IPv4/IPv6 dual-stack bindings into account). Sockets in `TIME_WAIT` are counted conservatively, since they may block the passive listener from binding, so `passivePortsFree` may be underestimated where address reuse is supported.
+
 > Counts are per server instance. When running multiple replicas behind a load balancer, probe each instance.
 
 The extension is based on [FubarDev.FtpServer](https://fubardevelopment.github.io/FtpServer/).

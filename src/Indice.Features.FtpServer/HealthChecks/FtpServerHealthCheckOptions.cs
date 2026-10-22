@@ -15,5 +15,9 @@ public class FtpServerHealthCheckOptions
     /// When <see langword="true"/> the check also inspects the operating system TCP table, so that ports in the passive range
     /// held by other processes (or lingering sockets) are not reported as free. Defaults to <see langword="false"/>.
     /// </summary>
+    /// <remarks>
+    /// Only sockets whose local address conflicts with the addresses of the FTP control listener are counted. Sockets in <c>TIME_WAIT</c>
+    /// are counted conservatively, so the free passive ports may be underestimated where address reuse is supported.
+    /// </remarks>
     public bool InspectOperatingSystemPorts { get; set; }
 }
