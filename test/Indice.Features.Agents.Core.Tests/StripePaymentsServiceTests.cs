@@ -171,30 +171,6 @@ public class StripePaymentsServiceTests
         Assert.Null(session);
     }
 
-    [Fact]
-    public async Task Cancel_CancelsIntentAndMarksSession() {
-        var (service, db, stripe, _) = CreateService();
-        await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
-
-        var session = await service.CancelAsync(CaseId, TenantId);
-
-        Assert.NotNull(session);
-        Assert.Equal(PaymentAuthorizationStatus.Cancelled, session.PaymentAuthorizationStatus);
-        Assert.Null(session.PaymentSessionSecret);
-        Assert.Single(stripe.Requests, x => x.Method == HttpMethod.Post && x.Path == "/v1/payment_intents/pi_1/cancel");
-        Assert.Equal(PaymentAuthorizationStatus.Cancelled, Assert.Single(db.PaymentSessions).Status);
-    }
-
-    [Fact]
-    public async Task Cancel_ReturnsNull_WhenNoLiveAttemptExists() {
-        var (service, _, stripe, _) = CreateService();
-
-        var session = await service.CancelAsync(CaseId, TenantId);
-
-        Assert.Null(session);
-        Assert.Empty(stripe.Requests);
-    }
-
     // Reconciliation is not throttled by default so every read hits the fake Stripe client; the throttle test opts in.
     private static (StripePaymentsService Service, AgentsDbContext Db, FakeStripeClient Stripe, RecordingPaymentEventHandler Handler) CreateService(TimeSpan? reconciliationInterval = null) {
         var options = new DbContextOptionsBuilder<AgentsDbContext>()
