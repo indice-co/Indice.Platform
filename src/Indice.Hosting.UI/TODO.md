@@ -24,7 +24,7 @@
 - [ ] GetDate known issue db column does not include timezone - need to to hacks in spa
 - [ ] Think about adding otel counter + gauge only as a minimum
 
-## Advanced advanced - Hangfire and internal discussions inspired
+## Advanced advanced - Internal discussions inspired
 - [ ] Replace quartz with an in hous database table. Then we can cancel a running task, pause execution for some time, have better reports on what is really running.
 - [ ] Run history and metrics/etl/analytics based on that.
 - [ ] User can create notification/alerts from the Dashboard for failed/stuck tasks etc.
