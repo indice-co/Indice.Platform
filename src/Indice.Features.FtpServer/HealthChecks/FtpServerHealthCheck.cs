@@ -34,7 +34,11 @@ public class FtpServerHealthCheck : IHealthCheck
         FtpServerCapacity capacity;
         try {
             capacity = _capacityProvider.GetCapacity(options.InspectOperatingSystemPorts);
-        } catch (Exception ex) {
+        } catch (TimeoutException ex) {
+            return Task.FromResult(new HealthCheckResult(context.Registration.FailureStatus, "Could not determine the FTP server capacity.", ex));
+        } catch (OperationCanceledException ex) {
+            return Task.FromResult(new HealthCheckResult(context.Registration.FailureStatus, "Could not determine the FTP server capacity.", ex));
+        } catch (InvalidOperationException ex) {
             return Task.FromResult(new HealthCheckResult(context.Registration.FailureStatus, "Could not determine the FTP server capacity.", ex));
         }
         var data = ToDictionary(capacity);
