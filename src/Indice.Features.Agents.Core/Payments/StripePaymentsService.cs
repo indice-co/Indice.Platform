@@ -22,7 +22,14 @@ public interface IPaymentsService
     Task<PaymentSessionModel?> CreateOrReuseAttemptAsync(string userId, string caseId, string tenantId, decimal amount, Guid conversationId, CancellationToken cancellationToken = default);
     /// <summary>The latest payment attempt of the case.</summary>
     Task<PaymentSessionModel?> GetCurrentAttemptAsync(string userId, string caseId, string tenantId, CancellationToken cancellationToken = default);
-    /// <summary>Verifies and applies a Stripe webhook event.</summary>
+    /// <summary>Replaces a failed or cancelled attempt with a new one; returns the live attempt if one exists; null if the user has no attempt for the case.</summary>
+    /// <remarks>The amount and originating conversation are copied from the latest attempt server-side. Only the user who started the attempt may retry.</remarks>
+    /// <param name="userId">The paying user.</param>
+    /// <param name="caseId">The case the payment is for.</param>
+    /// <param name="tenantId">The tenant the case belongs to.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<PaymentSessionModel?> RetryAttemptAsync(string userId, string caseId, string tenantId, CancellationToken cancellationToken = default);
+    /// <summary>Verifies
     /// <exception cref="StripeException">The signature is invalid.</exception>
     Task HandleWebhookAsync(string json, string? signatureHeader, CancellationToken cancellationToken = default);
 }
@@ -98,6 +105,20 @@ public class StripePaymentsService(
             await SyncWithStripeAsync(session, cancellationToken);
         }
         return session is null ? null : ToModel(session);
+    }
+    ///<inheritdoc/>
+    public async Task<PaymentSessionModel?> RetryAttemptAsync(string userId, string caseId, string tenantId, CancellationToken cancellationToken = default) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(caseId);
+        var latest = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.TenantId == tenantId)
+                                             .OrderByDescending(x => x.CreatedAt)
+                                             .FirstOrDefaultAsync(cancellationToken);
+        if (latest is null || latest.UserId != userId) {
+            return null;
+        }
+        // CreateOrReuseAttemptAsync reconciles with Stripe first, so a Created attempt that was actually paid is returned
+        // as Succeeded and never replaced; only a Failed/Cancelled attempt yields a new PaymentIntent.
+        return await CreateOrReuseAttemptAsync(userId, caseId, tenantId, latest.Amount, latest.ConversationId, cancellationToken);
     }
     // The webhook is the primary source of truth but can be late or missing (e.g. no forwarding in development).
     // An attempt still marked Created is reconciled against its PaymentIntent so a paid intent is never re-confirmed

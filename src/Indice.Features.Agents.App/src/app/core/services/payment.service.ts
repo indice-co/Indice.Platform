@@ -66,7 +66,18 @@ export class PaymentService {
     );
   }
 
-  // Fail a stalled request after REQUEST_TIMEOUT_MS, then retry only transient errors with
+  /** Replaces the case's failed or cancelled attempt with a new one (or returns the live attempt). The amount is decided server-side. */
+  retryPaymentAttempt(caseId: string): Observable<PaymentSession> {
+    // Safe to retry transient errors: the server reuses the case's live attempt instead of creating another.
+    return this.withTransientRetry(
+      this.http.post<PaymentSession>(
+        `${settings.api_url}/my/cases/${encodeURIComponent(caseId)}/payment-attempts/retry`,
+        null,
+      ),
+    );
+  }
+
+  // Fail a stalled request
   // exponential backoff (500ms, 1000ms). Non-transient errors propagate on the first failure.
   private withTransientRetry<T>(source: Observable<T>): Observable<T> {
     return source.pipe(

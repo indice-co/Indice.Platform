@@ -21,7 +21,7 @@ import type {
 } from '@stripe/stripe-js';
 
 import { settings } from '../../../core/models/settings';
-import { PaymentService } from '../../../core/services/payment.service';
+import { PaymentService, PaymentSession } from '../../../core/services/payment.service';
 import { StripeService } from '../../../core/services/stripe.service';
 import { StripePayment } from './part-contracts';
 
@@ -35,6 +35,8 @@ const POLL_MAX_ATTEMPTS = 15;
  * The workflow creates the case's payment attempt server-side and ships it, with the publishable key, in the part,
  * so the card form mounts straight away. After confirming the payment the component polls the
  * case's current attempt (webhook-driven) until it is `Succeeded`, then emits `completed` to unfreeze the chat.
+ * When the attempt is `Failed`/`Cancelled` (also after a reload), Try again asks the server for a replacement attempt
+ * owned by the same user; the amount is copied server-side.
  */
 @Component({
   selector: 'app-chat-stripe-payment',
@@ -122,6 +124,7 @@ export class ChatStripePaymentComponent {
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
   private destroyed = false;
   private started = false;
+  private retrying = false;
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -149,6 +152,9 @@ export class ChatStripePaymentComponent {
   }
 
   protected retry(): void {
+    const caseId = this.payment()?.caseId;
+    if (this.retrying || this.disabled() || !caseId) return;
+    this.retrying = true;
     this.card?.destroy();
     this.card = null;
     this.elements = null;
@@ -157,7 +163,16 @@ export class ChatStripePaymentComponent {
     this.errorMessage.set(null);
     this.cardError.set('');
     this.clientSecret.set(null);
-    this.refresh();
+    this.payments.retryPaymentAttempt(caseId).subscribe({
+      next: (session) => {
+        this.retrying = false;
+        this.apply(session);
+      },
+      error: () => {
+        this.retrying = false;
+        this.fail(null);
+      },
+    });
   }
 
   protected async pay(): Promise<void> {
@@ -194,7 +209,7 @@ export class ChatStripePaymentComponent {
     this.status.set('ready');
   }
 
-  // Reads the case's current attempt (initial load, reload, retry); new attempts are only created by the workflow.
+  // Reads the case's current attempt (initial load, reload). Try again replaces a failed/cancelled attempt via the retry endpoint.
   private refresh(): void {
     const caseId = this.payment()?.caseId;
     if (!caseId) {
@@ -202,18 +217,26 @@ export class ChatStripePaymentComponent {
       return;
     }
     this.payments.getCurrentPaymentAttempt(caseId).subscribe({
-      next: (session) => {
-        if (session?.paymentAuthorizationStatus === 'Succeeded') {
-          this.complete();
-        } else if (!this.disabled() && session?.paymentSessionSecret) {
-          this.status.set('ready');
-          this.clientSecret.set(session.paymentSessionSecret);
-        } else {
-          this.fail('The payment is no longer available.');
-        }
-      },
+      next: (session) => this.apply(session),
       error: () => this.fail(null),
     });
+  }
+
+  // Only a server-reported Succeeded completes the payment; Failed/Cancelled keep Try again available.
+  private apply(session: PaymentSession | null | undefined): void {
+    const state = session?.paymentAuthorizationStatus;
+    if (state === 'Succeeded') {
+      this.complete();
+    } else if (state === 'Failed') {
+      this.fail('Your payment was declined. Please try again.');
+    } else if (state === 'Cancelled') {
+      this.fail('The payment was cancelled. Please try again.');
+    } else if (!this.disabled() && session?.paymentSessionSecret) {
+      this.status.set('ready');
+      this.clientSecret.set(session.paymentSessionSecret);
+    } else {
+      this.fail('The payment is no longer available.');
+    }
   }
 
   private poll(attempt: number): void {

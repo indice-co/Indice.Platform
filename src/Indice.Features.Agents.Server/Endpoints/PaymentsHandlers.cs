@@ -18,6 +18,12 @@ internal static class PaymentsHandlers
         return session is null ? TypedResults.NotFound() : TypedResults.Ok(session);
     }
 
+    /// <summary>POST /api/my/cases/{caseId}/payment-attempts/retry — replaces the caller's failed or cancelled attempt (or returns the live one).</summary>
+    public static async Task<Results<Ok<PaymentSessionModel>, NotFound>> RetryPaymentAttempt(string caseId, ClaimsPrincipal user, IPaymentsService payments, CancellationToken cancellationToken) {
+        var session = await payments.RetryAttemptAsync(user.FindSubjectId()!, caseId, AgentsConstants.DefaultTenantId, cancellationToken);
+        return session is null ? TypedResults.NotFound() : TypedResults.Ok(session);
+    }
+
     /// <summary>POST /api/webhooks/stripe — Stripe webhook receiver (signature verified).</summary>
     public static async Task<Results<Ok, BadRequest>> StripeWebhook(HttpRequest request, IPaymentsService payments, ILoggerFactory loggerFactory, CancellationToken cancellationToken) {
         using var reader = new StreamReader(request.Body);

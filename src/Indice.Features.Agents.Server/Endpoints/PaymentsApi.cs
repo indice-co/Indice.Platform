@@ -39,6 +39,10 @@ internal static class PaymentsApi
              .WithName(nameof(PaymentsHandlers.GetCurrentPaymentAttempt))
              .WithSummary("Get the latest payment attempt of a case.");
 
+        chats.MapPost("retry", PaymentsHandlers.RetryPaymentAttempt)
+             .WithName(nameof(PaymentsHandlers.RetryPaymentAttempt))
+             .WithSummary("Replace a failed or cancelled payment attempt of a case.");
+
         return routes;
     }
 }
