@@ -1,11 +1,15 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Globalization;
+using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Indice.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Services;
 
@@ -101,6 +105,157 @@ public class EmailServiceSparkPost : IEmailService
     }
 }
 
+/// <inheritdoc/>
+public sealed class SparkPostWebhookHttpHandler(IOptions<EmailServiceSparkPostSettings> options) : IWebhookHttpHandler
+{
+    private readonly EmailServiceSparkPostSettings _options = options.Value;
+
+    /// <inheritdoc/>
+    public async Task<WebhookHttpResult> ParseAsync(IDictionary<string, StringValues> requestHeaders, IEnumerable<KeyValuePair<string, StringValues>> requestParameters, Stream requestBody, CancellationToken cancellationToken) {
+        if (!IsAuthorized(requestHeaders)) {
+            return WebhookHttpResult.UnauthorizedRequest("Invalid webhook credentials");
+        }
+
+        JsonNode? payload;
+        try {
+            payload = await JsonNode.ParseAsync(requestBody, cancellationToken: cancellationToken);
+        } catch (Exception) {
+            return WebhookHttpResult.BadRequest("Invalid JSON payload");
+        }
+
+        if (payload is not JsonArray) {
+            return WebhookHttpResult.BadRequest("Expected a JSON array of webhook events");
+        }
+
+        var events = ParseEvents(payload).ToList();
+
+        return WebhookHttpResult.Ok(events);
+    }
+
+    private static IEnumerable<WebhookEvent> ParseEvents(JsonNode? root) {
+        if (root is not JsonArray items)
+            yield break;
+
+        var validItems = items
+            .Select(item => item is JsonObject envelope && envelope["msys"] is JsonObject msys
+                ? (Envelope: envelope, Msys: msys)
+                : (Envelope: null, Msys: null))
+            .Where(entry => entry.Envelope is not null && entry.Msys is not null);
+
+        foreach (var entry in validItems) {
+            foreach (var family in entry.Msys!) {
+                var familyEvents = family.Value switch {
+                    JsonObject obj => new[] { obj },
+                    JsonArray array => array.OfType<JsonObject>(),
+                    _ => Enumerable.Empty<JsonObject>()
+                };
+
+                foreach (var data in familyEvents) {
+                    var eventId = GetString(data, "event_id");
+                    var messageId = GetString(data, "message_id");
+
+                    if (string.IsNullOrWhiteSpace(eventId) ||
+                        string.IsNullOrWhiteSpace(messageId))
+                        continue;
+
+                    yield return new WebhookEvent {
+                        Provider = EmailServiceSparkPost.ServiceName,
+                        EventType = GetString(data, "type") ?? family.Key,
+                        EventId = eventId,
+                        MessageId = messageId,
+                        Timestamp = GetTimestamp(data),
+                        Recipient = GetString(data, "rcpt_to")
+                            ?? GetString(data, "raw_rcpt_to")
+                            ?? GetString(data, "sms_dst")
+                            ?? string.Empty,
+                        Subject = GetString(data, "subject")
+                    };
+                }
+            }
+        }
+    }
+
+    private static string? GetString(JsonObject data, string propertyName) {
+        var value = data[propertyName];
+
+        return value is JsonValue jsonValue &&
+               jsonValue.TryGetValue<string>(out var text)
+            ? text
+            : value?.ToString();
+    }
+
+    private static DateTimeOffset GetTimestamp(JsonObject data) {
+        var timestampMs = GetString(data, "timestamp_ms");
+
+        if (long.TryParse(timestampMs, NumberStyles.Integer,
+                CultureInfo.InvariantCulture, out var milliseconds) &&
+            milliseconds > 0)
+            return DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
+
+        var timestamp = GetString(data, "timestamp");
+
+        if (long.TryParse(timestamp, NumberStyles.Integer,
+                CultureInfo.InvariantCulture, out var seconds) &&
+            seconds > 0)
+            return DateTimeOffset.FromUnixTimeSeconds(seconds);
+
+        var injectionTime = GetString(data, "injection_time");
+
+        if (DateTimeOffset.TryParse(
+                injectionTime,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal,
+                out var parsed))
+            return parsed;
+
+        return DateTimeOffset.UtcNow;
+    }
+
+    private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders) {
+        if (string.IsNullOrWhiteSpace(_options.WebhookUsername) ||
+            string.IsNullOrWhiteSpace(_options.WebhookPassword)) {
+            return false;
+        }
+
+        var authorization = requestHeaders
+            .FirstOrDefault(header =>
+                string.Equals(header.Key, "Authorization", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+
+        if (!AuthenticationHeaderValue.TryParse(
+                authorization,
+                out var headerValue) ||
+            !string.Equals(
+                headerValue.Scheme,
+                "Basic",
+                StringComparison.OrdinalIgnoreCase) ||
+            string.IsNullOrWhiteSpace(headerValue.Parameter)) {
+            return false;
+        }
+
+        byte[] credentials;
+
+        try {
+            credentials = Convert.FromBase64String(headerValue.Parameter);
+        } catch (Exception) {
+            return false;
+        }
+
+        var separator = Array.IndexOf(credentials, (byte)':');
+
+        if (separator < 0) {
+            return false;
+        }
+
+        var username = Encoding.UTF8.GetBytes(_options.WebhookUsername);
+        var password = Encoding.UTF8.GetBytes(_options.WebhookPassword);
+
+        var usernameMatches = CryptographicOperations.FixedTimeEquals(credentials.AsSpan(0, separator), username);
+        var passwordMatches = CryptographicOperations.FixedTimeEquals(credentials.AsSpan(separator + 1), password);
+
+        return usernameMatches & passwordMatches;
+    }
+}
+
 /// <summary>Custom settings that are used to send emails via SparkPost.</summary>
 public class EmailServiceSparkPostSettings
 {
@@ -116,6 +271,10 @@ public class EmailServiceSparkPostSettings
     public string? ApiKey { get; set; }
     /// <summary>The SparkPost API URL (ex. https://api.eu.sparkpost.com/api/v1/).</summary>
     public string Api { get; set; } = "https://api.eu.sparkpost.com/api/v1/";
+    /// <summary>The username used to authenticate incoming SparkPost webhook requests.</summary>
+    public string? WebhookUsername { get; set; }
+    /// <summary>The password used to authenticate incoming SparkPost webhook requests.</summary>
+    public string? WebhookPassword { get; set; }
 }
 
 #region SparkPost Models
@@ -179,5 +338,4 @@ internal class SparkPostTransmissionResults
     [JsonPropertyName("id")]
     public string Id { get; set; } = null!;
 }
-
 #endregion
