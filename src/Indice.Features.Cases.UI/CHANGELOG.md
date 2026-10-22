@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and `dashboard.customerGroupedByStatus` are replaced by `dashboard.channelGroupedByCasetype` / `dashboard.channelGroupedByStatus`
   (with a `{{channel}}` parameter) and `channels.Managed` / `channels.External`.
 - The `case-channel` UI schema option treats the legacy `Agent` / `Customer` channel names as `Managed` / `External`.
+- The JSON fields of the case type form (schema, layout, translations, configs) use a code editor (CodeMirror) instead of
+  plain textareas: syntax highlighting, line numbers, bracket matching, folding and inline JSON parse errors.
 ### Fixed
 - Editable checkboxes in the case data form could not be ticked.
 

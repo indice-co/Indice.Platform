@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideSave } from '@lucide/angular';
 import { CaseType, ICaseTypeRequest } from 'src/app/core/services/cases-api.service';
+import { JsonEditorComponent } from 'src/app/shared/components/json-editor/json-editor.component';
 
 type JsonField = 'dataSchema' | 'layout' | 'translations' | 'layoutTranslations' | 'config' | 'gridFilterConfig' | 'gridColumnConfig';
 
@@ -26,7 +27,7 @@ const JSON_FIELDS: JsonField[] = ['dataSchema', 'layout', 'translations', 'layou
  */
 @Component({
   selector: 'app-case-type-form',
-  imports: [NgTemplateOutlet, RouterLink, TranslatePipe, LucideSave],
+  imports: [NgTemplateOutlet, RouterLink, TranslatePipe, LucideSave, JsonEditorComponent],
   template: `
     <form class="space-y-6 pb-4" novalidate autocomplete="off" (submit)="$event.preventDefault(); submit()">
       <section class="panel p-5 sm:p-6">
@@ -109,14 +110,14 @@ const JSON_FIELDS: JsonField[] = ['dataSchema', 'layout', 'translations', 'layou
     </form>
 
     <ng-template #jsonEditor let-field="field" let-label="label" let-required="required" let-rows="rows">
-      <label class="block w-full">
-        <span class="label mb-1">{{ label | translate }} @if (required) { <span class="text-error">*</span> }</span>
-        <textarea class="textarea textarea-sm w-full font-mono leading-relaxed" spellcheck="false" [rows]="rows"
-          [class.textarea-error]="invalidJson().includes(field)" [value]="jsonText(field)" (input)="setJson(field, value($event))"></textarea>
+      <div class="w-full">
+        <span class="label mb-1" [id]="'case-type-' + field">{{ label | translate }} @if (required) { <span class="text-error">*</span> }</span>
+        <app-json-editor [rows]="rows" [invalid]="invalidJson().includes(field)" [labelledBy]="'case-type-' + field"
+          [value]="jsonText(field)" (valueChange)="setJson(field, $event)" />
         @if (invalidJson().includes(field)) {
           <span class="mt-1 block text-xs text-error">{{ 'caseTypes.form.invalidJson' | translate }}</span>
         }
-      </label>
+      </div>
     </ng-template>
   `
 })
