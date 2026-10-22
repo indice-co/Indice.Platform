@@ -22,16 +22,14 @@ public class StripePaymentsServiceTests : IAsyncLifetime
     }
 
     private const string UserId = "user-1";
-    private const string CaseId = "C-1";
     private const string TenantId = "indice";
     private static readonly Guid ConversationId = Guid.NewGuid();
 
     [Fact]
     public async Task CreateOrReuseAttempt_CreatesIntentAndStoresSession() {
         var (service, db, stripe, _) = CreateService();
-
+        string CaseId = Guid.NewGuid().ToString();
         var session = await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
-
         Assert.NotNull(session);
         Assert.Equal(PaymentAuthorizationStatus.Created, session.PaymentAuthorizationStatus);
         Assert.Equal("pi_1_secret", session.PaymentSessionSecret);
@@ -49,6 +47,7 @@ public class StripePaymentsServiceTests : IAsyncLifetime
 
     [Fact]
     public async Task CreateOrReuseAttempt_ReusesLiveAttempt_WithoutCreatingANewIntent() {
+        string CaseId = Guid.NewGuid().ToString();
         var (service, _, stripe, _) = CreateService();
         var first = await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
 
@@ -63,6 +62,7 @@ public class StripePaymentsServiceTests : IAsyncLifetime
 
     [Fact]
     public async Task CreateOrReuseAttempt_ReturnsPaidAttempt_WithoutClientSecret() {
+        string CaseId = Guid.NewGuid().ToString();
         var (service, _, stripe, handler) = CreateService();
         await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
         stripe.IntentStatus = "succeeded";
@@ -79,6 +79,7 @@ public class StripePaymentsServiceTests : IAsyncLifetime
 
     [Fact]
     public async Task CreateOrReuseAttempt_StartsNewAttempt_WhenPreviousWasCancelled() {
+        string CaseId = Guid.NewGuid().ToString();
         var (service, db, stripe, _) = CreateService();
         await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
         stripe.IntentStatus = "canceled";
@@ -99,6 +100,7 @@ public class StripePaymentsServiceTests : IAsyncLifetime
     [InlineData("canceled", PaymentAuthorizationStatus.Cancelled)]
     public async Task GetCurrentAttempt_ReconcilesStatusWithStripe(string stripeStatus, PaymentAuthorizationStatus expected) {
         var (service, db, stripe, handler) = CreateService();
+        string CaseId = Guid.NewGuid().ToString();
         await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
         stripe.IntentStatus = stripeStatus;
 
@@ -115,6 +117,7 @@ public class StripePaymentsServiceTests : IAsyncLifetime
     [InlineData("processing")]
     public async Task GetCurrentAttempt_KeepsCreatedStatus_WhileIntentIsPending(string stripeStatus) {
         var (service, _, stripe, handler) = CreateService();
+        string CaseId = Guid.NewGuid().ToString();
         await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
         stripe.IntentStatus = stripeStatus;
 
@@ -129,6 +132,7 @@ public class StripePaymentsServiceTests : IAsyncLifetime
     [Fact]
     public async Task GetCurrentAttempt_MapsDeclinedIntentToFailed_WithReason() {
         var (service, db, stripe, handler) = CreateService();
+        string CaseId = Guid.NewGuid().ToString();
         await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
         stripe.IntentStatus = "requires_payment_method";
         stripe.LastPaymentError = "Your card was declined.";
@@ -147,6 +151,7 @@ public class StripePaymentsServiceTests : IAsyncLifetime
     [Fact]
     public async Task GetCurrentAttempt_ThrottlesStripeReconciliation() {
         var interval = TimeSpan.FromMilliseconds(300);
+        string CaseId = Guid.NewGuid().ToString();
         var (service, _, stripe, _) = CreateService(interval);
         await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
         await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
@@ -164,6 +169,7 @@ public class StripePaymentsServiceTests : IAsyncLifetime
     [Fact]
     public async Task GetCurrentAttempt_DoesNotCallStripe_OnceTerminal() {
         var (service, _, stripe, _) = CreateService();
+        string CaseId = Guid.NewGuid().ToString();
         await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
         stripe.IntentStatus = "succeeded";
         await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
@@ -177,6 +183,7 @@ public class StripePaymentsServiceTests : IAsyncLifetime
     [Fact]
     public async Task GetCurrentAttempt_ReturnsNull_WhenNoAttemptExists() {
         var (service, _, _, _) = CreateService();
+        string CaseId = Guid.NewGuid().ToString();
 
         var session = await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
 
