@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Linq;
 using FubarDev.FtpServer;
 
 namespace Indice.Features.FtpServer.HealthChecks;
@@ -50,10 +51,8 @@ public sealed class FtpServerConnectionTracker
     public int CountPortsInUse(int minPort, int maxPort) {
         PruneClosedDataConnections();
         var ports = new HashSet<int>();
-        foreach (var port in _passiveListeners.Values) {
-            if (port >= minPort && port <= maxPort) {
-                ports.Add(port);
-            }
+        foreach (var port in _passiveListeners.Values.Where(port => port >= minPort && port <= maxPort)) {
+            ports.Add(port);
         }
         foreach (var connection in _dataConnections.Keys) {
             var port = connection.LocalAddress?.Port ?? 0;
