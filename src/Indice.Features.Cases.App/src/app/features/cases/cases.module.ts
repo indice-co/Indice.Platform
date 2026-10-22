@@ -1,12 +1,11 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from "@angular/common/http";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { IndiceComponentsModule } from "@indice/ng-components";
 import { SharedModule } from "src/app/shared/shared.module";
-import { JsonSchemaFormModule } from "@ajsf-extended/core";
 import { CaseAssignmentComponent } from "./case-detail-page/case-assignment/case-assignment.component";
 import { CaseTimelineComponent } from "./case-detail-page/case-timeline/case-timeline.component";
 import { CaseUnassignmentComponent } from "./case-detail-page/case-unassignment/case-unassignment.component";
@@ -49,10 +48,9 @@ import { ToReadableDatePipe, ValueFromPathPipe } from "src/app/shared/pipes.serv
         FormsModule,
         RouterModule,
         SharedModule,
-        JsonSchemaFormModule,
         IndiceComponentsModule], providers: [
         ValueFromPathPipe,
         ToReadableDatePipe,
-        provideHttpClient(withInterceptorsFromDi())
+        provideHttpClient(withXhr(), withInterceptorsFromDi())
     ] })
 export class CasesModule { }

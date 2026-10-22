@@ -1,5 +1,5 @@
 import { CaseTypeUpdateService } from '../case-type-update.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { map, switchMap, tap } from 'rxjs';
 import { CasesApiService, CaseTypeRequest } from 'src/app/core/services/cases-api.service';
@@ -8,15 +8,12 @@ import { CasesApiService, CaseTypeRequest } from 'src/app/core/services/cases-ap
     selector: 'app-case-type-edit',
     templateUrl: './case-type-edit.component.html',
     styleUrls: ['./case-type-edit.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseTypeEditComponent implements OnInit {
 
-  private caseTypeId: string = '';
-
-  public widgets = this.caseTypesService.widgets;
-
-  public framework = this.caseTypesService.framework;
+  public caseTypeId: string = '';
 
   public schema = this.caseTypesService.schema;
 

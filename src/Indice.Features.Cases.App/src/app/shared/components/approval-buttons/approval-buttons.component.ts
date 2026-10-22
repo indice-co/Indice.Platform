@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuOption, ToastType, ModalService } from '@indice/ng-components';
 import { Observable } from 'rxjs';
@@ -10,6 +10,7 @@ import { TranslatedToasterService } from 'src/app/shared/services/translated-toa
 @Component({
     selector: 'app-approval-buttons',
     templateUrl: './approval-buttons.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApprovalButtonsComponent implements OnInit {

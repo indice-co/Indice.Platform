@@ -17,5 +17,11 @@
   </div>-->
           </div>
         </div>
+        @if (caseTypeId) {
+          <div class="bg-white shadow-sm rounded-sm w-full p-2 mt-4">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ 'checkpointTypes.title' | translate }}</h3>
+            <app-checkpoint-types [caseTypeId]="caseTypeId" [embedded]="true"></app-checkpoint-types>
+          </div>
+        }
     </main>
 </lib-view-layout>

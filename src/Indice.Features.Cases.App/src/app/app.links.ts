@@ -63,6 +63,8 @@ export class AppLinks implements IAppLinks {
         }
         if (this._isAdmin) {
             menu.push(new NavLink(this._translate.instant('nav.caseTypes'), '/case-types', true, undefined, Icons.CaseTypes));
+            menu.push(new NavLink(this._translate.instant('nav.checkpointTypes'), '/checkpoint-types', true, undefined, Icons.CheckpointTypes));
+            menu.push(new NavLink(this._translate.instant('nav.accessRules'), '/access-rules', true, undefined, Icons.AccessRules));
         }
         if (this._canSeeNotifications) {
             menu.push(new NavLink(this._translate.instant('nav.notifications'), '/notifications', true, undefined, Icons.Notifications));

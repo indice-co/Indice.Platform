@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Modal } from '@indice/ng-components';
 import { CasesApiService, SaveQueryRequest } from 'src/app/core/services/cases-api.service';
@@ -6,6 +6,7 @@ import { CasesApiService, SaveQueryRequest } from 'src/app/core/services/cases-a
 @Component({
     selector: 'app-query-modal',
     templateUrl: './query-modal.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class QueriesModalComponent implements OnInit {

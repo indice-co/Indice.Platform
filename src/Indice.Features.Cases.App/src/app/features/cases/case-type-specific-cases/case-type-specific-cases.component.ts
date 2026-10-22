@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalService, SearchOption } from '@indice/ng-components';
 import { TranslateService } from '@ngx-translate/core';
@@ -12,6 +12,7 @@ import { map } from 'rxjs';
 @Component({
     selector: 'app-case-type-specific-cases-component',
     templateUrl: '../general-cases/general-cases.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implements OnInit {

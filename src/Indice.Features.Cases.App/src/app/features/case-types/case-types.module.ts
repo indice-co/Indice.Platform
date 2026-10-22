@@ -1,6 +1,5 @@
-import { JsonSchemaFormModule } from "@ajsf-extended/core";
 import { CommonModule } from "@angular/common";
-import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from "@angular/common/http";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
@@ -13,6 +12,7 @@ import { CaseTypesComponent } from "./case-types.component";
 import { CaseTypeUpdateService } from "./case-type-update.service";
 import { CaseTypeDeleteModalComponent } from './case-type-delete-modal/case-type-delete-modal.component';
 import { CaseTypeFormComponent } from "./case-type-form/case-type-form.component";
+import { CheckpointTypesModule } from "../checkpoint-types/checkpoint-types.module";
 
 @NgModule({ declarations: [
         CaseTypeFormComponent,
@@ -25,9 +25,9 @@ import { CaseTypeFormComponent } from "./case-type-form/case-type-form.component
         FormsModule,
         RouterModule,
         SharedModule,
-        JsonSchemaFormModule,
+        CheckpointTypesModule,
         IndiceComponentsModule], providers: [
         CaseTypeUpdateService,
-        provideHttpClient(withInterceptorsFromDi())
+        provideHttpClient(withXhr(), withInterceptorsFromDi())
     ] })
 export class CaseTypesModule { }

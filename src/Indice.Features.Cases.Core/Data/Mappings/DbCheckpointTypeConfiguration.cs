@@ -13,7 +13,9 @@ internal class DbCheckpointTypeConfiguration : IEntityTypeConfiguration<DbCheckp
         builder
             .HasKey(p => p.Id);
         builder
-            .HasIndex(p => new { p.CaseTypeId, p.Code });
+            .HasIndex(p => new { p.CaseTypeId, p.Code })
+            .IsUnique()
+            .HasDatabaseName("IX_CheckpointType_CaseTypeId_Code");
         builder
             .Property(p => p.Code)
             .HasMaxLength(TextSizePresets.M256)

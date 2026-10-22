@@ -151,6 +151,17 @@ public static class AgentsConstants
             Never invent an agent name that is not in the list.
             """;
 
+        /// <summary>
+        /// Background facts for the system-one decision model (Microsoft-Decision-1) in the master intent router, sent as
+        /// <c>state.context</c>. Facts only: the questions, the agents (as the choice options, from their
+        /// <see cref="Models.AgentInfo"/>) and the answer format are separate parts of the request. A host can override
+        /// it in <c>Prompts/IntentRouterSystemOne.txt</c>.
+        /// </summary>
+        public const string IntentRouterSystemOne = """
+            The conversation is between a user and an enterprise assistant. The assistant hands each message to one of its agents.
+            Questions about the assistant itself, such as who it is or what it can do, are in scope.
+            """;
+
         /// <summary>Prompt template for responding to questions about the agent's capabilities.</summary>
         public const string PurposeResponder = """
             You answer questions about yourself: who you are, who you represent, and what you can help with.
@@ -193,7 +204,15 @@ public static class AgentsConstants
             Use the available tool get_case_data_id from the case-retrieval MCP service to fetch case data.
             Decide which tool to call based on the user's query.
             Extract the case GUID from the messages and query the case data.
-            Return the object in json format as returned by the mcp.
+            Return the object in json format as returned by the mcp. Treat tool data as immutable and do not alter them. 
+            """;
+
+
+        /// <summary>Prompt template for fetching case data.</summary>
+        public const string CaseTypeRetriever = """
+            You are a case retrieval assistant.
+            Use the available tool get_case_types from the case-retrieval MCP service to fetch the case types.
+            Return the object in json format as returned by the mcp do not create or alter any values inside the json. What you see is what you get.
             """;
         /// <summary>Agent instructions template for fetching OTP send.</summary>
         public const string OtpCodeSenderInstructions = """
@@ -236,7 +255,7 @@ public static class AgentsConstants
             - user: null
             - code: user code from the prompt
             Return true if response indicates TOTP was verified successfully.
-            Return the object in json format as returned by the mcp.
+            Return the object in json format as returned by the mcp do not create or alter any values inside the json. What you see is what you get.
             """;
         /// <summary>Agent prompt template for validating OTP code.</summary>
         public const string OtpCodeValidatorPrompt = "Verify this OTP code: {{otp}}, with securityToken: {{caseId}}{{#if phoneNumber}}, phoneNumber: {{phoneNumber}}{{/if}}{{#if email}}, email: {{email}}{{/if}}";

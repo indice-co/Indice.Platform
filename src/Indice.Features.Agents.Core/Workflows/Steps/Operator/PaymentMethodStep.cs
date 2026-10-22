@@ -10,7 +10,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Asks the user to choose a payment method once the case data has been presented.
 /// The workflow pauses after this step and waits for the user's choice on a request port.
 /// </summary>
-public sealed class PaymentMethodStep : Executor<OperationState, PaymentRequestPort.PaymentRequest>
+public class PaymentMethodStep : Executor<OperationState, PaymentRequestPort.PaymentRequest>
 {
     private readonly IReadOnlyList<string> _paymentMethods;
     private readonly ILogger<PaymentMethodStep> _logger;

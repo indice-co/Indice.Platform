@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 using Indice.Features.Cases.Core.Serialization;
+using Indice.Features.Cases.Core.Services;
 using Indice.Types;
 
 namespace Indice.Features.Cases.Core.Models.Responses;
@@ -26,6 +27,10 @@ public class CaseType
     /// <summary>The layout for the data schema.</summary>
     [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))]
     public JsonNode? Layout { get; set; }
+
+    /// <summary>The <see cref="Layout"/> converted to a JSON Forms UI schema. Read-only; generated from the layout on every read.</summary>
+    [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))]
+    public JsonNode? UiSchema => LayoutUiSchemaAdapter.Convert(Layout).UiSchema;
 
     /// <summary>The case type translations.</summary>
     public TranslationDictionary<CaseTypeTranslation>? Translations { get; set; }

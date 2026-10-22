@@ -262,6 +262,8 @@ internal static class UserHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
+        var previousUser = UserEventContext.InitializeFromUser(user);
+
         if (userManager.EmailAsUserName && !request.BypassEmailAsUserNamePolicy && request.UserName != request.Email) {
             var errors = ValidationErrors.AddError(nameof(request.UserName), "EmailAsUserName policy is applied to the identity system. Email and UserName properties should have the same value. User is not updated.");
             return TypedResults.ValidationProblem(errors);
@@ -299,7 +301,9 @@ internal static class UserHandlers
                 });
             }
         }
-        var identityResult = await userManager.UpdateAsync(user, request.BypassEmailAsUserNamePolicy);
+
+        var userUpdateOptions = new ExtendedUserManager<User>.UserUpdateOptions(user, request.BypassEmailAsUserNamePolicy, previousUser);
+        var identityResult = await userManager.UpdateAsync(userUpdateOptions);
         if (!identityResult.Succeeded) {
             return TypedResults.ValidationProblem(identityResult.Errors.ToDictionary());
         }

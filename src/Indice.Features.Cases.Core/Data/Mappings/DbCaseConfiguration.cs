@@ -82,5 +82,12 @@ internal class DbCaseConfiguration : IEntityTypeConfiguration<DbCase>
             .HasMany(p => p.Versions)
             .WithOne(p => p.Case)
             .HasForeignKey(p => p.CaseId);
+        builder
+            .Property(p => p.ReferenceNumber)
+            .HasMaxLength(TextSizePresets.M128);
+        builder
+            .HasIndex(p => p.GroupId);
+        builder
+            .HasIndex(p => new { p.ReferenceNumber, p.CaseTypeId });
     }
 }

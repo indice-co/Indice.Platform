@@ -5,11 +5,8 @@ import { ToastType } from "@indice/ng-components";
 import { TranslateService } from "@ngx-translate/core";
 import { TranslatedToasterService } from "src/app/shared/services/translated-toaster.service";
 import { CasesApiService, CaseTypeRequest, ICaseTypeRequest } from "src/app/core/services/cases-api.service";
-import { SubmitWidgetComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component";
-import { TailwindFrameworkComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component";
+import { CaseTypeService } from "src/app/core/services/case-type.service";
 import { EMPTY } from 'rxjs';
-import { InputWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/input-widget/input-widget.component';
-import { TextAreaWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/text-area-widget/text-area-widget.component';
 
 @Injectable({
     providedIn: 'root'
@@ -20,18 +17,8 @@ export class CaseTypeUpdateService {
         private _api: CasesApiService,
         private toaster: TranslatedToasterService,
         private translate: TranslateService,
-        private router: Router) { }
-
-    public widgets = {
-        "submit": SubmitWidgetComponent,
-        "text": InputWidgetComponent,
-        "number": InputWidgetComponent,
-        "textarea": TextAreaWidgetComponent
-    };
-
-    public framework = {
-        framework: TailwindFrameworkComponent
-    };
+        private router: Router,
+        private caseTypeService: CaseTypeService) { }
 
     public schema: any = {
         "type": "object",
@@ -307,6 +294,7 @@ export class CaseTypeUpdateService {
         });
         this._api.createCaseType(request).pipe(
             tap(_ => {
+                this.caseTypeService.invalidateCaseTypes();
                 this.toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeCreated.body')
                 this.router.navigate(['/case-types']);
             }),
@@ -337,6 +325,7 @@ export class CaseTypeUpdateService {
         })
         this._api.updateCaseType(caseTypeId, request).pipe(
             tap(_ => {
+                this.caseTypeService.invalidateCaseTypes();
                 this.toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeUpdated.body')
             }),
             catchError(err => {

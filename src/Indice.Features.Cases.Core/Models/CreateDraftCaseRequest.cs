@@ -17,4 +17,6 @@ public class CreateDraftCaseRequest
 
     /// <summary>The channel that created the draft case</summary>
     public string? Channel { get; set; }
+    /// <summary>The reference number of the request that created the draft case</summary>
+    public string? ReferenceNumber { get; set; }
 }

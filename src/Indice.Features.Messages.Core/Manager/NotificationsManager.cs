@@ -1,4 +1,5 @@
-﻿using Indice.Extensions;
+﻿using Indice.Configuration;
+using Indice.Extensions;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models;
@@ -169,7 +170,7 @@ public class NotificationsManager(
                 return CreateCampaignResult.Fail(errorMessages);
             }
         }
-        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var isNewDistributionList = false;
         if (string.IsNullOrWhiteSpace(request.Title) && !request.MessageTemplateId.HasValue) {
             return CreateCampaignResult.Fail("Title is required when MessageTemplateId is not provided.");
@@ -187,8 +188,10 @@ public class NotificationsManager(
         }
         // If a distribution list id is not set, then we create a new list.
         if (!request.RecipientListId.HasValue) {
+            var uniqueSuffix = $" - {timestamp}";
+            var maxLength = TextSizePresets.M128 - uniqueSuffix.Length;
             var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
-                Name = $"{request.Title.Truncate(110)} - {timestamp}",
+                Name = request.Title.Truncate(maxLength) + uniqueSuffix,
                 IsSystemGenerated = true
             }, request.GetIncludedContacts());
             request.RecipientListId = createdList.Id;

@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Security.Claims;
+using System.Threading.Channels;
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Services;
+using Indice.Services.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -14,7 +16,6 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>Extensions on the <see cref="IServiceCollection"/>.</summary>
 public static class IndiceServicesServiceCollectionExtensions
 {
-
     /// <summary>Adds Indice common services.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -66,8 +67,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <strong>Smtp, SparkPost, SendGrid, Brevo, None, AzureCommunicationServices</strong>
     /// </remarks>
     public static EmailServiceBuilder AddEmailService(this IServiceCollection services, IConfiguration configuration) {
-        var providerNamesText = configuration.GetSection(EmailServiceSettings.Name).GetValue<string>("Provider");
-        var providerNames = (providerNamesText ?? EmailServiceSmtp.ServiceName).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var providerNames = configuration.GetEmailProviders();
         foreach (var name in providerNames) {
             switch (name) {
                 case EmailServiceSmtp.ServiceName:
@@ -213,9 +213,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <strong>yuboto, yuboto_viber, vonage, twilio, smsup, apifon, apifon_im, kapatel, mstat, none</strong>
     /// </remarks>
     public static IServiceCollection AddSmsService(this IServiceCollection services, IConfiguration configuration) {
-        var providerNamesText = configuration.GetSection(SmsServiceSettings.Name).GetValue<string>("Provider");
-        ArgumentException.ThrowIfNullOrWhiteSpace(providerNamesText, "Sms:Provider");
-        var providerNames = providerNamesText.ToLowerInvariant().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var providerNames = configuration.GetSmsProviders();
         foreach (var name in providerNames) {
             switch (name) {
                 case "yuboto":
@@ -531,6 +529,73 @@ public static class IndiceServicesServiceCollectionExtensions
         where TEvent : IPlatformEvent
         where TEventHandler : class, IPlatformEventHandler<TEvent> {
         services.TryAddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
+        return services;
+    }
+
+    /// <summary>
+    /// Registers webhook services when webhooks are enabled.
+    /// </summary>
+    /// <typeparam name="THandler">The webhook event handler type.</typeparam>
+    /// <typeparam name="THttpHandler">The webhook HTTP handler type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <param name="providerName"></param>
+    /// <returns>The service collection.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The configured channel capacity is less than or equal to zero.</exception>
+    public static IServiceCollection AddWebhookServices<THandler, THttpHandler>(this IServiceCollection services, IConfiguration configuration, string providerName) 
+        where THandler : class, IWebhookHandler
+        where THttpHandler : class, IWebhookHttpHandler {
+        var settings = configuration.GetSection(WebhooksSettings.Name).Get<WebhooksSettings>() ?? new WebhooksSettings();
+        var enableWebhooks = settings.Enabled;
+        if (!enableWebhooks) {
+            return services;
+        }
+        var channelCapacity = settings.ChannelCapacity;
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(channelCapacity);
+        services.TryAddSingleton(Channel.CreateBounded<List<WebhookEvent>>(new BoundedChannelOptions(channelCapacity) {
+            FullMode = BoundedChannelFullMode.Wait,
+            SingleReader = true,
+            SingleWriter = false
+        }));
+        services.TryAddScoped<IWebhookHandler, THandler>();
+        services.AddKeyedScoped<IWebhookHttpHandler, THttpHandler>(providerName);
+        services.AddHostedService<WebhookEventSink>();
+        return services;
+    }
+
+    /// <summary>
+    /// Registers SMS webhook services for the configured provider.
+    /// </summary>
+    /// <typeparam name="THandler">The webhook event handler type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddSmsWebhooks<THandler>(this IServiceCollection services, IConfiguration configuration)
+        where THandler : class, IWebhookHandler {
+        var provider = configuration.GetDefaultSmsProvider();
+        switch (provider) {
+            case "apifon":
+                services.AddWebhookServices<THandler, ApifonWebhookHttpHandler>(configuration, provider);
+                break;
+        }
+        return services;
+    }
+
+    /// <summary>
+    /// Registers Email webhook services for the configured provider.
+    /// </summary>
+    /// <typeparam name="THandler">The webhook event handler type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddEmailWebhooks<THandler>(this IServiceCollection services, IConfiguration configuration)
+        where THandler : class, IWebhookHandler {
+        var provider = configuration.GetDefaultEmailProvider();
+        switch (provider) {
+            case EmailServiceSparkPost.ServiceName:
+                services.AddWebhookServices<THandler, SparkPostWebhookHttpHandler>(configuration, provider);
+                break;
+        }
         return services;
     }
 }

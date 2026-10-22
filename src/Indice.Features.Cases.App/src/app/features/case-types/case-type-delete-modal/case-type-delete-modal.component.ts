@@ -1,7 +1,8 @@
 import { catchError, tap } from 'rxjs/operators';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Modal, ModalOptions, ToastType } from '@indice/ng-components';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
+import { CaseTypeService } from 'src/app/core/services/case-type.service';
 import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 import { EMPTY } from 'rxjs';
 
@@ -9,6 +10,7 @@ import { EMPTY } from 'rxjs';
     selector: 'app-case-type-delete-modal',
     templateUrl: './case-type-delete-modal.component.html',
     styleUrls: ['./case-type-delete-modal.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CaseTypeDeleteModalComponent implements OnInit {
@@ -17,6 +19,7 @@ export class CaseTypeDeleteModalComponent implements OnInit {
   constructor(
     private modal: Modal,
     private _api: CasesApiService,
+    private _caseTypeService: CaseTypeService,
     private toaster: TranslatedToasterService,
     private options: ModalOptions) { }
 
@@ -27,6 +30,7 @@ export class CaseTypeDeleteModalComponent implements OnInit {
   deleteCaseType() {
     this._api.deleteCaseType(this.id).pipe(
       tap(_ => {
+        this._caseTypeService.invalidateCaseTypes();
         this.toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeDeleted.body');
         this.closeModal(true);
       }),
