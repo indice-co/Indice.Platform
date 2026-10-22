@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TailwindControl } from './tailwind-control';
 
@@ -7,7 +8,10 @@ import { TailwindControl } from './tailwind-control';
  */
 @Component({
     selector: 'app-jf-field',
+    imports: [NgTemplateOutlet],
     template: `
+    <!-- Single projection slot: Angular binds projected content to one <ng-content> at compile time -->
+    <ng-template #editor><ng-content /></ng-template>
     @let c = control();
     <div [class]="c.wrapperClass">
       @if (c.showLabel && c.title) {
@@ -21,13 +25,13 @@ import { TailwindControl } from './tailwind-control';
           @if (addonLeft()) {
             <span class="join-item flex items-center border border-base-300 bg-base-200 px-3 text-sm" [innerHTML]="addonLeft()"></span>
           }
-          <div class="join-item flex-1"><ng-content /></div>
+          <div class="join-item flex-1"><ng-container [ngTemplateOutlet]="editor" /></div>
           @if (addonRight()) {
             <span class="join-item flex items-center border border-base-300 bg-base-200 px-3 text-sm" [innerHTML]="addonRight()"></span>
           }
         </div>
       } @else {
-        <ng-content />
+        <ng-container [ngTemplateOutlet]="editor" />
       }
       @if (c.errorText) {
         <p class="text-xs text-error" role="alert" [innerHTML]="c.errorText"></p>

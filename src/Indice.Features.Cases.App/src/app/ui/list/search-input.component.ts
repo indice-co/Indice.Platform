@@ -34,8 +34,9 @@ export class SearchInputComponent {
     effect(() => this.text.set(this.value() ?? ''));
     this._input$
       .pipe(
-        filter(value => value.length === 0 || value.length >= this.minLength()),
+        // Debounce first so that every keystroke, including too-short ones, cancels a pending obsolete search
         debounceTime(this.debounce()),
+        filter(value => value.length === 0 || value.length >= this.minLength()),
         distinctUntilChanged(),
         takeUntilDestroyed(inject(DestroyRef))
       )

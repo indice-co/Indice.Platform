@@ -50,7 +50,7 @@ export function textOf(html: string | undefined | null): string {
     if (!html) {
         return '';
     }
-    const element = document.createElement('div');
-    element.innerHTML = html;
-    return element.textContent ?? '';
+    // DOMParser produces an inert document: scripts do not run and resources (e.g. img onerror) are not loaded.
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    return parsed.body.textContent ?? '';
 }
