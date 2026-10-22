@@ -13,7 +13,9 @@ internal static class AdminDashboardHandlers
 {
     private const int MaxIntakeDays = 90;
     private const int MaxStaleAfterDays = 365;
-
+    /// <summary>
+    /// Gets dashboard metrics for case intake and stale open cases for the current user context.
+    /// </summary>
     /// <param name="intakeDays">Number of days, ending today, to report daily intake for (1-90). Defaults to 14.</param>
     /// <param name="staleAfterDays">Open cases older than this many days count as stale (1-365). Defaults to 7.</param>
     /// <param name="adminDashboardService">The dashboard service.</param>

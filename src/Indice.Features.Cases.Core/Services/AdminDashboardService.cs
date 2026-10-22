@@ -46,7 +46,7 @@ internal class AdminDashboardService : IAdminDashboardService
         }
 
         var statusCounts = await visible
-            .GroupBy(x => (CaseStatus?)x.CheckpointType.Status)
+            .GroupBy(x => x.CheckpointType.Status)
             .Select(group => new { Status = group.Key, Count = group.Count() })
             .ToListAsync();
         int CountOf(CaseStatus status) => statusCounts.FirstOrDefault(x => x.Status == status)?.Count ?? 0;
