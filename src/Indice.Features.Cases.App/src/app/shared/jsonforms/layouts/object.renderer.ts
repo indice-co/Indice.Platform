@@ -34,7 +34,7 @@ export class ObjectRendererComponent extends JsonFormsControlWithDetail {
         const field = presentField(this.uischema, props.schema, props.path, this.rootData, props, this.caseDetailsService.caseDetails?.channel);
         this.shown = field.shown;
         // built once per schema: a new UI schema object would re-create every field below (and lose the focus)
-        if (this.detail && this.detailSchema === props.schema) {
+        if (this.detail && this.detailSchema === props.schema && this.detail.enabled === !field.readonly) {
             return;
         }
         this.detailSchema = props.schema;
@@ -56,6 +56,6 @@ export class ObjectRendererComponent extends JsonFormsControlWithDetail {
         if (field.readonly) {
             setReadonly(uischema);
         }
-        this.detail = { uischema, schema: props.schema, path: props.path };
+        this.detail = { uischema, schema: props.schema, path: props.path, enabled: !field.readonly };
     }
 }
