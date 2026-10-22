@@ -101,9 +101,9 @@ public class StripePaymentsService(
         var session = await db.PaymentSessions.Where(x => x.CaseId == caseId && x.TenantId == tenantId)
                                               .OrderByDescending(x => x.CreatedAt)
                                               .FirstOrDefaultAsync(cancellationToken);
-        if (session is not null) {
-            await SyncWithStripeAsync(session, cancellationToken);
-        }
+        //if (session is not null) {
+        //    await SyncWithStripeAsync(session, cancellationToken);
+        //}
         return session is null ? null : ToModel(session);
     }
     ///<inheritdoc/>
