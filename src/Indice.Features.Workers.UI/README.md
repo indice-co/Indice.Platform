@@ -1,12 +1,12 @@
 # Indice.Features.Workers.UI
 
 A dashboard for [`Indice.Hosting`](../Indice.Hosting/README.md) background work, in the spirit of the Hangfire Dashboard.
-One package ships both parts:
+The dashboard is split across two packages:
 
 - the single page application (Angular, embedded in the assembly), served at **`/workers`**, and
-- the minimal API it calls, mapped at **`/api/workers`**.
+- the minimal API it calls, mapped at **`/api/workers`** by the separate `Indice.Features.Workers.Server` package.
 
-The dashboard reads the worker tables (schema `work`) **straight from the database**. It is meant to run in its own host — a
+The API reads the worker tables (schema `work`) **straight from the database**. It is meant to run in its own host — a
 back-office app, an admin site — **not** in the worker process that calls `AddWorkerHost()`. It needs no worker registration
 and registers its own `ITaskDbContext` and `ILockDbContext`.
 
@@ -62,8 +62,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddAuthorization();
 
-// The API and its own access to the worker tables.
-builder.Services.AddWorkerDashboard(options => {
+// The API requires the separate Indice.Features.Workers.Server package.
+builder.Services.AddWorkersEndpoints(options => {
     options.ConfigureDbContext = db => db.UseSqlServer(builder.Configuration.GetConnectionString("WorkerDb"));
 });
 
@@ -71,19 +71,20 @@ var app = builder.Build();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseWorkerDashboardUI();   // the SPA at /workers
-app.MapWorkerDashboard();     // the API at /api/workers
+app.UseWorkersUI();  // the SPA at /workers; provided by Indice.Features.Workers.UI
+app.MapWorkers();    // the API at /api/workers; provided by Indice.Features.Workers.Server
 
 app.Run();
 ```
 
-`ConfigureDbContext` must point at the database the workers use, i.e. the one they pass to `UseStoreRelational(...)`. Without it,
-the dashboard uses SQL Server with the `WorkerDb` connection string — the same default as `UseStoreRelational()`.
+`ConfigureDbContext` on `WorkerEndpointsOptions` must point at the database the workers use, i.e. the one they pass to
+`UseStoreRelational(...)`. Without it, the API uses SQL Server with the `WorkerDb` connection string — the same default as
+`UseStoreRelational()`.
 
 For PostgreSQL, add the Npgsql EF Core provider to the host and configure it the same way:
 
 ```csharp
-builder.Services.AddWorkerDashboard(options => {
+builder.Services.AddWorkersEndpoints(options => {
     options.ConfigureDbContext = db => db.UseNpgsql(builder.Configuration.GetConnectionString("WorkerDb"));
 });
 ```
@@ -94,12 +95,12 @@ When the workers use `UseStoreRelational<TContext>()` with your own context (one
 generic overload with the same context:
 
 ```csharp
-builder.Services.AddWorkerDashboard<MyDbContext>(options => {
+builder.Services.AddWorkerEndpoints<MyDbContext>(options => {
     options.ConfigureDbContext = db => db.UseSqlServer(builder.Configuration.GetConnectionString("MyDb"));
 });
 ```
 
-If the host registers `MyDbContext` itself (`AddDbContext<MyDbContext>(...)`) **before** calling `AddWorkerDashboard<MyDbContext>()`,
+If the host registers `MyDbContext` itself (`AddDbContext<MyDbContext>(...)`) **before** calling `AddWorkerEndpoints<MyDbContext>()`,
 that registration is reused and `ConfigureDbContext` is ignored.
 
 ---
@@ -117,7 +118,7 @@ The API accepts an authenticated caller that **has the `workers` scope, or is an
 
 > **Who gets in.** The `workers-ui` client requests the `workers` scope for everyone who signs in through it, so every user who
 > can sign in to that client can use the dashboard. Restrict who can sign in to `workers-ui`, or set
-> `WorkerDashboardOptions.RequiredScope = null` (and drop `workers` from the client scopes) to allow administrators only.
+> `WorkerEndpointsOptions.RequiredScope = null` (and drop `workers` from the client scopes) to allow administrators only.
 
 The SPA reads the identity server address and its own public address from the host configuration:
 
@@ -134,23 +135,23 @@ The SPA reads the identity server address and its own public address from the ho
 
 ## Options
 
-### `WorkerDashboardOptions` — the API (`AddWorkerDashboard`)
+### `WorkerEndpointsOptions` — the API (`AddWorkersEndpoints` / `AddWorkerEndpoints<TContext>`)
 
 | Property | Default | Description |
 | --- | --- | --- |
-| `PathPrefix` | `/api/workers` | Route prefix of the API. Must match `WorkerDashboardUIOptions.ApiBase`. |
+| `PathPrefix` | `/api/workers` | Route prefix of the API. Must match `WorkerUIOptions.ApiBase`. |
 | `GroupName` | `workers` | OpenAPI document (group) name of the endpoints. |
 | `RequiredScope` | `workers` | Scope that grants access. Administrators are always allowed. Set it to `null` to allow administrators only. |
 | `ConfigureDbContext` | SQL Server, connection string `WorkerDb` | Configures the database that holds the worker tables. Ignored when the host already registered the context type. |
 
-### `WorkerDashboardUIOptions` — the SPA (`UseWorkerDashboardUI`)
+### `WorkerUIOptions` — the SPA (`UseWorkersUI`)
 
 Inherits the common options of `Indice.AspNetCore.EmbeddedUI` (`SpaUIOptions`).
 
 | Property | Default | Description |
 | --- | --- | --- |
 | `PathPrefix` | `/workers` | Where the SPA is served. |
-| `ApiBase` | `/api/workers` | Where the SPA calls the API. Same origin when relative. Must match `WorkerDashboardOptions.PathPrefix`. |
+| `ApiBase` | `/api/workers` | Where the SPA calls the API. Same origin when relative. Must match `WorkerEndpointsOptions.PathPrefix`. |
 | `ClientId` | `workers-ui` | The client id in the identity server. |
 | `Scope` | `openid profile role email workers` | The scopes the SPA requests. |
 | `Authority` | `General:Authority` | The identity server address. |
@@ -168,13 +169,13 @@ Inherits the common options of `Indice.AspNetCore.EmbeddedUI` (`SpaUIOptions`).
 The SPA and the API are configured separately, so change both sides together:
 
 ```csharp
-builder.Services.AddWorkerDashboard(options => {
+builder.Services.AddWorkersEndpoints(options => {
     options.PathPrefix = "/admin/api/jobs";
 });
 
-app.UseWorkerDashboardUI(options => {
+app.UseWorkersUI(options => {
     options.PathPrefix = "/admin/jobs";
-    options.ApiBase = "/admin/api/jobs";   // = WorkerDashboardOptions.PathPrefix
+    options.ApiBase = "/admin/api/jobs";   // = WorkerEndpointsOptions.PathPrefix
 });
 ```
 
@@ -188,8 +189,8 @@ CORS for the dashboard origin there.
 
 ## Developing the SPA
 
-The SPA source is in [`Indice.Hosting.App`](../Indice.Hosting.App/README.md). A Debug build of this project builds it
-(`npm run build:template`) and embeds `dist/workers-app/browser/*`. A Release build embeds whatever is already in `dist`.
+The SPA source is in [`Indice.Features.Workers.App`](../Indice.Features.Workers.App/README.md). A Debug build of this project
+builds it (`npm run build:template`) and embeds `dist/workers-app/browser/*`. A Release build embeds whatever is already in `dist`.
 
 To run the SPA with `ng serve` against a real host, the host must allow CORS for `http://localhost:4200`, and the `workers-ui`
 client must accept the `http://localhost:4200/...` redirect URIs.

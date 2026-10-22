@@ -142,6 +142,21 @@ describe('QueueDetailPageComponent', () => {
     ]);
   });
 
+  it('returns to the last valid page when the current page becomes empty', async () => {
+    api.getQueueMessages.and.returnValues(
+      of({ count: 10, items: [] }),
+      of({ count: 10, items: MESSAGES }),
+    );
+
+    el.querySelector<HTMLButtonElement>('button[aria-label="Next page"]')!.click();
+    await fixture.whenStable();
+
+    expect(api.getQueueMessages.calls.mostRecent().args).toEqual([
+      'orders',
+      jasmine.objectContaining({ status: 'Enqueued', page: 1 }),
+    ]);
+  });
+
   it('clears the selection when the status changes', async () => {
     await select(0);
     expect(el.textContent).toContain('1 selected');

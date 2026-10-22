@@ -262,6 +262,17 @@ export class ShellComponent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => this.drawerOpen.set(false));
+
+    const desktopBreakpoint = window.matchMedia('(min-width: 48rem)');
+    const closeDrawerOnDesktop = (event: MediaQueryListEvent) => {
+      if (event.matches) {
+        this.closeDrawer();
+      }
+    };
+    desktopBreakpoint.addEventListener('change', closeDrawerOnDesktop);
+    this.destroyRef.onDestroy(() =>
+      desktopBreakpoint.removeEventListener('change', closeDrawerOnDesktop),
+    );
   }
 
   protected toggleCollapsed(): void {

@@ -194,6 +194,7 @@ public class WorkerDashboardService : IWorkerDashboardService
                 ExecutionCount = x.ExecutionCount,
                 Status = x.Status,
                 LastErrorDate = x.LastErrorDate,
+                HasErrors = x.Errors != null,
                 Progress = x.Progress,
                 Enabled = x.Enabled
             })
@@ -225,6 +226,7 @@ public class WorkerDashboardService : IWorkerDashboardService
             ExecutionCount = task.ExecutionCount,
             Status = task.Status,
             LastErrorDate = task.LastErrorDate,
+            HasErrors = task.Errors != null,
             Progress = task.Progress,
             Enabled = task.Enabled
         };
@@ -294,8 +296,10 @@ public class WorkerDashboardService : IWorkerDashboardService
         info.NextExecution = row.NextExecution;
         info.ExecutionCount = row.ExecutionCount;
         info.LastErrorDate = row.LastErrorDate;
-        // Errors are never cleared on success, so the last run failed only if the error is not older than it.
-        info.LastRunFailed = row.LastErrorDate is not null && row.LastErrorDate >= row.LastExecution;
+        // Legacy rows can have Errors but no LastErrorDate because older workers did not persist it.
+        info.LastRunFailed = row.LastErrorDate is not null
+            ? row.LastErrorDate >= row.LastExecution
+            : row.HasErrors;
         info.Progress = row.Progress;
         info.WorkerId = row.WorkerId;
         return info;
@@ -346,6 +350,7 @@ public class WorkerDashboardService : IWorkerDashboardService
         public int ExecutionCount { get; set; }
         public ScheduledTaskStatus Status { get; set; }
         public DateTimeOffset? LastErrorDate { get; set; }
+        public bool HasErrors { get; set; }
         public double Progress { get; set; }
         public bool? Enabled { get; set; }
     }

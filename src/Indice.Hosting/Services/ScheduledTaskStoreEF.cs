@@ -29,7 +29,6 @@ public class ScheduledTaskStoreEF<TState> : IScheduledTaskStore<TState> where TS
         var dbTask = await _dbContext.Tasks.Where(x => x.Id == scheduledTask.Id).SingleOrDefaultAsync();
         if (dbTask != null) {
             dbTask.From(scheduledTask, _jsonSerializerOptions);
-            _dbContext.Tasks.Update(dbTask);
         } else {
             _dbContext.Tasks.Add(new DbScheduledTask().From(scheduledTask, _jsonSerializerOptions));
         }

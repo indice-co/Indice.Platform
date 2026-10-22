@@ -3,10 +3,9 @@ import { Pipe, PipeTransform } from '@angular/core';
 const formatter = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
 
 /**
- * `{{ value | relativeTime }}` → "3 minutes ago" / "in 2 hours". Pure: the polling re-render hands
- * it fresh objects often enough to keep the text current without an impure pipe's per-CD cost.
+ * `{{ value | relativeTime }}` → "3 minutes ago" / "in 2 hours".
  */
-@Pipe({ name: 'relativeTime' })
+@Pipe({ name: 'relativeTime', pure: false })
 export class RelativeTimePipe implements PipeTransform {
   transform(value: string | Date | null | undefined): string {
     if (value === null || value === undefined || value === '') {

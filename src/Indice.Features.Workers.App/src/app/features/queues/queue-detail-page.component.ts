@@ -396,6 +396,11 @@ export class QueueDetailPageComponent {
         takeUntilDestroyed(),
       )
       .subscribe((rs) => {
+        if (!rs.items.length && this.page() > 1) {
+          const lastPage = Math.max(1, Math.ceil(rs.count / this.size()));
+          this.page.set(Math.min(this.page() - 1, lastPage));
+          return;
+        }
         this.result.set(rs);
         const present = new Set(rs.items.map((m) => m.id));
         this.selected.update((ids) => new Set([...ids].filter((id) => present.has(id))));
