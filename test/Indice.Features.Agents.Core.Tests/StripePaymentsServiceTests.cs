@@ -7,8 +7,20 @@ using Stripe;
 
 namespace Indice.Features.Agents.Core.Tests;
 
-public class StripePaymentsServiceTests
+public class StripePaymentsServiceTests : IAsyncLifetime
 {
+    private static readonly string _connectionString = $"Server=(localdb)\\MSSQLLocalDB;Database=AgentsDb.Payments.Test_{Environment.Version.Major}_{Guid.NewGuid():N};Trusted_Connection=True;MultipleActiveResultSets=true";
+    private AgentsDbContext? _db;
+
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
+
+    public async ValueTask DisposeAsync() {
+        if (_db is not null) {
+            await _db.Database.EnsureDeletedAsync();
+            await _db.DisposeAsync();
+        }
+    }
+
     private const string UserId = "user-1";
     private const string CaseId = "C-1";
     private const string TenantId = "indice";
@@ -173,10 +185,12 @@ public class StripePaymentsServiceTests
 
     // Reconciliation is not throttled by default so every read hits the fake Stripe client; the throttle test opts in.
     private static (StripePaymentsService Service, AgentsDbContext Db, FakeStripeClient Stripe, RecordingPaymentEventHandler Handler) CreateService(TimeSpan? reconciliationInterval = null) {
+        // A relational provider is required: the EF InMemory provider does not support ExecuteUpdate (atomic status transitions).
         var options = new DbContextOptionsBuilder<AgentsDbContext>()
-            .UseInMemoryDatabase(databaseName: $"StripePayments-{Guid.NewGuid()}")
+            .UseSqlServer(_connectionString)
             .Options;
         var db = new AgentsDbContext(options);
+        db.Database.EnsureCreated();
         var stripe = new FakeStripeClient();
         var handler = new RecordingPaymentEventHandler();
         var service = new StripePaymentsService(
