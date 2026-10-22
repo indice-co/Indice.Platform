@@ -48,7 +48,15 @@ public sealed class FtpServerConnectionTracker
     /// <param name="minPort">The lower bound of the port range (inclusive).</param>
     /// <param name="maxPort">The upper bound of the port range (inclusive).</param>
     /// <returns>The number of ports in use.</returns>
-    public int CountPortsInUse(int minPort, int maxPort) {
+    public int CountPortsInUse(int minPort, int maxPort) => GetPortsInUse(minPort, maxPort).Count;
+
+    /// <summary>
+    /// Gets the distinct local ports, within the given range, that are held by tracked passive listeners and open data connections.
+    /// </summary>
+    /// <param name="minPort">The lower bound of the port range (inclusive).</param>
+    /// <param name="maxPort">The upper bound of the port range (inclusive).</param>
+    /// <returns>The set of ports in use.</returns>
+    public IReadOnlySet<int> GetPortsInUse(int minPort, int maxPort) {
         PruneClosedDataConnections();
         var ports = new HashSet<int>();
         foreach (var port in _passiveListeners.Values.Where(port => port >= minPort && port <= maxPort)) {
@@ -60,7 +68,7 @@ public sealed class FtpServerConnectionTracker
                 ports.Add(port);
             }
         }
-        return ports.Count;
+        return ports;
     }
 
     internal void PassiveListenerCreated(object listener, int port) => _passiveListeners.TryAdd(listener, port);

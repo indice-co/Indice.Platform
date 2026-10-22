@@ -101,8 +101,9 @@ public class FtpServerCapacityProvider : IFtpServerCapacityProvider
             .Select(connection => connection.LocalEndPoint)
             .Where(endpoint => endpoint.Port >= minPort && endpoint.Port <= maxPort && ConflictsWithAny(endpoint.Address, bindAddresses))
             .Select(endpoint => endpoint.Port));
-        var tracked = _tracker.CountPortsInUse(minPort, maxPort);
-        return Math.Max(ports.Count, tracked);
+        // Union with the tracked ports, since a passive listener may have been opened after the OS listener snapshot was taken.
+        ports.UnionWith(_tracker.GetPortsInUse(minPort, maxPort));
+        return ports.Count;
     }
 
     // Passive listeners bind to the local address of the control connection, so only the addresses accepted by the FTP control listener are relevant.
