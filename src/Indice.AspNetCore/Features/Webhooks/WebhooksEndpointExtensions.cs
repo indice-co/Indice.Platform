@@ -4,6 +4,7 @@ using Indice.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -55,27 +56,28 @@ public static class WebhooksEndpointExtensions
     }
 
     internal static async Task<Results<ValidationProblem, NotFound, NoContent>> HandleWebhook( 
-        string provider, HttpContext context, Channel<List<WebhookEvent>> channel, CancellationToken cancellationToken) {
-            var webhooksHandler = context.RequestServices.GetService<IWebhookHttpHandler>();
-            if (webhooksHandler is null) {
-                return TypedResults.NotFound();
-            }
+        string provider, HttpContext context, [FromServices] Channel<List<WebhookEvent>> channel, CancellationToken cancellationToken) {
+        var httpHandler = context.RequestServices.GetKeyedService<IWebhookHttpHandler>(provider);
 
-            var result = await webhooksHandler.ParseAsync(context.Request.Headers, context.Request.Query, context.Request.Body, cancellationToken);
-            if (!result.Success) {
-                return result.Status switch {
-                    >= 200 and <= 204 => TypedResults.NoContent(),
-                    >= 400 and <= 403 => TypedResults.ValidationProblem(
-                        ValidationErrors.AddErrors(provider, result.Errors)),
-                    _ => TypedResults.ValidationProblem(
-                        ValidationErrors.AddErrors(provider, result.Errors))
-                };
-            }
+        if (httpHandler is null) {
+            return TypedResults.NotFound();
+        }
 
-            if (result.Events.Any()) {
-                await channel.Writer.WriteAsync(result.Events, cancellationToken);
-            }
+        var result = await httpHandler.ParseAsync(context.Request.Headers, context.Request.Query, context.Request.Body, cancellationToken);
+        if (!result.Success) {
+            return result.Status switch {
+                >= 200 and <= 204 => TypedResults.NoContent(),
+                >= 400 and <= 403 => TypedResults.ValidationProblem(
+                    ValidationErrors.AddErrors(provider, result.Errors)),
+                _ => TypedResults.ValidationProblem(
+                    ValidationErrors.AddErrors(provider, result.Errors))
+            };
+        }
 
-            return TypedResults.NoContent();
+        if (result.Events.Any()) {
+            await channel.Writer.WriteAsync(result.Events, cancellationToken);
+        }
+
+        return TypedResults.NoContent();
     }
 }
