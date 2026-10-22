@@ -1,7 +1,7 @@
-using Indice.Hosting.UI.Models;
+using Indice.Features.Workers.Server.Models;
 using Indice.Types;
 
-namespace Indice.Hosting.UI.Services;
+namespace Indice.Features.Workers.Server.Services;
 
 /// <summary>Reads and changes the worker tables for the dashboard.</summary>
 public interface IWorkerDashboardService

@@ -1,8 +1,9 @@
+using Indice.Features.Workers.Server.Models;
+using Indice.Hosting;
 using Indice.Hosting.Data.Models;
 using Indice.Hosting.Models;
-using Indice.Hosting.UI.Models;
 
-namespace Indice.Hosting.UI.Services;
+namespace Indice.Features.Workers.Server.Services;
 
 /// <summary>
 /// The single source of truth for the status of a queue message. The first match wins: Poison, Dequeued, Scheduled, Retrying, Enqueued.

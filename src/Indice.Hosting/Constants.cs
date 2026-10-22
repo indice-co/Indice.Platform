@@ -1,7 +1,10 @@
 ﻿namespace Indice.Hosting;
 
+/// <summary>Naming conventions for Hosting feature</summary>
 public class HostingConventions
 {
+    /// <summary>Poison Queue Name suffix convention.</summary>
+    /// <remarks>Used when a message is moved to the poison queue then the original queue name is suffixed with this value.</remarks>
     public const string PoisonSuffix = "-poison";
 }
 

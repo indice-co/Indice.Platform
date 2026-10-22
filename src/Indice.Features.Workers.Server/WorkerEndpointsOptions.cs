@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Hosting.UI;
+namespace Indice.Features.Workers.Server;
 
 /// <summary>Options for the workers dashboard HTTP API.</summary>
-public class WorkerDashboardOptions
+public class WorkerEndpointsOptions
 {
-    /// <summary>Route prefix of the API. Defaults to <c>/api/workers</c>. Must match <see cref="WorkerDashboardUIOptions"/>.ApiBase.</summary>
+    /// <summary>Route prefix of the API. Defaults to <c>/api/workers</c>.</summary>
     public PathString PathPrefix { get; set; } = "/api/workers";
     /// <summary>OpenAPI group name. Defaults to <c>workers</c>.</summary>
     public string GroupName { get; set; } = "workers";

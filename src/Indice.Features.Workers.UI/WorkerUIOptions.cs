@@ -3,7 +3,7 @@ using Indice.AspNetCore.EmbeddedUI;
 namespace Indice.Hosting.UI;
 
 /// <summary>Options for the workers dashboard single page application.</summary>
-public class WorkerDashboardUIOptions : SpaUIOptions
+public class WorkerUIOptions : SpaUIOptions
 {
     private const string DefaultTheme = "indice";
 
@@ -13,8 +13,8 @@ public class WorkerDashboardUIOptions : SpaUIOptions
     /// <summary>The daisyUI theme name. Defaults to <b>indice</b>.</summary>
     public string? Theme { get; set; }
 
-    /// <summary>Creates a new instance of <see cref="WorkerDashboardUIOptions"/>.</summary>
-    public WorkerDashboardUIOptions() {
+    /// <summary>Creates a new instance of <see cref="WorkerUIOptions"/>.</summary>
+    public WorkerUIOptions() {
         ClientId = "workers-ui";
         Scope = "openid profile role email workers";
         DocumentTitle = "Workers";

@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
+    <VersionPrefix>$(VersionPrefixWorkers)</VersionPrefix>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     
     <SpaProjectName>browser</SpaProjectName>
-    <SpaSourceFolder>..\Indice.Hosting.App</SpaSourceFolder>
+    <SpaSourceFolder>..\Indice.Features.Workers.App</SpaSourceFolder>
     <SpaDistFolder>$(SpaSourceFolder)\dist\workers-app</SpaDistFolder>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Hosting;Background Tasks;Dashboard</PackageTags>
@@ -17,15 +17,11 @@
     <EmbeddedResource Include="$(SpaProjectName)\index.html" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixAspNet)-*" />
     <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixCore)-*" />
-    <PackageReference Include="Indice.Hosting" Version="$(VersionPrefixCore)-*" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
-    <ProjectReference Include="..\Indice.Hosting\Indice.Hosting.csproj" />
-    <ProjectReference Include="..\Indice.Hosting.App\Indice.Hosting.App.esproj" Condition="'$(Configuration)' == 'Debug'">
+    <ProjectReference Include="..\Indice.Features.Workers.App\Indice.Features.Workers.App.esproj" Condition="'$(Configuration)' == 'Debug'">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>

@@ -1,7 +1,7 @@
 using FluentValidation;
-using Indice.Hosting.UI.Models;
+using Indice.Features.Workers.Server.Models;
 
-namespace Indice.Hosting.UI.Endpoints;
+namespace Indice.Features.Workers.Server.Endpoints;
 
 /// <summary>Validates <see cref="MessageIdsRequest"/>.</summary>
 public class MessageIdsRequestValidator : AbstractValidator<MessageIdsRequest>

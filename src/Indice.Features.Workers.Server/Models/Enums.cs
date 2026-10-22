@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Indice.Hosting.UI.Models;
+namespace Indice.Features.Workers.Server.Models;
 
 /// <summary>The status of a queue message, as shown by the dashboard. Statuses are mutually exclusive.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<QueueMessageStatus>))]

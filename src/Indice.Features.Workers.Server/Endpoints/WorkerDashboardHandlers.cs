@@ -1,10 +1,10 @@
-using Indice.Hosting.UI.Models;
-using Indice.Hosting.UI.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Indice.Features.Workers.Server.Models;
+using Indice.Features.Workers.Server.Services;
 
-namespace Indice.Hosting.UI.Endpoints;
+namespace Indice.Features.Workers.Server.Endpoints;
 
 internal static class WorkerDashboardHandlers
 {

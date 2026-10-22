@@ -1,4 +1,4 @@
-namespace Indice.Hosting.UI.Models;
+namespace Indice.Features.Workers.Server.Models;
 
 /// <summary>A scheduled (cron) task.</summary>
 public class ScheduledTaskInfo

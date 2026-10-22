@@ -1,6 +1,6 @@
-using Indice.Hosting.UI;
-using Indice.Hosting.UI.Endpoints;
-using Indice.Hosting.UI.Models;
+using Indice.Features.Workers.Server;
+using Indice.Features.Workers.Server.Endpoints;
+using Indice.Features.Workers.Server.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -14,7 +14,7 @@ internal static class WorkerDashboardApi
 {
     /// <summary>Maps the <c>/api/workers</c> endpoint group.</summary>
     public static RouteGroupBuilder MapWorkerDashboardApi(this IEndpointRouteBuilder routes) {
-        var options = routes.ServiceProvider.GetRequiredService<IOptions<WorkerDashboardOptions>>().Value;
+        var options = routes.ServiceProvider.GetRequiredService<IOptions<WorkerEndpointsOptions>>().Value;
         var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
 
         var group = routes.MapGroup(options.PathPrefix.Value?.TrimEnd('/') ?? string.Empty)
@@ -22,11 +22,8 @@ internal static class WorkerDashboardApi
                           .WithTags("Workers");
 
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
-        // group.RequireAuthorization(pb => 
-        //     pb.RequireAuthenticatedUser()
-        //     .RequireAssertion(context => (!string.IsNullOrEmpty(options.RequiredScope) && context.User.HasScope(options.RequiredScope)) || context.User.IsAdmin()));
-        
+                                           .RequireAssertion(context => (!string.IsNullOrEmpty(options.RequiredScope) && context.User.HasScope(options.RequiredScope)) || context.User.IsInRole(BasicRoleNames.WorkersAdmin) || context.User.IsAdmin()));
+
         group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);

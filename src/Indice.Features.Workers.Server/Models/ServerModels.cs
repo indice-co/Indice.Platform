@@ -1,4 +1,4 @@
-namespace Indice.Hosting.UI.Models;
+namespace Indice.Features.Workers.Server.Models;
 
 /// <summary>A distributed lock.</summary>
 public class LockInfo

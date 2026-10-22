@@ -1,6 +1,6 @@
 using Indice.Types;
 
-namespace Indice.Hosting.UI.Models;
+namespace Indice.Features.Workers.Server.Models;
 
 /// <summary>A logical queue. The <c>{name}-poison</c> queue is folded into its <c>{name}</c> queue.</summary>
 public class QueueInfo

@@ -22,7 +22,7 @@ public static class WebhooksEndpointExtensions
     /// <param name="prefix">The route pattern used to receive webhook requests.</param>
     /// <param name="excludeFromOpenApi">
     /// Specifies whether to exclude webhook endpoints from the generated OpenAPI specification.
-    /// Defaults to <see langword="true"/>.
+    /// Defaults to <see langword="true"/>.</param>
     /// <returns>An endpoint convention builder for the mapped webhook endpoint.</returns>
     public static IEndpointConventionBuilder MapWebhooks(
         this IEndpointRouteBuilder endpoints,

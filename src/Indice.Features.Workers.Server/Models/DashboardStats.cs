@@ -1,4 +1,4 @@
-namespace Indice.Hosting.UI.Models;
+namespace Indice.Features.Workers.Server.Models;
 
 /// <summary>Overall counters of the dashboard.</summary>
 public class DashboardStats

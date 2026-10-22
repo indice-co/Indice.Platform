@@ -1,4 +1,4 @@
-# Indice.Hosting.App
+# Indice.Features.Workers.App
 
 The workers dashboard SPA for `Indice.Hosting` (queues, scheduled tasks, servers & locks). Angular 20
 (standalone, zoneless, signals), Tailwind 4 + daisyUI 5, OIDC sign-in through `@indice/ng-auth`.

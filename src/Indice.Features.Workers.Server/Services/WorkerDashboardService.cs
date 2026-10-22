@@ -1,10 +1,12 @@
+using Indice.Features.Workers.Server.Services;
+using Indice.Features.Workers.Server.Models;
+using Indice.Hosting;
 using Indice.Hosting.Data;
 using Indice.Hosting.Models;
-using Indice.Hosting.UI.Models;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Hosting.UI.Services;
+namespace Indice.Features.Workers.Server.Services;
 
 /// <summary>
 /// Reads the worker tables through <see cref="ITaskDbContext"/> and <see cref="ILockDbContext"/>.

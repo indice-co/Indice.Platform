@@ -1,4 +1,4 @@
-# Indice.Hosting.UI
+# Indice.Features.Workers.UI
 
 A dashboard for [`Indice.Hosting`](../Indice.Hosting/README.md) background work, in the spirit of the Hangfire Dashboard.
 One package ships both parts:
