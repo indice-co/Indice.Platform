@@ -1,6 +1,5 @@
 using Indice.Hosting.Data.Models;
 using Indice.Hosting.Models;
-using Indice.Hosting.Services;
 using Indice.Hosting.UI.Models;
 
 namespace Indice.Hosting.UI.Services;
@@ -26,12 +25,15 @@ public static class QueueMessageStatusRules
         if (queueName.EndsWith(HostingConventions.PoisonSuffix, StringComparison.Ordinal) || state == QMessageState.Poison) {
             return QueueMessageStatus.Poison;
         }
+        
         if (state == QMessageState.Dequeued) {
             return QueueMessageStatus.Dequeued;
         }
+        
         if (date > utcNow) {
             return QueueMessageStatus.Scheduled;
         }
+        
         return dequeueCount > 0 ? QueueMessageStatus.Retrying : QueueMessageStatus.Enqueued;
     }
 

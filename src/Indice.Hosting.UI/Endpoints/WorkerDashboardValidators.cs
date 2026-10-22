@@ -6,6 +6,8 @@ namespace Indice.Hosting.UI.Endpoints;
 /// <summary>Validates <see cref="MessageIdsRequest"/>.</summary>
 public class MessageIdsRequestValidator : AbstractValidator<MessageIdsRequest>
 {
+    // todo: check here if and what value needed
+    // todo: requeue by queue name might also be better here as the usual Officer action
     /// <summary>The maximum number of messages in one bulk action.</summary>
     private const int MaxIds = 10;
 
