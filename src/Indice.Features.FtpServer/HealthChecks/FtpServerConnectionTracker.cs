@@ -77,10 +77,8 @@ public sealed class FtpServerConnectionTracker
     }
 
     private void PruneClosedDataConnections() {
-        foreach (var connection in _dataConnections.Keys) {
-            if (!IsOpen(connection)) {
-                _dataConnections.TryRemove(connection, out _);
-            }
+        foreach (var connection in _dataConnections.Keys.Where(connection => !IsOpen(connection))) {
+            _dataConnections.TryRemove(connection, out _);
         }
     }
 
