@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Indice.Features.Agents.Core.Data;
+using Indice.Features.Agents.Core.Models;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Agents.AI.Workflows.Checkpointing;
 using Microsoft.EntityFrameworkCore;
@@ -47,5 +48,27 @@ public sealed class PersistedCheckpointStore(AgentsDbContext dbContext) : JsonCh
         // cannot translate DateTimeOffset ordering. Oldest-first ordering is a CheckpointManager contract.
         var rows = await query.Select(x => new { x.CheckpointId, x.CreatedAt }).ToListAsync();
         return rows.OrderBy(x => x.CreatedAt).Select(x => new CheckpointInfo(sessionId, x.CheckpointId)).ToList();
+    }
+
+    /// <summary>Finds the session (conversation and owning agent) a checkpoint of the given conversation was committed under.</summary>
+    /// <remarks>
+    /// Session ids are <c>{ConversationId}:{AgentName}</c>; filtering on the conversation prefix lets the database seek the
+    /// <c>(SessionId, CheckpointId)</c> primary key, so the cost is bounded by the conversation rather than the whole store.
+    /// </remarks>
+    /// <param name="conversationId">The conversation the checkpoint must belong to.</param>
+    /// <param name="checkpointId">The checkpoint identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The owning <see cref="AgentSessionId"/>, or <see langword="null"/> when the checkpoint is unknown in this conversation.</returns>
+    public async ValueTask<AgentSessionId?> FindSessionByCheckpointIdAsync(Guid conversationId, string checkpointId, CancellationToken cancellationToken = default) {
+        if (conversationId == Guid.Empty || string.IsNullOrWhiteSpace(checkpointId)) {
+            return null;
+        }
+        var prefix = $"{new AgentSessionId(conversationId)}:";
+        var sessionId = await dbContext.Set<DbCheckpoint>()
+            .AsNoTracking()
+            .Where(x => x.SessionId.StartsWith(prefix) && x.CheckpointId == checkpointId)
+            .Select(x => x.SessionId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return sessionId is not null && AgentSessionId.TryParse(sessionId, out var agentSessionId) ? agentSessionId : null;
     }
 }
