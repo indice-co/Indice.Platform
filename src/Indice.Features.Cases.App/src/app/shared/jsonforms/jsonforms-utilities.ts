@@ -49,7 +49,7 @@ export function presentField(
     const notitle = uischema.label === false || isTrue(options.notitle);
     let title: string | null = typeof uischema.label === 'string' ? uischema.label : options.title ?? fixTitle(lastSegment(scopeOf(uischema) ?? ''));
     if (title && addAsterisk && !notitle && options.required && !title.includes('*')) {
-        title += ' <strong class="text-red-500">*</strong>';
+        title += ' <span class="text-error" aria-hidden="true">*</span>';
     }
     return {
         options,
@@ -60,9 +60,16 @@ export function presentField(
     };
 }
 
-/** ajsf `case-channel` option: the field is only shown for cases of that channel ('Agent' or 'Customer'). */
+/** ajsf `case-channel` option: the field is only shown for cases of that channel (e.g. 'Managed' or 'External'). */
 export function isShownForChannel(options: any, caseChannel: string | undefined): boolean {
-    return !options?.['case-channel'] || options['case-channel'] === caseChannel;
+    return !options?.['case-channel'] || normalizeChannel(options['case-channel']) === normalizeChannel(caseChannel);
+}
+
+/** Legacy channel names, still found on older cases and UI schemas, mapped to their current names. */
+const legacyChannels: Record<string, string> = { Agent: 'Managed', Customer: 'External' };
+
+function normalizeChannel(channel: string | undefined): string | undefined {
+    return channel && Object.hasOwn(legacyChannels, channel) ? legacyChannels[channel] : channel;
 }
 
 /** ajsf layouts store booleans as `true` or `"true"`. */
@@ -263,6 +270,22 @@ export function formatErrors(errors: ErrorObject[], validationMessages: any): st
         .join('<br>');
 }
 
+/** A number as an amount in the Greek format (`1.234,56`), as the ajsf `currency` widget shows it. */
+export function formatCurrency(value: number | string | undefined | null, decimalPlaces = 2, locale = 'el-GR'): string {
+    if (typeof value === 'string') {
+        value = value.trim() === '' || isNaN(Number(value)) ? value as any : Number(value);
+    }
+    return value?.toLocaleString(locale, {
+        minimumFractionDigits: decimalPlaces,
+        maximumFractionDigits: decimalPlaces
+    }) || '';
+}
+
+/** A value counts as empty when it is missing, an empty string or an empty array. */
+export function isEmptyValue(value: any): boolean {
+    return value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0);
+}
+
 /** ajsf child sizing in a flex container: `options.flex` ("grow shrink basis") or the separate options, default `1 1 auto`. */
 export function flexItemStyle(options: any): { grow: string, shrink: string, basis: string, alignSelf: string | null, order: string | null } {
     const parts = (options?.flex ?? '').split(/\s+/);
@@ -285,7 +308,7 @@ function lastSegment(scope: string): string {
 }
 
 /** ajsf `fixTitle`: a title from a property name (`homePhone` -> `Home Phone`). */
-function fixTitle(name: string): string {
+export function fixTitle(name: string): string {
     return name
         .replace(/([a-z])([A-Z])/g, '$1 $2')
         .replace(/_/g, ' ')

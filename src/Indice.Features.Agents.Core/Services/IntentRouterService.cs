@@ -1,5 +1,7 @@
+using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows;
+using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
@@ -7,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ModelContextProtocol.Protocol;
-using static Duende.IdentityModel.ClaimComparer;
 
 namespace Indice.Features.Agents.Core.Services;
 
@@ -26,6 +27,7 @@ public class IntentRouterService
     private readonly AgentsOptions.RoutingOptions _routing;
     private readonly ISystemOneClient _systemOne;
     private readonly IConversationStore _store;
+    private readonly PersistedCheckpointStore _checkpoints;
     private readonly AgentMessageLocalizer _localizer;
     private readonly ILogger<IntentRouterService> _logger;
     private readonly bool _systemOneEnabled;
@@ -35,8 +37,9 @@ public class IntentRouterService
     /// <summary>Creates a new <see cref="IntentRouterService"/>.</summary>
     public IntentRouterService([FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, IOptions<AgentsOptions> agentsOptions, IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         AgentInfoRegistry registry, UserClaimsAIContextProvider userClaimsProvider, ConversationStoreChatHistoryProvider historyProvider,
-        ISystemOneClient systemOne, IConversationStore store, AgentMessageLocalizer localizer, ILogger<IntentRouterService> logger) {
+        ISystemOneClient systemOne, IConversationStore store, PersistedCheckpointStore checkpoints, AgentMessageLocalizer localizer, ILogger<IntentRouterService> logger) {
         _registry = registry;
+        _checkpoints = checkpoints;
         _routing = agentsOptions.Value.Routing;
         _systemOne = systemOne;
         _store = store;
@@ -63,6 +66,11 @@ public class IntentRouterService
     }
 
     /// <summary>Routes the latest user message to the agent that should handle it.</summary>
+    /// <remarks>
+    /// A workflow waiting for user input keeps the turn: a reply to a port request, or a plain-text message while a port
+    /// request is still pending (coerced into the port's response), goes to the agent owning the request's checkpoint
+    /// without classification. Only an explicit agent selection takes precedence.
+    /// </remarks>
     /// <param name="message">The latest user message.</param>
     /// <param name="chatOptions">The chat options.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -71,6 +79,9 @@ public class IntentRouterService
     /// <c>null</c> with a populated <see cref="RouteDecision.Reason"/> when the request is out of scope.
     /// </returns>
     public async Task<RouteDecision> RouteAsync(ChatMessage message, ChatOptions chatOptions, CancellationToken cancellationToken = default) {
+        if (await TryRouteToActiveWorkflowAsync(message, chatOptions.ConversationId, cancellationToken) is { } pinned) {
+            return pinned;
+        }
         var suggestedAgent = chatOptions.Instructions;
 
         suggestedAgent = suggestedAgent?.Trim().ToLowerInvariant();
@@ -183,6 +194,47 @@ public class IntentRouterService
         var agent = _registry.Find(agentAnswer.Choice);
         return agent is null ? null : new RouteDecision {
             AgentName = agent.Name,
+            IsInScope = true
+        };
+    }
+
+    /// <summary>
+    /// Keeps the user inside a workflow that is waiting for input. A reply to a port request (function result) goes to the
+    /// agent that owns the request's checkpoint; a plain-text reply while a port request is still pending goes there too,
+    /// coerced into the port's response so the run resumes from the checkpoint instead of being re-classified.
+    /// </summary>
+    private async Task<RouteDecision?> TryRouteToActiveWorkflowAsync(ChatMessage message, string? conversationId, CancellationToken cancellationToken) {
+        if (!Guid.TryParse(conversationId, out var id) || id == Guid.Empty) {
+            return null;
+        }
+        if (message.HasFunctionResultContent()) {
+            var callId = message.GetFunctionResultContentCallId();
+            return await PinAsync(id, callId.CheckpointId, cancellationToken);
+        }
+        var history = await _store.GetHistoryAsync(id, cancellationToken);
+        if (!history.TryGetPendingPortRequest(out var pendingRequest)) {
+            return null;
+        }
+        var decision = await PinAsync(id, AgentFunctionCallId.Parse(pendingRequest.CallId).CheckpointId, cancellationToken);
+        if (decision is not null && PortResponseCoercer.TryCoerce(pendingRequest, message.Text, out var result)) {
+            message.Contents.Insert(0, result);
+        }
+        return decision;
+    }
+
+    private async Task<RouteDecision?> PinAsync(Guid conversationId, string? checkpointId, CancellationToken cancellationToken) {
+        if (string.IsNullOrWhiteSpace(checkpointId)) {
+            return null;
+        }
+        var session = await _checkpoints.FindSessionByCheckpointIdAsync(conversationId, checkpointId, cancellationToken);
+        var agent = session?.AgentName is { } agentName ? _registry.Find(agentName) : null;
+        if (agent is null) {
+            return null;
+        }
+        _logger.LogDebug("Workflow of agent {AgentName} is waiting for input (checkpoint {CheckpointId}); pinning the turn to it.", agent.Name, checkpointId);
+        return new RouteDecision {
+            AgentName = agent.Name,
+            Reason = "Workflow in progress",
             IsInScope = true
         };
     }

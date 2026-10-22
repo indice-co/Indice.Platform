@@ -1,42 +1,267 @@
-<lib-view-layout [title]="'dashboard.welcome' | translate:{ name: $safeNavigationMigration(user?.profile?.name) }"
-  [meta-items]="metaItems">
-  <div class="cards-deck-1 mb-4">
-    <div class="grid grid-cols-3 gap-x-5 gap-y-0">
-      @if (tiles.GroupedByCasetype) {
-        <app-canvas-tile
-          [title]="'dashboard.groupedByCasetype' | translate"
-        [canvasId]="reportTag.GroupedByCasetype"></app-canvas-tile>
+<header class="mb-6">
+  <h1 class="text-2xl font-bold tracking-tight sm:text-[1.75rem]">
+    {{ greetingKey | translate: { name: firstName() } }}
+  </h1>
+  <p class="mt-1 text-sm text-base-content/70">
+    <span class="first-letter:uppercase inline-block">{{ today() }}</span>. {{ 'dashboard.subtitle' | translate }}
+  </p>
+</header>
+
+<!-- Case pipeline: the one bold element of the page -->
+@switch (metrics.state().status) {
+  @case ('hidden') {}
+  @case ('error') {
+    <section class="panel mb-6 p-6">
+      <ng-container *ngTemplateOutlet="cardError; context: { $implicit: metrics }" />
+    </section>
+  }
+  @case ('loading') {
+    <section class="panel mb-6 p-6" aria-busy="true">
+      <div class="skeleton h-4 w-32"></div>
+      <div class="skeleton mt-3 h-12 w-40"></div>
+      <div class="skeleton mt-6 h-3 w-full"></div>
+      <div class="mt-6 grid gap-4 sm:grid-cols-3">
+        <div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div>
+      </div>
+    </section>
+  }
+  @case ('ready') {
+    @if (pipelineView(); as view) {
+      <section class="panel mb-6 overflow-hidden" aria-labelledby="pipeline-title">
+        <div class="px-5 pt-5 sm:px-6 sm:pt-6">
+          <h2 id="pipeline-title" class="text-sm font-medium text-base-content/70">{{ 'dashboard.pipeline.title' | translate }}</h2>
+          <a class="group mt-1 inline-flex items-baseline gap-2" routerLink="/cases" [queryParams]="view.openLink">
+            <span class="docket text-5xl font-bold tracking-tight group-hover:text-primary">{{ view.open | number }}</span>
+            <span class="text-base-content/70">{{ 'dashboard.pipeline.openCases' | translate }}</span>
+          </a>
+
+          <!-- proportional bar: one segment per stage, separated by a 2px surface gap -->
+          <div class="mt-5 flex h-3 w-full gap-0.5 overflow-hidden rounded-full bg-base-200" role="img"
+            [attr.aria-label]="'dashboard.pipeline.title' | translate">
+            @for (stage of view.stages; track stage.key) {
+              @if (stage.count > 0) {
+                <span class="h-full first:rounded-l-full last:rounded-r-full" [style.flex-grow]="stage.count"
+                  [class]="{ 'bg-info': stage.key === 'submitted', 'bg-warning': stage.key === 'inprogress', 'bg-success': stage.key === 'completed' }"></span>
+              }
+            }
+          </div>
+        </div>
+
+        <ol class="mt-5 grid border-t border-base-300 sm:grid-cols-3">
+          @for (stage of view.stages; track stage.key; let last = $last) {
+            <li class="relative border-base-300 not-last:border-b sm:not-last:border-r sm:not-last:border-b-0">
+              <a class="flex h-full flex-col gap-2 px-5 py-4 transition-colors hover:bg-base-200/60 sm:px-6"
+                [class.pointer-events-none]="!stage.link" routerLink="/cases" [queryParams]="stage.link">
+                <span class="stamp self-start" [class]="'stamp-' + stage.key">
+                  @switch (stage.key) {
+                    @case ('submitted') { <svg lucideInbox class="size-3.5"></svg> }
+                    @case ('inprogress') { <svg lucideHourglass class="size-3.5"></svg> }
+                    @default { <svg lucideCircleCheck class="size-3.5"></svg> }
+                  }
+                  {{ stage.label | translate }}
+                </span>
+                <span class="flex items-baseline gap-2">
+                  <span class="docket text-3xl font-semibold">{{ stage.count | number }}</span>
+                  <span class="docket text-xs text-base-content/60">{{ stage.share | percent: '1.0-0' }}</span>
+                </span>
+              </a>
+              @if (!last) {
+                <span class="absolute top-1/2 -right-3 z-10 hidden size-6 -translate-y-1/2 place-items-center rounded-full border border-base-300 bg-base-100 text-base-content/50 sm:grid" aria-hidden="true">
+                  <svg lucideChevronRight class="size-3.5"></svg>
+                </span>
+              }
+            </li>
+          }
+        </ol>
+        @if (attentionView(); as attention) {
+          <div class="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-base-300 px-5 py-3 text-sm sm:px-6">
+            <span class="text-base-content/70">{{ 'dashboard.attention.title' | translate }}</span>
+            <span class="inline-flex items-center gap-2" [class.attention]="attention.unassigned > 0">
+              <svg lucideUserX class="size-4 opacity-70"></svg>
+              <span class="docket font-semibold">{{ attention.unassigned | number }}</span>
+              {{ 'dashboard.attention.unassigned' | translate }}
+            </span>
+            <a class="inline-flex items-center gap-2 hover:text-primary" [class.attention]="attention.stale > 0"
+              [class.pointer-events-none]="!attention.staleLink" routerLink="/cases" [queryParams]="attention.staleLink">
+              <svg lucideClockAlert class="size-4 opacity-70"></svg>
+              <span class="docket font-semibold">{{ attention.stale | number }}</span>
+              {{ 'dashboard.attention.stale' | translate: { days: attention.staleAfterDays } }}
+            </a>
+          </div>
+        }
+        @if (view.total === 0) {
+          <p class="border-t border-base-300 px-6 py-3 text-sm text-base-content/70">{{ 'dashboard.pipeline.empty' | translate }}</p>
+        }
+      </section>
+    }
+  }
+}
+
+<div class="mb-6 grid gap-6 lg:grid-cols-5">
+  <!-- My queue -->
+  @if (myQueue.state().status !== 'hidden') {
+    <section class="panel flex flex-col lg:col-span-2" aria-labelledby="queue-title">
+      <div class="flex items-start justify-between gap-4 px-5 pt-5">
+        <div>
+          <h2 id="queue-title" class="flex items-center gap-2 font-semibold">
+            <svg lucideUserCheck class="size-4 text-primary"></svg>{{ 'dashboard.myQueue.title' | translate }}
+          </h2>
+          <p class="text-sm text-base-content/70">{{ 'dashboard.myQueue.subtitle' | translate }}</p>
+        </div>
+        @if (myQueueCount() !== null) {
+          <a class="docket text-3xl font-semibold hover:text-primary" routerLink="/cases" [queryParams]="myQueueLink()">{{ myQueueCount() | number }}</a>
+        }
+      </div>
+      <div class="flex-1 px-2 pt-3 pb-2">
+        @switch (myQueue.state().status) {
+          @case ('loading') { <ng-container *ngTemplateOutlet="listSkeleton" /> }
+          @case ('error') { <div class="px-3 pb-3"><ng-container *ngTemplateOutlet="cardError; context: { $implicit: myQueue }" /></div> }
+        }
+        @if (myQueue.state(); as state) {
+          @if (state.status === 'ready') {
+            @if (state.value.length) {
+              <ng-container *ngTemplateOutlet="caseList; context: { $implicit: state.value }" />
+              @if ((myQueueCount() ?? 0) > state.value.length) {
+                <a class="link link-hover link-primary mx-3 mt-1 mb-2 inline-block text-sm" routerLink="/cases" [queryParams]="myQueueLink()">
+                  {{ 'dashboard.myQueue.viewAll' | translate: { count: myQueueCount() } }}
+                </a>
+              }
+            } @else {
+              <p class="px-3 py-6 text-sm text-base-content/70">{{ 'dashboard.myQueue.empty' | translate }}</p>
+            }
+          }
+        }
+      </div>
+    </section>
+  }
+
+  <!-- New this week + 14 day intake -->
+  @if (metrics.state().status !== 'hidden') {
+    <section class="panel p-5 lg:col-span-3" aria-labelledby="intake-title">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 id="intake-title" class="flex items-center gap-2 font-semibold">
+            <svg lucideCalendarPlus class="size-4 text-primary"></svg>{{ 'dashboard.intake.title' | translate }}
+          </h2>
+          <p class="text-sm text-base-content/70">{{ 'dashboard.intake.subtitle' | translate }}</p>
+        </div>
+        @if (intakeView(); as view) {
+          <div class="text-right">
+            <a class="docket text-3xl font-semibold hover:text-primary" routerLink="/cases" [queryParams]="view.link">{{ view.thisWeek | number }}</a>
+            <p class="flex items-center justify-end gap-1 text-xs text-base-content/70">
+              @if (view.delta > 0) {
+                <svg lucideTrendingUp class="size-3.5"></svg>{{ 'dashboard.intake.deltaUp' | translate: { value: (view.delta | number) } }}
+              } @else if (view.delta < 0) {
+                <svg lucideTrendingDown class="size-3.5"></svg>{{ 'dashboard.intake.deltaDown' | translate: { value: (-view.delta | number) } }}
+              } @else {
+                <svg lucideMinus class="size-3.5"></svg>{{ 'dashboard.intake.deltaSame' | translate }}
+              }
+            </p>
+          </div>
+        }
+      </div>
+      <div class="mt-4">
+        @switch (metrics.state().status) {
+          @case ('loading') { <div class="skeleton h-40 w-full"></div> }
+          @case ('error') { <ng-container *ngTemplateOutlet="cardError; context: { $implicit: metrics }" /> }
+        }
+        @if (intakeView(); as view) {
+          <app-bar-chart [categories]="view.categories" [values]="view.values" [emphasis]="view.values.length - 1"
+            [label]="'dashboard.intake.chartLabel' | translate" [height]="170" />
+        }
+      </div>
+    </section>
+  }
+</div>
+
+<!-- Server reports: two columns, so each channel's pair (by case type, by status) shares a row -->
+@if (reports.length) {
+  <div class="mb-6 grid gap-6 md:grid-cols-2">
+    @for (report of reports; track $index) {
+      @let title = report.title | translate: { channel: channelLabel(report.channel) };
+      @if (report.loader.state(); as state) {
+        @if (state.status !== 'hidden') {
+          <section class="panel p-5">
+            <h2 class="mb-4 font-semibold">{{ title }}</h2>
+            @switch (state.status) {
+              @case ('loading') {
+                <div class="space-y-3" aria-busy="true">
+                  <div class="skeleton h-3 w-full"></div><div class="skeleton h-3 w-4/5"></div><div class="skeleton h-3 w-3/5"></div>
+                </div>
+              }
+              @case ('error') { <ng-container *ngTemplateOutlet="cardError; context: { $implicit: report.loader }" /> }
+              @case ('ready') {
+                @if (state.value.length) {
+                  <app-breakdown-list [data]="state.value" [label]="title" />
+                } @else {
+                  <p class="text-sm text-base-content/70">{{ 'dashboard.noData' | translate }}</p>
+                }
+              }
+            }
+          </section>
+        }
       }
-      @if (tiles.AgentGroupedByCasetype) {
-        <app-canvas-tile
-          [title]="'dashboard.agentGroupedByCasetype' | translate"
-        [canvasId]="reportTag.AgentGroupedByCasetype"></app-canvas-tile>
+    }
+  </div>
+}
+
+<!-- Latest cases -->
+@if (latest.state().status !== 'hidden') {
+  <section class="panel" aria-labelledby="latest-title">
+    <div class="flex items-center justify-between gap-4 px-5 pt-5">
+      <h2 id="latest-title" class="font-semibold">{{ 'dashboard.latest.title' | translate }}</h2>
+      <a class="link link-hover link-primary text-sm" routerLink="/cases">{{ 'dashboard.latest.viewAll' | translate }}</a>
+    </div>
+    <div class="px-2 pt-3 pb-2">
+      @switch (latest.state().status) {
+        @case ('loading') { <ng-container *ngTemplateOutlet="listSkeleton" /> }
+        @case ('error') { <div class="px-3 pb-3"><ng-container *ngTemplateOutlet="cardError; context: { $implicit: latest }" /></div> }
       }
-      @if (tiles.CustomerGroupedByCasetype) {
-        <app-canvas-tile
-          [title]="'dashboard.customerGroupedByCasetype' | translate"
-        [canvasId]="reportTag.CustomerGroupedByCasetype"></app-canvas-tile>
-      }
-      @if (tiles.GroupedByStatus) {
-        <app-canvas-tile
-          [title]="'dashboard.groupedByStatus' | translate"
-        [canvasId]="reportTag.GroupedByStatus"></app-canvas-tile>
-      }
-      @if (tiles.AgentGroupedByStatus) {
-        <app-canvas-tile
-          [title]="'dashboard.agentGroupedByStatus' | translate"
-        [canvasId]="reportTag.AgentGroupedByStatus"></app-canvas-tile>
-      }
-      @if (tiles.CustomerGroupedByStatus) {
-        <app-canvas-tile
-          [title]="'dashboard.customerGroupedByStatus' | translate"
-        [canvasId]="reportTag.CustomerGroupedByStatus"></app-canvas-tile>
-      }
-      @if (isAdmin && tiles.GroupedByGroupId) {
-        <app-canvas-tile
-          [title]="'dashboard.groupedByGroupId' | translate"
-        [canvasId]="reportTag.GroupedByGroupId"></app-canvas-tile>
+      @if (latest.state(); as state) {
+        @if (state.status === 'ready') {
+          @if (state.value.length) {
+            <ng-container *ngTemplateOutlet="caseList; context: { $implicit: state.value }" />
+          } @else {
+            <p class="px-3 py-6 text-sm text-base-content/70">{{ 'dashboard.latest.empty' | translate }}</p>
+          }
+        }
       }
     </div>
+  </section>
+}
+
+<ng-template #caseList let-items>
+  <ul>
+    @for (item of items; track item.id) {
+      <li>
+        <a class="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 rounded-field px-3 py-2.5 transition-colors hover:bg-base-200/70 sm:grid-cols-[7rem_1fr_auto_auto]"
+          [routerLink]="['/cases', item.id, 'details']">
+          <span class="docket truncate text-sm font-semibold">{{ item.referenceNumber || (item.id | slice: 0 : 8) }}</span>
+          <span class="col-start-1 row-start-2 min-w-0 truncate text-sm text-base-content/75 sm:col-start-2 sm:row-start-1">
+            {{ item.ownerName || '-' }}<span class="ml-2 text-base-content/50">{{ item.caseType?.title }}</span>
+          </span>
+          <span class="stamp justify-self-end" [class]="statusClass(item)">{{ item.checkpointType?.title ?? item.checkpointType?.code }}</span>
+          <span class="docket hidden text-xs text-base-content/60 sm:inline">{{ item.createdByWhen | date: 'dd/MM HH:mm' }}</span>
+        </a>
+      </li>
+    }
+  </ul>
+</ng-template>
+
+<ng-template #listSkeleton>
+  <div class="space-y-3 px-3 py-2" aria-busy="true">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <div class="flex items-center gap-4"><div class="skeleton h-4 w-20"></div><div class="skeleton h-4 flex-1"></div><div class="skeleton h-5 w-20"></div></div>
+    }
   </div>
-</lib-view-layout>
+</ng-template>
+
+<ng-template #cardError let-loader>
+  <div class="flex items-center gap-3 text-sm text-base-content/75">
+    <svg lucideCircleAlert class="size-4 shrink-0 text-error"></svg>
+    <span class="flex-1">{{ 'dashboard.loadError' | translate }}</span>
+    <button type="button" class="btn btn-ghost btn-xs" (click)="loader.reload()">
+      <svg lucideRefreshCw class="size-3.5"></svg>{{ 'dashboard.retry' | translate }}
+    </button>
+  </div>
+</ng-template>

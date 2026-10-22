@@ -315,9 +315,17 @@ export interface ICasesApiService {
     deleteQuery(queryId: string): Observable<void>;
     /**
      * Get case report
+     * @param channel (optional)
      * @return OK
      */
-    getCaseReport(reportTag: ReportTag): Observable<GroupByReportResult[]>;
+    getCaseReport(reportTag: ReportTag, channel?: string | null | undefined): Observable<GroupByReportResult[]>;
+    /**
+     * Get the dashboard metrics
+     * @param intakeDays (optional) Number of days, ending today, to report daily intake for (1-90). Defaults to 14.
+     * @param staleAfterDays (optional) Open cases older than this many days count as stale (1-365). Defaults to 7.
+     * @return OK
+     */
+    getDashboardMetrics(intakeDays?: number | undefined, staleAfterDays?: number | undefined): Observable<CaseDashboardMetrics>;
 }
 
 @Injectable({
@@ -4809,14 +4817,17 @@ export class CasesApiService implements ICasesApiService {
 
     /**
      * Get case report
+     * @param channel (optional)
      * @return OK
      */
-    getCaseReport(reportTag: ReportTag): Observable<GroupByReportResult[]> {
+    getCaseReport(reportTag: ReportTag, channel?: string | null | undefined): Observable<GroupByReportResult[]> {
         let url_ = this.baseUrl + "/manage/reports?";
         if (reportTag === undefined || reportTag === null)
             throw new globalThis.Error("The parameter 'reportTag' must be defined and cannot be null.");
         else
             url_ += "reportTag=" + encodeURIComponent("" + reportTag) + "&";
+        if (channel !== undefined && channel !== null)
+            url_ += "channel=" + encodeURIComponent("" + channel) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -4860,6 +4871,96 @@ export class CasesApiService implements ICasesApiService {
             else {
                 result200 = null as any;
             }
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Get the dashboard metrics
+     * @param intakeDays (optional) Number of days, ending today, to report daily intake for (1-90). Defaults to 14.
+     * @param staleAfterDays (optional) Open cases older than this many days count as stale (1-365). Defaults to 7.
+     * @return OK
+     */
+    getDashboardMetrics(intakeDays?: number | undefined, staleAfterDays?: number | undefined): Observable<CaseDashboardMetrics> {
+        let url_ = this.baseUrl + "/manage/dashboard/metrics?";
+        if (intakeDays === null)
+            throw new globalThis.Error("The parameter 'intakeDays' cannot be null.");
+        else if (intakeDays !== undefined)
+            url_ += "intakeDays=" + encodeURIComponent("" + intakeDays) + "&";
+        if (staleAfterDays === null)
+            throw new globalThis.Error("The parameter 'staleAfterDays' cannot be null.");
+        else if (staleAfterDays !== undefined)
+            url_ += "staleAfterDays=" + encodeURIComponent("" + staleAfterDays) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDashboardMetrics(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDashboardMetrics(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CaseDashboardMetrics>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CaseDashboardMetrics>;
+        }));
+    }
+
+    protected processGetDashboardMetrics(response: HttpResponseBase): Observable<CaseDashboardMetrics> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CaseDashboardMetrics.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -7171,6 +7272,174 @@ export interface IEditCaseRequest {
     data?: any;
 }
 
+export class CaseDashboardMetrics implements ICaseDashboardMetrics {
+    statuses?: CaseStatusCounts;
+    assignedToMe?: number;
+    unassigned?: number;
+    stale?: number;
+    staleAfterDays?: number;
+    newThisWeek?: number;
+    newPreviousWeek?: number;
+    intake?: DailyCaseCount[];
+    generatedAt?: Date;
+
+    constructor(data?: ICaseDashboardMetrics) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.statuses = _data["statuses"] ? CaseStatusCounts.fromJS(_data["statuses"]) : undefined as any;
+            this.assignedToMe = _data["assignedToMe"];
+            this.unassigned = _data["unassigned"];
+            this.stale = _data["stale"];
+            this.staleAfterDays = _data["staleAfterDays"];
+            this.newThisWeek = _data["newThisWeek"];
+            this.newPreviousWeek = _data["newPreviousWeek"];
+            if (Array.isArray(_data["intake"])) {
+                this.intake = [] as any;
+                for (let item of _data["intake"])
+                    this.intake!.push(DailyCaseCount.fromJS(item));
+            }
+            this.generatedAt = _data["generatedAt"] ? new Date(_data["generatedAt"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): CaseDashboardMetrics {
+        data = typeof data === 'object' ? data : {};
+        let result = new CaseDashboardMetrics();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["statuses"] = this.statuses ? this.statuses.toJSON() : undefined as any;
+        data["assignedToMe"] = this.assignedToMe;
+        data["unassigned"] = this.unassigned;
+        data["stale"] = this.stale;
+        data["staleAfterDays"] = this.staleAfterDays;
+        data["newThisWeek"] = this.newThisWeek;
+        data["newPreviousWeek"] = this.newPreviousWeek;
+        if (Array.isArray(this.intake)) {
+            data["intake"] = [];
+            for (let item of this.intake)
+                data["intake"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["generatedAt"] = this.generatedAt ? this.generatedAt.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface ICaseDashboardMetrics {
+    statuses?: CaseStatusCounts;
+    assignedToMe?: number;
+    unassigned?: number;
+    stale?: number;
+    staleAfterDays?: number;
+    newThisWeek?: number;
+    newPreviousWeek?: number;
+    intake?: DailyCaseCount[];
+    generatedAt?: Date;
+}
+
+export class CaseStatusCounts implements ICaseStatusCounts {
+    submitted?: number;
+    inProgress?: number;
+    completed?: number;
+    deleted?: number;
+    readonly open?: number;
+
+    constructor(data?: ICaseStatusCounts) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.submitted = _data["submitted"];
+            this.inProgress = _data["inProgress"];
+            this.completed = _data["completed"];
+            this.deleted = _data["deleted"];
+            (<any>this).open = _data["open"];
+        }
+    }
+
+    static fromJS(data: any): CaseStatusCounts {
+        data = typeof data === 'object' ? data : {};
+        let result = new CaseStatusCounts();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["submitted"] = this.submitted;
+        data["inProgress"] = this.inProgress;
+        data["completed"] = this.completed;
+        data["deleted"] = this.deleted;
+        data["open"] = this.open;
+        return data;
+    }
+}
+
+export interface ICaseStatusCounts {
+    submitted?: number;
+    inProgress?: number;
+    completed?: number;
+    deleted?: number;
+    open?: number;
+}
+
+export class DailyCaseCount implements IDailyCaseCount {
+    date?: Date;
+    count?: number;
+
+    constructor(data?: IDailyCaseCount) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? parseDateOnly(_data["date"].toString()) : undefined as any;
+            this.count = _data["count"];
+        }
+    }
+
+    static fromJS(data: any): DailyCaseCount {
+        data = typeof data === 'object' ? data : {};
+        let result = new DailyCaseCount();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? formatDate(this.date) : undefined as any;
+        data["count"] = this.count;
+        return data;
+    }
+}
+
+export interface IDailyCaseCount {
+    date?: Date;
+    count?: number;
+}
+
 export class GroupByReportResult implements IGroupByReportResult {
     count?: number;
     label?: string;
@@ -7971,6 +8240,18 @@ export interface FileResponse {
     status: number;
     fileName?: string;
     headers?: { [name: string]: any };
+}
+
+function formatDate(d: Date) {
+    return d.getFullYear() + '-' +
+        (d.getMonth() < 9 ? ('0' + (d.getMonth()+1)) : (d.getMonth()+1)) + '-' +
+        (d.getDate() < 10 ? ('0' + d.getDate()) : d.getDate());
+}
+
+function parseDateOnly(s: string) {
+    const date = new Date(s);
+    return new Date(date.getTime() +
+        date.getTimezoneOffset() * 60000);
 }
 
 export class SwaggerException extends Error {

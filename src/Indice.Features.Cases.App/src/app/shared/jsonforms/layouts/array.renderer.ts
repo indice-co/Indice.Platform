@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { JsonFormsArrayControl } from '@jsonforms/angular';
+import { JsonFormsArrayControl, JsonFormsOutlet } from '@jsonforms/angular';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { LucidePlus, LucideX } from '@lucide/angular';
 import { Actions, composePaths, createDefaultValue, findUISchema, getData, JsonFormsState, JsonSchema, OwnPropsOfRenderer, StatePropsOfArrayControl } from '@jsonforms/core';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import { addClasses, presentField } from '../jsonforms-utilities';
@@ -7,33 +9,44 @@ import { addClasses, presentField } from '../jsonforms-utilities';
 /** Arrays (ajsf `array`): each item drawn with `options.detail` (the ajsf item layout), plus add / remove buttons when editable. */
 @Component({
     selector: 'app-jf-array',
+    imports: [JsonFormsOutlet, TranslatePipe, LucidePlus, LucideX],
     template: `
     @if (shown) {
       <div [class]="wrapperClass">
         @if (title) {
-          <label [class]="labelClass" [class.sr-only]="notitle" [innerHTML]="title"></label>
+          <p [class]="labelClass" [class.sr-only]="notitle" [innerHTML]="title"></p>
         }
-        @for (item of items; track $index) {
-          <div class="list-group-item">
-            @if (!readonly && options.removable !== false && items.length > minItems) {
-              <button class="close pull-right" type="button" (click)="removeItem($index)">
-                <span aria-hidden="true">&times;</span>
-                <span class="sr-only">Close</span>
-              </button>
+        <div class="space-y-3">
+          @for (item of items; track $index) {
+            <div class="relative rounded-box border border-base-300 bg-base-100 px-4 py-2">
+              @if (!readonly && options.removable !== false && items.length > minItems) {
+                <button type="button" class="btn btn-ghost btn-xs btn-square absolute top-2 right-2 z-10"
+                  [attr.aria-label]="'jsonforms.removeItem' | translate" [title]="'jsonforms.removeItem' | translate"
+                  (click)="removeItem($index)">
+                  <svg lucideX class="size-4"></svg>
+                </button>
+              }
+              <jsonforms-outlet [renderProps]="item"></jsonforms-outlet>
+            </div>
+          } @empty {
+            @if (readonly) {
+              <p class="text-sm text-base-content/50">—</p>
             }
-            <jsonforms-outlet [renderProps]="item"></jsonforms-outlet>
-          </div>
-        }
+          }
+        </div>
         @if (!readonly && options.addable !== false && (maxItems === undefined || items.length < maxItems)) {
-          <button type="button" class="btn btn-info float-right m-2 btn-default" (click)="addItem()">{{ addButtonText }}</button>
+          <button type="button" class="btn btn-sm btn-outline mt-3" (click)="addItem()">
+            <svg lucidePlus class="size-4"></svg>
+            {{ addButtonText || ('jsonforms.addItem' | translate) }}
+          </button>
         }
       </div>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
 export class ArrayRendererComponent extends JsonFormsArrayControl {
     private caseDetailsService = inject(CaseDetailsService);
+    private translate = inject(TranslateService);
     private rootData: any;
     private itemSchema: JsonSchema = {};
     options: any = {};
@@ -47,11 +60,11 @@ export class ArrayRendererComponent extends JsonFormsArrayControl {
     addButtonText = '';
 
     get wrapperClass(): string {
-        return addClasses(this.options.htmlClass, 'schema-form-array', 'list-group');
+        return addClasses(this.options.htmlClass, 'schema-form-array', 'py-1.5');
     }
 
     get labelClass(): string {
-        return addClasses(this.options.labelHtmlClass, 'form-label inline-block mb-1 text-gray-700');
+        return addClasses(this.options.labelHtmlClass, 'mb-2 text-sm font-medium');
     }
 
     protected override mapToProps(state: JsonFormsState) {
@@ -70,7 +83,7 @@ export class ArrayRendererComponent extends JsonFormsArrayControl {
         this.minItems = arraySchema.minItems ?? 0;
         this.maxItems = arraySchema.maxItems;
         const plainTitle = typeof this.uischema.label === 'string' ? this.uischema.label : this.options.title ?? '';
-        this.addButtonText = /^add\b/i.test(plainTitle) ? plainTitle : `Add ${plainTitle}`.trim();
+        this.addButtonText = /^add\b/i.test(plainTitle) ? plainTitle : plainTitle ? this.translate.instant('jsonforms.addNamedItem', { title: plainTitle }) : '';
         this.itemSchema = props.schema;
         const count = Array.isArray(props.data) ? props.data.length : props.data ?? 0;
         if (count !== this.items.length) {

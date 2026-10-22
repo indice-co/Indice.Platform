@@ -1,31 +1,44 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { JsonFormsAngularService, JsonFormsBaseRenderer } from '@jsonforms/angular';
+import { NgTemplateOutlet } from '@angular/common';
+import { JsonFormsAngularService, JsonFormsBaseRenderer, JsonFormsOutlet } from '@jsonforms/angular';
 import { getData, JsonFormsState, Layout, mapStateToLayoutProps, OwnPropsOfRenderer } from '@jsonforms/core';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import { addClasses, arrayIndicesOf, evaluateCondition, flexItemStyle, isShownForChannel } from '../jsonforms-utilities';
 
 /**
  * `VerticalLayout`, `HorizontalLayout`, `Group` and `Category`, drawn like the ajsf `section` / `flex` containers:
- * flex direction and wrap from `options['flex-flow']`, child sizing from each child's `options.flex`, the group title as legend.
+ * flex direction and wrap from `options['flex-flow']`, child sizing from each child's `options.flex`; a `Group` is a bordered
+ * fieldset with its title as legend.
  */
 @Component({
     selector: 'app-jf-layout',
+    imports: [JsonFormsOutlet, NgTemplateOutlet],
     template: `
     @if (shown) {
-      <div [class]="wrapperClass">
-        @if (groupLabel) {
-          <label class="legend" [class]="options.labelHtmlClass || ''" [innerHTML]="groupLabel"></label>
-        }
+      @if (groupLabel !== null) {
+        <fieldset [class]="wrapperClass">
+          @if (groupLabel) {
+            <legend class="fieldset-legend px-1 text-base font-semibold" [class]="options.labelHtmlClass || ''" [innerHTML]="groupLabel"></legend>
+          }
+          <ng-container *ngTemplateOutlet="body" />
+        </fieldset>
+      } @else {
+        <div [class]="wrapperClass">
+          <ng-container *ngTemplateOutlet="body" />
+        </div>
+      }
+      <ng-template #body>
         <div
           [style.display]="flex ? 'flex' : null"
           [style.flex-direction]="flex ? flexDirection : null"
           [style.flex-wrap]="flex ? flexWrap : null"
+          [style.column-gap]="flex ? '1rem' : null"
           [style.justify-content]="flex ? options['justify-content'] : null"
           [style.align-items]="flex ? options['align-items'] : null"
           [style.align-content]="flex ? options['align-content'] : null">
           @for (child of children; track $index) {
             <div
-              [class.form-flex-item]="flex"
+              class="min-w-0"
               [style.flex-grow]="child.style.grow"
               [style.flex-shrink]="child.style.shrink"
               [style.flex-basis]="child.style.basis"
@@ -35,10 +48,9 @@ import { addClasses, arrayIndicesOf, evaluateCondition, flexItemStyle, isShownFo
             </div>
           }
         </div>
-      </div>
+      </ng-template>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
 export class LayoutRendererComponent extends JsonFormsBaseRenderer<Layout> implements OnInit {
     private jsonFormsService = inject(JsonFormsAngularService);
@@ -59,7 +71,8 @@ export class LayoutRendererComponent extends JsonFormsBaseRenderer<Layout> imple
         this.flexDirection = flexFlow[0] || this.options['flex-direction'] || (this.uischema.type === 'HorizontalLayout' ? 'row' : 'column');
         this.flexWrap = flexFlow[1] || this.options['flex-wrap'] || 'nowrap';
         const label = (this.uischema as any).label;
-        this.groupLabel = this.uischema.type === 'Group' && typeof label === 'string' ? label : null;
+        // '' for an untitled group (still drawn as a fieldset), null for other layouts
+        this.groupLabel = this.uischema.type === 'Group' ? (typeof label === 'string' ? label : '') : null;
         this.children = (this.uischema.elements ?? []).map(element => ({
             props: { uischema: element, schema: this.schema, path: this.path },
             style: flexItemStyle(element.options)
@@ -72,7 +85,10 @@ export class LayoutRendererComponent extends JsonFormsBaseRenderer<Layout> imple
         const isRoot = this.uischema === state.jsonforms.core?.uischema;
         this.wrapperClass = isRoot || this.uischema.type === 'Category'
             ? ''
-            : addClasses(this.options.htmlClass, this.flex ? 'schema-form-flex' : 'schema-form-section', 'form-group');
+            : addClasses(
+                this.options.htmlClass,
+                this.flex ? 'schema-form-flex' : 'schema-form-section',
+                this.uischema.type === 'Group' ? 'fieldset my-3 rounded-box border border-base-300 px-4 pb-3' : 'py-1');
         const { visible } = mapStateToLayoutProps(state, { uischema: this.uischema, schema: this.schema, path: this.path });
         this.shown = visible
             && isShownForChannel(this.options, this.caseDetailsService.caseDetails?.channel)

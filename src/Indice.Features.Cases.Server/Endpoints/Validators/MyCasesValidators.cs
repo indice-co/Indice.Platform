@@ -14,6 +14,7 @@ public class CreateDraftCaseRequestValidator : AbstractValidator<CreateDraftCase
     public CreateDraftCaseRequestValidator() {
         RuleFor(x => x.CaseTypeCode).NotEmpty();
         RuleFor(x=> x.ReferenceNumber).MaximumLength(128);
+        RuleFor(x => x.Channel).MaximumLength(128);
     }
 }
 
