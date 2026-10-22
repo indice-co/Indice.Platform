@@ -41,7 +41,6 @@
       "src\\Indice.Features.Workers.Server\\Indice.Features.Workers.Server.csproj",
       "src\\Indice.Functions.Builder\\Indice.Functions.Builder.csproj",
       "src\\Indice.Hosting\\Indice.Hosting.csproj",
-      "src\\Indice.Hosting.UI\\Indice.Hosting.UI.csproj",
       "src\\Indice.Services\\Indice.Services.csproj",
       "test\\Indice.AspNetCore.Tests\\Indice.AspNetCore.Tests.csproj",
       "test\\Indice.AspNetCore.Views\\Indice.AspNetCore.Views.csproj",
