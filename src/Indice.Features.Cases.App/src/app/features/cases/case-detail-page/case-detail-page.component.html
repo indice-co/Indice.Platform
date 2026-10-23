@@ -99,7 +99,11 @@
         <app-case-related [relatedCases]="relatedCases()" [currentCaseId]="caseModel.id" />
       }
       @if (timelineEntries(); as entries) {
-        <app-case-timeline [timelineEntries]="entries" [hideStatuses]="caseTypeConfig()?.hideStatuses ?? false" />
+        <app-case-timeline [timelineEntries]="entries" [hideStatuses]="caseTypeConfig()?.hideStatuses ?? false">
+          @if (!caseModel.draft) {
+            <app-case-comment-composer [caseId]="caseModel.id!" (commentAdded)="getTimeline()" />
+          }
+        </app-case-timeline>
       }
     </aside>
   </div>

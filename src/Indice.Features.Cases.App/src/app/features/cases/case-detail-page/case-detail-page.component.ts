@@ -18,6 +18,7 @@ import { CaseDetailInfoComponent, InfoEntry } from 'src/app/shared/components/ca
 import { ToastType, TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 import { DialogService } from 'src/app/ui/dialog/dialog.service';
 import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
+import { CaseCommentComposerComponent } from './case-comment-composer/case-comment-composer.component';
 import { CaseFormComponent } from './case-form/case-form.component';
 import { CasePrintPdfComponent } from './case-print-pdf/case-print-pdf.component';
 import { CaseTimelineComponent } from './case-timeline/case-timeline.component';
@@ -27,7 +28,7 @@ import { RelatedCasesComponent } from './related-cases/related-cases.component';
   selector: 'app-case-detail-page',
   templateUrl: './case-detail-page.component.html',
   imports: [
-    DatePipe, RouterLink, TranslatePipe, ApprovalButtonsComponent, CaseCustomActionComponent, CaseDetailInfoComponent, CaseFormComponent,
+    DatePipe, RouterLink, TranslatePipe, ApprovalButtonsComponent, CaseCommentComposerComponent, CaseCustomActionComponent, CaseDetailInfoComponent, CaseFormComponent,
     CasePrintPdfComponent, CaseTimelineComponent, RelatedCasesComponent, EmptyStateComponent,
     LucideArrowLeft, LucideCalendar, LucideFolderX, LucideInbox, LucideTrash, LucideUser, LucideUserCheck
   ]
@@ -245,7 +246,7 @@ export class CaseDetailPageComponent {
       });
   }
 
-  private getTimeline(): void {
+  protected getTimeline(): void {
     this._api.getCaseTimeline(this._caseId)
       .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe(entries => this.timelineEntries.set(entries));

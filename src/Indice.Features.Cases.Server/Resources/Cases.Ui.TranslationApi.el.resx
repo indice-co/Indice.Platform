@@ -864,6 +864,33 @@
   <data name="caseDetails.timeline.empty" xml:space="preserve">
     <value>Δεν υπάρχει δραστηριότητα ακόμη.</value>
   </data>
+  <data name="caseDetails.comments.placeholder" xml:space="preserve">
+    <value>Γράψτε ένα σχόλιο…</value>
+  </data>
+  <data name="caseDetails.comments.post" xml:space="preserve">
+    <value>Δημοσίευση</value>
+  </data>
+  <data name="caseDetails.comments.visibility" xml:space="preserve">
+    <value>Ορατότητα σχολίου</value>
+  </data>
+  <data name="caseDetails.comments.private" xml:space="preserve">
+    <value>Εσωτερικό</value>
+  </data>
+  <data name="caseDetails.comments.public" xml:space="preserve">
+    <value>Δημόσιο</value>
+  </data>
+  <data name="caseDetails.comments.privateHint" xml:space="preserve">
+    <value>Ορατό μόνο στους χρήστες του back-office.</value>
+  </data>
+  <data name="caseDetails.comments.publicHint" xml:space="preserve">
+    <value>Ορατό και στον πελάτη.</value>
+  </data>
+  <data name="caseDetails.comments.shortcut" xml:space="preserve">
+    <value>Δημοσίευση σχολίου (Ctrl + Enter)</value>
+  </data>
+  <data name="toasts.commentAdded.body" xml:space="preserve">
+    <value>Το σχόλιό σας προστέθηκε.</value>
+  </data>
   <data name="caseStatus.Submitted" xml:space="preserve">
     <value>Υποβλήθηκε</value>
   </data>

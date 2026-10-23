@@ -864,6 +864,33 @@
   <data name="caseDetails.timeline.empty" xml:space="preserve">
     <value>No activity yet.</value>
   </data>
+  <data name="caseDetails.comments.placeholder" xml:space="preserve">
+    <value>Write a comment…</value>
+  </data>
+  <data name="caseDetails.comments.post" xml:space="preserve">
+    <value>Post</value>
+  </data>
+  <data name="caseDetails.comments.visibility" xml:space="preserve">
+    <value>Comment visibility</value>
+  </data>
+  <data name="caseDetails.comments.private" xml:space="preserve">
+    <value>Internal</value>
+  </data>
+  <data name="caseDetails.comments.public" xml:space="preserve">
+    <value>Public</value>
+  </data>
+  <data name="caseDetails.comments.privateHint" xml:space="preserve">
+    <value>Only visible to back-office users.</value>
+  </data>
+  <data name="caseDetails.comments.publicHint" xml:space="preserve">
+    <value>Visible to the customer too.</value>
+  </data>
+  <data name="caseDetails.comments.shortcut" xml:space="preserve">
+    <value>Post comment (Ctrl + Enter)</value>
+  </data>
+  <data name="toasts.commentAdded.body" xml:space="preserve">
+    <value>Your comment was added.</value>
+  </data>
   <data name="caseStatus.Submitted" xml:space="preserve">
     <value>Submitted</value>
   </data>
