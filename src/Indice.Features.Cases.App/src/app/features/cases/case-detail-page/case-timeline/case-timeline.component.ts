@@ -1,17 +1,21 @@
 import { Component, inject, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LucideDownload, LucideMessageSquare, LucideMilestone, LucidePaperclip } from '@lucide/angular';
+import { LucideDownload, LucideGlobe, LucideMessageSquare, LucideMilestone, LucidePaperclip } from '@lucide/angular';
 import { CaseStatus, CasesApiService, TimelineEntry } from 'src/app/core/services/cases-api.service';
 
-/** The case history: checkpoints reached, comments and attachments, as a vertical rail. */
+/**
+ * The case history: checkpoints reached, comments and attachments, as a vertical rail.
+ * Projected content (e.g. the comment composer) sits between the heading and the rail.
+ */
 @Component({
   selector: 'app-case-timeline',
-  imports: [DatePipe, TranslatePipe, LucideDownload, LucideMessageSquare, LucideMilestone, LucidePaperclip],
+  imports: [DatePipe, TranslatePipe, LucideDownload, LucideGlobe, LucideMessageSquare, LucideMilestone, LucidePaperclip],
   host: { class: 'block' },
   template: `
     <section class="panel p-5">
       <h2 class="mb-4 text-sm font-semibold">{{ 'caseDetails.timeline.title' | translate }}</h2>
+      <div class="mb-5 empty:hidden"><ng-content /></div>
       @if (timelineEntries().length) {
         <ol class="relative space-y-5 before:absolute before:top-2 before:bottom-2 before:left-[0.9375rem] before:w-px before:bg-base-300">
           @for (entry of timelineEntries(); track $index) {
@@ -43,6 +47,10 @@ import { CaseStatus, CasesApiService, TimelineEntry } from 'src/app/core/service
                   }
                   @if (entry.comment?.isCustomer) {
                     <span class="badge badge-xs badge-info badge-soft">{{ 'caseDetails.timeline.customer' | translate }}</span>
+                  } @else if (entry.comment && !hasAttachment && entry.comment.private === false) {
+                    <span class="badge badge-xs badge-info badge-soft gap-0.5" [title]="'caseDetails.comments.publicHint' | translate">
+                      <svg lucideGlobe class="size-3"></svg>{{ 'caseDetails.comments.public' | translate }}
+                    </span>
                   }
                   @let status = entry.checkpoint?.checkpointType?.status;
                   @if (status && !hideStatuses()) {

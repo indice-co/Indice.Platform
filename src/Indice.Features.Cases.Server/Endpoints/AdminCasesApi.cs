@@ -109,6 +109,11 @@ internal static class AdminCasesApi
             .WithSummary("Gets the timeline entries for a case.")
             .RequireAuthorization(policy => policy.RequireCasesRecordAccess());
 
+        group.MapGet("{caseId}/data/versions", AdminCasesHandlers.GetCaseDataVersions)
+            .WithName(nameof(AdminCasesHandlers.GetCaseDataVersions))
+            .WithSummary("Gets the versions of the data of a case, newest first. The search term matches the name or email of the user that saved a version.")
+            .RequireAuthorization(policy => policy.RequireCasesRecordAccess());
+
         group.MapGet("{caseId}/related-cases", AdminCasesHandlers.GetRelatedCases)
             .WithName(nameof(AdminCasesHandlers.GetRelatedCases))
             .WithSummary("Gets the cases that are related to the given id.")

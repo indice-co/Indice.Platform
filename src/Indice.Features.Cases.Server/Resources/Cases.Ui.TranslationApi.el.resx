@@ -858,11 +858,83 @@
   <data name="caseDetails.related.current" xml:space="preserve">
     <value>Τρέχουσα</value>
   </data>
+  <data name="caseDetails.attachments.title" xml:space="preserve">
+    <value>Συνημμένα</value>
+  </data>
+  <data name="caseDetails.attachments.fileName" xml:space="preserve">
+    <value>Όνομα αρχείου</value>
+  </data>
+  <data name="caseDetails.attachments.type" xml:space="preserve">
+    <value>Τύπος</value>
+  </data>
+  <data name="caseDetails.attachments.empty" xml:space="preserve">
+    <value>Δεν υπάρχουν συνημμένα</value>
+  </data>
+  <data name="caseDetails.attachments.emptyMessage" xml:space="preserve">
+    <value>Εδώ εμφανίζονται τα αρχεία που ανέβηκαν με τα στοιχεία της υπόθεσης ή με τα σχόλια.</value>
+  </data>
+  <data name="caseDetails.attachments.loadError" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η φόρτωση των συνημμένων.</value>
+  </data>
+  <data name="caseDetails.versions.title" xml:space="preserve">
+    <value>Εκδόσεις στοιχείων</value>
+  </data>
+  <data name="caseDetails.versions.current" xml:space="preserve">
+    <value>Τρέχουσα</value>
+  </data>
+  <data name="caseDetails.versions.public" xml:space="preserve">
+    <value>Δημόσια</value>
+  </data>
+  <data name="caseDetails.versions.publicHint" xml:space="preserve">
+    <value>Η έκδοση που είναι ορατή στον πελάτη</value>
+  </data>
+  <data name="caseDetails.versions.createdBy" xml:space="preserve">
+    <value>Αποθηκεύτηκε από {{name}}</value>
+  </data>
+  <data name="caseDetails.versions.empty" xml:space="preserve">
+    <value>Δεν υπάρχουν εκδόσεις στοιχείων</value>
+  </data>
+  <data name="caseDetails.versions.loadError" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η φόρτωση των εκδόσεων.</value>
+  </data>
+  <data name="caseDetails.versions.search" xml:space="preserve">
+    <value>Αναζήτηση με όνομα ή email χρήστη</value>
+  </data>
+  <data name="caseDetails.versions.clearSearch" xml:space="preserve">
+    <value>Καθαρισμός αναζήτησης</value>
+  </data>
   <data name="caseDetails.timeline.private" xml:space="preserve">
     <value>Ιδιωτικό</value>
   </data>
   <data name="caseDetails.timeline.empty" xml:space="preserve">
     <value>Δεν υπάρχει δραστηριότητα ακόμη.</value>
+  </data>
+  <data name="caseDetails.comments.placeholder" xml:space="preserve">
+    <value>Γράψτε ένα σχόλιο…</value>
+  </data>
+  <data name="caseDetails.comments.post" xml:space="preserve">
+    <value>Δημοσίευση</value>
+  </data>
+  <data name="caseDetails.comments.visibility" xml:space="preserve">
+    <value>Ορατότητα σχολίου</value>
+  </data>
+  <data name="caseDetails.comments.private" xml:space="preserve">
+    <value>Εσωτερικό</value>
+  </data>
+  <data name="caseDetails.comments.public" xml:space="preserve">
+    <value>Δημόσιο</value>
+  </data>
+  <data name="caseDetails.comments.privateHint" xml:space="preserve">
+    <value>Ορατό μόνο στους χρήστες του back-office.</value>
+  </data>
+  <data name="caseDetails.comments.publicHint" xml:space="preserve">
+    <value>Ορατό και στον πελάτη.</value>
+  </data>
+  <data name="caseDetails.comments.shortcut" xml:space="preserve">
+    <value>Δημοσίευση σχολίου (Ctrl + Enter)</value>
+  </data>
+  <data name="toasts.commentAdded.body" xml:space="preserve">
+    <value>Το σχόλιό σας προστέθηκε.</value>
   </data>
   <data name="caseStatus.Submitted" xml:space="preserve">
     <value>Υποβλήθηκε</value>
@@ -1040,6 +1112,18 @@
   </data>
   <data name="common.close" xml:space="preserve">
     <value>Κλείσιμο</value>
+  </data>
+  <data name="common.selectTab" xml:space="preserve">
+    <value>Επιλέξτε καρτέλα</value>
+  </data>
+  <data name="common.open" xml:space="preserve">
+    <value>Άνοιγμα</value>
+  </data>
+  <data name="common.retry" xml:space="preserve">
+    <value>Δοκιμάστε ξανά</value>
+  </data>
+  <data name="common.actions" xml:space="preserve">
+    <value>Ενέργειες</value>
   </data>
   <data name="list.range" xml:space="preserve">
     <value>{{from}}–{{to}} από {{count}}</value>

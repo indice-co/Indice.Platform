@@ -102,6 +102,12 @@ public interface IAdminCaseService
     /// <returns>A list of <seealso cref="TimelineEntry"/></returns>
     Task<List<TimelineEntry>> GetTimeline(Guid caseId);
 
+    /// <summary>Get the versions of the data of a case, newest first.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="options">Paging and a search term matched against the name or email of the user that saved the version.</param>
+    /// <returns>A page of <seealso cref="CaseDataVersion"/>, empty when the case does not exist.</returns>
+    Task<ResultSet<CaseDataVersion>> GetDataVersions(Guid caseId, ListOptions options);
+
     /// <summary>
     /// Gets the cases that are related to the given id.
     /// Set a value to the case's metadata with the key ExternalCorrelationKey to correlate cases.
