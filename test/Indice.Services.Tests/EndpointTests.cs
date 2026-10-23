@@ -17,7 +17,7 @@ public class EndpointTests : IAsyncLifetime
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
     private readonly IHost _host;
-    private IServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
 
     public EndpointTests(ITestOutputHelper output) {
         _output = output;

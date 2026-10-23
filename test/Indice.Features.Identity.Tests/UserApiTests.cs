@@ -25,7 +25,7 @@ public class UserApiTests : IAsyncLifetime
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly IHost _host;
-    private IServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
 
     public UserApiTests() {
         var host = new HostBuilder().ConfigureWebHost(builder => {

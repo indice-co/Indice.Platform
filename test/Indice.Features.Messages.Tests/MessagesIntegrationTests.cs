@@ -33,7 +33,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
     private readonly IHost _host;
-    private IServiceProvider _serviceProvider = null!;
+    private readonly IServiceProvider _serviceProvider;
 
     public MessagesIntegrationTests(ITestOutputHelper output) {
         _output = output;

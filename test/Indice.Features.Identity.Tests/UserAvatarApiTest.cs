@@ -42,7 +42,7 @@ public class UserAvatarApiTest : IAsyncLifetime
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly IHost _host;
-    private IServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
     private const string BASE_URL = "https://server";
     private const string CLIENT_ID = "api-user-client";
     private const string CLIENT_SECRET = "JUEKX2XugFv5XrX3";
