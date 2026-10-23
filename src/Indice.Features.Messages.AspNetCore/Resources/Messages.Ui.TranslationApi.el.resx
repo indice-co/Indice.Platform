@@ -2010,7 +2010,7 @@
     <value>Προσθήκη επισυναπτόμενου αρχείου</value>
   </data>
   <data name="Shared.FileSizeLimitExceeded" xml:space="preserve">
-    <value>Το μέγεθος του αρχείου είναι μεγαλύτερο από το επιτρεπτό ({size}).</value>
+    <value>Το μέγεθος του αρχείου είναι μεγαλύτερο από το επιτρεπτό ({{size}}).</value>
   </data>
   <data name="Shared.AttachmentTitleLabel" xml:space="preserve">
     <value>Τίτλος</value>
@@ -2209,5 +2209,581 @@
   </data>
   <data name="MediaLibrary.DiscoverStructureTitle" xml:space="preserve">
     <value>Συγχρονισμός δομής στη βάση δεδομένων</value>
+  </data>
+  <data name="Common.Yes" xml:space="preserve">
+    <value>Ναι</value>
+  </data>
+  <data name="Common.No" xml:space="preserve">
+    <value>Όχι</value>
+  </data>
+  <data name="Common.Cancel" xml:space="preserve">
+    <value>Ακύρωση</value>
+  </data>
+  <data name="Common.Confirm" xml:space="preserve">
+    <value>Επιβεβαίωση</value>
+  </data>
+  <data name="Common.Close" xml:space="preserve">
+    <value>Κλείσιμο</value>
+  </data>
+  <data name="List.Range" xml:space="preserve">
+    <value>{{from}}–{{to}} από {{count}}</value>
+  </data>
+  <data name="List.NoResults" xml:space="preserve">
+    <value>Κανένα αποτέλεσμα</value>
+  </data>
+  <data name="List.PerPage" xml:space="preserve">
+    <value>Ανά σελίδα</value>
+  </data>
+  <data name="List.Previous" xml:space="preserve">
+    <value>Προηγούμενη σελίδα</value>
+  </data>
+  <data name="List.Next" xml:space="preserve">
+    <value>Επόμενη σελίδα</value>
+  </data>
+  <data name="Nav.Dashboard" xml:space="preserve">
+    <value>Πίνακας ελέγχου</value>
+  </data>
+  <data name="Nav.Campaigns" xml:space="preserve">
+    <value>Καμπάνιες</value>
+  </data>
+  <data name="Nav.Templates" xml:space="preserve">
+    <value>Πρότυπα</value>
+  </data>
+  <data name="Nav.Audience" xml:space="preserve">
+    <value>Κοινό</value>
+  </data>
+  <data name="Nav.Contacts" xml:space="preserve">
+    <value>Επαφές</value>
+  </data>
+  <data name="Nav.DistributionLists" xml:space="preserve">
+    <value>Λίστες διανομής</value>
+  </data>
+  <data name="Nav.Configuration" xml:space="preserve">
+    <value>Ρυθμίσεις</value>
+  </data>
+  <data name="Nav.Media" xml:space="preserve">
+    <value>Βιβλιοθήκη πολυμέσων</value>
+  </data>
+  <data name="Nav.MessageTypes" xml:space="preserve">
+    <value>Τύποι μηνυμάτων</value>
+  </data>
+  <data name="Nav.Events" xml:space="preserve">
+    <value>Συμβάντα</value>
+  </data>
+  <data name="Nav.Settings" xml:space="preserve">
+    <value>Ρυθμίσεις</value>
+  </data>
+  <data name="Nav.OpenMenu" xml:space="preserve">
+    <value>Άνοιγμα μενού</value>
+  </data>
+  <data name="Nav.CloseMenu" xml:space="preserve">
+    <value>Κλείσιμο μενού</value>
+  </data>
+  <data name="Nav.Language" xml:space="preserve">
+    <value>Γλώσσα</value>
+  </data>
+  <data name="Nav.Theme" xml:space="preserve">
+    <value>Θέμα</value>
+  </data>
+  <data name="Nav.Main" xml:space="preserve">
+    <value>Κύρια πλοήγηση</value>
+  </data>
+  <data name="Nav.Logout" xml:space="preserve">
+    <value>Αποσύνδεση</value>
+  </data>
+  <data name="Theme.Light" xml:space="preserve">
+    <value>Φωτεινό</value>
+  </data>
+  <data name="Theme.Dark" xml:space="preserve">
+    <value>Σκοτεινό</value>
+  </data>
+  <data name="Theme.System" xml:space="preserve">
+    <value>Συστήματος</value>
+  </data>
+  <data name="Home.SigningIn" xml:space="preserve">
+    <value>Γίνεται σύνδεση…</value>
+  </data>
+  <data name="Home.SigningOut" xml:space="preserve">
+    <value>Γίνεται αποσύνδεση…</value>
+  </data>
+  <data name="Status.BackToDashboard" xml:space="preserve">
+    <value>Επιστροφή στον πίνακα ελέγχου</value>
+  </data>
+  <data name="Status.NotFound.Title" xml:space="preserve">
+    <value>Η σελίδα δεν βρέθηκε</value>
+  </data>
+  <data name="Status.NotFound.Message" xml:space="preserve">
+    <value>Η σελίδα που ζητήσατε δεν υπάρχει ή έχει μετακινηθεί.</value>
+  </data>
+  <data name="Status.Forbidden.Title" xml:space="preserve">
+    <value>Δεν επιτρέπεται η πρόσβαση</value>
+  </data>
+  <data name="Status.Forbidden.Message" xml:space="preserve">
+    <value>Δεν έχετε δικαίωμα πρόσβασης σε αυτή τη σελίδα. Επικοινωνήστε με την υποστήριξη.</value>
+  </data>
+  <data name="Toasts.Error.Title" xml:space="preserve">
+    <value>Κάτι πήγε στραβά</value>
+  </data>
+  <data name="Toasts.Error.Body" xml:space="preserve">
+    <value>Το αίτημα δεν ολοκληρώθηκε. Δοκιμάστε ξανά.</value>
+  </data>
+  <data name="Toasts.Offline.Body" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η επικοινωνία με τον διακομιστή. Ελέγξτε τη σύνδεσή σας.</value>
+  </data>
+  <data name="Toasts.Forbidden.Body" xml:space="preserve">
+    <value>Δεν επιτρέπεται να εκτελέσετε αυτή την ενέργεια.</value>
+  </data>
+  <data name="Shared.MaxFileSize" xml:space="preserve">
+    <value>έως {{size}}</value>
+  </data>
+  <data name="Channels.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Channels.SMS" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="Channels.PushNotification" xml:space="preserve">
+    <value>Ειδοποίηση push</value>
+  </data>
+  <data name="Channels.Inbox" xml:space="preserve">
+    <value>Θυρίδα</value>
+  </data>
+  <data name="Channels.None" xml:space="preserve">
+    <value>Κανένα</value>
+  </data>
+  <data name="MessageTypes.Subtitle" xml:space="preserve">
+    <value>Κατηγοριοποιήστε τις καμπάνιες ώστε οι παραλήπτες να ελέγχουν τι λαμβάνουν.</value>
+  </data>
+  <data name="Common.Delete" xml:space="preserve">
+    <value>Διαγραφή</value>
+  </data>
+  <data name="DashBoard.Greeting" xml:space="preserve">
+    <value>Καλώς ήρθατε, {{name}}</value>
+  </data>
+  <data name="DashBoard.Title" xml:space="preserve">
+    <value>Πίνακας ελέγχου</value>
+  </data>
+  <data name="DashBoard.Subtitle" xml:space="preserve">
+    <value>Πώς αποδίδουν τα μηνύματά σας σε όλα τα κανάλια.</value>
+  </data>
+  <data name="DashBoard.TimeFrame" xml:space="preserve">
+    <value>Χρονικό διάστημα</value>
+  </data>
+  <data name="DashBoard.DeliveryKpis" xml:space="preserve">
+    <value>Δείκτες αποστολών</value>
+  </data>
+  <data name="DashBoard.Dispatched" xml:space="preserve">
+    <value>Απεσταλμένα</value>
+  </data>
+  <data name="DashBoard.Failed" xml:space="preserve">
+    <value>Αποτυχημένα</value>
+  </data>
+  <data name="DashBoard.FailedShort" xml:space="preserve">
+    <value>αποτυχίες</value>
+  </data>
+  <data name="DashBoard.FailureRate" xml:space="preserve">
+    <value>{{rate}} ποσοστό αποτυχίας</value>
+  </data>
+  <data name="DashBoard.SuccessRate" xml:space="preserve">
+    <value>Ποσοστό επιτυχών αποστολών</value>
+  </data>
+  <data name="DashBoard.OfAttempts" xml:space="preserve">
+    <value>από {{count}} προσπάθειες αποστολής</value>
+  </data>
+  <data name="DashBoard.Attempts" xml:space="preserve">
+    <value>προσπάθειες</value>
+  </data>
+  <data name="DashBoard.ActiveCampaigns" xml:space="preserve">
+    <value>Ενεργές καμπάνιες</value>
+  </data>
+  <data name="DashBoard.CampaignsSummary" xml:space="preserve">
+    <value>από {{total}} συνολικά · {{today}} σήμερα</value>
+  </data>
+  <data name="DashBoard.DeliveryOverTime" xml:space="preserve">
+    <value>Απεσταλμένα και αποτυχημένα</value>
+  </data>
+  <data name="DashBoard.Channel" xml:space="preserve">
+    <value>Κανάλι</value>
+  </data>
+  <data name="DashBoard.AllChannels" xml:space="preserve">
+    <value>Όλα τα κανάλια</value>
+  </data>
+  <data name="DashBoard.NoDeliveries" xml:space="preserve">
+    <value>Δεν στάλθηκαν μηνύματα σε αυτό το διάστημα.</value>
+  </data>
+  <data name="DashBoard.LoadFailed" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η φόρτωση των στοιχείων αποστολών.</value>
+  </data>
+  <data name="DashBoard.ChannelMix" xml:space="preserve">
+    <value>Κατανομή καναλιών</value>
+  </data>
+  <data name="DashBoard.ChannelMixHint" xml:space="preserve">
+    <value>Προσπάθειες αποστολής ανά κανάλι· οι μπάρες δείχνουν το ποσοστό επιτυχίας.</value>
+  </data>
+  <data name="DashBoard.Audience" xml:space="preserve">
+    <value>Κοινό &amp; απήχηση</value>
+  </data>
+  <data name="DashBoard.OfTotalContacts" xml:space="preserve">
+    <value>από {{total}} επαφές</value>
+  </data>
+  <data name="DashBoard.OfTargeted" xml:space="preserve">
+    <value>από {{total}} στοχευμένους</value>
+  </data>
+  <data name="DashBoard.Engagement" xml:space="preserve">
+    <value>Αλληλεπίδραση (άνοιγμα ή ανάγνωση)</value>
+  </data>
+  <data name="DashBoard.KnownContacts" xml:space="preserve">
+    <value>Γνωστές επαφές</value>
+  </data>
+  <data name="DashBoard.TopMessageTypes" xml:space="preserve">
+    <value>Κορυφαίοι τύποι μηνυμάτων</value>
+  </data>
+  <data name="DashBoard.Today" xml:space="preserve">
+    <value>Σήμερα</value>
+  </data>
+  <data name="DashBoard.AllTime" xml:space="preserve">
+    <value>Συνολικά</value>
+  </data>
+  <data name="DashBoard.NoMessagesYet" xml:space="preserve">
+    <value>Δεν υπάρχουν μηνύματα ακόμα.</value>
+  </data>
+  <data name="DashBoard.RecentCampaigns" xml:space="preserve">
+    <value>Πρόσφατες καμπάνιες</value>
+  </data>
+  <data name="DashBoard.ViewAll" xml:space="preserve">
+    <value>Όλες</value>
+  </data>
+  <data name="DashBoard.Published" xml:space="preserve">
+    <value>Δημοσιευμένη</value>
+  </data>
+  <data name="DashBoard.Draft" xml:space="preserve">
+    <value>Πρόχειρη</value>
+  </data>
+  <data name="DashBoard.Drafts" xml:space="preserve">
+    <value>Πρόχειρες</value>
+  </data>
+  <data name="DashBoard.NoCampaignsYet" xml:space="preserve">
+    <value>Δεν υπάρχουν καμπάνιες ακόμα.</value>
+  </data>
+  <data name="DashBoard.VsPrevious" xml:space="preserve">
+    <value>σε σχέση με την προηγούμενη περίοδο</value>
+  </data>
+  <data name="DashBoard.NoPreviousData" xml:space="preserve">
+    <value>Δεν υπάρχουν δεδομένα για την προηγούμενη περίοδο</value>
+  </data>
+  <data name="DashBoard.Range24h" xml:space="preserve">
+    <value>24ω</value>
+  </data>
+  <data name="DashBoard.Range7d" xml:space="preserve">
+    <value>7η</value>
+  </data>
+  <data name="DashBoard.Range30d" xml:space="preserve">
+    <value>30η</value>
+  </data>
+  <data name="DashBoard.Range90d" xml:space="preserve">
+    <value>90η</value>
+  </data>
+  <data name="DashBoard.Range12m" xml:space="preserve">
+    <value>12μ</value>
+  </data>
+  <data name="Campaigns.Subtitle" xml:space="preserve">
+    <value>Σχεδιάστε, δημοσιεύστε και παρακολουθήστε μηνύματα προς το κοινό σας σε κάθε κανάλι.</value>
+  </data>
+  <data name="Campaigns.AllTypesOption" xml:space="preserve">
+    <value>Όλοι οι τύποι</value>
+  </data>
+  <data name="Campaigns.StatusDraft" xml:space="preserve">
+    <value>Πρόχειρο</value>
+  </data>
+  <data name="Campaigns.AllStatusesOption" xml:space="preserve">
+    <value>Όλες</value>
+  </data>
+  <data name="Campaigns.ActivePeriodColumn" xml:space="preserve">
+    <value>Περίοδος ισχύος</value>
+  </data>
+  <data name="Campaigns.ChannelsRequiredError" xml:space="preserve">
+    <value>Επιλέξτε τουλάχιστον ένα κανάλι επικοινωνίας.</value>
+  </data>
+  <data name="Campaigns.PublishedHint" xml:space="preserve">
+    <value>Οι παραλήπτες αρχίζουν να λαμβάνουν την καμπάνια μόλις αποθηκευτεί.</value>
+  </data>
+  <data name="Campaigns.IgnoreUserPreferencesHint" xml:space="preserve">
+    <value>Αποστολή ακόμη και σε παραλήπτες που έχουν απενεργοποιήσει αυτόν τον τύπο μηνύματος.</value>
+  </data>
+  <data name="Campaigns.RecipientsAllInfo" xml:space="preserve">
+    <value>Η καμπάνια θα αποσταλεί σε όλους τους χρήστες της πλατφόρμας.</value>
+  </data>
+  <data name="Campaigns.NoMessagesMessage" xml:space="preserve">
+    <value>Δεν έχουν αποσταλεί ακόμη μηνύματα για αυτή την καμπάνια.</value>
+  </data>
+  <data name="Campaigns.FailedLabel" xml:space="preserve">
+    <value>Απέτυχε</value>
+  </data>
+  <data name="Campaigns.NoEventsMessage" xml:space="preserve">
+    <value>Δεν έχουν καταγραφεί συμβάντα παράδοσης για αυτόν τον παραλήπτη.</value>
+  </data>
+  <data name="Campaigns.CoverageHint" xml:space="preserve">
+    <value>Ποσοστό παραληπτών που προσεγγίστηκαν</value>
+  </data>
+  <data name="Campaigns.EngagedLabel" xml:space="preserve">
+    <value>Αλληλεπίδραση</value>
+  </data>
+  <data name="Campaigns.OfReachedSuffix" xml:space="preserve">
+    <value>όσων προσεγγίστηκαν</value>
+  </data>
+  <data name="Campaigns.ActedLabel" xml:space="preserve">
+    <value>Ενέργεια</value>
+  </data>
+  <data name="Campaigns.ChannelBreakdownHeader" xml:space="preserve">
+    <value>Αποστολές ανά κανάλι</value>
+  </data>
+  <data name="Campaigns.MessagesLabel" xml:space="preserve">
+    <value>μηνύματα</value>
+  </data>
+  <data name="Campaigns.OfMessagesSuffix" xml:space="preserve">
+    <value>των μηνυμάτων</value>
+  </data>
+  <data name="Campaigns.FailuresLabel" xml:space="preserve">
+    <value>αποτυχίες</value>
+  </data>
+  <data name="Campaigns.NoReportDataTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν ακόμη δεδομένα αποστολής</value>
+  </data>
+  <data name="Campaigns.NoReportDataMessage" xml:space="preserve">
+    <value>Τα στατιστικά εμφανίζονται εδώ μόλις η καμπάνια αρχίσει να αποστέλλει μηνύματα.</value>
+  </data>
+  <data name="Campaigns.ShowMore" xml:space="preserve">
+    <value>Περισσότερα</value>
+  </data>
+  <data name="Contacts.Subtitle" xml:space="preserve">
+    <value>Όλοι όσοι μπορείτε να προσεγγίσετε, με τα αναγνωριστικά τους και τα κανάλια στα οποία λαμβάνουν μηνύματα.</value>
+  </data>
+  <data name="Contacts.Known" xml:space="preserve">
+    <value>Γνωστή</value>
+  </data>
+  <data name="Contacts.Anonymous" xml:space="preserve">
+    <value>Ανώνυμη</value>
+  </data>
+  <data name="Contacts.ResolveTooltip" xml:space="preserve">
+    <value>Ανανέωση της επαφής από το εξωτερικό σύστημα</value>
+  </data>
+  <data name="Contacts.AddContacts" xml:space="preserve">
+    <value>Προσθήκη επαφών</value>
+  </data>
+  <data name="Contacts.AddContactsSubtitle" xml:space="preserve">
+    <value>Αναζητήστε υπάρχουσες επαφές ή πληκτρολογήστε όνομα ή email για να δημιουργήσετε νέα.</value>
+  </data>
+  <data name="Contacts.CreateSuccessTitle" xml:space="preserve">
+    <value>Οι επαφές προστέθηκαν</value>
+  </data>
+  <data name="Contacts.CreateSuccessMessage" xml:space="preserve">
+    <value>Προστέθηκαν με επιτυχία {{count}} επαφή(-ές).</value>
+  </data>
+  <data name="Contacts.LastResolutionDate" xml:space="preserve">
+    <value>Τελευταία ανανέωση</value>
+  </data>
+  <data name="Contacts.NoCampaignsMessage" xml:space="preserve">
+    <value>Η επαφή δεν έχει λάβει ακόμη καμία καμπάνια.</value>
+  </data>
+  <data name="Contacts.DuplicatesSubtitle" xml:space="preserve">
+    <value>Επιλέξτε τις διπλότυπες επαφές που θα συγχωνευθούν σε αυτή την επαφή.</value>
+  </data>
+  <data name="Contacts.SelectAllDuplicates" xml:space="preserve">
+    <value>Επιλογή όλων</value>
+  </data>
+  <data name="Contacts.SelectedCount" xml:space="preserve">
+    <value>{{count}} επιλεγμένες</value>
+  </data>
+  <data name="Contacts.MergeInto" xml:space="preserve">
+    <value>Συγχώνευση σε</value>
+  </data>
+  <data name="Contacts.ChannelPreferencesTitle" xml:space="preserve">
+    <value>Προτιμήσεις καναλιών</value>
+  </data>
+  <data name="Contacts.ChannelPreferencesInfo" xml:space="preserve">
+    <value>Τα κανάλια στα οποία η επαφή έχει επιλέξει να λαμβάνει κάθε τύπο μηνύματος. Τα μηνύματα θυρίδας παραδίδονται πάντα.</value>
+  </data>
+  <data name="Contacts.NoPreferences" xml:space="preserve">
+    <value>Δεν υπάρχουν διαθέσιμες προτιμήσεις επικοινωνίας για αυτή την επαφή.</value>
+  </data>
+  <data name="DistributionLists.Subtitle" xml:space="preserve">
+    <value>Ομαδοποιήστε επαφές σε λίστες στις οποίες μπορείτε να στείλετε καμπάνιες.</value>
+  </data>
+  <data name="DistributionLists.AddContacts" xml:space="preserve">
+    <value>Προσθήκη επαφών</value>
+  </data>
+  <data name="DistributionLists.AddContactsSubtitle" xml:space="preserve">
+    <value>Αναζητήστε υπάρχουσες επαφές ή πληκτρολογήστε όνομα ή email για να δημιουργήσετε νέα.</value>
+  </data>
+  <data name="DistributionLists.AddContactsSuccessTitle" xml:space="preserve">
+    <value>Οι επαφές προστέθηκαν</value>
+  </data>
+  <data name="DistributionLists.AddContactsSuccessMessage" xml:space="preserve">
+    <value>Προστέθηκαν {{count}} επαφή(-ές) στη λίστα διανομής.</value>
+  </data>
+  <data name="DistributionLists.Export" xml:space="preserve">
+    <value>Εξαγωγή</value>
+  </data>
+  <data name="DistributionLists.RemoveContact" xml:space="preserve">
+    <value>Αφαίρεση από τη λίστα</value>
+  </data>
+  <data name="DistributionLists.NoContactsTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν επαφές</value>
+  </data>
+  <data name="DistributionLists.NoContactsMessage" xml:space="preserve">
+    <value>Προσθέστε επαφές μία μία ή εισάγετέ τες από αρχείο CSV.</value>
+  </data>
+  <data name="DistributionLists.ImportCompletedWithErrors" xml:space="preserve">
+    <value>Η εισαγωγή ολοκληρώθηκε: {{added}} προστέθηκαν, {{updated}} ενημερώθηκαν. Κάποιες γραμμές δεν εισήχθησαν:</value>
+  </data>
+  <data name="Shared.SortBy" xml:space="preserve">
+    <value>Ταξινόμηση κατά</value>
+  </data>
+  <data name="Shared.SortAscending" xml:space="preserve">
+    <value>Αύξουσα</value>
+  </data>
+  <data name="Shared.SortDescending" xml:space="preserve">
+    <value>Φθίνουσα</value>
+  </data>
+  <data name="Shared.ContactSearchPlaceholder" xml:space="preserve">
+    <value>Αναζήτηση με όνομα, email ή τηλέφωνο…</value>
+  </data>
+  <data name="Shared.ContactSearchHint" xml:space="preserve">
+    <value>Πληκτρολογήστε για αναζήτηση επαφών.</value>
+  </data>
+  <data name="Shared.ContactComboboxInfo" xml:space="preserve">
+    <value>Επιλέξτε υπάρχουσες επαφές ή πληκτρολογήστε όνομα ή email που δεν υπάρχει για να δημιουργήσετε νέα επαφή.</value>
+  </data>
+  <data name="Shared.ShowMore" xml:space="preserve">
+    <value>Περισσότερα</value>
+  </data>
+  <data name="Shared.SelectedContactsCount" xml:space="preserve">
+    <value>Επιλεγμένες επαφές ({{count}})</value>
+  </data>
+  <data name="Shared.NewContactBadge" xml:space="preserve">
+    <value>Νέα</value>
+  </data>
+  <data name="Shared.NoContactsSelected" xml:space="preserve">
+    <value>Δεν έχουν επιλεγεί επαφές.</value>
+  </data>
+  <data name="MediaLibrary.Subtitle" xml:space="preserve">
+    <value>Οργανώστε σε φακέλους τις εικόνες και τα αρχεία που χρησιμοποιείτε στα μηνύματά σας.</value>
+  </data>
+  <data name="MediaLibrary.UploadFiles" xml:space="preserve">
+    <value>Μεταφόρτωση αρχείων</value>
+  </data>
+  <data name="MediaLibrary.FoldersSection" xml:space="preserve">
+    <value>Φάκελοι</value>
+  </data>
+  <data name="MediaLibrary.FilesSection" xml:space="preserve">
+    <value>Αρχεία</value>
+  </data>
+  <data name="MediaLibrary.FolderCounts" xml:space="preserve">
+    <value>{{folders}} φάκελοι · {{files}} αρχεία</value>
+  </data>
+  <data name="MediaLibrary.FolderType" xml:space="preserve">
+    <value>Φάκελος</value>
+  </data>
+  <data name="MediaLibrary.OpenFolder" xml:space="preserve">
+    <value>Άνοιγμα φακέλου</value>
+  </data>
+  <data name="MediaLibrary.FileDetails" xml:space="preserve">
+    <value>Στοιχεία αρχείου</value>
+  </data>
+  <data name="MediaLibrary.EmptyFolderTitle" xml:space="preserve">
+    <value>Ο φάκελος είναι κενός</value>
+  </data>
+  <data name="MediaLibrary.EmptyFolderMessage" xml:space="preserve">
+    <value>Μεταφορτώστε αρχεία ή δημιουργήστε έναν υποφάκελο για να ξεκινήσετε.</value>
+  </data>
+  <data name="MediaLibrary.NoPreview" xml:space="preserve">
+    <value>Δεν υπάρχει διαθέσιμη προεπισκόπηση για αυτόν τον τύπο αρχείου.</value>
+  </data>
+  <data name="MediaLibrary.Upload.Destination" xml:space="preserve">
+    <value>Μεταφόρτωση στο</value>
+  </data>
+  <data name="MediaLibrary.Upload.Submit" xml:space="preserve">
+    <value>Μεταφόρτωση ({{count}})</value>
+  </data>
+  <data name="MediaLibrary.Upload.SuccessMessage" xml:space="preserve">
+    <value>{{count}} αρχείο(α) μεταφορτώθηκαν επιτυχώς.</value>
+  </data>
+  <data name="MediaLibrary.Upload.DropTitle" xml:space="preserve">
+    <value>Σύρετε και αφήστε αρχεία εδώ</value>
+  </data>
+  <data name="MediaLibrary.Upload.DropHint" xml:space="preserve">
+    <value>ή κάντε κλικ για να τα επιλέξετε από τον υπολογιστή σας</value>
+  </data>
+  <data name="MediaLibrary.Upload.Summary" xml:space="preserve">
+    <value>{{count}} αρχείο(α) · {{size}}</value>
+  </data>
+  <data name="MediaLibrary.Upload.RemoveAll" xml:space="preserve">
+    <value>Αφαίρεση όλων</value>
+  </data>
+  <data name="MediaLibrary.Upload.Done" xml:space="preserve">
+    <value>Μεταφορτώθηκε</value>
+  </data>
+  <data name="MediaLibrary.Upload.Failed" xml:space="preserve">
+    <value>Η μεταφόρτωση απέτυχε. Δοκιμάστε ξανά.</value>
+  </data>
+  <data name="MediaLibrary.Upload.InvalidType" xml:space="preserve">
+    <value>Αυτός ο τύπος αρχείου δεν επιτρέπεται (επιτρέπονται: {{types}}).</value>
+  </data>
+  <data name="Templates.Subtitle" xml:space="preserve">
+    <value>Επαναχρησιμοποιήσιμο περιεχόμενο μηνυμάτων ανά κανάλι, με τμήματα και διατάξεις.</value>
+  </data>
+  <data name="Settings.Subtitle" xml:space="preserve">
+    <value>Αποστολείς email και ρυθμίσεις βιβλιοθήκης πολυμέσων.</value>
+  </data>
+  <data name="Settings.DefaultBadge" xml:space="preserve">
+    <value>Προεπιλογή</value>
+  </data>
+  <data name="Settings.DeleteSenderConfirmMessage" xml:space="preserve">
+    <value>Είστε σίγουροι ότι θέλετε να διαγράψετε τον αποστολέα {{sender}};</value>
+  </data>
+  <data name="Settings.DeleteSenderSuccessTitle" xml:space="preserve">
+    <value>Ο αποστολέας διαγράφηκε</value>
+  </data>
+  <data name="Settings.DeleteSenderSuccessMessage" xml:space="preserve">
+    <value>Ο αποστολέας {{sender}} διαγράφηκε με επιτυχία.</value>
+  </data>
+  <data name="Events.Subtitle" xml:space="preserve">
+    <value>Συμβάντα αποστολής και αλληλεπίδρασης για κάθε μήνυμα.</value>
+  </data>
+  <data name="Events.SearchRecipient" xml:space="preserve">
+    <value>Αναζήτηση παραλήπτη</value>
+  </data>
+  <data name="Events.From" xml:space="preserve">
+    <value>Από</value>
+  </data>
+  <data name="Events.To" xml:space="preserve">
+    <value>Έως</value>
+  </data>
+  <data name="Events.ClearFilters" xml:space="preserve">
+    <value>Καθαρισμός φίλτρων</value>
+  </data>
+  <data name="Events.EmptyMessage" xml:space="preserve">
+    <value>Δεν υπάρχουν συμβάντα που να ταιριάζουν με τα τρέχοντα φίλτρα.</value>
+  </data>
+  <data name="Events.Types.Created" xml:space="preserve">
+    <value>Δημιουργήθηκε</value>
+  </data>
+  <data name="Events.Types.Sent" xml:space="preserve">
+    <value>Στάλθηκε</value>
+  </data>
+  <data name="Events.Types.Delivered" xml:space="preserve">
+    <value>Παραδόθηκε</value>
+  </data>
+  <data name="Events.Types.Opened" xml:space="preserve">
+    <value>Ανοίχτηκε</value>
+  </data>
+  <data name="Events.Types.Read" xml:space="preserve">
+    <value>Αναγνώστηκε</value>
+  </data>
+  <data name="Events.Types.UnRead" xml:space="preserve">
+    <value>Μη αναγνωσμένο</value>
+  </data>
+  <data name="Events.Types.Deleted" xml:space="preserve">
+    <value>Διαγράφηκε</value>
   </data>
 </root>

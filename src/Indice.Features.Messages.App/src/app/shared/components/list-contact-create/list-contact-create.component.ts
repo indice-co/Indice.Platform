@@ -1,136 +1,267 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { EnhancedComboboxComponent } from '@indice/ng-components';
-import { lastValueFrom } from 'rxjs';
-import { settings } from 'src/app/core/models/settings';
-import { MessagesApiClient, ContactResultSet, Contact } from 'src/app/core/services/messages-api.service';
+import { Component, ElementRef, computed, inject, output, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslatePipe } from '@ngx-translate/core';
+import { Subject, catchError, debounceTime, map, merge, of, switchMap, tap } from 'rxjs';
+import { LucideCheck, LucideChevronDown, LucideInbox, LucideMail, LucidePencil, LucidePhone, LucideSearch, LucideTrash, LucideUserPlus } from '@lucide/angular';
+import { Contact, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { ContactAvatarComponent, contactDisplayName } from './contact-avatar.component';
 
+interface SelectedContact {
+  key: number;
+  contact: Contact;
+  editing: boolean;
+  isNew: boolean;
+}
+
+type EditableField = 'salutation' | 'firstName' | 'lastName' | 'fullName' | 'email' | 'phoneNumber' | 'recipientId';
+
+const PAGE_SIZE = 6;
+const EMAIL_PATTERN = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+let nextId = 0;
+
+/**
+ * Picks existing contacts through a searchable combobox, or drafts new ones when a search has no results.
+ * The host calls `submit()` (emits `onSubmit` with the picked contacts), `cancel()` (restores the last submitted
+ * selection and emits `onCancel`) or `reset()`.
+ */
 @Component({
-    selector: 'app-list-contact-create',
-    templateUrl: './list-contact-create.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-list-contact-create',
+  imports: [
+    TranslatePipe, ContactAvatarComponent,
+    LucideCheck, LucideChevronDown, LucideInbox, LucideMail, LucidePencil, LucidePhone, LucideSearch, LucideTrash, LucideUserPlus
+  ],
+  host: { class: 'block' },
+  templateUrl: './list-contact-create.component.html'
 })
-export class ListContactCreateComponent implements AfterViewInit {
+export class ListContactCreateComponent {
+  private readonly _api = inject(MessagesApiClient);
+  private readonly _input = viewChild.required<ElementRef<HTMLInputElement>>('searchInput');
 
-  @ViewChild('contactsCombobox', { static: false }) public contactsCombobox!: EnhancedComboboxComponent;
+  public readonly onSubmit = output<Contact[]>();
+  public readonly onCancel = output<Contact[]>();
 
-  @Output() onSubmit: EventEmitter<Contact[]> = new EventEmitter<Contact[]>();
-  @Output() onCancel: EventEmitter<Contact[]> = new EventEmitter<Contact[]>();
+  protected readonly listboxId = `contact-combobox-${nextId++}`;
+  protected readonly fieldId = `${this.listboxId}-input`;
+  protected readonly displayName = contactDisplayName;
+  protected readonly fields: { name: EditableField; label: string; placeholder: string; info?: string }[] = [
+    { name: 'salutation', label: 'Shared.SalutationLabel', placeholder: 'Shared.SalutationPlaceholder', info: 'Shared.SalutationInfo' },
+    { name: 'firstName', label: 'Shared.FirstNameLabel', placeholder: 'Shared.FirstNamePlaceholder' },
+    { name: 'lastName', label: 'Shared.LastNameLabel', placeholder: 'Shared.LastNamePlaceholder' },
+    { name: 'fullName', label: 'Shared.DisplayNameLabel', placeholder: 'Shared.DisplayNamePlaceholder' },
+    { name: 'email', label: 'Shared.EmailLabel', placeholder: 'Shared.EmailPlaceholder' },
+    { name: 'phoneNumber', label: 'Shared.PhoneLabel', placeholder: 'Shared.PhonePlaceholder' },
+    { name: 'recipientId', label: 'Shared.ContactCodeLabel', placeholder: 'Shared.ContactCodePlaceholder' }
+  ];
 
-  constructor(
-    private _changeDetector: ChangeDetectorRef,
-    private _api: MessagesApiClient
-  ) { }
+  protected readonly term = signal('');
+  protected readonly open = signal(false);
+  protected readonly loading = signal(false);
+  protected readonly results = signal<Contact[]>([]);
+  protected readonly hasMore = signal(false);
+  protected readonly activeIndex = signal(-1);
+  private readonly _selected = signal<SelectedContact[]>([]);
+  /** The contacts picked so far. */
+  public readonly selected = this._selected.asReadonly();
 
-  public submitInProgress = false;
-  public contacts: Contact[] = [];
-  public isLoading: boolean = false;
-  public avatarOrigin = (settings.api_url || "").substring(0, 4) === "http" ? new URL(settings.api_url).origin : "";
-  public get anyContactEditing() {
-    return false;
-  }
-  public savedContacts: Contact[] = [];
+  /** No search results for a non empty term: the only option is "create contact". */
+  protected readonly canCreate = computed(() => !this.loading() && this.results().length === 0 && this.term().trim().length > 0);
+  protected readonly optionCount = computed(() => this.canCreate() ? 1 : this.results().length + (this.hasMore() ? 1 : 0));
+  protected readonly activeId = computed(() => this.open() && this.activeIndex() >= 0 ? this.optionId(this.activeIndex()) : null);
+  protected readonly selectedIds = computed(() => new Set(this._selected().map(item => item.contact.id).filter(Boolean)));
 
-  public displayShowMoreOption: boolean = false;
-  private _page: number = 1;
-  private _pageSize: number = 6;
-  private _lastSearchTerm: string | undefined = undefined;
+  private readonly _term$ = new Subject<string>();
+  private readonly _more$ = new Subject<void>();
+  private _page = 1;
+  private _searched = false;
+  private _saved: SelectedContact[] = [];
+  private _nextKey = 0;
 
-  public async onContactsSearch(searchTerm: string | undefined): Promise<void> {
-    this._page = 1;
-    this._lastSearchTerm = searchTerm;
-    this.isLoading = true;
-
-    try {
-      const fetchedContacts = await this._fetchContacts(this._lastSearchTerm);
-      if (!!fetchedContacts.items) {
-        this.contacts = fetchedContacts.items;
-        this.contacts.forEach((contact: Contact, index: number) => {
-          (<any>contact)['_index'] = index;
-        });
-        this.displayShowMoreOption = fetchedContacts.items.length === this._pageSize;
-      }
-    } catch (error) {
-      console.error('Error fetching contacts:', error);
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  public async onShowMore(): Promise<void> {
-    this._page++;
-    this.isLoading = true;
-
-    try {
-      const fetchedContacts = await this._fetchContacts(this._lastSearchTerm);
-      if (!!fetchedContacts.items) {
-        this.contacts = [...this.contacts, ...fetchedContacts.items];
-        this.contacts.forEach((contact: Contact, index: number) => {
-          (<any>contact)['_index'] = index;
-        });
-        this.displayShowMoreOption = fetchedContacts.items.length === this._pageSize;
-      }
-    } catch (error) {
-      console.error('Error fetching more contacts:', error);
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  private _fetchContacts(searchTerm: string | undefined): Promise<ContactResultSet> {
-    return lastValueFrom(
-      this._api.getContacts(this._page, this._pageSize, 'email', searchTerm, undefined, undefined, undefined, undefined, undefined, true)
-    );
+  constructor() {
+    const firstPage$ = this._term$.pipe(debounceTime(300), map(term => ({ term, page: 1 })));
+    const nextPage$ = this._more$.pipe(map(() => ({ term: this.term().trim(), page: this._page + 1 })));
+    merge(firstPage$, nextPage$)
+      .pipe(
+        tap(() => this.loading.set(true)),
+        switchMap(({ term, page }) => this._api
+          .getContacts(page, PAGE_SIZE, 'email', term || undefined, undefined, undefined, undefined, undefined, undefined, true)
+          .pipe(
+            map(result => ({ items: result.items ?? [], page })),
+            catchError(() => of({ items: [] as Contact[], page }))
+          )),
+        takeUntilDestroyed()
+      )
+      .subscribe(({ items, page }) => {
+        this._page = page;
+        this.results.update(previous => page === 1 ? items : [...previous, ...items]);
+        this.hasMore.set(items.length === PAGE_SIZE);
+        this.loading.set(false);
+        if (page === 1) {
+          this.activeIndex.set(this.optionCount() > 0 ? 0 : -1);
+        }
+      });
   }
 
-
-  public onContactSelected(contact: Contact): void { }
-
-  public ngAfterViewInit(): void {
-    this._changeDetector.detectChanges();
-  }
-
-  public onContactSaveChanges(item: any): void {
-    delete item._edit;
-  }
-
-  public onAddNewContact(searchTerm: string): void {
-    const validateEmail = (email: string) => {
-      return String(email)
-        .toLowerCase()
-        .match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
-    };
-    if (this.contactsCombobox.selectedItems.some(x => x.fullName === searchTerm)) {
-      return;
-    }
-    const contact = new Contact();
-    searchTerm = searchTerm.trim();
-    if (validateEmail(searchTerm)) {
-      contact.email = searchTerm;
-    } else {
-      contact.fullName = searchTerm;
-      contact.firstName = searchTerm.split(' ')[0];
-      contact.lastName = searchTerm.slice(contact.firstName.length).trim();
-    }
-    (<any>contact)._edit = true;
-    this.contactsCombobox.selectedItems.unshift(contact);
-    this.isLoading = false;
-  }
+  // --- public API (also used by the campaign recipients step) ---
 
   public submit(): void {
-    this.savedContacts = JSON.parse(JSON.stringify(this.contactsCombobox.selectedItems));
-    this.onSubmit.emit(this.contactsCombobox.selectedItems);
+    this._saved = this._selected().map(item => ({ ...item, editing: false }));
+    this.onSubmit.emit(this.contacts());
   }
 
   public cancel(): void {
-    this.contactsCombobox.selectedItems = JSON.parse(JSON.stringify(this.savedContacts));
-    this.onCancel.emit(this.contactsCombobox.selectedItems);
+    this._selected.set(this._saved.map(item => ({ ...item })));
+    this.onCancel.emit(this.contacts());
   }
 
   public reset(): void {
-    this.contactsCombobox.selectedItems = [];
-    this.savedContacts = [];
+    this._selected.set([]);
+    this._saved = [];
+    this.term.set('');
+    this.results.set([]);
+    this.open.set(false);
+    this._searched = false;
   }
 
-  public onContactChangesSubmit(): void { }
+  // --- combobox ---
+
+  protected optionId(index: number): string {
+    return `${this.listboxId}-option-${index}`;
+  }
+
+  protected onInput(value: string): void {
+    this.term.set(value);
+    this.open.set(true);
+    this._searched = true;
+    this._term$.next(value.trim());
+  }
+
+  protected openList(): void {
+    this.open.set(true);
+    if (!this._searched) {
+      this._searched = true;
+      this._term$.next(this.term().trim());
+    }
+  }
+
+  protected onFocusOut(event: FocusEvent): void {
+    const next = event.relatedTarget as Node | null;
+    if (!next || !(event.currentTarget as HTMLElement).contains(next)) {
+      this.open.set(false);
+    }
+  }
+
+  protected onKeydown(event: KeyboardEvent): void {
+    const count = this.optionCount();
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        if (!this.open()) {
+          this.openList();
+          return;
+        }
+        this.moveActive(count ? (this.activeIndex() + 1) % count : -1);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.moveActive(count ? (this.activeIndex() - 1 + count) % count : -1);
+        break;
+      case 'Home':
+      case 'End':
+        if (this.open() && count) {
+          event.preventDefault();
+          this.moveActive(event.key === 'Home' ? 0 : count - 1);
+        }
+        break;
+      case 'Enter':
+        event.preventDefault();
+        if (this.open()) {
+          this.activate(this.activeIndex());
+        }
+        break;
+      case 'Escape':
+        if (this.open()) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.open.set(false);
+        }
+        break;
+      case 'Tab':
+        this.open.set(false);
+        break;
+    }
+  }
+
+  protected activate(index: number): void {
+    if (index < 0) {
+      return;
+    }
+    if (this.canCreate()) {
+      this.createFromTerm();
+    } else if (index < this.results().length) {
+      this.pick(this.results()[index]);
+    } else if (this.hasMore()) {
+      this.showMore();
+    }
+  }
+
+  protected showMore(): void {
+    if (!this.loading()) {
+      this._more$.next();
+    }
+  }
+
+  protected pick(contact: Contact): void {
+    if (contact.id && this.selectedIds().has(contact.id)) {
+      return;
+    }
+    this._selected.update(items => [...items, { key: this._nextKey++, contact: new Contact({ ...contact }), editing: false, isNew: false }]);
+  }
+
+  protected createFromTerm(): void {
+    const term = this.term().trim();
+    if (!term || this._selected().some(item => item.contact.fullName === term)) {
+      return;
+    }
+    const contact = new Contact();
+    if (EMAIL_PATTERN.test(term.toLowerCase())) {
+      contact.email = term;
+    } else {
+      contact.fullName = term;
+      contact.firstName = term.split(' ')[0];
+      contact.lastName = term.slice(contact.firstName.length).trim();
+    }
+    this._selected.update(items => [{ key: this._nextKey++, contact, editing: true, isNew: true }, ...items]);
+    this.term.set('');
+    this.results.set([]);
+    this._searched = false;
+    this.open.set(false);
+  }
+
+  private moveActive(index: number): void {
+    this.activeIndex.set(index);
+    if (index >= 0) {
+      document.getElementById(this.optionId(index))?.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  // --- selected contacts ---
+
+  protected remove(key: number): void {
+    this._selected.update(items => items.filter(item => item.key !== key));
+    this._input().nativeElement.focus();
+  }
+
+  protected setEditing(key: number, editing: boolean): void {
+    this._selected.update(items => items.map(item => item.key === key ? { ...item, editing } : item));
+  }
+
+  protected patch(key: number, field: EditableField, value: string): void {
+    this._selected.update(items => items.map(item => item.key === key
+      ? { ...item, contact: new Contact({ ...item.contact, [field]: value || undefined }) }
+      : item));
+  }
+
+  private contacts(): Contact[] {
+    return this._selected().map(item => new Contact({ ...item.contact }));
+  }
 }

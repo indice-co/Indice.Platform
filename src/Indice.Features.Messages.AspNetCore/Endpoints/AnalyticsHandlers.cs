@@ -46,6 +46,13 @@ internal static class AnalyticsHandlers
         return TypedResults.Ok(result);
     }
 
+    public static async Task<Ok<DeliveryMetrics>> GetDeliveryMetrics(
+        IMessageEventService messageEventService,
+        [AsParameters] DeliveryMetricsFilter filter) {
+        var result = await messageEventService.GetDeliveryMetricsAsync(filter);
+        return TypedResults.Ok(result);
+    }
+
     public static async Task<NoContent> RefreshCache(IOutputCacheStore cacheStore,CancellationToken cancellationToken) {
         await cacheStore.EvictByTagAsync(CacheTag, cancellationToken);
         return TypedResults.NoContent();

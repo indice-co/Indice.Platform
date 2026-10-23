@@ -1,54 +1,53 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-
-import { APP_LANGUAGES, HeaderMetaItem } from '@indice/ng-components';
-import { Template } from 'src/app/core/services/messages-api.service';
+import { Component, OnInit, inject, input } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LucideArrowLeft, LucideFileCode, LucideInfo } from '@lucide/angular';
+import { MessageTypeBadgeComponent } from 'src/app/ui/badges/badges';
+import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
+import { RouteTab, RouteTabsComponent } from 'src/app/ui/tabs/route-tabs.component';
+import { templateTypeBadge, templateTypeLabel } from '../template-type';
 import { TemplateEditStore } from './template-edit-store.service';
-import { AppLanguagesService } from '../../../shared/services/app-languages.service';
-import { Subject, takeUntil } from 'rxjs';
 
 @Component({
-    selector: 'app-template-edit',
-    templateUrl: './template-edit.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-template-edit',
+  imports: [RouterLink, RouterOutlet, TranslatePipe, PageHeaderComponent, RouteTabsComponent, MessageTypeBadgeComponent, LucideArrowLeft],
+  template: `
+    @let template = store.template();
+    <app-page-header [title]="template?.name ?? ''">
+      <a leading class="btn btn-ghost btn-xs -ml-2 mb-2" routerLink="/templates">
+        <svg lucideArrowLeft class="size-4"></svg>{{ 'Templates.Title' | translate }}
+      </a>
+      @if (template) {
+        <div class="mt-2 flex flex-wrap items-center gap-2">
+          <span class="badge badge-sm" [class]="typeBadge(template.type)">{{ typeLabel(template.type) | translate }}</span>
+          @if (template.alias) {
+            <code class="rounded bg-base-200 px-1.5 py-0.5 text-xs">{{ template.alias }}</code>
+          }
+          <app-message-type-badge [name]="template.messageType?.name" [classification]="template.messageType?.classification" />
+        </div>
+      } @else {
+        <div class="skeleton mt-2 h-5 w-48"></div>
+      }
+    </app-page-header>
+
+    <app-route-tabs class="mb-6" [tabs]="tabs" />
+    <router-outlet />
+  `
 })
-export class TemplateEditComponent implements OnInit, AfterViewChecked, OnDestroy {
-  public layoutTitle = '';
-  private _templateId?: string;
-  private $destroy = new Subject<void>();
+export class TemplateEditComponent implements OnInit {
+  protected readonly store = inject(TemplateEditStore);
 
-  constructor(
-    private _activatedRoute: ActivatedRoute,
-    private _changeDetector: ChangeDetectorRef,
-    private _templateStore: TemplateEditStore,
-    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
-  ) { }
+  /** Bound from the `:templateId` route param. */
+  public readonly templateId = input.required<string>();
 
-  public submitInProgress = false;
-  public template: Template | undefined;
-  public metaItems: HeaderMetaItem[] = [];
+  protected readonly typeLabel = templateTypeLabel;
+  protected readonly typeBadge = templateTypeBadge;
+  protected readonly tabs: RouteTab[] = [
+    { label: 'Templates.BasicInformationNav', link: 'template-details', icon: LucideInfo },
+    { label: 'Templates.ContentNav', link: 'template-content', icon: LucideFileCode }
+  ];
 
   public ngOnInit(): void {
-    this._templateId = this._activatedRoute.snapshot.params['templateId'];
-    if (this._templateId) {
-      this._templateStore.getTemplate(this._templateId!).subscribe((template: Template) => {
-          this.template = template;
-          this._lang.translateKey('Templates.TemplateTitle', { title: template.name })
-            .pipe(takeUntil(this.$destroy))
-            .subscribe(translated => {
-              this.layoutTitle = translated || `Template - ${template.name}`;
-            });
-        });
-    }
-  }
-
-  public ngAfterViewChecked(): void {
-    this._changeDetector.detectChanges();
-  }
-
-  public ngOnDestroy(): void {
-    this.$destroy.next();
-    this.$destroy.complete();
+    this.store.load(this.templateId());
   }
 }
