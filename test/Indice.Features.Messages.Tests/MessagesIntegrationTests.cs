@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Messages.Tests;
@@ -31,47 +32,51 @@ public class MessagesIntegrationTests : IAsyncLifetime
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
-    private ServiceProvider _serviceProvider = null!;
+    private readonly IHost _host;
+    private IServiceProvider _serviceProvider = null!;
 
     public MessagesIntegrationTests(ITestOutputHelper output) {
         _output = output;
-        var builder = new WebHostBuilder();
-        builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
-                ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true"
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+            builder.UseTestServer();
+            builder.ConfigureAppConfiguration(builder => {
+                builder.AddInMemoryCollection(new Dictionary<string, string?> {
+                    ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
+                    ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true"
+                });
             });
-        });
-        builder.ConfigureServices(services => {
-            var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
-            services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
-            services.AddRouting();
-            services.AddMessaging(options => {
-                        options.PathPrefix = "api";
-                        options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
-                        options.DatabaseSchema = "cmp";
-                        options.RequiredScope = MessagesApi.Scope;
-                        options.UseFilesLocal();
-                        options.UseContactResolver<MockContactResolver>();
-                    });
-            services.AddAuthentication(MockAuthenticationDefaults.AuthenticationScheme)
-                    .AddJwtBearer((options) => {
-                        options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
-                    })
-                    .AddMock(() => DummyPrincipals.IndiceUser);
-        });
-        builder.Configure(app => {
-            app.UseAuthentication();
-            app.UseRouting();
-            app.UseAuthorization();
-            app.UseEndpoints(e => e.MapMessaging());
-        });
-        var server = new TestServer(builder);
+            builder.ConfigureServices((context, services) => {
+                var configuration = context.Configuration;
+                services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+                services.AddRouting();
+                services.AddMessaging(options => {
+                            options.PathPrefix = "api";
+                            options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
+                            options.DatabaseSchema = "cmp";
+                            options.RequiredScope = MessagesApi.Scope;
+                            options.UseFilesLocal();
+                            options.UseContactResolver<MockContactResolver>();
+                        });
+                services.AddAuthentication(MockAuthenticationDefaults.AuthenticationScheme)
+                        .AddJwtBearer((options) => {
+                            options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
+                        })
+                        .AddMock(() => DummyPrincipals.IndiceUser);
+            });
+            builder.Configure(app => {
+                app.UseAuthentication();
+                app.UseRouting();
+                app.UseAuthorization();
+                app.UseEndpoints(e => e.MapMessaging());
+            });
+        }).Start();
+        var server = host.GetTestServer();
         var handler = server.CreateHandler();
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
-        _serviceProvider = (ServiceProvider)server.Services;
+        _host = host;
+        _serviceProvider = host.Services;
     }
 
     [Fact]
@@ -725,6 +730,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
     public async ValueTask DisposeAsync() {
         var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
-        await _serviceProvider.DisposeAsync();
+        await _host.StopAsync();
+        _host.Dispose();
     }
 }

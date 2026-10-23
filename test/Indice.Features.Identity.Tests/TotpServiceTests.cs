@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 
 namespace Indice.Features.Identity.Tests;
@@ -21,7 +22,8 @@ namespace Indice.Features.Identity.Tests;
 public class TotpServiceTests
 {
     public TotpServiceTests() {
-        var builder = new WebHostBuilder();
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["Totp:EnableDeveloperTotp"] = "true"
@@ -48,7 +50,8 @@ public class TotpServiceTests
                     .AddIdentityMessageDescriber<IdentityMessageDescriber>();
         });
         builder.Configure(app => { });
-        TestServer = new TestServer(builder);
+        }).Start();
+        TestServer = host.GetTestServer();
     }
 
     public TestServer TestServer { get; }
@@ -263,7 +266,8 @@ public class TotpServiceTests
     [Fact]
     public void TotpServiceFactory_Create_With_User_Returns_TotpServiceUser_When_EnableDeveloperTotp_Is_False() {
         // Arrange - Create a new TestServer with EnableDeveloperTotp = false
-        var builder = new WebHostBuilder();
+        using var host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["Totp:EnableDeveloperTotp"] = "false"
@@ -289,7 +293,8 @@ public class TotpServiceTests
                     .AddIdentityMessageDescriber<IdentityMessageDescriber>();
         });
         builder.Configure(app => { });
-        using var testServer = new TestServer(builder);
+        }).Start();
+        var testServer = host.GetTestServer();
 
         var totpServiceFactory = testServer.Services.GetRequiredService<TotpServiceFactory>();
 

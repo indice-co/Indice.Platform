@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -27,7 +28,8 @@ public class GuestGrantIntegrationTests
     private const string CLIENT_SECRET = "GbjHTsbpsVcJQZE3";
 
     private static HttpClient CreateServer(Action<IIdentityServerBuilder>? configureIdentityServer = null) {
-        var builder = new WebHostBuilder();
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureServices(services => {
             var identityServerBuilder = services.AddIdentityServer()
             .AddInMemoryApiScopes([new ApiScope("chat", "Chat API") { UserClaims = { "guest_channel", "given_name", "family_name", "email", "phone_number" } }])
@@ -53,7 +55,8 @@ public class GuestGrantIntegrationTests
             //services.AddPushNotificationServiceNoop();
         });
         builder.Configure(app => app.UseIdentityServer());
-        var server = new TestServer(builder);
+        }).Start();
+        var server = host.GetTestServer();
         return new HttpClient(server.CreateHandler()) {
             BaseAddress = new Uri(BASE_URL)
         };

@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Indice.Features.Messages.Tests;
 public class MediaLibraryTests : IAsyncLifetime
@@ -26,48 +27,52 @@ public class MediaLibraryTests : IAsyncLifetime
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
-    private ServiceProvider _serviceProvider;
+    private readonly IHost _host;
+    private IServiceProvider _serviceProvider;
 
     public MediaLibraryTests(ITestOutputHelper output) {
         _output = output;
-        var builder = new WebHostBuilder();
-        builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
-                ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true",
-                ["General:Host"] = "https://server"
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+            builder.UseTestServer();
+            builder.ConfigureAppConfiguration(builder => {
+                builder.AddInMemoryCollection(new Dictionary<string, string?> {
+                    ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
+                    ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true",
+                    ["General:Host"] = "https://server"
+                });
             });
-        });
-        builder.ConfigureServices((context, services) => {
-            services.AddRouting();
-            services.AddMediaLibrary(options => {
-                options.PathPrefix = "/api";
-                options.AcceptableFileExtensions = ".png, .jpg, .gif, .txt";
-                options.Scope = Core.MessagesApi.Scope;
-                options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(context.Configuration.GetConnectionString("MessagesDb"));
-                options.UseFilesLocal();
-            });
+            builder.ConfigureServices((context, services) => {
+                services.AddRouting();
+                services.AddMediaLibrary(options => {
+                    options.PathPrefix = "/api";
+                    options.AcceptableFileExtensions = ".png, .jpg, .gif, .txt";
+                    options.Scope = Core.MessagesApi.Scope;
+                    options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(context.Configuration.GetConnectionString("MessagesDb"));
+                    options.UseFilesLocal();
+                });
 
-            services.AddAuthentication(MockAuthenticationDefaults.AuthenticationScheme)
-                    .AddJwtBearer((options) => {
-                        options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
-                    })
-                    .AddMock(() => DummyPrincipals.IndiceUser);
-        });
-        builder.Configure(app => {
-            app.UseAuthentication();
-            app.UseRouting();
-            app.UseAuthorization();
-            app.UseEndpoints(e => {
-                e.MapMediaLibrary();
+                services.AddAuthentication(MockAuthenticationDefaults.AuthenticationScheme)
+                        .AddJwtBearer((options) => {
+                            options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
+                        })
+                        .AddMock(() => DummyPrincipals.IndiceUser);
             });
-        });
-        var server = new TestServer(builder);
+            builder.Configure(app => {
+                app.UseAuthentication();
+                app.UseRouting();
+                app.UseAuthorization();
+                app.UseEndpoints(e => {
+                    e.MapMediaLibrary();
+                });
+            });
+        }).Start();
+        var server = host.GetTestServer();
         var handler = server.CreateHandler();
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
-        _serviceProvider = (ServiceProvider)server.Services;
+        _host = host;
+        _serviceProvider = host.Services;
     }
 
     [Fact]
@@ -235,6 +240,7 @@ public class MediaLibraryTests : IAsyncLifetime
     public async ValueTask DisposeAsync() {
         var db = _serviceProvider.GetRequiredService<MediaDbContext>();
         await db.Database.EnsureDeletedAsync();
-        await _serviceProvider.DisposeAsync();
+        await _host.StopAsync();
+        _host.Dispose();
     }
 }

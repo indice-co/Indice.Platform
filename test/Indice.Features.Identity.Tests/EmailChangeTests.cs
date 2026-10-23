@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Polly;
 using Xunit;
 
@@ -22,7 +23,8 @@ namespace Indice.Features.Identity.Tests;
 public class EmailChangeTests
 {
     public EmailChangeTests() {
-        var builder = new WebHostBuilder();
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["IdentityOptions:User:EmailAsUserName"] = "true"
@@ -47,7 +49,8 @@ public class EmailChangeTests
                     .AddIdentityMessageDescriber<IdentityMessageDescriber>();
         });
         builder.Configure(app => { });
-        TestServer = new TestServer(builder);
+        }).Start();
+        TestServer = host.GetTestServer();
     }
 
     public TestServer TestServer { get; }

@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using TokenResponse = Duende.IdentityModel.Client.TokenResponse;
 
 
@@ -52,7 +53,8 @@ public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
     
     public MobileSessionIdServerSideSessionsTests(ITestOutputHelper output) {
         _output = output;
-        var builder = new WebHostBuilder();
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices"] = "20",
@@ -110,7 +112,8 @@ public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
             app.UseIdentityServer();
             app.IdentityStoreSetup();
         });
-        var server = new TestServer(builder);
+        }).Start();
+        var server = host.GetTestServer();
         _server = server;
         var handler = server.CreateHandler();
         _serviceProvider = server.Services;

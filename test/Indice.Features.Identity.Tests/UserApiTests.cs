@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace Indice.Features.Identity.Tests;
 
@@ -23,10 +24,12 @@ public class UserApiTests : IAsyncLifetime
 {
     // Private fields
     private readonly HttpClient _httpClient;
-    private ServiceProvider _serviceProvider;
+    private readonly IHost _host;
+    private IServiceProvider _serviceProvider;
 
     public UserApiTests() {
-        var builder = new WebHostBuilder();
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureAppConfiguration(configurationBuilder => {
             configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["test"] = "test"
@@ -85,12 +88,14 @@ public class UserApiTests : IAsyncLifetime
                 idbuilder.MapManageUsers();
             });
         });
-        var server = new TestServer(builder);
+        }).Start();
+        var server = host.GetTestServer();
         var handler = server.CreateHandler();
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri("https://server")
         };
-        _serviceProvider = (ServiceProvider)server.Services;
+        _host = host;
+        _serviceProvider = host.Services;
     }
 
     [Fact]
@@ -114,7 +119,8 @@ public class UserApiTests : IAsyncLifetime
     }
 
     public async ValueTask DisposeAsync() {
-        await _serviceProvider.DisposeAsync();
+        await _host.StopAsync();
+        _host.Dispose();
     }
 
     public ValueTask InitializeAsync() {
