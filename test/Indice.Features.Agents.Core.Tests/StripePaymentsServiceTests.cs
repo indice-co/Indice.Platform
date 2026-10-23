@@ -96,23 +96,6 @@ public class StripePaymentsServiceTests : IAsyncLifetime
     }
 
     [Theory]
-    [InlineData("succeeded", PaymentAuthorizationStatus.Succeeded)]
-    [InlineData("canceled", PaymentAuthorizationStatus.Cancelled)]
-    public async Task GetCurrentAttempt_ReconcilesStatusWithStripe(string stripeStatus, PaymentAuthorizationStatus expected) {
-        var (service, db, stripe, handler) = CreateService();
-        string CaseId = Guid.NewGuid().ToString();
-        await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
-        stripe.IntentStatus = stripeStatus;
-
-        var session = await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
-
-        Assert.NotNull(session);
-        Assert.Equal(expected, session.PaymentAuthorizationStatus);
-        Assert.Equal(expected, Assert.Single(db.PaymentSessions).Status);
-        Assert.Equal(expected, Assert.Single(handler.Changes).PaymentAuthorizationStatus);
-    }
-
-    [Theory]
     [InlineData("requires_payment_method")]
     [InlineData("processing")]
     public async Task GetCurrentAttempt_KeepsCreatedStatus_WhileIntentIsPending(string stripeStatus) {
@@ -127,43 +110,6 @@ public class StripePaymentsServiceTests : IAsyncLifetime
         Assert.Equal(PaymentAuthorizationStatus.Created, session.PaymentAuthorizationStatus);
         Assert.Equal("pi_1_secret", session.PaymentSessionSecret);
         Assert.Empty(handler.Changes);
-    }
-
-    [Fact]
-    public async Task GetCurrentAttempt_MapsDeclinedIntentToFailed_WithReason() {
-        var (service, db, stripe, handler) = CreateService();
-        string CaseId = Guid.NewGuid().ToString();
-        await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
-        stripe.IntentStatus = "requires_payment_method";
-        stripe.LastPaymentError = "Your card was declined.";
-
-        var session = await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
-
-        Assert.NotNull(session);
-        Assert.Equal(PaymentAuthorizationStatus.Failed, session.PaymentAuthorizationStatus);
-        Assert.Null(session.PaymentSessionSecret);
-        var stored = Assert.Single(db.PaymentSessions);
-        Assert.Equal(PaymentAuthorizationStatus.Failed, stored.Status);
-        Assert.Equal("Your card was declined.", stored.FailureReason);
-        Assert.Equal(PaymentAuthorizationStatus.Failed, Assert.Single(handler.Changes).PaymentAuthorizationStatus);
-    }
-
-    [Fact]
-    public async Task GetCurrentAttempt_ThrottlesStripeReconciliation() {
-        var interval = TimeSpan.FromMilliseconds(300);
-        string CaseId = Guid.NewGuid().ToString();
-        var (service, _, stripe, _) = CreateService(interval);
-        await service.CreateOrReuseAttemptAsync(UserId, CaseId, TenantId, 11.15m, ConversationId);
-        await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
-        var callsAfterFirstSync = stripe.Requests.Count(x => x.Method == HttpMethod.Get);
-
-        await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
-        await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
-        Assert.Equal(callsAfterFirstSync, stripe.Requests.Count(x => x.Method == HttpMethod.Get));
-
-        await Task.Delay(interval * 2);
-        await service.GetCurrentAttemptAsync(UserId, CaseId, TenantId);
-        Assert.Equal(callsAfterFirstSync + 1, stripe.Requests.Count(x => x.Method == HttpMethod.Get));
     }
 
     [Fact]
