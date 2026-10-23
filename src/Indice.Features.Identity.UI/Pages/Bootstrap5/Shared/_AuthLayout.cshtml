@@ -1,0 +1,13 @@
+@* Auth group (Pages/Bootstrap5/Auth): sign-in, sign-up, MFA, verification, consent, sign-out and error pages.
+   Shell "card" (one centered card) unless the page asks for "auth" (hero aside + form, e.g. Login and Register). *@
+@{
+    Layout = "_IdentityLayout";
+    ViewData["Shell"] ??= "card";
+}
+
+@section meta { @RenderSection("meta", required: false) }
+@section css { @RenderSection("css", required: false) }
+@section hero { @RenderSection("hero", required: false) }
+@section scripts { @RenderSection("scripts", required: false) }
+
+@RenderBody()

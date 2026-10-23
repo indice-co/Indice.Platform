@@ -1,51 +1,33 @@
-@using Indice.Extensions
+﻿@using Indice.Extensions
 @using Indice.Features.Identity.Core.Models
 @inject IdentityUILocalizer Localizer
 @model BaseMfaModel
 
 <div id="panel-channels" class="d-none">
-    <p class="text-muted fw-medium mb-2">
-        @Localizer.Mfa_Authenticate_Yourself_Using
-    </p>
+    <p class="auth-card__subtitle">@Localizer.Mfa_Authenticate_Yourself_Using</p>
 
-    <div class="list-group mb-4 border-top border-bottom">
+    <ul class="choice-list">
         @foreach (var method in Model.View.AvailableAuthenticationMethods)
         {
-            <button type="submit"
-                    name="ChangeSelectedMethodCode"
-                    value="@method.Code"
-                    class="list-group-item list-group-item-action border-0 py-3 channel-btn rounded-0
-                           channel-@(method.DisplayName.ToKebabCase()) d-flex justify-content-between align-items-center
-                           transition">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="d-flex align-items-center justify-content-center" style="width: 2rem;">
-                        <i class="@GetIconFromAuthenticationMethod(method) fs-4 text-primary"></i>
-                    </div>
-                    <div class="text-start">
-                        <div class="small text-muted">
-                            @Localizer.GetGeneric(method.Description)
-                        </div>
-                        <div class="small fw-semibold">
-                            @Localizer.GetGeneric(method.DisplayName)
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-muted">
-                        <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-            </button>
+            <li class="choice-list__item choice-list__item--button">
+                <button type="submit"
+                        name="ChangeSelectedMethodCode"
+                        value="@method.Code"
+                        class="choice-list__button channel-btn channel-@(method.DisplayName.ToKebabCase())">
+                    <span class="choice-list__icon"><i class="@GetIconFromAuthenticationMethod(method)" aria-hidden="true"></i></span>
+                    <span class="choice-list__body">
+                        <span class="choice-list__title">@Localizer.GetGeneric(method.DisplayName)</span>
+                        <span class="choice-list__desc">@Localizer.GetGeneric(method.Description)</span>
+                    </span>
+                    <i class="fa-solid fa-chevron-right choice-list__chevron" aria-hidden="true"></i>
+                </button>
+            </li>
         }
-    </div>
+    </ul>
 
-    <div class="d-flex justify-content-start mt-2">
-        <button id="go-back"
-                type="button"
-                class="btn btn-link text-decoration-none p-0 text-dark">
-            ← @Localizer.Mfa_Back
-        </button>
-    </div>
+    <button id="go-back" type="button" class="mfa__back mfa__link">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> @Localizer.Mfa_Back
+    </button>
 </div>
 @functions {
     public string GetIconFromAuthenticationMethod(AuthenticationMethod method)

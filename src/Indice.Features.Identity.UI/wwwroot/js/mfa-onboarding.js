@@ -7,12 +7,13 @@
             init: function () {
                 self = this;
                 self.authenticationMethods(viewModelParams.authenticationMethods.map(function (method, index) {
-                    var selected = index === 0;
-                    if (selected) {
-                        self.selectedMethodType(method.type);
-                    }
-                    return new self.authenticationMethod(method.displayName, method.description, method.type, selected, viewModelParams.icons[method.code]);
+                    return new self.authenticationMethod(method.displayName, method.description, method.type, index === 0, viewModelParams.icons[method.code]);
                 }));
+                var first = self.authenticationMethods()[0];
+                if (first) {
+                    self.selectedMethod(first);
+                    self.selectedMethodType(first.type);
+                }
             },
             authenticationMethod: function (displayName, description, type, selected, iconClass) {
                 return {
@@ -30,9 +31,12 @@
                     }
                 });
                 method.selected(true);
+                self.selectedMethod(method);
                 self.selectedMethodType(method.type);
+                return true;
             },
             authenticationMethods: ko.observableArray([]),
+            selectedMethod: ko.observable(),
             selectedMethodType: ko.observable()
         }
     }

@@ -1,0 +1,12 @@
+@* Home group (Pages/Bootstrap5/Home): the landing page. Uses the "card" shell, so every theme frames it like the other card pages. *@
+@{
+    Layout = "_IdentityLayout";
+    ViewData["Shell"] = "card";
+}
+
+@section meta { @RenderSection("meta", required: false) }
+@section css { @RenderSection("css", required: false) }
+@section hero { @RenderSection("hero", required: false) }
+@section scripts { @RenderSection("scripts", required: false) }
+
+@RenderBody()

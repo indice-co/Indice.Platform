@@ -50,12 +50,11 @@ public abstract class BaseAddPhoneModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-
-        TempData.Put(TempDataKey, AlertModel.Info(UserManager.MessageDescriber.AddPhoneValidationPhoneEmpty));
+        TempData.Remove(TempDataKey);
         _ = PhoneNumber.TryParse(user.PhoneNumber!, out var phone);
         Input.PhoneNumber = phone.Number;
         Input.CallingCode = phone.CallingCode;
-        Input.ReturnUrl = returnUrl;
+        Input.ReturnUrl = SanitizeReturnUrl(returnUrl);
         return Page();
     }
 

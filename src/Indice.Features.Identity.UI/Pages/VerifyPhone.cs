@@ -7,6 +7,7 @@ using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using Org.BouncyCastle.Ocsp;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -46,12 +47,9 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success(UserManager.MessageDescriber.RegisterPhoneConfirmationPrompt),
-            NextStepUrl = string.Empty
-        });
         Input.PhoneNumber = user.PhoneNumber;
-        Input.ReturnUrl = returnUrl;
+        TempData.Remove(TempDataKey);
+        Input.ReturnUrl = SanitizeReturnUrl(returnUrl);
         return Page();
     }
 
@@ -60,12 +58,14 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
+        TempData.Remove(TempDataKey);
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         if (Input.OtpResend) {
+            Input.OtpResend = false;
             var sent = await SendVerificationSmsAsync(user, Input.PhoneNumber!);
             if (!sent) {
                 TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-                    Alert = AlertModel.Error( UserManager.MessageDescriber.LimitAttemptsReached),
+                    Alert = AlertModel.Error(UserManager.MessageDescriber.LimitAttemptsReached),
                     NextStepUrl = string.Empty
                 });
             }
@@ -76,7 +76,7 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
             // next step or signin
         } else {
             TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-                Alert = AlertModel.Error(UserManager.MessageDescriber.RegisterPhoneConfirmationPrompt),
+                Alert = AlertModel.Error(UserManager.MessageDescriber.RegisterPhoneConfirmationFailed),
                 NextStepUrl = string.Empty
             });
         }

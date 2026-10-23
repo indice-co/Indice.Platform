@@ -1,0 +1,56 @@
+@page "/login/verify-email"
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/verify-email")]
+
+@model BaseVerifyEmailModel
+
+@inject IdentityUILocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer.VerifyEmail_PageTitle;
+    var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseVerifyEmailModel.TempDataKey);
+    var alert = tempData?.Alert;
+    var displayNext = tempData?.Alert?.AlertType == AlertType.Success && !string.IsNullOrEmpty(tempData.NextStepUrl);
+}
+
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <vc:page-heading title="@Localizer.VerifyEmail_PageHeader" image-src="" />
+        <p>@Localizer.VerifyEmail_Prompt(Model.Input.Email ?? string.Empty)</p>
+        <partial name="_ValidationSummary" />
+        <partial name="_Alert" model="alert" />
+        <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
+            <input type="hidden" asp-for="Input.ReturnUrl" />
+            <div class="relative my-5">
+                <input type="text" class="peer" inputmode="numeric" autocomplete="one-time-code" placeholder="@Localizer.VerifyPhone_Code" asp-for="Input.Code" disabled="@displayNext" />
+                <label asp-for="Input.Code" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.VerifyPhone_Code</label>
+                <span asp-validation-for="Input.Code" class="text-danger"></span>
+            </div>
+            <div class="row justify-items-center place-items-center">
+                <div class="col-span-6 flex flex-col">
+                    <button class="btn btn-primary" type="submit" disabled="@displayNext">@Localizer.VerifyPhone_Save</button>
+                </div>
+                @if (displayNext)
+                {
+                    <div class="col-span-6 flex flex-col">
+                        <a class="btn btn-primary no-underline" href="@tempData?.NextStepUrl">@Localizer.VerifyPhone_Next</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-span-6 flex flex-col">
+                        <button class="btn btn-outline" type="submit" id="otp-resend" name="Input.OtpResend" disabled="@displayNext" value="true">@Localizer.VerifyPhone_Resend</button>
+                    </div>
+                }
+            </div>
+            <div indice-if="!displayNext">
+                @Localizer.VerifyPhone_OTP_is_valid_till
+                <span id="lblcountdown" class="countdown"></span>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+    <script type="text/javascript" src="~/js/otp.js" csp-nonce></script>
+}

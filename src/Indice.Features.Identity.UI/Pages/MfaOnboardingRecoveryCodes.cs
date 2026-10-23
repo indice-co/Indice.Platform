@@ -42,7 +42,7 @@ public abstract class BaseMfaOnboardingRecoveryCodesModel : BasePageModel
             return RedirectToPage("/MfaOnboarding", routeValues: new { returnUrl });
         }
         View = tempModel;
-        View.ReturnUrl ??= returnUrl;
+        View.ReturnUrl = SanitizeReturnUrl(View.ReturnUrl ?? returnUrl);
         return Page();
     }
 
@@ -52,7 +52,8 @@ public abstract class BaseMfaOnboardingRecoveryCodesModel : BasePageModel
         var tempModel = TempData.Peek<RecoveryCodesViewModel>(BaseMfaOnboardingSetupAuthenticatorModel.RecoveryCodesTempDataKey);
         TempData.Remove(BaseMfaOnboardingSetupAuthenticatorModel.RecoveryCodesTempDataKey);
         var targetReturnUrl = tempModel?.ReturnUrl ?? returnUrl;
-        return RedirectToPage("/MfaOnboarding", routeValues: new { returnUrl = targetReturnUrl });
+        TempData.Put(BaseMfaOnboardingCompleteModel.TempDataKey, MfaOnboardingCompleteViewModel.Create(Core.Models.AuthenticationMethodType.AuthenticatorApp, null, targetReturnUrl));
+        return RedirectToPage("/MfaOnboardingComplete", routeValues: new { returnUrl = targetReturnUrl });
     }
 
 

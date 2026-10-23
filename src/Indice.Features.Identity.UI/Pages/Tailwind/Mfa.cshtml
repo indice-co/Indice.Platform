@@ -70,26 +70,13 @@
     <script type="text/javascript" src="~/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
     <script type="text/javascript" src="~/js/mfa.js" csp-nonce></script>
     <script type="text/javascript" src="~/js/otp.js" csp-nonce></script>
-    <script type="text/javascript" csp-nonce>
-        $(document).ready(function () {
-            var viewModelParameters = {
-                $deviceIdInput: $('#Input_DeviceId'),
-                $mfaForm: $('#mfa-form'),
-                $mfaFormReject: $('#mfa-form-reject'),
-                $otpCodeInput: $('#Input_OtpCode'),
-                $rememberClientCheckbox: $('#Input_RememberClient'),
-                browserFamily: '@(HttpContext.Request.GetBrowserName())',
-                deliveryChannel: '@Model.View.AuthenticationMethod?.GetDeliveryChannel()',
-                hubConnectionUrl: '@Model.View.HubConnectionUrl'
-            };
-            var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
-            viewModel.init();
-
-        $('button[name="Input.SelectedAuthenticationMethodCode"]').on('click', function() {
-                $('input[name="Input.ResendOtp"]').val('true');
-            });
-        });
-    </script>
+    <div id="mfa-bootstrap"
+         hidden
+         data-mode="mfa"
+         data-browser-family="@HttpContext.Request.GetBrowserName()"
+         data-delivery-channel="@Model.View.AuthenticationMethod?.GetDeliveryChannel()"
+         data-hub-connection-url="@Model.View.HubConnectionUrl"></div>
+    <script type="text/javascript" src="~/js/mfa-bootstrap.js" csp-nonce></script>
     <script csp-nonce>
         $(function() {
           var $mainPanel   = $('#panel-main'),
