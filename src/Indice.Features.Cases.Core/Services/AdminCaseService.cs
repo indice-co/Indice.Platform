@@ -276,7 +276,13 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         } catch (ResourceUnauthorizedException) {
             return new List<CasePartial>().ToResultSet();
         }
-
+        var term = options.Search?.Trim().ToLower();
+        if (!string.IsNullOrWhiteSpace(term) && term.Length > 2) {
+            query = query.Where(x => (x.OwnerName != null && EF.Functions.Like(x.OwnerName.ToLower(), $"%{term}%")) ||
+                                     (x.OwnerId != null && EF.Functions.Like(x.OwnerId.ToLower(), $"%{term}%")) ||
+                                     (x.OwnerTin != null && EF.Functions.Like(x.OwnerTin.ToLower(), $"%{term}%")) ||
+                                     (x.ReferenceNumber != null && EF.Functions.Like(x.ReferenceNumber.ToLower(), $"%{term}%")));
+        }
         // filter ReferenceNumbers
         if (options.Filter.ReferenceNumbers?.Length > 0) {
             foreach (var refNumber in options.Filter.ReferenceNumbers) {
