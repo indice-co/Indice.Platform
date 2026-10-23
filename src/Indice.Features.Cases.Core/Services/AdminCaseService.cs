@@ -581,6 +581,34 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         await DbContext.SaveChangesAsync();
     }
 
+    public async Task<ResultSet<CaseDataVersion>> GetDataVersions(Guid caseId, ListOptions options) {
+        if (!options.GetSortings().Any()) {
+            options.Sort = $"{nameof(CaseDataVersion.CreatedBy)}.{nameof(CaseDataVersion.CreatedBy.When)}-";
+        }
+        var query = DbContext.CaseData
+            .AsNoTracking()
+            .Where(d => d.CaseId == caseId);
+        if (!string.IsNullOrWhiteSpace(options.Search)) {
+            var search = options.Search.Trim();
+            query = query.Where(d => (d.CreatedBy.Name != null && d.CreatedBy.Name.Contains(search)) || (d.CreatedBy.Email != null && d.CreatedBy.Email.Contains(search)));
+        }
+        return await query
+           
+            .Select(d => new CaseDataVersion {
+                Id = d.Id,
+                CreatedBy = new AuditMeta {
+                    Id = d.CreatedBy.Id,
+                    Name = d.CreatedBy.Name,
+                    Email = d.CreatedBy.Email,
+                    When = d.CreatedBy.When
+                },
+                Data = d.Data,
+                IsCurrent = d.Id == d.Case.DataId,
+                IsPublic = d.Id == d.Case.PublicDataId
+            })
+            .ToResultSetAsync(options);
+    }
+
     public async Task<List<TimelineEntry>> GetTimeline(Guid caseId) {
 
         var comments = await DbContext.Comments

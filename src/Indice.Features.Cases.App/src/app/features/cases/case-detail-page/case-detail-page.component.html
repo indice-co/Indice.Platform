@@ -70,10 +70,42 @@
 
   <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_21rem] xl:grid-cols-[minmax(0,1fr)_24rem]">
     <div class="min-w-0 space-y-6">
-      <section class="panel p-5 sm:p-6">
-        <app-case-form [case]="caseModel" [formEditable]="actions.hasEdit" (updateDataEvent)="updateData()"
-          (formIsValid)="formValid.set($event)" (unSavedChanges)="formUnSavedChanges.set($event)" />
-      </section>
+      <!-- the form tab stays rendered while another tab is open, so unsaved edits survive switching tabs -->
+      <app-tab-group class="panel" [hideSingleTab]="true">
+        <app-tab id="case-data" [label]="'caseDetails.form.caseData' | translate">
+          <app-case-form class="block p-5 sm:p-6" [case]="caseModel" [formEditable]="actions.hasEdit" (updateDataEvent)="updateData()"
+            (formIsValid)="formValid.set($event)" (unSavedChanges)="formUnSavedChanges.set($event)" />
+        </app-tab>
+        @if (!caseModel.draft) {
+          <app-tab id="attachments" [label]="'caseDetails.attachments.title' | translate">
+            <ng-template appTabLabel>
+              {{ 'caseDetails.attachments.title' | translate }}
+              @if (caseModel.attachments?.length) {
+                <span class="badge badge-sm badge-ghost">{{ caseModel.attachments!.length }}</span>
+              }
+            </ng-template>
+            <ng-template appTabContent>
+              <app-case-attachments [case]="caseModel" />
+            </ng-template>
+          </app-tab>
+          <app-tab id="data-versions" [label]="'caseDetails.versions.title' | translate">
+            <ng-template appTabContent>
+              <app-case-data-versions [case]="caseModel" />
+            </ng-template>
+          </app-tab>
+        }
+        @if (relatedCases().length) {
+          <app-tab id="related-cases" [label]="'caseDetails.related.title' | translate">
+            <ng-template appTabLabel>
+              {{ 'caseDetails.related.title' | translate }}
+              <span class="badge badge-sm badge-ghost">{{ relatedCases().length }}</span>
+            </ng-template>
+            <ng-template appTabContent>
+              <app-case-related [relatedCases]="relatedCases()" [currentCaseId]="caseModel.id" />
+            </ng-template>
+          </app-tab>
+        }
+      </app-tab-group>
 
       @if (actions.hasApproval || panelActions().length) {
         <section class="space-y-3" aria-labelledby="next-steps">
@@ -94,9 +126,6 @@
       <app-case-detail-info [title]="'caseDetails.customerInfo' | translate" [entries]="customerInfo()" />
       @if (userInfo(); as userInfo) {
         <app-case-detail-info [title]="'caseDetails.userInfo' | translate" [entries]="userInfo" />
-      }
-      @if (relatedCases().length) {
-        <app-case-related [relatedCases]="relatedCases()" [currentCaseId]="caseModel.id" />
       }
       @if (timelineEntries(); as entries) {
         <app-case-timeline [timelineEntries]="entries" [hideStatuses]="caseTypeConfig()?.hideStatuses ?? false">

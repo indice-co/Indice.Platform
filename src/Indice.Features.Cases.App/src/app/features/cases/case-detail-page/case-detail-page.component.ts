@@ -18,7 +18,10 @@ import { CaseDetailInfoComponent, InfoEntry } from 'src/app/shared/components/ca
 import { ToastType, TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 import { DialogService } from 'src/app/ui/dialog/dialog.service';
 import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
+import { TABS } from 'src/app/ui/tabs/tabs';
+import { CaseAttachmentsComponent } from './case-attachments/case-attachments.component';
 import { CaseCommentComposerComponent } from './case-comment-composer/case-comment-composer.component';
+import { CaseDataVersionsComponent } from './case-data-versions/case-data-versions.component';
 import { CaseFormComponent } from './case-form/case-form.component';
 import { CasePrintPdfComponent } from './case-print-pdf/case-print-pdf.component';
 import { CaseTimelineComponent } from './case-timeline/case-timeline.component';
@@ -28,8 +31,9 @@ import { RelatedCasesComponent } from './related-cases/related-cases.component';
   selector: 'app-case-detail-page',
   templateUrl: './case-detail-page.component.html',
   imports: [
-    DatePipe, RouterLink, TranslatePipe, ApprovalButtonsComponent, CaseCommentComposerComponent, CaseCustomActionComponent, CaseDetailInfoComponent, CaseFormComponent,
-    CasePrintPdfComponent, CaseTimelineComponent, RelatedCasesComponent, EmptyStateComponent,
+    DatePipe, RouterLink, TranslatePipe, ApprovalButtonsComponent, CaseAttachmentsComponent, CaseCommentComposerComponent, CaseCustomActionComponent,
+    CaseDataVersionsComponent, CaseDetailInfoComponent, CaseFormComponent,
+    CasePrintPdfComponent, CaseTimelineComponent, RelatedCasesComponent, EmptyStateComponent, TABS,
     LucideArrowLeft, LucideCalendar, LucideFolderX, LucideInbox, LucideTrash, LucideUser, LucideUserCheck
   ]
 })
