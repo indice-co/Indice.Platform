@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import Handlebars from 'handlebars';
 import { Observable, map, shareReplay } from 'rxjs';
 import { MessagesApiClient, Template } from 'src/app/core/services/messages-api.service';
@@ -15,9 +15,10 @@ type Channel = typeof CHANNELS[number];
  */
 @Injectable({ providedIn: 'root' })
 export class PartialTemplatesStore {
+  private readonly _api = inject(MessagesApiClient);
   private readonly _envs$: Observable<Record<Channel, typeof Handlebars>>;
 
-  constructor(private _api: MessagesApiClient) {
+  constructor() {
     this._envs$ = this._fetch().pipe(
       map(templates => this._buildEnvs(templates)),
       shareReplay({ bufferSize: 1, refCount: false })

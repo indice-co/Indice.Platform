@@ -1,94 +1,82 @@
-import { Inject, Injectable } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { IAppLanguagesService, MenuOption } from '@indice/ng-components';
-import { catchError, map, Observable, of, Subject, take, tap } from 'rxjs';
-import { AuthService } from '@indice/ng-auth';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpBackend, HttpClient } from '@angular/common/http';
-import { MESSAGES_API_BASE_URL } from '../../core/services/messages-api.service';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
+import { AuthService } from '@indice/ng-auth';
 import { User } from 'oidc-client-ts';
+import { Observable, catchError, filter, map, of, startWith, take } from 'rxjs';
+import { MESSAGES_API_BASE_URL } from '../../core/services/messages-api.service';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class AppLanguagesService implements IAppLanguagesService {
+export interface AppLanguage {
+  /** Upper case language code, e.g. `EN`. */
+  code: string;
+  /** Native name, e.g. `Ελληνικά`. */
+  name: string;
+}
 
-  private _languages: MenuOption[] = [];
-  public options: Observable<MenuOption[]>;
-  public selected?: string | undefined;
-  public default?: string | undefined;
-  private _destroy$ = new Subject<void>();
-  private http: HttpClient
-  constructor(private translate: TranslateService, private httpBackendHandler: HttpBackend, @Inject(AuthService) protected _authService: AuthService, @Inject(MESSAGES_API_BASE_URL) protected _apiBaseUrl: string) {
-    this.http = new HttpClient(this.httpBackendHandler);
-    this.options = of([new MenuOption('EN', 'EN', 'English'), new MenuOption('EL', 'EL', 'Ελληνικά')]);
-    this._languages = [new MenuOption('EN', 'EN', 'English'), new MenuOption('EL', 'EL', 'Ελληνικά')];
-    this.default = this._languages[0]?.value.toLowerCase();
+const FALLBACK_LANGUAGES: AppLanguage[] = [
+  { code: 'EN', name: 'English' },
+  { code: 'EL', name: 'Ελληνικά' }
+];
+
+@Injectable({ providedIn: 'root' })
+export class AppLanguagesService {
+  private readonly _translate = inject(TranslateService);
+  private readonly _auth = inject(AuthService);
+  private readonly _apiBaseUrl = inject(MESSAGES_API_BASE_URL);
+  // A bare HttpClient over HttpBackend so the languages call bypasses the auth / accept-language
+  // interceptors (which themselves depend on this service).
+  private readonly _http = new HttpClient(inject(HttpBackend));
+
+  public readonly languages = signal<AppLanguage[]>(FALLBACK_LANGUAGES);
+  public readonly selected = signal('EN');
+
+  constructor() {
     this.setSelected('en');
     this.loadAvailableLanguages();
-    this.setUserLocale();
-  }
-  private setUserLocale(): void {
-    this._authService.user$.subscribe((user) =>
-      this.setLocale(user));
-  }
-
-  loadAvailableLanguages(): Observable<MenuOption[]> {
-    this.http.get<UiLocale[]>(this._apiBaseUrl + '/languages')
-      .pipe(
-        take(1),
-        map(languages => languages.map(langInfo =>
-          new MenuOption(langInfo.lang.toUpperCase(), langInfo.lang.toUpperCase(), langInfo.nativeName)
-        )),
-        catchError(error => {
-          console.error('Failed to load languages, using fallback', error);
-          return of([
-            new MenuOption('EN', 'EN', 'English'),
-            new MenuOption('EL', 'EL', 'Ελληνικά'),
-          ]);
-        }),
-        tap(languages => {
-          if (languages && languages.length > 0) {
-            this._languages = languages;
-            this.translate.addLangs(this._languages.map(l => l.value.toLowerCase()));
-            this.options = of(this._languages);
-          }
-        })).subscribe();
-    return of(this._languages);
-  }
-
-  private setLocale(user: User | null): void {
-    if (user && user.profile) {
-        const userLocale = user.profile.locale;
-      if (userLocale && this._languages.map(x => x.value).includes(userLocale.toUpperCase())) {
-          this.setSelected(userLocale);
+    this._auth.user$
+      .pipe(filter((user): user is User => !!user?.profile?.locale), take(1))
+      .subscribe(user => {
+        const locale = user.profile.locale!.toUpperCase();
+        // an unsupported profile locale must not override the default
+        if (this.languages().some(l => l.code === locale)) {
+          this.setSelected(locale);
         }
-        else {
-          if (!this.selected) this.setSelected(this.default!);
-        }
-      }
-    else {
-        if (!this.selected) {
-          this.setSelected(this.default!);
-        }
-      }
+      });
   }
 
   public setSelected(lang: string): void {
-    this.selected = lang.toUpperCase();
-    this.translate.use(lang.toLowerCase());
+    this.selected.set(lang.toUpperCase());
+    this._translate.use(lang.toLowerCase());
   }
 
-  public translateKey(key?: string, parameters?: any): Observable<string> {
-    return this.translate.stream(key || '', parameters);
+  public translateKey(key?: string, parameters?: Record<string, unknown>): Observable<string> {
+    return this._translate.stream(key || '', parameters);
   }
 
-  ngOnDestroy(): void {
-    this._destroy$.next();
-    this._destroy$.complete();
+  /** Emits once immediately, then on every language change. */
+  public onLanguageChange(): Observable<LangChangeEvent | null> {
+    return this._translate.onLangChange.pipe(startWith(null));
+  }
+
+  private loadAvailableLanguages(): void {
+    this._http.get<UiLocale[]>(`${this._apiBaseUrl}/languages`)
+      .pipe(
+        map(languages => languages.map(l => ({ code: l.lang.toUpperCase(), name: l.nativeName }))),
+        catchError(error => {
+          console.error('Failed to load languages, using fallback', error);
+          return of(FALLBACK_LANGUAGES);
+        })
+      )
+      .subscribe(languages => {
+        if (languages.length > 0) {
+          this.languages.set(languages);
+          this._translate.addLangs(languages.map(l => l.code.toLowerCase()));
+        }
+      });
   }
 }
 
-// The user interface for a locale
+/** The user interface for a locale */
 export interface UiLocale {
   lang: string;
   nativeName: string;

@@ -1,161 +1,114 @@
-import { Component, EventEmitter, Input, OnInit, OnDestroy, Output, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ModalService, ToastType } from '@indice/ng-components';
-import { MediaFile, MediaFolder, FolderContent } from 'src/app/core/services/media-api.service';
-import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
+import { DatePipe } from '@angular/common';
+import { Component, inject, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LucideCopy, LucideCornerLeftUp, LucideFolder, LucidePencil, LucideTrash } from '@lucide/angular';
+import { FolderContent, MediaFile, MediaFolder } from 'src/app/core/services/media-api.service';
+import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { MediaLibraryStore } from '../../media-library-store.service';
-import { AppTranslatedToaster } from '../../../../shared/services/app-translated-toaster';
-import { TranslateService } from '@ngx-translate/core';
-import { Subject, combineLatest } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { MediaFileThumbComponent } from '../media-item-parts';
 
+/** Table view of a folder's content. */
 @Component({
-    selector: 'app-list-view',
-    templateUrl: './list-view.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-list-view',
+  imports: [DatePipe, RouterLink, TranslatePipe, MediaFileThumbComponent, LucideCopy, LucideCornerLeftUp, LucideFolder, LucidePencil, LucideTrash],
+  host: { class: 'block overflow-x-auto' },
+  template: `
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ 'MediaLibrary.NameColumn' | translate }}</th>
+          <th class="hidden md:table-cell">{{ 'MediaLibrary.TypeColumn' | translate }}</th>
+          <th class="hidden sm:table-cell">{{ 'MediaLibrary.SizeLabel' | translate }}</th>
+          <th class="hidden lg:table-cell">{{ 'MediaLibrary.CreatedByColumn' | translate }}</th>
+          <th class="hidden lg:table-cell">{{ 'MediaLibrary.CreatedAtColumn' | translate }}</th>
+          <th class="w-28 text-right"><span class="sr-only">{{ 'MediaLibrary.ActionsColumn' | translate }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (content().id) {
+          <tr class="hover:bg-base-200/60">
+            <td colspan="6">
+              <a class="flex items-center gap-3 text-base-content/70 hover:text-base-content" [routerLink]="store.folderLink(content().parentId)">
+                <span class="grid size-8 place-items-center rounded-field bg-base-200"><svg lucideCornerLeftUp class="size-4"></svg></span>
+                {{ 'MediaLibrary.ParentFolderTitle' | translate }}
+              </a>
+            </td>
+          </tr>
+        }
+        @for (folder of content().folders; track folder.id) {
+          <tr class="hover:bg-base-200/60">
+            <td>
+              <a class="flex items-center gap-3 font-semibold hover:text-primary" [routerLink]="store.folderLink(folder.id)">
+                <span class="grid size-8 shrink-0 place-items-center rounded-field bg-warning/15 text-warning"><svg lucideFolder class="size-4"></svg></span>
+                <span class="max-w-xs truncate">{{ folder.name || ('MediaLibrary.EmptyValueIndicator' | translate) }}</span>
+              </a>
+            </td>
+            <td class="hidden text-base-content/70 md:table-cell">{{ 'MediaLibrary.FolderType' | translate }}</td>
+            <td class="hidden text-base-content/70 sm:table-cell tabular">
+              {{ 'MediaLibrary.FolderCounts' | translate: { folders: folder.subFoldersCount ?? 0, files: folder.filesCount ?? 0 } }}
+            </td>
+            <td class="hidden lg:table-cell">{{ folder.createdBy || ('MediaLibrary.EmptyValueIndicator' | translate) }}</td>
+            <td class="hidden whitespace-nowrap lg:table-cell">{{ folder.createdAt | date: 'medium' }}</td>
+            <td class="text-right whitespace-nowrap">
+              <span class="tooltip" [attr.data-tip]="'MediaLibrary.EditFolderTitle' | translate">
+                <a class="btn btn-ghost btn-xs btn-square" [routerLink]="pane.link(['edit-folder', folder.id!])" [attr.aria-label]="'MediaLibrary.EditFolderTitle' | translate">
+                  <svg lucidePencil class="size-4"></svg>
+                </a>
+              </span>
+              <span class="tooltip tooltip-left" [attr.data-tip]="'MediaLibrary.DeleteFolderTitle' | translate">
+                <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="deleteFolder(folder)" [attr.aria-label]="'MediaLibrary.DeleteFolderTitle' | translate">
+                  <svg lucideTrash class="size-4"></svg>
+                </button>
+              </span>
+            </td>
+          </tr>
+        }
+        @for (file of content().files; track file.id) {
+          <tr class="hover:bg-base-200/60">
+            <td>
+              <a class="flex items-center gap-3 font-medium hover:text-primary" [routerLink]="store.fileLink(file)">
+                <app-media-file-thumb class="size-8 shrink-0 rounded-field" [file]="file" iconClass="size-4" />
+                <span class="max-w-xs truncate">{{ file.name || ('MediaLibrary.EmptyValueIndicator' | translate) }}</span>
+              </a>
+            </td>
+            <td class="hidden text-base-content/70 md:table-cell"><span class="block max-w-[12rem] truncate">{{ file.contentType || ('MediaLibrary.EmptyValueIndicator' | translate) }}</span></td>
+            <td class="hidden whitespace-nowrap text-base-content/70 sm:table-cell tabular">{{ file.contentSize || ('MediaLibrary.EmptyValueIndicator' | translate) }}</td>
+            <td class="hidden lg:table-cell">{{ file.createdBy || ('MediaLibrary.EmptyValueIndicator' | translate) }}</td>
+            <td class="hidden whitespace-nowrap lg:table-cell">{{ file.createdAt | date: 'medium' }}</td>
+            <td class="text-right whitespace-nowrap">
+              <span class="tooltip" [attr.data-tip]="'MediaLibrary.CopyLinkTitle' | translate">
+                <button type="button" class="btn btn-ghost btn-xs btn-square" (click)="store.copyLink(file)" [attr.aria-label]="'MediaLibrary.CopyLinkTitle' | translate">
+                  <svg lucideCopy class="size-4"></svg>
+                </button>
+              </span>
+              <span class="tooltip" [attr.data-tip]="'MediaLibrary.EditFileTitle' | translate">
+                <a class="btn btn-ghost btn-xs btn-square" [routerLink]="pane.link(['edit-file', file.id])" [attr.aria-label]="'MediaLibrary.EditFileTitle' | translate">
+                  <svg lucidePencil class="size-4"></svg>
+                </a>
+              </span>
+              <span class="tooltip tooltip-left" [attr.data-tip]="'MediaLibrary.DeleteFileTitle' | translate">
+                <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="deleteFile(file)" [attr.aria-label]="'MediaLibrary.DeleteFileTitle' | translate">
+                  <svg lucideTrash class="size-4"></svg>
+                </button>
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  `
 })
-export class ListViewComponent implements OnInit, OnDestroy {
+export class ListViewComponent {
+  protected readonly store = inject(MediaLibraryStore);
+  protected readonly pane = inject(SidePaneService);
+  public readonly content = input.required<FolderContent>();
 
-  private _folderContent?: FolderContent;
-
-  @Input() set folderContent(value: FolderContent | undefined) {
-    this._folderContent = value;
-    this.items = [];
-    if (value?.id) {
-      this.items.push({
-        id: value.parentId,
-        name: '...',
-        type: ItemType.Button
-      })
-    }
-    if (value?.folders) {
-      value.folders.forEach(f => {
-        let folder = <any>f;
-        folder.type = ItemType.Folder;
-        this.items.push(folder);
-      })
-    }
-    if (value?.files) {
-      value.files.forEach(f => {
-        let file = <any>f;
-        file.type = ItemType.File;
-        this.items.push(file);
-      })
-    }
+  protected deleteFolder(folder: MediaFolder): void {
+    this.store.deleteFolder(folder).subscribe();
   }
 
-  public get folderContent(): FolderContent | undefined {
-    return this._folderContent;
+  protected deleteFile(file: MediaFile): void {
+    this.store.deleteFile(file).subscribe();
   }
-
-  @Output() itemDeleted: EventEmitter<void> = new EventEmitter<void>();
-  @Output() pageChanged: EventEmitter<number> = new EventEmitter<number>();
-  @Output() pageSizeChanged: EventEmitter<number> = new EventEmitter<number>();
-  public items: any;
-  public ItemType = ItemType;
-
-  public page: number = 1;
-  public size: number = 20;
-
-  private _destroy$ = new Subject<void>();
-
-  constructor(
-    private _router: Router,
-    private _route: ActivatedRoute,
-    private _mediaStore: MediaLibraryStore,
-    private _modalService: ModalService,
-    private _toaster: AppTranslatedToaster,
-    private _translate: TranslateService
-  ) { }
-
-  ngOnInit(): void {
-    this._route.queryParams.subscribe((params) => {
-      this.page = params.page ? +params.page : 1;
-      this.size = params.pageSize ? +params.pageSize : 20;
-    });
-  }
-
-  ngOnDestroy(): void {
-    this._destroy$.next();
-    this._destroy$.complete();
-  }
-
-  public deleteFolder(folder: MediaFolder) {
-    combineLatest([
-      this._translate.get('MediaLibrary.Delete'),
-      this._translate.get('MediaLibrary.DeleteFolderConfirmMessage', { name: folder?.name })
-    ]).pipe(takeUntil(this._destroy$)).subscribe(([title, message]) => {
-      const modal = this._modalService.show(BasicModalComponent, {
-        animated: true,
-        initialState: {
-          title: title || 'MediaLibrary.Delete',
-          message: message || 'MediaLibrary.DeleteFolderConfirmMessage',
-          data: folder
-        },
-        keyboard: true
-      });
-      modal.onHidden?.pipe(takeUntil(this._destroy$)).subscribe((response: any) => {
-        if (response.result?.answer) {
-          this._mediaStore.deleteFolder(response.result.data.id).subscribe(() => {
-            this._toaster.show(ToastType.Success, 'MediaLibrary.DeleteFolderSuccessTitle', 'MediaLibrary.DeleteFolderSuccessMessage', undefined, { name: response.result.data.name }); // single line localized toast
-            this.itemDeleted.emit();
-          });
-        }
-      });
-    });
-  }
-
-  public deleteFile(file: MediaFile) {
-    combineLatest([
-      this._translate.get('MediaLibrary.Delete'),
-      this._translate.get('MediaLibrary.DeleteFileConfirmMessage', { name: file?.name })
-    ]).pipe(takeUntil(this._destroy$)).subscribe(([title, message]) => {
-      const modal = this._modalService.show(BasicModalComponent, {
-        animated: true,
-        initialState: {
-          title: title || 'MediaLibrary.Delete',
-          message: message || 'MediaLibrary.DeleteFileConfirmMessage',
-          data: file
-        },
-        keyboard: true
-      });
-      modal.onHidden?.pipe(takeUntil(this._destroy$)).subscribe((response: any) => {
-        if (response.result?.answer) {
-          this._mediaStore.deleteFile(response.result.data.id).subscribe(() => {
-            this._toaster.show(ToastType.Success, 'MediaLibrary.DeleteFileSuccessTitle', 'MediaLibrary.DeleteFileSuccessMessage', undefined,{ name: response.result.data.name }); // single line localized toast
-            this.itemDeleted.emit();
-          });
-        }
-      });
-    });
-  }
-
-  public editFile(file: MediaFile) {
-    this._router.navigate(['media', file.folderId ? file.folderId : 'root', file.id ]);
-  }
-  public editFolder(folder: MediaFolder) {
-    this._router.navigate(['', { outlets: { rightpane: ['edit-folder', folder.id] } }]);
-  }
-  public goToFolder(id: string | undefined) {
-    id ? this._router.navigate(['media', id]) : this._router.navigate(['media'])
-  }
-  public loadContent(page?: number, size?: number) {
-    this.page = page ?? 1;
-    this.size = size ?? 20;
-    this._router.navigate([], {
-      relativeTo: this._route,
-      queryParams: {
-        page: this.page,
-        pageSize: this.size
-      },
-      queryParamsHandling: 'merge'
-    });
-  }
-}
-
-export enum ItemType {
-  Button,
-  Folder,
-  File
 }
