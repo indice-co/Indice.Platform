@@ -20,6 +20,7 @@ export const environment = {
     isTemplate: true,
     production: true,
     dashboardTags: '',
+    dashboardChannels: '',
     caseListColumns: '',
     caseListFilters: ''
 };

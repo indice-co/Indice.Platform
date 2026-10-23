@@ -301,7 +301,7 @@ public class OutboxIntegrationTests : IAsyncLifetime
         protected AnotherBaseDbContext(DbContextOptions options) : base(options) { }
     }
 
-    public class IntegratorDbContext : AnotherBaseDbContext, ITaskDbContext
+    public class IntegratorDbContext : AnotherBaseDbContext, ITaskDbContext, ILockDbContext
     {
         public IntegratorDbContext(DbContextOptions<IntegratorDbContext> options) : base(options) { }
 

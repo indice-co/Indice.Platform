@@ -45,7 +45,7 @@ internal static class MyCasesHandlers
     /// <returns></returns>
     public static async Task<Ok<CreateCaseResponse>> CreateDraftCase(CreateDraftCaseRequest request, ClaimsPrincipal user,
         IOptions<CasesOptions> casesOptions, IMyCaseService myCaseService) =>
-        TypedResults.Ok(await myCaseService.CreateDraft(user.UserToActor(casesOptions.Value), request.CaseTypeCode, request.GroupId, request.Owner?? user.UserToContactMeta(casesOptions.Value) , request.Metadata, request.Channel));
+        TypedResults.Ok(await myCaseService.CreateDraft(user.UserToActor(casesOptions.Value), request.CaseTypeCode, request.GroupId, request.Owner?? user.UserToContactMeta(casesOptions.Value) , request.Metadata, request.Channel, request.ReferenceNumber));
 
     /// <summary>Add an attachment to an existing case regardless of its status and mode (draft or not).</summary>
     /// <param name="caseId">The Id of the case.</param>
@@ -95,7 +95,7 @@ internal static class MyCasesHandlers
         var @case = await myCaseService.GetCaseById(caseId);
         var file = await CreatePdf(@case!, caseTemplateService, casePdfService);
         var fileName = $"{@case!.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
-        await platformEventService.Publish(new CaseDownloadedEvent(@case, CasesCoreConstants.Channels.Customer));
+        await platformEventService.Publish(new CaseDownloadedEvent(@case, CasesCoreConstants.Channels.External));
         return TypedResults.File(file, MediaTypeNames.Application.Pdf, fileName);
     }
 

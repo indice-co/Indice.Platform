@@ -125,7 +125,7 @@
                 <span asp-validation-for="Input.HasConsentedToCommercialCommunications" class="field__error" id="Input_HasConsentedToCommercialCommunications-error"></span>
             </div>
         </div>
-        <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "registerForm", ButtonId = "submitButton", Action = "register" }' />
+        <vc:captcha form-id="registerForm" button-id="submitButton" action="register" />
         <div class="auth-form__actions">
             <button class="btn btn-primary auth-form__submit" id="submitButton" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer.Register_Join_Us</button>
         </div>

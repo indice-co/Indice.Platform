@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Label="Package">
+    <VersionPrefix>$(VersionPrefixWorkers)</VersionPrefix>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    
+    <SpaProjectName>browser</SpaProjectName>
+    <SpaSourceFolder>..\Indice.Features.Workers.App</SpaSourceFolder>
+    <SpaDistFolder>$(SpaSourceFolder)\dist\workers-app</SpaDistFolder>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageTags>AspNetCore;Hosting;Background Tasks;Dashboard</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html;$(SpaDistFolder)\**\3rdpartylicenses.txt;$(SpaDistFolder)\**\prerendered-routes.json" />
+    <EmbeddedResource Include="$(SpaProjectName)\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixCore)-*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
+    <ProjectReference Include="..\Indice.Features.Workers.App\Indice.Features.Workers.App.esproj" Condition="'$(Configuration)' == 'Debug'">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

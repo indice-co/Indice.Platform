@@ -27,6 +27,9 @@ public class AgentMessageLocalizer
     /// <summary>Step label shown while out-of-scope response is prepared.</summary>
     public virtual string StepOutOfScopeResponder => AgentResources.StepOutOfScopeResponder;
 
+    /// <summary>Reply shown when the system-one decision model rules a request out of scope (it returns no text of its own).</summary>
+    public virtual string OutOfScopeReply => AgentResources.OutOfScopeReply;
+
     /// <summary>Step label shown while retrieving case data.</summary>
     public virtual string StepCaseDataRetriever => AgentResources.StepCaseDataRetriever;
 
@@ -103,4 +106,18 @@ public class AgentMessageLocalizer
     /// </summary>
     public virtual string ChallengeSucceeded => AgentResources.ChallengeSucceeded;
 
+    /// <summary>
+    /// Message to display when the user starts the conversation and the case is known to the system
+    /// </summary>
+    public virtual string OperatorWelcomeKnownCase => AgentResources.OperatorWelcomeKnownCase;
+    /// <summary>
+    /// Message to display when the user starts the conversation and the case is known to the system
+    /// </summary>
+    public virtual string OperatorWelcomeUknownCase => AgentResources.OperatorWelcomeUknownCase;
+
+    /// <summary>
+    /// Message to display and request form the user the reference number.
+    /// </summary>
+    public virtual string AskReferenceNumber => AgentResources.AskReferenceNumber;
+    
 }

@@ -1,28 +1,25 @@
-
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+import { finalize } from 'rxjs';
+import { ICaseTypeRequest } from 'src/app/core/services/cases-api.service';
+import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
+import { CaseTypeFormComponent } from '../case-type-form/case-type-form.component';
 import { CaseTypeUpdateService } from '../case-type-update.service';
-import { CaseTypeRequest } from '../../../core/services/cases-api.service';
 
 @Component({
-    selector: 'app-case-type-create',
-    templateUrl: './case-type-create.component.html',
-    styleUrls: ['./case-type-create.component.css'],
-    standalone: false
+  selector: 'app-case-type-create',
+  imports: [TranslatePipe, PageHeaderComponent, CaseTypeFormComponent],
+  template: `
+    <app-page-header [title]="'caseTypes.create.title' | translate" />
+    <app-case-type-form [busy]="busy()" (submitted)="onSubmit($event)" />
+  `
 })
-export class CaseTypeCreateComponent implements OnInit {
+export class CaseTypeCreateComponent {
+  private readonly _caseTypes = inject(CaseTypeUpdateService);
+  protected readonly busy = signal(false);
 
-  public widgets = this.caseTypesService.widgets;
-  public framework = this.caseTypesService.framework;
-  public schema = this.caseTypesService.schema;
-  public layout = this.caseTypesService.onLoadLayout();
-  public data: any = {};
-
-  constructor(private caseTypesService: CaseTypeUpdateService) { }
-
-  ngOnInit(): void { }
-
-  onSubmit(event?: any) {
-    this.caseTypesService.onCreateSubmit(event ?? this.data);
+  protected onSubmit(request: ICaseTypeRequest): void {
+    this.busy.set(true);
+    this._caseTypes.onCreateSubmit(request).pipe(finalize(() => this.busy.set(false))).subscribe();
   }
-
 }

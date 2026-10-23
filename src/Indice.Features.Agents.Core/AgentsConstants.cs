@@ -143,11 +143,23 @@ public static class AgentsConstants
             - {{name}}: {{description}}
             {{/each}}
             The user message may contain a HISTORY: block with the recent conversation (oldest-first) followed by the latest message. Judge the latest message in that context — a follow-up such as "tell me more" belongs to the same agent that handled the previous turn.
+            A request to retrieve a case by a case or reference ID belongs to an operator agent when one is present in the list above.
             Return ONLY a JSON object with these fields:
             - AgentName: the exact name of ONE agent from the list above, or null if no listed agent fits.
             - IsInScope: true when one of the listed agents can handle the request; false otherwise.
             - Reason: when IsInScope is false, a polite one-sentence explanation addressed to the user; otherwise null.
             Never invent an agent name that is not in the list.
+            """;
+
+        /// <summary>
+        /// Background facts for the system-one decision model (Microsoft-Decision-1) in the master intent router, sent as
+        /// <c>state.context</c>. Facts only: the questions, the agents (as the choice options, from their
+        /// <see cref="Models.AgentInfo"/>) and the answer format are separate parts of the request. A host can override
+        /// it in <c>Prompts/IntentRouterSystemOne.txt</c>.
+        /// </summary>
+        public const string IntentRouterSystemOne = """
+            The conversation is between a user and an enterprise assistant. The assistant hands each message to one of its agents.
+            Questions about the assistant itself, such as who it is or what it can do, are in scope.
             """;
 
         /// <summary>Prompt template for responding to questions about the agent's capabilities.</summary>
@@ -192,32 +204,41 @@ public static class AgentsConstants
             Use the available tool get_case_data_id from the case-retrieval MCP service to fetch case data.
             Decide which tool to call based on the user's query.
             Extract the case GUID from the messages and query the case data.
-            Return the object in json format as returned by the mcp.
+            Return the object in json format as returned by the mcp. Treat tool data as immutable and do not alter them. 
+            """;
+
+
+        /// <summary>Prompt template for fetching case data.</summary>
+        public const string CaseTypeRetriever = """
+            You are a case retrieval assistant.
+            Use the available tool get_case_types from the case-retrieval MCP service to fetch the case types.
+            Return the object in json format as returned by the mcp do not create or alter any values inside the json. What you see is what you get.
             """;
         /// <summary>Agent instructions template for fetching OTP send.</summary>
         public const string OtpCodeSenderInstructions = """
             You are a helper agent for the current workflow. 
-            Your intent is to send an OTP to the user's phone number taken from the parameters.
-            Call SendTotp with these values:
+            Your intent is to send an OTP to the user over the channel given in the prompt.
+            Call SendTotp exactly once with these values:
             •	securityToken: <case_id>
-            •	channel: Sms
+            •	channel: channel from the prompt (Sms or Email)
             •	purpose: "Cases totp"
             •	message: "This is your {0} OTP code for verification"
             •	subject: "Cases auth"
-            •	authenticationMethod: "PhoneNumber"
+            •	authenticationMethod: "PhoneNumber" or "Email" depending on the channel
             •	emailTemplate: null
             •	classification: null
             •	data: null
-            •	phoneNumber: <user_phone_number>
-            •	email: null
+            •	phoneNumber: phoneNumber from the prompt, or null when the channel is Email
+            •	email: email from the prompt, or null when the channel is Sms
             """;
 
 
         /// <summary>Agent prompt template for fetching OTP send.</summary>
         public const string OtpCodeSenderPrompt = """
             Send an OTP now by calling SendTotp with the configured fixed values.
-            User phone number: {{ phoneNumber }} and 
-            securityToken: {{ securityToken }}
+            channel: {{channel}}
+            {{#if phoneNumber}}phoneNumber: {{phoneNumber}}{{else}}email: {{email}}{{/if}}
+            securityToken: {{securityToken}}
             Return true for success or false for failure
             """;
 
@@ -229,15 +250,15 @@ public static class AgentsConstants
             Use:
             - securityToken: get securityToken from prompt
             - purpose: "Cases totp"
-            - phoneNumber: get phoneNumber from prompt
-            - email: null
+            - phoneNumber: get phoneNumber from prompt, or null when the prompt has none
+            - email: get email from prompt, or null when the prompt has none
             - user: null
             - code: user code from the prompt
             Return true if response indicates TOTP was verified successfully.
-            Return the object in json format as returned by the mcp.
+            Return the object in json format as returned by the mcp do not create or alter any values inside the json. What you see is what you get.
             """;
         /// <summary>Agent prompt template for validating OTP code.</summary>
-        public const string OtpCodeValidatorPrompt = "Verify this OTP code: {{otp}}, with securityToken:{{caseId}}, phoneNumber: {{phoneNumber}}";
+        public const string OtpCodeValidatorPrompt = "Verify this OTP code: {{otp}}, with securityToken: {{caseId}}{{#if phoneNumber}}, phoneNumber: {{phoneNumber}}{{/if}}{{#if email}}, email: {{email}}{{/if}}";
 
     }
 }

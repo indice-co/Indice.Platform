@@ -1,386 +1,287 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, OnDestroy } from '@angular/core';
-import { ToastType } from '@indice/ng-components';
-import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
+import { Component, OnDestroy, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { Router } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { JsonForms } from '@jsonforms/angular';
+import { createAjv, Generate } from '@jsonforms/core';
 import { EMPTY, forkJoin, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { Case, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDetails } from 'src/app/core/services/cases-api.service';
-import { FileUploadService } from 'src/app/core/services/file-upload.service';
-import { SubmitWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
-import { TailwindFrameworkComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component';
-import { SelectWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/select-widget/select-widget.component';
 import { get, isEqual, update } from 'lodash';
-import { CurrencyWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/currency-widget/currency-widget.component';
-import { DateWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/date-widget/date-widget.component';
-import { LookupWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-widget/lookup-widget.component';
-import { InputWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/input-widget/input-widget.component';
-import { TextAreaWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/text-area-widget/text-area-widget.component';
-import { Router } from '@angular/router';
-import { FileWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/file-widget/file-widget.component';
-import { LookupSelectorWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-selector-widget/lookup-selector-widget.component';
-import { WysiwygWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
-import { HrefWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/href-widget/href-widget.component';
-import { LabelOnlyWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/label-only-widget/label-only-widget.component';
+import { LucideInfo, LucidePencil, LucideRotateCcw } from '@lucide/angular';
+import { Case, CasesApiService, CasesAttachmentLink, EditCaseRequest } from 'src/app/core/services/cases-api.service';
+import { FileUploadService } from 'src/app/core/services/file-upload.service';
+import { CasesJsonFormsConfig } from 'src/app/shared/jsonforms/jsonforms-utilities';
+import { displayRenderers, tailwindRenderers } from 'src/app/shared/jsonforms/tailwind-renderers';
+import { ToastType, TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 
-
+/** Renders the case data with JSON Forms and handles submit (drafts) / save (editable cases). */
 @Component({
-    selector: 'app-case-form',
-    templateUrl: './case-form.component.html',
-    styleUrls: ['./case-form.component.css'],
-    standalone: false
+  selector: 'app-case-form',
+  templateUrl: './case-form.component.html',
+  imports: [TranslatePipe, JsonForms, LucideInfo, LucidePencil, LucideRotateCcw]
 })
-export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
-    private latestModel: any;
-    private latestIsValid: boolean = false;
-    // form is editable?
-    @Input() formEditable: boolean | undefined;
-    @Input() case: Case | undefined;
-    // inform parent that data should be refreshed
-    @Output() updateDataEvent = new EventEmitter<{ draft: boolean }>();
-    @Output() formIsValid = new EventEmitter<boolean>();
-    @Output() unSavedChanges = new EventEmitter<boolean>();
-    // Add custom widget
-    public widgets = {
-        "file": FileWidgetComponent,
-        "submit": SubmitWidgetComponent,
-        "select": SelectWidgetComponent,
-        "lookup": LookupWidgetComponent,
-        "lookup-selector": LookupSelectorWidgetComponent,
-        "date": DateWidgetComponent,
-        "currency": CurrencyWidgetComponent,
-        "text": InputWidgetComponent,
-        "number": InputWidgetComponent,
-        "textarea": TextAreaWidgetComponent,
-        "wysiwyg": WysiwygWidgetComponent,
-        "href": HrefWidgetComponent,
-        "label-only": LabelOnlyWidgetComponent
+export class CaseFormComponent implements OnDestroy {
+  private readonly _router = inject(Router);
+  private readonly _toaster = inject(TranslatedToasterService);
+  private readonly _api = inject(CasesApiService);
+  private readonly _fileUploadService = inject(FileUploadService);
+
+  public readonly case = input<Case | undefined>();
+  public readonly formEditable = input<boolean | undefined>(false);
+  /** Asks the parent to refresh the case. */
+  public readonly updateDataEvent = output<{ draft: boolean }>();
+  public readonly formIsValid = output<boolean>();
+  public readonly unSavedChanges = output<boolean>();
+
+  /** The form renderers, or the label / value renderers of the read-only view. */
+  protected readonly renderers = signal(tailwindRenderers);
+  protected readonly formsConfig = signal<CasesJsonFormsConfig>({});
+  protected readonly ajv = signal(createAjv());
+  protected readonly readonly = signal(false);
+  protected readonly formIsDirty = signal(false);
+  protected readonly schema = signal<any>(undefined);
+  protected readonly uiSchema = signal<any>(undefined);
+  protected readonly data = signal<any>(undefined);
+  /** Bumped to destroy and re-create the `<jsonforms>` element (a fresh form state). */
+  protected readonly formKey = signal(0);
+
+  private _previousCase: Case | undefined;
+  private _latestModel: any;
+  private _latestIsValid = false;
+  private _initialData: any;
+  /** The case type layout, still read for its onChange / onInit scripts. */
+  private _layout: any;
+  private _lastChange: any;
+  private _onChangeCallbackDictionary: Record<string, unknown> = {};
+
+  constructor() {
+    effect(() => {
+      const caseModel = this.case();
+      const formEditable = this.formEditable();
+      untracked(() => this.build(caseModel, !!formEditable));
+    });
+  }
+
+  public ngOnDestroy(): void {
+    // the uploaded / saved-for-upload files must not outlive the form
+    this._fileUploadService.reset();
+  }
+
+  private build(caseModel: Case | undefined, formEditable: boolean): void {
+    if (!caseModel) {
+      return;
+    }
+    if (caseModel !== this._previousCase) {
+      this._previousCase = caseModel;
+      // delete empty strings and empty objects so that change detection against the initial data works as expected
+      if (caseModel.data) {
+        this._initialData = this.removeEmptyObjects(this.deleteEmptyStringProperties(caseModel.data));
+      }
+    }
+    const schema = parse(caseModel.caseType?.dataSchema);
+    // no UI schema: generate the one JSON Forms would generate, so that a submit can be added to it
+    const uiSchema = structuredClone(caseModel.caseType?.uiSchema) ?? Generate.uiSchema(schema);
+    if (!formEditable && caseModel.draft) {
+      // a draft needs all form properties available, ignoring layout restrictions (readonly, disableCheckbox)
+      this.removeReadonlyProperties(uiSchema);
+    }
+    if (caseModel.draft || formEditable) {
+      this.addSubmit(uiSchema);
+    }
+    // not draft and not editable: the form is view-only
+    this.readonly.set(!formEditable && !caseModel.draft);
+    this.renderers.set(this.readonly() ? displayRenderers : tailwindRenderers);
+    this.formsConfig.set({ draft: caseModel.draft, onSubmit: data => this.onSubmit(data) });
+    this.ajv.set(createAjv({ useDefaults: !!caseModel.draft })); // schema defaults only for draft cases
+    this._layout = parse(caseModel.caseType?.layout);
+    this.schema.set(schema);
+    this.uiSchema.set(uiSchema);
+    this.data.set(this._initialData);
+    this.populateForm(this._initialData);
+    this.formKey.update(key => key + 1);
+  }
+
+  public onSubmit(event: any): void {
+    const caseModel = this.case();
+    // upload the user's documents first; keys are data paths (e.g. "homeAddress.attachmentId") set by the file control
+    const callsDict: { [key: string]: Observable<CasesAttachmentLink> } = { '': of({} as CasesAttachmentLink) };
+    const files = this._fileUploadService.files;
+    for (const key in files) {
+      // skip 'garbage' attachments that are no longer referenced by the data
+      if (Object.prototype.hasOwnProperty.call(files, key) && get(event, key)) {
+        callsDict[key] = this._api.uploadAdminCaseAttachment(caseModel?.id!, { data: files[key], fileName: files[key].name });
+      }
+    }
+    forkJoin(callsDict)
+      .pipe(
+        tap(response => {
+          // match the received attachment ids to their fields through the data paths
+          for (const key in response) {
+            if (Object.prototype.hasOwnProperty.call(response, key) && key !== '') {
+              update(event, key, () => response[key].id!);
+            }
+          }
+          if (caseModel?.draft) {
+            this._api.submitAdminCase(caseModel.id!, event)
+              .pipe(
+                tap(() => {
+                  this._fileUploadService.reset();
+                  this._toaster.show(ToastType.Success, 'toasts.caseSubmitted.title', 'toasts.caseSubmitted.body', 5000);
+                  this.updateDataEvent.emit({ draft: true });
+                }),
+                catchError(() => {
+                  this._router.navigate(['/cases']);
+                  return EMPTY;
+                })
+              )
+              .subscribe();
+          } else {
+            this._api.editCase(caseModel?.id!, new EditCaseRequest({ data: event }))
+              .pipe(
+                tap(() => {
+                  this._initialData = event; // the saved data are now the initial data
+                  this.formIsDirty.set(false);
+                  this.unSavedChanges.emit(false);
+                  this.updateDataEvent.emit({ draft: false });
+                  this._toaster.show(ToastType.Success, 'toasts.saveSuccess.title', 'toasts.saveSuccess.body', 5000);
+                  this._fileUploadService.reset();
+                }),
+                catchError(() => EMPTY)
+              )
+              .subscribe();
+          }
+        }),
+        catchError(() => EMPTY)
+      )
+      .subscribe();
+  }
+
+  /** Tracks dirtiness and runs the layout's property-level onChange scripts. */
+  protected onFormChanges(entity: any): void {
+    this._latestModel = entity;
+    if (!this.case()?.draft) {
+      const dirty = !isEqual(entity, this._initialData);
+      this.formIsDirty.set(dirty);
+      this.unSavedChanges.emit(dirty);
+    }
+    // ignore an empty form
+    if (!entity || (Object.keys(entity).length === 0 && entity.constructor === Object)) {
+      return;
+    }
+    for (const [key, onChange] of Object.entries(this._onChangeCallbackDictionary)) {
+      if (get(entity, key) === get(this._lastChange, key)) {
+        continue;
+      }
+      if (typeof onChange === 'function') {
+        onChange(get(entity, key), entity);
+      }
+    }
+    this._lastChange = entity;
+  }
+
+  protected isValid(valid: boolean): void {
+    this.formIsValid.emit(valid);
+    this._latestIsValid = valid;
+  }
+
+  public onSubmitExternal(): void {
+    if (this._latestIsValid) {
+      this.onSubmit(this._latestModel);
+    }
+  }
+
+  protected onCancel(): void {
+    const caseModel = this.case();
+    this.schema.set(parse(caseModel?.caseType?.dataSchema));
+    this._layout = parse(caseModel?.caseType?.layout);
+    this.data.set(this._initialData);
+    this.populateForm(this._initialData);
+    this.formKey.update(key => key + 1);
+  }
+
+  /** Removes `readonly` and the `disableCheckbox` class from every UI schema element. */
+  private removeReadonlyProperties(uiSchema: any): void {
+    if (!uiSchema) {
+      return;
+    }
+    const options = uiSchema.options;
+    if (options) {
+      delete options.readonly;
+      if (options.htmlClass && options.htmlClass.indexOf('disableCheckbox') > -1) {
+        options.htmlClass = options.htmlClass.replace('disableCheckbox', '');
+      }
+      this.removeReadonlyProperties(options.detail); // array item layout
+    }
+    uiSchema.elements?.forEach((element: any) => this.removeReadonlyProperties(element));
+  }
+
+  /** Adds a submit button at the end of the form when the layout has none. */
+  private addSubmit(uiSchema: any): void {
+    const hasSubmit = (element: any): boolean =>
+      element?.type === 'Submit' || !!element?.elements?.some(hasSubmit) || (!!element?.options?.detail && hasSubmit(element.options.detail));
+    if (Array.isArray(uiSchema?.elements) && !hasSubmit(uiSchema)) {
+      uiSchema.elements.push({ type: 'Submit' });
+    }
+  }
+
+  private deleteEmptyStringProperties(obj: any): any {
+    for (const k in obj) {
+      if (!obj[k] || typeof obj[k] !== 'object') {
+        if (obj[k] === '') {
+          delete obj[k];
+        }
+        continue;
+      }
+      this.deleteEmptyStringProperties(obj[k]);
+    }
+    return obj;
+  }
+
+  private removeEmptyObjects(obj: any): any {
+    for (const k in obj) {
+      if (!obj[k] || typeof obj[k] !== 'object') {
+        continue;
+      }
+      this.removeEmptyObjects(obj[k]);
+      if (Object.keys(obj[k]).length === 0) {
+        delete obj[k];
+      }
+    }
+    return obj;
+  }
+
+  /** Collects the layout's onChange scripts and applies its onInit scripts to the data. */
+  private populateForm(entity: any): void {
+    this._lastChange = entity;
+    const onInitCallbackDictionary: Record<string, unknown> = {};
+    if (!Array.isArray(this._layout)) {
+      return;
+    }
+    const traverse = (item: any) => {
+      if (item.items) {
+        item.items.map(traverse);
+      } else if (item.tabs) {
+        item.tabs.map(traverse);
+      }
+      if (item.onChange) {
+        this._onChangeCallbackDictionary[item.key] = Function('"use strict";return (' + item.onChange + ')')();
+      }
+      if (item.onInit) {
+        onInitCallbackDictionary[item.key] = Function('"use strict";return (' + item.onInit + ')')();
+      }
     };
-    // Add custom framework
-    public framework = {
-        framework: TailwindFrameworkComponent
-    };
-    public jsonFormOptions: any = {
-        addSubmit: false, // Don't show a submit button if layout does not have one
-        setSchemaDefaults: false, // Always use schema defaults for empty fields
-        draft: false
-    };
-    private copiedLayout: any;
-    private initialData: any;
-    public formIsDirty: boolean = false;
-    public showForm = true;
-    public data: any;
-    public schema: any;
-    public layout: any;
-    public lastChange: any;
-    onChangeCallbackDictionary: any = {};
-
-    @ViewChild('formContainer') formContainer: ElementRef | undefined;
-
-    constructor(
-        private router: Router,
-        private _toaster: TranslatedToasterService,
-        private _api: CasesApiService,
-        private _fileUploadService: FileUploadService,
-        private changeDetector: ChangeDetectorRef
-    ) { }
-
-    ngOnDestroy(): void {
-        // we should DEFINITELY remove the uploaded/saved for upload files
-        this._fileUploadService.reset();
+    this._layout.map(traverse);
+    for (const [key, onInit] of Object.entries(onInitCallbackDictionary)) {
+      if (typeof onInit === 'function') {
+        const initEntity = onInit(get(entity, key), entity, this.case()?.metadata);
+        if (initEntity) {
+          this.data.update(data => Object.assign({}, data, initEntity));
+        }
+      }
     }
+  }
+}
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (!this.case) { // no case -> no point to continue execution
-            return;
-        }
-        if (changes.hasOwnProperty('case')) {
-            this.showForm = false;
-            this.changeDetector.detectChanges(); // enforce the instantaneous deletion of form
-            // deep copy layout
-            this.copiedLayout = (typeof this.case.caseType?.layout! !== 'string') ? this.case.caseType?.layout! : JSON.parse(this.case.caseType?.layout!);
-            /**
-             * delete empty strings and clear potential empty objects in data
-             * for ajsf (so that onChanges can work as expected - ajsf, at initialization, deletes empty objects and strings)
-             */
-            if (this.case.data) {
-                this.initialData = this.removeEmptyObjects(this.deleteEmptyStringProperties(this.case.data!));
-            }
-        }
-        // extract layout from case type
-        let layout = (typeof this.case.caseType?.layout! !== 'string') ? this.case.caseType?.layout! : JSON.parse(this.case.caseType?.layout!);
-        // since layout is reset we need to transform it
-        if (!this.formEditable) {
-            this.transformLayout(layout, !this.formEditable, this.case.draft);
-            // here we need to check if case has become editable: we need to "enable" checkboxes
-            // note: this won't affect checkboxes that have "disableCheckbox" class in their layout!
-            if (this.formContainer?.nativeElement && (this.formEditable || this.case?.draft)) {
-                this.formContainer.nativeElement.classList.remove('disableCheckbox');
-            }
-        }
-        this.jsonFormOptions.draft = this.case.draft;
-        this.jsonFormOptions.setSchemaDefaults = this.case.draft; // use schema defaults only for draft cases!
-        this.jsonFormOptions.addSubmit = this.case.draft || this.formEditable;
-        this.schema = (typeof this.case.caseType?.dataSchema! !== 'string') ? this.case.caseType?.dataSchema! : JSON.parse(this.case.caseType?.dataSchema!);
-        this.layout = layout;
-        this.data = this.initialData;
-        this.populateForm(this.data);
-        this.showForm = true;
-        this.changeDetector.detectChanges();
-    }
-
-    ngOnInit(): void { }
-
-    public ngAfterViewInit(): void {
-        // check if we need to "disable" case's checkboxes
-        if (!this.formEditable && !this.case?.draft) {
-            this.formContainer?.nativeElement.classList.add('disableCheckbox');
-        }
-    }
-
-    public onSubmit(event: any): void {
-        // we have to send user's document(s) to the server
-        const callsDict: { [key: string]: Observable<CasesAttachmentLink> } = { '': of({} as CasesAttachmentLink) };
-        // what is the key of the dictionary here? the dataPointer (e.g. "/homeAddress/attachmentId") that was added in the file-upload widget
-        for (const key in this._fileUploadService.files) {
-            if (this._fileUploadService.files.hasOwnProperty(key)) {
-                // we may have 'garbage' attachments that we should not send to server!!!
-                let path = key;
-                path = path.replace(/\//g, '.'); // https://stackoverflow.com/a/63616567/19162333
-                path = path.substring(1);
-                if (get(event, path)) { // https://lodash.com/docs/4.17.15#get
-                    const fileParam = { data: this._fileUploadService.files[key], fileName: this._fileUploadService.files[key].name };
-                    callsDict[key] = this._api.uploadAdminCaseAttachment(this.case?.id!, fileParam);
-                }
-            }
-        }
-        forkJoin(callsDict)
-            .pipe(
-                tap(
-                    // we can match the received attachment guids to the respective fields with the help of the keys/dataPointers!
-                    (response: { [key: string]: CasesAttachmentLink }) => {
-                        for (const key in response) {
-                            if (response.hasOwnProperty(key) && key !== '') {
-                                // transform path to object key (eg. "/home/attachmentId") to a string that lodash update (https://lodash.com/docs/4.17.15#update)
-                                // can understand (eg "home.attachmentId") and update its value with the response attachment id
-                                update(event, key.slice(1).replace('/', '.'), () => response[key].id!);
-                            }
-                        }
-
-                        if (this.case?.draft) {
-                            // finally, submit the case
-                            this._api.submitAdminCase(this.case?.id!, event)
-                                .pipe(
-                                    tap(() => {
-                                        this._fileUploadService.reset();
-                                        this._toaster.show(ToastType.Success, 'toasts.caseSubmitted.title', 'toasts.caseSubmitted.body', 5000);
-                                        this.updateDataEvent.emit({ draft: true });
-                                    }),
-                                    catchError((err: ProblemDetails) => { // error during case submit
-                                        this._toaster.show(ToastType.Error, 'toasts.caseSubmitError.title', err.detail || 'toasts.caseSubmitError.body', 5000);
-                                        this.router.navigate(['/cases']);
-                                        return EMPTY;
-                                    })
-                                )
-                                .subscribe();
-                        } else {
-                            const editCaseRequest = new EditCaseRequest({ data: event });
-                            this._api.editCase(this.case?.id!, editCaseRequest)
-                                .pipe(
-                                    tap(() => {
-                                        this.initialData = event; // initial data are, now, the saved data
-                                        this.formIsDirty = false;
-                                        this.unSavedChanges.emit(this.formIsDirty);
-                                        this.updateDataEvent.emit({ draft: false });
-                                        this._toaster.show(ToastType.Success, 'toasts.saveSuccess.title', 'toasts.saveSuccess.body', 5000);
-                                        this._fileUploadService.reset();
-                                    }),
-                                    catchError(() => {
-                                        this._toaster.show(ToastType.Error, 'toasts.saveError.title', 'toasts.saveError.body', 5000);
-                                        return EMPTY;
-                                    })
-                                )
-                                .subscribe();
-                        }
-                    }),
-                catchError(() => { // error during attachments upload
-                    this._toaster.show(ToastType.Error, 'toasts.caseSubmitError.title', 'toasts.attachmentsError.body', 5000);
-                    return EMPTY;
-                }))
-            .subscribe();
-    }
-
-    // property-level onChange implementation from:
-    // https://github.com/hamzahamidi/ajsf/issues/37
-    onFormChanges(entity: any) {
-        if (!this.case?.draft) { // this logic applies only for non-draft cases
-            // this will only work if setSchemaDefaults is set to FALSE, because, at initialization, ajsf adds to data the properties with default values from schema!
-            if (!isEqual(entity, this.initialData)) {
-                this.formIsDirty = true;
-                this.unSavedChanges.emit(this.formIsDirty);
-            } else {
-                this.formIsDirty = false;
-                this.unSavedChanges.emit(this.formIsDirty);
-            }
-        }
-
-        // ajsf's (onChanges) is very trigger happy and often is invoked with a fake empty
-        // object, so ignore it
-        if (Object.keys(entity).length === 0 && entity.constructor === Object) {
-            return;
-        }
-
-        for (const [key, onChange] of Object.entries(this.onChangeCallbackDictionary)) {
-            if (get(entity, key) === get(this.lastChange, key)) {
-                // no changes, no need to invoke onChange
-                continue;
-            }
-
-            // check needed so typescript won't complain when compiling
-            if (typeof onChange === 'function') {
-                onChange(get(entity, key), entity);
-            }
-        }
-        this.lastChange = entity;
-    }
-
-    public isValid(event: boolean) {
-        this.formIsValid.emit(event);
-        this.latestIsValid = event;
-    }
-
-    onSubmitExternal(): void {
-        if (this.latestIsValid) {
-            this.onSubmit(this.latestModel);
-        }
-    }
-
-    onCancel(): void {
-        this.showForm = false;
-        this.changeDetector.detectChanges(); // enforce the instantaneous deletion of form
-        this.schema = JSON.parse(this.case?.caseType?.dataSchema!);
-        this.layout = JSON.parse(this.case?.caseType?.layout!);
-        this.data = this.initialData;
-        this.populateForm(this.data);
-        this.showForm = true;
-        this.changeDetector.detectChanges();
-    }
-
-    private transformLayout(layout: any, viewOnlyMode: boolean = true, draft?: boolean): void {
-        // first check for draft, and override json layout
-        if (draft) {
-            // case is draft, we need all form properties available and ignore layout restrictions (eg readonly, or html class disable)
-            this.removeReadonlyProperties(layout);
-            return;
-        }
-        // case is not draft, check for editability
-        if (viewOnlyMode) {
-            this.addReadonlyProperties(layout);
-            return;
-        }
-
-        // form is editable
-        this.jsonFormOptions.addSubmit = true;
-    }
-
-    private removeReadonlyProperties(layout: any): void {
-        const activateElement = (element: any) => {
-            delete element.readonly;
-            if (element.htmlClass && element.htmlClass.indexOf('disableCheckbox') > -1) {
-                element.htmlClass = element.htmlClass.replace('disableCheckbox', '');
-            }
-        }
-
-        layout?.forEach((element: any) => {
-            activateElement(element);
-            if (element.hasOwnProperty('items')) {
-                this.removeReadonlyProperties(element.items);;
-            }
-        });
-    }
-
-    private addReadonlyProperties(layout: any): void {
-        if (!Array.isArray(layout)) {
-            return;
-        }
-        // form is view-only -> add readonly property to all objects of layout object!
-        layout?.forEach((element: any) => {
-            element.readonly = "true";
-            if (element.hasOwnProperty('items')) { // ajsf sections may have items, which may be flex containers, which may have items...
-                this.addReadonlyProperties(element.items);
-            }
-        });
-    }
-
-    private deleteEmptyStringProperties(obj: any) {
-        for (var k in obj) {
-            if (!obj[k] || typeof obj[k] !== "object") {
-                if (obj[k] === '') {
-                    delete obj[k];
-                }
-                continue // If null or not an object, skip to the next iteration
-            }
-
-            // The property is an object
-            this.deleteEmptyStringProperties(obj[k]); // <-- Make a recursive call on the nested object
-        }
-        return obj;
-    }
-
-    private removeEmptyObjects(obj: any) {
-        for (var k in obj) {
-            if (!obj[k] || typeof obj[k] !== "object") {
-                continue // If null or not an object, skip to the next iteration
-            }
-
-            // The property is an object
-            this.removeEmptyObjects(obj[k]); // <-- Make a recursive call on the nested object
-            if (Object.keys(obj[k]).length === 0) {
-                delete obj[k]; // The object had no properties, so delete that property
-            }
-        }
-        return obj;
-    }
-
-    private populateForm(entity: any) {
-        this.lastChange = entity;
-        const onInitCallbackDictionary: any = {};
-        if (!Array.isArray(this.layout)) {
-            return;
-        }
-        if (this.layout) {
-            // recursively traverse the form json
-            const traverse = (item: any) => {
-                if (item.items) {
-                    item.items.map(traverse);
-                } else if (item.tabs) {
-                    item.tabs.map(traverse);
-                }
-
-                // keep track of onChange callbacks
-                if (item.onChange) {
-                    this.onChangeCallbackDictionary[item.key] = Function('"use strict";return (' + item.onChange + ')')();
-                }
-
-                if (item.onInit) {
-                    onInitCallbackDictionary[item.key] = Function('"use strict";return (' + item.onInit + ')')();
-                }
-            };
-            this.layout.map(traverse);
-        }
-
-        for (const [key, onInit] of Object.entries(onInitCallbackDictionary)) {
-            if (typeof onInit === 'function') {
-                const initEntity = onInit(get(entity, key), entity, this.case?.metadata);
-                if (initEntity) {
-                    this.data = Object.assign({}, this.data, initEntity);
-                }
-            }
-        }
-    }
-
-    isObject(entity: any) {
-        return typeof entity === 'object' &&
-            !Array.isArray(entity) &&
-            entity !== null;
-    }
-
+/** Case type schemas / layouts may arrive as JSON strings or as objects. */
+function parse(value: any): any {
+  return typeof value === 'string' ? JSON.parse(value) : value;
 }

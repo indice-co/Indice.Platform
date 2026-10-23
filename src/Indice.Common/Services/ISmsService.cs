@@ -56,6 +56,8 @@ public class SmsServiceSettings
     public bool ViberFallbackEnabled { get; set; } = false;
     /// <summary>The number of a seconds that a message is considered active. Defaults to 4320 seconds.</summary>
     public int Validity { get; set; } = 4320;
+    /// <summary>The base URL to be used for callback events.</summary>
+    public string? CallbackUrl { get; set; }
 }
 
 /// <summary> The send receipt object representing a send message by either the <see cref="IEmailService"/> or the <see cref="ISmsService"/>. </summary>

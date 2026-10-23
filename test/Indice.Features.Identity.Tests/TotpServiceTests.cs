@@ -5,6 +5,7 @@ using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Totp;
+using Indice.Services;
 using Indice.Security;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -373,6 +374,50 @@ public class TotpServiceTests
         var isValid = await userManager.VerifyTwoFactorTokenAsync(reloadedUser!, tokenProvider, token);
 
         Assert.True(isValid);
+    }
+
+    [Fact]
+    public async Task User_Totp_Uses_Fixed_Cache_Expiration_And_Allows_Changed_Code() {
+        var userManager = TestServer.Services.GetRequiredService<ExtendedUserManager<User>>();
+        var user = await CreateTwoFactorUserAsync(userManager, TokenOptions.DefaultEmailProvider, DateTimeOffset.UtcNow);
+        var totpService = TestServer.Services.GetRequiredService<TotpServiceFactory>().Create<User>();
+        var tokenProvider = TokenOptions.DefaultEmailProvider;
+        var purpose = TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
+        var initialToken = await userManager.GenerateUserTokenAsync(user, tokenProvider, purpose);
+
+        var result = await totpService.SendAsync(
+            user,
+            "Your verification code is {0}",
+            TotpDeliveryChannel.Email,
+            subject: "OTP",
+            tokenProvider: tokenProvider
+        );
+        var rateLimitedResult = await totpService.SendAsync(
+            user,
+            "Your verification code is {0}",
+            TotpDeliveryChannel.Email,
+            subject: "OTP",
+            tokenProvider: tokenProvider
+        );
+
+        await userManager.UpdateSecurityStampAsync(user);
+        var changedToken = await userManager.GenerateUserTokenAsync(user, tokenProvider, purpose);
+        while (changedToken == initialToken) {
+            await userManager.UpdateSecurityStampAsync(user);
+            changedToken = await userManager.GenerateUserTokenAsync(user, tokenProvider, purpose);
+        }
+        var changedTokenResult = await totpService.SendAsync(
+            user,
+            "Your verification code is {0}",
+            TotpDeliveryChannel.Email,
+            subject: "OTP",
+            tokenProvider: tokenProvider
+        );
+
+        Assert.True(result.Success);
+        Assert.True(rateLimitedResult.IsRateLimited);
+        Assert.InRange(rateLimitedResult.TotpLifetime, 290, 300);
+        Assert.True(changedTokenResult.Success);
     }
 
     [Theory]

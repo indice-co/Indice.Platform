@@ -10,7 +10,10 @@ public class AgentsUIOptions : SpaUIOptions
     /// <summary> The html application language.</summary>
     public string? Lang { get; set; }
 
-    /// <summary>The name of the visual theme to apply. Selects the colour palette as well as the logo and favicon. Built-in themes are <b>dex</b>, <b>kosmocar</b>, <b>sfakianakis</b> and <b>papadopoulos</b>. Defaults to <b>dex</b>.</summary>
+    /// <summary>
+    /// The name of the visual theme to apply. Selects the colour palette as well as the logo and favicon. 
+    /// Built-in and default theme is <b>dex</b>.
+    /// </summary>
     public string? Theme { get; set; }
 
     /// <summary>The display name of the assistant, shown wherever the UI names it (brand, greetings, input placeholder, browser tab). Defaults to <b>Dex</b>.</summary>

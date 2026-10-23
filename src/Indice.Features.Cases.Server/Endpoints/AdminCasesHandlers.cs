@@ -28,7 +28,7 @@ internal static class AdminCasesHandlers
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService) =>
-        TypedResults.Ok(await adminCaseService.CreateDraft(currentUser.UserToActor(casesOptions.Value), request.CaseTypeCode, request.GroupId, request.Owner, request.Metadata));
+        TypedResults.Ok(await adminCaseService.CreateDraft(currentUser.UserToActor(casesOptions.Value), request.CaseTypeCode, request.GroupId, request.Owner, request.Metadata, request.ReferenceNumber, request.Channel));
 
     public static async Task<Ok<ResultSet<CaseAttachment>>> GetCaseAttachments(Guid caseId, IAdminCaseService adminCaseService) =>
         TypedResults.Ok(await adminCaseService.GetAttachments(caseId));
@@ -271,7 +271,7 @@ internal static class AdminCasesHandlers
         }
         var file = await CreatePdf(@case, caseTemplateService, casePdfService);
         var fileName = $"{@case.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
-        await platformEventService.Publish(new CaseDownloadedEvent(@case, CasesCoreConstants.Channels.Agent));
+        await platformEventService.Publish(new CaseDownloadedEvent(@case, CasesCoreConstants.Channels.Managed));
         return TypedResults.File(file, MediaTypeNames.Application.Pdf, fileName);
     }
 

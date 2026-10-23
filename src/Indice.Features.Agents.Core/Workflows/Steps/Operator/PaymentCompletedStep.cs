@@ -2,6 +2,7 @@ using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI.Workflows;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 
@@ -9,13 +10,15 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Thanks the user once a payment method has been chosen and produces the terminal response.
 /// No payment is taken: the step is a demonstration of the payment round-trip.
 /// </summary>
-public sealed class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse, OperationState>
+public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse, OperationState>
 {
     private readonly AgentMessageLocalizer _messageLocalizer;
+    private readonly ILogger<PaymentCompletedStep> _logger;
 
     /// <summary>Creates a new <see cref="PaymentCompletedStep"/>.</summary>
-    public PaymentCompletedStep(AgentMessageLocalizer messageLocalizer) : base(nameof(PaymentCompletedStep)) {
+    public PaymentCompletedStep(AgentMessageLocalizer messageLocalizer, ILogger<PaymentCompletedStep> logger) : base(nameof(PaymentCompletedStep)) {
         _messageLocalizer = messageLocalizer;
+        _logger = logger;
     }
 
     /// <inheritdoc/>

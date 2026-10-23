@@ -48,7 +48,7 @@
                     <a class="auth-form__link" asp-page="/ForgotPassword">@Localizer.Login_Forgot_Password</a>
                 }
             </div>
-            <partial name="_Recaptcha" model='new RecaptchaViewModel { FormId = "loginForm", ButtonId = "loginButton", Action = "login", IsLoginForm = true }' />
+            <vc:captcha form-id="loginForm" button-id="loginButton" action="login" is-login-form="true" />
             <div class="auth-form__actions">
                 <button class="btn btn-primary auth-form__submit" id="loginButton" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>
             </div>

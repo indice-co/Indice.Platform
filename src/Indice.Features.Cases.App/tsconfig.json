@@ -3,6 +3,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
+    "ignoreDeprecations": "6.0",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
@@ -18,7 +19,7 @@
     "target": "ES2022",
     "module": "es2020",
     "lib": [
-      "es2020",
+      "es2023",
       "dom"
     ],
     "useDefineForClassFields": false

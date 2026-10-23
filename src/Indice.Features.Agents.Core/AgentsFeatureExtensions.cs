@@ -7,7 +7,6 @@ using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
-using Indice.Features.Agents.Core.Models.Cases;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Cards;
@@ -24,8 +23,9 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using static System.Net.Mime.MediaTypeNames;
 using static Indice.Features.Agents.Core.AgentsOptions;
+using Indice.Features.Agents.Core.Services.Validation;
+using Indice.Features.Agents.Core.Services.DataResolver;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -69,6 +69,17 @@ public static class AgentsFeatureExtensions
             return innerClient.GetEmbeddingClient(opts.Deployments.Embedding!).AsIEmbeddingGenerator(opts.EmbeddingDimensions);
         });
 
+        services.AddHttpClient(nameof(AzureOpenAIDeployments.SystemOne));
+        services.TryAddTransient<ISystemOneClient>(sp => {
+            var agentsOptions = sp.GetRequiredService<IOptions<AgentsOptions>>().Value;
+            var opts = agentsOptions.AzureOpenAI;
+            var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(AzureOpenAIDeployments.SystemOne));
+            var endpoint = string.IsNullOrWhiteSpace(opts.SystemOneEndpoint) ? opts.Endpoint! : opts.SystemOneEndpoint;
+            var apiKey = string.IsNullOrWhiteSpace(opts.SystemOneApiKey) ? opts.ApiKey! : opts.SystemOneApiKey;
+            var enabled = agentsOptions.SystemOne.Enabled && !string.IsNullOrWhiteSpace(opts.Deployments.SystemOne);
+            return new FoundrySystemOneClient(httpClient, new Uri(endpoint), apiKey, opts.Deployments.SystemOne ?? string.Empty, enabled);
+        });
+
         services.AddDbContext<AgentsDbContext>((sp, options) => {
             var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value;
             var configureDbContext = opts.ConfigureDbContext ?? (
@@ -105,7 +116,7 @@ public static class AgentsFeatureExtensions
     /// <see cref="Workflow"/> wiring them in order. Call after <c>AddDex(...)</c>.
     /// </summary>
     public static IServiceCollection AddAgentsDefaultPipeline(this IServiceCollection services) {
-        services.TryAddTransient<IntentClassifier>();
+        services.TryAddTransient<Indice.Features.Agents.Core.Workflows.Steps.IntentClassifier>();
         services.TryAddTransient<QueryRewriter>();
         services.TryAddTransient<Retriever>();
         services.TryAddTransient<Reranker>();
@@ -143,7 +154,7 @@ public static class AgentsFeatureExtensions
                 Links: [],
                 Icon: AgentsConstants.AgentIcons.Book),
             (sp, key) => {
-                var intent = sp.GetRequiredService<IntentClassifier>();
+                var intent = sp.GetRequiredService<Indice.Features.Agents.Core.Workflows.Steps.IntentClassifier>();
                 var rewrite = sp.GetRequiredService<QueryRewriter>();
                 var retrieve = sp.GetRequiredService<Retriever>();
                 var rerank = sp.GetRequiredService<Reranker>();
@@ -175,7 +186,7 @@ public static class AgentsFeatureExtensions
         services.AddRoutableAgent(
             new AgentInfo(
                 Name: AgentsConstants.AgentNames.Demo,
-                Description: "Its the demo agent for testing capabilities.",
+                Description: "Its the demo agent that mainly acts as a placeholder and tests capabilities.",
                 InputContentTypes: ["text/plain"],
                 OutputContentTypes: ["text/markdown"],
                 Capabilities: [new AgentCapability("Demo Agent", "Its the demo agent for testing new workflow interactions.")],
@@ -222,7 +233,7 @@ public static class AgentsFeatureExtensions
         // IntentRouterService to pick one of the routable agents registered below.
         services.AddSingleton(new AgentInfo(
             Name: AgentsConstants.AgentNames.Operator,
-            Description: "This is an operator agent that can handle tools and provide solutions based on predefined rules.",
+            Description: "Retrieves and handles a case by its case or reference ID, using tools and predefined rules.",
             InputContentTypes: ["text/plain"],
              OutputContentTypes: ["text/markdown", "text/html", 
                                   AgentsConstants.MediaTypes.FunctionCallPort.Request],
@@ -248,10 +259,13 @@ public static class AgentsFeatureExtensions
         services.AddMcpClient("cases")
                 .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:CasesMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
 
-        services.TryAddTransient<ICustomerDataResolver, DefaultCustomerDataResolver>();
+        services.TryAddKeyedTransient<ICustomerDataResolver, CaseDataResolver>(CaseDataResolver.ServiceKey);
+        services.TryAddTransient<CustomerDataResolverFactory>();
         services.TryAddTransient<ICustomerDataCardRenderer, HandlebarsCustomerDataCardRenderer>();
         services.TryAddTransient<DataRetrieverStep>();
         services.TryAddTransient<AuthenticationChallengeStep>();
+        services.TryAddKeyedTransient<IChallengeValidator, DefaultChallengeValidator>(DefaultChallengeValidator.Default);
+        services.TryAddTransient<ChallengeValidatorFactory>();
         services.TryAddTransient<AuthenticationStep>();
         services.TryAddTransient<OtpCodeSendStep>();
         services.TryAddTransient<OtpCodeValidatorStep>();
@@ -259,7 +273,14 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<PaymentMethodStep>();
         services.TryAddTransient<PaymentCompletedStep>();
 
+        services.TryAddTransient<OperationSelectionStep>();
+        services.TryAddTransient<CaseReferenceResolverStep>();
+        services.TryAddTransient<UserInputCollector>();
+
         services.AddKeyedScoped(AgentsConstants.AgentNames.Operator, (sp, key) => {
+            var operationClassifier = sp.GetRequiredService<OperationSelectionStep>();
+            var userInputRetriever = sp.GetRequiredService<CaseReferenceResolverStep>();
+
             var retriever = sp.GetRequiredService<DataRetrieverStep>();
             var ownershipPrompt = sp.GetRequiredService<AuthenticationChallengeStep>();
             var ownershipValidate = sp.GetRequiredService<AuthenticationStep>();
@@ -271,9 +292,21 @@ public static class AgentsFeatureExtensions
 
             var ownershipPort = ChallengeRequestPort.Create();
             var otpPort = OtpRequestPort.Create();
+            var operationPort = OperationRequestPort.Create();
+            var userInputPort = UserInputRequestPort.Create();
+            var userInputCollector = sp.GetRequiredService<UserInputCollector>();
             var paymentPort = PaymentRequestPort.Create();
 
-            var builder = new WorkflowBuilder(retriever);
+            var builder = new WorkflowBuilder(operationClassifier);
+            builder.AddSwitch(operationClassifier, sw => sw
+                .AddCase<OperationRequestPort.OperationRequest>(request => request is not null, operationPort)
+                .WithDefault(retriever));
+            builder.AddEdge(operationPort, userInputRetriever);
+            builder.AddSwitch(userInputRetriever, sw => sw
+                .AddCase<UserInputRequestPort.UserInputRequest>(request => request is not null, userInputPort)
+                .WithDefault(retriever));
+            builder.AddEdge(userInputPort, userInputCollector);
+            builder.AddEdge(userInputCollector, retriever);
             builder.AddEdge(retriever, ownershipPrompt);
             builder.AddEdge(ownershipPrompt, ownershipPort);
             builder.AddEdge(ownershipPort, ownershipValidate);

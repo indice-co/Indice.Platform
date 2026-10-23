@@ -7,6 +7,7 @@ using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
@@ -15,7 +16,7 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// Sends an OTP using MCP tools and produces a challenge prompt.
 /// The workflow pauses after this step and waits for the user OTP input on a request port.
 /// </summary>
-public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.OtpRequest>
+public class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.OtpRequest>
 {
     private readonly AzureOpenAIClient _openAIClient;
     private readonly AgentsOptions _options;
@@ -25,6 +26,7 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
     private readonly IMcpClientFactory _mcpClientFactory;
     private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly string _model;
+    private readonly ILogger<OtpCodeSendStep> _logger;
 
     /// <summary>Creates a new <see cref="OtpCodeSendStep"/>.</summary>
     public OtpCodeSendStep(
@@ -34,7 +36,9 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
         IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
         [FromKeyedServices("id")] IMcpClientFactory mcpClientFactory,
-        AgentMessageLocalizer messageLocalizer) : base(nameof(OtpCodeSendStep)) {
+        AgentMessageLocalizer messageLocalizer,
+        ILogger<OtpCodeSendStep> logger) : base(nameof(OtpCodeSendStep)) {
+        _logger = logger;
         _openAIClient = openAIClient;
         _options = options.Value;
         _models = models.Value;
@@ -52,20 +56,31 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(completed);
         var caseData = await context.GetOperatorStateAsync(cancellationToken);
-        var maskedPhoneNumber = MaskPhone(caseData.PhoneNumber);
+        var useSms = caseData.UsesSmsForOtp;
+        var maskedRecipient = useSms ? MaskPhone(caseData.PhoneNumber) : MaskEmail(caseData.Email);
+
         var securityToken = Guid.NewGuid().ToString();
-        await SendOtpCode(caseData, securityToken, cancellationToken);
-        var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedPhoneNumber);
+        if (string.IsNullOrWhiteSpace(caseData.PhoneNumber)) {
+            _logger.LogWarning("No phone number for case {ReferenceId}; OTP delivery will rely on email fallback.", caseData.ReferenceId);
+        }
+        try {
+            await SendOtpCode(caseData, useSms, securityToken, cancellationToken);
+        } catch (Exception ex) when (ex is not OperationCanceledException) {
+            _logger.LogError(ex, "Failed to send OTP code for case {ReferenceId}.", caseData.ReferenceId);
+            throw;
+        }
+        var otpPrompt = _messageLocalizer.OtpVerificationCodeSendMessage(maskedRecipient);
         await context.Say(Id, otpPrompt);
         return new OtpRequestPort.OtpRequest(ChallengeCode: securityToken, ExpirationDate: DateTime.UtcNow.AddMinutes(2));
     }
 
-    private async Task SendOtpCode(CustomerState caseData, string securityToken, CancellationToken cancellationToken) {
+    private async Task SendOtpCode(CustomerData caseData, bool sms, string securityToken, CancellationToken cancellationToken) {
 
         // Fetch OTP tools from the Identity MCP server at runtime.
         var registry = await _mcpClientFactory.CreateAsync();
         var mcpTools = await registry.ListToolsAsync(options: null, cancellationToken);
         if (mcpTools.Count == 0) {
+            _logger.LogError("No MCP tools discovered for service 'Identity'.");
             throw new InvalidOperationException("No MCP tools discovered for service 'Identity'.");
         }
 
@@ -83,8 +98,9 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
             });
         // Execute only the send leg now; OTP code collection is done by the workflow host via RequestPort.
         var sendPrompt = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeSenderPrompt), new {
-            phoneNumber = caseData.PhoneNumber,
-            email = caseData.Email,
+            channel = sms ? "Sms" : "Email",
+            phoneNumber = sms ? caseData.PhoneNumber : null,
+            email = sms ? null : caseData.Email,
             securityToken
         });
         await agent.RunAsync<string>(sendPrompt, cancellationToken: cancellationToken);
@@ -96,5 +112,14 @@ public sealed class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.Ot
         }
         var digits = System.Text.RegularExpressions.Regex.Replace(phone, @"\D", "");
         return digits.Length < 4 ? "your registered phone" : $"***{digits[^4..]}";
+    }
+
+    private static string MaskEmail(string? email) {
+        if (string.IsNullOrWhiteSpace(email)) {
+            return "your registered email";
+        }
+
+        var at = email.IndexOf('@');
+        return at < 1 ? "your registered email" : $"{email[0]}***{email[at..]}";
     }
 }

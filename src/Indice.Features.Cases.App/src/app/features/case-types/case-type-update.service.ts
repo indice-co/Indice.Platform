@@ -1,348 +1,63 @@
-import { tap, catchError } from 'rxjs/operators';
-import { Injectable } from "@angular/core";
-import { Router } from "@angular/router";
-import { ToastType } from "@indice/ng-components";
-import { TranslateService } from "@ngx-translate/core";
-import { TranslatedToasterService } from "src/app/shared/services/translated-toaster.service";
-import { CasesApiService, CaseTypeRequest, ICaseTypeRequest } from "src/app/core/services/cases-api.service";
-import { SubmitWidgetComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component";
-import { TailwindFrameworkComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component";
-import { EMPTY } from 'rxjs';
-import { InputWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/input-widget/input-widget.component';
-import { TextAreaWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/text-area-widget/text-area-widget.component';
+import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { EMPTY, Observable } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { CaseTypeService } from 'src/app/core/services/case-type.service';
+import { CasesApiService, CaseTypeRequest, CaseTypeTranslation, ICaseTypeRequest } from 'src/app/core/services/cases-api.service';
+import { ToastType, TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 
-@Injectable({
-    providedIn: 'root'
-})
+/** Create / update calls for case types, with cache invalidation and user feedback. */
+@Injectable({ providedIn: 'root' })
 export class CaseTypeUpdateService {
+  private readonly _api = inject(CasesApiService);
+  private readonly _toaster = inject(TranslatedToasterService);
+  private readonly _router = inject(Router);
+  private readonly _caseTypeService = inject(CaseTypeService);
 
-    constructor(
-        private _api: CasesApiService,
-        private toaster: TranslatedToasterService,
-        private translate: TranslateService,
-        private router: Router) { }
+  public onCreateSubmit(event: ICaseTypeRequest): Observable<unknown> {
+    const request = new CaseTypeRequest(this.toRequest(event));
+    return this._api.createCaseType(request).pipe(
+      tap(() => {
+        this._caseTypeService.invalidateCaseTypes();
+        this._toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeCreated.body');
+        this._router.navigate(['/case-types']);
+      }),
+      catchError(() => EMPTY)
+    );
+  }
 
-    public widgets = {
-        "submit": SubmitWidgetComponent,
-        "text": InputWidgetComponent,
-        "number": InputWidgetComponent,
-        "textarea": TextAreaWidgetComponent
+  public onEditSubmit(caseTypeId: string, event: ICaseTypeRequest): Observable<unknown> {
+    const request = new CaseTypeRequest({ ...this.toRequest(event), id: caseTypeId });
+    return this._api.updateCaseType(caseTypeId, request).pipe(
+      tap(() => {
+        this._caseTypeService.invalidateCaseTypes();
+        this._toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeUpdated.body');
+      }),
+      catchError(() => EMPTY)
+    );
+  }
+
+  private toRequest(event: ICaseTypeRequest): ICaseTypeRequest {
+    const parse = (value: any) => typeof value === 'string' ? JSON.parse(value) : value;
+    // the generated CaseTypeRequest.toJSON() expects CaseTypeTranslation instances, not plain objects
+    const translations = parse(event.translations) as Record<string, unknown> | undefined;
+    return {
+      title: event.title,
+      order: event.order,
+      description: event.description,
+      code: event.code,
+      dataSchema: parse(event.dataSchema),
+      layout: parse(event.layout),
+      translations: translations
+        ? Object.fromEntries(Object.entries(translations).map(([lang, value]) => [lang, value instanceof CaseTypeTranslation ? value : CaseTypeTranslation.fromJS(value)]))
+        : undefined,
+      layoutTranslations: parse(event.layoutTranslations),
+      tags: event.tags,
+      config: event.config,
+      canCreateRoles: event.canCreateRoles,
+      isMenuItem: event.isMenuItem,
+      gridFilterConfig: event.gridFilterConfig,
+      gridColumnConfig: event.gridColumnConfig
     };
-
-    public framework = {
-        framework: TailwindFrameworkComponent
-    };
-
-    public schema: any = {
-        "type": "object",
-        "properties": {
-            "code": {
-                "type": "string"
-            },
-            "title": {
-                "type": "string"
-            },
-            "order": {
-                "type": "number"
-            },
-            "description": {
-                "type": "string"
-            },
-            "dataSchema": {
-                "type": "string"
-            },
-            "layout": {
-                "type": "string"
-            },
-            "translations": {
-                "type": "string"
-            },
-            "layoutTranslations": {
-                "type": "string"
-            },
-            "tags": {
-                "type": "string"
-            },
-            "config": {
-                "type": "string"
-            },
-            "canCreateRoles": {
-                "type": "string"
-            },
-            "isMenuItem": {
-              "type": "boolean"
-            },
-            "gridFilterConfig": {
-              "type": "string"
-            },
-            "gridColumnConfig": {
-              "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "code",
-            "title",
-            "dataSchema"
-        ]
-    }
-
-    public layout: any = [
-        {
-            "type": "section",
-            "title": "Τύπος Υπόθεσης",
-            "labelHtmlClass": "px-2",
-            "items": [
-                {
-                    "type": "flex",
-                    "flex-flow": "row wrap",
-                    "items": [
-                        {
-                            "key": "code",
-                            "title": "Κωδικός",
-                            "htmlClass": "px-2 my-2",
-                            "readonly": "true",
-                            "validationMessages": {
-                                "required": "Υποχρεωτικό Πεδίο."
-                            }
-                        },
-                        {
-                            "key": "title",
-                            "title": "Τίτλος",
-                            "htmlClass": "px-2 my-2",
-                            "validationMessages": {
-                                "required": "Υποχρεωτικό Πεδίο."
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "flex",
-                    "flex-flow": "row wrap",
-                    "items": [
-                        {
-                            "key": "order",
-                            "title": "Σειρά μέσα στην κατηγορία",
-                            "htmlClass": "px-2 my-2"
-                        },
-                        {
-                            "key": "description",
-                            "title": "Περιγραφή",
-                            "htmlClass": "px-2 my-2"
-                        }
-                    ]
-                },
-                {
-                    "type": "flex",
-                    "flex-flow": "row wrap",
-                    "items": [
-                        {
-                            "key": "dataSchema",
-                            "title": "Schema",
-                            "type": "textarea",
-                            "htmlClass": "px-2 my-2",
-                            "validationMessages": {
-                                "required": "Υποχρεωτικό Πεδίο."
-                            }
-                        },
-                        {
-                            "key": "layout",
-                            "title": "Layout",
-                            "type": "textarea",
-                            "htmlClass": "px-2 my-2",
-                        },
-                    ]
-                },
-                {
-                    "type": "flex",
-                    "flex-flow": "row wrap",
-                    "items": [
-                        {
-                            "key": "translations",
-                            "title": "Μετάφραση",
-                            "type": "textarea",
-                            "htmlClass": "px-2 my-2"
-                        },
-                        {
-                            "key": "layoutTranslations",
-                            "title": "Μετάφραση Layout",
-                            "type": "textarea",
-                            "htmlClass": "px-2 my-2"
-                        }
-                    ]
-                },
-                {
-                    "type": "flex",
-                    "flex-flow": "row wrap",
-                    "items": [
-                        {
-                            "key": "tags",
-                            "title": "Ετικέτες",
-                            "htmlClass": "px-2 my-2"
-                        }
-                    ]
-                },
-                {
-                    "type": "flex",
-                    "flex-flow": "row wrap",
-                    "items": [
-                        {
-                            "key": "config",
-                            "title": "Case Type Configuration",
-                            "type": "textarea",
-                            "htmlClass": "px-2 my-2"
-                        }
-                    ]
-                },
-                {
-                    "type": "flex",
-                    "flex-flow": "row wrap",
-                    "items": [
-                        {
-                            "key": "canCreateRoles",
-                            "title": "Επιτρεπτοί Ρόλοι για Δημιουργία υπόθεσης (csv χωρίς κενά πχ Role1,Role2)",
-                            "htmlClass": "px-2 my-2"
-                        }
-                    ]
-                },
-                {
-                  "type": "flex",
-                  "flex-flow": "row wrap",
-                  "items": [
-                    {
-                      "key": "isMenuItem",
-                      "title": "Is menu item",
-                      "type": "checkbox",
-                      "htmlClass": "px-2 my-2"
-                    },
-                    {
-                      "key": "gridFilterConfig",
-                      "title": "Grid filter config",
-                      "type": "textarea",
-                      "htmlClass": "px-2 my-2"
-                    },
-                    {
-                      "key": "gridColumnConfig",
-                      "title": "Grid column config",
-                      "type": "textarea",
-                      "htmlClass": "px-2 my-2"
-                    }
-                  ]
-              },
-            ]
-        }
-    ]
-
-    public onLoadLayout(id?: string): any {
-        if (id == null) {
-            // TODO With structuredClone https://developer.mozilla.org/en-US/docs/Web/API/structuredClone
-            const createLayout = JSON.parse(JSON.stringify(this.layout))
-            const activateElement = (element: any) => {
-                delete element.readonly;
-            }
-            // TODO with recursion
-            createLayout.forEach((element: any) => {
-                activateElement(element);
-                if (element.hasOwnProperty('items')) { // ajsf sections have items!
-                    element.items.forEach((item: any) => {
-                        activateElement(item);
-                        if (item.hasOwnProperty('items')) { // ajsf flex containers have items!
-                            item.items.forEach((i: any) => {
-                                activateElement(i);
-                                if (i.hasOwnProperty('items')) {
-                                    i.items.forEach((j: any) => {
-                                        activateElement(j);
-                                        if (j.hasOwnProperty('items')) {
-                                            j.items.forEach((k: any) => {
-                                                activateElement(k);
-                                            })
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-            this.applyValidationTranslations(createLayout);
-            return createLayout;
-        } else {
-            this.applyValidationTranslations(this.layout);
-            return this.layout;
-        }
-    }
-
-    /** Localizes the `validationMessages.required` entries in the case-type form layout. */
-    private applyValidationTranslations(layout: any[]): void {
-        const required = this.translate.instant('validation.required');
-        const walk = (items: any[]) => {
-            items?.forEach((item: any) => {
-                if (item?.validationMessages?.required !== undefined) {
-                    item.validationMessages.required = required;
-                }
-                if (item?.items) {
-                    walk(item.items);
-                }
-            });
-        };
-        walk(layout);
-    }
-
-    public onCreateSubmit(event: ICaseTypeRequest): void {
-        const request = new CaseTypeRequest({
-            title: event.title,
-            order: event.order,
-            description: event.description,
-            code: event.code,
-            dataSchema: typeof event.dataSchema === 'string' ? JSON.parse(event.dataSchema) : event.dataSchema ,
-            layout: typeof event.layout === 'string' ? JSON.parse(event.layout) : event.layout,
-            translations: typeof event.translations === 'string' ? JSON.parse(event.translations) : event.translations,
-            layoutTranslations: typeof event.layoutTranslations === 'string' ? JSON.parse(event.layoutTranslations) : event.layoutTranslations,
-            tags: event?.tags,
-            config: event?.config,
-            canCreateRoles: event?.canCreateRoles,
-            isMenuItem: event?.isMenuItem,
-            gridFilterConfig: event?.gridFilterConfig,
-            gridColumnConfig: event?.gridColumnConfig
-        });
-        this._api.createCaseType(request).pipe(
-            tap(_ => {
-                this.toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeCreated.body')
-                this.router.navigate(['/case-types']);
-            }),
-            catchError(err => {
-                this.toaster.show(ToastType.Error, 'toasts.error.title', err.detail)
-                return EMPTY
-            })
-        ).subscribe();
-    }
-
-    public onEditSubmit(caseTypeId: string, event: ICaseTypeRequest) {
-        const request = new CaseTypeRequest({
-            id: caseTypeId,
-            title: event.title,
-            order: event.order,
-            description: event.description,
-            code: event.code,
-            dataSchema: typeof event.dataSchema === 'string' ? JSON.parse(event.dataSchema) : event.dataSchema ,
-            layout: typeof event.layout === 'string' ? JSON.parse(event.layout) : event.layout,
-            translations: typeof event.translations === 'string' ? JSON.parse(event.translations) : event.translations,
-            layoutTranslations: typeof event.layoutTranslations === 'string' ? JSON.parse(event.layoutTranslations) : event.layoutTranslations,
-            tags: event?.tags,
-            config: event?.config,
-            canCreateRoles: event?.canCreateRoles,
-            isMenuItem: event?.isMenuItem,
-            gridFilterConfig: event?.gridFilterConfig,
-            gridColumnConfig: event?.gridColumnConfig
-        })
-        this._api.updateCaseType(caseTypeId, request).pipe(
-            tap(_ => {
-                this.toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeUpdated.body')
-            }),
-            catchError(err => {
-                this.toaster.show(ToastType.Error, 'toasts.error.title', err.detail)
-                return EMPTY
-            })
-        ).subscribe();
-    }
+  }
 }

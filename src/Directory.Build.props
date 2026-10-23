@@ -5,7 +5,7 @@
     <!--<TargetFramework></TargetFramework>-->
 
     <VersionPrefixMajor>8</VersionPrefixMajor>
-    <VersionPrefixBase>$(VersionPrefixMajor).58</VersionPrefixBase>
+    <VersionPrefixBase>$(VersionPrefixMajor).60</VersionPrefixBase>
 
     <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
     <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
@@ -20,7 +20,8 @@
     <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
     <VersionPrefixActivityLogs>$(VersionPrefixBase).0</VersionPrefixActivityLogs>
     <VersionPrefixFtpServer>$(VersionPrefixBase).0</VersionPrefixFtpServer>
-    <VersionPrefixAgents>8.0.0</VersionPrefixAgents>
+    <VersionPrefixWorkers>8.0.0</VersionPrefixWorkers>
+    <VersionPrefixAgents>$(VersionPrefixBase).0</VersionPrefixAgents>
     <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 
     <!--<VersionSuffix>rc01</VersionSuffix>-->

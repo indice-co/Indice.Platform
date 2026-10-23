@@ -23,7 +23,7 @@ public sealed class IntentClassifier : Executor<ChatMessage, IntentOutput>
 
     /// <summary>Creates a new <see cref="IntentClassifier"/>.</summary>
     public IntentClassifier(
-        [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, 
+        [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient,
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         ConversationStoreChatHistoryProvider historyProvider) : base("IntentClassifier") {
@@ -53,6 +53,7 @@ public sealed class IntentClassifier : Executor<ChatMessage, IntentOutput>
         var conversationId = message.AdditionalProperties![nameof(ConversationState.ConversationId)]!.ToString()!;
         var conversationState = new ConversationState(message, conversationId);
         await context.SetConversationStateAsync(conversationState, cancellationToken);
+
         var agentSession = await _agent.CreateSessionAsync(cancellationToken);
         
         ConversationStoreChatHistoryProvider.SetSessionId(agentSession, Guid.Parse(conversationId));
@@ -62,9 +63,10 @@ public sealed class IntentClassifier : Executor<ChatMessage, IntentOutput>
         }
         var result = response.Result;
 
-        var category = _options.Taxonomy.Categories.Contains(result.Category ?? "", StringComparer.OrdinalIgnoreCase) ? result.Category : null;
-        var language = _options.Taxonomy.Languages.Contains(result.Language ?? "", StringComparer.OrdinalIgnoreCase) ? result.Language : null;
-
+        //For now ommit category and language. We must first identify how to correctrly use them based on the Bussiness requirements that will come.
+        //var category = _options.Taxonomy.Categories.Contains(result.Category ?? "", StringComparer.OrdinalIgnoreCase) ? result.Category : null;
+        //var language = _options.Taxonomy.Languages.Contains(result.Language ?? "", StringComparer.OrdinalIgnoreCase) ? result.Language : null;
+        string? category = null, language = null;
         var intent = new Intent {
             Type = string.IsNullOrWhiteSpace(result.Type) ? "question" : result.Type,
             Category = category,
