@@ -1,373 +1,350 @@
-import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, SearchOption, ViewAction } from '@indice/ng-components';
-import { TranslateService } from '@ngx-translate/core';
-import { forkJoin, Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { DatePipe } from '@angular/common';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { AuthService } from '@indice/ng-auth';
+import { Observable, filter, forkJoin } from 'rxjs';
+import {
+  LucideArrowDown, LucideArrowUp, LucideBookmark, LucideBookmarkPlus, LucideCircleAlert, LucideFolderSearch, LucideInfo, LucidePlus,
+  LucideRefreshCw, LucideSearchX
+} from '@lucide/angular';
 import { settings } from 'src/app/core/models/settings';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
-import { CasePartial, CasePartialResultSet, CasesApiService, CaseTypePartialResultSet, CheckpointType, } from 'src/app/core/services/cases-api.service';
+import { CasePartial, CasesApiService, CaseTypePartial, CheckpointType } from 'src/app/core/services/cases-api.service';
 import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
-import { QueriesModalComponent } from 'src/app/shared/components/query-modal/query-modal.component';
+import { QueriesModalComponent, QueryModalData } from 'src/app/shared/components/query-modal/query-modal.component';
+import { ValueFromPathPipe } from 'src/app/shared/pipes.services';
+import { DialogService } from 'src/app/ui/dialog/dialog.service';
+import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
+import { FilterBarComponent } from 'src/app/ui/list/filter-bar.component';
+import { FilterClause, SearchOption } from 'src/app/ui/list/filter-clause';
+import { ListQuery, ListState, ResultSet } from 'src/app/ui/list/list-state';
+import { PaginationComponent } from 'src/app/ui/list/pagination.component';
+import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
+import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
+import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
+import { ToastService } from 'src/app/ui/toast/toast.service';
 
-@Component({
-    selector: 'app-general-cases-component',
-    templateUrl: './general-cases.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
-})
-export class GeneralCasesComponent extends BaseListComponent<CasePartial> implements OnInit {
-    public newItemLink = 'new-case';
-    public formActions: ViewAction[] = [];
-    public queryParamsHasFilter = false;
-    public tableFilters = new TableFilters();
-    protected caseTypes: CaseTypePartialResultSet | undefined;
-    /** Cached so search-option labels can be rebuilt on language change without re-fetching. */
-    protected _checkpointTypes: CheckpointType[] = [];
-    /** Whether the user can create cases — controls the "new case" form action. */
-    protected _canCreateCase = false;
-    public caseTypeTitle: string = "";
-    public columns = this.setDefaultColumns();
-    private _destroyRef = inject(DestroyRef);
-
-    constructor(
-        protected _route: ActivatedRoute,
-        protected _router: Router,
-        protected _api: CasesApiService,
-        protected _filterCachingService: FilterCachingService,
-        protected _modalService: ModalService,
-        protected _caseTypeService: CaseTypeService,
-        protected _translate: TranslateService,
-        protected _lang: AppLanguagesService
-    ) {
-        super(_route, _router);
-        this.view = ListViewType.Table;
-        this.pageSize = 10;
-        this.sort = 'createdByWhen';
-        this.sortdir = 'desc';
-        this.buildSortOptions();
-        this.buildFormActions();
-        this.loadFilterSettings();
-    }
-
-    public ngOnInit(): void {
-        this.initialize();
-        this.createNewCaseButton();
-        this.initColumns();
-        // Single global signal: rebuild every TS-built label whenever the language changes
-        // (and once immediately). Columns are translated in the template, so they're not rebuilt here.
-        this._lang.onLanguageChange()
-            .pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe(() => {
-                this.buildSortOptions();
-                this.buildFormActions();
-                this.buildSearchOptions();
-            });
-    }
-
-    protected buildSortOptions(): void {
-        this.sortOptions = [
-            new MenuOption(this._translate.instant('cases.submitDate'), 'createdByWhen')
-        ];
-    }
-
-    protected buildFormActions(): void {
-        const actions: ViewAction[] = [
-            new RouterViewAction(Icons.EntryView, 'queries', 'rightpane', this._translate.instant('cases.mySearches'), this._translate.instant('cases.mySearches')),
-            new ViewAction('refresh', 'refresh', null, Icons.Refresh, this._translate.instant('cases.refresh'))
-        ];
-        if (this._canCreateCase) {
-            actions.unshift(
-                new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', this._translate.instant('cases.submitNewCase'), this._translate.instant('cases.newCase'))
-            );
-        }
-        this.formActions = actions;
-    }
-
-    protected initColumns() {
-        //default columns are already in this.columns so if environment variables is empty then return
-        if (settings.caseListColumns === '') {
-            return;
-        }
-        const defaultColumnTitles = this.columns.map(x => x.title);
-        const configColumns = settings.caseListColumns.split(',');
-
-        for (const title of defaultColumnTitles) {
-            //if environment variables do not have the already existing columns that we display then remove them
-            if (!configColumns.includes(title)) {
-                //renew column list to remove the titles that were not found
-                this.columns = this.columns.filter(x => x.title != title);
-            }
-        }
-    }
-
-    protected setDefaultColumns() {
-        return [
-            { title: 'ReferenceNumber' },
-            { title: 'CustomerId', itemProperty: 'ownerId' },
-            { title: 'CustomerName', itemProperty: 'ownerName' },
-            { title: 'TaxId', itemProperty: 'ownerTin' },
-            { title: 'GroupId' },
-            { title: 'CaseType', itemProperty: 'caseType.title' },
-            { title: 'CheckpointType', itemProperty: 'checkpointType.title' },
-            { title: 'AssignedTo', itemProperty: 'assignedToName' },
-            { title: 'SubmitDate', itemProperty: 'createdByWhen' }
-        ];
-    }
-
-    public initialize(): void {
-        this.initColumns();
-
-        const key = this.getFilterCacheKey();
-        const storedParams = this._filterCachingService.getParams(key);
-        if (storedParams) {
-            this._router.navigate([], {
-                relativeTo: this._route,
-                queryParams: storedParams
-            });
-        }
-        //Are there any filters in queryParams?
-        this._route.queryParams.subscribe((params: Params) => {
-            this.queryParamsHasFilter = params['filter'] ? true : false;
-        });
-        forkJoin({
-            caseTypes: this._api.getCaseTypesList(),
-            checkpointTypes: this._caseTypeService.getCheckpointTypes(true)
-        }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
-            //TODO: this should not be needed - we assign this so its available for the async calls
-            this.caseTypes = caseTypes;
-            this._checkpointTypes = checkpointTypes;
-            this.buildSearchOptions();
-            // now that we have the searchOptions, call parent's ngOnInit!
-            super.ngOnInit();
-        });
-    }
-
-    /**
-     * Builds the table's search/filter options with translated labels. Re-runs on language change
-     * using the cached {@link caseTypes} / {@link _checkpointTypes}, so the filter labels stay localized.
-     */
-    protected buildSearchOptions(): void {
-        const caseTypes = this.caseTypes;
-        if (!caseTypes) {
-            return;
-        }
-        const tempSearchOptions: SearchOption[] = [];
-        if (this.tableFilters.ReferenceNumber) {
-            tempSearchOptions.push({
-                field: 'referenceNumber',
-                name: this._translate.instant('cases.referenceNumber'),
-                dataType: 'string'
-            });
-        }
-        if (this.tableFilters.OwnerId) {
-            tempSearchOptions.push({
-                field: 'ownerId',
-                name: this._translate.instant('cases.customerId'),
-                dataType: 'string'
-            });
-        }
-        if (this.tableFilters.OwnerName) {
-            tempSearchOptions.push({
-                field: 'ownerName',
-                name: this._translate.instant('cases.customerName'),
-                dataType: 'string'
-            });
-        }
-        if (this.tableFilters.TaxId) {
-            tempSearchOptions.push({
-                field: 'TaxId',
-                name: this._translate.instant('cases.taxId'),
-                dataType: 'string'
-            });
-        }
-        if (this.tableFilters.GroupIds) {
-            tempSearchOptions.push({
-                field: 'groupIds',
-                name: this._translate.instant('cases.groupId'),
-                dataType: 'string',
-                multiTerm: true
-            });
-        }
-        if (this.tableFilters.DateRange) {
-            tempSearchOptions.push({
-                field: 'dateRange',
-                name: this._translate.instant('cases.submitDate'),
-                dataType: 'daterange'
-            });
-        }
-        if (this.tableFilters.CaseTypeCodes) {
-            const caseTypeSearchOption = this.getCaseTypeSearchOption(caseTypes);
-            tempSearchOptions.push(caseTypeSearchOption);
-        }
-        if (this.tableFilters.CheckpointTypeCodes) {
-            const checkpointTypeSearchOption = this.getCaseTypeCheckpoints(this._checkpointTypes);
-            tempSearchOptions.push(checkpointTypeSearchOption);
-        }
-        const otherSearchOptions = this.getOtherSearchOptions(caseTypes);
-        if (otherSearchOptions) {
-            tempSearchOptions.push(...otherSearchOptions);
-        }
-        this.searchOptions = tempSearchOptions;
-    }
-
-    public loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
-        let ownerIds: string[] = [];
-        this.filters?.filter(f => f.member === 'ownerId')?.forEach(f => ownerIds.push(this.stringifyFilterClause(f)));
-        let ownerNames: string[] = [];
-        this.filters?.filter(f => f.member === 'ownerName')?.forEach(f => ownerNames.push(this.stringifyFilterClause(f)));
-        let ownerTins: string[] = [];
-        this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => ownerTins?.push(this.stringifyFilterClause(f)));
-        let referenceNumbers: string[] = [];
-        this.filters?.filter(f => f.member === 'referenceNumber')?.forEach(f => referenceNumbers.push(this.stringifyFilterClause(f)));
-        let groupIds: string[] = [];
-        this.filters?.filter(f => f.member === 'groupIds')?.forEach(f => groupIds?.push(this.stringifyFilterClause(f)));
-        let from = this.filters?.find(f => f.member === 'dateRange' && f.operator === Operators.GREATER_THAN_EQUAL.value as FilterClause.Op)?.value;
-        let to = this.filters?.find(f => f.member === 'dateRange' && f.operator === Operators.LESS_THAN_EQUAL.value as FilterClause.Op)?.value;
-        let caseTypeCodes: string[] = [];
-        this.filters?.filter(f => f.member === 'caseTypeCodes')?.forEach(f => caseTypeCodes?.push(this.stringifyFilterClause(f)));
-        let checkpointTypeCodes: string[] = [];
-        this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(this.stringifyFilterClause(f)));
-        let filterMetadata: string[] = [];
-        
-        const extraMetadataFilters = this.getExtraMetadataFilters(this.caseTypes);
-        if (extraMetadataFilters) {
-            filterMetadata?.push(...extraMetadataFilters)
-        }
-        this._filterCachingService.setParams(this.getFilterCacheKey(), {
-            view: this.view,
-            page: this.page,
-            pagesize: this.pageSize,
-            search: this.search,
-            sort: this.sort,
-            dir: this.sortdir,
-            filter: this.stringifyFilters(this.filters)
-        });
-        return this._api
-            .getCases(
-                this.page,
-                this.pageSize,
-                this.sortdir === 'asc' ? this.sort! : this.sort + '-',
-                this.search || undefined,
-                ownerIds,
-                ownerNames,
-                ownerTins,
-                from ? new Date(from) : undefined,
-                to ? new Date(to) : undefined,
-                undefined,
-                caseTypeCodes,
-                checkpointTypeCodes,
-                groupIds,
-                filterMetadata,
-                referenceNumbers,
-                undefined,
-                undefined
-            )
-            .pipe(
-                take(1),
-                map((result: CasePartialResultSet) => (result as IResultSet<CasePartial>))
-            );
-    }
-
-    private createNewCaseButton(): void {
-        //Independent call to fetch the case Types that the user can select for Case Creation
-        this._caseTypeService.getCanCreateCaseTypes()
-            .pipe(take(1))
-            .subscribe(
-                (caseTypesForCaseCreation: CasePartialResultSet) => {
-                    if (caseTypesForCaseCreation.count !== 0) {
-                        this._canCreateCase = true;
-                        this.buildFormActions();
-                    }
-                }
-            );
-    }
-
-    public openQueryModal(): void {
-        this._modalService.show(QueriesModalComponent, {
-            backdrop: 'static',
-            keyboard: false
-        });
-    }
-
-    protected getOtherSearchOptions(caseTypes: CaseTypePartialResultSet): SearchOption[] | undefined {
-        return undefined;
-    }
-
-    protected getCaseTypeCheckpoints(checkpointTypes: CheckpointType[]) {
-        const checkpointTypeSearchOption: SearchOption = {
-            field: 'checkpointTypeCodes',
-            name: this._translate.instant('cases.checkpointType'),
-            dataType: 'array',
-            options: [],
-            multiTerm: true
-        }
-        for (let checkpointType of checkpointTypes) { // fill checkpointTypeSearchOption's SelectInputOptions
-            checkpointTypeSearchOption.options?.push({ value: checkpointType?.code, label: checkpointType?.title ?? checkpointType?.code! })
-        }
-        return checkpointTypeSearchOption;
-    }
-
-    //add all case types to search options
-    protected getCaseTypeSearchOption(caseTypes: CaseTypePartialResultSet) {
-        const caseTypeSearchOption: SearchOption = {
-            field: 'caseTypeCodes',
-            name: this._translate.instant('cases.caseType'),
-            dataType: 'array',
-            options: [],
-            multiTerm: true
-        }
-        for (let caseType of caseTypes.items!) { //Fill caseTypeSearchOption's SelectInputOptions
-            caseTypeSearchOption.options?.push({ value: caseType.code, label: caseType?.title! })
-        }
-        return caseTypeSearchOption;
-    }
-
-    protected getFilterCacheKey(): string {
-        return "cases";
-    }
-
-    protected getExtraMetadataFilters(caseTypes: CaseTypePartialResultSet | undefined): string[] | undefined {
-        return undefined;
-    }
-
-    private loadFilterSettings(): void {
-        if (settings.caseListFilters === '') return;
-        const filters = settings.caseListFilters.split(',')
-        this.tableFilters.ReferenceNumber = filters.some(filter => filter === "ReferenceNumber");
-        this.tableFilters.OwnerId = filters.some(filter => filter === "CustomerId");
-        this.tableFilters.OwnerName = filters.some(filter => filter === "CustomerName");
-        this.tableFilters.TaxId = filters.some(filter => filter === "TaxId");
-        this.tableFilters.GroupIds = filters.some(filter => filter === "GroupIds");
-        this.tableFilters.DateRange = filters.some(filter => filter === "DateRange");
-        this.tableFilters.CaseTypeCodes = filters.some(filter => filter === "CaseTypeCodes");
-        this.tableFilters.CheckpointTypeCodes = filters.some(filter => filter === "CheckpointTypeCodes");
-    }
-
-    //TODO: make this public in Indice.Angular
-    private stringifyFilters(filters: FilterClause[] | undefined) {
-        return filters?.map((f: FilterClause) => {
-            if (f.dataType === 'datetime') {
-                f.value = (new Date(f.value)).toISOString();
-            }
-            return f.toString();
-        }).join(',');
-    }
-
-    public stringifyFilterClause(filter: FilterClause): string {
-        return `${filter.member}::${filter.operator}::${filter.value}`;
-    }
+/** A list column as configured in settings (`caseListColumns`) or a case type's `gridColumnConfig`. */
+export interface CaseColumnConfig {
+  title: string;
+  itemProperty?: string;
 }
 
-class TableFilters {
-    ReferenceNumber: boolean = false;
-    OwnerId: boolean = true;
-    OwnerName: boolean = true;
-    TaxId: boolean = true;
-    GroupIds: boolean = true;
-    DateRange: boolean = true;
-    CaseTypeCodes: boolean = true;
-    CheckpointTypeCodes: boolean = true;
+interface CaseColumn extends CaseColumnConfig {
+  label: string;
+  kind: 'reference' | 'checkpoint' | 'date' | 'text';
+}
+
+/** Filters shown by default; `settings.caseListFilters` (comma separated) overrides the set. */
+const DEFAULT_FILTERS: Record<string, boolean> = {
+  ReferenceNumber: false,
+  CustomerId: true,
+  CustomerName: true,
+  TaxId: true,
+  GroupIds: true,
+  DateRange: true,
+  CaseTypeCodes: true,
+  CheckpointTypeCodes: true
+};
+
+const DEFAULT_COLUMNS: CaseColumnConfig[] = [
+  { title: 'ReferenceNumber' },
+  { title: 'CustomerId', itemProperty: 'ownerId' },
+  { title: 'CustomerName', itemProperty: 'ownerName' },
+  { title: 'TaxId', itemProperty: 'ownerTin' },
+  { title: 'GroupId' },
+  { title: 'CaseType', itemProperty: 'caseType.title' },
+  { title: 'CheckpointType', itemProperty: 'checkpointType.title' },
+  { title: 'AssignedTo', itemProperty: 'assignedToName' },
+  { title: 'SubmitDate', itemProperty: 'createdByWhen' }
+];
+
+const ASSIGNED_TO = 'assignedTo';
+
+/** Template dependencies, shared with {@link CaseTypeSpecificCasesComponent} which reuses the template. */
+export const CASES_LIST_IMPORTS = [
+  DatePipe, RouterLink, TranslatePipe, ValueFromPathPipe, PageHeaderComponent, SearchInputComponent, FilterBarComponent, PaginationComponent,
+  EmptyStateComponent, LucidePlus, LucideRefreshCw, LucideBookmark, LucideBookmarkPlus, LucideArrowUp, LucideArrowDown, LucideFolderSearch,
+  LucideSearchX, LucideCircleAlert, LucideInfo
+];
+
+/**
+ * The cases list. Also serves `/case/by-type/:caseTypeCode` (see {@link CaseTypeSpecificCasesComponent}), where the
+ * route param arrives through the `caseTypeCode` input and narrows the list, columns and filters to that case type.
+ */
+@Component({
+  selector: 'app-general-cases',
+  imports: CASES_LIST_IMPORTS,
+  templateUrl: './general-cases.component.html'
+})
+export class GeneralCasesComponent {
+  private readonly _api = inject(CasesApiService);
+  private readonly _router = inject(Router);
+  private readonly _route = inject(ActivatedRoute);
+  private readonly _auth = inject(AuthService);
+  private readonly _translate = inject(TranslateService);
+  private readonly _caseTypeService = inject(CaseTypeService);
+  private readonly _filterCaching = inject(FilterCachingService);
+  private readonly _dialog = inject(DialogService);
+  private readonly _toast = inject(ToastService);
+  protected readonly pane = inject(SidePaneService);
+
+  /** Bound from the `:caseTypeCode` route param on case type pages; undefined on `/cases`. */
+  public readonly caseTypeCode = input<string>();
+
+  private readonly _lang = toSignal(inject(AppLanguagesService).onLanguageChange());
+  private readonly _caseTypes = signal<CaseTypePartial[] | undefined>(undefined);
+  private readonly _checkpointTypes = signal<CheckpointType[]>([]);
+  /** The case types the user may open cases of; undefined until loaded. */
+  private readonly _creatableCaseTypes = signal<CaseTypePartial[] | undefined>(undefined);
+
+  protected readonly list = new ListState<CasePartial>({
+    pageSize: 10,
+    sort: 'createdByWhen',
+    dir: 'desc',
+    load: query => this.loadItems(query)
+  });
+
+  protected readonly currentCaseType = computed(() => {
+    const code = this.caseTypeCode();
+    return code ? this._caseTypes()?.find(c => c.code === code) : undefined;
+  });
+
+  /** Whether the user may open a case here (of this case type on a case type page); undefined while unknown. */
+  protected readonly canCreateCase = computed<boolean | undefined>(() => {
+    const creatable = this._creatableCaseTypes();
+    if (!creatable) {
+      return undefined;
+    }
+    const code = this.caseTypeCode();
+    return code ? creatable.some(c => c.code === code) : creatable.length > 0;
+  });
+
+  /** Opens the new case pane, with this page's case type already chosen. */
+  protected readonly newCaseLink = computed(() => {
+    const code = this.caseTypeCode();
+    return this.pane.link('new-case', code ? { type: code } : undefined);
+  });
+
+  protected readonly assignedToMe = computed(() => this.list.filters().some(f => f.member === ASSIGNED_TO));
+
+  protected readonly searchOptions = computed<SearchOption[]>(() => {
+    this._lang();
+    const caseTypes = this._caseTypes();
+    if (!caseTypes) {
+      return [];
+    }
+    const t = (key: string) => this._translate.instant(key);
+    const enabled = this.enabledFilters();
+    const options: SearchOption[] = [];
+    if (enabled.ReferenceNumber) {
+      options.push({ field: 'referenceNumber', name: t('cases.referenceNumber'), dataType: 'string' });
+    }
+    if (enabled.CustomerId) {
+      options.push({ field: 'ownerId', name: t('cases.customerId'), dataType: 'string' });
+    }
+    if (enabled.CustomerName) {
+      options.push({ field: 'ownerName', name: t('cases.customerName'), dataType: 'string' });
+    }
+    if (enabled.TaxId) {
+      options.push({ field: 'TaxId', name: t('cases.taxId'), dataType: 'string' });
+    }
+    if (enabled.GroupIds) {
+      options.push({ field: 'groupIds', name: t('cases.groupId'), dataType: 'string', multiTerm: true });
+    }
+    if (enabled.DateRange) {
+      options.push({ field: 'dateRange', name: t('cases.submitDate'), dataType: 'daterange' });
+    }
+    if (enabled.CaseTypeCodes) {
+      const current = this.currentCaseType();
+      options.push(current
+        ? { field: 'caseTypeCodes', name: t('cases.caseType'), dataType: 'array', multiTerm: true, readonly: true, options: [{ value: current.code, label: current.title ?? current.code! }] }
+        : { field: 'caseTypeCodes', name: t('cases.caseType'), dataType: 'array', multiTerm: true, options: caseTypes.map(c => ({ value: c.code, label: c.title ?? c.code! })) });
+    }
+    if (enabled.CheckpointTypeCodes) {
+      options.push({
+        field: 'checkpointTypeCodes',
+        name: t('cases.checkpointType'),
+        dataType: 'array',
+        multiTerm: true,
+        options: this._checkpointTypes().map(c => ({ value: c.code, label: c.title ?? c.code! }))
+      });
+    }
+    // case type pages may add filters on case metadata
+    options.push(...((this.currentCaseType()?.gridFilterConfig as SearchOption[] | undefined) ?? []));
+    return options;
+  });
+
+  protected readonly columns = computed<CaseColumn[]>(() => {
+    this._lang();
+    const gridColumns = this.currentCaseType()?.gridColumnConfig as CaseColumnConfig[] | undefined;
+    const configs = gridColumns?.length ? gridColumns : this.configuredDefaultColumns();
+    return configs.map(column => ({
+      ...column,
+      label: this.columnLabel(column.title),
+      kind: column.title === 'ReferenceNumber' ? 'reference'
+        : column.itemProperty === 'checkpointType.title' ? 'checkpoint'
+        : column.itemProperty === 'createdByWhen' ? 'date'
+        : 'text'
+    }));
+  });
+
+  protected readonly title = computed(() => {
+    this._lang();
+    return this.currentCaseType()?.title ?? this._translate.instant('cases.title');
+  });
+
+  protected readonly skeletonRows = [1, 2, 3, 4, 5, 6, 7, 8];
+
+  constructor() {
+    forkJoin({
+      caseTypes: this._api.getCaseTypesList(),
+      checkpointTypes: this._caseTypeService.getCheckpointTypes(true)
+    }).subscribe(({ caseTypes, checkpointTypes }) => {
+      this._checkpointTypes.set(checkpointTypes);
+      this._caseTypes.set(caseTypes.items ?? []);
+    });
+    this._caseTypeService.getCanCreateCaseTypes().subscribe(result => this._creatableCaseTypes.set(result.items ?? []));
+
+    // (re)activate once case types are known and whenever the case type route param changes (component reuse)
+    effect(() => {
+      if (!this._caseTypes()) {
+        return;
+      }
+      const code = this.caseTypeCode();
+      untracked(() => this.activate(code));
+    });
+  }
+
+  protected toggleAssignedToMe(): void {
+    const others = this.list.filters().filter(f => f.member !== ASSIGNED_TO);
+    const userId = this._auth.getSubjectId();
+    this.list.setFilters(this.assignedToMe() || !userId ? others : [...others, new FilterClause(ASSIGNED_TO, userId)]);
+  }
+
+  protected clearFilters(): void {
+    const readonlyFields = new Set(this.searchOptions().filter(o => o.readonly).map(o => o.field));
+    this.list.update({ filters: this.list.filters().filter(f => readonlyFields.has(f.member)), search: '' });
+  }
+
+  protected sortBySubmitDate(): void {
+    this.list.setSort('createdByWhen');
+  }
+
+  protected openCase(item: CasePartial): void {
+    this._router.navigate(['/cases', item.id, 'details']);
+  }
+
+  protected saveSearch(): void {
+    const q = this.list.query;
+    // page always resets to 1; same format as previously saved searches so they keep applying to /cases
+    const parameters = `?page=1&pagesize=${q.pageSize}&search=${encodeURIComponent(q.search)}&sort=${q.sort}&dir=${q.dir}&filter=${FilterClause.stringifyList(q.filters)}`;
+    this._dialog.open<boolean, QueryModalData>(QueriesModalComponent, { data: { parameters } })
+      .closed.pipe(filter(Boolean))
+      .subscribe(() => this._toast.success('toasts.success.title', 'toasts.searchSaved.body'));
+  }
+
+  protected statusClass(item: CasePartial): string {
+    const status = item.checkpointType?.status;
+    return `stamp stamp-${status ? status.toLowerCase() : 'neutral'}`;
+  }
+
+  private activate(code: string | undefined): void {
+    const params = this._route.snapshot.queryParamMap;
+    if (params.keys.length === 0) {
+      const stored = this._filterCaching.getParams(this.cacheKey());
+      if (stored) {
+        this._router.navigate([], { relativeTo: this._route, queryParams: stored, replaceUrl: true }).then(() => this.startList());
+        return;
+      } else if (code) {
+        // land on a case type page without params (e.g. a typed URL): show its readonly case type filter
+        this._router.navigate([], {
+          relativeTo: this._route,
+          queryParams: { filter: new FilterClause('caseTypeCodes', code, 'eq', 'array').toString() },
+          replaceUrl: true
+        }).then(() => this.startList());
+        return;
+      }
+    }
+    this.startList();
+  }
+
+  /** Starts the list once; afterwards query param changes (incl. switching case type pages) reload it by themselves. */
+  private startList(): void {
+    if (!this.list.started) {
+      this.list.start();
+    }
+  }
+
+  private loadItems(query: ListQuery): Observable<ResultSet<CasePartial>> {
+    const terms = (member: string) => query.filters.filter(f => f.member === member).map(f => f.toApiTerm());
+    const dateValue = (op: string) => query.filters.find(f => f.member === 'dateRange' && f.operator === op)?.value;
+    const from = dateValue('gte');
+    const to = dateValue('lte');
+    const code = this.routeCaseTypeCode();
+    // case type pages always stay within their case type, whatever the URL says
+    const caseTypeCodes = code ? [`caseTypeCodes::eq::${code}`] : terms('caseTypeCodes');
+    const caseType = code ? this._caseTypes()?.find(c => c.code === code) : undefined;
+    const metadataFields: string[] = ((caseType?.gridFilterConfig as SearchOption[] | undefined) ?? []).map(c => c.field);
+    const metadata = metadataFields.flatMap(field => terms(field).map(term => `metadata.${term}`));
+    this._filterCaching.setParams(this.cacheKey(), this.list.toQueryParams());
+    return this._api.getCases(
+      query.page,
+      query.pageSize,
+      query.dir === 'asc' ? query.sort : `${query.sort}-`,
+      query.search || undefined,
+      terms('ownerId'),
+      terms('ownerName'),
+      terms('TaxId'),
+      from ? new Date(from) : undefined,
+      to ? new Date(to) : undefined,
+      undefined,
+      caseTypeCodes,
+      terms('checkpointTypeCodes'),
+      terms('groupIds'),
+      metadata,
+      terms('referenceNumber'),
+      undefined,
+      undefined,
+      query.filters.find(f => f.member === ASSIGNED_TO)?.value || undefined
+    );
+  }
+
+  private cacheKey(): string {
+    return this.routeCaseTypeCode() ?? 'cases';
+  }
+
+  /**
+   * The case type code from the route snapshot. When the component is reused between case type pages the router
+   * emits the new query params before the `caseTypeCode` input updates, but the snapshot is already current.
+   */
+  private routeCaseTypeCode(): string | undefined {
+    return this._route.snapshot.paramMap.get('caseTypeCode') ?? undefined;
+  }
+
+  private enabledFilters(): Record<string, boolean> {
+    if (!settings.caseListFilters) {
+      return DEFAULT_FILTERS;
+    }
+    const configured = settings.caseListFilters.split(',').map(f => f.trim());
+    return Object.fromEntries(Object.keys(DEFAULT_FILTERS).map(key => [key, configured.includes(key)]));
+  }
+
+  private configuredDefaultColumns(): CaseColumnConfig[] {
+    if (!settings.caseListColumns) {
+      return DEFAULT_COLUMNS;
+    }
+    const configured = settings.caseListColumns.split(',').map(c => c.trim());
+    return DEFAULT_COLUMNS.filter(c => configured.includes(c.title));
+  }
+
+  /** `cases.<camelCaseTitle>` when translated, otherwise the configured title as is. */
+  private columnLabel(title: string): string {
+    const key = `cases.${title[0].toLowerCase()}${title.slice(1)}`;
+    const translated = this._translate.instant(key);
+    return translated && translated !== key ? translated : title;
+  }
 }

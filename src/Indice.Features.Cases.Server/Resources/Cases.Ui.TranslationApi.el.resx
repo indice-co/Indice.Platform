@@ -120,20 +120,20 @@
   <data name="dashboard.groupedByCasetype" xml:space="preserve">
     <value>Συνολικές Υποθέσεις ανά Τύπο Υπόθεσης</value>
   </data>
-  <data name="dashboard.agentGroupedByCasetype" xml:space="preserve">
-    <value>Υποθέσεις από Κατάστημα ανά Τύπο Υπόθεσης</value>
-  </data>
-  <data name="dashboard.customerGroupedByCasetype" xml:space="preserve">
-    <value>Υποθέσεις μέσω eBanking ανά Τύπο Υπόθεσης</value>
-  </data>
   <data name="dashboard.groupedByStatus" xml:space="preserve">
     <value>Συνολικές Υποθέσεις ανά Status</value>
   </data>
-  <data name="dashboard.agentGroupedByStatus" xml:space="preserve">
-    <value>Υποθέσεις από Κατάστημα ανά Status</value>
+  <data name="dashboard.channelGroupedByCasetype" xml:space="preserve">
+    <value>Υποθέσεις ανά Τύπο Υπόθεσης ({{channel}})</value>
   </data>
-  <data name="dashboard.customerGroupedByStatus" xml:space="preserve">
-    <value>Υποθέσεις μέσω eBanking ανά Status</value>
+  <data name="dashboard.channelGroupedByStatus" xml:space="preserve">
+    <value>Υποθέσεις ανά Status ({{channel}})</value>
+  </data>
+  <data name="channels.Managed" xml:space="preserve">
+    <value>Διαχειριζόμενο κανάλι</value>
+  </data>
+  <data name="channels.External" xml:space="preserve">
+    <value>Εξωτερικό κανάλι</value>
   </data>
   <data name="dashboard.groupedByGroupId" xml:space="preserve">
     <value>Συνολικές Υποθέσεις ανά Καταστημα</value>
@@ -280,7 +280,7 @@
     <value>Οι αναζητήσεις μου</value>
   </data>
   <data name="cases.noSavedSearches" xml:space="preserve">
-    <value>Δεν έχετε αποθηκευμένες αναζητήσεις!</value>
+    <value>Δεν υπάρχουν αποθηκευμένες αναζητήσεις. Φιλτράρετε τη λίστα υποθέσεων και επιλέξτε Αποθήκευση Αναζήτησης.</value>
   </data>
   <data name="cases.newCase" xml:space="preserve">
     <value>Νέα υπόθεση</value>
@@ -734,5 +734,494 @@
   </data>
   <data name="toasts.accessRuleDeleted.body" xml:space="preserve">
     <value>Ο κανόνας πρόσβασης διαγράφηκε.</value>
+  </data>
+  <data name="caseTypes.subtitle" xml:space="preserve">
+    <value>Ορίστε τις φόρμες, τις διατάξεις και τις ρυθμίσεις κάθε είδους υπόθεσης.</value>
+  </data>
+  <data name="caseTypes.column.menuItem" xml:space="preserve">
+    <value>Στο μενού</value>
+  </data>
+  <data name="caseTypes.empty.title" xml:space="preserve">
+    <value>Δεν υπάρχουν τύποι υποθέσεων</value>
+  </data>
+  <data name="caseTypes.empty.message" xml:space="preserve">
+    <value>Δημιουργήστε έναν τύπο υπόθεσης για να αρχίσετε να δέχεστε υποθέσεις αυτού του είδους.</value>
+  </data>
+  <data name="caseTypes.form.isMenuItem" xml:space="preserve">
+    <value>Εμφάνιση στο πλευρικό μενού</value>
+  </data>
+  <data name="caseTypes.form.isMenuItemHint" xml:space="preserve">
+    <value>Προσθέτει συντόμευση προς τις υποθέσεις αυτού του τύπου στις Ουρές υποθέσεων.</value>
+  </data>
+  <data name="caseTypes.form.sectionData" xml:space="preserve">
+    <value>Δεδομένα και διάταξη</value>
+  </data>
+  <data name="caseTypes.form.schema" xml:space="preserve">
+    <value>Σχήμα δεδομένων (JSON)</value>
+  </data>
+  <data name="caseTypes.form.layout" xml:space="preserve">
+    <value>Διάταξη (JSON)</value>
+  </data>
+  <data name="caseTypes.form.sectionTranslations" xml:space="preserve">
+    <value>Μεταφράσεις</value>
+  </data>
+  <data name="caseTypes.form.sectionConfig" xml:space="preserve">
+    <value>Ρυθμίσεις</value>
+  </data>
+  <data name="caseTypes.form.config" xml:space="preserve">
+    <value>Ρυθμίσεις τύπου υπόθεσης (JSON)</value>
+  </data>
+  <data name="caseTypes.form.gridFilterConfig" xml:space="preserve">
+    <value>Φίλτρα λίστας (JSON)</value>
+  </data>
+  <data name="caseTypes.form.gridColumnConfig" xml:space="preserve">
+    <value>Στήλες λίστας (JSON)</value>
+  </data>
+  <data name="caseTypes.form.invalidJson" xml:space="preserve">
+    <value>Το περιεχόμενο δεν είναι έγκυρο JSON.</value>
+  </data>
+  <data name="caseTypes.form.fixJson" xml:space="preserve">
+    <value>Διορθώστε τα επισημασμένα πεδία JSON για να αποθηκεύσετε.</value>
+  </data>
+  <data name="checkpointTypes.subtitle" xml:space="preserve">
+    <value>Τα βήματα από τα οποία περνά μια υπόθεση και η κατάσταση που δηλώνει το καθένα.</value>
+  </data>
+  <data name="checkpointTypes.empty.title" xml:space="preserve">
+    <value>Δεν βρέθηκαν τύποι σημείων ελέγχου</value>
+  </data>
+  <data name="checkpointTypes.empty.message" xml:space="preserve">
+    <value>Δοκιμάστε άλλον τύπο υπόθεσης ή όρο αναζήτησης.</value>
+  </data>
+  <data name="checkpointTypes.delete.confirmCode" xml:space="preserve">
+    <value>Διαγραφή του τύπου σημείου ελέγχου {{code}}; Η ενέργεια δεν αναιρείται.</value>
+  </data>
+  <data name="checkpointTypes.chooseCaseType" xml:space="preserve">
+    <value>Επιλέξτε τύπο υπόθεσης</value>
+  </data>
+  <data name="checkpointTypes.privateHint" xml:space="preserve">
+    <value>Τα ιδιωτικά σημεία ελέγχου δεν εμφανίζονται στους πελάτες.</value>
+  </data>
+  <data name="accessRules.subtitle" xml:space="preserve">
+    <value>Ποιος μπορεί να βλέπει, να διαχειρίζεται ή να διοικεί υποθέσεις, ανά τύπο υπόθεσης ή σημείο ελέγχου.</value>
+  </data>
+  <data name="accessRules.empty.title" xml:space="preserve">
+    <value>Δεν βρέθηκαν κανόνες πρόσβασης</value>
+  </data>
+  <data name="accessRules.empty.message" xml:space="preserve">
+    <value>Καθαρίστε τα φίλτρα ή προσθέστε κανόνα.</value>
+  </data>
+  <data name="accessRules.chooseTarget" xml:space="preserve">
+    <value>Επιλέξτε σε τι εφαρμόζεται ο κανόνας</value>
+  </data>
+  <data name="notifications.selectedCount" xml:space="preserve">
+    <value>{{count}} επιλεγμένα</value>
+  </data>
+  <data name="notifications.selectAll" xml:space="preserve">
+    <value>Επιλογή όλων</value>
+  </data>
+  <data name="notifications.clearAll" xml:space="preserve">
+    <value>Καμία επιλογή</value>
+  </data>
+  <data name="notifications.empty.title" xml:space="preserve">
+    <value>Δεν υπάρχουν τύποι υποθέσεων για εγγραφή</value>
+  </data>
+  <data name="caseDetails.backToCases" xml:space="preserve">
+    <value>Επιστροφή στις υποθέσεις</value>
+  </data>
+  <data name="caseDetails.draft" xml:space="preserve">
+    <value>Πρόχειρο</value>
+  </data>
+  <data name="caseDetails.unassigned" xml:space="preserve">
+    <value>Χωρίς ανάθεση</value>
+  </data>
+  <data name="caseDetails.nextSteps" xml:space="preserve">
+    <value>Επόμενα βήματα</value>
+  </data>
+  <data name="caseDetails.loadError.title" xml:space="preserve">
+    <value>Η υπόθεση δεν μπόρεσε να φορτωθεί</value>
+  </data>
+  <data name="caseDetails.loadError.message" xml:space="preserve">
+    <value>Μπορεί να έχει διαγραφεί ή να μην έχετε πρόσβαση σε αυτήν.</value>
+  </data>
+  <data name="caseDetails.discardDraft.confirm" xml:space="preserve">
+    <value>Το πρόχειρο και τα δεδομένα που έχουν καταχωριστεί θα διαγραφούν. Η ενέργεια δεν αναιρείται.</value>
+  </data>
+  <data name="caseDetails.form.editable" xml:space="preserve">
+    <value>Επεξεργάσιμο</value>
+  </data>
+  <data name="caseDetails.form.discardChanges" xml:space="preserve">
+    <value>Απόρριψη αλλαγών</value>
+  </data>
+  <data name="caseDetails.related.title" xml:space="preserve">
+    <value>Σχετικές υποθέσεις</value>
+  </data>
+  <data name="caseDetails.related.current" xml:space="preserve">
+    <value>Τρέχουσα</value>
+  </data>
+  <data name="caseDetails.timeline.private" xml:space="preserve">
+    <value>Ιδιωτικό</value>
+  </data>
+  <data name="caseDetails.timeline.empty" xml:space="preserve">
+    <value>Δεν υπάρχει δραστηριότητα ακόμη.</value>
+  </data>
+  <data name="caseStatus.Submitted" xml:space="preserve">
+    <value>Υποβλήθηκε</value>
+  </data>
+  <data name="caseStatus.InProgress" xml:space="preserve">
+    <value>Σε εξέλιξη</value>
+  </data>
+  <data name="caseStatus.Completed" xml:space="preserve">
+    <value>Ολοκληρώθηκε</value>
+  </data>
+  <data name="caseStatus.Deleted" xml:space="preserve">
+    <value>Διαγράφηκε</value>
+  </data>
+  <data name="cases.resultCount" xml:space="preserve">
+    <value>{{count}} υποθέσεις</value>
+  </data>
+  <data name="cases.searchPlaceholder" xml:space="preserve">
+    <value>Αναζήτηση υποθέσεων</value>
+  </data>
+  <data name="cases.assignedToMe" xml:space="preserve">
+    <value>Ανατεθειμένες σε εμένα</value>
+  </data>
+  <data name="cases.retry" xml:space="preserve">
+    <value>Δοκιμάστε ξανά</value>
+  </data>
+  <data name="cases.loadError.title" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η φόρτωση των υποθέσεων</value>
+  </data>
+  <data name="cases.loadError.message" xml:space="preserve">
+    <value>Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</value>
+  </data>
+  <data name="cases.empty.title" xml:space="preserve">
+    <value>Δεν υπάρχουν υποθέσεις ακόμη</value>
+  </data>
+  <data name="cases.empty.message" xml:space="preserve">
+    <value>Οι υποθέσεις εμφανίζονται εδώ μόλις υποβληθούν.</value>
+  </data>
+  <data name="cases.emptyFiltered.title" xml:space="preserve">
+    <value>Καμία υπόθεση δεν ταιριάζει με αυτά τα φίλτρα</value>
+  </data>
+  <data name="cases.emptyFiltered.message" xml:space="preserve">
+    <value>Αφαιρέστε ένα φίλτρο ή αλλάξτε το κείμενο αναζήτησης.</value>
+  </data>
+  <data name="cases.emptyFiltered.clear" xml:space="preserve">
+    <value>Καθαρισμός φίλτρων</value>
+  </data>
+  <data name="cases.savedSearches.subtitle" xml:space="preserve">
+    <value>Επιλέξτε μια αναζήτηση για να την εφαρμόσετε στη λίστα υποθέσεων.</value>
+  </data>
+  <data name="cases.savedSearches.emptyHint" xml:space="preserve">
+    <value>Φιλτράρετε τη λίστα υποθέσεων και επιλέξτε Αποθήκευση αναζήτησης για να τη βρίσκετε εδώ.</value>
+  </data>
+  <data name="cases.create.subtitle" xml:space="preserve">
+    <value>Επιλέξτε τύπο υπόθεσης και πελάτη για να ξεκινήσετε μια πρόχειρη υπόθεση.</value>
+  </data>
+  <data name="cases.create.chooseType" xml:space="preserve">
+    <value>Τύπος υπόθεσης</value>
+  </data>
+  <data name="cases.create.chooseTypeHint" xml:space="preserve">
+    <value>Επιλέξτε το είδος της υπόθεσης.</value>
+  </data>
+  <data name="cases.create.findCustomer" xml:space="preserve">
+    <value>Πελάτης</value>
+  </data>
+  <data name="cases.create.findCustomerHint" xml:space="preserve">
+    <value>Αναζητήστε με όνομα, κωδικό πελάτη ή ΑΦΜ και επιλέξτε τον πελάτη.</value>
+  </data>
+  <data name="cases.create.submit" xml:space="preserve">
+    <value>Δημιουργία υπόθεσης</value>
+  </data>
+  <data name="cases.create.change" xml:space="preserve">
+    <value>Αλλαγή</value>
+  </data>
+  <data name="cases.create.otherCategory" xml:space="preserve">
+    <value>Λοιπές</value>
+  </data>
+  <data name="cases.create.noCaseTypes" xml:space="preserve">
+    <value>Δεν μπορείτε να δημιουργήσετε υποθέσεις κανενός τύπου.</value>
+  </data>
+  <data name="cases.searchContact.noResults" xml:space="preserve">
+    <value>Κανένας πελάτης δεν ταιριάζει με την αναζήτηση.</value>
+  </data>
+  <data name="modals.query.nameLabel" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="toasts.searchSaved.body" xml:space="preserve">
+    <value>Η αναζήτηση αποθηκεύτηκε</value>
+  </data>
+  <data name="toasts.searchDeleted.body" xml:space="preserve">
+    <value>Η αναζήτηση διαγράφηκε</value>
+  </data>
+  <data name="dashboard.greeting.morning" xml:space="preserve">
+    <value>Καλημέρα, {{name}}</value>
+  </data>
+  <data name="dashboard.greeting.afternoon" xml:space="preserve">
+    <value>Καλό απόγευμα, {{name}}</value>
+  </data>
+  <data name="dashboard.greeting.evening" xml:space="preserve">
+    <value>Καλησπέρα, {{name}}</value>
+  </data>
+  <data name="dashboard.subtitle" xml:space="preserve">
+    <value>Αυτή είναι η εικόνα των υποθέσεών σας σήμερα.</value>
+  </data>
+  <data name="dashboard.pipeline.title" xml:space="preserve">
+    <value>Ροή υποθέσεων</value>
+  </data>
+  <data name="dashboard.pipeline.openCases" xml:space="preserve">
+    <value>ανοιχτές υποθέσεις</value>
+  </data>
+  <data name="dashboard.pipeline.empty" xml:space="preserve">
+    <value>Καμία υπόθεση δεν έχει φτάσει ακόμη σε στάδιο.</value>
+  </data>
+  <data name="dashboard.status.submitted" xml:space="preserve">
+    <value>Σε αναμονή ανάληψης</value>
+  </data>
+  <data name="dashboard.status.inProgress" xml:space="preserve">
+    <value>Σε εξέλιξη</value>
+  </data>
+  <data name="dashboard.status.completed" xml:space="preserve">
+    <value>Ολοκληρωμένες</value>
+  </data>
+  <data name="dashboard.myQueue.title" xml:space="preserve">
+    <value>Οι υποθέσεις μου</value>
+  </data>
+  <data name="dashboard.myQueue.subtitle" xml:space="preserve">
+    <value>Ανοιχτές υποθέσεις που σας έχουν ανατεθεί</value>
+  </data>
+  <data name="dashboard.myQueue.empty" xml:space="preserve">
+    <value>Δεν σας έχει ανατεθεί καμία υπόθεση αυτή τη στιγμή.</value>
+  </data>
+  <data name="dashboard.myQueue.viewAll" xml:space="preserve">
+    <value>Προβολή και των {{count}}</value>
+  </data>
+  <data name="dashboard.intake.title" xml:space="preserve">
+    <value>Νέες αυτή την εβδομάδα</value>
+  </data>
+  <data name="dashboard.intake.subtitle" xml:space="preserve">
+    <value>Υποθέσεις ανά ημέρα τις τελευταίες 14 ημέρες</value>
+  </data>
+  <data name="dashboard.intake.chartLabel" xml:space="preserve">
+    <value>Υποθέσεις ανά ημέρα</value>
+  </data>
+  <data name="dashboard.intake.deltaUp" xml:space="preserve">
+    <value>{{value}} περισσότερες από τις προηγούμενες 7 ημέρες</value>
+  </data>
+  <data name="dashboard.intake.deltaDown" xml:space="preserve">
+    <value>{{value}} λιγότερες από τις προηγούμενες 7 ημέρες</value>
+  </data>
+  <data name="dashboard.intake.deltaSame" xml:space="preserve">
+    <value>Ίδιες με τις προηγούμενες 7 ημέρες</value>
+  </data>
+  <data name="dashboard.latest.title" xml:space="preserve">
+    <value>Πρόσφατες υποθέσεις</value>
+  </data>
+  <data name="dashboard.latest.viewAll" xml:space="preserve">
+    <value>Όλες οι υποθέσεις</value>
+  </data>
+  <data name="dashboard.latest.empty" xml:space="preserve">
+    <value>Δεν υπάρχουν υποθέσεις ακόμη.</value>
+  </data>
+  <data name="dashboard.other" xml:space="preserve">
+    <value>Λοιπά</value>
+  </data>
+  <data name="dashboard.noData" xml:space="preserve">
+    <value>Δεν υπάρχουν δεδομένα ακόμη.</value>
+  </data>
+  <data name="dashboard.loadError" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η φόρτωση αυτής της ενότητας.</value>
+  </data>
+  <data name="dashboard.retry" xml:space="preserve">
+    <value>Επανάληψη</value>
+  </data>
+  <data name="common.confirm" xml:space="preserve">
+    <value>Επιβεβαίωση</value>
+  </data>
+  <data name="common.close" xml:space="preserve">
+    <value>Κλείσιμο</value>
+  </data>
+  <data name="list.range" xml:space="preserve">
+    <value>{{from}}–{{to}} από {{count}}</value>
+  </data>
+  <data name="list.noResults" xml:space="preserve">
+    <value>Κανένα αποτέλεσμα</value>
+  </data>
+  <data name="list.perPage" xml:space="preserve">
+    <value>Ανά σελίδα</value>
+  </data>
+  <data name="list.previous" xml:space="preserve">
+    <value>Προηγούμενη σελίδα</value>
+  </data>
+  <data name="list.next" xml:space="preserve">
+    <value>Επόμενη σελίδα</value>
+  </data>
+  <data name="filters.add" xml:space="preserve">
+    <value>Φίλτρο</value>
+  </data>
+  <data name="filters.remove" xml:space="preserve">
+    <value>Αφαίρεση φίλτρου</value>
+  </data>
+  <data name="filters.clearAll" xml:space="preserve">
+    <value>Καθαρισμός όλων</value>
+  </data>
+  <data name="filters.field" xml:space="preserve">
+    <value>Πεδίο</value>
+  </data>
+  <data name="filters.chooseField" xml:space="preserve">
+    <value>Επιλέξτε πεδίο</value>
+  </data>
+  <data name="filters.operator" xml:space="preserve">
+    <value>Συνθήκη</value>
+  </data>
+  <data name="filters.value" xml:space="preserve">
+    <value>Τιμή</value>
+  </data>
+  <data name="filters.chooseValue" xml:space="preserve">
+    <value>Επιλέξτε τιμή</value>
+  </data>
+  <data name="filters.from" xml:space="preserve">
+    <value>Από</value>
+  </data>
+  <data name="filters.to" xml:space="preserve">
+    <value>Έως</value>
+  </data>
+  <data name="filters.apply" xml:space="preserve">
+    <value>Προσθήκη φίλτρου</value>
+  </data>
+  <data name="filters.op.eq" xml:space="preserve">
+    <value>Είναι</value>
+  </data>
+  <data name="filters.op.neq" xml:space="preserve">
+    <value>Δεν είναι</value>
+  </data>
+  <data name="filters.op.gt" xml:space="preserve">
+    <value>Μεγαλύτερο από</value>
+  </data>
+  <data name="filters.op.lt" xml:space="preserve">
+    <value>Μικρότερο από</value>
+  </data>
+  <data name="filters.op.gte" xml:space="preserve">
+    <value>Τουλάχιστον</value>
+  </data>
+  <data name="filters.op.lte" xml:space="preserve">
+    <value>Το πολύ</value>
+  </data>
+  <data name="filters.op.contains" xml:space="preserve">
+    <value>Περιέχει</value>
+  </data>
+  <data name="filters.op.in" xml:space="preserve">
+    <value>Είναι ένα από</value>
+  </data>
+  <data name="nav.main" xml:space="preserve">
+    <value>Κύρια πλοήγηση</value>
+  </data>
+  <data name="nav.caseQueues" xml:space="preserve">
+    <value>Ουρές υποθέσεων</value>
+  </data>
+  <data name="nav.administration" xml:space="preserve">
+    <value>Διαχείριση</value>
+  </data>
+  <data name="nav.openMenu" xml:space="preserve">
+    <value>Άνοιγμα μενού</value>
+  </data>
+  <data name="nav.closeMenu" xml:space="preserve">
+    <value>Κλείσιμο μενού</value>
+  </data>
+  <data name="nav.language" xml:space="preserve">
+    <value>Γλώσσα</value>
+  </data>
+  <data name="nav.theme" xml:space="preserve">
+    <value>Θέμα</value>
+  </data>
+  <data name="theme.light" xml:space="preserve">
+    <value>Φωτεινό</value>
+  </data>
+  <data name="theme.dark" xml:space="preserve">
+    <value>Σκοτεινό</value>
+  </data>
+  <data name="theme.system" xml:space="preserve">
+    <value>Συστήματος</value>
+  </data>
+  <data name="home.signingIn" xml:space="preserve">
+    <value>Γίνεται σύνδεση…</value>
+  </data>
+  <data name="home.signingOut" xml:space="preserve">
+    <value>Γίνεται αποσύνδεση…</value>
+  </data>
+  <data name="status.backToDashboard" xml:space="preserve">
+    <value>Μετάβαση στον πίνακα ελέγχου</value>
+  </data>
+  <data name="status.notFound.title" xml:space="preserve">
+    <value>Η σελίδα δεν βρέθηκε</value>
+  </data>
+  <data name="status.notFound.message" xml:space="preserve">
+    <value>Η διεύθυνση μπορεί να είναι λάθος ή η σελίδα έχει μετακινηθεί.</value>
+  </data>
+  <data name="status.forbidden.title" xml:space="preserve">
+    <value>Δεν έχετε πρόσβαση σε αυτή τη σελίδα</value>
+  </data>
+  <data name="status.forbidden.message" xml:space="preserve">
+    <value>Ζητήστε από έναν διαχειριστή τον ρόλο που χρειάζεστε.</value>
+  </data>
+  <data name="jsonforms.createCase" xml:space="preserve">
+    <value>Δημιουργία νέας υπόθεσης</value>
+  </data>
+  <data name="jsonforms.addItem" xml:space="preserve">
+    <value>Προσθήκη</value>
+  </data>
+  <data name="jsonforms.addNamedItem" xml:space="preserve">
+    <value>Προσθήκη: {{title}}</value>
+  </data>
+  <data name="jsonforms.removeItem" xml:space="preserve">
+    <value>Αφαίρεση</value>
+  </data>
+  <data name="jsonforms.attachedFile" xml:space="preserve">
+    <value>Συνημμένο αρχείο</value>
+  </data>
+  <data name="jsonforms.unsupportedField" xml:space="preserve">
+    <value>Αυτό το πεδίο δεν επεξεργάζεται εδώ· η τιμή του διατηρείται ως έχει.</value>
+  </data>
+  <data name="jsonforms.alternative" xml:space="preserve">
+    <value>Επιλογή {{number}}</value>
+  </data>
+  <data name="jsonforms.switchAlternative.message" xml:space="preserve">
+    <value>Η αλλαγή επιλογής διαγράφει ό,τι έχει συμπληρωθεί για την τρέχουσα.</value>
+  </data>
+  <data name="jsonforms.switchAlternative.confirm" xml:space="preserve">
+    <value>Αλλαγή</value>
+  </data>
+  <data name="jsonforms.noItems" xml:space="preserve">
+    <value>Δεν υπάρχουν εγγραφές ακόμη.</value>
+  </data>
+  <data name="jsonforms.selectItem" xml:space="preserve">
+    <value>Επιλέξτε μια εγγραφή για να δείτε τα στοιχεία της.</value>
+  </data>
+  <data name="cases.cannotCreate.title" xml:space="preserve">
+    <value>Δεν μπορείτε να ανοίξετε υποθέσεις εδώ</value>
+  </data>
+  <data name="cases.cannotCreate.message" xml:space="preserve">
+    <value>Νέες υποθέσεις ανοίγουν μόνο σε τύπους υποθέσεων που το επιτρέπουν σε κάποιον από τους ρόλους σας, και κανένας δεν το επιτρέπει. Αν χρειάζεται να ανοίγετε υποθέσεις, απευθυνθείτε σε έναν διαχειριστή.</value>
+  </data>
+  <data name="cases.cannotCreate.caseTypeMessage" xml:space="preserve">
+    <value>Νέες υποθέσεις «{{caseType}}» ανοίγουν μόνο από τους ρόλους που επιτρέπει αυτός ο τύπος, και ο δικός σας δεν είναι ανάμεσά τους. Αν χρειάζεται να ανοίγετε τέτοιες υποθέσεις, απευθυνθείτε σε έναν διαχειριστή.</value>
+  </data>
+  <data name="dashboard.attention.title" xml:space="preserve">
+    <value>Χρειάζονται προσοχή</value>
+  </data>
+  <data name="dashboard.attention.unassigned" xml:space="preserve">
+    <value>ανοιχτές, χωρίς ανάθεση</value>
+  </data>
+  <data name="dashboard.attention.stale" xml:space="preserve">
+    <value>ανοιχτές για περισσότερες από {{days}} ημέρες</value>
+  </data>
+  <data name="toasts.error.body" xml:space="preserve">
+    <value>Ο διακομιστής δεν μπόρεσε να ολοκληρώσει το αίτημα. Δοκιμάστε ξανά και επικοινωνήστε με την υποστήριξη αν συνεχιστεί.</value>
+  </data>
+  <data name="toasts.forbidden.body" xml:space="preserve">
+    <value>Δεν έχετε δικαίωμα για αυτή την ενέργεια.</value>
+  </data>
+  <data name="toasts.offline.body" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η σύνδεση με τον διακομιστή. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</value>
   </data>
 </root>

@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
-import { FilterClause } from '@indice/ng-components';
+import { FilterClause } from 'src/app/ui/list/filter-clause';
 import { cloneDeep } from 'lodash';
 import { take } from 'rxjs/operators';
 import { Case, CasesApiService, LookupItemResultSet } from 'src/app/core/services/cases-api.service';
 import { LookupsService } from 'src/app/core/services/lookups.service';
 import { isShownForChannel } from '../jsonforms-utilities';
+import { FieldWrapperComponent } from './field-wrapper.component';
+import { textOf } from './select.control';
 import { TailwindControl } from './tailwind-control';
 
 /**
@@ -13,14 +15,13 @@ import { TailwindControl } from './tailwind-control';
  */
 @Component({
     selector: 'app-jf-lookup-selector',
+    imports: [FieldWrapperComponent],
     template: `
     @if (shown) {
       <app-jf-field [control]="this">
-        @if (selectList.length > 0) {
+        @if (showEditor && selectList.length > 0) {
           <select
             [class]="fieldClass"
-            [attr.readonly]="readonly ? 'readonly' : null"
-            [disabled]="readonly"
             [attr.required]="options.required"
             [id]="id"
             (change)="onSelect($event)">
@@ -34,8 +35,7 @@ import { TailwindControl } from './tailwind-control';
         }
       </app-jf-field>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
 export class LookupSelectorControlComponent extends TailwindControl {
     protected widget = 'lookup-selector';
@@ -49,6 +49,11 @@ export class LookupSelectorControlComponent extends TailwindControl {
     /** The "constant" part of the filter terms. */
     private lookupFilterTerms: FilterClause[] = [];
     selectList: { name: string, value: any }[] = [];
+    protected override fieldBase = 'select';
+
+    override get readonlyText(): string {
+        return textOf(this.selectList.find(item => item.value === this.data)?.name ?? super.readonlyText);
+    }
 
     protected override onStateChange(): void {
         if (!this.initialized) {

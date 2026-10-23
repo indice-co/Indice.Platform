@@ -53,7 +53,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             groupId,
             customer,
             metadata,
-            string.IsNullOrEmpty(channel) ? CasesCoreConstants.Channels.Customer : channel,
+            string.IsNullOrEmpty(channel) ? CasesCoreConstants.Channels.External : channel,
             referenceNumber: referenceNumber);
 
         return new CreateCaseResponse {
@@ -110,7 +110,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // the customer should be able to see only cases that have been created from him/herself!
-        if (@case.Channel == CasesCoreConstants.Channels.Agent) {
+        if (CasesCoreConstants.Channels.Normalize(@case.Channel) == CasesCoreConstants.Channels.Managed) {
             throw new BusinessException("Case not found.");
         }
 

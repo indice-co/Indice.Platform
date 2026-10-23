@@ -111,6 +111,7 @@ public static class CaseServerFeatureExtensions
         routes.MapAdminNotifications();
         routes.MapAdminQueries();
         routes.MapAdminReports();
+        routes.MapAdminDashboard();
         routes.MapAdminWorkflowInvoker();
         routes.MapLookup();
         routes.MapAdminAccessRules();

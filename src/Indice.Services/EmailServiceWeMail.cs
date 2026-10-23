@@ -57,7 +57,7 @@ public sealed class EmailServiceWeMail : IEmailService
         var messageId = Guid.NewGuid().ToString();
         var bccRecipients = (_settings.BccRecipients ?? string.Empty)
             .Split([';', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
+        ArgumentNullException.ThrowIfNull(body);
         using var request = new HttpRequestMessage(HttpMethod.Post, MessagesEndpoint) {
             Content = JsonContent.Create(
                  new WeMailMessageRequest {

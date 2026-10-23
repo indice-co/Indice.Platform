@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '', apiUrl = '', i18nAssets = '', dashboardTags = '', caseListColumns = '', caseListFilters = '';
+    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '', apiUrl = '', i18nAssets = '', dashboardTags = '', dashboardChannels = '', caseListColumns = '', caseListFilters = '';
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -16,6 +16,7 @@ function createAppSettings(): IAppSettings {
         apiUrl = appRoot.getAttribute('apiUrl') || '';
         i18nAssets = appRoot.getAttribute('i18nAssets') || baseHref + '/assets/i18n/';
         dashboardTags = appRoot.getAttribute('dashboardTags') || '';
+        dashboardChannels = appRoot.getAttribute('dashboardChannels') || '';
         caseListColumns =  appRoot.getAttribute('caseListColumns') || '';
         caseListFilters =  appRoot.getAttribute('caseListFilters') || '';
         if (!authority || !clientId || !host) {
@@ -31,6 +32,7 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('apiUrl');
         appRoot.attributes.removeNamedItem('i18nAssets');
         appRoot.attributes.removeNamedItem('dashboardTags');
+        appRoot.attributes.removeNamedItem('dashboardChannels');
         appRoot.attributes.removeNamedItem('caseListColumns');
         appRoot.attributes.removeNamedItem('caseListFilters');
     }
@@ -61,6 +63,7 @@ function createAppSettings(): IAppSettings {
         production: environment.production,
         version: version || '1.0.0',
         dashboardTags: !isTemplate ? environment.dashboardTags : dashboardTags,
+        dashboardChannels: !isTemplate ? environment.dashboardChannels : dashboardChannels,
         caseListColumns: !isTemplate ? environment.caseListColumns : caseListColumns,
         caseListFilters: !isTemplate ? environment.caseListFilters : caseListFilters
     };

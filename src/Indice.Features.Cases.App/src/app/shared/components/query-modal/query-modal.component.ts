@@ -1,40 +1,52 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Modal } from '@indice/ng-components';
+import { Component, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CasesApiService, SaveQueryRequest } from 'src/app/core/services/cases-api.service';
+import { DIALOG_DATA, DialogRef } from 'src/app/ui/dialog/dialog-ref';
 
+export interface QueryModalData {
+  /** Query string (starting with `?`) of the cases list search to save. */
+  parameters: string;
+}
+
+/** Names and saves the current cases search. Closes with `true` once saved. */
 @Component({
-    selector: 'app-query-modal',
-    templateUrl: './query-modal.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-query-modal',
+  imports: [TranslatePipe],
+  template: `
+    <form (submit)="$event.preventDefault(); save()">
+      <h3 class="text-lg font-semibold">{{ 'cases.saveSearch' | translate }}</h3>
+      <p class="mt-1 text-sm text-base-content/70">{{ 'modals.query.description' | translate }}</p>
+      <label class="mt-4 block">
+        <span class="mb-1 block text-sm font-medium">{{ 'modals.query.nameLabel' | translate }}</span>
+        <input type="text" class="input w-full" name="friendlyName" maxlength="200" autofocus
+          [placeholder]="'modals.query.namePlaceholder' | translate" [value]="name()" (input)="name.set($any($event.target).value)" />
+      </label>
+      <div class="modal-action">
+        <button type="button" class="btn btn-ghost" (click)="ref.close(false)">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="!name().trim() || saving()">
+          @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
+          {{ 'common.save' | translate }}
+        </button>
+      </div>
+    </form>
+  `
 })
-export class QueriesModalComponent implements OnInit {
-  public friendlyName: string | undefined;
-  public queryParameters: string | undefined;
+export class QueriesModalComponent {
+  private readonly _api = inject(CasesApiService);
+  private readonly _data = inject<QueryModalData>(DIALOG_DATA);
+  protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
+  protected readonly name = signal('');
+  protected readonly saving = signal(false);
 
-  constructor(
-    private _route: ActivatedRoute,
-    private _api: CasesApiService,
-    private modal: Modal
-  ) { }
-
-  ngOnInit(): void {
-    // get a snapshot of queryParam
-    let paramMap = this._route.snapshot.queryParamMap;
-    // re-construct queryParameters to ensure that no user-added params are send to server & page will always be 1!
-    this.queryParameters = `?view=${paramMap.get('view')}&page=1&pagesize=${paramMap.get('pagesize')}&search=${paramMap.get('search')}&sort=${paramMap.get('sort')}&dir=${paramMap.get('dir')}&filter=${paramMap.get('filter')}`
+  protected save(): void {
+    if (!this.name().trim()) {
+      return;
+    }
+    this.saving.set(true);
+    this._api.saveQuery(new SaveQueryRequest({ friendlyName: this.name().trim(), parameters: this._data.parameters }))
+      .subscribe({
+        next: () => this.ref.close(true),
+        error: () => this.saving.set(false)
+      });
   }
-
-  public closeModal() {
-    this.modal.hide();
-  }
-
-  public saveQuery() {
-    this._api.saveQuery(new SaveQueryRequest({ friendlyName: this.friendlyName, parameters: this.queryParameters }))
-      .subscribe(
-        (_ => this.modal.hide())
-      )
-  }
-
 }
