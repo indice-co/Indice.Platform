@@ -3,6 +3,9 @@
 /// <summary>Constants used in the Agents feature.</summary>
 public static class AgentsConstants
 {
+    /// <summary>The default tenant ID used in the Dex template.</summary>
+    public const string DefaultTenantId = "indice";
+
     /// <summary>
     /// The name of the default agent used in the Dex template. This agent is responsible for handling user queries and providing answers based on the context of the conversation.
     /// </summary>
@@ -63,6 +66,13 @@ public static class AgentsConstants
             public const string Request = "application/vnd.indice.function-call.request+json";
             /// <summary>The media type for a function call response sent from the dex surface. The payload is a generic json object.</summary>
             public const string Response = "application/vnd.indice.function-call.response+json";
+        }
+
+        /// <summary>Payment provider widgets rendered inline in the chat.</summary>
+        public static class Payment
+        {
+            /// <summary>Renders the Stripe card payment form inline and locks the chat until the payment is authorized. Payload: <c>{ "method": string }</c>.</summary>
+            public const string Stripe = "application/vnd.indice.payment.stripe+json";
         }
 
         /// <summary>A custom type to send a request for confirmation to the dex surface.</summary>

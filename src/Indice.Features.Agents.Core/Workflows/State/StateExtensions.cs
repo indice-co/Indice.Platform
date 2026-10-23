@@ -30,13 +30,13 @@ public static class IWorkflowContextStateExtensions
         await context.QueueStateUpdateAsync(nameof(IntentState), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
     }
 
-    /// <summary>Reads the <see cref="CustomerState"/> from the workflow context.</summary>
+    /// <summary>Reads the <see cref="CustomerData"/> from the workflow context.</summary>
     public static async Task<CustomerData> GetOperatorStateAsync(this IWorkflowContext context, CancellationToken cancellationToken = default) {
         return await context.ReadStateAsync<CustomerData>(nameof(CustomerData), scopeName: ConversationScope, cancellationToken: cancellationToken) ??
                throw new InvalidOperationException("CustomerData not found in workflow context.");
     }
 
-    /// <summary>Writes the <see cref="CustomerState"/> to the workflow context.</summary>
+    /// <summary>Writes the <see cref="CustomerData"/> to the workflow context.</summary>
     public static async Task SetOperatorStateAsync(this IWorkflowContext context, CustomerData state, CancellationToken cancellationToken = default) {
         await context.QueueStateUpdateAsync(nameof(CustomerData), state, scopeName: ConversationScope, cancellationToken: cancellationToken);
     }

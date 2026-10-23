@@ -229,7 +229,7 @@ public class CustomerWorkflowOptions
     public int MaxOtpValidationAttempts { get; set; } = 3;
 
     /// <summary>The payment methods offered to the user once the case data has been presented.</summary>
-    public List<string> PaymentMethods { get; set; } = ["Apple Pay", "Google Pay", "Πιστωτική ή χρεωστική κάρτα"];
+    public List<string> PaymentMethods { get; set; } = ["Apple Pay", "Google Pay", "Πιστωτική ή χρεωστική κάρτα", "Stripe"];
 }
 
 /// <summary>

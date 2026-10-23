@@ -33,6 +33,8 @@ public class AgentsServerOptions
     public bool AllowAnonymousChatCreation { get; set; }
     /// <summary>Backchannel token client settings used to mint guest access tokens when <see cref="AllowAnonymousChatCreation"/> is enabled.</summary>
     public GuestTokenOptions GuestToken { get; set; } = new();
+    /// <summary>Enables the chat payment endpoints (Stripe one-step payment).</summary>
+    public bool EnablePayments { get; set; }
 }
 
 /// <summary>Backchannel token client settings for acquiring ephemeral guest access tokens from the identity provider.</summary>

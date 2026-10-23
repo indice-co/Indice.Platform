@@ -23,7 +23,7 @@ public interface IDexChatClient : IChatClient
 /// Creates a new <see cref="AgentsChatClient"/> instance.
 /// </summary>
 /// <param name="serviceProvider">The service provider for resolving dependencies.</param>
-public class AgentsChatClient(IServiceProvider serviceProvider, ILogger<AgentsChatClient> logger) : IDexChatClient
+public class AgentsChatClient(IServiceProvider serviceProvider) : IDexChatClient
 {
     private static IReadOnlyDictionary<string, string> CreateStepLabels(AgentMessageLocalizer localizer) => new Dictionary<string, string>(StringComparer.Ordinal) {
         [nameof(IntentClassifier)] = localizer.StepIntentClassifier,
@@ -121,6 +121,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider, ILogger<AgentsCh
                 // A throwing step halts the run; keep the first (richer) message. The runtime wraps executor
                 // exceptions ("Error invoking handler for ..."), so walk to the innermost exception for the real cause.
                 case WorkflowErrorEvent error:
+                    var logger = serviceProvider.GetRequiredService<ILogger<AgentsChatClient>>();
                     var exception = error.Data as Exception;
                     logger.LogError(exception, "Workflow error occurred");
                     while (exception?.InnerException is not null) {
