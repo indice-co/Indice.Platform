@@ -595,6 +595,9 @@ public static class IndiceServicesServiceCollectionExtensions
             case EmailServiceSparkPost.ServiceName:
                 services.AddWebhookServices<THandler, SparkPostWebhookHttpHandler>(configuration, provider);
                 break;
+            case EmailServiceBrevo.ServiceName:
+                services.AddWebhookServices<THandler, BrevoWebhookHttpHandler>(configuration, provider);
+                break;
         }
         return services;
     }
