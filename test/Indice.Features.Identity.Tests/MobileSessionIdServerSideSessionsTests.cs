@@ -30,7 +30,7 @@ namespace Indice.Features.Identity.Tests;
 public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
 {
     private readonly HttpClient _httpClient;
-    private readonly TestServer _server;
+    private readonly IHost _host;
     private readonly ITestOutputHelper _output;
     private IServiceProvider _serviceProvider;
     private string _identityDatabaseName = $"IdentityDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
@@ -45,15 +45,18 @@ public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
         TestUser = await InitTestUserAsync();
     }
 
-    public ValueTask DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         _httpClient.Dispose();
-        _server.Dispose();
-        return ValueTask.CompletedTask;
+        try {
+            await _host.StopAsync();
+        } finally {
+            _host.Dispose();
+        }
     }
     
     public MobileSessionIdServerSideSessionsTests(ITestOutputHelper output) {
         _output = output;
-        var host = new HostBuilder().ConfigureWebHost(builder => {
+        _host = new HostBuilder().ConfigureWebHost(builder => {
         builder.UseTestServer();
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string?> {
@@ -113,8 +116,7 @@ public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
             app.IdentityStoreSetup();
         });
         }).Start();
-        var server = host.GetTestServer();
-        _server = server;
+        var server = _host.GetTestServer();
         var handler = server.CreateHandler();
         _serviceProvider = server.Services;
         _httpClient = new HttpClient(handler) {

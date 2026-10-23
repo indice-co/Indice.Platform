@@ -19,10 +19,12 @@ using Xunit;
 
 namespace Indice.Features.Identity.Tests;
 
-public class TotpServiceTests
+public class TotpServiceTests : IAsyncLifetime
 {
+    private readonly IHost _host;
+
     public TotpServiceTests() {
-        var host = new HostBuilder().ConfigureWebHost(builder => {
+        _host = new HostBuilder().ConfigureWebHost(builder => {
         builder.UseTestServer();
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string?> {
@@ -51,10 +53,20 @@ public class TotpServiceTests
         });
         builder.Configure(app => { });
         }).Start();
-        TestServer = host.GetTestServer();
+        TestServer = _host.GetTestServer();
     }
 
     public TestServer TestServer { get; }
+
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
+
+    public async ValueTask DisposeAsync() {
+        try {
+            await _host.StopAsync();
+        } finally {
+            _host.Dispose();
+        }
+    }
 
     [Fact]
     public async Task Can_Generate_And_Verify_Code_Using_DeveloperTotpService() {
